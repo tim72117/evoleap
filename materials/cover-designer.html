@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>課程封面</title>
+<style>
+  :root {
+    --panel-bg: #1c1915;
+    --panel-ink: #efe9dd;
+    --panel-ink-soft: #a89c87;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --sans: "Inter", -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
+    --cv-accent: #e8a200;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--panel-bg);
+    color: var(--panel-ink);
+    font-family: var(--sans);
+    padding: 20px 16px 32px;
+    line-height: 1.5;
+  }
+
+  .wrap { max-width: 620px; margin: 0 auto; }
+
+  header { margin-bottom: 20px; }
+  .eyebrow-lbl {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--cv-accent); display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  .eyebrow-lbl::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cv-accent); }
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+  .sub { color: var(--panel-ink-soft); font-size: 13.5px; margin: 0; }
+
+  /* The canvas IS the preview — there is no second HTML/CSS reconstruction
+     of this image to keep in sync. It's drawn at its native 1000×620 and
+     displayed at container width via plain CSS scaling (width:100%,
+     height:auto), so what you see here and what "匯出圖片" downloads are
+     pixel-identical, always, by construction. */
+  #coverCanvas, #coverSquare {
+    display: block; width: 100%; height: auto;
+    border-radius: 14px; margin: 20px 0;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.4);
+  }
+
+  .export-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  button.primary {
+    font-family: var(--mono); font-size: 13.5px; padding: 11px 22px;
+    border-radius: 10px; border: none; background: var(--cv-accent); color: #1c1a10; font-weight: 700; cursor: pointer;
+  }
+  button.primary:hover { opacity: 0.88; }
+  .result-meta { font-family: var(--mono); font-size: 12px; color: var(--panel-ink-soft); }
+
+  footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid #332e2a; font-family: var(--mono); font-size: 11px; color: var(--panel-ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <a href="../proposal/index.html" target="_top" style="color:var(--cv-accent);font-size:13px;text-decoration:none;display:inline-block;margin-bottom:10px">← 回總覽</a>
+    <div class="eyebrow-lbl">Hahow 課程封面</div>
+    <h1>從零到上線：打造你的第一個 AI Agent 整合應用</h1>
+    <p class="sub">下方兩張即為實際輸出內容（長形 1000×620、方形 800×800）。</p>
+  </header>
+
+  <canvas id="coverCanvas" width="1000" height="620"></canvas>
+  <div class="export-row">
+    <button class="primary" id="exportBtn">長形封面 1000×620（另開分頁可另存）</button>
+    <span class="result-meta" id="exportMeta"></span>
+  </div>
+
+  <canvas id="coverSquare" width="800" height="800" style="margin-top:28px"></canvas>
+  <div class="export-row">
+    <button class="primary" id="exportSqBtn">方形封面 800×800（另開分頁可另存）</button>
+    <span class="result-meta" id="exportSqMeta"></span>
+  </div>
+
+  <footer>course/materials/cover-designer.html · 所有處理都在瀏覽器本機完成</footer>
+</div>
+
+<script>
+(() => {
+  const W = 1000, H = 620;
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function drawAnalyticsCard(ctx, x, y, w, h) {
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = w * 0.06; ctx.shadowOffsetY = w * 0.03;
+    ctx.fillStyle = "#fbfaf2";
+    roundRect(ctx, x, y, w, h, w * 0.045);
+    ctx.fill();
+    ctx.restore();
+
+    const barH = h * 0.14;
+    ctx.strokeStyle = "#eee"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, y + barH); ctx.lineTo(x + w, y + barH); ctx.stroke();
+    for (let i = 0; i < 3; i++) {
+      ctx.fillStyle = "#e2e2e2";
+      ctx.beginPath(); ctx.arc(x + w * 0.05 + i * w * 0.035, y + barH / 2, w * 0.009, 0, Math.PI * 2); ctx.fill();
+    }
+
+    const sideW = w * 0.13;
+    ctx.strokeStyle = "#f1f1f1";
+    ctx.beginPath(); ctx.moveTo(x + sideW, y + barH); ctx.lineTo(x + sideW, y + h); ctx.stroke();
+    for (let i = 0; i < 4; i++) {
+      ctx.fillStyle = i === 0 ? "#e8a200" : "#e4e4e4";
+      roundRect(ctx, x + w * 0.035, y + barH + h * 0.1 + i * h * 0.1, sideW - w * 0.07, h * 0.03, h * 0.015);
+      ctx.fill();
+    }
+
+    const mainX = x + sideW + w * 0.05;
+    ctx.fillStyle = "#26263a";
+    ctx.font = `700 ${Math.round(w * 0.075)}px "JetBrains Mono", monospace`;
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("$18.2k", mainX, y + barH + h * 0.18);
+    ctx.fillText("2.4×", mainX + w * 0.32, y + barH + h * 0.18);
+
+    const chartX = mainX, chartY = y + barH + h * 0.24, chartW = w - sideW - w * 0.1, chartH = h * 0.4;
+    ctx.fillStyle = "#f7f7fb";
+    roundRect(ctx, chartX, chartY, chartW, chartH, h * 0.02);
+    ctx.fill();
+    const pts = [[0,0.87],[0.125,0.65],[0.25,0.74],[0.375,0.39],[0.5,0.52],[0.625,0.22],[0.75,0.35],[0.875,0.13],[1,0.26]];
+    ctx.beginPath();
+    pts.forEach(([px, py], i) => { const cx = chartX + px * chartW, cy = chartY + py * chartH; if (i === 0) ctx.moveTo(cx, cy); else ctx.lineTo(cx, cy); });
+    ctx.lineTo(chartX + chartW, chartY + chartH); ctx.lineTo(chartX, chartY + chartH); ctx.closePath();
+    ctx.fillStyle = "#e8e4f5"; ctx.fill();
+    ctx.beginPath();
+    pts.forEach(([px, py], i) => { const cx = chartX + px * chartW, cy = chartY + py * chartH; if (i === 0) ctx.moveTo(cx, cy); else ctx.lineTo(cx, cy); });
+    ctx.strokeStyle = "#e8a200"; ctx.lineWidth = Math.max(1.5, w * 0.006); ctx.stroke();
+
+    const fw = w * 0.44, fh = w * 0.26;
+    const fx = x + w - fw * 1.15, fy = y + h - fh * 0.9;
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.45)"; ctx.shadowBlur = fw * 0.08; ctx.shadowOffsetY = fw * 0.04;
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, fx, fy, fw, fh, fw * 0.06);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = "#26263a";
+    ctx.font = `700 ${Math.round(fw * 0.11)}px Inter, sans-serif`;
+    ctx.fillText("各通路營收", fx + fw * 0.1, fy + fh * 0.2);
+
+    const bars = [0.6, 0.4, 0.85, 0.3];
+    const barColors = ["#e8a200", "#e8e4f5", "#e8a200", "#e8e4f5"];
+    const bw = fw * 0.14, bGap = fw * 0.05;
+    const barsBaseY = fy + fh * 0.78, barsMaxH = fh * 0.42;
+    bars.forEach((v, i) => {
+      const bh = barsMaxH * v;
+      ctx.fillStyle = barColors[i];
+      roundRect(ctx, fx + fw * 0.1 + i * (bw + bGap), barsBaseY - bh, bw, bh, bw * 0.08);
+      ctx.fill();
+    });
+    ctx.fillStyle = "#8d87a8";
+    ctx.font = `500 ${Math.round(fw * 0.075)}px Inter, sans-serif`;
+    ctx.textAlign = "center";
+    ["FB", "IG", "Google", "Email"].forEach((lbl, i) => ctx.fillText(lbl, fx + fw * 0.1 + i * (bw + bGap) + bw / 2, fy + fh * 0.94));
+    ctx.textAlign = "left";
+  }
+
+  function wrapCanvasText(ctx, text, maxWidth) {
+    // CJK text has no spaces to break on — wrap character by character;
+    // English/space-separated text wraps word by word as before.
+    const hasSpace = /\s/.test(text);
+    const units = hasSpace ? text.split(" ") : text.split("");
+    const sep = hasSpace ? " " : "";
+    const lines = []; let line = "";
+    for (const u of units) {
+      const test = line ? line + sep + u : u;
+      if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = u; } else { line = test; }
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  function drawScheduleCard(ctx, x, y, w, h) {
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.4)"; ctx.shadowBlur = w * 0.06; ctx.shadowOffsetY = w * 0.03;
+    ctx.fillStyle = "#fbfaf2";
+    roundRect(ctx, x, y, w, h, w * 0.045);
+    ctx.fill();
+    ctx.restore();
+
+    const pad = w * 0.06;
+    const font = (wt, sz) => `${wt} ${Math.round(sz)}px Inter, "PingFang TC", "Noto Sans TC", sans-serif`;
+
+    // header: title + stylist legend (same three people as the showcase calendar)
+    ctx.fillStyle = "#26263a";
+    ctx.font = font(700, w * 0.065);
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("本週班表", x + pad, y + h * 0.13);
+
+    const stylists = [
+      { name: "Amy", color: "#2f9e5b" },
+      { name: "Jordan", color: "#3b7dd8" },
+      { name: "Priya", color: "#c9508a" },
+    ];
+    ctx.font = font(600, w * 0.04);
+    let lx = x + w - pad;
+    for (let i = stylists.length - 1; i >= 0; i--) {
+      const st = stylists[i];
+      const tw = ctx.measureText(st.name).width;
+      lx -= tw;
+      ctx.fillStyle = "#5a5340";
+      ctx.fillText(st.name, lx, y + h * 0.125);
+      lx -= w * 0.025;
+      ctx.fillStyle = st.color;
+      ctx.beginPath(); ctx.arc(lx, y + h * 0.108, w * 0.014, 0, Math.PI * 2); ctx.fill();
+      lx -= w * 0.035;
+    }
+
+    // grid geometry
+    const days = ["一", "二", "三", "四", "五"];
+    const times = ["10:00", "11:00", "14:00", "15:00", "16:00"];
+    const labelW = w * 0.15;
+    const gridX = x + pad;
+    const colW = (w - pad * 2 - labelW) / days.length;
+    const headY = y + h * 0.27;
+    const gridTop = headY + h * 0.05;
+    const rowH = (h - (gridTop - y) - h * 0.06) / times.length;
+
+    ctx.font = font(600, w * 0.042);
+    ctx.fillStyle = "#8d87a8";
+    ctx.textAlign = "center";
+    days.forEach((d, i) => ctx.fillText(d, gridX + colW * i + colW / 2, headY));
+
+    // light column/row guides
+    ctx.strokeStyle = "#efeadc"; ctx.lineWidth = 1;
+    for (let r = 0; r <= times.length; r++) {
+      const ly = gridTop + r * rowH;
+      ctx.beginPath(); ctx.moveTo(x + pad * 0.7, ly); ctx.lineTo(x + w - pad * 0.7, ly); ctx.stroke();
+    }
+
+    ctx.textAlign = "right";
+    ctx.font = font(500, w * 0.036);
+    ctx.fillStyle = "#a89c87";
+    times.forEach((t, r) => ctx.fillText(t, x + w - pad, gridTop + r * rowH + rowH * 0.58));
+
+    // booked slots: [row, col, stylist index]; fixed so every export matches
+    const booked = [
+      [0, 1, 0], [0, 3, 1],
+      [1, 2, 0], [1, 4, 1],
+      [2, 3, 2],
+      [3, 1, 1], [3, 4, 0],
+      [4, 0, 0], [4, 2, 2], [4, 3, 1],
+    ];
+    const dotR = Math.min(colW, rowH) * 0.26;
+    booked.forEach(([r, c, si]) => {
+      const cx = gridX + colW * c + colW / 2;
+      const cy = gridTop + r * rowH + rowH / 2;
+      ctx.fillStyle = stylists[si].color;
+      ctx.beginPath(); ctx.arc(cx, cy, dotR, 0, Math.PI * 2); ctx.fill();
+    });
+
+    // the slot the phone chat is asking about: Tue 14:00 with Amy, ringed
+    const hr = 2, hc = 1;
+    const hx = gridX + colW * hc + colW / 2, hy = gridTop + hr * rowH + rowH / 2;
+    ctx.strokeStyle = "#e8a200"; ctx.lineWidth = Math.max(2, w * 0.011);
+    ctx.setLineDash([w * 0.02, w * 0.014]);
+    ctx.beginPath(); ctx.arc(hx, hy, dotR * 1.55, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = stylists[0].color;
+    ctx.beginPath(); ctx.arc(hx, hy, dotR * 0.8, 0, Math.PI * 2); ctx.fill();
+    ctx.textAlign = "left";
+  }
+
+  function drawPhoneCard(ctx, x, y, w, h) {
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = w * 0.1; ctx.shadowOffsetY = w * 0.06;
+    ctx.fillStyle = "#0c0a2e";
+    roundRect(ctx, x, y, w, h, w * 0.12);
+    ctx.fill();
+    ctx.restore();
+
+    const pad = w * 0.045;
+    const screenX = x + pad, screenY = y + pad, screenW = w - pad * 2, screenH = h - pad * 2;
+    ctx.fillStyle = "#fbfaf7";
+    roundRect(ctx, screenX, screenY, screenW, screenH, w * 0.09);
+    ctx.fill();
+
+    const headH = screenH * 0.13;
+    ctx.save();
+    ctx.beginPath(); roundRect(ctx, screenX, screenY, screenW, headH, w * 0.09); ctx.clip();
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(screenX, screenY, screenW, headH);
+    ctx.restore();
+    ctx.strokeStyle = "#eee";
+    ctx.beginPath(); ctx.moveTo(screenX, screenY + headH); ctx.lineTo(screenX + screenW, screenY + headH); ctx.stroke();
+
+    const avR = screenW * 0.07, avCx = screenX + screenW * 0.14, avCy = screenY + headH * 0.5;
+    const avGrad = ctx.createLinearGradient(avCx - avR, avCy - avR, avCx + avR, avCy + avR);
+    avGrad.addColorStop(0, "#e8a200"); avGrad.addColorStop(1, "#ff8a3d");
+    ctx.fillStyle = avGrad;
+    ctx.beginPath(); ctx.arc(avCx, avCy, avR, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = "#26263a";
+    ctx.font = `700 ${Math.round(screenW * 0.065)}px Inter, sans-serif`;
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("線上預約", screenX + screenW * 0.24, avCy - screenW * 0.005);
+    ctx.fillStyle = "#3fa86a";
+    ctx.beginPath(); ctx.arc(screenX + screenW * 0.245, avCy + screenW * 0.065, screenW * 0.012, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#6e67a8";
+    ctx.font = `400 ${Math.round(screenW * 0.05)}px Inter, sans-serif`;
+    ctx.fillText("線上", screenX + screenW * 0.28, avCy + screenW * 0.08);
+
+    // chat body is shapes only — the actual sentences are big sticker tags
+    // stacked over the phone in drawCover(), readable at thumbnail size
+    let ty = screenY + headH + screenH * 0.08;
+    const tp = screenW * 0.08;
+    const bubble = (bw, bh, right, fill, stroke) => {
+      const bx = right ? screenX + screenW - tp - bw : screenX + tp;
+      ctx.fillStyle = fill;
+      roundRect(ctx, bx, ty, bw, bh, bh * 0.4);
+      ctx.fill();
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+      ty += bh + screenH * 0.05;
+    };
+    const g = ctx.createLinearGradient(screenX, 0, screenX + screenW, 0);
+    g.addColorStop(0, "#e8a200"); g.addColorStop(1, "#ff8a3d");
+    bubble(screenW * 0.62, screenH * 0.09, true, g);
+    bubble(screenW * 0.7, screenH * 0.075, false, "#f3f0fb", "rgba(110,103,168,0.45)");
+    bubble(screenW * 0.66, screenH * 0.12, false, "#ffffff", "#eee");
+    bubble(screenW * 0.4, screenH * 0.075, true, g);
+  }
+
+  // A Hahow-style sticker tag: solid fill, bold short label, slight
+  // rotation — the oversized callouts popular course covers use so a
+  // selling point reads at thumbnail size, instead of relying on text
+  // packed inside the small mockup cards.
+  const TAG_SCALE = 1.2;
+  function drawStickerTag(ctx, cx, cy, text, { bg, fg, angle = 0, fontSize, border = null }) {
+    fontSize = Math.round(fontSize * TAG_SCALE);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate((angle * Math.PI) / 180);
+    ctx.font = `800 ${fontSize}px Inter, "PingFang TC", "Noto Sans TC", sans-serif`;
+    const textW = ctx.measureText(text).width;
+    const padX = fontSize * 0.7, padY = fontSize * 0.5;
+    const boxW = textW + padX * 2, boxH = fontSize + padY * 2;
+    ctx.shadowColor = "rgba(0,0,0,0.25)"; ctx.shadowBlur = fontSize * 0.3; ctx.shadowOffsetY = fontSize * 0.12;
+    ctx.fillStyle = bg;
+    roundRect(ctx, -boxW / 2, -boxH / 2, boxW, boxH, boxH * 0.22);
+    ctx.fill();
+    ctx.shadowColor = "transparent";
+    if (border) {
+      ctx.lineWidth = Math.max(2.5, fontSize * 0.11);
+      ctx.strokeStyle = border;
+      ctx.stroke();
+    }
+    ctx.fillStyle = fg;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(text, 0, boxH * 0.04);
+    ctx.restore();
+    ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+  }
+
+  function drawCover(ctx) {
+    const bgGrad = ctx.createRadialGradient(W * 0.15, H * 0.15, 0, W * 0.15, H * 0.15, W * 0.9);
+    bgGrad.addColorStop(0, "#fdf1d8"); bgGrad.addColorStop(1, "#fdfbf3");
+    ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, W, H);
+
+    const glow = ctx.createRadialGradient(W * 0.88, H * 0.08, 0, W * 0.88, H * 0.08, W * 0.5);
+    glow.addColorStop(0, "rgba(232,162,0,0.16)"); glow.addColorStop(1, "rgba(232,162,0,0)");
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+
+    // faint grid texture, dark-on-light to match the bright ground
+    ctx.strokeStyle = "rgba(28,26,16,0.045)"; ctx.lineWidth = 1;
+    const gridStep = W * 0.028;
+    for (let gx = 0; gx <= W; gx += gridStep) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+    for (let gy = 0; gy <= H; gy += gridStep) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+
+    const padX = W * 0.065, padTop = H * 0.07;
+    const accentGrad = ctx.createLinearGradient(0, 0, W * 0.2, 0);
+    accentGrad.addColorStop(0, "#e8a200"); accentGrad.addColorStop(1, "#ff8a3d");
+
+    const eyebrowText = "VIBE CODING 實戰";
+    const eyebrowFs = Math.round(W * 0.025);
+    ctx.font = `700 ${eyebrowFs}px "JetBrains Mono", monospace`;
+    const eyebrowW = ctx.measureText(eyebrowText).width;
+    const chipPadX = W * 0.016, chipH = eyebrowFs * 2.1;
+    let y = padTop + chipH / 2;
+    ctx.fillStyle = accentGrad;
+    roundRect(ctx, padX, y - chipH / 2, eyebrowW + chipPadX * 2, chipH, chipH / 2);
+    ctx.fill();
+    ctx.fillStyle = "#0c0a2e";
+    ctx.textBaseline = "middle";
+    ctx.fillText(eyebrowText, padX + chipPadX, y + eyebrowFs * 0.04);
+
+    y += chipH * 1.3;
+    const titleFs = Math.round(W * 0.082);
+    const titleLines = [
+      { text: "打造你的第一個", accent: false },
+      { text: "AI Agent 整合應用", accent: true },
+    ];
+    const titleLH = titleFs * 1.08;
+    const titleTop = y;
+    // drawn later, after the cards, so the big title can sit on top of them
+    const drawTitle = () => {
+      ctx.save();
+      ctx.font = `800 ${titleFs}px Inter, sans-serif`;
+      ctx.textBaseline = "alphabetic";
+      ctx.lineJoin = "round";
+      titleLines.forEach((ln, i) => {
+        const ly = titleTop + titleFs * 0.8 + i * titleLH;
+        // cream halo keeps the text legible where it crosses a card
+        ctx.lineWidth = titleFs * 0.16;
+        ctx.strokeStyle = "rgba(253,246,228,0.95)";
+        ctx.strokeText(ln.text, padX, ly);
+        if (ln.accent) {
+          const tg = ctx.createLinearGradient(padX, 0, padX + W * 0.7, 0);
+          tg.addColorStop(0, "#e8a200"); tg.addColorStop(1, "#ff8a3d");
+          ctx.fillStyle = tg;
+        } else {
+          ctx.fillStyle = "#1c1a10";
+        }
+        ctx.fillText(ln.text, padX, ly);
+      });
+      ctx.restore();
+    };
+    y = y + titleFs * 0.8 + titleLines.length * titleLH;
+
+    y += H * 0.02;
+    const subFs = Math.round(W * 0.022);
+    const subBottom = y + subFs * 0.8;
+
+    const baseY = H - H * 0.03;
+
+    // Generously sized, deliberately overlapping stack — biggest element
+    // drawn first (bottom of the stack), each later one drawn on top:
+    // analytics card (bottom) -> schedule card (middle) -> phone (top).
+    // No more carving out exact non-overlapping gaps between them; the
+    // layering itself is what reads as depth.
+    const winW = W * 0.43, winH = winW * 0.64;
+    const winX = W * 0.325, winY = baseY - winH;
+
+    const schedW = W * 0.31, schedH = schedW * 0.86;
+    const schedX = W * 0.985 - schedW, schedY = H * 0.085;
+
+    const phoneW = W * 0.222, phoneH = phoneW * 1.62;
+    const phoneX = W - W * 0.065 - phoneW, phoneY = baseY - phoneH;
+
+    drawAnalyticsCard(ctx, winX, winY, winW, winH);
+    drawScheduleCard(ctx, schedX, schedY, schedW, schedH);
+    drawPhoneCard(ctx, phoneX, phoneY, phoneW, phoneH);
+    drawTitle();
+
+    // two oversized selling-point tags, vertically centered in the gap
+    // between the subtitle and the card row — allowed to lightly overlap
+    // the analytics card's top-left corner, sticker-on-photo style
+    drawStickerTag(ctx, padX + 210, subBottom - 57, "打造會呼叫工具的 AI 助理", {
+      bg: "#ffffff", fg: "#1c1a10", border: "#1c1a10", angle: -1.5, fontSize: Math.round(W * 0.03),
+    });
+    drawStickerTag(ctx, padX + W * 0.09, subBottom + 16, "自然語言操作", {
+      bg: "#1c1a10", fg: "#fdf1d8", angle: -4, fontSize: Math.round(W * 0.026),
+    });
+    drawStickerTag(ctx, padX + 59, subBottom + 89, "實戰教學", {
+      bg: "#e8a200", fg: "#1c1a10", angle: 3, fontSize: Math.round(W * 0.026),
+    });
+
+    // the phone's conversation, as stacked stickers overlapping the phone
+    const pcx = phoneX + phoneW * 0.5;
+    drawStickerTag(ctx, pcx + phoneW * 0.08, phoneY + phoneH * 0.34, "Amy 星期二有空嗎？", {
+      bg: "#e8a200", fg: "#1c1a10", angle: 3, fontSize: Math.round(W * 0.02),
+    });
+    drawStickerTag(ctx, pcx - phoneW * 0.02, phoneY + phoneH * 0.54, "週二下午 2 點有空", {
+      bg: "#ffffff", fg: "#1c1a10", angle: -2, fontSize: Math.round(W * 0.02),
+    });
+    drawStickerTag(ctx, pcx - phoneW * 0.06, phoneY + phoneH * 0.74, "要幫你預約嗎？", {
+      bg: "#1c1a10", fg: "#fdf1d8", angle: 2, fontSize: Math.round(W * 0.02),
+    });
+
+    // the natural-language question, as a big sticker tag overlapping the
+    // analytics card's bottom-left corner instead of small text inside it
+    drawStickerTag(ctx, winX + W * 0.07, winY + winH - H * 0.1, "「廣告花費跟營收有關嗎？」", {
+      bg: "#ffffff", fg: "#1c1a10", angle: -2, fontSize: Math.round(W * 0.022),
+    });
+    drawStickerTag(ctx, winX + W * 0.1, winY + winH - H * 0.022, "AI 查看資料，執行分析", {
+      bg: "#1c1a10", fg: "#fdf1d8", angle: 2, fontSize: Math.round(W * 0.021),
+    });
+
+    // sticker over the schedule card; the bolt badge moves to its left end
+    drawStickerTag(ctx, schedX + schedW * 0.46, schedY - H * 0.03, "AI 確認班表，預約時段", {
+      bg: "#e8a200", fg: "#1c1a10", angle: -2, fontSize: Math.round(W * 0.022),
+    });
+
+    const boltR = W * 0.022;
+    const boltCx = schedX - W * 0.02;
+    const boltCy = Math.max(schedY - H * 0.07, boltR + 8);
+    const boltGrad = ctx.createLinearGradient(boltCx - boltR, boltCy - boltR, boltCx + boltR, boltCy + boltR);
+    boltGrad.addColorStop(0, "#e8a200"); boltGrad.addColorStop(1, "#ff8a3d");
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = boltR * 0.6; ctx.shadowOffsetY = boltR * 0.3;
+    ctx.fillStyle = boltGrad;
+    ctx.beginPath(); ctx.arc(boltCx, boltCy, boltR, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "#1c1a10";
+    ctx.font = `700 ${Math.round(boltR * 1.1)}px sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("⚡", boltCx, boltCy + boltR * 0.05);
+    ctx.textAlign = "left";
+  }
+
+  // 800×800 variant for Hahow's square cover: same elements and card
+  // functions as the landscape cover, re-composed vertically (title block on
+  // top, card cluster below) with explicit coordinates.
+  function drawCoverSquare(ctx) {
+    const S = 800;
+    const bgGrad = ctx.createRadialGradient(S * 0.15, S * 0.15, 0, S * 0.15, S * 0.15, S * 0.95);
+    bgGrad.addColorStop(0, "#fdf1d8"); bgGrad.addColorStop(1, "#fdfbf3");
+    ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, S, S);
+    const glow = ctx.createRadialGradient(S * 0.88, S * 0.08, 0, S * 0.88, S * 0.08, S * 0.5);
+    glow.addColorStop(0, "rgba(232,162,0,0.16)"); glow.addColorStop(1, "rgba(232,162,0,0)");
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, S, S);
+    ctx.strokeStyle = "rgba(28,26,16,0.045)"; ctx.lineWidth = 1;
+    const gridStep = S * 0.028;
+    for (let g = 0; g <= S; g += gridStep) {
+      ctx.beginPath(); ctx.moveTo(g, 0); ctx.lineTo(g, S); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, g); ctx.lineTo(S, g); ctx.stroke();
+    }
+
+    const padX = 52;
+
+    // eyebrow chip
+    const eyebrowFs = 20, eyebrowText = "VIBE CODING 實戰";
+    ctx.font = `700 ${eyebrowFs}px "JetBrains Mono", monospace`;
+    const eyebrowW = ctx.measureText(eyebrowText).width;
+    const chipPadX = 14, chipH = eyebrowFs * 2.1, chipY = 52;
+    const accentGrad = ctx.createLinearGradient(0, 0, S * 0.2, 0);
+    accentGrad.addColorStop(0, "#e8a200"); accentGrad.addColorStop(1, "#ff8a3d");
+    ctx.fillStyle = accentGrad;
+    roundRect(ctx, padX, chipY, eyebrowW + chipPadX * 2, chipH, chipH / 2);
+    ctx.fill();
+    ctx.fillStyle = "#0c0a2e";
+    ctx.textBaseline = "middle";
+    ctx.fillText(eyebrowText, padX + chipPadX, chipY + chipH / 2 + 1);
+
+    // title metrics (drawn after the cards so it can sit on top of them)
+    const titleFs = 76, titleLH = titleFs * 1.08, titleTop = chipY + chipH + 26;
+    const subBaseline = titleTop + titleFs * 0.8 + titleLH + 52;
+    const drawTitleSq = () => {
+      ctx.save();
+      ctx.font = `800 ${titleFs}px Inter, sans-serif`;
+      ctx.textBaseline = "alphabetic"; ctx.lineJoin = "round";
+      [["打造你的第一個", false], ["AI Agent 整合應用", true]].forEach(([text, accent], i) => {
+        const ly = titleTop + titleFs * 0.8 + i * titleLH;
+        ctx.lineWidth = titleFs * 0.16; ctx.strokeStyle = "rgba(253,246,228,0.95)";
+        ctx.strokeText(text, padX, ly);
+        if (accent) {
+          const tg = ctx.createLinearGradient(padX, 0, padX + S * 0.8, 0);
+          tg.addColorStop(0, "#e8a200"); tg.addColorStop(1, "#ff8a3d");
+          ctx.fillStyle = tg;
+        } else ctx.fillStyle = "#1c1a10";
+        ctx.fillText(text, padX, ly);
+      });
+      ctx.restore();
+    };
+
+
+    // card cluster
+    const winW = S * 0.5, winH = winW * 0.64;
+    const winX = padX, winY = S - 26 - winH;
+    const schedW = S * 0.45, schedH = schedW * 0.68;
+    const schedX = S - 36 - schedW, schedY = 350;
+    const phoneW = S * 0.23, phoneH = phoneW * 1.62;
+    const phoneX = S - 52 - phoneW, phoneY = S - 28 - phoneH;
+
+    drawAnalyticsCard(ctx, winX, winY, winW, winH);
+    drawScheduleCard(ctx, schedX, schedY, schedW, schedH);
+    drawPhoneCard(ctx, phoneX, phoneY, phoneW, phoneH);
+    drawTitleSq();
+
+    const tagFs = Math.round(S * 0.026);
+    drawStickerTag(ctx, padX + 176, subBaseline + 6, "打造會呼叫工具的 AI 助理", { bg: "#ffffff", fg: "#1c1a10", border: "#1c1a10", angle: -1.5, fontSize: Math.round(S * 0.03) });
+    drawStickerTag(ctx, padX + 92, subBaseline + 76, "自然語言操作", { bg: "#1c1a10", fg: "#fdf1d8", angle: -4, fontSize: tagFs });
+    drawStickerTag(ctx, padX + 262, subBaseline + 76, "實戰教學", { bg: "#e8a200", fg: "#1c1a10", angle: 3, fontSize: tagFs });
+
+    const pcx = phoneX + phoneW / 2;
+    drawStickerTag(ctx, pcx + 12, phoneY + phoneH * 0.34, "Amy 星期二有空嗎？", { bg: "#e8a200", fg: "#1c1a10", angle: 3, fontSize: 16 });
+    drawStickerTag(ctx, pcx - 4, phoneY + phoneH * 0.54, "週二下午 2 點有空", { bg: "#ffffff", fg: "#1c1a10", angle: -2, fontSize: 16 });
+    drawStickerTag(ctx, pcx - 12, phoneY + phoneH * 0.74, "要幫你預約嗎？", { bg: "#1c1a10", fg: "#fdf1d8", angle: 2, fontSize: 16 });
+
+    drawStickerTag(ctx, winX + 150, winY + winH - 66, "「廣告花費跟營收有關嗎？」", { bg: "#ffffff", fg: "#1c1a10", angle: -2, fontSize: 18 });
+    drawStickerTag(ctx, winX + 172, winY + winH - 16, "AI 查看資料，執行分析", { bg: "#1c1a10", fg: "#fdf1d8", angle: 2, fontSize: 17 });
+
+    drawStickerTag(ctx, schedX + schedW * 0.46, schedY - 30, "AI 確認班表，預約時段", { bg: "#e8a200", fg: "#1c1a10", angle: -2, fontSize: 18 });
+
+    const boltR = 18, boltCx = schedX + schedW - 14, boltCy = schedY - 56;
+    const bg2 = ctx.createLinearGradient(boltCx - boltR, boltCy - boltR, boltCx + boltR, boltCy + boltR);
+    bg2.addColorStop(0, "#e8a200"); bg2.addColorStop(1, "#ff8a3d");
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = boltR * 0.6; ctx.shadowOffsetY = boltR * 0.3;
+    ctx.fillStyle = bg2; ctx.beginPath(); ctx.arc(boltCx, boltCy, boltR, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = "#1c1a10"; ctx.font = `700 ${Math.round(boltR * 1.1)}px sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("⚡", boltCx, boltCy + boltR * 0.05);
+    ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+  }
+
+  // Draw immediately on load — the canvases on screen ARE the final
+  // images, not separate previews that might drift from them.
+  const canvas = document.getElementById("coverCanvas");
+  drawCover(canvas.getContext("2d"));
+  const squareCanvas = document.getElementById("coverSquare");
+  drawCoverSquare(squareCanvas.getContext("2d"));
+
+  const openImage = (cv, label, metaId) => {
+    const meta = document.getElementById(metaId);
+    try {
+      const win = window.open();
+      if (win) {
+        win.document.write(`<title>${label}</title><body style="margin:0;background:#1c1915;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${cv.toDataURL("image/png")}" style="max-width:100%;height:auto"></body>`);
+        meta.textContent = "已在新分頁開啟，長按或右鍵另存";
+      } else {
+        meta.textContent = "瀏覽器封鎖了彈出分頁，請允許後再試一次";
+      }
+    } catch (e) {
+      meta.textContent = "開啟失敗：" + e.message;
+    }
+  };
+  document.getElementById("exportBtn").addEventListener("click", () => openImage(canvas, "課程封面 1000×620", "exportMeta"));
+  document.getElementById("exportSqBtn").addEventListener("click", () => openImage(squareCanvas, "課程封面 800×800", "exportSqMeta"));
+})();
+</script>
+</body>
+</html>

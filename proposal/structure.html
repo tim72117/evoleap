@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>課程架構 · Hahow 課程提案</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner">
+  <a class="brand" href="index.html">HAHOW 課程提案</a>
+  <nav>
+    <a href="index.html">總覽</a>
+    <a href="fields.html">提案內容</a>
+    <a href="structure.html" aria-current="page">課程架構</a>
+    <a href="cover.html">封面圖</a>
+    <a href="video.html">募資影片</a>
+  </nav>
+</div></header>
+
+<main>
+  <a class="back" href="index.html">← 回總覽</a>
+  <h1>課程架構</h1>
+  <p class="lead">最初規劃的七個單元加期末專案。你之後陸續拿掉的主題，在這裡標成「已移出」，保留原本內容方便對照。</p>
+
+  <div class="flow" aria-label="單元進程">
+    <span class="step keep">0 環境與心智模型</span><i>→</i>
+    <span class="step keep">1 第一個工具</span><i>→</i>
+    <span class="step out">2 即時與非同步呼叫</span><i>→</i>
+    <span class="step out">3 前端串接</span><i>→</i>
+    <span class="step out">4 後端 API 串接</span><i>→</i>
+    <span class="step out">5 額度與方案</span><i>→</i>
+    <span class="step out">6 部署與版本管理</span><i>→</i>
+    <span class="step redo">期末專案</span>
+  </div>
+  <p class="lead" style="font-size:13px">綠色＝保留　紅色刪除線＝已移出提案範圍　橘色＝需重新定義</p>
+
+  <div class="note">
+    <strong>目前只剩 2 個單元加期末專案</strong>
+    內容偏少，不足以撐起一門課。建議補上與「自然語言分析介面」直接相關的單元，例如：
+    <ul>
+      <li>資料與分析工具設計：讓 Agent 能查資料、跑分析</li>
+      <li>圖表輸出：依問題選對統計圖表並繪製</li>
+      <li>Vibe Coding 實作流程：用 Claude Code 把介面做出來</li>
+    </ul>
+    要不要照這個方向補，請決定後我再改。
+  </div>
+
+  <h2>單元</h2>
+
+  <section class="card"><div class="card-body unit">
+    <div class="num">0</div>
+    <div>
+      <div class="row"><h3>環境準備與心智模型</h3><span class="chip done">保留</span></div>
+      <dl>
+        <dt>學習目標</dt><dd>看懂整體流程：開發者定義工具、LLM 呼叫工具、前端頁面執行結果。</dd>
+        <dt>對應概念</dt><dd>App 與工具的關係、控制台導覽、命令列工具安裝。</dd>
+        <dt>實作</dt><dd>註冊帳號，跑過一個既有 App，看懂它的結構。</dd>
+      </dl>
+    </div>
+  </div></section>
+
+  <section class="card"><div class="card-body unit">
+    <div class="num">1</div>
+    <div>
+      <div class="row"><h3>第一個工具</h3><span class="chip done">保留</span></div>
+      <dl>
+        <dt>學習目標</dt><dd>理解工具的三個核心欄位：名稱、描述、參數（JSON Schema），如何決定 LLM 何時、如何呼叫它。</dd>
+        <dt>對應概念</dt><dd>參數 Schema、YAML／JSON 兩種定義格式。</dd>
+        <dt>實作</dt><dd>建立一個「填表單」工具，在測試環境裡實際呼叫看看。</dd>
+      </dl>
+    </div>
+  </div></section>
+
+  <section class="card"><div class="card-body unit out">
+    <div class="num">2</div>
+    <div>
+      <div class="row"><h3>即時與非同步呼叫模式</h3><span class="chip out">已移出</span></div>
+      <dl>
+        <dt>原規劃</dt><dd>分辨「呼叫後立即結束」與「等前端回應再把結果餵回 LLM」兩種工具，以及後者為何會佔用共享資源。</dd>
+        <dt>原實作</dt><dd>把單元 1 的工具改成會讀取頁面即時資料的類型。</dd>
+      </dl>
+    </div>
+  </div></section>
+
+  <section class="card"><div class="card-body unit out">
+    <div class="num">3</div>
+    <div>
+      <div class="row"><h3>前端串接</h3><span class="chip out">已移出</span></div>
+      <dl>
+        <dt>原規劃</dt><dd>讓真實網頁透過即時連線執行 LLM 送來的工具呼叫，並設定可連線的來源白名單。</dd>
+        <dt>原實作</dt><dd>在小型 Web App 嵌入 SDK，設定白名單並驗證。</dd>
+      </dl>
+    </div>
+  </div></section>
+
+  <section class="card"><div class="card-body unit out">
+    <div class="num">4</div>
+    <div>
+      <div class="row"><h3>後端 API 串接</h3><span class="chip out">已移出</span></div>
+      <dl>
+        <dt>原規劃</dt><dd>讓工具呼叫直接送到開發者自己的後端 API，並討論目前沒有簽名驗證的安全邊界。</dd>
+        <dt>原實作</dt><dd>串接一個假的訂單查詢 API，並討論何時不該用。</dd>
+      </dl>
+    </div>
+  </div></section>
+
+  <section class="card"><div class="card-body unit out">
+    <div class="num">5</div>
+    <div>
+      <div class="row"><h3>額度與方案</h3><span class="chip out">已移出</span></div>
+      <dl>
+        <dt>原規劃</dt><dd>理解方案如何限制每月用量、提問長度、附圖數量，為上線做資源規劃。</dd>
+        <dt>原實作</dt><dd>設定圖片上限，模擬額度用盡並觀察錯誤訊息。</dd>
+      </dl>
+    </div>
+  </div></section>
+
+  <section class="card"><div class="card-body unit out">
+    <div class="num">6</div>
+    <div>
+      <div class="row"><h3>部署與版本管理</h3><span class="chip out">已移出</span></div>
+      <dl>
+        <dt>原規劃</dt><dd>把整合應用從本機帶到正式環境，建立可重複的發布流程。</dd>
+        <dt>原實作</dt><dd>用容器完成一次部署，寫一份更新紀錄並打版本標籤。</dd>
+      </dl>
+    </div>
+  </div></section>
+
+  <h2>期末專案</h2>
+  <section class="card"><div class="card-body unit">
+    <div class="num">★</div>
+    <div>
+      <div class="row"><h3>Capstone</h3><span class="chip todo">需重新定義</span></div>
+      <dl>
+        <dt>原規劃</dt><dd>從零做出一個完整上線的整合應用，需包含：至少 3 個工具（含即時與非同步各 1）、串接前端並設定白名單、至少 1 個後端 API 工具、額度設定、容器部署、更新紀錄與版本標籤。驗收方式為 5 到 10 分鐘的示範影片，依清單評分。</dd>
+        <dt>現況</dt><dd>上述要求大半對應已移出的單元。目前的目標是「自然語言驅動的分析介面」，驗收清單要跟著重寫。</dd>
+      </dl>
+    </div>
+  </div></section>
+</main>
+<footer><a class="back" href="index.html">← 回總覽</a> · course/proposal/structure.html</footer>
+</body>
+</html>

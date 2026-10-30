@@ -1,0 +1,117 @@
+/* All sizes are in rem, and 1rem = 1/120 of the viewport width (16px at
+   1920 wide), so the picture scales identically at any output resolution.
+   There are no CSS transitions or animations on purpose: every frame is a
+   pure function of time (see player.js), which is what makes the recording
+   deterministic. */
+:root {
+  --sans: -apple-system, "PingFang TC", "Noto Sans TC", "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+html { font-size: calc(100vw / 120); }
+body { margin: 0; width: 100vw; height: 100vh; overflow: hidden; font-family: var(--sans); color: var(--ink); }
+
+body[data-theme="light"] {
+  --bg: #fbf6ea; --bg2: #fdecc6; --ink: #1c1a10; --soft: #5a5340;
+  --accent: #e8a200; --accent2: #ff8a3d; --panel: #ffffff; --line: #e6dcc3; --muted: #efe6d0;
+}
+body[data-theme="dark"] {
+  --bg: #17140f; --bg2: #2a2113; --ink: #f4ecdb; --soft: #b6aa92;
+  --accent: #f0b43a; --accent2: #ff9a55; --panel: #24201a; --line: #3a3326; --muted: #2e2921;
+}
+body { --code-bg: #1e1c18; --code-bar: #2a2721; --code-ink: #f3ead9; --grad: linear-gradient(135deg, var(--accent), var(--accent2)); }
+
+#stage {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(60rem 40rem at 12% 8%, var(--bg2), transparent 70%),
+    var(--bg);
+}
+#scene {
+  position: absolute; inset: 0; box-sizing: border-box;
+  padding: 9.5rem 8rem 11.5rem; /* top-right: Hahow logo, bottom: CC subtitles */
+  display: flex; flex-direction: column; justify-content: center;
+}
+#caption {
+  position: absolute; left: 50%; bottom: 3rem; transform: translateX(-50%);
+  max-width: 96rem; box-sizing: border-box;
+  background: rgba(28, 26, 16, 0.88); color: #fff;
+  padding: 0.9rem 1.9rem; border-radius: 1rem;
+  font-size: 2.3rem; line-height: 1.5; text-align: center; opacity: 0;
+}
+
+em { font-style: normal; color: transparent; background: var(--grad); -webkit-background-clip: text; background-clip: text; }
+.chip {
+  align-self: flex-start; display: inline-block;
+  font: 700 1.8rem var(--mono); letter-spacing: 0.06em;
+  background: var(--grad); color: #1c1a10;
+  padding: 0.6rem 1.7rem; border-radius: 999px; margin-bottom: 2.6rem;
+}
+
+/* title */
+.t-title { display: flex; flex-direction: column; }
+.t-title h1 { font-size: 8.4rem; line-height: 1.14; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+.t-sub { font-size: 3.2rem; line-height: 1.5; color: var(--soft); margin: 2.6rem 0 0; }
+
+/* bullets */
+.b-wrap h2 { font-size: 6rem; line-height: 1.2; font-weight: 800; margin: 0 0 3.4rem; letter-spacing: -0.01em; }
+.b-wrap ul { list-style: none; padding: 0; margin: 0; }
+.b-wrap li { font-size: 4rem; line-height: 1.4; margin: 0 0 2rem; padding-left: 4.2rem; position: relative; font-weight: 600; }
+.b-wrap li::before { content: ""; position: absolute; left: 0; top: 1.25rem; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--grad); }
+.b-wrap li small { display: block; font-size: 2.6rem; font-weight: 400; color: var(--soft); margin-top: 0.3rem; }
+
+/* editor + terminal */
+.code-wrap h2, .term-wrap h2 { font-size: 4.4rem; margin: 0 0 2.2rem; font-weight: 800; }
+.editor { background: var(--code-bg); border-radius: 1.6rem; overflow: hidden; box-shadow: 0 2rem 5rem -1.5rem rgba(0,0,0,0.45); }
+.editor .bar { display: flex; align-items: center; gap: 0.8rem; background: var(--code-bar); padding: 1.2rem 1.8rem; }
+.editor .bar i { width: 1.3rem; height: 1.3rem; border-radius: 50%; background: #5b5548; display: block; }
+.editor .bar i:nth-child(1) { background: #ff5f57; } .editor .bar i:nth-child(2) { background: #febc2e; } .editor .bar i:nth-child(3) { background: #28c840; }
+.editor .tab { margin-left: 1.4rem; font: 1.7rem var(--mono); color: #b9ae98; }
+.editor .body { padding: 1.8rem 2.2rem 2.2rem; font: var(--fs, 2.3rem)/1.58 var(--mono); color: var(--code-ink); }
+.ln { display: flex; min-height: 1.58em; border-left: 0.4rem solid transparent; padding-left: 0.9rem; }
+.ln .no { width: 3.4rem; flex: none; text-align: right; margin-right: 2rem; color: #6f6657; }
+.ln .tx { white-space: pre; }
+.c { color: #7d7566; } .s { color: #a9d98b; } .n { color: #f2b46d; } .k { color: #ff9d6b; }
+.f { color: #8ec7f0; } .key { color: #f5d27a; } .flag { color: #8ec7f0; }
+.hid { visibility: hidden; }
+.cur { display: inline-block; width: 0.9rem; height: 1.15em; background: var(--accent); vertical-align: text-bottom; margin-left: 0.1rem; }
+.term .body { min-height: 30rem; font-size: 2.6rem; }
+.term .row { white-space: pre-wrap; min-height: 1.58em; }
+.term .ps { color: var(--accent); }
+.term .out { color: #cfc6b2; }
+
+/* image */
+.img-wrap { height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 1.6rem; }
+.img-wrap img { max-width: 100%; max-height: 100%; border-radius: 1.6rem; box-shadow: 0 2rem 5rem -1.5rem rgba(0,0,0,0.4); }
+
+/* chat demo */
+.chat-wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 3.4rem; height: 100%; max-height: 46rem; align-self: stretch; }
+.panel { background: var(--panel); border: 0.15rem solid var(--line); border-radius: 2rem; box-shadow: 0 2rem 5rem -2rem rgba(0,0,0,0.25); display: flex; flex-direction: column; overflow: hidden; }
+.chat-head { padding: 1.5rem 2.4rem; border-bottom: 0.15rem solid var(--line); font-weight: 700; font-size: 2.2rem; display: flex; align-items: center; gap: 1rem; }
+.chat-head::before { content: ""; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: #3fa86a; }
+.chat-body { flex: 1; padding: 1.6rem 2.4rem; display: flex; flex-direction: column; gap: 1.1rem; overflow: hidden; }
+.msg { max-width: 92%; font-size: 2.4rem; line-height: 1.4; padding: 0.9rem 1.8rem; border-radius: 1.8rem; }
+.msg.user { align-self: flex-end; background: var(--grad); color: #1c1a10; font-weight: 600; border-bottom-right-radius: 0.4rem; }
+.msg.ai { align-self: flex-start; background: var(--muted); border-bottom-left-radius: 0.4rem; }
+.steps { align-self: flex-start; display: flex; flex-direction: column; gap: 0.6rem; }
+.step { font: 2rem var(--mono); color: var(--soft); display: flex; align-items: center; gap: 1rem; }
+.step .mk { width: 2.1rem; height: 2.1rem; border-radius: 50%; border: 0.25rem solid var(--accent); box-sizing: border-box; flex: none; }
+.step.done .mk { background: #3fa86a; border-color: #3fa86a; }
+.chat-input { margin: 0 2.4rem 1.6rem; padding: 0.8rem 1.6rem; border-radius: 999px; background: var(--muted); font-size: 2.3rem; min-height: 3.2rem; display: flex; align-items: center; justify-content: space-between; }
+.chat-input .ph { color: #a89c87; }
+.chat-input .send { width: 3.6rem; height: 3.6rem; border-radius: 50%; background: var(--grad); color: #1c1a10; display: flex; align-items: center; justify-content: center; font-weight: 800; flex: none; }
+.chart-panel { padding: 2.4rem 2.8rem; }
+.chart-panel h3 { margin: 0 0 1.6rem; font-size: 3.2rem; }
+.bars { flex: 1; display: flex; align-items: flex-end; gap: 2.2rem; padding: 0 1rem; border-bottom: 0.2rem solid var(--line); min-height: 26rem; }
+.bar-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; }
+.bar { width: 100%; border-radius: 0.8rem 0.8rem 0 0; background: #f0d9a6; }
+.bar.hi { background: var(--grad); }
+.labels { display: flex; gap: 2.2rem; padding: 1rem 1rem 0; }
+.labels span { flex: 1; text-align: center; font-size: 2.2rem; color: var(--soft); }
+.line-svg { width: 100%; flex: 1; min-height: 26rem; }
+.chart-note { font-size: 1.9rem; color: var(--soft); margin-top: 1.4rem; }
+
+/* --guides: shows the areas Hahow covers with its logo and the CC subtitles */
+#guides { position: absolute; inset: 0; pointer-events: none; }
+#guides div { position: absolute; background: rgba(220, 40, 40, 0.16); border: 0.12rem dashed rgba(220, 40, 40, 0.8); box-sizing: border-box; color: rgba(180, 20, 20, 0.95); font: 1.6rem var(--mono); padding: 0.5rem 0.9rem; }
+#guides .logo { top: 0; right: 0; width: 24rem; height: 9.5rem; }
+#guides .subs { left: 0; right: 0; bottom: 0; height: 11rem; }

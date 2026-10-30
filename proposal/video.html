@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>募資影片 · Hahow 課程提案</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 22px; }
+  figure { margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: 12px 16px; font-size: 14.5px; }
+  figcaption b { display: inline-block; min-width: 1.6em; color: var(--accent); font-family: var(--mono); }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; margin: 0 0 18px; cursor: pointer; }
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner">
+  <a class="brand" href="index.html">HAHOW 課程提案</a>
+  <nav>
+    <a href="index.html">總覽</a>
+    <a href="fields.html">提案內容</a>
+    <a href="structure.html">課程架構</a>
+    <a href="cover.html">封面圖</a>
+    <a href="video.html" aria-current="page">募資影片</a>
+  </nav>
+</div></header>
+
+<main>
+  <a class="back" href="index.html">← 回總覽</a>
+  <h1>募資影片</h1>
+  <p class="lead">共 9 個場景，預估 2 分 10 秒。下方是各場景接近結尾時的畫面與老師要念的旁白稿。</p>
+
+  <section class="card">
+    <table>
+      <thead><tr><th>項目</th><th>狀態</th></tr></thead>
+      <tbody>
+        <tr><td>畫面（9 個場景）</td><td><span class="chip done">已完成</span></td></tr>
+        <tr><td>旁白稿</td><td><span class="chip todo">待補自我介紹（場景 2）</span></td></tr>
+        <tr><td>旁白錄音（老師本人）</td><td><span class="chip todo">待錄</span></td></tr>
+        <tr><td>成片與字幕檔（.srt）</td><td><span class="chip todo">待錄製</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <h2>Hahow 規格</h2>
+  <section class="card">
+    <table>
+      <tbody>
+        <tr><td>長度</td><td>1 到 3 分鐘</td></tr>
+        <tr><td>畫面</td><td>16:9、1080p、mp4</td></tr>
+        <tr><td>必須說明</td><td>課程目標、教學方式、與同類課程的差異、自我介紹</td></tr>
+        <tr><td>口白</td><td>必須是老師本人，不能是機器人聲</td></tr>
+        <tr><td>預留位置</td><td>右上角 Hahow logo、底部 CC 字幕；重要資訊不可被擋住</td></tr>
+        <tr><td>字幕</td><td>另外上傳 .srt（zh-TW），不燒進畫面</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <h2>畫面與旁白稿</h2>
+  <label class="toggle"><input type="checkbox" id="guides"> 疊出 Hahow logo 與字幕預留區</label>
+  <div class="grid">
+    <figure>
+      <img src="../video/out/fundraising-stills/01-title.png" data-name="01-title.png" alt="場景 1">
+      <figcaption><b>1</b>如果你的使用者，只要打一句話，系統就能自己查資料、跑分析、畫出圖表，會是什麼感覺？</figcaption>
+    </figure>
+    <figure>
+      <img src="../video/out/fundraising-stills/02-title.png" data-name="02-title.png" alt="場景 2">
+      <figcaption><b>2</b>大家好，我是【講師姓名】，【請補上一兩句背景介紹，例如目前的工作與相關經驗】。</figcaption>
+    </figure>
+    <figure>
+      <img src="../video/out/fundraising-stills/03-bullets.png" data-name="03-bullets.png" alt="場景 3">
+      <figcaption><b>3</b>傳統的做法，你得先設計好篩選器和按鈕，把每一種分析都做成專屬頁面，使用者還得先學會怎麼操作。</figcaption>
+    </figure>
+    <figure>
+      <img src="../video/out/fundraising-stills/04-chat.png" data-name="04-chat.png" alt="場景 4">
+      <figcaption><b>4</b>這堂課的主題很簡單：讓使用者像聊天一樣提問，AI 就會自己判讀問題、查看資料、執行分析，再選擇合適的圖表畫出來。</figcaption>
+    </figure>
+    <figure>
+      <img src="../video/out/fundraising-stills/05-code.png" data-name="05-code.png" alt="場景 5">
+      <figcaption><b>5</b>整個系統的關鍵，是工具。你只要用一份簡單的定義，告訴 AI 這個工具能做什麼、需要哪些參數，它就知道什麼時候該使用它。</figcaption>
+    </figure>
+    <figure>
+      <img src="../video/out/fundraising-stills/06-bullets.png" data-name="06-bullets.png" alt="場景 6">
+      <figcaption><b>6</b>學完這堂課，你會把操作畫面，改造成打字就能用的介面；學會設計 AI 能準確呼叫的工具與參數；最後獨立完成一個能上線的 AI Agent 整合應用。</figcaption>
+    </figure>
+    <figure>
+      <img src="../video/out/fundraising-stills/07-bullets.png" data-name="07-bullets.png" alt="場景 7">
+      <figcaption><b>7</b>教學上，我用影片講解搭配動手實作，採用 Vibe Coding 的方式，跟著 Claude Code 一邊看、一邊做。我們也跟著真實的開源專案學習，重點放在通用的工具呼叫邏輯，不會被單一平台綁住。</figcaption>
+    </figure>
+    <figure>
+      <img src="../video/out/fundraising-stills/08-bullets.png" data-name="08-bullets.png" alt="場景 8">
+      <figcaption><b>8</b>如果你是想把 AI 加進產品的前端或全端工程師，或是正在評估導入 AI Agent 的技術主管，想搞懂工具呼叫怎麼運作，這堂課就是為你準備的。</figcaption>
+    </figure>
+    <figure>
+      <img src="../video/out/fundraising-stills/09-title.png" data-name="09-title.png" alt="場景 9">
+      <figcaption><b>9</b>歡迎加入，我們一起打造你的第一個 AI Agent 整合應用，課程裡見！</figcaption>
+    </figure>
+  </div>
+
+  <h2>待補或待確認</h2>
+  <div class="note"><ul style="margin:0"><li>自我介紹(第 2 場景)的姓名與背景要老師自己補，畫面與旁白裡的【】都是待補。</li><li>Hahow 要求募資影片口白是老師本人，不能用機器人聲。系統語音只能試聽，最終請照下表每場景錄一段，存成 01.wav、02.wav…,用 --audio-dir 混入。</li><li>審核標準的進階建議：穿插「實際教學畫面」更容易通過。目前第 4 場景是示意動畫(圖表資料為示意),若要換成真實專案的操作錄影，可改成 web 場景。</li><li>審核標準提到可說明「與同類課程的差異」，第 7 場景用「學通用的工具呼叫邏輯、不綁單一平台」來說明，請老師確認這個說法符合你的課程定位。</li><li>影片不可承諾賺錢或對學習成果做誇大保證；旁白已避免這類說法，錄音時請照稿念。</li><li>字幕：執行完會產生 .srt,於 Hahow 募資影片頁的 zh-TW 字幕欄位上傳。</li></ul></div>
+
+  <h2>相關檔案</h2>
+  <section class="card">
+    <table>
+      <tbody>
+        <tr><td><a href="../video/scripts/fundraising.storyboard.md">分鏡腳本</a></td><td>每個場景的畫面、時間、旁白對照表</td></tr>
+        <tr><td><a href="../video/scripts/fundraising.json">腳本原始檔</a></td><td>改這個檔，重跑工具就會更新畫面</td></tr>
+        <tr><td><a href="../video/README.md">影片工具說明</a></td><td>如何產生畫面、錄製與混入旁白</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+<footer><a class="back" href="index.html">← 回總覽</a> · course/proposal/video.html</footer>
+<script>
+  document.getElementById("guides").addEventListener("change", (e) => {
+    document.querySelectorAll(".grid img").forEach((img) => {
+      img.src = "../video/out/fundraising-stills" + (e.target.checked ? "-guides" : "") + "/" + img.dataset.name;
+    });
+  });
+</script>
+</body>
+</html>
