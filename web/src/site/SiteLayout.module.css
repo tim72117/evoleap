@@ -1,0 +1,241 @@
+/* Site-wide tokens(藍紫色調、明亮底色,不跟隨系統深色模式)。
+   以 --site-* custom properties 提供給各頁面 CSS 共用。 */
+.site {
+  --site-bg: #f7f8ff;
+  --site-surface: #ffffff;
+  --site-surface-2: #eef0ff;
+  --site-text: #1b1d3a;
+  --site-muted: #5b5f80;
+  --site-border: #e1e4f5;
+  --site-accent: #6366f1;
+  --site-accent-strong: #5b3fd6;
+  --site-accent-contrast: #ffffff;
+  --site-link: #4f46e5;
+  --site-code-bg: #f0f1fb;
+  --site-shadow: 0 1px 2px rgb(40 40 120 / 6%), 0 8px 24px rgb(60 50 160 / 8%);
+  --site-radius: 14px;
+  --site-max: 1120px;
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--site-bg);
+  color: var(--site-text);
+  font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+
+.site *,
+.site *::before,
+.site *::after {
+  box-sizing: border-box;
+}
+
+.site a {
+  color: var(--site-link);
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip:focus {
+  left: 12px;
+  top: 12px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--site-surface);
+  border-radius: 8px;
+}
+
+/* ---------- header ---------- */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--site-bg) 85%, transparent);
+  backdrop-filter: saturate(160%) blur(10px);
+  -webkit-backdrop-filter: saturate(160%) blur(10px);
+  border-bottom: 1px solid var(--site-border);
+}
+
+.headerInner {
+  max-width: var(--site-max);
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.site .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--site-text);
+  text-decoration: none;
+  font-weight: 700;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.brandMark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4f7cff, #8b5cf6);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+
+.brandText small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--site-muted);
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.site .nav a {
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.site .nav a:hover {
+  color: var(--site-text);
+  background: var(--site-surface-2);
+}
+
+.site .nav a[aria-current='page'] {
+  color: var(--site-accent-strong);
+  background: var(--site-surface-2);
+}
+
+/* ---------- main ---------- */
+.main {
+  flex: 1;
+  width: 100%;
+}
+
+.narrow {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 20px 56px;
+}
+
+/* ---------- footer ---------- */
+.footer {
+  border-top: 1px solid var(--site-border);
+  background: var(--site-surface);
+  color: var(--site-muted);
+  font-size: 14px;
+}
+
+.footerInner {
+  max-width: var(--site-max);
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.footerInner strong {
+  color: var(--site-text);
+}
+
+.footerNav {
+  display: flex;
+  gap: 16px;
+}
+
+.site .footerNav a {
+  color: var(--site-muted);
+  text-decoration: none;
+}
+
+.site .footerNav a:hover {
+  color: var(--site-text);
+}
+
+.domain {
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  letter-spacing: 0;
+}
+
+@media (max-width: 640px) {
+  .headerInner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 8px 14px;
+  }
+
+  .brandText small {
+    display: none;
+  }
+
+  .brandMark {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .nav {
+    margin: 0 -6px;
+  }
+
+  .site .nav a {
+    padding: 4px 10px;
+    font-size: 14px;
+  }
+
+  .footerInner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* 課程提案是給課程研發用的內部頁面，只在頁尾留一個很小的入口。 */
+.site .devLink {
+  margin-left: 12px;
+  font-size: 11px;
+  color: var(--site-muted);
+  opacity: 0.6;
+  text-decoration: none;
+}
+
+.site .devLink:hover {
+  opacity: 1;
+}

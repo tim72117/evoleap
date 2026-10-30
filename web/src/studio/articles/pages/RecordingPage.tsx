@@ -1,0 +1,525 @@
+import { Article, Callout, CardGrid, DataTable, Section } from '../Article'
+import { Findings, Gaps, Inferences, Takeaway, type Src } from './ResearchNote'
+
+// 原 docs/research/notes/影音錄製實務.md
+
+const EGG_PUBLISHING: Src = {
+  label: 'How to egghead: Publishing your lesson',
+  href: 'https://master--how-to-egghead.netlify.app/instructor/style-guide/publishing-your-lesson',
+}
+const EGG_SCREENCASTING: Src = {
+  label: 'How to egghead: Screencasting',
+  href: 'https://howtoegghead.com/instructor/screencasting/',
+}
+const EGG_SCREEN_SETUP: Src = {
+  label: 'How to egghead: Screen setup',
+  href: 'https://master--how-to-egghead.netlify.app/instructor/screencasting/screen-setup',
+}
+const SLIDEGENIUS: Src = {
+  label: 'SlideGenius: Avoiding Fillers',
+  href: 'https://www.slidegenius.com/blog/ums-likes-and-you-knows-avoiding-fillers-in-your-presentations',
+}
+const CLUESO = 'https://www.clueso.io/cluebooks/tasteful-screen-recording--setting-up-screenrecording'
+const WILDFREE = 'https://wildandfreetools.com/blog/screen-recording-best-quality-settings-guide/'
+const BUZZSPROUT = 'https://www.buzzsprout.com/blog/remove-background-noise-audacity'
+const ECKLES: Src = {
+  label: 'DEV.to: How I set up VS Code for recording a screencast',
+  href: 'https://dev.to/5t3ph/how-i-set-up-vscode-for-recording-a-screencast-be7',
+}
+const WISC_LIVECODING = 'https://pages.cs.wisc.edu/~gerald/papers/LiveCoding.pdf'
+const ACADEMIA: Src = {
+  label: 'Academia.edu: Live coding vs Static Code Examples',
+  href: 'https://www.academia.edu/76238181/Live_coding_vs_Static_Code_Examples',
+}
+
+const toc = [
+  { id: 'scripting', title: '腳本撰寫方法' },
+  { id: 'preparation', title: '錄影前準備' },
+  { id: 'tools', title: '常用工具鏈比較' },
+  { id: 'code-display', title: '程式碼畫面呈現' },
+]
+
+export function RecordingPage() {
+  return (
+    <Article slug="research/recording" toc={toc}>
+      <p>
+        本篇整理技術教學影片錄製的實務做法:腳本怎麼寫、錄影前的畫面與收音設定、常用錄製剪輯工具的分工,以及程式碼畫面的呈現技巧。
+        每個主題依序列出重點摘要、附來源的研究發現、由此推得的看法,以及目前沒有找到資料的缺口。
+      </p>
+
+      <Section id="scripting" title="腳本撰寫方法:逐字稿、大綱式、talking points">
+        <Takeaway>
+          多數技術教學內容的實務建議是「大綱式為主、開場與收尾逐字寫好、關鍵技術說明反覆練習」的混合做法;純逐字稿唸稿容易顯得生硬不自然,純
+          talking points 則容易漏講重點或離題,各家說法在這一點上高度一致。
+        </Takeaway>
+
+        <CardGrid
+          items={[
+            {
+              title: '逐字稿',
+              body: '能確保內容完整、聲音專業,避免「嗯、啊」等贅詞並用對專業術語;適合複雜主題或需要精確用詞的情境。但在螢幕上唸稿難以自然跟讀,需多次朗讀練習。',
+            },
+            {
+              title: '大綱式',
+              body: '多數影片作者的選擇:用大綱作為提詞提示,講解更具自發性與對話感,同時仍保持在軌道上。大綱可依需求簡單或複雜。',
+            },
+            {
+              title: '混合做法',
+              body: '主體用大綱,開場與結尾完整寫出並多次練習朗讀;關鍵技術說明反覆練習。',
+            },
+          ]}
+        />
+
+        <Findings
+          items={[
+            {
+              text: 'Lynda.com(現 LinkedIn Learning)一位 Camtasia 課程講師指出,多數影片作者使用大綱(outline)作為提詞提示而非逐字稿,效果比逐字唸稿更好;逐字稿雖能確保內容完整、聲音專業,但在螢幕上唸稿時難以自然跟讀,建議即使主體用大綱,開場與結尾仍應完整寫出並多次練習朗讀。',
+              src: [
+                {
+                  label: 'Lynda.com: Develop scripts',
+                  href: 'https://www.lynda.com/Camtasia-tutorials/Develop-scripts/728395/781233-4.html',
+                },
+              ],
+            },
+            {
+              text: '威斯康辛大學法學院(Wisconsin Law School)的 screencasting 指南建議用大綱列出 talking points 而非逐句撰寫完整講稿,並以「像在一對一辦公室會議中說話」的口吻對話式講解。',
+              src: [
+                {
+                  label: 'UW Law School LWI Screencasting Handout',
+                  href: 'https://law.wisc.edu/lrw/2018_lwi_screencasting_handout.pdf',
+                },
+              ],
+            },
+            {
+              text: '一份廣為流傳的 Rails screencast 範例大綱(gist)展示了用條列式大綱對應「問題說明 → demo → 總結」三段式結構,並說明大綱可依需求簡單或複雜。',
+              src: [{ label: 'Rails screencast outline gist', href: 'https://gist.github.com/renatocarvalho/6747673' }],
+            },
+            {
+              text: 'Drupal 社群文件撰寫郵件論壇中有貢獻者主張腳本應「依序列出每個論點」而非寫出逐字對話;同討論串另一位回覆者則警告不要逐字唸稿朗讀教學內容。',
+              src: [
+                {
+                  label: 'Drupal documentation mailing list',
+                  href: 'https://lists.drupal.org/pipermail/documentation/2006-September/004414.html',
+                },
+              ],
+            },
+            {
+              text: '阿拉斯加大學費爾班克斯分校(UAF)教學技巧文件指出,逐字稿有助於避免「嗯、啊」等贅詞,並確保使用正確的專業術語。',
+              src: [{ label: 'SOM Teaching Tip PDF', href: 'https://news.uaf.edu/wp-content/uploads/2012/07/SOM_Teaching_Tip.pdf' }],
+            },
+            {
+              text: 'egghead.io 的公開發表指南(publishing guide)說明:錄製不是現場直播,講錯、重錄都沒關係,問題會在後製剪輯階段處理;同時提醒新手講者常見的錯誤是講得太快,應放慢速度讓學習者跟得上。',
+              src: [EGG_PUBLISHING],
+            },
+            {
+              text: 'egghead.io 要求新進講師先錄一段 30 秒的測試片段(非正式發布內容),且明確告知不需要剪輯這段測試片段,待教練(coach)給予回饋後才正式錄製完整課程。',
+              src: [
+                {
+                  label: 'How to egghead: Reviewer guide',
+                  href: 'https://howtoegghead-gatsby.netlify.app/create-your-30second-lesson',
+                },
+              ],
+            },
+            {
+              text: 'egghead.io 的螢幕錄製技術指南建議「以短、高品質的片段分段錄製,每段約 20 秒、只涵蓋一個想法」,並在每個片段之間暫停,這樣可以讓剪輯點清楚可見,減少後續重新排列片段的需要;短而乾淨的多次錄製優於一次性的長錄影。',
+              src: [EGG_SCREENCASTING],
+            },
+            {
+              text: '針對口語表達教材的撰寫建議:對於複雜主題或需要精確用詞的情境,完整逐字稿是最佳選擇,但要多次朗讀練習使其聽起來自然;若用含關鍵字句的詳細大綱,則能讓講解更具自發性與對話感,同時仍保持在軌道上。',
+              src: [
+                {
+                  label: 'Writing for Spoken Delivery',
+                  href: 'https://cursa.app/en/page/writing-for-spoken-delivery-natural-voice-clarity-and-flow',
+                },
+              ],
+            },
+            {
+              text: '公開演講教練資料指出,贅詞(filler words)之所以出現,多是因為講者不確定接下來要說什麼;熟悉內容、多次練習能降低贅詞出現頻率;建議用「停頓」取代用贅詞填補每一秒的空白,停頓反而能在關鍵論點前後製造強調效果。',
+              src: [SLIDEGENIUS],
+            },
+          ]}
+        />
+
+        <Inferences
+          items={[
+            '技術教學內容與一般簡報不同,因為畫面上同時有程式碼需要跟讀者對照解釋,因此「純大綱」比「純逐字稿」更實用:逐字稿會讓講者的注意力被拉走(既要唸稿又要操作螢幕/打字),而大綱可以讓講者保持對畫面操作的專注力,用自己的話講解。',
+            '「分段錄製(每段約 20 秒一個想法)+ 事後剪輯」這個 egghead 的做法,很適合把開源專案的開發範例轉製成課程:可以按照程式碼的邏輯步驟(例如一個 function、一個 feature)切成多個短片段分別錄製,再剪接,降低一次性長錄影失敗需要整段重錄的風險。',
+            '開場與結尾逐字寫稿、中段用大綱的混合模式,可視為業界的「最大公約數」做法:開場決定能否留住觀眾(需要精準措辭),中段的技術解說則需要臨場感與彈性。',
+          ]}
+        />
+
+        <Gaps
+          items={[
+            '沒有找到 Fireship(Jeff Delaney)本人公開說明他使用逐字稿或大綱的具體比例與流程;搜尋結果只確認其影片風格是「精簡、快節奏」,但未提供腳本撰寫方法的第一手說明。',
+            '沒有找到 egghead.io 或 Frontend Masters 講師(包括 Kent C. Dodds)針對「腳本撰寫方式」的個人訪談或部落格文章,無法提供知名講師本人的第一手流程描述,只能引用平台官方指南。',
+          ]}
+        />
+      </Section>
+
+      <Section id="preparation" title="錄影前準備:解析度/幀率、收音設備與環境、講解節奏">
+        <Takeaway>
+          業界對技術教學 screencast 的共識是:解析度採 16:9、以 1280x720(在 HiDPI/Retina 螢幕上錄製,實際像素 2560x1440,最終輸出
+          1920x1080)或直接 1080p 為主,30fps 足夠多數靜態畫面內容;收音建議在安靜、有軟性材質吸音的空間中使用指向性麥克風並控制口與麥克風距離,噪音應優先在錄製源頭解決而非仰賴後製;節奏控制上強調放慢語速、分段錄製、用停頓取代贅詞。
+        </Takeaway>
+
+        <DataTable
+          head={['項目', '建議值', '來源']}
+          rows={[
+            ['畫面比例', '16:9(無黑邊)', 'egghead.io'],
+            ['錄製解析度', '1280x720 HiDPI(實際像素 2560x1440);無法啟用 HiDPI 時,一般模式 1280x720 或 2560x1440 也可', 'egghead.io'],
+            ['輸出解析度', '1920x1080', 'egghead.io'],
+            ['幀率', '1080p/30fps 為預設;快速滾動、拖放等大量游標移動時 60fps', '螢幕錄製教學資源'],
+            ['4K 使用時機', '需放大檢視密集 UI 細節、後製裁切,或高階/進階課程', '螢幕錄製教學資源'],
+            ['位元率(經驗值)', '1080p/30fps 約 12–16 Mbps;4K/30fps 約 30–45 Mbps', '廠商/部落格,非正式標準'],
+            ['麥克風距離', '2–6 吋(約 5–15 公分);另一來源建議 3–6 吋(約 7.5–15 公分)', 'egghead.io;Buzzsprout'],
+          ]}
+        />
+
+        <Findings
+          items={[
+            {
+              text: 'egghead.io 的螢幕環境設定指南建議:將螢幕解析度設為 16:9(無黑邊),以 1280x720 的 HiDPI 模式錄製(在 Retina/HiDPI 顯示器上實際像素是 2560x1440),最終 egghead 平台輸出為 1920x1080;若無法啟用 HiDPI,1280x720 或 2560x1440 的一般模式也可接受;macOS 上可用 RDM 或 SwitchResX 開啟隱藏的 1280x720 HiDPI 解析度選項。',
+              src: [EGG_SCREEN_SETUP],
+            },
+            {
+              text: '同一份 egghead 指南建議畫面採三欄式佈局:編輯器佔螢幕約三分之二,瀏覽器或範例輸出佔右側三分之一(程式碼與範例約 2:1 比例),並在畫面上下保留留白,避免播放器介面遮住底部的終端機輸出。',
+              src: [EGG_SCREEN_SETUP],
+            },
+            {
+              text: '一般螢幕錄製教學資源普遍建議 1080p/30fps 作為多數教學影片的預設設定,4K 僅在需要放大檢視密集 UI 細節、後製裁切,或要製作高階/進階課程時才使用;若內容涉及快速滾動、拖放等大量游標移動的畫面,則建議提升到 60fps。',
+              src: [
+                { label: 'Clueso Cluebooks: Tasteful screen recording', href: CLUESO },
+                { label: 'Wild and Free Tools: Screen recording quality settings', href: WILDFREE },
+              ],
+            },
+            {
+              text: '同類資源提供位元率參考值:1080p/30fps 約 12–16 Mbps,4K/30fps 約 30–45 Mbps(註:此為廠商/部落格文章提供的經驗值,非正式標準)。',
+              src: [{ label: 'Wild and Free Tools', href: WILDFREE }],
+            },
+            {
+              text: '多個來源強調,比起解析度數字,音訊清晰度與畫面構圖一致性對觀看體驗的影響更大。',
+              src: [{ label: 'Clueso Cluebooks', href: CLUESO }],
+            },
+            {
+              text: 'egghead.io 的音訊設備指南列出標準配備:桌上型麥克風架、Shure BETA 87A 超心型麥克風、防震架、Shure X2U XLR 轉 USB 轉接器、XLR 訊號線;建議麥克風收音距離保持在 2–6 吋(約 5–15 公分)以取得最佳音量。',
+              src: [{ label: 'How to egghead: Set up your audio', href: 'https://howtoegghead-gatsby.netlify.app/set-up-your-audio' }],
+            },
+            {
+              text: '關於背景噪音控制,多個 podcast 錄音指南一致指出「源頭預防優於事後移除」:應選擇安靜、遠離空調主機與交通噪音的小房間,並用毛毯、棉被、窗簾等軟性材質吸收迴音與反射音。',
+              src: [
+                { label: 'Buzzsprout: Remove background noise', href: BUZZSPROUT },
+                {
+                  label: 'The Podcast Host',
+                  href: 'https://www.thepodcasthost.com/recording-skills/reduce-intermittent-background-noise-podcast-recordings/',
+                },
+              ],
+            },
+            {
+              text: '指向性電容式麥克風(condenser mic)對環境噪音較敏感,因此需要更安靜的錄音環境;動圈式麥克風(dynamic mic)因收音範圍較窄,常被建議作為噪音較多環境下的替代方案。',
+              src: [
+                {
+                  label: 'homerecording.com 論壇討論',
+                  href: 'https://homerecording.com/bbs/threads/usb-condenser-microphone-that-picks-less-background-noise.383156/',
+                },
+              ],
+            },
+            {
+              text: '錄音技巧上,建議講者嘴部與麥克風保持 3–6 吋(約 7.5–15 公分)距離,這樣可以降低收音增益(gain),同時減少環境噪音被放大收錄的程度。',
+              src: [{ label: 'Buzzsprout: Remove background noise from Audacity', href: BUZZSPROUT }],
+            },
+            {
+              text: '若已有錄音被噪音污染,Audacity 的 Noise Removal 效果是最常被引用的事後處理方法:先選取一段只有噪音、沒有人聲的片段取樣噪音輪廓(noise profile),再對整軌套用該效果;需留意套用後檢查結果,避免聲音出現「水底悶聲」的失真感。',
+              src: [{ label: 'Buzzsprout: Remove background noise', href: BUZZSPROUT }],
+            },
+            {
+              text: 'Adobe Podcast 的 AI 降噪工具被作為另一個事後處理選項提出,宣稱不需要註冊、也能處理手機或低階麥克風錄下的音訊。',
+              src: [
+                {
+                  label: 'Tutkit: Remove background noise with Adobe Podcast',
+                  href: 'https://tutkit.com/en/text-tutorials/2275-remove-background-noise-with-adobe-podcast-heres-how-to-succeed',
+                },
+              ],
+            },
+            {
+              text: 'egghead.io 的公開發表指南提醒新手講者常見錄製錯誤是語速過快,建議刻意放慢節奏,讓初學者(newbies)能夠跟上內容。',
+              src: [EGG_PUBLISHING],
+            },
+            {
+              text: 'egghead.io 建議以「短片段、每段約 20 秒、只涵蓋一個想法」的方式分段錄製,並在片段之間停頓,這樣既方便後製剪輯,也讓講者不必為了維持單次長錄影的流暢度而加快語速或跳過停頓。',
+              src: [EGG_SCREENCASTING],
+            },
+            {
+              text: '公開演講節奏建議指出,應用「停頓」取代用贅詞(嗯、啊、就是)填補思考空檔,停頓本身也能在關鍵論點前後產生強調效果,避免冷場感其實不等於避免沉默,而是避免無意義的填充音。',
+              src: [SLIDEGENIUS],
+            },
+          ]}
+        />
+
+        <Inferences
+          items={[
+            '對把「開源專案開發範例」轉製成課程影片的場景而言,egghead 的三欄式佈局(編輯器 2/3、瀏覽器或範例 1/3)特別實用,因為開源專案常需要同時展示程式碼變更與執行結果(測試通過、瀏覽器畫面更新等)。',
+            'HiDPI/Retina 錄製後再輸出 1080p 的做法,本質上是「以更高解析度錄製、再降頻輸出」以確保文字邊緣清晰不糊,這點對程式碼畫面特別重要,值得在工具鏈小節中與字體設定一起強調。',
+            '噪音控制「源頭優先於後製」的原則與「分段錄製、每段只講一個想法」的節奏策略相輔相成:分段錄製本身就降低了單次收音失敗(環境突發噪音、講錯重來)的成本,兩者結合可以大幅減少技術教學影片製作中最耗時的「全部重錄」風險。',
+          ]}
+        />
+
+        <Gaps
+          items={[
+            '沒有找到 Kent C. Dodds 本人公開說明自己實際使用的麥克風型號或錄音環境設定的第一手資料;搜尋結果只確認他是 egghead.io/Frontend Masters 講師,並取得 egghead 官方提供的標準器材(Shure BETA 87A 等),但這是平台統一配發的器材,不代表他個人工作室的實際配置。',
+            '沒有找到 Frontend Masters 錄製現場課程(workshop)時的具體技術規格(解析度、幀率、收音鏈路)第一手說明,只有 CEO Marc Grabanski 受訪時提及錄製現場同時收錄講師畫面與電腦畫面,但未提供技術細節。',
+          ]}
+        />
+      </Section>
+
+      <Section id="tools" title="常用工具鏈比較:OBS Studio、Camtasia、ScreenFlow、Loom">
+        <Takeaway>
+          四款工具大致形成分工:OBS Studio 是免費、跨平台、功能強大但學習曲線較高的「純錄製」工具,剪輯需搭配其他軟體;Camtasia
+          是功能完整的錄製+剪輯一體化商業軟體(Windows/Mac 皆有),有縮放、標註、過場等教學影片常用效果,但學習曲線也較陡且需付費訂閱;ScreenFlow
+          是 Mac 專屬的錄製+剪輯工具,以介面簡潔易用著稱,是 egghead.io 官方推薦首選;Loom
+          定位是「瀏覽器內快速錄製+分享連結」,剪輯功能有限(僅能調整起訖點),適合快速內部溝通而非正式課程製作。
+        </Takeaway>
+
+        <DataTable
+          head={['工具', '平台 / 授權', '定位', '剪輯能力', '適合情境', '使用者評分']}
+          rows={[
+            [
+              'OBS Studio',
+              '開源(GPL-2.0-or-later),Windows、macOS、Linux',
+              '免費、功能強大的純錄製工具,學習曲線較陡',
+              '無內建剪輯,需搭配其他軟體',
+              '想要免費、高品質的錄製,並願意另外用其他工具剪輯',
+              'Software Advice 4.7/5(1072 則);GetApp 4.7/5(1074 則)',
+            ],
+            [
+              'Camtasia',
+              '商業軟體,Windows/Mac,需年費訂閱(一篇比較文章提及約 $179.88/年,來自競品比較頁,需謹慎採信)',
+              '錄製+剪輯一體化',
+              '修剪片段、轉場、多軌影音疊加、標註與圈選提示(callouts/annotations)',
+              '需要縮放特效、標註、畫面清理的正式教學影片',
+              'GetApp 4.5/5(452 則)',
+            ],
+            [
+              'ScreenFlow',
+              'Mac 專屬商業軟體,G2 列出入門定價約 $129',
+              '錄製+剪輯,以簡潔易用著稱;egghead.io 官方偏好',
+              '一體化剪輯',
+              'Mac 環境的正式課程製作',
+              'Software Advice 4.8/5(24 則)',
+            ],
+            [
+              'Loom',
+              '瀏覽器內錄製',
+              '強調速度,產生連結即可分享',
+              '僅能調整起訖點',
+              '臨時快速錄一段操作畫面傳給同事看,當天就要用',
+              '—',
+            ],
+          ]}
+        />
+
+        <Findings
+          items={[
+            {
+              text: 'egghead.io 官方指南明確建議:Windows 用戶使用 Camtasia 進行錄製與剪輯;Mac 用戶可用 ScreenFlow 或 Camtasia,但 egghead 更偏好 ScreenFlow,因其操作「更簡單(simplicity)」;egghead 會提供講師所需的軟體授權。',
+              src: [EGG_SCREENCASTING],
+            },
+            {
+              text: 'Stephanie Eckles(5t3ph)分享自己的螢幕教學錄製流程時說明她使用 ScreenFlow 進行錄製,並建議 Mac 新手可用內建的 QuickTime 搭配 iMovie 作為入門替代方案。',
+              src: [ECKLES],
+            },
+            {
+              text: 'OBS Studio 是開源(GPL-2.0-or-later)軟體,支援 Windows、macOS、Linux 跨平台;ScreenFlow 是 Mac 專屬的商業軟體,G2 列出其入門定價約 $129。',
+              src: [
+                {
+                  label: 'Comparison of screencasting software (Wikipedia)',
+                  href: 'https://kaweah.freedombox.rocks/kiwix/wikipedia_en_all_maxi_2023-10/Comparison_of_screencasting_software',
+                },
+                { label: 'G2: OBS Studio vs ScreenFlow', href: 'https://www.g2.com/compare/obs-studio-vs-screenflow' },
+              ],
+            },
+            {
+              text: '使用者評分比較:Software Advice 上 OBS 評分 4.7/5(1072 則評論),ScreenFlow 評分 4.8/5(24 則評論);GetApp 上 Camtasia 評分 4.5/5(452 則評論),OBS 評分 4.7/5(1074 則評論)。',
+              src: [
+                {
+                  label: 'Software Advice comparison',
+                  href: 'https://www.softwareadvice.com/video-making/camtasia-profile/vs/obs-studio/',
+                },
+                { label: 'GetApp comparison', href: 'https://www.getapp.ca/compare/133295/2049181/camtasia/vs/obs' },
+              ],
+            },
+            {
+              text: '工具定位總結(來自多篇廠商比較文章的共識):OBS 是免費、功能強大的純錄製工具,但設定與學習曲線比簡單錄影軟體更陡;Camtasia 專長在剪輯端——修剪片段、加入轉場效果、支援多軌影音疊加、加入標註與圈選提示(callouts/annotations),代價是學習曲線陡峭且需年費訂閱(一篇比較文章提及約 $179.88/年,但此數字來自競品比較頁,需謹慎採信);Loom 強調速度——瀏覽器內直接錄製、產生連結即可分享,但剪輯功能僅限於調整起訖點,無法做到 Camtasia 那種全片段的精細剪輯。',
+              src: [
+                { label: 'Vimeo Blog: Camtasia alternatives', href: 'https://vimeo.com/blog/post/camtasia-alternatives' },
+                {
+                  label: 'Guidde: Camtasia vs Loom',
+                  href: 'https://www.guidde.com/tool-comparison/camtasia-vs-loom-feature-comparison',
+                },
+              ],
+            },
+            {
+              text: '基於以上定位的使用建議:臨時想快速錄一段操作畫面傳給同事看,當天就要用 → 用 Loom;要做需要縮放特效、標註、畫面清理的正式教學影片 → 用 Camtasia;想要免費、高品質的錄製,並願意另外用其他工具剪輯 → 用 OBS。',
+              src: [{ label: 'Trainn: Camtasia vs Loom', href: 'https://trainn.co/blog/camtasia-vs-loom/' }],
+            },
+          ]}
+        />
+
+        <Inferences
+          items={[
+            '針對「把開源專案開發範例轉製成課程」的場景,egghead 官方與多位獨立講師(如 Stephanie Eckles)都指向 ScreenFlow(Mac 環境)或 Camtasia(跨平台)作為正式課程製作首選,而非 Loom;Loom 更適合用在錄製「草稿版」或與審核者/教練快速溝通概念的階段(類似 egghead 要求新講師先錄 30 秒測試片段的做法),而非最終交付的課程內容。',
+            'OBS 雖然免費且功能強大,但因為缺乏內建剪輯能力,若採用 OBS 錄製,流程上必須額外規劃「錄製(OBS)→ 剪輯(DaVinci Resolve/Premiere/iMovie 等外部工具)」兩階段工作流,這點在規劃剪輯流程時需要特別註明,與 Camtasia/ScreenFlow 的「一體化」工作流不同。',
+          ]}
+        />
+
+        <Gaps
+          items={[
+            '沒有找到針對「程式碼可讀性」「游標縮放跟隨效果」「字體渲染清晰度」這些技術教學場景特有需求的 OBS/Camtasia/ScreenFlow 專項評測文章;搜尋到的比較文章都是一般性廠商評測或評論聚合網站的功能表,未觸及程式碼畫面呈現的專項比較。',
+            '沒有找到 Camtasia/ScreenFlow/Loom 官方文件中針對「剪輯流程」的逐步教學內容的第一手引用(例如官方說明文件的具體操作步驟),只找到第三方比較文章的概述性說明。',
+          ]}
+        />
+      </Section>
+
+      <Section id="code-display" title="程式碼畫面呈現:字體、配色、畫面配置、live coding">
+        <Takeaway>
+          程式碼顯示字體建議遠大於一般編碼時使用的大小(約 16–18pt 起,或如 Eckles 實際設定的 14pt editor font size 搭配 400% window
+          zoom level 放大整體介面),搭配高對比主題、隱藏非必要 UI 元素(行號、狀態列、side panel)、限制每行字元數(80–120
+          字)以避免換行;關於 live coding 與預先寫好程式碼,學術研究顯示兩者在學習成效上沒有顯著差異,live coding
+          更能展示思考過程與除錯技巧但耗時且不穩定,預先寫好程式碼效率更高但可能掩蓋開發的漸進過程,許多實務者採混合做法。
+        </Takeaway>
+
+        <h3>Stephanie Eckles 的 VS Code 錄製設定</h3>
+        <DataTable
+          head={['設定', '值 / 做法']}
+          rows={[
+            [<code>editor.fontSize</code>, '14'],
+            [<code>editor.lineHeight</code>, '22'],
+            [<code>window.zoomLevel</code>, '4(會連帶放大其他面板文字,例如檔案總管)'],
+            ['配色', 'Apollo Midnight 高對比主題'],
+            ['關閉項目', '行號、儲存時自動格式化(format on save)、hover 提示資訊、breadcrumbs 導覽列;隱藏 activity bar 與 status bar'],
+            ['GitLens', '設為「zen」模式以隱藏行內 blame 資訊'],
+            [
+              '側邊欄',
+              '只留「Folders」面板可見,並用 Explorer Exclude 擴充套件新增「Hidden Items」面板隱藏 node_modules、.gitignore、.env、.vscode 等非必要項目',
+            ],
+            ['錄製解析度', '16:9(1280x720 或 1920x1080,依 egghead 建議),VS Code 全螢幕顯示'],
+            ['瀏覽器與終端機', '僅在實際使用時才顯示,並縮到最小必要尺寸'],
+          ]}
+        />
+
+        <Findings
+          items={[
+            {
+              text: 'egghead.io 的審核者筆記建議程式碼與瀏覽器輸出的字體大小約在 16–18pt 之間效果較好,並強調「越大越好」,前提是不會造成過度的畫面滾動。',
+              src: [
+                {
+                  label: 'How to egghead: Prepare your desktop environment',
+                  href: 'https://howtoegghead-gatsby.netlify.app/prepare-your-screen-for-recording',
+                },
+              ],
+            },
+            {
+              text: 'egghead.io 的螢幕環境設定頁建議將程式碼欄寬設定為 80 或 120 字元,讓程式碼有最大的橫向顯示空間,並盡量把字體放大到填滿可用空間;在 Windows 上應把程式碼字體放大到螢幕能容納的最大值,並搭配 OS 層級的 DPI 縮放讓介面更清晰易讀;同時明確指出低對比配色(low-contrast color schemes)會干擾學習,egghead 不會通過字體過小或畫面模糊的錄製內容。',
+              src: [EGG_SCREEN_SETUP],
+            },
+            {
+              text: 'Stephanie Eckles 公開分享的 VS Code 螢幕錄製設定具體數值(見上表):字體 14、行高 22、window.zoomLevel 4;Apollo Midnight 高對比主題;關閉行號、format on save、hover 提示、breadcrumbs,隱藏 activity bar 與 status bar;GitLens zen 模式;側邊欄只留 Folders 並以 Explorer Exclude 隱藏非必要項目;16:9 全螢幕錄製,瀏覽器與終端機僅在使用時顯示。',
+              src: [ECKLES],
+            },
+            {
+              text: '一篇關於「為何沒人看你的 screencast」的 Medium 文章指出,字體過小是常見錯誤,由於觀眾常在嵌入式小視窗中觀看影片,編輯器與終端機字體應該大幅放大。',
+              src: [
+                {
+                  label: 'Medium: How to Make Amazing Screencasts Nobody Will Watch',
+                  href: 'https://medium.com/burke-knows-words/how-to-make-amazing-screencasts-nobody-will-watch-fc3812a22f5a',
+                },
+              ],
+            },
+            {
+              text: 'egghead.io 審核者建議以 2:1 的比例配置畫面,編輯器佔約三分之二畫面、瀏覽器或範例輸出佔三分之一,終端機可佔用右側下方區塊或與範例共用右欄;畫面上下需留白以避免播放器介面遮住內容(尤其終端機底部輸出易被遮擋)。',
+              src: [EGG_SCREEN_SETUP],
+            },
+          ]}
+        />
+
+        <h3>Live coding 與預先寫好程式碼</h3>
+        <CardGrid
+          items={[
+            {
+              title: 'Live coding',
+              body: '優點:讓思考過程動態呈現、推理外顯,可示範如何解讀錯誤訊息、用 print 除錯;初學者偏好此方式。缺點:備課與授課都更耗時(有時多花兩倍時間),缺乏結構性與可預測性,即興編碼帶來心理壓力。',
+            },
+            {
+              title: '預先寫好程式碼',
+              body: '優點:在有限時間內涵蓋更多主題。缺點:可能讓完成的程式看起來像「一次性完整生成」,掩蓋實際開發中漸進式撰寫與測試的過程。',
+            },
+          ]}
+        />
+
+        <Findings
+          label="研究發現:live coding"
+          items={[
+            {
+              text: '2023 年 ICER(International Computing Education Research)的一項對照研究(UCSD)直接比較兩者,結論是 live coding 並未在學習成效上顯著優於靜態範例,且論文中唯一具統計顯著性的結果反而指出 live coding 的潛在缺點。',
+              src: [
+                {
+                  label: 'ICER 2023: An Empirical Evaluation of Live Coding in CS1',
+                  href: 'https://icer2023.acm.org/details/icer-2023-papers/34/An-Empirical-Evaluation-of-Live-Coding-in-CS1',
+                },
+              ],
+            },
+            {
+              text: '2020 年 UW-Madison 的研究未能證明 live coding 與靜態程式碼範例在學生學習成效上有差異。',
+              src: [{ label: 'pages.cs.wisc.edu: LiveCoding.pdf', href: WISC_LIVECODING }],
+            },
+            {
+              text: 'live coding 的優點:能讓講者的思考過程動態呈現、使推理過程外顯,研究提及講師透過口頭表達想法來示範有效的開發策略,例如如何解讀錯誤訊息、如何使用 print 陳述式除錯;早期研究也發現程式設計初學者偏好以 live coding 方式學習。',
+              src: [{ label: 'LiveCoding.pdf', href: WISC_LIVECODING }],
+            },
+            {
+              text: 'live coding 的缺點:比使用靜態程式碼範例更耗時,無論是備課或實際授課時間都是如此,文獻提到有時甚至要多花兩倍時間;live coding 也缺乏靜態範例的結構性與可預測性,講者在觀眾注視下即興編碼也會帶來心理壓力。',
+              src: [ACADEMIA],
+            },
+            {
+              text: '預先寫好程式碼的優點是能在有限時間內涵蓋更多主題,比 live coding session 能涵蓋更多內容;缺點是可能誤導初學者,讓完成的程式看起來像是「一次性完整生成」,掩蓋了實際開發中漸進式撰寫與測試的過程。',
+              src: [ACADEMIA],
+            },
+            {
+              text: '一篇 2025 年 SIGCSE 論文特別測試「不搭配額外主動學習活動的單純 live coding」,因為一般常見的 live coding 研究常與其他主動學習法綁在一起進行,難以單獨拆解出 live coding 本身的效果;該論文結論傾向「單純被動觀看 live coding 效果有限」(Live But Not Active: Minimal Effect with Passive Live Coding)。',
+              src: [
+                {
+                  label: 'SIGCSE 2025',
+                  href: 'https://sigcse2025.sigcse.org/details/sigcse-ts-2025-Papers/4/Live-But-Not-Active-Minimal-Effect-with-Passive-Live-Coding',
+                },
+              ],
+            },
+          ]}
+        />
+
+        <Callout tone="key" title="推論:預先寫好當地圖,錄製時分段重現">
+          <p>
+            對「開源專案開發範例轉製課程」這個具體場景而言,純粹的 live coding(從零開始在鏡頭前現場打字)效率低且風險高(容易打錯字、卡住除錯耗時),而純粹預先寫好程式碼又會掩蓋開源專案真實開發過程中的除錯與迭代價值;結合學術文獻與
+            egghead「分段錄製+每段 20 秒一個想法」的建議,較可行的做法是:
+            <strong>
+              預先寫好最終程式碼作為「地圖」,但在錄製時用分段 live-typing 的方式逐步「重現」關鍵的程式碼變更
+            </strong>
+            (而非真正即時發明程式碼),這樣既保留 live coding 展示思考過程的教學價值,又避免真正即時編碼的效率與穩定性問題。
+          </p>
+        </Callout>
+
+        <Inferences
+          items={[
+            'Eckles 的具體設定(14pt 字體 + 400% 視窗縮放)與 egghead 的「16–18pt」建議在數字上看似不同,但本質一致:兩者都是透過「字體設定 + 系統/視窗縮放」的組合去達到「填滿畫面、放大到最大可讀尺寸」的效果,而非單純依賴編輯器內的字體大小數值;在整理工具鏈建議時應強調「實際視覺呈現大小」而非編輯器設定的絕對數字,因為不同螢幕解析度與縮放比例下同一個 pt 數字視覺效果差異很大。',
+            '隱藏非必要 UI 元素(行號、狀態列、hover 提示、breadcrumbs)這個做法,其核心目的不只是「省空間放大字體」,也是降低觀眾在畫面上需要處理的視覺噪音,讓注意力集中在程式碼本身與講者正在操作的區域,這與「三欄式佈局+留白」的原則是一致的設計邏輯。',
+          ]}
+        />
+
+        <Gaps
+          items={[
+            '沒有找到技術教學特別推薦的「IDE 配色主題」具體清單(例如業界是否普遍推薦某幾款特定主題如 One Dark Pro、Dracula、Solarized 等);只找到「避免低對比配色」「採用高對比主題」的原則性建議(如 Eckles 使用 Apollo Midnight),沒有找到多個獨立來源對特定主題名稱的共識推薦,無法給出具體主題清單。',
+            '沒有找到字幕/無障礙指南中「技術教學影片」專項的字體/配色呈現建議與影片本身的程式碼呈現技巧的交叉討論(PyCon DE 2026 的議程摘要提到「每句字幕顯示 3–5 秒」「章節時間戳記」「避免閃爍紅色動畫」等無障礙建議,但這是議程摘要層級的資訊,並非議程完整內容或逐字稿,無法進一步展開技術細節)。',
+          ]}
+        />
+      </Section>
+    </Article>
+  )
+}

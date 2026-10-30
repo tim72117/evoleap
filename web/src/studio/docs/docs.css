@@ -1,0 +1,103 @@
+/* Markdown body styling. Rendered inside SiteLayout, so colors use the
+   --site-* tokens (light/dark); fallbacks keep it readable standalone. */
+.doc-page {
+  color: var(--site-text, #1f2328);
+  line-height: 1.85;
+}
+
+.doc-nav {
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--site-muted, #59636e);
+}
+
+.doc-page a {
+  color: var(--site-link, #0969da);
+}
+
+.doc-nav a {
+  text-decoration: none;
+}
+
+.doc-body {
+  overflow-wrap: anywhere;
+}
+
+.doc-body h1,
+.doc-body h2,
+.doc-body h3 {
+  line-height: 1.4;
+}
+
+.doc-body h1 {
+  margin-top: 0;
+  font-size: clamp(26px, 3.4vw, 34px);
+}
+
+.doc-body h2 {
+  margin-top: 2em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--site-border, #d0d7de);
+}
+
+.doc-body table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 14px;
+}
+
+.doc-body th,
+.doc-body td {
+  border: 1px solid var(--site-border, #d0d7de);
+  padding: 6px 10px;
+  vertical-align: top;
+}
+
+.doc-body th {
+  background: var(--site-code-bg, #f6f8fa);
+}
+
+.doc-body code {
+  background: var(--site-code-bg, #f6f8fa);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  letter-spacing: 0;
+}
+
+.doc-body pre {
+  background: var(--site-code-bg, #f6f8fa);
+  padding: 12px;
+  overflow-x: auto;
+  border-radius: 6px;
+}
+
+.doc-body pre code {
+  padding: 0;
+  background: none;
+}
+
+.doc-body blockquote {
+  margin: 1em 0;
+  padding: 0 1em;
+  color: var(--site-muted, #59636e);
+  border-left: 4px solid var(--site-border, #d0d7de);
+}
+
+.doc-list li {
+  margin: 6px 0;
+}
+
+.doc-summary {
+  color: var(--site-muted, #59636e);
+  font-size: 14px;
+}
+
+.doc-footer {
+  margin-top: 40px;
+  font-size: 13px;
+  color: var(--site-muted, #59636e);
+}

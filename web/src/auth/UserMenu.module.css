@@ -1,0 +1,164 @@
+/* 頁首登入狀態小工具。顏色沿用 SiteLayout 的 --site-* tokens(有預設值,放在 .site 外也能顯示)。 */
+
+.skeleton {
+  display: inline-block;
+  width: 72px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--site-surface-2, #eef0ff);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+a[href].login {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--site-accent, #6366f1);
+  color: var(--site-accent-contrast, #fff);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: filter 0.15s;
+}
+
+a[href].login:hover {
+  filter: brightness(1.08);
+}
+
+a[href].login:focus-visible,
+.trigger:focus-visible,
+.item:focus-visible {
+  outline: 2px solid var(--site-accent, #6366f1);
+  outline-offset: 2px;
+}
+
+.root {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.trigger {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 200px;
+  padding: 3px 10px 3px 3px;
+  border: 1px solid var(--site-border, #e1e4f5);
+  border-radius: 999px;
+  background: var(--site-surface, #fff);
+  color: var(--site-text, #1b1d3a);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.trigger:hover,
+.trigger[aria-expanded='true'] {
+  background: var(--site-surface-2, #eef0ff);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--site-accent, #6366f1), var(--site-accent-strong, #5b3fd6));
+  color: var(--site-accent-contrast, #fff);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.name {
+  min-width: 0;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.caret {
+  flex-shrink: 0;
+  color: var(--site-muted, #5b5f80);
+  transition: transform 0.15s;
+}
+
+.trigger[aria-expanded='true'] .caret {
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  min-width: 220px;
+  max-width: min(300px, calc(100vw - 24px));
+  padding: 6px;
+  background: var(--site-surface, #fff);
+  border: 1px solid var(--site-border, #e1e4f5);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgb(40 40 120 / 16%);
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--site-border, #e1e4f5);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--site-muted, #5b5f80);
+  overflow-wrap: anywhere;
+}
+
+.identity strong {
+  font-size: 14px;
+  color: var(--site-text, #1b1d3a);
+}
+
+.item {
+  appearance: none;
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--site-text, #1b1d3a);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover:not(:disabled),
+.item:focus-visible {
+  background: var(--site-surface-2, #eef0ff);
+}
+
+.item:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (max-width: 600px) {
+  .name {
+    display: none;
+  }
+
+  .trigger {
+    padding-right: 8px;
+  }
+}

@@ -1,0 +1,207 @@
+/* 模擬播放器：影片尚未上架時代替 YouTube 嵌入，畫面固定深色，像真的播放器。 */
+
+.player {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--site-radius);
+  overflow: hidden;
+  background: #0f1020;
+  color: #fff;
+  outline: none;
+}
+
+.player:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 55%, transparent);
+}
+
+.screen {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  /* 課程頁給播放器固定高度時，畫面讓出控制列的高度（整個播放器維持 16:9） */
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 32px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 20% 15%, rgb(99 102 241 / 0.45), transparent 55%),
+    radial-gradient(circle at 85% 90%, rgb(139 92 246 / 0.4), transparent 50%),
+    #14152b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+  border: 1px solid rgb(255 255 255 / 0.3);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(13px, 2vw, 16px);
+  color: rgb(255 255 255 / 0.7);
+}
+
+.chapter {
+  margin: 0;
+  max-width: 90%;
+  font-size: clamp(18px, 4vw, 32px);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.bigPlay {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.9);
+  color: #4338ca;
+  font-size: 18px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #0b0c18;
+  font-size: 13px;
+}
+
+.btn {
+  flex: none;
+  width: 34px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 0.12);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.bar {
+  position: relative;
+  flex: 1;
+  min-width: 80px;
+  height: 24px;
+}
+
+.track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.22);
+}
+
+.fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #818cf8;
+}
+
+.tick {
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 12px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: #fde68a;
+}
+
+.range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.bar:has(.range:focus-visible) .track {
+  outline: 2px solid #c7d2fe;
+  outline-offset: 3px;
+}
+
+.time {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  color: rgb(255 255 255 / 0.85);
+}
+
+.speeds {
+  flex: none;
+  display: flex;
+  gap: 2px;
+}
+
+.speeds button {
+  padding: 3px 7px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgb(255 255 255 / 0.7);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.speeds .speedOn {
+  background: rgb(255 255 255 / 0.18);
+  color: #fff;
+  font-weight: 700;
+}
+
+.btn:focus-visible,
+.speeds button:focus-visible {
+  outline: 2px solid #c7d2fe;
+}
+
+@media (max-width: 520px) {
+  /* 控制列變兩排、畫面變矮：標題讓開左上角的標籤 */
+  .screen {
+    gap: 4px;
+    padding: 34px 16px 10px;
+  }
+
+  .chapter {
+    font-size: clamp(16px, 4.5vw, 22px);
+  }
+
+  .controls {
+    flex-wrap: wrap;
+    gap: 6px 8px;
+  }
+
+  .bar {
+    order: -1;
+    flex-basis: 100%;
+  }
+
+  .speeds {
+    margin-left: auto;
+  }
+}

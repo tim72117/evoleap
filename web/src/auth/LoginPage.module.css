@@ -1,0 +1,342 @@
+/* 登入／註冊頁。沿用 SiteLayout 的 --site-* tokens。 */
+
+.wrap {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  padding: 32px 32px 24px;
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: calc(var(--site-radius) + 4px);
+  box-shadow: var(--site-shadow);
+}
+
+.loading {
+  margin: 24px 0;
+  text-align: center;
+  color: var(--site-muted);
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.subtitle {
+  margin: 6px 0 20px;
+  font-size: 14.5px;
+  color: var(--site-muted);
+  text-align: center;
+}
+
+/* ---------- tabs ---------- */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 22px;
+  background: var(--site-surface-2);
+  border-radius: 999px;
+}
+
+.tab {
+  appearance: none;
+  border: 0;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--site-muted);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.tab:hover {
+  color: var(--site-text);
+}
+
+.tab[aria-selected='true'] {
+  background: var(--site-surface);
+  color: var(--site-accent-strong);
+  box-shadow: 0 1px 3px rgb(40 40 120 / 12%);
+}
+
+.tab:focus-visible,
+.reveal:focus-visible,
+.submit:focus-visible,
+.linkButton:focus-visible,
+.secondary:focus-visible,
+.card a:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- google ---------- */
+.google {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  font-size: 13px;
+  color: var(--site-muted);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--site-border);
+}
+
+/* ---------- form ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--site-muted);
+}
+
+.field input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--site-border);
+  border-radius: 10px;
+  background: var(--site-surface);
+  color: var(--site-text);
+  font: inherit;
+  font-size: 16px; /* 16px 避免 iOS 聚焦時自動放大 */
+  line-height: 1.5;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.field input::placeholder {
+  color: color-mix(in srgb, var(--site-muted) 70%, transparent);
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--site-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 20%, transparent);
+}
+
+.passwordRow {
+  position: relative;
+}
+
+.passwordRow input {
+  padding-right: 64px;
+}
+
+.reveal {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  appearance: none;
+  border: 0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--site-link);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reveal:hover {
+  background: var(--site-surface-2);
+}
+
+.hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--site-muted);
+}
+
+.error {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.submit,
+.card a.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--site-accent), var(--site-accent-strong));
+  color: var(--site-accent-contrast);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--site-accent) 30%, transparent);
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.submit {
+  margin-top: 4px;
+}
+
+.submit:hover:not(:disabled),
+.card a.primary:hover {
+  filter: brightness(1.06);
+}
+
+.submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.submit:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.switch {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--site-muted);
+}
+
+.linkButton {
+  appearance: none;
+  border: 0;
+  padding: 0 2px;
+  margin-left: 4px;
+  background: none;
+  color: var(--site-link);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
+}
+
+.legal {
+  margin: 20px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--site-border);
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--site-muted);
+}
+
+.legal a {
+  margin: 0 2px;
+}
+
+/* ---------- signed in ---------- */
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--site-accent), var(--site-accent-strong));
+  color: var(--site-accent-contrast);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.signedInText {
+  margin: 8px 0 22px;
+  text-align: center;
+  color: var(--site-muted);
+  overflow-wrap: anywhere;
+}
+
+.signedInText strong {
+  color: var(--site-text);
+}
+
+.signedInEmail {
+  display: block;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.secondary {
+  appearance: none;
+  padding: 10px 20px;
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--site-surface-2);
+}
+
+.secondary:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+@media (max-width: 480px) {
+  .wrap {
+    padding: 0;
+  }
+
+  .card {
+    padding: 24px 20px 20px;
+  }
+}

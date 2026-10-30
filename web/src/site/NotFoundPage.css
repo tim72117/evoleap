@@ -1,0 +1,26 @@
+.not-found {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+}
+
+.not-found-code {
+  margin: 0;
+  font-size: 64px;
+  font-weight: 800;
+  color: var(--site-accent);
+}
+
+.not-found h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.not-found a {
+  margin-top: 12px;
+}

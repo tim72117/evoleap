@@ -1,0 +1,92 @@
+name: Deploy to Cloud Run
+
+# 打 v* 格式的 git tag(如 v0.1.0)時自動 build+deploy,沿用 tripace 的
+# 「打 tag = 確認上線」流程。workflow_dispatch 供手動觸發;skip_build=true
+# 時跳過 build/push,直接用 Artifact Registry 裡現有的 :latest image 部署。
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      skip_build:
+        description: '只部署不重新 build（使用現有 latest image）'
+        type: boolean
+        default: false
+
+env:
+  GCP_PROJECT_ID: "shuttle-045094509"
+  CLOUD_RUN_SERVICE: "shuttle-server"
+  CLOUD_RUN_REGION: "asia-east1"
+  IMAGE: "asia-east1-docker.pkg.dev/shuttle-045094509/cloud-run-source-deploy/shuttle-server"
+  # 與 tripace 共用同一個 Cloud SQL 實例,資料庫與使用者分開(shuttle)。
+  CLOUDSQL_INSTANCE: "onagent-prod:asia-east1:onagent-db"
+
+jobs:
+  # 測試沒過就不部署(避免把改壞的版本推上線)。
+  test:
+    uses: ./.github/workflows/test.yml
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Workload Identity Federation:GitHub Actions 以 OIDC token 換取 GCP
+      # 短期憑證,不需要在 GitHub 存 service account key。
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Configure Docker for Artifact Registry
+        if: github.event.inputs.skip_build != 'true'
+        run: gcloud auth configure-docker asia-east1-docker.pkg.dev --quiet
+
+      # GA_MEASUREMENT_ID 為 GitHub repo variable(Settings → Variables);未設定時為空字串,
+      # 前端即不載入 Google Analytics。
+      - name: Build Docker image
+        if: github.event.inputs.skip_build != 'true'
+        run: |
+          docker build \
+            --build-arg VITE_GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID }} \
+            -t ${{ env.IMAGE }}:${{ github.sha }} \
+            -t ${{ env.IMAGE }}:latest \
+            .
+
+      - name: Push image
+        if: github.event.inputs.skip_build != 'true'
+        run: |
+          docker push ${{ env.IMAGE }}:${{ github.sha }}
+          docker push ${{ env.IMAGE }}:latest
+
+      # skip_build=true 時本次沒有 build,${{ github.sha }} 的 image 不存在,改用 :latest。
+      # 目前尚未接資料庫與 Google 登入:伺服器在 Cloud Run 上沒有 DATABASE_URL 時會自動停用登入功能。
+      # 要啟用登入時,建立 Secret Manager 機密並加上下列參數(與 tripace 同專案,名稱加 SHUTTLE_ 前綴):
+      #   --add-cloudsql-instances=${{ env.CLOUDSQL_INSTANCE }}
+      #   --update-secrets=DATABASE_URL=SHUTTLE_DATABASE_URL:latest,JWT_SECRET=SHUTTLE_JWT_SECRET:latest,GOOGLE_OAUTH_CLIENT_ID=SHUTTLE_GOOGLE_OAUTH_CLIENT_ID:latest
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
+            --image=${{ env.IMAGE }}:${{ github.event.inputs.skip_build == 'true' && 'latest' || github.sha }} \
+            --region=${{ env.CLOUD_RUN_REGION }} \
+            --project=${{ env.GCP_PROJECT_ID }} \
+            --allow-unauthenticated \
+            --quiet
+
+      - name: Show Cloud Run URL
+        run: |
+          URL=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.CLOUD_RUN_REGION }} \
+            --project ${{ env.GCP_PROJECT_ID }} \
+            --format 'value(status.url)')
+          echo "### 部署完成" >> "$GITHUB_STEP_SUMMARY"
+          echo "URL: $URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "$URL"

@@ -1,0 +1,40 @@
+# ---- 環境變數與機密(.env.example 範本要進版控)----
+.env
+.env.*
+!.env.example
+
+# ---- Go server ----
+*.exe
+server/server
+# go test 產物
+*.test
+*.out
+coverage.*
+
+# go:embed 的前端 build 產物,只在 Docker build 過程中產生,不進版控
+server/cmd/server/web/dist/*
+!server/cmd/server/web/dist/index.html
+
+# 本機 SQLite 資料庫(DATABASE_URL 未設定時)
+server/*.db
+server/*.db-*
+
+# ---- 前端／Node(各子目錄另有自己的 .gitignore)----
+node_modules/
+# Playwright 測試輸出
+test-results/
+playwright-report/
+
+# ---- 記錄檔 ----
+*.log
+
+# ---- 系統／編輯器 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ---- Claude Code 本機設定(共用設定 .claude/settings.json 可進版控)----
+.claude/settings.local.json

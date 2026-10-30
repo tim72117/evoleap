@@ -1,0 +1,352 @@
+/* Ported from proposal/style.css. Everything is scoped under .proposal (set by
+   ProposalLayout) so it does not leak into the rest of the app. */
+.proposal {
+  --bg: #faf8f4;
+  --surface: #ffffff;
+  --border: #e4ddd0;
+  --ink: #2b2620;
+  --ink-soft: #6b6153;
+  --accent: #b5742a;
+  --accent-soft: #f3e6d4;
+  --done: #3f7a4e;
+  --done-soft: #e3f0e4;
+  --todo: #a8620f;
+  --todo-soft: #f8ead3;
+  --out: #8a4a43;
+  --out-soft: #f4e1de;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: -apple-system, "PingFang TC", "Noto Sans TC", "Helvetica Neue", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  .proposal {
+    --bg: #1c1915;
+    --surface: #262219;
+    --border: #3a3326;
+    --ink: #efe9dd;
+    --ink-soft: #a89c87;
+    --accent: #e0a85c;
+    --accent-soft: #3a2e1c;
+    --done: #7cc48c;
+    --done-soft: #243324;
+    --todo: #e0a85c;
+    --todo-soft: #3a2e1c;
+    --out: #e09a90;
+    --out-soft: #3a2420;
+  }
+}
+
+.proposal, .proposal * { box-sizing: border-box; }
+.proposal {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.65;
+}
+
+.proposal .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.proposal .topbar-inner {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 54px;
+}
+.proposal .brand {
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.proposal .topbar nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.proposal .topbar nav a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+.proposal .topbar nav a:hover { background: var(--accent-soft); color: var(--ink); }
+.proposal .topbar nav a[aria-current="page"] { background: var(--accent); color: #fff; }
+
+.proposal main { max-width: 920px; margin: 0 auto; padding: 36px 20px 72px; }
+
+.proposal h1 { font-size: 28px; line-height: 1.3; margin: 0 0 8px; letter-spacing: -0.01em; }
+.proposal h2 { font-size: 20px; margin: 40px 0 14px; }
+.proposal .lead { color: var(--ink-soft); margin: 0 0 8px; font-size: 15px; }
+.proposal .lead a, .proposal .note a, .proposal td a { color: var(--accent); }
+
+.proposal .card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin: 0 0 18px;
+  overflow: hidden;
+}
+.proposal .card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.proposal .card-head h3 { margin: 0; font-size: 16px; }
+.proposal .card-head .meta { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+.proposal .card-body { padding: 18px 20px; }
+.proposal .card-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 11px 20px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 93%, var(--accent) 7%);
+}
+.proposal .card-foot .count { margin-right: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+
+.proposal .text { white-space: pre-line; font-size: 15px; line-height: 1.8; }
+.proposal .sub-label {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  margin: 16px 0 6px;
+}
+.proposal .sub-label:first-child { margin-top: 0; }
+
+.proposal .chip {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.proposal .chip.done { background: var(--done-soft); color: var(--done); }
+.proposal .chip.todo { background: var(--todo-soft); color: var(--todo); }
+.proposal .chip.out { background: var(--out-soft); color: var(--out); }
+
+.proposal button.copy {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.proposal button.copy:hover { opacity: 0.8; }
+.proposal button.copy.copied { color: var(--done); background: var(--done-soft); }
+
+.proposal .btn {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 13px;
+  text-decoration: none;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 9px;
+  padding: 9px 16px;
+}
+.proposal .btn.ghost { color: var(--accent); background: var(--accent-soft); }
+
+.proposal table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.proposal th, .proposal td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.proposal th { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.04em; color: var(--ink-soft); font-weight: 600; }
+.proposal tr:last-child td { border-bottom: 0; }
+
+.proposal .note {
+  background: var(--todo-soft);
+  border: 1px solid color-mix(in srgb, var(--todo) 30%, transparent);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  margin: 0 0 18px;
+}
+.proposal .note strong { display: block; margin-bottom: 4px; }
+.proposal .note ul { margin: 6px 0 0; padding-left: 20px; }
+
+.proposal .flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 6px;
+  margin: 0 0 8px;
+  font-size: 13.5px;
+}
+.proposal .flow span.step { padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); }
+.proposal .flow span.step.keep { border-color: var(--done); color: var(--done); background: var(--done-soft); }
+.proposal .flow span.step.out { border-color: var(--out); color: var(--out); background: var(--out-soft); text-decoration: line-through; }
+.proposal .flow span.step.redo { border-color: var(--todo); color: var(--todo); background: var(--todo-soft); }
+.proposal .flow i { color: var(--ink-soft); font-style: normal; }
+
+.proposal .unit { display: grid; grid-template-columns: 54px 1fr; gap: 0 16px; }
+.proposal .unit .num {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  padding-top: 2px;
+}
+.proposal .unit.out { opacity: 0.62; }
+.proposal .unit h3 { font-size: 16.5px; margin: 0; }
+.proposal .unit .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.proposal .unit dl { margin: 10px 0 0; font-size: 14.5px; }
+.proposal .unit dt { font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; }
+.proposal .unit dd { margin: 2px 0 0; }
+
+.proposal .frame { width: 100%; border: 1px solid var(--border); border-radius: 14px; background: #1c1915; }
+
+.proposal footer { max-width: 920px; margin: 0 auto; padding: 0 20px 48px; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+
+@media (max-width: 640px) {
+  .proposal .topbar-inner { height: auto; padding: 10px 16px; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .proposal .unit { grid-template-columns: 1fr; }
+  .proposal h1 { font-size: 23px; }
+}
+
+.proposal .back {
+  display: inline-block;
+  font-size: 13.5px;
+  color: var(--accent);
+  text-decoration: none;
+  margin: 0 0 14px;
+}
+.proposal .back:hover { text-decoration: underline; }
+.proposal footer .back { margin: 0; font-size: 12px; }
+
+/* Repo files the web app does not serve (README, .md reports, video scripts):
+   shown as a repo path instead of a broken link. */
+.proposal .repo-path { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); margin-left: 6px; }
+
+/* ---- video page (was an inline <style> in proposal/video.html) ---- */
+.proposal .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 22px; }
+.proposal figure { margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.proposal figure img { display: block; width: 100%; height: auto; }
+.proposal figcaption { padding: 12px 16px; font-size: 14.5px; }
+.proposal figcaption b { display: inline-block; min-width: 1.6em; color: var(--accent); font-family: var(--mono); }
+.proposal .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; margin: 0 0 18px; cursor: pointer; }
+
+/* ---- level nav (L1–L4) ---- */
+.proposal .topbar nav a .nav-short { font-family: var(--mono); font-weight: 700; }
+.proposal .topbar nav a .nav-long { margin-left: 2px; }
+.proposal .subnav { border-top: 1px solid var(--border); }
+.proposal .subnav nav { max-width: 920px; margin: 0 auto; padding: 6px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.proposal .subnav-label { font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); margin-right: 8px; }
+.proposal .subnav a { color: var(--ink-soft); text-decoration: none; font-size: 13px; padding: 4px 12px; border-radius: 999px; }
+.proposal .subnav a:hover { background: var(--accent-soft); color: var(--ink); }
+.proposal .subnav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+@media (max-width: 760px) {
+  .proposal .topbar nav a .nav-long { display: none; }
+  .proposal .topbar nav a { padding: 6px 11px; }
+}
+
+/* ---- level pages (L1/L2 outlines, overview dashboard) ---- */
+.proposal .draft-banner { display: inline-block; margin: 0 0 10px; }
+.proposal .card-head .head-left { display: flex; align-items: baseline; gap: 12px; }
+.proposal .card-head .head-num { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--accent); }
+.proposal .card-head .chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.proposal .why { font-size: 14px; color: var(--ink-soft); padding: 12px 20px 0; margin: 0; }
+.proposal td.nowrap, .proposal th.nowrap { white-space: nowrap; }
+.proposal td.small { font-size: 13.5px; }
+.proposal .cmd { font-family: var(--mono); font-size: 12.5px; white-space: pre-line; color: var(--accent); }
+.proposal .table-scroll { overflow-x: auto; }
+.proposal .plain-list { margin: 0; padding-left: 20px; font-size: 14.5px; }
+.proposal .plain-list li + li { margin-top: 4px; }
+.proposal .kv { display: grid; grid-template-columns: 7em 1fr; gap: 6px 14px; margin: 0; font-size: 14.5px; }
+.proposal .kv dt { font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); padding-top: 3px; }
+.proposal .kv dd { margin: 0; }
+.proposal .links { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 640px) {
+  .proposal .lesson-table thead { display: none; }
+  .proposal .lesson-table tr { display: block; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .proposal .lesson-table td { display: block; border: 0; padding: 3px 14px; }
+  .proposal .kv { grid-template-columns: 1fr; }
+}
+
+/* ---- L1 lesson production plans (collapsible per lesson) ---- */
+.proposal .lp-list { border-top: 1px solid var(--border); }
+.proposal .lesson-plan + .lesson-plan { border-top: 1px solid var(--border); }
+.proposal .lesson-plan summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 14.5px;
+}
+.proposal .lesson-plan summary::-webkit-details-marker { display: none; }
+.proposal .lesson-plan summary::before {
+  content: "▸";
+  color: var(--accent);
+  margin-right: -4px;
+  transition: transform 0.15s;
+}
+.proposal .lesson-plan[open] summary::before { transform: rotate(90deg); }
+.proposal .lesson-plan summary:hover { background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%); }
+.proposal .lesson-plan .lp-title { flex: 1; font-weight: 600; }
+.proposal .lesson-plan .lp-meta { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+.proposal .lp-body { padding: 4px 20px 20px; }
+.proposal .lp-scenario { font-size: 14.5px; margin: 0 0 6px; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); }
+.proposal .lp-text { font-size: 14.5px; margin: 0; }
+.proposal .lp-goal { font-size: 15px; font-weight: 600; margin: 0 0 8px; }
+.proposal .lp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.proposal .lp-steps > li { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.proposal .lp-step-head { display: flex; align-items: baseline; gap: 10px; font-size: 14.5px; }
+.proposal .lp-step-num {
+  flex-shrink: 0;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: inline-grid; place-items: center;
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  color: #fff; background: var(--accent);
+}
+.proposal .lp-prompt {
+  margin: 10px 0 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+  padding: 10px 12px;
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+.proposal .lp-prompt pre {
+  justify-self: stretch;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.7;
+  max-height: 22em;
+  overflow: auto;
+}
+.proposal .lp-noprompt { margin: 8px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+.proposal .lp-expected, .proposal .lp-note { margin: 8px 0 0; font-size: 13.5px; }
+.proposal .lp-note { color: var(--todo); }
+.proposal .lp-video-table { margin-top: 2px; }
+.proposal .lp-video-table td { padding: 8px 10px; }
+.proposal .lp-video-code { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.proposal .lp-wrap { color: var(--ink-soft); margin-top: 2px; font-size: 13px; }
+.proposal .lp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; margin-top: 16px; }
+.proposal .lp-grid .plain-list { font-size: 13.5px; }
+@media (max-width: 640px) {
+  .proposal .lp-grid { grid-template-columns: 1fr; }
+  .proposal .lesson-plan summary, .proposal .lp-body { padding-left: 14px; padding-right: 14px; }
+}

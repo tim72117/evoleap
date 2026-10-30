@@ -1,0 +1,19 @@
+# 只有 server/ 與 web/ 參與映像建置,其餘排除以縮小 build context。
+.git/
+.github/
+.claude/
+**/.env*
+!**/.env.example
+**/node_modules/
+web/dist/
+**/*.exe
+server/server
+
+# 錄影工具不參與建置。分鏡腳本 Markdown 由前端 build 讀取
+# (見 web/src/studio/docs/registry.ts),需保留 tools/video/scripts/*.md。
+tools/*
+!tools/video/
+tools/video/*
+!tools/video/scripts/
+tools/video/scripts/*.json
+**/README.md
