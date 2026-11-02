@@ -5,6 +5,7 @@ import { RecordingPage } from './pages/RecordingPage'
 import { ResearchReportPage } from './pages/ResearchReportPage'
 import { ScriptTemplatePage } from './pages/ScriptTemplatePage'
 import { ShotcraftPage } from './pages/ShotcraftPage'
+import { TtsLandscapePage } from './pages/TtsLandscapePage'
 import { VoiceCostPage } from './pages/VoiceCostPage'
 
 // slug 對應 registry.ts 的 articles。
@@ -15,6 +16,7 @@ const PAGES: Record<string, JSX.Element> = {
   'research/recording': <RecordingPage />,
   'research/script-template': <ScriptTemplatePage />,
   'research/video-shotcraft': <ShotcraftPage />,
+  'research/tts-landscape': <TtsLandscapePage />,
   'research/voice-cost': <VoiceCostPage />,
 }
 

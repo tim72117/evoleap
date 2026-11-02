@@ -16,7 +16,7 @@ web/                 前端（React + Vite + TypeScript）
       aiAgent.ts       L3 課程頁內容
       lessonTypes.ts   單課資料型別
       live/            即時教學畫面的腳本（JSON，例如 l0/0.0-tools.json；單課資料以 live 欄位指定）與旁白語音清單（*.voice.json）
-    live/            即時教學畫面引擎（ES module）：舞台 stage.js、播放器外殼 shell.js、演員 actors/、動畫工具 kit.js；規格見 src/live/README.md
+    live/            即時教學畫面引擎（TypeScript）：舞台 stage.ts、播放器外殼 shell.ts、演員 actors/、鏡頭 camera.ts、動畫工具 kit.ts；規格見 src/live/README.md
     home/            首頁（課程地圖）/
     courses/         課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁
     auth/            登入頁 /login、使用者選單、登入狀態

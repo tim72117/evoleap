@@ -7,7 +7,7 @@
       "actor": "claude-desktop",
       "props": {
         "title": "新的 session",
-        "folder": "~/Documents/ai-practice/xiaosen-booking",
+        "folder": "~/Documents/practice/bakery",
         "branch": null,
         "mode": "ask",
         "sessions": [],
@@ -22,11 +22,11 @@
       "actor": "finder",
       "props": {
         "tree": {
-          "ai-practice": {
+          "practice": {
             "hello.txt": ""
           }
         },
-        "open": "ai-practice"
+        "open": "practice"
       },
       "place": "right",
       "hidden": true
@@ -49,14 +49,14 @@
       "show": "finder",
       "chapter": "建立專案資料夾",
       "lessonStep": 1,
-      "narration": "打開上一課的 ai-practice 練習資料夾，裡面有上一課建立的 hello.txt。"
+      "narration": "打開上一課的 practice 練習資料夾，裡面有上一課建立的 hello.txt。"
     },
     {
-      "mkdir": "xiaosen-booking",
-      "narration": "在這裡新增一個資料夾，取名 xiaosen-booking，這就是小森烘焙網站的專案資料夾。"
+      "mkdir": "bakery",
+      "narration": "在這裡新增一個資料夾，取名 bakery，這就是小森烘焙網站的專案資料夾。"
     },
     {
-      "open": "xiaosen-booking",
+      "open": "bakery",
       "narration": "打開它，現在是空的。"
     },
     {
@@ -64,12 +64,12 @@
     },
     {
       "show": "claude",
-      "narration": "上一課的工具如果還開著，先關掉，再從 xiaosen-booking 重新開啟。"
+      "narration": "上一課的工具如果還開著，先關掉，再從 bakery 重新開啟。"
     },
     {
       "callout": "claude:head",
       "text": "上方顯示的資料夾，就是這次的工作目錄",
-      "narration": "上方顯示的資料夾變成 xiaosen-booking，這就是這次的工作目錄。"
+      "narration": "上方顯示的資料夾變成 bakery，這就是這次的工作目錄。"
     },
     {
       "user": "目前的工作目錄是哪裡？",
@@ -82,16 +82,16 @@
       "ms": 1000
     },
     {
-      "say": "目前的工作目錄是 `/Users/you/Documents/ai-practice/xiaosen-booking`，這個資料夾目前是空的。"
+      "say": "目前的工作目錄是 `/Users/you/Documents/practice/bakery`，這個資料夾目前是空的。"
     },
     {
       "callout": "claude:say",
-      "text": "路徑最後是 xiaosen-booking，就對了",
-      "narration": "它回答一個完整路徑，最後是 xiaosen-booking，就對了。路徑裡的 Documents，就是 Finder 或檔案總管裡的「文件」。如果不是你預期的資料夾，先關掉工具，從正確的資料夾重新開啟。"
+      "text": "路徑最後是 bakery，就對了",
+      "narration": "它回答一個完整路徑，最後是 bakery，就對了。路徑裡的 Documents，就是 Finder 或檔案總管裡的「文件」。如果不是你預期的資料夾，先關掉工具，從正確的資料夾重新開啟。"
     },
     {
       "checkpoint": "換你試試",
-      "body": "在 ai-practice 裡新增 xiaosen-booking 資料夾，從這個資料夾開啟工具，問它「目前的工作目錄是哪裡？」，確認路徑最後是 xiaosen-booking。做完按「完成了，繼續」。"
+      "body": "在 practice 裡新增 bakery 資料夾，從這個資料夾開啟工具，問它「目前的工作目錄是哪裡？」，確認路徑最後是 bakery。做完按「完成了，繼續」。"
     },
     {
       "user": "產生網頁專案基本檔案：index.html 和 styles.css",
@@ -109,7 +109,7 @@
     {
       "ask": "index.html",
       "q": "Claude 想要建立這個檔案",
-      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "where": "~/Documents/practice/bakery",
       "preview": "<!DOCTYPE html>\n<html lang=\"zh-Hant\">\n<head>\n  <title>小森烘焙</title>\n  <link rel=\"stylesheet\" href=\"styles.css\">"
     },
     {
@@ -124,7 +124,7 @@
     {
       "ask": "styles.css",
       "q": "Claude 想要建立這個檔案",
-      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "where": "~/Documents/practice/bakery",
       "preview": "body {\n  margin: 0;\n  font-family: sans-serif;\n}"
     },
     {
@@ -163,7 +163,7 @@
     {
       "ask": "drafts/idea.txt",
       "q": "Claude 想要建立這個檔案",
-      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "where": "~/Documents/practice/bakery",
       "preview": "首頁要有預約按鈕"
     },
     {
@@ -220,7 +220,7 @@
     {
       "ask": "mkdir notes && mv drafts/idea.txt notes/homepage-idea.txt",
       "q": "Claude 想要執行這個指令",
-      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "where": "~/Documents/practice/bakery",
       "note": "建立 notes 資料夾，並把 drafts/idea.txt 移過去改名為 homepage-idea.txt"
     },
     {
@@ -267,7 +267,7 @@
     {
       "ask": "rmdir drafts",
       "q": "Claude 想要執行這個指令",
-      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "where": "~/Documents/practice/bakery",
       "note": "這會刪除 drafts 資料夾"
     },
     {
@@ -303,7 +303,7 @@
       "eyebrow": "這一課完成了",
       "sub": "✓ 知道工作目錄在哪　✓ 會用相對路徑指定檔案　✓ 每次都親眼確認結果",
       "chapter": "回顧",
-      "narration": "你已經有了 xiaosen-booking 專案：index.html、styles.css，還有 notes 裡的一份筆記。下一課，我們在這兩個檔案裡做出小森烘焙的一頁式網站。"
+      "narration": "你已經有了 bakery 專案：index.html、styles.css，還有 notes 裡的一份筆記。下一課，我們在這兩個檔案裡做出小森烘焙的一頁式網站。"
     }
   ]
 }

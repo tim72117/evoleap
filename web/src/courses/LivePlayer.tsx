@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { mountShell, type Shell } from '../live/shell.js'
-import { createStage } from '../live/stage.js'
+import { mountShell, type Shell } from '../live/shell'
+import { createStage } from '../live/stage'
 import { loadScript, loadVoice } from '../live/scripts'
 import '../live/shell.css'
 import type { PlayerHandle } from './playerHandle'

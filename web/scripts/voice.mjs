@@ -182,23 +182,44 @@ async function build(rel, key) {
 
   // 這次沒處理到的段落(--max-sec)保留原本的音檔
   const clips = maxSec > 0 ? { ...(old.clips || {}) } : {}
-  let made = 0
-  for (const [i, text] of texts.entries()) {
-    const file = `${prefix}/${hashOf(text, cfg)}.mp3`
+  // 每產生一段就寫一次清單:中途失敗(額度、網路)時已完成的段落不會遺失,重跑會從斷點接續、不重複計費
+  const cachedOf = (text) => {
     const prev = old.clips?.[text]
-    if (prev && prev.file === file) {
+    return prev && prev.file === `${prefix}/${hashOf(text, cfg)}.mp3` ? prev : undefined
+  }
+  // 還沒輪到的段落先帶著原本的快取寫進去:中途失敗時清單不會缺段,已上傳的音檔重跑也不會重複合成
+  const save = () => {
+    const merged = { ...clips }
+    for (const text of texts) if (!merged[text] && cachedOf(text)) merged[text] = cachedOf(text)
+    fs.writeFileSync(manifestPath, JSON.stringify({ model: cfg.model, voice: cfg.voice, style: cfg.style, clips: merged }, null, 2) + '\n')
+  }
+  const todo = texts.filter((t) => !cachedOf(t)).length
+  // 進度條:只算這次要新產生的段落(已有快取的略過);終端機上原地更新,非終端機(log)每段一行
+  const started = Date.now()
+  const progress = (done) => {
+    const w = 24
+    const filled = todo ? Math.round((done / todo) * w) : w
+    const eta = done ? Math.round(((Date.now() - started) / done) * (todo - done) / 1000) : null
+    const line = `  ${rel} [${'█'.repeat(filled)}${'░'.repeat(w - filled)}] ${done}/${todo}${eta == null ? '' : done < todo ? ` 預估剩 ${eta} 秒` : ''}`
+    process.stdout.write(process.stdout.isTTY ? `\r${line}\x1b[K${done >= todo ? '\n' : ''}` : `${line}\n`)
+  }
+  let made = 0
+  if (todo) progress(0)
+  for (const text of texts) {
+    const prev = cachedOf(text)
+    if (prev) {
       clips[text] = prev
       continue
     }
-    process.stdout.write(`  ${rel} 旁白 ${i + 1}/${texts.length}…
-`)
+    const file = `${prefix}/${hashOf(text, cfg)}.mp3`
     const audio = decodePcm(await synthesize(text, cfg, key))
     upload(toMp3(audio), file)
     clips[text] = { file, ms: Math.round((audio.pcm.length / audio.rate) * 1000) }
     made++
+    save()
+    progress(made)
   }
-  const manifest = { model: cfg.model, voice: cfg.voice, style: cfg.style, clips }
-  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n')
+  save()
   const total = Object.values(clips).reduce((n, c) => n + c.ms, 0)
   console.log(`${rel}:${texts.length} 段旁白(新產生 ${made}),共 ${(total / 1000).toFixed(0)} 秒`)
 }

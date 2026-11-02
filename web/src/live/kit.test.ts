@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { kit } from './kit.js'
+import { kit, type CursorMove } from './kit'
 
 const near = (a: number, b: number, eps = 1e-6) => expect(Math.abs(a - b), `${a} ≉ ${b}`).toBeLessThan(eps)
 
@@ -13,8 +13,8 @@ describe('kit', () => {
   })
 
   it('緩動的兩端是 0 和 1', () => {
-    for (const [name, f] of Object.entries(kit.ease as Record<string, (x: number) => number>)) {
-      if (name === 'steps') continue
+    const { steps: _steps, ...easings } = kit.ease
+    for (const f of Object.values(easings)) {
       near(f(0), 0)
       near(f(1), 1)
     }
@@ -86,7 +86,7 @@ describe('kit', () => {
   })
 
   it('cursor 移動、點擊與漣漪', () => {
-    const moves = [
+    const moves: CursorMove[] = [
       { at: 0, to: [100, 0], ms: 100, ease: 'linear' },
       { at: 200, to: [100, 100], ms: 100, click: true },
     ]
@@ -94,13 +94,13 @@ describe('kit', () => {
     expect(kit.cursor(150, moves)).toEqual({ x: 100, y: 0, down: false, ripple: null })
     const c = kit.cursor(350, moves)
     expect(c.down).toBe(true)
-    expect(c.ripple.x).toBe(100)
+    expect(c.ripple?.x).toBe(100)
     expect(kit.cursor(2000, moves).ripple).toBeNull()
   })
 
   it('keycap 顯示期間與淡出', () => {
     expect(kit.keycap(50, [{ at: 100, label: '⌘K' }])).toBeNull()
-    expect(kit.keycap(500, [{ at: 100, label: '⌘K' }]).label).toBe('⌘K')
+    expect(kit.keycap(500, [{ at: 100, label: '⌘K' }])?.label).toBe('⌘K')
     expect(kit.keycap(1100, [{ at: 100, label: '⌘K' }])).toBeNull()
   })
 

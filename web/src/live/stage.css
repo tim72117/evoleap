@@ -1,5 +1,5 @@
 /* 舞台:背景、演員的位置、教學效果(章節卡、聚光燈與說明、虛擬滑鼠)。演員的樣式在各自的 actor.css。
-   舞台固定 1920×1080,由播放器外殼(shell.js)整體縮放;選擇器都在 .live-stage 底下,不影響網站其他部分。 */
+   舞台固定 1920×1080,由播放器外殼(shell.ts)整體縮放;選擇器都在 .live-stage 底下,不影響網站其他部分。 */
 .live-stage {
   --st-accent: #d97757;
   --st-bg: #faf9f5;
@@ -16,7 +16,7 @@
   background: radial-gradient(70% 70% at 25% 15%, #f3efe6, var(--st-page));
 }
 .live-stage * { box-sizing: border-box; }
-/* 鏡頭:演員與跟著縮放的效果都在 .st-cam 裡,由 stage.js 設定 transform */
+/* 鏡頭:演員與跟著縮放的效果都在 .st-cam 裡,由 stage.ts 設定 transform */
 .live-stage .st-cam { position: absolute; inset: 0; transform-origin: 0 0; }
 .live-stage .st-cast { position: absolute; inset: 0; }
 .live-stage .slot { position: absolute; }

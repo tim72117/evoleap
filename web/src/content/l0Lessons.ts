@@ -24,7 +24,7 @@ export const L0_LESSONS: CourseLesson[] = [
       },
       {
         title: '建立專用的練習資料夾',
-        expected: '在「文件」底下有一個新的 ai-practice 資料夾，裡面是空的。',
+        expected: '在「文件」底下有一個新的 practice 資料夾，裡面是空的。',
         note: '資料夾名稱用英文、不要有空白。不要把 AI 工具開在桌面、整個使用者資料夾或公司的共用資料夾；重要檔案不要放進練習資料夾。',
       },
       {
@@ -43,7 +43,7 @@ export const L0_LESSONS: CourseLesson[] = [
     videos: [
       { title: '會操作檔案的 AI 工具', minutes: 5, steps: [1, 2, 3, 4, 5], wrap: '下一課：AI 工作的範圍——專案與工作目錄。', live: 'l0/0.0-tools.json' },
     ],
-    deliverable: '一個已登入的 AI 工具、一個 ai-practice 練習資料夾，以及其中由 AI 建立的 hello.txt。',
+    deliverable: '一個已登入的 AI 工具、一個 practice 練習資料夾，以及其中由 AI 建立的 hello.txt。',
     materials: ['電腦（Windows 或 macOS，可安裝軟體）', '講義：工具官方網址、安裝與登入步驟（依主示範工具）、確認提示的看法'],
     checkpoint: ['能在練習資料夾裡啟動工具', '允許過一次、拒絕過一次確認提示', '在檔案總管或 Finder 親眼看到 AI 建立的檔案'],
   },
@@ -52,23 +52,23 @@ export const L0_LESSONS: CourseLesson[] = [
     title: '認識專案：工作目錄與檔案操作',
     length: '約 20 分',
     goal: '知道一個專案就是一個工作目錄；在專案資料夾中請 AI 建立、讀取、改名、移動與刪除檔案和資料夾，用相對路徑描述檔案位置，並在檔案總管確認結果。',
-    scenario: '為小森烘焙（虛構）的一頁式網站建立專案資料夾 xiaosen-booking，請 AI 產生網頁專案的基本檔案，作為第 2 課的起點。',
+    scenario: '為小森烘焙（虛構）的一頁式網站建立專案資料夾 bakery，請 AI 產生網頁專案的基本檔案，作為第 2 課的起點。',
     steps: [
       {
         title: '建立專案資料夾，從這個資料夾開啟工具',
-        expected: '在 ai-practice 裡有 xiaosen-booking 資料夾，AI 工具是從這個資料夾啟動（或用工具開啟這個資料夾）。',
-        note: '工具開在哪個資料夾，那裡就是它的工作目錄；它通常只在這個範圍內工作。上一課的工具如果還開著，先關掉，再從 xiaosen-booking 重新開啟。',
+        expected: '在 practice 裡有 bakery 資料夾，AI 工具是從這個資料夾啟動（或用工具開啟這個資料夾）。',
+        note: '工具開在哪個資料夾，那裡就是它的工作目錄；它通常只在這個範圍內工作。上一課的工具如果還開著，先關掉，再從 bakery 重新開啟。',
       },
       {
         title: '請 AI 說明目前的工作目錄',
         prompt: '目前的工作目錄是哪裡？',
-        expected: 'AI 回答一個完整路徑，最後是 xiaosen-booking；用檔案總管或 Finder 打開，裡面目前是空的。',
+        expected: 'AI 回答一個完整路徑，最後是 bakery；用檔案總管或 Finder 打開，裡面目前是空的。',
         note: '如果路徑不是你預期的資料夾，先關掉工具，從正確的資料夾重新開啟。路徑裡的 Documents 就是檔案總管或 Finder 裡的「文件」；Windows 的「文件」若由 OneDrive 同步，路徑中會多出 OneDrive。',
       },
       {
         title: '建立資料夾與檔案',
         prompt: '產生網頁專案基本檔案：index.html 和 styles.css',
-        expected: '用檔案總管或 Finder 打開 xiaosen-booking，看到 index.html 和 styles.css；檔案內容由 AI 決定，每個人可能略有不同。',
+        expected: '用檔案總管或 Finder 打開 bakery，看到 index.html 和 styles.css；檔案內容由 AI 決定，每個人可能略有不同。',
         note: '每次 AI 說「完成了」，都用檔案總管或 Finder 親眼確認一次。把檔名寫進提示詞，下一課才能直接接著用這兩個檔案；AI 若想多建其他檔案或資料夾，先拒絕。',
       },
       {
@@ -92,8 +92,8 @@ export const L0_LESSONS: CourseLesson[] = [
     videos: [
       { title: '專案與工作目錄', minutes: 5, steps: [1, 2, 3, 4, 5, 6], wrap: '專案準備好了；下一課在 index.html 和 styles.css 裡做出小森烘焙的一頁式網站。', live: 'l0/0.1-project.json' },
     ],
-    deliverable: 'xiaosen-booking 專案資料夾：AI 產生的 index.html、styles.css 與 notes/homepage-idea.txt（第 2 課從這裡繼續）。',
-    materials: ['0.0 的 ai-practice 練習資料夾與已登入的工具', '講義：工作目錄與相對路徑示意圖'],
+    deliverable: 'bakery 專案資料夾：AI 產生的 index.html、styles.css 與 notes/homepage-idea.txt（第 2 課從這裡繼續）。',
+    materials: ['0.0 的 practice 練習資料夾與已登入的工具', '講義：工作目錄與相對路徑示意圖'],
     checkpoint: ['說得出目前的工作目錄是哪個資料夾', '能用相對路徑（例如 notes/homepage-idea.txt）指出一個檔案', '每次 AI 說完成，都在檔案總管或 Finder 親眼確認過結果'],
     tryYourOwn: '為自己想做的小工具建立一個專案資料夾，請 AI 在 notes/idea.md 記下你的三個想法。',
   },
@@ -102,7 +102,7 @@ export const L0_LESSONS: CourseLesson[] = [
     title: '提出需求：做出一頁式網站並精確調整',
     length: '約 50 分',
     goal: '一次說清楚整頁的目標、內容與風格，請 AI 在專案中產生小森烘焙的一頁式靜態網站（HTML、CSS，必要時少量原生 JavaScript），在瀏覽器打開；再逐區用具體指令調整版面、間距、顏色、字體、手機版與一個小互動，改太多時能比對並還原。',
-    scenario: '小森烘焙（虛構）想先有一個一頁式網站讓客人了解預約取貨：導覽、主視覺、本週商品、預約流程、營業時間與取貨須知、常見問題、交通資訊、頁尾。還沒有真正的預約功能（L1 會整理這個系統的完整需求）。從 0.1 建好的 xiaosen-booking 專案繼續。',
+    scenario: '小森烘焙（虛構）想先有一個一頁式網站讓客人了解預約取貨：導覽、主視覺、本週商品、預約流程、營業時間與取貨須知、常見問題、交通資訊、頁尾。還沒有真正的預約功能（L1 會整理這個系統的完整需求）。從 0.1 建好的 bakery 專案繼續。',
     steps: [
       {
         title: '一次描述整頁，產生第一版',
@@ -170,7 +170,7 @@ export const L0_LESSONS: CourseLesson[] = [
     ],
     deliverable: '小森烘焙一頁式網站（index.html、styles.css、script.js），在桌面與手機寬度都能正常瀏覽。',
     materials: [
-      '0.1 的 xiaosen-booking 專案',
+      '0.1 的 bakery 專案',
       '瀏覽器',
       '講義：精確調整句型（位置＋要改成什麼＋一次一個區塊）與常用 CSS 用語對照（字級、行高、內距、間距、圓角、色碼、寬度斷點）',
       '參考成品：第一版與調整後的完整網站，供對照',

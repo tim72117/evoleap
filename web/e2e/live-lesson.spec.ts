@@ -1,5 +1,5 @@
 // 即時教學畫面(LivePlayer)的回歸測試:L0 第 0、1 課各只有一支影片,不是影片檔,
-// 而是直接掛在課程頁上的播放器外殼(src/live/shell.js,根元素 .vp)+ 舞台(src/live/stage.js,根元素 .live-stage),
+// 而是直接掛在課程頁上的播放器外殼(src/live/shell.ts,根元素 .vp)+ 舞台(src/live/stage.ts,根元素 .live-stage),
 // 依 src/content/live/ 的腳本即時畫出。沒有 iframe,也沒有 /live/ 路由。
 // 腳本裡標了 lessonStep 的章節成為右側步驟的 cue:出現「▶ mm:ss」、播到那裡就標「播放中」並展開。
 // 這裡測:播放器載入後每一步都有 ▶(時間遞增、對得到時間軸上的章節刻度)、▶ 跳轉並播放、

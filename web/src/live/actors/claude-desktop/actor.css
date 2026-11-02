@@ -191,11 +191,16 @@
 .A-claude-desktop .ask .opt.press { transform: scale(0.96); }
 .A-claude-desktop .resolved { font-size: 0.85em; color: var(--faint); }
 
+/* 對話內容的容器本身不參與排版,讓區塊和思考狀態都排在 .cd-log 的 flex 裡(間距一致) */
+.A-claude-desktop .cd-blocks { display: contents; }
+/* 思考中狀態跟在最新內容下方(像真的 Claude Code),不是固定在輸入框上方;沒有狀態時不佔位 */
 .A-claude-desktop .cd-status {
-  width: 78%; margin: 0 auto; min-height: 1.8em;
   display: flex; align-items: center; gap: 0.5em;
   font-size: 0.85em; color: var(--dim);
 }
+.A-claude-desktop .cd-status:empty { display: none; }
+/* 鏡頭用的「最新內容帶」:看不見,只提供一個固定寬度、貼在內容底部的區域 */
+.A-claude-desktop .cd-tail { position: absolute; left: 0; right: 0; height: calc(var(--u) * 9); visibility: hidden; pointer-events: none; }
 .A-claude-desktop .cd-status .star { color: var(--claude); font-size: 1.2em; display: inline-block; transform: rotate(var(--r, 0deg)); }
 
 .A-claude-desktop .cd-composer {

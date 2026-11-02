@@ -37,7 +37,7 @@
       "actor": "claude-desktop",
       "props": {
         "title": "新的 session",
-        "folder": "~/Documents/ai-practice",
+        "folder": "~/Documents/practice",
         "branch": null,
         "mode": "ask",
         "sessions": [],
@@ -52,9 +52,9 @@
       "actor": "finder",
       "props": {
         "tree": {
-          "ai-practice": {}
+          "practice": {}
         },
-        "open": "ai-practice"
+        "open": "practice"
       },
       "place": "right",
       "hidden": true
@@ -136,12 +136,12 @@
     },
     {
       "on": "docs",
-      "mkdir": "ai-practice",
-      "narration": "新增一個資料夾，取名 ai-practice。名稱用英文，不要有空白。"
+      "mkdir": "practice",
+      "narration": "新增一個資料夾，取名 practice。名稱用英文，不要有空白。"
     },
     {
       "on": "docs",
-      "open": "ai-practice",
+      "open": "practice",
       "narration": "打開它，裡面是空的。之後 AI 只在這個資料夾裡動手。"
     },
     {
@@ -151,21 +151,21 @@
     },
     {
       "checkpoint": "換你試試",
-      "body": "在「文件」底下新增一個 ai-practice 資料夾，確認裡面是空的。做完按「完成了，繼續」。"
+      "body": "在「文件」底下新增一個 practice 資料夾，確認裡面是空的。做完按「完成了，繼續」。"
     },
     {
       "hide": "docs"
     },
     {
       "show": "claude",
-      "narration": "資料夾準備好了。從 ai-practice 開啟工具，畫面上方會顯示目前的工作資料夾。",
+      "narration": "資料夾準備好了。從 practice 開啟工具，畫面上方會顯示目前的工作資料夾。",
       "chapter": "在練習資料夾開啟工具",
       "lessonStep": 4
     },
     {
       "callout": "claude:head",
-      "text": "先確認：上方的資料夾是 ai-practice",
-      "narration": "開始之前先看一眼上方，Claude 現在工作的資料夾，應該是我們剛建立的 ai-practice。"
+      "text": "先確認：上方的資料夾是 practice",
+      "narration": "開始之前先看一眼上方，Claude 現在工作的資料夾，應該是我們剛建立的 practice。"
     },
     {
       "on": "claude",
@@ -186,8 +186,8 @@
       "on": "claude",
       "ask": "hello.txt",
       "q": "Claude 想要建立這個檔案",
-      "where": "~/Documents/ai-practice",
-      "preview": "哈囉！這是我在 ai-practice 資料夾裡建立的第一個檔案。",
+      "where": "~/Documents/practice",
+      "preview": "哈囉！這是我在 practice 資料夾裡建立的第一個檔案。",
       "chapter": "看懂確認提示",
       "narration": "注意，它沒有直接動手，而是先跳出確認提示。"
     },
@@ -215,14 +215,14 @@
       "show": "finder",
       "create": "hello.txt",
       "chapter": "在 Finder 確認",
-      "narration": "打開 Finder 看看，ai-practice 裡真的多了一個 hello.txt。這就是它和網頁聊天工具最大的不同：它會直接改動你電腦上的檔案。"
+      "narration": "打開 Finder 看看，practice 裡真的多了一個 hello.txt。這就是它和網頁聊天工具最大的不同：它會直接改動你電腦上的檔案。"
     },
     {
       "hide": "finder"
     },
     {
       "checkpoint": "換你試試",
-      "body": "在你自己的 ai-practice 資料夾，請 AI 建立 hello.txt。看到確認提示時，先讀清楚「哪個檔案、在哪個資料夾、內容是什麼」再允許。做完按「完成了，繼續」。"
+      "body": "在你自己的 practice 資料夾，請 AI 建立 hello.txt。看到確認提示時，先讀清楚「哪個檔案、在哪個資料夾、內容是什麼」再允許。做完按「完成了，繼續」。"
     },
     {
       "on": "claude",
@@ -240,7 +240,7 @@
       "on": "claude",
       "ask": "rm hello.txt",
       "q": "Claude 想要執行這個指令",
-      "where": "~/Documents/ai-practice",
+      "where": "~/Documents/practice",
       "note": "這會刪除 hello.txt"
     },
     {
@@ -267,7 +267,7 @@
     {
       "card": "下一課：專案與工作目錄",
       "eyebrow": "這支影片完成了",
-      "sub": "✓ 建好 ai-practice　✓ 工具已登入　✓ 允許過一次、拒絕過一次",
+      "sub": "✓ 建好 practice　✓ 工具已登入　✓ 允許過一次、拒絕過一次",
       "chapter": "回顧",
       "narration": "工具裝好了，練習資料夾準備好了，你也允許過一次、拒絕過一次。下一課，我們來看 AI 工作的範圍：專案與工作目錄。"
     }

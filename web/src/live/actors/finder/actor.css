@@ -1,5 +1,5 @@
 /* 演員 finder:仿 macOS Finder 的小視窗。選擇器都以 .A-finder 開頭。
-   動畫一律由 actor.js 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
 .A-finder {
   --fd-bg: #ffffff;
   --fd-bar: #f2f0e8;

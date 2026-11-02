@@ -14,11 +14,11 @@ const POSITIONING: [string, string][] = [
 ]
 
 const ARCH: { part: string; role: string; path: string }[] = [
-  { part: '外殼', role: '時間軸、播放控制、全螢幕、手機橫放、章節、字幕、旁白音訊。不知道畫面長什麼樣。', path: 'web/src/live/shell.js' },
-  { part: '舞台', role: '怎麼演：時間表、旁白長度、字幕、章節、練習點、演員出場退場，以及章節卡、聚光燈、鏡頭推近、虛擬滑鼠等教學效果。', path: 'web/src/live/stage.js' },
-  { part: '演員', role: '一個可重複使用的示範介面（目前有 Claude 桌面版、Finder），只負責「長什麼樣、每個動作畫成什麼樣子」。在 actors/index.js 登記。', path: 'web/src/live/actors/' },
+  { part: '外殼', role: '時間軸、播放控制、全螢幕、手機橫放、章節、字幕、旁白音訊。不知道畫面長什麼樣。', path: 'web/src/live/shell.ts' },
+  { part: '舞台', role: '怎麼演：時間表、旁白長度、字幕、章節、練習點、演員出場退場，以及章節卡、聚光燈、鏡頭推近、虛擬滑鼠等教學效果。', path: 'web/src/live/stage.ts' },
+  { part: '演員', role: '一個可重複使用的示範介面（目前有 Claude 桌面版、Finder），只負責「長什麼樣、每個動作畫成什麼樣子」。在 actors/index.ts 登記。', path: 'web/src/live/actors/' },
   { part: '腳本', role: '演什麼：演員表、步驟、旁白、章節、練習點。JSON 格式，單課資料以 live 欄位指定。', path: 'web/src/content/live/' },
-  { part: 'kit', role: '舞台與演員共用的動畫工具：緩動、打字、螢光筆、聚光燈、鏡頭推近、虛擬滑鼠等純函式。', path: 'web/src/live/kit.js' },
+  { part: 'kit', role: '舞台與演員共用的動畫工具：緩動、打字、螢光筆、聚光燈、鏡頭推近、虛擬滑鼠等純函式。', path: 'web/src/live/kit.ts' },
   { part: '繪製層、素材包（規劃）', role: '把一種場景的畫法與外觀（配色、字型、介面文字）分開，換素材包就換外觀。尚未實作。', path: '—' },
 ]
 
@@ -96,8 +96,8 @@ const DESIGN_MAP: Row[] = [
 const PROGRESS: [string, string, 'done' | 'todo'][] = [
   ['規格（外殼、舞台與演員；繪製層、素材包為規劃）', '草案完成', 'done'],
   ['繪製工具 kit 與單元測試', '完成', 'done'],
-  ['播放器外殼 shell.js（全螢幕、手機橫放、章節、字幕、鍵盤、手勢）', '完成', 'done'],
-  ['舞台 stage.js（章節卡、聚光燈、鏡頭、虛擬滑鼠、練習點）', '完成', 'done'],
+  ['播放器外殼 shell.ts（全螢幕、手機橫放、章節、字幕、鍵盤、手勢）', '完成', 'done'],
+  ['舞台 stage.ts（章節卡、聚光燈、鏡頭、虛擬滑鼠、練習點）', '完成', 'done'],
   ['演員：Claude 桌面版、Finder', '完成', 'done'],
   ['課程頁直接掛載播放器（LivePlayer，章節對應課程步驟）', '完成', 'done'],
   ['L0 第 0、1 課改用即時教學畫面', '已上線', 'done'],

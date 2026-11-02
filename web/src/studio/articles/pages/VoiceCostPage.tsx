@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Article, Callout, DataTable, Ext, Section, SourceList } from '../Article'
 
 // 旁白語音(Gemini TTS)的費用評估。價格與條款查詢日期 2026-11-02;用量依 l0 即時教學腳本實測字數與課程大綱推估。
-// 計算:音訊 25 token/秒;旁白每秒約 4.2 字(stage.js speakMs 的值)。數字改動時請一併更新 DATE 與假設。
+// 計算:音訊 25 token/秒;旁白每秒約 4.2 字(stage.ts speakMs 的值)。數字改動時請一併更新 DATE 與假設。
 
 const DATE = '2026-11-02'
 const PRICING = 'https://ai.google.dev/gemini-api/docs/pricing'

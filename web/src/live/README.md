@@ -6,19 +6,22 @@
 
 ```
 web/src/live/
-  shell.js / shell.css / shell.d.ts   播放器外殼:時間軸、播放控制、舞台縮放、字幕、全螢幕(第 2 節)
-  stage.js / stage.css / stage.d.ts   舞台:時間表、旁白長度、字幕、章節、練習點、教學效果(2A)
-  actors/index.js                     演員登記表
-  actors/<名稱>/actor.js、actor.css    演員(2A.1)
-  kit.js / kit.d.ts / kit.test.ts     舞台與演員共用的動畫工具(第 6 節)
+  shell.ts / shell.css                播放器外殼:時間軸、播放控制、舞台縮放、字幕、全螢幕(第 2 節)
+  narration.ts                        分段旁白音檔的播放(外殼用):依外殼時鐘決定播哪一段
+  stage.ts / stage.css                舞台:時間表、旁白長度、字幕、章節、練習點、教學效果(2A)
+  camera.ts                           鏡頭:提示點 → 關鍵點 → 依時間算出鏡頭姿態
+  types.ts                            共用型別:腳本格式、演員介面(Actor)與 defineActor
+  actors/index.ts                     演員登記表
+  actors/<名稱>/actor.ts、actor.css    演員(2A.1)
+  kit.ts / kit.test.ts                舞台與演員共用的動畫工具(第 6 節)
   scripts.ts                          載入腳本:loadScript(path)、scriptPaths
 web/src/content/live/<等級>/*.json     舞台腳本(2A.2),例如 l0/0.0-tools.json
 ```
 
 ```
-┌──────────────────── 外殼 Shell(shell.js) ─────────────────────┐
+┌──────────────────── 外殼 Shell(shell.ts) ─────────────────────┐
 │ 時間軸 · 播放控制 · 舞台縮放 · 字幕 · 練習點暫停 · 全螢幕          │
-│  ┌──────────── 舞台 Stage(stage.js) ──────────────┐   ← kit   │
+│  ┌──────────── 舞台 Stage(stage.ts) ──────────────┐   ← kit   │
 │  │ 章節卡 · 聚光燈 · 鏡頭 · 虛擬滑鼠 · 演員出場退場   │            │
 │  │   演員 actors/<名稱>/:claude-desktop、finder…   │            │
 │  └─────────────────────────────────────────────────┘           │
@@ -49,7 +52,7 @@ web/src/content/live/<等級>/*.json     舞台腳本(2A.2),例如 l0/0.0-tools.
 
 ---
 
-## 2. 外殼 Shell（`shell.js`）
+## 2. 外殼 Shell（`shell.ts`）
 
 ### 2.1 舞台尺寸
 
@@ -62,10 +65,10 @@ web/src/content/live/<等級>/*.json     舞台腳本(2A.2),例如 l0/0.0-tools.
 
 ### 2.3 API
 
-型別在 `shell.d.ts`，行為說明在 `shell.js` 開頭。
+型別與行為說明都在 `shell.ts` 開頭。
 
 ```js
-import { mountShell } from "../live/shell.js";
+import { mountShell } from "../live/shell";
 import "../live/shell.css";
 
 const vp = mountShell(container, {
@@ -137,7 +140,7 @@ for (const c of chapters) {
 示範畫面拆成兩種角色：
 
 - **演員**（`actors/<名稱>/`）：一個可以重複使用的示範元件，例如 Claude 桌面版、Finder。只負責「長什麼樣、每個動作畫成什麼樣子」，並告訴舞台各個目標在哪裡。
-- **舞台**（`stage.js`；`createStage(root)` 回傳 `load(script, { voice })`、`renderAt(ms)`、`duration`、`chapters`、`captions`、`stops`、`narrations`，型別見 `stage.d.ts`）：負責「怎麼演」。包括時間表、旁白長度、字幕、章節、練習點、演員的位置與出場退場，以及所有教學效果：章節卡、聚光燈與說明、鏡頭推近與平移、虛擬滑鼠。
+- **舞台**（`stage.ts`；`createStage(root)` 回傳 `load(script, { voice })`、`renderAt(ms)`、`duration`、`chapters`、`captions`、`stops`、`narrations`、`cameraKeys`，型別是同一個檔案裡的 `Stage`）：負責「怎麼演」。包括時間表、旁白長度、字幕、章節、練習點、演員的位置與出場退場，以及所有教學效果：章節卡、聚光燈與說明、鏡頭推近與平移、虛擬滑鼠。
 
 效果寫在舞台，所以任何演員都能用；演員遵守同一份規格，所以可以抽換，也能安排到任何場景。
 
@@ -145,40 +148,46 @@ for (const c of chapters) {
 
 ```
 actors/<名稱>/
-  actor.js    必要:ES module,export default 演員定義;開頭 import { kit } from "../../kit.js" 與 import "./actor.css"
+  actor.ts    必要:export default 用 defineActor 宣告的演員;開頭 import { kit } from "../../kit"、import { defineActor } from "../../types" 與 import "./actor.css"
   actor.css   必要:所有選擇器以 .A-<名稱> 開頭,不用 id,不影響舞台與其他演員
-actors/index.js  必要:import 這個演員並加進 ACTORS(腳本 cast 的 "actor" 名稱 → 演員定義)
+actors/index.ts  必要:import 這個演員並加進 ACTORS(腳本 cast 的 "actor" 名稱 → 演員定義)
 ```
 
-演員的樣式由 `actor.js` 自己 import，跟著舞台一起打包；沒在 `actors/index.js` 登記的演員，載入腳本時會報「找不到演員」。
+演員的樣式由 `actor.ts` 自己 import，跟著舞台一起打包；沒在 `actors/index.ts` 登記的演員，載入腳本時會報「找不到演員」。
 
-```js
-import { kit } from "../../kit.js";
+演員的介面是 `types.ts` 的 `Actor`：`defineActor<動作種類, 步驟, props, 狀態, 目標名稱>({ … })` 會在編譯時檢查，缺少必要成員（`name`、`kinds`、`duration`、`mount`）、`kinds` 與步驟型別對不上、`autoFocus`／`cues` 回傳不在目標名稱裡的值，`tsc` 都會報錯。
+
+```ts
+import { kit } from "../../kit";
+import { defineActor } from "../../types";
 import "./actor.css";
 
-export default {
+export default defineActor({
   name: "claude-desktop",
   kinds: ["user", "say", "ask", "choose", …],       // 會的動作;腳本裡步驟的鍵名就是動作種類
 
   duration(kind, step, props) { return ms; },        // 這個動作的自然長度
   autoFocus(kind, step) { return "composer"; },      // 選用:camera auto 時建議看哪裡;false = 全景,undefined = 沿用
+  cues(kind, step) { return [{ at: 0, target: "composer" }, { at: 700, target: "send" }]; },
+                                                     // 選用:鏡頭提示點(at 為相對於動作開始的毫秒;target 同 autoFocus 的回傳值)。
+                                                     // 有 cues 就不用 autoFocus;一個動作需要多次運鏡時才寫
   cursor(kind, step) {                               // 選用:需要虛擬滑鼠的動作回傳時間表(相對於動作開始)
     return { moves: [{ at: 300, target: "option:2" }, …], clickAt: 2400 };
   },
 
-  mount(root, props, ctx) {                          // 登場:在舞台給的位置(root)裡建立畫面
+  mount(root, props) {                               // 登場:在舞台給的位置(root)裡建立畫面
     return {
-      render(events, ms) { … },                      // 必要:畫出 ms 時的樣子
-      target(name) { return element | null; },       // 必要:目標名稱 → 元素,給鏡頭、聚光燈、滑鼠用
+      render({ events, view }, ms) { … },            // 必要:畫出 ms 時的樣子(view 只有有狀態的演員才有)
+      target(name, view) { return element | null; }, // 必要:目標名稱 → 元素,給鏡頭、聚光燈、滑鼠用
     };
   },
-};
+});
 ```
 
-- `events` 是「已經開始的、屬於這個演員的動作」，依時間排列，每一項有 `{ kind, step, start, dur, local, p }`。舞台的 `show`／`hide` 帶的其他欄位會以 `kind: "props"` 傳進來。
+- `frame.events` 是「已經開始的、屬於這個演員的動作」，依時間排列，每一項有 `{ kind, step, start, dur, local, p }`。舞台的 `show`／`hide` 帶的其他欄位會以 `kind: "props"` 傳進來。
 - `render` 會以任意順序呼叫（拖曳、倒轉），畫面只能由 `events` 與 `ms` 決定，見第 1 節。
 - 演員自己的版面用 `--u`（1920 寬時 18px）或相對單位，大小跟著舞台給的位置走。
-- 每個演員在 `actor.js` 開頭列出：props、動作與欄位、目標名稱。這份說明也是給 AI 寫腳本看的。
+- 每個演員在 `actor.ts` 開頭列出：props、動作與欄位、目標名稱。這份說明也是給 AI 寫腳本看的。
 
 現有演員：
 
@@ -194,13 +203,13 @@ export default {
   "title": "第一個檔案，以及允許與拒絕",
   "camera": "auto",
   "cast": {
-    "claude": { "actor": "claude-desktop", "props": { "folder": "~/Documents/ai-practice", "mode": "ask" }, "place": "window" },
-    "finder": { "actor": "finder", "props": { "tree": { "ai-practice": {} }, "open": "ai-practice" }, "place": "right", "hidden": true }
+    "claude": { "actor": "claude-desktop", "props": { "folder": "~/Documents/practice", "mode": "ask" }, "place": "window" },
+    "finder": { "actor": "finder", "props": { "tree": { "practice": {} }, "open": "practice" }, "place": "right", "hidden": true }
   },
   "steps": [
     { "card": "第一個檔案", "eyebrow": "L0 · 第 0 課", "narration": "…" },
     { "user": "建立 hello.txt，寫一句問候", "chapter": "建立第一個檔案", "lessonStep": 4 },
-    { "ask": "hello.txt", "where": "~/Documents/ai-practice" },
+    { "ask": "hello.txt", "where": "~/Documents/practice" },
     { "callout": "claude:ask", "text": "先看三件事…", "narration": "…" },
     { "choose": 1 },
     { "show": "finder", "create": "hello.txt", "narration": "…" },
@@ -216,12 +225,12 @@ export default {
 - **每一步都能加**：`narration`、`chapter`、`lessonStep`、`ms`、`pause`、`focus`。
 - **目標**寫成「演員代號:目標名稱」，例如 `claude:ask`；只寫代號表示整個演員。
 - **旁白長度**：一段旁白到下一段旁白（或練習點）之前的時間不夠時，帶旁白的 `card`／`callout`／`show` 會自己延長，其他情況則補在最後一步之後。
-- **鏡頭**：`focus` 指定目標與倍率，`false` 拉回全景；頂層 `"camera": "auto"` 時，沒寫的步驟由演員的 `autoFocus` 建議。每次切換以 0.9 秒的平滑緩動過渡；目標下緣最多到畫面 68% 高，避開字幕與控制列。
+- **鏡頭**：`focus` 指定目標與倍率，`false` 拉回全景；頂層 `"camera": "auto"` 時，沒寫的步驟由演員建議：`cues(kind, step)` 回傳多個時間點的提示點，沒有 `cues` 就用 `autoFocus` 的單一目標（等同 `at: 0` 的一個提示點）。每次切換以 0.9 秒的平滑緩動過渡，**演員的動作會等鏡頭到位才開始**（換鏡頭的演員動作前面自動留 0.9 秒，舞台自己的動作如章節卡、出場不等）；目標下緣最多到畫面 68% 高，避開字幕與控制列。
 
 ### 2A.3 新增演員的步驟
 
-1. 建 `actors/<名稱>/actor.js`、`actor.css`，照 2A.1 的介面實作（`actor.js` 要 import 自己的 `actor.css`），開頭寫清楚 props、動作與目標。
-2. 在 `actors/index.js` import 並登記。
+1. 建 `actors/<名稱>/actor.ts`、`actor.css`，用 `defineActor` 照 2A.1 的介面實作（`actor.ts` 要 import 自己的 `actor.css`），開頭寫清楚 props、動作與目標。
+2. 在 `actors/index.ts` import 並登記。
 3. 動作照 2A.4 設計成「操作」，狀態照 2A.5 用 `init`／`apply` 推算。
 4. 在腳本（`src/content/live/`）的 `cast` 加上它，用預覽頁 `/proposal/visuals/preview?script=…&t=毫秒` 檢查各時間點的畫面（2.6）。
 5. 檢查拖曳與倒轉：`render` 不能依賴上一次的結果。
@@ -232,15 +241,15 @@ export default {
 
 | | 操作式（要這樣） | 設定式（不要） |
 |---|---|---|
-| Finder 新增資料夾 | `{ "mkdir": "ai-practice" }` | `{ "files": [原本的全部, "ai-practice"] }` |
-| Finder 進入資料夾 | `{ "open": "ai-practice" }` | `{ "folder": "ai-practice", "files": [] }` |
+| Finder 新增資料夾 | `{ "mkdir": "practice" }` | `{ "files": [原本的全部, "practice"] }` |
+| Finder 進入資料夾 | `{ "open": "practice" }` | `{ "folder": "practice", "files": [] }` |
 | 瀏覽器開網址 | `{ "goto": "https://…" }` | `{ "url": "…", "title": "…", "body": "…" }` |
 
 - **動作名稱用該 App 的一般操作**：開啟、新增、刪除、改名、輸入、點選、捲動。參數只放「使用者會給的資訊」（名稱、路徑、文字），不放「操作後的結果」。
 - **結果由演員推算**：新增後清單長怎樣、刪除後誰消失，由演員依自己的狀態算出來，腳本不重抄。
 - **登場設定（props）只描述起始狀態**，例如 Finder 的目錄樹與一開始打開的資料夾。
 - **有錯就報錯**：操作對不上狀態（打開不存在的資料夾、刪除不存在的檔案）時，`load` 直接丟錯並指出是第幾步，不默默畫錯。
-- **動作清單是對外接口**：`actor.js` 開頭列出每個動作、參數與效果；寫腳本的人（或 AI）只看這份說明。
+- **動作清單是對外接口**：`actor.ts` 開頭列出每個動作、參數與效果；寫腳本的人（或 AI）只看這份說明。
 
 ### 2A.5 演員狀態：init／apply（已實作：舞台、`finder`）
 
@@ -287,7 +296,7 @@ export default {
   { "on": "docs", "drop": true }
   ```
   `select` 讓檔案反白並記在 `temp.selected`；`drag` 的 `p` 從 0 到 1 時，檔案沿路徑移向 notes（虛擬滑鼠跟著走，見 `cursor`）；`drop` 才真的改動目錄樹並清掉 `temp`。
-- **show／hide 帶動作**：`{ "show": "finder", "open": "ai-practice" }` 會先套用那個動作；一次只能帶一個，多個會報錯。這時 `view.ev.kind` 是 `show`／`hide`，實際動作要從 `view.ev.step` 找。退場淡出的過程中 `view.state` 仍是退場前的狀態，完成後才清空 `temp`。
+- **show／hide 帶動作**：`{ "show": "finder", "open": "practice" }` 會先套用那個動作；一次只能帶一個，多個會報錯。這時 `view.ev.kind` 是 `show`／`hide`，實際動作要從 `view.ev.step` 找。退場淡出的過程中 `view.state` 仍是退場前的狀態，完成後才清空 `temp`。
 - **props 錯誤**：`init` 丟錯時，訊息會帶演員代號。
 - **已知限制（虛擬滑鼠）**：每段移動固定 550ms、inOutCubic；最後一個 move 一律畫成點擊；動作結束滑鼠就消失（`drag` 與 `drop` 之間看不到滑鼠）；`clickAt` 尚未使用。之後讓 `moves` 可帶 `ms`、`ease` 與「按住拖曳」。
 - **與舊介面相容**：沒有 `init` 的演員照舊收到 `events`（2A.1），可以逐步改寫。`claude-desktop` 現在在 `render` 裡自己重播事件（例如 `choose` 去找最後一個待選的 `ask`），改寫後這段邏輯移到 `apply`。
@@ -370,7 +379,7 @@ export default defineLayer({
   "version": 2,
   "meta": { "title": "L0 0.2 做出一頁式網站", "lang": "zh-Hant", "course": "L0", "lesson": "0.2" },
   "theme": "light",
-  "packs": ["claude-desktop", "xiaosen"],
+  "packs": ["claude-desktop", "bakery"],
   "defaults": { "transition": { "type": "fade", "ms": 280 }, "skin": "claude-desktop" },
   "captions": true,
   "scenes": [ … ]
@@ -452,7 +461,7 @@ packs/<name>/
 
 ### 5.2 規則
 
-- 腳本與繪製層用 `@<pack>/<key>` 引用素材，例如 `@xiaosen/logo`；`key` 對應 `images`、`audio`、`data` 等欄位的鍵。外殼載入時檢查引用是否存在。
+- 腳本與繪製層用 `@<pack>/<key>` 引用素材，例如 `@bakery/logo`；`key` 對應 `images`、`audio`、`data` 等欄位的鍵。外殼載入時檢查引用是否存在。
 - `tokens.css` 的變數加上種類前綴，例如 `agent-skin` 一律用 `--skin-*`（`--skin-accent`、`--skin-bg`、`--skin-radius`）。同一種類的素材包必須提供同一組變數，才能互相替換。每種類需要哪些變數，由對應繪製層的 README 列出。
 - 介面文字放 `strings`，不要寫死在繪製層裡，方便換語言或換產品。
 - **模擬其他產品介面的素材包，不得使用該產品的官方 Logo、商標圖像或截圖**；只做近似的版面與配色，並在 `description` 註明「近似，非官方素材」。
@@ -464,14 +473,14 @@ packs/<name>/
 |---|---|---|
 | `brand` | 課程本身的配色、字型、Logo、片頭片尾 | `shuttle-brand` |
 | `agent-skin` | AI 工具介面的外觀 | `claude-desktop`、`claude-cli`、`generic-agent` |
-| `case` | 貫穿案例的素材：店名、商品圖、假資料 | `xiaosen`（小森烘焙） |
+| `case` | 貫穿案例的素材：店名、商品圖、假資料 | `bakery`（小森烘焙） |
 | `media` | 共用圖示、插圖、音效 | `icons-basic` |
 
 ---
 
-## 6. 繪製工具 kit（`kit.js`）
+## 6. 繪製工具 kit（`kit.ts`）
 
-全部是純函式，已有單元測試（`kit.test.ts`，`npm test` 時由 vitest 執行）。舞台與演員以 `import { kit } from "…/kit.js"` 使用（型別在 `kit.d.ts`）。
+全部是純函式，已有單元測試（`kit.test.ts`，`npm test` 時由 vitest 執行）。舞台與演員以 `import { kit } from "…/kit"` 使用（有完整型別）。
 
 ### 6.1 時間與進度
 
@@ -556,7 +565,7 @@ packs/<name>/
 
 ## 7. 驗證與 AI 製作流程
 
-1. 給 AI：本規格 2A.2（舞台腳本）、2A.4，以及要用的演員 `actor.js` 開頭的說明（props、動作、目標）。
+1. 給 AI：本規格 2A.2（舞台腳本）、2A.4，以及要用的演員 `actor.ts` 開頭的說明（props、動作、目標）。
 2. AI 產出腳本 JSON，放進 `web/src/content/live/<等級>/`，在單課資料加上 `live: '<等級>/<檔名>.json'`。
 3. 開預覽頁 `/proposal/visuals/preview?script=…&t=0`：腳本有錯時 `stage.load` 丟出的錯誤（含第幾步）會直接顯示在頁面上。
 4. 用預覽頁的 `window.__livePreview` 以 Playwright 逐章節截圖（2.6），人工或交給 AI 看圖檢查。
@@ -570,7 +579,7 @@ packs/<name>/
 |---|---|---|
 | 1 | 繪製工具 kit 與測試 | 完成 |
 | 2 | 舞台與演員（2A）：`claude-desktop`、`finder` 演員，章節卡、聚光燈、鏡頭、滑鼠、練習點 | 完成；`claude-code`（終端機版）演員待做 |
-| 3 | 外殼 `shell.js`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟）、預覽頁 | 完成，L0 第 0、1 課已上線 |
+| 3 | 外殼 `shell.ts`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟）、預覽頁 | 完成，L0 第 0、1 課已上線 |
 | 3B | 旁白語音（Gemini TTS 分段產生、GCS `shuttle-voice`、外殼同步播放） | 流程完成；L0 第 0 課只產生開頭 3 段試聽；「哪些語音要重產」的檢查待做 |
 | 4 | 繪製層、素材包、腳本驗證工具（第 3–5 節） | 待做 |
 

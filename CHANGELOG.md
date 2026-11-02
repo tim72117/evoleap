@@ -2,6 +2,35 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [0.4.0] - 2026-11-03
+
+即時教學畫面引擎整個改寫成 TypeScript，演員有了介面約束；鏡頭改成不閃動、先到位再演；L0 第 0、1 課的旁白語音全部產生。
+
+### 新增
+
+- **L0 旁白語音**：第 0 課 25 段、第 1 課 26 段全部產生並上傳 GCS（`0.0-tools.voice.json`、`0.1-project.voice.json`）。
+- **鏡頭規劃**（`web/src/live/camera.ts`）：演員只說「要看哪裡」，由規劃器排出鏡頭點，姿態連續銜接，快速切換不會跳動；輸入、思考中、確認框一定看得到；舊的鏡頭點還沒停夠時，下一個會延後（最多 0.6 秒）。
+- 演員在鏡頭到位後才開始演（鏡頭點前先預留 0.9 秒移動時間）。
+- 研究文章「文字轉語音工具現況」（`/docs/research/tts-landscape`）。
+
+### 變更
+
+- **（不相容）引擎由 JS 改為 TypeScript**：`web/src/live/` 的 `kit.js`、`stage.js`、`shell.js`、`actors/*.js` 與各 `.d.ts` 移除，改為 `kit.ts`、`stage.ts`、`shell.ts`、`narration.ts`、`camera.ts`、`types.ts`、`actors/*.ts`。演員改用 `defineActor` 宣告，必須符合 `Actor` 介面（`name`、`kinds`、`duration`、`mount`，可選 `init`／`apply`／`cursor`／`autoFocus`／`cues`）；腳本步驟依演員區分型別。新增演員的寫法見 `web/src/live/README.md`。
+- 開發時引擎程式一改就整頁重新載入（熱重載）。
+- Claude 桌面版演員：「思考中」跟在最新內容之後，鏡頭跟著最新內容，不再因狀態列出現／消失而跳動。
+- 範例資料夾名稱改為單一英文單字（`bakery`、`practice`），旁白才能正確發音；受影響的旁白已重新產生。
+- `npm run voice`：每產生一段就寫入清單（中途失敗可接續）、顯示進度條。
+
+### 修正
+
+- 旁白：換段時舊音檔沒停而疊音；解鎖播放權限時蓋掉使用者剛按的靜音。
+- `npm run voice`：中途失敗時清單會缺少尚未處理的已快取段落。
+- README、課程研發頁中過時的 `.js` 檔名引用。
+
+### 移除
+
+- 未追蹤的舊錄影殘檔 `tools/video/mock/claude-code/`（終端機版模擬介面；其錄影工具已在 0.2.0 併入 studio）。
+
 ## [0.3.0] - 2026-11-02
 
 即時教學畫面加上旁白語音：用 Gemini TTS 分段產生，放在 GCS，播放時跟著畫面同步；課程研發新增兩篇研究文章。

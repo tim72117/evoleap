@@ -10,5 +10,6 @@ export const RESEARCH_REFS: { to: string; label: string; note: string }[] = [
   { to: '/docs/research/recording', label: '影音錄製實務', note: '錄製與後製流程' },
   { to: '/docs/research/video-shotcraft', label: '參考案例：video-shotcraft', note: '宣傳片製作方法；即時教學畫面借用與不照搬的部分（非研究結論）' },
   { to: '/docs/research/voice-cost', label: '旁白語音的費用評估', note: 'Gemini TTS 價格與整套課程旁白的產生、改稿費用估算（2026-11-02 查價）' },
+  { to: '/docs/research/tts-landscape', label: '文字轉語音工具現況', note: '商用與開源 TTS 的整理與選型建議（2026-11-02 整理，來源多為第三方）' },
   { to: '/docs/course-goals', label: '課程目標（L3）', note: 'L3 的適合對象與先備條件，L2 銜接依據' },
 ]

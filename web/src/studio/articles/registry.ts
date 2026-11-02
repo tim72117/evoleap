@@ -56,6 +56,12 @@ export const articles: ArticleMeta[] = [
     summary: 'Gemini TTS 的官方價格與免費層級、依腳本字數估算整套課程旁白的產生與改稿費用，並比較其他 TTS 與真人錄音。',
   },
   {
+    slug: 'research/tts-landscape',
+    title: '文字轉語音工具現況',
+    category: 'research',
+    summary: '2026 年商用與開源 TTS 工具的整理（Cartesia、Gemini、ElevenLabs、Qwen3-TTS 等），含對課程旁白的選型建議與資料可信度提醒。',
+  },
+  {
     slug: 'research/script-template',
     title: '腳本範本結構',
     category: 'research',
