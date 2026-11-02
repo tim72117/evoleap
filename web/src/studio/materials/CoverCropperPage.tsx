@@ -236,9 +236,9 @@ export function CoverCropperPage() {
     <div className={styles.root}>
       <div className={styles.wrap}>
         <header className={styles.header}>
-          <div className={styles.eyebrow}>Hahow 封面素材工具</div>
+          <div className={styles.eyebrow}>課程平台封面素材工具</div>
           <h1 className={styles.title}>封面裁切工具</h1>
-          <p className={styles.sub}>上傳 showcase 截圖或任何素材，拖曳與縮放對齊裁切框，輸出 Hahow 要求的正確比例與解析度。</p>
+          <p className={styles.sub}>上傳 showcase 截圖或任何素材，拖曳與縮放對齊裁切框，輸出平台要求的比例與解析度。</p>
         </header>
 
         <div

@@ -89,7 +89,7 @@ export const COURSES: Course[] = [
     ...fromLevel('advanced', 'advanced', 'L4 進階'),
     status: 'planned',
     lessons: [],
-    planned: level('advanced').topics.map((t, i) => ({
+    planned: (level('advanced').topics ?? []).map((t, i) => ({
       slug: `topic-${i + 1}`,
       label: `主題 ${i + 1}`,
       title: t,

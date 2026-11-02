@@ -175,7 +175,7 @@ export function AiAgentCoursePage() {
             ))}
           </ul>
           <p className={styles.more}>
-            <Link to="/docs">查看全部文件 →</Link>
+            <Link to="/proposal#docs">查看全部文件 →</Link>
           </p>
         </div>
       </section>

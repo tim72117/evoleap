@@ -38,3 +38,6 @@ desktop.ini
 
 # ---- Claude Code 本機設定(共用設定 .claude/settings.json 可進版控)----
 .claude/settings.local.json
+
+# 宣傳影片錄製工具的輸出(npm run record)
+web/recordings/

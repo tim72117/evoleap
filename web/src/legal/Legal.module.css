@@ -107,14 +107,6 @@
   font-weight: 600;
 }
 
-.footer {
-  margin-top: 48px;
-  padding-top: 20px;
-  border-top: 1px solid var(--site-border);
-  font-size: 14px;
-  color: var(--site-muted);
-}
-
 .tableWrap {
   margin: 16px 0;
   overflow-x: auto;

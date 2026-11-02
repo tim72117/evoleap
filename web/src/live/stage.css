@@ -1,0 +1,59 @@
+/* 舞台:背景、演員的位置、教學效果(章節卡、聚光燈與說明、虛擬滑鼠)。演員的樣式在各自的 actor.css。
+   舞台固定 1920×1080,由播放器外殼(shell.js)整體縮放;選擇器都在 .live-stage 底下,不影響網站其他部分。 */
+.live-stage {
+  --st-accent: #d97757;
+  --st-bg: #faf9f5;
+  --st-page: #e9e5dc;
+  --st-fg: #1f1e1b;
+  --st-dim: #6f6c64;
+  /* 演員共用的單位:1920 寬時 18px(舞台固定 1920 寬,由外殼縮放) */
+  --u: 18px;
+  position: relative; width: 1920px; height: 1080px; overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: var(--u);
+  line-height: normal;
+  color: var(--st-fg);
+  background: radial-gradient(70% 70% at 25% 15%, #f3efe6, var(--st-page));
+}
+.live-stage * { box-sizing: border-box; }
+/* 鏡頭:演員與跟著縮放的效果都在 .st-cam 裡,由 stage.js 設定 transform */
+.live-stage .st-cam { position: absolute; inset: 0; transform-origin: 0 0; }
+.live-stage .st-cast { position: absolute; inset: 0; }
+.live-stage .slot { position: absolute; }
+/* 跟著鏡頭縮放的效果;聚光燈的陰影要能延伸到鏡頭推近後露出的地方 */
+.live-stage .st-fx { position: absolute; inset: 0; pointer-events: none; z-index: 10; overflow: visible; }
+/* 不跟鏡頭縮放的疊加畫面 */
+.live-stage .st-over { position: absolute; inset: 0; pointer-events: none; z-index: 20; overflow: hidden; }
+.live-stage .st-spot[hidden], .live-stage .st-bubble[hidden], .live-stage .st-card[hidden], .live-stage .st-cursor[hidden], .live-stage .st-ripple[hidden] { display: none; }
+
+.live-stage .st-bubble {
+  position: absolute; max-width: 42%;
+  padding: 0.6em 0.9em; border-radius: 0.6em;
+  background: var(--st-accent); color: #fff; font-weight: 600; font-size: 1.05em; line-height: 1.45;
+  box-shadow: 0 0.4em 1.2em rgba(0, 0, 0, 0.18);
+}
+
+.live-stage .st-card {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  background: radial-gradient(60% 60% at 30% 30%, color-mix(in srgb, var(--st-accent) 10%, var(--st-bg)), var(--st-bg));
+}
+.live-stage .st-card .card-in { max-width: 70%; text-align: center; }
+.live-stage .st-card .eyebrow { color: var(--st-accent); font-weight: 700; letter-spacing: 0.08em; font-size: 1.1em; }
+.live-stage .st-card h1 { margin: 0.4em 0; font-size: 3.2em; line-height: 1.25; }
+.live-stage .st-card p { margin: 0; color: var(--st-dim); font-size: 1.25em; }
+.live-stage .st-card .k-code { font-family: ui-monospace, Menlo, monospace; font-size: 0.9em; }
+.live-stage .st-card .k-em { font-style: normal; color: var(--st-accent); }
+
+.live-stage .st-cursor {
+  position: absolute; left: 0; top: 0; width: calc(var(--u) * 1.6); height: calc(var(--u) * 1.6);
+  margin: calc(var(--u) * -0.15) 0 0 calc(var(--u) * -0.2);
+  transform-origin: 0 0;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+.live-stage .st-cursor svg { display: block; width: 100%; height: 100%; fill: #111; stroke: #fff; stroke-width: 1.4; }
+.live-stage .st-ripple {
+  position: absolute; left: calc(var(--u) * -1.5); top: calc(var(--u) * -1.5);
+  width: calc(var(--u) * 3); height: calc(var(--u) * 3); border-radius: 50%;
+  background: var(--st-accent);
+}

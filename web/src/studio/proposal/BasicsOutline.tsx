@@ -141,7 +141,7 @@ function ProductionSection({ plan, mods }: { plan: ProductionPlan; mods: Module[
   return (
     <>
       <h2>製作規劃</h2>
-      <p className="lead">狀態只記到實際完成的程度：目前每課都是大綱完成，下一步是寫腳本。</p>
+      <p className="lead">狀態只記到實際完成的程度。「腳本完成」指已有即時教學畫面腳本、課程頁可以播放。</p>
 
       <section className="card">
         <div className="card-head">
@@ -153,7 +153,7 @@ function ProductionSection({ plan, mods }: { plan: ProductionPlan; mods: Module[
               <tr>
                 <th>課</th>
                 <th className="nowrap">步驟／影片</th>
-                <th className="nowrap">錄製批次</th>
+                <th className="nowrap">製作順序</th>
                 <th className="nowrap">狀態</th>
                 <th className="nowrap">下一步</th>
               </tr>
@@ -169,9 +169,9 @@ function ProductionSection({ plan, mods }: { plan: ProductionPlan; mods: Module[
                   <td className="nowrap small">{r.course ? `${r.course.steps.length} 步 · ${r.course.videos.length} 支 · ${videoMinutes(r.course)} 分` : '—'}</td>
                   <td className="nowrap small">{batchOf(r.code)}</td>
                   <td>
-                    <span className="chip todo">{r.lesson.status ?? '發想'}</span>
+                    <span className={`chip ${r.lesson.status === '腳本完成' ? 'done' : 'todo'}`}>{r.lesson.status ?? '發想'}</span>
                   </td>
-                  <td className="nowrap small">待寫腳本</td>
+                  <td className="small">{r.lesson.next ?? '—'}</td>
                 </tr>
               ))}
             </tbody>
@@ -181,7 +181,7 @@ function ProductionSection({ plan, mods }: { plan: ProductionPlan; mods: Module[
 
       <section className="card">
         <div className="card-head">
-          <h3>錄製順序</h3>
+          <h3>製作順序</h3>
         </div>
         <div className="table-scroll">
           <table className="lesson-table">
@@ -364,12 +364,20 @@ export function TierOutline({ tier }: { tier: Tier }) {
   const promptCount = plans.reduce((n, p) => n + p.steps.filter((s) => s.prompt).length, 0)
   const videoCount = plans.reduce((n, p) => n + p.videos.length, 0)
   const videoTotal = plans.reduce((n, p) => n + videoMinutes(p), 0)
+  // 橫幅依各課的製作狀態（basicsData.ts 的 PROGRESS）推導，與「各課製作狀態」表一致
+  const planned = mods.flatMap((m) => m.lessons.filter((l) => l.course))
+  const scripted = planned.filter((l) => l.status === '腳本完成').length
+  const banner = !planned.length
+    ? '草稿／發想 · 尚未定案'
+    : scripted === planned.length
+      ? '腳本完成'
+      : scripted
+        ? `大綱完成 · ${scripted} 課腳本完成`
+        : '大綱完成 · 待寫腳本'
 
   return (
     <>
-      <span className="chip todo draft-banner">
-        {plans.length ? '大綱完成 · 待寫腳本 · 尚未錄製' : '草稿／發想 · 尚未定案'}
-      </span>
+      <span className={`chip ${scripted ? 'done' : 'todo'} draft-banner`}>{banner}</span>
       <p className="lead">
         {TIER_LABEL[tier]} · {mods.length} 個單元、{lessonCount} 課，各課估計時長加總約 {hours} 小時。
       </p>

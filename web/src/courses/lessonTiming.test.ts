@@ -9,7 +9,7 @@ describe('effectiveCues', () => {
     expect(effectiveCues(undefined)).toEqual([])
   })
 
-  it('spreads steps evenly after an 8% intro when there are no cues and no youtubeId', () => {
+  it('spreads steps evenly after an 8% intro when there are no cues', () => {
     // 10 分鐘 = 600 秒,開場 48 秒,剩 552 秒平均分給 4 步
     expect(effectiveCues(video({}))).toEqual([
       { step: 1, at: 48 },
@@ -33,11 +33,6 @@ describe('effectiveCues', () => {
       { step: 1, at: 99 },
     ]
     expect(effectiveCues(video({ cues }))).toBe(cues)
-    expect(effectiveCues(video({ cues, youtubeId: 'abc' }))).toBe(cues)
-  })
-
-  it('derives nothing for a real YouTube video without cues', () => {
-    expect(effectiveCues(video({ youtubeId: 'abc' }))).toEqual([])
   })
 })
 

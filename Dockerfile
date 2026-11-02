@@ -12,12 +12,9 @@
 
 # ---- 階段 1:build 前端 ----
 FROM node:22-alpine AS web-build
-# 目錄結構需與專案根目錄一致:web/src/studio/docs/registry.ts 以相對路徑
-# (../../../../tools/video/scripts/*.md)讀取工具產生的分鏡腳本。
 WORKDIR /repo/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
-COPY tools/video/scripts/*.md /repo/tools/video/scripts/
 COPY web/ ./
 # GA4 評估 ID(Vite 於 build 時內嵌):docker build --build-arg VITE_GA_MEASUREMENT_ID=G-XXXX。
 # 未傳或留空時前端完全不載入 Google Analytics。

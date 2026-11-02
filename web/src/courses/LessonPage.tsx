@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { useCopy } from '../site/useCopy'
 import type { CourseLesson, LessonStep } from '../content/lessonTypes'
 import { coursePath, lessonNumber, lessonPath, type Course } from '../content/catalog'
 import styles from './Lesson.module.css'
-import { YouTubePlayer, type YouTubePlayerHandle } from './YouTubePlayer'
+import type { PlayerHandle } from './playerHandle'
 import { MockPlayer } from './MockPlayer'
+import { LivePlayer } from './LivePlayer'
 import { effectiveCues, mmss, stepAt } from './lessonTiming'
 
 // 學員端單課頁。第一屏（fold）剛好一個視窗高：左邊影片、右邊「步驟軌」（窄螢幕時上下堆疊），
@@ -100,9 +101,14 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
   const num = lessonNumber(lesson)
   const total = lesson.steps.length
 
-  const [videoIdx, setVideoIdx] = useState(0)
+  // ?video=2 直接打開第 2 支影片(分享連結、預覽用)
+  const [searchParams] = useSearchParams()
+  const [videoIdx, setVideoIdx] = useState(() => {
+    const n = Number(searchParams.get('video'))
+    return Number.isInteger(n) && n >= 1 && n <= lesson.videos.length ? n - 1 : 0
+  })
   const video = lesson.videos[videoIdx]
-  const playerRef = useRef<YouTubePlayerHandle>(null)
+  const playerRef = useRef<PlayerHandle>(null)
   // 自動展開：播放中的步驟；手動：學員自己點開或收合的步驟
   // （影片未上架時也有模擬播放器驅動，所以一開始不預先展開任何一步）
   const [playingStep, setPlayingStep] = useState<number | null>(null)
@@ -111,8 +117,12 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
   const listRef = useRef<HTMLOListElement>(null)
   // 切換影片後要跳到的秒數（「下一步」跨影片時用）；新播放器掛好再 seek
   const pendingSeek = useRef<number | null>(null)
+  // 同上,但目標是即時教學畫面:要跳到的步驟(時間等播放器回報 cues 才知道)
+  const pendingLiveStep = useRef<number | null>(null)
 
-  const cues = useMemo(() => effectiveCues(video), [video])
+  // 即時教學畫面的步驟對應由播放器載入腳本後回報(腳本裡的 lessonStep);null = 還沒回報(腳本還在載入)
+  const [liveCues, setLiveCues] = useState<{ step: number; at: number }[] | null>(null)
+  const cues = useMemo(() => (video?.live ? (liveCues ?? []) : effectiveCues(video)), [video, liveCues])
   const cueByStep = useMemo(() => new Map(cues.map((c) => [c.step, c.at])), [cues])
 
   const onTime = (t: number) => {
@@ -133,17 +143,38 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
       playerRef.current?.seekTo(cue)
       return
     }
+    if (video?.live && liveCues === null && video.steps.includes(n)) {
+      // 同一支即時教學畫面,但播放器還沒回報 cues:先記下來,回報後再跳(見下方 effect)
+      pendingLiveStep.current = n
+      setManual({ [n]: true })
+      return
+    }
     const vi = lesson.videos.findIndex((v) => v.steps.includes(n))
     if (vi >= 0 && vi !== videoIdx) {
-      const at = effectiveCues(lesson.videos[vi]).find((c) => c.step === n)?.at
-      pendingSeek.current = at ?? null
+      if (lesson.videos[vi].live) {
+        // 即時教學畫面的步驟時間要等播放器載入腳本、回報 cues 後才知道
+        pendingLiveStep.current = n
+        pendingSeek.current = null
+      } else {
+        pendingSeek.current = effectiveCues(lesson.videos[vi]).find((c) => c.step === n)?.at ?? null
+      }
       setVideoIdx(vi)
       setPlayingStep(null)
+      setLiveCues(null)
     }
     setManual({ [n]: true })
   }
   const goStepRef = useRef(goStep)
   goStepRef.current = goStep
+
+  // 切到即時教學畫面(或它還沒載入完)時,等它回報 cues 再跳到要去的那一步;
+  // 回報了但腳本裡沒有這一步,也一樣清掉,免得之後別支影片誤跳
+  useEffect(() => {
+    if (pendingLiveStep.current === null || liveCues === null) return
+    const at = liveCues.find((c) => c.step === pendingLiveStep.current)?.at
+    pendingLiveStep.current = null
+    if (at !== undefined) playerRef.current?.seekTo(at)
+  }, [liveCues])
 
   useEffect(() => {
     if (pendingSeek.current === null) return
@@ -168,6 +199,8 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
       if (e.altKey || e.ctrlKey || e.metaKey) return
       const target = e.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return
+      // 焦點在即時教學畫面的播放器裡時,←/→ 由播放器處理(倒退/快轉)
+      if (target?.closest('.vp')) return
       e.preventDefault()
       goStepRef.current((playingStep ?? 0) + (e.key === 'ArrowRight' ? 1 : -1))
     }
@@ -215,9 +248,16 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
           <div className={`${styles.stage} ${hasTabs ? styles.hasTabs : ''}`}>
             <div className={styles.stageMain}>
               <div className={styles.playerBox}>
-                {video?.youtubeId ? (
+                {video?.live ? (
                   <div className={styles.player}>
-                    <YouTubePlayer ref={playerRef} videoId={video.youtubeId} title={video.title} onTime={onTime} />
+                    <LivePlayer
+                      key={videoIdx}
+                      ref={playerRef}
+                      script={video.live}
+                      title={video.title}
+                      onTime={onTime}
+                      onCues={setLiveCues}
+                    />
                   </div>
                 ) : video ? (
                   // 影片還沒上架：用模擬播放器跑一遍「播到哪一步就展開哪一步」；換影片時 key 改變，進度歸零
@@ -241,8 +281,14 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
                       aria-selected={i === videoIdx}
                       className={i === videoIdx ? styles.tabActive : ''}
                       onClick={() => {
+                        // 點目前這個分頁不重掛播放器,也就不會再回報 cues,所以不能清掉
+                        if (i === videoIdx) return
                         setVideoIdx(i)
                         setPlayingStep(null)
+                        setLiveCues(null)
+                        // 學員自己換分頁:先前排著要跳的步驟作廢
+                        pendingLiveStep.current = null
+                        pendingSeek.current = null
                       }}
                     >
                       <small>影片 {i + 1}</small>

@@ -67,7 +67,7 @@ test('og:image 檔案存在', async ({ request }) => {
 test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁', async ({ request }) => {
   const sitemap = new Set(sitemapPaths(await (await request.get('/sitemap.xml')).text()))
   const pages = distPagePaths()
-  for (const p of ['/login', '/docs', '/proposal', '/materials/cover-designer']) {
+  for (const p of ['/login', '/docs/live', '/proposal', '/materials', '/materials/cover-designer']) {
     expect(pages, `dist 應有內部頁 ${p}`).toContain(p)
   }
   for (const path of pages) {
@@ -122,7 +122,7 @@ for (const path of ['/nope', '/courses/nope', '/courses', '/courses/tools/999', 
 test('結尾斜線與 /index.html 以 301 導向正式網址(保留 query)', async ({ request }) => {
   const cases: [string, string][] = [
     ['/courses/tools/', '/courses/tools'],
-    ['/docs/', '/docs'],
+    ['/proposal/', '/proposal'],
     ['/courses/tools/1/', '/courses/tools/1'],
     ['/index.html', '/'],
     ['/courses/tools/index.html', '/courses/tools'],

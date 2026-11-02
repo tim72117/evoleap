@@ -3,7 +3,7 @@ import { ContactEmail, Fill, LegalDoc, Note, type LegalSection } from './LegalDo
 import { JURISDICTION_COURT, OPERATOR_NAME } from './operator'
 
 /** 最後更新日期;內容有實質變更時一併更新 */
-const TERMS_UPDATED = '2026-10-30'
+const TERMS_UPDATED = '2026-11-02'
 
 const sections: LegalSection[] = [
   {
@@ -147,10 +147,10 @@ const sections: LegalSection[] = [
   },
   {
     id: 'external',
-    title: '外部連結與嵌入內容',
+    title: '外部連結',
     body: (
       <p>
-        本網站包含連到外部網站的連結，並嵌入 YouTube 影片。這些外部網站與服務由第三方提供及管理，其內容、可用性與資料處理方式不在我們的控制範圍內，使用時請遵守各自的條款與政策。我們提供連結不代表為其背書。
+        本網站包含連到外部網站的連結。這些外部網站與服務由第三方提供及管理，其內容、可用性與資料處理方式不在我們的控制範圍內，使用時請遵守各自的條款與政策。我們提供連結不代表為其背書。
       </p>
     ),
   },

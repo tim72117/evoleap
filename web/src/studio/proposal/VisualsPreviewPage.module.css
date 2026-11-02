@@ -1,0 +1,80 @@
+/* 即時教學畫面預覽頁(/proposal/visuals/preview)。 */
+
+/* 靜態畫面:固定 1920×1080 的舞台,以 transform 縮放到頁寬 */
+.frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #000;
+}
+
+.scaler {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 0 0;
+}
+
+.player {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.toolbar input {
+  width: 8em;
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.toolbar button {
+  font: inherit;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.error {
+  margin: 14px 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--out-soft);
+  color: var(--out);
+  white-space: pre-wrap;
+}
+
+.chapterBtn {
+  font: inherit;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+  text-align: left;
+}
+
+.current {
+  font-weight: 700;
+}

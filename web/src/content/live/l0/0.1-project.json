@@ -1,0 +1,309 @@
+{
+  "title": "認識專案：工作目錄與檔案操作",
+  "lesson": "L0 · 第 1 課",
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~/Documents/ai-practice/xiaosen-booking",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "ai-practice": {
+            "hello.txt": ""
+          }
+        },
+        "open": "ai-practice"
+      },
+      "place": "right",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "認識專案：工作目錄與檔案操作",
+      "eyebrow": "L0 · 第 1 課",
+      "sub": "為小森烘焙建立專案，請 AI 建立、改名、移動和刪除檔案",
+      "narration": "這一課要為小森烘焙的網站建立一個專案。你會知道 AI 在哪個資料夾工作，也會請它建立、改名、移動和刪除檔案。"
+    },
+    {
+      "card": "一個專案，就是一個資料夾",
+      "eyebrow": "先記住這件事",
+      "sub": "工具從哪個資料夾開啟，那裡就是它的「工作目錄」",
+      "narration": "先記住一件事：一個專案就是一個資料夾。工具從哪個資料夾開啟，那裡就是它的工作目錄，它通常只在這個範圍裡工作。"
+    },
+    {
+      "show": "finder",
+      "chapter": "建立專案資料夾",
+      "lessonStep": 1,
+      "narration": "打開上一課的 ai-practice 練習資料夾，裡面有上一課建立的 hello.txt。"
+    },
+    {
+      "mkdir": "xiaosen-booking",
+      "narration": "在這裡新增一個資料夾，取名 xiaosen-booking，這就是小森烘焙網站的專案資料夾。"
+    },
+    {
+      "open": "xiaosen-booking",
+      "narration": "打開它，現在是空的。"
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "show": "claude",
+      "narration": "上一課的工具如果還開著，先關掉，再從 xiaosen-booking 重新開啟。"
+    },
+    {
+      "callout": "claude:head",
+      "text": "上方顯示的資料夾，就是這次的工作目錄",
+      "narration": "上方顯示的資料夾變成 xiaosen-booking，這就是這次的工作目錄。"
+    },
+    {
+      "user": "目前的工作目錄是哪裡？",
+      "chapter": "確認工作目錄",
+      "lessonStep": 2,
+      "narration": "不確定的時候，直接問它。"
+    },
+    {
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "say": "目前的工作目錄是 `/Users/you/Documents/ai-practice/xiaosen-booking`，這個資料夾目前是空的。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "路徑最後是 xiaosen-booking，就對了",
+      "narration": "它回答一個完整路徑，最後是 xiaosen-booking，就對了。路徑裡的 Documents，就是 Finder 或檔案總管裡的「文件」。如果不是你預期的資料夾，先關掉工具，從正確的資料夾重新開啟。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "在 ai-practice 裡新增 xiaosen-booking 資料夾，從這個資料夾開啟工具，問它「目前的工作目錄是哪裡？」，確認路徑最後是 xiaosen-booking。做完按「完成了，繼續」。"
+    },
+    {
+      "user": "產生網頁專案基本檔案：index.html 和 styles.css",
+      "chapter": "建立基本檔案",
+      "lessonStep": 3,
+      "narration": "接著請它產生網頁專案的基本檔案。把檔名寫進提示詞，下一課才能直接接著用。"
+    },
+    {
+      "thinking": true,
+      "ms": 1300
+    },
+    {
+      "say": "好的，我會建立 `index.html`（網頁內容）和 `styles.css`（網頁樣式）。"
+    },
+    {
+      "ask": "index.html",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "preview": "<!DOCTYPE html>\n<html lang=\"zh-Hant\">\n<head>\n  <title>小森烘焙</title>\n  <link rel=\"stylesheet\" href=\"styles.css\">"
+    },
+    {
+      "choose": 1,
+      "narration": "確認提示一樣先看三件事：哪個檔案、在哪個資料夾、內容是什麼。沒問題就允許一次。"
+    },
+    {
+      "tool": "Write",
+      "arg": "index.html",
+      "result": "已建立"
+    },
+    {
+      "ask": "styles.css",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "preview": "body {\n  margin: 0;\n  font-family: sans-serif;\n}"
+    },
+    {
+      "choose": 1
+    },
+    {
+      "tool": "Write",
+      "arg": "styles.css",
+      "result": "已建立"
+    },
+    {
+      "say": "已建立 `index.html` 和 `styles.css`。"
+    },
+    {
+      "show": "finder",
+      "create": "index.html",
+      "narration": "它說完成了，我們用 Finder 親眼確認。"
+    },
+    {
+      "create": "styles.css",
+      "narration": "index.html 和 styles.css 都在。之後每次 AI 說完成，都這樣確認一次。"
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "user": "在 drafts/idea.txt 記下：首頁要有預約按鈕",
+      "chapter": "用相對路徑指定檔案",
+      "lessonStep": 4,
+      "narration": "接下來用一種很常用的寫法指定檔案位置。"
+    },
+    {
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "ask": "drafts/idea.txt",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "preview": "首頁要有預約按鈕"
+    },
+    {
+      "choose": 1
+    },
+    {
+      "tool": "Write",
+      "arg": "drafts/idea.txt",
+      "result": "已建立"
+    },
+    {
+      "say": "已在 `drafts/idea.txt` 記下：首頁要有預約按鈕。"
+    },
+    {
+      "show": "finder",
+      "mkdir": "drafts",
+      "narration": "Finder 裡多了一個 drafts 資料夾。"
+    },
+    {
+      "create": "drafts/idea.txt"
+    },
+    {
+      "open": "drafts",
+      "narration": "打開它，裡面就是 idea.txt。"
+    },
+    {
+      "callout": "finder",
+      "text": "drafts/idea.txt ＝ 工作目錄裡 drafts 資料夾中的 idea.txt",
+      "narration": "drafts 斜線 idea.txt 的意思是：工作目錄裡，drafts 資料夾中的 idea.txt。這種從工作目錄出發的寫法叫「相對路徑」。之後提到檔案都這樣寫，AI 才不會找錯檔案。"
+    },
+    {
+      "open": ".."
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "依序送出「產生網頁專案基本檔案：index.html 和 styles.css」和「在 drafts/idea.txt 記下：首頁要有預約按鈕」，每次都在 Finder 或檔案總管確認結果。做完按「完成了，繼續」。"
+    },
+    {
+      "user": "把 drafts/idea.txt 改名為 homepage-idea.txt，移到 notes 資料夾",
+      "chapter": "改名與移動",
+      "lessonStep": 5,
+      "narration": "把這份筆記整理一下：改名，再移到 notes 資料夾。"
+    },
+    {
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "say": "還沒有 notes 資料夾，我會先建立，再把檔案改名移過去。"
+    },
+    {
+      "ask": "mkdir notes && mv drafts/idea.txt notes/homepage-idea.txt",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "note": "建立 notes 資料夾，並把 drafts/idea.txt 移過去改名為 homepage-idea.txt"
+    },
+    {
+      "choose": 1,
+      "narration": "這次它要執行一個指令。下面的說明寫得很清楚：建立 notes，再把檔案搬過去改名。範圍沒問題，允許一次。"
+    },
+    {
+      "tool": "Bash",
+      "arg": "mkdir notes && mv drafts/idea.txt notes/homepage-idea.txt",
+      "result": "完成"
+    },
+    {
+      "show": "finder",
+      "mkdir": "notes",
+      "narration": "回到 Finder，多了 notes 資料夾。"
+    },
+    {
+      "rename": ["drafts/idea.txt", "notes/homepage-idea.txt"]
+    },
+    {
+      "open": "notes",
+      "narration": "notes 裡面是改名後的 homepage-idea.txt。"
+    },
+    {
+      "open": "../drafts",
+      "narration": "drafts 資料夾現在是空的。"
+    },
+    {
+      "open": ".."
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "user": "刪除空的 drafts 資料夾",
+      "chapter": "刪除前先確認",
+      "lessonStep": 6,
+      "narration": "最後，把空的 drafts 資料夾刪掉。刪除要特別小心。"
+    },
+    {
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "ask": "rmdir drafts",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/Documents/ai-practice/xiaosen-booking",
+      "note": "這會刪除 drafts 資料夾"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "看清楚範圍：只有 drafts 資料夾",
+      "narration": "允許之前，看清楚要刪除的範圍：只有 drafts 資料夾。工具刪除的檔案不一定會進垃圾桶。如果指令裡出現 -rf 或 -Recurse，代表連同裡面的內容一起刪除，範圍不只 drafts 就先拒絕。"
+    },
+    {
+      "choose": 1
+    },
+    {
+      "tool": "Bash",
+      "arg": "rmdir drafts",
+      "result": "完成"
+    },
+    {
+      "say": "已刪除空的 `drafts` 資料夾。"
+    },
+    {
+      "show": "finder",
+      "delete": "drafts",
+      "narration": "Finder 裡 drafts 不見了，其他檔案都還在。"
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "送出「把 drafts/idea.txt 改名為 homepage-idea.txt，移到 notes 資料夾」，再送出「刪除空的 drafts 資料夾」。允許刪除前先看清楚範圍，最後在 Finder 或檔案總管確認結果。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "下一課：做出小森烘焙的一頁式網站",
+      "eyebrow": "這一課完成了",
+      "sub": "✓ 知道工作目錄在哪　✓ 會用相對路徑指定檔案　✓ 每次都親眼確認結果",
+      "chapter": "回顧",
+      "narration": "你已經有了 xiaosen-booking 專案：index.html、styles.css，還有 notes 裡的一份筆記。下一課，我們在這兩個檔案裡做出小森烘焙的一頁式網站。"
+    }
+  ]
+}

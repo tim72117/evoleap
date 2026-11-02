@@ -3,11 +3,11 @@ import { ContactEmail, Ext, Fill, LegalDoc, Note, Table, type LegalSection } fro
 import { OPERATOR_NAME } from './operator'
 
 /** 最後更新日期;內容有實質變更時一併更新 */
-const PRIVACY_UPDATED = '2026-10-30'
+const PRIVACY_UPDATED = '2026-11-02'
 
 // 本政策描述的是網站「目前」的實際狀況:Email/密碼與 Google 登入(帳號存在 Cloud SQL)、
 // 登入 cookie shuttle_session、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
-// 嵌入 YouTube、伺服器存取記錄。新增任何蒐集資料的功能(例如記錄學習進度、表單、付費)前,
+// 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)。新增任何蒐集資料的功能(例如記錄學習進度、表單、付費)前,
 // 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/store/users.go、
 // web/src/site/analytics.ts。
 
@@ -21,7 +21,7 @@ const sections: LegalSection[] = [
           本隱私權政策適用於 shuttle.tools 網站（以下稱「本網站」），說明您瀏覽本網站或註冊、登入帳號時，我們會處理哪些資料、為什麼處理、交給誰、保存多久，以及您依《個人資料保護法》（以下稱「個資法」）享有的權利。
         </p>
         <p>
-          本網站由 <Fill value={OPERATOR_NAME} />（以下稱「我們」）營運。本政策不適用於本網站連結或嵌入的第三方網站與服務，例如 YouTube、Google 帳號或各家 AI 工具，這些服務依其各自的隱私權政策處理資料。
+          本網站由 <Fill value={OPERATOR_NAME} />（以下稱「我們」）營運。本政策不適用於本網站連結或嵌入的第三方網站與服務，例如 Google 帳號或各家 AI 工具，這些服務依其各自的隱私權政策處理資料。
         </p>
       </>
     ),
@@ -46,7 +46,7 @@ const sections: LegalSection[] = [
             <strong>伺服器存取記錄</strong>：代管服務自動留下的 IP 位址、時間、請求網址等。
           </li>
           <li>
-            <strong>第三方服務自行蒐集的資料</strong>：嵌入的 YouTube 影片與「使用 Google 帳號登入」由 Google 依其政策處理。
+            <strong>第三方服務自行蒐集的資料</strong>：「使用 Google 帳號登入」由 Google 依其政策處理。課程影片由本網站直接產生畫面，不透過 YouTube 等第三方影音平台播放。
           </li>
         </ul>
         <p>本網站目前沒有付費功能、留言或報名表單，也沒有放置廣告或廣告追蹤像素。</p>
@@ -84,7 +84,7 @@ const sections: LegalSection[] = [
         </ul>
         <h3>帳號資料存放在哪裡</h3>
         <p>
-          帳號資料存放在 Google Cloud 的 Cloud SQL（PostgreSQL）資料庫，位於 asia-east1 區域（臺灣）。每個帳號另有一組隨機產生的帳號編號，以及建立、更新時間。
+          帳號資料存放在 Google Cloud 位於臺灣的資料中心。每個帳號另有一組隨機產生的帳號編號，以及建立、更新時間。
         </p>
         <h3>我們用帳號資料做什麼</h3>
         <ul>
@@ -170,22 +170,6 @@ const sections: LegalSection[] = [
     ),
   },
   {
-    id: 'youtube',
-    title: '嵌入的 YouTube 影片',
-    body: (
-      <>
-        <p>
-          課程頁面中的教學影片是透過 YouTube 嵌入播放器（YouTube IFrame Player API）播放。當您開啟含有影片的頁面時，您的瀏覽器會直接連線到 YouTube / Google 的伺服器載入播放器，YouTube 可能因此取得您的 IP 位址、瀏覽器資訊與觀看行為，並可能設定或讀取它自己的 cookie 或類似技術。
-        </p>
-        <p>
-          這部分的資料由 Google 依其政策處理，我們無法控制，也拿不到這些資料。詳情請參考{' '}
-          <Ext href="https://policies.google.com/privacy?hl=zh-TW">Google 隱私權政策</Ext>與{' '}
-          <Ext href="https://policies.google.com/technologies/cookies?hl=zh-TW">Google 如何使用 Cookie</Ext>。若不希望 YouTube 處理這些資料，您可以透過瀏覽器的 cookie 設定或擴充功能加以限制，但影片可能因此無法正常播放。
-        </p>
-      </>
-    ),
-  },
-  {
     id: 'clipboard',
     title: '「複製」按鈕與剪貼簿',
     body: (
@@ -226,9 +210,9 @@ const sections: LegalSection[] = [
               '2 年',
             ],
             [
-              '由 YouTube / Google 決定',
-              'YouTube / Google（第三方）',
-              '播放嵌入影片、Google 登入按鈕，以及 Google 自己的用途。',
+              '由 Google 決定',
+              'Google（第三方）',
+              '「使用 Google 帳號登入」按鈕，以及 Google 自己的用途。',
               '依 Google 的設定，詳見 Google 的 cookie 說明',
             ],
           ]}
@@ -256,7 +240,7 @@ const sections: LegalSection[] = [
             <strong>利用期間：</strong>見下一節「保存期間」。
           </li>
           <li>
-            <strong>利用地區：</strong>帳號資料存放於 Google Cloud 的臺灣資料中心（asia-east1）。伺服器存取記錄與 GA 資料由 Google 處理，可能存放或處理於臺灣境外的 Google 資料中心。
+            <strong>利用地區：</strong>帳號資料存放於 Google Cloud 位於臺灣的資料中心。伺服器存取記錄與 GA 資料由 Google 處理，可能存放或處理於臺灣境外的 Google 資料中心。
           </li>
           <li>
             <strong>利用對象：</strong>我們；受我們委託處理資料的 Google（Google Cloud 代管網站與資料庫、Google Analytics 統計、Google 帳號登入）；另於法律要求時，提供給依法有權調閱的機關。
@@ -379,7 +363,7 @@ export function PrivacyPage() {
     <LegalDoc
       title="隱私權政策"
       updated={PRIVACY_UPDATED}
-      intro="簡單說：看公開課程不必註冊。若您註冊或登入，我們會保存 Email、名稱，以及密碼的雜湊值（不是密碼本身）或 Google 帳號 ID，資料存放在 Google Cloud 的臺灣機房，並用一個 cookie 記住您的登入狀態。我們用 Google Analytics 統計網站使用情形，但不會把您的 Email 或帳號傳給它；嵌入的 YouTube 影片與 Google 登入按鈕則由 Google 依其政策處理。我們不出售您的資料，您可以隨時來信要求查詢、更正或刪除。以下是完整說明。"
+      intro="簡單說：看公開課程不必註冊。若您註冊或登入，我們會保存 Email、名稱，以及密碼的雜湊值（不是密碼本身）或 Google 帳號 ID，資料存放在 Google Cloud 的臺灣機房，並用一個 cookie 記住您的登入狀態。我們用 Google Analytics 統計網站使用情形，但不會把您的 Email 或帳號傳給它；Google 登入按鈕則由 Google 依其政策處理。我們不出售您的資料，您可以隨時來信要求查詢、更正或刪除。以下是完整說明。"
       sections={sections}
     />
   )

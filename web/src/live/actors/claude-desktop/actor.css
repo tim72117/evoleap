@@ -1,0 +1,246 @@
+/* 演員 claude-desktop:仿 Claude 桌面版 Code 分頁(淺色主題)。版面與配色為近似,不是官方素材。
+   所有選擇器都以 .A-claude-desktop 開頭,不影響舞台與其他演員(規格見 ../../README.md「演員」)。 */
+.A-claude-desktop {
+  --page: #e9e5dc;
+  --bg: #faf9f5;
+  --side: #f2f0e8;
+  --line: #e2dfd5;
+  --fg: #1f1e1b;
+  --dim: #6f6c64;
+  --faint: #a8a59c;
+  --claude: #d97757;
+  --user-bg: #efece3;
+  --card: #ffffff;
+  --code-bg: #f4f2ec;
+  --ok: #3f8f5a;
+  --add-bg: #e3f3e6;
+  --add-fg: #22663a;
+  --del-bg: #fbe5e5;
+  --del-fg: #9b2c2c;
+  --mono: "SF Mono", Menlo, Monaco, "PingFang TC", monospace;
+  /* 1920 寬時字級 18px,其他尺寸等比例縮放 */
+  --u: 18px; /* 舞台固定 1920 寬 */
+}
+.A-claude-desktop.dark {
+  --page: #1c1b19;
+  --bg: #262624;
+  --side: #1f1e1d;
+  --line: #3a3936;
+  --fg: #ecebe6;
+  --dim: #a3a199;
+  --faint: #6b6a65;
+  --user-bg: #34332f;
+  --card: #2e2d2a;
+  --code-bg: #1f1e1d;
+  --add-bg: #1f3b28;
+  --add-fg: #8fd6a2;
+  --del-bg: #45252a;
+  --del-fg: #f0a3ad;
+}
+
+
+.A-claude-desktop .cd-titlebar {
+  height: calc(var(--u) * 2.4);
+  display: flex; align-items: center; gap: calc(var(--u) * 0.45);
+  padding: 0 calc(var(--u) * 0.9);
+  background: var(--side);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+.A-claude-desktop .light { width: calc(var(--u) * 0.7); height: calc(var(--u) * 0.7); border-radius: 50%; }
+.A-claude-desktop .red { background: #ff5f57; } .yellow { background: #febc2e; } .green { background: #28c840; }
+.A-claude-desktop .cd-tabs {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 2px; padding: 2px;
+  background: var(--line); border-radius: calc(var(--u) * 0.5);
+  font-size: 0.8em;
+}
+.A-claude-desktop .cd-tabs span { padding: 0.1em 1em; border-radius: calc(var(--u) * 0.4); color: var(--dim); }
+.A-claude-desktop .cd-tabs span.on { background: var(--bg); color: var(--fg); font-weight: 600; }
+
+.A-claude-desktop .cd-body { flex: 1; display: flex; min-height: 0; }
+
+/* ---------- sidebar ---------- */
+.A-claude-desktop .cd-sidebar {
+  width: 22%;
+  background: var(--side);
+  border-right: 1px solid var(--line);
+  padding: calc(var(--u) * 0.9) calc(var(--u) * 0.7);
+  display: flex; flex-direction: column; gap: calc(var(--u) * 0.3);
+  font-size: 0.85em;
+}
+.A-claude-desktop .newbtn {
+  display: flex; align-items: center; gap: 0.5em;
+  padding: 0.45em 0.7em; border-radius: 0.5em;
+  font-weight: 600;
+}
+.A-claude-desktop .newbtn .plus {
+  display: inline-grid; place-items: center;
+  width: 1.4em; height: 1.4em; border-radius: 50%;
+  background: var(--claude); color: #fff; font-weight: 700;
+}
+.A-claude-desktop .side-label { margin: 0.8em 0.7em 0.2em; font-size: 0.85em; color: var(--faint); }
+.A-claude-desktop .sess {
+  display: flex; align-items: center; gap: 0.55em;
+  padding: 0.4em 0.7em; border-radius: 0.5em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--dim);
+}
+.A-claude-desktop .sess.on { background: var(--line); color: var(--fg); }
+.A-claude-desktop .sess .dot { flex: none; width: 0.5em; height: 0.5em; border-radius: 50%; background: var(--faint); }
+.A-claude-desktop .sess .dot.run { background: var(--claude); animation: none; }
+.A-claude-desktop .sess .dot.ok { background: var(--ok); }
+.A-claude-desktop .sess .name { overflow: hidden; text-overflow: ellipsis; }
+.A-claude-desktop .cd-me { margin-top: auto; padding: 0.4em 0.7em; color: var(--dim); display: flex; align-items: center; gap: 0.6em; }
+.A-claude-desktop .cd-me .avatar {
+  display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 50%;
+  background: var(--fg); color: var(--bg); font-size: 0.85em; font-weight: 700;
+}
+
+/* ---------- main ---------- */
+.A-claude-desktop .cd-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.A-claude-desktop .cd-head {
+  padding: calc(var(--u) * 0.8) calc(var(--u) * 1.6);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: baseline; gap: 1em;
+}
+.A-claude-desktop .cd-sessTitle { font-weight: 600; }
+.A-claude-desktop .cd-sessMeta { color: var(--faint); font-size: 0.8em; font-family: var(--mono); }
+
+.A-claude-desktop .cd-scroll { flex: 1; overflow: hidden; position: relative; }
+.A-claude-desktop .cd-log {
+  position: absolute; left: 0; right: 0;
+  padding: calc(var(--u) * 1.2) 0;
+  width: 78%; margin: 0 auto;
+  display: flex; flex-direction: column; gap: calc(var(--u) * 0.9);
+}
+
+.A-claude-desktop .user {
+  align-self: flex-end; max-width: 80%;
+  background: var(--user-bg); border-radius: 1em;
+  padding: 0.55em 1em;
+}
+.A-claude-desktop .say p { margin: 0 0 0.6em; }
+.A-claude-desktop .say p:last-child { margin-bottom: 0; }
+.A-claude-desktop .code { font-family: var(--mono); font-size: 0.88em; background: var(--code-bg); padding: 0.05em 0.35em; border-radius: 0.3em; }
+.A-claude-desktop .stream::after {
+  content: ""; display: inline-block; width: 0.5em; height: 0.5em; margin-left: 0.25em;
+  border-radius: 50%; background: var(--claude); vertical-align: middle;
+}
+
+.A-claude-desktop .tool { display: flex; flex-direction: column; gap: 0.35em; font-size: 0.88em; color: var(--dim); }
+.A-claude-desktop .tool .row { display: flex; align-items: center; gap: 0.55em; }
+.A-claude-desktop .tool .icon {
+  flex: none; display: inline-grid; place-items: center;
+  width: 1.5em; height: 1.5em; border-radius: 0.35em;
+  border: 1px solid var(--line); font-size: 0.85em; color: var(--dim); background: var(--card);
+}
+.A-claude-desktop .tool .verb { color: var(--fg); font-weight: 600; }
+.A-claude-desktop .tool .arg { font-family: var(--mono); font-size: 0.92em; }
+.A-claude-desktop .tool .state { margin-left: auto; font-size: 0.9em; color: var(--faint); }
+.A-claude-desktop .tool .state.ok { color: var(--ok); }
+.A-claude-desktop .tool .out {
+  margin-left: 2.05em;
+  font-family: var(--mono); font-size: 0.88em; white-space: pre;
+  background: var(--code-bg); border-radius: 0.5em; padding: 0.5em 0.8em; color: var(--dim);
+}
+.A-claude-desktop .spin {
+  display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%;
+  border: 2px solid var(--line); border-top-color: var(--claude);
+  transform: rotate(var(--r, 0deg));
+}
+
+.A-claude-desktop .card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 0.7em;
+  overflow: hidden; font-size: 0.88em;
+}
+.A-claude-desktop .card .card-head {
+  display: flex; align-items: center; gap: 0.7em;
+  padding: 0.5em 0.9em; border-bottom: 1px solid var(--line);
+}
+.A-claude-desktop .card .file { font-family: var(--mono); font-weight: 600; }
+.A-claude-desktop .card .plus-n { color: var(--add-fg); font-family: var(--mono); }
+.A-claude-desktop .card .minus-n { color: var(--del-fg); font-family: var(--mono); }
+.A-claude-desktop .diff { font-family: var(--mono); font-size: 0.92em; }
+.A-claude-desktop .diff .ln { display: flex; white-space: pre; }
+.A-claude-desktop .diff .no { width: 3.2em; text-align: right; padding-right: 0.8em; color: var(--faint); flex: none; }
+.A-claude-desktop .diff .sg { width: 1.2em; flex: none; }
+.A-claude-desktop .diff .add { background: var(--add-bg); color: var(--add-fg); }
+.A-claude-desktop .diff .del { background: var(--del-bg); color: var(--del-fg); }
+
+.A-claude-desktop .todos { padding: 0.5em 0.9em; display: flex; flex-direction: column; gap: 0.25em; }
+.A-claude-desktop .todo { display: flex; gap: 0.6em; align-items: center; }
+.A-claude-desktop .todo .box {
+  flex: none; width: 1em; height: 1em; border-radius: 0.25em; border: 1.5px solid var(--faint);
+  display: inline-grid; place-items: center; font-size: 0.75em; color: #fff;
+}
+.A-claude-desktop .todo.doing .box { border-color: var(--claude); }
+.A-claude-desktop .todo.doing { font-weight: 600; }
+.A-claude-desktop .todo.done .box { background: var(--ok); border-color: var(--ok); }
+.A-claude-desktop .todo.done .txt { color: var(--faint); text-decoration: line-through; }
+
+.A-claude-desktop .ask { border-color: var(--claude); box-shadow: 0 0 0 3px color-mix(in srgb, var(--claude) 15%, transparent); }
+.A-claude-desktop .ask .q { padding: 0.7em 0.9em 0.3em; font-weight: 600; }
+.A-claude-desktop .ask .cmd {
+  margin: 0.3em 0.9em; padding: 0.45em 0.7em; border-radius: 0.4em;
+  background: var(--code-bg); font-family: var(--mono); font-size: 0.92em;
+}
+.A-claude-desktop .ask .opts { display: flex; gap: 0.6em; padding: 0.6em 0.9em 0.8em; justify-content: flex-end; }
+.A-claude-desktop .ask .opt { padding: 0.3em 1em; border-radius: 0.5em; border: 1px solid var(--line); color: var(--dim); }
+.A-claude-desktop .ask .opt.sel { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.A-claude-desktop .ask .opt.press { transform: scale(0.96); }
+.A-claude-desktop .resolved { font-size: 0.85em; color: var(--faint); }
+
+.A-claude-desktop .cd-status {
+  width: 78%; margin: 0 auto; min-height: 1.8em;
+  display: flex; align-items: center; gap: 0.5em;
+  font-size: 0.85em; color: var(--dim);
+}
+.A-claude-desktop .cd-status .star { color: var(--claude); font-size: 1.2em; display: inline-block; transform: rotate(var(--r, 0deg)); }
+
+.A-claude-desktop .cd-composer {
+  width: 78%; margin: 0 auto calc(var(--u) * 1.2);
+  background: var(--card); border: 1px solid var(--line); border-radius: 1em;
+  box-shadow: 0 0.2em 0.8em rgba(0, 0, 0, 0.05);
+  padding: 0.7em 0.9em 0.55em;
+}
+.A-claude-desktop .cd-input { min-height: 2.6em; }
+.A-claude-desktop .cd-placeholder { color: var(--faint); }
+.A-claude-desktop .cd-caret { display: inline-block; width: 1.5px; height: 1.1em; background: var(--fg); vertical-align: text-bottom; margin-left: 1px; }
+.A-claude-desktop .cd-caret.off { visibility: hidden; }
+.A-claude-desktop .cd-bar { display: flex; align-items: center; gap: 0.5em; font-size: 0.78em; color: var(--dim); }
+.A-claude-desktop .cd-bar .grow { flex: 1; }
+.A-claude-desktop .chip { padding: 0.2em 0.65em; border-radius: 0.5em; border: 1px solid var(--line); white-space: nowrap; }
+.A-claude-desktop .cd-mode.auto { color: #a86b00; border-color: #e8c98a; }
+.A-claude-desktop .cd-mode.plan { color: #2f7d72; border-color: #9fd0c8; }
+.A-claude-desktop .cd-send {
+  display: inline-grid; place-items: center;
+  width: 2em; height: 2em; border-radius: 0.55em;
+  background: var(--line); color: var(--bg); font-weight: 700;
+}
+.A-claude-desktop .cd-send.on { background: var(--claude); color: #fff; }
+.A-claude-desktop .ask .where { margin: 0 0.9em; font-size: 0.9em; color: var(--dim); }
+.A-claude-desktop .ask .preview {
+  margin: 0.3em 0.9em; padding: 0.5em 0.8em; border-left: 3px solid var(--line);
+  color: var(--dim); font-size: 0.95em;
+}
+.A-claude-desktop .ask .note { margin: 0.2em 0.9em; color: var(--del-fg); font-size: 0.9em; }
+.A-claude-desktop .ask .opt.hov { border-color: var(--fg); color: var(--fg); }
+.A-claude-desktop .resolved.deny { color: var(--del-fg); }
+/* 演員外框:填滿舞台安排給它的位置 */
+.A-claude-desktop {
+  width: 100%; height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: var(--u); line-height: 1.55; color: var(--fg);
+}
+.A-claude-desktop *, .A-claude-desktop *::before, .A-claude-desktop *::after { box-sizing: border-box; }
+.A-claude-desktop .cd-window {
+  position: relative; width: 100%; height: 100%;
+  background: var(--bg);
+  border-radius: calc(var(--u) * 0.7);
+  box-shadow: 0 23px 67px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.A-claude-desktop.noframe .cd-window { border-radius: 0; box-shadow: none; }
+.A-claude-desktop .cd-branch[hidden] { display: none; }
+.A-claude-desktop .light { flex: none; }

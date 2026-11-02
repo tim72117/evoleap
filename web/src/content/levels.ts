@@ -19,8 +19,11 @@ export type CourseLevel = {
   title: string
   /** 簡述:一兩句話的課程說明 */
   summary: string
-  /** 課程內容主題(4–6 項) */
-  topics: string[]
+  /** 課程內容主題(4–6 項),還沒有對應單課時用;首頁以兩欄短句呈現 */
+  topics?: string[]
+  /** 已寫成單課的等級:依課列出(首頁以單欄編號清單呈現,連到各課,並依實際開放的課顯示標籤)。
+   *  id 對應 l0Lessons.ts 等單課資料;text 是一行能放下的一句話 */
+  lessons?: { id: string; text: string }[]
   /** 'available' = 已有課程內容;'planned' = 規劃中(顯示「規劃中」標籤) */
   status: CourseStatus
   access: CourseAccess
@@ -50,11 +53,10 @@ export const LEVELS: CourseLevel[] = [
     levelLabel: '起步',
     title: 'AI 工具介紹：讓 AI 在你的電腦上做出第一個網站',
     summary: '不用先學寫程式，第一堂課就讓 AI 在你的電腦上建好專案、做出一頁式網站。學會把想要的畫面說清楚，一步步調整到你滿意。',
-    topics: [
-      '安裝會操作檔案的 AI 工具，學會安全地允許與拒絕',
-      '認識專案與工作目錄，讓 AI 幫你建立、搬移檔案',
-      '一段話描述內容與風格，做出完整的一頁式網站',
-      '精確調整版面、顏色與手機版，改過頭也能還原',
+    lessons: [
+      { id: '0.0', text: '安裝會操作檔案的 AI 工具，學會安全地允許與拒絕' },
+      { id: '0.1', text: '認識專案與工作目錄，讓 AI 幫你建立、搬移檔案' },
+      { id: '0.2', text: '一段話描述，做出一頁式網站，再精確調整到滿意' },
     ],
     status: 'planned',
     access: 'free',

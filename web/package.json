@@ -10,6 +10,7 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "record": "node src/studio/recorder/record.mjs",
     "check": "npm run typecheck && npm run test && npm run build && npm run test:e2e"
   },
   "dependencies": {

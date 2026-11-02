@@ -14,7 +14,7 @@ export function DocPage({ doc }: { doc: Doc }) {
         <nav className="doc-nav" aria-label="麵包屑">
           <Link to="/proposal">課程研發</Link>
           <span aria-hidden="true"> / </span>
-          <Link to="/docs">文件</Link>
+          <Link to="/proposal#docs">文件</Link>
           <span aria-hidden="true"> / </span>
           <span>{doc.title}</span>
         </nav>
@@ -43,35 +43,26 @@ const GROUPS: { label: string; items: { slug: string; title: string; summary?: s
     label: CATEGORY_LABEL[c],
     items: articles.filter((a) => a.category === c),
   })),
-  { label: '影片腳本', items: docs },
+  { label: '工具與規格', items: docs },
 ]
 
-export function DocIndexPage() {
+/** 文件列表(研究文章與 Markdown 文件),顯示在課程研發總覽頁的「文件」區塊 */
+export function DocList() {
   return (
-    <SiteLayout title="文件" narrow>
-      <div className="doc-page">
-        <nav className="doc-nav" aria-label="麵包屑">
-          <Link to="/proposal">課程研發</Link>
-          <span aria-hidden="true"> / </span>
-          <span>文件</span>
-        </nav>
-        <article className="doc-body">
-          <h1>文件</h1>
-          {GROUPS.map((g) => (
-            <section key={g.label}>
-              <h2>{g.label}</h2>
-              <ul className="doc-list">
-                {g.items.map((d) => (
-                  <li key={d.slug}>
-                    <Link to={`/docs/${d.slug}`}>{d.title}</Link>
-                    {d.summary && <span className="doc-summary"> — {d.summary}</span>}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </article>
-      </div>
-    </SiteLayout>
+    <>
+      {GROUPS.filter((g) => g.items.length).map((g) => (
+        <section key={g.label}>
+          <h3>{g.label}</h3>
+          <ul className="plain-list">
+            {g.items.map((d) => (
+              <li key={d.slug}>
+                <Link to={`/docs/${d.slug}`}>{d.title}</Link>
+                {d.summary && <span className="doc-summary"> — {d.summary}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </>
   )
 }

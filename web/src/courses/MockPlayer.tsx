@@ -1,9 +1,9 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent } from 'react'
-import type { YouTubePlayerHandle } from './YouTubePlayer'
+import type { PlayerHandle } from './playerHandle'
 import styles from './MockPlayer.module.css'
 
 // 影片尚未上架時的模擬播放器：外觀與操作仿照影片播放器，用計時器推進「播放秒數」，
-// 和 YouTubePlayer 一樣透過 onTime 回報進度、透過 ref.seekTo 跳轉，
+// 透過 onTime 回報進度、透過 ref.seekTo 跳轉（課程頁播放器共用的 PlayerHandle），
 // 讓課程頁的「播到哪一步就展開哪一步」在影片完成前就能預覽與檢查。
 
 export type MockChapter = { at: number; label: string }
@@ -24,7 +24,7 @@ function clock(sec: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
-export const MockPlayer = forwardRef<YouTubePlayerHandle, Props>(function MockPlayer(
+export const MockPlayer = forwardRef<PlayerHandle, Props>(function MockPlayer(
   { title, duration, onTime, chapters = [] },
   ref,
 ) {
@@ -96,12 +96,12 @@ export const MockPlayer = forwardRef<YouTubePlayerHandle, Props>(function MockPl
   const pct = duration > 0 ? (time / duration) * 100 : 0
 
   return (
-    <div className={styles.player} tabIndex={0} onKeyDown={onKeyDown} aria-label={`模擬播放器：${title}`} role="group">
+    <div className={styles.player} tabIndex={0} onKeyDown={onKeyDown} aria-label={`預覽大綱：${title}`} role="group">
       <div className={styles.screen} onClick={toggle}>
-        <span className={styles.badge}>模擬播放 · 影片製作中</span>
+        <span className={styles.badge}>預覽大綱 · 影片製作中</span>
         <p className={styles.title}>{title}</p>
         <p className={styles.chapter} aria-live="polite">
-          {chapter ? chapter.label : time === 0 && !playing ? '按下播放開始模擬' : '開場：目標 → 步驟拆解'}
+          {chapter ? chapter.label : time === 0 && !playing ? '按下播放預覽大綱' : '開場：目標 → 步驟拆解'}
         </p>
         {!playing && (
           <span className={styles.bigPlay} aria-hidden="true">

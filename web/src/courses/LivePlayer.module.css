@@ -1,0 +1,24 @@
+/* 即時教學畫面的外框:填滿課程頁的播放器區塊。全螢幕與手機橫放滿版由播放器外殼(src/live/shell.css)處理。 */
+
+.box {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.box :global(.vp) {
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 16px;
+  color: #fff;
+  text-align: center;
+}

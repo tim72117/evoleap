@@ -2,7 +2,7 @@ import { useEffect, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import './proposal.css'
 
-type NavItem = { to: string; label: string; short?: string; match?: string }
+type NavItem = { to: string; label: string; short?: string; match?: string; also?: string[] }
 
 /** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級。 */
 const NAV: NavItem[] = [
@@ -12,7 +12,8 @@ const NAV: NavItem[] = [
   { to: '/proposal/vibe-coding', label: 'L2 Vibe Coding 入門', short: 'L2' },
   { to: '/proposal/ai-agent/fields', label: 'L3 AI Agent 整合應用', short: 'L3', match: '/proposal/ai-agent' },
   { to: '/proposal/advanced', label: 'L4 進階', short: 'L4' },
-  { to: '/docs', label: '文件', short: '文件' },
+  { to: '/proposal/mcp', label: '構想', short: '構想', also: ['/proposal/visuals', '/proposal/visuals/preview'] },
+  { to: '/materials', label: '工具', short: '工具' },
 ]
 
 /** L3 的子頁面（沿用原本的提案頁）。 */
@@ -20,7 +21,6 @@ const L3_NAV: NavItem[] = [
   { to: '/proposal/ai-agent/fields', label: '提案內容' },
   { to: '/proposal/ai-agent/structure', label: '課程架構' },
   { to: '/proposal/ai-agent/cover', label: '封面圖' },
-  { to: '/proposal/ai-agent/video', label: '募資影片' },
 ]
 
 type Props = {
@@ -41,7 +41,8 @@ export function ProposalLayout({ title, footer, back = true, children }: Props) 
     document.title = `${title} · 課程提案`
   }, [title])
 
-  const isActive = (item: NavItem) => (item.match ? pathname.startsWith(item.match) : pathname === item.to)
+  const isActive = (item: NavItem) =>
+    item.match ? pathname.startsWith(item.match) : pathname === item.to || (item.also ?? []).includes(pathname)
 
   return (
     <div className="proposal" lang="zh-Hant">

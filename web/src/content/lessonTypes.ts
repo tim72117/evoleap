@@ -28,9 +28,11 @@ export type LessonVideo = {
   steps: number[]
   /** 結尾：回顧，或接下一支影片／下一課的過場 */
   wrap: string
-  /** YouTube 影片 ID（網址 watch?v= 後面那段）；尚未上傳時留空，課程頁顯示「影片製作中」 */
-  youtubeId?: string
-  /** 播放進度對應的步驟：影片播到 at 秒時，課程頁自動展開第 step 步（step 1 起算，對應 steps） */
+  /** 即時教學畫面的腳本（src/content/live/ 底下的相對路徑，例如「l0/0.0-tools.json」）。
+   *  有設定時課程頁改用即時播放器（src/live），步驟對應來自腳本裡的 lessonStep，不需要 cues。 */
+  live?: string
+  /** 預覽大綱（沒有 live 時的模擬播放器）的步驟時間點：播到 at 秒時，課程頁自動展開第 step 步（step 1 起算，對應 steps）。
+   *  省略時依 minutes 與 steps 平均推算（見 courses/lessonTiming.ts 的 effectiveCues）。 */
   cues?: { step: number; at: number }[]
 }
 

@@ -3,12 +3,31 @@ import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
 import { ACCESS_LABEL, LEVELS, MAP_INTRO, type CourseLevel } from '../content/levels'
+import { COURSES, coursePath, lessonNumber, lessonPath } from '../content/catalog'
+import type { CourseLesson } from '../content/lessonTypes'
 import { LevelArt } from './LevelArt'
 import styles from './HomePage.module.css'
+
+/** 已有可以播放的影片(即時教學畫面)的課 */
+const isOpen = (l: CourseLesson) => l.videos.some((v) => v.live)
+
+/** 等級的單課清單:對到課程目錄裡的單課,附上網址與是否已開放。
+ *  對不到的項目直接略過(不在 render 中 throw,免得整個首頁空白);資料一致性由 catalog.test.ts 檢查 */
+function levelLessons(level: CourseLevel) {
+  const course = COURSES.find((c) => coursePath(c) === level.link)
+  if (!course) return []
+  return (level.lessons ?? []).flatMap((item) => {
+    const lesson = course.lessons.find((l) => l.id === item.id)
+    if (!lesson) return []
+    return [{ ...item, num: lessonNumber(lesson), to: lessonPath(course, lesson), open: isOpen(lesson) }]
+  })
+}
 
 function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
   const available = level.status === 'available'
   const access = ACCESS_LABEL[level.access]
+  const lessons = levelLessons(level)
+  const opened = lessons.filter((l) => l.open)
   return (
     <li
       id={`level-${level.id}`}
@@ -35,18 +54,38 @@ function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
             )}
             {available ? (
               <span className={`${styles.badge} ${styles.badgeOpen}`}>課程內容已上架</span>
+            ) : opened.length ? (
+              <span className={`${styles.badge} ${styles.badgeOpen}`}>第 {opened.map((l) => l.num).join('、')} 課已開放</span>
             ) : (
               <span className={styles.badge}>規劃中</span>
             )}
           </p>
           <h3>{level.title}</h3>
           <p className={styles.summary}>{level.summary}</p>
-          <h4 className={styles.topicsHead}>課程內容{!available && '（暫定）'}</h4>
-          <ul className={styles.topics}>
-            {level.topics.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
+          {lessons.length ? (
+            <>
+              <h4 className={styles.topicsHead}>課程內容</h4>
+              <ol className={styles.lessons}>
+                {lessons.map((l) => (
+                  <li key={l.id}>
+                    <Link to={l.to} className={styles.lessonNum}>
+                      第 {l.num} 課
+                    </Link>
+                    <span>{l.text}</span>
+                  </li>
+                ))}
+              </ol>
+            </>
+          ) : (
+            <>
+              <h4 className={styles.topicsHead}>課程內容{!available && '（暫定）'}</h4>
+              <ul className={styles.topics}>
+                {(level.topics ?? []).map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            </>
+          )}
           {level.prerequisite && (
             <p className={styles.prereq}>
               <span>先備條件</span>

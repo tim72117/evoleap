@@ -14,12 +14,11 @@ export function stepAt(cues: { step: number; at: number }[] | undefined, t: numb
   return found
 }
 
-/** 有標 cues 就照用；影片還沒上架（模擬播放）又沒標 cues 時，把這支影片示範的步驟
- *  平均分配在影片長度上，前 8% 留給開場的「目標 → 步驟拆解」。真的 YouTube 影片不推算。 */
+/** 預覽大綱（模擬播放器）的步驟時間點：有標 cues 就照用；沒標時把這支影片示範的步驟
+ *  平均分配在影片長度上，前 8% 留給開場的「目標 → 步驟拆解」。 */
 export function effectiveCues(video: LessonVideo | undefined): { step: number; at: number }[] {
   if (!video) return []
   if (video.cues) return video.cues
-  if (video.youtubeId) return []
   const duration = video.minutes * 60
   const intro = duration * 0.08
   const k = video.steps.length

@@ -122,6 +122,15 @@ describe('LEVELS ↔ COURSES', () => {
     expect(coursePaths.has(link)).toBe(true)
   })
 
+  // 首頁課程地圖會略過對不到的單課(不 throw),所以在這裡確保每一項都對得到
+  it.each(LEVELS.filter((l) => l.lessons?.length).map((l) => [l.id, l] as const))('level %s lessons all exist in its course', (_, level) => {
+    const course = COURSES.find((c) => coursePath(c) === level.link)
+    expect(course, `${level.id} 找不到 link 為 ${level.link} 的課程`).toBeDefined()
+    const ids = new Set(course!.lessons.map((l) => l.id))
+    const missing = level.lessons!.map((l) => l.id).filter((id) => !ids.has(id))
+    expect(missing).toEqual([])
+  })
+
   it('every course takes its title from a level', () => {
     const titles = new Set(LEVELS.map((l) => l.title))
     for (const c of COURSES) expect(titles.has(c.title), c.slug).toBe(true)

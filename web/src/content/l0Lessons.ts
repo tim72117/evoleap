@@ -8,7 +8,7 @@ export const L0_LESSONS: CourseLesson[] = [
   {
     id: '0.0',
     title: '工具介紹：會操作檔案的 AI 工具',
-    length: '約 25 分',
+    length: '約 15 分',
     goal: '認識能直接讀寫電腦檔案、執行指令的 AI 工具，安裝並登入其中一個，在專用的練習資料夾裡讓 AI 建立第一個檔案，並看懂、也敢拒絕它動手前的確認提示。',
     scenario: '建立一個只給 AI 練習用的資料夾，請 AI 在裡面建立 hello.txt，再請它刪除，練習「允許」與「拒絕」。',
     steps: [
@@ -18,20 +18,20 @@ export const L0_LESSONS: CourseLesson[] = [
         note: '常見的例子有 Claude Code（終端機、桌面 App、VS Code 擴充）、OpenAI Codex CLI、Gemini CLI、Cursor 的 Agent 模式。各工具的安裝方式、帳號與方案不同，以官方說明為準；本課只示範其中一個（見講義）。',
       },
       {
-        title: '建立專用的練習資料夾',
-        expected: '在「文件」底下有一個新的 ai-practice 資料夾，裡面是空的。',
-        note: '資料夾名稱用英文、不要有空白。不要把 AI 工具開在桌面、整個使用者資料夾或公司的共用資料夾；重要檔案先備份，不要放進練習資料夾。',
+        title: '依官方說明安裝並登入',
+        expected: '工具可以啟動並顯示已登入；權限模式設為「每次動手前都先詢問」。',
+        note: '只從工具的官方網站或官方擴充功能商店下載；不確定時對照講義上的官方網址。權限模式在各工具的名稱不同（例如 Claude 的 Ask permissions），設成每次都詢問，第 4、5 步才會看到確認提示。',
       },
       {
-        title: '依官方說明安裝並登入',
-        expected: '工具可以啟動，並顯示已登入。',
-        note: '只從工具的官方網站或官方擴充功能商店下載；不確定時對照講義上的官方網址。',
+        title: '建立專用的練習資料夾',
+        expected: '在「文件」底下有一個新的 ai-practice 資料夾，裡面是空的。',
+        note: '資料夾名稱用英文、不要有空白。不要把 AI 工具開在桌面、整個使用者資料夾或公司的共用資料夾；重要檔案不要放進練習資料夾。',
       },
       {
         title: '在練習資料夾開啟工具，請它建立第一個檔案',
         prompt: '建立 hello.txt，寫一句問候',
         expected: '畫面出現確認提示（是否允許建立 hello.txt）。允許後，用檔案總管（Windows）或 Finder（macOS）打開資料夾，看到 hello.txt；內容由 AI 決定，每個人可能不同。',
-        note: '按下允許之前，先看清楚它要建立或修改哪個檔案、在哪個資料夾、要執行什麼指令；看不懂就先拒絕，請它用白話解釋。',
+        note: '按下允許之前，先看清楚三件事：哪個檔案、在哪個資料夾、內容或指令是什麼；看不懂就先拒絕，請它用白話解釋。',
       },
       {
         title: '練習拒絕',
@@ -41,8 +41,7 @@ export const L0_LESSONS: CourseLesson[] = [
       },
     ],
     videos: [
-      { title: '會操作檔案的 AI 工具', minutes: 7, steps: [1, 2, 3], wrap: '工具裝好了，先讓它在練習資料夾裡做一件小事。' },
-      { title: '第一個檔案，以及允許與拒絕', minutes: 7, steps: [4, 5], wrap: '下一課：AI 工作的範圍——專案與工作目錄。' },
+      { title: '會操作檔案的 AI 工具', minutes: 5, steps: [1, 2, 3, 4, 5], wrap: '下一課：AI 工作的範圍——專案與工作目錄。', live: 'l0/0.0-tools.json' },
     ],
     deliverable: '一個已登入的 AI 工具、一個 ai-practice 練習資料夾，以及其中由 AI 建立的 hello.txt。',
     materials: ['電腦（Windows 或 macOS，可安裝軟體）', '講義：工具官方網址、安裝與登入步驟（依主示範工具）、確認提示的看法'],
@@ -51,26 +50,26 @@ export const L0_LESSONS: CourseLesson[] = [
   {
     id: '0.1',
     title: '認識專案：工作目錄與檔案操作',
-    length: '約 30 分',
+    length: '約 20 分',
     goal: '知道一個專案就是一個工作目錄；在專案資料夾中請 AI 建立、讀取、改名、移動與刪除檔案和資料夾，用相對路徑描述檔案位置，並在檔案總管確認結果。',
     scenario: '為小森烘焙（虛構）的一頁式網站建立專案資料夾 xiaosen-booking，請 AI 產生網頁專案的基本檔案，作為第 2 課的起點。',
     steps: [
       {
         title: '建立專案資料夾，從這個資料夾開啟工具',
         expected: '在 ai-practice 裡有 xiaosen-booking 資料夾，AI 工具是從這個資料夾啟動（或用工具開啟這個資料夾）。',
-        note: '工具開在哪個資料夾，那裡就是它的工作目錄；它通常只在這個範圍內工作。',
+        note: '工具開在哪個資料夾，那裡就是它的工作目錄；它通常只在這個範圍內工作。上一課的工具如果還開著，先關掉，再從 xiaosen-booking 重新開啟。',
       },
       {
         title: '請 AI 說明目前的工作目錄',
         prompt: '目前的工作目錄是哪裡？',
         expected: 'AI 回答一個完整路徑，最後是 xiaosen-booking；用檔案總管或 Finder 打開，裡面目前是空的。',
-        note: '如果路徑不是你預期的資料夾，先關掉工具，從正確的資料夾重新開啟。',
+        note: '如果路徑不是你預期的資料夾，先關掉工具，從正確的資料夾重新開啟。路徑裡的 Documents 就是檔案總管或 Finder 裡的「文件」；Windows 的「文件」若由 OneDrive 同步，路徑中會多出 OneDrive。',
       },
       {
         title: '建立資料夾與檔案',
-        prompt: '產生網頁專案基本檔案',
-        expected: '用檔案總管或 Finder 打開 xiaosen-booking，看到 AI 建立的基本檔案，至少有 index.html 和 styles.css（多半還有放圖片的資料夾）；檔名與內容由 AI 決定，每個人可能略有不同。',
-        note: '每次 AI 說「完成了」，都用檔案總管或 Finder 親眼確認一次。',
+        prompt: '產生網頁專案基本檔案：index.html 和 styles.css',
+        expected: '用檔案總管或 Finder 打開 xiaosen-booking，看到 index.html 和 styles.css；檔案內容由 AI 決定，每個人可能略有不同。',
+        note: '每次 AI 說「完成了」，都用檔案總管或 Finder 親眼確認一次。把檔名寫進提示詞，下一課才能直接接著用這兩個檔案；AI 若想多建其他檔案或資料夾，先拒絕。',
       },
       {
         title: '用相對路徑指定檔案',
@@ -87,15 +86,13 @@ export const L0_LESSONS: CourseLesson[] = [
         title: '刪除前先確認',
         prompt: '刪除空的 drafts 資料夾',
         expected: '出現確認提示，要刪除的只有 drafts 資料夾；允許後，在檔案總管或 Finder 確認它消失，其他檔案都還在。',
-        note: '由工具刪除的檔案不一定會進資源回收筒（垃圾桶）。允許前看清楚確認提示裡的範圍；範圍不只 drafts 就先拒絕。',
+        note: '由工具刪除的檔案不一定會進資源回收筒（垃圾桶）。允許前看清楚確認提示裡的範圍；範圍不只 drafts 就先拒絕。指令裡出現 -rf 或 -Recurse，代表連同裡面的內容一起刪除。',
       },
     ],
     videos: [
-      { title: '專案就是一個資料夾：工作目錄', minutes: 7, steps: [1, 2], wrap: '確認 AI 站在正確的資料夾裡，接著請它整理結構。' },
-      { title: '請 AI 建立檔案，認識相對路徑', minutes: 8, steps: [3, 4], wrap: '檔案建好了，接著改名、移動和刪除。' },
-      { title: '改名、移動、刪除', minutes: 6, steps: [5, 6], wrap: '專案準備好了；下一課在 index.html 和 styles.css 裡做出小森烘焙的一頁式網站。' },
+      { title: '專案與工作目錄', minutes: 5, steps: [1, 2, 3, 4, 5, 6], wrap: '專案準備好了；下一課在 index.html 和 styles.css 裡做出小森烘焙的一頁式網站。', live: 'l0/0.1-project.json' },
     ],
-    deliverable: 'xiaosen-booking 專案資料夾：AI 產生的基本網頁檔案（至少 index.html、styles.css）與 notes/homepage-idea.txt（第 2 課從這裡繼續）。',
+    deliverable: 'xiaosen-booking 專案資料夾：AI 產生的 index.html、styles.css 與 notes/homepage-idea.txt（第 2 課從這裡繼續）。',
     materials: ['0.0 的 ai-practice 練習資料夾與已登入的工具', '講義：工作目錄與相對路徑示意圖'],
     checkpoint: ['說得出目前的工作目錄是哪個資料夾', '能用相對路徑（例如 notes/homepage-idea.txt）指出一個檔案', '每次 AI 說完成，都在檔案總管或 Finder 親眼確認過結果'],
     tryYourOwn: '為自己想做的小工具建立一個專案資料夾，請 AI 在 notes/idea.md 記下你的三個想法。',

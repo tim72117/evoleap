@@ -2,6 +2,36 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [0.2.0] - 2026-11-02
+
+課程影片改用「即時教學畫面」：不錄製影片，由腳本在課程頁即時畫出教學畫面；L0 第 0、1 課上線。
+
+### 新增
+
+- **即時教學畫面**（`web/src/live/`）：播放器外殼（章節、字幕、倍速、練習點自動暫停、全螢幕與手機橫放）、舞台（時間表、旁白、聚光燈、鏡頭、虛擬滑鼠）、演員 Claude 桌面版與 Finder。畫面是時間的純函式，可任意拖曳；規格見 `web/src/live/README.md`（站內 `/docs/live`）。
+  - 演員一律用「操作式動作」（例如 Finder 的 `open`、`mkdir`、`rename`、`delete`、`select`／`drag`／`drop`），狀態由舞台以 `init`／`apply` 推算；腳本有錯時載入就報錯並指出第幾步。
+  - 課程頁直接掛載（不用 iframe）；腳本在 `web/src/content/live/`，播到那裡就展開右側對應的步驟。
+- **L0 第 0 課**（工具介紹）與**第 1 課**（專案與工作目錄）的即時教學畫面，各一支約 5 分鐘。
+- 內部頁：工具總覽 `/materials`、即時教學畫面預覽 `/proposal/visuals/preview`、研究頁「用 MCP 連入課程」`/proposal/mcp`、「即時教學影像」`/proposal/visuals`；文件 `/docs/live`、`/docs/recorder`。
+- 首頁 L0 卡片改為依課編號的清單，連到各課，並依實際開放的課顯示「第 0、1 課已開放」。
+- 測試：即時教學畫面的 E2E（`e2e/live-lesson.spec.ts`）、腳本與課程資料一致性、kit 單元測試。
+- Cloud Run 最大執行個體數設為 2（`deploy-cloudrun.yml`）。
+
+### 變更
+
+- **L0 課程設計**：第 0 課順序改為認識 → 安裝並登入（權限模式設為每次詢問）→ 建立練習資料夾 → 在練習資料夾第一次動手；第 0、1 課各合併成一支影片；0.1 依實測修正提示詞（基本檔案寫明 `index.html` 和 `styles.css`）與注意事項。
+- 課程研發：製作方式改為「全部用即時教學畫面，不錄製」；各課製作狀態、L0 大綱橫幅依實際進度顯示；總覽頁內容改用清單呈現，文件列表併入總覽頁（`/proposal#docs`）。
+- 尚未製作的影片顯示「預覽大綱」（原「模擬播放」）。
+- 宣傳影片錄製工具移到 `web/src/studio/recorder/`（在 `web/` 執行 `npm run record`，輸出到不進版控的 `web/recordings/`）。
+- 隱私權政策與服務條款：拿掉 YouTube 相關內容，資料存放地點改用白話描述；拿掉文末重複的相關文件連結。
+
+### 移除
+
+- YouTube 影片播放器與 `youtubeId` 欄位（課程影片只用即時教學畫面）。
+- 募資影片腳本、分鏡文件與提案頁 `/proposal/ai-agent/video`；`tools/` 目錄（錄製工具已移入 `web/src/studio/recorder/`）。
+- 文件列表頁 `/docs`（改在總覽頁 `/proposal#docs`；`/docs/*` 文件與文章網址不變）。
+- 網站頁面上的「Hahow」字樣。
+
 ## [0.1.0] - 2026-10-30
 
 第一個可部署版本：把原本的課程提案靜態頁與 Markdown 文件，改成 React 前端 + Go 後端的課程網站（shuttle.tools）。

@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { CONTACT_EMAIL, isPlaceholder } from './operator'
 import styles from './Legal.module.css'
@@ -55,9 +54,6 @@ export function LegalDoc({
           </section>
         ))}
 
-        <footer className={styles.footer}>
-          相關文件：<Link to="/privacy">隱私權政策</Link> · <Link to="/terms">服務條款</Link>
-        </footer>
       </article>
     </SiteLayout>
   )

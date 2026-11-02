@@ -269,6 +269,8 @@
 .proposal .kv { display: grid; grid-template-columns: 7em 1fr; gap: 6px 14px; margin: 0; font-size: 14.5px; }
 .proposal .kv dt { font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); padding-top: 3px; }
 .proposal .kv dd { margin: 0; }
+.proposal .kv-lead { margin: 0; font-size: 14.5px; }
+.proposal .kv-lead + .plain-list { margin-top: 4px; }
 .proposal .links { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 640px) {
   .proposal .lesson-table thead { display: none; }

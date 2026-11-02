@@ -34,7 +34,7 @@ export function Article({ slug, toc = [], children }: { slug: string; toc?: TocI
           <nav className={styles.crumb} aria-label="麵包屑">
             <Link to="/proposal">課程研發</Link>
             <span aria-hidden="true"> / </span>
-            <Link to="/docs">文件</Link>
+            <Link to="/proposal#docs">文件</Link>
             <span aria-hidden="true"> / </span>
             <span>{CATEGORY_LABEL[meta.category]}</span>
           </nav>

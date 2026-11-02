@@ -174,7 +174,6 @@ const internal = (path: string, title: string, description = '課程研發工作
 })
 
 const DOCS_PAGES: PageMeta[] = [
-  internal('/docs', documentTitle('文件'), '課程目標、線上課程設計研究報告、研究筆記與影片分鏡腳本。'),
   ...articles.map((a) => internal(`/docs/${a.slug}`, documentTitle(a.title), a.summary)),
   ...docs.map((d) => internal(`/docs/${d.slug}`, documentTitle(d.title), `${d.title}（由錄影工具產生的 Markdown 文件）。`)),
 ]
@@ -189,8 +188,11 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/proposal/ai-agent/fields', 'L3 提案內容'],
     ['/proposal/ai-agent/structure', 'L3 課程架構'],
     ['/proposal/ai-agent/cover', 'L3 封面圖'],
-    ['/proposal/ai-agent/video', 'L3 募資影片'],
     ['/proposal/advanced', 'L4 進階'],
+    ['/proposal/mcp', '課程 MCP'],
+    ['/proposal/visuals', '即時教學影像'],
+    ['/proposal/visuals/preview', '即時教學畫面預覽'],
+    ['/materials', '工具'],
   ] as const
 ).map(([path, name]) => internal(path, `${name} · 課程提案`))
 

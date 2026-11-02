@@ -5,7 +5,7 @@
 // 影格數 = 總時長 × fps,所以不會因為截圖比較慢而讓影片變快。
 // 畫面沒變的影格直接重用上一張,所以大部分時間是靜態的影片會很快。
 //
-// 用法見 README.md,或執行 node record.mjs --help
+// 用法見同資料夾的 README.md,或在 web/ 執行 npm run record -- --help
 
 import { chromium } from "playwright-core";
 import { spawn, execFile } from "node:child_process";
@@ -17,9 +17,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const execFileAsync = promisify(execFile);
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
-const USAGE = `用法:node record.mjs <腳本.json> [選項]
+const USAGE = `用法(在 web/ 執行):npm run record -- <腳本.json> [選項]
 
-  --stills          只輸出每個場景的一張靜態圖到 out/<名稱>-stills/(最快,用來檢查畫面)
+  --stills          只輸出每個場景的一張靜態圖到 recordings/<名稱>-stills/(最快,用來檢查畫面)
   --doc             只輸出分鏡腳本文件(畫面 / 旁白 / 時間對照表)到腳本旁邊的 .storyboard.md
   --audio-dir=資料夾  老師本人的旁白錄音:資料夾內放 01.wav、02.wav…(對應第 N 個場景,
                     格式不限,ffmpeg 讀得到即可),場景會撐到錄音長度。Hahow 要求口白是老師本人
@@ -32,7 +32,7 @@ const USAGE = `用法:node record.mjs <腳本.json> [選項]
   --fps=30          影格率(預設 30)
   --width --height  輸出尺寸(預設 1920×1080,需為偶數)
   --jpeg            影格改用 JPEG(較快,畫質略降)
-  --out=路徑        輸出檔(預設 out/<腳本名稱>.mp4)
+  --out=路徑        輸出檔(預設 recordings/<腳本名稱>.mp4)
 `;
 
 // ---------- args ----------
@@ -60,7 +60,8 @@ const H = Number(flags.height ?? script.height ?? 1080);
 const FPS = Number(flags.fps ?? script.fps ?? 30);
 if (W % 2 || H % 2) die("寬高必須是偶數(H.264 yuv420p 的限制)");
 
-const OUT_DIR = path.join(HERE, "out");
+// 輸出放在 web/recordings/(不進版控),不要寫進 src/
+const OUT_DIR = path.resolve(HERE, "../../../recordings");
 const TMP_DIR = path.join(OUT_DIR, `.tmp-${name}`);
 const outFile = path.resolve(String(flags.out ?? path.join(OUT_DIR, `${name}.mp4`)));
 const stillsDir = path.join(OUT_DIR, `${name}-stills${flags.guides ? "-guides" : ""}`);

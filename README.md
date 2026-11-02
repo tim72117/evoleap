@@ -15,24 +15,26 @@ web/                 前端（React + Vite + TypeScript）
       l2Outline.ts     L2 章節大綱（尚未寫到步驟）
       aiAgent.ts       L3 課程頁內容
       lessonTypes.ts   單課資料型別
+      live/            即時教學畫面的腳本（JSON，例如 l0/0.0-tools.json；單課資料以 live 欄位指定）
+    live/            即時教學畫面引擎（ES module）：舞台 stage.js、播放器外殼 shell.js、演員 actors/、動畫工具 kit.js；規格見 src/live/README.md
     home/            首頁（課程地圖）/
-    courses/         課程頁 /courses/*：總覽、上課頁（影片＋步驟）、規劃中章節頁
+    courses/         課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁
     auth/            登入頁 /login、使用者選單、登入狀態
     legal/           隱私權政策 /privacy、服務條款 /terms
     site/            共用版型、404、全站樣式、GA4、複製按鈕等
     seo/             每個網址的 SEO 資料（見下方「SEO」）
     studio/          課程研發工作區（內部頁，不列入搜尋）
-      proposal/        課程提案 /proposal/*（依等級分章節；L0–L2 大綱與製作規劃在 basicsData.ts）
+      proposal/        課程提案 /proposal/*（依等級分章節；L0–L2 大綱與製作規劃在 basicsData.ts；即時教學畫面預覽 /proposal/visuals/preview）
       articles/        研究文章 /docs/*
-      docs/            文件列表 /docs、工具產生的 Markdown（分鏡腳本）
-      materials/       封面設計／裁切工具 /materials/*
+      docs/            Markdown 文件頁 /docs/*（即時教學畫面規格、錄製工具說明）；文件列表在總覽頁 /proposal#docs
+      materials/       工具總覽 /materials、封面設計與裁切工具 /materials/*
+      recorder/        宣傳影片錄製工具：npm run record（JSON 分鏡腳本 → 1080p mp4）
   scripts/seo.mjs    build 後產生各頁 HTML、sitemap.xml、robots.txt
 server/              後端（Go）：/api/*（含登入）＋以 go:embed 提供前端
   cmd/server/          進入點、靜態檔與 SEO 頁面的伺服
   internal/api/        HTTP 端點
   internal/auth/       JWT、密碼雜湊、Google ID Token 驗證
   internal/store/      資料庫（正式 Cloud SQL Postgres，本機 SQLite）
-tools/video/         募資影片錄製工具（node build-proposal-page.mjs 產生 web/src/studio/proposal/videoData.json）
 Dockerfile           多階段建置：前端 build → Go 編譯 → distroless 映像
 .github/workflows/   打 v* tag 時部署到 Cloud Run（shuttle-server，asia-east1）
 ```
