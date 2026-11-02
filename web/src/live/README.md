@@ -75,6 +75,7 @@ const vp = mountShell(container, {
   chapters: [{ at, label }],
   captions: (ms) => "字幕" | "",
   stops: [{ at, title, body }],   // 練習點:播放經過時自動暫停
+  clips: [{ at, ms, url }],       // 分段旁白:在 [at, at+ms) 之間播放,跟著外殼的時鐘同步(拖曳、倍速、暫停、練習點)
   audio, resumeKey, globalKeys, onFullscreenRequest, autoLandscape,
 });
 vp.play() / pause() / seek(ms) / setRate(x) / toggleFullscreen() / update(opts) / destroy()
@@ -96,7 +97,7 @@ vp.time / vp.playing
 | 控制列 | 播放中 2.6 秒沒動作自動隱藏（全螢幕時也隱藏游標）；暫停時一直顯示 |
 | 手勢 | 桌機點畫面播放暫停、雙擊全螢幕；手機點一下顯示／隱藏控制列，左右兩側點兩下倒轉／快轉 10 秒 |
 | 鍵盤 | 空白／K 播放暫停、←→ 5 秒、J／L 10 秒、, . 逐格、0–9 跳到 0%–90%、F 全螢幕、C 字幕、M 靜音、< > 速度、Home／End |
-| 其他 | 記住看到哪裡、播放時螢幕不休眠（Wake Lock）、系統媒體控制（Media Session）、沒有旁白時切換分頁自動暫停、暫停時可以選取複製畫面文字、手機直向小尺寸版面 |
+| 其他 | 記住看到哪裡、播放時螢幕不休眠（Wake Lock）、系統媒體控制（Media Session）、切換分頁自動暫停（時鐘不是單一音軌時，包括分段旁白）、暫停時可以選取複製畫面文字、手機直向小尺寸版面 |
 
 ### 2.5 課程頁直接掛載
 
@@ -136,7 +137,7 @@ for (const c of chapters) {
 示範畫面拆成兩種角色：
 
 - **演員**（`actors/<名稱>/`）：一個可以重複使用的示範元件，例如 Claude 桌面版、Finder。只負責「長什麼樣、每個動作畫成什麼樣子」，並告訴舞台各個目標在哪裡。
-- **舞台**（`stage.js`；`createStage(root)` 回傳 `load(script)`、`renderAt(ms)`、`duration`、`chapters`、`captions`、`stops`，型別見 `stage.d.ts`）：負責「怎麼演」。包括時間表、旁白長度、字幕、章節、練習點、演員的位置與出場退場，以及所有教學效果：章節卡、聚光燈與說明、鏡頭推近與平移、虛擬滑鼠。
+- **舞台**（`stage.js`；`createStage(root)` 回傳 `load(script, { voice })`、`renderAt(ms)`、`duration`、`chapters`、`captions`、`stops`、`narrations`，型別見 `stage.d.ts`）：負責「怎麼演」。包括時間表、旁白長度、字幕、章節、練習點、演員的位置與出場退場，以及所有教學效果：章節卡、聚光燈與說明、鏡頭推近與平移、虛擬滑鼠。
 
 效果寫在舞台，所以任何演員都能用；演員遵守同一份規格，所以可以抽換，也能安排到任何場景。
 
@@ -569,10 +570,18 @@ packs/<name>/
 |---|---|---|
 | 1 | 繪製工具 kit 與測試 | 完成 |
 | 2 | 舞台與演員（2A）：`claude-desktop`、`finder` 演員，章節卡、聚光燈、鏡頭、滑鼠、練習點 | 完成；`claude-code`（終端機版）演員待做 |
-| 3 | 外殼 `shell.js`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟）、預覽頁 | 完成，L0 第 0、1 課已上線；旁白音訊未接 |
+| 3 | 外殼 `shell.js`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟）、預覽頁 | 完成，L0 第 0、1 課已上線 |
+| 3B | 旁白語音（Gemini TTS 分段產生、GCS `shuttle-voice`、外殼同步播放） | 流程完成；L0 第 0 課只產生開頭 3 段試聽；「哪些語音要重產」的檢查待做 |
 | 4 | 繪製層、素材包、腳本驗證工具（第 3–5 節） | 待做 |
+
+### 旁白語音
+
+- **產生**：`npm run voice -- l0/0.0-tools.json`（在 `web/` 執行，`--all` 全部、`--max-sec 20` 只產生開頭、`--sample "一句" --voices A,B` 試聽）。每段 `narration` 送 Gemini TTS（`gemini-3.8-flash-tts`，聲音 Sulafat），轉成 48 kbps MP3 上傳到 GCS `gs://shuttle-voice/<腳本資料夾>/<雜湊>.mp3`（公開讀取、永久快取）。金鑰放 `web/.env.local` 的 `GEMINI_API_KEY`，只在本機用。
+- **清單**：腳本旁的 `<名稱>.voice.json`（進版控）記錄「旁白文字 → { file, ms }」與模型、聲音、語氣。雜湊由模型、聲音、語氣、文字決定；旁白改了一個字就對不到舊音檔，那段會退回只有字幕，直到重新產生。GCS 上的舊檔不自動刪除（正式站部署前仍可能用到）。
+- **播放**：課程頁讀腳本與清單；舞台用語音實際長度排時間（`load(script, { voice })`），`narrations` 給出每段開始時間；外殼的 `clips` 依自己的時鐘播放對應音檔（兩個 `<audio>` 輪流，先載入下一段；按播放的當下取得播放權限；偏差超過 0.35 秒且音檔可順暢播放時才校正）。字幕在語音長度內依字數分配。讀不到清單時只顯示字幕。
+- **費用**：見研究文章「旁白語音的費用評估」（`/docs/research/voice-cost`）。
 
 ### 待決定
 
-- **旁白來源**：真人錄音、TTS 或兩者並存（TTS 先試節奏，定稿再換真人）。會影響腳本的旁白音訊欄位與素材包的 `audio` 結構。
+- **旁白來源**：目前用 Gemini TTS 產生（見「旁白語音」一節）；是否改成真人錄音，聽過整課後再決定。
 - **輸出 mp4**：即時教學畫面目前只在網站上播放，沒有錄成影片檔的工具（`web/src/studio/recorder/` 的錄製工具錄的是另一種 v1 場景腳本）。需要時再決定要不要以預覽頁逐格截圖錄製。

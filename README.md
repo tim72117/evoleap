@@ -15,7 +15,7 @@ web/                 前端（React + Vite + TypeScript）
       l2Outline.ts     L2 章節大綱（尚未寫到步驟）
       aiAgent.ts       L3 課程頁內容
       lessonTypes.ts   單課資料型別
-      live/            即時教學畫面的腳本（JSON，例如 l0/0.0-tools.json；單課資料以 live 欄位指定）
+      live/            即時教學畫面的腳本（JSON，例如 l0/0.0-tools.json；單課資料以 live 欄位指定）與旁白語音清單（*.voice.json）
     live/            即時教學畫面引擎（ES module）：舞台 stage.js、播放器外殼 shell.js、演員 actors/、動畫工具 kit.js；規格見 src/live/README.md
     home/            首頁（課程地圖）/
     courses/         課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁
@@ -30,6 +30,7 @@ web/                 前端（React + Vite + TypeScript）
       materials/       工具總覽 /materials、封面設計與裁切工具 /materials/*
       recorder/        宣傳影片錄製工具：npm run record（JSON 分鏡腳本 → 1080p mp4）
   scripts/seo.mjs    build 後產生各頁 HTML、sitemap.xml、robots.txt
+  scripts/voice.mjs  npm run voice：用 Gemini TTS 產生旁白語音，上傳到 GCS gs://shuttle-voice（見 src/live/README.md「旁白語音」）
 server/              後端（Go）：/api/*（含登入）＋以 go:embed 提供前端
   cmd/server/          進入點、靜態檔與 SEO 頁面的伺服
   internal/api/        HTTP 端點
@@ -48,7 +49,7 @@ cd server && go run ./cmd/server         # API：http://127.0.0.1:8190（未設 
 cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api 轉發到 8190）
 ```
 
-環境變數見 `server/.env.example`（資料庫、JWT、Google 登入）與 `web/.env.example`（GA4）。
+環境變數見 `server/.env.example`（資料庫、JWT、Google 登入）與 `web/.env.example`（GA4、產生旁白語音用的 `GEMINI_API_KEY`；金鑰寫在不進版控的 `web/.env.local`）。
 
 ## SEO
 

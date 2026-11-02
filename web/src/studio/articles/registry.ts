@@ -44,6 +44,18 @@ export const articles: ArticleMeta[] = [
     summary: '大綱與逐字稿、分段錄製、設備與後製的研究筆記。',
   },
   {
+    slug: 'research/video-shotcraft',
+    title: '參考案例：video-shotcraft',
+    category: 'research',
+    summary: '宣傳片製作 skill 的做法整理：鏡頭配方卡、真實介面素材、分層驗收；哪些借用到即時教學畫面、哪些不照搬。',
+  },
+  {
+    slug: 'research/voice-cost',
+    title: '旁白語音的費用評估',
+    category: 'research',
+    summary: 'Gemini TTS 的官方價格與免費層級、依腳本字數估算整套課程旁白的產生與改稿費用，並比較其他 TTS 與真人錄音。',
+  },
+  {
     slug: 'research/script-template',
     title: '腳本範本結構',
     category: 'research',

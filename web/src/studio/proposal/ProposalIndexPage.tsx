@@ -285,6 +285,9 @@ export function ProposalIndexPage() {
           <ul className="plain-list">
             <li>學員可暫停、拖曳、複製畫面上的提示詞</li>
             <li>含轉場、素材、節奏與輕鬆橋段的研究整理</li>
+            <li>
+              參考案例：<Link to="/docs/research/video-shotcraft">video-shotcraft</Link>（宣傳片製作方法，借用與不照搬的部分）
+            </li>
             <li>L0 第 0、1 課已上線為即時教學畫面</li>
           </ul>
         </div>
@@ -292,6 +295,9 @@ export function ProposalIndexPage() {
           <div className="links">
             <Link className="btn" to="/proposal/visuals">
               構想頁
+            </Link>
+            <Link className="btn ghost" to="/proposal/visuals/preview">
+              預覽畫面
             </Link>
           </div>
         </div>

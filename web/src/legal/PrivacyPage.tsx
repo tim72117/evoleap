@@ -43,7 +43,7 @@ const sections: LegalSection[] = [
             <strong>網站使用統計</strong>：透過 Google Analytics 4 蒐集的瀏覽頁面、互動事件、裝置與大略地區等資料。
           </li>
           <li>
-            <strong>伺服器存取記錄</strong>：代管服務自動留下的 IP 位址、時間、請求網址等。
+            <strong>伺服器存取記錄</strong>：代管服務自動留下的 IP 位址、時間、請求網址等。課程的旁白音檔放在 Google Cloud Storage（同樣位於臺灣），播放時您的瀏覽器會直接向 storage.googleapis.com 下載。
           </li>
           <li>
             <strong>第三方服務自行蒐集的資料</strong>：「使用 Google 帳號登入」由 Google 依其政策處理。課程影片由本網站直接產生畫面，不透過 YouTube 等第三方影音平台播放。

@@ -11,6 +11,7 @@
 //     captions: (ms) => "字幕文字" | "",     // 選用
 //     stops: [{ at, title, body }],         // 選用:練習點,播放經過時自動暫停並顯示要學員做的事
 //     audio: "narration.mp3",               // 選用:有旁白時以音訊為主時鐘
+//     clips: [{ at, ms, url }],              // 選用:分段旁白音檔,在 [at, at+ms) 之間播放,跟著外殼的時鐘同步(拖曳、倍速、暫停)
 //     resumeKey: "l0-0.2",                  // 選用:記住看到哪裡
 //     globalKeys: true,                     // 頁面沒有其他焦點時也接收快捷鍵;一頁多個播放器時設 false
 //     onFullscreenRequest: (on) => …,       // 選用:全螢幕交給外層處理,外層再用 vp.setExternalFullscreen(on) 回報
@@ -99,12 +100,68 @@
 
     const audio = o.audio ? Object.assign(new Audio(o.audio), { preload: "auto" }) : null;
     if (audio) $(".vp-vol").hidden = false;
-    const syncOptional = () => { $(".vp-cc").hidden = !o.captions; };
+    // 分段旁白:同一時間只播一段,依外殼時鐘決定播哪一段、播到哪裡。
+    // 兩個 <audio> 輪流用:一個播目前這段,另一個先載入下一段,換段時直接交換,開頭不會被網路延遲吃掉。
+    let clipEl = new Audio();
+    let nextEl = new Audio();
+    clipEl.preload = nextEl.preload = "auto";
+    let clipIdx = -1;
+    let clipsUnlocked = false;
+    const hasClips = () => !!(o.clips && o.clips.length);
+    const clipAt = (t) => { let i = -1; for (let k = 0; k < o.clips.length; k++) if (o.clips[k].at <= t) i = k; return i; };
+    const setSrc = (el, url) => { if (el.getAttribute("src") !== url) el.src = url; };
+    function startClip(i, off) {
+      const c = o.clips[i];
+      if (nextEl.getAttribute("src") === c.url) [clipEl, nextEl] = [nextEl, clipEl];
+      else setSrc(clipEl, c.url);
+      clipIdx = i;
+      clipEl.muted = state.muted;
+      clipEl.playbackRate = state.rate;
+      clipEl.currentTime = off;
+      clipEl.play().catch(() => {});
+      const n = o.clips[i + 1];
+      if (n) setSrc(nextEl, n.url);
+    }
+    function syncClips() {
+      if (!hasClips()) return;
+      const i = clipAt(state.t);
+      const c = o.clips[i];
+      const off = c ? (state.t - c.at) / 1000 : 0;
+      const inClip = c && off * 1000 < c.ms;
+      if (!state.playing || state.scrubbing || !inClip) {
+        if (!clipEl.paused) clipEl.pause();
+        if (!c) clipIdx = -1;
+        // 還沒播到第一段時,先載入第一段
+        else if (!inClip && o.clips[i + 1]) setSrc(nextEl, o.clips[i + 1].url);
+        return;
+      }
+      if (i !== clipIdx) return startClip(i, off);
+      if (clipEl.paused && !clipEl.ended) { clipEl.currentTime = off; clipEl.play().catch(() => {}); return; }
+      // 偏差校正:只在音檔已經能順暢播放時做(還在緩衝時重設位置只會一直重新緩衝)
+      if (!clipEl.paused && !clipEl.seeking && clipEl.readyState >= 3 && Math.abs(clipEl.currentTime - off) > 0.35) clipEl.currentTime = off;
+    }
+    /** 在使用者按播放的當下解鎖音訊(iOS 等瀏覽器只允許在使用者操作中開始播放) */
+    function unlockClips() {
+      if (clipsUnlocked || !hasClips()) return;
+      clipsUnlocked = true;
+      const i = Math.max(0, clipAt(state.t));
+      // 靜音播一下再停,只為了取得播放權限,不會聽到聲音;被瀏覽器拒絕(NotAllowedError)時下次按播放再試
+      for (const el of [clipEl, nextEl]) {
+        setSrc(el, o.clips[Math.min(i + (el === nextEl ? 1 : 0), o.clips.length - 1)].url);
+        el.muted = true;
+        el.play()
+          .then(() => { if (el !== clipEl || clipIdx < 0) el.pause(); })
+          .catch((e) => { if (e?.name === "NotAllowedError") clipsUnlocked = false; })
+          .finally(() => { el.muted = state.muted; });
+      }
+    }
+    const syncOptional = () => { $(".vp-cc").hidden = !o.captions; $(".vp-vol").hidden = !(audio || hasClips()); };
     syncOptional();
 
     const state = {
       t: 0, playing: false, rate: 1, ended: false,
       captions: store.get("vp:cc") !== "0",
+      muted: store.get("vp:muted") === "1",
       fs: false, pseudo: false, landscape: false, ext: false,
       lastTick: 0, hideTimer: 0, scrubbing: false, raf: 0, wake: null, lastSave: 0,
     };
@@ -176,6 +233,7 @@
       if (stop) { state.t = stop.at; pause(); showStop(stop); return; }
       if (state.t >= dur()) { state.t = dur(); state.playing = false; state.ended = true; audio?.pause(); onPauseSide(); showUi(); }
       draw();
+      syncClips();
     }
 
     function showStop(stop) {
@@ -191,6 +249,8 @@
       if (state.ended || state.t >= dur()) { state.t = 0; state.ended = false; }
       state.playing = true;
       state.lastTick = performance.now();
+      unlockClips();
+      syncClips();
       if (audio && state.t / 1000 < (audio.duration || Infinity)) { audio.currentTime = state.t / 1000; audio.playbackRate = state.rate; audio.play().catch(() => {}); }
       requestWake();
       if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "playing";
@@ -200,6 +260,7 @@
     function pause() {
       state.playing = false;
       audio?.pause();
+      clipEl.pause();
       onPauseSide();
       draw();
       showUi();
@@ -214,11 +275,14 @@
       state.t = clamp(ms, 0, dur());
       state.ended = state.t >= dur() && !state.playing;
       if (audio && audio.readyState) audio.currentTime = Math.min(state.t / 1000, audio.duration || 0);
+      clipIdx = -1;
       draw();
+      syncClips();
     }
     function setRate(r) {
       state.rate = r;
       if (audio) audio.playbackRate = r;
+      clipEl.playbackRate = nextEl.playbackRate = r;
       $(".vp-rate").textContent = `${r}×`;
       root.querySelectorAll(".vp-menu button").forEach((b) => b.setAttribute("aria-checked", String(Number(b.dataset.rate) === r)));
     }
@@ -382,10 +446,15 @@
     $(".vp-cc").setAttribute("aria-pressed", String(state.captions));
     $(".vp-vol").addEventListener("click", () => toggleMute());
     function toggleMute() {
-      if (!audio) return;
-      audio.muted = !audio.muted;
-      $(".vp-vol").innerHTML = audio.muted ? ICON.mute : ICON.vol;
-      $(".vp-vol").setAttribute("aria-label", audio.muted ? "取消靜音" : "靜音");
+      state.muted = !state.muted;
+      store.set("vp:muted", state.muted ? "1" : "0");
+      syncMuteUi();
+    }
+    function syncMuteUi() {
+      if (audio) audio.muted = state.muted;
+      clipEl.muted = nextEl.muted = state.muted;
+      $(".vp-vol").innerHTML = state.muted ? ICON.mute : ICON.vol;
+      $(".vp-vol").setAttribute("aria-label", state.muted ? "取消靜音" : "靜音");
     }
     const menu = $(".vp-menu");
     $(".vp-rate").addEventListener("click", (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; showUi(); });
@@ -436,7 +505,7 @@
     function releaseWake() { state.wake?.release().catch(() => {}); state.wake = null; }
     const onVisibility = () => {
       if (document.visibilityState === "visible") { state.lastTick = performance.now(); if (state.playing) { state.wake = null; requestWake(); } }
-      else if (state.playing && !audio) pause();   // 沒有旁白時,切到別的分頁就暫停,回來不會跳過內容
+      else if (state.playing && !audio) pause();   // 時鐘不是音訊時(包括分段旁白),切到別的分頁就暫停,回來不會跳過內容
     };
     document.addEventListener("visibilitychange", onVisibility);
     if ("mediaSession" in navigator) {
@@ -452,6 +521,7 @@
 
     // ---------- 開始 ----------
     setRate(1);
+    syncMuteUi();
     const resume = () => {
       const saved = o.resumeKey ? Number(store.get(`vp:t:${o.resumeKey}`)) : 0;
       if (o.duration && saved > 5000 && saved < dur() - 5000) state.t = saved;
@@ -470,6 +540,7 @@
         $(".vp-title").textContent = o.title || "";
         setChapters();
         syncOptional();
+        clipIdx = -1;
         lastKey = "";
         if (first) resume();
         state.t = clamp(state.t, 0, dur());
@@ -485,6 +556,7 @@
         ro.disconnect();
         releaseWake();
         audio?.pause();
+        for (const el of [clipEl, nextEl]) { el.pause(); el.removeAttribute("src"); }
         document.removeEventListener("keydown", onKey);
         document.removeEventListener("visibilitychange", onVisibility);
         document.removeEventListener("fullscreenchange", syncFsUi);

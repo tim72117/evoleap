@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useHashScroll } from '../../site/useHashScroll'
 import { List } from './BasicsOutline'
 import { ProposalLayout } from './ProposalLayout'
 
@@ -82,27 +83,6 @@ const HUMOR_RULES = [
   '避免嘲諷學員、需要特定文化背景才懂的迷因，以及蓋過旁白的音效笑點。',
 ]
 
-const SHOTCRAFT_SUMMARY: Row[] = [
-  ['是什麼', '一套給 Claude Code、Codex 使用的產品宣傳片製作 skill（Apache-2.0）。AI 依配方卡，用真實截圖與程式碼逐格畫出畫面，以 Remotion 輸出 MP4，不用 AI 生成影像。'],
-  ['鏡頭配方卡', '124 張卡、150 個鏡頭。每張記錄意圖、影格時間表、參數的調節手感、音效、已知問題，並指向範例程式；要求先讀範例，不憑卡名重寫。'],
-  ['真實介面素材', '用無頭瀏覽器截取 2 倍整頁圖、元素去背圖與座標表（layout.json），再由 2.5D 頁面相機運鏡；疊加元素與頁面共用座標。'],
-  ['文字保持清晰', '放大時用 CSS zoom，不用 transform: scale，讓瀏覽器以放大後的尺寸繪製；主角元素另備 4 倍圖，推近時淡入替換。'],
-  ['判例式準則', '每條審美規則都附當時的返工回饋與自查問題，例如一個鏡頭只講一個動態、關鍵資訊落定後至少停 1 秒。'],
-  ['分層驗收', '每個鏡頭抽靜態影格自查，交付前由未參與製作的 subagent 獨立審查，逐條列出帶影格編號的證據。'],
-]
-const SHOTCRAFT_ADOPT: Row[] = [
-  ['教學鏡頭配方', '整理常用段落（推近輸入框 → 打字 → 送出；展開權限對話框 → 聚光 → 點擊），附時間表與已知問題，讓 AI 寫腳本更穩定。'],
-  ['先留停留時間', '排時間軸時先留好重要結果的停留時間，操作速度依真人節奏，與上方節奏原則一致。'],
-  ['指定驗收時間點', '每段腳本指定要檢查的時間點，在預覽頁截圖確認；交付前再做一次獨立審查。'],
-  ['返工記成判例', '把實際修改過的問題寫成「規則＋回饋＋自查問題」，累積成課程自己的準則。'],
-]
-const SHOTCRAFT_SKIP: Row[] = [
-  ['配樂卡點、全畫面衝擊', '宣傳片追求記憶點；教學研究指出音樂與無關刺激會干擾學習，有旁白時不採用。'],
-  ['傾斜運鏡與炫技特效', '操作教學需要看清文字。保留正視的推近；若日後加入 3D 傾斜，再注意文字清晰問題。'],
-  ['離線渲染 MP4', '課程要能暫停、選取文字、依步驟跳轉，繼續在瀏覽器即時播放；宣傳片段才需要輸出影片。'],
-  ['靜態截圖取代演員', '教學要呈現逐步操作與狀態變化，模擬介面比靜態圖適合；截圖只用在必須呈現真實頁面的少數場景。'],
-]
-
 const DESIGN_MAP: Row[] = [
   ['章節卡標出段落', '章節卡場景，自動對應播放器的章節'],
   ['停頓讓學員看清楚', '步驟加停頓欄位，預設 1500 毫秒'],
@@ -127,12 +107,11 @@ const PROGRESS: [string, string, 'done' | 'todo'][] = [
 ]
 
 const OPEN_QUESTIONS: { title: string; body: string }[] = [
-  { title: '旁白來源', body: '真人錄音、TTS 或兩者並存（TTS 先試節奏，定稿再換真人）。研究顯示自然人聲效果較好；會影響腳本的音訊欄位與素材包結構。' },
+  { title: '旁白來源', body: '目前用 Gemini TTS 分段產生（費用評估見研究文章「旁白語音的費用評估」）。研究顯示自然人聲效果較好；聽過整課後再決定是否改成真人錄音。' },
   { title: '模擬其他產品介面的限制', body: '模擬 AI 工具介面的素材包不使用官方 Logo、商標或截圖，只做近似的版面與配色並註明非官方；產品改版時介面會與實際不同，需要定期對照更新。' },
 ]
 
 const SOURCES: { label: string; href: string }[] = [
-  { label: 'Vincentwei1021/video-shotcraft（GitHub）', href: 'https://github.com/Vincentwei1021/video-shotcraft' },
   { label: 'Brame (2016) Effective Educational Videos（PMC 全文）', href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5132380/' },
   { label: 'Vanderbilt CFT：Effective educational videos', href: 'https://cft.vanderbilt.edu/guides-sub-pages/effective-educational-videos/' },
   { label: 'Seductive details（ACU Inspire）', href: 'https://inspire.acu.edu.au/articles/seductive-details' },
@@ -197,6 +176,7 @@ function Evidence({ items }: { items: string[] }) {
 }
 
 export function VisualsPage() {
+  useHashScroll()
   return (
     <ProposalLayout title="即時教學影像" footer="跨等級構想 · 技術規格見 web/src/live/README.md">
       <h1>構想 · 即時教學影像</h1>
@@ -294,16 +274,11 @@ export function VisualsPage() {
         </div>
       </section>
 
-      <h2>參考案例：video-shotcraft</h2>
+      <h2 id="shotcraft">參考案例</h2>
       <p className="lead">
-        2026-11-02 閱讀原始碼與文件的整理，未實際渲染；它的目標是產品宣傳片，與教學影像不同，所以只借用製作方法。
+        宣傳片製作 skill video-shotcraft 的做法整理（借用哪些、不照搬哪些）放在研究文章：
+        <Link to="/docs/research/video-shotcraft">參考案例：video-shotcraft</Link>。
       </p>
-      <h3>它怎麼做</h3>
-      <KvTable rows={SHOTCRAFT_SUMMARY} />
-      <h3>值得借用</h3>
-      <KvTable rows={SHOTCRAFT_ADOPT} head={['做法', '用在課程上']} />
-      <h3>不照搬</h3>
-      <KvTable rows={SHOTCRAFT_SKIP} head={['手法', '原因']} />
 
       <h2>對應到腳本與播放器的設計</h2>
       <KvTable rows={DESIGN_MAP} head={['研究結論', '腳本或播放器的做法']} />

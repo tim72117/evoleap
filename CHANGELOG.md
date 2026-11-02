@@ -2,6 +2,26 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [0.3.0] - 2026-11-02
+
+即時教學畫面加上旁白語音：用 Gemini TTS 分段產生，放在 GCS，播放時跟著畫面同步；課程研發新增兩篇研究文章。
+
+### 新增
+
+- **旁白語音**
+  - `npm run voice`（`web/scripts/voice.mjs`）：每段旁白送 Gemini TTS（`gemini-3.8-flash-tts`，聲音 Sulafat），轉成 MP3 上傳到 GCS `gs://shuttle-voice`（公開讀取、永久快取）；腳本旁的 `*.voice.json` 記錄每段的音檔與長度。旁白沒改就不重新產生；`--max-sec` 只產生開頭、`--sample` 試聽多種聲音。金鑰放 `web/.env.local`，只在本機用。
+  - 播放器外殼新增分段旁白（`clips`）：跟著外殼時鐘同步拖曳、倍速、暫停與練習點；先載入下一段；按播放的當下取得播放權限（iOS）；有語音時顯示靜音按鈕。
+  - 舞台用語音實際長度排時間，字幕在語音長度內依字數分配；讀不到語音時照常播放、只顯示字幕。
+  - L0 第 0 課開頭 3 段旁白（試聽用）。
+- 研究文章：「參考案例：video-shotcraft」（`/docs/research/video-shotcraft`，原在即時教學影像頁）、「旁白語音的費用評估」（`/docs/research/voice-cost`）。
+- 課程研發：L0、L1 大綱的製作規劃與總覽頁「即時教學影像」卡片加上構想頁、預覽頁與參考案例的連結。
+
+### 變更
+
+- L0 第 0 課開場旁白與章節卡改成新的順序（認識 → 安裝登入 → 練習資料夾 → 第一個檔案）。
+- 隱私權政策：說明旁白音檔放在 Google Cloud Storage（臺灣），播放時瀏覽器會向 storage.googleapis.com 下載。
+- README：部署驗證改為 `tim72117/shuttle`，並寫明 repo 改名時要同步更新的 GCP 設定。
+
 ## [0.2.0] - 2026-11-02
 
 課程影片改用「即時教學畫面」：不錄製影片，由腳本在課程頁即時畫出教學畫面；L0 第 0、1 課上線。

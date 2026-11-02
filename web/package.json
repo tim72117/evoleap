@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "record": "node src/studio/recorder/record.mjs",
+    "voice": "node scripts/voice.mjs",
     "check": "npm run typecheck && npm run test && npm run build && npm run test:e2e"
   },
   "dependencies": {
@@ -21,6 +22,7 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@breezystack/lamejs": "^1.2.7",
     "@playwright/test": "^1.64.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

@@ -15,13 +15,15 @@ export type StageStop = { at: number; title: string; body: string }
 
 export interface Stage {
   /** 載入腳本與演員,回傳總長度(毫秒);腳本有錯會丟出含「第幾步」的錯誤 */
-  load(script: StageScript): Promise<number>
+  load(script: StageScript, opts?: { voice?: Record<string, number> }): Promise<number>
   /** 畫出 ms 時的畫面(同一個時間點一定畫出同一個畫面) */
   renderAt(ms: number): void
   readonly duration: number
   readonly captions: StageCaption[]
   readonly chapters: StageChapter[]
   readonly stops: StageStop[]
+  /** 每段旁白開始的時間(毫秒)與文字 */
+  readonly narrations: { at: number; text: string }[]
 }
 
 /** 在 root 裡建立 1920×1080 的舞台 */

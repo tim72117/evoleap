@@ -15,6 +15,8 @@ export type ShellOptions = {
   /** 練習點:播放經過時自動暫停 */
   stops?: ShellStop[]
   audio?: string
+  /** 分段旁白音檔:播到 at(毫秒)時開始播放,跟著外殼的時鐘同步 */
+  clips?: { at: number; ms: number; url: string }[]
   /** 記住看到哪裡(localStorage 的鍵) */
   resumeKey?: string
   /** 頁面沒有其他焦點時也接收快捷鍵 */

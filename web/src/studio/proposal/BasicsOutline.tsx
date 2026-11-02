@@ -141,7 +141,10 @@ function ProductionSection({ plan, mods }: { plan: ProductionPlan; mods: Module[
   return (
     <>
       <h2>製作規劃</h2>
-      <p className="lead">狀態只記到實際完成的程度。「腳本完成」指已有即時教學畫面腳本、課程頁可以播放。</p>
+      <p className="lead">
+        影片不錄製，全部用即時教學畫面製作（做法與研究見<Link to="/proposal/visuals">即時教學影像</Link>，畫面可在
+        <Link to="/proposal/visuals/preview">預覽頁</Link>檢查）。狀態只記到實際完成的程度：「腳本完成」指已有即時教學畫面腳本、課程頁可以播放。
+      </p>
 
       <section className="card">
         <div className="card-head">

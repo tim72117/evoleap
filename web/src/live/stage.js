@@ -72,6 +72,7 @@ export function createStage(root) {
   // 這幾種疊加畫面有旁白時直接延長到講完,不讓畫面空等
   const STRETCH_KINDS = ["card", "callout", "show"];
   const CAM_MS = 900;
+  const NARRATION_DELAY = 150;  // 字幕與旁白語音在這一步開始後多久出現
   const SAFE_BOTTOM = 0.68;   // 鏡頭推近時目標下緣最多到畫面 68% 高,避開播放器的字幕與控制列
   const ZOOM = { composer: 1.8, ask: 1.6, mode: 2.2, head: 1.6 };
   const PLACES = {
@@ -87,7 +88,7 @@ export function createStage(root) {
   let cast = {};          // 代號 → { def, inst, slot, place, hidden }
   let castOrder = [];
   let timeline = [];      // { kind, s, start, dur, actor }
-  let total = 0, captions = [], chapters = [], stops = [], camKeys = [];
+  let total = 0, captions = [], chapters = [], stops = [], camKeys = [], narrations = [];
   let auto = false;
   let cast0 = {};         // 有狀態的演員:代號 → init(props) 的起始狀態
   let views = {};         // 有狀態的演員:代號 → 目前畫面的 { state, prev, ev }(render 與 target 用)
@@ -113,7 +114,9 @@ export function createStage(root) {
   }
 
   // ---------- 載入腳本 ----------
-  async function load(script) {
+  // opts.voice:{ 旁白文字: 語音長度(毫秒) },有語音時用實際長度排時間,沒有就依字數估算
+  async function load(script, opts = {}) {
+    const voice = opts.voice || {};
     auto = script.camera === "auto";
     const castEl = $(".st-cast");
     castEl.innerHTML = "";
@@ -191,7 +194,8 @@ export function createStage(root) {
     for (const i of narr) {
       const j = bound(i);
       const span = steps.slice(i, j).reduce((m, x) => m + x.dur + x.pause, 0);
-      const need = speakMs(steps[i].s.narration);
+      const text = steps[i].s.narration;
+      const need = voice[text] != null ? voice[text] + 500 : speakMs(text);
       if (span >= need) continue;
       if (STRETCH_KINDS.includes(steps[i].kind) && steps[i].s.ms == null) steps[i].dur += need - span;
       else steps[j - 1].pause += need - span;
@@ -202,13 +206,18 @@ export function createStage(root) {
     for (const x of steps) { timeline.push({ kind: x.kind, s: x.s, actor: x.actor, start: t, dur: x.dur, prev: x.prev, state: x.state }); t += x.dur + x.pause; }
     total = t + 600;
 
-    // 字幕:每段旁白依句子切開,按字數分配時間
+    // 字幕與旁白語音:同一刻開始(這一步開始後 NARRATION_DELAY 毫秒)。
+    // 字幕依句子切開、按字數分配時間;有語音時分配在語音的長度內,讓字幕跟著念的速度走,沒有語音時分配到下一段旁白之前
     captions = [];
+    narrations = [];
     for (const i of narr) {
       const j = bound(i);
-      const from = timeline[i].start + 150;
-      const to = (j < timeline.length ? timeline[j].start : total) - 150;
-      const parts = String(timeline[i].s.narration).split(/(?<=[。！？；…])/).map((x) => x.trim()).filter(Boolean);
+      const text = timeline[i].s.narration;
+      const from = timeline[i].start + NARRATION_DELAY;
+      const end = (j < timeline.length ? timeline[j].start : total) - NARRATION_DELAY;
+      const to = voice[text] != null ? Math.min(end, from + voice[text]) : end;
+      narrations.push({ at: from, text });
+      const parts = String(text).split(/(?<=[。！？；…])/).map((x) => x.trim()).filter(Boolean);
       const sum = parts.reduce((m, x) => m + x.length, 0);
       let c = from;
       for (const part of parts) { const l = ((to - from) * part.length) / sum; captions.push({ from: c, to: c + l, text: part }); c += l; }
@@ -409,6 +418,7 @@ export function createStage(root) {
     get captions() { return captions; },
     get chapters() { return chapters; },
     get stops() { return stops; },
+    get narrations() { return narrations; },
     get steps() { return timeline.map(({ kind, s, start, dur, actor }) => ({ kind, actor, start, dur, step: s })); },
   };
 }
