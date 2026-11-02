@@ -256,7 +256,7 @@ interface StickerOpts {
   border?: string | null
 }
 
-// A Hahow-style sticker tag: solid fill, bold short label, slight
+// A sticker tag: solid fill, bold short label, slight
 // rotation — the oversized callouts popular course covers use so a
 // selling point reads at thumbnail size, instead of relying on text
 // packed inside the small mockup cards.
@@ -432,7 +432,7 @@ export function drawCover(ctx: Ctx): void {
   ctx.textAlign = 'left'
 }
 
-// 800×800 variant for Hahow's square cover: same elements and card
+// 800×800 square variant: same elements and card
 // functions as the landscape cover, re-composed vertically (title block on
 // top, card cluster below) with explicit coordinates.
 export function drawCoverSquare(ctx: Ctx): void {

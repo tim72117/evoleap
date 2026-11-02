@@ -1,6 +1,7 @@
 import { LEVELS } from '../../content/levels'
 import { List, ResearchRefs } from './BasicsOutline'
 import { ProposalLayout } from './ProposalLayout'
+import ui from './proposal.module.css'
 
 // 暫定主題取自課程地圖（src/content/levels.ts 的 LEVELS，id: 'advanced'）。
 const level = LEVELS.find((l) => l.id === 'advanced')
@@ -30,15 +31,15 @@ export function AdvancedPage() {
   return (
     <ProposalLayout title="L4 進階" footer="暫定主題：src/content/levels.ts（LEVELS）">
       <h1>L4 · 進階 AI Agent 應用</h1>
-      <span className="chip out draft-banner">未開始 · 預留頁</span>
+      <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>未開始 · 預留頁</span>
 
       <h2>定位</h2>
-      <section className="card">
+      <section className={ui.card}>
         <table>
           <tbody>
             {POSITIONING.map(([k, v]) => (
               <tr key={k}>
-                <td className="nowrap" style={{ width: '9em' }}>
+                <td className={ui.nowrap} style={{ width: '9em' }}>
                   <strong>{k}</strong>
                 </td>
                 <td>{v}</td>
@@ -49,22 +50,22 @@ export function AdvancedPage() {
       </section>
 
       <h2>暫定主題</h2>
-      <p className="lead">取自課程地圖，尚未拆成單元。</p>
-      <section className="card">
-        <div className="card-body">
+      <p className={ui.lead}>取自課程地圖，尚未拆成單元。</p>
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
           <List items={level?.topics ?? []} />
         </div>
       </section>
 
       <h2>待辦</h2>
-      <section className="card">
-        <div className="card-body">
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
           <List items={TODOS} />
         </div>
       </section>
 
       <h2>待決定</h2>
-      <div className="note">
+      <div className={ui.note}>
         <ul style={{ margin: 0 }}>
           {OPEN_QUESTIONS.map((q) => (
             <li key={q.title}>

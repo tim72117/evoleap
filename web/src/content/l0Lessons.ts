@@ -100,7 +100,7 @@ export const L0_LESSONS: CourseLesson[] = [
   {
     id: '0.2',
     title: '提出需求：做出一頁式網站並精確調整',
-    length: '約 50 分',
+    length: '約 45 分',
     goal: '一次說清楚整頁的目標、內容與風格，請 AI 在專案中產生小森烘焙的一頁式靜態網站（HTML、CSS，必要時少量原生 JavaScript），在瀏覽器打開；再逐區用具體指令調整版面、間距、顏色、字體、手機版與一個小互動，改太多時能比對並還原。',
     scenario: '小森烘焙（虛構）想先有一個一頁式網站讓客人了解預約取貨：導覽、主視覺、本週商品、預約流程、營業時間與取貨須知、常見問題、交通資訊、頁尾。還沒有真正的預約功能（L1 會整理這個系統的完整需求）。從 0.1 建好的 bakery 專案繼續。',
     steps: [
@@ -158,14 +158,12 @@ export const L0_LESSONS: CourseLesson[] = [
       },
     ],
     videos: [
-      { title: '一次描述整頁，產生第一版', minutes: 9, steps: [1, 2], wrap: '第一版出來了；接著一區一區精確調整。' },
-      { title: '調整頁首與商品卡片', minutes: 7, steps: [3, 4], wrap: '版面調好了，接著統一文字與細節。' },
-      { title: '文字樣式、營業時間表與常見問題', minutes: 7, steps: [5, 6], wrap: '最後加一個小互動，並確認沒有改到不該改的地方。' },
       {
-        title: '手機選單、比對還原與最後檢查',
-        minutes: 8,
-        steps: [7, 8, 9],
+        title: '提出需求：做出一頁式網站並精確調整',
+        minutes: 7,
+        steps: [1, 2, 3, 4, 5, 6, 7, 8, 9],
         wrap: '回顧 L0：工具、專案、需求與精確調整；L1 把這個預約系統的需求整理完整。',
+        live: 'l0/0.2-site.json',
       },
     ],
     deliverable: '小森烘焙一頁式網站（index.html、styles.css、script.js），在桌面與手機寬度都能正常瀏覽。',

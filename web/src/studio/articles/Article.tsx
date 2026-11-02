@@ -21,7 +21,8 @@ export interface TocItem {
   title: string
 }
 
-export function Article({ slug, toc = [], children }: { slug: string; toc?: TocItem[]; children: ReactNode }) {
+/** 文件頁的共用版型:麵包屑、標題與摘要、內文、上下篇、右側目錄。研究文章與 Markdown 文件都用它,版型才會一致 */
+export function DocLayout({ slug, toc = [], children }: { slug: string; toc?: TocItem[]; children: ReactNode }) {
   const meta = findArticle(slug)
   const index = articles.indexOf(meta)
   const prev = articles[index - 1]
@@ -42,7 +43,7 @@ export function Article({ slug, toc = [], children }: { slug: string; toc?: TocI
             <h1>{meta.title}</h1>
             <p className={styles.summary}>{meta.summary}</p>
           </header>
-          <div className={styles.body}>{children}</div>
+          {children}
           <nav className={styles.pager} aria-label="上一篇與下一篇">
             {prev ? (
               <Link to={`/docs/${prev.slug}`} className={styles.pagerLink}>
@@ -74,6 +75,14 @@ export function Article({ slug, toc = [], children }: { slug: string; toc?: TocI
         )}
       </div>
     </SiteLayout>
+  )
+}
+
+export function Article({ slug, toc = [], children }: { slug: string; toc?: TocItem[]; children: ReactNode }) {
+  return (
+    <DocLayout slug={slug} toc={toc}>
+      <div className={styles.body}>{children}</div>
+    </DocLayout>
   )
 }
 

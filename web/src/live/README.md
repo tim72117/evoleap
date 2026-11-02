@@ -79,7 +79,7 @@ const vp = mountShell(container, {
   captions: (ms) => "字幕" | "",
   stops: [{ at, title, body }],   // 練習點:播放經過時自動暫停
   clips: [{ at, ms, url }],       // 分段旁白:在 [at, at+ms) 之間播放,跟著外殼的時鐘同步(拖曳、倍速、暫停、練習點)
-  audio, resumeKey, globalKeys, onFullscreenRequest, autoLandscape,
+  audio, progress, globalKeys, onFullscreenRequest, autoLandscape,
 });
 vp.play() / pause() / seek(ms) / setRate(x) / toggleFullscreen() / update(opts) / destroy()
 vp.time / vp.playing
@@ -195,6 +195,7 @@ export default defineActor({
 |---|---|---|
 | `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos |
 | `finder` | open、mkdir、create、delete、rename、select、drag、drop、highlight（有狀態，見 2A.5） | window、file:名稱（或 item:名稱） |
+| `browser` | site、width、scroll、go、click、reload（有狀態；網頁放在 Shadow DOM，寬度條件由腳本指定的寬度判斷，素材在 `content/live/l0/site/<版本>/`） | window、tab、addressbar、content、viewport、section:id、sel:css選擇器 |
 
 ### 2A.2 舞台腳本
 
@@ -578,9 +579,10 @@ packs/<name>/
 | 階段 | 內容 | 狀態 |
 |---|---|---|
 | 1 | 繪製工具 kit 與測試 | 完成 |
-| 2 | 舞台與演員（2A）：`claude-desktop`、`finder` 演員，章節卡、聚光燈、鏡頭、滑鼠、練習點 | 完成；`claude-code`（終端機版）演員待做 |
-| 3 | 外殼 `shell.ts`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟）、預覽頁 | 完成，L0 第 0、1 課已上線 |
-| 3B | 旁白語音（Gemini TTS 分段產生、GCS `shuttle-voice`、外殼同步播放） | 流程完成；L0 第 0 課只產生開頭 3 段試聽；「哪些語音要重產」的檢查待做 |
+| 2 | 舞台與演員（2A）：`claude-desktop`、`finder`、`browser` 演員，章節卡、聚光燈、鏡頭、滑鼠、練習點 | 完成；`claude-code`（終端機版）演員待做 |
+| 2B | 鏡頭規劃 `camera.ts`（提示點 → 關鍵點 → 連續姿態、不閃動、鏡頭到位後演員才開始演）；引擎全部改寫成 TypeScript，演員用 `defineActor` 宣告並受介面約束；開發時改程式整頁重新載入 | 完成 |
+| 3 | 外殼 `shell.ts`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟）、預覽頁；登入的會員才記住播放進度（外殼只管何時讀存，存哪裡由外層決定） | 完成，L0 第 0、1、2 課已上線 |
+| 3B | 旁白語音（Gemini TTS 分段產生、GCS `shuttle-voice`、外殼同步播放；每段完成就寫入清單、旁白沒改的段落不重新產生） | 完成；L0 第 0、1 課已全部產生，第 2 課待產生 |
 | 4 | 繪製層、素材包、腳本驗證工具（第 3–5 節） | 待做 |
 
 ### 旁白語音

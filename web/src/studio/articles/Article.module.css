@@ -221,6 +221,69 @@
   color: var(--site-link);
 }
 
+/* Markdown 文件的內文:標題、表格、程式碼區塊的外觀對齊上面的文章版型 */
+.md h2 {
+  scroll-margin-top: 88px;
+  margin: 48px 0 16px;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.md h2:first-child {
+  margin-top: 0;
+}
+
+.md h3 {
+  margin: 28px 0 10px;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.md table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+  margin: 20px 0;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+.md th,
+.md td {
+  padding: 8px 12px;
+  border: 1px solid var(--site-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.md th {
+  background: var(--site-surface-2);
+  white-space: nowrap;
+}
+
+.md pre {
+  margin: 20px 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--site-code-bg);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.md pre code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.source {
+  margin: 40px 0 0;
+  font-size: 13px;
+  color: var(--site-muted);
+}
+
 @media (max-width: 1000px) {
   .wrap {
     grid-template-columns: minmax(0, 760px);

@@ -12,7 +12,7 @@
 //     stops: [{ at, title, body }],         // 選用:練習點,播放經過時自動暫停並顯示要學員做的事
 //     audio: "narration.mp3",               // 選用:有旁白時以音訊為主時鐘
 //     clips: [{ at, ms, url }],              // 選用:分段旁白音檔,在 [at, at+ms) 之間播放,跟著外殼的時鐘同步(拖曳、倍速、暫停)
-//     resumeKey: "l0-0.2",                  // 選用:記住看到哪裡
+//     progress: { load, save },             // 選用:記住看到哪裡(不傳就完全不記;由外層決定存到哪裡、誰才能存)
 //     globalKeys: true,                     // 頁面沒有其他焦點時也接收快捷鍵;一頁多個播放器時設 false
 //     onFullscreenRequest: (on) => …,       // 選用:全螢幕交給外層處理,外層再用 vp.setExternalFullscreen(on) 回報
 //     autoLandscape: true,                  // 手機橫放自動滿版
@@ -42,12 +42,19 @@ export type ShellOptions = {
   audio?: string
   /** 分段旁白音檔:播到 at(毫秒)時開始播放,跟著外殼的時鐘同步 */
   clips?: Clip[]
-  /** 記住看到哪裡(localStorage 的鍵) */
-  resumeKey?: string
+  /** 記住看到哪裡:外殼只管「何時讀、何時存」,存在哪裡由外層決定;不傳就不記 */
+  progress?: ProgressStore
   /** 頁面沒有其他焦點時也接收快捷鍵 */
   globalKeys?: boolean
   onFullscreenRequest?: (on: boolean) => void
   autoLandscape?: boolean
+}
+
+/** 播放進度的存取(例如登入會員存到伺服器);load 失敗請回 null,不要丟錯 */
+export interface ProgressStore {
+  load(): Promise<number | null>
+  /** 每隔幾秒與離開頁面時呼叫;ms 是目前位置、durationMs 是全長 */
+  save(ms: number, durationMs: number): void
 }
 
 export interface Shell {
@@ -93,6 +100,8 @@ const H = 1080
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2]
 const HIDE_MS = 2600
 const STEP_MS = 1000 / 30
+/** 播放中每隔多久存一次進度(暫停與離開頁面時另外存) */
+const PROGRESS_SAVE_MS = 10_000
 const clamp = (x: number, a: number, b: number): number => Math.min(b, Math.max(a, x))
 const fmt = (ms: number): string => {
   const s = Math.max(0, Math.floor(ms / 1000))
@@ -270,10 +279,8 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     const capEl = $('.vp-caption')
     if (capEl.textContent !== cap) capEl.textContent = cap
     capEl.hidden = !cap
-    if (o.resumeKey && Math.abs(t - state.lastSave) > 2000) {
-      state.lastSave = t
-      store.set(`vp:t:${o.resumeKey}`, String(Math.round(t)))
-    }
+    // 讀到上次的進度之前不存,否則會用開頭的 0 蓋掉它
+    if (progressReady && Math.abs(t - state.lastSave) > PROGRESS_SAVE_MS) saveProgress()
   }
 
   // ---------- 時鐘:有音訊時跟著音訊走,沒有時用 rAF 累加 ----------
@@ -340,6 +347,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   }
   function pause(): void {
     state.playing = false
+    saveProgress() // 暫停時補存一次,不必靠頻繁的定時存檔
     audio?.pause()
     narration.pause()
     onPauseSide()
@@ -687,11 +695,32 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   // ---------- 開始 ----------
   setRate(1)
   syncMuteUi()
-  const resume = (): void => {
-    const saved = o.resumeKey ? Number(store.get(`vp:t:${o.resumeKey}`)) : 0
-    if (o.duration && saved > 5000 && saved < dur() - 5000) state.t = saved
+  let savedPos: number | null = null
+  let progressReady = !o.progress
+  let destroyed = false
+  const saveProgress = (): void => {
+    if (!o.progress || !progressReady || !o.duration) return
+    // 還在開頭就不存:已看完的課重新打開時位置是 0(不會套用接近結尾的舊進度),此時存會把「看完」的紀錄洗掉
+    if (state.t < 1000) return
+    state.lastSave = state.t
+    o.progress.save(Math.round(state.t), Math.round(dur()))
   }
-  resume()
+  // 套用上次的進度:使用者還沒自己拖曳或播放才套用;內容(長度)晚到時,update 會再試一次
+  const resume = (): void => {
+    if (savedPos != null && o.duration && state.t < 1000 && savedPos > 5000 && savedPos < dur() - 5000) {
+      state.t = savedPos
+      state.lastSave = savedPos
+      savedPos = null
+    }
+  }
+  o.progress?.load().then((p) => {
+    if (destroyed) return
+    savedPos = p
+    progressReady = true
+    resume()
+    draw()
+  })
+  document.addEventListener('pagehide', saveProgress)
   fit()
   draw()
   state.raf = requestAnimationFrame(tick)
@@ -727,6 +756,9 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
       return state.playing
     },
     destroy() {
+      saveProgress()
+      destroyed = true
+      document.removeEventListener('pagehide', saveProgress)
       cancelAnimationFrame(state.raf)
       clearTimeout(state.hideTimer)
       ro.disconnect()

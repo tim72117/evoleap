@@ -14,8 +14,8 @@ const liveVideos = [...L0_LESSONS, ...L1_LESSONS].flatMap((l) =>
 )
 
 describe('即時教學畫面腳本', () => {
-  it('至少有一支即時影片(L0 第 0、1 課)', () => {
-    expect(liveVideos.length).toBeGreaterThanOrEqual(2)
+  it('至少有三支即時影片(L0 第 0、1、2 課)', () => {
+    expect(liveVideos.length).toBeGreaterThanOrEqual(3)
   })
 
   it.each(liveVideos)('%s:videos[].live 對得到 src/content/live/ 的檔案', (_, v) => {

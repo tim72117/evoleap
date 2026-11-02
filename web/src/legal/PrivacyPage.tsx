@@ -7,8 +7,8 @@ const PRIVACY_UPDATED = '2026-11-02'
 
 // 本政策描述的是網站「目前」的實際狀況:Email/密碼與 Google 登入(帳號存在 Cloud SQL)、
 // 登入 cookie shuttle_session、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
-// 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)。新增任何蒐集資料的功能(例如記錄學習進度、表單、付費)前,
-// 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/store/users.go、
+// 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)。新增任何蒐集資料的功能(例如練習完成狀態、表單、付費)前,
+// 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/api/progress.go、server/internal/store/users.go、server/internal/store/progress.go、
 // web/src/site/analytics.ts。
 
 const sections: LegalSection[] = [
@@ -35,6 +35,9 @@ const sections: LegalSection[] = [
         <ul>
           <li>
             <strong>帳號資料</strong>（只有註冊或登入時才有）：Email、名稱、密碼的雜湊值（不是密碼本身）或 Google 帳號 ID、建立與更新時間。
+          </li>
+          <li>
+            <strong>播放進度</strong>（只有登入後才有）：您看過哪幾課的教學畫面、停在第幾秒、該課全長與最後更新時間。
           </li>
           <li>
             <strong>登入狀態</strong>：登入後放在您瀏覽器裡的 <code>shuttle_session</code> cookie。
@@ -94,7 +97,7 @@ const sections: LegalSection[] = [
         </ul>
         <Note>
           <p>
-            目前帳號只保存上面列出的資料，<strong>沒有</strong>記錄您的學習進度或觀看紀錄，也不會把您的 Email 或帳號編號傳給 Google Analytics。我們規劃日後為需要登入的課程記錄學習進度；在那之前，會先更新本政策說明會記錄哪些資料。
+            帳號只保存上面列出的資料。<strong>登入後</strong>，我們會記錄您的播放進度，讓您下次從上次看到的地方接著看；<strong>未登入時不會儲存任何播放進度</strong>，先前留在瀏覽器裡的舊進度也會被清除。除此之外沒有記錄其他觀看紀錄，也不會把您的 Email 或帳號編號傳給 Google Analytics。日後若要記錄其他學習資料（例如練習完成狀態），會先更新本政策說明。
           </p>
         </Note>
         <h3>刪除帳號</h3>

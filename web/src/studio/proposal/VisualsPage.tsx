@@ -2,12 +2,13 @@ import { Link } from 'react-router-dom'
 import { useHashScroll } from '../../site/useHashScroll'
 import { List } from './BasicsOutline'
 import { ProposalLayout } from './ProposalLayout'
+import ui from './proposal.module.css'
 
 // 跨等級構想：不錄製影片，改用腳本即時產生教學畫面。
 // 技術規格在 web/src/live/README.md；此頁整理定位、研究依據與製作原則。
 
 const POSITIONING: [string, string][] = [
-  ['研發階段', '部分上線。L0 第 0、1 課已改用即時教學畫面，直接掛在課程頁上播放；舞台、播放器外殼與兩個演員（Claude 桌面版、Finder）已完成。'],
+  ['研發階段', '部分上線。L0 第 0、1、2 課已改用即時教學畫面，直接掛在課程頁上播放；舞台、播放器外殼、鏡頭規劃與三個演員（Claude 桌面版、Finder、瀏覽器）已完成；旁白語音已產生第 0、1 課，第 2 課待產生。'],
   ['一句話', '不錄製影片，改用腳本即時產生教學畫面，在課程網站上播放。學員可以暫停、拖曳時間軸、調整速度，暫停時能直接選取並複製畫面上的提示詞與程式碼。'],
   ['只在自己的網站播放', '畫面只在自己的課程網站播放，不需要輸出影片檔上傳平台；需要宣傳片段時再由同一份腳本錄成 mp4。'],
   ['好處', '改一行腳本就能更新畫面，不用重錄；腳本可以和講義、提示詞、MCP 練習範本共用同一份來源；AI 可以協助撰寫腳本。'],
@@ -16,7 +17,7 @@ const POSITIONING: [string, string][] = [
 const ARCH: { part: string; role: string; path: string }[] = [
   { part: '外殼', role: '時間軸、播放控制、全螢幕、手機橫放、章節、字幕、旁白音訊。不知道畫面長什麼樣。', path: 'web/src/live/shell.ts' },
   { part: '舞台', role: '怎麼演：時間表、旁白長度、字幕、章節、練習點、演員出場退場，以及章節卡、聚光燈、鏡頭推近、虛擬滑鼠等教學效果。', path: 'web/src/live/stage.ts' },
-  { part: '演員', role: '一個可重複使用的示範介面（目前有 Claude 桌面版、Finder），只負責「長什麼樣、每個動作畫成什麼樣子」。在 actors/index.ts 登記。', path: 'web/src/live/actors/' },
+  { part: '演員', role: '一個可重複使用的示範介面（目前有 Claude 桌面版、Finder、瀏覽器），只負責「長什麼樣、每個動作畫成什麼樣子」。在 actors/index.ts 登記。', path: 'web/src/live/actors/' },
   { part: '腳本', role: '演什麼：演員表、步驟、旁白、章節、練習點。JSON 格式，單課資料以 live 欄位指定。', path: 'web/src/content/live/' },
   { part: 'kit', role: '舞台與演員共用的動畫工具：緩動、打字、螢光筆、聚光燈、鏡頭推近、虛擬滑鼠等純函式。', path: 'web/src/live/kit.ts' },
   { part: '繪製層、素材包（規劃）', role: '把一種場景的畫法與外觀（配色、字型、介面文字）分開，換素材包就換外觀。尚未實作。', path: '—' },
@@ -98,11 +99,13 @@ const PROGRESS: [string, string, 'done' | 'todo'][] = [
   ['繪製工具 kit 與單元測試', '完成', 'done'],
   ['播放器外殼 shell.ts（全螢幕、手機橫放、章節、字幕、鍵盤、手勢）', '完成', 'done'],
   ['舞台 stage.ts（章節卡、聚光燈、鏡頭、虛擬滑鼠、練習點）', '完成', 'done'],
-  ['演員：Claude 桌面版、Finder', '完成', 'done'],
+  ['演員：Claude 桌面版、Finder、瀏覽器（顯示網頁、切換手機／平板／桌面寬度）', '完成', 'done'],
+  ['鏡頭規劃（camera.ts：連續過渡、不閃動、鏡頭到位後演員才開始演）', '完成', 'done'],
+  ['引擎改寫成 TypeScript，演員以 defineActor 宣告並受介面約束', '完成', 'done'],
   ['課程頁直接掛載播放器（LivePlayer，章節對應課程步驟）', '完成', 'done'],
-  ['L0 第 0、1 課改用即時教學畫面', '已上線', 'done'],
+  ['L0 第 0、1、2 課改用即時教學畫面', '已上線', 'done'],
   ['內部預覽頁 /proposal/visuals/preview（逐時間點截圖檢查）', '完成', 'done'],
-  ['旁白音訊', '待做', 'todo'],
+  ['旁白音訊（Gemini TTS，分段產生、放 GCS）', '第 0、1 課完成；第 2 課待產生', 'todo'],
   ['繪製層、素材包、驗證工具', '待做', 'todo'],
 ]
 
@@ -137,7 +140,7 @@ const SOURCES: { label: string; href: string }[] = [
 
 function KvTable({ rows, head }: { rows: Row[]; head?: [string, string] }) {
   return (
-    <section className="card">
+    <section className={ui.card}>
       <table>
         {head && (
           <thead>
@@ -150,7 +153,7 @@ function KvTable({ rows, head }: { rows: Row[]; head?: [string, string] }) {
         <tbody>
           {rows.map(([k, v]) => (
             <tr key={k}>
-              <td className="nowrap" style={{ width: '11em' }}>
+              <td className={ui.nowrap} style={{ width: '11em' }}>
                 <strong>{k}</strong>
               </td>
               <td>{v}</td>
@@ -164,7 +167,7 @@ function KvTable({ rows, head }: { rows: Row[]; head?: [string, string] }) {
 
 function Evidence({ items }: { items: string[] }) {
   return (
-    <div className="note">
+    <div className={ui.note}>
       <strong>研究依據</strong>
       <ul>
         {items.map((t) => (
@@ -180,9 +183,9 @@ export function VisualsPage() {
   return (
     <ProposalLayout title="即時教學影像" footer="跨等級構想 · 技術規格見 web/src/live/README.md">
       <h1>構想 · 即時教學影像</h1>
-      <span className="chip todo draft-banner">部分上線</span>
+      <span className={`${ui.chip} ${ui.todo} ${ui['draft-banner']}`}>部分上線</span>
       <p>
-        <Link className="btn" to="/proposal/visuals/preview">
+        <Link className={ui.btn} to="/proposal/visuals/preview">
           預覽即時教學畫面
         </Link>
       </p>
@@ -191,10 +194,10 @@ export function VisualsPage() {
       <KvTable rows={POSITIONING} />
 
       <h2>架構摘要</h2>
-      <p className="lead">
-        完整規格見<span className="repo-path">web/src/live/README.md</span>；各時間點的畫面可在<Link to="/proposal/visuals/preview">預覽頁</Link>檢查
+      <p className={ui.lead}>
+        完整規格見<span className={ui['repo-path']}>web/src/live/README.md</span>；各時間點的畫面可在<Link to="/proposal/visuals/preview">預覽頁</Link>檢查
       </p>
-      <section className="card">
+      <section className={ui.card}>
         <table>
           <thead>
             <tr>
@@ -206,12 +209,12 @@ export function VisualsPage() {
           <tbody>
             {ARCH.map((a) => (
               <tr key={a.part}>
-                <td className="nowrap">
+                <td className={ui.nowrap}>
                   <strong>{a.part}</strong>
                 </td>
                 <td>{a.role}</td>
-                <td className="nowrap">
-                  <span className="repo-path">{a.path}</span>
+                <td className={ui.nowrap}>
+                  <span className={ui['repo-path']}>{a.path}</span>
                 </td>
               </tr>
             ))}
@@ -220,7 +223,7 @@ export function VisualsPage() {
       </section>
 
       <h2>製作原則（研究整理）</h2>
-      <p className="lead">
+      <p className={ui.lead}>
         整體結論：轉場、素材、輕鬆橋段都要幫學員理解，只為了好看的部分在研究上大多扣分。下列效果量多取自摘要或二手整理，正式引用前需回原論文確認。
       </p>
 
@@ -230,23 +233,23 @@ export function VisualsPage() {
 
       <h3>背景與素材：相關的留下，無關的刪掉</h3>
       <Evidence items={MATERIAL_EVIDENCE} />
-      <section className="card">
-        <div className="card-body">
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
           <List items={MATERIAL_PRACTICE} />
         </div>
       </section>
 
       <h3>節奏：讓學員跟得上</h3>
       <Evidence items={PACING_EVIDENCE} />
-      <section className="card">
-        <div className="card-body">
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
           <List items={PACING_PRACTICE} />
         </div>
       </section>
 
       <h3>輕鬆橋段：好笑的要跟內容有關</h3>
       <Evidence items={HUMOR_EVIDENCE} />
-      <section className="card">
+      <section className={ui.card}>
         <table>
           <thead>
             <tr>
@@ -258,7 +261,7 @@ export function VisualsPage() {
           <tbody>
             {HUMOR_PRACTICE.map(([k, ex, learn]) => (
               <tr key={k}>
-                <td className="nowrap">
+                <td className={ui.nowrap}>
                   <strong>{k}</strong>
                 </td>
                 <td>{ex}</td>
@@ -268,14 +271,14 @@ export function VisualsPage() {
           </tbody>
         </table>
       </section>
-      <section className="card">
-        <div className="card-body">
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
           <List items={HUMOR_RULES} />
         </div>
       </section>
 
       <h2 id="shotcraft">參考案例</h2>
-      <p className="lead">
+      <p className={ui.lead}>
         宣傳片製作 skill video-shotcraft 的做法整理（借用哪些、不照搬哪些）放在研究文章：
         <Link to="/docs/research/video-shotcraft">參考案例：video-shotcraft</Link>。
       </p>
@@ -284,14 +287,14 @@ export function VisualsPage() {
       <KvTable rows={DESIGN_MAP} head={['研究結論', '腳本或播放器的做法']} />
 
       <h2>進度</h2>
-      <section className="card">
+      <section className={ui.card}>
         <table>
           <tbody>
             {PROGRESS.map(([item, chip, st]) => (
               <tr key={item}>
                 <td>{item}</td>
-                <td className="nowrap">
-                  <span className={`chip ${st}`}>{chip}</span>
+                <td className={ui.nowrap}>
+                  <span className={`${ui.chip} ${ui[st]}`}>{chip}</span>
                 </td>
               </tr>
             ))}
@@ -300,7 +303,7 @@ export function VisualsPage() {
       </section>
 
       <h2>待決定</h2>
-      <div className="note">
+      <div className={ui.note}>
         <ul style={{ margin: 0 }}>
           {OPEN_QUESTIONS.map((q) => (
             <li key={q.title}>
@@ -311,9 +314,9 @@ export function VisualsPage() {
       </div>
 
       <h2>參考來源</h2>
-      <section className="card">
-        <div className="card-body">
-          <ul className="plain-list">
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
+          <ul className={ui['plain-list']}>
             {SOURCES.map((s) => (
               <li key={s.href}>
                 <a href={s.href} target="_blank" rel="noopener">

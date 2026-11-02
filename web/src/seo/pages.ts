@@ -7,7 +7,6 @@
 import { articles } from '../studio/articles/registry'
 import { AI_AGENT_COURSE_PATH, COURSE } from '../content/aiAgent'
 import { COURSES, coursePath, lessonNumber, lessonPath, plannedChapterPath } from '../content/catalog'
-import { docs } from '../studio/docs/registry'
 import { MAP_INTRO } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
 
@@ -174,8 +173,8 @@ const internal = (path: string, title: string, description = '課程研發工作
 })
 
 const DOCS_PAGES: PageMeta[] = [
+  // Markdown 文件(live、recorder)的標題與摘要也登記在 articles,所以這裡一次涵蓋
   ...articles.map((a) => internal(`/docs/${a.slug}`, documentTitle(a.title), a.summary)),
-  ...docs.map((d) => internal(`/docs/${d.slug}`, documentTitle(d.title), `${d.title}（由錄影工具產生的 Markdown 文件）。`)),
 ]
 
 // 標題對應各頁 ProposalLayout 的 title(document.title = 「<title> · 課程提案」)。
@@ -190,6 +189,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/proposal/ai-agent/cover', 'L3 封面圖'],
     ['/proposal/advanced', 'L4 進階'],
     ['/proposal/mcp', '課程 MCP'],
+    ['/proposal/member', '會員空間'],
     ['/proposal/visuals', '即時教學影像'],
     ['/proposal/visuals/preview', '即時教學畫面預覽'],
     ['/materials', '工具'],

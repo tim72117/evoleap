@@ -1,11 +1,12 @@
-// 單課頁(/courses/tools/2 = L0 第 2 課,4 支影片、9 個步驟,影片未上架 → 預覽大綱播放器)的回歸測試:
-// (L0 第 0、1 課已改用即時教學畫面,一課一支影片;這裡測多支影片的預覽大綱播放器。)
+// 單課頁(/courses/ai-tools/3-3 = L1 第 3.3 課,2 支影片、5 個步驟,影片未上架 → 預覽大綱播放器)的回歸測試:
+// (L0 第 0、1、2 課已改用即時教學畫面,一課一支影片;這裡測多支影片的預覽大綱播放器,
+//  要找一門還沒有即時影片、且有多支影片的課:L0 全部上架後改用 L1。)
 // 第一屏同時看得到播放器、播放中的步驟提示詞與複製鈕;播放進度驅動「播放中」;
 // ▶ 跳轉、跨影片、←/→ 鍵、複製提示詞、影片分頁。
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { collectErrors } from './support'
 
-const LESSON = '/courses/tools/2'
+const LESSON = '/courses/ai-tools/3-3'
 
 const player = (page: Page) => page.getByRole('group', { name: /^預覽大綱：/ })
 const step = (page: Page, n: number) => page.locator(`#step-${n}`)
@@ -35,7 +36,7 @@ test.beforeEach(async ({ page }) => {
   errors = collectErrors(page)
   await page.goto(LESSON)
   await expect(player(page)).toBeVisible()
-  await expect(progress(page)).toContainText('共 9 步')
+  await expect(progress(page)).toContainText('共 5 步')
 })
 test.afterEach(() => {
   expect(errors).toEqual([])
@@ -68,8 +69,8 @@ test('預覽大綱 10×:播放進度推進「播放中」的步驟', async ({ pa
   await expect(playingSteps(page)).toHaveCount(1)
   await expect(step(page, 1).getByRole('button', { name: /播放中/ })).toHaveAttribute('aria-expanded', 'true')
 
-  // 拉進度條到第 2 步的 cue(292 秒)之前一點,繼續播放就進到第 2 步
-  await player(page).getByRole('slider', { name: '播放進度' }).fill('289')
+  // 拉進度條到第 2 步的 cue(209 秒)之前一點,繼續播放就進到第 2 步
+  await player(page).getByRole('slider', { name: '播放進度' }).fill('206')
   await expect(step(page, 2)).toContainText('播放中', { timeout: 10_000 })
   await expect(playingSteps(page)).toHaveCount(1)
   await expect(progress(page)).toContainText('第 2 步')
@@ -83,13 +84,13 @@ test('預覽大綱 10×:播放進度推進「播放中」的步驟', async ({ pa
 })
 
 test('▶ 跳轉按鈕:跳到該步並開始播放;其他影片的步驟切換影片', async ({ page }) => {
-  // 影片 1 示範第 1、2 步:有 ▶ mm:ss;第 3–9 步在影片 2–4
-  await expect(page.getByRole('button', { name: /^▶ \d\d:\d\d$/ })).toHaveCount(2)
-  await expect(step(page, 3).getByRole('button', { name: '影片 2' })).toBeVisible()
-  await expect(step(page, 5).getByRole('button', { name: '影片 3' })).toBeVisible()
+  // 影片 1 示範第 1–3 步:有 ▶ mm:ss;第 4、5 步在影片 2
+  await expect(page.getByRole('button', { name: /^▶ \d\d:\d\d$/ })).toHaveCount(3)
+  await expect(step(page, 4).getByRole('button', { name: '影片 2' })).toBeVisible()
+  await expect(step(page, 5).getByRole('button', { name: '影片 2' })).toBeVisible()
 
   const seek2 = step(page, 2).getByRole('button', { name: /^▶ / })
-  const label = (await seek2.textContent())!.replace('▶', '').trim() // 例如 03:47
+  const label = (await seek2.textContent())!.replace('▶', '').trim() // 例如 03:29
   await seek2.click()
   await expect(step(page, 2)).toContainText('播放中')
   await expect(step(page, 2).locator('pre')).toBeVisible()
@@ -106,13 +107,13 @@ test('▶ 跳轉按鈕:跳到該步並開始播放;其他影片的步驟切換�
   const m = (await player(page).textContent())!.match(/(\d+):(\d\d) \/ 9:00/)!
   expect(Number(m[1]) * 60 + Number(m[2]) - cue).toBeLessThan(10)
 
-  await step(page, 3).getByRole('button', { name: '影片 2' }).click()
+  await step(page, 4).getByRole('button', { name: '影片 2' }).click()
   await expect(tabs(page).nth(1)).toHaveAttribute('aria-selected', 'true')
-  await expect(step(page, 3)).toContainText('播放中')
-  await expect(step(page, 3).locator('pre')).toBeVisible()
-  // 影片 2 的 ▶ 換成第 3、4 步
-  await expect(step(page, 3).getByRole('button', { name: /^▶ / })).toBeVisible()
+  await expect(step(page, 4)).toContainText('播放中')
+  await expect(step(page, 4).locator('pre')).toBeVisible()
+  // 影片 2 的 ▶ 換成第 4、5 步
   await expect(step(page, 4).getByRole('button', { name: /^▶ / })).toBeVisible()
+  await expect(step(page, 5).getByRole('button', { name: /^▶ / })).toBeVisible()
   await expect(step(page, 1).getByRole('button', { name: '影片 1' })).toBeVisible()
 })
 
@@ -122,17 +123,22 @@ test('← / → 鍵切換上一步與下一步(跨影片)', async ({ page }) => 
   await expect(progress(page)).toContainText('第 1 步')
   await page.keyboard.press('ArrowRight')
   await expect(step(page, 2)).toContainText('播放中')
-  // 第 3 步在影片 2:自動切到影片 2
+  await page.keyboard.press('ArrowRight')
+  await expect(step(page, 3)).toContainText('播放中')
+  await expect(tabs(page).nth(0)).toHaveAttribute('aria-selected', 'true')
+  // 第 4 步在影片 2:自動切到影片 2
   await page.keyboard.press('ArrowRight')
   await expect(tabs(page).nth(1)).toHaveAttribute('aria-selected', 'true')
-  await expect(step(page, 3)).toContainText('播放中')
-  await expect(progress(page)).toContainText('第 3 步')
+  await expect(step(page, 4)).toContainText('播放中')
+  await expect(progress(page)).toContainText('第 4 步')
   await page.keyboard.press('ArrowLeft')
   await expect(tabs(page).nth(0)).toHaveAttribute('aria-selected', 'true')
-  await expect(step(page, 2)).toContainText('播放中')
+  await expect(step(page, 3)).toContainText('播放中')
   await expect(playingSteps(page)).toHaveCount(1)
 
   // ‹ › 按鈕與鍵盤同步;第 1 步時「上一步」停用
+  await page.getByRole('button', { name: '上一步' }).click()
+  await expect(step(page, 2)).toContainText('播放中')
   await page.getByRole('button', { name: '上一步' }).click()
   await expect(step(page, 1)).toContainText('播放中')
   await expect(page.getByRole('button', { name: '上一步' })).toBeDisabled()
@@ -163,30 +169,30 @@ test('複製鈕:把提示詞複製到剪貼簿', async ({ page, context }, testI
 })
 
 test('影片分頁:切換影片會換播放器、進度歸零、▶ 換成該影片的步驟', async ({ page }) => {
-  await expect(tabs(page)).toHaveCount(4)
+  await expect(tabs(page)).toHaveCount(2)
   await expect(tabs(page).nth(0)).toHaveAttribute('aria-selected', 'true')
   const firstName = await player(page).getAttribute('aria-label')
 
   await page.keyboard.press('ArrowRight')
   await expect(step(page, 1)).toContainText('播放中')
 
-  await tabs(page).nth(2).click()
-  await expect(tabs(page).nth(2)).toHaveAttribute('aria-selected', 'true')
+  await tabs(page).nth(1).click()
+  await expect(tabs(page).nth(1)).toHaveAttribute('aria-selected', 'true')
   await expect(tabs(page).nth(0)).toHaveAttribute('aria-selected', 'false')
   await expect(player(page)).not.toHaveAttribute('aria-label', firstName!)
   await expect(player(page)).toContainText('0:00 /')
   await expect(playingSteps(page)).toHaveCount(0)
-  await expect(progress(page)).toContainText('共 9 步')
-  // 影片 3 示範第 5、6 步
+  await expect(progress(page)).toContainText('共 5 步')
+  // 影片 2 示範第 4、5 步
+  await expect(step(page, 4).getByRole('button', { name: /^▶ / })).toBeVisible()
   await expect(step(page, 5).getByRole('button', { name: /^▶ / })).toBeVisible()
-  await expect(step(page, 6).getByRole('button', { name: /^▶ / })).toBeVisible()
   await expect(step(page, 1).getByRole('button', { name: '影片 1' })).toBeVisible()
 
   // 點步驟標題可以手動展開/收合
-  const toggle = step(page, 4).locator('[aria-expanded]')
+  const toggle = step(page, 2).locator('[aria-expanded]')
   await toggle.click()
   await expect(toggle).toHaveAttribute('aria-expanded', 'true')
-  await expect(step(page, 4).locator('pre')).toBeVisible()
+  await expect(step(page, 2).locator('pre')).toBeVisible()
   await toggle.click()
   await expect(toggle).toHaveAttribute('aria-expanded', 'false')
 })

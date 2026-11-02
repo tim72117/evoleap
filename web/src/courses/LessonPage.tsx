@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
+import { loginHref } from '../auth/paths'
 import { SiteLayout } from '../site/SiteLayout'
 import { useCopy } from '../site/useCopy'
 import type { CourseLesson, LessonStep } from '../content/lessonTypes'
@@ -99,6 +101,8 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
   const prev = course.lessons[index - 1]
   const next = course.lessons[index + 1]
   const num = lessonNumber(lesson)
+  const auth = useAuth()
+  const location = useLocation()
   const total = lesson.steps.length
 
   // ?video=2 直接打開第 2 支影片(分享連結、預覽用)
@@ -271,6 +275,11 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
                   />
                 ) : null}
               </div>
+              {video?.live && auth.status === 'guest' && (
+                <p className={styles.guestHint}>
+                  <Link to={loginHref(location.pathname)}>登入</Link>後會記住你看到哪裡，下次從這裡接著看；未登入不會儲存播放進度。
+                </p>
+              )}
               {hasTabs && (
                 <div className={styles.videoTabs} role="tablist" aria-label="本課影片">
                   {lesson.videos.map((v, i) => (

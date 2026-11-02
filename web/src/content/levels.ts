@@ -110,7 +110,7 @@ export const LEVELS: CourseLevel[] = [
       '設計讓 LLM 準確理解、正確呼叫的工具',
       '期末專案：打字就能用的資料分析介面',
     ],
-    status: 'available',
+    status: 'planned',
     access: 'tbd',
     art: 'agent',
     link: AI_AGENT_COURSE_PATH,

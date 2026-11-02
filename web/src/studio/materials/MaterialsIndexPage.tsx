@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ProposalLayout } from '../proposal/ProposalLayout'
+import ui from '../proposal/proposal.module.css'
 
 // 工具總覽:課程研發工作區裡所有工具的入口(網頁工具直接開啟;指令列工具連到使用說明)。
 // 新增工具時在這裡加一張卡片。
@@ -53,27 +54,27 @@ export function MaterialsIndexPage() {
   return (
     <ProposalLayout title="工具" footer="課程研發工作區 · 工具在 web/src/studio/ 與 web/src/live/">
       <h1>工具</h1>
-      <p className="lead">課程研發用的工具。網頁工具直接開啟；指令列工具連到使用說明。</p>
+      <p className={ui.lead}>課程研發用的工具。網頁工具直接開啟；指令列工具連到使用說明。</p>
       {TOOLS.map((t) => (
-        <section className="card" key={t.title}>
-          <div className="card-head">
-            <div className="head-left">
+        <section className={ui.card} key={t.title}>
+          <div className={ui['card-head']}>
+            <div className={ui['head-left']}>
               <div>
                 <h3>{t.title}</h3>
-                <div className="meta">{t.how}</div>
+                <div className={ui.meta}>{t.how}</div>
               </div>
             </div>
           </div>
-          <div className="card-body">
-            <p className="kv-lead">{t.body}</p>
-            <p className="kv-lead" style={{ marginTop: 6 }}>
-              <span className="repo-path">{t.path}</span>
+          <div className={ui['card-body']}>
+            <p className={ui['kv-lead']}>{t.body}</p>
+            <p className={ui['kv-lead']} style={{ marginTop: 6 }}>
+              <span className={ui['repo-path']}>{t.path}</span>
             </p>
           </div>
-          <div className="card-foot">
-            <div className="links">
+          <div className={ui['card-foot']}>
+            <div className={ui.links}>
               {t.links.map((l, i) => (
-                <Link key={l.to} className={i === 0 ? 'btn' : 'btn ghost'} to={l.to}>
+                <Link key={l.to} className={i === 0 ? ui.btn : `${ui.btn} ${ui.ghost}`} to={l.to}>
                   {l.label}
                 </Link>
               ))}

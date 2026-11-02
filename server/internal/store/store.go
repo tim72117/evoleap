@@ -32,7 +32,7 @@ func Open(dsn string) (*Store, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)
 	}
-	if err := db.AutoMigrate(&userRow{}); err != nil {
+	if err := db.AutoMigrate(&userRow{}, &progressRow{}); err != nil {
 		return nil, fmt.Errorf("migrate: %w", err)
 	}
 	return &Store{db: db}, nil

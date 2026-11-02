@@ -1,0 +1,631 @@
+{
+  "title": "提出需求：做出一頁式網站並精確調整",
+  "lesson": "L0 · 第 2 課",
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~/Documents/practice/bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "browser": {
+      "actor": "browser",
+      "props": {
+        "site": "v1",
+        "width": "desktop"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "提出需求：做出一頁式網站並精確調整",
+      "eyebrow": "L0 · 第 2 課",
+      "sub": "一次說清楚整頁，再一個區塊一個區塊精確調整",
+      "narration": "這一課，我們為小森烘焙做出一頁式網站。先一次說清楚整頁要什麼，再一個區塊一個區塊精確調整。"
+    },
+    {
+      "card": "指出位置、說要改成什麼、一次只改一個區塊",
+      "eyebrow": "先記住這個原則",
+      "sub": "這樣 AI 比較不會改壞其他地方",
+      "narration": "先記住調整的原則：指出位置，說清楚要改成什麼，而且一次只改一個區塊。這樣 AI 比較不會順手改壞其他地方。"
+    },
+    {
+      "show": "claude",
+      "chapter": "一次描述整頁，產生第一版",
+      "lessonStep": 1,
+      "narration": "從上一課的 bakery 專案開始，工具已經從這個資料夾開啟。"
+    },
+    {
+      "user": "為小森烘焙做一頁式網站，介紹商品、預約取貨流程、營業時間和常見問題，風格溫暖有手作感。",
+      "narration": "第一步，一次把整頁需求講完：做什麼、放哪些內容、什麼風格。"
+    },
+    {
+      "thinking": true,
+      "ms": 1800
+    },
+    {
+      "say": "好的，我會用 `index.html` 和 `styles.css` 做出一頁式網站，包含導覽、本週商品、預約流程、營業時間和常見問題，風格走溫暖的手作感。"
+    },
+    {
+      "ask": "index.html",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/bakery",
+      "preview": "<!DOCTYPE html>\n<html lang=\"zh-Hant\">\n<head>\n  <title>小森烘焙</title>\n  <link rel=\"stylesheet\" href=\"styles.css\">"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "只允許 index.html 和 styles.css",
+      "narration": "如果它想安裝套件、用外部圖片，或建立更多檔案，先拒絕，提醒它只用 index.html 和 styles.css。"
+    },
+    {
+      "choose": 1
+    },
+    {
+      "tool": "Write",
+      "arg": "index.html",
+      "result": "已建立"
+    },
+    {
+      "ask": "styles.css",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/bakery",
+      "preview": ":root {\n  --brown: #8a5a35;\n  --cream: #fdf6ec;\n}"
+    },
+    {
+      "choose": 1
+    },
+    {
+      "tool": "Write",
+      "arg": "styles.css",
+      "result": "已建立"
+    },
+    {
+      "say": "已建立 `index.html` 和 `styles.css`。網頁包含導覽、本週商品、預約流程、營業時間、常見問題和交通資訊。",
+      "narration": "第一版出來了。區塊安排、商品和價格，是 AI 決定的，每個人的版本都會不一樣。"
+    },
+    {
+      "user": "打開網頁",
+      "chapter": "在瀏覽器打開，對照需求檢查",
+      "lessonStep": 2,
+      "narration": "接著請它把網頁打開來看看。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "ask": "open index.html",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/Documents/practice/bakery",
+      "note": "用預設瀏覽器打開 index.html"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "只是打開檔案，沒有其他動作",
+      "narration": "執行指令前它會先詢問。看清楚只是打開 index.html，沒有其他動作，再允許。"
+    },
+    {
+      "choose": 1
+    },
+    {
+      "tool": "Bash",
+      "arg": "open index.html",
+      "result": "完成"
+    },
+    {
+      "show": "browser",
+      "narration": "瀏覽器打開了。對照剛才的需求：商品、預約流程、營業時間、常見問題，都在。"
+    },
+    {
+      "go": "faq",
+      "narration": "導覽連結點下去，會跳到對應的區塊。"
+    },
+    {
+      "scroll": "access"
+    },
+    {
+      "callout": "browser:section:access",
+      "text": "地址、電話都是 AI 暫填的",
+      "narration": "要注意，價格、營業時間、地址和電話，多半是 AI 暫填的，不能當真。正式上線前，要換成店家的真實資料。"
+    },
+    {
+      "scroll": "top"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "送出「為小森烘焙做一頁式網站，介紹商品、預約取貨流程、營業時間和常見問題，風格溫暖有手作感。」，再送出「打開網頁」。對照需求檢查每個區塊，並找出哪些資料是 AI 暫填的。做完按「完成了，繼續」。"
+    },
+    {
+      "user": "頁首固定在畫面最上方，點導覽連結時平滑捲動",
+      "chapter": "調整頁首與導覽",
+      "lessonStep": 3,
+      "narration": "開始精確調整。第一個，頁首和導覽。"
+    },
+    {
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "edit": "styles.css",
+      "lines": [
+        [
+          12,
+          " ",
+          "header {"
+        ],
+        [
+          13,
+          "+",
+          "  position: sticky;"
+        ],
+        [
+          14,
+          "+",
+          "  top: 0;"
+        ],
+        [
+          15,
+          " ",
+          "}"
+        ],
+        [
+          16,
+          "+",
+          "html { scroll-behavior: smooth; }"
+        ]
+      ]
+    },
+    {
+      "say": "已修改 `styles.css`：頁首固定在最上方，點導覽連結時平滑捲動，並避免標題被頁首擋住。"
+    },
+    {
+      "show": "browser",
+      "site": "v2",
+      "narration": "捲動時頁首固定在上方。"
+    },
+    {
+      "go": "faq",
+      "narration": "點導覽連結，會平滑捲過去，區塊標題也沒有被頁首擋住。"
+    },
+    {
+      "scroll": "top"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "user": "商品卡片在手機上改成一欄",
+      "chapter": "商品卡片的排列",
+      "lessonStep": 4,
+      "narration": "第二個，商品卡片。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "edit": "styles.css",
+      "lines": [
+        [
+          40,
+          " ",
+          ".cards {"
+        ],
+        [
+          41,
+          " ",
+          "  display: grid;"
+        ],
+        [
+          42,
+          " ",
+          "}"
+        ],
+        [
+          43,
+          "+",
+          "@media (max-width: 600px) {"
+        ],
+        [
+          44,
+          "+",
+          "  .cards { grid-template-columns: 1fr; }"
+        ],
+        [
+          45,
+          "+",
+          "}"
+        ]
+      ]
+    },
+    {
+      "say": "已修改 `styles.css`：手機寬度時，商品卡片改成一欄。"
+    },
+    {
+      "show": "browser",
+      "site": "v3",
+      "narration": "先看桌面寬度，商品卡片還是多欄。"
+    },
+    {
+      "scroll": "products"
+    },
+    {
+      "width": "phone",
+      "narration": "把視窗縮窄成手機寬度，商品卡片變成一欄。"
+    },
+    {
+      "scroll": "products",
+      "pause": 600
+    },
+    {
+      "width": "desktop",
+      "narration": "再放寬回桌面寬度，卡片又是多欄。改完要在瀏覽器確認其他區塊沒有跟著變。"
+    },
+    {
+      "scroll": "top"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "依序送出「頁首固定在畫面最上方，點導覽連結時平滑捲動」和「商品卡片在手機上改成一欄」。每次都在瀏覽器確認，並把視窗縮窄到手機寬度檢查。做完按「完成了，繼續」。"
+    },
+    {
+      "user": "區塊標題統一改成 28px",
+      "chapter": "統一標題字級",
+      "lessonStep": 5,
+      "narration": "第三個，統一標題。具體的數值，比「大一點」好用得多。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "edit": "styles.css",
+      "lines": [
+        [
+          22,
+          "-",
+          "#products h2 { font-size: 26px; }"
+        ],
+        [
+          23,
+          "-",
+          "#flow h2 { font-size: 24px; }"
+        ],
+        [
+          24,
+          "-",
+          "#hours h2 { font-size: 30px; }"
+        ],
+        [
+          25,
+          "+",
+          "section h2 { font-size: 28px; }"
+        ]
+      ]
+    },
+    {
+      "say": "已修改 `styles.css`：所有區塊標題統一為 28px。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "只保留標題字級的修改",
+      "narration": "如果 AI 順手改了版面或區塊順序，請它只保留標題字級的修改。"
+    },
+    {
+      "show": "browser",
+      "site": "v4",
+      "narration": "各區塊的標題大小一致了，版面沒有其他變化。"
+    },
+    {
+      "scroll": "flow"
+    },
+    {
+      "scroll": "faq"
+    },
+    {
+      "scroll": "top"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "user": "營業時間表每一列加分隔線；常見問題改成點開才顯示答案",
+      "chapter": "營業時間表與常見問題",
+      "lessonStep": 6,
+      "narration": "第四個，營業時間表和常見問題，一次說兩件事也可以，但每件事要說清楚。"
+    },
+    {
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "edit": "styles.css",
+      "lines": [
+        [
+          60,
+          " ",
+          "td, th {"
+        ],
+        [
+          61,
+          "+",
+          "  border-bottom: 1px solid #e4d6c3;"
+        ],
+        [
+          62,
+          " ",
+          "}"
+        ]
+      ]
+    },
+    {
+      "edit": "index.html",
+      "lines": [
+        [
+          88,
+          "-",
+          "<div class=\"qa\"><strong>可以現場購買嗎？</strong>"
+        ],
+        [
+          89,
+          "+",
+          "<details><summary>可以現場購買嗎？</summary>"
+        ],
+        [
+          90,
+          " ",
+          "  <p>可以，但熱門商品常在中午前售完。</p>"
+        ]
+      ]
+    },
+    {
+      "say": "已修改：營業時間表每一列加上分隔線，常見問題改成點開才顯示答案。"
+    },
+    {
+      "show": "browser",
+      "site": "v5",
+      "narration": "營業時間表每一列有分隔線，更好讀。"
+    },
+    {
+      "scroll": "hours"
+    },
+    {
+      "scroll": "faq",
+      "narration": "常見問題預設只顯示題目。"
+    },
+    {
+      "click": "summary",
+      "narration": "點一下，答案才展開。"
+    },
+    {
+      "scroll": "top"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "送出「區塊標題統一改成 28px」，再送出「營業時間表每一列加分隔線；常見問題改成點開才顯示答案」。每次都到瀏覽器確認。做完按「完成了，繼續」。"
+    },
+    {
+      "user": "手機版把導覽收進選單按鈕，用原生 JavaScript 寫在 script.js",
+      "chapter": "小互動：手機版選單",
+      "lessonStep": 7,
+      "narration": "再加一個小互動：手機版的選單按鈕。"
+    },
+    {
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "say": "好的，我會在 `index.html` 加選單按鈕，在 `styles.css` 加手機版樣式，並新增 `script.js` 控制展開和收起。"
+    },
+    {
+      "ask": "script.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/bakery",
+      "preview": "const btn = document.getElementById('menuBtn');\nconst nav = document.getElementById('nav');\n\nbtn.addEventListener('click', () => {"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "本課唯一允許新增的檔案",
+      "narration": "script.js 是這一課唯一允許新增的檔案。AI 如果還想加別的檔案或套件，先拒絕。"
+    },
+    {
+      "choose": 1
+    },
+    {
+      "tool": "Write",
+      "arg": "script.js",
+      "result": "已建立"
+    },
+    {
+      "say": "已新增 `script.js`，手機寬度時導覽收進選單按鈕。"
+    },
+    {
+      "show": "browser",
+      "site": "v6",
+      "narration": "先看桌面寬度，導覽照常顯示。"
+    },
+    {
+      "width": "phone",
+      "narration": "縮窄到手機寬度，導覽收進了選單按鈕。"
+    },
+    {
+      "click": "#menuBtn",
+      "narration": "點一下，選單展開。"
+    },
+    {
+      "click": "#menuBtn",
+      "narration": "再點一下，收起來。"
+    },
+    {
+      "width": "desktop",
+      "narration": "放寬回桌面寬度，導覽照常顯示。"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "show": "browser",
+      "site": "over",
+      "chapter": "改太多時，比對並還原",
+      "lessonStep": 8,
+      "narration": "調整久了，AI 有時會順手改太多。看這個版本：主色變成綠色，頁首下面多了一條優惠橫幅。"
+    },
+    {
+      "scroll": "hours",
+      "narration": "營業時間的區塊，被搬到商品前面。這些，都是我們沒要求的修改。"
+    },
+    {
+      "scroll": "top"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "user": "把我沒要求的修改還原",
+      "narration": "這時候，請它把沒要求的修改還原。"
+    },
+    {
+      "thinking": true,
+      "ms": 1300
+    },
+    {
+      "say": "已還原：主色改回棕色、按鈕恢復原本的形狀、移除優惠橫幅、區塊順序改回原本的。頁首、商品卡片、標題、營業時間、常見問題和手機選單都保留。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "它說明還原了哪些地方",
+      "narration": "它說明了還原哪些地方，還有哪些保留。部分工具有內建的還原或檢查點功能，可以回到某次修改之前。"
+    },
+    {
+      "show": "browser",
+      "site": "v6",
+      "narration": "到瀏覽器確認：要求過的修改都還在，沒要求的修改不見了。"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "user": "檢查網站在手機、平板、桌面寬度有沒有跑版，先列問題，不要修改",
+      "chapter": "最後檢查：三種寬度",
+      "lessonStep": 9,
+      "narration": "最後，請它檢查三種寬度，而且先列問題，不要修改。"
+    },
+    {
+      "thinking": true,
+      "ms": 1300
+    },
+    {
+      "say": "我檢查了手機、平板、桌面三種寬度。手機和桌面沒有問題。平板寬度的商品卡片還是四欄，每張卡片太窄，價格會被擠到換行。"
+    },
+    {
+      "show": "browser",
+      "site": "v6",
+      "narration": "AI 說的，還是要自己看一次。先看桌面寬度，沒有問題。"
+    },
+    {
+      "width": "phone",
+      "narration": "手機寬度，也沒有問題。"
+    },
+    {
+      "width": "tablet",
+      "narration": "平板寬度，卡片擠在一起，價格真的被擠到換行。"
+    },
+    {
+      "scroll": "products",
+      "pause": 600
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "user": "平板寬度的商品卡片改成兩欄",
+      "narration": "挑出這一項，用精確調整的方式修好。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "edit": "styles.css",
+      "lines": [
+        [
+          46,
+          " ",
+          "}"
+        ],
+        [
+          47,
+          "+",
+          "@media (min-width: 601px) and (max-width: 900px) {"
+        ],
+        [
+          48,
+          "+",
+          "  .cards { grid-template-columns: repeat(2, 1fr); }"
+        ],
+        [
+          49,
+          "+",
+          "}"
+        ]
+      ]
+    },
+    {
+      "say": "已修改 `styles.css`：平板寬度的商品卡片改成兩欄。"
+    },
+    {
+      "show": "browser",
+      "site": "v7",
+      "narration": "平板寬度，卡片變成兩欄，價格不再換行。"
+    },
+    {
+      "scroll": "products"
+    },
+    {
+      "width": "phone",
+      "narration": "手機一欄，"
+    },
+    {
+      "width": "desktop",
+      "narration": "桌面多欄，三種寬度都正常。"
+    },
+    {
+      "scroll": "top"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "送出「手機版把導覽收進選單按鈕，用原生 JavaScript 寫在 script.js」，再送出「把我沒要求的修改還原」和「檢查網站在手機、平板、桌面寬度有沒有跑版，先列問題，不要修改」。挑一項修好，最後把瀏覽器視窗縮窄、放寬看一次。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "L0 完成了：下一級整理預約系統的需求",
+      "eyebrow": "這一課完成了",
+      "sub": "✓ 一次說清楚整頁　✓ 一區一區精確調整　✓ 改太多時會還原　✓ 縮放視窗親眼檢查",
+      "chapter": "回顧",
+      "narration": "你的 bakery 專案，現在有一頁式網站：index.html、styles.css 和 script.js。L0 到這裡結束，你認識了工具、專案，也學會一次說清楚需求，再精確調整。下一級，我們整理小森烘焙預約系統的完整需求。"
+    }
+  ]
+}

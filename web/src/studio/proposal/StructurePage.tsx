@@ -1,4 +1,5 @@
 import { ProposalLayout } from './ProposalLayout'
+import ui from './proposal.module.css'
 
 type Unit = {
   num: string
@@ -101,13 +102,13 @@ const FLOW: { cls: 'keep' | 'out' | 'redo'; text: string }[] = [
 
 function UnitCard({ unit }: { unit: Unit }) {
   return (
-    <section className="card">
-      <div className={unit.chip.cls === 'out' ? 'card-body unit out' : 'card-body unit'}>
-        <div className="num">{unit.num}</div>
+    <section className={ui.card}>
+      <div className={unit.chip.cls === 'out' ? `${ui['card-body']} ${ui.unit} ${ui.out}` : `${ui['card-body']} ${ui.unit}`}>
+        <div className={ui.num}>{unit.num}</div>
         <div>
-          <div className="row">
+          <div className={ui.row}>
             <h3>{unit.title}</h3>
-            <span className={`chip ${unit.chip.cls}`}>{unit.chip.text}</span>
+            <span className={`${ui.chip} ${ui[unit.chip.cls]}`}>{unit.chip.text}</span>
           </div>
           <dl>
             {unit.rows.map(([dt, dd]) => (
@@ -127,21 +128,21 @@ export function StructurePage() {
   return (
     <ProposalLayout title="L3 課程架構" footer="web/src/studio/proposal/StructurePage.tsx">
       <h1>課程架構</h1>
-      <p className="lead">最初規劃的七個單元加期末專案。你之後陸續拿掉的主題，在這裡標成「已移出」，保留原本內容方便對照。</p>
+      <p className={ui.lead}>最初規劃的七個單元加期末專案。你之後陸續拿掉的主題，在這裡標成「已移出」，保留原本內容方便對照。</p>
 
-      <div className="flow" aria-label="單元進程">
+      <div className={ui.flow} aria-label="單元進程">
         {FLOW.map((step, i) => (
           <span key={step.text} style={{ display: 'contents' }}>
-            <span className={`step ${step.cls}`}>{step.text}</span>
+            <span className={`${ui.step} ${ui[step.cls]}`}>{step.text}</span>
             {i < FLOW.length - 1 && <i>→</i>}
           </span>
         ))}
       </div>
-      <p className="lead" style={{ fontSize: 13 }}>
+      <p className={ui.lead} style={{ fontSize: 13 }}>
         綠色＝保留　紅色刪除線＝已移出提案範圍　橘色＝需重新定義
       </p>
 
-      <div className="note">
+      <div className={ui.note}>
         <strong>目前只剩 2 個單元加期末專案</strong>
         內容偏少，不足以撐起一門課。建議補上與「自然語言分析介面」直接相關的單元，例如：
         <ul>

@@ -28,7 +28,7 @@ body { --code-bg: #1e1c18; --code-bar: #2a2721; --code-ink: #f3ead9; --grad: lin
 }
 #scene {
   position: absolute; inset: 0; box-sizing: border-box;
-  padding: 9.5rem 8rem 11.5rem; /* top-right: Hahow logo, bottom: CC subtitles */
+  padding: 9.5rem 8rem 11.5rem; /* top-right: platform logo, bottom: CC subtitles */
   display: flex; flex-direction: column; justify-content: center;
 }
 #caption {
@@ -110,7 +110,7 @@ em { font-style: normal; color: transparent; background: var(--grad); -webkit-ba
 .line-svg { width: 100%; flex: 1; min-height: 26rem; }
 .chart-note { font-size: 1.9rem; color: var(--soft); margin-top: 1.4rem; }
 
-/* --guides: shows the areas Hahow covers with its logo and the CC subtitles */
+/* --guides: shows the areas a platform covers with its logo and the CC subtitles */
 #guides { position: absolute; inset: 0; pointer-events: none; }
 #guides div { position: absolute; background: rgba(220, 40, 40, 0.16); border: 0.12rem dashed rgba(220, 40, 40, 0.8); box-sizing: border-box; color: rgba(180, 20, 20, 0.95); font: 1.6rem var(--mono); padding: 0.5rem 0.9rem; }
 #guides .logo { top: 0; right: 0; width: 24rem; height: 9.5rem; }

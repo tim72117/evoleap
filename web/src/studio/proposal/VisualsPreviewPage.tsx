@@ -6,6 +6,7 @@ import { loadScript, scriptPaths } from '../../live/scripts'
 import '../../live/shell.css'
 import { ProposalLayout } from './ProposalLayout'
 import styles from './VisualsPreviewPage.module.css'
+import ui from './proposal.module.css'
 
 // 即時教學畫面的內部預覽頁:/proposal/visuals/preview?script=l0/0.0-tools.json&t=12000
 // - 沒有 script:列出 src/content/live/ 底下的腳本。
@@ -55,21 +56,21 @@ export function VisualsPreviewPage() {
         <ScriptList />
       ) : (
         <>
-          <p className="lead">
-            <span className="repo-path" style={{ marginLeft: 0 }}>
+          <p className={ui.lead}>
+            <span className={ui['repo-path']} style={{ marginLeft: 0 }}>
               src/content/live/{script}
             </span>
           </p>
           <div className={styles.toolbar}>
-            <Link className="btn ghost" to="/proposal/visuals/preview">
+            <Link className={`${ui.btn} ${ui.ghost}`} to="/proposal/visuals/preview">
               ← 所有腳本
             </Link>
             {t == null ? (
-              <button type="button" className="btn ghost" onClick={() => go({ t: 0 })}>
+              <button type="button" className={`${ui.btn} ${ui.ghost}`} onClick={() => go({ t: 0 })}>
                 改看靜態畫面
               </button>
             ) : (
-              <button type="button" className="btn ghost" onClick={() => go({ t: null })}>
+              <button type="button" className={`${ui.btn} ${ui.ghost}`} onClick={() => go({ t: null })}>
                 改用播放器
               </button>
             )}
@@ -88,8 +89,8 @@ export function VisualsPreviewPage() {
 function ScriptList() {
   return (
     <>
-      <p className="lead">選一份腳本。「靜態畫面」只畫出某個時間點（給截圖與檢查用），「播放器」可以播放與拖曳。</p>
-      <section className="card">
+      <p className={ui.lead}>選一份腳本。「靜態畫面」只畫出某個時間點（給截圖與檢查用），「播放器」可以播放與拖曳。</p>
+      <section className={ui.card}>
         <table>
           <thead>
             <tr>
@@ -101,11 +102,11 @@ function ScriptList() {
             {scriptPaths.map((p) => (
               <tr key={p}>
                 <td>
-                  <span className="repo-path" style={{ marginLeft: 0 }}>
+                  <span className={ui['repo-path']} style={{ marginLeft: 0 }}>
                     {p}
                   </span>
                 </td>
-                <td className="nowrap">
+                <td className={ui.nowrap}>
                   <Link to={`/proposal/visuals/preview?script=${encodeURI(p)}&t=0`}>靜態畫面</Link>
                   {' · '}
                   <Link to={`/proposal/visuals/preview?script=${encodeURI(p)}`}>播放器</Link>
@@ -229,7 +230,7 @@ function StillPreview({ script, t, onSeek }: { script: string; t: number; onSeek
       {info && (
         <>
           <h2>{info.title}</h2>
-          <section className="card">
+          <section className={ui.card}>
             <table>
               <thead>
                 <tr>
@@ -241,22 +242,22 @@ function StillPreview({ script, t, onSeek }: { script: string; t: number; onSeek
               <tbody>
                 {chapters.map((c, i) => (
                   <tr key={`${c.at}-${c.label}`} className={i === currentIdx ? styles.current : undefined}>
-                    <td className="nowrap">
+                    <td className={ui.nowrap}>
                       {fmt(c.at)}
-                      <span className="repo-path">{Math.round(c.at)}</span>
+                      <span className={ui['repo-path']}>{Math.round(c.at)}</span>
                     </td>
                     <td>
                       <button type="button" className={styles.chapterBtn} onClick={() => onSeek(c.at)}>
                         {c.label}
                       </button>
                     </td>
-                    <td className="nowrap">{c.step ?? ''}</td>
+                    <td className={ui.nowrap}>{c.step ?? ''}</td>
                   </tr>
                 ))}
                 <tr>
-                  <td className="nowrap">
+                  <td className={ui.nowrap}>
                     {fmt(info.duration)}
-                    <span className="repo-path">{Math.round(info.duration)}</span>
+                    <span className={ui['repo-path']}>{Math.round(info.duration)}</span>
                   </td>
                   <td>總長度</td>
                   <td />

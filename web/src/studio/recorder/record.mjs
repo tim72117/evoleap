@@ -22,10 +22,10 @@ const USAGE = `用法(在 web/ 執行):npm run record -- <腳本.json> [選項]
   --stills          只輸出每個場景的一張靜態圖到 recordings/<名稱>-stills/(最快,用來檢查畫面)
   --doc             只輸出分鏡腳本文件(畫面 / 旁白 / 時間對照表)到腳本旁邊的 .storyboard.md
   --audio-dir=資料夾  老師本人的旁白錄音:資料夾內放 01.wav、02.wav…(對應第 N 個場景,
-                    格式不限,ffmpeg 讀得到即可),場景會撐到錄音長度。Hahow 要求口白是老師本人
-  --tts             用 macOS 語音念旁白,只供試聽(不能當最終版,Hahow 不接受機器人聲)
-  --captions        把字幕燒進畫面(預設不燒,Hahow 要另外上傳 .srt)
-  --guides          疊出 Hahow logo 與 CC 字幕預留區,檢查重要資訊有沒有被擋住
+                    格式不限,ffmpeg 讀得到即可),場景會撐到錄音長度
+  --tts             用 macOS 語音念旁白,只供試聽(不當最終版)
+  --captions        把字幕燒進畫面(預設不燒)
+  --guides          疊出平台 logo 與 CC 字幕預留區,檢查重要資訊有沒有被擋住
   --voice=Flo       旁白聲音(預設 Flo,可用 say -v '?' 查看)
   --rate=170        旁白語速(每分鐘字數,預設用系統值)
   --scene=N         只處理第 N 個場景(從 0 開始),方便單獨調整
@@ -158,7 +158,7 @@ function writeStoryboard(finalScenes) {
   let md = `# ${script.title || name} — 分鏡腳本\n\n`;
   if (script.goal) md += `${script.goal}\n\n`;
   md += `預估總長 ${mmss(total)}(${Math.round(total)} 秒),${finalScenes.length} 個場景。旁白長度以每秒約 4.2 字估算,實際長度以老師錄音為準。\n\n`;
-  if (script.limitsSec) md += `Hahow 規定長度 ${script.limitsSec[0] / 60}–${script.limitsSec[1] / 60} 分鐘:${total >= script.limitsSec[0] && total <= script.limitsSec[1] ? "符合" : "**不符合**"}。\n\n`;
+  if (script.limitsSec) md += `規定長度 ${script.limitsSec[0] / 60}–${script.limitsSec[1] / 60} 分鐘:${total >= script.limitsSec[0] && total <= script.limitsSec[1] ? "符合" : "**不符合**"}。\n\n`;
   md += "| # | 時間 | 畫面 | 旁白 |\n| --- | --- | --- | --- |\n";
   finalScenes.forEach((sc, i) => {
     md += `| ${i + 1} | ${mmss(sc.startMs / 1000)}–${mmss((sc.startMs + sc.duration * 1000) / 1000)} | ${describeScene(sc)} | ${sc.narration ? sc.narration.replace(/\|/g, "\\|") : "(無旁白)"} |\n`;
@@ -225,7 +225,7 @@ try {
   if (script.limitsSec && flags.scene === undefined && (totalSec < script.limitsSec[0] || totalSec > script.limitsSec[1])) {
     console.warn(`\n⚠ 影片長度 ${totalSec.toFixed(0)} 秒,不在規定的 ${script.limitsSec[0]}–${script.limitsSec[1]} 秒內`);
   }
-  if (flags.tts && !flags["audio-dir"]) console.warn("\n⚠ 目前使用系統語音,僅供試聽。Hahow 要求口白為老師本人,最終版請用 --audio-dir 混入你自己的錄音。");
+  if (flags.tts && !flags["audio-dir"]) console.warn("\n⚠ 目前使用系統語音,僅供試聽,最終版請用 --audio-dir 混入你自己的錄音。");
 
   if (flags.doc) {
     const docPath = writeStoryboard(scenes);

@@ -2,8 +2,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ProposalLayout } from './ProposalLayout'
 import { charCount, useCopy } from '../../site/useCopy'
-
-const COURSE_OBJECTIVE_URL = 'https://hahow.in/creator/courses/6ae33627be4f46980c395cdc/objective'
+import ui from './proposal.module.css'
 
 const TITLE = 'Vibe Coding 實戰：打造你的第一個 AI Agent 整合應用'
 
@@ -42,7 +41,7 @@ function CopyButton({ text, label = '複製' }: { text: string; label?: string }
   const { state, copy } = useCopy()
   const shown = state === 'copied' ? '已複製 ✓' : state === 'failed' ? '複製失敗，請手動選取' : label
   return (
-    <button type="button" className={state === 'copied' ? 'copy copied' : 'copy'} onClick={() => copy(text)}>
+    <button type="button" className={state === 'copied' ? `${ui.copy} ${ui.copied}` : ui.copy} onClick={() => copy(text)}>
       {shown}
     </button>
   )
@@ -50,7 +49,7 @@ function CopyButton({ text, label = '複製' }: { text: string; label?: string }
 
 function Count({ text, max }: { text: string; max?: number }) {
   const n = charCount(text)
-  return <span className="count">{max ? `${n} 字 / ${max}` : `${n} 字`}</span>
+  return <span className={ui.count}>{max ? `${n} 字 / ${max}` : `${n} 字`}</span>
 }
 
 function FieldCard({
@@ -69,16 +68,16 @@ function FieldCard({
   foot?: ReactNode
 }) {
   return (
-    <section className="card">
-      <div className="card-head">
+    <section className={ui.card}>
+      <div className={ui['card-head']}>
         <div>
           <h3>{title}</h3>
-          {meta && <div className="meta">{meta}</div>}
+          {meta && <div className={ui.meta}>{meta}</div>}
         </div>
-        <span className={`chip ${chipClass}`}>{chip}</span>
+        <span className={`${ui.chip} ${ui[chipClass]}`}>{chip}</span>
       </div>
-      <div className="card-body">{children}</div>
-      {foot && <div className="card-foot">{foot}</div>}
+      <div className={ui['card-body']}>{children}</div>
+      {foot && <div className={ui['card-foot']}>{foot}</div>}
     </section>
   )
 }
@@ -87,12 +86,8 @@ export function FieldsPage() {
   return (
     <ProposalLayout title="L3 提案內容" footer="web/src/studio/proposal/FieldsPage.tsx">
       <h1>提案內容</h1>
-      <p className="lead">
-        對照課程後台「標題與封面」「課程目標」兩頁的欄位。每欄右下角按「複製」貼進{' '}
-        <a href={COURSE_OBJECTIVE_URL} target="_blank" rel="noopener">
-          後台表單
-        </a>
-        。
+      <p className={ui.lead}>
+        整理課程平台「標題與封面」「課程目標」兩頁需要的欄位。每欄右下角按「複製」就能貼進平台的表單。
       </p>
 
       <h2>標題與封面頁</h2>
@@ -100,7 +95,7 @@ export function FieldsPage() {
       <FieldCard
         title="課程標題"
         meta="上限 40 字"
-        chip="已填入後台"
+        chip="已定稿"
         chipClass="done"
         foot={
           <>
@@ -109,7 +104,7 @@ export function FieldsPage() {
           </>
         }
       >
-        <div className="text">{TITLE}</div>
+        <div className={ui.text}>{TITLE}</div>
       </FieldCard>
 
       <FieldCard title="封面圖" meta="長形 1000×620、方形 800×800" chip="待上傳" chipClass="todo">
@@ -125,7 +120,7 @@ export function FieldsPage() {
       <FieldCard
         title="課程描述"
         meta="建議約 64 字"
-        chip="已填入後台"
+        chip="已定稿"
         chipClass="done"
         foot={
           <>
@@ -134,21 +129,21 @@ export function FieldsPage() {
           </>
         }
       >
-        <div className="text">{DESC}</div>
+        <div className={ui.text}>{DESC}</div>
       </FieldCard>
 
-      <FieldCard title="哪些人適合這堂課？" chip="已填入後台" chipClass="done" foot={<CopyButton text={AUDIENCE} />}>
-        <div className="text">{AUDIENCE}</div>
+      <FieldCard title="哪些人適合這堂課？" chip="已定稿" chipClass="done" foot={<CopyButton text={AUDIENCE} />}>
+        <div className={ui.text}>{AUDIENCE}</div>
       </FieldCard>
 
-      <FieldCard title="你可以學到" chip="已填入後台" chipClass="done" foot={<CopyButton text={OUTCOMES} />}>
-        <div className="text">{OUTCOMES}</div>
+      <FieldCard title="你可以學到" chip="已定稿" chipClass="done" foot={<CopyButton text={OUTCOMES} />}>
+        <div className={ui.text}>{OUTCOMES}</div>
       </FieldCard>
 
       <FieldCard
         title="上課前的準備"
         meta="工具／軟體與背景知識分兩欄填入"
-        chip="待填入後台"
+        chip="待定稿"
         chipClass="todo"
         foot={
           <>
@@ -157,13 +152,13 @@ export function FieldsPage() {
           </>
         }
       >
-        <div className="sub-label">(1) 需要準備的工具 / 軟體</div>
-        <div className="text">{TOOLS}</div>
-        <div className="sub-label">(2) 需要具備的背景知識</div>
-        <div className="text">{PREREQ}</div>
+        <div className={ui['sub-label']}>(1) 需要準備的工具 / 軟體</div>
+        <div className={ui.text}>{TOOLS}</div>
+        <div className={ui['sub-label']}>(2) 需要具備的背景知識</div>
+        <div className={ui.text}>{PREREQ}</div>
       </FieldCard>
 
-      <div className="note">
+      <div className={ui.note}>
         <strong>待確認</strong>
         工具清單裡的「Docker（用於部署單元的實作練習）」與「onagent 帳號與 API key」，是依較早的課程架構寫的。部署單元已不在目前範圍內，這兩項是否保留，請決定後我再改。
       </div>

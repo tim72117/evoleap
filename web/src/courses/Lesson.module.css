@@ -773,3 +773,15 @@
     padding: 0 10px 10px;
   }
 }
+
+.guestHint {
+  margin: 8px 2px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--site-muted);
+}
+
+.guestHint a {
+  color: inherit;
+  text-decoration: underline;
+}

@@ -40,6 +40,8 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /api/auth/google", s.requireAuth(s.handleGoogle))
 	mux.HandleFunc("POST /api/auth/logout", s.handleLogout)
 	mux.HandleFunc("GET /api/me", s.handleMe)
+	mux.HandleFunc("GET /api/progress", s.requireUser(s.handleProgressGet))
+	mux.HandleFunc("PUT /api/progress", s.requireUser(s.handleProgressPut))
 	return mux
 }
 

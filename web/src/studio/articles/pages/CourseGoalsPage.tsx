@@ -108,7 +108,7 @@ export function CourseGoalsPage() {
 
       <Section id="chapters" title="章節列表（待規劃）">
         <p>
-          章節將對應六單元＋Capstone 架構。目前課程後台章節列表只有一個空的「第 1 章」，尚未依課程架構重新規劃章節與小節。
+          章節將對應六單元＋Capstone 架構，尚未依課程架構重新規劃章節與小節。
         </p>
         <Callout title="規劃方向" tone="key">
           <ul>

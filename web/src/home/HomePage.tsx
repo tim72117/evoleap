@@ -105,7 +105,8 @@ function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
 
 export function HomePage() {
   useHashScroll()
-  const featured = LEVELS.find((l) => l.status === 'available' && l.link)
+  // 主視覺的次要按鈕:連到第一個已有課程可看的等級(L3 還在規劃中,不會出現在這裡)
+  const featured = LEVELS.find((l) => l.link && (l.status === 'available' || levelLessons(l).some((x) => x.open)))
 
   return (
     <SiteLayout>
@@ -136,7 +137,7 @@ export function HomePage() {
             </Link>
             {featured?.link && (
               <Link className={styles.secondary} to={featured.link}>
-                {featured.levelLabel}課程：AI Agent 整合應用
+                {featured.levelLabel}課程：{featured.title.split('：')[0]}
               </Link>
             )}
           </div>

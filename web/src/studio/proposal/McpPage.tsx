@@ -1,5 +1,6 @@
 import { List } from './BasicsOutline'
 import { ProposalLayout } from './ProposalLayout'
+import ui from './proposal.module.css'
 
 // 跨等級構想：學員在學習過程中，用自己的 AI 工具透過 MCP 連入課程，取得練習範本、提交作業。
 // 尚未決定是否實作；此頁整理構想、可能的工具清單與待決定事項。
@@ -55,15 +56,15 @@ export function McpPage() {
   return (
     <ProposalLayout title="課程 MCP" footer="跨等級構想 · 尚未決定是否實作">
       <h1>構想 · 用 MCP 連入課程</h1>
-      <span className="chip out draft-banner">構想 · 待評估</span>
+      <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>構想 · 待評估</span>
 
       <h2>定位</h2>
-      <section className="card">
+      <section className={ui.card}>
         <table>
           <tbody>
             {POSITIONING.map(([k, v]) => (
               <tr key={k}>
-                <td className="nowrap" style={{ width: '9em' }}>
+                <td className={ui.nowrap} style={{ width: '9em' }}>
                   <strong>{k}</strong>
                 </td>
                 <td>{v}</td>
@@ -74,9 +75,9 @@ export function McpPage() {
       </section>
 
       <h2>學員的使用流程</h2>
-      <section className="card">
-        <div className="card-body">
-          <ol className="plain-list">
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
+          <ol className={ui['plain-list']}>
             {FLOW.map((t) => (
               <li key={t}>{t}</li>
             ))}
@@ -85,8 +86,8 @@ export function McpPage() {
       </section>
 
       <h2>暫定工具清單</h2>
-      <p className="lead">MCP server 對學員的 AI 工具提供的功能。名稱為暫定。</p>
-      <section className="card">
+      <p className={ui.lead}>MCP server 對學員的 AI 工具提供的功能。名稱為暫定。</p>
+      <section className={ui.card}>
         <table>
           <thead>
             <tr>
@@ -98,7 +99,7 @@ export function McpPage() {
           <tbody>
             {TOOLS.map((t) => (
               <tr key={t.name}>
-                <td className="nowrap">
+                <td className={ui.nowrap}>
                   <code>{t.name}</code>
                 </td>
                 <td>{t.does}</td>
@@ -110,21 +111,21 @@ export function McpPage() {
       </section>
 
       <h2>實作方向</h2>
-      <section className="card">
-        <div className="card-body">
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
           <List items={TECH} />
         </div>
       </section>
 
       <h2>待辦</h2>
-      <section className="card">
-        <div className="card-body">
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
           <List items={TODOS} />
         </div>
       </section>
 
       <h2>待決定</h2>
-      <div className="note">
+      <div className={ui.note}>
         <ul style={{ margin: 0 }}>
           {OPEN_QUESTIONS.map((q) => (
             <li key={q.title}>

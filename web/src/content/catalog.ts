@@ -74,7 +74,7 @@ export const COURSES: Course[] = [
   },
   {
     ...fromLevel('ai-agent', 'ai-agent', 'L3 中階'),
-    status: 'available',
+    status: 'planned',
     lessons: [],
     planned: UNITS.map((u) => ({
       slug: u.num === '★' ? 'capstone' : `unit-${u.num}`,

@@ -2,7 +2,7 @@
 // 新增文章:在 pages/ 建立頁面元件、在這裡登記 meta、在 routes.tsx 對應元件。
 // 順序即 /docs 列表與文章底部「上一篇/下一篇」的順序。
 
-export type ArticleCategory = 'course' | 'research'
+export type ArticleCategory = 'course' | 'research' | 'spec'
 
 export interface ArticleMeta {
   /** 網址路徑 /docs/<slug> */
@@ -16,6 +16,7 @@ export interface ArticleMeta {
 export const CATEGORY_LABEL: Record<ArticleCategory, string> = {
   course: '課程',
   research: '研究',
+  spec: '工具與規格',
 }
 
 export const articles: ArticleMeta[] = [
@@ -66,6 +67,19 @@ export const articles: ArticleMeta[] = [
     title: '腳本範本結構',
     category: 'research',
     summary: '教學影片腳本的段落結構與範本研究筆記。',
+  },
+  // 以 Markdown 呈現的文件(內容在 docs/registry.ts,頁面由 docs/DocPage.tsx 用同一個版型畫出)
+  {
+    slug: 'live',
+    title: '即時教學畫面規格',
+    category: 'spec',
+    summary: '即時教學畫面引擎的規格：播放器外殼、舞台、演員、鏡頭、腳本格式，以及新增演員與驗證的流程。',
+  },
+  {
+    slug: 'recorder',
+    title: '宣傳影片錄製工具',
+    category: 'spec',
+    summary: '用 JSON 分鏡腳本產生畫面並錄成 1080p 影片與字幕的工具：需求、檔案與使用方式。',
   },
 ]
 

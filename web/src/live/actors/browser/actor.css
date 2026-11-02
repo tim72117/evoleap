@@ -1,0 +1,33 @@
+/* 演員 browser:仿瀏覽器視窗,裡面是網頁(iframe)。選擇器都以 .A-browser 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-browser {
+  --bw-bar: #ecebe6;
+  --bw-line: #d9d7cf;
+  --bw-dim: #6f6c64;
+  width: 100%; height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 19.2px; /* 舞台固定 1920 寬 */
+  line-height: 1.5;
+  color: #1f1e1b;
+}
+.A-browser *, .A-browser *::before, .A-browser *::after { box-sizing: border-box; }
+.A-browser .bw-window {
+  display: flex; flex-direction: column; height: 100%;
+  background: #fff; border: 1px solid var(--bw-line); border-radius: 0.7em;
+  box-shadow: 0 1em 2.5em rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+.A-browser .bw-bar { display: flex; align-items: center; gap: 0.4em; flex: none; padding: 0.5em 0.8em; background: var(--bw-bar); border-bottom: 1px solid var(--bw-line); }
+.A-browser .light { width: 0.7em; height: 0.7em; border-radius: 50%; flex: none; }
+.A-browser .red { background: #ff5f57; }
+.A-browser .yellow { background: #febc2e; }
+.A-browser .green { background: #28c840; }
+.A-browser .bw-tab { flex: none; max-width: 14em; margin-left: 0.8em; padding: 0.25em 0.9em; background: #fff; border-radius: 0.5em; font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.A-browser .bw-url { flex: 1; min-width: 0; margin-left: 0.6em; padding: 0.25em 0.9em; background: #fff; border-radius: 1em; color: var(--bw-dim); font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.A-browser .bw-view { position: relative; flex: 1; min-height: 0; background: #d8d5cc; overflow: hidden; }
+/* 網頁畫面:實際尺寸(390/768/1280 寬)再用 transform 縮放到視窗裡;網頁本身在 Shadow DOM 裡 */
+.A-browser .bw-frame { position: absolute; transform-origin: 0 0; background: #fff; box-shadow: 0 0.3em 1.2em rgba(0, 0, 0, 0.25); overflow: hidden; pointer-events: none; }
+.A-browser .bw-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.A-browser .bw-proxies { position: absolute; inset: 0; pointer-events: none; }
+.A-browser .bw-proxy { position: absolute; visibility: hidden; }
