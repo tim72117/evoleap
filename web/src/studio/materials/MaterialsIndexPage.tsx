@@ -18,6 +18,13 @@ type Tool = {
 
 const TOOLS: Tool[] = [
   {
+    title: '課程編排',
+    body: '列出各程度的課程與段落，拖曳段落到不同課程、拖曳課程到不同程度，修改即時存成 JSON。',
+    how: '網頁（只能在本機開發站儲存）',
+    links: [{ to: '/materials/course-map', label: '開啟' }],
+    path: 'web/src/studio/materials/course-map.json',
+  },
+  {
     title: '即時教學畫面預覽',
     body: '看任一份課程腳本在某個時間點的畫面，或用完整播放器播放；寫腳本、檢查畫面時使用。',
     how: '網頁',

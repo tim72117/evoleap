@@ -1,0 +1,603 @@
+/* 互動教學場景:播放器鋪滿視窗,側欄浮在右側。
+   --vp-inset-* 告訴膠囊版面的外殼(shell.css 的 .vp-float)要讓出多少空間給側欄,舞台與膠囊都會避開。
+   顏色跟舞台與播放器一致(stage.css、shell.css),舞台固定亮色,所以這頁不跟著網站切換深色。 */
+.page {
+  --accent: #d97757;
+  --fg: #1f1e1b;
+  --dim: #6f6c64;
+  --surface: #fffdf8;
+  --line: #e2ddd0;
+  --vp-inset-right: 0px;
+  --vp-inset-bottom: 0px;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #e9e5dc;
+  color: var(--fg);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+}
+
+.panelOpen {
+  --vp-inset-right: 392px;
+}
+
+.box {
+  position: absolute;
+  inset: 0;
+}
+
+/* 互動點上的提問在側欄,不要讓中央的大播放鍵蓋住演員 */
+.atMoment :global(.vp.paused .vp-big) {
+  display: none;
+}
+
+.head {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  max-width: min(560px, calc(100% - 24px));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 14px 5px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 10%);
+}
+
+.head h1 {
+  margin: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.back {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--fg);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.back:hover,
+.back:focus-visible {
+  background: var(--line);
+}
+
+.draft {
+  flex: none;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--line);
+  color: var(--dim);
+  font-size: 12px;
+}
+
+.error {
+  position: absolute;
+  top: 64px;
+  left: 12px;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #fff;
+  color: #b3261e;
+}
+
+/* ---------- 側欄 ---------- */
+.panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  width: 368px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 16%);
+}
+
+.tabs {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  padding: 8px 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.tabs button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 8px 8px 0 0;
+  background: none;
+  color: var(--dim);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabs button:hover,
+.tabs button:focus-visible {
+  background: var(--line);
+  outline: none;
+}
+
+.tabs button[aria-pressed='true'] {
+  border-bottom-color: var(--accent);
+  color: var(--fg);
+}
+
+.count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--line);
+  color: var(--dim);
+  font-size: 12px;
+}
+
+.countActive {
+  background: var(--accent);
+  color: #fff;
+}
+
+.panelBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.note {
+  margin: 0;
+  color: var(--dim);
+  font-size: 13.5px;
+}
+
+.panelLogin {
+  flex: none;
+  margin: 0;
+  padding: 8px 16px;
+  border-top: 1px solid var(--line);
+  color: var(--dim);
+  font-size: 13px;
+}
+
+.panelFooter {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.panelFooter a {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* ---------- 步驟 ---------- */
+.panelTitle {
+  flex: none;
+  margin: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 700;
+}
+
+.stepChapter {
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.promptCopy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px 46px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13.5px;
+  font-weight: 400;
+}
+
+.promptCopy code {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: inherit;
+  user-select: text;
+}
+
+.steps .promptCopy button {
+  flex: none;
+  width: auto;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-left-width: 1px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.stepChild {
+  margin-left: 14px;
+  font-size: 14px;
+}
+
+.steps .stepAgain {
+  width: auto;
+  margin: -4px 0 6px 46px;
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.steps {
+  margin: -6px;
+  padding: 0;
+  list-style: none;
+}
+
+.steps button {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 0;
+  border-left: 3px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.steps button:hover,
+.steps button:focus-visible {
+  background: #f1ece0;
+  outline: none;
+}
+
+.steps button[aria-current='step'] {
+  border-left-color: var(--accent);
+  background: #f1ece0;
+  font-weight: 600;
+}
+
+.stepTime {
+  flex: none;
+  color: var(--dim);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  line-height: 22px;
+}
+
+.stepLabel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.stepTag {
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: #ffd25e;
+  color: #4a3a0a;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- 互動 ---------- */
+.eyebrow {
+  margin: 0;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.moment h2 {
+  margin: 4px 0 6px;
+  font-size: 19px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.options button {
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.options button:hover,
+.options button:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.free {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.free input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--fg);
+  font: inherit;
+}
+
+.free input:focus-visible {
+  border-color: var(--accent);
+  outline: 1px solid var(--accent);
+}
+
+.free button {
+  flex: none;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.free button:hover:not(:disabled) {
+  background: #c5664a;
+}
+
+.free button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.skip {
+  display: block;
+  margin: 14px auto 0;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--dim);
+  font: inherit;
+  font-size: 13.5px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.skip:hover,
+.skip:focus-visible {
+  color: var(--fg);
+  outline: none;
+  background: var(--line);
+}
+
+.momentList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.momentList li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.momentList .note {
+  overflow-wrap: anywhere;
+}
+
+.momentList button {
+  margin-top: 4px;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.momentList button:hover:not(:disabled),
+.momentList button:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.momentList button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- 把演員推到主畫面互動 ---------- */
+/* 只有暫停在互動點時才推近,不在時間軸上,所以可以用 transition(舞台與演員本身不行,見 README 第 1 節) */
+.pushable :global(.live-stage) {
+  transform-origin: 0 0;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pushLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.pushRing {
+  position: absolute;
+  border-radius: 14px;
+  outline: 3px solid var(--accent, #d97757);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 9999px rgb(20 18 16 / 55%), 0 18px 60px rgb(0 0 0 / 35%);
+}
+
+/* 字級用舞台座標,要除以推近倍率,畫面上才維持同樣大小 */
+.pushCard {
+  --dim: #6f6c64;
+  --fg: #1f1e1b;
+  --line: #e2ddd0;
+  --accent: #d97757;
+  position: absolute;
+  width: max-content;
+  padding: 0.7em 1em;
+  border-radius: 0.7em;
+  background: #fffdf8;
+  color: var(--fg);
+  box-shadow: 0 0.4em 1.6em rgb(0 0 0 / 28%);
+  font-size: calc(24px / var(--push-zoom, 1));
+  line-height: 1.45;
+  pointer-events: auto;
+}
+
+.pushCard h2 {
+  margin: 0.1em 0 0.2em;
+  font-size: 1.25em;
+  line-height: 1.35;
+  outline: none;
+}
+
+.pushCard .note,
+.pushCard .eyebrow,
+.pushCard .skip {
+  font-size: 0.85em;
+}
+
+.pushCard .skip {
+  margin: 0.5em 0 0;
+}
+
+.pushChips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4em;
+  margin-top: 0.5em;
+}
+
+.pushChips button {
+  padding: 0.35em 0.8em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.pushChips button:hover,
+.pushChips button:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* 放在演員輸入框裡的固定選項:蓋住原本的提示文字,看起來就是輸入框的內容 */
+.pushChipsIn {
+  --fg: #1f1e1b;
+  --line: #e2ddd0;
+  --accent: #d97757;
+  position: absolute;
+  margin: 0;
+  padding: 0 4px;
+  background: #fff;
+  font-size: 21px;
+  pointer-events: auto;
+}
+
+.pushChipsIn button {
+  max-width: 100%;
+}
+
+/* 疊在演員的按鈕上:看到的還是演員本身,只加上可以點的提示 */
+.pushHit {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  outline: 2px solid #d97757;
+  outline-offset: 1px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.pushHit:hover,
+.pushHit:focus-visible {
+  background: rgb(217 119 87 / 22%);
+  outline-width: 3px;
+}
+
+.pushHit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pushable :global(.live-stage) {
+    transition: none;
+  }
+}
+
+/* ---------- 窄視窗:側欄移到下方 ---------- */
+@media (max-width: 820px) {
+  .panelOpen {
+    --vp-inset-right: 0px;
+    --vp-inset-bottom: 52dvh;
+  }
+
+  .panel {
+    top: auto;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+    height: calc(52dvh - 16px);
+  }
+}

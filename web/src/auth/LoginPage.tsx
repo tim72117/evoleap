@@ -5,6 +5,7 @@ import { ApiError, authApi, type User } from './api'
 import { useAuth } from './AuthContext'
 import { safeNextPath } from './paths'
 import styles from './LoginPage.module.css'
+import { SOFTWARE_TOPIC } from '../content/topics'
 
 // 登入／註冊頁:Google 登入(有設定 client ID 時)+ Email 密碼。
 
@@ -64,7 +65,7 @@ export function LoginPage() {
           <div className={styles.card}>
             <h1 className={styles.title}>登入功能尚未開放</h1>
             <p className={styles.subtitle}>目前所有公開課程都不需要登入，可以直接開始學習。</p>
-            <Link className={styles.submit} to="/#map">
+            <Link className={styles.submit} to={`${SOFTWARE_TOPIC.path}#map`}>
               前往課程地圖
             </Link>
           </div>
@@ -92,7 +93,7 @@ function SignedIn({ user, next, onLogout }: { user: User; next: string; onLogout
       </p>
       <div className={styles.actions}>
         {next === '/' ? (
-          <Link className={styles.primary} to={{ pathname: '/', hash: 'map' }}>
+          <Link className={styles.primary} to={`${SOFTWARE_TOPIC.path}#map`}>
             前往課程地圖
           </Link>
         ) : (

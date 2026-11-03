@@ -41,6 +41,7 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 .vp-caption {
   position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%);
   max-width: 86%; padding: 0.3em 0.7em; border-radius: 0.3em;
+  white-space: nowrap; /* 舞台已切成不會太長的單行(kit.splitCaption) */
   background: rgba(0, 0, 0, 0.72); color: #fff; text-align: center;
   font-size: calc(var(--vp-scale, 0.5) * 42px); line-height: 1.4;
   transition: bottom 0.2s, opacity 0.2s;
@@ -178,3 +179,52 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 .vp.compact .vp-stop-in { padding: 12px 14px; }
 .vp.compact .vp-stop-title { font-size: 15px; margin: 2px 0 4px; }
 .vp.compact .vp-stop-body { font-size: 12px; margin-bottom: 8px; }
+
+/* ---------- 膠囊版面(layout: "capsule",互動教學場景):舞台鋪滿視窗、控制列是浮動的膠囊 ----------
+   外層用 --vp-inset-right、--vp-inset-bottom 讓出側欄的空間,舞台、字幕、膠囊都置中在剩下的區域。
+   背景畫在外殼上(和 stage.css 的舞台背景相同),舞台比例和視窗不同時看不出邊界。 */
+.vp.vp-float {
+  --vp-right: var(--vp-inset-right, 0px);
+  --vp-below: var(--vp-inset-bottom, 0px);
+  aspect-ratio: auto;
+  height: 100%;
+  background: radial-gradient(70% 70% at 25% 15%, #f3efe6, #e9e5dc);
+}
+.vp-float .vp-stage { right: var(--vp-right); bottom: var(--vp-below); }
+.vp-float .vp-canvas > * { background: none; overflow: visible; }
+/* 章節卡與聚光燈也要蓋滿視窗,不露出舞台的矩形邊界 */
+.vp-float .live-stage .st-over { overflow: visible; }
+.vp-float .live-stage .st-card { inset: -100%; }
+.vp-float .vp-ui { right: var(--vp-right); bottom: var(--vp-below); }
+.vp-float .vp-top { display: none; }
+.vp-float .vp-big { left: calc((100% - var(--vp-right)) / 2); top: calc((100% - var(--vp-below)) / 2); }
+.vp.vp-float .vp-caption {
+  left: calc((100% - var(--vp-right)) / 2);
+  bottom: calc(var(--vp-below) + 24px);
+  max-width: min(86%, calc(100% - var(--vp-right) - 32px));
+  width: max-content;
+}
+.vp.vp-float.show-ui .vp-caption, .vp.vp-float.paused .vp-caption { bottom: calc(var(--vp-below) + 84px); }
+
+.vp.vp-float .vp-bottom {
+  left: 50%; right: auto; bottom: 14px;
+  transform: translateX(-50%);
+  width: min(760px, calc(100% - 24px));
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(24, 22, 20, 0.86);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.vp.vp-float.is-fs .vp-bottom { padding: 4px 10px; bottom: max(14px, env(safe-area-inset-bottom)); }
+/* 控制列攤平成一排:左邊播放與時間、中間時間軸、右邊其他按鈕 */
+.vp-float .vp-row { display: contents; }
+.vp-float .vp-bar { order: 1; flex: 1; min-width: 0; margin: 0 8px; }
+.vp-float .vp-tools { display: contents; }
+.vp-float .vp-cc, .vp-float .vp-ratebox, .vp-float .vp-fs, .vp-float .vp-tools > * { order: 2; }
+.vp-float .vp-chapter, .vp-float .vp-grow { display: none; }
+.vp-float .vp-tools .vp-btn[aria-pressed="true"] { box-shadow: inset 0 -3px 0 -1px var(--vp-accent); }
+.vp.vp-float.compact .vp-bottom { padding: 2px 6px; }
+.vp.vp-float.compact .vp-time { display: none; }

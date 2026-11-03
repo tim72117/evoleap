@@ -48,7 +48,7 @@ export function DocPage({ doc }: { doc: Doc }) {
             ),
           }}
         >
-          {doc.content.replace(/^# .*\n+/, '')}
+          {doc.content.replace(/^# .*(\r?\n)+/, '')}
         </ReactMarkdown>
       </div>
       <p className={styles.source}>來源：{doc.source}</p>

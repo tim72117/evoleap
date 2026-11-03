@@ -1,0 +1,55 @@
+/* 演員 editor:通用的深色程式碼編輯器。選擇器都以 .A-editor 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-editor {
+  width: 100%; height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 24px;
+  color: #d4d4d4;
+}
+.A-editor *, .A-editor *::before, .A-editor *::after { box-sizing: border-box; }
+.A-editor .ed-window {
+  height: 100%; display: flex; flex-direction: column;
+  background: #1e1f22; border-radius: 0.8em; overflow: hidden;
+  box-shadow: 0 1.2em 3em rgba(0, 0, 0, 0.3);
+}
+.A-editor .ed-bar { flex: none; display: flex; align-items: center; gap: 0.45em; padding: 0.6em 0.9em; background: #2b2d31; }
+.A-editor .light { width: 0.75em; height: 0.75em; border-radius: 50%; }
+.A-editor .light.red { background: #ff5f57; }
+.A-editor .light.yellow { background: #febc2e; }
+.A-editor .light.green { background: #28c840; }
+.A-editor .ed-title { flex: 1; text-align: center; margin-right: 3em; font-size: 0.85em; color: #a0a3a8; }
+.A-editor .ed-main { flex: 1; min-height: 0; display: flex; }
+.A-editor .ed-side { flex: none; width: 8em; padding: 0.8em 0; background: #232428; border-right: 1px solid #34363b; }
+.A-editor .ed-proj { padding: 0 1em 0.5em; font-size: 0.72em; font-weight: 700; letter-spacing: 0.08em; color: #8b8e94; }
+.A-editor .ed-file { display: flex; align-items: center; gap: 0.5em; padding: 0.25em 1em; font-size: 0.85em; color: #b9bcc2; }
+.A-editor .ed-file.on { background: #37393f; color: #ffffff; }
+.A-editor .ed-pane { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.A-editor .ed-tabs { flex: none; display: flex; min-height: 2.3em; background: #232428; }
+.A-editor .ed-tab { display: flex; align-items: center; gap: 0.5em; padding: 0.5em 1.1em; font-size: 0.85em; color: #8b8e94; border-right: 1px solid #1a1b1e; }
+.A-editor .ed-tab.on { background: #1e1f22; color: #ffffff; box-shadow: inset 0 2px 0 #4fa3ff; }
+.A-editor .ed-ico { width: 0.75em; height: 0.75em; border-radius: 0.15em; background: #8b8e94; }
+.A-editor .ed-ico.ed-html { background: #e8734a; }
+.A-editor .ed-ico.ed-css { background: #4fa3ff; }
+.A-editor .ed-ico.ed-js { background: #f0d24a; }
+.A-editor .ed-code { position: relative; flex: 1; min-height: 0; overflow: hidden; padding: 0.7em 0; }
+.A-editor .ed-lines {
+  font-family: "JetBrains Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.95em; line-height: 1.6; white-space: pre;
+}
+.A-editor .ed-row { display: flex; }
+.A-editor .ed-row.cur { background: rgba(255, 255, 255, 0.04); }
+.A-editor .ed-num { flex: none; width: 3.2em; padding-right: 1em; text-align: right; color: #5c5f66; user-select: none; }
+.A-editor .ed-row.cur .ed-num { color: #c6c8cc; }
+.A-editor .ed-src { flex: 1; }
+.A-editor .ed-caret { display: inline-block; width: 2px; height: 1.15em; margin-left: 1px; vertical-align: text-bottom; background: #e6e6e6; }
+.A-editor .ed-caret[data-off] { visibility: hidden; }
+.A-editor .ed-empty { position: absolute; inset: 0; display: grid; place-items: center; color: #5c5f66; }
+.A-editor .ed-empty[hidden] { display: none; }
+/* 上色 */
+.A-editor .ed-tag { color: #569cd6; }
+.A-editor .ed-attr { color: #9cdcfe; }
+.A-editor .ed-str { color: #ce9178; }
+.A-editor .ed-sel { color: #d7ba7d; }
+.A-editor .ed-prop { color: #9cdcfe; }
+.A-editor .ed-n { color: #b5cea8; }
+.A-editor .ed-kw { color: #c586c0; }

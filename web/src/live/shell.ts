@@ -16,6 +16,9 @@
 //     globalKeys: true,                     // 頁面沒有其他焦點時也接收快捷鍵;一頁多個播放器時設 false
 //     onFullscreenRequest: (on) => …,       // 選用:全螢幕交給外層處理,外層再用 vp.setExternalFullscreen(on) 回報
 //     autoLandscape: true,                  // 手機橫放自動滿版
+//     layout: "capsule",                    // 選用:鋪滿容器、控制列是浮動的膠囊(互動教學場景)
+//     toolbar: element,                     // 選用:放進控制列的元素
+//     onStop: (stop) => true,               // 選用:回傳 true 表示練習點由外層處理,不顯示「停一下」畫面
 //   });
 //   vp.play() / pause() / seek(ms) / setRate(x) / toggleFullscreen() / update(opts) / destroy()
 //
@@ -48,6 +51,12 @@ export type ShellOptions = {
   globalKeys?: boolean
   onFullscreenRequest?: (on: boolean) => void
   autoLandscape?: boolean
+  /** capsule:播放器鋪滿容器、控制列是浮動的膠囊(互動教學場景);外層用 --vp-inset-right、--vp-inset-bottom 讓出側欄的空間 */
+  layout?: 'capsule'
+  /** 放進控制列的元素(例如切換側欄的按鈕),擺在全螢幕按鈕前面 */
+  toolbar?: HTMLElement
+  /** 練習點由外層處理:播放經過時暫停並呼叫它;回傳 true 表示外層處理了,否則照常顯示外殼的「停一下」畫面 */
+  onStop?: (stop: ShellStop) => boolean
 }
 
 /** 播放進度的存取(例如登入會員存到伺服器);load 失敗請回 null,不要丟錯 */
@@ -145,7 +154,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     ...opts,
   }
   const root = document.createElement('div')
-  root.className = 'vp paused show-ui'
+  root.className = `vp paused show-ui${o.layout === 'capsule' ? ' vp-float' : ''}`
   root.tabIndex = 0
   root.setAttribute('role', 'region')
   root.setAttribute('aria-label', `影片播放器:${o.title || ''}`)
@@ -191,6 +200,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   const canvas = $('.vp-canvas')
   canvas.appendChild(o.stage)
   $('.vp-title').textContent = o.title || ''
+  if (o.toolbar) $('.vp-row').insertBefore(o.toolbar, $('.vp-fs'))
 
   const audio = o.audio ? Object.assign(new Audio(o.audio), { preload: 'auto' }) : null
   if (audio) $('.vp-vol').hidden = false
@@ -232,6 +242,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   }
   const ro = new ResizeObserver(fit)
   ro.observe(root)
+  ro.observe($('.vp-stage')) // 膠囊版面開關側欄時,只有舞台區變大小
 
   // ---------- 章節刻度 ----------
   let chapters: ShellChapter[] = []
@@ -315,6 +326,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   }
 
   function showStop(stop: ShellStop): void {
+    if (o.onStop?.(stop)) return
     $('.vp-stop-title').textContent = stop.title || '換你試試'
     $('.vp-stop-body').textContent = stop.body || ''
     $('.vp-stop').hidden = false

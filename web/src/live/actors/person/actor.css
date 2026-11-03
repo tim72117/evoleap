@@ -1,0 +1,28 @@
+/* 演員 person:插畫半身像 + 名字 + 對話泡泡。選擇器都以 .A-person 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-person {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex; align-items: flex-start; gap: 0.8em;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 24px;
+  line-height: 1.45;
+  color: #1f1e1b;
+}
+.A-person *, .A-person *::before, .A-person *::after { box-sizing: border-box; }
+.A-person .ps-card { flex: none; display: flex; flex-direction: column; align-items: center; gap: 0.3em; }
+.A-person .ps-face {
+  display: block; width: 9em; height: auto;
+  border-radius: 50% 50% 1.2em 1.2em; background: #fff4e3; overflow: hidden;
+}
+.A-person .ps-name { font-weight: 700; font-size: 0.85em; padding: 0.1em 0.7em; border-radius: 1em; background: #ffffff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); }
+.A-person .ps-bubble {
+  position: relative; margin-top: 0.6em;
+  max-width: 100%; padding: 0.6em 0.9em;
+  background: #ffffff; border-radius: 1em; box-shadow: 0 0.4em 1.2em rgba(0, 0, 0, 0.14);
+  font-weight: 600;
+}
+.A-person .ps-bubble::before {
+  content: ""; position: absolute; left: -0.5em; top: 0.9em;
+  border: 0.5em solid transparent; border-right-color: #ffffff; border-left: 0;
+}

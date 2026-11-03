@@ -1,4 +1,4 @@
-// 即時教學畫面(LivePlayer)的回歸測試:L0 第 0、1、2 課各只有一支影片,不是影片檔,
+// 即時教學畫面(LivePlayer)的回歸測試(第 0、1 課是互動版,測試在 navigation.spec.ts):L0 第 2 課只有一支影片,不是影片檔,
 // 而是直接掛在課程頁上的播放器外殼(src/live/shell.ts,根元素 .vp)+ 舞台(src/live/stage.ts,根元素 .live-stage),
 // 依 src/content/live/ 的腳本即時畫出。沒有 iframe,也沒有 /live/ 路由。
 // 腳本裡標了 lessonStep 的章節成為右側步驟的 cue:出現「▶ mm:ss」、播到那裡就標「播放中」並展開。
@@ -15,8 +15,6 @@ const SCRIPTS = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'cont
 type Case = { path: string; script: string; steps: number }
 
 const LESSONS: Case[] = [
-  { path: '/courses/tools/0', script: 'l0/0.0-tools.json', steps: 5 },
-  { path: '/courses/tools/1', script: 'l0/0.1-project.json', steps: 6 },
   { path: '/courses/tools/2', script: 'l0/0.2-site.json', steps: 9 },
 ]
 

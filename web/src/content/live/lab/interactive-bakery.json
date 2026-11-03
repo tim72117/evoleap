@@ -1,0 +1,75 @@
+{
+  "title": "幫小森烘焙回客人（互動試做）",
+  "lesson": "互動教學場景試做",
+  "cast": {
+    "phone": { "actor": "chat", "props": { "title": "小森烘焙" }, "place": { "x": 180, "y": 120, "w": 620, "h": 860 }, "hidden": true },
+    "boss": { "actor": "person", "props": { "name": "老闆", "look": "boss" }, "place": { "x": 900, "y": 300, "w": 860, "h": 420 }, "hidden": true }
+  },
+  "steps": [
+    { "show": "phone", "chapter": "訊息湧進來", "narration": "小森烘焙的手機，一早就響個不停。今天由你來回客人。" },
+    { "receive": "我要訂一個生日蛋糕，明天拿", "from": "客人甲" },
+    { "show": "boss", "chapter": "老闆交代" },
+    { "say": "蛋糕要提前兩天訂，明天來不及。你來回他。", "mood": "calm", "narration": "可是蛋糕要提前兩天訂，老闆請你回覆客人。" },
+    {
+      "checkpoint": "客人甲明天就要蛋糕，你怎麼回？",
+      "body": "蛋糕要提前兩天訂。選一個回覆，或自己打一句。",
+      "id": "cake",
+      "options": [
+        {
+          "label": "好的，明天幫您準備！",
+          "steps": [
+            { "reply": "好的，明天幫您準備！" },
+            { "say": "明天真的做不出來，這下要失信了。", "mood": "worried", "narration": "老闆皺起眉頭：這樣答應，明天就交不出蛋糕了。" }
+          ]
+        },
+        {
+          "label": "蛋糕要提前兩天訂，後天可以嗎？",
+          "steps": [
+            { "reply": "蛋糕要提前兩天訂，後天可以嗎？" },
+            { "receive": "可以，那就後天", "from": "客人甲" },
+            { "say": "說清楚就好，客人也願意等。", "mood": "happy", "narration": "先把規則說清楚，客人也願意配合。" }
+          ]
+        }
+      ],
+      "free": {
+        "placeholder": "自己打一句回覆",
+        "steps": [
+          { "reply": "{{text}}" },
+          { "say": "記得讓客人知道蛋糕要提前兩天訂。", "mood": "calm", "narration": "老闆提醒你：回覆裡要讓客人知道，蛋糕要提前兩天訂。" }
+        ]
+      }
+    },
+    { "receive": "可頌兩個，電話 091234567", "from": "客人丙", "chapter": "下一則訊息", "narration": "又來了一則訂單。" },
+    { "callout": "phone:msg:last", "text": "這支手機號碼少一碼", "narration": "仔細看，這支手機號碼少了一碼。" },
+    {
+      "checkpoint": "客人丙的手機少一碼，你怎麼處理？",
+      "body": "沒有正確的電話，取貨時就聯絡不到人。",
+      "id": "phone",
+      "options": [
+        {
+          "label": "先記下來，之後再說",
+          "steps": [
+            { "say": "到時候聯絡不到人，這張就變漏單了。", "mood": "worried", "narration": "沒有正確的電話，這張單很可能就這樣漏掉。" }
+          ]
+        },
+        {
+          "label": "您的手機好像少一碼，可以再確認嗎？",
+          "steps": [
+            { "reply": "您的手機好像少一碼，可以再確認嗎？" },
+            { "receive": "抱歉，是 0912345678", "from": "客人丙" },
+            { "say": "很好，當場問清楚就不會漏單。", "mood": "happy", "narration": "當場問清楚，就不會漏單。" }
+          ]
+        }
+      ],
+      "free": {
+        "placeholder": "自己打一句回覆",
+        "steps": [
+          { "reply": "{{text}}" },
+          { "say": "電話對不對，一定要跟客人確認。", "mood": "calm", "narration": "老闆提醒你：電話對不對，一定要跟客人確認。" }
+        ]
+      }
+    },
+    { "say": "每一張都要這樣回問，真的很累。", "mood": "tired", "chapter": "老闆嘆氣", "narration": "老闆嘆了口氣：每一張都要這樣回問，真的很累。" },
+    { "card": "做一張訂購單，讓客人填錯時當場就知道。", "eyebrow": "這一課的任務", "chapter": "任務卡", "narration": "這一課的任務：做一張訂購單，讓客人填錯時當場就知道。" }
+  ]
+}

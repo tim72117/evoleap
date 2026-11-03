@@ -6,9 +6,10 @@
 // 新增其他類型的頁面時,在下方 PAGES 加一筆。
 import { articles } from '../studio/articles/registry'
 import { AI_AGENT_COURSE_PATH, COURSE } from '../content/aiAgent'
-import { COURSES, coursePath, lessonNumber, lessonPath, plannedChapterPath } from '../content/catalog'
-import { MAP_INTRO } from '../content/levels'
+import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath } from '../content/catalog'
+import { AI_APP_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
+import { AI_APPS_TOPIC, HOME_INTRO, SOFTWARE_TOPIC, topicOfCourse } from '../content/topics'
 
 type JsonLd = Record<string, unknown>
 
@@ -73,8 +74,9 @@ function course(name: string, description: string, path: string): JsonLd {
 
 const HOME: PageMeta = {
   path: '/',
+  sitemapPriority: 1,
   title: documentTitle(),
-  description: MAP_INTRO.pitch,
+  description: HOME_INTRO.description,
   jsonLd: [
     ld({
       '@graph': [
@@ -93,19 +95,45 @@ const HOME: PageMeta = {
   ],
 }
 
+/** 主題頁:各自的標題與描述,結構化資料列出這個主題底下的課程 */
+function topicPage(topic: { name: string; path: string; seoTitle: string; description: string }, levels: CourseLevel[]): PageMeta {
+  return {
+    path: topic.path,
+    title: documentTitle(topic.seoTitle),
+    sitemapPriority: 0.9,
+    description: topic.description,
+    jsonLd: [
+      breadcrumb([topic.name, topic.path]),
+      ld({
+        '@type': 'ItemList',
+        name: topic.name,
+        itemListElement: levels
+          .filter((level) => level.link)
+          .map((level, i) => ({ '@type': 'ListItem', position: i + 1, name: level.title, url: absoluteUrl(level.link!) })),
+      }),
+    ],
+  }
+}
+
+const SOFTWARE_TOPIC_PAGE = topicPage(SOFTWARE_TOPIC, LEVELS)
+
+const AI_APPS_TOPIC_PAGE = topicPage(AI_APPS_TOPIC, AI_APP_LEVELS)
+
 const AI_AGENT_COURSE: PageMeta = {
   path: AI_AGENT_COURSE_PATH,
   title: documentTitle(COURSE.title),
   description: COURSE.pitch,
   jsonLd: [
     course(COURSE.fullTitle, COURSE.pitch, AI_AGENT_COURSE_PATH),
-    breadcrumb([COURSE.title, AI_AGENT_COURSE_PATH]),
+    breadcrumb([AI_APPS_TOPIC.name, AI_APPS_TOPIC.path], [COURSE.title, AI_AGENT_COURSE_PATH]),
   ],
 }
 
 const COURSE_PAGES: PageMeta[] = COURSES.flatMap((c) => {
   // L3 的總覽頁是專屬頁面(AI_AGENT_COURSE),麵包屑沿用它的標題。
   const courseName = c.customOverview ? COURSE.title : c.title
+  const topic = topicOfCourse(coursePath(c))
+  const topicCrumb: [string, string] = [topic.name, topic.path]
   const overview: PageMeta[] = c.customOverview
     ? []
     : [
@@ -113,17 +141,17 @@ const COURSE_PAGES: PageMeta[] = COURSES.flatMap((c) => {
           path: coursePath(c),
           title: documentTitle(c.title),
           description: c.summary,
-          jsonLd: [course(c.title, c.summary, coursePath(c)), breadcrumb([c.title, coursePath(c)])],
+          jsonLd: [course(c.title, c.summary, coursePath(c)), breadcrumb(topicCrumb, [c.title, coursePath(c)])],
         },
       ]
   const lessons: PageMeta[] = c.lessons.map((lesson) => {
-    const name = `第 ${lessonNumber(lesson)} 課 ${lesson.title}`
+    const name = `${lessonLabel(lesson)} ${lesson.title}`
     return {
       path: lessonPath(c, lesson),
       title: documentTitle(name),
       description: lesson.goal,
       ogType: 'article' as const,
-      jsonLd: [breadcrumb([courseName, coursePath(c)], [name, lessonPath(c, lesson)])],
+      jsonLd: [breadcrumb(topicCrumb, [courseName, coursePath(c)], [name, lessonPath(c, lesson)])],
     }
   })
   const planned: PageMeta[] = c.planned.map((ch) => {
@@ -133,7 +161,7 @@ const COURSE_PAGES: PageMeta[] = COURSES.flatMap((c) => {
       title: documentTitle(name),
       description: ch.summary,
       ogType: 'article' as const,
-      jsonLd: [breadcrumb([courseName, coursePath(c)], [name, plannedChapterPath(c, ch)])],
+      jsonLd: [breadcrumb(topicCrumb, [courseName, coursePath(c)], [name, plannedChapterPath(c, ch)])],
     }
   })
   return [...overview, ...lessons, ...planned]
@@ -183,6 +211,8 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/proposal', '總覽'],
     ['/proposal/tools', 'L0 AI 工具介紹'],
     ['/proposal/ai-tools', 'L1 AI 工具入門'],
+    ['/proposal/life-tools', 'L1 生活小工具'],
+    ['/proposal/l1-ideas', 'L1 構想區'],
     ['/proposal/vibe-coding', 'L2 Vibe Coding 入門'],
     ['/proposal/ai-agent/fields', 'L3 提案內容'],
     ['/proposal/ai-agent/structure', 'L3 課程架構'],
@@ -192,7 +222,11 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/proposal/member', '會員空間'],
     ['/proposal/visuals', '即時教學影像'],
     ['/proposal/visuals/preview', '即時教學畫面預覽'],
+    ['/proposal/interactive', '互動教學場景'],
+    ['/proposal/interactive/l0-claude', '互動場景：L0 對 Claude 下指令'],
+    ['/proposal/interactive/l0-claude-stage', '互動場景：把演員推到主畫面'],
     ['/materials', '工具'],
+    ['/materials/course-map', '課程編排'],
   ] as const
 ).map(([path, name]) => internal(path, `${name} · 課程提案`))
 
@@ -203,6 +237,8 @@ const MATERIALS_PAGES: PageMeta[] = [
 
 export const PAGES: PageMeta[] = [
   HOME,
+  SOFTWARE_TOPIC_PAGE,
+  AI_APPS_TOPIC_PAGE,
   AI_AGENT_COURSE,
   ...COURSE_PAGES,
   ...LEGAL_PAGES,

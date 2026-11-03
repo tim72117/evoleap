@@ -1,0 +1,98 @@
+{
+  "title": "序章：以前怎麼做一個網站（展示）",
+  "lesson": "L0 · 序章",
+  "cast": {
+    "editor": {
+      "actor": "editor",
+      "props": {
+        "project": "bakery"
+      },
+      "place": {
+        "x": 260,
+        "y": 70,
+        "w": 1400,
+        "h": 880
+      },
+      "hidden": true
+    },
+    "browser": {
+      "actor": "browser",
+      "props": {
+        "site": "intro1",
+        "width": "tablet",
+        "url": "file:///Documents/bakery/index.html"
+      },
+      "place": {
+        "x": 975,
+        "y": 70,
+        "w": 905,
+        "h": 880
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "以前，做一個網站要自己寫程式",
+      "eyebrow": "L0 · 序章",
+      "chapter": "以前：自己寫程式",
+      "narration": "以前想做一個網站，第一件事是學寫程式。"
+    },
+    {
+      "show": "editor",
+      "narration": "打開程式編輯器，新增一個檔案：index.html。"
+    },
+    {
+      "open": "index.html"
+    },
+    {
+      "type": "<header>\n  <h1>小森烘焙</h1>\n</header>\n<section class=\"hero\">\n  <h2>每天早上七點出爐</h2>\n</section>\n<div class=\"cards\">\n  <div class=\"card\">鄉村麵包 $120</div>\n  <div class=\"card\">可頌 $65</div>\n  <div class=\"card\">肉桂捲 $80</div>\n</div>",
+      "chapter": "HTML：網頁的骨架",
+      "narration": "先學 HTML，用一個個標籤，寫出網頁上有哪些東西：店名、標語，還有商品。"
+    },
+    {
+      "callout": "editor:code",
+      "text": "HTML：決定網頁上有什麼",
+      "narration": "每個角括號、每個斜線都要打對，少一個，畫面就可能出錯。"
+    },
+    {
+      "move": "editor",
+      "to": {
+        "x": 40,
+        "y": 70,
+        "w": 905,
+        "h": 880
+      }
+    },
+    {
+      "show": "browser",
+      "narration": "存檔，用瀏覽器打開。"
+    },
+    {
+      "callout": "browser:content",
+      "text": "只有骨架：沒有顏色，也沒有排版",
+      "narration": "內容都在，但只是一行一行由上往下排，沒有顏色，也沒有排版。"
+    },
+    {
+      "open": "styles.css",
+      "chapter": "CSS：加上樣式",
+      "narration": "接著要學另一種語言：CSS，再開一個檔案 styles.css。"
+    },
+    {
+      "type": "header {\n  background: #8b5e3c;\n  color: #fff;\n}\n.hero {\n  padding: 40px;\n  background: #f3e3c8;\n}\n.cards {\n  display: flex;\n  gap: 16px;\n}\n.card {\n  padding: 24px;\n  background: #efe1cc;\n}",
+      "narration": "顏色、間距、哪些東西要排成一排，都要用 CSS 寫出來。"
+    },
+    {
+      "site": "intro2",
+      "narration": "存檔，重新整理。"
+    },
+    {
+      "callout": "browser:content",
+      "text": "CSS：決定網頁長什麼樣子",
+      "narration": "網頁終於有了顏色和排版。到這裡，你已經學了兩種語言。"
+    },
+    {
+      "wait": 1500
+    }
+  ]
+}

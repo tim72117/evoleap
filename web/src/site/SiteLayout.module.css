@@ -229,11 +229,14 @@
 
 /* 課程提案是給課程研發用的內部頁面，只在頁尾留一個很小的入口。 */
 .site .devLink {
-  margin-left: 12px;
   font-size: 11px;
   color: var(--site-muted);
   opacity: 0.6;
   text-decoration: none;
+}
+
+.site .devLink + .devLink {
+  margin-left: 12px;
 }
 
 .site .devLink:hover {

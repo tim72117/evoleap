@@ -5,12 +5,13 @@ import { loginHref } from '../auth/paths'
 import { SiteLayout } from '../site/SiteLayout'
 import { useCopy } from '../site/useCopy'
 import type { CourseLesson, LessonStep } from '../content/lessonTypes'
-import { coursePath, lessonNumber, lessonPath, type Course } from '../content/catalog'
+import { coursePath, lessonLabel, lessonPath, type Course } from '../content/catalog'
 import styles from './Lesson.module.css'
 import type { PlayerHandle } from './playerHandle'
 import { MockPlayer } from './MockPlayer'
 import { LivePlayer } from './LivePlayer'
 import { effectiveCues, mmss, stepAt } from './lessonTiming'
+import { SOFTWARE_TOPIC } from '../content/topics'
 
 // 學員端單課頁。第一屏（fold）剛好一個視窗高：左邊影片、右邊「步驟軌」（窄螢幕時上下堆疊），
 // 影片播到哪一步（依 LessonVideo.cues），軌道裡就自動展開並捲到那一步，提示詞和複製鈕
@@ -100,7 +101,7 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
   const index = course.lessons.indexOf(lesson)
   const prev = course.lessons[index - 1]
   const next = course.lessons[index + 1]
-  const num = lessonNumber(lesson)
+  const label = lessonLabel(lesson)
   const auth = useAuth()
   const location = useLocation()
   const total = lesson.steps.length
@@ -229,21 +230,21 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
   const hasTabs = lesson.videos.length > 1
 
   return (
-    <SiteLayout title={`第 ${num} 課 ${lesson.title}`}>
+    <SiteLayout title={`${label} ${lesson.title}`}>
       <div className={styles.lesson} ref={lessonRef}>
         <div className={styles.fold}>
           <div className={styles.topbar}>
             <nav className={styles.crumb} aria-label="麵包屑">
-              <Link to="/#map">課程地圖</Link>
+              <Link to={`${SOFTWARE_TOPIC.path}#map`}>課程地圖</Link>
               <span aria-hidden="true"> / </span>
               <Link to={coursePath(course)}>{course.level}</Link>
               <span aria-hidden="true"> / </span>
-              <span>第 {num} 課</span>
+              <span>{label}</span>
             </nav>
             {/* h1 只放課名(搜尋引擎讀的主標題);課號與時長放在旁邊 */}
             <div className={styles.title}>
               <span className={styles.kicker}>
-                第 {num} 課 · {lesson.length}
+                {label} · {lesson.length}
               </span>
               <h1>{lesson.title}</h1>
             </div>
@@ -433,7 +434,7 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
           <nav className={styles.pager} aria-label="上一課與下一課">
             {prev ? (
               <Link to={lessonPath(course, prev)}>
-                <small>上一課</small>第 {lessonNumber(prev)} 課 {prev.title}
+                <small>上一課</small>{lessonLabel(prev)} {prev.title}
               </Link>
             ) : (
               <Link to={coursePath(course)}>
@@ -442,54 +443,15 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
             )}
             {next ? (
               <Link to={lessonPath(course, next)} className={styles.next}>
-                <small>下一課</small>第 {lessonNumber(next)} 課 {next.title}
+                <small>下一課</small>{lessonLabel(next)} {next.title}
               </Link>
             ) : (
-              <Link to="/#map" className={styles.next}>
+              <Link to={`${SOFTWARE_TOPIC.path}#map`} className={styles.next}>
                 <small>完成這門課</small>回到課程地圖
               </Link>
             )}
           </nav>
         </div>
-      </div>
-    </SiteLayout>
-  )
-}
-
-export function CourseOverviewPage({ course }: { course: Course }) {
-  const first = course.lessons[0]
-  return (
-    <SiteLayout title={course.title}>
-      <div className={styles.page}>
-        <nav className={styles.crumb} aria-label="麵包屑">
-          <Link to="/#map">課程地圖</Link>
-          <span aria-hidden="true"> / </span>
-          <span>{course.level}</span>
-        </nav>
-        <header className={styles.head}>
-          <p className={styles.kicker}>{course.level}</p>
-          <h1>{course.title}</h1>
-          <p className={styles.lead}>{course.summary}</p>
-          {first && (
-            <Link className={styles.start} to={lessonPath(course, first)}>
-              從第 {lessonNumber(first)} 課開始
-            </Link>
-          )}
-        </header>
-        <ol className={styles.lessonList}>
-          {course.lessons.map((l) => (
-            <li key={l.id}>
-              <Link to={lessonPath(course, l)}>
-                <span className={styles.lessonNum}>第 {lessonNumber(l)} 課</span>
-                <span className={styles.lessonTitle}>{l.title}</span>
-                <span className={styles.lessonGoal}>{l.goal}</span>
-                <span className={styles.lessonMeta}>
-                  {l.length} · {l.steps.length} 個步驟
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ol>
       </div>
     </SiteLayout>
   )

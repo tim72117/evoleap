@@ -3,12 +3,13 @@ import { Link, NavLink } from 'react-router-dom'
 import { UserMenu } from '../auth/UserMenu'
 import styles from './SiteLayout.module.css'
 import { documentTitle, SITE_NAME, SITE_TAGLINE } from './siteInfo'
+import { SOFTWARE_TOPIC } from '../content/topics'
 
 type NavItem = { label: string; to: string | { pathname: string; hash: string }; end?: boolean }
 
 const NAV: NavItem[] = [
   { label: '首頁', to: '/', end: true },
-  { label: '課程地圖', to: { pathname: '/', hash: 'map' } },
+  { label: '課程地圖', to: { pathname: SOFTWARE_TOPIC.path, hash: 'map' } },
 ]
 
 type Props = {
@@ -68,11 +69,10 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
             <strong>{SITE_NAME}</strong>：{SITE_TAGLINE}
           </div>
           <nav className={styles.footerNav} aria-label="頁尾導覽">
-            <Link to="/">課程地圖</Link>
+            <Link to={`${SOFTWARE_TOPIC.path}#map`}>課程地圖</Link>
             <Link to="/courses/ai-agent">AI Agent 整合應用</Link>
           </nav>
           <div className={styles.domain}>
-            shuttle.tools
             <Link className={styles.devLink} to="/privacy">
               隱私權政策
             </Link>

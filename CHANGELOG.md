@@ -2,6 +2,39 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [0.6.0] - 2026-11-03
+
+首頁改為多主題；L0 第 0、1 課改成互動課程：整個視窗都是舞台，學員直接操作演員，回答會變成時間軸的一部分。
+
+### 新增
+
+- **互動課程**（`web/src/studio/interactive/`、`web/src/courses/InteractiveLessonPage.tsx`）：浮動的膠囊播放條、右側的課程章節與步驟（含提示詞複製、上一課下一課、登入入口）。播到互動點會暫停，舞台推近目標，學員在 Claude 的輸入框選指令、按它的允許或拒絕；沒回答就演原本的示範。用課程原本的腳本與語音，選項分支的新旁白目前只有字幕。規格見 `web/src/live/README.md` 2A.6。
+- **互動場景試做頁**（`/proposal/interactive`、`/proposal/interactive/l0-claude`、`/proposal/interactive/l0-claude-stage`）。
+- **多主題首頁**：首頁先列主題，「做出自己的軟體」可直接播放第 0 課並展示成品；主題頁 `/topics/software`、`/topics/ai-apps`。舊的 `/#map`、`/#level-*` 會導到主題頁。
+- **序章** `/courses/tools/intro` 與 `lessonLabel`（有 `label` 的課顯示「序章」，其他顯示「第 N 課」）。
+- **主題頁的 SEO**：各自的標題、描述與課程清單（JSON-LD `ItemList`）；sitemap 加上首頁與主題頁的優先度；課程與單課的麵包屑掛在所屬主題底下。
+- **課程編排工具**（`/materials/course-map`）：拖曳段落與課程，經開發伺服器即時存成 `course-map.json`。
+- 課程研發頁的各課知識點；L1「生活小工具」與構想區、各課開場腳本與預覽；L2 單元 14「寫出好維護的程式」的大綱。
+- 演員 `chat`、`person`、`notes`、`editor`。
+- `mountShell` 新增 `layout: "capsule"`、`toolbar`、`onStop`；`Stage` 新增 `element(ref)`；`LivePlayer` 新增 `poster`；`kit` 新增 `splitCaption`；`npm run voice` 新增 `--limit`；L0 第 2 課前 10 段旁白語音。
+
+### 變更
+
+- **`/courses/tools/0`、`/courses/tools/1` 改為互動版**，不再使用一般課程頁（由 `web/src/courses/routes.tsx` 的 `INTERACTIVE_LESSONS` 決定）。
+- **字幕改成單行**：每條最多約 24 個字，優先在標點斷開，所有課程都套用。
+- 課程地圖連結改到 `/topics/software#map`；頁尾移除 `shuttle.tools` 文字。
+
+### 修正
+
+- 序章在課程地圖與 SEO 顯示成「第 intro 課」。
+- 文件頁的 README 工作副本為 CRLF 換行時，頁面出現兩個 `h1`。
+
+### 已知問題
+
+- 互動課程在手機直向時，提問文字與選項太小，難以作答。
+- 互動課程的播放進度只存時間、不存回答，且和首頁預覽共用同一份紀錄，回來時位置可能對不上內容。
+- 第 0、1 課的互動版還沒有本課目標、各步驟的文字說明與完成檢核。
+
 ## [0.5.0] - 2026-11-03
 
 L0 第 2 課上線（一頁式網站）、新增瀏覽器演員；登入後才記住播放進度；課程研發頁改版（頁籤、文件區、CSS Module）；L3 改為規劃中。

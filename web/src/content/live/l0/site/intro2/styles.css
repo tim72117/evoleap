@@ -1,0 +1,16 @@
+header {
+  background: #8b5e3c;
+  color: #fff;
+}
+.hero {
+  padding: 40px;
+  background: #f3e3c8;
+}
+.cards {
+  display: flex;
+  gap: 16px;
+}
+.card {
+  padding: 24px;
+  background: #efe1cc;
+}

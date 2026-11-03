@@ -1,0 +1,33 @@
+/* 演員 chat:通用的手機聊天畫面。選擇器都以 .A-chat 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-chat {
+  width: 100%; height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 22px;
+  line-height: 1.45;
+  color: #1f1e1b;
+}
+.A-chat *, .A-chat *::before, .A-chat *::after { box-sizing: border-box; }
+.A-chat .ch-phone {
+  height: 100%;
+  display: flex; flex-direction: column;
+  background: #eef1f4;
+  border: 0.55em solid #22252a; border-radius: 2.2em;
+  box-shadow: 0 1.2em 3em rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+.A-chat .ch-bar { display: flex; align-items: center; gap: 0.6em; padding: 0.9em 1em 0.7em; background: #ffffff; border-bottom: 1px solid #dde1e6; font-weight: 700; }
+.A-chat .ch-back { color: #8a8f96; font-size: 1.4em; line-height: 1; }
+.A-chat .ch-log { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 0.75em; padding: 1em 0.9em 1.4em; overflow: hidden; }
+.A-chat .ch-row { display: flex; align-items: flex-start; gap: 0.5em; }
+.A-chat .ch-row.mine { justify-content: flex-end; }
+.A-chat .ch-avatar {
+  flex: none; width: 2.1em; height: 2.1em; border-radius: 50%;
+  display: grid; place-items: center;
+  background: hsl(var(--h) 55% 62%); color: #fff; font-weight: 700;
+}
+.A-chat .ch-col { display: flex; flex-direction: column; gap: 0.15em; max-width: 78%; }
+.A-chat .ch-name { font-size: 0.72em; color: #6f747b; }
+.A-chat .ch-bubble { padding: 0.5em 0.8em; background: #ffffff; border-radius: 0.3em 1.1em 1.1em 1.1em; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+.A-chat .ch-row.mine .ch-bubble { background: #d7f0c9; border-radius: 1.1em 0.3em 1.1em 1.1em; }
+.A-chat .ch-typing { color: #8a8f96; }

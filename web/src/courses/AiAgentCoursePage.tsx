@@ -13,6 +13,7 @@ import {
   UNITS,
 } from '../content/aiAgent'
 import styles from './AiAgentCoursePage.module.css'
+import { AI_APPS_TOPIC } from '../content/topics'
 
 function SectionHead({ eyebrow, title, lead }: { eyebrow: string; title: string; lead?: string }) {
   return (
@@ -33,7 +34,7 @@ export function AiAgentCoursePage() {
         <div className={styles.heroInner}>
           <div className={styles.heroText}>
             <nav className={styles.crumbs} aria-label="麵包屑">
-              <Link to={{ pathname: '/', hash: 'map' }}>課程地圖</Link>
+              <Link to={`${AI_APPS_TOPIC.path}#map`}>{AI_APPS_TOPIC.name}</Link>
               <span aria-hidden="true">/</span>
               <span>{COURSE.level}</span>
             </nav>

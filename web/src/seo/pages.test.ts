@@ -8,6 +8,41 @@ const indexable = PAGES.filter((p) => !p.noindex)
 const INTERNAL_PREFIXES = ['/proposal', '/docs', '/materials', '/login']
 const isInternal = (path: string) => INTERNAL_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))
 
+describe('主題頁', () => {
+  const software = findPage('/topics/software')!
+  const aiApps = findPage('/topics/ai-apps')!
+  const list = (p: typeof software) => p.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { url: string }[] }
+
+  it('每個主題有自己的標題與描述,也和首頁不同', () => {
+    const home = findPage('/')!
+    expect(new Set([home.title, software.title, aiApps.title]).size).toBe(3)
+    expect(new Set([home.description, software.description, aiApps.description]).size).toBe(3)
+  })
+
+  it('sitemap 列出主題頁與優先度', () => {
+    const xml = sitemapXml()
+    expect(xml).toContain(`<loc>${absoluteUrl('/topics/software')}</loc><priority>0.9</priority>`)
+    expect(xml).toContain(`<loc>${absoluteUrl('/topics/ai-apps')}</loc><priority>0.9</priority>`)
+  })
+
+  it('描述不會太長,搜尋結果顯示得完', () => {
+    for (const p of [software, aiApps]) expect(p.description.length).toBeLessThanOrEqual(80)
+  })
+
+  it('結構化資料列出各自的課程,彼此不重複', () => {
+    const urls = (p: typeof software) => list(p).itemListElement.map((x) => x.url)
+    expect(urls(software)).toContain(absoluteUrl('/courses/tools'))
+    expect(urls(aiApps)).toContain(absoluteUrl('/courses/ai-agent'))
+    expect(urls(software).filter((u) => urls(aiApps).includes(u))).toEqual([])
+  })
+
+  it('課程的麵包屑掛在所屬主題底下', () => {
+    const crumbs = (path: string) => JSON.stringify(findPage(path)!.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))
+    expect(crumbs('/courses/tools/1')).toContain('/topics/software')
+    expect(crumbs('/courses/ai-agent')).toContain('/topics/ai-apps')
+  })
+})
+
 describe('PAGES', () => {
   it('paths are unique', () => {
     const paths = PAGES.map((p) => p.path)

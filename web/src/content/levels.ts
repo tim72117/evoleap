@@ -1,4 +1,4 @@
-// 首頁「課程地圖」的資料。由上往下 = 由淺入深。
+// 課程地圖的資料。由上往下 = 由淺入深。LEVELS 是主題「做出自己的軟體」，AI_APP_LEVELS 是主題「打造 AI 互動軟體」（見 topics.ts）。
 // 規劃中('planned')的課程只放暫定名稱、簡述與暫定的課程內容主題;不要在這裡寫未確認的事實
 // (價格、日期、堂數、講師、評價等)。要新增 / 調整等級,直接編輯 LEVELS 陣列即可。
 import { AI_AGENT_COURSE_PATH, COURSE } from './aiAgent'
@@ -54,6 +54,7 @@ export const LEVELS: CourseLevel[] = [
     title: 'AI 工具介紹：讓 AI 在你的電腦上做出第一個網站',
     summary: '不用先學寫程式，第一堂課就讓 AI 在你的電腦上建好專案、做出一頁式網站。學會把想要的畫面說清楚，一步步調整到你滿意。',
     lessons: [
+      { id: '0.intro', text: '為什麼不用學寫程式，也能做出軟體' },
       { id: '0.0', text: '安裝會操作檔案的 AI 工具，學會安全地允許與拒絕' },
       { id: '0.1', text: '認識專案與工作目錄，讓 AI 幫你建立、搬移檔案' },
       { id: '0.2', text: '一段話描述，做出一頁式網站，再精確調整到滿意' },
@@ -70,6 +71,7 @@ export const LEVELS: CourseLevel[] = [
     title: 'AI 工具入門：用 AI 把點子整理成可以開工的需求',
     summary: '跟著一家小店做預約系統的真實案例，用 AI 把一段口語描述變成清楚的需求清單和工作項目。下次接到新需求，套用範本幾分鐘就能整理好。',
     topics: [
+      '做一張訂購單，學會哪些資料要在送出前檢查',
       '把老闆的一段話整理成需求清單，分出必要與加分項目',
       '找出沒說清楚的地方，寫出對方容易回答的問題',
       '拆成有驗收條件、可以直接開工的工作項目',
@@ -98,6 +100,17 @@ export const LEVELS: CourseLevel[] = [
     link: '/courses/vibe-coding',
     prerequisite: '會使用 AI 工具，願意開始動手寫程式',
   },
+]
+
+/** 主題「打造 AI 互動軟體」的課程地圖頁開頭 */
+export const AI_APPS_INTRO = {
+  kicker: '不只是對話',
+  titleLines: ['打造會動手做事的', 'AI 互動軟體'],
+  pitch: '使用者打字提問，AI 自己判斷要用哪個工具：查資料、跑分析、畫出圖表。從寫出第一個工具開始，一路做到穩定上線。',
+}
+
+/** 主題「打造 AI 互動軟體」的課程,由淺入深 */
+export const AI_APP_LEVELS: CourseLevel[] = [
   {
     id: 'ai-agent',
     levelLabel: '中階',
@@ -134,3 +147,6 @@ export const LEVELS: CourseLevel[] = [
     prerequisite: '完成中階課程或具備同等經驗',
   },
 ]
+
+/** 所有主題的課程(課程目錄、資料檢查用) */
+export const ALL_LEVELS: CourseLevel[] = [...LEVELS, ...AI_APP_LEVELS]

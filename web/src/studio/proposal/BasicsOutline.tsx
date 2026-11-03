@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { CourseLesson } from '../../content/lessonTypes'
+import { KNOWLEDGE_AREAS, type CourseLesson } from '../../content/lessonTypes'
 import {
   BRIDGE,
   CHECKLIST,
@@ -12,6 +12,7 @@ import {
   type ProductionPlan,
   type Tier,
 } from './basicsData'
+import { OpeningPreview } from './OpeningPreviewPlayer'
 import { RESEARCH_REFS } from './researchRefs'
 import { useCopy } from '../../site/useCopy'
 import ui from './proposal.module.css'
@@ -54,6 +55,21 @@ function LessonDetails({ lesson, course }: { lesson: Lesson; course: CourseLesso
         </span>
       </summary>
       <div className={ui['lp-body']}>
+        {course.opening && (
+          <>
+            <div className={ui['sub-label']}>0 · 情境開場（動畫）→ 任務卡</div>
+            <p className={ui['lp-pain']}>
+              <strong>痛點：</strong>
+              {course.opening.pain}
+            </p>
+            <p className={ui['lp-text']}>{course.opening.scene}</p>
+            <p className={ui['lp-task']}>
+              <strong>任務：</strong>
+              {course.opening.task}
+            </p>
+            <OpeningPreview course={course} />
+          </>
+        )}
         <div className={ui['sub-label']}>1 · 目標</div>
         <p className={ui['lp-goal']}>{course.goal}</p>
         <p className={ui['lp-scenario']}>
@@ -91,7 +107,14 @@ function LessonDetails({ lesson, course }: { lesson: Lesson; course: CourseLesso
           ))}
         </ol>
 
-        <div className={ui['sub-label']}>影片切分（每課第一支以「目標 → 步驟拆解」開場）</div>
+        {course.opening && (
+          <>
+            <div className={ui['sub-label']}>4 · 回到情境</div>
+            <p className={ui['lp-text']}>{course.opening.payoff}</p>
+          </>
+        )}
+
+        <div className={ui['sub-label']}>影片切分（第一支以「情境開場 → 任務卡 → 目標 → 步驟拆解」開場，最後一支以「回到情境」收尾）</div>
         <table className={ui['lp-video-table']}>
           <tbody>
             {course.videos.map((v, i) => (
@@ -102,8 +125,14 @@ function LessonDetails({ lesson, course }: { lesson: Lesson; course: CourseLesso
                 <td>
                   <strong>{v.title}</strong>
                   <div className={`${ui.small} ${ui['lp-wrap']}`}>
-                    {i === 0 ? '目標、步驟拆解 → ' : ''}展示{stepRange(v.steps)} → {v.wrap}
+                    {i === 0 ? (course.opening ? '情境開場、任務卡、目標、步驟拆解 → ' : '目標、步驟拆解 → ') : ''}展示{stepRange(v.steps)}
+                    {course.opening && i === course.videos.length - 1 ? ' → 回到情境' : ''} → {v.wrap}
                   </div>
+                  {v.drafts?.map((d) => (
+                    <div key={d.live} className={ui.small}>
+                      試做畫面：<Link to={`/proposal/visuals/preview?script=${encodeURIComponent(d.live)}`}>{d.title}</Link>
+                    </div>
+                  ))}
                 </td>
                 <td className={`${ui.nowrap} ${ui.small}`}>約 {v.minutes} 分</td>
               </tr>
@@ -131,6 +160,57 @@ function LessonDetails({ lesson, course }: { lesson: Lesson; course: CourseLesso
         </div>
       </div>
     </details>
+  )
+}
+
+/** 知識點：依分類彙整各課的 knowledge，看得出每一類在哪一課教到什麼 */
+function KnowledgeSection({ lessons }: { lessons: CourseLesson[] }) {
+  return (
+    <>
+      <h2>知識點</h2>
+      <p className={ui.lead}>依分類列出每一課會學到的知識點；資料在各課的 knowledge 欄位。</p>
+      {KNOWLEDGE_AREAS.map((area) => {
+        const rows = lessons.filter((c) => c.knowledge[area]?.length)
+        if (!rows.length) return null
+        return (
+          <section className={ui.card} key={area}>
+            <div className={ui['card-head']}>
+              <h3>{area}</h3>
+            </div>
+            <div className={ui['table-scroll']}>
+              <table className={ui['lesson-table']}>
+                <thead>
+                  <tr>
+                    <th style={{ width: '32%' }}>課</th>
+                    <th>知識點</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((c) => (
+                    <tr key={c.id}>
+                      <td>
+                        <strong>
+                          {c.id} {c.title}
+                        </strong>
+                      </td>
+                      <td>
+                        <div className={ui.terms}>
+                          {c.knowledge[area]!.map((t) => (
+                            <span key={t}>
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )
+      })}
+    </>
   )
 }
 
@@ -356,7 +436,7 @@ export function ResearchRefs() {
   )
 }
 
-/** L1 / L2 等級頁：定位、設計依據、大綱、（L2）環境檢查表與銜接、待辦、風險、待決定。 */
+/** L0／L1／L1T／L2 等級頁：定位、設計依據、大綱、（L2）環境檢查表與銜接、待辦、風險、待決定。 */
 export function TierOutline({ tier }: { tier: Tier }) {
   const info = TIER_INFO[tier]
   const mods = MODULES.filter((m) => m.tier === tier)
@@ -422,13 +502,15 @@ export function TierOutline({ tier }: { tier: Tier }) {
       </div>
       <p className={ui.lead} style={{ fontSize: 13 }}>
         {plans.length
-          ? `每課固定「目標 → 步驟拆解 → 實際操作展示」。共 ${stepCount} 個步驟（${promptCount} 段可複製的提示詞）、${videoCount} 支影片約 ${videoTotal} 分鐘。展開各課可看步驟、提示詞與影片切分。`
+          ? `每課固定「情境開場（痛點動畫）→ 任務卡 → 目標 → 步驟拆解 → 實際操作展示 → 回到情境」。共 ${stepCount} 個步驟（${promptCount} 段可複製的提示詞）、${videoCount} 支影片約 ${videoTotal} 分鐘。展開各課可看步驟、提示詞與影片切分。`
           : '每課約 30 分鐘，預計拆成 3–4 支 6–9 分鐘的影片，以「實作成果」欄的小練習收尾。'}
-        單元編號 0–8 跨 L0／L1／L2 連續編排。
+        {tier === 'L1T' ? '單元編號 T1–T3 是這門課自己的編號。' : '單元編號 0–14 跨 L0／L1／L2 連續編排。'}
       </p>
       {mods.map((m) => (
         <ModuleCard key={m.num} mod={m} />
       ))}
+
+      {plans.length > 0 && <KnowledgeSection lessons={plans} />}
 
       {info.production && <ProductionSection plan={info.production} mods={mods} />}
 

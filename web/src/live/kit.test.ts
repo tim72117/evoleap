@@ -3,6 +3,40 @@ import { kit, type CursorMove } from './kit'
 
 const near = (a: number, b: number, eps = 1e-6) => expect(Math.abs(a - b), `${a} ≉ ${b}`).toBeLessThan(eps)
 
+describe('splitCaption', () => {
+  const width = (s: string) => [...s].reduce((m, c) => m + (c.charCodeAt(0) < 256 ? 0.55 : 1), 0)
+
+  it('短句不動,依句子切開', () => {
+    expect(kit.splitCaption('好。接著看這裡！')).toEqual(['好。', '接著看這裡！'])
+  })
+
+  it('太長時依逗號切,行尾的逗號拿掉', () => {
+    expect(kit.splitCaption('這一課要做四件事情而且每一件都很重要，先看這類工具能對你的檔案做什麼，再安裝並登入。')).toEqual(['這一課要做四件事情而且每一件都很重要', '先看這類工具能對你的檔案做什麼，再安裝並登入。'])
+  })
+
+  it('沒有標點的長句也會斷;英文單字與檔名不切開,標點不放行首', () => {
+    const lines = kit.splitCaption('請打開名字叫做 super-long-file-name.html 的那一個檔案然後再確認裡面的每一段內容都沒有問題。', 20)
+    expect(lines.length).toBeGreaterThan(1)
+    expect(lines.join('')).toContain('super-long-file-name.html')
+    expect(lines.some((l) => l.includes('super-long-file-name.html'))).toBe(true)
+    for (const l of lines) expect(l).not.toMatch(/^[。，、！？]/)
+  })
+
+  it('所有腳本的旁白切完都不超過一行', () => {
+    const scripts = import.meta.glob('../content/live/**/*.json', { eager: true, import: 'default' })
+    const texts: string[] = []
+    for (const [file, data] of Object.entries(scripts)) {
+      if (file.endsWith('.voice.json') || file.includes('/site/')) continue
+      JSON.stringify(data, (k, v: unknown) => {
+        if (k === 'narration' && typeof v === 'string') texts.push(v)
+        return v
+      })
+    }
+    expect(texts.length).toBeGreaterThan(50)
+    for (const t of texts) for (const line of kit.splitCaption(t)) expect(width(line), line).toBeLessThanOrEqual(24)
+  })
+})
+
 describe('kit', () => {
   it('progress / map 夾在範圍內', () => {
     expect(kit.progress(-5, 0, 100)).toBe(0)

@@ -1,0 +1,33 @@
+{
+  "title": "訂購單：情境開場（試做）",
+  "lesson": "L1 · 1.0",
+  "cast": {
+    "phone": { "actor": "chat", "props": { "title": "小森烘焙" }, "place": { "x": 140, "y": 130, "w": 560, "h": 780 }, "hidden": true },
+    "desk": { "actor": "notes", "props": { "label": "今日訂單" }, "place": { "x": 780, "y": 110, "w": 600, "h": 820 }, "hidden": true },
+    "boss": { "actor": "person", "props": { "name": "老闆", "look": "boss" }, "place": { "x": 1390, "y": 90, "w": 510, "h": 400 }, "hidden": true },
+    "staff": { "actor": "person", "props": { "name": "店員B", "look": "staff" }, "place": { "x": 1390, "y": 530, "w": 510, "h": 400 }, "hidden": true }
+  },
+  "steps": [
+    { "show": "phone", "chapter": "分鏡 1 · 訊息湧進來", "narration": "小森烘焙的手機，一早就響個不停。" },
+    { "receive": "我要訂一個生日蛋糕，明天拿", "from": "客人甲" },
+    { "callout": "phone:msg:1", "text": "蛋糕要提前 2 天訂", "narration": "可是蛋糕要提前兩天訂，明天來不及。" },
+    { "receive": "巧克力的兩個，週日晚上拿", "from": "客人乙" },
+    { "callout": "phone:msg:2", "text": "週日沒有傍晚時段", "narration": "週日也沒有傍晚的取貨時段。" },
+    { "receive": "可頌兩個，電話 091234567", "from": "客人丙" },
+    { "callout": "phone:msg:3", "text": "手機少一碼，也沒說取貨時段", "narration": "這位的手機少了一碼，也沒說什麼時候來拿。" },
+
+    { "show": "desk", "chapter": "分鏡 2 · 手抄便條", "narration": "店員B 拿便條紙，一張一張抄下來。" },
+    { "show": "staff" },
+    { "on": "staff", "say": "我先抄下來……", "mood": "busy" },
+    { "jot": "客人甲 生日蛋糕 明天" },
+    { "jot": "客人乙 巧克力×2 週日晚上" },
+    { "jot": "客人丙 可頌×2 091234567" },
+    { "lose": "客人丙", "narration": "便條越堆越高，一張滑到地上，沒有人發現。" },
+    { "callout": "desk:floor", "text": "漏單" },
+
+    { "show": "boss", "chapter": "分鏡 3 · 老闆嘆氣" },
+    { "on": "boss", "say": "每一張都要再回問一次。", "mood": "tired", "narration": "老闆嘆了口氣：每一張都要再回問一次。" },
+
+    { "card": "做一張訂購單，讓客人填錯時當場就知道。", "eyebrow": "這一課的任務", "chapter": "任務卡", "narration": "這一課的任務：做一張訂購單，讓客人填錯時當場就知道。" }
+  ]
+}

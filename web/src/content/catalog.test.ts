@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { COURSES, coursePath, lessonNumber, lessonPath, plannedChapterPath } from './catalog'
 import type { CourseLesson } from './lessonTypes'
-import { LEVELS } from './levels'
+import { ALL_LEVELS as LEVELS } from './levels'
 import { AI_AGENT_COURSE_PATH } from './aiAgent'
 
 const allPaths = COURSES.flatMap((c) => [

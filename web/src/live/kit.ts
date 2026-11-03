@@ -188,6 +188,39 @@ function typewriter(text: string, local: number, { start = 0, cps = 14 } = {}): 
   return { text: g.slice(0, n).join(''), n, total: g.length, done: n >= g.length }
 }
 /** 打完 text 需要的毫秒數 */
+/** 字幕的寬度:中文算 1,英數與半形符號約半個字寬 */
+const captionWidth = (s: string): number => graphemes(s).reduce((m, c) => m + (/^[\x20-\x7e]$/.test(c) ? 0.55 : 1), 0)
+
+/**
+ * 把旁白切成一條條單行字幕,每條不超過 max 個字寬。先依句子切,太長再依逗號等標點切,
+ * 還是太長才在字中間斷;英文單字、檔名(連續的英數與半形符號)不切開,標點不放在行首,行尾的逗號類標點拿掉。
+ */
+function splitCaption(text: string, max = 24): string[] {
+  const fill = (tokens: string[]): string[] => {
+    const lines: string[] = []
+    let line = ''
+    for (const t of tokens) {
+      if (line && captionWidth(line + t) > max) {
+        lines.push(line)
+        line = t.trimStart()
+      } else line += t
+    }
+    if (line) lines.push(line)
+    return lines
+  }
+  return String(text)
+    .split(/(?<=[。！？；…])/)
+    .flatMap((sentence) =>
+      fill(
+        sentence
+          .split(/(?<=[，、：,:])/)
+          .flatMap((clause) => (captionWidth(clause) <= max ? [clause] : (clause.match(/[\x21-\x7e]+|\s+|[^\x21-\x7e\s][。！？；…，、：」）]*/gu) ?? [clause]))),
+      ),
+    )
+    .map((line) => line.trim().replace(/[，、：,:；]+$/, ''))
+    .filter(Boolean)
+}
+
 const typeDuration = (text: string, cps = 14): number => (graphemes(text).length / cps) * 1000
 
 /**
@@ -486,6 +519,7 @@ export const kit = {
   marker,
   underline,
   spotlight,
+  splitCaption,
   drawPath,
   arrowPath,
   arrowBetween,

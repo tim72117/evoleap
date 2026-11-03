@@ -53,6 +53,7 @@ const LEVELS: LevelBlock[] = [
     summary: `零基礎、只用瀏覽器，不講 AI 原理。${count('L1')}。`,
     points: [
       '案例：小森烘焙的線上預約取貨系統（虛構），貫穿全課',
+      '開場 1.0：在 L0 網站加上訂購單，帶出表單與送出前的資料規格檢查',
       '流程：老闆訊息 → 需求清單 → 澄清問題 → 工作項目 → 拆分排序與第一版 → 範本',
       '結業：處理新需求「會員集點」',
       '每課為「目標 → 步驟拆解 → 實際操作展示」，每步附可複製的提示詞',
@@ -60,6 +61,24 @@ const LEVELS: LevelBlock[] = [
     next: ['決定主示範的 AI 聊天工具', '在三個工具實測全部提示詞', '寫 1.1 腳本並找零基礎試看者跟做'],
     pending: `${pendingCount('L1')} 項待決定`,
     links: [{ to: '/proposal/ai-tools', label: 'L1 大綱' }],
+  },
+  {
+    code: 'L1',
+    title: '生活小工具',
+    access: '暫定免費',
+    stage: { cls: 'todo', text: '大綱完成 · 待實測' },
+    summary: `與「AI 工具入門」並列的第二門 L1 課，接續 L0：每課做一個日常用得到的純前端小工具。${count('L1T')}。`,
+    points: [
+      '分帳計算機、購物清單、證件浮水印、照片批次縮小、名牌列印、抽籤分組，最後做自己的工具',
+      '只用 HTML、CSS、原生 JavaScript，雙擊在瀏覽器打開，資料不離開自己的電腦',
+      '其他工具構想（QR Code、PDF 合併、記帳本等）放在 L1 構想區',
+    ],
+    next: ['逐課檢查提示詞', '用選定工具實測，並確認各瀏覽器雙擊開啟的行為', '決定案例主軸與是否開放外部函式庫'],
+    pending: `${pendingCount('L1T')} 項待決定`,
+    links: [
+      { to: '/proposal/life-tools', label: '生活小工具大綱' },
+      { to: '/proposal/l1-ideas', label: 'L1 構想區' },
+    ],
   },
   {
     code: 'L2',
@@ -129,7 +148,7 @@ export function ProposalIndexPage() {
 
       <h2>各等級狀態</h2>
       {LEVELS.map((lv) => (
-        <section className={ui.card} key={lv.code}>
+        <section className={ui.card} key={`${lv.code}-${lv.title}`}>
           <div className={ui['card-head']}>
             <div className={ui['head-left']}>
               <span className={ui['head-num']}>{lv.code}</span>

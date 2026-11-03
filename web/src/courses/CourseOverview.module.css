@@ -1,0 +1,331 @@
+/* 學員端課程總覽:簡單線條的介紹區 + 課程內容清單。顏色一律用 SiteLayout 的 --site-* token。 */
+
+.icon {
+  flex: none;
+}
+
+/* ---------- 介紹區 ---------- */
+.hero {
+  background: var(--site-surface-2, var(--site-bg));
+  border-bottom: 1px solid var(--site-border);
+}
+
+.heroInner {
+  max-width: var(--site-max);
+  margin: 0 auto;
+  padding: 40px 20px 48px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 48px;
+  align-items: start;
+}
+
+.crumb {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--site-muted);
+}
+
+.crumb a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.crumb a:hover {
+  color: var(--site-link);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.tag,
+.tagStrong {
+  padding: 3px 12px;
+  border: 1px solid var(--site-border);
+  border-radius: 8px;
+  background: var(--site-surface);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tagStrong {
+  border-color: var(--site-accent-strong);
+  background: var(--site-accent-strong);
+  color: var(--site-accent-contrast);
+}
+
+.intro h1 {
+  margin: 0 0 14px;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.3;
+}
+
+.lead {
+  margin: 0 0 22px;
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--site-muted);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  margin: 0;
+  font-size: 17px;
+  color: var(--site-muted);
+}
+
+.meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  background: var(--site-surface);
+  box-shadow: var(--site-shadow);
+}
+
+.art {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  background: linear-gradient(150deg, #7d9bff, #a88bf8);
+}
+
+.art svg {
+  width: 62%;
+  height: auto;
+}
+
+.start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 10px;
+  background: var(--site-text);
+  color: var(--site-surface) !important;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.start:hover {
+  opacity: 0.88;
+}
+
+/* ---------- 課程內容 ---------- */
+.content {
+  max-width: var(--site-max);
+  margin: 0 auto;
+  padding: 44px 20px 64px;
+}
+
+.content h2 {
+  margin: 0 0 20px;
+  font-size: 26px;
+}
+
+.group {
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  background: var(--site-surface);
+  overflow: hidden;
+}
+
+.group summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 24px;
+  background: var(--site-bg);
+  border-bottom: 1px solid var(--site-border);
+  cursor: pointer;
+  list-style: none;
+}
+
+.group summary::-webkit-details-marker {
+  display: none;
+}
+
+.group summary .icon {
+  color: var(--site-muted);
+  transition: transform 0.15s;
+}
+
+.group[open] summary .icon {
+  transform: rotate(90deg);
+}
+
+.groupTitle {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.groupCount {
+  color: var(--site-muted);
+}
+
+.rows {
+  margin: 0;
+  padding: 0 24px;
+  list-style: none;
+}
+
+.rows li + li {
+  border-top: 1px solid var(--site-border);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 0;
+  color: var(--site-text) !important;
+  text-decoration: none;
+}
+
+.play {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--site-code-bg);
+  color: var(--site-muted);
+}
+
+.row:hover .play {
+  background: var(--site-accent);
+  color: var(--site-accent-contrast);
+}
+
+.rowText {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.rowTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.row:hover .rowTitle {
+  color: var(--site-link);
+}
+
+.rowNum {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--site-muted);
+}
+
+.badge {
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: var(--site-code-bg);
+  color: var(--site-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rowGoal {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--site-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rowMeta {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--site-muted);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--site-border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--site-text);
+}
+
+.time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 84px;
+  font-size: 15px;
+}
+
+@media (max-width: 900px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .card {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .heroInner {
+    padding: 28px 16px 36px;
+  }
+
+  .content {
+    padding: 32px 16px 48px;
+  }
+
+  .rows {
+    padding: 0 16px;
+  }
+
+  .group summary {
+    padding: 16px;
+  }
+
+  .row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .rowText {
+    flex-basis: calc(100% - 46px);
+  }
+
+  .rowMeta {
+    margin-left: 46px;
+  }
+}

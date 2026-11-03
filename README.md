@@ -17,7 +17,7 @@ web/                 前端（React + Vite + TypeScript）
       lessonTypes.ts   單課資料型別
       live/            即時教學畫面的腳本（JSON，例如 l0/0.0-tools.json；單課資料以 live 欄位指定）與旁白語音清單（*.voice.json）
     live/            即時教學畫面引擎（TypeScript）：舞台 stage.ts、播放器外殼 shell.ts、演員 actors/、鏡頭 camera.ts、動畫工具 kit.ts；規格見 src/live/README.md
-    home/            首頁（課程地圖）/
+    home/            首頁（主題）、主題頁（課程地圖）/
     courses/         課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁；播放進度（只有登入的會員才記）
     auth/            登入頁 /login、使用者選單、登入狀態
     legal/           隱私權政策 /privacy、服務條款 /terms

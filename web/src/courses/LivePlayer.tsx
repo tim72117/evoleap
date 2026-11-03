@@ -20,9 +20,11 @@ type Props = {
   title: string
   onTime: (seconds: number) => void
   onCues?: (cues: { step: number; at: number }[]) => void
+  /** 還沒開始播放(時間為 0)時顯示的畫面:某個章節開始後幾毫秒。開頭畫面太空時用;播放還是從頭開始 */
+  poster?: { chapter: string; after: number }
 }
 
-export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ script, title, onTime, onCues }, ref) {
+export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ script, title, onTime, onCues, poster }, ref) {
   const boxRef = useRef<HTMLDivElement>(null)
   const shellRef = useRef<Shell | null>(null)
   const onTimeRef = useRef(onTime)
@@ -60,10 +62,12 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
         await stage.load(data, { voice: voice?.durations })
         if (cancelled) return
         const caps = stage.captions
+        const posterChapter = poster && stage.chapters.find((c) => c.label === poster.chapter)
+        const posterAt = posterChapter && poster ? posterChapter.at + poster.after : 0
         vp.update({
           title: data.title,
           duration: stage.duration,
-          renderAt: (ms) => stage.renderAt(ms),
+          renderAt: (ms) => stage.renderAt(ms === 0 ? posterAt : ms),
           chapters: stage.chapters,
           stops: stage.stops,
           captions: (ms) => caps.find((c) => ms >= c.from && ms < c.to)?.text || '',

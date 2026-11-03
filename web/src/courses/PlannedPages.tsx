@@ -2,13 +2,14 @@ import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { coursePath, lessonNumber, lessonPath, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
 import styles from './Lesson.module.css'
+import { topicOfCourse } from '../content/topics'
 
 // 規劃中的課程總覽與章節頁：只有標題與簡述，內容完成後章節改由 LessonPage 呈現。
 
 function Crumb({ course, current }: { course: Course; current?: string }) {
   return (
     <nav className={styles.crumb} aria-label="麵包屑">
-      <Link to="/#map">課程地圖</Link>
+      <Link to={`${topicOfCourse(coursePath(course)).path}#map`}>課程地圖</Link>
       <span aria-hidden="true"> / </span>
       {current ? <Link to={coursePath(course)}>{course.level}</Link> : <span>{course.level}</span>}
       {current && (

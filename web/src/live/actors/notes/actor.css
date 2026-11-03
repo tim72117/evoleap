@@ -1,0 +1,26 @@
+/* 演員 notes:桌上的便條紙。選擇器都以 .A-notes 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-notes {
+  position: relative;
+  width: 100%; height: 100%;
+  font-family: "Kaiti TC", "BiauKai", "DFKai-SB", -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 26px;
+  line-height: 1.35;
+  color: #3a332a;
+}
+.A-notes *, .A-notes *::before, .A-notes *::after { box-sizing: border-box; }
+.A-notes .nt-desk {
+  position: absolute; inset: 0 0 22% 0;
+  background: linear-gradient(160deg, #c9a27a, #b48b62);
+  border-radius: 1em;
+  box-shadow: inset 0 -0.4em 0 rgba(0, 0, 0, 0.12), 0 1em 2.4em rgba(0, 0, 0, 0.2);
+}
+.A-notes .nt-label { position: absolute; left: 1em; top: 0.7em; font-size: 0.8em; font-weight: 700; color: #fff7ea; opacity: 0.9; }
+.A-notes .nt-stack { position: absolute; left: 50%; top: 12%; width: 0; height: 0; }
+.A-notes .nt-note {
+  position: absolute; left: -5.5em; top: 0;
+  width: 11em; min-height: 4.4em; padding: 0.6em 0.8em;
+  background: #fff3a6; border-radius: 0.2em;
+  box-shadow: 0 0.35em 0.8em rgba(0, 0, 0, 0.22);
+  transform-origin: 50% 50%;
+}

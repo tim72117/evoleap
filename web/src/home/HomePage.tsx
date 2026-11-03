@@ -1,165 +1,152 @@
-import type { CSSProperties } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
+import { COURSES, coursePath, lessonPath } from '../content/catalog'
+import { LEVELS } from '../content/levels'
+import { HOME_INTRO, PLANNED_TOPICS, SOFTWARE_TOPIC } from '../content/topics'
+import { LivePlayer } from '../courses/LivePlayer'
 import { SiteLayout } from '../site/SiteLayout'
-import { useHashScroll } from '../site/useHashScroll'
-import { ACCESS_LABEL, LEVELS, MAP_INTRO, type CourseLevel } from '../content/levels'
-import { COURSES, coursePath, lessonNumber, lessonPath } from '../content/catalog'
-import type { CourseLesson } from '../content/lessonTypes'
-import { LevelArt } from './LevelArt'
+import bakerySite from './assets/bakery-site.jpg'
 import styles from './HomePage.module.css'
 
-/** 已有可以播放的影片(即時教學畫面)的課 */
-const isOpen = (l: CourseLesson) => l.videos.some((v) => v.live)
+// 首頁:先列出主題,再進入各主題。有內容的主題佔整排,直接看得到教學畫面與做出來的成品;
+// 規劃中的主題縮小,只寫預計做出的成果。課數、連結與示範提示詞都取自課程資料,主題文案在 content/topics.ts。
 
-/** 等級的單課清單:對到課程目錄裡的單課,附上網址與是否已開放。
- *  對不到的項目直接略過(不在 render 中 throw,免得整個首頁空白);資料一致性由 catalog.test.ts 檢查 */
-function levelLessons(level: CourseLevel) {
-  const course = COURSES.find((c) => coursePath(c) === level.link)
-  if (!course) return []
-  return (level.lessons ?? []).flatMap((item) => {
-    const lesson = course.lessons.find((l) => l.id === item.id)
-    if (!lesson) return []
-    return [{ ...item, num: lessonNumber(lesson), to: lessonPath(course, lesson), open: isOpen(lesson) }]
-  })
-}
+const tools = COURSES.find((c) => c.slug === 'tools')!
+const openLessons = tools.lessons.filter((l) => l.videos.some((v) => v.live))
+const firstLesson = openLessons[0]
+const firstScript = firstLesson.videos[0].live!
+const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!
 
-function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
-  const available = level.status === 'available'
-  const access = ACCESS_LABEL[level.access]
-  const lessons = levelLessons(level)
-  const opened = lessons.filter((l) => l.open)
-  return (
-    <li
-      id={`level-${level.id}`}
-      className={`${styles.step} ${available ? styles.available : styles.planned}`}
-      style={{ '--step': index } as CSSProperties}
-    >
-      <div className={styles.node} aria-hidden="true">
-        {index}
-      </div>
-      <article className={styles.card}>
-        <div className={styles.art}>
-          <span className={styles.artLevel}>
-            Level {index}
-            <strong>{level.levelLabel}</strong>
-          </span>
-          <LevelArt art={level.art} />
-        </div>
-        <div className={styles.body}>
-          <p className={styles.badges}>
-            {access && (
-              <span className={`${styles.badge} ${level.access === 'free' ? styles.badgeFree : styles.badgeLogin}`}>
-                {access}
-              </span>
-            )}
-            {available ? (
-              <span className={`${styles.badge} ${styles.badgeOpen}`}>課程內容已上架</span>
-            ) : opened.length ? (
-              <span className={`${styles.badge} ${styles.badgeOpen}`}>第 {opened.map((l) => l.num).join('、')} 課已開放</span>
-            ) : (
-              <span className={styles.badge}>規劃中</span>
-            )}
-          </p>
-          <h3>{level.title}</h3>
-          <p className={styles.summary}>{level.summary}</p>
-          {lessons.length ? (
-            <>
-              <h4 className={styles.topicsHead}>課程內容</h4>
-              <ol className={styles.lessons}>
-                {lessons.map((l) => (
-                  <li key={l.id}>
-                    <Link to={l.to} className={styles.lessonNum}>
-                      第 {l.num} 課
-                    </Link>
-                    <span>{l.text}</span>
-                  </li>
-                ))}
-              </ol>
-            </>
-          ) : (
-            <>
-              <h4 className={styles.topicsHead}>課程內容{!available && '（暫定）'}</h4>
-              <ul className={styles.topics}>
-                {(level.topics ?? []).map((t) => (
-                  <li key={t}>{t}</li>
-                ))}
-              </ul>
-            </>
-          )}
-          {level.prerequisite && (
-            <p className={styles.prereq}>
-              <span>先備條件</span>
-              {level.prerequisite}
-            </p>
-          )}
-          {level.link && (
-            <Link className={styles.cta} to={level.link}>
-              查看課程內容 <span aria-hidden="true">→</span>
-            </Link>
-          )}
-        </div>
-      </article>
-    </li>
-  )
-}
+// 這個主題的等級(L0–L2);中階、進階在主題「打造 AI 互動軟體」
+const LADDER = COURSES.filter((c) => LEVELS.some((l) => l.link === coursePath(c))).map((c) => ({
+  name: c.level.split(' ')[1],
+  open: c.lessons.some((l) => l.videos.some((v) => v.live)),
+}))
+
+/** 教學畫面開始前的封面:AI 動手前的確認提示,比空白的開場更看得出課程在做什麼 */
+const PLAYER_POSTER = { chapter: '看懂確認提示', after: 2500 }
 
 export function HomePage() {
-  useHashScroll()
-  // 主視覺的次要按鈕:連到第一個已有課程可看的等級(L3 還在規劃中,不會出現在這裡)
-  const featured = LEVELS.find((l) => l.link && (l.status === 'available' || levelLessons(l).some((x) => x.open)))
+  // 課程地圖以前在首頁:舊連結(/#map、/#level-tools)導到主題頁的同一個位置
+  const { hash } = useLocation()
+  if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
   return (
     <SiteLayout>
       <section className={styles.hero}>
-        <div className={styles.heroInner}>
-          <p className={styles.kicker}>{MAP_INTRO.kicker}</p>
-          <h1>
-            {MAP_INTRO.titleLines.map((line) => (
-              <span key={line} className={styles.titleLine}>
-                {line}
-              </span>
-            ))}
-          </h1>
-          <p className={styles.pitch}>{MAP_INTRO.pitch}</p>
-          <ol className={styles.overview} aria-label="等級總覽">
-            {LEVELS.map((l, i) => (
-              <li key={l.id}>
-                <Link to={{ pathname: '/', hash: `level-${l.id}` }}>
-                  <span className={styles.overviewNum}>{i}</span>
-                  {l.levelLabel}
-                </Link>
-              </li>
-            ))}
-          </ol>
-          <div className={styles.ctas}>
-            <Link className={styles.primary} to={{ pathname: '/', hash: 'map' }}>
-              查看課程地圖
-            </Link>
-            {featured?.link && (
-              <Link className={styles.secondary} to={featured.link}>
-                {featured.levelLabel}課程：{featured.title.split('：')[0]}
-              </Link>
-            )}
-          </div>
+        <div className={styles.container}>
+          <h1>{HOME_INTRO.title}</h1>
+          <p className={styles.pitch}>{HOME_INTRO.pitch}</p>
         </div>
       </section>
 
-      <section className={styles.section} id="map">
-        <div className={styles.container}>
-          <header className={styles.sectionHead}>
-            <p className={styles.eyebrow}>由淺入深</p>
-            <h2>課程等級</h2>
-            <p className={styles.lead}>
-              由上往下依難度排列。標示「規劃中」的課程名稱與內容仍在規劃，可能調整。
-            </p>
-          </header>
-          <ol className={styles.map}>
-            {LEVELS.map((l, i) => (
-              <LevelCard key={l.id} level={l} index={i} />
+      <div className={styles.container}>
+        <article className={styles.featured} aria-labelledby="theme-software">
+          <div className={styles.featuredMain}>
+            <div className={styles.featuredText}>
+              <p className={`${styles.badge} ${styles.badgeOpen}`}>開放中</p>
+              <h2 id="theme-software">{SOFTWARE_TOPIC.name}</h2>
+              <p className={styles.slogan}>{SOFTWARE_TOPIC.slogan}</p>
+              <ul className={styles.facts}>
+                <li>
+                  <strong>免費</strong>開始
+                </li>
+                <li>
+                  已開放 <strong>{openLessons.length} 課</strong>
+                </li>
+                <li>
+                  不用先學<strong>程式</strong>
+                </li>
+              </ul>
+              <ol className={styles.ladder} aria-label="課程順序">
+                {LADDER.map((s) => (
+                  <li key={s.name} className={s.open ? styles.ladderOpen : undefined}>
+                    {s.name}
+                  </li>
+                ))}
+              </ol>
+              <div className={styles.ctas}>
+                <Link className={styles.primary} to={lessonPath(tools, firstLesson)}>
+                  開始第一課
+                </Link>
+                <Link className={styles.secondary} to={SOFTWARE_TOPIC.path}>
+                  看全部課程
+                </Link>
+              </div>
+            </div>
+            <div className={styles.player}>
+              <LivePlayer script={firstScript} title={firstLesson.title} onTime={() => {}} poster={PLAYER_POSTER} />
+            </div>
+          </div>
+
+          <div className={styles.result}>
+            <div className={styles.resultPrompt}>
+              <h3>第 2 課就能做出這個網站</h3>
+              <p className={styles.resultNote}>一開始，你只要這樣告訴 AI：</p>
+              <blockquote>{sitePrompt}</blockquote>
+              <p className={styles.resultNote}>再一個區塊一個區塊調整，就完成了。</p>
+            </div>
+            <figure className={styles.resultShot}>
+              <img src={bakerySite} alt="課程做出的小森烘焙一頁式網站，有導覽、主視覺與本週商品" width={1520} height={1040} loading="lazy" />
+              <figcaption>小森烘焙（課程虛構案例）的參考成品</figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <section className={styles.next} aria-labelledby="next-themes">
+          <h2 id="next-themes">接下來的主題</h2>
+          <div className={styles.nextGrid}>
+            {PLANNED_TOPICS.map((t) => (
+              <article className={styles.theme} key={t.name}>
+                <p className={styles.badge}>規劃中</p>
+                <h3>{t.name}</h3>
+                <p className={styles.themeSlogan}>{t.slogan}</p>
+                {t.flow && (
+                  <ol className={styles.flow} aria-label="會經歷的步驟">
+                    {t.flow.map((s) => (
+                      <li key={s}>{s}</li>
+                    ))}
+                  </ol>
+                )}
+                {t.sample && (
+                  <div className={styles.sample}>
+                    <p className={styles.sampleCaption}>{t.sample.caption}</p>
+                    <div className={styles.sampleGrid}>
+                      <div>
+                        <h4>整理前</h4>
+                        <ul>
+                          {t.sample.before.map((s) => (
+                            <li key={s}>{s}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <span aria-hidden="true">→</span>
+                      <div>
+                        <h4>整理後</h4>
+                        <ul>
+                          {t.sample.after.map((s) => (
+                            <li key={s}>{s}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <h4>你會做出</h4>
+                <ul className={styles.outcomes}>
+                  {t.outcomes.map((o) => (
+                    <li key={o}>{o}</li>
+                  ))}
+                </ul>
+                {t.path && (
+                  <Link className={styles.themeLink} to={t.path}>
+                    看課程規劃 <span aria-hidden="true">→</span>
+                  </Link>
+                )}
+              </article>
             ))}
-          </ol>
-        </div>
-      </section>
+          </div>
+        </section>
+      </div>
     </SiteLayout>
   )
 }

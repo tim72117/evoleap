@@ -76,6 +76,8 @@ export interface Stage {
   load(script: StageScript, opts?: { voice?: Record<string, number> }): Promise<number>
   /** 畫出 ms 時的畫面(同一個時間點一定畫出同一個畫面) */
   renderAt(ms: number): void
+  /** 「演員代號:目標」目前對應的元素(畫面上疊加互動控制項時用);找不到回傳 null */
+  element(ref: string): HTMLElement | null
   readonly duration: number
   readonly captions: StageCaption[]
   readonly chapters: StageChapter[]
@@ -309,7 +311,7 @@ export function createStage(root: HTMLElement): Stage {
     total = t + 600
 
     // 字幕與旁白語音:同一刻開始(這一步開始後 NARRATION_DELAY 毫秒)。
-    // 字幕依句子切開、按字數分配時間;有語音時分配在語音的長度內,讓字幕跟著念的速度走,沒有語音時分配到下一段旁白之前
+    // 字幕切成不會太長的單行(kit.splitCaption)、按字數分配時間;有語音時分配在語音的長度內,讓字幕跟著念的速度走,沒有語音時分配到下一段旁白之前
     captions = []
     narrations = []
     for (const i of narr) {
@@ -319,10 +321,7 @@ export function createStage(root: HTMLElement): Stage {
       const end = (j < timeline.length ? timeline[j].start : total) - NARRATION_DELAY
       const to = voice[text] != null ? Math.min(end, from + voice[text]) : end
       narrations.push({ at: from, text })
-      const parts = String(text)
-        .split(/(?<=[。！？；…])/)
-        .map((x) => x.trim())
-        .filter(Boolean)
+      const parts = kit.splitCaption(text)
       const sum = parts.reduce((m, x) => m + x.length, 0)
       let c = from
       for (const part of parts) {
@@ -548,6 +547,7 @@ export function createStage(root: HTMLElement): Stage {
   return {
     load,
     renderAt,
+    element: resolve,
     get duration() {
       return total
     },

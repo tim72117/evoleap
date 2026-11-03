@@ -1,10 +1,10 @@
-import { LEVELS } from '../../content/levels'
+import { ALL_LEVELS } from '../../content/levels'
 import { List, ResearchRefs } from './BasicsOutline'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
-// 暫定主題取自課程地圖（src/content/levels.ts 的 LEVELS，id: 'advanced'）。
-const level = LEVELS.find((l) => l.id === 'advanced')
+// 暫定主題取自課程地圖（src/content/levels.ts 的 AI_APP_LEVELS，id: 'advanced'）。
+const level = ALL_LEVELS.find((l) => l.id === 'advanced')
 
 const POSITIONING: [string, string][] = [
   ['研發階段', '未開始。只有課程地圖上的暫定主題，尚無大綱。'],

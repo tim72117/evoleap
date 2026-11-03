@@ -10,7 +10,7 @@ type Section = { id: 'overview' | 'levels' | 'ideas' | 'docs' | 'tools'; label: 
 /** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級。 */
 const LEVELS: Tab[] = [
   { to: '/proposal/tools', code: 'L0', label: 'AI 工具介紹' },
-  { to: '/proposal/ai-tools', code: 'L1', label: 'AI 工具入門' },
+  { to: '/proposal/ai-tools', code: 'L1', label: 'AI 工具入門', also: ['/proposal/life-tools', '/proposal/l1-ideas'] },
   { to: '/proposal/vibe-coding', code: 'L2', label: 'Vibe Coding 入門' },
   { to: '/proposal/ai-agent/fields', code: 'L3', label: 'AI Agent 整合應用', match: '/proposal/ai-agent' },
   { to: '/proposal/advanced', code: 'L4', label: '進階' },
@@ -21,6 +21,9 @@ const IDEAS: Tab[] = [
   { to: '/proposal/mcp', label: '課程 MCP' },
   { to: '/proposal/member', label: '會員空間' },
   { to: '/proposal/visuals', label: '即時教學影像', also: ['/proposal/visuals/preview'] },
+  { to: '/proposal/interactive', label: '互動教學場景' },
+  { to: '/proposal/interactive/l0-claude', label: '互動場景：L0 對 Claude 下指令' },
+  { to: '/proposal/interactive/l0-claude-stage', label: '互動場景：把演員推到主畫面' },
 ]
 
 const SECTIONS: Section[] = [
@@ -29,6 +32,13 @@ const SECTIONS: Section[] = [
   { id: 'ideas', label: '構想', to: '/proposal/mcp', tabs: IDEAS },
   { id: 'docs', label: '文件', to: '/proposal#docs' },
   { id: 'tools', label: '工具', to: '/materials' },
+]
+
+/** L1 的子頁面：兩門並列的課程與構想區。 */
+const L1_NAV: Tab[] = [
+  { to: '/proposal/ai-tools', label: 'AI 工具入門' },
+  { to: '/proposal/life-tools', label: '生活小工具' },
+  { to: '/proposal/l1-ideas', label: '構想區' },
 ]
 
 /** L3 的子頁面（沿用原本的提案頁）。 */
@@ -63,6 +73,7 @@ type Props = {
 export function ProposalLayout({ title, footer, back = true, children }: Props) {
   const { pathname } = useLocation()
   const inL3 = pathname.startsWith('/proposal/ai-agent')
+  const inL1 = L1_NAV.some((t) => t.to === pathname)
 
   useEffect(() => {
     document.title = `${title} · 課程提案`
@@ -93,6 +104,18 @@ export function ProposalLayout({ title, footer, back = true, children }: Props) 
                 <Link key={t.to} to={t.to} aria-current={tabActive(t, pathname) ? 'page' : undefined} title={t.code ? `${t.code} ${t.label}` : t.label}>
                   {t.code && <span className={ui['nav-short']}>{t.code}</span>}
                   <span className={t.code ? ui['nav-long'] : undefined}>{t.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+        )}
+        {inL1 && (
+          <div className={`${ui.subnav} ${ui.subnav3}`}>
+            <nav className={ui.subtabs} aria-label="L1 課程頁">
+              <span className={ui['subnav-label']}>L1</span>
+              {L1_NAV.map((t) => (
+                <Link key={t.to} to={t.to} aria-current={pathname === t.to ? 'page' : undefined}>
+                  {t.label}
                 </Link>
               ))}
             </nav>

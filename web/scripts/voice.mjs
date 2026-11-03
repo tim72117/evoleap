@@ -4,6 +4,7 @@
 //   npm run voice -- l0/0.0-tools.json          產生(或補齊)這份腳本的旁白
 //   npm run voice -- --all                      所有腳本
 //   npm run voice -- l0/0.0-tools.json --max-sec 20   只產生開頭約 20 秒的旁白(試做用,依字數估算)
+//   npm run voice -- l0/0.0-tools.json --limit 10     只產生前 10 段旁白(試做用)
 //   npm run voice -- --sample "一句旁白" --voices Sulafat,Kore,Charon   試聽:各聲音念同一句,輸出到 recordings/voice-samples/
 //
 // 腳本在 src/content/live/,每個 steps[] 的 narration 是一段旁白。產生結果:
@@ -174,14 +175,16 @@ async function build(rel, key) {
     let sec = 0
     texts = texts.filter((t) => (sec += [...t].length / 4.2) - [...t].length / 4.2 < maxSec)
   }
+  const limit = Number(flag('limit'))
+  if (limit > 0) texts = texts.slice(0, limit)
   const cfg = { ...DEFAULTS, ...(script.voice || {}) }
   const manifestPath = scriptPath.replace(/\.json$/, '.voice.json')
   const old = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : { clips: {} }
   // GCS 上的路徑照腳本的資料夾(例如 l0/0.0-tools.json → l0/<hash>.mp3)
   const prefix = path.posix.dirname(rel.split(path.sep).join('/'))
 
-  // 這次沒處理到的段落(--max-sec)保留原本的音檔
-  const clips = maxSec > 0 ? { ...(old.clips || {}) } : {}
+  // 這次沒處理到的段落(--max-sec、--limit)保留原本的音檔
+  const clips = maxSec > 0 || limit > 0 ? { ...(old.clips || {}) } : {}
   // 每產生一段就寫一次清單:中途失敗(額度、網路)時已完成的段落不會遺失,重跑會從斷點接續、不重複計費
   const cachedOf = (text) => {
     const prev = old.clips?.[text]
@@ -229,7 +232,7 @@ async function main() {
   const all = flag('all')
   const targets = all
     ? fs.readdirSync(LIVE, { recursive: true }).map(String).filter((f) => f.endsWith('.json') && !f.endsWith('.voice.json')).map((f) => f.split(path.sep).join('/'))
-    : args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--') && ['max-sec', 'voices', 'sample'].includes(args[i - 1].slice(2))))
+    : args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--') && ['max-sec', 'limit', 'voices', 'sample'].includes(args[i - 1].slice(2))))
   if (!targets.length) die('用法:npm run voice -- l0/0.0-tools.json(或 --all、--sample)')
   const key = apiKey()
   for (const t of targets) await build(t, key)

@@ -140,6 +140,10 @@
 .proposal .chip.todo { background: var(--todo-soft); color: var(--todo); }
 .proposal .chip.out { background: var(--out-soft); color: var(--out); }
 
+/* 知識點：一個詞一個標籤 */
+.proposal .terms { display: flex; flex-wrap: wrap; gap: 6px; }
+.proposal .terms span { font-size: 13px; padding: 2px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); }
+
 .proposal button.copy {
   font-family: var(--mono);
   font-size: 12.5px;
@@ -323,6 +327,9 @@
 .proposal .lp-body { padding: 4px 20px 20px; }
 .proposal .lp-scenario { font-size: 14.5px; margin: 0 0 6px; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); }
 .proposal .lp-text { font-size: 14.5px; margin: 0; }
+.proposal .lp-pain { font-size: 14.5px; margin: 0 0 6px; }
+.proposal .lp-task { font-size: 15px; font-weight: 600; margin: 8px 0 0; padding: 10px 14px; border-radius: 10px; border: 1.5px dashed var(--accent); }
+.proposal .opening-preview { margin: 10px 0 0; max-width: 720px; border-radius: 10px; overflow: hidden; background: #000; }
 .proposal .lp-goal { font-size: 15px; font-weight: 600; margin: 0 0 8px; }
 .proposal .lp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .proposal .lp-steps > li { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }

@@ -1,0 +1,279 @@
+{
+  "title": "換你對 Claude 下指令（L0 互動試做）",
+  "lesson": "L0 · 第 0 課互動試做",
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~/Documents/practice",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "practice": {}
+        },
+        "open": "practice"
+      },
+      "place": "right",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "show": "claude",
+      "chapter": "在練習資料夾開啟 Claude",
+      "narration": "Claude 已經在空的 practice 資料夾開好了。"
+    },
+    {
+      "callout": "claude:head",
+      "focus": false,
+      "text": "先確認：上方的資料夾是 practice",
+      "narration": "先確認上方的資料夾是 practice。"
+    },
+    {
+      "callout": "claude:composer",
+      "focus": false,
+      "text": "指令就打在這裡，用平常說話的方式就可以",
+      "chapter": "換你下指令",
+      "narration": "換你了，用一句話告訴它要做什麼。"
+    },
+    {
+      "checkpoint": "請 Claude 建立 hello.txt，你要送出哪一句？",
+      "body": "點一句送出，看看 Claude 的反應有什麼不同。",
+      "id": "prompt",
+      "stage": {
+        "focus": "claude:composer",
+        "choices": "claude:input"
+      },
+      "options": [
+        {
+          "label": "建立 hello.txt，寫一句問候",
+          "steps": [
+            {
+              "user": "建立 hello.txt，寫一句問候"
+            },
+            {
+              "thinking": true,
+              "ms": 1300
+            },
+            {
+              "say": "好的，我會在目前的資料夾建立 hello.txt。",
+              "narration": "檔名和內容都講清楚了，Claude 馬上知道要做什麼。"
+            },
+            {
+              "ask": "hello.txt",
+              "q": "Claude 想要建立這個檔案",
+              "where": "~/Documents/practice",
+              "preview": "哈囉！這是我在 practice 資料夾裡建立的第一個檔案。",
+              "narration": "注意，它沒有直接動手，而是先跳出確認提示。"
+            }
+          ]
+        },
+        {
+          "label": "建立一個檔案",
+          "steps": [
+            {
+              "user": "建立一個檔案"
+            },
+            {
+              "thinking": true,
+              "ms": 1300
+            },
+            {
+              "say": "你沒有說檔名和內容，我先用 hello.txt，寫一句問候。不合適可以拒絕。",
+              "narration": "沒說檔名和內容，Claude 只好自己猜。所以指令要講清楚，也要看它打算做什麼。"
+            },
+            {
+              "ask": "hello.txt",
+              "q": "Claude 想要建立這個檔案",
+              "where": "~/Documents/practice",
+              "preview": "哈囉！這是我在 practice 資料夾裡建立的第一個檔案。",
+              "narration": "注意，它沒有直接動手，而是先跳出確認提示。"
+            }
+          ]
+        },
+        {
+          "label": "幫我打個招呼",
+          "steps": [
+            {
+              "user": "幫我打個招呼"
+            },
+            {
+              "thinking": true,
+              "ms": 1300
+            },
+            {
+              "say": "哈囉！如果要我建立檔案，請告訴我檔名和內容。",
+              "narration": "Claude 只回了一句話，沒有建立檔案，因為你沒有這樣要求。我們講清楚再試一次。"
+            },
+            {
+              "user": "建立 hello.txt，寫一句問候"
+            },
+            {
+              "thinking": true,
+              "ms": 1000
+            },
+            {
+              "say": "好的，我會在目前的資料夾建立 hello.txt。"
+            },
+            {
+              "ask": "hello.txt",
+              "q": "Claude 想要建立這個檔案",
+              "where": "~/Documents/practice",
+              "preview": "哈囉！這是我在 practice 資料夾裡建立的第一個檔案。",
+              "narration": "注意，它沒有直接動手，而是先跳出確認提示。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "先看示範",
+        "steps": [
+          {
+            "user": "建立 hello.txt，寫一句問候",
+            "narration": "我們示範一次：用一句話請它建立 hello.txt。"
+          },
+          {
+            "thinking": true,
+            "ms": 1300
+          },
+          {
+            "say": "好的，我會在目前的資料夾建立 hello.txt。"
+          },
+          {
+            "ask": "hello.txt",
+            "q": "Claude 想要建立這個檔案",
+            "where": "~/Documents/practice",
+            "preview": "哈囉！這是我在 practice 資料夾裡建立的第一個檔案。",
+            "narration": "注意，它沒有直接動手，而是先跳出確認提示。"
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "Claude 想建立檔案，你要允許嗎？",
+      "body": "按下去之前先看三件事：哪個檔案、在哪個資料夾、內容是什麼。",
+      "id": "permission",
+      "requires": "prompt",
+      "stage": {
+        "focus": "claude:ask"
+      },
+      "options": [
+        {
+          "label": "允許一次",
+          "target": "claude:option:1",
+          "steps": [
+            {
+              "choose": 1
+            },
+            {
+              "tool": "Write",
+              "arg": "hello.txt",
+              "result": "已建立"
+            },
+            {
+              "say": "已建立 `hello.txt`，裡面是一句問候。"
+            },
+            {
+              "show": "finder",
+              "create": "hello.txt",
+              "narration": "打開 Finder 看看，practice 裡真的多了一個 hello.txt。它會直接改動你電腦上的檔案，所以才要先問你。"
+            },
+            {
+              "hide": "finder"
+            }
+          ]
+        },
+        {
+          "label": "拒絕",
+          "target": "claude:option:0",
+          "steps": [
+            {
+              "choose": 0
+            },
+            {
+              "say": "好的，我不會建立這個檔案。需要的話可以告訴我要改什麼。"
+            },
+            {
+              "show": "finder",
+              "narration": "你拒絕了，Claude 就不會動手。打開 Finder 看看，資料夾還是空的。"
+            },
+            {
+              "hide": "finder"
+            }
+          ]
+        },
+        {
+          "label": "一律允許",
+          "target": "claude:option:2",
+          "steps": [
+            {
+              "choose": 2,
+              "narration": "一律允許之後，同類的動作它就不會再問你。剛開始學，建議每次都先確認。"
+            },
+            {
+              "tool": "Write",
+              "arg": "hello.txt",
+              "result": "已建立"
+            },
+            {
+              "say": "已建立 `hello.txt`，裡面是一句問候。"
+            },
+            {
+              "show": "finder",
+              "create": "hello.txt",
+              "narration": "檔案建立好了。之後想改回每次詢問，可以到權限模式調整。"
+            },
+            {
+              "hide": "finder"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "先看示範",
+        "steps": [
+          {
+            "choose": 1,
+            "narration": "三件事都沒問題，所以選「允許一次」。"
+          },
+          {
+            "tool": "Write",
+            "arg": "hello.txt",
+            "result": "已建立"
+          },
+          {
+            "say": "已建立 `hello.txt`，裡面是一句問候。"
+          },
+          {
+            "show": "finder",
+            "create": "hello.txt",
+            "narration": "打開 Finder 看看，practice 裡真的多了一個 hello.txt。"
+          },
+          {
+            "hide": "finder"
+          }
+        ]
+      }
+    },
+    {
+      "card": "按下允許之前，先看清楚再決定",
+      "eyebrow": "這一段學到的事",
+      "sub": "哪個檔案、在哪個資料夾、內容是什麼；看不懂就先拒絕",
+      "chapter": "重點整理",
+      "narration": "按下允許之前，先看清楚三件事：哪個檔案、在哪個資料夾、內容是什麼。看不懂就先拒絕，請它用白話解釋。"
+    }
+  ]
+}

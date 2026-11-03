@@ -38,17 +38,6 @@
   color: var(--site-muted);
 }
 
-.start {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 12px 22px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #4f7cff, #8b5cf6);
-  color: #fff !important;
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: var(--site-shadow);
-}
 
 /* ---------- 單課頁：第一屏 = 影片 + 步驟軌，剛好一個視窗高 ---------- */
 .lesson {

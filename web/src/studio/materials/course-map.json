@@ -1,0 +1,790 @@
+{
+  "note": "課程編排草稿。levels → courses → segments 的順序就是目前的編排;from 是原本的位置,changes 列出跨課程與跨程度的移動。段落 id 為「課號#步驟序號」,對應 src/content/ 單課資料的 steps。正本仍是單課資料,套用後刪除這個檔案,工具會依新的單課資料重建。",
+  "updatedAt": "2026-11-03T08:06:28.740Z",
+  "changes": [],
+  "levels": [
+    {
+      "id": "tools",
+      "label": "L0 起步",
+      "title": "AI 工具介紹：讓 AI 在你的電腦上做出第一個網站",
+      "courses": [
+        {
+          "id": "0.0",
+          "code": "0.0",
+          "title": "工具介紹：會操作檔案的 AI 工具",
+          "from": "tools",
+          "segments": [
+            {
+              "id": "0.0#1",
+              "title": "認識這類工具能對你的檔案做什麼",
+              "from": "0.0"
+            },
+            {
+              "id": "0.0#2",
+              "title": "依官方說明安裝並登入",
+              "from": "0.0"
+            },
+            {
+              "id": "0.0#3",
+              "title": "建立專用的練習資料夾",
+              "from": "0.0"
+            },
+            {
+              "id": "0.0#4",
+              "title": "在練習資料夾開啟工具，請它建立第一個檔案",
+              "from": "0.0"
+            },
+            {
+              "id": "0.0#5",
+              "title": "練習拒絕",
+              "from": "0.0"
+            }
+          ]
+        },
+        {
+          "id": "0.1",
+          "code": "0.1",
+          "title": "認識專案：工作目錄與檔案操作",
+          "from": "tools",
+          "segments": [
+            {
+              "id": "0.1#1",
+              "title": "建立專案資料夾，從這個資料夾開啟工具",
+              "from": "0.1"
+            },
+            {
+              "id": "0.1#2",
+              "title": "請 AI 說明目前的工作目錄",
+              "from": "0.1"
+            },
+            {
+              "id": "0.1#3",
+              "title": "建立資料夾與檔案",
+              "from": "0.1"
+            },
+            {
+              "id": "0.1#4",
+              "title": "用相對路徑指定檔案",
+              "from": "0.1"
+            },
+            {
+              "id": "0.1#5",
+              "title": "改名與移動",
+              "from": "0.1"
+            },
+            {
+              "id": "0.1#6",
+              "title": "刪除前先確認",
+              "from": "0.1"
+            }
+          ]
+        },
+        {
+          "id": "0.2",
+          "code": "0.2",
+          "title": "提出需求：做出一頁式網站並精確調整",
+          "from": "tools",
+          "segments": [
+            {
+              "id": "0.2#1",
+              "title": "一次描述整頁，產生第一版",
+              "from": "0.2"
+            },
+            {
+              "id": "0.2#2",
+              "title": "在瀏覽器打開，對照需求檢查",
+              "from": "0.2"
+            },
+            {
+              "id": "0.2#3",
+              "title": "調整頁首與導覽",
+              "from": "0.2"
+            },
+            {
+              "id": "0.2#4",
+              "title": "調整商品卡片的排列與樣式",
+              "from": "0.2"
+            },
+            {
+              "id": "0.2#5",
+              "title": "統一標題與內文的字體設定",
+              "from": "0.2"
+            },
+            {
+              "id": "0.2#6",
+              "title": "調整營業時間表與常見問題",
+              "from": "0.2"
+            },
+            {
+              "id": "0.2#7",
+              "title": "加一個小互動：手機版選單",
+              "from": "0.2"
+            },
+            {
+              "id": "0.2#8",
+              "title": "改太多時：還原沒要求的修改",
+              "from": "0.2"
+            },
+            {
+              "id": "0.2#9",
+              "title": "最後檢查：三種寬度",
+              "from": "0.2"
+            }
+          ]
+        },
+        {
+          "id": "0.intro",
+          "code": "0.intro",
+          "title": "為什麼不用學寫程式，也能做出軟體",
+          "from": "tools",
+          "segments": [
+            {
+              "id": "0.intro#1",
+              "title": "以前：做一個網站要經過哪些事",
+              "from": "0.intro"
+            },
+            {
+              "id": "0.intro#2",
+              "title": "寫程式其實是在「翻譯」",
+              "from": "0.intro"
+            },
+            {
+              "id": "0.intro#3",
+              "title": "聊天式 AI：會翻譯，但手還是你的",
+              "from": "0.intro"
+            },
+            {
+              "id": "0.intro#4",
+              "title": "AI Agent：自己動手做，做完給你看",
+              "from": "0.intro"
+            },
+            {
+              "id": "0.intro#5",
+              "title": "不用寫程式，但這三件事要你來",
+              "from": "0.intro"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ai-tools",
+      "label": "L1 零基礎",
+      "title": "AI 工具入門：用 AI 把點子整理成可以開工的需求",
+      "courses": [
+        {
+          "id": "1.1",
+          "code": "1.1",
+          "title": "第一個任務：把老闆的訊息整理成需求清單",
+          "from": "ai-tools",
+          "segments": [
+            {
+              "id": "1.1#1",
+              "title": "貼上老闆的訊息，整理成需求清單",
+              "from": "1.1"
+            },
+            {
+              "id": "1.1#2",
+              "title": "標出每一條是「原文」還是「推測」",
+              "from": "1.1"
+            },
+            {
+              "id": "1.1#3",
+              "title": "分出「一定要有」與「有了更好」",
+              "from": "1.1"
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "code": "1.2",
+          "title": "加入會議筆記：補齊並更新需求清單",
+          "from": "ai-tools",
+          "segments": [
+            {
+              "id": "1.2#1",
+              "title": "貼上筆記，找出新增的需求",
+              "from": "1.2"
+            },
+            {
+              "id": "1.2#2",
+              "title": "找出前後不一致的地方",
+              "from": "1.2"
+            },
+            {
+              "id": "1.2#3",
+              "title": "輸出標明來源的最新版需求清單",
+              "from": "1.2"
+            }
+          ]
+        },
+        {
+          "id": "2.1",
+          "code": "2.1",
+          "title": "找出不清楚的地方，寫出澄清問題",
+          "from": "ai-tools",
+          "segments": [
+            {
+              "id": "2.1#1",
+              "title": "列出不清楚和缺少的地方",
+              "from": "2.1"
+            },
+            {
+              "id": "2.1#2",
+              "title": "先用一句話請 AI 寫問題",
+              "from": "2.1"
+            },
+            {
+              "id": "2.1#3",
+              "title": "用背景、任務、限制、格式重寫",
+              "from": "2.1"
+            },
+            {
+              "id": "2.1#4",
+              "title": "貼上老闆的回覆，更新需求清單",
+              "from": "2.1"
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "code": "2.2",
+          "title": "把需求變成工作項目",
+          "from": "ai-tools",
+          "segments": [
+            {
+              "id": "2.2#1",
+              "title": "把需求轉成工作項目",
+              "from": "2.2"
+            },
+            {
+              "id": "2.2#2",
+              "title": "具體指出要改的地方",
+              "from": "2.2"
+            },
+            {
+              "id": "2.2#3",
+              "title": "檢查每一項都有來源",
+              "from": "2.2"
+            },
+            {
+              "id": "2.2#4",
+              "title": "對話太長時：整理摘要、開新對話",
+              "from": "2.2"
+            }
+          ]
+        },
+        {
+          "id": "2.3",
+          "code": "2.3",
+          "title": "拆分、排序，決定第一版",
+          "from": "ai-tools",
+          "segments": [
+            {
+              "id": "2.3#1",
+              "title": "拆開太大的工作項目",
+              "from": "2.3"
+            },
+            {
+              "id": "2.3#2",
+              "title": "標出相依、排順序、決定第一版",
+              "from": "2.3"
+            },
+            {
+              "id": "2.3#3",
+              "title": "輸出成可以貼到試算表的表格",
+              "from": "2.3"
+            }
+          ]
+        },
+        {
+          "id": "3.1",
+          "code": "3.1",
+          "title": "找出需求整理中重複的步驟",
+          "from": "ai-tools",
+          "segments": [
+            {
+              "id": "3.1#1",
+              "title": "評估流程中的每一步",
+              "from": "3.1"
+            },
+            {
+              "id": "3.1#2",
+              "title": "一問一答，拆成任務卡",
+              "from": "3.1"
+            },
+            {
+              "id": "3.1#3",
+              "title": "用新同事的角度檢查任務卡",
+              "from": "3.1"
+            }
+          ]
+        },
+        {
+          "id": "3.2",
+          "code": "3.2",
+          "title": "做一個「需求 → 工作項目」範本",
+          "from": "ai-tools",
+          "segments": [
+            {
+              "id": "3.2#1",
+              "title": "依任務卡寫出範本",
+              "from": "3.2"
+            },
+            {
+              "id": "3.2#2",
+              "title": "在範本裡加上檢查要求",
+              "from": "3.2"
+            },
+            {
+              "id": "3.2#3",
+              "title": "開新對話，用第二個案子測試",
+              "from": "3.2"
+            },
+            {
+              "id": "3.2#4",
+              "title": "比較兩個案子的結果，修正範本",
+              "from": "3.2"
+            }
+          ]
+        },
+        {
+          "id": "3.3",
+          "code": "3.3",
+          "title": "結業練習：一封新需求信走完整條流程",
+          "from": "ai-tools",
+          "segments": [
+            {
+              "id": "3.3#1",
+              "title": "用範本整理新需求",
+              "from": "3.3"
+            },
+            {
+              "id": "3.3#2",
+              "title": "寫出澄清問題",
+              "from": "3.3"
+            },
+            {
+              "id": "3.3#3",
+              "title": "依回覆更新、拆分、排序並輸出表格",
+              "from": "3.3"
+            },
+            {
+              "id": "3.3#4",
+              "title": "最後檢查",
+              "from": "3.3"
+            },
+            {
+              "id": "3.3#5",
+              "title": "找出流程中仍要手動的步驟",
+              "from": "3.3"
+            }
+          ]
+        },
+        {
+          "id": "1.0",
+          "code": "1.0",
+          "title": "訂購單：哪些資料要在送出前檢查",
+          "from": "ai-tools",
+          "segments": [
+            {
+              "id": "1.0#1",
+              "title": "從 bakery 專案開啟 AI 工具",
+              "from": "1.0"
+            },
+            {
+              "id": "1.0#2",
+              "title": "在網站加上訂購單",
+              "from": "1.0"
+            },
+            {
+              "id": "1.0#3",
+              "title": "什麼都不填，直接送出",
+              "from": "1.0"
+            },
+            {
+              "id": "1.0#4",
+              "title": "列出每個欄位的資料規格",
+              "from": "1.0"
+            },
+            {
+              "id": "1.0#5",
+              "title": "照規格加上送出前的檢查",
+              "from": "1.0"
+            },
+            {
+              "id": "1.0#6",
+              "title": "加上店家的規則",
+              "from": "1.0"
+            },
+            {
+              "id": "1.0#7",
+              "title": "送出前顯示訂購摘要",
+              "from": "1.0"
+            },
+            {
+              "id": "1.0#8",
+              "title": "自己測試",
+              "from": "1.0"
+            },
+            {
+              "id": "1.0#9",
+              "title": "找出前端擋不住的規則",
+              "from": "1.0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vibe-coding",
+      "label": "L2 基礎",
+      "title": "Vibe Coding 入門：用 AI 做出你的第一個小工具",
+      "courses": [
+        {
+          "id": "vibe-coding/4-1",
+          "code": "4.1",
+          "title": "檔案、資料夾與路徑",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/4-2",
+          "code": "4.2",
+          "title": "終端機入門（Windows 與 macOS）",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/4-3",
+          "code": "4.3",
+          "title": "指令從哪來：PATH 與環境變數",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/5-1",
+          "code": "5.1",
+          "title": "VS Code：編輯器與內建終端機",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/5-2",
+          "code": "5.2",
+          "title": "Node.js LTS 與 npm",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/5-3",
+          "code": "5.3",
+          "title": "Git 與 GitHub：程式的存檔點",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/5-4",
+          "code": "5.4",
+          "title": "瀏覽器開發者工具入門",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/6-1",
+          "code": "6.1",
+          "title": "AI 程式助手的三種形式",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/6-2",
+          "code": "6.2",
+          "title": "安裝、登入與權限",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/6-3",
+          "code": "6.3",
+          "title": "第一次和 AI 一起改程式",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/7-1",
+          "code": "7.1",
+          "title": "用 AI 做出個人介紹頁",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/7-2",
+          "code": "7.2",
+          "title": "讀懂 AI 產生的程式碼",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/7-3",
+          "code": "7.3",
+          "title": "部署到 GitHub Pages",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/8-1",
+          "code": "8.1",
+          "title": "常見安裝錯誤：PATH、權限、Proxy",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/8-2",
+          "code": "8.2",
+          "title": "向 AI 與社群求助的方法",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/8-3",
+          "code": "8.3",
+          "title": "環境總檢查與下一步",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/9-1",
+          "code": "9.1",
+          "title": "先看再存：status、diff 與 commit 訊息",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/9-2",
+          "code": "9.2",
+          "title": "哪些檔案絕不能 commit：.gitignore",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/9-3",
+          "code": "9.3",
+          "title": "改壞了怎麼救：還原與撤銷",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/9-4",
+          "code": "9.4",
+          "title": "分支、Pull Request 與版本標籤",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/10-1",
+          "code": "10.1",
+          "title": "為什麼結構會影響 AI 的表現",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/10-2",
+          "code": "10.2",
+          "title": "請 AI 提出整理方案",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/10-3",
+          "code": "10.3",
+          "title": "搬檔並更新所有引用",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/10-4",
+          "code": "10.4",
+          "title": "逐頁驗證並更新 README",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/11-1",
+          "code": "11.1",
+          "title": "每一頁的標題、描述與分享預覽",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/11-2",
+          "code": "11.2",
+          "title": "讓搜尋引擎找對頁面：sitemap、robots.txt 與 404",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/11-3",
+          "code": "11.3",
+          "title": "結構化資料（JSON-LD）",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/11-4",
+          "code": "11.4",
+          "title": "GA4 流量分析與隱私權政策",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/12-1",
+          "code": "12.1",
+          "title": "登入在做什麼：密碼雜湊與 session",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/12-2",
+          "code": "12.2",
+          "title": "Email 與密碼登入：後端與資料庫",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/12-3",
+          "code": "12.3",
+          "title": "用 Google 帳號登入",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/12-4",
+          "code": "12.4",
+          "title": "測試、上線與法律頁",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/13-1",
+          "code": "13.1",
+          "title": "為什麼需要測試：AI 改 A 壞 B",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/13-2",
+          "code": "13.2",
+          "title": "讓 AI 寫第一個測試：先看它失敗，再看它通過",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/13-3",
+          "code": "13.3",
+          "title": "端對端測試：讓瀏覽器自動點過每一頁",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/13-4",
+          "code": "13.4",
+          "title": "每次修改都自動跑：CI 與「改完先跑測試」",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/14-1",
+          "code": "14.1",
+          "title": "為什麼改一處會壞別處：先看影響範圍",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/14-2",
+          "code": "14.2",
+          "title": "同一件事只放一個地方",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/14-3",
+          "code": "14.3",
+          "title": "把功能切開：一個檔案一件事",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/14-4",
+          "code": "14.4",
+          "title": "小步修改，把規則寫給 AI",
+          "from": "vibe-coding",
+          "segments": []
+        }
+      ]
+    },
+    {
+      "id": "ai-agent",
+      "label": "AI 互動軟體 中階",
+      "title": "Vibe Coding 實戰：打造你的第一個 AI Agent 整合應用",
+      "courses": [
+        {
+          "id": "ai-agent/unit-0",
+          "code": "單元 0",
+          "title": "環境準備與心智模型",
+          "from": "ai-agent",
+          "segments": []
+        },
+        {
+          "id": "ai-agent/unit-1",
+          "code": "單元 1",
+          "title": "第一個工具",
+          "from": "ai-agent",
+          "segments": []
+        },
+        {
+          "id": "ai-agent/capstone",
+          "code": "期末專案",
+          "title": "期末專案：自然語言驅動的分析介面",
+          "from": "ai-agent",
+          "segments": []
+        }
+      ]
+    },
+    {
+      "id": "advanced",
+      "label": "AI 互動軟體 進階",
+      "title": "進階 AI Agent 應用",
+      "courses": [
+        {
+          "id": "advanced/topic-1",
+          "code": "主題 1",
+          "title": "串接多個工具與步驟的 Agent 流程",
+          "from": "advanced",
+          "segments": []
+        },
+        {
+          "id": "advanced/topic-2",
+          "code": "主題 2",
+          "title": "權限與安全：讓 Agent 安全地動手做事",
+          "from": "advanced",
+          "segments": []
+        },
+        {
+          "id": "advanced/topic-3",
+          "code": "主題 3",
+          "title": "測試與評估 Agent 的回應品質",
+          "from": "advanced",
+          "segments": []
+        },
+        {
+          "id": "advanced/topic-4",
+          "code": "主題 4",
+          "title": "上線、監控與維運",
+          "from": "advanced",
+          "segments": []
+        }
+      ]
+    }
+  ]
+}

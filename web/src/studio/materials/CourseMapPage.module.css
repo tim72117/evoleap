@@ -1,0 +1,137 @@
+/* 課程編排看板。顏色都用課程研發頁的 CSS 變數(proposal.module.css),亮暗色共用。 */
+
+/* 看板比內文寬:撐滿視窗,欄位放不下時橫向捲動 */
+.page {
+  width: calc(100vw - 40px);
+  margin-left: calc(50% - 50vw + 20px);
+  margin-top: 16px;
+}
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-bottom: 12px; }
+.button { cursor: pointer; border: none; }
+.button:disabled { opacity: 0.45; cursor: not-allowed; }
+.summary { font-size: 13px; color: var(--ink-soft); }
+.status { font-size: 13px; color: var(--done); }
+.error { color: var(--out); }
+.retry { cursor: pointer; border: 1px solid currentColor; border-radius: 6px; background: none; color: inherit; font: inherit; padding: 0 8px; }
+.file { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); overflow-wrap: anywhere; }
+.errorAction { margin-top: 10px; }
+.notice { margin: 0 0 12px; padding: 8px 12px; border-radius: 8px; background: var(--todo-soft); color: var(--todo); font-size: 13.5px; }
+
+.board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(280px, 1fr);
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  align-items: stretch;
+}
+
+.level {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: calc(100vh - 170px);
+  min-height: 420px;
+  background: color-mix(in srgb, var(--border) 35%, var(--bg));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.levelHead { position: relative; padding: 12px 14px 10px; border-bottom: 1px solid var(--border); }
+.levelHead h2 { margin: 0; font-size: 15px; }
+.levelHead p {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.count { position: absolute; top: 13px; right: 14px; font-size: 12px; color: var(--ink-soft); }
+
+.courses, .segments { list-style: none; margin: 0; padding: 0; }
+.courses { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+.course {
+  position: relative;
+  flex: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.courseHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 8px 8px 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: grab;
+  border-radius: 10px;
+}
+.courseHead:hover { background: var(--accent-soft); }
+.courseHead:active { cursor: grabbing; }
+.courseHead:focus-visible, .segment:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.courseText, .segmentText { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.code { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.grip { flex: none; color: var(--ink-soft); user-select: none; line-height: 1.5; }
+.toggle {
+  flex: none;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  padding: 0 6px;
+}
+.toggle:hover { color: var(--ink); border-color: var(--ink-soft); }
+
+.segments { padding: 0 6px 6px; }
+.segment {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 6px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.45;
+  cursor: grab;
+}
+.segment:hover { background: var(--accent-soft); }
+.segment:active { cursor: grabbing; }
+
+.moved, .stale {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 400;
+}
+.moved { background: var(--done-soft); color: var(--done); }
+.stale { background: var(--out-soft); color: var(--out); }
+
+.emptySegments, .emptyLevel { margin: 0; color: var(--ink-soft); font-size: 12.5px; }
+.emptySegments { padding: 0 10px 8px 26px; }
+.emptyLevel { flex: 1; margin: 10px; padding: 16px; text-align: center; border: 1px dashed var(--border); border-radius: 10px; }
+
+/* 拖曳狀態:被拖的項目變淡;目的地有外框或插入線(不只靠顏色,線的位置就是放下的位置) */
+.dragging { opacity: 0.4; }
+.over { outline: 2px dashed var(--accent); outline-offset: -2px; }
+.lineBefore::before, .lineAfter::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  pointer-events: none;
+}
+.lineBefore::before { top: -2px; }
+.lineAfter::after { bottom: -2px; }

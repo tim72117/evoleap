@@ -196,6 +196,10 @@ export default defineActor({
 | `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos |
 | `finder` | open、mkdir、create、delete、rename、select、drag、drop、highlight（有狀態，見 2A.5） | window、file:名稱（或 item:名稱） |
 | `browser` | site、width、scroll、go、click、reload（有狀態；網頁放在 Shadow DOM，寬度條件由腳本指定的寬度判斷，素材在 `content/live/l0/site/<版本>/`） | window、tab、addressbar、content、viewport、section:id、sel:css選擇器 |
+| `chat` | receive（帶 from）、reply（有狀態；通用手機聊天畫面，情境開場用） | window、msg:N、msg:last |
+| `person` | say（帶 mood：calm、tired、worried、happy、busy；SVG 插畫半身像＋對話泡泡，props.look：boss、staff、customer；情境開場用） | window、face、bubble |
+| `notes` | jot、lose（有狀態；桌上的便條紙，掉落的便條移到桌面下方，情境開場用） | window、note:N、note:last、floor |
+| `editor` | open、type（有狀態；通用深色程式碼編輯器，依副檔名上色 html、css、js，演出「以前自己寫程式」） | window、code、caret、tab:檔名 |
 
 ### 2A.2 舞台腳本
 
@@ -225,6 +229,7 @@ export default defineActor({
 - **舞台的動作**：`card`、`callout`、`show`、`hide`、`move`（移到新位置）、`checkpoint`、`wait`。
 - **每一步都能加**：`narration`、`chapter`、`lessonStep`、`ms`、`pause`、`focus`。
 - **目標**寫成「演員代號:目標名稱」，例如 `claude:ask`；只寫代號表示整個演員。
+- **字幕**：旁白由 `kit.splitCaption` 切成單行、每條不超過約 24 個字，按字數分配時間，寫旁白不用自己斷句。
 - **旁白長度**：一段旁白到下一段旁白（或練習點）之前的時間不夠時，帶旁白的 `card`／`callout`／`show` 會自己延長，其他情況則補在最後一步之後。
 - **鏡頭**：`focus` 指定目標與倍率，`false` 拉回全景；頂層 `"camera": "auto"` 時，沒寫的步驟由演員建議：`cues(kind, step)` 回傳多個時間點的提示點，沒有 `cues` 就用 `autoFocus` 的單一目標（等同 `at: 0` 的一個提示點）。每次切換以 0.9 秒的平滑緩動過渡，**演員的動作會等鏡頭到位才開始**（換鏡頭的演員動作前面自動留 0.9 秒，舞台自己的動作如章節卡、出場不等）；目標下緣最多到畫面 68% 高，避開字幕與控制列。
 
@@ -302,6 +307,28 @@ export default {
 - **已知限制（虛擬滑鼠）**：每段移動固定 550ms、inOutCubic；最後一個 move 一律畫成點擊；動作結束滑鼠就消失（`drag` 與 `drop` 之間看不到滑鼠）；`clickAt` 尚未使用。之後讓 `moves` 可帶 `ms`、`ease` 與「按住拖曳」。
 - **與舊介面相容**：沒有 `init` 的演員照舊收到 `events`（2A.1），可以逐步改寫。`claude-desktop` 現在在 `render` 裡自己重播事件（例如 `choose` 去找最後一個待選的 `ask`），改寫後這段邏輯移到 `apply`。
 - **之後的擴充：共用檔案系統**。舞台可以提供一份共用的狀態（虛擬檔案系統），讓 Claude 的 `Write`、`Bash rm` 和所有 Finder 讀寫同一份，腳本不必在兩個演員各寫一次。等 `init`／`apply` 穩定後再做。
+
+### 2A.6 互動教學場景（試做）
+
+頁面 `/proposal/interactive`（`web/src/studio/interactive/`）：整個視窗都是舞台，播放條是浮動的膠囊（`mountShell` 的 `layout: "capsule"`），右側在「步驟」與「互動」之間切換。
+
+互動點寫在 `checkpoint` 步驟上，舞台只把它當一般的練習點：
+
+```json
+{
+  "checkpoint": "客人甲明天就要蛋糕，你怎麼回？", "body": "…", "id": "cake",
+  "options": [{ "label": "選項文字", "steps": [{ "reply": "…" }, { "say": "…", "mood": "happy" }] }],
+  "free": { "placeholder": "自己打一句回覆", "steps": [{ "reply": "{{text}}" }, { "say": "…" }] }
+}
+```
+
+其他欄位：`skip: { label, steps }` 把略過改成看示範；`requires: "<id>"` 表示要先回答前面的互動點才會出現（例如先下指令才有確認提示），收回前面的回答時後面的一起收回。第二個場景 `/proposal/interactive/l0-claude` 用這些欄位做 L0 第 0 課的「下指令、看懂確認提示、允許或拒絕」。
+
+**把演員推到主畫面**（`/proposal/interactive/l0-claude-stage`，同一份腳本，頁面加 `interaction="stage"`）：互動點寫了 `stage: { focus: "claude:composer" }` 時，舞台推近目標、其他地方變暗，學員直接操作演員：`stage.choices` 指定固定選項要放在哪裡（例如 `claude:input`，選項就出現在 Claude 的輸入框裡，點了直接送出），選項的 `target` 放可以點的熱區（`ActorPush.tsx`）。控制項用舞台座標疊在舞台上，只在暫停於互動點時存在，不屬於時間軸。右側欄固定放課程章節與步驟，也是重新回答的地方。
+
+**正式課程頁**（第 0、1 課，由 `courses/routes.tsx` 的 `INTERACTIVE_LESSONS` 決定）：`prepare` 把互動點加進課程原本的腳本（`l0-0.0.ts`、`l0-0.1.ts`），腳本本身不變，首頁的預覽播放器也照舊用它。每個選項最後都要回到原本的演員狀態，後面的演出才接得上。原本的示範寫成互動點的 `skip`，學員沒回答直接播放時就演原本的內容，旁白語音照常；選其他選項時新寫的旁白還沒有語音，只顯示字幕。
+
+學員回答後，`scene.ts` 的 `expandAnswers` 把對應的步驟插到互動點後面，重新 `stage.load`：回答就是時間軸的一部分，畫面仍是時間的純函式（第 1 節），拖曳、倒轉、演員狀態都不用另外處理。目前回答只存在頁面上，重新整理就清空；打字的回應是固定台詞，還沒接 AI。
 
 ---
 
@@ -582,12 +609,12 @@ packs/<name>/
 | 2 | 舞台與演員（2A）：`claude-desktop`、`finder`、`browser` 演員，章節卡、聚光燈、鏡頭、滑鼠、練習點 | 完成；`claude-code`（終端機版）演員待做 |
 | 2B | 鏡頭規劃 `camera.ts`（提示點 → 關鍵點 → 連續姿態、不閃動、鏡頭到位後演員才開始演）；引擎全部改寫成 TypeScript，演員用 `defineActor` 宣告並受介面約束；開發時改程式整頁重新載入 | 完成 |
 | 3 | 外殼 `shell.ts`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟）、預覽頁；登入的會員才記住播放進度（外殼只管何時讀存，存哪裡由外層決定） | 完成，L0 第 0、1、2 課已上線 |
-| 3B | 旁白語音（Gemini TTS 分段產生、GCS `shuttle-voice`、外殼同步播放；每段完成就寫入清單、旁白沒改的段落不重新產生） | 完成；L0 第 0、1 課已全部產生，第 2 課待產生 |
+| 3B | 旁白語音（Gemini TTS 分段產生、GCS `shuttle-voice`、外殼同步播放；每段完成就寫入清單、旁白沒改的段落不重新產生） | 完成；L0 第 0、1 課已全部產生，第 2 課已產生前 10 段 |
 | 4 | 繪製層、素材包、腳本驗證工具（第 3–5 節） | 待做 |
 
 ### 旁白語音
 
-- **產生**：`npm run voice -- l0/0.0-tools.json`（在 `web/` 執行，`--all` 全部、`--max-sec 20` 只產生開頭、`--sample "一句" --voices A,B` 試聽）。每段 `narration` 送 Gemini TTS（`gemini-3.8-flash-tts`，聲音 Sulafat），轉成 48 kbps MP3 上傳到 GCS `gs://shuttle-voice/<腳本資料夾>/<雜湊>.mp3`（公開讀取、永久快取）。金鑰放 `web/.env.local` 的 `GEMINI_API_KEY`，只在本機用。
+- **產生**：`npm run voice -- l0/0.0-tools.json`（在 `web/` 執行，`--all` 全部、`--max-sec 20` 只產生開頭、`--limit 10` 只產生前 10 段、`--sample "一句" --voices A,B` 試聽）。每段 `narration` 送 Gemini TTS（`gemini-3.8-flash-tts`，聲音 Sulafat），轉成 48 kbps MP3 上傳到 GCS `gs://shuttle-voice/<腳本資料夾>/<雜湊>.mp3`（公開讀取、永久快取）。金鑰放 `web/.env.local` 的 `GEMINI_API_KEY`，只在本機用。
 - **清單**：腳本旁的 `<名稱>.voice.json`（進版控）記錄「旁白文字 → { file, ms }」與模型、聲音、語氣。雜湊由模型、聲音、語氣、文字決定；旁白改了一個字就對不到舊音檔，那段會退回只有字幕，直到重新產生。GCS 上的舊檔不自動刪除（正式站部署前仍可能用到）。
 - **播放**：課程頁讀腳本與清單；舞台用語音實際長度排時間（`load(script, { voice })`），`narrations` 給出每段開始時間；外殼的 `clips` 依自己的時鐘播放對應音檔（兩個 `<audio>` 輪流，先載入下一段；按播放的當下取得播放權限；偏差超過 0.35 秒且音檔可順暢播放時才校正）。字幕在語音長度內依字數分配。讀不到清單時只顯示字幕。
 - **費用**：見研究文章「旁白語音的費用評估」（`/docs/research/voice-cost`）。
