@@ -11,7 +11,8 @@ import styles from './HomePage.module.css'
 // 規劃中的主題縮小,只寫預計做出的成果。課數、連結與示範提示詞都取自課程資料,主題文案在 content/topics.ts。
 
 const tools = COURSES.find((c) => c.slug === 'tools')!
-const openLessons = tools.lessons.filter((l) => l.videos.some((v) => v.live))
+// 主打的是第 0 課(封面章節、提示詞都是它的);序章只是短短的導覽,不當主打
+const openLessons = tools.lessons.filter((l) => !l.label && l.videos.some((v) => v.live))
 const firstLesson = openLessons[0]
 const firstScript = firstLesson.videos[0].live!
 const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!

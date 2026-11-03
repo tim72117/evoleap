@@ -111,27 +111,11 @@ vp.time / vp.playing
 3. 播放秒數透過 `onTime` 回報給課程頁；腳本裡標了 `lessonStep` 的章節透過 `onCues` 回報，課程頁播到那裡就展開對應的步驟。
 4. 全螢幕、手機橫放滿版與播放器的快捷鍵都由外殼處理（焦點在播放器裡時 ←/→ 是倒退／快轉，在頁面上時由課程頁切換步驟）。
 
-### 2.6 預覽頁
+### 2.6 檢查畫面
 
-內部預覽頁 `/proposal/visuals/preview`（`web/src/studio/proposal/VisualsPreviewPage.tsx`）：
+各課的即時教學畫面直接在課程研發頁（`/proposal/tools`）每課的「影片切分」播放，和學員課程頁是同一個播放器（有旁白語音，但不記播放進度；`LivePlayer` 的 `saveProgress={false}`）。腳本有錯時播放器會顯示錯誤訊息（含第幾步）。
 
-| 網址 | 內容 |
-|---|---|
-| `/proposal/visuals/preview` | 列出 `src/content/live/` 底下所有腳本 |
-| `?script=l0/0.0-tools.json&t=12000` | 只用舞台畫出 12000 毫秒時的畫面（不掛外殼），並列出章節（點了跳到該時間）與總長度 |
-| `?script=l0/0.0-tools.json` | 完整播放器（可播放、拖曳） |
-
-腳本有錯時頁面直接顯示錯誤訊息（含第幾步）。有 `t` 時，載入完成後 `window.__livePreviewReady = true`，並提供 `window.__livePreview = { renderAt(ms), duration, chapters, captions }`，可以用 Playwright 逐段截圖：
-
-```js
-await page.goto("http://localhost:5190/proposal/visuals/preview?script=l0/0.1-project.json&t=0");
-await page.waitForFunction(() => window.__livePreviewReady);
-const chapters = await page.evaluate(() => window.__livePreview.chapters);
-for (const c of chapters) {
-  await page.evaluate((ms) => window.__livePreview.renderAt(ms), c.at + 1500);
-  await page.screenshot({ path: `shot-${c.at}.png` });
-}
-```
+以前有一個內部預覽頁 `/proposal/visuals/preview`（只畫出某個時間點的畫面、給 Playwright 逐段截圖用），因為播放已經搬到課程研發頁，已經移除。要逐時間點檢查畫面時，在課程研發頁的播放器拖到該時間點，或在測試裡直接 `createStage(div)` → `stage.load(script)` → `stage.renderAt(ms)`；互動場景的試做頁（`/proposal/interactive/*`）也能播放腳本。
 
 ---
 
@@ -238,7 +222,7 @@ export default defineActor({
 1. 建 `actors/<名稱>/actor.ts`、`actor.css`，用 `defineActor` 照 2A.1 的介面實作（`actor.ts` 要 import 自己的 `actor.css`），開頭寫清楚 props、動作與目標。
 2. 在 `actors/index.ts` import 並登記。
 3. 動作照 2A.4 設計成「操作」，狀態照 2A.5 用 `init`／`apply` 推算。
-4. 在腳本（`src/content/live/`）的 `cast` 加上它，用預覽頁 `/proposal/visuals/preview?script=…&t=毫秒` 檢查各時間點的畫面（2.6）。
+4. 在腳本（`src/content/live/`）的 `cast` 加上它，在課程研發頁的播放器檢查各時間點的畫面（2.6）。
 5. 檢查拖曳與倒轉：`render` 不能依賴上一次的結果。
 
 ### 2A.4 動作要是「操作」，不是「設定畫面」（所有演員必須遵守）
@@ -326,7 +310,7 @@ export default {
 
 **把演員推到主畫面**（`/proposal/interactive/l0-claude-stage`，同一份腳本，頁面加 `interaction="stage"`）：互動點寫了 `stage: { focus: "claude:composer" }` 時，舞台推近目標、其他地方變暗，學員直接操作演員：`stage.choices` 指定固定選項要放在哪裡（例如 `claude:input`，選項就出現在 Claude 的輸入框裡，點了直接送出），選項的 `target` 放可以點的熱區（`ActorPush.tsx`）。控制項用舞台座標疊在舞台上，只在暫停於互動點時存在，不屬於時間軸。右側欄固定放課程章節與步驟，也是重新回答的地方。
 
-**正式課程頁**（第 0、1 課，由 `courses/routes.tsx` 的 `INTERACTIVE_LESSONS` 決定）：`prepare` 把互動點加進課程原本的腳本（`l0-0.0.ts`、`l0-0.1.ts`），腳本本身不變，首頁的預覽播放器也照舊用它。每個選項最後都要回到原本的演員狀態，後面的演出才接得上。原本的示範寫成互動點的 `skip`，學員沒回答直接播放時就演原本的內容，旁白語音照常；選其他選項時新寫的旁白還沒有語音，只顯示字幕。
+**正式課程頁**（序章、第 0、1 課，由 `courses/routes.tsx` 的 `INTERACTIVE_LESSONS` 決定）：`prepare` 把互動點加進課程原本的腳本（`l0-intro.ts`、`l0-0.0.ts`、`l0-0.1.ts`），腳本本身不變，首頁的預覽播放器也照舊用它。每個選項最後都要回到原本的演員狀態，後面的演出才接得上。原本的示範寫成互動點的 `skip`，學員沒回答直接播放時就演原本的內容，旁白語音照常；選其他選項時新寫的旁白還沒有語音，只顯示字幕。序章只看不操作，互動點是「選一選、想一想」：沒有要操作的演員，`stage.focus` 放在當時看得到的演員目標上（選項顯示在提問卡裡），選項的回應用章節卡（`card`），不動演員，所以每個選項演完都不用還原狀態；`skip` 的步驟是空的，原本的內容就接在互動點後面。
 
 學員回答後，`scene.ts` 的 `expandAnswers` 把對應的步驟插到互動點後面，重新 `stage.load`：回答就是時間軸的一部分，畫面仍是時間的純函式（第 1 節），拖曳、倒轉、演員狀態都不用另外處理。目前回答只存在頁面上，重新整理就清空；打字的回應是固定台詞，還沒接 AI。
 
@@ -595,9 +579,9 @@ packs/<name>/
 
 1. 給 AI：本規格 2A.2（舞台腳本）、2A.4，以及要用的演員 `actor.ts` 開頭的說明（props、動作、目標）。
 2. AI 產出腳本 JSON，放進 `web/src/content/live/<等級>/`，在單課資料加上 `live: '<等級>/<檔名>.json'`。
-3. 開預覽頁 `/proposal/visuals/preview?script=…&t=0`：腳本有錯時 `stage.load` 丟出的錯誤（含第幾步）會直接顯示在頁面上。
-4. 用預覽頁的 `window.__livePreview` 以 Playwright 逐章節截圖（2.6），人工或交給 AI 看圖檢查。
-5. 在預覽頁的播放器或課程頁上播放，確認節奏。
+3. 在課程研發頁播放：腳本有錯時 `stage.load` 丟出的錯誤（含第幾步）會直接顯示在播放器上。
+4. 拖到各章節檢查畫面（2.6），人工或交給 AI 看圖檢查。
+5. 在課程研發頁或課程頁上播放，確認節奏。
 
 ---
 
@@ -608,7 +592,7 @@ packs/<name>/
 | 1 | 繪製工具 kit 與測試 | 完成 |
 | 2 | 舞台與演員（2A）：`claude-desktop`、`finder`、`browser` 演員，章節卡、聚光燈、鏡頭、滑鼠、練習點 | 完成；`claude-code`（終端機版）演員待做 |
 | 2B | 鏡頭規劃 `camera.ts`（提示點 → 關鍵點 → 連續姿態、不閃動、鏡頭到位後演員才開始演）；引擎全部改寫成 TypeScript，演員用 `defineActor` 宣告並受介面約束；開發時改程式整頁重新載入 | 完成 |
-| 3 | 外殼 `shell.ts`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟）、預覽頁；登入的會員才記住播放進度（外殼只管何時讀存，存哪裡由外層決定） | 完成，L0 第 0、1、2 課已上線 |
+| 3 | 外殼 `shell.ts`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟；課程研發頁也用同一個播放器）；登入的會員才記住播放進度（外殼只管何時讀存，存哪裡由外層決定） | 完成，L0 第 0、1、2 課已上線 |
 | 3B | 旁白語音（Gemini TTS 分段產生、GCS `shuttle-voice`、外殼同步播放；每段完成就寫入清單、旁白沒改的段落不重新產生） | 完成；L0 第 0、1 課已全部產生，第 2 課已產生前 10 段 |
 | 4 | 繪製層、素材包、腳本驗證工具（第 3–5 節） | 待做 |
 
@@ -624,4 +608,4 @@ packs/<name>/
 ### 待決定
 
 - **旁白來源**：目前用 Gemini TTS 產生（見「旁白語音」一節）；是否改成真人錄音，聽過整課後再決定。
-- **輸出 mp4**：即時教學畫面目前只在網站上播放，沒有錄成影片檔的工具（`web/src/studio/recorder/` 的錄製工具錄的是另一種 v1 場景腳本）。需要時再決定要不要以預覽頁逐格截圖錄製。
+- **輸出 mp4**：即時教學畫面目前只在網站上播放，沒有錄成影片檔的工具（`web/src/studio/recorder/` 的錄製工具錄的是另一種 v1 場景腳本）。需要時再決定要不要在課程研發頁的播放器上逐格截圖錄製。

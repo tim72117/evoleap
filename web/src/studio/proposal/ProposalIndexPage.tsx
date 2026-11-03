@@ -307,9 +307,6 @@ export function ProposalIndexPage() {
             <Link className={ui.btn} to="/proposal/visuals">
               構想頁
             </Link>
-            <Link className={`${ui.btn} ${ui.ghost}`} to="/proposal/visuals/preview">
-              預覽畫面
-            </Link>
           </div>
         </div>
       </section>

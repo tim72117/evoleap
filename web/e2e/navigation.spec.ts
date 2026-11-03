@@ -230,7 +230,6 @@ const PAGES = [
   '/docs/live',
   '/proposal',
   '/materials',
-  '/proposal/visuals/preview',
   '/proposal/interactive',
   '/proposal/interactive/l0-claude',
   '/proposal/interactive/l0-claude-stage',

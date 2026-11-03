@@ -99,7 +99,7 @@ export function VoiceCostPage() {
 
       <Section id="usage" title="用量估算">
         <p>
-          統計方式：取腳本 <code>steps[]</code> 的 <code>narration</code>，去掉空白後計算字數，以每秒 4.2 字換算成秒數（與預覽頁計算旁白長度的值相同）。
+          統計方式：取腳本 <code>steps[]</code> 的 <code>narration</code>，去掉空白後計算字數，以每秒 4.2 字換算成秒數（與舞台估算旁白長度的值相同）。
           第 0、1 課旁白約 4.1–4.2 分，佔 5 分鐘影片的 82–85%。
         </p>
         <DataTable head={['範圍', '旁白量', '音訊長度', '費用（2026 價）', '費用（2027 價）']} rows={USAGE} />

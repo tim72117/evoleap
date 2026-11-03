@@ -25,11 +25,11 @@ const TOOLS: Tool[] = [
     path: 'web/src/studio/materials/course-map.json',
   },
   {
-    title: '即時教學畫面預覽',
-    body: '看任一份課程腳本在某個時間點的畫面，或用完整播放器播放；寫腳本、檢查畫面時使用。',
+    title: '即時教學畫面',
+    body: '各課的即時教學畫面在課程研發的各課「影片切分」直接播放；寫腳本、檢查畫面時看規格。',
     how: '網頁',
     links: [
-      { to: '/proposal/visuals/preview', label: '開啟預覽' },
+      { to: '/proposal/tools', label: '課程研發' },
       { to: '/docs/live', label: '規格' },
     ],
     path: 'web/src/live/ · web/src/content/live/',

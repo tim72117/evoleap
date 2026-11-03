@@ -3,6 +3,7 @@ import { COURSES, coursePath, lessonPath, plannedChapterPath } from '../content/
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
 import { withL0Moments } from '../studio/interactive/l0-0.0'
 import { withL01Moments } from '../studio/interactive/l0-0.1'
+import { withL0IntroMoments } from '../studio/interactive/l0-intro'
 import type { StageScript } from '../live/stage'
 import { AiAgentCoursePage } from './AiAgentCoursePage'
 import { InteractiveLessonPage } from './InteractiveLessonPage'
@@ -14,6 +15,7 @@ import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
 const INTERACTIVE_LESSONS: Record<string, (script: StageScript) => StageScript> = {
   '0.0': withL0Moments,
   '0.1': withL01Moments,
+  '0.intro': withL0IntroMoments,
 }
 
 // 依 catalog.ts 產生每門課的總覽頁、上課頁與規劃中章節頁的路由。

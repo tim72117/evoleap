@@ -20,11 +20,12 @@ web/                 前端（React + Vite + TypeScript）
     home/            首頁（主題）、主題頁（課程地圖）/
     courses/         課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁；播放進度（只有登入的會員才記）
     auth/            登入頁 /login、使用者選單、登入狀態
+    admin/           管理後台 /admin（只有白名單內的管理員；會員與播放進度，唯讀）
     legal/           隱私權政策 /privacy、服務條款 /terms
     site/            共用版型、404、全站樣式、GA4、複製按鈕等
     seo/             每個網址的 SEO 資料（見下方「SEO」）
     studio/          課程研發工作區（內部頁，不列入搜尋）
-      proposal/        課程提案 /proposal/*（依等級分章節；L0–L2 大綱與製作規劃在 basicsData.ts；即時教學畫面預覽 /proposal/visuals/preview）
+      proposal/        課程提案 /proposal/*（依等級分章節；L0–L2 大綱與製作規劃在 basicsData.ts；各課的即時教學畫面直接在課程研發頁播放）
       articles/        研究文章 /docs/*
       docs/            Markdown 文件頁 /docs/*（即時教學畫面規格、錄製工具說明）；文件列表在總覽頁 /proposal#docs
       materials/       工具總覽 /materials、封面設計與裁切工具 /materials/*

@@ -10,8 +10,6 @@
 //   stage.renderAt(ms)         畫出 ms 時的畫面(純函式:同一個時間點一定畫出同一個畫面)
 //   stage.duration / captions / chapters / stops / narrations / steps
 //
-// 直接預覽某個時間點:/proposal/visuals/preview?script=l0/0.0-tools.json&t=12000
-//
 // 腳本:
 //   {
 //     "title": "…", "camera": "auto",

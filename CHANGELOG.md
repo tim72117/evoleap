@@ -2,6 +2,33 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [0.8.0] - 2026-11-04
+
+序章改成互動課程並有完整旁白、課程研發頁直接播放各課的即時教學畫面（移除內部預覽頁）、新增管理後台。
+
+### 新增
+
+- **管理後台** `/admin`（noindex）與唯讀 API `/api/admin/*`（`me`、`overview`、`users`、`users/{id}/progress`）：會員列表、各課學習人數／看完人數／平均進度。管理員 = 一般會員 + Email 在環境變數 `ADMIN_BOOTSTRAP_EMAIL` 的白名單內（沿用 tripace），而且必須用 Google 登入（Email 經驗證）。未設定白名單時沒有任何人是管理員。
+- **序章互動版**（`/courses/tools/intro`）：兩份腳本合併成 `l0/0.intro.json`，三個「選一選、想一想」的互動點（`studio/interactive/l0-intro.ts`），每個都有「先看示範」。序章 43 句旁白全部產生語音（約 263 秒）並合成章節音軌（`0.intro.mix.json`）。
+- **課程研發頁直接播放即時教學畫面**（`LiveVideoPreview`）：各課「影片切分」的影片、序章步驟 1 的試做畫面都有播放器（有旁白語音，不記播放進度）；`drafts` 新增選用的 `step`，試做畫面放在對應步驟底下。`LivePlayer` 新增 `saveProgress`。
+- `npm run dev:tailscale`：只綁在這台的 Tailscale IP，讓手機連開發環境；`vite.config.ts` 新增 `DEV_HOST`、`allowedHosts: ['.ts.net']`。
+
+### 變更
+
+- **移除內部預覽頁** `/proposal/visuals/preview`（及 `window.__livePreview` 逐時間點截圖的做法）：播放已搬到課程研發頁。相關連結、導覽、SEO 與 e2e 登記一併移除，`live/README.md` 2.6 改寫。
+- **首頁主打課程不含序章**：序章有了即時教學畫面後，主打仍是第 0 課。
+- **Google 登入綁定既有帳號**：只對管理員白名單的 Email 清掉既有密碼（可能是別人搶先密碼註冊的），一般會員不清；Email 已綁另一個 Google 帳號時不覆蓋，回 409（`ErrGoogleConflict`）。`UpsertGoogleUser` 新增 `clearPassword` 參數。
+- **`mix.mjs` 量測音檔長度改為解碼後數樣本**：舊方法（ffmpeg 進度列的 time=）每個音檔平均少算約 5 毫秒，長章節會累積成幾百毫秒。序章用新方法；已發布的 0.0、0.1 章節音軌用舊方法做的，章節尾端最多晚約 60 毫秒，尚未重做。
+
+### 修正
+
+- 後台「平均進度」把不知道總長（durationMs 為 0）的紀錄算進分母，會低估。
+- `e2e/support.ts` 的內部頁前綴漏了 `/admin`。
+
+### 已知限制
+
+- 管理權限依附在 30 天的無狀態登入 cookie：搶註冊者在管理員綁定 Google 之前拿到的 cookie 不會失效，綁定後仍會通過管理員檢查。部署後台前，先確認白名單的 Email 已經自己註冊並用 Google 登入過（見 README「管理後台」）。
+
 ## [0.7.0] - 2026-11-03
 
 旁白改用「章節音軌」播放:把連續的旁白合成一個音檔,手機上整章只用一個 `<audio>`,不再每句換一次音檔。

@@ -125,12 +125,15 @@ async function clipFile(file) {
   return dest
 }
 
-/** 解碼後的實際長度(毫秒):讀 ffmpeg 解碼到結尾的時間,不靠檔頭的估算 */
+/**
+ * 解碼後的實際長度(毫秒,含小數):把音檔解成 24 kHz 單聲道 PCM 數樣本數。
+ * 不用 ffmpeg 進度列的 time=:它只到百分之一秒而且是無條件捨去,每個音檔平均少算約 5 毫秒,
+ * 一章旁白很多句時會累積成幾百毫秒,後面的句子就會比時間軸晚出聲。
+ */
 function probeMs(file) {
-  const res = spawnSync('ffmpeg', ['-hide_banner', '-nostats', '-i', file, '-f', 'null', '-'], { encoding: 'utf8' })
-  const m = [...String(res.stderr).matchAll(/time=(\d+):(\d+):(\d+\.\d+)/g)].at(-1)
-  if (!m) die(`讀不到 ${file} 的長度`)
-  return Math.round((Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3])) * 1000)
+  const res = spawnSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-i', file, '-f', 's16le', '-ac', '1', '-ar', '24000', 'pipe:1'], { maxBuffer: 512 * 1024 * 1024 })
+  if (res.status !== 0 || !res.stdout?.length) die(`讀不到 ${file} 的長度`)
+  return res.stdout.length / 2 / 24 // 位元組 → 樣本數(16 位元)→ 毫秒(24 個樣本 = 1 毫秒)
 }
 
 /** 上傳到 GCS(檔名含內容雜湊,內容不會變,所以設成永久快取) */
@@ -169,6 +172,8 @@ function mixChapter(items, outFile) {
     { stdio: 'inherit' },
   )
 }
+
+const round2 = (x) => Math.round(x * 100) / 100
 
 // ---------- 主流程 ----------
 fs.mkdirSync(CACHE, { recursive: true })
@@ -229,7 +234,7 @@ try {
       const drift = actual - expected
       const bytes = fs.statSync(outFile).size
       console.log(
-        `   章節 ${idx}:${items.length} 段,從 ${(first / 1000).toFixed(1)}s 開始,預期 ${(expected / 1000).toFixed(2)}s、實際 ${(actual / 1000).toFixed(2)}s(差 ${drift}ms),${(bytes / 1024).toFixed(0)} KB` +
+        `   章節 ${idx}:${items.length} 段,從 ${(first / 1000).toFixed(1)}s 開始,預期 ${(expected / 1000).toFixed(2)}s、實際 ${(actual / 1000).toFixed(2)}s(差 ${drift.toFixed(1)}ms),${(bytes / 1024).toFixed(0)} KB` +
           (overlap ? `,重疊 ${overlap}ms!` : ''),
       )
       if (overlap) failed = true
@@ -244,7 +249,7 @@ try {
         file: publish ? object : outName,
         startMs: first,
         ms: actual,
-        clips: items.map((i) => ({ at: i.at, offsetMs: i.startMs, ms: i.ms, text: i.text, voice: i.voice })),
+        clips: items.map((i) => ({ at: i.at, offsetMs: round2(i.startMs), ms: round2(i.ms), text: i.text, voice: i.voice })),
       })
     }
     const manifestFile = path.join(publish ? LIVE : OUT, script.replace(/\.json$/, '.mix.json'))

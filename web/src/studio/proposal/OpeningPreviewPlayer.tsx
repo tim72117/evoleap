@@ -4,6 +4,7 @@ import { createStage } from '../../live/stage'
 import { loadScript } from '../../live/scripts'
 import '../../live/shell.css'
 import type { CourseLesson } from '../../content/lessonTypes'
+import { LivePlayer } from '../../courses/LivePlayer'
 import { openingScript } from './openingScript'
 import ui from './proposal.module.css'
 
@@ -61,3 +62,24 @@ function OpeningPlayer({ course }: { course: CourseLesson }) {
     </div>
   )
 }
+
+// 課程影片的即時教學畫面預覽(src/content/live/ 底下的腳本):和學員課程頁同一個播放器,有旁白語音,但不記播放進度。
+// 按下才建立播放器(一頁有很多課,不要一次全部掛上)。
+export function LiveVideoPreview({ script, title }: { script: string; title: string }) {
+  const [on, setOn] = useState(false)
+  if (!on)
+    return (
+      <div style={{ marginTop: 8 }}>
+        <button type="button" className={ui.copy} onClick={() => setOn(true)}>
+          ▶ 播放即時教學畫面
+        </button>
+      </div>
+    )
+  return (
+    <div className={ui['live-video']}>
+      <LivePlayer script={script} title={title} onTime={noop} saveProgress={false} />
+    </div>
+  )
+}
+
+const noop = (): void => {}

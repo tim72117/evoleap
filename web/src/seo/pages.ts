@@ -229,7 +229,6 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/proposal/mcp', '課程 MCP'],
     ['/proposal/member', '會員空間'],
     ['/proposal/visuals', '即時教學影像'],
-    ['/proposal/visuals/preview', '即時教學畫面預覽'],
     ['/proposal/interactive', '互動教學場景'],
     ['/proposal/interactive/l0-claude', '互動場景：L0 對 Claude 下指令'],
     ['/proposal/interactive/l0-claude-stage', '互動場景：把演員推到主畫面'],

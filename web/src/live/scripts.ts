@@ -5,7 +5,7 @@ import type { StageScript } from './stage'
 
 const SCRIPTS = import.meta.glob<StageScript>('../content/live/**/*.json', { import: 'default' })
 
-/** 所有腳本的路徑(例如 l0/0.0-tools.json),給測試與預覽頁用 */
+/** 所有腳本的路徑(例如 l0/0.0-tools.json),給測試用 */
 export const scriptPaths = Object.keys(SCRIPTS).map((k) => k.replace('../content/live/', ''))
 
 export function loadScript(path: string): Promise<StageScript> {

@@ -12,7 +12,7 @@ import {
   type ProductionPlan,
   type Tier,
 } from './basicsData'
-import { OpeningPreview } from './OpeningPreviewPlayer'
+import { LiveVideoPreview, OpeningPreview } from './OpeningPreviewPlayer'
 import { RESEARCH_REFS } from './researchRefs'
 import { useCopy } from '../../site/useCopy'
 import ui from './proposal.module.css'
@@ -97,6 +97,18 @@ function LessonDetails({ lesson, course }: { lesson: Lesson; course: CourseLesso
                 <strong>預期結果：</strong>
                 {s.expected}
               </p>
+              {course.videos
+                .flatMap((v) => v.drafts ?? [])
+                .filter((d) => d.step === i + 1)
+                .map((d) => (
+                  <div key={d.live}>
+                    <p className={ui['lp-expected']}>
+                      <strong>試做畫面：</strong>
+                      {d.title}
+                    </p>
+                    <LiveVideoPreview script={d.live} title={`${course.id} 步驟 ${i + 1} ${s.title}`} />
+                  </div>
+                ))}
               {s.note && (
                 <p className={ui['lp-note']}>
                   <strong>注意：</strong>
@@ -128,9 +140,15 @@ function LessonDetails({ lesson, course }: { lesson: Lesson; course: CourseLesso
                     {i === 0 ? (course.opening ? '情境開場、任務卡、目標、步驟拆解 → ' : '目標、步驟拆解 → ') : ''}展示{stepRange(v.steps)}
                     {course.opening && i === course.videos.length - 1 ? ' → 回到情境' : ''} → {v.wrap}
                   </div>
+                  {v.live && (
+                    <div className={ui.small}>
+                      <LiveVideoPreview script={v.live} title={`${course.id}-${i + 1} ${v.title}`} />
+                    </div>
+                  )}
                   {v.drafts?.map((d) => (
                     <div key={d.live} className={ui.small}>
-                      試做畫面：<Link to={`/proposal/visuals/preview?script=${encodeURIComponent(d.live)}`}>{d.title}</Link>
+                      試做畫面：{d.title}
+                      {d.step ? `（放在上方步驟 ${d.step} 底下）` : <LiveVideoPreview script={d.live} title={d.title} />}
                     </div>
                   ))}
                 </td>
@@ -223,8 +241,7 @@ function ProductionSection({ plan, mods }: { plan: ProductionPlan; mods: Module[
     <>
       <h2>製作規劃</h2>
       <p className={ui.lead}>
-        影片不錄製，全部用即時教學畫面製作（做法與研究見<Link to="/proposal/visuals">即時教學影像</Link>，畫面可在
-        <Link to="/proposal/visuals/preview">預覽頁</Link>檢查）。狀態只記到實際完成的程度：「腳本完成」指已有即時教學畫面腳本、課程頁可以播放。
+        影片不錄製，全部用即時教學畫面製作（做法與研究見<Link to="/proposal/visuals">即時教學影像</Link>，各課的畫面可在下方每課的「影片切分」直接播放）。狀態只記到實際完成的程度：「腳本完成」指已有即時教學畫面腳本、課程頁可以播放。
       </p>
 
       <section className={ui.card}>

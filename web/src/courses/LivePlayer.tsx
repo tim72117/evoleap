@@ -23,9 +23,11 @@ type Props = {
   onCues?: (cues: { step: number; at: number }[]) => void
   /** 還沒開始播放(時間為 0)時顯示的畫面:某個章節開始後幾毫秒。開頭畫面太空時用;播放還是從頭開始 */
   poster?: { chapter: string; after: number }
+  /** 要不要記會員的播放進度,預設要。研發頁的預覽播放器不記,免得把研發時的試播算成學員的進度 */
+  saveProgress?: boolean
 }
 
-export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ script, title, onTime, onCues, poster }, ref) {
+export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ script, title, onTime, onCues, poster, saveProgress = true }, ref) {
   const boxRef = useRef<HTMLDivElement>(null)
   const shellRef = useRef<Shell | null>(null)
   const onTimeRef = useRef(onTime)
@@ -35,7 +37,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
   const [error, setError] = useState<string | null>(null)
   // 登入狀態確認前先不建立播放器,免得會員的進度被當成訪客略過
   const { status, user } = useAuth()
-  const memberId = user?.id ?? null
+  const memberId = saveProgress ? (user?.id ?? null) : null
 
   useImperativeHandle(ref, () => ({
     seekTo(seconds) {

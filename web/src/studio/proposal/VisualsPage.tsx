@@ -104,7 +104,7 @@ const PROGRESS: [string, string, 'done' | 'todo'][] = [
   ['引擎改寫成 TypeScript，演員以 defineActor 宣告並受介面約束', '完成', 'done'],
   ['課程頁直接掛載播放器（LivePlayer，章節對應課程步驟）', '完成', 'done'],
   ['L0 第 0、1、2 課改用即時教學畫面', '已上線', 'done'],
-  ['內部預覽頁 /proposal/visuals/preview（逐時間點截圖檢查）', '完成', 'done'],
+  ['研發頁的各課「影片切分」直接播放即時教學畫面（有旁白語音，不記進度）', '完成', 'done'],
   ['旁白音訊（Gemini TTS，分段產生、放 GCS）', '第 0、1 課完成；第 2 課待產生', 'todo'],
   ['繪製層、素材包、驗證工具', '待做', 'todo'],
 ]
@@ -184,18 +184,12 @@ export function VisualsPage() {
     <ProposalLayout title="即時教學影像" footer="跨等級構想 · 技術規格見 web/src/live/README.md">
       <h1>構想 · 即時教學影像</h1>
       <span className={`${ui.chip} ${ui.todo} ${ui['draft-banner']}`}>部分上線</span>
-      <p>
-        <Link className={ui.btn} to="/proposal/visuals/preview">
-          預覽即時教學畫面
-        </Link>
-      </p>
-
       <h2>定位</h2>
       <KvTable rows={POSITIONING} />
 
       <h2>架構摘要</h2>
       <p className={ui.lead}>
-        完整規格見<span className={ui['repo-path']}>web/src/live/README.md</span>；各時間點的畫面可在<Link to="/proposal/visuals/preview">預覽頁</Link>檢查
+        完整規格見<span className={ui['repo-path']}>web/src/live/README.md</span>；各課的即時教學畫面可在<Link to="/proposal/tools">課程研發</Link>的各課「影片切分」直接播放
       </p>
       <section className={ui.card}>
         <table>

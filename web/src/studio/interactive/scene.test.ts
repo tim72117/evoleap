@@ -6,6 +6,8 @@ import l00 from '../../content/live/l0/0.0-tools.json'
 import { withL0Moments } from './l0-0.0'
 import l01 from '../../content/live/l0/0.1-project.json'
 import { withL01Moments } from './l0-0.1'
+import intro from '../../content/live/l0/0.intro.json'
+import { withL0IntroMoments } from './l0-intro'
 import { answerLabel, expandAnswers, momentsOf, withoutAnswer, type Answer, type Moment } from './scene'
 
 const script = {
@@ -191,6 +193,64 @@ describe('L0 第 1 課的互動版', () => {
     }
     const stepsOf = (s: StageScript) => s.steps.map((x) => (x as { lessonStep?: number }).lessonStep).filter(Boolean)
     expect(stepsOf(expandAnswers(scene, {}))).toEqual(stepsOf(base))
+  })
+})
+
+describe('序章的互動版', () => {
+  const base = intro as unknown as StageScript
+  const scene = withL0IntroMoments(base)
+  const said = (s: StageScript) => s.steps.map((x) => (x as { narration?: string }).narration).filter(Boolean)
+
+  it('三個互動點,位置在原本腳本的三個地方', () => {
+    const moments = momentsOf(scene)
+    expect(moments.map((m) => m.id)).toEqual(['hardest', 'who', 'verify'])
+    expect(moments.map((m) => m.options.length)).toEqual([4, 2, 3])
+    expect(moments.map((m) => m.title)).toEqual(['以前自己寫程式,哪一段最花時間?', '把程式碼存成檔案、打開來看、把錯誤貼回去問,這些要誰做?', 'AI 說做好了,你要怎麼辦?'].map((s) => s.replace(',', '，').replace('?', '？')))
+    const index = (id: string) => scene.steps.findIndex((s) => (s as { id?: string }).id === id)
+    const text = (i: number) => JSON.stringify(scene.steps[i - 1])
+    expect(text(index('hardest'))).toContain('"wait":1500')
+    expect(text(index('who'))).toContain('複製 → 貼上')
+    expect(text(index('verify'))).toContain('boss:bubble')
+    for (const m of moments) {
+      expect(m.stage?.focus).toBeTruthy()
+      expect(m.skip?.label).toBe('先看示範')
+    }
+  })
+
+  it('沒回答時旁白和原本的腳本一樣(順序也不變)', () => {
+    expect(said(expandAnswers(scene, {}))).toEqual(said(base))
+    expect(said(expandAnswers(scene, { hardest: { skipped: true }, who: { skipped: true }, verify: { skipped: true } }))).toEqual(said(base))
+    const kinds = (s: StageScript) => s.steps.filter((x) => !('checkpoint' in x && 'id' in x))
+    expect(kinds(expandAnswers(scene, {}))).toEqual(base.steps)
+  })
+
+  it('每個選項都能展開:原本的旁白照舊,多出的回應只有一張章節卡,不動演員', () => {
+    for (const m of momentsOf(scene)) {
+      m.options.forEach((o, option) => {
+        const out = expandAnswers(scene, { [m.id]: { option } })
+        expect(said(out).filter((x) => !said(base).includes(x))).toHaveLength(o.steps.length)
+        for (const s of o.steps) expect(s).toHaveProperty('card')
+        expect(out.steps.length).toBe(scene.steps.length + o.steps.length)
+      })
+    }
+    expect(() => expandAnswers(scene, { hardest: { option: 3 }, who: { option: 1 }, verify: { option: 2 } })).not.toThrow()
+  })
+
+  it('演員代號都有定義且不重複,課程步驟是 1 到 5,舊的兩份腳本已合併', () => {
+    const cast = Object.keys(base.cast)
+    expect(new Set(cast).size).toBe(cast.length)
+    const refs = new Set<string>()
+    for (const raw of base.steps as Record<string, unknown>[]) {
+      for (const key of ['on', 'show', 'hide', 'move']) if (typeof raw[key] === 'string') refs.add(raw[key] as string)
+      if (typeof raw.callout === 'string') refs.add(raw.callout.split(':')[0])
+    }
+    for (const ref of refs) expect(cast, `演員 ${ref}`).toContain(ref)
+    const lessonSteps = new Set(base.steps.map((x) => (x as { lessonStep?: number }).lessonStep).filter(Boolean))
+    expect([...lessonSteps]).toEqual([1, 2, 3, 4, 5])
+  })
+
+  it('原本的腳本改了位置時,找不到就丟錯', () => {
+    expect(() => withL0IntroMoments({ ...base, steps: base.steps.slice(0, 5) })).toThrow('l0-intro.ts')
   })
 })
 

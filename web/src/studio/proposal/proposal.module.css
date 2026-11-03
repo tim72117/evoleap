@@ -330,6 +330,8 @@
 .proposal .lp-pain { font-size: 14.5px; margin: 0 0 6px; }
 .proposal .lp-task { font-size: 15px; font-weight: 600; margin: 8px 0 0; padding: 10px 14px; border-radius: 10px; border: 1.5px dashed var(--accent); }
 .proposal .opening-preview { margin: 10px 0 0; max-width: 720px; border-radius: 10px; overflow: hidden; background: #000; }
+/* 課程影片的即時教學畫面預覽:LivePlayer 填滿外框的高度,所以外框要自己有 16:9 的高度 */
+.proposal .live-video { margin: 10px 0 0; max-width: 720px; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #000; }
 .proposal .lp-goal { font-size: 15px; font-weight: 600; margin: 0 0 8px; }
 .proposal .lp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .proposal .lp-steps > li { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
