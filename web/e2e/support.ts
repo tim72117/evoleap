@@ -8,7 +8,7 @@ export const ORIGIN = 'https://shuttle.tools'
 export const DIST = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
 
 /** 內部頁(不收錄、不進 sitemap):網址開頭 */
-export const INTERNAL_PREFIXES = ['/login', '/docs', '/proposal', '/materials']
+export const INTERNAL_PREFIXES = ['/login', '/admin', '/docs', '/proposal', '/materials']
 export const isInternal = (path: string) =>
   INTERNAL_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))
 

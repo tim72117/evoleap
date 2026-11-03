@@ -17,6 +17,8 @@ import (
 var (
 	ErrNotFound      = errors.New("not found")
 	ErrAlreadyExists = errors.New("already exists")
+	// ErrGoogleConflict:這個 Email 的帳號已經綁了另一個 Google 帳號,不能被覆蓋
+	ErrGoogleConflict = errors.New("email already linked to another google account")
 )
 
 type Store struct {

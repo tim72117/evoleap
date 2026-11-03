@@ -67,7 +67,7 @@ test('og:image 檔案存在', async ({ request }) => {
 test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁', async ({ request }) => {
   const sitemap = new Set(sitemapPaths(await (await request.get('/sitemap.xml')).text()))
   const pages = distPagePaths()
-  for (const p of ['/login', '/docs/live', '/proposal', '/materials', '/materials/cover-designer']) {
+  for (const p of ['/login', '/admin', '/docs/live', '/proposal', '/materials', '/materials/cover-designer']) {
     expect(pages, `dist 應有內部頁 ${p}`).toContain(p)
   }
   for (const path of pages) {

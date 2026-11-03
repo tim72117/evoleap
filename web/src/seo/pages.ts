@@ -191,6 +191,14 @@ const LOGIN_PAGE: PageMeta = {
   noindex: true,
 }
 
+// 管理後台:僅管理員使用(權限由伺服器判定),noindex、不列入 sitemap。
+const ADMIN_PAGE: PageMeta = {
+  path: '/admin',
+  title: documentTitle('管理後台'),
+  description: '會員與播放進度管理（內部使用）。',
+  noindex: true,
+}
+
 // 以下都是課程研發用的內部頁(文件、課程提案、素材工具):noindex、不列入 sitemap。
 // 標題保留各頁實際的 document.title,description 用頁面既有的摘要。
 const internal = (path: string, title: string, description = '課程研發工作區（內部使用）。'): PageMeta => ({
@@ -243,6 +251,7 @@ export const PAGES: PageMeta[] = [
   ...COURSE_PAGES,
   ...LEGAL_PAGES,
   LOGIN_PAGE,
+  ADMIN_PAGE,
   ...DOCS_PAGES,
   ...PROPOSAL_PAGES,
   ...MATERIALS_PAGES,

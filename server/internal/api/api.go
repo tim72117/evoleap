@@ -20,6 +20,8 @@ type Config struct {
 	GoogleClientID string
 	// SecureCookie 為 true 時登入 cookie 加上 Secure(正式環境 HTTPS)。
 	SecureCookie bool
+	// AdminEmails 是管理員 Email 白名單(逗號分隔,環境變數 ADMIN_BOOTSTRAP_EMAIL);空字串代表沒有管理員。
+	AdminEmails string
 }
 
 type Server struct {
@@ -42,6 +44,10 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /api/me", s.handleMe)
 	mux.HandleFunc("GET /api/progress", s.requireUser(s.handleProgressGet))
 	mux.HandleFunc("PUT /api/progress", s.requireUser(s.handleProgressPut))
+	mux.HandleFunc("GET /api/admin/me", s.requireAdmin(s.handleAdminMe))
+	mux.HandleFunc("GET /api/admin/overview", s.requireAdmin(s.handleAdminOverview))
+	mux.HandleFunc("GET /api/admin/users", s.requireAdmin(s.handleAdminUsers))
+	mux.HandleFunc("GET /api/admin/users/{id}/progress", s.requireAdmin(s.handleAdminUserProgress))
 	return mux
 }
 

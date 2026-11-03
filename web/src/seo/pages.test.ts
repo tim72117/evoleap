@@ -5,7 +5,7 @@ import { robotsTxt, sitemapXml } from './build'
 import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES } from './pages'
 
 const indexable = PAGES.filter((p) => !p.noindex)
-const INTERNAL_PREFIXES = ['/proposal', '/docs', '/materials', '/login']
+const INTERNAL_PREFIXES = ['/proposal', '/docs', '/materials', '/login', '/admin']
 const isInternal = (path: string) => INTERNAL_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))
 
 describe('主題頁', () => {

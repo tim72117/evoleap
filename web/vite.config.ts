@@ -88,6 +88,11 @@ export default defineConfig({
     // strictPort 讓 port 被占用時直接報錯,不會默默換 port 造成 proxy 對不上。
     port: 5190,
     strictPort: true,
+    // 預設只聽本機。要從 Tailscale 上的其他裝置連(例如用手機測旁白):npm run dev:tailscale,
+    // 只綁在這台機器的 Tailscale IP,區網上的其他人連不到(dev server 有寫檔的端點,不開放給區網)。
+    host: process.env.DEV_HOST || 'localhost',
+    // 用 MagicDNS 名稱(xxx.tailnet.ts.net)連時,Vite 預設會擋掉不認得的 Host
+    allowedHosts: ['.ts.net'],
     // src/studio/docs/registry.ts 以 ?raw 讀取 web/ 外層的 Markdown 文件,dev server 需放行上一層目錄。
     fs: { allow: ['..'] },
     proxy: {

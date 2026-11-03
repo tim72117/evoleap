@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { adminRoutes } from './admin/routes'
 import { articleRoutes } from './studio/articles/routes'
 import { authRoutes } from './auth/routes'
 import { courseRoutes } from './courses/routes'
@@ -12,7 +13,7 @@ import { usePageMeta } from './seo/usePageMeta'
 import { useAnalyticsPageView } from './site/analytics'
 
 // scripts/seo.mjs 會檢查這裡的每個路由在 seo/pages.ts 都有 SEO 資料。
-export const routes = [...homeRoutes, ...courseRoutes, ...proposalRoutes, ...materialsRoutes, ...docsRoutes, ...articleRoutes, ...legalRoutes, ...authRoutes]
+export const routes = [...homeRoutes, ...courseRoutes, ...proposalRoutes, ...materialsRoutes, ...docsRoutes, ...articleRoutes, ...legalRoutes, ...authRoutes, ...adminRoutes]
 
 export function App() {
   usePageMeta()

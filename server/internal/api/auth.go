@@ -132,7 +132,12 @@ func (s *Server) handleGoogle(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusUnauthorized, "invalid_google_token", "Google 登入驗證失敗，請再試一次")
 		return
 	}
-	user, err := s.cfg.Store.UpsertGoogleUser(r.Context(), id.Sub, id.Email, id.EmailVerified, id.Name)
+	// 管理員白名單的 Email 綁定 Google 時清掉既有的密碼(可能是別人搶先密碼註冊的),一般會員不清
+	user, err := s.cfg.Store.UpsertGoogleUser(r.Context(), id.Sub, id.Email, id.EmailVerified, id.Name, IsAdminEmail(id.Email, s.cfg.AdminEmails))
+	if errors.Is(err, store.ErrGoogleConflict) {
+		writeError(w, http.StatusConflict, "google_conflict", "這個 Email 已經綁定另一個 Google 帳號")
+		return
+	}
 	if err != nil {
 		internalError(w, err)
 		return

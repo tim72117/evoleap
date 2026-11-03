@@ -1,0 +1,120 @@
+/* 管理後台。沿用 SiteLayout 的 --site-* tokens。 */
+
+.wrap {
+  padding: 8px 0 32px;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-size: 26px;
+  letter-spacing: 0.04em;
+}
+
+.heading {
+  margin: 28px 0 10px;
+  font-size: 18px;
+}
+
+.note {
+  color: var(--site-muted);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat {
+  min-width: 140px;
+  padding: 14px 18px;
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.statLabel {
+  font-size: 13.5px;
+  color: var(--site-muted);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 8px 10px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--site-border);
+}
+
+.table th {
+  color: var(--site-muted);
+  font-weight: 600;
+}
+
+.link {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.detail {
+  background: var(--site-surface);
+  white-space: normal;
+}
+
+.progressList {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.progressList li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.lessonName {
+  min-width: 200px;
+  font-weight: 600;
+}
+
+.bar {
+  width: 120px;
+  height: 8px;
+  overflow: hidden;
+  background: var(--site-border);
+  border-radius: 4px;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  background: currentColor;
+}
+
+.muted {
+  color: var(--site-muted);
+}

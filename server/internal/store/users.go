@@ -17,6 +17,9 @@ type User struct {
 	Email     string    `json:"email"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"createdAt"`
+	// GoogleVerified:這個帳號的 Email 經 Google 驗證過。密碼註冊不驗證 Email 所有權,
+	// 所以管理員身分只承認這種帳號(見 api/admin.go)。不對外輸出。
+	GoogleVerified bool `json:"-"`
 }
 
 type userRow struct {
@@ -32,7 +35,7 @@ type userRow struct {
 func (userRow) TableName() string { return "users" }
 
 func (r userRow) toUser() User {
-	return User{ID: r.ID, Email: r.Email, Name: r.Name, CreatedAt: r.CreatedAt}
+	return User{ID: r.ID, Email: r.Email, Name: r.Name, CreatedAt: r.CreatedAt, GoogleVerified: r.GoogleSub != nil}
 }
 
 // NormalizeEmail 去除前後空白並轉小寫。
@@ -76,7 +79,10 @@ func (s *Store) CreatePasswordUser(ctx context.Context, email, name, passwordHas
 
 // UpsertGoogleUser 以 Google sub 找使用者;找不到時,若同 Email 的帳號存在就綁定
 // (只在 Google 已驗證該 Email 時),否則建立新帳號。
-func (s *Store) UpsertGoogleUser(ctx context.Context, sub, email string, emailVerified bool, name string) (User, error) {
+// 綁定到既有帳號時,該帳號已經綁了另一個 Google 帳號就回傳 ErrGoogleConflict,不會覆蓋。
+// clearPassword:綁定時要不要清掉既有帳號的密碼。密碼註冊不驗證 Email 所有權,Email 若可能被人搶先註冊
+// (例如管理員白名單的 Email),綁定 Google 後只讓 Google 驗證過的本人登入;一般會員不清,否則點一次 Google 登入密碼就失效。
+func (s *Store) UpsertGoogleUser(ctx context.Context, sub, email string, emailVerified bool, name string, clearPassword bool) (User, error) {
 	db := s.db.WithContext(ctx)
 	var r userRow
 	err := db.First(&r, "google_sub = ?", sub).Error
@@ -91,9 +97,17 @@ func (s *Store) UpsertGoogleUser(ctx context.Context, sub, email string, emailVe
 	if email != "" && emailVerified {
 		err = db.First(&r, "email = ?", email).Error
 		if err == nil {
-			if err := db.Model(&r).Updates(map[string]any{"google_sub": sub, "updated_at": now()}).Error; err != nil {
+			if r.GoogleSub != nil {
+				return User{}, ErrGoogleConflict
+			}
+			update := map[string]any{"google_sub": sub, "updated_at": now()}
+			if clearPassword {
+				update["password_hash"] = ""
+			}
+			if err := db.Model(&r).Updates(update).Error; err != nil {
 				return User{}, err
 			}
+			r.GoogleSub = &sub
 			return r.toUser(), nil
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {

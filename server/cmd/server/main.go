@@ -39,6 +39,7 @@ func main() {
 	cfg := api.Config{
 		GoogleClientID: os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		SecureCookie:   onCloudRun,
+		AdminEmails:    os.Getenv("ADMIN_BOOTSTRAP_EMAIL"),
 	}
 	if dsn == "" {
 		log.Print("未設定 DATABASE_URL:登入功能停用")

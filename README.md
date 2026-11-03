@@ -50,7 +50,15 @@ cd server && go run ./cmd/server         # API：http://127.0.0.1:8190（未設 
 cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api 轉發到 8190）
 ```
 
-環境變數見 `server/.env.example`（資料庫、JWT、Google 登入）與 `web/.env.example`（GA4、產生旁白語音用的 `GEMINI_API_KEY`；金鑰寫在不進版控的 `web/.env.local`）。
+要用 Tailscale 上的其他裝置（例如手機）連開發環境：先啟動 Tailscale，前端改用 `npm run dev:tailscale`（只綁在這台的 Tailscale IP，不開放區網），再用 `http://<Tailscale IP 或 MagicDNS 名稱>:5190` 開啟。後端不用改，`/api` 由前端的 dev server 轉發。
+
+環境變數見 `server/.env.example`（資料庫、JWT、Google 登入、管理員白名單）與 `web/.env.example`（GA4、產生旁白語音用的 `GEMINI_API_KEY`；金鑰寫在不進版控的 `web/.env.local`）。
+
+## 管理後台
+
+- 網址 `/admin`（noindex），API 在 `/api/admin/*`：`me`、`overview`（會員數、各課學習人數／看完人數／平均進度）、`users`（會員列表與進度概況）、`users/{id}/progress`（單一會員各課進度）。全部唯讀。
+- 管理員判定沿用 tripace：沒有獨立的管理員帳號，管理員就是「一般會員 + Email 在白名單內」。白名單是環境變數 `ADMIN_BOOTSTRAP_EMAIL`（可用逗號分隔多個，忽略大小寫），而且必須用 Google 登入（Email 經 Google 驗證）才算管理員，純密碼註冊的帳號不算（密碼註冊不驗證 Email 所有權，否則任何人都能搶註冊成管理員）；若白名單的 Email 先前被人以密碼註冊，管理員第一次用 Google 登入時會綁定到同一個帳號並清掉那組密碼（一般會員綁定 Google 不會清密碼；已經綁了另一個 Google 帳號的 Email 不會被別的 Google 帳號覆蓋，回 409）。已知限制：搶註冊的人在綁定之前就拿到的登入 cookie（30 天有效）不會失效，所以部署後台前，先確認白名單的 Email 已經自己註冊並用 Google 登入過；未設定時沒有任何人是管理員（fail-closed）。每次請求都重新比對，移出白名單立即生效。
+- 未登入回 401、已登入但不在白名單回 403。程式在 `server/internal/api/admin.go`、`server/internal/store/admin.go`、`web/src/admin/`。
 
 ## SEO
 
