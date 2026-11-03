@@ -1,6 +1,8 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { stageSize } from '../../live/place'
 import type { Stage } from '../../live/stage'
+import type { Aspect } from '../../live/types'
 import type { Answer, Moment } from './scene'
 import styles from './InteractiveScenePage.module.css'
 
@@ -8,9 +10,11 @@ import styles from './InteractiveScenePage.module.css'
 // 這些控制項是疊在舞台上的真實元素,用舞台座標(1920×1080)定位,所以會跟著舞台縮放,開關側欄也不用重算。
 // 只在暫停於互動點時出現,不屬於時間軸;推近用 CSS transition,離開互動點就退回,不影響「畫面是時間的純函式」。
 
-const STAGE_W = 1920
 /** 目標推近後的中心;比畫面中央低一點,上方留給提問卡 */
 const CENTER = { x: 960, y: 620 }
+/** 直式:推近後的中心(底部抽屜展開時,可見的舞台只有上半部,要靠上) */
+const CENTER_PORTRAIT = { x: 540, y: 1000 }
+const CENTER_DRAWER = { x: 540, y: 600 }
 const MAX_ZOOM = 1.6
 
 type Rect = { x: number; y: number; w: number; h: number }
@@ -22,10 +26,15 @@ type Props = {
   /** 舞台上的疊加層,控制項畫在這裡 */
   layer: HTMLElement
   moment: Moment
+  aspect?: Aspect
+  /** 底部抽屜:提問與選項在抽屜裡,舞台只留聚焦框與演員身上的可點區 */
+  inDrawer?: boolean
   onAnswer: (a: Answer) => void
 }
 
-export function ActorPush({ stage, root, layer, moment, onAnswer }: Props) {
+export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', inDrawer = false, onAnswer }: Props) {
+  const { w: STAGE_W, h: STAGE_H } = stageSize(aspect)
+  const portrait = aspect === 'portrait'
   const [rects, setRects] = useState<Record<string, Rect>>({})
   const headRef = useRef<HTMLHeadingElement>(null)
   const chipsRef = useRef<HTMLDivElement>(null)
@@ -42,7 +51,12 @@ export function ActorPush({ stage, root, layer, moment, onAnswer }: Props) {
       const r = el.getBoundingClientRect()
       const box = root.getBoundingClientRect()
       const s = box.width / STAGE_W
-      return { x: (r.left - box.left) / s, y: (r.top - box.top) / s, w: r.width / s, h: r.height / s }
+      return {
+        x: (r.left - box.left) / s,
+        y: (r.top - box.top) / s,
+        w: r.width / s,
+        h: r.height / s,
+      }
     }
     const refs = [focusRef, choicesRef, ...moment.options.map((o) => o.target)].filter((x): x is string => !!x)
     const found: Record<string, Rect> = {}
@@ -54,15 +68,16 @@ export function ActorPush({ stage, root, layer, moment, onAnswer }: Props) {
 
     const f = found[focusRef]
     if (f) {
-      const zoom = Math.max(1, Math.min(MAX_ZOOM, 1500 / f.w, 640 / f.h))
-      root.style.transform = `translate(${CENTER.x - (f.x + f.w / 2) * zoom}px, ${CENTER.y - (f.y + f.h / 2) * zoom}px) scale(${zoom})`
+      const c = portrait ? (inDrawer ? CENTER_DRAWER : CENTER_PORTRAIT) : CENTER
+      const zoom = Math.max(1, Math.min(MAX_ZOOM, portrait ? 980 / f.w : 1500 / f.w, portrait ? (inDrawer ? 560 : 800) / f.h : 640 / f.h))
+      root.style.transform = `translate(${c.x - (f.x + f.w / 2) * zoom}px, ${c.y - (f.y + f.h / 2) * zoom}px) scale(${zoom})`
       root.style.setProperty('--push-zoom', String(zoom))
     }
     return () => {
       root.style.transform = ''
       root.style.removeProperty('--push-zoom')
     }
-  }, [stage, root, moment, focusRef, choicesRef])
+  }, [stage, root, moment, focusRef, choicesRef, STAGE_W, portrait, inDrawer])
 
   // 焦點放在問題上(不是選項):習慣按空白鍵暫停的人才不會誤選答案
   useLayoutEffect(() => {
@@ -78,7 +93,7 @@ export function ActorPush({ stage, root, layer, moment, onAnswer }: Props) {
   const focus = { ...measured, y: measured.y - extra, h: measured.h + extra }
   const box = (r: Rect) => ({ left: r.x, top: r.y, width: r.w, height: r.h })
   // 沒有對應到演員身上位置的選項:放進指定的區域(例如輸入框),沒有指定就放在提問卡裡
-  const loose = moment.options.map((o, option) => ({ ...o, option })).filter((o) => !o.target || !rects[o.target])
+  const loose = inDrawer ? [] : moment.options.map((o, option) => ({ ...o, option })).filter((o) => !o.target || !rects[o.target])
   const chips = loose.map((o) => (
     <button key={o.label} type="button" onClick={() => onAnswer({ option: o.option })}>
       {o.label}
@@ -89,20 +104,47 @@ export function ActorPush({ stage, root, layer, moment, onAnswer }: Props) {
     <>
       <div className={styles.pushRing} style={box(focus)} aria-hidden="true" />
 
-      <div className={styles.pushCard} style={{ left: focus.x, bottom: 1080 - focus.y + 18, maxWidth: Math.max(focus.w, 420) }}>
-        <p className={styles.eyebrow}>換你動手</p>
-        <h2 ref={headRef} tabIndex={-1}>
-          {moment.title}
-        </h2>
-        {moment.body && <p className={styles.note}>{moment.body}</p>}
-        {!choicesRect && chips.length > 0 && <div className={styles.pushChips}>{chips}</div>}
-        <button type="button" className={styles.skip} onClick={() => onAnswer({ skipped: true })}>
-          {moment.skip?.label ?? '略過，繼續看'}
-        </button>
-      </div>
+      {!inDrawer && (
+        <div
+          className={styles.pushCard}
+          style={
+            portrait
+              ? {
+                  left: Math.max(24, Math.min(focus.x, STAGE_W - 24 - Math.min(focus.w, 960))),
+                  bottom: STAGE_H - focus.y + 18,
+                  maxWidth: Math.min(Math.max(focus.w, 520), 960),
+                  fontSize: `calc(34px / var(--push-zoom, 1))`,
+                }
+              : {
+                  left: focus.x,
+                  bottom: STAGE_H - focus.y + 18,
+                  maxWidth: Math.max(focus.w, 420),
+                }
+          }
+        >
+          <p className={styles.eyebrow}>換你動手</p>
+          <h2 ref={headRef} tabIndex={-1}>
+            {moment.title}
+          </h2>
+          {moment.body && <p className={styles.note}>{moment.body}</p>}
+          {!choicesRect && chips.length > 0 && <div className={styles.pushChips}>{chips}</div>}
+          <button type="button" className={styles.skip} onClick={() => onAnswer({ skipped: true })}>
+            {moment.skip?.label ?? '略過，繼續看'}
+          </button>
+        </div>
+      )}
 
-      {choicesRect && chips.length > 0 && (
-        <div ref={chipsRef} className={`${styles.pushChips} ${styles.pushChipsIn}`} style={{ left: choicesRect.x, top: choicesRect.y - extra, width: choicesRect.w, minHeight: choicesRect.h }}>
+      {!inDrawer && choicesRect && chips.length > 0 && (
+        <div
+          ref={chipsRef}
+          className={`${styles.pushChips} ${styles.pushChipsIn}`}
+          style={{
+            left: choicesRect.x,
+            top: choicesRect.y - extra,
+            width: choicesRect.w,
+            minHeight: choicesRect.h,
+          }}
+        >
           {chips}
         </div>
       )}

@@ -184,6 +184,16 @@ export default defineActor({
 | `person` | say（帶 mood：calm、tired、worried、happy、busy；SVG 插畫半身像＋對話泡泡，props.look：boss、staff、customer；情境開場用） | window、face、bubble |
 | `notes` | jot、lose（有狀態；桌上的便條紙，掉落的便條移到桌面下方，情境開場用） | window、note:N、note:last、floor |
 | `editor` | open、type（有狀態；通用深色程式碼編輯器，依副檔名上色 html、css、js，演出「以前自己寫程式」） | window、code、caret、tab:檔名 |
+| `macbook` | open、close、wake、sleep、type、tilt（有狀態；擬真筆電，宣傳片用，純 CSS 3D；props：opened、awake、angle、pitch、yaw、finish、wallpaper、dock、clock） | window、screen、keyboard、trackpad、lid、key:鍵 |
+
+**`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。
+
+- props：`opened`（預設 false）、`awake`（預設等於 opened）、`angle`（開蓋角度 90–135，預設 105）、`pitch`（俯視角 0–70，預設 15）、`yaw`（水平旋轉 -60–60，預設 0）、`finish`（`silver`／`space-gray`）、`wallpaper`（`dawn`／`ocean`／`graphite`／`meadow`／`dusk`）、`dock`（Dock 圖示 0–10，預設 7）、`clock`（選單列時間文字）。
+- 動作：`{ "open": true, "angle": 110 }`（開蓋約 1.7 秒）、`{ "close": true }`、`{ "wake": true }`（亮屏）、`{ "sleep": true }`、`{ "type": "文字", "cps": 8 }` 或 `{ "type": true, "keys": 24 }`（按鍵下沉、鍵帽淡淡亮起；英數字按對應鍵，其他字按固定亂數選的鍵）、`{ "tilt": { "pitch": 30, "yaw": -15 } }`（約 2.4 秒，給運鏡用）。操作對不上狀態（已開蓋又 open、闔著 wake／type）載入時報錯。鏡頭推近平移用一般的 `focus`，不另外發明。
+- 目標：`screen`、`keyboard`、`trackpad`、`lid`、`window`、`key:<鍵>`（如 `key:a`）。量的是 3D 投影後的外框（演員內部放了替身，不受 3D 影響）。
+- 大小：依 `place` 的 w、h 等比例縮放，設計盒寬高比 **1240:1120**，放不下時取較小的邊、置中。place 的 w:h 取 1240:1120（例如 h 760、w 841.4）時，螢幕發亮區域（16:10）在 place 內的位置：左 10.8%、上 10.9%、寬 78.4%、高 56.4%（設計座標 x 133.9、y 121.6、w 972.3、h 631.5）。
+- 疊其他演員在螢幕上：算出螢幕的舞台座標，把演員的 `place` 設成它（或螢幕內縮一圈，像浮動視窗；選單列與瀏海佔螢幕上緣約 3%）。**要條件**：開蓋角度 = 90 + pitch（預設 105 與 15 就是），螢幕才會正對鏡頭、是標準矩形；疊上去的演員不會跟著 tilt、開蓋旋轉，所以疊上去之後不要 tilt，要 tilt 先 `hide` 它。疊上去的演員在演員表要排在 macbook 之後。
+- 限制：舞台的鏡頭規定目標下緣不超過畫面 68% 高，所以 `focus: "mac:screen"` 能推近的倍率約 ≤ 1080×0.68×0.9 ÷ 螢幕高；要推近 1.5 倍以上，廣角時機身要縮小（螢幕高 ≲ 430px）。
 
 ### 2A.2 舞台腳本
 
@@ -310,9 +320,11 @@ export default {
 
 **把演員推到主畫面**（`/proposal/interactive/l0-claude-stage`，同一份腳本，頁面加 `interaction="stage"`）：互動點寫了 `stage: { focus: "claude:composer" }` 時，舞台推近目標、其他地方變暗，學員直接操作演員：`stage.choices` 指定固定選項要放在哪裡（例如 `claude:input`，選項就出現在 Claude 的輸入框裡，點了直接送出），選項的 `target` 放可以點的熱區（`ActorPush.tsx`）。控制項用舞台座標疊在舞台上，只在暫停於互動點時存在，不屬於時間軸。右側欄固定放課程章節與步驟，也是重新回答的地方。
 
-**正式課程頁**（序章、第 0、1 課，由 `courses/routes.tsx` 的 `INTERACTIVE_LESSONS` 決定）：`prepare` 把互動點加進課程原本的腳本（`l0-intro.ts`、`l0-0.0.ts`、`l0-0.1.ts`），腳本本身不變，首頁的預覽播放器也照舊用它。每個選項最後都要回到原本的演員狀態，後面的演出才接得上。原本的示範寫成互動點的 `skip`，學員沒回答直接播放時就演原本的內容，旁白語音照常；選其他選項時新寫的旁白還沒有語音，只顯示字幕。序章只看不操作，互動點是「選一選、想一想」：沒有要操作的演員，`stage.focus` 放在當時看得到的演員目標上（選項顯示在提問卡裡），選項的回應用章節卡（`card`），不動演員，所以每個選項演完都不用還原狀態；`skip` 的步驟是空的，原本的內容就接在互動點後面。
+**正式課程頁**（序章、第 0、1、2 課，由 `courses/routes.tsx` 的 `INTERACTIVE_LESSONS` 決定）：`prepare` 把互動點加進課程原本的腳本（`l0-intro.ts`、`l0-0.0.ts`、`l0-0.1.ts`、`l0-0.2.ts`），腳本本身不變，首頁的預覽播放器也照舊用它。每個選項最後都要回到原本的演員狀態，後面的演出才接得上。原本的示範寫成互動點的 `skip`，學員沒回答直接播放時就演原本的內容，旁白語音照常；選其他選項時新寫的旁白還沒有語音，只顯示字幕。序章只看不操作，互動點是「選一選、想一想」：沒有要操作的演員，`stage.focus` 放在當時看得到的演員目標上（選項顯示在提問卡裡），選項的回應用章節卡（`card`），不動演員，所以每個選項演完都不用還原狀態；`skip` 的步驟是空的，原本的內容就接在互動點後面。
 
-學員回答後，`scene.ts` 的 `expandAnswers` 把對應的步驟插到互動點後面，重新 `stage.load`：回答就是時間軸的一部分，畫面仍是時間的純函式（第 1 節），拖曳、倒轉、演員狀態都不用另外處理。目前回答只存在頁面上，重新整理就清空；打字的回應是固定台詞，還沒接 AI。
+學員回答後，`scene.ts` 的 `expandAnswers` 把對應的步驟插到互動點後面，重新 `stage.load`：回答就是時間軸的一部分，畫面仍是時間的純函式（第 1 節），拖曳、倒轉、演員狀態都不用另外處理。第 2 課的互動點是響應式設計（`device`）：學員選手機、平板或桌面，瀏覽器演員用 `width` 動作（`phone` 390、`tablet` 768、`desktop` 1280，切換時內插）重新排版，再用 `callout` 說明；說明文字以當時載入的網站版本（`site/v3`）實際的 CSS 為準，選項最後還原成桌面寬度與頁面頂端。`skip` 的步驟是空的，原本步驟 4 的「手機 → 桌面」示範就接在後面。
+
+目前回答只存在頁面上，重新整理就清空；打字的回應是固定台詞，還沒接 AI。
 
 ---
 
@@ -608,4 +620,34 @@ packs/<name>/
 ### 待決定
 
 - **旁白來源**：目前用 Gemini TTS 產生（見「旁白語音」一節）；是否改成真人錄音，聽過整課後再決定。
-- **輸出 mp4**：即時教學畫面目前只在網站上播放，沒有錄成影片檔的工具（`web/src/studio/recorder/` 的錄製工具錄的是另一種 v1 場景腳本）。需要時再決定要不要在課程研發頁的播放器上逐格截圖錄製。
+- **輸出 mp4**：已有 `web/scripts/record-live.mjs`（`npm run record:live -- promo/0.promo-intro.json [--from 毫秒] [--to 毫秒]`）。它開 `/materials/promo?script=…&record=1`（只顯示 1920×1080 的舞台），以 30 fps 逐格呼叫 `window.__promo.renderAt(ms)` 截圖，用 ffmpeg 合成 1080p mp4；腳本有旁白語音（`*.voice.json`）時依各段旁白的開始時間混成音軌，另輸出 `.srt` 字幕，檔案在 `web/recordings/promo/`。腳本放在 `src/content/live/promo/`，網頁播放在 `/materials/promo`。`web/src/studio/recorder/` 的 `npm run record` 是另一種舊版（v1 分鏡腳本）。
+
+## 直式舞台(原型)
+
+目的:看 9:16 的直式舞台能不能成立,並找出各演員在直式槽裡的問題,作為下一階段「演員依舞台換樣態」的依據。
+
+**做法(時間軸不變、空間可變)**:同一支腳本、旁白、章節音軌都不變;方向是播放時的參數,不寫在腳本裡。
+
+- 畫布:橫式 1920×1080(預設,行為與原本逐像素相同)、直式 1080×1920。`createStage(root, { aspect: 'portrait' })` 或 `stage.load(script, { aspect })`;外殼 `mountShell(box, { aspect: 'portrait', … })`(外框 9:16,縮放用同一組寬高;可搭配 `layout: "capsule"`,互動課程頁就是這樣用)。尺寸與位置換算在 `place.ts`(`stageSize`、`PLACES`、`placeOf`,有單元測試)。
+- `place`(與 `move.to`)可以寫成 `{ "landscape": <原本的寫法>, "portrait": <原本的寫法> }`;沒有指定方向的值兩種方向共用,只寫一個方向時另一個方向沿用它。語意名稱在直式自動換算:window = 留邊的滿版(1000×1560)、full = 滿版、left = 上半部、right = 下半部、center = 垂直置中;百分比相對於該方向的畫布。
+- 字卡、說明框、聚光燈、滑鼠:`.live-stage.portrait`(stage.css)調整基準字級 `--u`(24px)、字卡寬度與字級、說明框最大寬度;橫式不受影響。字幕在直式可折行(shell.css 的 `.vp-portrait`)。
+- 鏡頭(camera.ts):演算法不變,只把「目標下緣的安全線」依舞台寬高決定(`safeBottomOf`:橫式 68%、直式 84%);其餘(倍率上限、不露出空白)本來就用舞台實際寬高。
+- 直式互動課程頁:`/courses/tools/intro?aspect=portrait`(第 0、1、2 課同理,`?aspect=` 由 `studio/interactive/portrait.ts` 解析)。視窗 ≤820px 時課程章節與步驟側欄改成底部抽屜(收合 56px 把手、展開 55dvh;播到互動點自動展開並只顯示提問與選項,回答後收合);>820px 維持右側浮動面板、舞台 9:16 置中。工具列有「橫/直」切換鈕(切換時暫停、保留時間與已作答內容)。序章的 `0.intro.json` 已補 `{landscape,portrait}` 位置;第 0、1、2 課還沒補,直式下沿用橫式位置,版面不佳。
+- 看直式:`/materials/promo?script=promo/portrait-demo.json&aspect=portrait`;`script` 可以是 `src/content/live/` 底下任何腳本(例如 `l0/0.2-site.json`);`&record=1` 輸出舞台、`npm run record:live -- promo/portrait-demo.json --aspect portrait` 輸出 1080×1920 的 mp4。
+
+**逐演員觀察**(各演員原樣放進直式槽,槽尺寸 1000×1400、1000×700、500×700;演員程式這次沒有改):
+
+| 演員 | 看到的問題 | 建議的直式樣態 |
+| --- | --- | --- |
+| person | 人物固定畫在槽左上角、尺寸很小,槽再大也只是旁邊多一大片空白;對話泡泡在 500 寬槽內折成兩行還擠著人物 | 依槽放大(半身像撐滿槽寬),泡泡改放人物下方或上方;槽很窄時泡泡在頭像下方 |
+| chat | 1000×1400 時訊息全擠在底部、上方一大片空;字級小(手機畫面被拉成平板比例,像寬螢幕);500×700 剛好像手機,表現最好 | 直式槽固定成手機比例(置中、寬度受限),或字級依槽寬放大;訊息區比例跟著槽高 |
+| claude-desktop | 為桌面橫向設計:側欄占去約 1/5 寬,對話區變窄、文字再折行;全部是小字(1000 寬下約 8 到 9px 等效),手機上不可讀;1400 高時中間大片空白,輸入框貼底、離內容很遠;500 寬時側欄只剩縮寫 | 直式隱藏側欄、字級放大約 1.6 倍、輸入框與內容靠近;或只演 composer + log 的精簡版 |
+| browser | 網頁寬度固定(tablet 768 / desktop 1280)再縮放進槽:寬槽下字清楚、卻整頁高度長得塞不滿;500×700 時被縮到約 0.6,字很小;網址列 500 寬被截斷 | 直式預設用 phone 寬度(390)並撐滿槽高,網址列簡化成只有網域;上下堆疊時內容區 phone 化 |
+| editor | 程式碼字級小且行很少,1400 高時下半部全空;500 寬時右側程式碼被切掉(沒有折行,也沒有橫向捲動)、檔案清單占掉約 1/5 寬 | 直式隱藏檔案清單、字級放大、長行折行;槽高很大時行距加大或只顯示最近 N 行 |
+| finder | 列表視窗寬度鋪滿,但每列只有一個小圖示和短檔名,內容只占頂端幾列,其餘白色空白;字小 | 直式改圖示格狀(icon view)或放大列高與字級;高度依內容自動縮短(h 不寫) |
+| notes | 便條位置是固定的(em 為單位、左右交錯、往下排),桌面超大時便條集中在上方、下面大片空;1000 寬時便條只占中間;文字在 500 寬時折行 | 便條散布依槽尺寸縮放、置中排列,桌面尺寸跟內容走 |
+| macbook | 依 1240:1120 等比例縮放,置中、不會被切掉,但橫向的筆電在直式槽上下留白很多(1000×1400 時上下各約 400px 空);500 寬時很小 | 直式可 `tilt`(俯視角大)或直接用 `screen` 推近,或加直立擺放(螢幕為主、鍵盤在下半部);槽高不要設太大 |
+
+沒有任何演員完全不能用(都沒有崩壞或消失),主要問題是「版面是橫式的比例,直式槽下留白多、字相對太小」與「窄槽(500)被切掉或折行」。字小的問題與基準字級 `--u` 無關(演員多用自己的 px 字級),要在演員內依槽寬換算。
+
+**橫式與直式的差別提醒**:語意名稱 `right`(橫式 h 依內容)在直式換成固定高度的下半部,依內容高度的演員(finder、person)在 `right` 直式下不再是內容高。

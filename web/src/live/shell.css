@@ -1,10 +1,10 @@
-/* 播放器外殼的樣式。內容(1920×1080 舞台)由 shell.ts 縮放,這裡只管外框與控制列。 */
+/* 播放器外殼的樣式。內容(1920×1080 舞台;直式 .vp-portrait 是 1080×1920)由 shell.ts 縮放,這裡只管外框與控制列。 */
 .vp {
   --vp-accent: #d97757;
   --vp-fg: #fff;
   --vp-ui-bg: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.35) 60%, transparent);
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: var(--vp-aspect, 16 / 9);
   width: 100%;
   background: #000;
   color: var(--vp-fg);
@@ -30,8 +30,8 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 .vp.is-fs .vp-top { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-top: max(12px, env(safe-area-inset-top)); }
 
 .vp-stage { position: absolute; inset: 0; }
-.vp-canvas { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
-.vp-canvas > * { width: 1920px; height: 1080px; display: block; }
+.vp-canvas { position: absolute; left: 0; top: 0; width: var(--vp-w, 1920px); height: var(--vp-h, 1080px); transform-origin: 0 0; }
+.vp-canvas > * { width: var(--vp-w, 1920px); height: var(--vp-h, 1080px); display: block; }
 /* 播放中由手勢層接收點擊;暫停時讓內容可以選取、複製文字 */
 .vp-hit { position: absolute; inset: 0; }
 .vp.paused .vp-hit { pointer-events: none; }
@@ -180,6 +180,15 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 .vp.compact .vp-stop-title { font-size: 15px; margin: 2px 0 4px; }
 .vp.compact .vp-stop-body { font-size: 12px; margin-bottom: 8px; }
 
+/* ---------- 直式(aspect: "portrait",原型):外框 9:16,舞台 1080×1920 ----------
+   字幕是單行切好的(kit.splitCaption),直式畫面窄,改成可以折行、字級比橫式略小;
+   全螢幕/滿版時外框填滿視窗,舞台縮放置中(上下或左右留黑)。 */
+.vp.vp-portrait { --vp-aspect: 9 / 16; }
+.vp.vp-portrait:fullscreen, .vp.vp-portrait.pseudo-fs, .vp.vp-portrait.landscape-fs { aspect-ratio: auto; }
+.vp-portrait .vp-caption { white-space: normal; max-width: 90%; font-size: calc(var(--vp-scale, 0.5) * 44px); bottom: 12%; }
+.vp-portrait.show-ui .vp-caption, .vp-portrait.paused .vp-caption { bottom: calc(12% + 56px); }
+.vp.vp-portrait.compact .vp-caption { bottom: 14%; font-size: max(12px, calc(var(--vp-scale, 0.2) * 44px)); }
+
 /* ---------- 膠囊版面(layout: "capsule",互動教學場景):舞台鋪滿視窗、控制列是浮動的膠囊 ----------
    外層用 --vp-inset-right、--vp-inset-bottom 讓出側欄的空間,舞台、字幕、膠囊都置中在剩下的區域。
    背景畫在外殼上(和 stage.css 的舞台背景相同),舞台比例和視窗不同時看不出邊界。 */
@@ -228,3 +237,15 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 .vp-float .vp-tools .vp-btn[aria-pressed="true"] { box-shadow: inset 0 -3px 0 -1px var(--vp-accent); }
 .vp.vp-float.compact .vp-bottom { padding: 2px 6px; }
 .vp.vp-float.compact .vp-time { display: none; }
+
+/* ---------- 直式 + 膠囊版面(aspect: "portrait" 搭配 layout: "capsule",原型) ----------
+   舞台 1080×1920 置中在(扣掉側欄/抽屜之後的)區域,背景由外殼延伸到整個視窗;字幕可折行、置中在同一個區域。 */
+.vp.vp-float.vp-portrait .vp-caption {
+  white-space: normal; text-align: center;
+  max-width: min(92%, calc(100% - var(--vp-right) - 24px));
+  font-size: max(13px, calc(var(--vp-scale, 0.4) * 44px));
+  bottom: calc(var(--vp-below) + 16px);
+}
+.vp.vp-float.vp-portrait.show-ui .vp-caption, .vp.vp-float.vp-portrait.paused .vp-caption { bottom: calc(var(--vp-below) + 16px); }
+/* 手機直立:膠囊在螢幕最下方、舞台已讓出位置,字幕不必躲控制列,暫停時也看得到 */
+.vp.vp-float.vp-portrait.compact.show-ui .vp-caption, .vp.vp-float.vp-portrait.compact.paused .vp-caption { opacity: 1; }

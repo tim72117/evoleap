@@ -2,6 +2,32 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [0.9.0] - 2026-11-04
+
+第 2 課改成互動版、新增宣傳影片框架與擬真筆電演員、舞台支援直式（9:16）與手機底部抽屜側欄。
+
+### 新增
+
+- **第 2 課互動版**（`studio/interactive/l0-0.2.ts`，登記在 `INTERACTIVE_LESSONS`）：「響應式設計」互動點，學員選手機／平板／桌面，瀏覽器演員依裝置寬度重新排版並說明，選項最後還原成桌面寬度。
+- **宣傳影片框架**：`/materials/promo`（`PromoPage`，內部頁、noindex）播放 `content/live/promo/` 的腳本，提供 `window.__promo.renderAt(ms)` 逐格掛鉤；`npm run record:live -- promo/xxx.json [--aspect portrait] [--from/--to 毫秒]` 逐格截圖，ffmpeg 合成 1080p mp4（有旁白語音時混入音軌）與 `.srt`。附 `0.promo-intro.json`（約 50 秒骨架）與 `portrait-demo.json`。
+- **`macbook` 演員**（`live/actors/macbook/`）：純 CSS 3D 的擬真筆電，動作 `open`／`close`／`wake`／`sleep`／`type`／`tilt`，目標 `screen`／`keyboard`／`trackpad`／`lid`／`window`／`key:x`；示範腳本 `content/live/lab/macbook-demo.json`。
+- **直式舞台（原型）**：`createStage(root, { aspect: 'portrait' })` 為 1080×1920；`place` 與 `move.to` 可寫成 `{ landscape, portrait }`，語意名稱（left／right／center／window／full）在直式自動換算（`live/place.ts`）；鏡頭安全線依方向決定（橫式 68%、直式 84%）；橫式輸出與原本逐像素相同。`live/README.md` 新增「直式舞台(原型)」與逐演員觀察表。
+- **直式互動課程頁**：任何互動課程加 `?aspect=portrait`（`studio/interactive/portrait.ts`）。視窗 ≤820px 時側欄變成底部抽屜（收合把手、展開 55dvh；播到互動點自動展開並只顯示提問，回答後收合）；工具列新增「橫/直」切換鈕。序章 `0.intro.json` 補了直式位置。
+- 手機版播放條放在畫面最底部（`InteractiveScenePage.module.css`）。
+
+### 變更
+
+- 首頁預覽、課程頁的測試與文件配合第 2 課互動版調整（`e2e/live-lesson.spec.ts` 改測章節按鈕，`e2e/auth.spec.ts` 的 next 登入測試改用 `/courses/ai-tools/3-3`）。
+- `ActorPush` 新增 `aspect`、`inDrawer`。
+
+### 已知限制
+
+- 直式只有序章有專屬位置；第 0、1、2 課沿用橫式位置，版面不佳（0.0 的 claude 視窗幾乎空白）。各演員在直式槽的問題記在 `live/README.md` 觀察表，演員層級的直式樣態尚未做。
+- 手機直式時演員縮到約 0.36 倍，字偏小。
+- 直式互動頁的 e2e（`portrait-drawer.spec.ts`）已寫但發版前尚未執行；也未跑完整 build 與全部 e2e。
+- 第 2 課只有前 10 句旁白有語音（共 46 句），尚無章節音軌。
+- 宣傳影片腳本為骨架，長度與用的示範網站（v3 顯示 NT$ 價格）待定。
+
 ## [0.8.0] - 2026-11-04
 
 序章改成互動課程並有完整旁白、課程研發頁直接播放各課的即時教學畫面（移除內部預覽頁）、新增管理後台。

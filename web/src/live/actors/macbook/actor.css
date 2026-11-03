@@ -1,0 +1,302 @@
+/* 演員 macbook:擬真筆記型電腦(純 CSS 3D,沒有圖檔)。選擇器都以 .A-macbook 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(README 第 1 節)。
+
+   尺寸:設計座標是寬 1240、高 1120 的盒子(機身寬 1000),--k = 一個設計單位的實際大小,依演員的位置大小等比例縮放。
+   3D 座標(單位同設計單位):原點在鉸鏈中央;x 向右、y 向下、z 朝向觀看的人。
+   底座上面是 y=0 的平面往前延伸 673(和上蓋同高,闔上時切齊),厚 38;上蓋在鉸鏈上依角度旋轉。 */
+.A-macbook {
+  --k: min(calc(100cqw / 1240), calc(100cqh / 1120));
+  container-type: size;
+  position: relative;
+  width: 100%; height: 100%;
+  aspect-ratio: 1240 / 1120;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  /* 銀色(預設) */
+  --al-hi: #f4f5f7;
+  --al-mid: #d9dce1;
+  --al-lo: #b4b8bf;
+  --al-deep: #9a9ea6;
+  --al-rim: rgba(255, 255, 255, 0.85);
+  --deck-a: #e1e3e8;
+  --deck-b: #cdd0d6;
+}
+.A-macbook.fin-space-gray {
+  --al-hi: #8c9097;
+  --al-mid: #6f737a;
+  --al-lo: #51555c;
+  --al-deep: #3f4349;
+  --al-rim: rgba(255, 255, 255, 0.4);
+  --deck-a: #777b82;
+  --deck-b: #62666d;
+}
+.A-macbook *, .A-macbook *::before, .A-macbook *::after { box-sizing: border-box; }
+
+.A-macbook .mb-box {
+  position: absolute; left: 50%; top: 50%;
+  width: calc(var(--k) * 1240); height: calc(var(--k) * 1120);
+  margin-left: calc(var(--k) * -620); margin-top: calc(var(--k) * -560);
+}
+.A-macbook .mb-persp {
+  position: absolute; inset: 0;
+  perspective: calc(var(--k) * 4800);
+  perspective-origin: 50% 42.5%;
+}
+.A-macbook .mb-rig {
+  position: absolute; left: 50%; top: calc(var(--k) * 871);
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+  transform-origin: 0 0 calc(var(--k) * 336);
+}
+.A-macbook .mb-rig > * { position: absolute; }
+.A-macbook .mb-proxies { position: absolute; inset: 0; pointer-events: none; }
+.A-macbook .mb-proxy { position: absolute; }
+
+/* ---------- 陰影(地面上的一片平面) ---------- */
+.A-macbook .mb-ground {
+  left: calc(var(--k) * -640); top: 0;
+  width: calc(var(--k) * 1280); height: calc(var(--k) * 983);
+  transform-origin: 0 0;
+  transform: translateY(calc(var(--k) * 40)) translateZ(calc(var(--k) * -150)) rotateX(90deg);
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.26) 42%, rgba(0, 0, 0, 0) 72%);
+}
+.A-macbook .mb-contact {
+  left: calc(var(--k) * -492); top: 0;
+  width: calc(var(--k) * 984); height: calc(var(--k) * 667);
+  border-radius: calc(var(--k) * 26);
+  transform-origin: 0 0;
+  transform: translateY(calc(var(--k) * 39)) translateZ(calc(var(--k) * 6)) rotateX(90deg);
+  box-shadow: 0 0 calc(var(--k) * 22) calc(var(--k) * 8) rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- 底座 ---------- */
+.A-macbook .mb-deck {
+  left: calc(var(--k) * -500); top: 0;
+  width: calc(var(--k) * 1000); height: calc(var(--k) * 673);
+  transform-origin: 0 0; transform: rotateX(90deg);
+  border-radius: calc(var(--k) * 6) calc(var(--k) * 6) calc(var(--k) * 26) calc(var(--k) * 26);
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 70%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0, rgba(255, 255, 255, 0.03) calc(var(--k) * 1), rgba(0, 0, 0, 0.02) calc(var(--k) * 1), rgba(0, 0, 0, 0.02) calc(var(--k) * 2)),
+    linear-gradient(180deg, var(--deck-a), var(--deck-b));
+  box-shadow: inset 0 0 0 calc(var(--k) * 1.4) var(--al-rim), inset 0 0 0 calc(var(--k) * 2.8) rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+.A-macbook .mb-deck > * { position: absolute; }
+/* 鉸鏈後方的散熱縫 */
+.A-macbook .mb-hingeband {
+  left: 0; top: 0; width: 100%; height: calc(var(--k) * 26);
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0, rgba(0, 0, 0, 0.55) calc(var(--k) * 2), rgba(0, 0, 0, 0) calc(var(--k) * 2), rgba(0, 0, 0, 0) calc(var(--k) * 7)) 0 calc(var(--k) * 11) / 100% calc(var(--k) * 4) no-repeat,
+    linear-gradient(180deg, #17181b, #2a2c30);
+}
+/* 喇叭孔 */
+.A-macbook .mb-spk {
+  border-radius: calc(var(--k) * 4);
+  background: radial-gradient(circle at center, rgba(20, 21, 24, 0.75) 0 26%, rgba(20, 21, 24, 0) 34%) 0 0 / calc(var(--k) * 6.4) calc(var(--k) * 6.4);
+  opacity: 0.9;
+}
+.A-macbook .mb-kbwell {
+  border-radius: calc(var(--k) * 9);
+  background: linear-gradient(180deg, #121316, #1b1c20);
+  box-shadow: 0 calc(var(--k) * 1.2) 0 rgba(255, 255, 255, 0.45), inset 0 calc(var(--k) * 1.5) calc(var(--k) * 3) rgba(0, 0, 0, 0.6);
+}
+.A-macbook .mb-kb { }
+.A-macbook .mb-key {
+  position: absolute;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: calc(var(--k) * 5.5);
+  background: linear-gradient(180deg, #34363b 0%, #26282c 55%, #1f2124 100%);
+  box-shadow: inset 0 calc(var(--k) * 0.8) 0 rgba(255, 255, 255, 0.13), 0 calc(var(--k) * 1.4) 0 #0c0d0f;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: calc(var(--k) * 14);
+  line-height: 1;
+}
+.A-macbook .mb-key span { position: relative; z-index: 1; }
+.A-macbook .mb-key.mb-mod { font-size: calc(var(--k) * 8.5); }
+.A-macbook .mb-key.mb-short { font-size: calc(var(--k) * 7.5); border-radius: calc(var(--k) * 4); }
+.A-macbook .mb-key i {
+  position: absolute; inset: 0; border-radius: inherit; opacity: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.16) 70%);
+}
+.A-macbook .mb-tp {
+  border-radius: calc(var(--k) * 10);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(0, 0, 0, 0.035));
+  box-shadow: inset 0 0 0 calc(var(--k) * 1) rgba(0, 0, 0, 0.16), 0 calc(var(--k) * 1.2) 0 rgba(255, 255, 255, 0.5), inset 0 calc(var(--k) * 1.6) calc(var(--k) * 2) rgba(0, 0, 0, 0.07);
+}
+/* 螢幕發光照在鍵盤上的淡淡反光 */
+.A-macbook .mb-glow {
+  left: 0; top: 0; width: 100%; height: 100%;
+  opacity: 0; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(ellipse 62% 50% at 50% 0%, rgba(var(--glow), 0.42), rgba(var(--glow), 0.14) 55%, rgba(var(--glow), 0) 85%);
+}
+
+/* 前緣:有厚度與倒角,中間是開蓋凹口 */
+.A-macbook .mb-front {
+  left: calc(var(--k) * -500); top: 0;
+  width: calc(var(--k) * 1000); height: calc(var(--k) * 38);
+  transform: translateZ(calc(var(--k) * 673));
+  border-radius: 0 0 calc(var(--k) * 24) calc(var(--k) * 24) / 0 0 calc(var(--k) * 16) calc(var(--k) * 16);
+  background: linear-gradient(180deg, var(--al-hi) 0%, var(--al-mid) 22%, var(--al-lo) 78%, var(--al-deep) 100%);
+  box-shadow: inset 0 calc(var(--k) * 1.2) 0 var(--al-rim);
+  backface-visibility: hidden;
+}
+.A-macbook .mb-scoop {
+  position: absolute; left: 50%; top: 0;
+  width: calc(var(--k) * 168); height: calc(var(--k) * 15);
+  margin-left: calc(var(--k) * -84);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.08) 70%, rgba(255, 255, 255, 0.25) 100%);
+}
+.A-macbook .mb-side {
+  top: 0; width: calc(var(--k) * 673); height: calc(var(--k) * 38);
+  transform-origin: 0 0;
+  background: linear-gradient(180deg, var(--al-hi) 0%, var(--al-mid) 25%, var(--al-lo) 80%, var(--al-deep) 100%);
+  backface-visibility: hidden;
+}
+.A-macbook .mb-side-l { left: calc(var(--k) * -500); transform: rotateY(-90deg); }
+.A-macbook .mb-side-r { left: calc(var(--k) * 500); transform: translateZ(calc(var(--k) * 673)) rotateY(90deg); }
+
+/* ---------- 上蓋 ---------- */
+.A-macbook .mb-lid {
+  left: calc(var(--k) * -500); top: calc(var(--k) * -673);
+  width: calc(var(--k) * 1000); height: calc(var(--k) * 673);
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+}
+.A-macbook .mb-lid > * { position: absolute; backface-visibility: hidden; }
+/* 螢幕那一面:黑色玻璃 + 細鋁框 */
+.A-macbook .mb-lidface {
+  left: 0; top: 0;
+  border-radius: calc(var(--k) * 18) calc(var(--k) * 18) calc(var(--k) * 8) calc(var(--k) * 8);
+  background: #050506;
+  box-shadow: inset 0 0 0 calc(var(--k) * 2.5) var(--al-mid), inset 0 0 0 calc(var(--k) * 4.5) #121214, inset 0 0 calc(var(--k) * 10) rgba(255, 255, 255, 0.05);
+}
+.A-macbook .mb-screen {
+  position: absolute; left: calc(var(--k) * 15); top: calc(var(--k) * 15);
+  width: calc(var(--k) * 970); height: calc(var(--k) * 630);
+  overflow: hidden; border-radius: calc(var(--k) * 3);
+  background: #000;
+}
+/* 外殼那一面:鋁金屬 + 反光帶 */
+.A-macbook .mb-lidback {
+  left: 0; top: 0; width: 100%; height: 100%;
+  transform: translateZ(calc(var(--k) * -14)) rotateY(180deg);
+  border-radius: calc(var(--k) * 18) calc(var(--k) * 18) calc(var(--k) * 8) calc(var(--k) * 8);
+  background: linear-gradient(165deg, var(--al-hi) 0%, var(--al-mid) 45%, var(--al-lo) 100%);
+  box-shadow: inset 0 0 0 calc(var(--k) * 1.4) var(--al-rim), inset 0 0 calc(var(--k) * 14) rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+}
+.A-macbook .mb-sheen {
+  position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--k) * 300);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.42) 50%, rgba(255, 255, 255, 0));
+}
+.A-macbook .mb-edge { background: linear-gradient(180deg, var(--al-hi), var(--al-lo)); }
+.A-macbook .mb-edge-l, .A-macbook .mb-edge-r { top: calc(var(--k) * 10); width: calc(var(--k) * 14); height: calc(var(--k) * 650); transform-origin: 0 0; }
+.A-macbook .mb-edge-l { left: 0; transform: translateZ(calc(var(--k) * -14)) rotateY(-90deg); }
+.A-macbook .mb-edge-r { left: calc(var(--k) * 1000); transform: rotateY(90deg); }
+.A-macbook .mb-edge-t {
+  left: calc(var(--k) * 12); top: 0; width: calc(var(--k) * 976); height: calc(var(--k) * 14);
+  transform-origin: 0 0; transform: translateZ(calc(var(--k) * -14)) rotateX(90deg);
+  background: linear-gradient(180deg, var(--al-hi), var(--al-mid));
+}
+
+/* ---------- 螢幕裡的桌面 ---------- */
+.A-macbook.wp-dawn { --glow: 236, 160, 190; }
+.A-macbook.wp-ocean { --glow: 130, 205, 255; }
+.A-macbook.wp-graphite { --glow: 170, 185, 225; }
+.A-macbook.wp-meadow { --glow: 175, 232, 150; }
+.A-macbook.wp-dusk { --glow: 205, 140, 215; }
+.A-macbook .mb-desk { position: absolute; inset: 0; color: #fff; overflow: hidden; }
+.A-macbook.wp-dawn .mb-desk {
+  background: radial-gradient(90% 70% at 18% 8%, rgba(255, 214, 170, 0.75), rgba(255, 214, 170, 0) 62%), radial-gradient(80% 80% at 88% 92%, rgba(118, 92, 224, 0.7), rgba(118, 92, 224, 0) 65%), linear-gradient(150deg, #5b4bb7 0%, #b25fb0 48%, #f2a07b 100%);
+}
+.A-macbook.wp-ocean .mb-desk {
+  background: radial-gradient(80% 60% at 80% 0%, rgba(150, 235, 255, 0.6), rgba(150, 235, 255, 0) 60%), radial-gradient(90% 80% at 10% 100%, rgba(20, 60, 160, 0.7), rgba(20, 60, 160, 0) 65%), linear-gradient(160deg, #1d83bd 0%, #1a5aa6 52%, #173c80 100%);
+}
+.A-macbook.wp-graphite .mb-desk {
+  background: radial-gradient(70% 70% at 28% 18%, rgba(130, 140, 175, 0.5), rgba(130, 140, 175, 0) 60%), linear-gradient(160deg, #3d414d, #22242c 68%, #16171c);
+}
+.A-macbook.wp-meadow .mb-desk {
+  background: radial-gradient(80% 60% at 20% 0%, rgba(255, 247, 190, 0.7), rgba(255, 247, 190, 0) 60%), linear-gradient(160deg, #a3d98e 0%, #50b08a 55%, #2b7f86 100%);
+}
+.A-macbook.wp-dusk .mb-desk {
+  background: radial-gradient(80% 60% at 75% 100%, rgba(255, 160, 120, 0.7), rgba(255, 160, 120, 0) 62%), linear-gradient(165deg, #2b2f6b 0%, #7b4a9e 55%, #e8836f 100%);
+}
+.A-macbook .mb-waves { position: absolute; inset: 0; width: 100%; height: 100%; }
+.A-macbook .mb-menubar {
+  position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--k) * 18);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 calc(var(--k) * 12);
+  background: rgba(18, 18, 30, 0.24);
+  font-size: calc(var(--k) * 8.4); line-height: 1; font-weight: 500;
+  text-shadow: 0 0 calc(var(--k) * 2) rgba(0, 0, 0, 0.25);
+}
+.A-macbook .mb-menu-l, .A-macbook .mb-menu-r { display: flex; align-items: center; gap: calc(var(--k) * 11); }
+.A-macbook .mb-menu-l b { font-weight: 700; }
+.A-macbook .mb-glyph { width: calc(var(--k) * 9); height: calc(var(--k) * 9); }
+.A-macbook .mb-menu-r { gap: calc(var(--k) * 9); }
+.A-macbook .mb-ic { display: block; font-style: normal; height: calc(var(--k) * 9); }
+.A-macbook .mb-ic svg { display: block; height: 100%; width: auto; }
+.A-macbook .mb-ic-bat { height: calc(var(--k) * 7.5); }
+.A-macbook .mb-ic-s { height: calc(var(--k) * 7.5); }
+.A-macbook .mb-notch {
+  position: absolute; left: 50%; top: 0;
+  width: calc(var(--k) * 68); height: calc(var(--k) * 18);
+  margin-left: calc(var(--k) * -34);
+  background: #000;
+  border-radius: 0 0 calc(var(--k) * 8) calc(var(--k) * 8);
+}
+.A-macbook .mb-cam {
+  position: absolute; left: 50%; top: calc(var(--k) * 5.5);
+  width: calc(var(--k) * 5.6); height: calc(var(--k) * 5.6);
+  margin-left: calc(var(--k) * -2.8); border-radius: 50%;
+  background: radial-gradient(circle at 34% 32%, #34476a 0%, #0f1526 55%, #04060b 100%);
+  box-shadow: 0 0 0 calc(var(--k) * 0.9) #13151a;
+}
+.A-macbook .mb-disk {
+  position: absolute; right: calc(var(--k) * 16); top: calc(var(--k) * 30);
+  width: calc(var(--k) * 44); display: flex; flex-direction: column; align-items: center; gap: calc(var(--k) * 3);
+  font-size: calc(var(--k) * 7); text-shadow: 0 0 calc(var(--k) * 2) rgba(0, 0, 0, 0.35);
+}
+.A-macbook .mb-disk i {
+  display: block; width: calc(var(--k) * 30); height: calc(var(--k) * 22); border-radius: calc(var(--k) * 4);
+  background: linear-gradient(180deg, #eceef2, #b9bec8);
+  box-shadow: inset 0 calc(var(--k) * -4) 0 #9aa0ad, 0 calc(var(--k) * 1.5) calc(var(--k) * 3) rgba(0, 0, 0, 0.3);
+}
+.A-macbook .mb-dock {
+  position: absolute; left: 50%; bottom: calc(var(--k) * 7);
+  transform: translateX(-50%);
+  display: flex; gap: calc(var(--k) * 6); align-items: flex-end;
+  padding: calc(var(--k) * 5);
+  border-radius: calc(var(--k) * 15);
+  background: rgba(255, 255, 255, 0.24);
+  box-shadow: inset 0 0 0 calc(var(--k) * 0.7) rgba(255, 255, 255, 0.38), 0 calc(var(--k) * 2) calc(var(--k) * 6) rgba(0, 0, 0, 0.18);
+}
+.A-macbook .mb-dock:empty { display: none; }
+.A-macbook .mb-app {
+  position: relative; width: calc(var(--k) * 34); height: calc(var(--k) * 34);
+  border-radius: calc(var(--k) * 8);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 0 calc(var(--k) * 0.5) rgba(255, 255, 255, 0.4), 0 calc(var(--k) * 1.2) calc(var(--k) * 2.5) rgba(0, 0, 0, 0.28);
+}
+.A-macbook .mb-app svg { width: 64%; height: 64%; }
+.A-macbook .mb-app u {
+  position: absolute; left: 50%; bottom: calc(var(--k) * -4.6); width: calc(var(--k) * 2.6); height: calc(var(--k) * 2.6);
+  margin-left: calc(var(--k) * -1.3); border-radius: 50%; background: rgba(255, 255, 255, 0.9); text-decoration: none;
+}
+.A-macbook .mb-cal { display: flex; flex-direction: column; align-items: center; width: 100%; color: #2a2c33; font-style: normal; }
+.A-macbook .mb-cal b { font-size: calc(var(--k) * 6); color: #ee4b4b; font-weight: 700; line-height: 1; }
+.A-macbook .mb-cal i { font-size: calc(var(--k) * 15); font-style: normal; font-weight: 300; line-height: 1.05; }
+
+/* 螢幕玻璃:熄屏的黑與反光、亮屏時細微的反光 */
+.A-macbook .mb-black { position: absolute; inset: 0; background: #020203; }
+.A-macbook .mb-dark {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(122deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.075) 26%, rgba(255, 255, 255, 0.02) 27.5%, rgba(255, 255, 255, 0) 46%, rgba(255, 255, 255, 0.05) 62%, rgba(255, 255, 255, 0) 80%),
+    radial-gradient(ellipse 80% 70% at 30% 20%, rgba(70, 76, 96, 0.35), rgba(0, 0, 0, 0) 70%);
+}
+.A-macbook .mb-glare {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.04) 26%, rgba(255, 255, 255, 0) 27%, rgba(255, 255, 255, 0) 62%, rgba(255, 255, 255, 0.045) 63%, rgba(255, 255, 255, 0) 80%);
+}

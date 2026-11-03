@@ -114,12 +114,12 @@ test('?next= 登入後回到原頁;頁首「登入」連結帶上目前頁面', 
   await registerViaApi(page, email)
   await page.request.post('/api/auth/logout')
 
-  await page.goto('/courses/tools/2')
-  await expect(headerLogin(page)).toHaveAttribute('href', '/login?next=%2Fcourses%2Ftools%2F2')
+  await page.goto('/courses/ai-tools/3-3')
+  await expect(headerLogin(page)).toHaveAttribute('href', '/login?next=%2Fcourses%2Fai-tools%2F3-3')
   await headerLogin(page).click()
   await login(page, email)
-  await expect(page).toHaveURL(/\/courses\/tools\/2$/)
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('提出需求：做出一頁式網站並精確調整')
+  await expect(page).toHaveURL(/\/courses\/ai-tools\/3-3$/)
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
   // 已登入時帶 next:顯示「繼續前往」
   await page.goto('/login?next=/courses/ai-agent')

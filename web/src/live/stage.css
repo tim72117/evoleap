@@ -57,3 +57,12 @@
   width: calc(var(--u) * 3); height: calc(var(--u) * 3); border-radius: 50%;
   background: var(--st-accent);
 }
+
+/* ---------- 直式舞台(createStage(root, { aspect: 'portrait' }),原型):畫布 1080×1920(寬高由 stage.ts 內嵌設定) ----------
+   橫式的樣式不受影響:下面全部掛在 .portrait 底下。
+   基準字級 --u 調大(1080 寬的畫面縮到手機上,18px 太小);字卡與說明框可用的寬度也比橫式窄得多,所以放寬比例、字級略縮。 */
+.live-stage.portrait { --u: 24px; background: radial-gradient(70% 50% at 25% 12%, #f3efe6, var(--st-page)); }
+.live-stage.portrait .st-bubble { max-width: 72%; font-size: 1.15em; }
+.live-stage.portrait .st-card .card-in { max-width: 86%; }
+.live-stage.portrait .st-card h1 { font-size: 2.7em; }
+.live-stage.portrait .st-card p { font-size: 1.15em; }

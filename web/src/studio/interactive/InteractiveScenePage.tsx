@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
+import type { Aspect } from '../../live/types'
 import { narrationClips } from '../../live/mixPlan'
 import { loadMix, loadScript, loadVoice, type ScriptMix, type ScriptVoice } from '../../live/scripts'
 import { mountShell, type ProgressStore, type Shell } from '../../live/shell'
@@ -9,6 +10,7 @@ import '../../live/shell.css'
 import { useCopy } from '../../site/useCopy'
 import { ActorPush } from './ActorPush'
 import { answerLabel, expandAnswers, momentsOf, withoutAnswer, type Answer, type Answers, type Moment } from './scene'
+import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer, withAspect } from './portrait'
 import styles from './InteractiveScenePage.module.css'
 
 // 互動教學場景(試做):整個視窗都是舞台,播放條是浮動的膠囊,右側在「步驟」與「互動」之間切換。
@@ -53,7 +55,26 @@ type Props = {
   }
 }
 
+/** 窄視窗(手機直立):直式用底部抽屜 */
+function useNarrow(): boolean {
+  const [narrow, setNarrow] = useState(() => matchMedia('(max-width: 820px)').matches)
+  useEffect(() => {
+    const mq = matchMedia('(max-width: 820px)')
+    const on = () => setNarrow(mq.matches)
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [])
+  return narrow
+}
+
 export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course }: Props) {
+  const [params, setParams] = useSearchParams()
+  const aspect: Aspect = parseAspect(params.get('aspect'))
+  const narrow = useNarrow()
+  const drawer = usesDrawer(aspect, narrow)
+  /** 重建播放器(切換橫/直)時帶著目前的播放時間 */
+  const carry = useRef(0)
+  const answersRef = useRef<Answers>({})
   const docTitle = course?.docTitle ?? `${pageTitle} · 課程提案`
   const progress = course?.progress
   const ready = course?.ready ?? true
@@ -63,14 +84,21 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const ctrl = useRef<Controller | null>(null)
   const [moments, setMoments] = useState<Moment[]>([])
   const [title, setTitle] = useState('')
-  const [timeline, setTimeline] = useState<Timeline>({ chapters: [], momentAt: {} })
+  const [timeline, setTimeline] = useState<Timeline>({
+    chapters: [],
+    momentAt: {},
+  })
   const [answers, setAnswers] = useState<Answers>({})
   const [now, setNow] = useState({ t: 0, playing: false })
   const [tab, setTab] = useState<Tab>('steps')
-  const [panelOpen, setPanelOpen] = useState(true)
+  const [panelOpen, setPanelOpen] = useState(!drawer)
   const [toolbar, setToolbar] = useState<HTMLElement | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [pushHost, setPushHost] = useState<{ stage: Stage; root: HTMLElement; layer: HTMLElement } | null>(null)
+  const [pushHost, setPushHost] = useState<{
+    stage: Stage
+    root: HTMLElement
+    layer: HTMLElement
+  } | null>(null)
   const [lesson, setLesson] = useState('')
 
   useEffect(() => {
@@ -87,22 +115,26 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     let mix: ScriptMix | null = null
     let list: Moment[] = []
     const stageEl = document.createElement('div')
-    const stage = createStage(stageEl)
+    const stage = createStage(stageEl, { aspect })
     const tools = document.createElement('span')
     tools.className = 'vp-tools'
     const el = page as HTMLElement & { webkitRequestFullscreen?: () => void }
-    const doc = document as Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void }
+    const doc = document as Document & {
+      webkitFullscreenElement?: Element | null
+      webkitExitFullscreen?: () => void
+    }
     const canFullscreen = !!(el.requestFullscreen || el.webkitRequestFullscreen)
     const shell = mountShell(box, {
       stage: stageEl,
       title: pageTitle,
       progress,
       layout: 'capsule',
+      aspect,
       toolbar: tools,
       autoLandscape: false,
       onStop: (stop) => {
         if (!list.some((m) => m.title === stop.title)) return false
-        if (interaction !== 'stage') {
+        if (interaction !== 'stage' && !drawer) {
           setPanelOpen(true)
           setTab('interact')
         }
@@ -130,7 +162,10 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
     const sync: Controller['sync'] = async (next) => {
       if (!script) return {}
-      await stage.load(expandAnswers(script, next), { voice: voice?.durations })
+      await stage.load(expandAnswers(script, next), {
+        voice: voice?.durations,
+        aspect,
+      })
       const momentAt: Record<string, number> = {}
       for (const m of list) {
         const stop = stage.stops.find((s) => s.title === m.title)
@@ -164,7 +199,11 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         setMoments(list)
         setTitle(data.title)
         setLesson(data.lesson ?? '')
-        await sync({})
+        await sync(answersRef.current)
+        if (carry.current > 0) {
+          shell.seek(carry.current)
+          setNow({ t: carry.current, playing: false })
+        }
       })
       .catch((e: unknown) => {
         if (!cancelled) setError(String(e instanceof Error ? e.message : e))
@@ -173,6 +212,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     const timer = window.setInterval(() => setNow({ t: shell.time, playing: shell.playing }), 200)
     return () => {
       cancelled = true
+      carry.current = shell.time
       window.clearInterval(timer)
       document.removeEventListener('fullscreenchange', onFullscreen)
       document.removeEventListener('webkitfullscreenchange', onFullscreen)
@@ -181,13 +221,35 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       setToolbar(null)
       setPushHost(null)
     }
-  }, [scriptPath, interaction, prepare, pageTitle, progress, ready])
+    // drawer 只在建立時決定要不要攔截 onStop,模式改變時另有效果處理側欄,不必重建
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scriptPath, interaction, prepare, pageTitle, progress, ready, aspect])
 
   // 停在還沒回答的互動點上:由播放器目前的狀態決定,拖走或按播放就自然離開
+  useEffect(() => {
+    answersRef.current = answers
+  }, [answers])
+  // 進入或離開抽屜模式:抽屜預設收合,側欄預設打開
+  useEffect(() => {
+    setPanelOpen(!drawer)
+  }, [drawer])
+
   const current = moments.find((m) => {
     const at = timeline.momentAt[m.id]
     return at != null && !answers[m.id] && !now.playing && Math.abs(now.t - at) <= AT_MOMENT_MS
   })
+
+  // 抽屜:停在新的互動點時自動展開;回答後收合(回應由演員在舞台上演出,不要被抽屜擋住)
+  const prevMoment = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    setPanelOpen((open) => nextDrawerOpen(open, drawer, prevMoment.current, current?.id))
+    prevMoment.current = current?.id
+  }, [drawer, current?.id])
+
+  const toggleAspect = () => {
+    carry.current = ctrl.current?.shell.time ?? 0
+    setParams(withAspect(params, aspect === 'portrait' ? 'landscape' : 'portrait'), { replace: true })
+  }
 
   // 焦點移到問題標題(不是選項):習慣按空白鍵暫停的人才不會誤選答案
   const pushed = interaction === 'stage' && current?.stage ? current : undefined
@@ -201,6 +263,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     if (!c) return
     const next = { ...answers, [moment.id]: value }
     setAnswers(next)
+    if (drawer) setPanelOpen(false)
     c.sync(next)
       .then((at) => {
         c.shell.seek(at[moment.id])
@@ -240,7 +303,18 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   }
 
   const pendingCount = moments.filter((m) => !answers[m.id]).length
-  const classes = [styles.page, panelOpen && styles.panelOpen, current && styles.atMoment, interaction === 'stage' && styles.pushable].filter(Boolean).join(' ')
+  const summary = drawerSummary(timeline.chapters, now.t)
+  const classes = [
+    styles.page,
+    panelOpen && styles.panelOpen,
+    drawer && styles.drawerMode,
+    drawer && panelOpen && styles.drawerOpen,
+    aspect === 'portrait' && styles.portrait,
+    current && styles.atMoment,
+    interaction === 'stage' && styles.pushable,
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <div ref={pageRef} className={classes} lang="zh-Hant">
@@ -260,43 +334,76 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         </p>
       )}
 
-      {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
+      {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} inDrawer={drawer} moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
 
-      {panelOpen && (
+      {(panelOpen || drawer) && (
         <aside className={styles.panel} aria-label="課程章節與步驟">
-          {interaction === 'stage' ? (
-            <p className={styles.panelTitle}>{lesson}</p>
-          ) : (
-            <div className={styles.tabs}>
-              <button type="button" aria-pressed={tab === 'steps'} onClick={() => setTab('steps')}>
-                步驟
-              </button>
-              <button type="button" aria-pressed={tab === 'interact'} onClick={() => setTab('interact')}>
-                互動
-                {pendingCount > 0 && <span className={`${styles.count} ${current ? styles.countActive : ''}`}>{pendingCount}</span>}
-              </button>
-            </div>
+          {drawer && (
+            <button type="button" className={styles.handle} aria-expanded={panelOpen} onClick={() => setPanelOpen((v) => !v)}>
+              <span className={styles.grip} aria-hidden="true" />
+              <span className={styles.handleLabel}>{current ? `換你回答 · ${current.title}` : (summary?.label ?? '課程進度')}</span>
+              {summary && <span className={styles.handleStep}>{current ? '互動' : `${summary.index}/${summary.total}`}</span>}
+              <span className={styles.chevron} aria-hidden="true">
+                {panelOpen ? '⌄' : '⌃'}
+              </span>
+            </button>
           )}
-          <div className={styles.panelBody}>
-            {tab === 'steps' || interaction === 'stage' ? (
-              <StepList timeline={timeline} moments={moments} answers={answers} t={now.t} onSeek={seekTo} onMoment={openMoment} onReopen={interaction === 'stage' ? reopen : undefined} prompts={course?.prompts} />
-            ) : current && !pushed ? (
-              <MomentForm key={current.id} moment={current} headRef={momentHeadRef} onAnswer={(a) => answer(current, a)} />
+          <div className={styles.panelInner} inert={drawer && !panelOpen}>
+            {interaction === 'stage' ? (
+              !(drawer && pushed) && <p className={styles.panelTitle}>{lesson}</p>
             ) : (
-              <MomentList timeline={timeline} moments={moments} answers={answers} onOpen={openMoment} onReopen={reopen} />
+              <div className={styles.tabs}>
+                <button type="button" aria-pressed={tab === 'steps'} onClick={() => setTab('steps')}>
+                  步驟
+                </button>
+                <button type="button" aria-pressed={tab === 'interact'} onClick={() => setTab('interact')}>
+                  互動
+                  {pendingCount > 0 && <span className={`${styles.count} ${current ? styles.countActive : ''}`}>{pendingCount}</span>}
+                </button>
+              </div>
             )}
+            <div key={drawer && pushed ? pushed.id : 'list'} className={styles.panelBody}>
+              {tab === 'steps' || interaction === 'stage' ? (
+                drawer && pushed ? (
+                  <MomentForm key={pushed.id} moment={pushed} headRef={momentHeadRef} onAnswer={(a) => answer(pushed, a)} />
+                ) : (
+                  <StepList
+                    timeline={timeline}
+                    moments={moments}
+                    answers={answers}
+                    t={now.t}
+                    onSeek={seekTo}
+                    onMoment={openMoment}
+                    onReopen={interaction === 'stage' ? reopen : undefined}
+                    prompts={course?.prompts}
+                    hidden={drawer && !panelOpen}
+                  />
+                )
+              ) : current && !pushed ? (
+                <MomentForm key={current.id} moment={current} headRef={momentHeadRef} onAnswer={(a) => answer(current, a)} />
+              ) : (
+                <MomentList timeline={timeline} moments={moments} answers={answers} onOpen={openMoment} onReopen={reopen} />
+              )}
+            </div>
+            {!(drawer && pushed) && course?.footer}
           </div>
-          {course?.footer}
         </aside>
       )}
 
       {toolbar &&
         createPortal(
-          <button type="button" className="vp-btn" aria-pressed={panelOpen} aria-label="側欄" title={panelOpen ? '收合側欄' : '打開側欄'} onClick={() => setPanelOpen((v) => !v)}>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 5h18v14H3zm2 2v10h9V7zm11 0v10h3V7z" fillRule="evenodd" />
-            </svg>
-          </button>,
+          <>
+            <button type="button" className={`vp-btn ${styles.aspectBtn}`} aria-label="切換橫式或直式" title={aspect === 'portrait' ? '切成橫式' : '切成直式'} onClick={toggleAspect}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                {aspect === 'portrait' ? <path d="M3 6h18v12H3zm2 2v8h14V8z" fillRule="evenodd" /> : <path d="M7 3h10v18H7zm2 2v14h6V5z" fillRule="evenodd" />}
+              </svg>
+            </button>
+            <button type="button" className="vp-btn" aria-pressed={panelOpen} aria-label="側欄" title={panelOpen ? '收合側欄' : '打開側欄'} onClick={() => setPanelOpen((v) => !v)}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 5h18v14H3zm2 2v10h9V7zm11 0v10h3V7z" fillRule="evenodd" />
+              </svg>
+            </button>
+          </>,
           toolbar,
         )}
     </div>
@@ -312,6 +419,7 @@ function StepList({
   onMoment,
   onReopen,
   prompts,
+  hidden,
 }: {
   timeline: Timeline
   moments: Moment[]
@@ -322,19 +430,35 @@ function StepList({
   /** 有傳才顯示「重新回答」(互動在主畫面時,側欄是唯一重新回答的地方) */
   onReopen?: (m: Moment) => void
   prompts?: Record<number, string>
+  /** 底部抽屜收合時整個藏起來:不要捲動(捲動會把外層也一起捲走) */
+  hidden?: boolean
 }) {
   const activeRef = useRef<HTMLLIElement>(null)
   // 學員回答才出現的段落(你的回答、看示範)也是章節,但在清單上算前一個章節底下的步驟
   const inserted = new Set(['你的回答', ...moments.flatMap((m) => m.skip?.label ?? [])])
   const items = [
-    ...timeline.chapters.map((c) => ({ at: c.at, label: c.label, moment: null as Moment | null, isStep: inserted.has(c.label), prompt: c.step ? prompts?.[c.step] : undefined })),
-    ...moments.filter((m) => timeline.momentAt[m.id] != null).map((m) => ({ at: timeline.momentAt[m.id], label: m.title, moment: m as Moment | null, isStep: true, prompt: undefined })),
+    ...timeline.chapters.map((c) => ({
+      at: c.at,
+      label: c.label,
+      moment: null as Moment | null,
+      isStep: inserted.has(c.label),
+      prompt: c.step ? prompts?.[c.step] : undefined,
+    })),
+    ...moments
+      .filter((m) => timeline.momentAt[m.id] != null)
+      .map((m) => ({
+        at: timeline.momentAt[m.id],
+        label: m.title,
+        moment: m as Moment | null,
+        isStep: true,
+        prompt: undefined,
+      })),
   ].sort((x, y) => x.at - y.at)
   const active = items.filter((x) => x.at <= t).length - 1
   // 章節多的時候,播到哪裡就捲到哪裡
   useEffect(() => {
-    activeRef.current?.scrollIntoView({ block: 'nearest' })
-  }, [active])
+    if (!hidden) activeRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [active, hidden])
   if (!items.length) return <p className={styles.note}>載入中…</p>
   return (
     <ol className={styles.steps}>
@@ -418,19 +542,7 @@ function MomentForm({ moment, headRef, onAnswer }: { moment: Moment; headRef: Re
   )
 }
 
-function MomentList({
-  timeline,
-  moments,
-  answers,
-  onOpen,
-  onReopen,
-}: {
-  timeline: Timeline
-  moments: Moment[]
-  answers: Answers
-  onOpen: (m: Moment) => void
-  onReopen: (m: Moment) => void
-}) {
+function MomentList({ timeline, moments, answers, onOpen, onReopen }: { timeline: Timeline; moments: Moment[]; answers: Answers; onOpen: (m: Moment) => void; onReopen: (m: Moment) => void }) {
   return (
     <div>
       <p className={styles.note}>播到互動點會自動暫停，在這裡回答，演員會當場回應；你的回答會加進時間軸。</p>
@@ -442,7 +554,7 @@ function MomentList({
           return (
             <li key={m.id}>
               <strong>{m.title}</strong>
-              <span className={styles.note}>{a ? (label ? `你的回答：${label}` : (m.skip ? `已選擇：${m.skip.label}` : '已略過')) : at != null ? `還沒回答 · ${fmt(at)}` : '回答上一題後才會出現'}</span>
+              <span className={styles.note}>{a ? (label ? `你的回答：${label}` : m.skip ? `已選擇：${m.skip.label}` : '已略過') : at != null ? `還沒回答 · ${fmt(at)}` : '回答上一題後才會出現'}</span>
               {a ? (
                 <button type="button" onClick={() => onReopen(m)}>
                   重新回答

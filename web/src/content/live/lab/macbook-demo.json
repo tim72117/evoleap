@@ -1,0 +1,83 @@
+{
+  "title": "macbook 演員示範：開蓋、亮屏、疊上 Claude、打字、推近與拉遠",
+  "lesson": "宣傳影片素材（試做）",
+  "cast": {
+    "mac": {
+      "actor": "macbook",
+      "props": {
+        "opened": false,
+        "finish": "silver",
+        "wallpaper": "dawn",
+        "dock": 7,
+        "clock": "週三 9:41"
+      },
+      "place": {
+        "x": 540,
+        "y": 90,
+        "w": 841.4,
+        "h": 760
+      }
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~/Documents/bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": {
+        "x": 672,
+        "y": 196,
+        "w": 578,
+        "h": 354
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "wait": 900,
+      "narration": "桌上一台闔著的筆電，今天的工作還沒開始。"
+    },
+    {
+      "on": "mac",
+      "open": true,
+      "chapter": "開蓋",
+      "narration": "掀開上蓋，螢幕還是黑的，像一面深色的玻璃。"
+    },
+    {
+      "on": "mac",
+      "wake": true,
+      "narration": "螢幕亮起，桌面慢慢浮現，連鍵盤上都映著一點螢幕的光。"
+    },
+    {
+      "show": "claude",
+      "chapter": "請 AI 動手",
+      "narration": "打開 Claude，疊在螢幕的位置上。"
+    },
+    {
+      "on": "mac",
+      "type": "make a bakery site",
+      "cps": 8,
+      "chapter": "打字",
+      "narration": "雙手放上鍵盤，一個字一個字地把想法打下來。"
+    },
+    {
+      "focus": "mac:screen",
+      "wait": 1200,
+      "chapter": "推近螢幕",
+      "narration": "鏡頭推近，整個螢幕就是你的工作畫面。"
+    },
+    {
+      "focus": false,
+      "wait": 900,
+      "chapter": "拉遠",
+      "narration": "再拉遠，回到桌上的這台筆電。"
+    }
+  ]
+}

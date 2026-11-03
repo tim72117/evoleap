@@ -1,0 +1,246 @@
+{
+  "title": "直式舞台示範：同一支腳本的橫式與直式對照",
+  "lesson": "宣傳影片素材（直式原型）",
+  "camera": "auto",
+  "cast": {
+    "mac": {
+      "actor": "macbook",
+      "props": {
+        "opened": false,
+        "finish": "silver",
+        "wallpaper": "dawn",
+        "dock": 7,
+        "clock": "週三 9:41"
+      },
+      "place": {
+        "landscape": {
+          "x": 520,
+          "y": 110,
+          "w": 880,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 420,
+          "w": 1000,
+          "h": 900
+        }
+      },
+      "hidden": true
+    },
+    "boss": {
+      "actor": "person",
+      "props": {
+        "name": "老闆",
+        "look": "boss"
+      },
+      "place": {
+        "landscape": {
+          "x": 120,
+          "y": 170,
+          "w": 640,
+          "h": 700
+        },
+        "portrait": {
+          "x": 60,
+          "y": 140,
+          "w": 960,
+          "h": 600
+        }
+      },
+      "hidden": true
+    },
+    "phone": {
+      "actor": "chat",
+      "props": {
+        "title": "小森烘焙"
+      },
+      "place": {
+        "landscape": {
+          "x": 900,
+          "y": 120,
+          "w": 560,
+          "h": 840
+        },
+        "portrait": {
+          "x": 190,
+          "y": 800,
+          "w": 700,
+          "h": 960
+        }
+      },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~/Documents/bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "browser": {
+      "actor": "browser",
+      "props": {
+        "site": "v3",
+        "width": "tablet",
+        "url": "file:///Documents/bakery/index.html"
+      },
+      "place": {
+        "landscape": {
+          "x": 1200,
+          "y": 90,
+          "w": 640,
+          "h": 900
+        },
+        "portrait": "right"
+      },
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "practice": {}
+        },
+        "open": "practice"
+      },
+      "place": "center",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "同一支腳本，直著橫著都能看",
+      "eyebrow": "直式舞台原型",
+      "sub": "時間軸不變，只有空間換了樣子",
+      "chapter": "開場",
+      "narration": "橫看直看，都能演。",
+      "ms": 2000
+    },
+    {
+      "show": "mac",
+      "chapter": "筆電",
+      "narration": "掀開筆電。"
+    },
+    {
+      "on": "mac",
+      "open": true
+    },
+    {
+      "on": "mac",
+      "wake": true,
+      "focus": {
+        "target": "mac:screen",
+        "zoom": 1.5
+      },
+      "ms": 900
+    },
+    {
+      "hide": "mac",
+      "focus": false
+    },
+    {
+      "show": "boss",
+      "chapter": "老闆與客人",
+      "narration": "老闆正在收訊息。"
+    },
+    {
+      "show": "phone"
+    },
+    {
+      "on": "boss",
+      "say": "訂單好多啊。",
+      "mood": "tired"
+    },
+    {
+      "on": "phone",
+      "receive": "我要訂生日蛋糕，明天拿",
+      "from": "客人甲"
+    },
+    {
+      "callout": "phone:msg:last",
+      "text": "客人傳來的訂單",
+      "ms": 2000,
+      "narration": "聚光燈標出重點。"
+    },
+    {
+      "hide": "boss"
+    },
+    {
+      "hide": "phone"
+    },
+    {
+      "show": "claude",
+      "chapter": "請 AI 動手",
+      "narration": "對 AI 說一句話，它就動手做。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我做烘焙店網站。"
+    },
+    {
+      "on": "claude",
+      "say": "好的，我來建立 index.html。"
+    },
+    {
+      "move": "claude",
+      "to": {
+        "landscape": {
+          "x": 60,
+          "y": 90,
+          "w": 1100,
+          "h": 900
+        },
+        "portrait": "left"
+      },
+      "ms": 1200,
+      "narration": "並排的兩個視窗，直式改成上下堆疊。"
+    },
+    {
+      "show": "browser"
+    },
+    {
+      "scroll": "bottom",
+      "on": "browser",
+      "ms": 1400,
+      "focus": {
+        "target": "browser:viewport",
+        "zoom": 1.4
+      }
+    },
+    {
+      "hide": "claude",
+      "focus": false
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "show": "finder",
+      "create": "hello.txt",
+      "chapter": "檔案",
+      "narration": "新檔案出現在這裡。"
+    },
+    {
+      "callout": "finder:file:hello.txt",
+      "text": "新增的檔案",
+      "ms": 1800
+    },
+    {
+      "card": "直式舞台",
+      "eyebrow": "原型",
+      "sub": "下一步：演員依舞台換樣態",
+      "chapter": "結尾",
+      "narration": "演員將依舞台換樣態。",
+      "ms": 2000
+    }
+  ]
+}

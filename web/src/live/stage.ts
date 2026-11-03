@@ -5,8 +5,9 @@
 // 演員(actors/<名稱>/actor.ts)只負責「長什麼樣、每個動作畫成什麼樣子」,並告訴舞台目標在哪裡。
 // 所以同一個效果可以用在任何演員身上,同一個演員也可以被安排到任何場景。鏡頭的計算在 camera.ts。
 //
-//   const stage = createStage(div)  在 div 裡建立 1920×1080 的舞台(由外殼 shell.ts 縮放)
-//   await stage.load(script)   載入腳本與演員,回傳總長度(毫秒)
+//   const stage = createStage(div)  在 div 裡建立 1920×1080 的舞台(由外殼 shell.ts 縮放);
+//                                    createStage(div, { aspect: 'portrait' }) 是 1080×1920 的直式舞台(預設 landscape)
+//   await stage.load(script)   載入腳本與演員,回傳總長度(毫秒);stage.load(script, { aspect }) 也能在載入時指定方向
 //   stage.renderAt(ms)         畫出 ms 時的畫面(純函式:同一個時間點一定畫出同一個畫面)
 //   stage.duration / captions / chapters / stops / narrations / steps
 //
@@ -19,7 +20,9 @@
 //     },
 //     "steps": [ … ]
 //   }
-//   place:"window"(預設,置中留邊)、"full"、"left"、"right"、"center",或 { x, y, w, h }(1920×1080 的 px,或 "50%" 這種百分比;h 可省略)
+//   place:"window"(預設,置中留邊)、"full"、"left"、"right"、"center",或 { x, y, w, h }(畫布的 px,或 "50%" 這種百分比;h 可省略)。
+//         語意名稱在直式會換算成直式的位置(left = 上半部、right = 下半部,見 place.ts 的 PLACES);
+//         也可以寫成 { "landscape": <上面任一種>, "portrait": <上面任一種> },兩種方向各寫一種。方向不寫在腳本裡,是播放時的參數。
 //
 // 步驟:
 //   演員的動作:{ "user": "…" } — 交給演員表中會這個動作的演員;有多個演員會時必須加 "on": "代號",否則報錯
@@ -43,8 +46,10 @@
 import { cameraPoseAt, planCameraKeys, prerollOf, scheduleCameraKeys, type CameraCue } from './camera'
 import { kit, type Rect, type Styles } from './kit'
 import { ACTORS } from './actors'
+import { placeOf, stageSize } from './place'
 import type {
   ActorEvent,
+  Aspect,
   ActorInstance,
   ActorView,
   AnyActor,
@@ -54,8 +59,6 @@ import type {
   CursorPlan,
   FocusSpec,
   Place,
-  PlaceName,
-  PlaceSpec,
   StageCaption,
   StageChapter,
   StageKind,
@@ -70,8 +73,10 @@ export type { StageCaption, StageChapter, StageNarration, StageScript, StageStop
 
 /** 舞台對外的介面 */
 export interface Stage {
-  /** 載入腳本與演員,回傳總長度(毫秒);腳本有錯會丟出含「第幾步」的錯誤。opts.voice:{ 旁白文字: 語音長度(毫秒) },有語音時用實際長度排時間 */
-  load(script: StageScript, opts?: { voice?: Record<string, number> }): Promise<number>
+  /** 載入腳本與演員,回傳總長度(毫秒);腳本有錯會丟出含「第幾步」的錯誤。opts.voice:{ 旁白文字: 語音長度(毫秒) },有語音時用實際長度排時間;opts.aspect 指定舞台方向(沒給就沿用 createStage 的) */
+  load(script: StageScript, opts?: { voice?: Record<string, number>; aspect?: Aspect }): Promise<number>
+  /** 舞台目前的方向 */
+  readonly aspect: Aspect
   /** 畫出 ms 時的畫面(同一個時間點一定畫出同一個畫面) */
   renderAt(ms: number): void
   /** 「演員代號:目標」目前對應的元素(畫面上疊加互動控制項時用);找不到回傳 null */
@@ -106,34 +111,12 @@ const STAGE_HTML = `
     <div class="st-card" hidden></div>
   </div>`
 
-const W = 1920
-const H = 1080
 const STAGE_KINDS: readonly StageKind[] = ['card', 'callout', 'show', 'hide', 'move', 'checkpoint', 'wait']
 // 這幾種疊加畫面有旁白時直接延長到講完,不讓畫面空等
 const STRETCH_KINDS: readonly string[] = ['card', 'callout', 'show']
 const NARRATION_DELAY = 150 // 字幕與旁白語音在這一步開始後多久出現
-const PLACES: Record<PlaceName, Place> = {
-  window: { x: 96, y: 76, w: 1728, h: 928 },
-  full: { x: 0, y: 0, w: W, h: H },
-  left: { x: 96, y: 120, w: 1100, h: 840 },
-  right: { x: 1190, y: 150, w: 620, h: null },
-  center: { x: 560, y: 240, w: 800, h: null },
-}
 // 中文旁白約每秒 4.2 字(與 record.mjs 相同),再留一點換氣
 const speakMs = (text: string): number => (String(text).replace(/\s/g, '').length / 4.2) * 1000 + 700
-
-const pct = (v: number | string | null | undefined, full: number): number => (typeof v === 'string' && v.endsWith('%') ? (parseFloat(v) / 100) * full : (v as number))
-function placeOf(p: PlaceSpec | undefined): Place {
-  const r = typeof p === 'string' ? PLACES[p] : p ? { ...PLACES.window, ...p } : PLACES.window
-  if (!r) throw new Error(`不認得的位置:${p}`)
-  return { x: pct(r.x, W), y: pct(r.y, H), w: pct(r.w, W), h: r.h == null ? null : pct(r.h, H) }
-}
-function applyPlace(slot: HTMLElement, r: Place): void {
-  slot.style.left = `${(r.x / W) * 100}%`
-  slot.style.top = `${(r.y / H) * 100}%`
-  slot.style.width = `${(r.w / W) * 100}%`
-  slot.style.height = r.h == null ? 'auto' : `${(r.h / H) * 100}%`
-}
 
 /** 演員表裡的一位演員:定義、掛在畫面上的實例與位置 */
 interface Member {
@@ -171,9 +154,27 @@ interface TimelineEvent {
 type Moving = { from: Place; to: Place; e: ActorEvent }
 type Visibility = { shown: boolean; ev: ActorEvent | null; place: Place; move: Moving | null }
 
-export function createStage(root: HTMLElement): Stage {
+export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): Stage {
   root.classList.add('live-stage')
   root.innerHTML = STAGE_HTML
+  let aspect: Aspect = 'landscape'
+  let W = 1920
+  let H = 1080
+  // 直式:畫布換成 1080×1920(橫式不加任何內嵌樣式與 class,和一直以來完全相同)
+  function setAspect(a: Aspect): void {
+    aspect = a
+    ;({ w: W, h: H } = stageSize(a))
+    root.classList.toggle('portrait', a === 'portrait')
+    root.style.width = a === 'portrait' ? `${W}px` : ''
+    root.style.height = a === 'portrait' ? `${H}px` : ''
+  }
+  setAspect(opts.aspect ?? 'landscape')
+  const applyPlace = (slot: HTMLElement, r: Place): void => {
+    slot.style.left = `${(r.x / W) * 100}%`
+    slot.style.top = `${(r.y / H) * 100}%`
+    slot.style.width = `${(r.w / W) * 100}%`
+    slot.style.height = r.h == null ? 'auto' : `${(r.h / H) * 100}%`
+  }
   const $ = <T extends HTMLElement = HTMLElement>(s: string): T => root.querySelector<T>(s)!
 
   let cast: Record<string, Member> = {}
@@ -199,8 +200,9 @@ export function createStage(root: HTMLElement): Stage {
   const stageKindOf = (s: Step): StageKind | undefined => STAGE_KINDS.find((k) => k in s)
 
   // ---------- 載入腳本 ----------
-  async function load(script: StageScript, opts: { voice?: Record<string, number> } = {}): Promise<number> {
+  async function load(script: StageScript, opts: { voice?: Record<string, number>; aspect?: Aspect } = {}): Promise<number> {
     const voice = opts.voice || {}
+    if (opts.aspect && opts.aspect !== aspect) setAspect(opts.aspect)
     auto = script.camera === 'auto'
     const castEl = $('.st-cast')
     castEl.innerHTML = ''
@@ -214,7 +216,7 @@ export function createStage(root: HTMLElement): Stage {
       slot.className = 'slot'
       slot.dataset.cast = id
       castEl.appendChild(slot)
-      const place = placeOf(c.place)
+      const place = placeOf(c.place, aspect)
       applyPlace(slot, place)
       const inst = def.mount(slot, c.props || {})
       cast[id] = { def, inst, slot, place, props: c.props || {}, hidden: !!c.hidden }
@@ -425,7 +427,7 @@ export function createStage(root: HTMLElement): Stage {
         byActor[id].push({ ...e, kind: 'props' })
       } else if (ev.kind === 'move') {
         const id = ev.actor as string
-        const to = placeOf((ev.s as StageStepOf<'move'>).to)
+        const to = placeOf((ev.s as StageStepOf<'move'>).to, aspect)
         vis[id] = { ...vis[id], move: { from: vis[id].place, to, e } }
         vis[id].place = to
       } else if (ev.actor) {
@@ -546,6 +548,9 @@ export function createStage(root: HTMLElement): Stage {
     load,
     renderAt,
     element: resolve,
+    get aspect() {
+      return aspect
+    },
     get duration() {
       return total
     },

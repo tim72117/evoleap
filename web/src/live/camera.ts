@@ -13,8 +13,12 @@ export const CAM_MS = 900
 export const CAM_HOLD_MS = 1500
 /** 為了讓前一個鏡頭停留滿 CAM_HOLD_MS,下一個自動鏡頭最多延後這麼久 */
 const CAM_MAX_DELAY_MS = 600
-/** 鏡頭推近時目標下緣最多到畫面 68% 高,避開播放器的字幕與控制列 */
+/** 橫式:鏡頭推近時目標下緣最多到畫面 68% 高,避開播放器的字幕與控制列 */
 export const SAFE_BOTTOM = 0.68
+/** 直式:畫面很高,字幕與控制列占的比例小得多(約 1080×1920 的下方 300px),下緣可以到 84% 高 */
+export const SAFE_BOTTOM_PORTRAIT = 0.84
+/** 目標下緣的安全線(占畫面高度的比例):直式(高大於寬)與橫式不同 */
+export const safeBottomOf = (view: { w: number; h: number }): number => (view.h > view.w ? SAFE_BOTTOM_PORTRAIT : SAFE_BOTTOM)
 /** 沒指定倍率時,各目標名稱的預設倍率(其餘用 DEFAULT_ZOOM) */
 const ZOOM: Record<string, number> = { composer: 1.8, ask: 1.6, mode: 2.2, head: 1.6 }
 const DEFAULT_ZOOM = 1.6
@@ -111,17 +115,18 @@ function holdKeys(keys: CameraKey[]): CameraKey[] {
 const WIDE: CameraPose = { x: 0, y: 0, zoom: 1 }
 
 /**
- * 讓目標置中並放大,盡量不露出舞台以外的空白;目標下緣最多到 SAFE_BOTTOM
- * (用舞台實際的像素大小計算;嵌在播放器裡時是 1920×1080,直接預覽時是視窗大小)
+ * 讓目標置中並放大,盡量不露出舞台以外的空白;目標下緣最多到 safeBottomOf(view)
+ * (用舞台實際的像素大小計算;嵌在播放器裡時橫式是 1920×1080、直式是 1080×1920,直接預覽時是視窗大小)
  */
-function poseFor(key: CameraKey | undefined, view: { w: number; h: number }, measure: (target: string) => Rect | null): CameraPose {
+export function poseFor(key: CameraKey | undefined, view: { w: number; h: number }, measure: (target: string) => Rect | null): CameraPose {
   const r = key?.target ? measure(key.target) : null
   if (!key || !r || !r.w || !r.h) return WIDE
   const { w: sw, h: sh } = view
-  const z = Math.max(1, Math.min(key.zoom, (sw * 0.92) / r.w, (sh * SAFE_BOTTOM * 0.9) / r.h))
+  const safe = safeBottomOf(view)
+  const z = Math.max(1, Math.min(key.zoom, (sw * 0.92) / r.w, (sh * safe * 0.9) / r.h))
   const x = kit.clamp(sw / 2 - (r.x + r.w / 2) * z, sw - sw * z, 0)
   let y = kit.clamp(sh / 2 - (r.y + r.h / 2) * z, sh - sh * z, 0)
-  if ((r.y + r.h) * z + y > sh * SAFE_BOTTOM) y = sh * SAFE_BOTTOM - (r.y + r.h) * z
+  if ((r.y + r.h) * z + y > sh * safe) y = sh * safe - (r.y + r.h) * z
   return { x, y, zoom: z }
 }
 

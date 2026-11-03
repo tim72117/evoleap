@@ -6,7 +6,7 @@
 //     title: "加上 /health 端點",
 //     duration: 18800,                      // 毫秒
 //     renderAt: (ms) => …,                  // 畫出 ms 時的畫面
-//     stage: element,                       // 1920×1080 的內容(div),外殼負責縮放;內容晚點才準備好時,之後用 vp.update({...}) 補上長度等資料
+//     stage: element,                       // 1920×1080(直式 1080×1920)的內容(div),外殼負責縮放;內容晚點才準備好時,之後用 vp.update({...}) 補上長度等資料
 //     chapters: [{ at: 0, label: "提出需求" }, …],
 //     captions: (ms) => "字幕文字" | "",     // 選用
 //     stops: [{ at, title, body }],         // 選用:練習點,播放經過時自動暫停並顯示要學員做的事
@@ -16,6 +16,7 @@
 //     globalKeys: true,                     // 頁面沒有其他焦點時也接收快捷鍵;一頁多個播放器時設 false
 //     onFullscreenRequest: (on) => …,       // 選用:全螢幕交給外層處理,外層再用 vp.setExternalFullscreen(on) 回報
 //     autoLandscape: true,                  // 手機橫放自動滿版
+//     aspect: "portrait",                   // 選用:直式舞台(1080×1920,外殼是 9:16);預設 landscape(1920×1080、16:9),和 createStage 的 aspect 要一致
 //     layout: "capsule",                    // 選用:鋪滿容器、控制列是浮動的膠囊(互動教學場景)
 //     toolbar: element,                     // 選用:放進控制列的元素
 //     onStop: (stop) => true,               // 選用:回傳 true 表示練習點由外層處理,不顯示「停一下」畫面
@@ -26,6 +27,8 @@
 // 全螢幕(手機自動轉橫向;iPhone 不支援元素全螢幕時改用滿版)、手機橫放自動滿版、
 // 控制列自動隱藏、鍵盤快捷鍵、觸控雙擊快轉倒轉、記住進度、播放時螢幕不休眠、系統媒體控制。
 import { createNarration, type Clip } from './narration'
+import { stageSize } from './place'
+import type { Aspect } from './types'
 
 export type ShellChapter = { at: number; label: string }
 export type ShellStop = { at: number; title: string; body: string }
@@ -36,8 +39,10 @@ export type ShellOptions = {
   duration?: number
   /** 畫出 ms 時的畫面 */
   renderAt?: (ms: number) => void
-  /** 1920×1080 的內容,外殼負責縮放 */
+  /** 1920×1080(直式是 1080×1920)的內容,外殼負責縮放 */
   stage: HTMLElement
+  /** 舞台方向,決定外殼縮放用的寬高與外框比例(16:9 或 9:16);預設 landscape。直式可搭配 capsule */
+  aspect?: Aspect
   chapters?: ShellChapter[]
   captions?: (ms: number) => string
   /** 練習點:播放經過時自動暫停 */
@@ -104,8 +109,6 @@ interface PlayerState {
 type WebkitDocument = Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void }
 type WebkitElement = HTMLElement & { webkitRequestFullscreen?: () => void }
 
-const W = 1920
-const H = 1080
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2]
 const HIDE_MS = 2600
 const STEP_MS = 1000 / 30
@@ -154,7 +157,11 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     ...opts,
   }
   const root = document.createElement('div')
-  root.className = `vp paused show-ui${o.layout === 'capsule' ? ' vp-float' : ''}`
+  const portrait = o.aspect === 'portrait'
+  const { w: W, h: H } = stageSize(o.aspect)
+  root.className = `vp paused show-ui${o.layout === 'capsule' ? ' vp-float' : ''}${portrait ? ' vp-portrait' : ''}`
+  // 橫式不設內嵌樣式(CSS 的預設就是 1920×1080);直式把畫布寬高交給 CSS 變數
+  if (portrait) root.style.cssText = `--vp-w:${W}px;--vp-h:${H}px`
   root.tabIndex = 0
   root.setAttribute('role', 'region')
   root.setAttribute('aria-label', `影片播放器:${o.title || ''}`)
@@ -404,7 +411,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     }
     // Android Chrome 在全螢幕時可以鎖成橫向;不支援的瀏覽器(iOS、桌機)直接略過
     try {
-      await (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> })?.lock?.('landscape')
+      if (!portrait) await (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> })?.lock?.('landscape')
     } catch {
       /* 不支援 */
     }
@@ -437,7 +444,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     root.classList.toggle('is-fs', on)
     $('.vp-fs').innerHTML = full ? ICON.fsExit : ICON.fs
     $('.vp-fs').setAttribute('aria-label', full ? '離開全螢幕' : '全螢幕')
-    $('.vp-hint').hidden = !((state.pseudo || state.ext) && matchMedia('(orientation: portrait)').matches)
+    $('.vp-hint').hidden = portrait || !((state.pseudo || state.ext) && matchMedia('(orientation: portrait)').matches)
     requestAnimationFrame(fit)
   }
   document.addEventListener('fullscreenchange', syncFsUi)
@@ -446,7 +453,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   // 手機橫放時自動滿版(不需要使用者再按全螢幕);轉回直向就恢復
   const landscapeMq = matchMedia('(orientation: landscape) and (pointer: coarse) and (max-height: 540px)')
   const onOrient = (): void => {
-    if (o.autoLandscape === false) return syncFsUi()
+    if (o.autoLandscape === false || portrait) return syncFsUi()
     const want = landscapeMq.matches && (state.playing || state.t > 0)
     if (want !== state.landscape) {
       state.landscape = want

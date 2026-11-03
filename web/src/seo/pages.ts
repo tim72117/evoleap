@@ -240,6 +240,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
 const MATERIALS_PAGES: PageMeta[] = [
   internal('/materials/cover-designer', '課程封面'),
   internal('/materials/cover-cropper', '封面裁切工具'),
+  internal('/materials/promo', '宣傳影片 · 課程提案'),
 ]
 
 export const PAGES: PageMeta[] = [

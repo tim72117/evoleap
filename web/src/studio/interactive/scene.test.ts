@@ -6,6 +6,8 @@ import l00 from '../../content/live/l0/0.0-tools.json'
 import { withL0Moments } from './l0-0.0'
 import l01 from '../../content/live/l0/0.1-project.json'
 import { withL01Moments } from './l0-0.1'
+import l02 from '../../content/live/l0/0.2-site.json'
+import { withL02Moments } from './l0-0.2'
 import intro from '../../content/live/l0/0.intro.json'
 import { withL0IntroMoments } from './l0-intro'
 import { answerLabel, expandAnswers, momentsOf, withoutAnswer, type Answer, type Moment } from './scene'
@@ -193,6 +195,59 @@ describe('L0 第 1 課的互動版', () => {
     }
     const stepsOf = (s: StageScript) => s.steps.map((x) => (x as { lessonStep?: number }).lessonStep).filter(Boolean)
     expect(stepsOf(expandAnswers(scene, {}))).toEqual(stepsOf(base))
+  })
+})
+
+describe('L0 第 2 課的互動版', () => {
+  const base = l02 as unknown as StageScript
+  const scene = withL02Moments(base)
+  const said = (s: StageScript) => s.steps.map((x) => (x as { narration?: string }).narration).filter(Boolean)
+
+  it('一個「device」互動點,在步驟 4 演完之後、原本的「換你試試」之前', () => {
+    const moments = momentsOf(scene)
+    expect(moments.map((m) => m.id)).toEqual(['device'])
+    expect(moments[0].title).toBe('同一個網頁，換個裝置會變成什麼樣子？')
+    expect(moments[0].options.map((o) => o.label)).toEqual(['📱 手機', '📲 平板', '🖥️ 桌面'])
+    expect(moments[0].stage?.focus).toBeTruthy()
+    const at = scene.steps.findIndex((s) => (s as { id?: string }).id === 'device')
+    expect(JSON.stringify(scene.steps[at - 1])).toContain('"scroll":"top"')
+    expect(JSON.stringify(scene.steps[at + 1])).toContain('"hide":"browser"')
+    expect(scene.steps.filter((s) => (s as { checkpoint?: string }).checkpoint === '換你試試')).toHaveLength(4)
+  })
+
+  it('沒回答與略過時,內容和原本的腳本完全一樣(skip 是空的)', () => {
+    expect(momentsOf(scene)[0].skip?.steps).toEqual([])
+    const kinds = (s: StageScript) => s.steps.filter((x) => !('checkpoint' in x && 'id' in x))
+    expect(kinds(expandAnswers(scene, {}))).toEqual(base.steps)
+    expect(kinds(expandAnswers(scene, { device: { skipped: true } }))).toEqual(base.steps)
+    expect(said(expandAnswers(scene, {}))).toEqual(said(base))
+  })
+
+  it('每個選項展開後:原本的旁白照舊,最後還原成桌面寬度與頁面頂端,說明點出響應式', () => {
+    for (const [option, o] of momentsOf(scene)[0].options.entries()) {
+      const out = expandAnswers(scene, { device: { option } })
+      expect(out.steps.length).toBe(scene.steps.length + o.steps.length)
+      expect(said(base).every((n) => said(out).includes(n))).toBe(true)
+      const last = o.steps.at(-1) as Record<string, unknown>
+      expect(last).toEqual({ scroll: 'top' })
+      const widths = o.steps.filter((s) => 'width' in s).map((s) => (s as { width: string }).width)
+      expect(widths.at(-1)).toBe('desktop')
+      expect(JSON.stringify(o.steps)).toContain('響應式設計')
+      expect(o.steps.some((s) => 'callout' in s)).toBe(true)
+    }
+    expect(momentsOf(scene)[0].options.map((o) => (o.steps.find((s) => 'width' in s && (s as { width: string }).width !== 'desktop') as { width?: string } | undefined)?.width)).toEqual(['phone', 'tablet', undefined])
+  })
+
+  it('演員代號都有定義,課程步驟仍是 1 到 9,找不到位置就丟錯', () => {
+    const cast = Object.keys(base.cast)
+    for (const raw of scene.steps as Record<string, unknown>[]) {
+      for (const key of ['show', 'hide']) if (typeof raw[key] === 'string') expect(cast).toContain(raw[key])
+      if (typeof raw.callout === 'string') expect(cast).toContain(raw.callout.split(':')[0])
+    }
+    for (const o of momentsOf(scene)[0].options) for (const raw of o.steps as Record<string, unknown>[]) if (typeof raw.callout === 'string') expect(cast).toContain(raw.callout.split(':')[0])
+    const lessonSteps = new Set(expandAnswers(scene, {}).steps.map((x) => (x as { lessonStep?: number }).lessonStep).filter(Boolean))
+    expect([...lessonSteps]).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    expect(() => withL02Moments({ ...base, steps: base.steps.slice(0, 5) })).toThrow('l0-0.2.ts')
   })
 })
 

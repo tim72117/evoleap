@@ -35,8 +35,15 @@ const TOOLS: Tool[] = [
     path: 'web/src/live/ · web/src/content/live/',
   },
   {
-    title: '宣傳影片錄製工具',
-    body: '用 JSON 分鏡腳本產生畫面，逐格截圖錄成 1080p 影片與字幕檔。',
+    title: '宣傳影片',
+    body: '用即時教學畫面製作的宣傳片：選一支腳本在網頁上播放（可拖曳、全螢幕、字幕）；輸出 mp4 用指令逐格錄製，有旁白語音時一併混進音軌，並輸出字幕檔。',
+    how: '網頁播放；指令：在 web/ 執行 npm run record:live -- promo/檔名.json',
+    links: [{ to: '/materials/promo', label: '開啟' }],
+    path: 'web/src/studio/materials/PromoPage.tsx · web/scripts/record-live.mjs · web/src/content/live/promo/',
+  },
+  {
+    title: '宣傳影片錄製工具（舊版，v1 分鏡腳本）',
+    body: '舊版：用 v1 JSON 分鏡腳本產生畫面，逐格截圖錄成 1080p 影片與字幕檔。新的宣傳片改用上面的「宣傳影片」（即時教學畫面）。',
     how: '指令：在 web/ 執行 npm run record',
     links: [{ to: '/docs/recorder', label: '使用說明' }],
     path: 'web/src/studio/recorder/',

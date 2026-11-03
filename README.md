@@ -28,10 +28,11 @@ web/                 前端（React + Vite + TypeScript）
       proposal/        課程提案 /proposal/*（依等級分章節；L0–L2 大綱與製作規劃在 basicsData.ts；各課的即時教學畫面直接在課程研發頁播放）
       articles/        研究文章 /docs/*
       docs/            Markdown 文件頁 /docs/*（即時教學畫面規格、錄製工具說明）；文件列表在總覽頁 /proposal#docs
-      materials/       工具總覽 /materials、封面設計與裁切工具 /materials/*
-      recorder/        宣傳影片錄製工具：npm run record（JSON 分鏡腳本 → 1080p mp4）
+      materials/       工具總覽 /materials、宣傳影片 /materials/promo（即時教學畫面播放與逐格輸出掛鉤）、封面設計與裁切工具 /materials/*
+      recorder/        宣傳影片錄製工具（舊版 v1 分鏡腳本）：npm run record（JSON 分鏡腳本 → 1080p mp4）
   scripts/seo.mjs    build 後產生各頁 HTML、sitemap.xml、robots.txt
   scripts/voice.mjs  npm run voice：用 Gemini TTS 產生旁白語音，上傳到 GCS gs://shuttle-voice（見 src/live/README.md「旁白語音」）
+  scripts/record-live.mjs  npm run record:live -- promo/xxx.json：把即時教學畫面的宣傳影片腳本（src/content/live/promo/）逐格錄成 1080p mp4 與 .srt，有旁白語音時混入音軌，輸出到 recordings/promo/（--from/--to 毫秒只錄一段）
   scripts/mix.mjs    npm run mix：把連續的旁白依時間軸合成章節音軌（手機播放不斷續），--publish 上傳到 gs://shuttle-voice/mix/
 server/              後端（Go）：/api/*（含登入與播放進度）＋以 go:embed 提供前端
   cmd/server/          進入點、靜態檔與 SEO 頁面的伺服

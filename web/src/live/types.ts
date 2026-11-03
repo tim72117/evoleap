@@ -5,8 +5,12 @@ import type { Point, Rect } from './kit'
 // ---------- 腳本(JSON) ----------
 
 export type PlaceName = 'window' | 'full' | 'left' | 'right' | 'center'
-/** 位置:名稱,或 1920×1080 的 px / "50%" 這種百分比(h 可省略,依內容高度) */
-export type PlaceSpec = PlaceName | { x?: number | string; y?: number | string; w?: number | string; h?: number | string | null }
+/** 舞台方向:landscape 是 1920×1080、portrait 是 1080×1920(方向是播放時的參數,不寫在腳本裡,同一支腳本兩種方向都能播) */
+export type Aspect = 'landscape' | 'portrait'
+/** 單一方向的位置:名稱,或畫布的 px / "50%" 這種百分比(百分比相對於該方向的畫布;h 可省略,依內容高度) */
+export type PlaceBase = PlaceName | { x?: number | string; y?: number | string; w?: number | string; h?: number | string | null }
+/** 位置:同一個寫法兩種方向共用,或 { landscape, portrait } 各寫一種(缺的方向沿用另一個) */
+export type PlaceSpec = PlaceBase | { landscape?: PlaceBase; portrait?: PlaceBase }
 export type Place = { x: number; y: number; w: number; h: number | null }
 
 /** 演員表的一筆:代號 → 演員與登場設定 */

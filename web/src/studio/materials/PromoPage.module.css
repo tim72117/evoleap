@@ -1,0 +1,13 @@
+/* 宣傳影片頁:播放器 16:9;錄製模式(record=1)蓋住整個視窗,只留 1920×1080 的舞台 */
+.player { margin: 14px 0 24px; max-width: 960px; }
+.box { aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #000; }
+.record { position: fixed; inset: 0; z-index: 99999; background: #000; overflow: hidden; }
+.record-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+
+/* 直式(?aspect=portrait):播放器 9:16,寬度限制在 420px,避免整頁被撐得很高 */
+.player-portrait { max-width: 420px; margin-left: 0; }
+.box-portrait { aspect-ratio: 9 / 16; }
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 10px 0 14px; }
+.tools > div[role="group"] { display: flex; gap: 6px; }
+.pathform { display: flex; gap: 6px; flex: 1; min-width: 280px; }
+.pathform input { flex: 1; min-width: 0; padding: 6px 10px; border: 1px solid #c9c5ba; border-radius: 6px; font: inherit; }

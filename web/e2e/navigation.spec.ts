@@ -46,17 +46,10 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
   await page.getByRole('navigation', { name: '上一課與下一課' }).getByRole('link', { name: /下一課/ }).click()
   await expectHeadMatches(page, request, '/courses/tools/2')
 
-  // 麵包屑回課程總覽(手機版隱藏麵包屑,改用上一課)
-  let back: string
-  if (testInfo.project.name === 'desktop') {
-    await page.getByRole('navigation', { name: '麵包屑' }).getByRole('link', { name: 'L0 起步' }).click()
-    back = '/courses/tools'
-  } else {
-    // 第 1 課是互動版,沒有網站頁首;這裡只確認上一課的連結,留在第 2 課往下走
-    await expect(page.getByRole('navigation', { name: '上一課與下一課' }).getByRole('link', { name: /上一課/ })).toHaveAttribute('href', '/courses/tools/1')
-    back = '/courses/tools/2'
-  }
-  await expectHeadMatches(page, request, back)
+  // 第 1、2 課都是互動版,沒有網站頁首與麵包屑:從左上角「← 課程」回課程總覽,再從頁首回首頁
+  await page.getByRole('link', { name: /^← 課程|^課程$/ }).first().click()
+  await expectHeadMatches(page, request, '/courses/tools')
+  const back = '/courses/tools'
   await page.locator('header').getByRole('link', { name: '首頁', exact: true }).click()
   await expectHeadMatches(page, request, '/')
 
@@ -223,6 +216,29 @@ test('L0 第 1 課是互動版:選錯路徑時 Claude 會提醒,接著回到正�
   expect(errors).toEqual([])
 })
 
+test('L0 第 2 課是互動版:播到響應式的互動點會停下,選手機後瀏覽器縮成手機寬度並說明,再繼續', async ({ page }) => {
+  test.setTimeout(90000)
+  const errors = collectErrors(page)
+  await page.goto('/courses/tools/2')
+  const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
+  await expect(page.locator('.vp')).toBeVisible()
+  await expect(panel.getByRole('button', { name: /商品卡片的排列/ })).toBeVisible({ timeout: 15000 })
+  await expect(panel.getByText('同一個網頁，換個裝置會變成什麼樣子？')).toBeVisible()
+
+  // 從步驟清單跳到互動點:停下,三個裝置選項與「先看示範」都在
+  await panel.getByRole('button', { name: /換個裝置會變成什麼樣子/ }).click()
+  for (const name of ['手機', '平板', '桌面']) await expect(page.getByRole('button', { name: new RegExp(name) }).first()).toBeVisible()
+  await expect(page.getByRole('button', { name: '先看示範' }).first()).toBeVisible()
+
+  await page.getByRole('button', { name: /手機/ }).first().click({ timeout: 20000 })
+  // 回應:說明手機版的排法(字幕與標註),瀏覽器視窗變窄
+  await expect(page.getByText('手機：卡片一欄，導覽擠在一起')).toBeVisible({ timeout: 20000 })
+  await expect(panel.getByRole('button', { name: '重新回答' })).toBeVisible()
+  // 回答後自動接著播放:說完結論,視窗放寬回桌面,後面原本的演出照常
+  await expect(page.getByText('同一份網頁，依螢幕寬度自動換排版').first()).toBeVisible({ timeout: 30000 })
+  expect(errors).toEqual([])
+})
+
 // 每個公開頁 + 主要內部頁:開啟時沒有錯誤、h1 只有一個、hydrate 後 head 沒有重複標籤
 const PAGES = [
   ...distSitemapPaths(),
@@ -237,6 +253,7 @@ const PAGES = [
   '/proposal/ai-agent/structure',
   '/materials/course-map',
   '/materials/cover-designer',
+  '/materials/promo',
 ]
 
 for (const path of PAGES) {
