@@ -2,6 +2,14 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [0.6.2] - 2026-11-03
+
+修正 0.6.1 部署失敗。
+
+### 修正
+
+- **旁白音檔預載預設關閉**（`web/src/live/narration.ts`）：0.6.1 的 Blob 預載會 `fetch` 存放音檔的 GCS bucket，而 bucket 沒有設 CORS，每段音檔都被瀏覽器擋下並在主控台報錯，導致 CI 的「開啟無錯誤」與課程頁 e2e 失敗、部署中止（線上使用者也會看到這些錯誤與多餘的請求）。現在需在 bucket 設好 CORS 後，以建置變數 `VITE_VOICE_BLOB=1` 開啟（見 `web/.env.example`）；關閉時仍直接用網址播放，音檔當主時鐘的修正不受影響。
+
 ## [0.6.1] - 2026-11-03
 
 修正手機播放旁白時音訊斷斷續續。

@@ -54,13 +54,16 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
   }
   // 預先抓成 Blob:網址 → blob: 網址。往後 PREFETCH 段先抓好,抓失敗的網址記在 failed,不重試
   const PREFETCH = 3
+  // 預載要 fetch 存放音檔的 GCS bucket,跨網域,bucket 必須先設好 CORS(允許本站來源 GET)。沒設的話每次 fetch 都被瀏覽器擋下並在主控台報錯,
+  // 所以預設關閉;bucket 設好 CORS 之後,在建置時設 VITE_VOICE_BLOB=1 開啟。關閉時直接用網址播放,音檔當主時鐘的部分不受影響。
+  const BLOB_PREFETCH = import.meta.env.VITE_VOICE_BLOB === '1'
   const blobs = new Map<string, string>()
   const inflight = new Set<string>()
   const failed = new Map<string, number>() // 網址 → 失敗的時間;過了 RETRY_MS 才會再試
   const RETRY_MS = 5000
   let destroyed = false
   const prefetch = (url: string): void => {
-    if (blobs.has(url) || inflight.has(url)) return
+    if (!BLOB_PREFETCH || blobs.has(url) || inflight.has(url)) return
     const f = failed.get(url)
     if (f != null && Date.now() - f < RETRY_MS) return
     inflight.add(url)

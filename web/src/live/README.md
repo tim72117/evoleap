@@ -616,7 +616,7 @@ packs/<name>/
 
 - **產生**：`npm run voice -- l0/0.0-tools.json`（在 `web/` 執行，`--all` 全部、`--max-sec 20` 只產生開頭、`--limit 10` 只產生前 10 段、`--sample "一句" --voices A,B` 試聽）。每段 `narration` 送 Gemini TTS（`gemini-3.8-flash-tts`，聲音 Sulafat），轉成 48 kbps MP3 上傳到 GCS `gs://shuttle-voice/<腳本資料夾>/<雜湊>.mp3`（公開讀取、永久快取）。金鑰放 `web/.env.local` 的 `GEMINI_API_KEY`，只在本機用。
 - **清單**：腳本旁的 `<名稱>.voice.json`（進版控）記錄「旁白文字 → { file, ms }」與模型、聲音、語氣。雜湊由模型、聲音、語氣、文字決定；旁白改了一個字就對不到舊音檔，那段會退回只有字幕，直到重新產生。GCS 上的舊檔不自動刪除（正式站部署前仍可能用到）。
-- **播放**：課程頁讀腳本與清單；舞台用語音實際長度排時間（`load(script, { voice })`），`narrations` 給出每段開始時間；外殼的 `clips` 依時間軸播放對應音檔（兩個 `<audio>` 輪流，先載入下一段；按播放的當下取得播放權限）。音檔先抓成 Blob 放在記憶體（往後 3 段，其餘釋放；抓不到就直接用網址），播放中以音檔的 `currentTime` 為主時鐘（`narration.clock()`，不讓時間軸倒退）：音檔卡住時時間軸與字幕一起停，不再做偏差校正的強制 seek；旁白之間的空檔仍由外殼累加。字幕在語音長度內依字數分配。讀不到清單時只顯示字幕。
+- **播放**：課程頁讀腳本與清單；舞台用語音實際長度排時間（`load(script, { voice })`），`narrations` 給出每段開始時間；外殼的 `clips` 依時間軸播放對應音檔（兩個 `<audio>` 輪流，先載入下一段；按播放的當下取得播放權限）。音檔可先抓成 Blob 放在記憶體（往後 3 段，其餘釋放；抓不到就直接用網址；GCS bucket 設好 CORS 後以 `VITE_VOICE_BLOB=1` 開啟，預設關閉），播放中以音檔的 `currentTime` 為主時鐘（`narration.clock()`，不讓時間軸倒退）：音檔卡住時時間軸與字幕一起停，不再做偏差校正的強制 seek；旁白之間的空檔仍由外殼累加。字幕在語音長度內依字數分配。讀不到清單時只顯示字幕。
 - **費用**：見研究文章「旁白語音的費用評估」（`/docs/research/voice-cost`）。
 
 ### 待決定
