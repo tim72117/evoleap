@@ -302,7 +302,9 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
       return
     }
     const prev = state.t
+    const nc = narration.clock()
     if (audio && !audio.paused && !audio.ended) state.t = audio.currentTime * 1000
+    else if (nc != null) state.t = Math.max(prev, nc) // 分段旁白在播時以音檔為準:音檔卡住,時間軸跟著停;剛開始載入時 currentTime 還在 0,不讓時間軸倒退
     else state.t += Math.min(250, now - state.lastTick) * state.rate
     state.lastTick = now
     // 播放經過練習點:停在那裡,請學員動手(拖曳、跳轉經過不會觸發)
@@ -377,6 +379,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     state.ended = state.t >= dur() && !state.playing
     if (audio && audio.readyState) audio.currentTime = Math.min(state.t / 1000, audio.duration || 0)
     narration.reset()
+    narration.warm(state.t)
     draw()
     narration.sync(state)
   }
@@ -751,6 +754,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
       setChapters()
       syncOptional()
       narration.reset()
+      narration.warm(state.t)
       lastKey = ''
       if (first) resume()
       state.t = clamp(state.t, 0, dur())
