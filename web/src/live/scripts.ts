@@ -1,5 +1,6 @@
 // 即時教學畫面的腳本:放在 src/content/live/,單課資料以 live: 'l0/0.0-tools.json' 指定(相對於 content/live/)。
 // 各腳本分開打包,播到那一課才載入。
+import type { MixChapter } from './mixPlan'
 import type { StageScript } from './stage'
 
 const SCRIPTS = import.meta.glob<StageScript>('../content/live/**/*.json', { import: 'default' })
@@ -24,6 +25,8 @@ export type ScriptVoice = {
   durations: Record<string, number>
   /** 旁白文字 → 音檔網址 */
   urls: Record<string, string>
+  /** 旁白文字 → 音檔名(GCS 上的路徑),章節音軌用它確認合成之後旁白有沒有重新產生過 */
+  files: Record<string, string>
 }
 
 /** 腳本的旁白語音;還沒產生時回傳 null(畫面照常播放,只有字幕) */
@@ -35,9 +38,28 @@ export async function loadVoice(path: string): Promise<ScriptVoice | null> {
   if (!manifest?.clips) return null
   const durations: Record<string, number> = {}
   const urls: Record<string, string> = {}
+  const files: Record<string, string> = {}
   for (const [text, clip] of Object.entries(manifest.clips)) {
     durations[text] = clip.ms
     urls[text] = VOICE_BASE + clip.file
+    files[text] = clip.file
   }
-  return { durations, urls }
+  return { durations, urls, files }
+}
+
+// 章節音軌(scripts/mix.mjs --publish 產生):把一個章節的旁白依時間軸合成一個音檔,
+// 手機上整章只用一個 <audio>,不必每句換一次(見 mixPlan.ts)。清單放在腳本旁的 <名稱>.mix.json,音檔在同一個 bucket 的 mix/ 底下。
+// 還沒合成(沒有清單)就是原本逐句播放。
+type MixManifest = { chapters: { file: string; clips: { text: string; offsetMs: number; ms: number; voice?: string }[] }[] }
+const MIXES = import.meta.glob<MixManifest>('../content/live/**/*.mix.json', { import: 'default' })
+
+export type ScriptMix = { chapters: MixChapter[] }
+
+/** 腳本的章節音軌;沒有合成時回傳 null */
+export async function loadMix(path: string): Promise<ScriptMix | null> {
+  const load = MIXES[`../content/live/${path.replace(/\.json$/, '.mix.json')}`]
+  if (!load) return null
+  const manifest = await load()
+  if (!manifest?.chapters?.length) return null
+  return { chapters: manifest.chapters.map((c) => ({ file: VOICE_BASE + c.file, clips: c.clips })) }
 }

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
-import { loadScript, loadVoice, type ScriptVoice } from '../../live/scripts'
+import { narrationClips } from '../../live/mixPlan'
+import { loadMix, loadScript, loadVoice, type ScriptMix, type ScriptVoice } from '../../live/scripts'
 import { mountShell, type ProgressStore, type Shell } from '../../live/shell'
 import { createStage, type Stage, type StageChapter, type StageScript } from '../../live/stage'
 import '../../live/shell.css'
@@ -83,6 +84,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     let cancelled = false
     let script: StageScript | null = null
     let voice: ScriptVoice | null = null
+    let mix: ScriptMix | null = null
     let list: Moment[] = []
     const stageEl = document.createElement('div')
     const stage = createStage(stageEl)
@@ -141,8 +143,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         // 回答過或略過的互動點不再停下來
         stops: stage.stops.filter((s) => !list.some((m) => m.title === s.title && next[m.id])),
         captions: (ms) => stage.captions.find((c) => ms >= c.from && ms < c.to)?.text || '',
-        // 有語音的旁白才播;學員選其他選項時新寫的旁白還沒有語音,只顯示字幕
-        clips: voice ? stage.narrations.filter((n) => voice?.urls[n.text]).map((n) => ({ at: n.at, ms: voice!.durations[n.text], url: voice!.urls[n.text] })) : [],
+        // 有語音的旁白才播(合成過章節音軌的用章節音軌);學員選其他選項時新寫的旁白還沒有語音,只顯示字幕,回到主線的旁白接著用原本的語音
+        clips: narrationClips(stage.narrations, voice, mix),
       })
       if (!cancelled) setTimeline({ chapters: stage.chapters, momentAt })
       return momentAt
@@ -150,13 +152,14 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     ctrl.current = { shell, sync }
 
     // 語音是選用的:讀不到就只顯示字幕
-    Promise.all([loadScript(scriptPath), loadVoice(scriptPath).catch(() => null)])
-      .then(async ([raw, loaded]) => {
+    Promise.all([loadScript(scriptPath), loadVoice(scriptPath).catch(() => null), loadMix(scriptPath).catch(() => null)])
+      .then(async ([raw, loaded, loadedMix]) => {
         await document.fonts.ready
         if (cancelled) return
         const data = prepare ? prepare(raw) : raw
         script = data
         voice = loaded
+        mix = loadedMix
         list = momentsOf(data)
         setMoments(list)
         setTitle(data.title)

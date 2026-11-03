@@ -617,6 +617,8 @@ packs/<name>/
 - **產生**：`npm run voice -- l0/0.0-tools.json`（在 `web/` 執行，`--all` 全部、`--max-sec 20` 只產生開頭、`--limit 10` 只產生前 10 段、`--sample "一句" --voices A,B` 試聽）。每段 `narration` 送 Gemini TTS（`gemini-3.8-flash-tts`，聲音 Sulafat），轉成 48 kbps MP3 上傳到 GCS `gs://shuttle-voice/<腳本資料夾>/<雜湊>.mp3`（公開讀取、永久快取）。金鑰放 `web/.env.local` 的 `GEMINI_API_KEY`，只在本機用。
 - **清單**：腳本旁的 `<名稱>.voice.json`（進版控）記錄「旁白文字 → { file, ms }」與模型、聲音、語氣。雜湊由模型、聲音、語氣、文字決定；旁白改了一個字就對不到舊音檔，那段會退回只有字幕，直到重新產生。GCS 上的舊檔不自動刪除（正式站部署前仍可能用到）。
 - **播放**：課程頁讀腳本與清單；舞台用語音實際長度排時間（`load(script, { voice })`），`narrations` 給出每段開始時間；外殼的 `clips` 依時間軸播放對應音檔（兩個 `<audio>` 輪流，先載入下一段；按播放的當下取得播放權限）。音檔可先抓成 Blob 放在記憶體（往後 3 段，其餘釋放；抓不到就直接用網址；GCS bucket 設好 CORS 後以 `VITE_VOICE_BLOB=1` 開啟，預設關閉），播放中以音檔的 `currentTime` 為主時鐘（`narration.clock()`，不讓時間軸倒退）：音檔卡住時時間軸與字幕一起停，不再做偏差校正的強制 seek；旁白之間的空檔仍由外殼累加。字幕在語音長度內依字數分配。讀不到清單時只顯示字幕。
+- **章節音軌**（手機上每句換一次音檔容易斷續，所以把連續的旁白合成一個音檔）：`npm run mix -- l0/0.0-tools.json`（`--all` 全部；加 `--publish` 才上傳）。`scripts/mix.mjs` 起一個 vite、用 Playwright 在 Chrome 裡跑舞台排時間，取得每段旁白的開始時間與練習點，以練習點切章節，每章用 ffmpeg 依時間把旁白接起來、中間補靜音（48 kbps 單聲道 mp3），預設只產生在 `web/recordings/mix/`；`--publish` 上傳到 `gs://shuttle-voice/mix/<腳本>/<章節>-<雜湊>.mp3`，並寫出 `<名稱>.mix.json`（進版控）記錄每章的檔案，以及每句旁白在章節檔裡的位置、當時用的語音檔。**旁白或腳本改了要重新執行**；沒重新執行時播放器發現文字、語音檔或間隔對不上，就自動退回逐句播放，不會錯位。
+- **旁白計畫**（`src/live/mixPlan.ts`，純函式）：`narrationClips(narrations, voice, mix)` 把目前時間軸的每句旁白對到章節音軌：時間軸上連續（間隔和章節音軌裡相同）的旁白併成一段範圍（一個 `Clip`，`from` 是音檔裡的起點），對不到的有語音者逐句播放，沒語音的（例如互動分支新寫的旁白）不播、只有字幕。互動課程學員回答後舞台重排時間軸，回到主線的旁白彼此間隔不變，仍是章節音軌裡連續的一段，從該句的位置 seek 一次就接得上；第 0、0.1 課各回答組合都已驗證沒有任何一句需要退回逐句播放。
 - **費用**：見研究文章「旁白語音的費用評估」（`/docs/research/voice-cost`）。
 
 ### 待決定

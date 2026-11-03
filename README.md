@@ -15,7 +15,7 @@ web/                 前端（React + Vite + TypeScript）
       l2Outline.ts     L2 章節大綱（尚未寫到步驟）
       aiAgent.ts       L3 課程頁內容
       lessonTypes.ts   單課資料型別
-      live/            即時教學畫面的腳本（JSON，例如 l0/0.0-tools.json；單課資料以 live 欄位指定）與旁白語音清單（*.voice.json）
+      live/            即時教學畫面的腳本（JSON，例如 l0/0.0-tools.json；單課資料以 live 欄位指定）、旁白語音清單（*.voice.json）與章節音軌清單（*.mix.json）
     live/            即時教學畫面引擎（TypeScript）：舞台 stage.ts、播放器外殼 shell.ts、演員 actors/、鏡頭 camera.ts、動畫工具 kit.ts；規格見 src/live/README.md
     home/            首頁（主題）、主題頁（課程地圖）/
     courses/         課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁；播放進度（只有登入的會員才記）
@@ -31,6 +31,7 @@ web/                 前端（React + Vite + TypeScript）
       recorder/        宣傳影片錄製工具：npm run record（JSON 分鏡腳本 → 1080p mp4）
   scripts/seo.mjs    build 後產生各頁 HTML、sitemap.xml、robots.txt
   scripts/voice.mjs  npm run voice：用 Gemini TTS 產生旁白語音，上傳到 GCS gs://shuttle-voice（見 src/live/README.md「旁白語音」）
+  scripts/mix.mjs    npm run mix：把連續的旁白依時間軸合成章節音軌（手機播放不斷續），--publish 上傳到 gs://shuttle-voice/mix/
 server/              後端（Go）：/api/*（含登入與播放進度）＋以 go:embed 提供前端
   cmd/server/          進入點、靜態檔與 SEO 頁面的伺服
   internal/api/        HTTP 端點

@@ -6,8 +6,8 @@
 // 音檔會先整段抓成 Blob 放在記憶體(之後從本機播,不會因網路變慢而卡住或 seek 很慢);抓不到(例如跨網域被擋)就退回直接用網址。
 // 播放中以音檔為主時鐘(clock):音檔卡住時時間軸也停住,不再需要「偏差校正」去強制 seek。
 
-/** 一段旁白音檔:在 [at, at+ms) 之間播放 */
-export type Clip = { at: number; ms: number; url: string }
+/** 一段旁白音檔:在 [at, at+ms) 之間播放;from 是音檔裡的起點(毫秒,章節音軌的一段範圍用),預設從頭 */
+export type Clip = { at: number; ms: number; url: string; from?: number }
 
 /** 外殼的播放狀態中,旁白需要知道的部分 */
 export interface PlaybackView {
@@ -115,7 +115,7 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
     clipIdx = i
     clipEl.muted = view.muted
     clipEl.playbackRate = view.rate
-    clipEl.currentTime = off
+    clipEl.currentTime = off + (c.from ?? 0) / 1000
     clipEl.play().catch(() => {})
     const n = list[i + 1]
     if (n) setSrc(nextEl, n.url)
@@ -143,7 +143,7 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
       }
       if (i !== clipIdx) return startClip(i, off, view)
       if (clipEl.paused && !clipEl.ended) {
-        clipEl.currentTime = off
+        clipEl.currentTime = off + (c.from ?? 0) / 1000
         clipEl.play().catch(() => {})
         return
       }
@@ -153,7 +153,7 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
       const c = clips()[clipIdx]
       if (!c || clipEl.paused || clipEl.ended) return null
       // 音檔還在緩衝時 currentTime 不動,時間軸跟著停;不超過這段的長度,才不會越過下一段的開頭
-      return c.at + Math.min(clipEl.currentTime * 1000, c.ms)
+      return c.at + Math.min(Math.max(clipEl.currentTime * 1000 - (c.from ?? 0), 0), c.ms)
     },
 
     warm(t) {

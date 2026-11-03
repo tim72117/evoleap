@@ -2,6 +2,24 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [0.7.0] - 2026-11-03
+
+旁白改用「章節音軌」播放:把連續的旁白合成一個音檔,手機上整章只用一個 `<audio>`,不再每句換一次音檔。
+
+### 新增
+
+- **章節音軌**（`web/scripts/mix.mjs`、`npm run mix`）：用 Playwright 在 Chrome 裡跑舞台排時間，取得每段旁白的開始時間與練習點，以練習點切章節，用 ffmpeg 依時間把旁白接成一個 mp3（間隔補靜音）；`--publish` 上傳到 `gs://shuttle-voice/mix/` 並寫出 `<名稱>.mix.json`。L0 第 0、1 課已合成並上傳。
+- **旁白計畫**（`web/src/live/mixPlan.ts`）：`planNarration`、`narrationClips`、`rangeAt`。把目前時間軸的旁白對到章節音軌，連續的旁白併成一段範圍；互動分支新寫的旁白（沒有語音）只有字幕，回到主線的旁白接著用章節音軌。章節音軌對不上（旁白文字、語音檔或間隔改了）時自動退回逐句播放。
+- `scripts.ts` 新增 `loadMix`，`ScriptVoice` 新增 `files`；`Clip` 新增選用的 `from`（音檔裡的起點）。
+
+### 變更
+
+- `LivePlayer`、`InteractiveScenePage` 改用 `narrationClips` 組旁白，沒有章節音軌的課程行為不變。
+
+### 修正
+
+- 先前 0.6.1、0.6.2 修的是手機上旁白斷斷續續（音檔當主時鐘、預載預設關閉）；這版讓整章只換一次音檔，從根本上減少換檔造成的卡頓。實機（iOS）效果仍待實測。
+
 ## [0.6.2] - 2026-11-03
 
 修正 0.6.1 部署失敗。

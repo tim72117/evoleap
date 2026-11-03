@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "mix": "node scripts/mix.mjs",
     "build": "tsc -b && vite build && node scripts/seo.mjs",
     "preview": "vite preview",
     "typecheck": "tsc -b",

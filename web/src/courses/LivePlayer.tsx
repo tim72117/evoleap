@@ -1,7 +1,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { mountShell, type Shell } from '../live/shell'
 import { createStage } from '../live/stage'
-import { loadScript, loadVoice } from '../live/scripts'
+import { narrationClips } from '../live/mixPlan'
+import { loadMix, loadScript, loadVoice } from '../live/scripts'
 import { useAuth } from '../auth/AuthContext'
 import { clearGuestProgress, memberProgress } from './progress'
 import '../live/shell.css'
@@ -55,8 +56,8 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
     setError(null)
 
     // 語音是選用的:讀不到(例如部署後舊頁面找不到檔案)就只顯示字幕,不影響播放
-    Promise.all([loadScript(script), loadVoice(script).catch(() => null)])
-      .then(async ([data, voice]) => {
+    Promise.all([loadScript(script), loadVoice(script).catch(() => null), loadMix(script).catch(() => null)])
+      .then(async ([data, voice, mix]) => {
         await document.fonts.ready
         if (cancelled) return
         await stage.load(data, { voice: voice?.durations })
@@ -71,8 +72,8 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
           chapters: stage.chapters,
           stops: stage.stops,
           captions: (ms) => caps.find((c) => ms >= c.from && ms < c.to)?.text || '',
-          // 有產生旁白語音的段落,播到那裡就播對應的音檔
-          clips: voice ? stage.narrations.filter((n) => voice.urls[n.text]).map((n) => ({ at: n.at, ms: voice.durations[n.text], url: voice.urls[n.text] })) : [],
+          // 有產生旁白語音的段落,播到那裡就播對應的音檔(合成過章節音軌的用章節音軌)
+          clips: narrationClips(stage.narrations, voice, mix),
         })
         onCuesRef.current?.(stage.chapters.filter((c) => c.step).map((c) => ({ step: c.step!, at: c.at / 1000 })))
       })
