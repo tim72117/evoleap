@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { UserMenu } from '../auth/UserMenu'
 import styles from './SiteLayout.module.css'
@@ -13,33 +13,54 @@ const NAV: NavItem[] = [
 ]
 
 type Props = {
-  /** Page name for the document title ("<title> · Vibe Coding 實戰"); omit on the home page. */
+  /** Page name for the document title ("<title> · evoleap"); omit on the home page. */
   title?: string
   /** Constrain main content to a readable column (docs). Home page uses full width sections. */
   narrow?: boolean
+  /** 顯示亮/暗色切換鈕(暗色試做中,先只開放首頁) */
+  themeToggle?: boolean
   children: ReactNode
 }
 
-export function SiteLayout({ title, narrow = false, children }: Props) {
+const THEME_KEY = 'site:theme'
+const readDark = (): boolean => {
+  try {
+    return localStorage.getItem(THEME_KEY) === 'dark'
+  } catch {
+    return false
+  }
+}
+
+const SUN = 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'
+const MOON = 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z'
+
+export function SiteLayout({ title, narrow = false, themeToggle = false, children }: Props) {
+  const [dark, setDark] = useState(() => themeToggle && readDark())
+
   useEffect(() => {
     document.title = documentTitle(title)
   }, [title])
 
+  const toggleTheme = () => {
+    const next = !dark
+    setDark(next)
+    try {
+      localStorage.setItem(THEME_KEY, next ? 'dark' : 'light')
+    } catch {
+      /* 私密模式等情況 */
+    }
+  }
+
   return (
-    <div className={styles.site} lang="zh-Hant">
+    <div className={dark ? `${styles.site} ${styles.dark}` : styles.site} lang="zh-Hant">
       <a className={styles.skip} href="#main">
         跳到主要內容
       </a>
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link className={styles.brand} to="/">
-            <span className={styles.brandMark} aria-hidden="true">
-              VC
-            </span>
-            <span className={styles.brandText}>
-              {SITE_NAME}
-              <small>{SITE_TAGLINE}</small>
-            </span>
+            <img className={styles.brandLogo} src={dark ? '/brand/evoleap-logo-dark.svg' : '/brand/evoleap-logo.svg'} alt="evoleap" width="110" height="32" />
+            <span className={styles.brandTagline}>{SITE_TAGLINE}</span>
           </Link>
           <nav className={styles.nav} aria-label="主要導覽">
             {NAV.map((item) =>
@@ -55,6 +76,19 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
               ),
             )}
           </nav>
+          {themeToggle && (
+            <button
+              type="button"
+              className={styles.themeToggle}
+              onClick={toggleTheme}
+              aria-label={dark ? '切換成亮色' : '切換成暗色'}
+              title={dark ? '切換成亮色' : '切換成暗色'}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d={dark ? SUN : MOON} />
+              </svg>
+            </button>
+          )}
           <UserMenu />
         </div>
       </header>

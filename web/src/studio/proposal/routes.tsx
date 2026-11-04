@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { InteractiveScenePage } from '../interactive/InteractiveScenePage'
 import { AdvancedPage } from './AdvancedPage'
+import { AiTipsPage } from './AiTipsPage'
 import { AiToolsPage } from './AiToolsPage'
 import { CoverPage } from './CoverPage'
 import { FieldsPage } from './FieldsPage'
@@ -15,7 +16,7 @@ import { VibeCodingPage } from './VibeCodingPage'
 import { VisualsPage } from './VisualsPage'
 
 // 依課程地圖（src/content/levels.ts 的 LEVELS）分等級：
-// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced；跨等級構想 mcp、member、visuals、interactive、interactive/l0-claude、interactive/l0-claude-stage（互動教學場景試做）。
+// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced；跨等級構想 mcp、member、ai-tips、visuals、interactive、interactive/l0-claude、interactive/l0-claude-stage（互動教學場景試做）。
 export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/proposal', element: <ProposalIndexPage /> },
   { path: '/proposal/tools', element: <ToolsPage /> },
@@ -29,6 +30,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/proposal/advanced', element: <AdvancedPage /> },
   { path: '/proposal/mcp', element: <McpPage /> },
   { path: '/proposal/member', element: <MemberPage /> },
+  { path: '/proposal/ai-tips', element: <AiTipsPage /> },
   { path: '/proposal/visuals', element: <VisualsPage /> },
   { path: '/proposal/interactive', element: <InteractiveScenePage key="bakery" script="lab/interactive-bakery.json" pageTitle="互動教學場景" /> },
   { path: '/proposal/interactive/l0-claude', element: <InteractiveScenePage key="l0-claude" script="lab/interactive-l0-claude.json" pageTitle="互動場景：L0 對 Claude 下指令" /> },

@@ -340,6 +340,35 @@ export function ProposalIndexPage() {
         </div>
       </section>
 
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
+              <h3>AI 工具技巧</h3>
+              <div className={ui.meta}>適用：L0 第 2 課之後</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>跟會操作檔案的 AI 工具一起工作的技巧，例如：</p>
+          <ul className={ui['plain-list']}>
+            <li>換裝置接著做：電腦上的工作，出門用手機看進度、回覆確認</li>
+            <li>分岔：從同一段對話分出幾個分支，同時試好幾種想法</li>
+            <li>建議先做成短課接在需要它的等級後面，暫不開成首頁主題</li>
+          </ul>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/proposal/ai-tips">
+              構想頁
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <h2>等級間依賴</h2>
       <section className={ui.card}>
         <div className={ui['card-body']}>

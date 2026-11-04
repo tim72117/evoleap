@@ -1,21 +1,29 @@
-/* Site-wide tokens(藍紫色調、明亮底色,不跟隨系統深色模式)。
+/* Site-wide tokens(葉綠＋暖棕點綴、明亮底色,不跟隨系統深色模式)。
+   大面積只用近中性的淡底,顏色留給按鈕、標籤與插圖細節。
    以 --site-* custom properties 提供給各頁面 CSS 共用。 */
 .site {
-  --site-bg: #f7f8ff;
+  /* 和暗色同一套:中性的紙白底、近黑文字,只有主色是葉綠;點綴用根部的暖棕。綠色分三種用法:
+     --site-accent        鮮明的葉綠,只用在不放字的地方(強調線、進度條、插圖、外框)
+     --site-accent-solid  放了字的綠底(按鈕、標籤),配 --site-accent-contrast 的字
+     --site-accent-strong 當文字色的綠,白底上才看得清 */
+  --site-bg: #f7f6f1;
   --site-surface: #ffffff;
-  --site-surface-2: #eef0ff;
-  --site-text: #1b1d3a;
-  --site-muted: #5b5f80;
-  --site-border: #e1e4f5;
-  --site-accent: #6366f1;
-  --site-accent-strong: #5b3fd6;
+  --site-surface-2: #efeee7;
+  --site-text: #151713;
+  --site-muted: #5c6057;
+  --site-border: #e3e2da;
+  --site-accent: #7ab929;
+  --site-accent-solid: #4a8217;
+  --site-accent-strong: #447a14;
+  --site-highlight: #9a6238;
   --site-accent-contrast: #ffffff;
-  --site-link: #4f46e5;
-  --site-code-bg: #f0f1fb;
-  --site-shadow: 0 1px 2px rgb(40 40 120 / 6%), 0 8px 24px rgb(60 50 160 / 8%);
+  --site-link: #447a14;
+  --site-code-bg: #f0efe8;
+  --site-shadow: 0 1px 2px rgb(30 30 20 / 6%), 0 8px 24px rgb(30 30 20 / 8%);
   --site-radius: 14px;
   --site-max: 1120px;
 
+  color-scheme: light;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -27,6 +35,44 @@
   letter-spacing: 0.02em;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* 暗色(試做中,只有首頁的切換鈕會打開):近純黑的中性底,像黑底攝影裡打了光的植物,
+   只有主色是鮮明的葉綠,其他都退成灰階;點綴用根部的暖棕。 */
+.site.dark {
+  color-scheme: dark;
+  --site-bg: #050505;
+  --site-surface: #0e0f0d;
+  --site-surface-2: #161815;
+  --site-text: #f2f3ee;
+  --site-muted: #9a9d94;
+  --site-border: #262823;
+  --site-accent: #8cc63f;
+  --site-accent-solid: #8cc63f;
+  --site-accent-strong: #a9d867;
+  --site-highlight: #c08a5b;
+  --site-accent-contrast: #0b1205;
+  --site-link: #a9d867;
+  --site-code-bg: #1a1c18;
+  --site-shadow: 0 1px 2px rgb(0 0 0 / 60%), 0 12px 32px rgb(0 0 0 / 70%);
+}
+
+.themeToggle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-muted);
+  cursor: pointer;
+}
+
+.themeToggle:hover {
+  color: var(--site-text);
 }
 
 
@@ -86,26 +132,16 @@
   flex-shrink: 0;
 }
 
-.brandMark {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #4f7cff, #8b5cf6);
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0;
+/* 標誌(符號＋字標)為 public/brand/evoleap-logo.svg,寬高比約 165:48 */
+.brandLogo {
+  display: block;
+  width: auto;
+  height: 32px;
 }
 
-.brandText {
-  display: flex;
-  flex-direction: column;
-  font-size: 16px;
-}
-
-.brandText small {
+.brandTagline {
+  padding-left: 12px;
+  border-left: 1px solid var(--site-border);
   font-size: 12px;
   font-weight: 500;
   color: var(--site-muted);
@@ -202,14 +238,25 @@
     padding: 8px 14px;
   }
 
-  .brandText small {
+  .brandTagline {
     display: none;
   }
 
-  .brandMark {
+  /* 直排的頁首裡,切換鈕放在標誌同一列的右邊,不另佔一列 */
+  .headerInner {
+    position: relative;
+  }
+
+  .themeToggle {
+    position: absolute;
+    top: 6px;
+    right: 14px;
     width: 30px;
     height: 30px;
-    font-size: 12px;
+  }
+
+  .brandLogo {
+    height: 28px;
   }
 
   .nav {

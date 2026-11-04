@@ -64,7 +64,7 @@
 /* ---------- hero ---------- */
 .hero {
   background:
-    radial-gradient(circle at 85% 10%, color-mix(in srgb, var(--site-accent) 22%, transparent), transparent 45%),
+    radial-gradient(circle at 85% 10%, color-mix(in srgb, var(--site-accent) 6%, transparent), transparent 45%),
     linear-gradient(var(--site-bg), var(--site-surface-2));
   border-bottom: 1px solid var(--site-border);
 }
@@ -98,8 +98,8 @@
   margin: 0 0 18px;
   padding: 4px 14px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #4f7cff, #8b5cf6);
-  color: #ffffff;
+  background: var(--site-accent-solid);
+  color: var(--site-accent-contrast);
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -168,7 +168,7 @@
 }
 
 .ctas a.primary {
-  background: var(--site-accent);
+  background: var(--site-accent-solid);
   color: var(--site-accent-contrast);
   box-shadow: 0 6px 18px color-mix(in srgb, var(--site-accent) 35%, transparent);
 }
@@ -192,7 +192,7 @@
 .outcomeNum {
   display: block;
   margin-bottom: 10px;
-  color: var(--site-accent);
+  color: var(--site-accent-strong);
   font-size: 28px;
   font-weight: 800;
   line-height: 1;
@@ -241,7 +241,7 @@
 
 .notFit .prereqHead + ul li::before {
   content: '•';
-  color: var(--site-accent);
+  color: var(--site-accent-strong);
 }
 
 /* ---------- units ---------- */
@@ -354,7 +354,7 @@
 }
 
 .arrow {
-  color: var(--site-accent);
+  color: var(--site-accent-strong);
   font-weight: 700;
 }
 

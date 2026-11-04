@@ -13,7 +13,7 @@
   margin: 0;
   font-size: 64px;
   font-weight: 800;
-  color: var(--site-accent);
+  color: var(--site-accent-strong);
 }
 
 .not-found h1 {

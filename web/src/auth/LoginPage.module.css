@@ -69,7 +69,7 @@
 .tab[aria-selected='true'] {
   background: var(--site-surface);
   color: var(--site-accent-strong);
-  box-shadow: 0 1px 3px rgb(40 40 120 / 12%);
+  box-shadow: 0 1px 3px rgb(20 60 50 / 12%);
 }
 
 .tab:focus-visible,
@@ -206,7 +206,7 @@
   padding: 11px 20px;
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--site-accent), var(--site-accent-strong));
+  background: linear-gradient(135deg, var(--site-accent-solid), var(--site-accent-strong));
   color: var(--site-accent-contrast);
   font: inherit;
   font-size: 16px;
@@ -280,7 +280,7 @@
   height: 56px;
   margin: 0 auto 12px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--site-accent), var(--site-accent-strong));
+  background: linear-gradient(135deg, var(--site-accent-solid), var(--site-accent-strong));
   color: var(--site-accent-contrast);
   font-size: 24px;
   font-weight: 700;

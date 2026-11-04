@@ -2,6 +2,26 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [Unreleased]
+
+## [0.11.0] - 2026-11-04
+
+網站品牌改為 evoleap：鹿角標誌、葉綠配色、網站名稱統一成 evoleap（Google OAuth 品牌驗證要求首頁名稱與應用程式名稱一致）。另加首頁暗色試做與課程研發的「AI 工具技巧」構想頁。
+
+**破壞性變更：** 無公開 API 變動。`SITE_NAME` 從「Vibe Coding 實戰」改為 `evoleap`，頁面標題、頁尾、`og:site_name` 與結構化資料的網站名稱隨之改變。
+
+### 變更
+
+- **evoleap 品牌標誌**：符號是兩支在底部交叉的鹿角（鹿角每年重新長、越長越大是 evolve，鹿以跳躍出名是 leap），後面那支稍微壓窄、抬高、轉一點角度，做出繞中心軸旋轉的立體感；交疊處用 mask 挖出透明的縫。單色墨綠黑 `#10231f`，深色底用 `#e9f5f2`；favicon 線條加粗，並跟著瀏覽器深色模式換色。字標為 Sora SemiBold 轉成的路徑。頁首換成新標誌（副標保留，手機版隱藏），favicon、`apple-touch-icon.png` 一併更新。
+- **網站名稱改為 evoleap**：`SITE_NAME`、`index.html` 的 `<title>`（「evoleap：從零開始的 AI 課程地圖」）、宣傳片腳本的小標與旁白。分享圖 `og-default.png` 拿掉「Vibe Coding 實戰」，改以副標當大標題，並換成葉綠色調。AI Agent 課程的完整課名暫時保留。
+- **全站配色改為葉綠**：中性的紙白底（`#f7f6f1`）、近黑文字，主色是葉綠，點綴是暖棕（`--site-highlight` `#9a6238`）。綠色分三種用法：`--site-accent`（`#7ab929`，不放字的強調線、外框、插圖）、新增的 `--site-accent-solid`（`#4a8217`，按鈕與標籤等有字的綠底，配白字）、`--site-accent-strong`（`#447a14`，當文字色的綠）。原本拿主色當文字色的地方改用 `--site-accent-strong`；hero 光暈從 20–22% 降到 6%；原本寫死藍紫漸層的標籤改用主色；課程地圖的等級圓圈每升一級深一點；課程地圖插圖（`LevelArt`）、播放器封面、登入頁與使用者選單的顏色一併更新。課程研發用的 `/proposal` 與課程內的示範畫面不受影響。
+
+### 新增
+
+- **首頁暗色試做**：首頁頁首加亮色／暗色切換鈕，選擇存在 `localStorage`（`site:theme`）。暗色是近純黑底配亮葉綠（`.site.dark` 的 token），標誌換成深色底版本。其他頁面暫時一律亮色。
+- `web/public/brand/`：淺色底與深色底用的標誌和符號（SVG＋PNG）；`apple-touch-icon.png`。
+- 課程研發的「AI 工具技巧」構想頁（`/proposal/ai-tips`）：換裝置接著做、分岔試多種想法等技巧，以及暫不開成首頁主題的評估。
+
 ## [0.10.0] - 2026-11-04
 
 正式站啟用會員登入與管理後台：連接獨立的 `evoleap` 資料庫，加上帳號佔用防護、限流與 Postgres 測試。部署後才會生效。

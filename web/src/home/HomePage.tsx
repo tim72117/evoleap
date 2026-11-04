@@ -32,7 +32,7 @@ export function HomePage() {
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
   return (
-    <SiteLayout>
+    <SiteLayout themeToggle>
       <section className={styles.hero}>
         <div className={styles.container}>
           <h1>{HOME_INTRO.title}</h1>

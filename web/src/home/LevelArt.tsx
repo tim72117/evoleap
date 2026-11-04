@@ -2,13 +2,13 @@ import type { JSX } from 'react'
 import type { CourseArt } from '../content/levels'
 
 /* Simple inline SVG illustrations for the course-map cards (no external images).
-   Colours are fixed tints of the site's blue-violet palette. */
+   Colours are fixed tints of the site's leaf-green palette; DEEP is the warm-brown highlight (sparkles, key bars). */
 
 const W = '#ffffff'
-const SOFT = '#e4e6ff'
-const MID = '#a5a8f7'
-const ACC = '#6366f1'
-const DEEP = '#5b3fd6'
+const SOFT = '#e2ecd2'
+const MID = '#a3c46e'
+const ACC = '#4d7c1f'
+const DEEP = '#9a6238'
 
 function Tools() {
   return (
