@@ -8,6 +8,7 @@
 
 - **綁定 Google 時一律清掉舊密碼，並讓綁定前的登入 cookie 失效**（原本只有管理員白名單的 Email 會清）。密碼註冊不驗證 Email 所有權，這樣才能擋掉先用別人的 Email 註冊、等本人綁定後繼續登入的帳號佔用。`users` 新增 `sessions_valid_after` 欄位。
 - 登入 cookie 改名為 `evoleap_session`。
+- 隱私權政策與服務條款填入營運者與聯絡信箱；服務條款移除管轄法院的約定，保留準據法。
 - Postgres 每個行程最多 3 條連線（與其他服務共用小型 Cloud SQL 實例）。
 
 ### 新增

@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 import { ContactEmail, Fill, LegalDoc, Note, type LegalSection } from './LegalDoc'
-import { JURISDICTION_COURT, OPERATOR_NAME } from './operator'
+import { OPERATOR_NAME } from './operator'
 
 /** 最後更新日期;內容有實質變更時一併更新 */
-const TERMS_UPDATED = '2026-11-02'
+const TERMS_UPDATED = '2026-11-04'
 
 const sections: LegalSection[] = [
   {
@@ -21,10 +21,10 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          本網站提供從零開始的 AI 學習課程，包括課程地圖、教學影片、文字說明與可複製的提示詞範例。公開課程可免費觀看，不需註冊。
+          本網站提供從零開始的 AI 學習課程，包括課程地圖、教學影片、文字說明與可複製的提示詞範例。課程皆可免費觀看，不需註冊。
         </p>
         <ul>
-          <li>部分課程（例如「Vibe Coding 入門」）為「登入後免費」，需要註冊帳號並登入後才能觀看，不需付費（帳號規則見下一條）。</li>
+          <li>所有課程都是免費課程，不需註冊也能觀看；註冊並登入後會記錄您的播放進度（帳號規則見下一條）。</li>
           <li>課程的內容、編排與開放方式可能隨時調整，我們不保證特定課程會一直提供，也不保證網站隨時都能正常連線。</li>
           <li>本網站目前沒有任何付費功能。日後若推出付費內容，會在購買前清楚說明價格與條件，並另訂相關條款。</li>
         </ul>
@@ -202,10 +202,10 @@ const sections: LegalSection[] = [
   },
   {
     id: 'law',
-    title: '準據法與管轄法院',
+    title: '準據法',
     body: (
       <p>
-        本服務條款的解釋與適用，以及因本網站所生的爭議，均以中華民國法律為準據法。若因此涉訟，雙方同意以 <Fill value={JURISDICTION_COURT} /> 為第一審管轄法院；但法律另有強制規定者（例如消費爭議的管轄規定），從其規定。
+        本服務條款的解釋與適用，以及因本網站所生的爭議，均以中華民國法律為準據法；法律另有強制規定者（例如消費爭議的管轄規定），從其規定。
       </p>
     ),
   },
