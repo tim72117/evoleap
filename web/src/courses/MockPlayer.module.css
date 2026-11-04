@@ -28,9 +28,9 @@
   padding: 24px 32px;
   text-align: center;
   background:
-    radial-gradient(circle at 20% 15%, rgb(15 118 110 / 0.35), transparent 55%),
-    radial-gradient(circle at 85% 90%, rgb(217 119 6 / 0.16), transparent 50%),
-    #0c1f1c;
+    radial-gradient(circle at 20% 15%, rgb(122 185 41 / 0.28), transparent 55%),
+    radial-gradient(circle at 85% 90%, rgb(154 98 56 / 0.2), transparent 50%),
+    #0b0f08;
   cursor: pointer;
   user-select: none;
 }

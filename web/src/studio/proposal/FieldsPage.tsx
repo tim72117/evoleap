@@ -4,7 +4,7 @@ import { ProposalLayout } from './ProposalLayout'
 import { charCount, useCopy } from '../../site/useCopy'
 import ui from './proposal.module.css'
 
-const TITLE = 'Vibe Coding 實戰：打造你的第一個 AI Agent 整合應用'
+const TITLE = '打造你的第一個 AI Agent 整合應用'
 
 const DESC =
   '跟著真實開源專案，打造一個用自然語言操作的 AI 助理：讓使用者打字問問題，Agent 自動判讀問題、跑分析、繪製合適的統計圖表，做出一個能上線的整合應用。'

@@ -192,7 +192,7 @@
   bottom: 40px;
   width: 4px;
   border-radius: 4px;
-  background: linear-gradient(color-mix(in srgb, var(--site-accent) 25%, #ffffff), var(--site-accent) 60%, var(--site-accent-strong));
+  background: linear-gradient(color-mix(in srgb, var(--site-accent) 25%, var(--site-surface)), var(--site-accent) 60%, var(--site-accent-strong));
 }
 
 .step {
@@ -241,8 +241,8 @@
   /* 低調的淡底,等級越高稍微深一點 */
   background: linear-gradient(
     150deg,
-    color-mix(in srgb, var(--site-accent) calc(6% + var(--step) * 4%), #ffffff),
-    color-mix(in srgb, var(--site-accent) calc(12% + var(--step) * 5%), #ffffff)
+    color-mix(in srgb, var(--site-accent) calc(6% + var(--step) * 4%), var(--site-surface)),
+    color-mix(in srgb, var(--site-accent) calc(12% + var(--step) * 5%), var(--site-surface))
   );
 }
 
@@ -436,7 +436,7 @@
 .available .card {
   grid-template-columns: 300px minmax(0, 1fr);
   border: 2px solid var(--site-accent);
-  box-shadow: 0 2px 4px rgb(20 60 50 / 6%), 0 18px 40px rgb(20 90 75 / 14%);
+  box-shadow: 0 2px 4px rgb(30 30 20 / 6%), 0 18px 40px rgb(60 90 20 / 14%);
 }
 
 .available .body {

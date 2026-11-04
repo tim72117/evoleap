@@ -37,7 +37,18 @@
   text-rendering: optimizeLegibility;
 }
 
-/* 暗色(試做中,只有首頁的切換鈕會打開):近純黑的中性底,像黑底攝影裡打了光的植物,
+/* <html> 的底色與捲軸跟著主題(SiteLayout 設定 data-site-theme),捲過頭露出的地方才不會是另一個顏色 */
+:global(html[data-site-theme='light']) {
+  background: #f7f6f1;
+  color-scheme: light;
+}
+
+:global(html[data-site-theme='dark']) {
+  background: #050505;
+  color-scheme: dark;
+}
+
+/* 暗色(頁首的切換鈕打開,存在 localStorage 的 site:theme):近純黑的中性底,像黑底攝影裡打了光的植物,
    只有主色是鮮明的葉綠,其他都退成灰階;點綴用根部的暖棕。 */
 .site.dark {
   color-scheme: dark;

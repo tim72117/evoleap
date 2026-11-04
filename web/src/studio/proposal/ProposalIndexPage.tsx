@@ -33,15 +33,17 @@ const LEVELS: LevelBlock[] = [
     code: 'L0',
     title: 'AI 工具介紹',
     access: '免費',
-    stage: { cls: 'todo', text: '大綱完成 · 第 0、1、2 課腳本完成' },
+    stage: { cls: 'todo', text: '序章與第 0、1、2 課腳本完成 · 互動版上線' },
     summary: `用會操作檔案的 AI 工具在自己的電腦上做出東西，不講 AI 原理。${count('L0')}，每課已有步驟與提示詞。`,
     points: [
       '工具例：Claude Code、Codex CLI、Gemini CLI、Cursor Agent',
-      '第 0 課：工具與安全（練習資料夾、確認提示），已有即時教學畫面',
-      '第 1 課：專案與工作目錄、檔案操作，已有即時教學畫面',
-      '第 2 課：說清楚需求，做出小森烘焙一頁式網站並精確調整，已有即時教學畫面',
+      '序章：為什麼不用學寫程式也能做軟體，對照以前、聊天式 AI、AI Agent 三種做法（只看不操作）',
+      '第 0 課：工具與安全（練習資料夾、確認提示）',
+      '第 1 課：專案與工作目錄、檔案操作',
+      '第 2 課：說清楚需求，做出小森烘焙一頁式網站並精確調整',
+      '四課都是互動版即時教學畫面（播放中有「選一選、想一想」），旁白語音都已產生',
     ],
-    next: ['決定主示範的 AI 工具與形式（與 L2 主力 AI 程式助手一起決定）', '實測 0.2 全部提示詞（參考成品與腳本已完成）', '決定 L1 是否改用同一個工具、L2 如何處理重疊'],
+    next: ['決定主示範的 AI 工具與形式（與 L2 主力 AI 程式助手一起決定）', '實測 0.2 全部提示詞（參考成品與腳本已完成）', '找零基礎試看者從序章跟做到第 2 課，記錄卡關點', '決定 L1 是否改用同一個工具、L2 如何處理重疊'],
     pending: `${pendingCount('L0')} 項待決定`,
     links: [{ to: '/proposal/tools', label: 'L0 大綱' }],
   },
@@ -53,7 +55,7 @@ const LEVELS: LevelBlock[] = [
     summary: `零基礎、只用瀏覽器，不講 AI 原理。${count('L1')}。`,
     points: [
       '案例：小森烘焙的線上預約取貨系統（虛構），貫穿全課',
-      '開場 1.0：在 L0 網站加上訂購單，帶出表單與送出前的資料規格檢查',
+      '開場 1.0：在 L0 網站加上訂購單，帶出表單與送出前的資料規格檢查（開場動畫已試做）',
       '流程：老闆訊息 → 需求清單 → 澄清問題 → 工作項目 → 拆分排序與第一版 → 範本',
       '結業：處理新需求「會員集點」',
       '每課為「目標 → 步驟拆解 → 實際操作展示」，每步附可複製的提示詞',
@@ -96,7 +98,7 @@ const LEVELS: LevelBlock[] = [
     title: 'AI Agent 整合應用',
     access: '未定',
     stage: { cls: 'todo', text: '提案中 · 架構待重新定義' },
-    summary: '既有課程。',
+    summary: '既有課程，已移到主題「打造 AI 互動軟體」的中階。',
     points: ['提案欄位大多已定稿', '七個單元已移出五個，剩 2 個單元加期末專案'],
     next: ['決定是否補單元（見課程架構）', '填「上課前的準備」', '輸出方形封面'],
     pending: '3 項待決定',
@@ -111,7 +113,7 @@ const LEVELS: LevelBlock[] = [
     title: '進階 AI Agent 應用',
     access: '未定',
     stage: { cls: 'out', text: '未開始' },
-    summary: '只有課程地圖上的暫定主題。',
+    summary: '主題「打造 AI 互動軟體」的進階，只有課程地圖上的暫定主題。',
     points: ['範圍取決於 L3 定案與移出單元的去向'],
     next: ['等 L3 架構定案後再列主題清單'],
     pending: '4 項待決定',
@@ -144,7 +146,9 @@ export function ProposalIndexPage() {
   return (
     <ProposalLayout title="總覽" footer="課程研發工作區 · 等級對齊 src/content/levels.ts（LEVELS）" back={false}>
       <h1>課程研發總覽</h1>
-      <p className={ui.lead}>依課程地圖分五個等級（L0–L4）。每個等級的研發階段、下一步與待決定事項；細節在各等級頁。</p>
+      <p className={ui.lead}>
+        依課程地圖分五個等級：L0–L2 屬於主題「做出自己的軟體」，L3、L4 屬於主題「打造 AI 互動軟體」。每個等級的研發階段、下一步與待決定事項；細節在各等級頁。
+      </p>
 
       <h2>各等級狀態</h2>
       {LEVELS.map((lv) => (
@@ -299,7 +303,7 @@ export function ProposalIndexPage() {
             <li>
               參考案例：<Link to="/docs/research/video-shotcraft">video-shotcraft</Link>（宣傳片製作方法，借用與不照搬的部分）
             </li>
-            <li>L0 第 0、1、2 課已上線為即時教學畫面</li>
+            <li>L0 序章與第 0、1、2 課已上線為互動版即時教學畫面，都有旁白語音</li>
           </ul>
         </div>
         <div className={ui['card-foot']}>

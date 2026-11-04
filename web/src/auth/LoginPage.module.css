@@ -69,7 +69,7 @@
 .tab[aria-selected='true'] {
   background: var(--site-surface);
   color: var(--site-accent-strong);
-  box-shadow: 0 1px 3px rgb(20 60 50 / 12%);
+  box-shadow: 0 1px 3px rgb(30 30 20 / 12%);
 }
 
 .tab:focus-visible,

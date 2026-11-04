@@ -104,8 +104,8 @@
   border-radius: 10px;
   background: linear-gradient(
     150deg,
-    color-mix(in srgb, var(--site-accent) 8%, #ffffff),
-    color-mix(in srgb, var(--site-accent) 16%, #ffffff)
+    color-mix(in srgb, var(--site-accent) 8%, var(--site-surface)),
+    color-mix(in srgb, var(--site-accent) 16%, var(--site-surface))
   );
 }
 

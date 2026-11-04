@@ -11,11 +11,11 @@ export const AI_AGENT_COURSE_PATH = '/courses/ai-agent'
 export const COURSE = {
   /** 在課程地圖中的等級(與 src/content/levels.ts 對應) */
   level: '中階',
-  kicker: 'VIBE CODING 實戰',
+  kicker: 'AI Agent 實戰',
   title: '打造你的第一個 AI Agent 整合應用',
   /** hero 標題的斷行位置(避免 "AI" 與 "Agent" 被拆到兩行) */
   titleLines: ['打造你的第一個', 'AI Agent 整合應用'],
-  fullTitle: 'Vibe Coding 實戰：打造你的第一個 AI Agent 整合應用',
+  fullTitle: '打造你的第一個 AI Agent 整合應用',
   pitch:
     '跟著真實開源專案，打造一個用自然語言操作的 AI 助理：讓使用者打字問問題，Agent 自動判讀問題、跑分析、繪製合適的統計圖表，做出一個能上線的整合應用。',
   tags: ['自然語言操作', '工具呼叫（tool calling）', '實戰教學'],

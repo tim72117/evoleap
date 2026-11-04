@@ -14,7 +14,7 @@ export function CourseGoalsPage() {
     <Article slug="course-goals" toc={toc}>
       <Section id="overview" title="課程標題與描述">
         <Callout title="課程標題" tone="key">
-          <p>Vibe Coding 實戰：打造你的第一個 AI Agent 整合應用</p>
+          <p>打造你的第一個 AI Agent 整合應用</p>
         </Callout>
         <p>
           跟著真實開源專案，打造一個用自然語言操作的 AI 助理：讓使用者打字問問題，Agent

@@ -17,8 +17,6 @@ type Props = {
   title?: string
   /** Constrain main content to a readable column (docs). Home page uses full width sections. */
   narrow?: boolean
-  /** 顯示亮/暗色切換鈕(暗色試做中,先只開放首頁) */
-  themeToggle?: boolean
   children: ReactNode
 }
 
@@ -34,12 +32,22 @@ const readDark = (): boolean => {
 const SUN = 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'
 const MOON = 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z'
 
-export function SiteLayout({ title, narrow = false, themeToggle = false, children }: Props) {
-  const [dark, setDark] = useState(() => themeToggle && readDark())
+export function SiteLayout({ title, narrow = false, children }: Props) {
+  // 亮/暗色是全站共用的偏好:每一頁都讀同一個設定,換頁不會閃回亮色
+  const [dark, setDark] = useState(readDark)
 
   useEffect(() => {
     document.title = documentTitle(title)
   }, [title])
+
+  // <html> 也跟著換底色與 color-scheme,捲過頭露出的底和捲軸才不會是亮的;離開學員頁(例如 /proposal)時拿掉
+  useEffect(() => {
+    const root = document.documentElement
+    root.dataset.siteTheme = dark ? 'dark' : 'light'
+    return () => {
+      delete root.dataset.siteTheme
+    }
+  }, [dark])
 
   const toggleTheme = () => {
     const next = !dark
@@ -76,19 +84,17 @@ export function SiteLayout({ title, narrow = false, themeToggle = false, childre
               ),
             )}
           </nav>
-          {themeToggle && (
-            <button
-              type="button"
-              className={styles.themeToggle}
-              onClick={toggleTheme}
-              aria-label={dark ? '切換成亮色' : '切換成暗色'}
-              title={dark ? '切換成亮色' : '切換成暗色'}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d={dark ? SUN : MOON} />
-              </svg>
-            </button>
-          )}
+          <button
+            type="button"
+            className={styles.themeToggle}
+            onClick={toggleTheme}
+            aria-label={dark ? '切換成亮色' : '切換成暗色'}
+            title={dark ? '切換成亮色' : '切換成暗色'}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d={dark ? SUN : MOON} />
+            </svg>
+          </button>
           <UserMenu />
         </div>
       </header>
