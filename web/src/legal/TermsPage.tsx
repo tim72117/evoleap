@@ -11,7 +11,7 @@ const sections: LegalSection[] = [
     title: '條款的適用',
     body: (
       <p>
-        歡迎使用 shuttle.tools（以下稱「本網站」），本網站由 <Fill value={OPERATOR_NAME} />（以下稱「我們」）營運。當您瀏覽或使用本網站及其中的課程，即表示您已閱讀並同意本服務條款。如果您不同意，請停止使用本網站。我們如何處理您的資料，請見<Link to="/privacy">隱私權政策</Link>。
+        歡迎使用 evoleap.io（以下稱「本網站」），本網站由 <Fill value={OPERATOR_NAME} />（以下稱「我們」）營運。當您瀏覽或使用本網站及其中的課程，即表示您已閱讀並同意本服務條款。如果您不同意，請停止使用本網站。我們如何處理您的資料，請見<Link to="/privacy">隱私權政策</Link>。
       </p>
     ),
   },

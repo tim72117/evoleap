@@ -4,7 +4,7 @@ import { dirname, join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Page, TestInfo } from '@playwright/test'
 
-export const ORIGIN = 'https://shuttle.tools'
+export const ORIGIN = 'https://evoleap.io'
 export const DIST = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
 
 /** 內部頁(不收錄、不進 sitemap):網址開頭 */

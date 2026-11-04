@@ -2,6 +2,23 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [0.9.1] - 2026-11-04
+
+網站網域從 `shuttle.tools` 改為 `evoleap.io`。
+
+### 變更
+
+- **網域改為 `evoleap.io`**：`SITE_ORIGIN`（canonical、og:url、sitemap、robots 的 Sitemap）、頁面描述、隱私權政策與服務條款的網站名稱、`e2e/support.ts` 的 `ORIGIN`、og 圖的 HTML 範本、宣傳片結尾卡與旁白、README。Cloud Run `shuttle-server` 新增 `evoleap.io` 的 domain mapping；`shuttle.tools` 的對應保留，兩個網域暫時都指向同一個服務（尚未加 301 轉址）。
+
+### 已知限制與部署前後要做
+
+- `public/og-default.png` 仍是舊圖（寫著 shuttle.tools），尚未重新輸出，社群分享預覽會顯示舊網域。
+- Google 登入：OAuth 用戶端的「已授權的 JavaScript 來源」要加上 `https://evoleap.io`。
+- Cookie 依網域，在舊網域登入的會員換到新網域要重新登入（帳號與進度不受影響）。
+- 舊網域尚未轉址到新網域，搜尋引擎可能視為重複內容；Search Console 要另外加新網域。
+- 宣傳片結尾旁白文字已改，錄製前要重跑 `npm run voice`。
+- Google Ads 最終網址（活動目前暫停）尚未更換。
+
 ## [0.9.0] - 2026-11-04
 
 第 2 課改成互動版、新增宣傳影片框架與擬真筆電演員、舞台支援直式（9:16）與手機底部抽屜側欄。

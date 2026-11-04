@@ -1,6 +1,6 @@
 # Shuttle 課程網站
 
-從零基礎開始的 AI 課程地圖（https://shuttle.tools），以及課程研發用的內部工作區。
+從零基礎開始的 AI 課程地圖（https://evoleap.io），以及課程研發用的內部工作區。
 
 ## 專案結構
 

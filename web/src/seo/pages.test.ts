@@ -83,10 +83,10 @@ describe('PAGES', () => {
 })
 
 describe('URL helpers', () => {
-  it('absoluteUrl uses https://shuttle.tools', () => {
-    expect(SITE_ORIGIN).toBe('https://shuttle.tools')
-    expect(absoluteUrl('/')).toBe('https://shuttle.tools/')
-    expect(absoluteUrl('/courses/tools')).toBe('https://shuttle.tools/courses/tools')
+  it('absoluteUrl uses https://evoleap.io', () => {
+    expect(SITE_ORIGIN).toBe('https://evoleap.io')
+    expect(absoluteUrl('/')).toBe('https://evoleap.io/')
+    expect(absoluteUrl('/courses/tools')).toBe('https://evoleap.io/courses/tools')
   })
 
   it('findPage ignores a trailing slash and falls back to NOT_FOUND', () => {
@@ -100,7 +100,7 @@ describe('URL helpers', () => {
       const tags = headTags(p)
       const canonical = tags.find((t) => t.tag === 'link' && t.attrs.rel === 'canonical')
       expect(canonical?.attrs.href, p.path).toBe(absoluteUrl(p.path))
-      expect(canonical?.attrs.href.startsWith('https://shuttle.tools')).toBe(true)
+      expect(canonical?.attrs.href.startsWith('https://evoleap.io')).toBe(true)
       const robots = tags.find((t) => t.tag === 'meta' && t.attrs.name === 'robots')
       expect(!!robots, p.path).toBe(!!p.noindex)
     }
@@ -152,7 +152,7 @@ describe('sitemap.xml', () => {
 describe('robots.txt', () => {
   const txt = robotsTxt()
   it('points at the sitemap and does not block the site', () => {
-    expect(txt).toContain('Sitemap: https://shuttle.tools/sitemap.xml')
+    expect(txt).toContain('Sitemap: https://evoleap.io/sitemap.xml')
     expect(txt).toContain('User-agent: *')
     expect(txt).not.toMatch(/^Disallow:\s*\/\s*$/m)
   })

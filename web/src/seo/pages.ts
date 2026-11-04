@@ -172,13 +172,13 @@ const LEGAL_PAGES: PageMeta[] = [
   {
     path: '/privacy',
     title: documentTitle('隱私權政策'),
-    description: 'shuttle.tools 的隱私權政策：瀏覽本網站時會處理哪些資料、為什麼處理、交給誰，以及您依個資法享有的權利。',
+    description: 'evoleap.io 的隱私權政策：瀏覽本網站時會處理哪些資料、為什麼處理、交給誰，以及您依個資法享有的權利。',
     sitemapPriority: 0.3,
   },
   {
     path: '/terms',
     title: documentTitle('服務條款'),
-    description: '瀏覽與使用 shuttle.tools 網站及其中課程的服務條款。',
+    description: '瀏覽與使用 evoleap.io 網站及其中課程的服務條款。',
     sitemapPriority: 0.3,
   },
 ]
@@ -187,7 +187,7 @@ const LEGAL_PAGES: PageMeta[] = [
 const LOGIN_PAGE: PageMeta = {
   path: '/login',
   title: documentTitle('登入'),
-  description: '登入 shuttle.tools，使用 Google 帳號或 Email 登入以學習需要登入的課程。',
+  description: '登入 evoleap.io，使用 Google 帳號或 Email 登入以學習需要登入的課程。',
   noindex: true,
 }
 
