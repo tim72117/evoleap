@@ -199,6 +199,7 @@ export default defineActor({
 
 - 登場設定：演員表寫 `"parts": { "sidebar": false, "model": false }`，沒寫的區塊照常顯示。
 - 播放途中切換：舞台動作 `{ "parts": "claude", "set": { "sidebar": true } }`，不佔時間。
+- 靜態互動時依舞台大小收合：演員用 `collapsible` 宣告可以收合的區塊與寬度門檻（`claude-desktop` 是 `{ sidebar: 900, composer: 900, titlebar: 480, head: 480 }`），舞台比門檻窄時收合。互動點用 `stage.zone` 傳入互動區，例如要學員點側欄時寫 `"zone": ["sidebar"]`、選項放在輸入框時寫 `"zone": ["composer"]`，列出的區塊就不會收合。
 - 名稱打錯時載入就報錯，並列出可用的區塊。關掉的區塊量不到位置，鏡頭、聚光燈、滑鼠不要再指向它。
 - 每位演員有哪些區塊、關掉後長怎樣：`/studio/actor-interaction/showcase`（演員展示：動態展示照示範腳本播放，靜態展示只有舞台、按操作才演出；示範腳本在 `content/live/lab/actors/<演員>.json`）。
 
@@ -313,7 +314,7 @@ export default {
 
 ### 2A.6 互動教學場景（試做）
 
-頁面 `/studio/interactive`（`web/src/studio/interactive/`）：整個視窗都是舞台，播放條是浮動的膠囊（`mountShell` 的 `layout: "capsule"`），右側在「步驟」與「互動」之間切換。
+頁面 `/studio/actor-interaction/scene`（`web/src/studio/interactive/`）：整個視窗都是舞台，播放條是浮動的膠囊（`mountShell` 的 `layout: "capsule"`），右側在「步驟」與「互動」之間切換。
 
 互動點寫在 `checkpoint` 步驟上，舞台只把它當一般的練習點：
 
@@ -327,7 +328,7 @@ export default {
 
 其他欄位：`skip: { label, steps }` 把略過改成看示範；`requires: "<id>"` 表示要先回答前面的互動點才會出現（例如先下指令才有確認提示），收回前面的回答時後面的一起收回。第二個場景 `/studio/interactive/l0-claude` 用這些欄位做 L0 第 0 課的「下指令、看懂確認提示、允許或拒絕」。
 
-**把演員推到主畫面**（`/studio/interactive/l0-claude-stage`，同一份腳本，頁面加 `interaction="stage"`）：互動點寫了 `stage: { focus: "claude:composer" }` 時，舞台推近目標、其他地方變暗，學員直接操作演員：`stage.choices` 指定固定選項要放在哪裡（例如 `claude:input`，選項就出現在 Claude 的輸入框裡，點了直接送出），選項的 `target` 放可以點的熱區（`ActorPush.tsx`）。控制項用舞台座標疊在舞台上，只在暫停於互動點時存在，不屬於時間軸。右側欄固定放課程章節與步驟，也是重新回答的地方。
+**把演員推到主畫面**（`/studio/actor-interaction/push`，同一份腳本，頁面加 `interaction="stage"`）：互動點寫了 `stage: { focus: "claude:composer" }` 時，舞台推近目標、其他地方變暗，學員直接操作演員：`stage.choices` 指定固定選項要放在哪裡（例如 `claude:input`，選項就出現在 Claude 的輸入框裡，點了直接送出），選項的 `target` 放可以點的熱區（`ActorPush.tsx`）。控制項用舞台座標疊在舞台上，只在暫停於互動點時存在，不屬於時間軸。右側欄固定放課程章節與步驟，也是重新回答的地方。
 
 **正式課程頁**（序章、第 0、1、2 課，由 `courses/routes.tsx` 的 `INTERACTIVE_LESSONS` 決定）：`prepare` 把互動點加進課程原本的腳本（`l0-intro.ts`、`l0-0.0.ts`、`l0-0.1.ts`、`l0-0.2.ts`），腳本本身不變，首頁的預覽播放器也照舊用它。每個選項最後都要回到原本的演員狀態，後面的演出才接得上。原本的示範寫成互動點的 `skip`，學員沒回答直接播放時就演原本的內容，旁白語音照常；選其他選項時新寫的旁白還沒有語音，只顯示字幕。序章只看不操作，互動點是「選一選、想一想」：沒有要操作的演員，`stage.focus` 放在當時看得到的演員目標上（選項顯示在提問卡裡），選項的回應用章節卡（`card`），不動演員，所以每個選項演完都不用還原狀態；`skip` 的步驟是空的，原本的內容就接在互動點後面。
 

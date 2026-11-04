@@ -24,8 +24,6 @@ const IDEAS: Tab[] = [
   { to: '/studio/news-feed', label: '科技新知動態牆' },
   { to: '/studio/ai-tips', label: 'AI 工具技巧' },
   { to: '/studio/visuals', label: '即時教學影像' },
-  { to: '/studio/interactive', label: '互動教學場景' },
-  { to: '/studio/interactive/l0-claude-stage', label: '互動場景：把演員推到主畫面' },
   { to: '/studio/actor-interaction', label: '演員互動', match: '/studio/actor-interaction' },
 ]
 
@@ -55,6 +53,9 @@ const L3_NAV: Tab[] = [
 const ACTOR_NAV: Tab[] = [
   { to: '/studio/actor-interaction', label: '構想' },
   { to: '/studio/actor-interaction/showcase', label: '演員展示' },
+  { to: '/studio/actor-interaction/scene', label: '互動教學場景' },
+  { to: '/studio/actor-interaction/push', label: '把演員推到主畫面' },
+  { to: '/studio/actor-interaction/static', label: '靜態演員' },
 ]
 
 const tabActive = (t: Tab, pathname: string): boolean =>

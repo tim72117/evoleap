@@ -5,6 +5,7 @@ import { coursePath, lessonLabel, lessonPath, type Course } from '../content/cat
 import type { CourseLesson } from '../content/lessonTypes'
 import { topicOfCourse } from '../content/topics'
 import { LevelArt } from '../home/LevelArt'
+import { INTERACTIVE_ICON } from '../studio/interactive/scene'
 import styles from './CourseOverview.module.css'
 
 // 課程總覽:上方是課程介紹(標籤、標題、簡述、總時長與課數)與開始學習的卡片,下方是課程內容清單。
@@ -35,12 +36,11 @@ const CLOCK = 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2'
 const BOOK = 'M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5zM12 6v13.5'
 const PLAY = 'M8 5.5v13l10.5-6.5z'
 const CHEVRON = 'M9 6l6 6-6 6'
-const CODE = 'M8 8l-4 4 4 4M16 8l4 4-4 4'
 const FILM = 'M4 6h16v12H4zM4 10h16M9 6v4M15 6v4'
 const LIST = 'M9 7h11M9 12h11M9 17h11M4.5 7h.01M4.5 12h.01M4.5 17h.01'
 
 function kindOf(lesson: CourseLesson, interactive: boolean): { label: string; icon: string } {
-  if (interactive) return { label: '互動', icon: CODE }
+  if (interactive) return { label: '互動', icon: INTERACTIVE_ICON }
   if (hasVideo(lesson)) return { label: '影片', icon: FILM }
   return { label: `${lesson.steps.length} 個步驟`, icon: LIST }
 }

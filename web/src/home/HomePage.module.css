@@ -58,6 +58,12 @@
   font-size: 16px;
 }
 
+.lede {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
 .badge {
   display: inline-block;
   margin: 0;
@@ -141,13 +147,46 @@
   color: var(--site-text);
 }
 
+/* 「縮小播放器」放在按鈕下方:按鈕由播放器放進來,沒有放大時是空的,不佔位置 */
+.shrinkSlot {
+  display: contents;
+}
+
+.shrinkSlot > button {
+  margin: 0;
+}
+
 .player {
-  position: relative;
+  align-self: start; /* 上緣固定,放大時才是往左下長 */
   min-width: 0;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #000;
+}
+
+/* 放大(開始播放後,靜態互動與播放都是這個大小;一開始不放大):右上角不動,播放器往左下長;左欄變窄,只留主題名稱、標語與按鈕,其他收起來,縮小後再出現 */
+@media (min-width: 821px) {
+  .featuredMain {
+    transition: grid-template-columns 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .featuredMain:has([data-expanded]) {
+    grid-template-columns: minmax(220px, 3fr) 9fr;
+    align-items: start;
+  }
+
+  .featuredMain:has([data-expanded]) .lede,
+  .featuredMain:has([data-expanded]) .facts,
+  .featuredMain:has([data-expanded]) .ladder {
+    display: none;
+  }
+
+  .featuredMain:has([data-expanded]) .featuredText h2 {
+    font-size: 24px;
+  }
+
+  .featuredMain:has([data-expanded]) .ctas {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
 }
 
 /* 這個主題的成果:和上面同一張卡片、同一個底色,不要看起來像另一個主題 */
@@ -310,6 +349,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .featuredMain {
+    transition: none;
+  }
+
   .ctas a {
     transition: none;
   }

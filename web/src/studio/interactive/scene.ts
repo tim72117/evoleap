@@ -5,6 +5,9 @@
 // 所以畫面仍是時間的純函式(README 第 1 節),拖曳、倒轉、演員狀態都不用另外處理。
 import type { ScriptStep, StageScript } from '../../live/types'
 
+/** 「互動」標籤的圖示(游標點擊):課程清單與互動課程頁的側欄共用 */
+export const INTERACTIVE_ICON = 'M14 4.1 12 6M5.1 8l-2.9-.8M6 12l-1.9 2M7.2 2.2 8 5.1M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z'
+
 /** target:這個選項對應演員身上的哪個目標(把演員推到主畫面互動時,學員直接點它) */
 export type MomentOption = { label: string; steps: ScriptStep[]; target?: string }
 export type Moment = {
@@ -18,9 +21,15 @@ export type Moment = {
   skip?: { label: string; steps: ScriptStep[] }
   /** 這個互動點回答過(或有示範)才會出現(後面的演出要接著前面的結果時用,例如先下指令才有確認提示) */
   requires?: string
-  /** 把演員推到主畫面互動時要聚焦的目標;choices 是沒有 target 的選項要放在哪個區域(例如輸入框裡) */
-  stage?: { focus: string; choices?: string }
+  /**
+   * 把演員推到主畫面互動時要聚焦的目標;choices 是沒有 target 的選項要放在哪個區域(例如輸入框裡);
+   * zone 是互動區:演員的區塊(parts 的名稱),靜態互動時舞台太小也不收合,例如要學員點側欄時寫 ["sidebar"]
+   */
+  stage?: { focus: string; choices?: string; zone?: string[] }
 }
+
+/** 互動點能不能直接在演員身上回答:有對應的演員才行,要自己打字的也還是用詢問框 */
+export const answersOnActor = (moment: Moment): boolean => !!moment.stage && !moment.free
 
 /** 學員的回答:選了第幾個選項、自己打字,或略過(之後不再停下來) */
 export type Answer = { option: number } | { text: string } | { skipped: true }
@@ -83,6 +92,34 @@ export function expandAnswers(script: StageScript, answers: Answers): StageScrip
       return [raw, ...inserted.map((x, i) => (i === 0 && chapter ? { ...x, chapter } : x))]
     }),
   }
+}
+
+/**
+ * 靜態演員的舞台要載入的腳本:只留這位演員與他自己的動作,從頭演到互動點之前,沒有鏡頭、旁白與其他舞台效果。
+ * 演員鋪滿舞台(這個舞台不縮放,大小就是畫面上的大小)。其他演員的動作整個拿掉(不能只拿掉出場):他們的狀態要連續才推算得出來。
+ * kinds 是這位演員會的動作(演員定義的 kinds),用來判斷沒寫 on 的步驟是不是他的。
+ */
+export function staticScript(script: StageScript, answers: Answers, momentId: string, actor: string, kinds: readonly string[]): StageScript {
+  const expanded = expandAnswers(script, answers).steps as Record<string, unknown>[]
+  const end = expanded.findIndex((s) => s.id === momentId)
+  if (end < 0) throw new Error(`腳本裡沒有互動點「${momentId}」`)
+  const steps = expanded.slice(0, end).flatMap((s) => {
+    if (['card', 'callout', 'checkpoint', 'wait', 'move'].some((k) => k in s)) return []
+    const owner = s.show ?? s.hide ?? s.parts ?? s.on
+    if (owner !== undefined ? owner !== actor : !kinds.some((k) => k in s)) return []
+    const { narration: _narration, chapter: _chapter, lessonStep: _lessonStep, focus: _focus, ...rest } = s
+    return [rest]
+  })
+  return { ...script, camera: undefined, cast: { [actor]: { ...script.cast[actor], place: 'full', hidden: false } }, steps: steps as unknown as ScriptStep[] }
+}
+
+/** 靜態舞台依寬度要關掉哪些區塊:演員宣告可以收合、舞台比門檻窄、又不在互動區的 */
+export function collapsedParts(collapsible: Readonly<Record<string, number>> | undefined, zone: string[] | undefined, width: number): Record<string, boolean> {
+  return Object.fromEntries(
+    Object.entries(collapsible ?? {})
+      .filter(([part, below]) => width < below && !zone?.includes(part))
+      .map(([part]) => [part, false]),
+  )
 }
 
 /** 在課程原本的腳本裡找步驟:原本的腳本調整順序或改文字時,找不到就直接丟錯,提醒要一起更新互動版 */

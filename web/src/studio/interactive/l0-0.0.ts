@@ -48,7 +48,7 @@ export function withL0Moments(base: StageScript): StageScript {
         chapter,
         lessonStep,
         id: 'prompt',
-        stage: { focus: 'claude:composer', choices: 'claude:input' },
+        stage: { focus: 'claude:composer', choices: 'claude:input', zone: ['composer'] },
         options: [
           { label: PROMPT, steps: [firstPrompt, ...steps.slice(start + 1, allow)] },
           {

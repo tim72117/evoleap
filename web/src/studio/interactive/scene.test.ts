@@ -10,7 +10,7 @@ import l02 from '../../content/live/l0/0.2-site.json'
 import { withL02Moments } from './l0-0.2'
 import intro from '../../content/live/l0/0.intro.json'
 import { withL0IntroMoments } from './l0-intro'
-import { answerLabel, expandAnswers, momentsOf, withoutAnswer, type Answer, type Moment } from './scene'
+import { answerLabel, expandAnswers, momentsOf, collapsedParts, staticScript, withoutAnswer, type Answer, type Moment } from './scene'
 
 const script = {
   title: 't',
@@ -316,5 +316,48 @@ describe('answerLabel', () => {
     expect(answerLabel(moment, { text: '自己打' })).toBe('自己打')
     expect(answerLabel(moment, { skipped: true })).toBeNull()
     expect(answerLabel(moment, undefined)).toBeNull()
+  })
+})
+
+describe('staticScript', () => {
+  const script = withL0Moments(l00 as unknown as StageScript)
+  const kinds = ['user', 'thinking', 'say', 'tool', 'edit', 'todos', 'ask', 'choose', 'mode']
+  const stepsOf = (out: StageScript) => out.steps as unknown as Record<string, unknown>[]
+
+  it('只留這位演員與他的動作,演到互動點之前,沒有鏡頭、旁白與舞台效果', () => {
+    const out = staticScript(script, {}, 'delete', 'claude', kinds)
+    expect(out.camera).toBeUndefined()
+    expect(Object.keys(out.cast)).toEqual(['claude'])
+    expect(out.cast.claude.place).toBe('full')
+    expect(out.cast.claude.hidden).toBe(false)
+    expect(stepsOf(out).length).toBeGreaterThan(0)
+    for (const s of stepsOf(out)) {
+      for (const k of ['narration', 'chapter', 'focus', 'checkpoint', 'card', 'callout', 'wait', 'move']) expect(k in s, k).toBe(false)
+      for (const k of ['show', 'hide', 'on']) if (k in s) expect(s[k]).toBe('claude')
+      expect('create' in s, '其他演員的動作').toBe(false)
+    }
+  })
+
+  it('把前面的回答演進去', () => {
+    expect(stepsOf(staticScript(script, { prompt: { option: 2 } }, 'create', 'claude', kinds)).some((s) => s.user === '幫我打個招呼')).toBe(true)
+  })
+
+  it('找不到互動點時丟錯', () => {
+    expect(() => staticScript(script, {}, 'nope', 'claude', kinds)).toThrow('nope')
+  })
+})
+
+describe('collapsedParts', () => {
+  const collapsible = { sidebar: 900, titlebar: 480 }
+  it('舞台比門檻窄時收合', () => {
+    expect(collapsedParts(collapsible, undefined, 800)).toEqual({ sidebar: false })
+    expect(collapsedParts(collapsible, undefined, 300)).toEqual({ sidebar: false, titlebar: false })
+  })
+  it('在互動區的不收合', () => {
+    expect(collapsedParts(collapsible, ['sidebar'], 300)).toEqual({ titlebar: false })
+  })
+  it('舞台夠寬就不收合,演員沒有宣告也不收合', () => {
+    expect(collapsedParts(collapsible, undefined, 900)).toEqual({})
+    expect(collapsedParts(undefined, undefined, 300)).toEqual({})
   })
 })

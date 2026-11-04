@@ -1,21 +1,22 @@
 // 首頁的主題。一個主題是一組不同目標的課程:「做出自己的軟體」(levels.ts 的 LEVELS)與「打造 AI 互動軟體」(AI_APP_LEVELS)各有課程地圖頁。
 // 規劃中的主題只放暫定的名稱、標語與預計做出的成果;不要寫未確認的事實(價格、日期、收入、學員數等)。
-import { AI_APP_LEVELS } from './levels'
+import { AI_APP_LEVELS, SOFTWARE_LEDE } from './levels'
 
 export const HOME_INTRO = {
-  title: '把 AI 用在你真正想做的事',
+  title: '善用 AI，把時間用在真正想做的事',
   pitch: '選一個主題，跟著實際操作，做出看得見的成果。',
-  description: '把 AI 用在你真正想做的事：選一個主題，跟著實際操作，從免費的入門課開始，做出看得見的成果。',
+  description: '善用 AI，把時間用在真正想做的事：選一個主題，跟著實際操作，從免費的入門課開始，做出看得見的成果。',
 }
 
 export const SOFTWARE_TOPIC = {
   name: '做出自己的軟體',
   slogan: '不會寫程式，也能打造自己的軟體',
+  lede: SOFTWARE_LEDE,
   /** 課程地圖所在的頁面 */
   path: '/topics/software',
   /** 搜尋結果的標題與描述:寫學員會搜尋的說法,不要寫未確認的事實 */
   seoTitle: '不會寫程式也能做軟體：零基礎 AI 開發課程地圖',
-  description: '零基礎也能開始：用 AI 工具做出網站與日常小工具，再學會串接自動化流程。免費從入門課開始，一步步做出自己的軟體。',
+  description: `${SOFTWARE_LEDE}。零基礎也能開始，用 AI 做出網站與小工具，再學會串接自動化流程，免費從入門課開始。`,
 }
 
 /** 主題「打造 AI 互動軟體」：中階、進階兩門課（levels.ts 的 AI_APP_LEVELS），都還在規劃中 */

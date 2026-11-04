@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { COURSES, coursePath, lessonPath } from '../content/catalog'
 import { LEVELS } from '../content/levels'
 import { HOME_INTRO, PLANNED_TOPICS, SOFTWARE_TOPIC } from '../content/topics'
-import { LivePlayer } from '../courses/LivePlayer'
 import { SiteLayout } from '../site/SiteLayout'
+import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage'
+import { withL0Moments } from '../studio/interactive/l0-0.0'
 import bakerySite from './assets/bakery-site.jpg'
 import styles from './HomePage.module.css'
 
@@ -11,7 +13,7 @@ import styles from './HomePage.module.css'
 // 規劃中的主題縮小,只寫預計做出的成果。課數、連結與示範提示詞都取自課程資料,主題文案在 content/topics.ts。
 
 const tools = COURSES.find((c) => c.slug === 'tools')!
-// 主打的是第 0 課(封面章節、提示詞都是它的);序章只是短短的導覽,不當主打
+// 主打的是第 0 課(互動點、提示詞都是它的);序章只是短短的導覽,不當主打
 const openLessons = tools.lessons.filter((l) => !l.label && l.videos.some((v) => v.live))
 const firstLesson = openLessons[0]
 const firstScript = firstLesson.videos[0].live!
@@ -23,12 +25,10 @@ const LADDER = COURSES.filter((c) => LEVELS.some((l) => l.link === coursePath(c)
   open: c.lessons.some((l) => l.videos.some((v) => v.live)),
 }))
 
-/** 教學畫面開始前的封面:AI 動手前的確認提示,比空白的開場更看得出課程在做什麼 */
-const PLAYER_POSTER = { chapter: '看懂確認提示', after: 2500 }
-
 export function HomePage() {
   // 課程地圖以前在首頁:舊連結(/#map、/#level-tools)導到主題頁的同一個位置
   const { hash } = useLocation()
+  const [shrinkSlot, setShrinkSlot] = useState<HTMLElement | null>(null)
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
   return (
@@ -47,6 +47,7 @@ export function HomePage() {
               <p className={`${styles.badge} ${styles.badgeOpen}`}>開放中</p>
               <h2 id="theme-software">{SOFTWARE_TOPIC.name}</h2>
               <p className={styles.slogan}>{SOFTWARE_TOPIC.slogan}</p>
+              <p className={styles.lede}>{SOFTWARE_TOPIC.lede}</p>
               <ul className={styles.facts}>
                 <li>
                   <strong>免費</strong>開始
@@ -72,10 +73,11 @@ export function HomePage() {
                 <Link className={styles.secondary} to={SOFTWARE_TOPIC.path}>
                   看全部課程
                 </Link>
+                <div ref={setShrinkSlot} className={styles.shrinkSlot} />
               </div>
             </div>
             <div className={styles.player}>
-              <LivePlayer script={firstScript} title={firstLesson.title} onTime={() => {}} poster={PLAYER_POSTER} />
+              <InteractiveScenePage script={firstScript} pageTitle={firstLesson.title} interaction="static" prepare={withL0Moments} embed shrinkSlot={shrinkSlot} />
             </div>
           </div>
 

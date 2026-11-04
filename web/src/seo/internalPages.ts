@@ -38,8 +38,9 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/actor-interaction/showcase', '演員展示'],
     ['/studio/ai-tips', 'AI 工具技巧'],
     ['/studio/visuals', '即時教學影像'],
-    ['/studio/interactive', '互動教學場景'],
-    ['/studio/interactive/l0-claude-stage', '互動場景：把演員推到主畫面'],
+    ['/studio/actor-interaction/scene', '互動教學場景'],
+    ['/studio/actor-interaction/push', '互動場景：把演員推到主畫面'],
+    ['/studio/actor-interaction/static', '互動場景：靜態演員'],
     ['/materials', '工具'],
     ['/materials/course-map', '課程編排'],
   ] as const

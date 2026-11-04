@@ -55,7 +55,8 @@
       "id": "prompt",
       "stage": {
         "focus": "claude:composer",
-        "choices": "claude:input"
+        "choices": "claude:input",
+        "zone": ["composer"]
       },
       "options": [
         {

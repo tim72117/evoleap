@@ -461,6 +461,9 @@ export function ProposalIndexPage() {
             <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/actor-interaction/showcase">
               演員展示
             </Link>
+            <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/actor-interaction/push">
+              把演員推到主畫面
+            </Link>
           </div>
         </div>
       </section>

@@ -149,7 +149,7 @@ export function ActorInteractionPage() {
         </div>
         <div className={ui['card-foot']}>
           <div className={ui.links}>
-            <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/interactive">
+            <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/actor-interaction/scene">
               看現有的互動教學場景
             </Link>
           </div>

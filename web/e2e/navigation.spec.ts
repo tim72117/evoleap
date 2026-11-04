@@ -92,6 +92,93 @@ test('首頁:主打主題可以播放第 0 課,開始第一課連到課程', asy
   expect(errors).toEqual([])
 })
 
+test('首頁的展示是靜態互動:從互動點前面一點開始,播到互動點時直接在演員身上回答', async ({ page }) => {
+  test.setTimeout(90000)
+  const errors = collectErrors(page)
+  await page.goto('/')
+  const first = page.getByRole('heading', { name: /你要送出哪一句/ })
+  const layer = page.getByTestId('static-actor')
+  // 開頁不自動播放、不捲動頁面,也還沒輪到學員
+  await expect(page.locator('.vp.paused')).toBeVisible()
+  await expect(page.locator('.vp-time')).not.toHaveText(/^0:00 /)
+  await expect(layer).toHaveCount(0)
+  expect(await page.evaluate(() => scrollY)).toBe(0)
+
+  await page.locator('.vp-big').click()
+  await expect(first).toBeVisible({ timeout: 20000 })
+  const still = layer.locator('.A-claude-desktop')
+  await expect(still).toContainText('描述你要做的事')
+  const scale = await still.evaluate((el) => el.getBoundingClientRect().width / (el as HTMLElement).offsetWidth)
+  expect(scale).toBeCloseTo(1, 2)
+
+  await layer.getByRole('button', { name: '建立 hello.txt，寫一句問候', exact: true }).click()
+  await expect(first).toHaveCount(0)
+  await expect(layer).toHaveCount(0)
+
+  // 第二題要學員看確認框的內容:整個確認框都要在畫面裡
+  await expect(page.getByRole('heading', { name: /你要允許嗎/ })).toBeVisible({ timeout: 40000 })
+  const frame = await layer.boundingBox()
+  const ask = await still.locator('.ask.pending').boundingBox()
+  expect(ask!.y).toBeGreaterThanOrEqual(frame!.y)
+  expect(ask!.y + ask!.height).toBeLessThanOrEqual(frame!.y + frame!.height)
+  // 收合輸入框騰出空間後,對話要依新版面重排:上面的訊息也看得到
+  const log = await still.locator('.cd-log').boundingBox()
+  const said = await still.getByText('建立 hello.txt，寫一句問候').first().boundingBox()
+  expect(said!.y).toBeGreaterThanOrEqual(log!.y)
+  // 提示放在播放器外面,不會蓋住確認框
+  const hint = await page.getByRole('heading', { name: /你要允許嗎/ }).boundingBox()
+  expect(hint!.y).toBeGreaterThanOrEqual(frame!.y + frame!.height)
+  await expect(page).toHaveTitle(/^evoleap/)
+  expect(errors).toEqual([])
+})
+
+test('首頁的展示:一開始不放大,開始播放才往左下放大,靜態互動時一樣大,縮小後恢復', async ({ page }, info) => {
+  test.setTimeout(90000)
+  test.skip(info.project.name === 'mobile', '手機上播放器本來就是整排寬')
+  await page.goto('/')
+  const card = page.locator('article').first()
+  // 相對於卡片量:放大時頁面可能捲動
+  const box = async () => {
+    const c = (await card.boundingBox())!
+    const v = (await page.locator('.vp').boundingBox())!
+    return { left: v.x - c.x, top: v.y - c.y, right: v.x + v.width - c.x, bottom: v.y + v.height - c.y, width: v.width }
+  }
+  const facts = page.getByText('不用先學')
+  const shrink = page.getByRole('button', { name: '縮小播放器' })
+
+  // 一開始不放大:左欄完整,沒有縮小按鈕
+  await expect(page.locator('.vp')).toBeVisible()
+  await expect(facts).toBeVisible()
+  await expect(shrink).toHaveCount(0)
+  const small = await box()
+
+  // 開始播放:右上角不動,往左下放大;左欄只留主題名稱與按鈕;不是全螢幕
+  await page.locator('.vp-big').click()
+  await expect(shrink).toBeVisible()
+  await expect.poll(async () => (await box()).width).toBeGreaterThan(small.width * 1.15)
+  await page.waitForTimeout(500) // 等版面的過渡結束
+  const big = await box()
+  expect(big.left).toBeLessThan(small.left)
+  expect(big.bottom).toBeGreaterThan(small.bottom)
+  expect(big.top).toBeCloseTo(small.top, 0)
+  expect(big.right).toBeCloseTo(small.right, 0)
+  await expect(page.getByRole('heading', { name: '做出自己的軟體' })).toBeVisible()
+  await expect(page.getByRole('link', { name: '開始第一課' })).toBeVisible()
+  await expect(facts).toBeHidden()
+  expect(await page.evaluate(() => document.fullscreenElement)).toBeNull()
+
+  // 播到互動點(靜態演員)也一樣大
+  await expect(page.getByRole('heading', { name: /你要送出哪一句/ })).toBeVisible({ timeout: 20000 })
+  await expect(page.getByTestId('static-actor')).toBeVisible()
+  expect((await box()).width).toBeCloseTo(big.width, 0)
+
+  // 縮小:回到原本的大小,次要內容回來
+  await shrink.click()
+  await expect(shrink).toHaveCount(0)
+  await expect(facts).toBeVisible()
+  await expect.poll(async () => (await box()).width).toBeCloseTo(small.width, 0)
+})
+
 test('前端換到不存在的網址顯示找不到頁面,head 為 noindex 且沒有 canonical', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => {
@@ -122,8 +209,10 @@ test('互動教學場景:回答後演員回應,回答加進時間軸,可以重�
   const errors = collectErrors(page)
   await page.goto('/studio')
   await page.getByRole('link', { name: '構想' }).first().click()
-  await page.getByRole('link', { name: '互動教學場景' }).click()
-  await expect(page).toHaveURL('/studio/interactive')
+  await page.getByRole('link', { name: '演員互動' }).first().click()
+  await page.getByRole('navigation', { name: '演員互動頁面' }).getByRole('link', { name: '互動教學場景' }).click()
+  await expect(page).toHaveURL('/studio/actor-interaction/scene')
+  await expect(page.getByRole('link', { name: '← 演員互動' })).toHaveAttribute('href', '/studio/actor-interaction')
 
   // 從步驟清單跳到第一個互動點
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
@@ -144,9 +233,51 @@ test('互動教學場景:回答後演員回應,回答加進時間軸,可以重�
   expect(errors).toEqual([])
 })
 
+test('靜態演員:互動時影片停止,演員畫在舞台外且不受舞台縮放,回答後收起', async ({ page }) => {
+  const errors = collectErrors(page)
+  await page.goto('/studio/actor-interaction/static')
+  const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
+  await expect(page.getByTestId('static-actor')).toHaveCount(0)
+  await panel.getByRole('button', { name: /你要送出哪一句/ }).click()
+
+  const still = page.getByTestId('static-actor').locator('.A-claude-desktop')
+  await expect(still).toBeVisible()
+  await expect(still).toContainText('描述你要做的事')
+  // 字維持演員原本的大小(--u 是 18px),舞台裡的同一位演員則跟著縮放
+  const scaleOf = (loc: typeof still) => loc.evaluate((el) => el.getBoundingClientRect().width / (el as HTMLElement).offsetWidth)
+  expect(await scaleOf(still)).toBe(1)
+  expect(await scaleOf(page.locator('.vp .live-stage .A-claude-desktop'))).toBeLessThan(1)
+
+  // 影片是停著的
+  const time = page.locator('.vp-time')
+  const before = await time.textContent()
+  await page.waitForTimeout(1200)
+  expect(await time.textContent()).toBe(before)
+
+  // 直接在演員身上回答,不開詢問框;回答後收起並接著演
+  await expect(panel.getByRole('button', { name: '建立 hello.txt，寫一句問候' })).toHaveCount(0)
+  await page.getByTestId('static-actor').getByRole('button', { name: '建立 hello.txt，寫一句問候' }).click()
+  await expect(page.getByTestId('static-actor')).toHaveCount(0)
+  await expect(page.locator('.vp .live-stage .A-claude-desktop')).toContainText('建立 hello.txt，寫一句問候', { timeout: 15000 })
+  expect(errors).toEqual([])
+})
+
+test('靜態演員:直式窄視窗播到互動點時,抽屜不展開,不擋住演員', async ({ page }, info) => {
+  test.setTimeout(60000)
+  test.skip(info.project.name !== 'mobile', '抽屜只在窄視窗出現')
+  await page.goto('/studio/actor-interaction/static?aspect=portrait')
+  await page.locator('.vp-big').click()
+  await expect(page.getByTestId('static-actor')).toBeVisible({ timeout: 40000 })
+  await expect(page.getByRole('complementary', { name: '課程章節與步驟' }).getByRole('button', { expanded: false })).toBeVisible()
+})
+
 test('把演員推到主畫面:側欄讓開,直接在 Claude 上選指令與按允許,側欄維持章節與步驟', async ({ page }) => {
   const errors = collectErrors(page)
-  await page.goto('/studio/interactive/l0-claude-stage')
+  // 在構想「演員互動」底下,返回也回到那裡
+  await page.goto('/studio/actor-interaction')
+  await page.getByRole('navigation', { name: '演員互動頁面' }).getByRole('link', { name: '把演員推到主畫面' }).click()
+  await expect(page).toHaveURL('/studio/actor-interaction/push')
+  await expect(page.getByRole('link', { name: '← 演員互動' })).toHaveAttribute('href', '/studio/actor-interaction')
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
 
   await panel.getByRole('button', { name: /你要送出哪一句/ }).click()
@@ -233,8 +364,9 @@ const PAGES = [
   '/docs/live',
   '/studio',
   '/materials',
-  '/studio/interactive',
-  '/studio/interactive/l0-claude-stage',
+  '/studio/actor-interaction/scene',
+  '/studio/actor-interaction/push',
+  '/studio/actor-interaction/static',
   '/studio/actor-interaction',
   '/studio/tools',
   '/studio/ai-agent/structure',

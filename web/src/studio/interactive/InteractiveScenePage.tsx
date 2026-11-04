@@ -9,12 +9,16 @@ import { createStage, type Stage, type StageChapter, type StageScript } from '..
 import '../../live/shell.css'
 import { useCopy } from '../../site/useCopy'
 import { ActorPush } from './ActorPush'
-import { answerLabel, expandAnswers, momentsOf, withoutAnswer, type Answer, type Answers, type Moment } from './scene'
+import { StaticActor } from './StaticActor'
+import { answerLabel, answersOnActor, expandAnswers, INTERACTIVE_ICON, momentsOf, withoutAnswer, type Answer, type Answers, type Moment } from './scene'
 import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer, withAspect } from './portrait'
 import styles from './InteractiveScenePage.module.css'
 
 // 互動教學場景(試做):整個視窗都是舞台,播放條是浮動的膠囊,右側在「步驟」與「互動」之間切換。
 // 播到互動點會暫停並切到互動區;學員回答後,回應的步驟插進時間軸(見 scene.ts),演員當場演出來。
+
+/** 嵌進其他頁面時,從第一個互動點前面多少毫秒開始:先看一小段前情,再輪到學員動手 */
+const EMBED_LEAD_MS = 15000
 
 /** 目前時間與互動點相差多少毫秒內,算是停在互動點上 */
 const AT_MOMENT_MS = 50
@@ -37,8 +41,8 @@ type Props = {
   script: string
   /** 頁面名稱(document.title 是「<名稱> · 課程提案」,要和 seo/pages.ts 一致) */
   pageTitle: string
-  /** stage:把演員推到主畫面,學員直接操作演員;不寫就在側欄回答 */
-  interaction?: 'stage'
+  /** stage:把演員推到主畫面,學員直接操作演員;static:影片停止,演員畫在舞台外,學員直接操作這一份;不寫就在側欄回答 */
+  interaction?: 'stage' | 'static'
   /** 把載入的腳本加上互動點(用課程原本的腳本與語音時) */
   prepare?: (script: StageScript) => StageScript
   /** 正式課程頁用:標題、返回連結、播放進度與側欄底部;不寫就是研發基地的試做頁 */
@@ -53,8 +57,12 @@ type Props = {
     /** 課程第幾步(腳本的 lessonStep) → 提示詞,顯示在側欄對應的章節底下,讓學員複製到自己的工具 */
     prompts?: Record<number, string>
   }
-  /** 嵌進其他頁面(首頁的展示):一開始就停在第一個互動點,問題和選項放在播放器下方;不記進度、不改頁面標題。畫面太小,不提供全螢幕 */
+  /** 研發基地試做頁的返回連結;不寫就回構想 */
+  back?: { to: string; label: string }
+  /** 嵌進其他頁面(首頁的展示):一開始停在第一個互動點前面一點,按播放後很快就輪到學員動手,問題和選項放在播放器下方,開始播放才放大(在頁面內變寬,外層用 data-expanded 調整版面),學員可以縮小,再播放時又放大;不記進度、不改頁面標題,不提供全螢幕 */
   embed?: boolean
+  /** 嵌進其他頁面時,「縮小播放器」要放在哪裡(開始播放放大後才出現);不寫就在播放器下方 */
+  shrinkSlot?: HTMLElement | null
 }
 
 /** 窄視窗(手機直立):直式用底部抽屜 */
@@ -69,7 +77,7 @@ function useNarrow(): boolean {
   return narrow
 }
 
-export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course, embed }: Props) {
+export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course, back, embed, shrinkSlot }: Props) {
   const [params, setParams] = useSearchParams()
   const aspect: Aspect = embed ? 'landscape' : parseAspect(params.get('aspect'))
   const narrow = useNarrow()
@@ -103,6 +111,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     layer: HTMLElement
   } | null>(null)
   const [lesson, setLesson] = useState('')
+  const [loaded, setLoaded] = useState<StageScript | null>(null)
+  const [hintSlot, setHintSlot] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
     if (!embed) document.title = docTitle
@@ -131,12 +141,14 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       stage: stageEl,
       title: pageTitle,
       progress,
-      ...(embed ? { globalKeys: false } : { layout: 'capsule' as const, toolbar: tools }),
+      layout: 'capsule',
+      ...(embed ? { globalKeys: false } : { toolbar: tools }),
       aspect,
       autoLandscape: false,
       onStop: (stop) => {
-        if (!list.some((m) => m.title === stop.title)) return false
-        if (interaction !== 'stage' && !drawer) {
+        const stopped = list.find((m) => m.title === stop.title)
+        if (!stopped) return false
+        if (interaction !== 'stage' && !drawer && !(interaction === 'static' && answersOnActor(stopped))) {
           setPanelOpen(true)
           setTab('interact')
         }
@@ -203,8 +215,9 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         setMoments(list)
         setTitle(data.title)
         setLesson(data.lesson ?? '')
+        setLoaded(data)
         const at = await sync(answersRef.current)
-        if (embed && list[0]) carry.current = at[list[0].id] ?? 0
+        if (embed && list[0]) carry.current = Math.max(0, (at[list[0].id] ?? 0) - EMBED_LEAD_MS)
         if (carry.current > 0) {
           shell.seek(carry.current)
           setNow({ t: carry.current, playing: false })
@@ -244,12 +257,13 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     return at != null && !answers[m.id] && !now.playing && Math.abs(now.t - at) <= AT_MOMENT_MS
   })
 
-  // 抽屜:停在新的互動點時自動展開;回答後收合(回應由演員在舞台上演出,不要被抽屜擋住)
+  // 抽屜:停在新的互動點時自動展開;回答後收合(回應由演員在舞台上演出,不要被抽屜擋住)。在靜態演員身上回答時抽屜裡沒有題目,不展開,才不會擋住演員
+  const drawerMoment = interaction === 'static' && current && answersOnActor(current) ? undefined : current?.id
   const prevMoment = useRef<string | undefined>(undefined)
   useEffect(() => {
-    setPanelOpen((open) => nextDrawerOpen(open, drawer, prevMoment.current, current?.id))
-    prevMoment.current = current?.id
-  }, [drawer, current?.id])
+    setPanelOpen((open) => nextDrawerOpen(open, drawer, prevMoment.current, drawerMoment))
+    prevMoment.current = drawerMoment
+  }, [drawer, drawerMoment])
 
   const toggleAspect = () => {
     carry.current = ctrl.current?.shell.time ?? 0
@@ -258,8 +272,29 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
   // 焦點移到問題標題(不是選項):習慣按空白鍵暫停的人才不會誤選答案
   const pushed = interaction === 'stage' && current?.stage ? current : undefined
-  const currentId = embed ? current?.id : tab === 'interact' && !pushed ? current?.id : undefined
-  // 嵌在頁面裡時,一開始就停在第一個互動點:學員動手之前不要搶焦點、捲動頁面
+  /** 靜態演員:學員直接操作演員,不開詢問框(詢問框只用在沒有演員可以操作的互動點) */
+  const onActor = interaction === 'static' && !!current && answersOnActor(current)
+  const staticActor = interaction === 'static' && current?.stage && loaded && <StaticActor key={current.id} script={loaded} answers={answers} moment={current} interactive={onActor} headRef={momentHeadRef} hintSlot={embed ? hintSlot : undefined} onAnswer={(a) => answer(current, a)} />
+
+  // 嵌在頁面裡時,一開始不放大,開始播放才放大(在頁面內變寬,版面由外層用 data-expanded 決定,不是全螢幕);之後靜態互動也是這個大小,學員按縮小才變小,再開始播放又放大
+  const [expanded, setExpanded] = useState(false)
+  const wasPlaying = useRef(false)
+  useEffect(() => {
+    if (embed && now.playing && !wasPlaying.current) setExpanded(true)
+    wasPlaying.current = now.playing
+  }, [embed, now.playing])
+  const shrink = () => {
+    ctrl.current?.shell.pause()
+    setExpanded(false)
+  }
+  // 變寬之後播放器可能超出視窗,等版面的過渡結束(HomePage.module.css 的 0.35 秒)才量得到放大後的大小,再捲到看得到的位置
+  useEffect(() => {
+    if (!expanded || !interacted.current) return
+    const timer = window.setTimeout(() => pageRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 400)
+    return () => window.clearTimeout(timer)
+  }, [expanded])
+  const currentId = embed || onActor ? current?.id : tab === 'interact' && !pushed ? current?.id : undefined
+  // 嵌在頁面裡時,學員動手之前不要搶焦點、捲動頁面
   const interacted = useRef(false)
   if (now.playing || Object.keys(answers).length > 0) interacted.current = true
   useEffect(() => {
@@ -310,24 +345,41 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     if (!c) return
     if (!answers[m.id]) c.shell.pause()
     seekTo(timeline.momentAt[m.id])
-    if (interaction !== 'stage') setTab('interact')
+    if (interaction !== 'stage' && !(interaction === 'static' && answersOnActor(m))) setTab('interact')
   }
 
   if (embed) {
     return (
-      <div ref={pageRef} className={[styles.embed, styles.pushable, current && styles.atMoment].filter(Boolean).join(' ')} lang="zh-Hant">
-        <div ref={boxRef} className={styles.embedBox} />
+      <div ref={pageRef} data-expanded={expanded || undefined} className={[styles.embed, interaction === 'stage' && styles.pushable, current && styles.atMoment].filter(Boolean).join(' ')} lang="zh-Hant">
+        <div className={styles.embedFrame}>
+          <div ref={boxRef} className={styles.embedBox} />
+          {staticActor}
+        </div>
+        <div ref={setHintSlot} className={styles.embedHint} />
         {error && (
           <p className={styles.error} role="alert">
             無法載入場景：{error}
           </p>
         )}
         {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} inDrawer moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
-        {current && (
+        {current && !onActor && (
           <div ref={embedMomentRef} className={styles.embedMoment}>
             <MomentForm key={current.id} moment={current} headRef={momentHeadRef} onAnswer={(a) => answer(current, a)} />
           </div>
         )}
+        {expanded &&
+          (shrinkSlot
+            ? createPortal(
+                <button type="button" className={styles.embedShrink} onClick={shrink}>
+                  縮小播放器
+                </button>,
+                shrinkSlot,
+              )
+            : (
+                <button type="button" className={styles.embedShrink} onClick={shrink}>
+                  縮小播放器
+                </button>
+              ))}
       </div>
     )
   }
@@ -350,9 +402,12 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     <div ref={pageRef} className={classes} lang="zh-Hant">
       <div ref={boxRef} className={styles.box} />
 
+      {/* 在標題列之前:標題列才會在壓暗的上面 */}
+      {staticActor}
+
       <header className={styles.head}>
-        <Link to={course?.back.to ?? '/studio/mcp'} className={styles.back}>
-          {course?.back.label ?? '← 構想'}
+        <Link to={course?.back.to ?? back?.to ?? '/studio/mcp'} className={styles.back}>
+          {course?.back.label ?? back?.label ?? '← 構想'}
         </Link>
         <h1>{course?.heading ?? (title || pageTitle)}</h1>
         {!course && <span className={styles.draft}>試做</span>}
@@ -387,6 +442,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
                   步驟
                 </button>
                 <button type="button" aria-pressed={tab === 'interact'} onClick={() => setTab('interact')}>
+                  <InteractiveMark />
                   互動
                   {pendingCount > 0 && <span className={`${styles.count} ${current ? styles.countActive : ''}`}>{pendingCount}</span>}
                 </button>
@@ -409,7 +465,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
                     hidden={drawer && !panelOpen}
                   />
                 )
-              ) : current && !pushed ? (
+              ) : current && !pushed && !onActor ? (
                 <MomentForm key={current.id} moment={current} headRef={momentHeadRef} onAnswer={(a) => answer(current, a)} />
               ) : (
                 <MomentList timeline={timeline} moments={moments} answers={answers} onOpen={openMoment} onReopen={reopen} />
@@ -437,6 +493,15 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
           toolbar,
         )}
     </div>
+  )
+}
+
+/** 「互動」標籤的圖示,和課程清單同一個 */
+function InteractiveMark() {
+  return (
+    <svg className={styles.mark} viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={INTERACTIVE_ICON} />
+    </svg>
   )
 }
 
@@ -497,7 +562,12 @@ function StepList({
           <button type="button" aria-current={i === active ? 'step' : undefined} onClick={() => (x.moment ? onMoment(x.moment) : onSeek(x.at))}>
             <span className={styles.stepTime}>{fmt(x.at)}</span>
             <span className={styles.stepLabel}>
-              {x.moment && <span className={styles.stepTag}>{answers[x.moment.id] ? '互動 ✓' : '互動'}</span>}
+              {x.moment && (
+                <span className={styles.stepTag}>
+                  <InteractiveMark />
+                  {answers[x.moment.id] ? '互動 ✓' : '互動'}
+                </span>
+              )}
               {x.label}
             </span>
           </button>

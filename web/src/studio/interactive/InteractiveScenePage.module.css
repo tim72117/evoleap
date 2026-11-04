@@ -24,9 +24,57 @@
   --dim: #6f6c64;
   --surface: #fffdf8;
   --line: #e2ddd0;
+  --vp-inset-right: 0px;
+  --vp-inset-bottom: 0px;
+  position: relative;
   min-width: 0;
   color: var(--fg);
   font: 15px/1.5 -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+}
+
+.embedShrink {
+  display: block;
+  margin: 8px 0 0;
+  padding: 4px 12px;
+  border: 1px solid var(--site-border, var(--line));
+  border-radius: 999px;
+  background: none;
+  color: var(--site-muted, var(--dim));
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.embedShrink:hover,
+.embedShrink:focus-visible {
+  color: var(--site-text, var(--fg));
+}
+
+/* 手機上播放器本來就是整排寬,放大沒有差別 */
+@media (max-width: 820px) {
+  .embedShrink {
+    display: none;
+  }
+}
+
+.embedFrame {
+  position: relative;
+}
+
+/* 捲到播放器時避開網站頁首 */
+.embed {
+  scroll-margin: 80px 0 16px;
+}
+
+@media (max-width: 820px) {
+  .embed {
+    scroll-margin-top: 140px;
+  }
+
+  /* 手機上 16:9 放不下確認框這類內容:停在互動點時播放器暫時加高 */
+  .embed.atMoment .embedBox {
+    aspect-ratio: 1;
+  }
 }
 
 .embedBox {
@@ -347,6 +395,11 @@
   overflow-wrap: anywhere;
 }
 
+.mark {
+  margin-right: 3px;
+  vertical-align: -2px;
+}
+
 .stepTag {
   margin-right: 6px;
   padding: 0 6px;
@@ -507,6 +560,112 @@
 .momentList button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ---------- 互動時的靜態演員(StaticActor) ---------- */
+/* 避開側欄與膠囊控制列;只有演員身上的選項可以點,其他地方穿透到後面的播放器 */
+.staticLayer {
+  position: absolute;
+  inset: 0 var(--vp-inset-right) calc(var(--vp-inset-bottom) + 72px) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px 24px; /* 上方讓出標題列 */
+  background: rgb(20 18 16 / 55%);
+  pointer-events: none;
+}
+
+/* 嵌在小播放器裡:蓋滿播放器的畫面(問題和選項在下方),不留邊也不露出控制列 */
+.embed .staticLayer {
+  inset: 0;
+  padding: 0;
+  background: none;
+  pointer-events: auto;
+}
+
+.embed .staticHost {
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+/* 依舞台大小調整:單位跟著寬度變小,讓演員重新排版(不是整張縮放),最大是演員原本的 18px。要蓋過演員自己的 --u */
+.staticLayer {
+  container-type: inline-size;
+}
+
+.staticHost .staticRoot,
+.staticHost .staticRoot :global(.slot) {
+  --u: clamp(9px, 2.3cqw, 18px);
+}
+
+.staticHost {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 18px 60px rgb(0 0 0 / 35%);
+  position: relative;
+}
+
+/* 這個舞台不縮放:大小跟著畫面走,不是固定的 1920×1080 */
+.staticHost .staticRoot {
+  flex: 1;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+/* 放在演員輸入框裡的選項 */
+.staticChips {
+  position: absolute;
+  margin: 0;
+  padding: 4px;
+  border-radius: 8px;
+  background: #fff;
+  pointer-events: auto;
+}
+
+/* 一句話告訴學員要做什麼,不是詢問框:選項都在演員身上。不疊在演員上,才不會蓋住要看的內容 */
+.staticHint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  background: #fffdf8;
+  color: #1f1e1b;
+  font-size: 14px;
+  line-height: 1.4;
+  pointer-events: auto;
+}
+
+.embedHint {
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.embedHint:empty {
+  display: none;
+}
+
+.staticHint h2 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 700;
+}
+
+.staticHint h2:focus {
+  outline: none;
+}
+
+.staticHint .skip {
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
 }
 
 /* ---------- 把演員推到主畫面互動 ---------- */

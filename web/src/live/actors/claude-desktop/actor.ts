@@ -231,6 +231,7 @@ const emptyLog = (title: string, branch: string | null, mode: Mode, parent: stri
 const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarget>({
   name: 'claude-desktop',
   kinds: KINDS,
+  collapsible: { sidebar: 900, composer: 900, titlebar: 480, head: 480 },
   parts: {
     titlebar: '.cd-titlebar',
     tabs: '.cd-tabs',

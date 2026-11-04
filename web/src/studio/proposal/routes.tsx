@@ -20,7 +20,7 @@ import { VibeCodingPage } from './VibeCodingPage'
 import { VisualsPage } from './VisualsPage'
 
 // 依課程地圖（src/content/levels.ts 的 LEVELS）分等級：
-// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced；跨等級構想 mcp、member、resources、news-feed、ai-tips、visuals、interactive、interactive/l0-claude、interactive/l0-claude-stage（互動教學場景試做）。
+// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced；跨等級構想 mcp、member、resources、news-feed、ai-tips、visuals、actor-interaction（演員互動：構想、showcase 演員展示、scene 互動教學場景、push 把演員推到主畫面、static 靜態演員）。
 export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio', element: <ProposalIndexPage /> },
   { path: '/studio/tools', element: <ToolsPage /> },
@@ -38,8 +38,9 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/news-feed', element: <NewsFeedPage /> },
   { path: '/studio/actor-interaction', element: <ActorInteractionPage /> },
   { path: '/studio/actor-interaction/showcase', element: <ActorsPage /> },
+  { path: '/studio/actor-interaction/scene', element: <InteractiveScenePage key="bakery" script="lab/interactive-bakery.json" pageTitle="互動教學場景" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
+  { path: '/studio/actor-interaction/static', element: <InteractiveScenePage key="actor-static" script="lab/interactive-l0-claude.json" pageTitle="互動場景：靜態演員" interaction="static" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
+  { path: '/studio/actor-interaction/push', element: <InteractiveScenePage key="actor-push" script="lab/interactive-l0-claude.json" pageTitle="互動場景：把演員推到主畫面" interaction="stage" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
   { path: '/studio/visuals', element: <VisualsPage /> },
-  { path: '/studio/interactive', element: <InteractiveScenePage key="bakery" script="lab/interactive-bakery.json" pageTitle="互動教學場景" /> },
-  { path: '/studio/interactive/l0-claude-stage', element: <InteractiveScenePage key="l0-claude-stage" script="lab/interactive-l0-claude.json" pageTitle="互動場景：把演員推到主畫面" interaction="stage" /> },
 ]

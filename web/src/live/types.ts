@@ -138,6 +138,8 @@ export interface Actor<K extends string = string, S extends object = object, P e
   readonly kinds: readonly K[]
   /** 可以關掉的區塊:名稱 → CSS 選擇器(相對於演員的根元素)。腳本用 cast 的 parts 或舞台的 parts 動作控制 */
   readonly parts?: Readonly<Record<string, string>>
+  /** 靜態互動時舞台太小可以收合的區塊:parts 的名稱 → 舞台比這個寬度(px)窄時收合;互動點的 stage.zone 列出的區塊不收合 */
+  readonly collapsible?: Readonly<Record<string, number>>
   /** 這個動作要多久(毫秒) */
   duration(kind: K, step: S, props: P, prev: St | undefined): number
   /** camera 為 auto 時建議看哪裡;false = 全景,undefined = 沿用上一個鏡頭 */

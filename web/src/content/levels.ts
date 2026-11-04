@@ -40,11 +40,13 @@ export const ACCESS_LABEL: Record<CourseAccess, string | null> = {
   tbd: null,
 }
 
+/** 主題「做出自己的軟體」的一句話說明:首頁卡片、課程地圖頁、搜尋描述共用 */
+export const SOFTWARE_LEDE = '線上互動課程，學習透過對話，打造真的能上線的軟體'
+
 export const MAP_INTRO = {
   kicker: '零基礎也能開始',
   titleLines: ['不會寫程式，', '也能打造自己的軟體'],
-  pitch:
-    '從第一次用 AI 開始，一步步學會做出自己的工具、串起自動化工作流程，把每天重複的瑣事交給電腦，把時間留給真正重要的工作。從免費的入門課出發，找到適合你的起點。',
+  pitch: `${SOFTWARE_LEDE}。從第一次用 AI 開始，一步步學會做出自己的工具、串起自動化工作流程，把每天重複的瑣事交給電腦，把時間留給真正重要的工作。從免費的入門課出發，找到適合你的起點。`,
 }
 
 export const LEVELS: CourseLevel[] = [
