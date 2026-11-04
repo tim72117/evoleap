@@ -16,7 +16,7 @@ import (
 // 登入狀態存在 HttpOnly cookie(內容是自家 JWT),前端 JS 讀不到 token;
 // 前端與 API 同源,SameSite=Lax 擋掉跨站表單送出的請求。
 
-const sessionCookie = "shuttle_session"
+const sessionCookie = "evoleap_session"
 
 const minPasswordLen = 8
 
@@ -58,7 +58,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	email := store.NormalizeEmail(req.Email)
-	if _, err := mail.ParseAddress(email); err != nil || strings.ContainsAny(email, " <>") {
+	if _, err := mail.ParseAddress(email); err != nil || strings.ContainsAny(email, " <>") || len(email) > store.MaxEmailLen {
 		writeError(w, http.StatusBadRequest, "invalid_email", "Email 格式不正確")
 		return
 	}
@@ -70,7 +70,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	if name == "" {
 		name = strings.SplitN(email, "@", 2)[0]
 	}
-	if utf8.RuneCountInString(name) > 50 {
+	if utf8.RuneCountInString(name) > store.MaxNameLen || strings.ContainsRune(name, 0) {
 		writeError(w, http.StatusBadRequest, "invalid_name", "名稱最多 50 個字")
 		return
 	}
@@ -101,6 +101,10 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	if !decode(w, r, &req) {
 		return
 	}
+	if !s.allowLoginEmail(store.NormalizeEmail(req.Email)) {
+		writeRateLimited(w)
+		return
+	}
 	user, hash, err := s.cfg.Store.CredentialsByEmail(r.Context(), req.Email)
 	if err != nil && !errors.Is(err, store.ErrNotFound) {
 		internalError(w, err)
@@ -127,13 +131,24 @@ func (s *Server) handleGoogle(w http.ResponseWriter, r *http.Request) {
 	if !decode(w, r, &req) {
 		return
 	}
-	id, err := auth.VerifyGoogleToken(r.Context(), req.Credential, s.cfg.GoogleClientID)
+	verify := s.cfg.VerifyGoogle
+	if verify == nil {
+		verify = auth.VerifyGoogleToken
+	}
+	id, err := verify(r.Context(), req.Credential, s.cfg.GoogleClientID)
 	if err != nil {
 		writeError(w, http.StatusUnauthorized, "invalid_google_token", "Google 登入驗證失敗，請再試一次")
 		return
 	}
-	// 管理員白名單的 Email 綁定 Google 時清掉既有的密碼(可能是別人搶先密碼註冊的),一般會員不清
-	user, err := s.cfg.Store.UpsertGoogleUser(r.Context(), id.Sub, id.Email, id.EmailVerified, id.Name, IsAdminEmail(id.Email, s.cfg.AdminEmails))
+	user, err := s.cfg.Store.UpsertGoogleUser(r.Context(), id.Sub, id.Email, id.EmailVerified, id.Name)
+	if errors.Is(err, store.ErrGoogleEmailUnverified) {
+		writeError(w, http.StatusForbidden, "google_email_unverified", "這個 Google 帳號的 Email 尚未驗證，請先到 Google 完成驗證，或改用其他帳號")
+		return
+	}
+	if errors.Is(err, store.ErrAlreadyExists) {
+		writeError(w, http.StatusConflict, "google_retry", "登入時發生衝突，請再試一次")
+		return
+	}
 	if errors.Is(err, store.ErrGoogleConflict) {
 		writeError(w, http.StatusConflict, "google_conflict", "這個 Email 已經綁定另一個 Google 帳號")
 		return
@@ -174,7 +189,7 @@ func (s *Server) currentUser(r *http.Request) (store.User, bool) {
 		return store.User{}, false
 	}
 	user, err := s.cfg.Store.UserByID(r.Context(), claims.Sub)
-	if err != nil {
+	if err != nil || claims.Iat < user.SessionsValidAfter {
 		return store.User{}, false
 	}
 	return user, true

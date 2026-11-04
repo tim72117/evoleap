@@ -22,14 +22,26 @@ type Config struct {
 	SecureCookie bool
 	// AdminEmails 是管理員 Email 白名單(逗號分隔,環境變數 ADMIN_BOOTSTRAP_EMAIL);空字串代表沒有管理員。
 	AdminEmails string
+	// AuthRateLimit 是每個來源 IP 每分鐘可嘗試登入、註冊的次數;0 代表不限流(本機開發與 E2E 用)。
+	AuthRateLimit int
+	// VerifyGoogle 驗證 Google 登入憑證;nil 時用 auth.VerifyGoogleToken。測試可替換。
+	VerifyGoogle func(ctx context.Context, credential, clientID string) (auth.GoogleIdentity, error)
 }
 
 type Server struct {
 	cfg Config
+	// authIP、loginEmail 在 cfg.AuthRateLimit 為 0 時是 nil,代表不限流。
+	authIP     *rateLimiter
+	loginEmail *rateLimiter
 }
 
 func New(cfg Config) *Server {
-	return &Server{cfg: cfg}
+	s := &Server{cfg: cfg}
+	if cfg.AuthRateLimit > 0 {
+		s.authIP = newRateLimiter(cfg.AuthRateLimit, time.Minute)
+		s.loginEmail = newRateLimiter(loginEmailLimit, time.Minute)
+	}
+	return s
 }
 
 // Routes 回傳 /api/* 的路由。新增端點時在這裡註冊。
@@ -37,9 +49,9 @@ func (s *Server) Routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", s.handleHealth)
 	mux.HandleFunc("GET /api/auth/config", s.handleAuthConfig)
-	mux.HandleFunc("POST /api/auth/register", s.requireAuth(s.handleRegister))
-	mux.HandleFunc("POST /api/auth/login", s.requireAuth(s.handleLogin))
-	mux.HandleFunc("POST /api/auth/google", s.requireAuth(s.handleGoogle))
+	mux.HandleFunc("POST /api/auth/register", s.limitAuth(s.requireAuth(s.handleRegister)))
+	mux.HandleFunc("POST /api/auth/login", s.limitAuth(s.requireAuth(s.handleLogin)))
+	mux.HandleFunc("POST /api/auth/google", s.limitAuth(s.requireAuth(s.handleGoogle)))
 	mux.HandleFunc("POST /api/auth/logout", s.handleLogout)
 	mux.HandleFunc("GET /api/me", s.handleMe)
 	mux.HandleFunc("GET /api/progress", s.requireUser(s.handleProgressGet))

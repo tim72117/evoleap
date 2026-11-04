@@ -3,22 +3,16 @@ package api
 import (
 	"net/http"
 	"net/http/httptest"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/tim72117/evoleap/internal/auth"
-	"github.com/tim72117/evoleap/internal/store"
 )
 
 func newTestServer(t *testing.T) http.Handler {
 	t.Helper()
-	st, err := store.Open(filepath.Join(t.TempDir(), "test.db"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { st.Close() })
+	st := openTestStore(t)
 	return New(Config{Store: st, Signer: auth.NewSigner("test-secret", time.Hour)}).Routes()
 }
 

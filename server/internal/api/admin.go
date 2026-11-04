@@ -35,9 +35,7 @@ func IsAdminEmail(email, allowlist string) bool {
 
 // isAdmin 要求 Email 在白名單內,且帳號經 Google 驗證過 Email:
 // 密碼註冊不驗證 Email 所有權,否則任何人都能搶在管理員之前用白名單的 Email 註冊成管理員。
-// 管理員白名單的 Email 綁定 Google 時會清掉先前設的密碼(見 store.UpsertGoogleUser),搶註冊的人不能再用密碼登入。
-// 已知限制:搶註冊的人在綁定「之前」就拿到的登入 cookie(30 天有效)不會失效,綁定後仍會通過這裡的檢查;
-// 要補起來需要讓登入 token 可以依帳號撤銷(例如帳號上記「登入有效起始時間」)。部署後台前先確認白名單 Email 已經自己註冊並用 Google 登入過。
+// 綁定 Google 時會清掉先前設的密碼,並讓綁定前的登入 cookie 失效(見 store.UpsertGoogleUser),搶註冊的人不能再登入。
 func (s *Server) isAdmin(u store.User) bool {
 	return u.GoogleVerified && IsAdminEmail(u.Email, s.cfg.AdminEmails)
 }

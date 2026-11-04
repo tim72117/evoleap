@@ -12,6 +12,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # 正式環境是 Postgres,Go 測試要連同一種資料庫,SQLite 測不出欄位長度、NUL 與連線數的問題。
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -31,6 +44,12 @@ jobs:
         run: |
           go vet ./...
           go test ./...
+
+      - name: Go API tests on Postgres
+        working-directory: server
+        env:
+          TEST_DATABASE_URL: postgres://postgres:test@127.0.0.1:5432/postgres?sslmode=disable
+        run: go test -count=1 ./internal/api/
 
       - name: Install web dependencies
         working-directory: web

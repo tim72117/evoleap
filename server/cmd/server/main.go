@@ -13,6 +13,9 @@ import (
 	"github.com/tim72117/evoleap/internal/store"
 )
 
+// authRateLimitPerIP 是正式環境每個來源 IP 每分鐘可嘗試登入、註冊的次數。
+const authRateLimitPerIP = 30
+
 func main() {
 	// 預設只綁 127.0.0.1:本機開發不對外部網路開放,Windows 防火牆不會跳出詢問框。
 	// 雲端(Cloud Run)需要監聽所有介面時,由下方 PORT 環境變數覆寫。
@@ -55,6 +58,9 @@ func main() {
 		}
 		cfg.Store = st
 		cfg.Signer = auth.NewSigner(secret, 30*24*time.Hour)
+	}
+	if onCloudRun {
+		cfg.AuthRateLimit = authRateLimitPerIP
 	}
 	apiServer := api.New(cfg)
 

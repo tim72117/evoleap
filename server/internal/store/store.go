@@ -19,7 +19,12 @@ var (
 	ErrAlreadyExists = errors.New("already exists")
 	// ErrGoogleConflict:這個 Email 的帳號已經綁了另一個 Google 帳號,不能被覆蓋
 	ErrGoogleConflict = errors.New("email already linked to another google account")
+	// ErrGoogleEmailUnverified:Google 沒有回傳已驗證的 Email,不能用來建立或綁定帳號
+	ErrGoogleEmailUnverified = errors.New("google account email not verified")
 )
+
+// maxOpenConns 是每個行程對 Postgres 的連線上限。
+const maxOpenConns = 3
 
 type Store struct {
 	db *gorm.DB
@@ -37,11 +42,25 @@ func Open(dsn string) (*Store, error) {
 	if err := db.AutoMigrate(&userRow{}, &progressRow{}); err != nil {
 		return nil, fmt.Errorf("migrate: %w", err)
 	}
+	if isPostgres(dsn) {
+		sqlDB, err := db.DB()
+		if err != nil {
+			return nil, fmt.Errorf("db handle: %w", err)
+		}
+		// 與其他服務共用小型 Cloud SQL 實例,連線上限很低,每個 Cloud Run 實例只用少量連線。
+		sqlDB.SetMaxOpenConns(maxOpenConns)
+		sqlDB.SetMaxIdleConns(maxOpenConns)
+		sqlDB.SetConnMaxIdleTime(5 * time.Minute)
+	}
 	return &Store{db: db}, nil
 }
 
+func isPostgres(dsn string) bool {
+	return strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://")
+}
+
 func dialector(dsn string) gorm.Dialector {
-	if strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://") {
+	if isPostgres(dsn) {
 		return postgres.Open(dsn)
 	}
 	return sqlite.Open(dsn)

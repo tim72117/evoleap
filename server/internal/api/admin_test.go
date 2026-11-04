@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -21,11 +20,7 @@ type adminEnv struct {
 
 func newAdminEnv(t *testing.T, admins string) adminEnv {
 	t.Helper()
-	st, err := store.Open(filepath.Join(t.TempDir(), "test.db"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { st.Close() })
+	st := openTestStore(t)
 	signer := auth.NewSigner("test-secret", time.Hour)
 	return adminEnv{h: New(Config{Store: st, Signer: signer, AdminEmails: admins}).Routes(), st: st, signer: signer}
 }
@@ -35,7 +30,7 @@ func newAdminTestServer(t *testing.T, admins string) http.Handler { return newAd
 // googleCookie 模擬「Google 已驗證 Email」的登入(管理員只承認這種帳號)。
 func (e adminEnv) googleCookie(t *testing.T, email string) *http.Cookie {
 	t.Helper()
-	u, err := e.st.UpsertGoogleUser(context.Background(), "sub-"+email, email, true, "Boss", true)
+	u, err := e.st.UpsertGoogleUser(context.Background(), "sub-"+email, email, true, "Boss")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -168,30 +163,19 @@ func between(s, start, end string) string {
 }
 
 // 一般會員(不在管理員白名單)先用密碼註冊、之後綁定 Google:密碼不能因此失效。
-func TestGoogleLinkKeepsPasswordForRegularMembers(t *testing.T) {
-	env := newAdminEnv(t, "boss@example.com")
-	registerCookie(t, env.h, "amy@example.com")
-	if _, err := env.st.UpsertGoogleUser(context.Background(), "sub-amy", "amy@example.com", true, "Amy", false); err != nil {
-		t.Fatal(err)
-	}
-	if rec := call(env.h, http.MethodPost, "/api/auth/login", `{"email":"amy@example.com","password":"secret123"}`, nil); rec.Code != http.StatusOK {
-		t.Errorf("一般會員綁定 Google 後密碼應該還能用: got %d %s", rec.Code, rec.Body)
-	}
-}
-
 // 這個 Email 的帳號已經綁了某個 Google 帳號:另一個 Google 帳號(sub 不同、Email 相同)不能把它覆蓋掉。
 func TestGoogleLinkDoesNotOverwriteExistingBinding(t *testing.T) {
 	env := newAdminEnv(t, "")
 	ctx := context.Background()
-	first, err := env.st.UpsertGoogleUser(ctx, "sub-A", "amy@example.com", true, "Amy", false)
+	first, err := env.st.UpsertGoogleUser(ctx, "sub-A", "amy@example.com", true, "Amy")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := env.st.UpsertGoogleUser(ctx, "sub-B", "amy@example.com", true, "Amy", true); !errors.Is(err, store.ErrGoogleConflict) {
+	if _, err := env.st.UpsertGoogleUser(ctx, "sub-B", "amy@example.com", true, "Amy"); !errors.Is(err, store.ErrGoogleConflict) {
 		t.Fatalf("sub 不同的 Google 登入應該回 ErrGoogleConflict, got %v", err)
 	}
 	// 原本的綁定還在:用原本的 sub 登入拿到同一個帳號
-	again, err := env.st.UpsertGoogleUser(ctx, "sub-A", "amy@example.com", true, "Amy", false)
+	again, err := env.st.UpsertGoogleUser(ctx, "sub-A", "amy@example.com", true, "Amy")
 	if err != nil || again.ID != first.ID {
 		t.Errorf("原本的 sub 應該還是同一個帳號: %v %v", again.ID, err)
 	}

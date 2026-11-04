@@ -154,14 +154,14 @@ test('API:訪客 /api/me 回 {user:null};登入 cookie 是 HttpOnly + SameSite=L
   expect(body.user).not.toHaveProperty('passwordHash')
   expect(JSON.stringify(body)).not.toContain(PASSWORD)
 
-  const cookie = (await context.cookies()).find((c) => c.name === 'shuttle_session')
-  expect(cookie, 'shuttle_session cookie').toBeTruthy()
+  const cookie = (await context.cookies()).find((c) => c.name === 'evoleap_session')
+  expect(cookie, 'evoleap_session cookie').toBeTruthy()
   expect(cookie!.httpOnly).toBe(true)
   expect(cookie!.sameSite).toBe('Lax')
   expect(cookie!.path).toBe('/')
   // JS 讀不到
   await page.goto('/')
-  expect(await page.evaluate(() => document.cookie)).not.toContain('shuttle_session')
+  expect(await page.evaluate(() => document.cookie)).not.toContain('evoleap_session')
 
   // 重複註冊 409、密碼錯誤 401、格式錯誤 400、非 JSON 415
   expect((await page.request.post('/api/auth/register', { data: { email, password: PASSWORD } })).status()).toBe(409)
@@ -173,6 +173,6 @@ test('API:訪客 /api/me 回 {user:null};登入 cookie 是 HttpOnly + SameSite=L
 
   // 登出清掉 cookie
   expect((await page.request.post('/api/auth/logout')).status()).toBe(204)
-  expect((await context.cookies()).find((c) => c.name === 'shuttle_session')).toBeUndefined()
+  expect((await context.cookies()).find((c) => c.name === 'evoleap_session')).toBeUndefined()
   expect(await (await page.request.get('/api/me')).json()).toEqual({ user: null })
 })

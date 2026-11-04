@@ -2,6 +2,25 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
+## [Unreleased]
+
+### 變更
+
+- **綁定 Google 時一律清掉舊密碼，並讓綁定前的登入 cookie 失效**（原本只有管理員白名單的 Email 會清）。密碼註冊不驗證 Email 所有權，這樣才能擋掉先用別人的 Email 註冊、等本人綁定後繼續登入的帳號佔用。`users` 新增 `sessions_valid_after` 欄位。
+- 登入 cookie 改名為 `evoleap_session`。
+- Postgres 每個行程最多 3 條連線（與其他服務共用小型 Cloud SQL 實例）。
+
+### 新增
+
+- 正式環境的登入與註冊限流：每個來源 IP 每分鐘 30 次，同一個 Email 每分鐘 10 次登入，超過回 429。限流狀態存在各實例的記憶體裡。
+- CI 的 Go API 測試多跑一次 Postgres（`TEST_DATABASE_URL`）；Google 登入流程的 handler 測試。
+
+### 修正
+
+- Google 回傳未驗證的 Email 時回 500，改為 403 並說明原因。
+- 同時送出 Google 登入造成唯一索引衝突時回 500，改為重試。
+- Email 超過 254 字、名稱含 NUL 或 Google 名稱過長，在 Postgres 上回 500；改為 400 或截斷。
+
 ## [0.9.1] - 2026-11-04
 
 網站網域從 `shuttle.tools` 改為 `evoleap.io`；GitHub repo 改名為 `tim72117/evoleap`。

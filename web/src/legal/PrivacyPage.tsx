@@ -3,10 +3,10 @@ import { ContactEmail, Ext, Fill, LegalDoc, Note, Table, type LegalSection } fro
 import { OPERATOR_NAME } from './operator'
 
 /** 最後更新日期;內容有實質變更時一併更新 */
-const PRIVACY_UPDATED = '2026-11-02'
+const PRIVACY_UPDATED = '2026-11-04'
 
 // 本政策描述的是網站「目前」的實際狀況:Email/密碼與 Google 登入(帳號存在 Cloud SQL)、
-// 登入 cookie shuttle_session、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
+// 登入 cookie evoleap_session、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
 // 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)。新增任何蒐集資料的功能(例如練習完成狀態、表單、付費)前,
 // 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/api/progress.go、server/internal/store/users.go、server/internal/store/progress.go、
 // web/src/site/analytics.ts。
@@ -40,7 +40,7 @@ const sections: LegalSection[] = [
             <strong>播放進度</strong>（只有登入後才有）：您看過哪幾課的教學畫面、停在第幾秒、該課全長與最後更新時間。
           </li>
           <li>
-            <strong>登入狀態</strong>：登入後放在您瀏覽器裡的 <code>shuttle_session</code> cookie。
+            <strong>登入狀態</strong>：登入後放在您瀏覽器裡的 <code>evoleap_session</code> cookie。
           </li>
           <li>
             <strong>網站使用統計</strong>：透過 Google Analytics 4 蒐集的瀏覽頁面、互動事件、裝置與大略地區等資料。
@@ -68,7 +68,7 @@ const sections: LegalSection[] = [
         <ul>
           <li>我們會儲存您的 Email 與名稱（名稱可自行填寫；未填寫時，預設使用 Email 中「@」前面的部分）。</li>
           <li>
-            您的密碼<strong>不會以原文儲存</strong>。我們只保存經過加鹽（salt）的 PBKDF2-SHA256 雜湊值，登入時用它比對您輸入的密碼；我們（包括網站維運人員）都無法從雜湊值還原出您的密碼。
+            您的密碼<strong>不會以原文儲存</strong>。我們只保存經過不可逆處理的雜湊值，登入時用它比對您輸入的密碼；我們（包括網站維運人員）都無法從雜湊值還原出您的密碼。
           </li>
         </ul>
         <h3>使用 Google 帳號登入</h3>
@@ -79,6 +79,7 @@ const sections: LegalSection[] = [
           <li>
             我們會儲存 Google 帳號 ID、Email 與名稱。「Email 是否已驗證」只在登入當下用來判斷，不會另外儲存：只有 Email 已經過 Google 驗證時，我們才會建立帳號；若該 Email 先前已用密碼註冊過，會把這個 Google 帳號連結到同一個帳號上。
           </li>
+          <li>如果您的 Email 已經用密碼註冊過，第一次用 Google 登入時會綁定到同一個帳號，原本的密碼隨之失效，之後請用 Google 登入。</li>
           <li>我們不會取得您的 Google 密碼，也不會存取您的 Gmail、雲端硬碟、聯絡人等其他 Google 資料。</li>
           <li>
             登入頁的 Google 登入按鈕由 Google 提供（Google Identity Services），您的瀏覽器會直接連線到 Google 載入它，Google 可能因此取得您的 IP 位址、瀏覽器資訊，並使用它自己的 cookie，這部分依{' '}
@@ -193,7 +194,7 @@ const sections: LegalSection[] = [
           head={['名稱', '設定者', '用途', '有效期限']}
           rows={[
             [
-              <code>shuttle_session</code>,
+              <code>evoleap_session</code>,
               '本網站',
               '登入狀態。內容是一組經我們簽章、證明您已登入的權杖，網頁上的 JavaScript 無法讀取（HttpOnly）。只有登入後才會設定。',
               '登入起 30 天；登出時立即清除',
@@ -221,7 +222,7 @@ const sections: LegalSection[] = [
           ]}
         />
         <p>
-          <code>shuttle_session</code> 是登入所必需的，封鎖它就無法登入；<code>_ga</code> 與 <code>_ga_&lt;ID&gt;</code> 只用於統計，封鎖或刪除不影響網站功能。您可以在瀏覽器設定中隨時查看、刪除或封鎖 cookie。
+          <code>evoleap_session</code> 是登入所必需的，封鎖它就無法登入；<code>_ga</code> 與 <code>_ga_&lt;ID&gt;</code> 只用於統計，封鎖或刪除不影響網站功能。您可以在瀏覽器設定中隨時查看、刪除或封鎖 cookie。
         </p>
       </>
     ),
@@ -295,7 +296,7 @@ const sections: LegalSection[] = [
         <p>我們採取以下措施保護您的資料：</p>
         <ul>
           <li>本網站全程使用 HTTPS 加密連線，您輸入的 Email 與密碼在傳輸過程中會被加密。</li>
-          <li>密碼只以加鹽的 PBKDF2-SHA256 雜湊值保存，不保存密碼原文。</li>
+          <li>密碼只以經過不可逆處理的雜湊值保存，不保存密碼原文。</li>
           <li>
             登入 cookie 設為 HttpOnly，網頁上的 JavaScript 無法讀取，降低被惡意程式竊取的風險；它只會傳送給本網站。
           </li>
