@@ -228,6 +228,8 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/proposal/advanced', 'L4 進階'],
     ['/proposal/mcp', '課程 MCP'],
     ['/proposal/member', '會員空間'],
+    ['/proposal/resources', '資源系統'],
+    ['/proposal/news-feed', '科技新知動態牆'],
     ['/proposal/ai-tips', 'AI 工具技巧'],
     ['/proposal/visuals', '即時教學影像'],
     ['/proposal/interactive', '互動教學場景'],

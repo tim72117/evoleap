@@ -20,6 +20,8 @@ const LEVELS: Tab[] = [
 const IDEAS: Tab[] = [
   { to: '/proposal/mcp', label: '課程 MCP' },
   { to: '/proposal/member', label: '會員空間' },
+  { to: '/proposal/resources', label: '資源系統' },
+  { to: '/proposal/news-feed', label: '科技新知動態牆' },
   { to: '/proposal/ai-tips', label: 'AI 工具技巧' },
   { to: '/proposal/visuals', label: '即時教學影像' },
   { to: '/proposal/interactive', label: '互動教學場景' },

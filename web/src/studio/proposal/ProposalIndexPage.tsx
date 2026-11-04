@@ -348,6 +348,95 @@ export function ProposalIndexPage() {
         <div className={ui['card-head']}>
           <div className={ui['head-left']}>
             <div>
+              <h3>資源與角色系統</h3>
+              <div className={ui.meta}>適用：L0–L4（需登入）</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>用兩種資源和一個角色串起「上課 → 獲得 → 開新課」：</p>
+          <ul className={ui['plain-list']}>
+            <li>小葉片：部分課程要花小葉片開啟</li>
+            <li>進化膠囊：課程上完會獲得</li>
+            <li>生命之鹿：所到之處充滿生機、掉落小葉片；購買課程也贈送小葉片</li>
+            <li>物種培養：學員培養自己的物種，用膠囊進化</li>
+            <li>待決定：有哪些物種、進化幾階、哪些課要花葉片、鹿什麼時候出現</li>
+          </ul>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/proposal/resources">
+              構想頁
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
+              <h3>軟體新功能開箱</h3>
+              <div className={ui.meta}>適用：主線以外的延伸課程（需登入）</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>AI 工具、開發工具推出新功能時，做一集介紹或開箱：</p>
+          <ul className={ui['plain-list']}>
+            <li>花小葉片開啟，讓上課撿到的葉片有地方花</li>
+            <li>短篇單集，跟著工具更新隨時加；沿用即時教學畫面，改版時改腳本就好</li>
+            <li>待決定：多久出一集、每集多少葉片、過時的開箱怎麼處理</li>
+          </ul>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/proposal/resources#unboxing">
+              構想頁
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
+              <h3>科技新知動態牆</h3>
+              <div className={ui.meta}>適用：全站</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>類似社群網站的動態牆，一則一則放科技新知：</p>
+          <ul className={ui['plain-list']}>
+            <li>每則可以用舞台系統演一段即時畫面，寫一份腳本就是一則，不錄影</li>
+            <li>講到的新功能可以接到「軟體新功能開箱」做完整示範</li>
+            <li>待決定：誰來寫、更新頻率、要不要登入、要不要開放留言</li>
+          </ul>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/proposal/news-feed">
+              構想頁
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
               <h3>AI 工具技巧</h3>
               <div className={ui.meta}>適用：L0 第 2 課之後</div>
             </div>
