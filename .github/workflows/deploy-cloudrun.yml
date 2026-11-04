@@ -19,7 +19,8 @@ env:
   CLOUD_RUN_SERVICE: "shuttle-server"
   CLOUD_RUN_REGION: "asia-east1"
   IMAGE: "asia-east1-docker.pkg.dev/shuttle-045094509/cloud-run-source-deploy/shuttle-server"
-  # 與 tripace 共用同一個 Cloud SQL 實例,資料庫與使用者分開(shuttle)。
+  # 與 tripace 共用同一個 Cloud SQL 實例,資料庫與使用者分開:這裡是 evoleap/evoleap_app。
+  # 注意:實例上的 shuttle/shuttle_app 是 tripace 的正式資料,不是這個專案的,不可使用。
   CLOUDSQL_INSTANCE: "onagent-prod:asia-east1:onagent-db"
 
 jobs:
@@ -68,18 +69,23 @@ jobs:
           docker push ${{ env.IMAGE }}:latest
 
       # skip_build=true 時本次沒有 build,${{ github.sha }} 的 image 不存在,改用 :latest。
-      # 目前尚未接資料庫與 Google 登入:伺服器在 Cloud Run 上沒有 DATABASE_URL 時會自動停用登入功能。
-      # 要啟用登入時,建立 Secret Manager 機密並加上下列參數(與 tripace 同專案,名稱加 SHUTTLE_ 前綴):
-      #   --add-cloudsql-instances=${{ env.CLOUDSQL_INSTANCE }}
-      #   --update-secrets=DATABASE_URL=SHUTTLE_DATABASE_URL:latest,JWT_SECRET=SHUTTLE_JWT_SECRET:latest,GOOGLE_OAUTH_CLIENT_ID=SHUTTLE_GOOGLE_OAUTH_CLIENT_ID:latest
+      # 參數與 tripace 的 deploy-cloudrun.yml 一致(最大實例數除外,這裡刻意設 2);機密與 tripace 同專案,名稱加 EVOLEAP_ 前綴。
+      # 這些機密都要先建立,並開放 Cloud Run 執行帳號讀取,否則部署會失敗。
       - name: Deploy to Cloud Run
         run: |
+          SECRETS="DATABASE_URL=EVOLEAP_DATABASE_URL:latest"
+          SECRETS="${SECRETS},JWT_SECRET=EVOLEAP_JWT_SECRET:latest"
+          SECRETS="${SECRETS},GOOGLE_OAUTH_CLIENT_ID=EVOLEAP_GOOGLE_OAUTH_CLIENT_ID:latest"
+          SECRETS="${SECRETS},ADMIN_BOOTSTRAP_EMAIL=EVOLEAP_ADMIN_BOOTSTRAP_EMAIL:latest"
+
           gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
             --image=${{ env.IMAGE }}:${{ github.event.inputs.skip_build == 'true' && 'latest' || github.sha }} \
             --region=${{ env.CLOUD_RUN_REGION }} \
             --project=${{ env.GCP_PROJECT_ID }} \
             --allow-unauthenticated \
             --max-instances=2 \
+            --add-cloudsql-instances=${{ env.CLOUDSQL_INSTANCE }} \
+            --update-secrets="${SECRETS}" \
             --quiet
 
       - name: Show Cloud Run URL
