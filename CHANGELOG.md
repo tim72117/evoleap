@@ -2,25 +2,40 @@
 
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)；版號採語意化版本（0.x 階段：不相容變更升 minor）。
 
-## [Unreleased]
+## [0.10.0] - 2026-11-04
+
+正式站啟用會員登入與管理後台：連接獨立的 `evoleap` 資料庫，加上帳號佔用防護、限流與 Postgres 測試。部署後才會生效。
+
+**破壞性變更：** 無公開 API 變動。行為變更：密碼帳號第一次用 Google 登入後，原本的密碼會失效；登入 cookie 改名，已登入的人要重新登入（正式站先前沒有啟用登入，不受影響）。
 
 ### 變更
 
 - **綁定 Google 時一律清掉舊密碼，並讓綁定前的登入 cookie 失效**（原本只有管理員白名單的 Email 會清）。密碼註冊不驗證 Email 所有權，這樣才能擋掉先用別人的 Email 註冊、等本人綁定後繼續登入的帳號佔用。`users` 新增 `sessions_valid_after` 欄位。
 - 登入 cookie 改名為 `evoleap_session`。
-- 隱私權政策與服務條款填入營運者與聯絡信箱；服務條款移除管轄法院的約定，保留準據法。
+- 隱私權政策與服務條款填入營運者與聯絡信箱；服務條款移除管轄法院的約定，保留準據法；改為說明所有課程免費、不需登入也能觀看，登入後記錄播放進度。
 - Postgres 每個行程最多 3 條連線（與其他服務共用小型 Cloud SQL 實例）。
 
 ### 新增
 
+- **部署啟用登入**：`deploy-cloudrun.yml` 連接 Cloud SQL，並引用 `EVOLEAP_DATABASE_URL`、`EVOLEAP_JWT_SECRET`、`EVOLEAP_GOOGLE_OAUTH_CLIENT_ID`、`EVOLEAP_ADMIN_BOOTSTRAP_EMAIL`。實例上的 `shuttle` 資料庫是 tripace 的正式資料，這裡用 `evoleap`／`evoleap_app`。
+- `scripts/set-google-oauth-client-id.sh`：把 Google OAuth 用戶端 ID 寫入 Secret Manager 並開放 Cloud Run 讀取。
 - 正式環境的登入與註冊限流：每個來源 IP 每分鐘 30 次，同一個 Email 每分鐘 10 次登入，超過回 429。限流狀態存在各實例的記憶體裡。
 - CI 的 Go API 測試多跑一次 Postgres（`TEST_DATABASE_URL`）；Google 登入流程的 handler 測試。
 
 ### 修正
 
+- 管理後台的內容貼齊視窗左邊，改為和頁首相同的置中容器。
 - Google 回傳未驗證的 Email 時回 500，改為 403 並說明原因。
 - 同時送出 Google 登入造成唯一索引衝突時回 500，改為重試。
 - Email 超過 254 字、名稱含 NUL 或 Google 名稱過長，在 Postgres 上回 500；改為 400 或截斷。
+
+### 已知限制與部署前後要做
+
+- 第一次部署才會實際驗證正式資料庫的連線與建表；限流取得的來源 IP 也要在 Cloud Run 上確認。
+- 正式站是全新的資料庫，管理員要先用 Google 登入一次才有帳號。
+- OAuth 用戶端的 JavaScript 來源要有 `https://evoleap.io`，同意畫面要發布。
+- 部署成功後移除部署帳號上舊 repo `tim72117/shuttle` 的授權。
+- `shuttle.tools` 尚未 301 轉址；`og-default.png` 仍是舊網域。
 
 ## [0.9.1] - 2026-11-04
 

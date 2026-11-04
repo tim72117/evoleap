@@ -187,7 +187,7 @@ const LEGAL_PAGES: PageMeta[] = [
 const LOGIN_PAGE: PageMeta = {
   path: '/login',
   title: documentTitle('登入'),
-  description: '登入 evoleap.io，使用 Google 帳號或 Email 登入以學習需要登入的課程。',
+  description: '登入 evoleap.io，使用 Google 帳號或 Email 登入以記錄播放進度。',
   noindex: true,
 }
 

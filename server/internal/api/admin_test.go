@@ -162,7 +162,6 @@ func between(s, start, end string) string {
 	return s[j+len(start) : i]
 }
 
-// 一般會員(不在管理員白名單)先用密碼註冊、之後綁定 Google:密碼不能因此失效。
 // 這個 Email 的帳號已經綁了某個 Google 帳號:另一個 Google 帳號(sub 不同、Email 相同)不能把它覆蓋掉。
 func TestGoogleLinkDoesNotOverwriteExistingBinding(t *testing.T) {
 	env := newAdminEnv(t, "")
