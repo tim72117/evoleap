@@ -33,9 +33,9 @@ export function DocLayout({ slug, toc = [], children }: { slug: string; toc?: To
       <div className={styles.wrap}>
         <article className={styles.article}>
           <nav className={styles.crumb} aria-label="麵包屑">
-            <Link to="/proposal">課程研發</Link>
+            <Link to="/studio">研發基地</Link>
             <span aria-hidden="true"> / </span>
-            <Link to="/proposal#docs">文件</Link>
+            <Link to="/studio#docs">文件</Link>
             <span aria-hidden="true"> / </span>
             <span>{CATEGORY_LABEL[meta.category]}</span>
           </nav>

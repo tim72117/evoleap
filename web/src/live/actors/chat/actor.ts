@@ -40,6 +40,11 @@ const hueOf = (name: string): number => [...name].reduce((h, c) => (h * 31 + c.c
 const actor = defineActor<ChatKind, ChatStep, ChatProps, ChatState, ChatTarget>({
   name: 'chat',
   kinds: KINDS,
+  parts: { bar: '.ch-bar', back: '.ch-back', avatar: '.ch-avatar' },
+
+  hotspots() {
+    return [{ target: 'window', label: '回覆訊息', input: { placeholder: '打一句回覆', step: (text: string) => ({ reply: text }) } }]
+  },
 
   init() {
     return { msgs: [] }

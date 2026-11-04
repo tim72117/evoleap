@@ -110,6 +110,11 @@ function features(mood: Mood, look: Look, blink: boolean, open: boolean): string
 const actor = defineActor<PersonKind, PersonStep, PersonProps, undefined, PersonTarget>({
   name: 'person',
   kinds: ['say'],
+  parts: { name: '.ps-name', bubble: '.ps-bubble' },
+
+  hotspots() {
+    return [{ target: 'window', label: '讓人物說話', input: { placeholder: '說一句話', step: (text: string) => ({ say: text }) } }]
+  },
 
   duration(_kind, step) {
     if (typeof step.say !== 'string' || !step.say) throw new Error('say 要寫台詞')

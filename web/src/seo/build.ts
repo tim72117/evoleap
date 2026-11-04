@@ -1,7 +1,11 @@
 // build 時把 pages.ts 的資料轉成檔案內容(只有字串處理,檔案讀寫在 scripts/seo.mjs)。
-import { absoluteUrl, headTags, NOT_FOUND, PAGES, type HeadTag, type PageMeta } from './pages'
+import { INTERNAL_PAGES } from './internalPages'
+import { absoluteUrl, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES, type HeadTag, type PageMeta } from './pages'
 
-export { NOT_FOUND, PAGES }
+export { NOT_FOUND }
+
+/** 所有頁面(公開頁 + 內部頁);build 要為每一頁產生 HTML */
+export const PAGES: PageMeta[] = [...PUBLIC_PAGES, ...INTERNAL_PAGES]
 
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -35,7 +39,7 @@ export function sitemapXml(): string {
 }
 
 export function robotsTxt(): string {
-  // 內部頁(/proposal、/docs、/materials)不在這裡 Disallow:被 Disallow 的頁面爬蟲不會抓取,
+  // 內部頁(/studio、/docs、/materials)不在這裡 Disallow:被 Disallow 的頁面爬蟲不會抓取,
   // 就看不到頁面上的 noindex,反而可能只憑外部連結把網址列進搜尋結果。
   // 內部頁改由 meta robots noindex + X-Robots-Tag 排除收錄。
   return ['User-agent: *', 'Allow: /', '', `Sitemap: ${absoluteUrl('/sitemap.xml')}`, ''].join('\n')

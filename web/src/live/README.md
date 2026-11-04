@@ -14,7 +14,7 @@ web/src/live/
   actors/index.ts                     演員登記表
   actors/<名稱>/actor.ts、actor.css    演員(2A.1)
   kit.ts / kit.test.ts                舞台與演員共用的動畫工具(第 6 節)
-  scripts.ts                          載入腳本:loadScript(path)、scriptPaths
+  scripts.ts                          載入腳本:loadScript(path)、scriptPaths()、registerScripts(內部腳本)
 web/src/content/live/<等級>/*.json     舞台腳本(2A.2),例如 l0/0.0-tools.json
 ```
 
@@ -113,9 +113,9 @@ vp.time / vp.playing
 
 ### 2.6 檢查畫面
 
-各課的即時教學畫面直接在課程研發頁（`/proposal/tools`）每課的「影片切分」播放，和學員課程頁是同一個播放器（有旁白語音，但不記播放進度；`LivePlayer` 的 `saveProgress={false}`）。腳本有錯時播放器會顯示錯誤訊息（含第幾步）。
+各課的即時教學畫面直接在研發基地頁（`/studio/tools`）每課的「影片切分」播放，和學員課程頁是同一個播放器（有旁白語音，但不記播放進度；`LivePlayer` 的 `saveProgress={false}`）。腳本有錯時播放器會顯示錯誤訊息（含第幾步）。
 
-以前有一個內部預覽頁 `/proposal/visuals/preview`（只畫出某個時間點的畫面、給 Playwright 逐段截圖用），因為播放已經搬到課程研發頁，已經移除。要逐時間點檢查畫面時，在課程研發頁的播放器拖到該時間點，或在測試裡直接 `createStage(div)` → `stage.load(script)` → `stage.renderAt(ms)`；互動場景的試做頁（`/proposal/interactive/*`）也能播放腳本。
+以前有一個內部預覽頁 `/studio/visuals/preview`（只畫出某個時間點的畫面、給 Playwright 逐段截圖用），因為播放已經搬到研發基地頁，已經移除。要逐時間點檢查畫面時，在研發基地頁的播放器拖到該時間點，或在測試裡直接 `createStage(div)` → `stage.load(script)` → `stage.renderAt(ms)`；互動場景的試做頁（`/studio/interactive/*`）也能播放腳本。
 
 ---
 
@@ -177,7 +177,7 @@ export default defineActor({
 
 | 演員 | 動作 | 目標 |
 |---|---|---|
-| `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos |
+| `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode、newSession、session、menu、fork、state（多個 session 見 `actor.ts` 開頭） | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos、new、sessions、session:名稱、more:名稱、menu、menuitem:項目 |
 | `finder` | open、mkdir、create、delete、rename、select、drag、drop、highlight（有狀態，見 2A.5） | window、file:名稱（或 item:名稱） |
 | `browser` | site、width、scroll、go、click、reload（有狀態；網頁放在 Shadow DOM，寬度條件由腳本指定的寬度判斷，素材在 `content/live/l0/site/<版本>/`） | window、tab、addressbar、content、viewport、section:id、sel:css選擇器 |
 | `chat` | receive（帶 from）、reply（有狀態；通用手機聊天畫面，情境開場用） | window、msg:N、msg:last |
@@ -194,6 +194,15 @@ export default defineActor({
 - 大小：依 `place` 的 w、h 等比例縮放，設計盒寬高比 **1240:1120**，放不下時取較小的邊、置中。place 的 w:h 取 1240:1120（例如 h 760、w 841.4）時，螢幕發亮區域（16:10）在 place 內的位置：左 10.8%、上 10.9%、寬 78.4%、高 56.4%（設計座標 x 133.9、y 121.6、w 972.3、h 631.5）。
 - 疊其他演員在螢幕上：算出螢幕的舞台座標，把演員的 `place` 設成它（或螢幕內縮一圈，像浮動視窗；選單列與瀏海佔螢幕上緣約 3%）。**要條件**：開蓋角度 = 90 + pitch（預設 105 與 15 就是），螢幕才會正對鏡頭、是標準矩形；疊上去的演員不會跟著 tilt、開蓋旋轉，所以疊上去之後不要 tilt，要 tilt 先 `hide` 它。疊上去的演員在演員表要排在 macbook 之後。
 - 限制：舞台的鏡頭規定目標下緣不超過畫面 68% 高，所以 `focus: "mac:screen"` 能推近的倍率約 ≤ 1080×0.68×0.9 ÷ 螢幕高；要推近 1.5 倍以上，廣角時機身要縮小（螢幕高 ≲ 430px）。
+
+**演員的區塊（`parts`）**：演員用 `parts` 宣告可以關掉的區塊（名稱 → CSS 選擇器），避免某些情境畫面露出太多資訊。
+
+- 登場設定：演員表寫 `"parts": { "sidebar": false, "model": false }`，沒寫的區塊照常顯示。
+- 播放途中切換：舞台動作 `{ "parts": "claude", "set": { "sidebar": true } }`，不佔時間。
+- 名稱打錯時載入就報錯，並列出可用的區塊。關掉的區塊量不到位置，鏡頭、聚光燈、滑鼠不要再指向它。
+- 每位演員有哪些區塊、關掉後長怎樣：`/studio/actor-interaction/showcase`（演員展示：動態展示照示範腳本播放，靜態展示只有舞台、按操作才演出；示範腳本在 `content/live/lab/actors/<演員>.json`）。
+
+**演員的可點區（`hotspots`）**：選用。`hotspots(state, props)` 回傳目前可以點什麼：`{ target, label, step }`，或要先打字的 `{ target, label, input: { placeholder, step(text) } }`。演員不處理點擊事件，互動層（目前只有 `/studio/actor-interaction/showcase` 的靜態展示）量出目標位置、疊上透明按鈕，點下去就接一步、重新載入，畫面仍只由時間決定。和腳本的關係還沒設計，見構想頁 `/studio/actor-interaction`。
 
 ### 2A.2 舞台腳本
 
@@ -220,7 +229,7 @@ export default defineActor({
 
 - **位置** `place`：`window`（預設）、`full`、`left`、`right`、`center`，或 `{ x, y, w, h }`（1920×1080 的 px 或百分比，`h` 可省略）。
 - **演員的動作**交給演員表中會這個動作的演員；演員表裡有多個演員都會時（例如兩個 `claude-desktop`），必須加 `"on": "代號"`，否則載入時報錯。
-- **舞台的動作**：`card`、`callout`、`show`、`hide`、`move`（移到新位置）、`checkpoint`、`wait`。
+- **舞台的動作**：`card`、`callout`、`show`、`hide`、`move`（移到新位置）、`checkpoint`、`wait`、`parts`（切換區塊顯示）。
 - **每一步都能加**：`narration`、`chapter`、`lessonStep`、`ms`、`pause`、`focus`。
 - **目標**寫成「演員代號:目標名稱」，例如 `claude:ask`；只寫代號表示整個演員。
 - **字幕**：旁白由 `kit.splitCaption` 切成單行、每條不超過約 24 個字，按字數分配時間，寫旁白不用自己斷句。
@@ -232,7 +241,7 @@ export default defineActor({
 1. 建 `actors/<名稱>/actor.ts`、`actor.css`，用 `defineActor` 照 2A.1 的介面實作（`actor.ts` 要 import 自己的 `actor.css`），開頭寫清楚 props、動作與目標。
 2. 在 `actors/index.ts` import 並登記。
 3. 動作照 2A.4 設計成「操作」，狀態照 2A.5 用 `init`／`apply` 推算。
-4. 在腳本（`src/content/live/`）的 `cast` 加上它，在課程研發頁的播放器檢查各時間點的畫面（2.6）。
+4. 在腳本（`src/content/live/`）的 `cast` 加上它，在研發基地頁的播放器檢查各時間點的畫面（2.6）。
 5. 檢查拖曳與倒轉：`render` 不能依賴上一次的結果。
 
 ### 2A.4 動作要是「操作」，不是「設定畫面」（所有演員必須遵守）
@@ -304,7 +313,7 @@ export default {
 
 ### 2A.6 互動教學場景（試做）
 
-頁面 `/proposal/interactive`（`web/src/studio/interactive/`）：整個視窗都是舞台，播放條是浮動的膠囊（`mountShell` 的 `layout: "capsule"`），右側在「步驟」與「互動」之間切換。
+頁面 `/studio/interactive`（`web/src/studio/interactive/`）：整個視窗都是舞台，播放條是浮動的膠囊（`mountShell` 的 `layout: "capsule"`），右側在「步驟」與「互動」之間切換。
 
 互動點寫在 `checkpoint` 步驟上，舞台只把它當一般的練習點：
 
@@ -316,9 +325,9 @@ export default {
 }
 ```
 
-其他欄位：`skip: { label, steps }` 把略過改成看示範；`requires: "<id>"` 表示要先回答前面的互動點才會出現（例如先下指令才有確認提示），收回前面的回答時後面的一起收回。第二個場景 `/proposal/interactive/l0-claude` 用這些欄位做 L0 第 0 課的「下指令、看懂確認提示、允許或拒絕」。
+其他欄位：`skip: { label, steps }` 把略過改成看示範；`requires: "<id>"` 表示要先回答前面的互動點才會出現（例如先下指令才有確認提示），收回前面的回答時後面的一起收回。第二個場景 `/studio/interactive/l0-claude` 用這些欄位做 L0 第 0 課的「下指令、看懂確認提示、允許或拒絕」。
 
-**把演員推到主畫面**（`/proposal/interactive/l0-claude-stage`，同一份腳本，頁面加 `interaction="stage"`）：互動點寫了 `stage: { focus: "claude:composer" }` 時，舞台推近目標、其他地方變暗，學員直接操作演員：`stage.choices` 指定固定選項要放在哪裡（例如 `claude:input`，選項就出現在 Claude 的輸入框裡，點了直接送出），選項的 `target` 放可以點的熱區（`ActorPush.tsx`）。控制項用舞台座標疊在舞台上，只在暫停於互動點時存在，不屬於時間軸。右側欄固定放課程章節與步驟，也是重新回答的地方。
+**把演員推到主畫面**（`/studio/interactive/l0-claude-stage`，同一份腳本，頁面加 `interaction="stage"`）：互動點寫了 `stage: { focus: "claude:composer" }` 時，舞台推近目標、其他地方變暗，學員直接操作演員：`stage.choices` 指定固定選項要放在哪裡（例如 `claude:input`，選項就出現在 Claude 的輸入框裡，點了直接送出），選項的 `target` 放可以點的熱區（`ActorPush.tsx`）。控制項用舞台座標疊在舞台上，只在暫停於互動點時存在，不屬於時間軸。右側欄固定放課程章節與步驟，也是重新回答的地方。
 
 **正式課程頁**（序章、第 0、1、2 課，由 `courses/routes.tsx` 的 `INTERACTIVE_LESSONS` 決定）：`prepare` 把互動點加進課程原本的腳本（`l0-intro.ts`、`l0-0.0.ts`、`l0-0.1.ts`、`l0-0.2.ts`），腳本本身不變，首頁的預覽播放器也照舊用它。每個選項最後都要回到原本的演員狀態，後面的演出才接得上。原本的示範寫成互動點的 `skip`，學員沒回答直接播放時就演原本的內容，旁白語音照常；選其他選項時新寫的旁白還沒有語音，只顯示字幕。序章只看不操作，互動點是「選一選、想一想」：沒有要操作的演員，`stage.focus` 放在當時看得到的演員目標上（選項顯示在提問卡裡），選項的回應用章節卡（`card`），不動演員，所以每個選項演完都不用還原狀態；`skip` 的步驟是空的，原本的內容就接在互動點後面。
 
@@ -591,9 +600,9 @@ packs/<name>/
 
 1. 給 AI：本規格 2A.2（舞台腳本）、2A.4，以及要用的演員 `actor.ts` 開頭的說明（props、動作、目標）。
 2. AI 產出腳本 JSON，放進 `web/src/content/live/<等級>/`，在單課資料加上 `live: '<等級>/<檔名>.json'`。
-3. 在課程研發頁播放：腳本有錯時 `stage.load` 丟出的錯誤（含第幾步）會直接顯示在播放器上。
+3. 在研發基地頁播放：腳本有錯時 `stage.load` 丟出的錯誤（含第幾步）會直接顯示在播放器上。
 4. 拖到各章節檢查畫面（2.6），人工或交給 AI 看圖檢查。
-5. 在課程研發頁或課程頁上播放，確認節奏。
+5. 在研發基地頁或課程頁上播放，確認節奏。
 
 ---
 
@@ -604,7 +613,7 @@ packs/<name>/
 | 1 | 繪製工具 kit 與測試 | 完成 |
 | 2 | 舞台與演員（2A）：`claude-desktop`、`finder`、`browser` 演員，章節卡、聚光燈、鏡頭、滑鼠、練習點 | 完成；`claude-code`（終端機版）演員待做 |
 | 2B | 鏡頭規劃 `camera.ts`（提示點 → 關鍵點 → 連續姿態、不閃動、鏡頭到位後演員才開始演）；引擎全部改寫成 TypeScript，演員用 `defineActor` 宣告並受介面約束；開發時改程式整頁重新載入 | 完成 |
-| 3 | 外殼 `shell.ts`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟；課程研發頁也用同一個播放器）；登入的會員才記住播放進度（外殼只管何時讀存，存哪裡由外層決定） | 完成，L0 第 0、1、2 課已上線 |
+| 3 | 外殼 `shell.ts`、課程頁直接掛載（`LivePlayer`，章節對應課程步驟；研發基地頁也用同一個播放器）；登入的會員才記住播放進度（外殼只管何時讀存，存哪裡由外層決定） | 完成，L0 第 0、1、2 課已上線 |
 | 3B | 旁白語音（Gemini TTS 分段產生、GCS `shuttle-voice`、外殼同步播放；每段完成就寫入清單、旁白沒改的段落不重新產生） | 完成；L0 第 0、1 課已全部產生，第 2 課已產生前 10 段 |
 | 4 | 繪製層、素材包、腳本驗證工具（第 3–5 節） | 待做 |
 

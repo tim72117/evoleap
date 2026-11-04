@@ -1,24 +1,33 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
+	"time"
+
+	"github.com/tim72117/evoleap/internal/api"
+	"github.com/tim72117/evoleap/internal/auth"
+	"github.com/tim72117/evoleap/internal/store"
 )
 
 // 模擬 web/scripts/seo.mjs 產生的 dist 結構。
 func testDist() fstest.MapFS {
 	file := func(s string) *fstest.MapFile { return &fstest.MapFile{Data: []byte(s)} }
 	return fstest.MapFS{
-		"index.html":               file(`<title>home</title>`),
-		"courses/tools/index.html": file(`<title>tools</title>`),
-		"proposal/index.html":      file(`<title>proposal</title><meta name="robots" content="noindex, nofollow" data-seo>`),
-		"404.html":                 file(`<title>not found</title><meta name="robots" content="noindex, nofollow" data-seo>`),
-		"assets/index-abc123.js":   file(`console.log(1)`),
-		"robots.txt":               file("User-agent: *\n"),
-		"materials/cover.png":      file("png"),
+		"index.html":                          file(`<title>home</title>`),
+		"courses/tools/index.html":            file(`<title>tools</title>`),
+		"studio/index.html":                   file(`<title>studio</title><meta name="robots" content="noindex, nofollow" data-seo>`),
+		"404.html":                            file(`<title>not found</title><meta name="robots" content="noindex, nofollow" data-seo>`),
+		"assets/index-abc123.js":              file(`console.log(1)`),
+		"assets/internal/StudioApp-abc123.js": file(`console.log("secret")`),
+		"docs/live/index.html":                file(`<title>doc</title><meta name="robots" content="noindex, nofollow" data-seo>`),
+		"robots.txt":                          file("User-agent: *\n"),
+		"materials/cover.png":                 file("png"),
 	}
 }
 
@@ -33,7 +42,7 @@ func get(h http.Handler, method, target string, hdr map[string]string) *httptest
 }
 
 func TestStaticHandler(t *testing.T) {
-	h := newStaticHandler(testDist())
+	h := newStaticHandler(testDist(), openAccess)
 	cases := []struct {
 		path     string
 		status   int
@@ -44,7 +53,7 @@ func TestStaticHandler(t *testing.T) {
 	}{
 		{path: "/", status: 200, body: "<title>home</title>", cache: "no-cache"},
 		{path: "/courses/tools", status: 200, body: "<title>tools</title>", cache: "no-cache"},
-		{path: "/proposal", status: 200, body: "<title>proposal</title>", noindex: true},
+		{path: "/studio", status: 200, body: "<title>studio</title>", noindex: true},
 		// 結尾斜線、實際檔名 → 導向頁面網址(不會出現 FileServer 的目錄斜線導向)
 		{path: "/courses/tools/", status: 301, location: "/courses/tools"},
 		{path: "/courses/tools/?x=1", status: 301, location: "/courses/tools?x=1"},
@@ -82,8 +91,73 @@ func TestStaticHandler(t *testing.T) {
 	}
 }
 
+// 內部路徑:未登入導向登入頁,沒有權限回 404,管理員才拿得到內容。
+func TestStaticHandlerInternalAccess(t *testing.T) {
+	as := func(a api.Access) http.Handler {
+		return newStaticHandler(testDist(), func(*http.Request) api.Access { return a })
+	}
+	const secret = `console.log("secret")`
+	const chunk = "/assets/internal/StudioApp-abc123.js"
+
+	guest := as(api.AccessGuest)
+	for path, want := range map[string]string{
+		"/studio":                  "/login?next=%2Fstudio",
+		"/studio/":                 "/login?next=%2Fstudio%2F",
+		"/docs/live":               "/login?next=%2Fdocs%2Flive",
+		"/materials/promo?x=1&y=2": "/login?next=%2Fmaterials%2Fpromo%3Fx%3D1%26y%3D2",
+		"/studio/no-such-page":     "/login?next=%2Fstudio%2Fno-such-page",
+	} {
+		rec := get(guest, http.MethodGet, path, nil)
+		if rec.Code != http.StatusFound || rec.Header().Get("Location") != want {
+			t.Errorf("guest %s: %d → %q, want 302 → %q", path, rec.Code, rec.Header().Get("Location"), want)
+		}
+		if strings.Contains(rec.Body.String(), "<title>studio") {
+			t.Errorf("guest %s: 回應含有內部頁內容", path)
+		}
+	}
+
+	for name, h := range map[string]http.Handler{"guest": guest, "denied": as(api.AccessDenied)} {
+		for _, path := range []string{chunk, "/assets/./internal/StudioApp-abc123.js", "/assets/x/../internal/StudioApp-abc123.js", "/studio/index.html", "/materials/cover.png"} {
+			rec := get(h, http.MethodGet, path, nil)
+			if rec.Code != http.StatusNotFound || strings.Contains(rec.Body.String(), "secret") {
+				t.Errorf("%s %s: status = %d, body = %q, want 404", name, path, rec.Code, rec.Body.String())
+			}
+		}
+	}
+
+	denied := as(api.AccessDenied)
+	for _, path := range []string{"/studio", "/docs/live", "/studio/no-such-page"} {
+		rec := get(denied, http.MethodGet, path, nil)
+		if rec.Code != http.StatusNotFound || !strings.Contains(rec.Body.String(), "<title>not found</title>") {
+			t.Errorf("denied %s: status = %d, body = %q, want 404 page", path, rec.Code, rec.Body.String())
+		}
+		if strings.Contains(rec.Header().Get("Cache-Control"), "immutable") {
+			t.Errorf("denied %s: 拒絕的回應不能長期快取", path)
+		}
+	}
+
+	// 公開頁與公開檔不受影響
+	for _, h := range []http.Handler{guest, denied} {
+		for _, path := range []string{"/", "/courses/tools", "/assets/index-abc123.js", "/robots.txt"} {
+			if rec := get(h, http.MethodGet, path, nil); rec.Code != http.StatusOK {
+				t.Errorf("公開路徑 %s: status = %d, want 200", path, rec.Code)
+			}
+		}
+	}
+
+	allowed := as(api.AccessAllowed)
+	page := get(allowed, http.MethodGet, "/studio", nil)
+	if page.Code != http.StatusOK || page.Header().Get("Cache-Control") != "private, no-cache" {
+		t.Errorf("admin /studio: status = %d, Cache-Control = %q", page.Code, page.Header().Get("Cache-Control"))
+	}
+	js := get(allowed, http.MethodGet, chunk, nil)
+	if js.Code != http.StatusOK || js.Body.String() != secret || !strings.HasPrefix(js.Header().Get("Cache-Control"), "private,") {
+		t.Errorf("admin chunk: status = %d, Cache-Control = %q", js.Code, js.Header().Get("Cache-Control"))
+	}
+}
+
 func TestStaticHandlerETag(t *testing.T) {
-	h := newStaticHandler(testDist())
+	h := newStaticHandler(testDist(), openAccess)
 	first := get(h, http.MethodGet, "/courses/tools", nil)
 	etag := first.Header().Get("ETag")
 	if etag == "" {
@@ -99,7 +173,7 @@ func TestStaticHandlerETag(t *testing.T) {
 }
 
 func TestStaticHandlerHead(t *testing.T) {
-	rec := get(newStaticHandler(testDist()), http.MethodHead, "/nope", nil)
+	rec := get(newStaticHandler(testDist(), openAccess), http.MethodHead, "/nope", nil)
 	if rec.Code != http.StatusNotFound || rec.Body.Len() != 0 {
 		t.Errorf("HEAD /nope: status = %d, body length = %d, want 404 and empty", rec.Code, rec.Body.Len())
 	}
@@ -107,11 +181,53 @@ func TestStaticHandlerHead(t *testing.T) {
 
 // 版控裡的 placeholder(只有 index.html、沒有 404.html)也要能啟動。
 func TestEmbeddedPlaceholder(t *testing.T) {
-	h := staticHandler("")
+	h := staticHandler("", openAccess)
 	if rec := get(h, http.MethodGet, "/", nil); rec.Code != http.StatusOK {
 		t.Errorf("/: status = %d, want 200", rec.Code)
 	}
 	if rec := get(h, http.MethodGet, "/nope", nil); rec.Code != http.StatusNotFound {
 		t.Errorf("/nope: status = %d, want 404", rec.Code)
+	}
+}
+
+// 串起真實的登入 cookie、白名單判定與靜態檔處理器(和 main.go 的接法相同)。
+func TestInternalPagesWithRealSessions(t *testing.T) {
+	st, err := store.Open(filepath.Join(t.TempDir(), "test.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	signer := auth.NewSigner("test-secret", time.Hour)
+	srv := api.New(api.Config{Store: st, Signer: signer, AdminEmails: "boss@example.com"})
+	h := newStaticHandler(testDist(), srv.InternalAccess)
+
+	cookieFor := func(email string) map[string]string {
+		u, err := st.UpsertGoogleUser(context.Background(), "sub-"+email, email, true, "Name")
+		if err != nil {
+			t.Fatal(err)
+		}
+		token, err := signer.Sign(u.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return map[string]string{"Cookie": "evoleap_session=" + token}
+	}
+
+	const chunk = "/assets/internal/StudioApp-abc123.js"
+	cases := []struct {
+		name         string
+		hdr          map[string]string
+		page, script int
+	}{
+		{"guest", nil, http.StatusFound, http.StatusNotFound},
+		{"member", cookieFor("member@example.com"), http.StatusNotFound, http.StatusNotFound},
+		{"admin", cookieFor("boss@example.com"), http.StatusOK, http.StatusOK},
+	}
+	for _, c := range cases {
+		if got := get(h, http.MethodGet, "/studio", c.hdr).Code; got != c.page {
+			t.Errorf("%s /studio: status = %d, want %d", c.name, got, c.page)
+		}
+		if got := get(h, http.MethodGet, chunk, c.hdr).Code; got != c.script {
+			t.Errorf("%s chunk: status = %d, want %d", c.name, got, c.script)
+		}
 	}
 }

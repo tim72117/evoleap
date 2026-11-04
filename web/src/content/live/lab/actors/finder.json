@@ -1,0 +1,53 @@
+{
+  "title": "finder：新增、改名、拖曳、刪除",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "bakery": {
+            "index.html": "",
+            "notes": {}
+          }
+        },
+        "open": "bakery"
+      },
+      "place": {
+        "x": 360,
+        "y": 160,
+        "w": 1200,
+        "h": 720
+      }
+    }
+  },
+  "steps": [
+    {
+      "create": "styles.css"
+    },
+    {
+      "mkdir": "images"
+    },
+    {
+      "rename": [
+        "styles.css",
+        "site.css"
+      ]
+    },
+    {
+      "select": "site.css"
+    },
+    {
+      "drag": "notes"
+    },
+    {
+      "drop": true
+    },
+    {
+      "delete": "images"
+    },
+    {
+      "wait": 800
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+/* 演員展示頁:左邊播放器(16:9),右邊區塊開關與說明;窄視窗改上下排 */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 18px; align-items: start; }
+.box { aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #000; }
+.panel h3 { margin: 0 0 6px; font-size: 14px; }
+.panel h3:not(:first-child) { margin-top: 16px; }
+.part { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: 14px; cursor: pointer; }
+.hint { margin: 0 0 6px; font-size: 12px; color: var(--site-muted); }
+.snippet { margin: 0; padding: 8px 10px; border-radius: 6px; background: var(--site-surface-2, rgba(127, 127, 127, 0.12)); font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+.kinds { display: flex; flex-wrap: wrap; gap: 4px; font-size: 12px; }
+@media (max-width: 820px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* 靜態展示:舞台固定 1920×1080,由程式依容器寬度等比例縮放;下方是操作面板 */
+.box:has(.staticStage) { position: relative; }
+.staticStage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.ops { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.opList { display: flex; flex-wrap: wrap; gap: 6px; }
+.opList button:disabled { opacity: 0.45; cursor: not-allowed; }
+.customOp { display: flex; gap: 6px; }
+.customOp input { flex: 1; min-width: 0; padding: 6px 10px; border: 1px solid var(--site-border); border-radius: 6px; background: transparent; color: inherit; font: inherit; }
+.opFoot { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--site-muted); }
+.opError { margin: 0; color: #b3261e; font-size: 13px; }
+
+/* 互動層:疊在舞台上的透明按鈕,位置由程式量演員的目標 */
+.hitLayer { position: absolute; inset: 0; pointer-events: none; }
+.hit {
+  position: absolute; pointer-events: auto; padding: 0; cursor: pointer;
+  display: grid; place-items: center;
+  background: transparent; border: 0; border-radius: 4px; color: #fff; font-size: 12px; line-height: 1;
+}
+.outlined .hit { outline: 1px dashed rgba(217, 119, 87, 0.75); outline-offset: -1px; }
+.hit:hover, .hit:focus-visible { background: rgba(217, 119, 87, 0.2); outline: 2px solid #d97757; outline-offset: -1px; }
+.hitForm { position: absolute; pointer-events: auto; display: flex; gap: 4px; height: 40px; padding: 4px; border-radius: 8px; background: #fff; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35); }
+.hitForm input { flex: 1; min-width: 0; padding: 0 8px; border: 0; outline: none; background: transparent; color: #1f1e1b; font: inherit; font-size: 14px; }
+.hitForm button { padding: 0 10px; border: 0; border-radius: 5px; background: #d97757; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+.hitForm button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 靜態展示要直接點舞台,舞台佔滿寬度,區塊開關放到下方 */
+.layoutStatic { grid-template-columns: minmax(0, 1fr); }

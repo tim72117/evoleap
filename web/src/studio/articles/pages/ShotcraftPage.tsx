@@ -59,7 +59,7 @@ export function ShotcraftPage() {
       <Section id="skip" title="不照搬">
         <DataTable head={['手法', '原因']} rows={SKIP} />
         <p>
-          理由依據的研究整理見課程研發<Link to="/proposal/visuals">即時教學影像</Link>頁的製作原則。
+          理由依據的研究整理見研發基地<Link to="/studio/visuals">即時教學影像</Link>頁的製作原則。
         </p>
       </Section>
     </Article>

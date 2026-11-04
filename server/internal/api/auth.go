@@ -20,8 +20,19 @@ const sessionCookie = "evoleap_session"
 
 const minPasswordLen = 8
 
+// sessionUser 是回給已登入使用者本人的資料:isAdmin 讓前端決定要不要顯示研發基地的入口,
+// 真正的權限由伺服器每次請求判定(見 InternalAccess、requireAdmin)。
+type sessionUser struct {
+	store.User
+	IsAdmin bool `json:"isAdmin"`
+}
+
 type authResponse struct {
-	User store.User `json:"user"`
+	User sessionUser `json:"user"`
+}
+
+func (s *Server) authBody(user store.User) authResponse {
+	return authResponse{User: sessionUser{User: user, IsAdmin: s.isAdmin(user)}}
 }
 
 // authEnabled 回報登入功能是否可用(有設定資料庫)。
@@ -172,7 +183,7 @@ func (s *Server) handleMe(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]any{"user": nil})
 		return
 	}
-	writeJSON(w, http.StatusOK, authResponse{User: user})
+	writeJSON(w, http.StatusOK, s.authBody(user))
 }
 
 // currentUser 從登入 cookie 取得目前使用者;token 無效或使用者已不存在時回傳 false。
@@ -202,7 +213,7 @@ func (s *Server) startSession(w http.ResponseWriter, user store.User) {
 		return
 	}
 	http.SetCookie(w, s.cookie(token, int(s.cfg.Signer.TTL().Seconds())))
-	writeJSON(w, http.StatusOK, authResponse{User: user})
+	writeJSON(w, http.StatusOK, s.authBody(user))
 }
 
 func (s *Server) cookie(value string, maxAge int) *http.Cookie {

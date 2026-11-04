@@ -173,6 +173,11 @@ const isWidth = (v: unknown): v is BrowserWidth => v === 'phone' || v === 'table
 const actor = defineActor<BrowserKind, BrowserStep, BrowserProps, BrowserState, BrowserTarget>({
   name: 'browser',
   kinds: KINDS,
+  parts: { bar: '.bw-bar', lights: '.light', tab: '.bw-tab', url: '.bw-url' },
+
+  hotspots() {
+    return [{ target: 'tab', label: '重新整理', step: { reload: true } }]
+  },
 
   init(props) {
     if (!SITE_IDS.length) throw new Error('browser:找不到網頁素材(src/content/live/l0/site/<版本>/index.html)')

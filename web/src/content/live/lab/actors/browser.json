@@ -1,0 +1,48 @@
+{
+  "title": "browser：切換版本與寬度、捲動、重新整理",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "browser",
+      "props": {
+        "site": "v3",
+        "width": "desktop",
+        "url": "file:///Documents/bakery/index.html"
+      },
+      "place": {
+        "x": 120,
+        "y": 60,
+        "w": 1680,
+        "h": 960
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 600
+    },
+    {
+      "scroll": "bottom",
+      "ms": 1400
+    },
+    {
+      "scroll": "top",
+      "ms": 900
+    },
+    {
+      "width": "phone"
+    },
+    {
+      "wait": 800
+    },
+    {
+      "width": "desktop"
+    },
+    {
+      "reload": true
+    },
+    {
+      "wait": 600
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "title": "claude-desktop：對話、確認提示、多個 session 與 Fork",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "加上訂購表單",
+        "folder": "~/Documents/bakery",
+        "branch": "feat/order-form",
+        "mode": "auto",
+        "dark": true,
+        "labels": {
+          "recent": "bakery"
+        }
+      },
+      "place": {
+        "x": 120,
+        "y": 60,
+        "w": 1680,
+        "h": 960
+      }
+    }
+  },
+  "steps": [
+    {
+      "user": "幫首頁加一個訂購表單"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "tool": "Read",
+      "arg": "index.html",
+      "result": "86 行"
+    },
+    {
+      "todos": [
+        [
+          "加上表單區塊",
+          "done"
+        ],
+        [
+          "接上送出按鈕",
+          "doing"
+        ]
+      ]
+    },
+    {
+      "edit": "index.html",
+      "lines": [
+        [
+          41,
+          " ",
+          "<main>"
+        ],
+        [
+          42,
+          "+",
+          "  <form id=\"order\">"
+        ],
+        [
+          43,
+          "+",
+          "    <input name=\"item\">"
+        ],
+        [
+          44,
+          "+",
+          "  </form>"
+        ],
+        [
+          45,
+          " ",
+          "</main>"
+        ]
+      ]
+    },
+    {
+      "ask": "npm test",
+      "q": "允許 Claude 執行這個指令?",
+      "where": "~/Documents/bakery"
+    },
+    {
+      "choose": 1
+    },
+    {
+      "tool": "Bash",
+      "arg": "npm test",
+      "result": "通過",
+      "out": "12 passed"
+    },
+    {
+      "say": "完成了，表單在 `index.html` 第 42 行。"
+    },
+    {
+      "state": "ok"
+    },
+    {
+      "newSession": "修手機版跑版",
+      "branch": "fix/mobile"
+    },
+    {
+      "user": "手機上卡片跑版，幫我修"
+    },
+    {
+      "session": "加上訂購表單"
+    },
+    {
+      "menu": "加上訂購表單"
+    },
+    {
+      "fork": "加上訂購表單 (fork)",
+      "branch": "feat/order-line"
+    },
+    {
+      "user": "這版改用 LINE 按鈕"
+    },
+    {
+      "mode": "plan"
+    },
+    {
+      "wait": 800
+    }
+  ]
+}

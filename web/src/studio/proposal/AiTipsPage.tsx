@@ -1,4 +1,5 @@
-import { AI_TIPS, AI_TIPS_VERDICT } from './aiTips'
+import { AI_TIPS, AI_TIPS_DEMO, AI_TIPS_VERDICT } from './aiTips'
+import { LiveVideoPreview } from './OpeningPreviewPlayer'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
@@ -57,6 +58,11 @@ export function AiTipsPage() {
                       <span className={`${ui.chip} ${ui.todo}`}>實際使用時發現</span>
                     </div>
                   )}
+                  {x.demo && (
+                    <div>
+                      <a href="#tips-demo">看舞台示範</a>
+                    </div>
+                  )}
                 </td>
                 <td className={ui.small}>{x.scenario}</td>
                 <td className={ui.small}>{x.outcome}</td>
@@ -66,6 +72,14 @@ export function AiTipsPage() {
             ))}
           </tbody>
         </table>
+      </section>
+
+      <h2 id="tips-demo">舞台示範：{AI_TIPS_DEMO.title}</h2>
+      <section className={ui.card}>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>{AI_TIPS_DEMO.summary}</p>
+          <LiveVideoPreview script={AI_TIPS_DEMO.script} title={AI_TIPS_DEMO.title} />
+        </div>
       </section>
     </ProposalLayout>
   )

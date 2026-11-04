@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ProposalLayout } from '../proposal/ProposalLayout'
 import ui from '../proposal/proposal.module.css'
 
-// 工具總覽:課程研發工作區裡所有工具的入口(網頁工具直接開啟;指令列工具連到使用說明)。
+// 工具總覽:研發基地裡所有工具的入口(網頁工具直接開啟;指令列工具連到使用說明)。
 // 新增工具時在這裡加一張卡片。
 
 type Tool = {
@@ -26,10 +26,10 @@ const TOOLS: Tool[] = [
   },
   {
     title: '即時教學畫面',
-    body: '各課的即時教學畫面在課程研發的各課「影片切分」直接播放；寫腳本、檢查畫面時看規格。',
+    body: '各課的即時教學畫面在研發基地的各課「影片切分」直接播放；寫腳本、檢查畫面時看規格。',
     how: '網頁',
     links: [
-      { to: '/proposal/tools', label: '課程研發' },
+      { to: '/studio/tools', label: '研發基地' },
       { to: '/docs/live', label: '規格' },
     ],
     path: 'web/src/live/ · web/src/content/live/',
@@ -66,9 +66,9 @@ const TOOLS: Tool[] = [
 
 export function MaterialsIndexPage() {
   return (
-    <ProposalLayout title="工具" footer="課程研發工作區 · 工具在 web/src/studio/ 與 web/src/live/">
+    <ProposalLayout title="工具" footer="研發基地 · 工具在 web/src/studio/ 與 web/src/live/">
       <h1>工具</h1>
-      <p className={ui.lead}>課程研發用的工具。網頁工具直接開啟；指令列工具連到使用說明。</p>
+      <p className={ui.lead}>研發基地用的工具。網頁工具直接開啟；指令列工具連到使用說明。</p>
       {TOOLS.map((t) => (
         <section className={ui.card} key={t.title}>
           <div className={ui['card-head']}>

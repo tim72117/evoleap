@@ -1,0 +1,387 @@
+{
+  "title": "多個 session：同一個專案同時做不同的事",
+  "lesson": "宣傳影片",
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "加上訂購表單",
+        "folder": "~/Documents/bakery",
+        "branch": "feat/order-form",
+        "mode": "auto",
+        "dark": true,
+        "user": "E",
+        "labels": {
+          "recent": "bakery",
+          "new": "New session"
+        }
+      },
+      "place": {
+        "x": 70,
+        "y": 45,
+        "w": 1780,
+        "h": 990
+      },
+      "parts": {
+        "account": false
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "同一個專案，不必排隊做事",
+      "eyebrow": "Claude Code 桌面版 · 多個 session",
+      "sub": "每個 session 有自己的對話",
+      "chapter": "開場",
+      "narration": "一個專案常常同時有好幾件事要做，其實不必一件做完才開始下一件。"
+    },
+    {
+      "show": "claude",
+      "chapter": "第一件事：訂購表單"
+    },
+    {
+      "callout": "claude:composer",
+      "text": "開始前先開啟 Worktree：每個 session 一份專案副本",
+      "ms": 3400,
+      "narration": "開始前先開啟 Worktree。專案是 Git repo 的話，每個 session 都會有自己的一份專案副本。"
+    },
+    {
+      "user": "幫首頁加一個訂購表單，要有品項、數量和取貨日期",
+      "narration": "第一個 session，請 Claude 加上訂購表單。"
+    },
+    {
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "todos": [
+        [
+          "讀目前的首頁",
+          "doing"
+        ],
+        [
+          "加上表單區塊",
+          "pending"
+        ],
+        [
+          "接上送出按鈕",
+          "pending"
+        ]
+      ]
+    },
+    {
+      "tool": "Read",
+      "arg": "index.html",
+      "result": "86 行"
+    },
+    {
+      "wait": 950,
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.6
+      },
+      "pause": 0
+    },
+    {
+      "callout": "claude:sessions",
+      "text": "它還在做，但你不用等",
+      "ms": 2600,
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.6
+      },
+      "narration": "它還在工作，但你不用坐著等。"
+    },
+    {
+      "newSession": "修手機版跑版",
+      "branch": "fix/mobile-layout",
+      "chapter": "第二件事：手機版跑版",
+      "focus": false
+    },
+    {
+      "user": "手機上商品卡片會跑出畫面，幫我修好",
+      "narration": "按下新增 session，一樣開啟 Worktree，交代第二件事：修手機版跑版。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "tool": "Grep",
+      "arg": "\".card\" styles.css",
+      "result": "3 處"
+    },
+    {
+      "edit": "styles.css",
+      "lines": [
+        [
+          58,
+          " ",
+          ".cards {"
+        ],
+        [
+          59,
+          "-",
+          "  grid-template-columns: repeat(3, 320px);"
+        ],
+        [
+          60,
+          "+",
+          "  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));"
+        ],
+        [
+          61,
+          " ",
+          "}"
+        ]
+      ]
+    },
+    {
+      "in": "加上訂購表單",
+      "todos": [
+        [
+          "讀目前的首頁",
+          "done"
+        ],
+        [
+          "加上表單區塊",
+          "done"
+        ],
+        [
+          "接上送出按鈕",
+          "doing"
+        ]
+      ],
+      "pause": 0
+    },
+    {
+      "in": "加上訂購表單",
+      "edit": "index.html",
+      "lines": [
+        [
+          41,
+          " ",
+          "<main>"
+        ],
+        [
+          42,
+          "+",
+          "  <form id=\"order\">"
+        ],
+        [
+          43,
+          "+",
+          "    <select name=\"item\"></select>"
+        ],
+        [
+          44,
+          "+",
+          "    <input name=\"qty\" type=\"number\">"
+        ],
+        [
+          45,
+          "+",
+          "    <input name=\"pickup\" type=\"date\">"
+        ],
+        [
+          46,
+          "+",
+          "    <button>送出訂單</button>"
+        ],
+        [
+          47,
+          "+",
+          "  </form>"
+        ],
+        [
+          48,
+          " ",
+          "</main>"
+        ]
+      ],
+      "pause": 0
+    },
+    {
+      "newSession": "寫商品介紹文案",
+      "branch": "docs/product-copy",
+      "chapter": "第三件事：商品文案",
+      "focus": false
+    },
+    {
+      "user": "幫六款麵包各寫一段 40 字的介紹",
+      "narration": "第三個 session，一樣開啟 Worktree，請它寫商品文案。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "in": "加上訂購表單",
+      "todos": [
+        [
+          "讀目前的首頁",
+          "done"
+        ],
+        [
+          "加上表單區塊",
+          "done"
+        ],
+        [
+          "接上送出按鈕",
+          "done"
+        ]
+      ],
+      "pause": 0
+    },
+    {
+      "in": "加上訂購表單",
+      "say": "訂購表單加好了，在 `index.html` 第 42 行，送出後會顯示確認訊息。",
+      "pause": 0
+    },
+    {
+      "in": "加上訂購表單",
+      "state": "ok",
+      "pause": 0
+    },
+    {
+      "wait": 950,
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.6
+      },
+      "pause": 0
+    },
+    {
+      "callout": "claude:sessions",
+      "text": "左邊一眼看到每個 session 的狀態",
+      "ms": 3400,
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.6
+      },
+      "narration": "三件事同時進行，左邊就看得到每個 session 的狀態。"
+    },
+    {
+      "session": "加上訂購表單",
+      "chapter": "Fork：帶著對話另開一條路",
+      "focus": false
+    },
+    {
+      "callout": "claude:say",
+      "text": "做好了。但也想問問另一種做法",
+      "ms": 2600,
+      "narration": "表單做好了。如果想從同一段對話，問問另一個方向呢？"
+    },
+    {
+      "menu": "加上訂購表單",
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.35
+      },
+      "narration": "按這個 session 的選單，選 Fork。"
+    },
+    {
+      "fork": "加上訂購表單 (fork)",
+      "branch": null
+    },
+    {
+      "callout": "claude:head",
+      "text": "Fork 帶著目前的對話，另開一個 session",
+      "ms": 3000,
+      "focus": false,
+      "narration": "Fork 會帶著到目前為止的對話，另外開一個 session，之後兩邊的對話各走各的。"
+    },
+    {
+      "callout": "claude:head",
+      "text": "複製的是對話。檔案有沒有分開，改之前要先確認",
+      "ms": 3400,
+      "focus": false,
+      "narration": "要注意，Fork 複製的是對話。檔案有沒有分開，動手改之前要先確認。"
+    },
+    {
+      "user": "先不要改檔案。如果不用表單，改成加入 LINE 官方帳號訂購，要改哪些地方？",
+      "narration": "不用重新說明背景，直接問另一個方向。這裡先討論，不改檔案。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "say": "要改兩個地方：把 `index.html` 第 42 到 47 行的表單換成 LINE 訂購按鈕，再拿掉送出後的確認訊息。目前還沒有改任何檔案。"
+    },
+    {
+      "state": "ok",
+      "pause": 0
+    },
+    {
+      "in": "修手機版跑版",
+      "say": "修好了，卡片會依螢幕寬度自動換行。",
+      "pause": 0
+    },
+    {
+      "in": "修手機版跑版",
+      "state": "ok",
+      "pause": 0
+    },
+    {
+      "in": "寫商品介紹文案",
+      "say": "六段介紹寫好了，放在 `content/products.md`。",
+      "pause": 0
+    },
+    {
+      "in": "寫商品介紹文案",
+      "tool": "Write",
+      "arg": "content/products.md",
+      "result": "已建立",
+      "pause": 0
+    },
+    {
+      "in": "寫商品介紹文案",
+      "state": "ok",
+      "pause": 0
+    },
+    {
+      "session": "修手機版跑版",
+      "chapter": "回來看成果",
+      "focus": false,
+      "narration": "回來一個一個看成果。"
+    },
+    {
+      "wait": 1300
+    },
+    {
+      "session": "寫商品介紹文案",
+      "focus": false
+    },
+    {
+      "wait": 1300
+    },
+    {
+      "wait": 950,
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.6
+      },
+      "pause": 0
+    },
+    {
+      "callout": "claude:sessions",
+      "text": "三件事各自做完，還多了一條 Fork",
+      "ms": 3000,
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.6
+      },
+      "narration": "三件事各自做完，還多了一條 Fork 討論另一個方向。最後由你決定要留下哪些。"
+    },
+    {
+      "card": "一次交代一件事，但不只一個 session",
+      "eyebrow": "evoleap",
+      "sub": "一人也能同時推進好幾件工作",
+      "chapter": "結尾",
+      "narration": "一次交代一件事，但不只開一個 session。"
+    }
+  ]
+}

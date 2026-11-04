@@ -51,8 +51,36 @@ func (s *Server) requireAdmin(h func(http.ResponseWriter, *http.Request, store.U
 	})
 }
 
+// Access 是一個請求對內部頁(研發基地)的權限。
+type Access int
+
+const (
+	// AccessDenied:看不到內部頁(已登入但不是管理員,或伺服器沒開放登入)。
+	AccessDenied Access = iota
+	// AccessGuest:未登入,登入後可能有權限。
+	AccessGuest
+	// AccessAllowed:管理員。
+	AccessAllowed
+)
+
+// InternalAccess 判斷這個請求能不能看內部頁,條件與 /api/admin/* 相同。
+// 由 cmd/server 的靜態檔處理器呼叫,每次請求都重新比對白名單。
+func (s *Server) InternalAccess(r *http.Request) Access {
+	if !s.authEnabled() {
+		return AccessDenied
+	}
+	user, ok := s.currentUser(r)
+	if !ok {
+		return AccessGuest
+	}
+	if s.isAdmin(user) {
+		return AccessAllowed
+	}
+	return AccessDenied
+}
+
 func (s *Server) handleAdminMe(w http.ResponseWriter, r *http.Request, user store.User) {
-	writeJSON(w, http.StatusOK, authResponse{User: user})
+	writeJSON(w, http.StatusOK, s.authBody(user))
 }
 
 func (s *Server) handleAdminOverview(w http.ResponseWriter, r *http.Request, _ store.User) {

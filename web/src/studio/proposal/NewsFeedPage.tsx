@@ -28,7 +28,7 @@ const DESIGN_NOTES = [
 ]
 
 const OPEN_QUESTIONS: { title: string; body: string }[] = [
-  { title: '誰來寫', body: '只有課程研發發文，還是開放學員投稿？' },
+  { title: '誰來寫', body: '只有研發基地發文，還是開放學員投稿？' },
   { title: '更新頻率', body: '每天、每週，還是有重要新功能才發？' },
   { title: '要不要登入', body: '公開給所有人看（利於搜尋與引流），還是登入後才看得到？' },
   { title: '和資源系統的關係', body: '看新知能不能讓鹿掉落小葉片？要不要有上限？' },

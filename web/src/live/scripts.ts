@@ -3,22 +3,31 @@
 import type { MixChapter } from './mixPlan'
 import type { StageScript } from './stage'
 
-const SCRIPTS = import.meta.glob<StageScript>('../content/live/**/*.json', { import: 'default' })
+// lab/ 與 promo/ 只有研發基地用,由 studio/StudioApp 註冊,不打包進公開的 JS。
+type Loaders = Record<string, () => Promise<unknown>>
+const SCRIPTS = import.meta.glob(
+  ['../content/live/**/*.json', '!../content/live/lab/**', '!../content/live/promo/**'],
+  { import: 'default' },
+) as Loaders
 
-/** 所有腳本的路徑(例如 l0/0.0-tools.json),給測試用 */
-export const scriptPaths = Object.keys(SCRIPTS).map((k) => k.replace('../content/live/', ''))
+/** 加入內部的腳本;key 的寫法與這裡相同(../content/live/…) */
+export function registerScripts(loaders: Loaders) {
+  Object.assign(SCRIPTS, loaders)
+}
+
+/** 目前可用的腳本路徑(例如 l0/0.0-tools.json) */
+export const scriptPaths = () => Object.keys(SCRIPTS).map((k) => k.replace('../content/live/', ''))
 
 export function loadScript(path: string): Promise<StageScript> {
   const load = SCRIPTS[`../content/live/${path}`]
   if (!load) return Promise.reject(new Error(`找不到即時教學畫面的腳本:${path}`))
-  return load()
+  return load() as Promise<StageScript>
 }
 
 // 旁白語音(scripts/voice.mjs 產生):腳本旁的 <名稱>.voice.json 記錄每段旁白的音檔與長度,
 // 音檔放在 GCS 的 shuttle-voice bucket(公開讀取、永久快取)。日後換成自己的網域時只改 VOICE_BASE。
 const VOICE_BASE = 'https://storage.googleapis.com/shuttle-voice/'
 type VoiceManifest = { model: string; voice: string; clips: Record<string, { file: string; ms: number }> }
-const VOICES = import.meta.glob<VoiceManifest>('../content/live/**/*.voice.json', { import: 'default' })
 
 export type ScriptVoice = {
   /** 旁白文字 → 語音長度(毫秒),給舞台排時間 */
@@ -32,9 +41,9 @@ export type ScriptVoice = {
 /** 腳本的旁白語音;還沒產生時回傳 null(畫面照常播放,只有字幕) */
 export async function loadVoice(path: string): Promise<ScriptVoice | null> {
   const key = `../content/live/${path.replace(/\.json$/, '.voice.json')}`
-  const load = VOICES[key]
+  const load = SCRIPTS[key]
   if (!load) return null
-  const manifest = await load()
+  const manifest = (await load()) as VoiceManifest
   if (!manifest?.clips) return null
   const durations: Record<string, number> = {}
   const urls: Record<string, string> = {}
@@ -51,15 +60,14 @@ export async function loadVoice(path: string): Promise<ScriptVoice | null> {
 // 手機上整章只用一個 <audio>,不必每句換一次(見 mixPlan.ts)。清單放在腳本旁的 <名稱>.mix.json,音檔在同一個 bucket 的 mix/ 底下。
 // 還沒合成(沒有清單)就是原本逐句播放。
 type MixManifest = { chapters: { file: string; clips: { text: string; offsetMs: number; ms: number; voice?: string }[] }[] }
-const MIXES = import.meta.glob<MixManifest>('../content/live/**/*.mix.json', { import: 'default' })
 
 export type ScriptMix = { chapters: MixChapter[] }
 
 /** 腳本的章節音軌;沒有合成時回傳 null */
 export async function loadMix(path: string): Promise<ScriptMix | null> {
-  const load = MIXES[`../content/live/${path.replace(/\.json$/, '.mix.json')}`]
+  const load = SCRIPTS[`../content/live/${path.replace(/\.json$/, '.mix.json')}`]
   if (!load) return null
-  const manifest = await load()
+  const manifest = (await load()) as MixManifest
   if (!manifest?.chapters?.length) return null
   return { chapters: manifest.chapters.map((c) => ({ file: VOICE_BASE + c.file, clips: c.clips })) }
 }

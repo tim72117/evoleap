@@ -1,0 +1,35 @@
+{
+  "title": "editor：開檔與逐字輸入",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "editor",
+      "props": {
+        "project": "bakery"
+      },
+      "place": {
+        "x": 120,
+        "y": 60,
+        "w": 1680,
+        "h": 960
+      }
+    }
+  },
+  "steps": [
+    {
+      "open": "index.html"
+    },
+    {
+      "type": "<h1>小森烘焙</h1>\n<p>每日新鮮出爐</p>\n"
+    },
+    {
+      "open": "styles.css"
+    },
+    {
+      "type": "h1 { color: brown; }\n"
+    },
+    {
+      "wait": 800
+    }
+  ]
+}

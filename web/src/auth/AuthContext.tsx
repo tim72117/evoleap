@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { isInternalPath } from '../site/internalPaths'
 import { authApi, type User } from './api'
 
 // 全站登入狀態。啟動時向 /api/me 確認一次;登入/註冊/登出後更新。
@@ -45,12 +46,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await authApi.logout().catch(() => {})
+    // 內部頁在畫面上不能留著:重新載入,交給伺服器導向登入頁。
+    if (isInternalPath(window.location.pathname)) {
+      window.location.reload()
+      return
+    }
     setUserState(null)
     setStatus('guest')
   }, [])
 
   const value = useMemo(() => ({ status, user, setUser, logout }), [status, user, setUser, logout])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+/** 要不要顯示研發基地的入口:管理員才顯示 */
+export function useCanSeeStudio(): boolean {
+  return !!useAuth().user?.isAdmin
 }
 
 export function useAuth(): AuthState {

@@ -109,12 +109,21 @@ test('直接開啟不存在的網址:404 狀態且畫面顯示找不到頁面', 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('找不到頁面')
 })
 
+test('AI 工具技巧:舞台示範按下才載入,可以播放分岔的腳本', async ({ page }) => {
+  const errors = collectErrors(page)
+  await page.goto('/studio/ai-tips')
+  await expect(page.locator('.st-cast')).toHaveCount(0)
+  await page.getByRole('button', { name: /播放即時教學畫面/ }).click()
+  await expect(page.locator('.A-claude-desktop, .st-cast').first()).toBeVisible({ timeout: 15_000 })
+  expect(errors).toEqual([])
+})
+
 test('互動教學場景:回答後演員回應,回答加進時間軸,可以重新回答', async ({ page }) => {
   const errors = collectErrors(page)
-  await page.goto('/proposal')
+  await page.goto('/studio')
   await page.getByRole('link', { name: '構想' }).first().click()
   await page.getByRole('link', { name: '互動教學場景' }).click()
-  await expect(page).toHaveURL('/proposal/interactive')
+  await expect(page).toHaveURL('/studio/interactive')
 
   // 從步驟清單跳到第一個互動點
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
@@ -135,31 +144,9 @@ test('互動教學場景:回答後演員回應,回答加進時間軸,可以重�
   expect(errors).toEqual([])
 })
 
-test('L0 互動場景:選的指令出現在 Claude,允許後建立檔案,收回指令時確認提示也收回', async ({ page }) => {
-  const errors = collectErrors(page)
-  await page.goto('/proposal/interactive/l0-claude')
-  const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
-
-  await panel.getByRole('button', { name: /你要送出哪一句/ }).click()
-  await expect(panel.getByRole('textbox')).toHaveCount(0)
-  await panel.getByRole('button', { name: '建立一個檔案' }).click()
-  await expect(page.locator('.A-claude-desktop').first()).toContainText('你沒有說檔名和內容', { timeout: 15000 })
-
-  // 播到確認提示會自動暫停,問要不要允許
-  await expect(panel.getByRole('heading', { name: /你要允許嗎/ })).toBeVisible({ timeout: 20000 })
-  await panel.getByRole('button', { name: '允許一次' }).click()
-  await expect(page.locator('.A-claude-desktop').first()).toContainText('已建立', { timeout: 15000 })
-
-  await panel.getByRole('button', { name: '重新回答' }).first().click()
-  await expect(panel.getByRole('heading', { name: /你要送出哪一句/ })).toBeVisible()
-  await panel.getByRole('button', { name: '步驟', exact: true }).click()
-  await expect(panel.getByText('互動 ✓')).toHaveCount(0)
-  expect(errors).toEqual([])
-})
-
 test('把演員推到主畫面:側欄讓開,直接在 Claude 上選指令與按允許,側欄維持章節與步驟', async ({ page }) => {
   const errors = collectErrors(page)
-  await page.goto('/proposal/interactive/l0-claude-stage')
+  await page.goto('/studio/interactive/l0-claude-stage')
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
 
   await panel.getByRole('button', { name: /你要送出哪一句/ }).click()
@@ -244,15 +231,16 @@ const PAGES = [
   ...distSitemapPaths(),
   '/login',
   '/docs/live',
-  '/proposal',
+  '/studio',
   '/materials',
-  '/proposal/interactive',
-  '/proposal/interactive/l0-claude',
-  '/proposal/interactive/l0-claude-stage',
-  '/proposal/tools',
-  '/proposal/ai-agent/structure',
+  '/studio/interactive',
+  '/studio/interactive/l0-claude-stage',
+  '/studio/actor-interaction',
+  '/studio/tools',
+  '/studio/ai-agent/structure',
   '/materials/course-map',
   '/materials/cover-designer',
+  '/studio/actor-interaction/showcase',
   '/materials/promo',
 ]
 

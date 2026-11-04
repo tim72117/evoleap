@@ -19,6 +19,8 @@ export interface CastEntry {
   props?: Record<string, unknown>
   place?: PlaceSpec
   hidden?: boolean
+  /** 哪些區塊要顯示:區塊名稱見演員的 parts,沒寫的照常顯示,例如 { "sidebar": false } */
+  parts?: Record<string, boolean>
 }
 
 /** 目標:「演員代號:目標名稱」,只寫代號表示整個演員 */
@@ -50,8 +52,9 @@ export type StageStep = CommonStepFields &
     | { move: string; to: PlaceSpec }
     | { checkpoint: string; body?: string }
     | { wait: number }
+    | { parts: string; set: Record<string, boolean> }
   )
-export type StageKind = 'card' | 'callout' | 'show' | 'hide' | 'move' | 'checkpoint' | 'wait'
+export type StageKind = 'card' | 'callout' | 'show' | 'hide' | 'move' | 'checkpoint' | 'wait' | 'parts'
 export type StageStepOf<K extends StageKind> = Extract<StageStep, Record<K, unknown>>
 
 /** 演員的動作:鍵名就是動作種類,其餘欄位依演員而定 */
@@ -91,6 +94,19 @@ export interface ActorFrame<St = undefined> {
   view: ActorView<St> | null
 }
 
+/**
+ * 演員目前可以被點的地方(互動層用):點 target 就演出 step;有 input 時先讓使用者打字,用打的字產生步驟。
+ * 演員只描述「可以做什麼」,不處理點擊事件,畫面仍只由時間決定。
+ */
+export interface Hotspot<S = ActorStepLoose> {
+  target: string
+  label: string
+  step?: S
+  input?: { placeholder: string; step: (text: string) => S }
+  /** 目標平常看不見時,疊在點擊區上的符號(例如側欄的 ⋯) */
+  glyph?: string
+}
+
 /** 虛擬滑鼠:要移動的時間表(時間相對於動作開始),最後一點到達後點擊 */
 export interface CursorPlan {
   moves: { at: number; target: string }[]
@@ -120,12 +136,16 @@ export interface ActorInstance<St = undefined> {
 export interface Actor<K extends string = string, S extends object = object, P extends object = object, St = undefined, T extends string = string> {
   readonly name: string
   readonly kinds: readonly K[]
+  /** 可以關掉的區塊:名稱 → CSS 選擇器(相對於演員的根元素)。腳本用 cast 的 parts 或舞台的 parts 動作控制 */
+  readonly parts?: Readonly<Record<string, string>>
   /** 這個動作要多久(毫秒) */
   duration(kind: K, step: S, props: P, prev: St | undefined): number
   /** camera 為 auto 時建議看哪裡;false = 全景,undefined = 沿用上一個鏡頭 */
   autoFocus?(kind: K, step: S): T | false | undefined
   /** 一個動作需要多次運鏡時才寫(有 cues 就不用 autoFocus) */
   cues?(kind: K, step: S): Cue<T>[]
+  /** 目前狀態下可以被點的地方(選用;寫了才有互動層) */
+  hotspots?(state: St, props: P): Hotspot<S>[]
   /** 需要虛擬滑鼠的動作回傳時間表 */
   cursor?(kind: K, step: S, prev: St | undefined): CursorPlan | null
   /** 有狀態的演員:起始狀態(props 不合法就丟錯) */

@@ -22,6 +22,7 @@ func main() {
 	addr := flag.String("addr", "127.0.0.1:8190", "HTTP 監聽位址(本機預設 8190,避開其他專案常用的 8080-8082)")
 	dbPath := flag.String("db", "shuttle.db", "DATABASE_URL 未設定時使用的本機 SQLite 檔案")
 	distDir := flag.String("dist", "", "從磁碟目錄提供前端 build(例如 ../web/dist);留空使用內嵌的 build")
+	openStudio := flag.Bool("open-studio", false, "不檢查內部頁(研發基地)權限,只給本機與 E2E 測試用;Cloud Run 上會拒絕啟動")
 	flag.Parse()
 
 	// PORT 由平台注入(Cloud Run 預設 8080),覆寫監聽位址。
@@ -35,6 +36,9 @@ func main() {
 	//     (Cloud Run 的檔案系統不保存資料,不能退回 SQLite)。
 	//   - 本機沒設定:退回 SQLite 檔案(-db)。
 	onCloudRun := os.Getenv("K_SERVICE") != ""
+	if onCloudRun && *openStudio {
+		log.Fatal("正式環境不能使用 -open-studio")
+	}
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" && !onCloudRun {
 		dsn = *dbPath
@@ -66,7 +70,11 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/", apiServer.Routes())
-	mux.Handle("/", staticHandler(*distDir))
+	access := accessFunc(apiServer.InternalAccess)
+	if *openStudio {
+		access = openAccess
+	}
+	mux.Handle("/", staticHandler(*distDir, access))
 
 	log.Printf("listening on %s", *addr)
 	if err := http.ListenAndServe(*addr, mux); err != nil {

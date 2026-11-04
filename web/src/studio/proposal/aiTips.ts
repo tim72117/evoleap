@@ -14,6 +14,15 @@ export type AiTip = {
   open: string
   /** 構想來源:實際使用時發現的 */
   found?: boolean
+  /** 下方的舞台示範有演到這個技巧 */
+  demo?: boolean
+}
+
+/** 舞台版示範(src/content/live/ 底下的腳本) */
+export const AI_TIPS_DEMO = {
+  script: 'promo/multi-session.json',
+  title: '同一個專案，不同工作交給不同對話',
+  summary: '同一個烘焙店網站開好幾個對話：一個加訂購表單、一個修手機版跑版、一個寫商品文案，再從訂購表單的對話分岔出去試另一種做法。試做動畫，沒有語音，只有字幕。',
 }
 
 export const AI_TIPS: AiTip[] = [
@@ -27,6 +36,7 @@ export const AI_TIPS: AiTip[] = [
   },
   {
     title: '分岔：同時試好幾種想法',
+    demo: true,
     scenario: '網站要「溫暖手作風」還是「簡約風」拿不定主意。從同一段對話分出兩、三個分支，各自做一版，看過再決定留哪一個。',
     outcome: '不用改完一版再還原、重來；同一個起點同時試幾種做法，並排比較後再選。',
     placement: 'L0 第 2 課（網站）之後的延伸，或 L2 學 Git 分支時一起教。',
@@ -56,6 +66,7 @@ export const AI_TIPS: AiTip[] = [
   },
   {
     title: '同時開好幾個工作',
+    demo: true,
     scenario: '一邊請 AI 修網站的手機版，一邊請另一個 AI 整理下週的商品清單。',
     outcome: '把互不相干的事分給不同的對話同時做，自己只負責檢查與決定。',
     placement: '「分岔」之後的延伸；比較適合 L2 以上。',

@@ -189,7 +189,7 @@ export function VisualsPage() {
 
       <h2>架構摘要</h2>
       <p className={ui.lead}>
-        完整規格見<span className={ui['repo-path']}>web/src/live/README.md</span>；各課的即時教學畫面可在<Link to="/proposal/tools">課程研發</Link>的各課「影片切分」直接播放
+        完整規格見<span className={ui['repo-path']}>web/src/live/README.md</span>；各課的即時教學畫面可在<Link to="/studio/tools">研發基地</Link>的各課「影片切分」直接播放
       </p>
       <section className={ui.card}>
         <table>

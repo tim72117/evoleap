@@ -201,6 +201,18 @@ interface Scene {
 const actor = defineActor<FinderKind, FinderStep, FinderProps, FinderState, FinderTarget>({
   name: 'finder',
   kinds: KINDS,
+  parts: { bar: '.fd-bar', lights: '.light', title: '.fd-title' },
+
+  // 點檔案是選取;沒有選取時點資料夾是打開,選取之後點資料夾是拖過去,再點一次放開
+  hotspots(st) {
+    const { selected, dragTo } = st.temp
+    if (dragTo) return [{ target: `file:${baseOf(dragTo)}`, label: `放進「${baseOf(dragTo)}」`, step: { drop: true } }]
+    return listOf(st.tree, st.cwd).map((e) => {
+      if (!e.dir) return { target: `file:${e.name}`, label: `選取「${e.name}」`, step: { select: e.name } }
+      if (selected && selected !== e.path) return { target: `file:${e.name}`, label: `拖到「${e.name}」`, step: { drag: e.name } }
+      return { target: `file:${e.name}`, label: `打開「${e.name}」`, step: { open: e.name } }
+    })
+  },
 
   init(props) {
     const tree = props.tree ?? {}

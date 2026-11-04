@@ -8,7 +8,6 @@ import {
   COURSE,
   OUTCOMES,
   PREREQUISITES,
-  READING,
   TEACHING,
   UNITS,
 } from '../content/aiAgent'
@@ -55,9 +54,6 @@ export function AiAgentCoursePage() {
             <div className={styles.ctas}>
               <Link className={styles.primary} to={{ pathname: AI_AGENT_COURSE_PATH, hash: 'units' }}>
                 查看課程單元
-              </Link>
-              <Link className={styles.secondary} to="/docs/course-goals">
-                閱讀課程目標
               </Link>
             </div>
           </div>
@@ -156,28 +152,6 @@ export function AiAgentCoursePage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className={styles.section} id="reading">
-        <div className={styles.container}>
-          <SectionHead eyebrow="延伸閱讀" title="課程文件" />
-          <ul className={styles.reading}>
-            {READING.map((r) => (
-              <li key={r.slug}>
-                <Link className={styles.readingLink} to={`/docs/${r.slug}`}>
-                  <span className={styles.readingTitle}>{r.title}</span>
-                  <span className={styles.readingDesc}>{r.desc}</span>
-                  <span className={styles.arrow} aria-hidden="true">
-                    →
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <p className={styles.more}>
-            <Link to="/proposal#docs">查看全部文件 →</Link>
-          </p>
         </div>
       </section>
     </SiteLayout>

@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { useCanSeeStudio } from '../auth/AuthContext'
 import { UserMenu } from '../auth/UserMenu'
 import styles from './SiteLayout.module.css'
 import { documentTitle, SITE_NAME, SITE_TAGLINE } from './siteInfo'
@@ -35,12 +36,13 @@ const MOON = 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z'
 export function SiteLayout({ title, narrow = false, children }: Props) {
   // 亮/暗色是全站共用的偏好:每一頁都讀同一個設定,換頁不會閃回亮色
   const [dark, setDark] = useState(readDark)
+  const canSeeStudio = useCanSeeStudio()
 
   useEffect(() => {
     document.title = documentTitle(title)
   }, [title])
 
-  // <html> 也跟著換底色與 color-scheme,捲過頭露出的底和捲軸才不會是亮的;離開學員頁(例如 /proposal)時拿掉
+  // <html> 也跟著換底色與 color-scheme,捲過頭露出的底和捲軸才不會是亮的;離開學員頁(例如 /studio)時拿掉
   useEffect(() => {
     const root = document.documentElement
     root.dataset.siteTheme = dark ? 'dark' : 'light'
@@ -119,9 +121,11 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
             <Link className={styles.devLink} to="/terms">
               服務條款
             </Link>
-            <Link className={styles.devLink} to="/proposal">
-              課程提案
-            </Link>
+            {canSeeStudio && (
+              <Link className={styles.devLink} to="/studio">
+                研發基地
+              </Link>
+            )}
           </div>
         </div>
       </footer>

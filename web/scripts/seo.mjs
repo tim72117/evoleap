@@ -22,19 +22,21 @@ const vite = await createServer({
 let seo, routes
 try {
   seo = await vite.ssrLoadModule('/src/seo/build.ts')
-  ;({ routes } = await vite.ssrLoadModule('/src/App.tsx'))
+  const { routes: publicRoutes } = await vite.ssrLoadModule('/src/App.tsx')
+  const { internalRoutes } = await vite.ssrLoadModule('/src/studio/StudioApp.tsx')
+  routes = [...publicRoutes, ...internalRoutes]
 } finally {
   await vite.close()
 }
 
-// App.tsx 的路由與 pages.ts 必須一一對應:漏了 SEO 資料的頁面在正式站會變成 404。
+// App.tsx、StudioApp.tsx 的路由與 SEO 資料必須一一對應:漏了 SEO 資料的頁面在正式站會變成 404。
 const routePaths = new Set(routes.map((r) => r.path))
 const pagePaths = new Set(seo.PAGES.map((p) => p.path))
 const missing = [...routePaths].filter((p) => !pagePaths.has(p))
 const extra = [...pagePaths].filter((p) => !routePaths.has(p))
 if (missing.length || extra.length) {
-  if (missing.length) console.error('這些路由在 src/seo/pages.ts 沒有 SEO 資料:', missing)
-  if (extra.length) console.error('src/seo/pages.ts 有、App.tsx 沒有的路由:', extra)
+  if (missing.length) console.error('這些路由在 src/seo/pages.ts、internalPages.ts 沒有 SEO 資料:', missing)
+  if (extra.length) console.error('SEO 資料有、App.tsx 與 StudioApp.tsx 沒有的路由:', extra)
   process.exit(1)
 }
 

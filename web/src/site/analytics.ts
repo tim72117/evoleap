@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { isInternalPath } from './internalPaths'
 
 /**
  * Google Analytics 4(gtag.js)。
@@ -10,7 +11,6 @@ const MEASUREMENT_ID = (import.meta.env.VITE_GA_MEASUREMENT_ID ?? '').trim()
 const ENABLED = import.meta.env.PROD && MEASUREMENT_ID !== ''
 
 /** 內部頁面(提案、文件、素材)不計入流量。 */
-const EXCLUDED_PREFIXES = ['/proposal', '/docs', '/materials']
 
 type GtagWindow = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void }
 
@@ -39,7 +39,7 @@ function gtag(...args: unknown[]) {
 
 function isExcluded(path: string): boolean {
   const pathname = path.split(/[?#]/)[0]
-  return EXCLUDED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
+  return isInternalPath(pathname)
 }
 
 export function trackPageView(path: string, title: string = document.title): void {

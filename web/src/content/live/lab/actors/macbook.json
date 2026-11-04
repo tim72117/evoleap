@@ -1,0 +1,40 @@
+{
+  "title": "macbook：開蓋、亮屏、打字",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "macbook",
+      "props": {
+        "opened": false,
+        "wallpaper": "dawn"
+      },
+      "place": {
+        "x": 540,
+        "y": 90,
+        "w": 841.4,
+        "h": 760
+      }
+    }
+  },
+  "steps": [
+    {
+      "open": true
+    },
+    {
+      "wake": true
+    },
+    {
+      "type": true,
+      "keys": 14
+    },
+    {
+      "tilt": {
+        "pitch": 28,
+        "yaw": -15
+      }
+    },
+    {
+      "wait": 600
+    }
+  ]
+}

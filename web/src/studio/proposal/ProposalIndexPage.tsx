@@ -45,7 +45,7 @@ const LEVELS: LevelBlock[] = [
     ],
     next: ['決定主示範的 AI 工具與形式（與 L2 主力 AI 程式助手一起決定）', '實測 0.2 全部提示詞（參考成品與腳本已完成）', '找零基礎試看者從序章跟做到第 2 課，記錄卡關點', '決定 L1 是否改用同一個工具、L2 如何處理重疊'],
     pending: `${pendingCount('L0')} 項待決定`,
-    links: [{ to: '/proposal/tools', label: 'L0 大綱' }],
+    links: [{ to: '/studio/tools', label: 'L0 大綱' }],
   },
   {
     code: 'L1',
@@ -62,7 +62,7 @@ const LEVELS: LevelBlock[] = [
     ],
     next: ['決定主示範的 AI 聊天工具', '在三個工具實測全部提示詞', '寫 1.1 腳本並找零基礎試看者跟做'],
     pending: `${pendingCount('L1')} 項待決定`,
-    links: [{ to: '/proposal/ai-tools', label: 'L1 大綱' }],
+    links: [{ to: '/studio/ai-tools', label: 'L1 大綱' }],
   },
   {
     code: 'L1',
@@ -78,8 +78,8 @@ const LEVELS: LevelBlock[] = [
     next: ['逐課檢查提示詞', '用選定工具實測，並確認各瀏覽器雙擊開啟的行為', '決定案例主軸與是否開放外部函式庫'],
     pending: `${pendingCount('L1T')} 項待決定`,
     links: [
-      { to: '/proposal/life-tools', label: '生活小工具大綱' },
-      { to: '/proposal/l1-ideas', label: 'L1 構想區' },
+      { to: '/studio/life-tools', label: '生活小工具大綱' },
+      { to: '/studio/l1-ideas', label: 'L1 構想區' },
     ],
   },
   {
@@ -91,7 +91,7 @@ const LEVELS: LevelBlock[] = [
     points: ['工具：終端機、VS Code、Git／GitHub、Node.js LTS、AI 程式助手', '附 Windows／macOS 環境檢查表'],
     next: ['決定主力 AI 程式助手與 Windows 是否用 WSL', '在乾淨的 Windows、macOS 上實測安裝流程', '決定 L2→L3 的 JavaScript 落差怎麼補'],
     pending: `${pendingCount('L2')} 項待決定`,
-    links: [{ to: '/proposal/vibe-coding', label: 'L2 大綱與環境檢查表' }],
+    links: [{ to: '/studio/vibe-coding', label: 'L2 大綱與環境檢查表' }],
   },
   {
     code: 'L3',
@@ -103,9 +103,9 @@ const LEVELS: LevelBlock[] = [
     next: ['決定是否補單元（見課程架構）', '填「上課前的準備」', '輸出方形封面'],
     pending: '3 項待決定',
     links: [
-      { to: '/proposal/ai-agent/fields', label: '提案內容' },
-      { to: '/proposal/ai-agent/structure', label: '課程架構' },
-      { to: '/proposal/ai-agent/cover', label: '封面圖' },
+      { to: '/studio/ai-agent/fields', label: '提案內容' },
+      { to: '/studio/ai-agent/structure', label: '課程架構' },
+      { to: '/studio/ai-agent/cover', label: '封面圖' },
     ],
   },
   {
@@ -117,20 +117,20 @@ const LEVELS: LevelBlock[] = [
     points: ['範圍取決於 L3 定案與移出單元的去向'],
     next: ['等 L3 架構定案後再列主題清單'],
     pending: '4 項待決定',
-    links: [{ to: '/proposal/advanced', label: 'L4 預留頁' }],
+    links: [{ to: '/studio/advanced', label: 'L4 預留頁' }],
   },
 ]
 
 type Status = 'done' | 'todo'
 const L3_PROGRESS: { item: string; status: Status; chip: string; to: string; page: string }[] = [
-  { item: '課程標題', status: 'done', chip: '已定稿', to: '/proposal/ai-agent/fields', page: '提案內容' },
-  { item: '課程描述', status: 'done', chip: '已定稿', to: '/proposal/ai-agent/fields', page: '提案內容' },
-  { item: '哪些人適合這堂課', status: 'done', chip: '已定稿', to: '/proposal/ai-agent/fields', page: '提案內容' },
-  { item: '你可以學到', status: 'done', chip: '已定稿', to: '/proposal/ai-agent/fields', page: '提案內容' },
-  { item: '上課前的準備', status: 'todo', chip: '待定稿', to: '/proposal/ai-agent/fields', page: '提案內容' },
-  { item: '長形封面 1000×620', status: 'done', chip: '已有', to: '/proposal/ai-agent/cover', page: '封面圖' },
-  { item: '方形封面 800×800', status: 'todo', chip: '待輸出圖檔', to: '/proposal/ai-agent/cover', page: '封面圖' },
-  { item: '章節列表', status: 'todo', chip: '架構待重新定義', to: '/proposal/ai-agent/structure', page: '課程架構' },
+  { item: '課程標題', status: 'done', chip: '已定稿', to: '/studio/ai-agent/fields', page: '提案內容' },
+  { item: '課程描述', status: 'done', chip: '已定稿', to: '/studio/ai-agent/fields', page: '提案內容' },
+  { item: '哪些人適合這堂課', status: 'done', chip: '已定稿', to: '/studio/ai-agent/fields', page: '提案內容' },
+  { item: '你可以學到', status: 'done', chip: '已定稿', to: '/studio/ai-agent/fields', page: '提案內容' },
+  { item: '上課前的準備', status: 'todo', chip: '待定稿', to: '/studio/ai-agent/fields', page: '提案內容' },
+  { item: '長形封面 1000×620', status: 'done', chip: '已有', to: '/studio/ai-agent/cover', page: '封面圖' },
+  { item: '方形封面 800×800', status: 'todo', chip: '待輸出圖檔', to: '/studio/ai-agent/cover', page: '封面圖' },
+  { item: '章節列表', status: 'todo', chip: '架構待重新定義', to: '/studio/ai-agent/structure', page: '課程架構' },
 ]
 
 const DEPENDENCIES: string[] = [
@@ -144,8 +144,8 @@ const DEPENDENCIES: string[] = [
 export function ProposalIndexPage() {
   useHashScroll()
   return (
-    <ProposalLayout title="總覽" footer="課程研發工作區 · 等級對齊 src/content/levels.ts（LEVELS）" back={false}>
-      <h1>課程研發總覽</h1>
+    <ProposalLayout title="總覽" footer="研發基地 · 等級對齊 src/content/levels.ts（LEVELS）" back={false}>
+      <h1>研發基地總覽</h1>
       <p className={ui.lead}>
         依課程地圖分五個等級：L0–L2 屬於主題「做出自己的軟體」，L3、L4 屬於主題「打造 AI 互動軟體」。每個等級的研發階段、下一步與待決定事項；細節在各等級頁。
       </p>
@@ -233,19 +233,19 @@ export function ProposalIndexPage() {
         <ul style={{ margin: 0 }}>
           <li>
             <strong style={{ display: 'inline' }}>L2 主力 AI 程式助手</strong>：Claude Code 或 GitHub Copilot，影響 L2 單元 6 與 L3 開頭，見{' '}
-            <Link to="/proposal/vibe-coding">L2</Link>。
+            <Link to="/studio/vibe-coding">L2</Link>。
           </li>
           <li>
             <strong style={{ display: 'inline' }}>L2→L3 的 JavaScript 落差</strong>：另開課或在 L2 加單元，見{' '}
-            <Link to="/proposal/vibe-coding">L2</Link>。
+            <Link to="/studio/vibe-coding">L2</Link>。
           </li>
           <li>
             <strong style={{ display: 'inline' }}>L3 課程架構</strong>：七個單元已移出五個，要不要補單元，見{' '}
-            <Link to="/proposal/ai-agent/structure">L3 課程架構</Link>。
+            <Link to="/studio/ai-agent/structure">L3 課程架構</Link>。
           </li>
           <li>
             <strong style={{ display: 'inline' }}>L3 準備清單</strong>：Docker 與 onagent 帳號是否保留，見{' '}
-            <Link to="/proposal/ai-agent/fields">L3 提案內容</Link>頁底。
+            <Link to="/studio/ai-agent/fields">L3 提案內容</Link>頁底。
           </li>
           <li>
             <strong style={{ display: 'inline' }}>L3 封面圖檔</strong>：確認封面後，再輸出兩張 PNG。
@@ -277,7 +277,7 @@ export function ProposalIndexPage() {
         </div>
         <div className={ui['card-foot']}>
           <div className={ui.links}>
-            <Link className={ui.btn} to="/proposal/mcp">
+            <Link className={ui.btn} to="/studio/mcp">
               構想頁
             </Link>
           </div>
@@ -308,7 +308,7 @@ export function ProposalIndexPage() {
         </div>
         <div className={ui['card-foot']}>
           <div className={ui.links}>
-            <Link className={ui.btn} to="/proposal/visuals">
+            <Link className={ui.btn} to="/studio/visuals">
               構想頁
             </Link>
           </div>
@@ -337,7 +337,7 @@ export function ProposalIndexPage() {
         </div>
         <div className={ui['card-foot']}>
           <div className={ui.links}>
-            <Link className={ui.btn} to="/proposal/member">
+            <Link className={ui.btn} to="/studio/member">
               構想頁
             </Link>
           </div>
@@ -368,7 +368,7 @@ export function ProposalIndexPage() {
         </div>
         <div className={ui['card-foot']}>
           <div className={ui.links}>
-            <Link className={ui.btn} to="/proposal/resources">
+            <Link className={ui.btn} to="/studio/resources">
               構想頁
             </Link>
           </div>
@@ -397,7 +397,7 @@ export function ProposalIndexPage() {
         </div>
         <div className={ui['card-foot']}>
           <div className={ui.links}>
-            <Link className={ui.btn} to="/proposal/resources#unboxing">
+            <Link className={ui.btn} to="/studio/resources#unboxing">
               構想頁
             </Link>
           </div>
@@ -426,8 +426,40 @@ export function ProposalIndexPage() {
         </div>
         <div className={ui['card-foot']}>
           <div className={ui.links}>
-            <Link className={ui.btn} to="/proposal/news-feed">
+            <Link className={ui.btn} to="/studio/news-feed">
               構想頁
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
+              <h3>演員互動</h3>
+              <div className={ui.meta}>適用：互動課程</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>在互動階段，學員可以真的點演員畫面上的東西：</p>
+          <ul className={ui['plain-list']}>
+            <li>靜態互動：不播放，只有舞台，已在演員展示試做</li>
+            <li>時間線：互動時怎麼暫停、操作怎麼變成演出、拖回去會怎樣</li>
+            <li>待決定：腳本與互動的架構，之後一起設計</li>
+          </ul>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/studio/actor-interaction">
+              構想頁
+            </Link>
+            <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/actor-interaction/showcase">
+              演員展示
             </Link>
           </div>
         </div>
@@ -455,7 +487,7 @@ export function ProposalIndexPage() {
         </div>
         <div className={ui['card-foot']}>
           <div className={ui.links}>
-            <Link className={ui.btn} to="/proposal/ai-tips">
+            <Link className={ui.btn} to="/studio/ai-tips">
               構想頁
             </Link>
           </div>

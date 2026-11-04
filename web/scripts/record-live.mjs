@@ -17,6 +17,7 @@
 // 需要 ffmpeg。
 
 import { execFileSync, spawn } from 'node:child_process'
+import { randomBytes } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -69,6 +70,14 @@ async function alive(url) {
   } catch {
     return false
   }
+}
+function studioDevToken() {
+  const file = path.join(WEB, 'node_modules/.cache/studio-dev-token')
+  if (fs.existsSync(file)) return fs.readFileSync(file, 'utf8').trim()
+  const token = randomBytes(24).toString('hex')
+  fs.mkdirSync(path.dirname(file), { recursive: true })
+  fs.writeFileSync(file, token, { mode: 0o600 })
+  return token
 }
 async function findServer() {
   const given = opt('url')
@@ -152,6 +161,8 @@ const browser = await chromium.launch({ channel: process.env.CI ? undefined : 'c
 let ffmpeg = null
 try {
   const page = await browser.newPage({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 })
+  // dev server 會擋研發基地(vite.config.ts 的 devStudioGate),錄影帶本機的 token 通過
+  await page.context().addCookies([{ name: 'studio_dev_token', value: studioDevToken(), url }])
   const problems = []
   page.on('pageerror', (e) => problems.push(`頁面錯誤:${e.message}`))
   page.on('console', (m) => m.type() === 'error' && problems.push(`console:${m.text()}`))

@@ -67,7 +67,7 @@ test('og:image 檔案存在', async ({ request }) => {
 test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁', async ({ request }) => {
   const sitemap = new Set(sitemapPaths(await (await request.get('/sitemap.xml')).text()))
   const pages = distPagePaths()
-  for (const p of ['/login', '/admin', '/docs/live', '/proposal', '/materials', '/materials/cover-designer', '/materials/promo']) {
+  for (const p of ['/login', '/admin', '/docs/live', '/studio', '/materials', '/materials/cover-designer', '/materials/promo']) {
     expect(pages, `dist 應有內部頁 ${p}`).toContain(p)
   }
   for (const path of pages) {
@@ -86,8 +86,8 @@ test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁',
   for (const path of sitemap) expect.soft(pages, `sitemap 的 ${path} 沒有預先產生的 HTML`).toContain(path)
 })
 
-test('所有 /proposal 頁都是 noindex', async ({ request }) => {
-  const proposal = distPagePaths().filter((p) => p === '/proposal' || p.startsWith('/proposal/'))
+test('所有 /studio 頁都是 noindex', async ({ request }) => {
+  const proposal = distPagePaths().filter((p) => p === '/studio' || p.startsWith('/studio/'))
   expect(proposal.length).toBeGreaterThanOrEqual(9)
   for (const path of proposal) {
     const r = await request.get(path)
@@ -106,7 +106,7 @@ test('robots.txt 有 Sitemap、沒有封鎖全站', async ({ request }) => {
   expect(body).not.toMatch(/^Disallow:\s*\/\s*$/m)
 })
 
-for (const path of ['/nope', '/courses/nope', '/courses', '/courses/tools/999', '/docs/nope', '/proposal/nope']) {
+for (const path of ['/nope', '/courses/nope', '/courses', '/courses/tools/999', '/docs/nope', '/studio/nope']) {
   test(`不存在的頁面回 404 + noindex:${path}`, async ({ request }) => {
     const r = await request.get(path, { maxRedirects: 0 })
     expect(r.status()).toBe(404)
@@ -122,7 +122,7 @@ for (const path of ['/nope', '/courses/nope', '/courses', '/courses/tools/999', 
 test('結尾斜線與 /index.html 以 301 導向正式網址(保留 query)', async ({ request }) => {
   const cases: [string, string][] = [
     ['/courses/tools/', '/courses/tools'],
-    ['/proposal/', '/proposal'],
+    ['/studio/', '/studio'],
     ['/courses/tools/1/', '/courses/tools/1'],
     ['/index.html', '/'],
     ['/courses/tools/index.html', '/courses/tools'],
@@ -177,7 +177,7 @@ test('HEAD 請求:頁面 200、找不到 404,都沒有 body', async ({ request }
   expect(nf.status()).toBe(404)
   expect(nf.headers()['x-robots-tag']).toBe('noindex, nofollow')
   expect((await nf.body()).length).toBe(0)
-  const internal = await request.head('/proposal')
+  const internal = await request.head('/studio')
   expect(internal.status()).toBe(200)
   expect(internal.headers()['x-robots-tag']).toBe('noindex, nofollow')
 })

@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { routes } from '../App'
+import { internalRoutes } from '../studio/StudioApp'
+import { isInternalPath } from '../site/internalPaths'
 import { SITE_ORIGIN } from '../site/siteInfo'
-import { robotsTxt, sitemapXml } from './build'
-import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES } from './pages'
+import { PAGES, robotsTxt, sitemapXml } from './build'
+import { findInternalPage } from './internalPages'
+import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES } from './pages'
 
 const indexable = PAGES.filter((p) => !p.noindex)
-const INTERNAL_PREFIXES = ['/proposal', '/docs', '/materials', '/login', '/admin']
+const INTERNAL_PREFIXES = ['/studio', '/docs', '/materials', '/login', '/admin']
 const isInternal = (path: string) => INTERNAL_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))
 
 describe('主題頁', () => {
@@ -79,6 +82,18 @@ describe('PAGES', () => {
 
   it('home and the course pages are indexable', () => {
     expect(indexable.map((p) => p.path)).toEqual(expect.arrayContaining(['/', '/courses/tools', '/privacy', '/terms']))
+  })
+})
+
+describe('公開與內部資料分開', () => {
+  it('公開的 PAGES 不列研發基地的內部頁', () => {
+    expect(PUBLIC_PAGES.filter((p) => isInternalPath(p.path)).map((p) => p.path)).toEqual([])
+  })
+
+  it('findInternalPage 找得到內部頁,結尾斜線視為同一頁', () => {
+    expect(findInternalPage('/studio').path).toBe('/studio')
+    expect(findInternalPage('/studio/').path).toBe('/studio')
+    expect(findInternalPage('/studio/no-such-page')).toBe(NOT_FOUND)
   })
 })
 
@@ -159,7 +174,7 @@ describe('robots.txt', () => {
 })
 
 describe('routes ↔ PAGES', () => {
-  const routePaths = routes.map((r) => r.path)
+  const routePaths = [...routes, ...internalRoutes].map((r) => r.path)
   const pagePaths = PAGES.map((p) => p.path)
 
   it('route paths are unique', () => {

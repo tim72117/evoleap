@@ -10,7 +10,7 @@ export function L1IdeasPage() {
       <h1>L1 · 構想區</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>構想 · 待評估</span>
       <p className={ui.lead}>
-        還沒排進 L1 課程的構想，目前都來自 <Link to="/proposal/life-tools">生活小工具</Link>{' '}
+        還沒排進 L1 課程的構想，目前都來自 <Link to="/studio/life-tools">生活小工具</Link>{' '}
         的選題：需要外部函式庫、結果難以驗證、或和已選的課重複的工具先放在這裡。要排進課程時，移到 src/content/l1Tools/。
       </p>
 

@@ -74,11 +74,13 @@ export type { StageCaption, StageChapter, StageNarration, StageScript, StageStop
 /** 舞台對外的介面 */
 export interface Stage {
   /** 載入腳本與演員,回傳總長度(毫秒);腳本有錯會丟出含「第幾步」的錯誤。opts.voice:{ 旁白文字: 語音長度(毫秒) },有語音時用實際長度排時間;opts.aspect 指定舞台方向(沒給就沿用 createStage 的) */
-  load(script: StageScript, opts?: { voice?: Record<string, number>; aspect?: Aspect }): Promise<number>
+  load(script: StageScript, opts?: { voice?: Record<string, number>; aspect?: Aspect; cursor?: boolean }): Promise<number>
   /** 舞台目前的方向 */
   readonly aspect: Aspect
   /** 畫出 ms 時的畫面(同一個時間點一定畫出同一個畫面) */
   renderAt(ms: number): void
+  /** 換掉演員登場時的區塊設定(演員展示頁用),下一次 renderAt 生效 */
+  setParts(id: string, parts: Record<string, boolean>): void
   /** 「演員代號:目標」目前對應的元素(畫面上疊加互動控制項時用);找不到回傳 null */
   element(ref: string): HTMLElement | null
   readonly duration: number
@@ -111,7 +113,8 @@ const STAGE_HTML = `
     <div class="st-card" hidden></div>
   </div>`
 
-const STAGE_KINDS: readonly StageKind[] = ['card', 'callout', 'show', 'hide', 'move', 'checkpoint', 'wait']
+const STAGE_KINDS: readonly StageKind[] = ['card', 'callout', 'show', 'hide', 'move', 'checkpoint', 'wait', 'parts']
+let stageSeq = 0
 // 這幾種疊加畫面有旁白時直接延長到講完,不讓畫面空等
 const STRETCH_KINDS: readonly string[] = ['card', 'callout', 'show']
 const NARRATION_DELAY = 150 // 字幕與旁白語音在這一步開始後多久出現
@@ -126,6 +129,8 @@ interface Member {
   place: Place
   props: Record<string, unknown>
   hidden: boolean
+  /** 登場時的區塊設定(沒寫的區塊照常顯示) */
+  parts: Record<string, boolean>
 }
 /** load 時排出來的一步(尚未決定開始時間) */
 interface PlannedStep {
@@ -157,6 +162,8 @@ type Visibility = { shown: boolean; ev: ActorEvent | null; place: Place; move: M
 export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): Stage {
   root.classList.add('live-stage')
   root.innerHTML = STAGE_HTML
+  const stageId = String(++stageSeq)
+  root.dataset.stageId = stageId
   let aspect: Aspect = 'landscape'
   let W = 1920
   let H = 1080
@@ -187,6 +194,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
   let camKeys: CameraKey[] = []
   let narrations: StageNarration[] = []
   let auto = false
+  let showCursor = true // 使用者自己點的時候不畫虛擬滑鼠
   let cast0: Record<string, unknown> = {} // 有狀態的演員:代號 → init(props) 的起始狀態
   let views: Record<string, ActorView<unknown>> = {} // 有狀態的演員:代號 → 目前畫面的 { state, prev, ev }(render 與 target 用)
 
@@ -197,15 +205,39 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     return def
   }
 
+  // 區塊顯示:用一段 CSS 藏起來,演員重畫內容也不會失效;名稱打錯時載入就報錯
+  function checkParts(id: string, parts: Record<string, boolean> | undefined): Record<string, boolean> {
+    const known = cast[id]?.def.parts ?? {}
+    for (const name of Object.keys(parts ?? {})) {
+      if (!(name in known)) throw new Error(`演員「${id}」沒有區塊「${name}」(可用:${Object.keys(known).join('、') || '無'})`)
+    }
+    return parts ?? {}
+  }
+  let partsCss = ''
+  function applyParts(now: Record<string, Record<string, boolean>>): void {
+    const css = castOrder
+      .flatMap((id) =>
+        Object.entries(now[id] ?? {})
+          .filter(([, on]) => !on)
+          .map(([name]) => `[data-stage-id="${stageId}"] .slot[data-cast="${id}"] :is(${cast[id].def.parts?.[name]}) { display: none !important; }`),
+      )
+      .join('\n')
+    if (css === partsCss) return
+    partsCss = css
+    $('.st-parts').textContent = css
+  }
+
   const stageKindOf = (s: Step): StageKind | undefined => STAGE_KINDS.find((k) => k in s)
 
   // ---------- 載入腳本 ----------
-  async function load(script: StageScript, opts: { voice?: Record<string, number>; aspect?: Aspect } = {}): Promise<number> {
+  async function load(script: StageScript, opts: { voice?: Record<string, number>; aspect?: Aspect; cursor?: boolean } = {}): Promise<number> {
     const voice = opts.voice || {}
+    showCursor = opts.cursor !== false
     if (opts.aspect && opts.aspect !== aspect) setAspect(opts.aspect)
     auto = script.camera === 'auto'
     const castEl = $('.st-cast')
-    castEl.innerHTML = ''
+    castEl.innerHTML = '<style class="st-parts"></style>'
+    partsCss = ''
     cast = {}
     castOrder = Object.keys(script.cast || {})
     if (!castOrder.length) throw new Error('腳本需要 cast(演員表)')
@@ -219,7 +251,8 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       const place = placeOf(c.place, aspect)
       applyPlace(slot, place)
       const inst = def.mount(slot, c.props || {})
-      cast[id] = { def, inst, slot, place, props: c.props || {}, hidden: !!c.hidden }
+      cast[id] = { def, inst, slot, place, props: c.props || {}, hidden: !!c.hidden, parts: {} }
+      cast[id].parts = checkParts(id, c.parts)
     }
 
     // 每一步交給誰:舞台的動作,或演員表中會這個動作的演員
@@ -229,8 +262,15 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       const s = raw as Step
       const stageKind = stageKindOf(s)
       if (stageKind) {
-        const actor = stageKind === 'show' || stageKind === 'hide' || stageKind === 'move' ? (s[stageKind] as string) : null
+        const actor = stageKind === 'show' || stageKind === 'hide' || stageKind === 'move' || stageKind === 'parts' ? (s[stageKind] as string) : null
         if (actor && !cast[actor]) throw new Error(`${where(i + 1, s)}:演員表裡沒有「${actor}」`)
+        if (stageKind === 'parts') {
+          try {
+            checkParts(actor as string, (s as StageStepOf<'parts'>).set)
+          } catch (e) {
+            throw new Error(`${where(i + 1, s)}:${e instanceof Error ? e.message : e}`)
+          }
+        }
         steps.push({ s, kind: stageKind, actor, n: i + 1, dur: 0, pause: 0 })
         return
       }
@@ -257,7 +297,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     }
     const states: Record<string, unknown> = { ...cast0 }
     for (const x of steps) {
-      if (!x.actor || !(x.actor in states)) continue
+      if (!x.actor || !(x.actor in states) || x.kind === 'parts') continue
       const def = cast[x.actor].def
       x.prev = states[x.actor]
       let next = x.prev
@@ -276,7 +316,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     }
     for (const x of steps) {
       x.dur = x.s.ms ?? stageDuration(x)
-      x.pause = x.s.pause ?? 250
+      x.pause = x.s.pause ?? (x.kind === 'parts' ? 0 : 250)
     }
 
     // 旁白要講得完:從這一步到下一段旁白(或練習點)之前的長度不夠,就補在最後一步的停頓;
@@ -355,6 +395,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       case 'move': return 900
       case 'checkpoint': return 400
       case 'wait': return (x.s as StageStepOf<'wait'>).wait
+      case 'parts': return 1
     }
     const member = cast[x.actor as string]
     return member.def.duration(x.kind, x.s, member.props, x.prev)
@@ -376,7 +417,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     switch (ev.kind) {
       case 'callout': return (ev.s as StageStepOf<'callout'>).callout
       case 'card': case 'show': case 'move': return false
-      case 'hide': case 'checkpoint': case 'wait': return undefined
+      case 'hide': case 'checkpoint': case 'wait': case 'parts': return undefined
     }
     const f = cast[ev.actor as string].def.autoFocus?.(ev.kind, ev.s)
     return f ? `${ev.actor}:${f}` : f
@@ -409,6 +450,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       castOrder.map((id) => [id, { shown: !cast[id].hidden, ev: null, place: cast[id].place, move: null }]),
     )
     // 有狀態的演員:最後一個已經開始的動作決定 prev/state;還在進行中就帶上 ev
+    const partsNow: Record<string, Record<string, boolean>> = Object.fromEntries(castOrder.map((id) => [id, cast[id].parts]))
     views = {}
     for (const id in cast0) views[id] = { state: cast0[id], prev: cast0[id], ev: null }
     for (const ev of timeline) {
@@ -430,6 +472,9 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
         const to = placeOf((ev.s as StageStepOf<'move'>).to, aspect)
         vis[id] = { ...vis[id], move: { from: vis[id].place, to, e } }
         vis[id].place = to
+      } else if (ev.kind === 'parts') {
+        const id = ev.actor as string
+        partsNow[id] = { ...partsNow[id], ...(ev.s as StageStepOf<'parts'>).set }
       } else if (ev.actor) {
         byActor[ev.actor].push(e)
         const plan = cast[ev.actor].def.cursor?.(ev.kind, ev.s, ev.prev)
@@ -457,12 +502,14 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       c.inst.render({ events: byActor[id], view: views[id] ?? null }, ms)
     }
 
+    applyParts(partsNow)
+
     // 2. 鏡頭(要在演員排版完成後才能量位置)
     renderCamera(ms)
     // 3. 教學效果
     renderCard(fx.card)
     renderCallout(fx.callout)
-    renderCursor(fx.cursor)
+    renderCursor(showCursor ? fx.cursor : null)
   }
 
   function renderCamera(ms: number): void {
@@ -547,6 +594,9 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
   return {
     load,
     renderAt,
+    setParts(id, parts) {
+      cast[id].parts = checkParts(id, parts)
+    },
     element: resolve,
     get aspect() {
       return aspect

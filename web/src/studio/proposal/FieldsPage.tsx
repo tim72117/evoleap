@@ -109,7 +109,7 @@ export function FieldsPage() {
 
       <FieldCard title="封面圖" meta="長形 1000×620、方形 800×800" chip="待上傳" chipClass="todo">
         兩種尺寸的封面見{' '}
-        <Link to="/proposal/ai-agent/cover" style={{ color: 'var(--accent)' }}>
+        <Link to="/studio/ai-agent/cover" style={{ color: 'var(--accent)' }}>
           封面圖
         </Link>{' '}
         頁。

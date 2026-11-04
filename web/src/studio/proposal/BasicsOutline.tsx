@@ -241,7 +241,7 @@ function ProductionSection({ plan, mods }: { plan: ProductionPlan; mods: Module[
     <>
       <h2>製作規劃</h2>
       <p className={ui.lead}>
-        影片不錄製，全部用即時教學畫面製作（做法與研究見<Link to="/proposal/visuals">即時教學影像</Link>，各課的畫面可在下方每課的「影片切分」直接播放）。狀態只記到實際完成的程度：「腳本完成」指已有即時教學畫面腳本、課程頁可以播放。
+        影片不錄製，全部用即時教學畫面製作（做法與研究見<Link to="/studio/visuals">即時教學影像</Link>，各課的畫面可在下方每課的「影片切分」直接播放）。狀態只記到實際完成的程度：「腳本完成」指已有即時教學畫面腳本、課程頁可以播放。
       </p>
 
       <section className={ui.card}>

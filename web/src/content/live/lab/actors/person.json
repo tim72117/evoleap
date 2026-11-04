@@ -1,0 +1,36 @@
+{
+  "title": "person：人物台詞與表情",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "person",
+      "props": {
+        "name": "老闆",
+        "look": "boss"
+      },
+      "place": {
+        "x": 460,
+        "y": 200,
+        "w": 1000,
+        "h": 600
+      }
+    }
+  },
+  "steps": [
+    {
+      "say": "今天的訂單好多。",
+      "mood": "busy"
+    },
+    {
+      "say": "每一張都要再回問一次。",
+      "mood": "tired"
+    },
+    {
+      "say": "這樣就不會漏單了！",
+      "mood": "happy"
+    },
+    {
+      "wait": 600
+    }
+  ]
+}

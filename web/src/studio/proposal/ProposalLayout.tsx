@@ -9,46 +9,52 @@ type Section = { id: 'overview' | 'levels' | 'ideas' | 'docs' | 'tools'; label: 
 
 /** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級。 */
 const LEVELS: Tab[] = [
-  { to: '/proposal/tools', code: 'L0', label: 'AI 工具介紹' },
-  { to: '/proposal/ai-tools', code: 'L1', label: 'AI 工具入門', also: ['/proposal/life-tools', '/proposal/l1-ideas'] },
-  { to: '/proposal/vibe-coding', code: 'L2', label: 'Vibe Coding 入門' },
-  { to: '/proposal/ai-agent/fields', code: 'L3', label: 'AI Agent 整合應用', match: '/proposal/ai-agent' },
-  { to: '/proposal/advanced', code: 'L4', label: '進階' },
+  { to: '/studio/tools', code: 'L0', label: 'AI 工具介紹' },
+  { to: '/studio/ai-tools', code: 'L1', label: 'AI 工具入門', also: ['/studio/life-tools', '/studio/l1-ideas'] },
+  { to: '/studio/vibe-coding', code: 'L2', label: 'Vibe Coding 入門' },
+  { to: '/studio/ai-agent/fields', code: 'L3', label: 'AI Agent 整合應用', match: '/studio/ai-agent' },
+  { to: '/studio/advanced', code: 'L4', label: '進階' },
 ]
 
 /** 跨等級構想。 */
 const IDEAS: Tab[] = [
-  { to: '/proposal/mcp', label: '課程 MCP' },
-  { to: '/proposal/member', label: '會員空間' },
-  { to: '/proposal/resources', label: '資源系統' },
-  { to: '/proposal/news-feed', label: '科技新知動態牆' },
-  { to: '/proposal/ai-tips', label: 'AI 工具技巧' },
-  { to: '/proposal/visuals', label: '即時教學影像' },
-  { to: '/proposal/interactive', label: '互動教學場景' },
-  { to: '/proposal/interactive/l0-claude', label: '互動場景：L0 對 Claude 下指令' },
-  { to: '/proposal/interactive/l0-claude-stage', label: '互動場景：把演員推到主畫面' },
+  { to: '/studio/mcp', label: '課程 MCP' },
+  { to: '/studio/member', label: '會員空間' },
+  { to: '/studio/resources', label: '資源系統' },
+  { to: '/studio/news-feed', label: '科技新知動態牆' },
+  { to: '/studio/ai-tips', label: 'AI 工具技巧' },
+  { to: '/studio/visuals', label: '即時教學影像' },
+  { to: '/studio/interactive', label: '互動教學場景' },
+  { to: '/studio/interactive/l0-claude-stage', label: '互動場景：把演員推到主畫面' },
+  { to: '/studio/actor-interaction', label: '演員互動', match: '/studio/actor-interaction' },
 ]
 
 const SECTIONS: Section[] = [
-  { id: 'overview', label: '總覽', to: '/proposal' },
-  { id: 'levels', label: '課程', to: '/proposal/tools', tabs: LEVELS },
-  { id: 'ideas', label: '構想', to: '/proposal/mcp', tabs: IDEAS },
-  { id: 'docs', label: '文件', to: '/proposal#docs' },
+  { id: 'overview', label: '總覽', to: '/studio' },
+  { id: 'levels', label: '課程', to: '/studio/tools', tabs: LEVELS },
+  { id: 'ideas', label: '構想', to: '/studio/mcp', tabs: IDEAS },
+  { id: 'docs', label: '文件', to: '/studio#docs' },
   { id: 'tools', label: '工具', to: '/materials' },
 ]
 
 /** L1 的子頁面：兩門並列的課程與構想區。 */
 const L1_NAV: Tab[] = [
-  { to: '/proposal/ai-tools', label: 'AI 工具入門' },
-  { to: '/proposal/life-tools', label: '生活小工具' },
-  { to: '/proposal/l1-ideas', label: '構想區' },
+  { to: '/studio/ai-tools', label: 'AI 工具入門' },
+  { to: '/studio/life-tools', label: '生活小工具' },
+  { to: '/studio/l1-ideas', label: '構想區' },
 ]
 
 /** L3 的子頁面（沿用原本的提案頁）。 */
 const L3_NAV: Tab[] = [
-  { to: '/proposal/ai-agent/fields', label: '提案內容' },
-  { to: '/proposal/ai-agent/structure', label: '課程架構' },
-  { to: '/proposal/ai-agent/cover', label: '封面圖' },
+  { to: '/studio/ai-agent/fields', label: '提案內容' },
+  { to: '/studio/ai-agent/structure', label: '課程架構' },
+  { to: '/studio/ai-agent/cover', label: '封面圖' },
+]
+
+/** 演員互動的子頁面。 */
+const ACTOR_NAV: Tab[] = [
+  { to: '/studio/actor-interaction', label: '構想' },
+  { to: '/studio/actor-interaction/showcase', label: '演員展示' },
 ]
 
 const tabActive = (t: Tab, pathname: string): boolean =>
@@ -56,7 +62,7 @@ const tabActive = (t: Tab, pathname: string): boolean =>
 
 /** 目前的頁面屬於哪個區塊(「文件」是連到總覽的錨點,不會成為目前區塊) */
 function sectionOf(pathname: string): Section['id'] | null {
-  if (pathname === '/proposal') return 'overview'
+  if (pathname === '/studio') return 'overview'
   if (LEVELS.some((t) => tabActive(t, pathname))) return 'levels'
   if (IDEAS.some((t) => tabActive(t, pathname))) return 'ideas'
   if (pathname.startsWith('/materials')) return 'tools'
@@ -75,8 +81,9 @@ type Props = {
 
 export function ProposalLayout({ title, footer, back = true, children }: Props) {
   const { pathname } = useLocation()
-  const inL3 = pathname.startsWith('/proposal/ai-agent')
+  const inL3 = pathname.startsWith('/studio/ai-agent')
   const inL1 = L1_NAV.some((t) => t.to === pathname)
+  const inActors = ACTOR_NAV.some((t) => t.to === pathname)
 
   useEffect(() => {
     document.title = `${title} · 課程提案`
@@ -89,10 +96,10 @@ export function ProposalLayout({ title, footer, back = true, children }: Props) 
     <div className={ui.proposal} lang="zh-Hant">
       <header className={ui.topbar}>
         <div className={ui['topbar-inner']}>
-          <Link className={ui.brand} to="/proposal">
-            課程研發
+          <Link className={ui.brand} to="/studio">
+            研發基地
           </Link>
-          <nav className={ui.tabs} aria-label="課程研發">
+          <nav className={ui.tabs} aria-label="研發基地">
             {SECTIONS.map((x) => (
               <Link key={x.id} to={x.to} aria-current={x.id === current ? 'page' : undefined}>
                 {x.label}
@@ -124,6 +131,17 @@ export function ProposalLayout({ title, footer, back = true, children }: Props) 
             </nav>
           </div>
         )}
+        {inActors && (
+          <div className={`${ui.subnav} ${ui.subnav3}`}>
+            <nav className={ui.subtabs} aria-label="演員互動頁面">
+              {ACTOR_NAV.map((t) => (
+                <Link key={t.to} to={t.to} aria-current={pathname === t.to ? 'page' : undefined}>
+                  {t.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        )}
         {inL3 && (
           <div className={`${ui.subnav} ${ui.subnav3}`}>
             <nav className={ui.subtabs} aria-label="L3 提案頁">
@@ -140,7 +158,7 @@ export function ProposalLayout({ title, footer, back = true, children }: Props) 
 
       <main>
         {back && (
-          <Link className={ui.back} to="/proposal">
+          <Link className={ui.back} to="/studio">
             ← 回總覽
           </Link>
         )}
@@ -150,7 +168,7 @@ export function ProposalLayout({ title, footer, back = true, children }: Props) 
       <footer>
         {back ? (
           <>
-            <Link className={ui.back} to="/proposal">
+            <Link className={ui.back} to="/studio">
               ← 回總覽
             </Link>{' '}
             · {footer}

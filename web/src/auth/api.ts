@@ -5,6 +5,8 @@ export interface User {
   email: string
   name: string
   createdAt: string
+  /** 只用來決定要不要顯示研發基地的入口;真正的權限由伺服器判定 */
+  isAdmin?: boolean
 }
 
 /** API 回傳的錯誤;message 是可以直接顯示給使用者的中文訊息 */

@@ -120,11 +120,3 @@ export const TEACHING: { title: string; body: string }[] = [
     body: '1080p 16:9 錄製，編輯器與瀏覽器／終端機並排，大字體、高對比主題。',
   },
 ]
-
-export const READING: { slug: string; title: string; desc: string }[] = [
-  { slug: 'course-goals', title: '課程目標', desc: '課程描述、適合對象、學習成果與上課前的準備。' },
-  { slug: 'research-report', title: '線上課程設計與影音製作研究報告', desc: '本課程的單元拆分、腳本與錄製規格依據。' },
-  { slug: 'research/methodology', title: '課程設計方法論', desc: '單元顆粒度、學習目標寫法與檢核方式。' },
-  { slug: 'research/recording', title: '影音錄製實務', desc: '解析度、畫面配置、編輯器設定與收音。' },
-  { slug: 'research/script-template', title: '腳本範本結構', desc: '開場鉤子、分步驟教學到回顧過場的腳本骨架。' },
-]

@@ -61,7 +61,7 @@ const GROUPS = (Object.keys(CATEGORY_LABEL) as ArticleCategory[]).map((c) => ({
   items: articles.filter((a) => a.category === c),
 }))
 
-/** 文件列表(研究文章與 Markdown 文件),顯示在課程研發總覽頁的「文件」區塊:一份文件一張卡片 */
+/** 文件列表(研究文章與 Markdown 文件),顯示在研發基地總覽頁的「文件」區塊:一份文件一張卡片 */
 export function DocList() {
   return (
     <>

@@ -1,10 +1,10 @@
-// 每個網址的 SEO 資料(title、description、canonical、robots、JSON-LD)——唯一來源。
-// - build:scripts/seo.mjs 用它產生每個路由的 HTML(dist/<路由>/index.html)、404.html、
+// 公開網址的 SEO 資料(title、description、canonical、robots、JSON-LD)——唯一來源。
+// 研發基地的內部頁在 internalPages.ts(這個檔案會打包進公開的 JS,不能列內部頁)。
+// - build:scripts/seo.mjs 透過 build.ts 用它產生每個路由的 HTML(dist/<路由>/index.html)、404.html、
 //   sitemap.xml、robots.txt;並檢查 App.tsx 的每個路由都有對應的一筆,漏了會 build 失敗。
 // - 瀏覽器:usePageMeta(App.tsx)在切換頁面時套用同一份資料。
 // 課程、單課、文章、文件都從既有的目錄資料推導,新增課程/文章不用改這裡;
-// 新增其他類型的頁面時,在下方 PAGES 加一筆。
-import { articles } from '../studio/articles/registry'
+// 新增其他類型的頁面時,在下方 PAGES 加一筆(內部頁加在 internalPages.ts)。
 import { AI_AGENT_COURSE_PATH, COURSE } from '../content/aiAgent'
 import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath } from '../content/catalog'
 import { AI_APP_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
@@ -19,7 +19,7 @@ export interface PageMeta {
   /** 完整的 <title>(與頁面元件設定的 document.title 一致) */
   title: string
   description: string
-  /** 內部頁(課程研發、工具頁):noindex,且不列入 sitemap */
+  /** 不收錄的頁面(登入、後台、研發基地):noindex,且不列入 sitemap */
   noindex?: boolean
   ogType?: 'website' | 'article'
   /** sitemap 的 <priority>(0–1);不填則不輸出,搜尋引擎視為 0.5 */
@@ -199,53 +199,6 @@ const ADMIN_PAGE: PageMeta = {
   noindex: true,
 }
 
-// 以下都是課程研發用的內部頁(文件、課程提案、素材工具):noindex、不列入 sitemap。
-// 標題保留各頁實際的 document.title,description 用頁面既有的摘要。
-const internal = (path: string, title: string, description = '課程研發工作區（內部使用）。'): PageMeta => ({
-  path,
-  title,
-  description,
-  noindex: true,
-})
-
-const DOCS_PAGES: PageMeta[] = [
-  // Markdown 文件(live、recorder)的標題與摘要也登記在 articles,所以這裡一次涵蓋
-  ...articles.map((a) => internal(`/docs/${a.slug}`, documentTitle(a.title), a.summary)),
-]
-
-// 標題對應各頁 ProposalLayout 的 title(document.title = 「<title> · 課程提案」)。
-const PROPOSAL_PAGES: PageMeta[] = (
-  [
-    ['/proposal', '總覽'],
-    ['/proposal/tools', 'L0 AI 工具介紹'],
-    ['/proposal/ai-tools', 'L1 AI 工具入門'],
-    ['/proposal/life-tools', 'L1 生活小工具'],
-    ['/proposal/l1-ideas', 'L1 構想區'],
-    ['/proposal/vibe-coding', 'L2 Vibe Coding 入門'],
-    ['/proposal/ai-agent/fields', 'L3 提案內容'],
-    ['/proposal/ai-agent/structure', 'L3 課程架構'],
-    ['/proposal/ai-agent/cover', 'L3 封面圖'],
-    ['/proposal/advanced', 'L4 進階'],
-    ['/proposal/mcp', '課程 MCP'],
-    ['/proposal/member', '會員空間'],
-    ['/proposal/resources', '資源系統'],
-    ['/proposal/news-feed', '科技新知動態牆'],
-    ['/proposal/ai-tips', 'AI 工具技巧'],
-    ['/proposal/visuals', '即時教學影像'],
-    ['/proposal/interactive', '互動教學場景'],
-    ['/proposal/interactive/l0-claude', '互動場景：L0 對 Claude 下指令'],
-    ['/proposal/interactive/l0-claude-stage', '互動場景：把演員推到主畫面'],
-    ['/materials', '工具'],
-    ['/materials/course-map', '課程編排'],
-  ] as const
-).map(([path, name]) => internal(path, `${name} · 課程提案`))
-
-const MATERIALS_PAGES: PageMeta[] = [
-  internal('/materials/cover-designer', '課程封面'),
-  internal('/materials/cover-cropper', '封面裁切工具'),
-  internal('/materials/promo', '宣傳影片 · 課程提案'),
-]
-
 export const PAGES: PageMeta[] = [
   HOME,
   SOFTWARE_TOPIC_PAGE,
@@ -255,9 +208,6 @@ export const PAGES: PageMeta[] = [
   ...LEGAL_PAGES,
   LOGIN_PAGE,
   ADMIN_PAGE,
-  ...DOCS_PAGES,
-  ...PROPOSAL_PAGES,
-  ...MATERIALS_PAGES,
 ]
 
 /** 找不到頁面(server 以 404 狀態回應 dist/404.html) */

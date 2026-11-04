@@ -57,6 +57,13 @@ const extOf = (f: string) => (/\.(\w+)$/.exec(f)?.[1] ?? '').toLowerCase()
 const actor = defineActor<EditorKind, EditorStep, EditorProps, EditorState, EditorTarget>({
   name: 'editor',
   kinds: KINDS,
+  parts: { bar: '.ed-bar', files: '.ed-side', tabs: '.ed-tab', lineNumbers: '.ed-num' },
+
+  hotspots(st) {
+    const tabs = st.tabs.filter((f) => f !== st.active).map((f) => ({ target: `tab:${f}`, label: `切換到 ${f}`, step: { open: f } }))
+    if (!st.active) return tabs
+    return [...tabs, { target: 'code', label: '輸入程式碼', input: { placeholder: '打一行程式碼', step: (text: string) => ({ type: `${text}\n` }) } }]
+  },
 
   init() {
     return { files: {}, tabs: [], active: null }

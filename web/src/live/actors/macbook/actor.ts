@@ -132,6 +132,7 @@ const kindOf = (ev: ActorEvent): MbKind | null =>
 const actor = defineActor<MbKind, MacbookStep, MacbookProps, MbState, MacbookTarget>({
   name: 'macbook',
   kinds: KINDS,
+  parts: { dock: '.mb-dock', clock: '.mb-clock' },
 
   duration(kind, step) {
     return durationOf(kind, step)
@@ -142,6 +143,15 @@ const actor = defineActor<MbKind, MacbookStep, MacbookProps, MbState, MacbookTar
     if (kind === 'type') return 'keyboard'
     if (kind === 'close') return false
     return undefined
+  },
+
+  hotspots(st) {
+    if (!st.opened) return [{ target: 'window', label: '打開筆電', step: { open: true } }]
+    if (!st.awake) return [{ target: 'screen', label: '點亮螢幕', step: { wake: true } }]
+    return [
+      { target: 'screen', label: '關掉螢幕', step: { sleep: true } },
+      { target: 'keyboard', label: '按幾下鍵盤', step: { type: true, keys: 6 } },
+    ]
   },
 
   init(props) {

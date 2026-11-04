@@ -39,6 +39,11 @@ const FLOOR = { dx: 4, y: 20.5, r: 50 }
 const actor = defineActor<NotesKind, NotesStep, NotesProps, NotesState, NotesTarget>({
   name: 'notes',
   kinds: KINDS,
+  parts: { label: '.nt-label' },
+
+  hotspots() {
+    return [{ target: 'window', label: '寫一張便條', input: { placeholder: '便條內容', step: (text: string) => ({ jot: text }) } }]
+  },
 
   init() {
     return { notes: [] }

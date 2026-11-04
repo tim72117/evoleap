@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+### 變更
+
+- **研發基地**：「課程研發」改名為「研發基地」，網址 `/proposal` 改為 `/studio`（舊網址不轉址）。
+- **研發基地限管理員**：`/studio`、`/materials`、`/docs` 由 Go server 檢查權限（條件與管理後台相同），未登入導向登入頁，一般會員回 404。內部內容拆成獨立 chunk（`assets/internal/`），同樣限管理員下載；公開頁面誤引用內部模組時 build 會失敗。dev server 用同樣的條件檢查（可用 `DEV_OPEN_STUDIO=1` 略過），錄影帶本機 token 通過。
+- **AI Agent 課程頁**：拿掉「閱讀課程目標」與「課程文件」區塊，這些文件現在只有管理員能看。頁尾的研發基地入口只顯示給管理員。
+- **移除構想頁「互動場景：L0 對 Claude 下指令」**（`/studio/interactive/l0-claude`）：腳本保留，「把演員推到主畫面」還在使用。
+
+### 新增
+
+- **演員互動構想** `/studio/actor-interaction`：記錄在互動階段讓學員真的點演員畫面的想法，包含靜態互動與互動時的播放時間線安排；腳本與互動的架構之後再設計。
+- **靜態展示的互動層**：演員用 `hotspots(state)` 宣告目前可以點什麼，靜態展示量出位置後疊上真實按鈕，可以直接點演員畫面、在畫面上打字。沒有改腳本格式，互動課程也還沒接上。
+- **演員的區塊顯示控制**：演員用 `parts` 宣告可關掉的區塊，腳本用演員表的 `parts` 或舞台動作 `{ "parts": "代號", "set": { … } }` 控制，名稱打錯時載入就報錯。
+- **演員展示頁** `/studio/actor-interaction/showcase`（在構想「演員互動」底下）：動態展示在播放器裡照示範腳本（`content/live/lab/actors/`）播放；靜態展示只有舞台，按操作按鈕或輸入 JSON 才演出動作，可復原與重設。兩種都能勾選區塊並產生可貼進腳本的設定。
+- **`claude-desktop` 多個 session**：新增 `newSession`、`session`、`menu`、`fork`、`state` 動作與 `"in"` 背景欄位，側欄有狀態燈、⋯ 選單與巢狀 session。
+- **宣傳影片 `promo/multi-session.json`**：示範用不同 session 同時處理同一個專案的不同工作，包含 Fork。舞台版放在構想頁「AI 工具技巧」（`/studio/ai-tips`）。
+
 ### 新增
 
 - 課程研發新增兩個跨等級構想頁：

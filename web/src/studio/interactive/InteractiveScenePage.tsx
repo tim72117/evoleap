@@ -41,7 +41,7 @@ type Props = {
   interaction?: 'stage'
   /** 把載入的腳本加上互動點(用課程原本的腳本與語音時) */
   prepare?: (script: StageScript) => StageScript
-  /** 正式課程頁用:標題、返回連結、播放進度與側欄底部;不寫就是課程研發的試做頁 */
+  /** 正式課程頁用:標題、返回連結、播放進度與側欄底部;不寫就是研發基地的試做頁 */
   course?: {
     docTitle: string
     heading: string
@@ -53,6 +53,8 @@ type Props = {
     /** 課程第幾步(腳本的 lessonStep) → 提示詞,顯示在側欄對應的章節底下,讓學員複製到自己的工具 */
     prompts?: Record<number, string>
   }
+  /** 嵌進其他頁面(首頁的展示):一開始就停在第一個互動點,問題和選項放在播放器下方;不記進度、不改頁面標題。畫面太小,不提供全螢幕 */
+  embed?: boolean
 }
 
 /** 窄視窗(手機直立):直式用底部抽屜 */
@@ -67,11 +69,11 @@ function useNarrow(): boolean {
   return narrow
 }
 
-export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course }: Props) {
+export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course, embed }: Props) {
   const [params, setParams] = useSearchParams()
-  const aspect: Aspect = parseAspect(params.get('aspect'))
+  const aspect: Aspect = embed ? 'landscape' : parseAspect(params.get('aspect'))
   const narrow = useNarrow()
-  const drawer = usesDrawer(aspect, narrow)
+  const drawer = !embed && usesDrawer(aspect, narrow)
   /** 重建播放器(切換橫/直)時帶著目前的播放時間 */
   const carry = useRef(0)
   const answersRef = useRef<Answers>({})
@@ -81,6 +83,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const pageRef = useRef<HTMLDivElement>(null)
   const boxRef = useRef<HTMLDivElement>(null)
   const momentHeadRef = useRef<HTMLHeadingElement>(null)
+  const embedMomentRef = useRef<HTMLDivElement>(null)
   const ctrl = useRef<Controller | null>(null)
   const [moments, setMoments] = useState<Moment[]>([])
   const [title, setTitle] = useState('')
@@ -102,8 +105,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const [lesson, setLesson] = useState('')
 
   useEffect(() => {
-    document.title = docTitle
-  }, [docTitle])
+    if (!embed) document.title = docTitle
+  }, [docTitle, embed])
 
   useEffect(() => {
     const box = boxRef.current
@@ -128,9 +131,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       stage: stageEl,
       title: pageTitle,
       progress,
-      layout: 'capsule',
+      ...(embed ? { globalKeys: false } : { layout: 'capsule' as const, toolbar: tools }),
       aspect,
-      toolbar: tools,
       autoLandscape: false,
       onStop: (stop) => {
         if (!list.some((m) => m.title === stop.title)) return false
@@ -141,7 +143,9 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         return true
       },
       // 全螢幕要包含側欄,所以是整頁進入全螢幕;瀏覽器不支援元素全螢幕(iPhone)時交回外殼的滿版備援
-      onFullscreenRequest: canFullscreen
+      onFullscreenRequest: embed
+        ? () => {}
+        : canFullscreen
         ? (on) => {
             if (!on) {
               if (doc.exitFullscreen) void doc.exitFullscreen().catch(() => {})
@@ -199,7 +203,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         setMoments(list)
         setTitle(data.title)
         setLesson(data.lesson ?? '')
-        await sync(answersRef.current)
+        const at = await sync(answersRef.current)
+        if (embed && list[0]) carry.current = at[list[0].id] ?? 0
         if (carry.current > 0) {
           shell.seek(carry.current)
           setNow({ t: carry.current, playing: false })
@@ -253,10 +258,16 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
   // 焦點移到問題標題(不是選項):習慣按空白鍵暫停的人才不會誤選答案
   const pushed = interaction === 'stage' && current?.stage ? current : undefined
-  const currentId = tab === 'interact' && !pushed ? current?.id : undefined
+  const currentId = embed ? current?.id : tab === 'interact' && !pushed ? current?.id : undefined
+  // 嵌在頁面裡時,一開始就停在第一個互動點:學員動手之前不要搶焦點、捲動頁面
+  const interacted = useRef(false)
+  if (now.playing || Object.keys(answers).length > 0) interacted.current = true
   useEffect(() => {
-    if (currentId) momentHeadRef.current?.focus({ preventScroll: true })
-  }, [currentId])
+    if (!currentId || (embed && !interacted.current)) return
+    momentHeadRef.current?.focus({ preventScroll: true })
+    // 問題在播放器下方,可能在視窗外
+    embedMomentRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [currentId, embed])
 
   const answer = (moment: Moment, value: Answer) => {
     const c = ctrl.current
@@ -302,6 +313,25 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     if (interaction !== 'stage') setTab('interact')
   }
 
+  if (embed) {
+    return (
+      <div ref={pageRef} className={[styles.embed, styles.pushable, current && styles.atMoment].filter(Boolean).join(' ')} lang="zh-Hant">
+        <div ref={boxRef} className={styles.embedBox} />
+        {error && (
+          <p className={styles.error} role="alert">
+            無法載入場景：{error}
+          </p>
+        )}
+        {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} inDrawer moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
+        {current && (
+          <div ref={embedMomentRef} className={styles.embedMoment}>
+            <MomentForm key={current.id} moment={current} headRef={momentHeadRef} onAnswer={(a) => answer(current, a)} />
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const pendingCount = moments.filter((m) => !answers[m.id]).length
   const summary = drawerSummary(timeline.chapters, now.t)
   const classes = [
@@ -321,7 +351,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       <div ref={boxRef} className={styles.box} />
 
       <header className={styles.head}>
-        <Link to={course?.back.to ?? '/proposal/mcp'} className={styles.back}>
+        <Link to={course?.back.to ?? '/studio/mcp'} className={styles.back}>
           {course?.back.label ?? '← 構想'}
         </Link>
         <h1>{course?.heading ?? (title || pageTitle)}</h1>

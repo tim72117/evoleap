@@ -46,7 +46,7 @@ export function CoverDesignerPage() {
     <div className={styles.root}>
       <div className={styles.wrap}>
         <header className={styles.header}>
-          <Link to="/proposal" target="_top" className={styles.backLink}>← 回總覽</Link>
+          <Link to="/studio" target="_top" className={styles.backLink}>← 回總覽</Link>
           <div className={styles.eyebrowLbl}>課程平台封面</div>
           <h1 className={styles.title}>從零到上線：打造你的第一個 AI Agent 整合應用</h1>
           <p className={styles.sub}>下方兩張即為實際輸出內容（長形 1000×620、方形 800×800）。</p>

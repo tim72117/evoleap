@@ -17,12 +17,21 @@
 //       沒有 select:提示停住,等下一個 choose
 //   { "choose": 1, "hover": [2] }               (滑鼠)先停在 hover 的選項,再按下 choose 的選項
 //   { "mode": "plan" }                          切換權限模式
+//   多個 session(側欄項目是 title 加上 sessions;每個 session 有自己的對話、分支與權限模式):
+//   { "newSession": "名稱", "branch": "…" }     (滑鼠)按新增 session,切過去
+//   { "session": "名稱" }                       (滑鼠)點側欄切換 session
+//   { "menu": "名稱" }                          (滑鼠)按該列的 ⋯ 打開選單,停住等下一個 fork
+//   { "fork": "新名稱", "branch": "…" }         (滑鼠)按選單的 Fork:帶著對話開新的巢狀 session,切過去
+//   { "state": "run"|"ok"|"wait"|"idle" }       設定 session 的狀態燈(送出 user 時自動變 run)
+//   上面的 user、say、tool 等動作可以加 "in": "名稱":瞬間記到那個背景 session,不切畫面,不佔時間(pause 要自己寫 0)。
+//   名稱對不上、沒開選單就 fork 時,載入就報錯並指出第幾步。
 //
 // 目標(給鏡頭、聚光燈、滑鼠用,腳本裡寫成「演員代號:目標」,例如 claude:ask):
 //   composer、input、send、mode、model、head、sidebar、log、latest(對話最底下那一帶)、ask(最後一個確認提示)、
-//   option:N(待選提示的第 N 個選項)、user(最後一則使用者訊息)、say、tool、edit、todos
+//   option:N(待選提示的第 N 個選項)、user(最後一則使用者訊息)、say、tool、edit、todos、
+//   new(新增 session 按鈕)、sessions(側欄整份清單)、session:名稱(側欄那一列)、more:名稱(那一列的 ⋯)、menu(選單)、menuitem:項目(例如 menuitem:Fork)
 import { kit } from '../../kit'
-import { defineActor, type ActorEvent, type CommonStepFields, type CursorPlan } from '../../types'
+import { defineActor, type ActorEvent, type CommonStepFields, type CursorPlan, type Hotspot } from '../../types'
 import './actor.css'
 
 // ---------- 型別 ----------
@@ -30,9 +39,10 @@ import './actor.css'
 type Mode = 'auto' | 'ask' | 'plan' | 'accept'
 type TodoState = 'pending' | 'doing' | 'done'
 type DiffLine = [no: number | null, sign: '+' | '-' | ' ', text: string]
+type SessionState = 'run' | 'ok' | 'wait' | 'idle'
 
 /** 腳本 steps 裡的動作(鍵名就是動作種類) */
-export type ClaudeStep = CommonStepFields &
+export type ClaudeStep = CommonStepFields & { in?: string } &
   (
     | { user: string }
     | { thinking: true | string }
@@ -43,9 +53,14 @@ export type ClaudeStep = CommonStepFields &
     | { ask: string; q?: string; where?: string; preview?: string; note?: string; options?: string[]; select?: number }
     | { choose: number; hover?: number[] }
     | { mode: Mode }
+    | { newSession: string; branch?: string | null }
+    | { session: string }
+    | { menu: string }
+    | { fork: string; branch?: string | null }
+    | { state: SessionState }
   )
-type ClaudeKind = 'user' | 'thinking' | 'say' | 'tool' | 'edit' | 'todos' | 'ask' | 'choose' | 'mode'
-const KINDS: readonly ClaudeKind[] = ['user', 'thinking', 'say', 'tool', 'edit', 'todos', 'ask', 'choose', 'mode']
+type ClaudeKind = 'user' | 'thinking' | 'say' | 'tool' | 'edit' | 'todos' | 'ask' | 'choose' | 'mode' | 'newSession' | 'session' | 'menu' | 'fork' | 'state'
+const KINDS: readonly ClaudeKind[] = ['user', 'thinking', 'say', 'tool', 'edit', 'todos', 'ask', 'choose', 'mode', 'newSession', 'session', 'menu', 'fork', 'state']
 type StepOf<K extends ClaudeKind> = Extract<ClaudeStep, Record<K, unknown>>
 type Ev<K extends ClaudeKind = ClaudeKind> = ActorEvent<ClaudeStep, K>
 
@@ -54,6 +69,7 @@ export type ClaudeTarget =
   | 'composer' | 'input' | 'send' | 'mode' | 'model' | 'head' | 'sidebar' | 'log' | 'latest'
   | 'ask' | 'user' | 'say' | 'tool' | 'edit' | 'todos'
   | `option:${number}`
+  | 'new' | 'menu' | 'sessions' | `session:${string}` | `more:${string}` | `menuitem:${string}`
 
 interface Labels { new: string; recent: string; placeholder: string; thinking: string }
 interface Cps { user: number; say: number }
@@ -156,6 +172,33 @@ function choosePlan(s: StepOf<'choose'>): ChoosePlan {
   return { moves, clickAt: t, dur: t + 650 }
 }
 
+// 點側欄、選單的時間表:滑鼠移過去、停一下、按下,commit 時畫面才真的改變
+const CLICK = { at: 300, arrive: 850, clickAt: 1050, commit: 1200, dur: 1500 }
+const clickTarget = (kind: ClaudeKind, step: ClaudeStep): string | null => {
+  switch (kind) {
+    case 'newSession': return 'new'
+    case 'session': return `session:${(step as StepOf<'session'>).session}`
+    case 'menu': return `more:${(step as StepOf<'menu'>).menu}`
+    case 'fork': return 'menuitem:Fork'
+    default: return null
+  }
+}
+
+// 側欄 ⋯ 選單的項目:[名稱, 右側提示];null 是分隔線
+const MENU_ITEMS: ([label: string, hint: string] | null)[] = [
+  ['Open in', '›'], ['Pin', 'P'], ['Mark as unread', 'U'], ['Rename', 'R'], ['Fork', 'F'], null,
+  ['Move to section', '›'], null, ['Archive', 'A'], ['Delete', 'D'],
+]
+
+/** 載入時檢查 session 操作對不對得上(畫面仍由 render 重播 events 決定) */
+interface Check {
+  names: string[]
+  menu: string | null
+  active: string
+  /** 等待選擇的確認提示有哪些選項 */
+  asking: string[] | null
+}
+
 /** 一個確認提示在這一格的樣子 */
 interface AskState {
   s: StepOf<'ask'>
@@ -166,13 +209,113 @@ interface AskState {
   resolved: boolean
 }
 
-const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, ClaudeTarget>({
+/** 一個 session 在這一格的內容 */
+interface SessionLog {
+  title: string
+  parent: string | null
+  branch: string | null
+  mode: Mode
+  state: SessionState
+  blocks: (string | null)[]
+  asks: AskState[]
+  todos: StepOf<'todos'>['todos'] | null
+  todosAt: number
+  typed: string
+  typing: boolean
+  status: string
+}
+const emptyLog = (title: string, branch: string | null, mode: Mode, parent: string | null = null): SessionLog => ({
+  title, parent, branch, mode, state: 'idle', blocks: [], asks: [], todos: null, todosAt: -1, typed: '', typing: false, status: '',
+})
+
+const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarget>({
   name: 'claude-desktop',
   kinds: KINDS,
+  parts: {
+    titlebar: '.cd-titlebar',
+    tabs: '.cd-tabs',
+    sidebar: '.cd-sidebar',
+    newSession: '.cd-new',
+    sessions: '.cd-sessions, .side-label',
+    account: '.cd-me',
+    head: '.cd-head',
+    meta: '.cd-sessMeta',
+    composer: '.cd-composer',
+    folder: '.cd-folder',
+    branch: '.cd-branch',
+    mode: '.cd-mode',
+    model: '.cd-model',
+  },
+
+  init(props) {
+    const c = conf(props)
+    return { names: [c.title, ...c.sessions], menu: null, active: c.title, asking: null }
+  },
+
+  apply(st, kind, step) {
+    const need = (name: string): void => {
+      if (!st.names.includes(name)) throw new Error(`沒有叫「${name}」的 session(目前有:${st.names.join('、')})`)
+    }
+    const fresh = (name: string): void => {
+      if (st.names.includes(name)) throw new Error(`已經有叫「${name}」的 session`)
+    }
+    if (step.in) {
+      need(step.in)
+      if (clickTarget(kind, step)) throw new Error(`${kind} 是滑鼠操作,不能加 "in"`)
+    }
+    if (st.menu && kind !== 'fork') throw new Error(`「${st.menu}」的選單還開著,下一步要接 fork`)
+    switch (kind) {
+      case 'newSession': {
+        const name = (step as StepOf<'newSession'>).newSession
+        fresh(name)
+        return { ...st, names: [...st.names, name], active: name }
+      }
+      case 'session':
+        need((step as StepOf<'session'>).session)
+        return { ...st, active: (step as StepOf<'session'>).session }
+      case 'menu': {
+        const name = (step as StepOf<'menu'>).menu
+        need(name)
+        return { ...st, menu: name }
+      }
+      case 'fork': {
+        const name = (step as StepOf<'fork'>).fork
+        if (!st.menu) throw new Error('fork 之前要先用 menu 打開選單')
+        fresh(name)
+        return { ...st, names: [...st.names, name], menu: null, active: name }
+      }
+      case 'ask':
+        return (step as StepOf<'ask'>).select == null ? { ...st, asking: askOptions(step as StepOf<'ask'>) } : st
+      case 'choose':
+        return { ...st, asking: null }
+      default:
+        return st
+    }
+  },
+
+  hotspots(st) {
+    const unique = (base: string): string => {
+      let name = base
+      for (let i = 2; st.names.includes(name); i++) name = `${base} ${i}`
+      return name
+    }
+    // 選單開著時只有 Fork 接得上下一步
+    if (st.menu) return [{ target: 'menuitem:Fork', label: 'Fork', step: { fork: unique(`${st.menu} (fork)`) } }]
+    const spots: Hotspot<ClaudeStep>[] = [
+      { target: 'new', label: '新增 session', step: { newSession: unique('新的 session') } },
+      ...st.names.filter((n) => n !== st.active).map((n) => ({ target: `session:${n}`, label: `切換到「${n}」`, step: { session: n } })),
+      ...st.names.map((n) => ({ target: `more:${n}`, label: `「${n}」的選單`, step: { menu: n }, glyph: '⋯' })),
+    ]
+    if (st.asking) return [...spots, ...st.asking.map((o, i) => ({ target: `option:${i}`, label: o, step: { choose: i } }))]
+    return [...spots, { target: 'composer', label: '輸入訊息', input: { placeholder: '描述你要做的事…', step: (text: string) => ({ user: text }) } }]
+  },
 
   duration(kind, step, props) {
+    if (step.in) return 1
+    if (clickTarget(kind, step)) return CLICK.dur
     const c = conf(props)
     switch (kind) {
+      case 'state': return 1
       case 'user': return (len((step as StepOf<'user'>).user) / c.cps.user) * 1000 + 450
       case 'thinking': return 1500
       case 'say': return Math.max(300, (len((step as StepOf<'say'>).say) / c.cps.say) * 1000)
@@ -182,12 +325,14 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, Claude
       case 'ask': return (step as StepOf<'ask'>).select == null ? 900 : 2400
       case 'choose': return choosePlan(step as StepOf<'choose'>).dur
       case 'mode': return 300
+      default: return 1
     }
   },
 
   // 自動鏡頭:打字看輸入框、思考中看最新內容(思考狀態跟在最新文字下方)、確認提示看提示。
   // 回覆、工具、修改、待辦、choose、mode 沿用上一個鏡頭;不用整個對話區(log):範圍太大會拉回全景,輸入後又推近確認框,來回推拉
-  autoFocus(kind) {
+  autoFocus(kind, step) {
+    if (step.in) return undefined
     if (kind === 'user') return 'composer'
     if (kind === 'thinking') return 'latest'
     if (kind === 'ask') return 'ask'
@@ -196,6 +341,8 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, Claude
 
   // 需要虛擬滑鼠的動作:回傳移動的時間表(時間相對於這個動作開始)
   cursor(kind, step): CursorPlan | null {
+    const click = clickTarget(kind, step)
+    if (click) return { moves: [{ at: CLICK.at, target: click }], clickAt: CLICK.clickAt }
     if (kind !== 'choose') return null
     const plan = choosePlan(step as StepOf<'choose'>)
     return { moves: plan.moves.map((m) => ({ at: m.at, target: m.target })), clickAt: plan.clickAt }
@@ -214,15 +361,15 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, Claude
           </div>
           <div class="cd-body">
             <aside class="cd-sidebar">
-              <div class="newbtn"><span class="plus">+</span><span>${esc(c.labels.new)}</span></div>
+              <div class="newbtn cd-new"><span class="plus">+</span><span>${esc(c.labels.new)}</span></div>
               <div class="side-label">${esc(c.labels.recent)}</div>
               <div class="cd-sessions"></div>
               <div class="cd-me"><span class="avatar">${esc(c.user)}</span><span>Max</span></div>
             </aside>
             <main class="cd-main">
               <header class="cd-head">
-                <div class="cd-sessTitle">${esc(c.title)}</div>
-                <div class="cd-sessMeta">${esc(c.branch ? `${c.folder} · ${c.branch}` : c.folder)}</div>
+                <div class="cd-sessTitle"></div>
+                <div class="cd-sessMeta"></div>
               </header>
               <div class="cd-scroll"><div class="cd-log"><div class="cd-blocks"></div><div class="cd-status"></div><div class="cd-tail"></div></div></div>
               <div class="cd-composer">
@@ -252,6 +399,10 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, Claude
       send: $('.cd-send'),
       mode: $('.cd-mode'),
       sessions: $('.cd-sessions'),
+      newBtn: $('.cd-new'),
+      title: $('.cd-sessTitle'),
+      meta: $('.cd-sessMeta'),
+      branch: $('.cd-branch'),
     }
 
     // ---------- 各種區塊 ----------
@@ -297,37 +448,51 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, Claude
       return `<div class="card ask pending"><div class="q">${esc(s.q || '允許 Claude 執行這個指令?')}</div>${s.where ? `<div class="where">▣ ${esc(s.where)}</div>` : ''}<div class="cmd">${esc(s.ask)}</div>${s.preview ? `<div class="preview">${esc(s.preview)}</div>` : ''}${s.note ? `<div class="note">${esc(s.note)}</div>` : ''}<div class="opts">${opts}</div></div>`
     }
 
+    function menuHtml(hoverItem: string): string {
+      const rows = MENU_ITEMS.map((it) => {
+        if (!it) return '<div class="sep"></div>'
+        const [label, hint] = it
+        const cls = `item${label === 'Delete' ? ' danger' : ''}${label === hoverItem ? ' hov' : ''}`
+        return `<div class="${cls}" data-item="${esc(label)}"><span>${esc(label)}</span><span class="hint">${esc(hint)}</span></div>`
+      })
+      return `<div class="cd-menu">${rows.join('')}</div>`
+    }
+
     let lastLog = ''
     return {
       render(frame, ms) {
         const events = frame.events as Ev[]
-        const blocks: (string | null)[] = []
-        let typed = ''
-        let typing = false
-        let status = ''
-        let mode: Mode = c.mode
-        let todos: StepOf<'todos'>['todos'] | null = null
-        let todosAt = -1
-        const asks: AskState[] = []
+        const logs: SessionLog[] = [c.title, ...c.sessions].map((n) => emptyLog(n, c.branch, c.mode))
+        const logOf = (name: string): SessionLog => logs.find((l) => l.title === name) as SessionLog
+        let active = logs[0]
+        let hoverRow = ''
+        let hoverNew = false
+        let menuOf = ''
+        let menuHover = ''
         const star = `<span class="star" style="--r:${(ms * 0.25) % 360}deg">✻</span>`
         for (const ev of events) {
           const { kind, p, local } = ev
+          const log = ev.step.in ? logOf(ev.step.in) : active
+          const { blocks, asks } = log
           switch (kind) {
             case 'user': {
               const s = ev.step as StepOf<'user'>
               const chars = [...s.user]
               const n = Math.floor(kit.clamp(local / (ev.dur - 450)) * chars.length)
               if (p < 1) {
-                typed = chars.slice(0, n).join('')
-                typing = true
-              } else blocks.push(userHtml(s.user))
+                log.typed = chars.slice(0, n).join('')
+                log.typing = true
+              } else {
+                blocks.push(userHtml(s.user))
+                log.state = 'run'
+              }
               break
             }
             case 'thinking': {
               const s = ev.step as StepOf<'thinking'>
               if (p < 1) {
                 const secs = Math.floor(local / 1000)
-                status = `${star}<span>${esc(s.thinking === true ? c.labels.thinking : s.thinking)}…</span><span>${secs ? `${secs}s` : ''}</span>`
+                log.status = `${star}<span>${esc(s.thinking === true ? c.labels.thinking : s.thinking)}…</span><span>${secs ? `${secs}s` : ''}</span>`
               }
               break
             }
@@ -338,17 +503,17 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, Claude
             }
             case 'tool':
               blocks.push(toolHtml(ev.step as StepOf<'tool'>, p, ms))
-              if (p < 1) status = `${star}<span>${esc(c.labels.thinking)}…</span>`
+              if (p < 1) log.status = `${star}<span>${esc(c.labels.thinking)}…</span>`
               break
             case 'edit':
               blocks.push(editHtml(ev.step as StepOf<'edit'>, p))
-              if (p < 1) status = `${star}<span>${esc(c.labels.thinking)}…</span>`
+              if (p < 1) log.status = `${star}<span>${esc(c.labels.thinking)}…</span>`
               break
             case 'todos':
               // 同一份待辦清單會更新而不是重複出現:畫在第一次出現的位置,內容用最新的
-              todos = (ev.step as StepOf<'todos'>).todos
-              if (todosAt < 0) {
-                todosAt = blocks.length
+              log.todos = (ev.step as StepOf<'todos'>).todos
+              if (log.todosAt < 0) {
+                log.todosAt = blocks.length
                 blocks.push(null)
               }
               break
@@ -387,12 +552,62 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, Claude
               break
             }
             case 'mode':
-              mode = (ev.step as StepOf<'mode'>).mode
+              log.mode = (ev.step as StepOf<'mode'>).mode
               break
+            case 'state':
+              log.state = (ev.step as StepOf<'state'>).state
+              break
+            case 'newSession': {
+              const s = ev.step as StepOf<'newSession'>
+              if (local < CLICK.commit) hoverNew = local >= CLICK.arrive
+              else {
+                active = emptyLog(s.newSession, s.branch === undefined ? c.branch : s.branch, c.mode)
+                logs.unshift(active)
+              }
+              break
+            }
+            case 'session': {
+              const s = ev.step as StepOf<'session'>
+              if (local < CLICK.commit) hoverRow = local >= CLICK.arrive ? s.session : ''
+              else active = logOf(s.session)
+              break
+            }
+            case 'menu': {
+              const s = ev.step as StepOf<'menu'>
+              if (local >= CLICK.arrive && local < CLICK.clickAt) hoverRow = s.menu
+              if (local >= CLICK.clickAt) menuOf = s.menu
+              break
+            }
+            case 'fork': {
+              const s = ev.step as StepOf<'fork'>
+              if (local < CLICK.commit) {
+                menuHover = local >= CLICK.arrive ? 'Fork' : ''
+                break
+              }
+              // 帶著對話開新的 session:複製到這裡為止的內容,排在原本的 session 底下
+              const from = logOf(menuOf)
+              const child: SessionLog = {
+                ...emptyLog(s.fork, s.branch === undefined ? from.branch : s.branch, from.mode, from.title),
+                blocks: [...from.blocks, `<div class="forked">⑂ 從「${esc(from.title)}」分支</div>`],
+                asks: from.asks.map((a) => ({ ...a })),
+                todos: from.todos,
+                todosAt: from.todosAt,
+              }
+              let at = logs.indexOf(from) + 1
+              while (logs[at]?.parent === from.title) at++
+              logs.splice(at, 0, child)
+              active = child
+              menuOf = ''
+              menuHover = ''
+              break
+            }
           }
         }
-        if (todosAt >= 0 && todos) blocks[todosAt] = todosHtml(todos)
-        for (const a of asks) blocks[a.idx] = askHtml(a.s, a)
+        const { blocks, typed, typing, status, mode } = active
+        for (const l of logs) {
+          if (l.todosAt >= 0 && l.todos) l.blocks[l.todosAt] = todosHtml(l.todos)
+          for (const a of l.asks) l.blocks[a.idx] = askHtml(a.s, a)
+        }
 
         const html = blocks.join('')
         if (html !== lastLog) {
@@ -411,14 +626,28 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, Claude
         // 最新內容帶:貼在對話內容的底部(內容不夠高就從頂端算起)
         el.tail.style.top = `${Math.max(0, el.log.scrollHeight - el.tail.offsetHeight)}px`
 
+        kit.setIf(el.title, 'text', active.title)
+        kit.setIf(el.meta, 'text', active.branch ? `${c.folder} · ${active.branch}` : c.folder)
+        kit.setIf(el.branch, 'text', `⑂ ${active.branch || ''}`)
+        el.branch.hidden = !active.branch
+        el.newBtn.classList.toggle('hov', hoverNew)
+
+        // 只有一個 session 的腳本:燈號照舊,跟著最後一個動作;有多個 session 時每個 session 自己記狀態
+        const multi = events.some((e) => e.step.in || e.kind === 'state' || clickTarget(e.kind, e.step))
         const last = events.at(-1)
         const busy = last && ms < last.start + last.dur
-        const dot = !events.length ? '' : busy ? 'run' : 'ok'
+        const single = !events.length ? '' : busy ? 'run' : 'ok'
+        const pulse = (0.65 + 0.35 * Math.sin(ms / 260)).toFixed(2)
         kit.setIf(
           el.sessions,
           'html',
-          [`<div class="sess on"><span class="dot ${dot}"></span><span class="name">${esc(c.title)}</span></div>`]
-            .concat(c.sessions.map((n) => `<div class="sess"><span class="dot"></span><span class="name">${esc(n)}</span></div>`))
+          logs
+            .map((l, i) => {
+              const dot = multi ? (l.state === 'idle' ? '' : l.state) : i === 0 ? single : ''
+              const cls = `sess${l === active ? ' on' : ''}${l.title === hoverRow || l.title === menuOf ? ' hov' : ''}`
+              const style = dot === 'run' && multi ? ` style="opacity:${pulse}"` : ''
+              return `<div class="sess-row${l.parent ? ' nested' : ''}"><div class="${cls}" data-sess="${esc(l.title)}"><span class="dot ${dot}"${style}></span><span class="name">${esc(l.title)}</span><span class="more">⋯</span></div>${l.title === menuOf ? menuHtml(menuHover) : ''}</div>`
+            })
             .join(''),
         )
       },
@@ -427,7 +656,17 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, undefined, Claude
         const lastOf = (sel: string): HTMLElement | null => [...root.querySelectorAll<HTMLElement>(sel)].at(-1) || null
         const opt = /^option:(\d+)$/.exec(name)
         if (opt) return lastOf('.cd-log .ask.pending')?.querySelector<HTMLElement>(`[data-opt="${opt[1]}"]`) || null
+        const sess = /^(session|more):(.+)$/.exec(name)
+        if (sess) {
+          const row = [...root.querySelectorAll<HTMLElement>('[data-sess]')].find((x) => x.dataset.sess === sess[2])
+          return sess[1] === 'more' ? row?.querySelector<HTMLElement>('.more') || null : row || null
+        }
+        const item = /^menuitem:(.+)$/.exec(name)
+        if (item) return [...root.querySelectorAll<HTMLElement>('.cd-menu [data-item]')].find((x) => x.dataset.item === item[1]) || null
         switch (name as ClaudeTarget) {
+          case 'new': return el.newBtn
+          case 'sessions': return el.sessions
+          case 'menu': return root.querySelector<HTMLElement>('.cd-menu')
           case 'composer': return $('.cd-composer')
           case 'input': return $('.cd-input')
           case 'send': return $('.cd-send')

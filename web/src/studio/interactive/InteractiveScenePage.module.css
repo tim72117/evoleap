@@ -17,6 +17,59 @@
   font: 15px/1.5 -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
 }
 
+/* 嵌進其他頁面(首頁的展示):播放器維持 16:9,問題和選項放在下方,字級不跟著舞台縮小。舞台固定亮色,這區也是 */
+.embed {
+  --accent: #d97757;
+  --fg: #1f1e1b;
+  --dim: #6f6c64;
+  --surface: #fffdf8;
+  --line: #e2ddd0;
+  min-width: 0;
+  color: var(--fg);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+}
+
+.embedBox {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #e9e5dc;
+}
+
+.embedBox :global(.vp) {
+  height: 100%;
+  aspect-ratio: auto;
+  background: none;
+}
+
+.embedBox :global(.vp-fs) {
+  display: none;
+}
+
+/* 演員可能超出 1920×1080(鏡頭推近時),推到主畫面時要看得到,裁切交給外框。和 shell.css 的 .vp-float 同樣的處理 */
+.embedBox :global(.vp-canvas) > * {
+  background: none;
+  overflow: visible;
+}
+
+.embedBox :global(.live-stage .st-over) {
+  overflow: visible;
+}
+
+.embedBox :global(.live-stage .st-card) {
+  inset: -100%;
+}
+
+.embedMoment {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  scroll-margin: 80px 0 16px;
+}
+
 .panelOpen {
   --vp-inset-right: 392px;
 }

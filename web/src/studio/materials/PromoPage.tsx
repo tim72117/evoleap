@@ -80,7 +80,7 @@ export function PromoPage() {
     setParams({ ...(sc ? { script: sc } : {}), ...(asp === 'portrait' ? { aspect: 'portrait' } : {}) })
   }
   return (
-    <ProposalLayout title="宣傳影片" footer="課程研發工作區 · 宣傳影片腳本在 web/src/content/live/promo/">
+    <ProposalLayout title="宣傳影片" footer="研發基地 · 宣傳影片腳本在 web/src/content/live/promo/">
       <h1>宣傳影片</h1>
       <p className={ui.lead}>
         用即時教學畫面做的宣傳片，腳本放在 web/src/content/live/promo/。網頁上直接播放；要輸出 mp4 在 web/ 執行
@@ -106,7 +106,7 @@ export function PromoPage() {
 /** 輸入 src/content/live/ 底下任何腳本的路徑(例如 l0/0.2-site.json),看它在目前方向下的樣子 */
 function ScriptInput({ value, onSubmit }: { value: string; onSubmit: (path: string) => void }) {
   const [text, setText] = useState(value)
-  const paths = scriptPaths.filter((p) => !/\.(voice|mix)\.json$/.test(p)).sort()
+  const paths = scriptPaths().filter((p) => !/\.(voice|mix)\.json$/.test(p)).sort()
   return (
     <form
       className={styles.pathform}

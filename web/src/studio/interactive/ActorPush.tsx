@@ -12,6 +12,8 @@ import styles from './InteractiveScenePage.module.css'
 
 /** 目標推近後的中心;比畫面中央低一點,上方留給提問卡 */
 const CENTER = { x: 960, y: 620 }
+/** 橫式、問題放在舞台外(嵌進頁面的小播放器):上方不用留提問卡,靠上才不會被控制列蓋住 */
+const CENTER_OUTSIDE = { x: 960, y: 380 }
 /** 直式:推近後的中心(底部抽屜展開時,可見的舞台只有上半部,要靠上) */
 const CENTER_PORTRAIT = { x: 540, y: 1000 }
 const CENTER_DRAWER = { x: 540, y: 600 }
@@ -68,7 +70,7 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
 
     const f = found[focusRef]
     if (f) {
-      const c = portrait ? (inDrawer ? CENTER_DRAWER : CENTER_PORTRAIT) : CENTER
+      const c = portrait ? (inDrawer ? CENTER_DRAWER : CENTER_PORTRAIT) : inDrawer ? CENTER_OUTSIDE : CENTER
       const zoom = Math.max(1, Math.min(MAX_ZOOM, portrait ? 980 / f.w : 1500 / f.w, portrait ? (inDrawer ? 560 : 800) / f.h : 640 / f.h))
       root.style.transform = `translate(${c.x - (f.x + f.w / 2) * zoom}px, ${c.y - (f.y + f.h / 2) * zoom}px) scale(${zoom})`
       root.style.setProperty('--push-zoom', String(zoom))

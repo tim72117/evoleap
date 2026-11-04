@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
@@ -39,6 +40,52 @@ func (e adminEnv) googleCookie(t *testing.T, email string) *http.Cookie {
 		t.Fatal(err)
 	}
 	return &http.Cookie{Name: sessionCookie, Value: token}
+}
+
+func TestInternalAccess(t *testing.T) {
+	env := newAdminEnv(t, "boss@example.com")
+	srv := New(Config{Store: env.st, Signer: env.signer, AdminEmails: "boss@example.com"})
+	access := func(cookies ...*http.Cookie) Access {
+		req := httptest.NewRequest(http.MethodGet, "/studio", nil)
+		for _, c := range cookies {
+			req.AddCookie(c)
+		}
+		return srv.InternalAccess(req)
+	}
+
+	if got := access(); got != AccessGuest {
+		t.Errorf("沒有 cookie = %v, want guest", got)
+	}
+	if got := access(&http.Cookie{Name: sessionCookie, Value: "bad"}); got != AccessGuest {
+		t.Errorf("無效 cookie = %v, want guest", got)
+	}
+	if got := access(env.googleCookie(t, "boss@example.com")); got != AccessAllowed {
+		t.Errorf("白名單 + Google = %v, want allowed", got)
+	}
+	if got := access(env.googleCookie(t, "other@example.com")); got != AccessDenied {
+		t.Errorf("不在白名單 = %v, want denied", got)
+	}
+
+	// 白名單的 Email 用密碼註冊(沒驗證所有權)不算管理員
+	pw := New(Config{Store: env.st, Signer: env.signer, AdminEmails: "pw@example.com"})
+	u, err := env.st.CreatePasswordUser(context.Background(), "pw@example.com", "PW", "hash")
+	if err != nil {
+		t.Fatal(err)
+	}
+	token, err := env.signer.Sign(u.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := httptest.NewRequest(http.MethodGet, "/studio", nil)
+	req.AddCookie(&http.Cookie{Name: sessionCookie, Value: token})
+	if got := pw.InternalAccess(req); got != AccessDenied {
+		t.Errorf("密碼帳號 = %v, want denied", got)
+	}
+
+	// 沒開放登入:沒有登入頁可導,一律拒絕
+	if got := New(Config{}).InternalAccess(httptest.NewRequest(http.MethodGet, "/studio", nil)); got != AccessDenied {
+		t.Errorf("登入停用 = %v, want denied", got)
+	}
 }
 
 func TestIsAdminEmail(t *testing.T) {
