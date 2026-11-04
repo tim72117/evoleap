@@ -38,7 +38,7 @@ test('sitemap 的每個網址:200、head 標籤完整且正確', async ({ reques
     expect.soft(h.meta('og:title'), `${path}:og:title 與 <title> 一致`).toEqual([h.titles[0]])
     expect.soft(h.meta('og:description'), `${path}:og:description`).toEqual(h.meta('description'))
     expect.soft(h.meta('og:image').length, `${path}:og:image 數量`).toBe(1)
-    expect.soft(h.meta('og:image')[0] ?? '', `${path}:og:image 須為絕對網址`).toMatch(/^https:\/\/shuttle\.tools\/.+/)
+    expect.soft(h.meta('og:image')[0] ?? '', `${path}:og:image 須為絕對網址`).toMatch(new RegExp(`^${ORIGIN}/.+`))
     expect.soft(h.meta('twitter:card'), `${path}:twitter:card`).toEqual(['summary_large_image'])
     expect.soft(h.meta('robots').join(' '), `${path}:不可 noindex`).not.toContain('noindex')
     for (const ld of h.jsonLd) {
@@ -101,7 +101,7 @@ test('robots.txt 有 Sitemap、沒有封鎖全站', async ({ request }) => {
   expect(r.status()).toBe(200)
   expect(r.headers()['content-type']).toContain('text/plain')
   const body = await r.text()
-  expect(body).toMatch(/^Sitemap: https:\/\/shuttle\.tools\/sitemap\.xml$/m)
+  expect(body).toMatch(new RegExp(`^Sitemap: ${ORIGIN}/sitemap\\.xml$`, 'm'))
   expect(body).toMatch(/^User-agent: \*$/m)
   expect(body).not.toMatch(/^Disallow:\s*\/\s*$/m)
 })
