@@ -1,4 +1,4 @@
-module github.com/tim72117/shuttle
+module github.com/tim72117/evoleap
 
 go 1.26.0
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/tim72117/shuttle/internal/store"
+	"github.com/tim72117/evoleap/internal/store"
 )
 
 // 播放進度只給登入的會員:訪客的進度不存(前端不會呼叫,後端也一律回 401)。

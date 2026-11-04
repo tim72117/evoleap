@@ -77,7 +77,7 @@ git tag -a v0.1.0 -m "..." && git push origin v0.1.0
 ```
 
 - 打 `v*` tag 觸發 `.github/workflows/deploy-cloudrun.yml`：先跑完整測試（`test.yml`），通過才 build 並部署到 Cloud Run。
-- GitHub repo secrets：`WIF_PROVIDER`、`WIF_SERVICE_ACCOUNT`（Workload Identity Federation，provider `github-provider-vibing` 只允許 `tim72117/shuttle`；repo 改名時要同步更新 provider 的 attribute condition 與 service account 的 workloadIdentityUser 綁定，否則部署會在驗證步驟失敗）；repo variable `GA_MEASUREMENT_ID`（選填，未設定不載入 GA）。
+- GitHub repo secrets：`WIF_PROVIDER`、`WIF_SERVICE_ACCOUNT`（Workload Identity Federation，provider `github-provider-vibing` 只允許 `tim72117/evoleap`；repo 改名時要同步更新 provider 的 attribute condition 與 service account 的 workloadIdentityUser 綁定，否則部署會在驗證步驟失敗）；repo variable `GA_MEASUREMENT_ID`（選填，未設定不載入 GA）。
 - 登入功能目前停用：Cloud Run 上沒有 `DATABASE_URL` 時伺服器自動停用登入，網站其他部分照常運作。要啟用時：
   - Cloud SQL：與 tripace 共用實例 `onagent-prod:asia-east1:onagent-db`，建立資料庫 `shuttle`。
   - Secret Manager（專案 shuttle-045094509）：`SHUTTLE_DATABASE_URL`、`SHUTTLE_JWT_SECRET`、`SHUTTLE_GOOGLE_OAUTH_CLIENT_ID`。

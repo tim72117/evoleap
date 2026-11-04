@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/tim72117/shuttle/internal/store"
+	"github.com/tim72117/evoleap/internal/store"
 )
 
 // 管理後台 API(/api/admin/*)。沿用 tripace 的做法:不另建管理員帳號系統,

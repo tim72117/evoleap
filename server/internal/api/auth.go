@@ -9,8 +9,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/tim72117/shuttle/internal/auth"
-	"github.com/tim72117/shuttle/internal/store"
+	"github.com/tim72117/evoleap/internal/auth"
+	"github.com/tim72117/evoleap/internal/store"
 )
 
 // 登入狀態存在 HttpOnly cookie(內容是自家 JWT),前端 JS 讀不到 token;

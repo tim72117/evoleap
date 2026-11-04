@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tim72117/shuttle/internal/auth"
-	"github.com/tim72117/shuttle/internal/store"
+	"github.com/tim72117/evoleap/internal/auth"
+	"github.com/tim72117/evoleap/internal/store"
 )
 
 func newTestServer(t *testing.T) http.Handler {
