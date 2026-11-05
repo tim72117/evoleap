@@ -1,12 +1,13 @@
 // 課程地圖的資料。由上往下 = 由淺入深。LEVELS 是主題「做出自己的軟體」，AI_APP_LEVELS 是主題「打造 AI 互動軟體」（見 topics.ts）。
 // 規劃中('planned')的課程只放暫定名稱、簡述與暫定的課程內容主題;不要在這裡寫未確認的事實
 // (價格、日期、堂數、講師、評價等)。要新增 / 調整等級,直接編輯 LEVELS 陣列即可。
+import courseSeed from '../../../server/internal/store/courses_seed.json'
 import { AI_AGENT_COURSE_PATH, COURSE } from './aiAgent'
 
 export type CourseStatus = 'available' | 'planned'
 
-/** 'free' = 免費;'login-free' = 登入後免費;'subscription' = 訂閱客戶才能存取;'tbd' = 尚未決定(不顯示價格標籤) */
-export type CourseAccess = 'free' | 'login-free' | 'subscription' | 'tbd'
+/** 'free' = 免費;'login-free' = 登入後免費;'subscription' = 訂閱客戶才能存取。除了前兩種,其他課程都要訂閱 */
+export type CourseAccess = 'free' | 'login-free' | 'subscription'
 
 /** 圖卡插圖樣式(對應 HomePage.tsx 內的 SVG 插圖) */
 export type CourseArt = 'tools' | 'chat' | 'build' | 'agent' | 'advanced'
@@ -34,11 +35,17 @@ export type CourseLevel = {
   prerequisite?: string
 }
 
-export const ACCESS_LABEL: Record<CourseAccess, string | null> = {
+/** 課程的存取方式只寫在 courses_seed.json,前後端共用;找不到或值不對時直接丟錯,不能默默當成免費 */
+export function accessOf(id: string, seed: readonly { id: string; access: string }[] = courseSeed): CourseAccess {
+  const access = seed.find((course) => course.id === id)?.access
+  if (access === 'free' || access === 'login-free' || access === 'subscription') return access
+  throw new Error(`courses_seed.json 沒有課程 ${id} 的存取方式,或值不正確:${access}`)
+}
+
+export const ACCESS_LABEL: Record<CourseAccess, string> = {
   free: '免費',
   'login-free': '登入後免費',
   subscription: '訂閱專屬',
-  tbd: null,
 }
 
 /** 主題「做出自己的軟體」的一句話說明:首頁卡片、課程地圖頁、搜尋描述共用 */
@@ -63,7 +70,7 @@ export const LEVELS: CourseLevel[] = [
       { id: '0.2', text: '一段話描述，做出一頁式網站，再精確調整到滿意' },
     ],
     status: 'planned',
-    access: 'free',
+    access: accessOf('tools'),
     art: 'tools',
     link: '/courses/tools',
     prerequisite: '會用電腦開資料夾、用瀏覽器上網即可；需要一台可以安裝軟體的電腦',
@@ -81,7 +88,7 @@ export const LEVELS: CourseLevel[] = [
       '做成「需求 → 工作項目」範本，重複的事交給 AI',
     ],
     status: 'planned',
-    access: 'login-free',
+    access: accessOf('ai-tools'),
     art: 'chat',
     link: '/courses/ai-tools',
     prerequisite: '不需要任何程式背景；建議先完成「AI 工具介紹」',
@@ -98,7 +105,7 @@ export const LEVELS: CourseLevel[] = [
       '用自動化測試，確保 AI 不會改壞既有功能',
     ],
     status: 'planned',
-    access: 'subscription',
+    access: accessOf('vibe-coding-basics'),
     art: 'build',
     link: '/courses/vibe-coding',
     prerequisite: '會使用 AI 工具，願意開始動手寫程式',
@@ -127,7 +134,7 @@ export const AI_APP_LEVELS: CourseLevel[] = [
       '期末專案：打字就能用的資料分析介面',
     ],
     status: 'planned',
-    access: 'tbd',
+    access: accessOf('ai-agent'),
     art: 'agent',
     link: AI_AGENT_COURSE_PATH,
     prerequisite: '熟悉 JavaScript / TypeScript 與基礎 Web 前端開發，會使用終端機與 Git',
@@ -144,7 +151,7 @@ export const AI_APP_LEVELS: CourseLevel[] = [
       '上線、監控與維運',
     ],
     status: 'planned',
-    access: 'tbd',
+    access: accessOf('advanced'),
     art: 'advanced',
     link: '/courses/advanced',
     prerequisite: '完成中階課程或具備同等經驗',

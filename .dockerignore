@@ -1,4 +1,4 @@
-# 只有 server/ 與 web/ 參與映像建置,其餘排除以縮小 build context。
+# 只有 server/、web/ 與 packages/ 參與映像建置,其餘排除以縮小 build context。
 .git/
 .github/
 .claude/

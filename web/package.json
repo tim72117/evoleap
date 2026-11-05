@@ -18,6 +18,7 @@
     "check": "npm run typecheck && npm run test && npm run build && npm run test:e2e"
   },
   "dependencies": {
+    "@paddle/paddle-js": "^1.6.5",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-markdown": "^10.1.0",

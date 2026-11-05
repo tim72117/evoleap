@@ -9,7 +9,8 @@ import styles from './CourseList.module.css'
 
 function CourseCard({ course }: { course: Course }) {
   const path = coursePath(course)
-  const access = ACCESS_LABEL[ALL_LEVELS.find((l) => l.link === path)?.access ?? 'tbd']
+  const level = ALL_LEVELS.find((l) => l.link === path)
+  const access = level ? ACCESS_LABEL[level.access] : null
   const open = openLessonsOf(course).length
   return (
     <li className={styles.card}>

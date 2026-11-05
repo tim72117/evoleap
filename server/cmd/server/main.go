@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"net/http"
@@ -10,7 +11,11 @@ import (
 
 	"github.com/tim72117/evoleap/internal/api"
 	"github.com/tim72117/evoleap/internal/auth"
+	"github.com/tim72117/evoleap/internal/plans"
 	"github.com/tim72117/evoleap/internal/store"
+	"github.com/tim72117/subscription"
+	"github.com/tim72117/subscription/gormstore"
+	"github.com/tim72117/subscription/paddle"
 )
 
 // authRateLimitPerIP 是正式環境每個來源 IP 每分鐘可嘗試登入、註冊的次數。
@@ -43,10 +48,19 @@ func main() {
 	if dsn == "" && !onCloudRun {
 		dsn = *dbPath
 	}
+	if err := plans.Catalog.Validate(); err != nil {
+		log.Fatal(err)
+	}
+	env := paddleEnv()
+	catalog := plans.Catalog.ForEnv(env)
 	cfg := api.Config{
 		GoogleClientID: os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		SecureCookie:   onCloudRun,
 		AdminEmails:    os.Getenv("ADMIN_BOOTSTRAP_EMAIL"),
+	}
+	provider := paymentProvider(env)
+	if provider != nil && !catalog.HasPrices() {
+		log.Printf("方案資料沒有 %s 環境的價格:訂閱無法結帳", env)
 	}
 	if dsn == "" {
 		log.Print("未設定 DATABASE_URL:登入功能停用")
@@ -60,7 +74,13 @@ func main() {
 		if onCloudRun && secret == auth.DefaultDevJWTSecret {
 			log.Fatal("已設定 DATABASE_URL 但 JWT_SECRET 未設定")
 		}
+		subscriptions, err := gormstore.NewService(st.DB(), catalog, subscription.Options{Provider: provider, UserExists: st.UserExists})
+		if err != nil {
+			log.Fatal(err)
+		}
+		go subscriptions.Run(context.Background())
 		cfg.Store = st
+		cfg.Subscriptions = subscriptions
 		cfg.Signer = auth.NewSigner(secret, 30*24*time.Hour)
 	}
 	if onCloudRun {
@@ -80,4 +100,29 @@ func main() {
 	if err := http.ListenAndServe(*addr, mux); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// paddleEnv 回傳 Paddle 的環境;PADDLE_ENV 為 production 才連正式環境,其他值都是 sandbox。
+func paddleEnv() subscription.Env {
+	if os.Getenv("PADDLE_ENV") == "production" {
+		return subscription.EnvProduction
+	}
+	return subscription.EnvSandbox
+}
+
+// paymentProvider 依環境變數建立金流商;沒有 webhook 金鑰時回傳 nil,不接受付款事件。
+func paymentProvider(env subscription.Env) subscription.Provider {
+	secret := os.Getenv("PADDLE_WEBHOOK_SECRET")
+	if secret == "" {
+		return nil
+	}
+	baseURL := paddle.SandboxURL
+	if env == subscription.EnvProduction {
+		baseURL = paddle.ProductionURL
+	}
+	apiKey := os.Getenv("PADDLE_API_KEY")
+	if apiKey == "" {
+		log.Print("未設定 PADDLE_API_KEY:無法建立結帳、管理訂閱,全額退款時也無法停止續訂")
+	}
+	return paddle.New(paddle.Config{APIKey: apiKey, WebhookSecret: secret, ClientToken: os.Getenv("PADDLE_CLIENT_TOKEN"), BaseURL: baseURL})
 }

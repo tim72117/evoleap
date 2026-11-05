@@ -107,6 +107,16 @@ export function requiresLogin(course: Course): boolean {
   return ALL_LEVELS.find((l) => l.link === coursePath(course))?.access === 'login-free'
 }
 
+/** 這門課對應的課程地圖等級 id,也是 /api/courses/{id}/access 的 id */
+export function levelIdOf(course: Course): string | undefined {
+  return ALL_LEVELS.find((l) => l.link === coursePath(course))?.id
+}
+
+/** 課程地圖標示「訂閱專屬」的課程:單課頁要有訂閱才能看(SubscriptionGate) */
+export function requiresSubscription(course: Course): boolean {
+  return ALL_LEVELS.find((l) => l.link === coursePath(course))?.access === 'subscription'
+}
+
 /** 已開放的單課:有可以播放的影片,序章這類短導覽不算 */
 export function openLessonsOf(course: Course): CourseLesson[] {
   return course.lessons.filter((l) => !l.label && l.videos.some((v) => v.live))

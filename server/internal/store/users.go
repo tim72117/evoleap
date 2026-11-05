@@ -181,3 +181,27 @@ func notFound(err error) error {
 	}
 	return err
 }
+
+// UserExists 回傳使用者是否存在。
+func (s *Store) UserExists(ctx context.Context, id string) (bool, error) {
+	var count int64
+	err := s.db.WithContext(ctx).Model(&userRow{}).Where("id = ?", id).Count(&count).Error
+	return count > 0, err
+}
+
+// DeleteUser 刪除帳號與播放進度。訂閱與付款紀錄為了對帳與處理爭議會保留,見隱私權政策的「保存期間」。
+func (s *Store) DeleteUser(ctx context.Context, id string) error {
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Delete(&progressRow{}, "user_id = ?", id).Error; err != nil {
+			return err
+		}
+		res := tx.Delete(&userRow{}, "id = ?", id)
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected == 0 {
+			return ErrNotFound
+		}
+		return nil
+	})
+}

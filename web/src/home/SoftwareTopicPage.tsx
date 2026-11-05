@@ -48,11 +48,9 @@ function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
         </div>
         <div className={styles.body}>
           <p className={styles.badges}>
-            {access && (
-              <span className={`${styles.badge} ${level.access === 'free' ? styles.badgeFree : styles.badgeLogin}`}>
-                {access}
-              </span>
-            )}
+            <span className={`${styles.badge} ${level.access === 'free' ? styles.badgeFree : styles.badgeLogin}`}>
+              {access}
+            </span>
             {available ? (
               <span className={`${styles.badge} ${styles.badgeOpen}`}>課程內容已上架</span>
             ) : opened.length ? (

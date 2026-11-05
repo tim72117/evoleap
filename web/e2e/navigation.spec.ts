@@ -124,6 +124,16 @@ test('Claude Code 工作術:首頁卡片進入主題頁,列出情境,沒有等�
   expect(errors).toEqual([])
 })
 
+test('收費頁:訂閱方案列出 L2、按鈕停用,沒有單門購買', async ({ page }) => {
+  const errors = collectErrors(page)
+  await page.goto('/pricing')
+  await expect(page.getByRole('heading', { level: 2, name: '訂閱方案' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '即將開放訂閱' })).toBeDisabled()
+  await expect(page.locator('main').getByRole('link', { name: /Vibe Coding 入門/ })).toBeVisible()
+  await expect(page.getByText(/購買/)).toHaveCount(0)
+  expect(errors).toEqual([])
+})
+
 test('舊的首頁錨點導到主題頁:/#map、/#level-tools', async ({ page }) => {
   await page.goto('/#map')
   await expect(page).toHaveURL('/topics/software#map')
@@ -415,6 +425,7 @@ test('L0 第 2 課是互動版:播到響應式的互動點會停下,選手機後
 const PAGES = [
   ...distSitemapPaths(),
   '/login',
+  '/pricing',
   '/docs/live',
   '/studio',
   '/studio/todo',

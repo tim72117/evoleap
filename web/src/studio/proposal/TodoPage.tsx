@@ -5,21 +5,33 @@ import ui from './proposal.module.css'
 
 type Todo = { title: string; problem: string; action: string }
 
-const DECISIONS: { title: string; detail: string }[] = []
+const DECISIONS: { title: string; detail: string }[] = [
+  { title: '訂閱的價格', detail: '月繳、年繳的金額，以及要不要試用。' },
+]
 
 const GROUPS: { title: string; items: Todo[] }[] = [
   {
     title: '付費與法律頁',
     items: [
       {
-        title: '條款與程式不一致',
-        problem: '服務條款和退款政策寫自動續訂、可看所有付費課程，但實際只能單門課一次性購買。',
-        action: '付費模式已定為訂閱制：條文不動，把收費頁與後端改成訂閱。對齊前不開放付款。',
+        title: '重複訂閱與對不上的付款要人工處理',
+        problem: '重複訂閱會自動停止續訂，但已付款項不會自動退；對不上帳號或價格的付款只留下紀錄與 log，沒有通知，也沒有後台可以查。',
+        action: '定期查 subscription_events 的 duplicate、unknown_user、unknown_price，對應的交易在 subscription_payments，取消失敗放棄的工作在 subscription_tasks（failed_at 有值），之後再做通知或後台。補上方案價格後可以用 POST /api/admin/subscription-events/{id}/replay 重新處理。',
       },
       {
-        title: '隱私權政策的資料欄位不符',
-        problem: '頁面寫保存訂閱編號、訂閱狀態與當期起訖時間，程式實際保存的是購買紀錄。',
-        action: '後端改成保存訂閱紀錄，和頁面寫的欄位一致。',
+        title: '條款與程式不一致',
+        problem: '收費頁與條款都寫訂閱制，Paddle webhook 也已改用訂閱套件，收費頁也接上了月繳與年繳的結帳，但還沒有價格，也沒有對 sandbox 實際測試；沒有設定價格時按鈕會停用。',
+        action: '在 Paddle 建立月繳與年繳價格，通知目的地勾選 subscription.*、adjustment.* 與 transaction.completed，API key 開 customer_portal_session.write 權限，設定 PADDLE_ 環境變數，把 ID 填進 server/internal/plans/plans.go，走完訂閱、續訂、扣款失敗、取消與退款後才開放付款。',
+      },
+      {
+        title: '會員看不到訂閱狀態',
+        problem: '收費頁已能看到到期日、扣款失敗提醒與管理入口，但會員選單沒有。',
+        action: '加進會員選單，取消方式要和退款政策寫的一致。',
+      },
+      {
+        title: '收費頁還沒有對外開放',
+        problem: '/pricing 設為 noindex，導覽列沒有入口，訂閱課程也沒有連到這一頁。',
+        action: '開放付款時拿掉 noindex，加上導覽入口，訂閱課程連到訂閱方案。',
       },
     ],
   },
@@ -27,19 +39,14 @@ const GROUPS: { title: string; items: Todo[] }[] = [
     title: '課程存取',
     items: [
       {
-        title: 'L2 的訂閱限制還沒做',
-        problem: '課程地圖已標示訂閱專屬，但還沒有訂閱功能，L2 目前也沒有課程內容可以限制。',
-        action: 'L2 上架內容前，加上訂閱檢查，只讓訂閱客戶觀看。',
+        title: '訂閱課程的內容還在公開 bundle',
+        problem: '後端已有 GET /api/courses/{id}/access，前端也有訂閱閘門，但課程內容目前都打包在公開的 bundle 裡，閘門只擋畫面。L2 以上還沒有內容，所以現在沒有外流。',
+        action: '上架 L2 內容前決定內容怎麼由後端提供，端點要經過 courseAccess 檢查。',
       },
       {
-        title: '收費頁的分組要對齊 L2',
-        problem: 'L2 已定為訂閱專屬，收費頁仍把它和尚未決定的課一起列在「進階課程」，填入價格後會出現單門購買按鈕。',
-        action: '把 L2 列為訂閱內容、不提供單門購買，並把「尚未決定」和「收費」分開判斷。',
-      },
-      {
-        title: '已建立的資料庫不會更新存取設定',
-        problem: '初始資料只補上不存在的課程，已有的 L1、L2 資料會維持舊值。',
-        action: '上線前確認資料庫的值，必要時用 migration 更新。',
+        title: '背景工作在 Cloud Run 可能不會持續執行',
+        problem: '取消失敗的重試靠伺服器內的定時工作，Cloud Run 預設只在處理請求時分配 CPU，沒有流量時重試會延後到下一次請求。',
+        action: '決定要開 --no-cpu-throttling、設最少執行個體，或用 Cloud Scheduler 定期觸發。',
       },
     ],
   },

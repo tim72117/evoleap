@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, type Course } from '../content/catalog'
+import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, requiresSubscription, type Course } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
 import { withL0Moments } from '../studio/interactive/l0-0.0'
@@ -15,6 +15,7 @@ import { COURSE_LIST } from '../content/topics'
 import { LessonPage } from './LessonPage'
 import { LoginGate } from './LoginGate'
 import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
+import { SubscriptionGate } from './SubscriptionGate'
 
 /** 用互動版播放的課:課號 → 把互動點加進課程腳本的函式 */
 const INTERACTIVE_LESSONS: Record<string, (script: StageScript) => StageScript> = {
@@ -30,6 +31,13 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
   ) : (
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )
+  if (requiresSubscription(course)) {
+    return (
+      <SubscriptionGate key={lesson.id} course={course} lesson={lesson}>
+        {page}
+      </SubscriptionGate>
+    )
+  }
   return requiresLogin(course) ? (
     <LoginGate
       key={lesson.id}
