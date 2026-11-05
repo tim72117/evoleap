@@ -15,6 +15,7 @@ import { NewsFeedPage } from './NewsFeedPage'
 import { ProposalIndexPage } from './ProposalIndexPage'
 import { ResourcesPage } from './ResourcesPage'
 import { StructurePage } from './StructurePage'
+import { TodoPage } from './TodoPage'
 import { ToolsPage } from './ToolsPage'
 import { VibeCodingPage } from './VibeCodingPage'
 import { VisualsPage } from './VisualsPage'
@@ -23,6 +24,7 @@ import { VisualsPage } from './VisualsPage'
 // L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced；跨等級構想 mcp、member、resources、news-feed、ai-tips、visuals、actor-interaction（演員互動：構想、showcase 演員展示、scene 互動教學場景、push 把演員推到主畫面、static 靜態演員）。
 export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio', element: <ProposalIndexPage /> },
+  { path: '/studio/todo', element: <TodoPage /> },
   { path: '/studio/tools', element: <ToolsPage /> },
   { path: '/studio/ai-tools', element: <AiToolsPage /> },
   { path: '/studio/life-tools', element: <LifeToolsPage /> },

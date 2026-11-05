@@ -1,0 +1,184 @@
+{
+  "title": "Fork：帶著對話另開一條路",
+  "lesson": "示範影片",
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "加上訂購表單",
+        "folder": "~/Documents/bakery",
+        "branch": "feat/order-form",
+        "mode": "auto",
+        "dark": true,
+        "user": "E",
+        "labels": {
+          "recent": "bakery",
+          "new": "New session"
+        }
+      },
+      "place": {
+        "x": 70,
+        "y": 45,
+        "w": 1780,
+        "h": 990
+      },
+      "parts": {
+        "account": false
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "同一段對話，另開一條路",
+      "eyebrow": "Claude Code 桌面版 · 示意動畫",
+      "sub": "想試另一個方向，不必從頭講起",
+      "chapter": "開場",
+      "narration": "想試另一個方向，又不想打斷現在的對話，可以用 Fork。"
+    },
+    {
+      "show": "claude",
+      "chapter": "先有一段對話"
+    },
+    {
+      "user": "幫首頁加一個訂購表單，要有品項、數量和取貨日期",
+      "narration": "先請 Claude 加上訂購表單。"
+    },
+    {
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "edit": "index.html",
+      "lines": [
+        [
+          41,
+          " ",
+          "<main>"
+        ],
+        [
+          42,
+          "+",
+          "  <form id=\"order\">"
+        ],
+        [
+          43,
+          "+",
+          "    <select name=\"item\"></select>"
+        ],
+        [
+          44,
+          "+",
+          "    <input name=\"qty\" type=\"number\">"
+        ],
+        [
+          45,
+          "+",
+          "    <input name=\"pickup\" type=\"date\">"
+        ],
+        [
+          46,
+          "+",
+          "    <button>送出訂單</button>"
+        ],
+        [
+          47,
+          "+",
+          "  </form>"
+        ],
+        [
+          48,
+          " ",
+          "</main>"
+        ]
+      ]
+    },
+    {
+      "say": "訂購表單加好了，在 `index.html` 第 42 行，送出後會顯示確認訊息。"
+    },
+    {
+      "state": "ok",
+      "pause": 0
+    },
+    {
+      "callout": "claude:say",
+      "text": "做好了。但也想問問另一種做法",
+      "ms": 2600,
+      "narration": "表單做好了。如果想從同一段對話，問問另一個方向呢？"
+    },
+    {
+      "menu": "加上訂購表單",
+      "chapter": "用 Fork 分出去",
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.35
+      },
+      "narration": "按這個 session 的選單，選 Fork。"
+    },
+    {
+      "fork": "加上訂購表單 (fork)",
+      "branch": null
+    },
+    {
+      "callout": "claude:head",
+      "text": "Fork 帶著目前的對話，另開一個 session",
+      "ms": 3000,
+      "focus": false,
+      "narration": "Fork 會帶著到目前為止的對話，另外開一個 session，之後兩邊的對話各走各的。"
+    },
+    {
+      "callout": "claude:head",
+      "text": "複製的是對話。檔案有沒有分開，改之前要先確認",
+      "ms": 3400,
+      "focus": false,
+      "narration": "要注意，Fork 複製的是對話。檔案有沒有分開，動手改之前要先確認。"
+    },
+    {
+      "user": "先不要改檔案。如果不用表單，改成加入 LINE 官方帳號訂購，要改哪些地方？",
+      "chapter": "問另一個方向",
+      "narration": "不用重新說明背景，直接問另一個方向。這裡先討論，不改檔案。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "say": "要改兩個地方：把 `index.html` 第 42 到 47 行的表單換成 LINE 訂購按鈕，再拿掉送出後的確認訊息。目前還沒有改任何檔案。"
+    },
+    {
+      "state": "ok",
+      "pause": 0
+    },
+    {
+      "session": "加上訂購表單",
+      "chapter": "原本的對話還在",
+      "focus": false,
+      "narration": "原本那段對話還在，隨時可以切回去繼續。"
+    },
+    {
+      "wait": 950,
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.6
+      },
+      "pause": 0
+    },
+    {
+      "callout": "claude:sessions",
+      "text": "兩段對話都留在左邊",
+      "ms": 3000,
+      "focus": {
+        "target": "claude:sessions",
+        "zoom": 1.6
+      }
+    },
+    {
+      "card": "想試別的方向，先 Fork",
+      "eyebrow": "evoleap",
+      "sub": "要改檔案前，先確認檔案有沒有分開",
+      "chapter": "結尾",
+      "narration": "想試別的方向，先 Fork。要改檔案前，記得先確認檔案有沒有分開。"
+    }
+  ]
+}

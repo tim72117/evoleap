@@ -4,13 +4,13 @@ import { useCanSeeStudio } from '../auth/AuthContext'
 import { UserMenu } from '../auth/UserMenu'
 import styles from './SiteLayout.module.css'
 import { documentTitle, SITE_NAME, SITE_TAGLINE } from './siteInfo'
-import { SOFTWARE_TOPIC } from '../content/topics'
+import { COURSE_LIST, SOFTWARE_TOPIC } from '../content/topics'
 
-type NavItem = { label: string; to: string | { pathname: string; hash: string }; end?: boolean }
+type NavItem = { label: string; to: string; end?: boolean }
 
 const NAV: NavItem[] = [
   { label: '首頁', to: '/', end: true },
-  { label: '課程地圖', to: { pathname: SOFTWARE_TOPIC.path, hash: 'map' } },
+  { label: COURSE_LIST.name, to: COURSE_LIST.path, end: true },
 ]
 
 type Props = {
@@ -73,18 +73,11 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
             <span className={styles.brandTagline}>{SITE_TAGLINE}</span>
           </Link>
           <nav className={styles.nav} aria-label="主要導覽">
-            {NAV.map((item) =>
-              typeof item.to === 'string' ? (
-                <NavLink key={item.label} to={item.to} end={item.end}>
-                  {item.label}
-                </NavLink>
-              ) : (
-                // Hash link: not an active route of its own, so a plain Link.
-                <Link key={item.label} to={item.to}>
-                  {item.label}
-                </Link>
-              ),
-            )}
+            {NAV.map((item) => (
+              <NavLink key={item.label} to={item.to} end={item.end}>
+                {item.label}
+              </NavLink>
+            ))}
           </nav>
           <button
             type="button"
@@ -120,6 +113,9 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
             </Link>
             <Link className={styles.devLink} to="/terms">
               服務條款
+            </Link>
+            <Link className={styles.devLink} to="/refund">
+              退款政策
             </Link>
             {canSeeStudio && (
               <Link className={styles.devLink} to="/studio">

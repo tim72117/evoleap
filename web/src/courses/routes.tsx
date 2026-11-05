@@ -8,7 +8,9 @@ import { withL0IntroMoments } from '../studio/interactive/l0-intro'
 import type { StageScript } from '../live/stage'
 import { AiAgentCoursePage } from './AiAgentCoursePage'
 import { InteractiveLessonPage } from './InteractiveLessonPage'
+import { CourseListPage } from './CourseListPage'
 import { CourseOverviewPage } from './CourseOverviewPage'
+import { COURSE_LIST } from '../content/topics'
 import { LessonPage } from './LessonPage'
 import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
 
@@ -22,6 +24,7 @@ const INTERACTIVE_LESSONS: Record<string, (script: StageScript) => StageScript> 
 
 // 依 catalog.ts 產生每門課的總覽頁、上課頁與規劃中章節頁的路由。
 export const courseRoutes: { path: string; element: JSX.Element }[] = [
+  { path: COURSE_LIST.path, element: <CourseListPage /> },
   // L3 的課程總覽是專屬頁面(catalog 裡標記 customOverview)
   { path: AI_AGENT_COURSE_PATH, element: <AiAgentCoursePage /> },
   ...COURSES.flatMap((course) => [

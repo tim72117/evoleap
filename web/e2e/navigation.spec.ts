@@ -28,7 +28,7 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
   await expectHeadMatches(page, request, '/')
 
   // 首頁的主打主題 → 主題頁
-  await page.getByRole('link', { name: '看全部課程' }).click()
+  await page.locator('main').getByRole('link', { name: '課程地圖', exact: true }).click()
   await expectHeadMatches(page, request, '/topics/software')
 
   // 課程地圖的 L0 卡片
@@ -72,6 +72,46 @@ test('課程地圖每張卡片的連結都能開啟(不是 404)', async ({ page,
     await expectHeadMatches(page, request, href)
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('找不到頁面')
   }
+  expect(errors).toEqual([])
+})
+
+test('全部課程:導覽列可以進入,每張卡片的連結都能開啟(不是 404)', async ({ page, request }) => {
+  const errors = collectErrors(page)
+  await page.goto('/')
+  await page.locator('header').getByRole('link', { name: '全部課程', exact: true }).click()
+  await expectHeadMatches(page, request, '/courses')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('全部課程')
+  const links = await page.locator('main li a[href^="/courses/"]').evaluateAll((els) => els.map((e) => e.getAttribute('href')!))
+  expect(links.length).toBe(5)
+  for (const href of links) {
+    await page.goto('/courses')
+    await page.locator(`main li a[href="${href}"]`).click()
+    await expectHeadMatches(page, request, href)
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('找不到頁面')
+  }
+  expect(errors).toEqual([])
+})
+
+test('Claude Code 工作術:首頁卡片進入主題頁,列出情境,沒有等級', async ({ page, request }) => {
+  const errors = collectErrors(page)
+  await page.goto('/')
+  await page.getByRole('article').filter({ hasText: 'Claude Code 工作術' }).getByRole('link', { name: /看課程規劃/ }).click()
+  await expectHeadMatches(page, request, '/topics/claude-code')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Claude Code 工作術')
+  const rows = page.locator('#scenarios ul > li h4')
+  await expect(rows).toHaveCount(7)
+  await expect(page.locator('#main')).not.toContainText('Level')
+  // Fork 的示範影片是公開的腳本,未登入也能載入
+  await expect(page.locator('#scenarios .vp')).toHaveCount(0)
+  const row = page.getByRole('button', { name: '拿不定主意，想同時試好幾版' })
+  await expect(row).toHaveAttribute('aria-expanded', 'false')
+  await row.click()
+  await expect(row).toHaveAttribute('aria-expanded', 'true')
+  await expect(page.locator('#scenarios .vp')).toBeVisible()
+  await expect(page.getByText('找不到即時教學畫面的腳本')).toHaveCount(0)
+  // 收合整組
+  await page.getByRole('button', { name: /全部情境/ }).click()
+  await expect(rows).toHaveCount(0)
   expect(errors).toEqual([])
 })
 
@@ -363,6 +403,7 @@ const PAGES = [
   '/login',
   '/docs/live',
   '/studio',
+  '/studio/todo',
   '/materials',
   '/studio/actor-interaction/scene',
   '/studio/actor-interaction/push',

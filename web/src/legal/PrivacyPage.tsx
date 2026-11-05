@@ -3,12 +3,12 @@ import { ContactEmail, Ext, Fill, LegalDoc, Note, Table, type LegalSection } fro
 import { OPERATOR_NAME } from './operator'
 
 /** 最後更新日期;內容有實質變更時一併更新 */
-const PRIVACY_UPDATED = '2026-11-04'
+const PRIVACY_UPDATED = '2026-11-05'
 
 // 本政策描述的是網站「目前」的實際狀況:Email/密碼與 Google 登入(帳號存在 Cloud SQL)、
 // 登入 cookie evoleap_session、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
-// 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)。新增任何蒐集資料的功能(例如練習完成狀態、表單、付費)前,
-// 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/api/progress.go、server/internal/store/users.go、server/internal/store/progress.go、
+// 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)、Paddle 付款與訂閱紀錄(訂閱制條文先於程式改寫,開放付費前 purchases 要改成對應的訂閱資料)。新增任何蒐集資料的功能(例如練習完成狀態、表單)前,
+// 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/api/progress.go、server/internal/store/users.go、server/internal/store/progress.go、server/internal/api/paddle.go、server/internal/store/purchases.go、web/src/pricing/、
 // web/src/site/analytics.ts。
 
 const sections: LegalSection[] = [
@@ -40,6 +40,9 @@ const sections: LegalSection[] = [
             <strong>播放進度</strong>（只有登入後才有）：您看過哪幾課的教學畫面、停在第幾秒、該課全長與最後更新時間。
           </li>
           <li>
+            <strong>訂閱紀錄</strong>（只有訂閱後才有）：訂閱編號、方案、價格編號、訂閱狀態、當期起訖時間、取消時間，以及每筆交易的編號、付款與退款時間。付款資料由 Paddle 處理，我們拿不到您的卡號（見「付款與訂閱紀錄」）。
+          </li>
+          <li>
             <strong>登入狀態</strong>：登入後放在您瀏覽器裡的 <code>evoleap_session</code> cookie。
           </li>
           <li>
@@ -52,7 +55,7 @@ const sections: LegalSection[] = [
             <strong>第三方服務自行蒐集的資料</strong>：「使用 Google 帳號登入」由 Google 依其政策處理。課程影片由本網站直接產生畫面，不透過 YouTube 等第三方影音平台播放。
           </li>
         </ul>
-        <p>本網站目前沒有付費功能、留言或報名表單，也沒有放置廣告或廣告追蹤像素。</p>
+        <p>本網站目前沒有留言或報名表單，也沒有放置廣告或廣告追蹤像素。</p>
       </>
     ),
   },
@@ -62,7 +65,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          本網站的課程都是免費課程，不登入也能觀看；登入後會記錄您的播放進度。註冊與登入有兩種方式：
+          目前開放的課程內容不登入也能觀看；登入後會記錄您的播放進度。註冊與登入有兩種方式：
         </p>
         <h3>以 Email 與密碼註冊</h3>
         <ul>
@@ -92,18 +95,39 @@ const sections: LegalSection[] = [
         </p>
         <h3>我們用帳號資料做什麼</h3>
         <ul>
-          <li>讓您登入、維持登入狀態，並記錄您的播放進度。</li>
+          <li>讓您登入、維持登入狀態，記錄您的播放進度，並把訂閱狀態記在您的帳號上。</li>
           <li>辨識是同一個人，避免重複註冊或他人冒用您的 Email。</li>
           <li>回覆您主動提出的查詢、更正、刪除等請求。</li>
         </ul>
         <Note>
           <p>
-            帳號只保存上面列出的資料。<strong>登入後</strong>，我們會記錄您的播放進度，讓您下次從上次看到的地方接著看；<strong>未登入時不會儲存任何播放進度</strong>，先前留在瀏覽器裡的舊進度也會被清除。除此之外沒有記錄其他觀看紀錄，也不會把您的 Email 或帳號編號傳給 Google Analytics。日後若要記錄其他學習資料（例如練習完成狀態），會先更新本政策說明。
+            帳號只保存上面列出的資料，以及訂閱後的訂閱紀錄（見「付款與訂閱紀錄」）。<strong>登入後</strong>，我們會記錄您的播放進度，讓您下次從上次看到的地方接著看；<strong>未登入時不會儲存任何播放進度</strong>，先前留在瀏覽器裡的舊進度也會被清除。除此之外沒有記錄其他觀看紀錄，也不會把您的 Email 或帳號編號傳給 Google Analytics。日後若要記錄其他學習資料（例如練習完成狀態），會先更新本政策說明。
           </p>
         </Note>
         <h3>刪除帳號</h3>
         <p>
           網站目前還沒有「刪除帳號」的按鈕。如需刪除帳號，請用您註冊時的 Email 來信 <ContactEmail /> 提出，我們確認是本人後會刪除您的帳號資料（詳見「保存期間」與「您的權利」）。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'payment',
+    title: '付款與訂閱紀錄',
+    body: (
+      <>
+        <p>
+          付費訂閱的訂單由 Paddle.com 處理，Paddle 是交易主體（Merchant of Record），會依 <Ext href="https://www.paddle.com/legal/privacy">Paddle 隱私權政策</Ext>處理您的付款資料。
+        </p>
+        <h3>Paddle 會處理的資料</h3>
+        <p>
+          結帳視窗由 Paddle 提供，您在裡面輸入的資料（例如卡號、持卡人姓名、Email、國家或地區）會直接傳給 Paddle。<strong>我們不會取得也不會儲存您的完整卡號與安全碼。</strong>您開啟課程方案頁或結帳時，瀏覽器會連線到 Paddle，Paddle 可能因此取得您的 IP 位址與瀏覽器資訊，並使用它自己的 cookie。為了自動續訂，您的付款方式由 Paddle 保存。
+        </p>
+        <h3>我們提供給 Paddle 的資料</h3>
+        <p>開啟結帳時，我們會把您帳號的 Email 與帳號編號交給 Paddle，用來預先填入 Email，並在付款完成後把訂閱記到正確的帳號。</p>
+        <h3>我們保存的資料</h3>
+        <p>
+          訂閱開始、續訂、扣款失敗、取消、付款完成或退款時，Paddle 會通知我們的伺服器。我們保存訂閱編號、方案、價格編號、訂閱狀態、當期起訖時間、取消時間、您的帳號編號，以及每筆交易的編號、付款與退款時間，用來開通與停止付費內容、處理退款與對帳。
         </p>
       </>
     ),
@@ -214,6 +238,12 @@ const sections: LegalSection[] = [
               '2 年',
             ],
             [
+              '由 Paddle 決定',
+              'Paddle（第三方）',
+              '課程方案頁與結帳視窗的運作、防詐欺，以及 Paddle 自己的用途。',
+              '依 Paddle 的設定，詳見 Paddle 隱私權政策',
+            ],
+            [
               '由 Google 決定',
               'Google（第三方）',
               '「使用 Google 帳號登入」按鈕，以及 Google 自己的用途。',
@@ -235,26 +265,26 @@ const sections: LegalSection[] = [
         <p>依個資法第 8 條，說明如下：</p>
         <ul>
           <li>
-            <strong>蒐集目的：</strong>提供網站與課程服務、會員帳號管理與登入驗證、網站使用情形的統計分析與服務改善、網站維運與資訊安全管理、回應您的請求。
+            <strong>蒐集目的：</strong>提供網站與課程服務、會員帳號管理與登入驗證、付費訂閱的開通、續訂、取消與退款處理、網站使用情形的統計分析與服務改善、網站維運與資訊安全管理、回應您的請求。
           </li>
           <li>
-            <strong>資料類別：</strong>帳號資料（Email、名稱、密碼雜湊值、Google 帳號 ID）；登入 cookie；GA 統計資料（瀏覽頁面、互動事件、裝置資訊、大略地區、訪客識別碼）；伺服器存取記錄（IP 位址、時間、請求網址、User-Agent、Referer 等）。
+            <strong>資料類別：</strong>帳號資料（Email、名稱、密碼雜湊值、Google 帳號 ID）；訂閱紀錄（訂閱編號、方案、價格編號、訂閱狀態、當期起訖時間、取消時間，以及交易編號、付款與退款時間）；登入 cookie；GA 統計資料（瀏覽頁面、互動事件、裝置資訊、大略地區、訪客識別碼）；伺服器存取記錄（IP 位址、時間、請求網址、User-Agent、Referer 等）。
           </li>
           <li>
             <strong>利用期間：</strong>見下一節「保存期間」。
           </li>
           <li>
-            <strong>利用地區：</strong>帳號資料存放於 Google Cloud 位於臺灣的資料中心。伺服器存取記錄與 GA 資料由 Google 處理，可能存放或處理於臺灣境外的 Google 資料中心。
+            <strong>利用地區：</strong>帳號資料存放於 Google Cloud 位於臺灣的資料中心。伺服器存取記錄與 GA 資料由 Google 處理，可能存放或處理於臺灣境外的 Google 資料中心。Paddle 位於臺灣境外，您在結帳時提供的資料與我們交給 Paddle 的 Email、帳號編號會傳送到境外處理。
           </li>
           <li>
-            <strong>利用對象：</strong>我們；受我們委託處理資料的 Google（Google Cloud 代管網站與資料庫、Google Analytics 統計、Google 帳號登入）；另於法律要求時，提供給依法有權調閱的機關。
+            <strong>利用對象：</strong>我們；受我們委託處理資料的 Google（Google Cloud 代管網站與資料庫、Google Analytics 統計、Google 帳號登入）；處理訂單與付款的 Paddle；另於法律要求時，提供給依法有權調閱的機關。
           </li>
           <li>
             <strong>利用方式：</strong>以自動化系統蒐集、儲存與處理；統計資料以彙整報表方式查看；帳號資料與存取記錄於維運、排查問題或處理您的請求時由我們查閱。
           </li>
         </ul>
         <p>
-          您可以自由選擇是否註冊帳號；不註冊仍可觀看所有課程，只是不會記錄播放進度。伺服器存取記錄是網站運作時自動產生的，GA 則可依前述方式拒絕。
+          您可以自由選擇是否註冊帳號；不註冊仍可觀看目前開放的課程內容，只是不會記錄播放進度；訂閱則需要帳號。伺服器存取記錄是網站運作時自動產生的，GA 則可依前述方式拒絕。
         </p>
       </>
     ),
@@ -266,6 +296,9 @@ const sections: LegalSection[] = [
       <ul>
         <li>
           <strong>帳號資料：</strong>在您的帳號存在期間保存。您提出刪除請求並經確認後，我們會在合理期間內刪除；我們的目標是在 30 日內完成。若資料庫備份中仍有副本，會隨備份到期而淘汰。依法律規定或為處理爭議、資安事件而必須保留的資料，會在必要期間內保留，屆時會向您說明。
+        </li>
+        <li>
+          <strong>訂閱紀錄：</strong>帳號存在期間保存，取消或退款後也會保留紀錄。帳號刪除後，為處理退款、爭議與對帳，訂閱與交易編號、方案與時間仍會在必要期間內保留。Paddle 保有的資料依 Paddle 隱私權政策處理。
         </li>
         <li>
           <strong>登入 cookie：</strong>存在您的瀏覽器中，最長 30 天，登出時清除。
@@ -284,7 +317,7 @@ const sections: LegalSection[] = [
     title: '不出售您的資料',
     body: (
       <p>
-        我們不會出售、出租或交換您的個人資料，也不會將其提供給第三方做行銷用途。除了上面提到受託處理資料的 Google（Google Cloud、Google Analytics、Google 帳號登入），以及法律要求或為保護本網站與使用者安全所必要的情形外，我們不會將資料提供給他人。
+        我們不會出售、出租或交換您的個人資料，也不會將其提供給第三方做行銷用途。除了上面提到受託處理資料的 Google（Google Cloud、Google Analytics、Google 帳號登入）、處理訂單的 Paddle，以及法律要求或為保護本網站與使用者安全所必要的情形外，我們不會將資料提供給他人。
       </p>
     ),
   },
@@ -297,6 +330,7 @@ const sections: LegalSection[] = [
         <ul>
           <li>本網站全程使用 HTTPS 加密連線，您輸入的 Email 與密碼在傳輸過程中會被加密。</li>
           <li>密碼只以經過不可逆處理的雜湊值保存，不保存密碼原文。</li>
+          <li>完整卡號與安全碼由 Paddle 處理，不會經過或存放在我們的伺服器。</li>
           <li>
             登入 cookie 設為 HttpOnly，網頁上的 JavaScript 無法讀取，降低被惡意程式竊取的風險；它只會傳送給本網站。
           </li>
@@ -323,6 +357,9 @@ const sections: LegalSection[] = [
         </ol>
         <p>
           請來信 <ContactEmail /> 提出申請。若是關於帳號資料，請用您註冊時的 Email 寄出，或在信中註明該 Email，我們會依 Email 查找您的帳號；為避免把資料交給他人，我們可能需要合理確認您是帳號本人（例如請您從該 Email 回信）。
+        </p>
+        <p>
+          Paddle 保有的付款資料，請依 Paddle 隱私權政策向 Paddle 提出；我們也可以協助轉達。
         </p>
         <p>
           伺服器存取記錄並未與帳號連結，若要查詢這部分，請一併提供您當時使用的 IP 位址與大約的瀏覽時間。GA 資料只以隨機的訪客識別碼記錄，我們通常無法辨認哪些屬於您；您可以依「網站使用統計」一節的方式拒絕 GA，或清除瀏覽器的 <code>_ga</code> cookie。
@@ -367,7 +404,7 @@ export function PrivacyPage() {
     <LegalDoc
       title="隱私權政策"
       updated={PRIVACY_UPDATED}
-      intro="簡單說：看公開課程不必註冊。若您註冊或登入，我們會保存 Email、名稱，以及密碼的雜湊值（不是密碼本身）或 Google 帳號 ID，資料存放在 Google Cloud 的臺灣機房，並用一個 cookie 記住您的登入狀態。我們用 Google Analytics 統計網站使用情形，但不會把您的 Email 或帳號傳給它；Google 登入按鈕則由 Google 依其政策處理。我們不出售您的資料，您可以隨時來信要求查詢、更正或刪除。以下是完整說明。"
+      intro="簡單說：看公開課程不必註冊。若您註冊或登入，我們會保存 Email、名稱，以及密碼的雜湊值（不是密碼本身）或 Google 帳號 ID，資料存放在 Google Cloud 的臺灣機房，並用一個 cookie 記住您的登入狀態。我們用 Google Analytics 統計網站使用情形，但不會把您的 Email 或帳號傳給它；Google 登入按鈕則由 Google 依其政策處理；付費訂閱的付款由 Paddle 處理，我們拿不到您的完整卡號。我們不出售您的資料，您可以隨時來信要求查詢、更正或刪除。以下是完整說明。"
       sections={sections}
     />
   )

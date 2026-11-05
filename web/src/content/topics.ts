@@ -28,6 +28,45 @@ export const AI_APPS_TOPIC = {
   description: '學會打造會動手做事的 AI 軟體：寫出工具、讓 AI 自己判斷要呼叫哪一個，做成打字提問就能用的介面，並穩定上線。課程規劃中。',
 }
 
+/** 主題「Claude Code 工作術」:只整理使用情境、沒有實作,不分等級,還在規劃中 */
+export const CLAUDE_CODE_TOPIC = {
+  name: 'Claude Code 工作術',
+  slogan: '遇到這些情況時，該怎麼用',
+  path: '/topics/claude-code',
+  seoTitle: 'Claude Code 使用技巧：常見情境與對應做法',
+  description: '整理使用 Claude Code 時的常見情境：換手機接著做、同時試好幾版、接回昨天的對話、把規則寫下來。遇到哪個情況就看哪一個。內容規劃中。',
+}
+
+/** 這個主題的情境,依遇到的情況列出,沒有先後順序。tools 是會用到的功能,名稱以官方文件為準,改版時要更新 */
+export const CLAUDE_CODE_SCENARIOS: {
+  title: string
+  summary: string
+  tools: string[]
+  /** 示範影片:src/content/live/ 底下的腳本路徑 */
+  video?: { script: string; title: string; duration: string }
+}[] = [
+  {
+    title: '拿不定主意，想同時試好幾版',
+    summary: '從同一段對話分出去，各試一個方向，看過再決定留哪一個。',
+    tools: ['/fork', '/branch', 'Worktree'],
+    video: { script: 'claude-code/fork.json', title: 'Fork：帶著對話另開一條路', duration: '約 1 分鐘' },
+  },
+  { title: '出門了，想用手機接著做', summary: 'AI 繼續在電腦上做，你在路上也能看進度、接著下指令。', tools: ['/remote-control'] },
+  { title: '好幾件事想同時做', summary: '把互不相干的事分給不同的對話，自己只負責檢查與決定。', tools: ['多個 session', 'Worktree'] },
+  { title: '昨天做到一半，今天想接著做', summary: '找回之前的對話接著做，不用重新交代一次。', tools: ['/resume', 'claude --continue'] },
+  { title: '對話越聊越長', summary: '把目前的對話濃縮成摘要繼續，或開一段乾淨的新對話。', tools: ['/compact', '/clear'] },
+  { title: '每次都要重講同樣的規則', summary: '把專案的固定規則寫進說明檔，每次新對話都會先讀。', tools: ['CLAUDE.md', '/init'] },
+  { title: '任務要跑很久，不想一直盯著', summary: '把對話丟到背景繼續跑，先去忙別的，之後再回來看結果。', tools: ['/background', 'claude agents'] },
+]
+
+/** 全部課程的清單頁:跨主題列出 catalog.ts 的每一門課 */
+export const COURSE_LIST = {
+  name: '全部課程',
+  path: '/courses',
+  seoTitle: '全部課程：從零基礎到 AI 互動軟體',
+  description: '依主題列出所有 AI 課程：從零基礎做出自己的網站與小工具，到打造會查資料、跑分析的 AI 互動軟體。可以看到每門課目前開放與規劃中的狀態。',
+}
+
 /** 課程所在的主題(依課程頁路徑判斷):麵包屑、「課程地圖」連結用 */
 export function topicOfCourse(coursePath: string): { name: string; path: string } {
   return AI_APP_LEVELS.some((l) => l.link === coursePath) ? AI_APPS_TOPIC : SOFTWARE_TOPIC
@@ -36,10 +75,14 @@ export function topicOfCourse(coursePath: string): { name: string; path: string 
 export type PlannedTopic = {
   name: string
   slogan: string
+  /** 主題名稱旁的圖示(HomePage 的 TOPIC_ICONS) */
+  icon?: 'terminal'
   /** 已有課程地圖頁的主題：首頁卡片連到這裡 */
   path?: string
   /** 預計會做出的成果 */
-  outcomes: string[]
+  outcomes?: string[]
+  /** 只整理使用情境、沒有實作的主題:列出涵蓋的情境(取代 outcomes) */
+  scenarios?: string[]
   /** 過程的步驟(沒有 sample 時顯示) */
   flow?: string[]
   /** 整理前後的示意 */
@@ -67,5 +110,10 @@ export const PLANNED_TOPICS: PlannedTopic[] = [
       after: ['照片/2026-07/海邊-01.jpg', '帳單/2026-07-電費.pdf', '支出/2026-07.xlsx'],
     },
     outcomes: ['每月支出表', '依日期分類好的照片資料夾', '合併好、沒有重複的表格'],
+  },
+  {
+    ...CLAUDE_CODE_TOPIC,
+    icon: 'terminal',
+    scenarios: CLAUDE_CODE_SCENARIOS.map((s) => s.title),
   },
 ]

@@ -266,6 +266,12 @@
   font-size: 20px;
 }
 
+.themeIcon {
+  margin-right: 8px;
+  color: var(--site-accent-strong);
+  vertical-align: -3px;
+}
+
 .themeSlogan {
   margin: 0;
   color: var(--site-muted);

@@ -50,7 +50,7 @@ const LEVELS: LevelBlock[] = [
   {
     code: 'L1',
     title: 'AI 工具入門',
-    access: '免費',
+    access: '登入後免費',
     stage: { cls: 'todo', text: '大綱完成 · 待寫腳本' },
     summary: `零基礎、只用瀏覽器，不講 AI 原理。${count('L1')}。`,
     points: [
@@ -85,7 +85,7 @@ const LEVELS: LevelBlock[] = [
   {
     code: 'L2',
     title: 'Vibe Coding 入門',
-    access: '登入後免費',
+    access: '尚未決定',
     stage: { cls: 'todo', text: '大綱草稿' },
     summary: `工具與環境從零開始，以個人頁部署收尾。草稿 ${count('L2')}。`,
     points: ['工具：終端機、VS Code、Git／GitHub、Node.js LTS、AI 程式助手', '附 Windows／macOS 環境檢查表'],

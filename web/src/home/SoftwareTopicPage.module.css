@@ -521,3 +521,205 @@
     max-width: 170px;
   }
 }
+
+/* ---------- 不分等級的主題:可收合的條列清單(ClaudeCodeTopicPage) ---------- */
+.group {
+  overflow: hidden;
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+}
+
+.groupHead {
+  margin: 0;
+  font-size: inherit;
+}
+
+.groupToggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 20px;
+  border: 0;
+  background: var(--site-surface-2);
+  color: var(--site-text);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chevron {
+  flex: none;
+  color: var(--site-muted);
+  transition: transform 0.15s;
+}
+
+.groupToggle[aria-expanded='true'] .chevron {
+  transform: rotate(90deg);
+}
+
+.groupCount {
+  margin-left: auto;
+  color: var(--site-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.rows {
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  border-top: 1px solid var(--site-border);
+}
+
+.rows > li + li {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--site-border);
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.rowPlayable:hover,
+.rowPlayable:focus-within {
+  background: var(--site-surface-2);
+}
+
+.rowIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--site-surface-2);
+  color: var(--site-muted);
+}
+
+.rowPlayable .rowIcon {
+  color: var(--site-accent-strong);
+}
+
+.rowText {
+  flex: 1;
+  min-width: 0;
+}
+
+.rowText h4 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* 整列都可以點 */
+.rowButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rowButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+}
+
+.rowButton:focus-visible {
+  outline: none;
+}
+
+.rowButton:focus-visible::after {
+  outline: 2px solid var(--site-accent-strong);
+  outline-offset: -2px;
+}
+
+.rowText p {
+  margin: 2px 0 0;
+  color: var(--site-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.tools {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  color: var(--site-muted);
+}
+
+.tools code {
+  display: inline-block;
+  margin: 2px 6px 2px 0;
+  padding: 1px 9px;
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface-2);
+  color: var(--site-text);
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.rowMeta {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  color: var(--site-muted);
+  font-size: 13.5px;
+}
+
+.tag {
+  padding: 2px 10px;
+  border: 1px solid var(--site-border);
+  border-radius: 6px;
+  color: var(--site-text);
+  white-space: nowrap;
+}
+
+.tagPlanned {
+  color: var(--site-muted);
+  border-style: dashed;
+}
+
+.rowPlayer {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin: 4px 12px 12px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #000;
+}
+
+@media (max-width: 640px) {
+  .row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .rowText {
+    flex-basis: calc(100% - 42px);
+  }
+
+  .rowMeta {
+    margin-left: 42px;
+  }
+
+  .rowPlayer {
+    margin: 4px 0 8px;
+  }
+}

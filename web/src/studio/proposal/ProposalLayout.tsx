@@ -5,7 +5,7 @@ import ui from './proposal.module.css'
 type Tab = { to: string; label: string; code?: string; match?: string; also?: string[] }
 
 /** 一級頁籤:每一個對應一個區塊,第二排再列出該區塊裡的頁面。 */
-type Section = { id: 'overview' | 'levels' | 'ideas' | 'docs' | 'tools'; label: string; to: string; tabs?: Tab[] }
+type Section = { id: 'overview' | 'todo' | 'levels' | 'ideas' | 'docs' | 'tools'; label: string; to: string; tabs?: Tab[] }
 
 /** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級。 */
 const LEVELS: Tab[] = [
@@ -29,6 +29,7 @@ const IDEAS: Tab[] = [
 
 const SECTIONS: Section[] = [
   { id: 'overview', label: '總覽', to: '/studio' },
+  { id: 'todo', label: '待辦', to: '/studio/todo' },
   { id: 'levels', label: '課程', to: '/studio/tools', tabs: LEVELS },
   { id: 'ideas', label: '構想', to: '/studio/mcp', tabs: IDEAS },
   { id: 'docs', label: '文件', to: '/studio#docs' },
@@ -64,6 +65,7 @@ const tabActive = (t: Tab, pathname: string): boolean =>
 /** 目前的頁面屬於哪個區塊(「文件」是連到總覽的錨點,不會成為目前區塊) */
 function sectionOf(pathname: string): Section['id'] | null {
   if (pathname === '/studio') return 'overview'
+  if (pathname === '/studio/todo') return 'todo'
   if (LEVELS.some((t) => tabActive(t, pathname))) return 'levels'
   if (IDEAS.some((t) => tabActive(t, pathname))) return 'ideas'
   if (pathname.startsWith('/materials')) return 'tools'

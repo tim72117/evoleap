@@ -11,6 +11,16 @@ const indexable = PAGES.filter((p) => !p.noindex)
 const INTERNAL_PREFIXES = ['/studio', '/docs', '/materials', '/login', '/admin']
 const isInternal = (path: string) => INTERNAL_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))
 
+describe('全部課程', () => {
+  it('有 SEO 資料,結構化資料列出每一門有課程頁的課', () => {
+    const page = findPage('/courses')!
+    expect(page).not.toBe(NOT_FOUND)
+    const list = page.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { url: string }[] }
+    expect(list.itemListElement.map((x) => x.url)).toContain(absoluteUrl('/courses/ai-agent'))
+    expect(list.itemListElement.map((x) => x.url)).toContain(absoluteUrl('/courses/tools'))
+  })
+})
+
 describe('主題頁', () => {
   const software = findPage('/topics/software')!
   const aiApps = findPage('/topics/ai-apps')!
@@ -81,7 +91,7 @@ describe('PAGES', () => {
   })
 
   it('home and the course pages are indexable', () => {
-    expect(indexable.map((p) => p.path)).toEqual(expect.arrayContaining(['/', '/courses/tools', '/privacy', '/terms']))
+    expect(indexable.map((p) => p.path)).toEqual(expect.arrayContaining(['/', '/courses/tools', '/privacy', '/terms', '/refund']))
   })
 })
 

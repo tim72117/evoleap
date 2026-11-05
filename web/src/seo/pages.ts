@@ -7,9 +7,9 @@
 // 新增其他類型的頁面時,在下方 PAGES 加一筆(內部頁加在 internalPages.ts)。
 import { AI_AGENT_COURSE_PATH, COURSE } from '../content/aiAgent'
 import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath } from '../content/catalog'
-import { AI_APP_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
+import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
-import { AI_APPS_TOPIC, HOME_INTRO, SOFTWARE_TOPIC, topicOfCourse } from '../content/topics'
+import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, SOFTWARE_TOPIC, topicOfCourse } from '../content/topics'
 
 type JsonLd = Record<string, unknown>
 
@@ -119,6 +119,24 @@ const SOFTWARE_TOPIC_PAGE = topicPage(SOFTWARE_TOPIC, LEVELS)
 
 const AI_APPS_TOPIC_PAGE = topicPage(AI_APPS_TOPIC, AI_APP_LEVELS)
 
+const COURSE_LIST_PAGE = topicPage(COURSE_LIST, ALL_LEVELS)
+
+/** 不分等級、沒有課程頁的主題:結構化資料只列情境名稱 */
+const CLAUDE_CODE_TOPIC_PAGE: PageMeta = {
+  path: CLAUDE_CODE_TOPIC.path,
+  title: documentTitle(CLAUDE_CODE_TOPIC.seoTitle),
+  sitemapPriority: 0.9,
+  description: CLAUDE_CODE_TOPIC.description,
+  jsonLd: [
+    breadcrumb([CLAUDE_CODE_TOPIC.name, CLAUDE_CODE_TOPIC.path]),
+    ld({
+      '@type': 'ItemList',
+      name: CLAUDE_CODE_TOPIC.name,
+      itemListElement: CLAUDE_CODE_SCENARIOS.map((s, i) => ({ '@type': 'ListItem', position: i + 1, name: s.title })),
+    }),
+  ],
+}
+
 const AI_AGENT_COURSE: PageMeta = {
   path: AI_AGENT_COURSE_PATH,
   title: documentTitle(COURSE.title),
@@ -181,6 +199,12 @@ const LEGAL_PAGES: PageMeta[] = [
     description: '瀏覽與使用 evoleap.io 網站及其中課程的服務條款。',
     sitemapPriority: 0.3,
   },
+  {
+    path: '/refund',
+    title: documentTitle('退款政策'),
+    description: 'evoleap.io 付費訂閱的取消方式、退款條件，以及 Paddle 如何處理訂單與退款。',
+    sitemapPriority: 0.3,
+  },
 ]
 
 // 登入頁:公開但不需要被收錄。
@@ -203,6 +227,8 @@ export const PAGES: PageMeta[] = [
   HOME,
   SOFTWARE_TOPIC_PAGE,
   AI_APPS_TOPIC_PAGE,
+  COURSE_LIST_PAGE,
+  CLAUDE_CODE_TOPIC_PAGE,
   AI_AGENT_COURSE,
   ...COURSE_PAGES,
   ...LEGAL_PAGES,

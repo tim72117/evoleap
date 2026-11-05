@@ -25,6 +25,16 @@ const LADDER = COURSES.filter((c) => LEVELS.some((l) => l.link === coursePath(c)
   open: c.lessons.some((l) => l.videos.some((v) => v.live)),
 }))
 
+const TOPIC_ICONS = {
+  terminal: (
+    <svg className={styles.themeIcon} viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2.5" y="4" width="19" height="16" rx="3" />
+      <path d="m7 9.5 3 2.5-3 2.5" />
+      <path d="M12.5 15H17" />
+    </svg>
+  ),
+}
+
 export function HomePage() {
   // 課程地圖以前在首頁:舊連結(/#map、/#level-tools)導到主題頁的同一個位置
   const { hash } = useLocation()
@@ -71,7 +81,7 @@ export function HomePage() {
                   開始第一課
                 </Link>
                 <Link className={styles.secondary} to={SOFTWARE_TOPIC.path}>
-                  看全部課程
+                  課程地圖
                 </Link>
                 <div ref={setShrinkSlot} className={styles.shrinkSlot} />
               </div>
@@ -101,7 +111,10 @@ export function HomePage() {
             {PLANNED_TOPICS.map((t) => (
               <article className={styles.theme} key={t.name}>
                 <p className={styles.badge}>規劃中</p>
-                <h3>{t.name}</h3>
+                <h3>
+                  {t.icon && TOPIC_ICONS[t.icon]}
+                  {t.name}
+                </h3>
                 <p className={styles.themeSlogan}>{t.slogan}</p>
                 {t.flow && (
                   <ol className={styles.flow} aria-label="會經歷的步驟">
@@ -134,12 +147,26 @@ export function HomePage() {
                     </div>
                   </div>
                 )}
-                <h4>你會做出</h4>
-                <ul className={styles.outcomes}>
-                  {t.outcomes.map((o) => (
-                    <li key={o}>{o}</li>
-                  ))}
-                </ul>
+                {t.outcomes && (
+                  <>
+                    <h4>你會做出</h4>
+                    <ul className={styles.outcomes}>
+                      {t.outcomes.map((o) => (
+                        <li key={o}>{o}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {t.scenarios && (
+                  <>
+                    <h4>涵蓋的情境</h4>
+                    <ul className={styles.outcomes}>
+                      {t.scenarios.map((s) => (
+                        <li key={s}>{s}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
                 {t.path && (
                   <Link className={styles.themeLink} to={t.path}>
                     看課程規劃 <span aria-hidden="true">→</span>

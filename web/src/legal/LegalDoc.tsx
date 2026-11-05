@@ -3,7 +3,7 @@ import { SiteLayout } from '../site/SiteLayout'
 import { CONTACT_EMAIL, isPlaceholder } from './operator'
 import styles from './Legal.module.css'
 
-// 隱私權政策與服務條款共用的版型:標題、最後更新日期、本頁目錄、條文區塊。
+// 隱私權政策、服務條款與退款政策共用的版型:標題、最後更新日期、本頁目錄、條文區塊。
 
 export interface LegalSection {
   id: string

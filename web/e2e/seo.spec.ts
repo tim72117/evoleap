@@ -106,7 +106,7 @@ test('robots.txt 有 Sitemap、沒有封鎖全站', async ({ request }) => {
   expect(body).not.toMatch(/^Disallow:\s*\/\s*$/m)
 })
 
-for (const path of ['/nope', '/courses/nope', '/courses', '/courses/tools/999', '/docs/nope', '/studio/nope']) {
+for (const path of ['/nope', '/courses/nope', '/courses/tools/999', '/docs/nope', '/studio/nope']) {
   test(`不存在的頁面回 404 + noindex:${path}`, async ({ request }) => {
     const r = await request.get(path, { maxRedirects: 0 })
     expect(r.status()).toBe(404)
