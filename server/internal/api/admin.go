@@ -145,3 +145,31 @@ func (s *Server) handleAdminUserProgress(w http.ResponseWriter, r *http.Request,
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"user": user, "progress": list})
 }
+
+// handleAdminDeleteUser 依使用者的請求刪除帳號(網站目前沒有自助刪除的按鈕)。先排入取消訂閱再刪除,
+// 中途失敗時可以再呼叫一次。訂閱與付款紀錄會保留。
+func (s *Server) handleAdminDeleteUser(w http.ResponseWriter, r *http.Request, admin store.User) {
+	id := r.PathValue("id")
+	if id == admin.ID {
+		writeError(w, http.StatusBadRequest, "cannot_delete_self", "不能刪除自己的帳號")
+		return
+	}
+	if _, err := s.cfg.Store.UserByID(r.Context(), id); errors.Is(err, store.ErrNotFound) {
+		writeError(w, http.StatusNotFound, "not_found", "找不到這位使用者")
+		return
+	} else if err != nil {
+		internalError(w, err)
+		return
+	}
+	if s.cfg.Subscriptions != nil {
+		if err := s.cfg.Subscriptions.CancelUser(r.Context(), id); err != nil {
+			internalError(w, err)
+			return
+		}
+	}
+	if err := s.cfg.Store.DeleteUser(r.Context(), id); err != nil {
+		internalError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"deleted": true})
+}

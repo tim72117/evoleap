@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { COURSES, coursePath, openLessonsOf, type Course } from '../content/catalog'
-import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
+import { accessLabel, ALL_LEVELS } from '../content/levels'
 import { KIDS_RELEASED_LESSONS } from '../content/kidsCourse'
 import { LAUNCH_OPEN_LESSONS } from '../content/launchCourse'
 import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC } from '../content/topics'
@@ -16,7 +16,8 @@ import styles from './CourseList.module.css'
 function CourseCard({ course }: { course: Course }) {
   const t = useT()
   const path = coursePath(course)
-  const access = ACCESS_LABEL[ALL_LEVELS.find((l) => l.link === path)?.access ?? 'tbd']
+  const level = ALL_LEVELS.find((l) => l.link === path)
+  const access = level ? accessLabel(level) : null
   const open = openLessonsOf(course).length
   return (
     <li className={styles.card}>

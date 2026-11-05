@@ -40,7 +40,7 @@ const sections: LegalSection[] = [
             <strong>Guest lesson records</strong> (only when you are not signed in): which lesson, or the home page, demo page, course map, or sign-in page you opened (or which video on the demo page you played, which lesson's sign-in prompt you saw, and whether you successfully signed in or signed up on the sign-in page), when you opened it, how long it actually played that time, as well as your device type, which website you came from, whether the player loaded successfully, how long you stayed on the page, which buttons you clicked on the page, and which page you went to last. These records are distinguished only by a random guest ID (see "Guest lesson records") and do not include your name, email address, or similar data.
           </li>
           <li>
-            <strong>Subscription records</strong> (only after you subscribe): subscription ID, plan, price ID, subscription status, start and end of the current period, cancellation time, and for each transaction, its ID and payment and refund times. Payment data is processed by Paddle, and we do not have access to your card number (see "Payment and subscription records").
+            <strong>Subscription records</strong> (only after you subscribe): subscription ID, plan, price ID, subscription status, end of the current period, the ID and payment time of each transaction, and the time of any full refund or chargeback. Payment data is processed by Paddle, and we do not have access to your card number (see "Payment and subscription records").
           </li>
           <li>
             <strong>Sign-in status and guest ID</strong>: the <code>evoleap_session</code> cookie placed in your browser after you sign in; and the <code>evoleap_guest</code> cookie placed in your browser when you open a lesson or play a video on the demo page without signing in.
@@ -113,7 +113,7 @@ const sections: LegalSection[] = [
         </Note>
         <h3>Deleting your account</h3>
         <p>
-          The Site does not yet have a "Delete account" button. To delete your account, please email <ContactEmail /> from the email address you signed up with, and once we confirm it is you, we will delete your account data (see "Retention" and "Your rights" for details).
+          The Site does not yet have a "Delete account" button. To delete your account, please email <ContactEmail /> from the email address you signed up with, and once we confirm it is you, we will delete your account data and playback progress and stop your subscription from renewing (payments already made are not automatically refunded; refunds follow the Refund Policy). Subscription and payment records are retained (see "Retention" and "Your rights" for details).
         </p>
       </>
     ),
@@ -174,7 +174,10 @@ const sections: LegalSection[] = [
         </p>
         <h3>Data we keep</h3>
         <p>
-          When a subscription starts, renews, has a failed payment, is cancelled, or a payment is completed or refunded, Paddle notifies our server. We keep the subscription ID, plan, price ID, subscription status, start and end of the current period, cancellation time, your account ID, and for each transaction, its ID and payment and refund times. We use these to grant and remove access to paid content, process refunds, and reconcile accounts.
+          When a subscription starts, renews, has a failed payment, is cancelled, or a payment is completed or refunded, Paddle notifies our server. We keep the subscription ID, plan, price ID, subscription status, end of the current period, your account ID, the ID and payment time of each transaction, and the time of any full refund or chargeback. We use these to grant and remove access to paid content, process refunds, and reconcile accounts.
+        </p>
+        <p>
+          Each time Paddle notifies us, we also keep an event record containing the event ID and type, your account ID, the subscription, price, and transaction IDs, the subscription status, the end of the current period, when the event occurred, and the processing result. We use it for reconciliation and to handle duplicate charges and complaints. The raw notification sent by Paddle (which may include fields Paddle provides, such as a customer ID or a summary of the payment method) is stored with it for troubleshooting and deleted after 90 days.
         </p>
       </>
     ),
@@ -345,7 +348,7 @@ const sections: LegalSection[] = [
             <strong>Purposes of collection:</strong> providing the Site and course services; member account management and sign-in authentication; activating, renewing, cancelling, and processing refunds for paid subscriptions; statistical analysis of Site usage and service improvement; Site operations and information security management; and responding to your requests.
           </li>
           <li>
-            <strong>Categories of data:</strong> account data (email address, name, password hash, Google account ID); subscription records (subscription ID, plan, price ID, subscription status, start and end of the current period, cancellation time, and transaction IDs and payment and refund times); guest lesson records (random guest ID, lessons opened and when, playback time, device type, referring domain, player load result, time on page, and browsing trail); sign-in and guest cookies; GA statistics (pages viewed, interaction events, device information, approximate location, visitor identifier); and server access logs (IP address, time, requested URL, User-Agent, Referer, etc.).
+            <strong>Categories of data:</strong> account data (email address, name, password hash, Google account ID); subscription records (subscription ID, plan, price ID, subscription status, end of the current period, transaction IDs and payment times, and the time of any full refund or chargeback); payment event records; guest lesson records (random guest ID, lessons opened and when, playback time, device type, referring domain, player load result, time on page, and browsing trail); sign-in and guest cookies; GA statistics (pages viewed, interaction events, device information, approximate location, visitor identifier); and server access logs (IP address, time, requested URL, User-Agent, Referer, etc.).
           </li>
           <li>
             <strong>Period of use:</strong> see the next section, "Retention".
@@ -376,6 +379,9 @@ const sections: LegalSection[] = [
         </li>
         <li>
           <strong>Subscription records:</strong> kept for as long as your account exists, and also retained after cancellation or a refund. After your account is deleted, subscription and transaction IDs, plans, and times will still be retained for the necessary period to handle refunds, disputes, and reconciliation. Data held by Paddle is handled under the Paddle Privacy Policy.
+        </li>
+        <li>
+          <strong>Payment event records:</strong> no automatic deletion period is currently set; they are kept long-term, including after your account is deleted, for reconciliation and to handle refunds and disputes. If we set a retention period in the future, we will update this policy. The raw notification content within them is deleted after 90 days.
         </li>
         <li>
           <strong>Sign-in cookie:</strong> stored in your browser for up to 30 days and cleared when you sign out.

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { messages } from '../i18n/current'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
-import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
+import { accessLabel, ALL_LEVELS } from '../content/levels'
 import { coursePath, lessonLabel, lessonPath, nextCourse, requiresLogin, type Course } from '../content/catalog'
 import { useCourseMap, type MapLesson } from '../content/courseMap'
 import { LockIcon } from '../site/LockIcon'
@@ -11,6 +11,7 @@ import { topicOfCourse } from '../content/topics'
 import { LevelArt } from '../home/LevelArt'
 import { INTERACTIVE_ICON } from '../studio/interactive/scene'
 import styles from './CourseOverview.module.css'
+import { useLessonsLocked } from './useLessonsLocked'
 
 // 課程總覽:上方是課程介紹(標籤、標題、簡述、總時長與課數)與開始學習的卡片,下方是課程內容清單。
 // 每一課(課號、名稱、一句話、時間、開放與否、要不要登入)從資料庫讀(GET /api/courses/{id}/map);讀到之前與讀不到時用前端 catalog.ts 的同一份資料
@@ -59,11 +60,13 @@ export function CourseOverviewPage({ course }: { course: Course }) {
   const next = nextCourse(course)
   const level = ALL_LEVELS.find((l) => l.link === coursePath(course))
   const topic = topicOfCourse(coursePath(course))
-  const access = level ? ACCESS_LABEL[level.access] : null
+  const access = level ? accessLabel(level) : null
   const map = useCourseMap(level?.id ?? course.slug)
   const lessons = map.status === 'ready' ? map.map.units.flatMap((u) => u.lessons) : localLessons(course)
   const total = lessons.reduce((n, l) => n + (l.minutes ?? 0), 0)
   const guest = useAuth().status === 'guest'
+  // 訂閱課程沒訂閱時,每一課標「訂閱後觀看」;點進去由 SubscriptionGate 顯示訂閱畫面
+  const locked = useLessonsLocked(course)
   // 開始學習:第一個已經能看的課(都還沒有就從第一課);沒登入時先找不用登入就能看的課,免得一點就是登入畫面
   const playable = lessons.filter((l) => l.status === 'open')
   const start = (guest && playable.find((l) => l.access === 'free')) || playable[0] || lessons[0]
@@ -138,6 +141,7 @@ export function CourseOverviewPage({ course }: { course: Course }) {
                       <span className={styles.rowTitle}>
                         <span className={styles.rowNum}>{lessonLabel(course.lessons.find((x) => x.id === l.id) ?? l)}</span>
                         {l.title}
+                        {locked && <span className={styles.badge}>{c.subscribeToWatch}</span>}
                       </span>
                       {l.summary && <span className={styles.rowGoal}>{l.summary}</span>}
                     </span>

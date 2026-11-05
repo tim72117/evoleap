@@ -16,6 +16,48 @@ export interface User {
   locale?: string
 }
 
+/** 方案在 Paddle 的價格;金額由 Paddle 依買家所在地回傳 */
+export interface PlanPrice {
+  id: string
+  period: 'monthly' | 'yearly'
+}
+
+/** 有效的訂閱。past_due = 上次扣款失敗,金流商還在重試 */
+export interface PlanSubscription {
+  status: 'active' | 'past_due'
+  /** 目前訂閱的價格,用來判斷方案與計費週期 */
+  priceId?: string
+  currentPeriodEnd?: string
+  cancelAt?: string
+}
+
+export interface PlanMe {
+  currentTier: string
+  subscribed: boolean
+  subscription?: PlanSubscription
+}
+
+/** 管理訂閱的連結是暫時的,每次要用才取得,不要存 */
+export interface PlanManageLinks {
+  url: string
+  updatePaymentUrl?: string
+}
+
+export interface CourseAccessResult {
+  access: 'free' | 'login-free' | 'subscription'
+  allowed: boolean
+  reason?: 'login_required' | 'subscription_required'
+  /** 沒權限時:這門課需要的最低方案名稱,例如「進階方案」 */
+  plan?: string
+}
+
+/** 更換方案的試算:charge = 現在要補收,credit = 退回額度,之後扣款時折抵,unknown = 這時無法試算。金額是幣別的最小單位 */
+export interface PlanChangePreview {
+  action: 'charge' | 'credit' | 'unknown'
+  amount: string
+  currency: string
+}
+
 /** API 回傳的錯誤;message 是依錯誤代碼翻成目前語言、可以直接顯示給使用者的訊息 */
 export class ApiError extends Error {
   constructor(
@@ -60,4 +102,14 @@ export const authApi = {
   logout: () => request<void>('POST', '/api/auth/logout'),
   /** 會員空間改自己的資料;沒帶的欄位不改,回傳更新後的使用者 */
   updateProfile: (fields: { name?: string; locale?: string }) => request<{ user: User }>('PATCH', '/api/me', fields).then((r) => r.user),
+  /** 金流未設定時回空清單;client 是載入 Paddle.js 需要的公開設定 */
+  plans: () =>
+    request<{ plans: { tier: string; prices?: PlanPrice[] }[]; client?: { token: string; environment: string } }>('GET', '/api/plan/plans'),
+  planMe: () => request<PlanMe>('GET', '/api/plan/me'),
+  planCheckout: (priceId: string) => request<{ url: string; sessionId: string }>('POST', '/api/plan/checkout', { priceId }),
+  planManage: () => request<PlanManageLinks>('POST', '/api/plan/manage'),
+  planChangePreview: (priceId: string) => request<PlanChangePreview>('POST', '/api/plan/change/preview', { priceId }),
+  planChange: (priceId: string) => request<void>('POST', '/api/plan/change', { priceId }),
+  /** 目前的使用者能不能看這門課;未登入也能問。id 是 levels.ts 的等級 id */
+  courseAccess: (id: string) => request<CourseAccessResult>('GET', `/api/courses/${encodeURIComponent(id)}/access`),
 }

@@ -88,6 +88,9 @@ func dialector(dsn string) gorm.Dialector {
 	return sqlite.Open(dsn)
 }
 
+// DB 回傳資料庫連線,給自己管理資料表的套件使用。
+func (s *Store) DB() *gorm.DB { return s.db }
+
 // Ping 確認資料庫連線,供健康檢查使用。
 func (s *Store) Ping(ctx context.Context) error {
 	sqlDB, err := s.db.DB()

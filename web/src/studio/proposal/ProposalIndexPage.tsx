@@ -106,7 +106,7 @@ const LEVELS: LevelBlock[] = [
   {
     code: 'L3',
     title: 'AI Agent 整合應用',
-    access: '未定',
+    access: '訂閱專屬',
     stage: { cls: 'todo', text: '提案中 · 架構待重新定義' },
     summary: '既有課程，已移到主題「打造 AI 互動軟體」的中階。',
     points: ['提案欄位大多已定稿', '七個單元已移出五個，剩 2 個單元加期末專案'],
@@ -121,7 +121,7 @@ const LEVELS: LevelBlock[] = [
   {
     code: 'L4',
     title: '進階 AI Agent 應用',
-    access: '未定',
+    access: '訂閱專屬',
     stage: { cls: 'out', text: '未開始' },
     summary: '主題「打造 AI 互動軟體」的進階，只有課程地圖上的暫定主題。',
     points: ['範圍取決於 L3 定案與移出單元的去向'],

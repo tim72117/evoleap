@@ -8,7 +8,7 @@ import { findInternalPage } from './internalPages'
 import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES } from './pages'
 
 const indexable = PAGES.filter((p) => !p.noindex)
-const INTERNAL_PREFIXES = ['/studio', '/docs', '/materials', '/login', '/admin', '/member']
+const INTERNAL_PREFIXES = ['/studio', '/docs', '/materials', '/login', '/admin', '/member', '/pricing']
 const isInternal = (path: string) => INTERNAL_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))
 
 describe('全部課程', () => {

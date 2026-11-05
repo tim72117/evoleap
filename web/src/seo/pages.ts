@@ -313,6 +313,14 @@ const MEMBER_PAGES: PageMeta[] = MEMBER_SECTIONS.map((s) => ({
   noindex: true,
 }))
 
+// 收費頁:開放訂閱前不收錄,也不放進導覽;上線時拿掉 noindex。
+const PRICING_PAGE: PageMeta = {
+  path: '/pricing',
+  title: documentTitle('課程方案'),
+  description: 'evoleap 的免費課程與訂閱方案。',
+  noindex: true,
+}
+
 // 管理後台的舊網址:現在轉到研發基地的「會員」標籤(/studio/members),noindex、不列入 sitemap。
 const ADMIN_PAGE: PageMeta = {
   path: '/admin',
@@ -368,6 +376,7 @@ export const PAGES: PageMeta[] = [
   AI_AGENT_COURSE,
   ...COURSE_PAGES,
   ...LEGAL_PAGES,
+  PRICING_PAGE,
   LOGIN_PAGE,
   CLI_AUTH_PAGE,
   ...MEMBER_PAGES,

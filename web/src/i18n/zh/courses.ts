@@ -24,6 +24,8 @@ export const courses = {
   breadcrumb: '麵包屑',
   courseMap: '課程地圖',
   planned: '規劃中',
+  /** 訂閱課程沒訂閱時,每一課旁邊的標示 */
+  subscribeToWatch: '訂閱後觀看',
   prevLesson: '上一課',
   nextLesson: '下一課',
   nextChapter: '下一章',

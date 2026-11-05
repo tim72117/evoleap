@@ -10,6 +10,7 @@ import (
 
 	"github.com/tim72117/evoleap/internal/auth"
 	"github.com/tim72117/evoleap/internal/store"
+	"github.com/tim72117/subscription"
 )
 
 type Config struct {
@@ -32,6 +33,8 @@ type Config struct {
 	LiveDir string
 	// VerifyGoogle 驗證 Google 登入憑證;nil 時用 auth.VerifyGoogleToken。測試可替換。
 	VerifyGoogle func(ctx context.Context, credential, clientID string) (auth.GoogleIdentity, error)
+	// Subscriptions 是訂閱服務;nil 代表方案與付款功能停用。
+	Subscriptions *subscription.Service
 }
 
 type Server struct {
@@ -94,10 +97,13 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /api/admin/schema-check", s.requireAdmin(s.handleSchemaCheck))
 	mux.HandleFunc("POST /api/guest/views", s.requireAuth(s.handleGuestOpen))
 	mux.HandleFunc("PUT /api/guest/views/{id}", s.requireAuth(s.handleGuestWatch))
+	s.planRoutes(mux)
 	mux.HandleFunc("GET /api/admin/me", s.requireAdmin(s.handleAdminMe))
 	mux.HandleFunc("GET /api/admin/overview", s.requireAdmin(s.handleAdminOverview))
 	mux.HandleFunc("GET /api/admin/users", s.requireAdmin(s.handleAdminUsers))
 	mux.HandleFunc("GET /api/admin/users/{id}/progress", s.requireAdmin(s.handleAdminUserProgress))
+	mux.HandleFunc("DELETE /api/admin/users/{id}", s.requireAdmin(s.handleAdminDeleteUser))
+	mux.HandleFunc("GET /api/courses/{id}/access", s.requireAuth(s.handleCourseAccess))
 	return mux
 }
 

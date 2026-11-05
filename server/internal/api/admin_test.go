@@ -278,3 +278,39 @@ func TestAdminSince(t *testing.T) {
 		}
 	}
 }
+
+func TestAdminDeleteUser(t *testing.T) {
+	env := newAdminEnv(t, "boss@example.com")
+	boss := env.googleCookie(t, "boss@example.com")
+	amy := registerCookie(t, env.h, "amy@example.com")
+	bob := registerCookie(t, env.h, "bob@example.com")
+	rec := call(env.h, http.MethodGet, "/api/me", "", amy)
+	_, rest, _ := strings.Cut(rec.Body.String(), `"id":"`)
+	amyID, _, _ := strings.Cut(rest, `"`)
+
+	if rec := call(env.h, http.MethodDelete, "/api/admin/users/"+amyID, "", bob); rec.Code != http.StatusForbidden {
+		t.Errorf("非管理員: %d", rec.Code)
+	}
+	if rec := call(env.h, http.MethodDelete, "/api/admin/users/none", "", boss); rec.Code != http.StatusNotFound {
+		t.Errorf("沒有這個人: %d", rec.Code)
+	}
+	rec = call(env.h, http.MethodGet, "/api/me", "", boss)
+	_, rest, _ = strings.Cut(rec.Body.String(), `"id":"`)
+	bossID, _, _ := strings.Cut(rest, `"`)
+	if rec := call(env.h, http.MethodDelete, "/api/admin/users/"+bossID, "", boss); rec.Code != http.StatusBadRequest {
+		t.Errorf("不能刪自己: %d", rec.Code)
+	}
+	if err := env.st.SaveProgress(context.Background(), amyID, store.Progress{Lesson: "0.0", PositionMs: 1, DurationMs: 2}); err != nil {
+		t.Fatal(err)
+	}
+	if rec := call(env.h, http.MethodDelete, "/api/admin/users/"+amyID, "", boss); rec.Code != http.StatusOK {
+		t.Fatalf("刪除: %d %s", rec.Code, rec.Body)
+	}
+	if rec := call(env.h, http.MethodGet, "/api/me", "", amy); rec.Code == http.StatusOK && strings.Contains(rec.Body.String(), amyID) {
+		t.Errorf("刪除後不能再登入: %s", rec.Body)
+	}
+	var progress int64
+	if err := env.st.DB().Table("progress").Where("user_id = ?", amyID).Count(&progress).Error; err != nil || progress != 0 {
+		t.Errorf("進度要一起刪除: %d %v", progress, err)
+	}
+}

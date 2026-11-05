@@ -4,6 +4,7 @@ import { SiteLayout } from '../site/SiteLayout'
 import { coursePath, lessonNumber, lessonPath, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
 import styles from './Lesson.module.css'
 import { topicOfCourse } from '../content/topics'
+import { useLessonsLocked } from './useLessonsLocked'
 
 // 規劃中的課程總覽與章節頁：只有標題與簡述，內容完成後章節改由 LessonPage 呈現。
 
@@ -25,15 +26,19 @@ function Crumb({ course, current }: { course: Course; current?: string }) {
   )
 }
 
-/** 章節清單：已有內容的章節連到上課頁，規劃中的連到章節頁 */
+/** 章節清單：已有內容的章節連到上課頁（訂閱課程沒訂閱時標示，點進去是訂閱畫面），規劃中的連到章節頁 */
 export function ChapterList({ course }: { course: Course }) {
   const t = useT()
+  const locked = useLessonsLocked(course)
   return (
     <ol className={styles.lessonList}>
       {course.lessons.map((l) => (
         <li key={l.id}>
           <Link to={lessonPath(course, l)}>
-            <span className={styles.lessonNum}>{t.courses.lessonN(lessonNumber(l))}</span>
+            <span className={styles.lessonNum}>
+              {t.courses.lessonN(lessonNumber(l))}
+              {locked && ` · ${t.courses.subscribeToWatch}`}
+            </span>
             <span className={styles.lessonTitle}>{l.title}</span>
             <span className={styles.lessonGoal}>{l.goal}</span>
           </Link>

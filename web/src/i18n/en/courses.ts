@@ -10,7 +10,7 @@ const LEVELS: Record<string, string> = {
   'AI 互動軟體 中階': 'Intermediate',
   'AI 互動軟體 進階': 'Advanced',
 }
-const ACCESS: Record<string, string> = { 免費: 'Free' }
+const ACCESS: Record<string, string> = { 免費: 'Free', 基礎方案: 'Basic plan', 進階方案: 'Advanced plan' }
 const LESSON_NAMES: Record<string, string> = { 序章: 'Prologue' }
 
 const duration = (total: number): string => {
@@ -40,6 +40,7 @@ export const courses: Messages['courses'] = {
   breadcrumb: 'Breadcrumb',
   courseMap: 'Course map',
   planned: 'Coming soon',
+  subscribeToWatch: 'Subscribe to watch',
   prevLesson: 'Previous lesson',
   nextLesson: 'Next lesson',
   nextChapter: 'Next chapter',

@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, type Course } from '../content/catalog'
+import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, requiresSubscription, type Course, type PlannedChapter } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
 import { AiAgentCoursePage } from './AiAgentCoursePage'
@@ -10,6 +10,7 @@ import { useT } from '../i18n/I18nProvider'
 import { lazyPage } from '../site/lazyPage'
 import { LoginGate } from './LoginGate'
 import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
+import { SubscriptionGate } from './SubscriptionGate'
 
 // 上課頁(播放器、舞台引擎與演員)用到才下載,不放進課程總覽、課程地圖就要下載的主程式
 const InteractiveLessonPage = lazyPage(() => import('./InteractiveLessonPage').then((m) => m.InteractiveLessonPage))
@@ -24,6 +25,13 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
   ) : (
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )
+  if (requiresSubscription(course)) {
+    return (
+      <SubscriptionGate key={lesson.id} course={course} label={lessonLabel(lesson)} title={lesson.title}>
+        {page}
+      </SubscriptionGate>
+    )
+  }
   return requiresLogin(course, lesson) ? (
     <GatedLesson key={lesson.id} course={course} lesson={lesson}>
       {page}
@@ -47,6 +55,17 @@ function GatedLesson({ course, lesson, children }: { course: Course; lesson: Cou
     >
       {children}
     </LoginGate>
+  )
+}
+
+// 規劃中的章節頁:訂閱課程沒訂閱時點進來是訂閱畫面,章節清單(課程總覽)仍公開
+function plannedChapterElement(course: Course, chapter: PlannedChapter): JSX.Element {
+  const page = <PlannedChapterPage key={chapter.slug} course={course} chapter={chapter} />
+  if (!requiresSubscription(course)) return page
+  return (
+    <SubscriptionGate key={chapter.slug} course={course} label={chapter.label} title={chapter.title}>
+      {page}
+    </SubscriptionGate>
   )
 }
 
@@ -75,7 +94,7 @@ export const courseRoutes: { path: string; element: JSX.Element }[] = [
   })),
   ...course.planned.map((chapter) => ({
     path: plannedChapterPath(course, chapter),
-    element: <PlannedChapterPage key={chapter.slug} course={course} chapter={chapter} />,
+    element: plannedChapterElement(course, chapter),
   })),
 ]),
 ]

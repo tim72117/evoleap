@@ -7,8 +7,8 @@ import { useT } from '../../i18n/I18nProvider'
 
 // 本政策描述的是網站「目前」的實際狀況:Email/密碼與 Google 登入(帳號存在 Cloud SQL)、
 // 登入 cookie evoleap_session、訪客上課紀錄與訪客 cookie evoleap_guest(server/internal/api/guest.go、web/src/courses/guestActivity.ts)、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
-// 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)、Paddle 付款與訂閱紀錄(訂閱制條文先於程式改寫,開放付費前 purchases 要改成對應的訂閱資料)。新增任何蒐集資料的功能(例如練習完成狀態、表單)前,
-// 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/api/progress.go、server/internal/store/users.go、server/internal/store/progress.go、server/internal/api/paddle.go、server/internal/store/purchases.go、web/src/pricing/、
+// 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)、Paddle 付款與訂閱紀錄(存在 subscriptions、subscription_events 與 subscription_payments 資料表)。新增任何蒐集資料的功能(例如練習完成狀態、表單)前,
+// 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/api/progress.go、server/internal/store/users.go、server/internal/store/progress.go、server/internal/plans/plans.go、packages/subscription/、web/src/pricing/、
 // web/src/site/analytics.ts。廣告:web/src/site/AdSlot.tsx、web/src/courses/lessonAds.ts(僅正式環境且有設定 AdSense ID 時)。
 
 const sections: LegalSection[] = [
@@ -43,7 +43,7 @@ const sections: LegalSection[] = [
             <strong>訪客上課紀錄</strong>（只有未登入時才有）：您打開了哪一課或首頁、展示頁、課程地圖、登入頁（或播放了展示頁上的哪一支影片、看到了哪一課的登入提示，以及在登入頁有沒有登入或註冊成功）、打開的時間、那一次實際播放了多久，以及裝置類型、從哪個網站進來、播放器載入是否成功、頁面停留時間，以及在頁面上按了哪些按鈕、最後去了哪一頁。只用一個隨機的訪客代號區分（見「訪客上課紀錄」），不包含姓名、Email 等資料。
           </li>
           <li>
-            <strong>訂閱紀錄</strong>（只有訂閱後才有）：訂閱編號、方案、價格編號、訂閱狀態、當期起訖時間、取消時間，以及每筆交易的編號、付款與退款時間。付款資料由 Paddle 處理，我們拿不到您的卡號（見「付款與訂閱紀錄」）。
+            <strong>訂閱紀錄</strong>（只有訂閱後才有）：訂閱編號、方案、價格編號、訂閱狀態、當期結束時間、每筆交易的編號與付款時間，以及全額退款或爭議款的時間。付款資料由 Paddle 處理，我們拿不到您的卡號（見「付款與訂閱紀錄」）。
           </li>
           <li>
             <strong>登入狀態與訪客代號</strong>：登入後放在您瀏覽器裡的 <code>evoleap_session</code> cookie；未登入時打開課程或播放展示頁的影片，放在您瀏覽器裡的 <code>evoleap_guest</code> cookie。
@@ -112,7 +112,7 @@ const sections: LegalSection[] = [
         </Note>
         <h3>刪除帳號</h3>
         <p>
-          網站目前還沒有「刪除帳號」的按鈕。如需刪除帳號，請用您註冊時的 Email 來信 <ContactEmail /> 提出，我們確認是本人後會刪除您的帳號資料（詳見「保存期間」與「您的權利」）。
+          網站目前還沒有「刪除帳號」的按鈕。如需刪除帳號，請用您註冊時的 Email 來信 <ContactEmail /> 提出，我們確認是本人後會刪除您的帳號資料與播放進度，並停止您的訂閱續訂（已付款項不會因此自動退款，退款依退款政策處理）；訂閱與付款紀錄會保留（詳見「保存期間」與「您的權利」）。
         </p>
       </>
     ),
@@ -162,7 +162,10 @@ const sections: LegalSection[] = [
         <p>開啟結帳時，我們會把您帳號的 Email 與帳號編號交給 Paddle，用來預先填入 Email，並在付款完成後把訂閱記到正確的帳號。</p>
         <h3>我們保存的資料</h3>
         <p>
-          訂閱開始、續訂、扣款失敗、取消、付款完成或退款時，Paddle 會通知我們的伺服器。我們保存訂閱編號、方案、價格編號、訂閱狀態、當期起訖時間、取消時間、您的帳號編號，以及每筆交易的編號、付款與退款時間，用來開通與停止付費內容、處理退款與對帳。
+          訂閱開始、續訂、扣款失敗、取消、付款完成或退款時，Paddle 會通知我們的伺服器。我們保存訂閱編號、方案、價格編號、訂閱狀態、當期結束時間、您的帳號編號、每筆交易的編號與付款時間，以及全額退款或爭議款的時間，用來開通與停止付費內容、處理退款與對帳。
+        </p>
+        <p>
+          Paddle 每次通知時，我們也會留下一筆事件紀錄，內容包括事件編號與類型、您的帳號編號、訂閱、價格與交易編號、訂閱狀態、當期結束時間、事件發生時間與處理結果，用來對帳、處理重複扣款與客訴。Paddle 送來的通知原始內容（可能包含顧客編號、付款方式摘要等 Paddle 提供的欄位）會一併保存，用來處理錯誤，保存 90 天後清除。
         </p>
       </>
     ),
@@ -333,7 +336,7 @@ const sections: LegalSection[] = [
             <strong>蒐集目的：</strong>提供網站與課程服務、會員帳號管理與登入驗證、付費訂閱的開通、續訂、取消與退款處理、網站使用情形的統計分析與服務改善、網站維運與資訊安全管理、回應您的請求。
           </li>
           <li>
-            <strong>資料類別：</strong>帳號資料（Email、名稱、密碼雜湊值、Google 帳號 ID）；訂閱紀錄（訂閱編號、方案、價格編號、訂閱狀態、當期起訖時間、取消時間，以及交易編號、付款與退款時間）；訪客上課紀錄（隨機訪客代號、打開的課程與時間、播放時間、裝置類型、進站來源網域、播放器載入結果、頁面停留時間、瀏覽足跡）；登入與訪客 cookie；GA 統計資料（瀏覽頁面、互動事件、裝置資訊、大略地區、訪客識別碼）；伺服器存取記錄（IP 位址、時間、請求網址、User-Agent、Referer 等）。
+            <strong>資料類別：</strong>帳號資料（Email、名稱、密碼雜湊值、Google 帳號 ID）；訂閱紀錄（訂閱編號、方案、價格編號、訂閱狀態、當期結束時間、交易編號與付款時間，以及全額退款或爭議款的時間）；付款事件紀錄；訪客上課紀錄（隨機訪客代號、打開的課程與時間、播放時間、裝置類型、進站來源網域、播放器載入結果、頁面停留時間、瀏覽足跡）；登入與訪客 cookie；GA 統計資料（瀏覽頁面、互動事件、裝置資訊、大略地區、訪客識別碼）；伺服器存取記錄（IP 位址、時間、請求網址、User-Agent、Referer 等）。
           </li>
           <li>
             <strong>利用期間：</strong>見下一節「保存期間」。
@@ -364,6 +367,9 @@ const sections: LegalSection[] = [
         </li>
         <li>
           <strong>訂閱紀錄：</strong>帳號存在期間保存，取消或退款後也會保留紀錄。帳號刪除後，為處理退款、爭議與對帳，訂閱與交易編號、方案與時間仍會在必要期間內保留。Paddle 保有的資料依 Paddle 隱私權政策處理。
+        </li>
+        <li>
+          <strong>付款事件紀錄：</strong>目前沒有設定自動刪除的期限，會長期保存，帳號刪除後也會保留，用於對帳、處理退款與爭議。日後若訂定保存期限，會更新本政策。其中通知的原始內容保存 90 天後清除。
         </li>
         <li>
           <strong>登入 cookie：</strong>存在您的瀏覽器中，最長 30 天，登出時清除。

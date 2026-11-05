@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
 import { AI_APPS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
-import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, type CourseLevel } from '../content/levels'
+import { accessLabel, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, type CourseLevel } from '../content/levels'
 import { COURSES, coursePath, lessonLabel, lessonPath } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { useT } from '../i18n/I18nProvider'
@@ -30,8 +30,9 @@ function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
   const t = useT()
   const m = t.home.software
   const available = level.status === 'available'
-  // 目前只有「免費」會顯示(其他是 null)
-  const access = ACCESS_LABEL[level.access] && (level.access === 'free' ? m.free : ACCESS_LABEL[level.access])
+  // 免費課程與訂閱課程(標出需要的方案)會顯示,其他是 null
+  const label = accessLabel(level)
+  const access = label && (level.access === 'free' ? m.free : t.courses.accessName(label))
   const lessons = levelLessons(level)
   const opened = lessons.filter((l) => l.open)
   return (

@@ -10,7 +10,6 @@ import styles from './SiteLayout.module.css'
 import { SITE_NAME } from './siteInfo'
 import { COURSE_LIST, SOFTWARE_TOPIC } from '../content/topics'
 
-
 type Props = {
   /** Page name for the document title ("<title> · evoleap"); omit on the home page. */
   title?: string
@@ -41,6 +40,8 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
   const nav = [
     { label: t.site.nav.home, to: '/', end: true },
     { label: t.site.nav.courses, to: COURSE_LIST.path, end: true },
+    // 訂閱方案的入口直接顯示,不用環境變數開關;還沒設定 Paddle 時收費頁會顯示「即將開放訂閱」
+    { label: t.site.nav.pricing, to: '/pricing', end: true },
   ]
 
   // 「<頁名> · evoleap」;首頁(不給頁名)為「evoleap：<副標>」(同 siteInfo.documentTitle,副標依語言)

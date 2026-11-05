@@ -12,9 +12,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// courseRow 記錄每門課的存取方式,Access 為 subscription 代表要訂閱才能看。
-// 資料來源是 courses_seed.json,寫入課程資料時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)同步進這張表。課程地圖 API 回傳它,腳本檔(GET /api/scripts)依它與每一課的 access 把關;
-// 訂閱檢查還沒做(訂閱課程的腳本只給管理員)。前端 /courses/... 的單課頁要不要登入仍看 content/catalog.ts,content/courseMap.test.ts 檢查兩邊一致。
+// courseRow 記錄每門課的存取方式,Access 為 subscription 代表要訂閱才能看,api 依它判斷權限(api/courses.go 的 courseAccess)。
+// 存取方式的唯一來源是 courses_seed.json,寫入課程資料時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)同步進這張表。課程地圖 API 回傳它,腳本檔(GET /api/scripts)依它與每一課的 access 把關;
+// 前端 /courses/... 的單課頁要不要登入仍看 content/catalog.ts,content/courseMap.test.ts 檢查兩邊一致。
 type courseRow struct {
 	ID     string `gorm:"primaryKey;size:64"`
 	Title  string `gorm:"size:200;not null"`
@@ -39,7 +39,7 @@ const (
 // ErrCourseNotFound 是查不到課程時回傳的錯誤。
 var ErrCourseNotFound = errors.New("course not found")
 
-// CourseAccess 回傳課程的存取方式(之後的訂閱檢查用,目前還沒有呼叫的地方),以及訂閱課程需要的最低方案(其他課程是空字串)。
+// CourseAccess 回傳課程的存取方式,以及訂閱課程需要的最低方案(其他課程是空字串)。
 func (s *Store) CourseAccess(ctx context.Context, id string) (Access, string, error) {
 	var r courseRow
 	err := s.db.WithContext(ctx).First(&r, "id = ?", id).Error

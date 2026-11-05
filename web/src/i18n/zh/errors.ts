@@ -28,6 +28,13 @@ export const errors = {
     kids_closed: '還沒到上課時間，請家長在會員空間排入上課時段',
     login_required: '這一課要登入才能觀看',
     subscription_required: '這一課要訂閱才能觀看',
+    plans_disabled: '方案功能未啟用',
+    payments_disabled: '付款功能未啟用',
+    invalid_body: '內容無法讀取',
+    invalid_price: '沒有這個訂閱價格',
+    already_subscribed: '已經訂閱了',
+    no_subscription: '目前沒有訂閱',
+    same_price: '已經是這個方案了',
   } as Record<string, string>,
   /** 播放器載不到腳本:要登入(後面會接登入連結) */
   scriptLoginRequired: '這一課要登入才能觀看，請登入後再試一次。',
