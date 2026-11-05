@@ -34,6 +34,9 @@ async function expectInViewport(page: Page, loc: Locator, what: string) {
 let errors: string[]
 test.beforeEach(async ({ page }) => {
   errors = collectErrors(page)
+  // L1 登入後才能看
+  const email = `e2e-lesson-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
+  expect((await page.request.post('/api/auth/register', { data: { email, password: 'secret-pass-123', name: '' } })).status()).toBe(200)
   await page.goto(LESSON)
   await expect(player(page)).toBeVisible()
   await expect(progress(page)).toContainText('共 5 步')

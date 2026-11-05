@@ -126,6 +126,50 @@ test('?next= 登入後回到原頁;頁首「登入」連結帶上目前頁面', 
   await expect(page.getByRole('link', { name: '繼續前往' })).toHaveAttribute('href', '/courses/ai-agent')
 })
 
+test('登入後免費的課程:未登入看到登入提示,登入後回到同一課;總覽與免費課程不受影響', async ({ page }) => {
+  const errors = collectErrors(page)
+  const email = randomEmail('gate')
+  await registerViaApi(page, email)
+  await page.request.post('/api/auth/logout')
+
+  await page.goto('/courses/ai-tools/3-3')
+  const gateLogin = page.locator('main').getByRole('link', { name: '登入或註冊' })
+  await expect(gateLogin).toHaveAttribute('href', '/login?next=%2Fcourses%2Fai-tools%2F3-3')
+  await expect(page.locator('li[id^="step-"]')).toHaveCount(0)
+
+  // 總覽公開
+  await page.locator('main').getByRole('link', { name: '回課程總覽' }).click()
+  await expect(page).toHaveURL(/\/courses\/ai-tools$/)
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(gateLogin).toHaveCount(0)
+
+  // 免費課程不用登入
+  await page.goto('/courses/tools/2')
+  await expect(page.locator('h1')).toBeVisible()
+  await expect(gateLogin).toHaveCount(0)
+
+  await page.goto('/courses/ai-tools/3-3')
+  await gateLogin.click()
+  await login(page, email)
+  await expect(page).toHaveURL(/\/courses\/ai-tools\/3-3$/)
+  await expect(page.locator('li[id^="step-"]').first()).toBeVisible()
+  await expect(gateLogin).toHaveCount(0)
+  expect(errors).toEqual([])
+})
+
+test('登入檢查失敗:已登入的會員看到重新整理,不是登入提示;恢復後看得到課程', async ({ page }) => {
+  await registerViaApi(page, randomEmail('checkfail'))
+  await page.route('**/api/me', (route) => route.abort())
+  await page.goto('/courses/ai-tools/3-3')
+  const reload = page.locator('main').getByRole('button', { name: '重新整理' })
+  await expect(reload).toBeVisible()
+  await expect(page.locator('main').getByRole('link', { name: '登入或註冊' })).toHaveCount(0)
+
+  await page.unroute('**/api/me')
+  await reload.click()
+  await expect(page.locator('li[id^="step-"]').first()).toBeVisible()
+})
+
 for (const evil of ['//evil.com', '/\\evil.com', 'https://evil.com', '//evil.com/courses']) {
   test(`?next= 不接受站外網址(open redirect):${evil}`, async ({ page, baseURL }) => {
     const email = randomEmail('evil')

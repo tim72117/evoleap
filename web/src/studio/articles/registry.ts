@@ -8,6 +8,8 @@ export interface ArticleMeta {
   /** 網址路徑 /docs/<slug> */
   slug: string
   title: string
+  /** 研發基地第二排標籤的名稱,標題太長時才寫 */
+  tab?: string
   category: ArticleCategory
   /** 一兩句摘要,用於列表與文章開頭 */
   summary: string
@@ -29,6 +31,7 @@ export const articles: ArticleMeta[] = [
   {
     slug: 'research-report',
     title: '線上課程設計與影音製作研究報告',
+    tab: '研究報告',
     category: 'research',
     summary: '單元顆粒度、練習安排、腳本與錄製方式的研究整理與製作建議。',
   },
@@ -47,6 +50,7 @@ export const articles: ArticleMeta[] = [
   {
     slug: 'research/video-shotcraft',
     title: '參考案例：video-shotcraft',
+    tab: 'video-shotcraft',
     category: 'research',
     summary: '宣傳片製作 skill 的做法整理：鏡頭配方卡、真實介面素材、分層驗收；哪些借用到即時教學畫面、哪些不照搬。',
   },

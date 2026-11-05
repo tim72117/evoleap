@@ -102,6 +102,16 @@ export function coursePath(course: Course): string {
   return `/courses/${course.slug}`
 }
 
+/** 課程地圖標示「登入後免費」的課程:單課頁要登入才能看(LoginGate) */
+export function requiresLogin(course: Course): boolean {
+  return ALL_LEVELS.find((l) => l.link === coursePath(course))?.access === 'login-free'
+}
+
+/** 已開放的單課:有可以播放的影片,序章這類短導覽不算 */
+export function openLessonsOf(course: Course): CourseLesson[] {
+  return course.lessons.filter((l) => !l.label && l.videos.some((v) => v.live))
+}
+
 /** 顯示用課號：L0 的「0.1」顯示為「1」（第 1 課），其他課顯示原課號（第 1.1 課） */
 export function lessonNumber(lesson: CourseLesson): string {
   return lesson.id.startsWith('0.') ? lesson.id.slice(2) : lesson.id

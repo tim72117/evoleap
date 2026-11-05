@@ -5,8 +5,8 @@ import { AI_AGENT_COURSE_PATH, COURSE } from './aiAgent'
 
 export type CourseStatus = 'available' | 'planned'
 
-/** 'free' = 免費;'login-free' = 登入後免費;'tbd' = 尚未決定(不顯示價格標籤) */
-export type CourseAccess = 'free' | 'login-free' | 'tbd'
+/** 'free' = 免費;'login-free' = 登入後免費;'subscription' = 訂閱客戶才能存取;'tbd' = 尚未決定(不顯示價格標籤) */
+export type CourseAccess = 'free' | 'login-free' | 'subscription' | 'tbd'
 
 /** 圖卡插圖樣式(對應 HomePage.tsx 內的 SVG 插圖) */
 export type CourseArt = 'tools' | 'chat' | 'build' | 'agent' | 'advanced'
@@ -37,6 +37,7 @@ export type CourseLevel = {
 export const ACCESS_LABEL: Record<CourseAccess, string | null> = {
   free: '免費',
   'login-free': '登入後免費',
+  subscription: '訂閱專屬',
   tbd: null,
 }
 
@@ -97,7 +98,7 @@ export const LEVELS: CourseLevel[] = [
       '用自動化測試，確保 AI 不會改壞既有功能',
     ],
     status: 'planned',
-    access: 'tbd',
+    access: 'subscription',
     art: 'build',
     link: '/courses/vibe-coding',
     prerequisite: '會使用 AI 工具，願意開始動手寫程式',

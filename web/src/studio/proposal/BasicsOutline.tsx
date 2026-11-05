@@ -4,7 +4,6 @@ import {
   BRIDGE,
   CHECKLIST,
   MODULES,
-  OPEN_QUESTIONS,
   TIER_INFO,
   TIER_LABEL,
   type Lesson,
@@ -13,7 +12,6 @@ import {
   type Tier,
 } from './basicsData'
 import { LiveVideoPreview, OpeningPreview } from './OpeningPreviewPlayer'
-import { RESEARCH_REFS } from './researchRefs'
 import { useCopy } from '../../site/useCopy'
 import ui from './proposal.module.css'
 
@@ -434,30 +432,10 @@ export function List({ items }: { items: string[] }) {
   )
 }
 
-export function ResearchRefs() {
-  return (
-    <section className={ui.card}>
-      <table>
-        <tbody>
-          {RESEARCH_REFS.map((r) => (
-            <tr key={r.to}>
-              <td className={ui.nowrap}>
-                <Link to={r.to}>{r.label}</Link>
-              </td>
-              <td className={ui.small}>{r.note}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
-  )
-}
-
 /** L0／L1／L1T／L2 等級頁：定位、設計依據、大綱、（L2）環境檢查表與銜接、待辦、風險、待決定。 */
 export function TierOutline({ tier }: { tier: Tier }) {
   const info = TIER_INFO[tier]
   const mods = MODULES.filter((m) => m.tier === tier)
-  const questions = OPEN_QUESTIONS.filter((q) => q.tier === tier)
   const lessonCount = mods.reduce((n, m) => n + m.lessons.length, 0)
   const hours = Math.round((sumMinutes(mods) / 60) * 10) / 10
   const plans = mods.flatMap((m) => m.lessons.flatMap((l) => (l.course ? [l.course] : [])))
@@ -611,20 +589,6 @@ export function TierOutline({ tier }: { tier: Tier }) {
           <List items={info.risks} />
         </div>
       </section>
-
-      <h2>待決定</h2>
-      <div className={ui.note}>
-        <ul style={{ margin: 0 }}>
-          {questions.map((q) => (
-            <li key={q.title}>
-              <strong style={{ display: 'inline' }}>{q.title}</strong>：{q.body}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <h2>參考研究</h2>
-      <ResearchRefs />
     </>
   )
 }

@@ -1,15 +1,19 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ResearchRefs } from './BasicsOutline'
-import { MODULES, OPEN_QUESTIONS, type Tier } from './basicsData'
+import { lessonNumber } from '../../content/catalog'
+import { ADVANCED_QUESTIONS, MODULES, OPEN_QUESTIONS, type Tier } from './basicsData'
 import { useHashScroll } from '../../site/useHashScroll'
-import { DocList } from '../docs/DocPage'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
 type Chip = 'done' | 'todo' | 'out'
 
+type Question = { title: string; body: string }
+
 type LevelBlock = {
   code: string
+  /** 有逐課大綱的等級(basicsData 的 MODULES):現況底下列出各課狀態 */
+  tier?: Tier
   title: string
   access: string
   stage: { cls: Chip; text: string }
@@ -18,7 +22,7 @@ type LevelBlock = {
   /** 現況的細項，以清單呈現 */
   points?: string[]
   next: string[]
-  pending: string
+  questions: Question[]
   links: { to: string; label: string }[]
 }
 
@@ -26,29 +30,33 @@ const count = (tier: Tier) => {
   const mods = MODULES.filter((m) => m.tier === tier)
   return `${mods.length} 單元 · ${mods.reduce((n, m) => n + m.lessons.length, 0)} 課`
 }
-const pendingCount = (tier: Tier) => OPEN_QUESTIONS.filter((q) => q.tier === tier).length
+const questionsOf = (tier: Tier) => OPEN_QUESTIONS.filter((q) => q.tier === tier)
+
+const L3_QUESTIONS: Question[] = [
+  { title: '課程架構', body: '七個單元已移出五個，要不要補單元，見 L3 課程架構。' },
+  { title: '準備清單', body: 'Docker 與 onagent 帳號是否保留，見 L3 提案內容頁底。' },
+  { title: '封面圖檔', body: '確認封面後，再輸出兩張 PNG。' },
+]
 
 const LEVELS: LevelBlock[] = [
   {
     code: 'L0',
+    tier: 'L0',
     title: 'AI 工具介紹',
     access: '免費',
     stage: { cls: 'todo', text: '序章與第 0、1、2 課腳本完成 · 互動版上線' },
     summary: `用會操作檔案的 AI 工具在自己的電腦上做出東西，不講 AI 原理。${count('L0')}，每課已有步驟與提示詞。`,
     points: [
       '工具例：Claude Code、Codex CLI、Gemini CLI、Cursor Agent',
-      '序章：為什麼不用學寫程式也能做軟體，對照以前、聊天式 AI、AI Agent 三種做法（只看不操作）',
-      '第 0 課：工具與安全（練習資料夾、確認提示）',
-      '第 1 課：專案與工作目錄、檔案操作',
-      '第 2 課：說清楚需求，做出小森烘焙一頁式網站並精確調整',
       '四課都是互動版即時教學畫面（播放中有「選一選、想一想」），旁白語音都已產生',
     ],
     next: ['決定主示範的 AI 工具與形式（與 L2 主力 AI 程式助手一起決定）', '實測 0.2 全部提示詞（參考成品與腳本已完成）', '找零基礎試看者從序章跟做到第 2 課，記錄卡關點', '決定 L1 是否改用同一個工具、L2 如何處理重疊'],
-    pending: `${pendingCount('L0')} 項待決定`,
+    questions: questionsOf('L0'),
     links: [{ to: '/studio/tools', label: 'L0 大綱' }],
   },
   {
     code: 'L1',
+    tier: 'L1',
     title: 'AI 工具入門',
     access: '登入後免費',
     stage: { cls: 'todo', text: '大綱完成 · 待寫腳本' },
@@ -61,11 +69,12 @@ const LEVELS: LevelBlock[] = [
       '每課為「目標 → 步驟拆解 → 實際操作展示」，每步附可複製的提示詞',
     ],
     next: ['決定主示範的 AI 聊天工具', '在三個工具實測全部提示詞', '寫 1.1 腳本並找零基礎試看者跟做'],
-    pending: `${pendingCount('L1')} 項待決定`,
+    questions: questionsOf('L1'),
     links: [{ to: '/studio/ai-tools', label: 'L1 大綱' }],
   },
   {
     code: 'L1',
+    tier: 'L1T',
     title: '生活小工具',
     access: '暫定免費',
     stage: { cls: 'todo', text: '大綱完成 · 待實測' },
@@ -76,7 +85,7 @@ const LEVELS: LevelBlock[] = [
       '其他工具構想（QR Code、PDF 合併、記帳本等）放在 L1 構想區',
     ],
     next: ['逐課檢查提示詞', '用選定工具實測，並確認各瀏覽器雙擊開啟的行為', '決定案例主軸與是否開放外部函式庫'],
-    pending: `${pendingCount('L1T')} 項待決定`,
+    questions: questionsOf('L1T'),
     links: [
       { to: '/studio/life-tools', label: '生活小工具大綱' },
       { to: '/studio/l1-ideas', label: 'L1 構想區' },
@@ -84,13 +93,14 @@ const LEVELS: LevelBlock[] = [
   },
   {
     code: 'L2',
+    tier: 'L2',
     title: 'Vibe Coding 入門',
-    access: '尚未決定',
+    access: '訂閱專屬',
     stage: { cls: 'todo', text: '大綱草稿' },
     summary: `工具與環境從零開始，以個人頁部署收尾。草稿 ${count('L2')}。`,
     points: ['工具：終端機、VS Code、Git／GitHub、Node.js LTS、AI 程式助手', '附 Windows／macOS 環境檢查表'],
     next: ['決定主力 AI 程式助手與 Windows 是否用 WSL', '在乾淨的 Windows、macOS 上實測安裝流程', '決定 L2→L3 的 JavaScript 落差怎麼補'],
-    pending: `${pendingCount('L2')} 項待決定`,
+    questions: questionsOf('L2'),
     links: [{ to: '/studio/vibe-coding', label: 'L2 大綱與環境檢查表' }],
   },
   {
@@ -101,7 +111,7 @@ const LEVELS: LevelBlock[] = [
     summary: '既有課程，已移到主題「打造 AI 互動軟體」的中階。',
     points: ['提案欄位大多已定稿', '七個單元已移出五個，剩 2 個單元加期末專案'],
     next: ['決定是否補單元（見課程架構）', '填「上課前的準備」', '輸出方形封面'],
-    pending: '3 項待決定',
+    questions: L3_QUESTIONS,
     links: [
       { to: '/studio/ai-agent/fields', label: '提案內容' },
       { to: '/studio/ai-agent/structure', label: '課程架構' },
@@ -116,7 +126,7 @@ const LEVELS: LevelBlock[] = [
     summary: '主題「打造 AI 互動軟體」的進階，只有課程地圖上的暫定主題。',
     points: ['範圍取決於 L3 定案與移出單元的去向'],
     next: ['等 L3 架構定案後再列主題清單'],
-    pending: '4 項待決定',
+    questions: ADVANCED_QUESTIONS,
     links: [{ to: '/studio/advanced', label: 'L4 預留頁' }],
   },
 ]
@@ -140,6 +150,50 @@ const DEPENDENCIES: string[] = [
   'L2 → L3：L2 的主力 AI 程式助手若不是 Claude Code，L3 開頭需要另外引導安裝。',
   'L3 → L4：L3 移出的單元（即時／非同步呼叫、前後端串接、額度、部署）是否改放 L4，影響 L4 範圍。',
 ]
+
+type StatusRow = { key: string; code: ReactNode; title: string; chip: string; done: boolean }
+
+/** 現況裡的狀態清單:各課狀態與 L3 的提案進度共用 */
+function StatusList({ heading, rows }: { heading: string; rows: StatusRow[] }) {
+  return (
+    <div className={ui['lesson-status']}>
+      <p>{heading}</p>
+      <ul>
+        {rows.map((r) => (
+          <li key={r.key}>
+            {typeof r.code === 'string' ? <span>{r.code}</span> : r.code}
+            <span>{r.title}</span>
+            <span className={`${ui.chip} ${r.done ? ui.done : ui.todo}`}>{r.chip}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/** 各課的製作狀態。L2 的課還沒有逐課內容,沒有 status,算大綱草稿 */
+function LessonStatuses({ tier }: { tier: Tier }) {
+  const rows = MODULES.filter((m) => m.tier === tier).flatMap((m) =>
+    m.lessons.map((l, i) => {
+      const code = l.course ? (l.course.label ?? lessonNumber(l.course)) : `${m.num}.${i + 1}`
+      const chip = l.status ?? '大綱草稿'
+      return { key: code, code, title: l.title, chip, done: chip === '腳本完成' }
+    }),
+  )
+  return <StatusList heading={`各課狀態（腳本完成 ${rows.filter((r) => r.done).length} / ${rows.length} 課）`} rows={rows} />
+}
+
+/** L3 提案各欄位的進度:L3 還沒有逐課大綱,放在現況裡取代各課狀態 */
+function L3Progress() {
+  const rows = L3_PROGRESS.map((row) => ({
+    key: row.item,
+    code: <Link to={row.to}>{row.page}</Link>,
+    title: row.item,
+    chip: row.chip,
+    done: row.status === 'done',
+  }))
+  return <StatusList heading={`提案進度（完成 ${rows.filter((r) => r.done).length} / ${rows.length} 項）`} rows={rows} />
+}
 
 export function ProposalIndexPage() {
   useHashScroll()
@@ -169,25 +223,44 @@ export function ProposalIndexPage() {
             <dl className={ui.kv}>
               <dt>現況</dt>
               <dd>
-                <p className={ui['kv-lead']}>{lv.summary}</p>
-                {lv.points && (
-                  <ul className={ui['plain-list']}>
-                    {lv.points.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
-                )}
+                {/* 預設收合,只看得到一句話的現況 */}
+                <details className={ui['status-details']}>
+                  <summary>{lv.summary}</summary>
+                  {lv.points && (
+                    <ul className={ui['plain-list']}>
+                      {lv.points.map((t) => (
+                        <li key={t}>{t}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {lv.tier && <LessonStatuses tier={lv.tier} />}
+                  {lv.code === 'L3' && <L3Progress />}
+                </details>
               </dd>
               <dt>下一步</dt>
               <dd>
-                <ul className={ui['plain-list']}>
-                  {lv.next.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
+                <details className={ui['status-details']}>
+                  <summary>{lv.next.length} 項</summary>
+                  <ul className={ui['plain-list']}>
+                    {lv.next.map((t) => (
+                      <li key={t}>{t}</li>
+                    ))}
+                  </ul>
+                </details>
               </dd>
               <dt>待決定</dt>
-              <dd>{lv.pending}</dd>
+              <dd>
+                <details className={ui['status-details']}>
+                  <summary>{lv.questions.length} 項</summary>
+                  <ul className={ui['plain-list']}>
+                    {lv.questions.map((q) => (
+                      <li key={q.title}>
+                        <strong>{q.title}</strong>：{q.body}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </dd>
             </dl>
           </div>
           <div className={ui['card-foot']}>
@@ -201,57 +274,6 @@ export function ProposalIndexPage() {
           </div>
         </section>
       ))}
-
-      <h2>L3 進度明細</h2>
-      <section className={ui.card}>
-        <table>
-          <thead>
-            <tr>
-              <th>項目</th>
-              <th>狀態</th>
-              <th>前往</th>
-            </tr>
-          </thead>
-          <tbody>
-            {L3_PROGRESS.map((row) => (
-              <tr key={row.item}>
-                <td>{row.item}</td>
-                <td>
-                  <span className={`${ui.chip} ${ui[row.status]}`}>{row.chip}</span>
-                </td>
-                <td>
-                  <Link to={row.to}>{row.page}</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-      <h2>待決定（跨等級摘要）</h2>
-      <div className={ui.note}>
-        <ul style={{ margin: 0 }}>
-          <li>
-            <strong style={{ display: 'inline' }}>L2 主力 AI 程式助手</strong>：Claude Code 或 GitHub Copilot，影響 L2 單元 6 與 L3 開頭，見{' '}
-            <Link to="/studio/vibe-coding">L2</Link>。
-          </li>
-          <li>
-            <strong style={{ display: 'inline' }}>L2→L3 的 JavaScript 落差</strong>：另開課或在 L2 加單元，見{' '}
-            <Link to="/studio/vibe-coding">L2</Link>。
-          </li>
-          <li>
-            <strong style={{ display: 'inline' }}>L3 課程架構</strong>：七個單元已移出五個，要不要補單元，見{' '}
-            <Link to="/studio/ai-agent/structure">L3 課程架構</Link>。
-          </li>
-          <li>
-            <strong style={{ display: 'inline' }}>L3 準備清單</strong>：Docker 與 onagent 帳號是否保留，見{' '}
-            <Link to="/studio/ai-agent/fields">L3 提案內容</Link>頁底。
-          </li>
-          <li>
-            <strong style={{ display: 'inline' }}>L3 封面圖檔</strong>：確認封面後，再輸出兩張 PNG。
-          </li>
-        </ul>
-      </div>
 
       <h2>跨等級構想</h2>
       <section className={ui.card}>
@@ -508,16 +530,6 @@ export function ProposalIndexPage() {
         </div>
       </section>
 
-      <h2>參考研究</h2>
-      <ResearchRefs />
-
-      <h2 id="docs">文件</h2>
-      <section className={ui.card}>
-        <div className={ui['card-body']}>
-          <DocList />
-        </div>
-      </section>
-
       <h2>其他檔案</h2>
       <section className={ui.card}>
         <table>
@@ -526,7 +538,7 @@ export function ProposalIndexPage() {
               <td>
                 <Link to="/materials">工具</Link>
               </td>
-              <td>即時教學畫面預覽、宣傳影片錄製、封面設計與裁切</td>
+              <td>課程編排、宣傳影片錄製、封面設計與裁切</td>
             </tr>
             <tr>
               <td>

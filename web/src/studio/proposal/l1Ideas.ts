@@ -61,7 +61,7 @@ export const L1_IDEAS: L1Idea[] = [
     scenario: '分享 Wi-Fi、活動報名連結。',
     capability: '產生 QR Code（需要外部函式庫）',
     reason: '原生瀏覽器沒有產生 QR Code 的功能，要引用函式庫；L0 規定不裝套件。',
-    fate: '看「是否開放外部函式庫」的決定（見生活小工具的待決定）。',
+    fate: '看「是否開放外部函式庫」的決定（見總覽生活小工具的待決定）。',
   },
   {
     title: 'PDF 合併與拆頁',

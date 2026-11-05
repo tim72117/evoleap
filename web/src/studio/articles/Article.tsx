@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { SiteLayout } from '../../site/SiteLayout'
+import { ProposalLayout } from '../proposal/ProposalLayout'
 import { articles, CATEGORY_LABEL, findArticle } from './registry'
 import styles from './Article.module.css'
 
@@ -29,13 +29,13 @@ export function DocLayout({ slug, toc = [], children }: { slug: string; toc?: To
   const next = articles[index + 1]
 
   return (
-    <SiteLayout title={meta.title}>
+    <ProposalLayout title={meta.title} footer={`文件 · ${CATEGORY_LABEL[meta.category]}`} back={false} wide>
       <div className={styles.wrap}>
         <article className={styles.article}>
           <nav className={styles.crumb} aria-label="麵包屑">
             <Link to="/studio">研發基地</Link>
             <span aria-hidden="true"> / </span>
-            <Link to="/studio#docs">文件</Link>
+            <Link to="/studio/docs">文件</Link>
             <span aria-hidden="true"> / </span>
             <span>{CATEGORY_LABEL[meta.category]}</span>
           </nav>
@@ -74,7 +74,7 @@ export function DocLayout({ slug, toc = [], children }: { slug: string; toc?: To
           </aside>
         )}
       </div>
-    </SiteLayout>
+    </ProposalLayout>
   )
 }
 

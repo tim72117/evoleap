@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { COURSES, coursePath, type Course } from '../content/catalog'
+import { COURSES, coursePath, openLessonsOf, type Course } from '../content/catalog'
 import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
 import { AI_APPS_TOPIC, COURSE_LIST, SOFTWARE_TOPIC, topicOfCourse } from '../content/topics'
 import { SiteLayout } from '../site/SiteLayout'
@@ -7,13 +7,10 @@ import styles from './CourseList.module.css'
 
 // 全部課程:依主題列出 catalog.ts 的每一門課。規劃中的課不顯示課數(levels.ts:不寫未確認的堂數)。
 
-/** 已開放的單課數,算法與首頁相同:有可以播放的影片,序章這類短導覽不算 */
-const openCount = (c: Course) => c.lessons.filter((l) => !l.label && l.videos.some((v) => v.live)).length
-
 function CourseCard({ course }: { course: Course }) {
   const path = coursePath(course)
   const access = ACCESS_LABEL[ALL_LEVELS.find((l) => l.link === path)?.access ?? 'tbd']
-  const open = openCount(course)
+  const open = openLessonsOf(course).length
   return (
     <li className={styles.card}>
       <p className={styles.badges}>

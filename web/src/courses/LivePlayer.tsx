@@ -25,9 +25,11 @@ type Props = {
   poster?: { chapter: string; after: number }
   /** 要不要記會員的播放進度,預設要。研發頁的預覽播放器不記,免得把研發時的試播算成學員的進度 */
   saveProgress?: boolean
+  /** 外層把播放器隱藏(沒有卸載)時設為 true:暫停播放,免得看不到畫面還聽得到旁白。再顯示時不會自動接著播 */
+  paused?: boolean
 }
 
-export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ script, title, onTime, onCues, poster, saveProgress = true }, ref) {
+export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ script, title, onTime, onCues, poster, saveProgress = true, paused = false }, ref) {
   const boxRef = useRef<HTMLDivElement>(null)
   const shellRef = useRef<Shell | null>(null)
   const onTimeRef = useRef(onTime)
@@ -100,6 +102,10 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
       shellRef.current = null
     }
   }, [script, title, status, memberId])
+
+  useEffect(() => {
+    if (paused) shellRef.current?.pause()
+  }, [paused])
 
   return (
     <div ref={boxRef} className={styles.box}>

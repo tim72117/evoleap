@@ -1,5 +1,4 @@
 // 研發基地內部頁的 SEO 資料。只由 StudioApp 與 build 使用,不會打包進公開的 JS。
-import { documentTitle } from '../site/siteInfo'
 import { articles } from '../studio/articles/registry'
 import { NOT_FOUND, type PageMeta } from './pages'
 
@@ -14,7 +13,7 @@ const internal = (path: string, title: string, description = '研發基地（內
 
 const DOCS_PAGES: PageMeta[] = [
   // Markdown 文件(live、recorder)的標題與摘要也登記在 articles,所以這裡一次涵蓋
-  ...articles.map((a) => internal(`/docs/${a.slug}`, documentTitle(a.title), a.summary)),
+  ...articles.map((a) => internal(`/docs/${a.slug}`, `${a.title} · 課程提案`, a.summary)),
 ]
 
 // 標題對應各頁 ProposalLayout 的 title(document.title = 「<title> · 課程提案」)。
@@ -22,6 +21,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
   [
     ['/studio', '總覽'],
     ['/studio/todo', '待辦'],
+    ['/studio/docs', '文件'],
     ['/studio/tools', 'L0 AI 工具介紹'],
     ['/studio/ai-tools', 'L1 AI 工具入門'],
     ['/studio/life-tools', 'L1 生活小工具'],

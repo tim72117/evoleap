@@ -30,6 +30,7 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
   // 首頁的主打主題 → 主題頁
   await page.locator('main').getByRole('link', { name: '課程地圖', exact: true }).click()
   await expectHeadMatches(page, request, '/topics/software')
+  await expect(page).toHaveURL(/#map$/)
 
   // 課程地圖的 L0 卡片
   const card = page.locator('#level-tools')
@@ -109,9 +110,17 @@ test('Claude Code 工作術:首頁卡片進入主題頁,列出情境,沒有等�
   await expect(row).toHaveAttribute('aria-expanded', 'true')
   await expect(page.locator('#scenarios .vp')).toBeVisible()
   await expect(page.getByText('找不到即時教學畫面的腳本')).toHaveCount(0)
-  // 收合整組
+  // 收合影片列:播放器隱藏但不卸載,再展開時不會重新載入
+  await page.locator('#scenarios .vp').evaluate((el) => el.setAttribute('data-e2e-same', '1'))
+  await row.click()
+  await expect(page.locator('#scenarios .vp')).toBeHidden()
+  await row.click()
+  await expect(page.locator('#scenarios .vp[data-e2e-same]')).toBeVisible()
+  // 收合整組:同樣只是隱藏
   await page.getByRole('button', { name: /全部情境/ }).click()
-  await expect(rows).toHaveCount(0)
+  await expect(rows.first()).toBeHidden()
+  await page.getByRole('button', { name: /全部情境/ }).click()
+  await expect(page.locator('#scenarios .vp[data-e2e-same]')).toBeVisible()
   expect(errors).toEqual([])
 })
 
@@ -404,6 +413,7 @@ const PAGES = [
   '/docs/live',
   '/studio',
   '/studio/todo',
+  '/studio/docs',
   '/materials',
   '/studio/actor-interaction/scene',
   '/studio/actor-interaction/push',

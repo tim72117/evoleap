@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { COURSES, coursePath, lessonPath } from '../content/catalog'
+import { COURSES, coursePath, lessonPath, openLessonsOf } from '../content/catalog'
 import { LEVELS } from '../content/levels'
 import { HOME_INTRO, PLANNED_TOPICS, SOFTWARE_TOPIC } from '../content/topics'
 import { SiteLayout } from '../site/SiteLayout'
@@ -14,7 +14,7 @@ import styles from './HomePage.module.css'
 
 const tools = COURSES.find((c) => c.slug === 'tools')!
 // 主打的是第 0 課(互動點、提示詞都是它的);序章只是短短的導覽,不當主打
-const openLessons = tools.lessons.filter((l) => !l.label && l.videos.some((v) => v.live))
+const openLessons = openLessonsOf(tools)
 const firstLesson = openLessons[0]
 const firstScript = firstLesson.videos[0].live!
 const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!
@@ -80,7 +80,7 @@ export function HomePage() {
                 <Link className={styles.primary} to={lessonPath(tools, firstLesson)}>
                   開始第一課
                 </Link>
-                <Link className={styles.secondary} to={SOFTWARE_TOPIC.path}>
+                <Link className={styles.secondary} to={{ pathname: SOFTWARE_TOPIC.path, hash: 'map' }}>
                   課程地圖
                 </Link>
                 <div ref={setShrinkSlot} className={styles.shrinkSlot} />

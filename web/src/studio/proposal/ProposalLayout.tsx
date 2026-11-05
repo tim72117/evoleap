@@ -1,11 +1,12 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { articles } from '../articles/registry'
 import ui from './proposal.module.css'
 
 type Tab = { to: string; label: string; code?: string; match?: string; also?: string[] }
 
 /** 一級頁籤:每一個對應一個區塊,第二排再列出該區塊裡的頁面。 */
-type Section = { id: 'overview' | 'todo' | 'levels' | 'ideas' | 'docs' | 'tools'; label: string; to: string; tabs?: Tab[] }
+type Section = { id: 'overview' | 'todo' | 'levels' | 'ideas' | 'docs' | 'tools'; label: string; to: string; tabs?: Tab[]; wrapTabs?: boolean }
 
 /** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級。 */
 const LEVELS: Tab[] = [
@@ -27,12 +28,18 @@ const IDEAS: Tab[] = [
   { to: '/studio/actor-interaction', label: '演員互動', match: '/studio/actor-interaction' },
 ]
 
+/** 文件清單與每一份文件。 */
+const DOCS: Tab[] = [
+  { to: '/studio/docs', label: '全部文件' },
+  ...articles.map((a) => ({ to: `/docs/${a.slug}`, label: a.tab ?? a.title })),
+]
+
 const SECTIONS: Section[] = [
   { id: 'overview', label: '總覽', to: '/studio' },
   { id: 'todo', label: '待辦', to: '/studio/todo' },
   { id: 'levels', label: '課程', to: '/studio/tools', tabs: LEVELS },
   { id: 'ideas', label: '構想', to: '/studio/mcp', tabs: IDEAS },
-  { id: 'docs', label: '文件', to: '/studio#docs' },
+  { id: 'docs', label: '文件', to: '/studio/docs', tabs: DOCS, wrapTabs: true },
   { id: 'tools', label: '工具', to: '/materials' },
 ]
 
@@ -62,10 +69,11 @@ const ACTOR_NAV: Tab[] = [
 const tabActive = (t: Tab, pathname: string): boolean =>
   t.match ? pathname.startsWith(t.match) : pathname === t.to || (t.also ?? []).includes(pathname)
 
-/** 目前的頁面屬於哪個區塊(「文件」是連到總覽的錨點,不會成為目前區塊) */
+/** 目前的頁面屬於哪個區塊 */
 function sectionOf(pathname: string): Section['id'] | null {
   if (pathname === '/studio') return 'overview'
   if (pathname === '/studio/todo') return 'todo'
+  if (DOCS.some((t) => tabActive(t, pathname))) return 'docs'
   if (LEVELS.some((t) => tabActive(t, pathname))) return 'levels'
   if (IDEAS.some((t) => tabActive(t, pathname))) return 'ideas'
   if (pathname.startsWith('/materials')) return 'tools'
@@ -79,10 +87,12 @@ type Props = {
   footer: string
   /** Show the "← 回總覽" back links (every page except the overview). */
   back?: boolean
+  /** 內容區加寬,放得下內文加右側目錄(文件頁) */
+  wide?: boolean
   children: ReactNode
 }
 
-export function ProposalLayout({ title, footer, back = true, children }: Props) {
+export function ProposalLayout({ title, footer, back = true, wide = false, children }: Props) {
   const { pathname } = useLocation()
   const inL3 = pathname.startsWith('/studio/ai-agent')
   const inL1 = L1_NAV.some((t) => t.to === pathname)
@@ -92,12 +102,35 @@ export function ProposalLayout({ title, footer, back = true, children }: Props) 
     document.title = `${title} · 課程提案`
   }, [title])
 
+  // 第二排放不下時可以橫向捲動:把目前的標籤捲到看得到的位置
+  const subtabsRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const nav = subtabsRef.current
+    const active = nav?.querySelector('[aria-current="page"]')
+    if (!nav || !active) return
+    const n = nav.getBoundingClientRect()
+    const a = active.getBoundingClientRect()
+    nav.scrollLeft += a.left - n.left - (n.width - a.width) / 2
+  }, [pathname])
+
+  // 標籤列的高度會隨視窗寬度換行改變,文件頁的目錄與段落捲動位置要跟著它
+  const rootRef = useRef<HTMLDivElement>(null)
+  const topbarRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const root = rootRef.current
+    const topbar = topbarRef.current
+    if (!root || !topbar) return
+    const ro = new ResizeObserver(() => root.style.setProperty('--topbar-h', `${topbar.offsetHeight}px`))
+    ro.observe(topbar)
+    return () => ro.disconnect()
+  }, [])
+
   const current = sectionOf(pathname)
   const section = SECTIONS.find((x) => x.id === current)
 
   return (
-    <div className={ui.proposal} lang="zh-Hant">
-      <header className={ui.topbar}>
+    <div ref={rootRef} className={ui.proposal} lang="zh-Hant">
+      <header ref={topbarRef} className={ui.topbar}>
         <div className={ui['topbar-inner']}>
           <Link className={ui.brand} to="/studio">
             研發基地
@@ -112,7 +145,7 @@ export function ProposalLayout({ title, footer, back = true, children }: Props) 
         </div>
         {section?.tabs && (
           <div className={ui.subnav}>
-            <nav className={ui.subtabs} aria-label={`${section.label}頁面`}>
+            <nav ref={subtabsRef} className={section.wrapTabs ? `${ui.subtabs} ${ui['subtabs-wrap']}` : ui.subtabs} aria-label={`${section.label}頁面`}>
               {section.tabs.map((t) => (
                 <Link key={t.to} to={t.to} aria-current={tabActive(t, pathname) ? 'page' : undefined} title={t.code ? `${t.code} ${t.label}` : t.label}>
                   {t.code && <span className={ui['nav-short']}>{t.code}</span>}
@@ -159,7 +192,7 @@ export function ProposalLayout({ title, footer, back = true, children }: Props) 
         )}
       </header>
 
-      <main>
+      <main className={wide ? ui.wide : undefined}>
         {back && (
           <Link className={ui.back} to="/studio">
             ← 回總覽

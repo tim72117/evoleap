@@ -11,9 +11,14 @@ type Scenario = (typeof CLAUDE_CODE_SCENARIOS)[number]
 /** 開頭是空白的字卡前奏,封面改用 Fork 的選單畫面 */
 const FORK_POSTER = { chapter: '用 Fork 分出去', after: 2500 }
 
-function ScenarioRow({ scenario: s }: { scenario: Scenario }) {
+function ScenarioRow({ scenario: s, visible }: { scenario: Scenario; visible: boolean }) {
   const [open, setOpen] = useState(false)
+  const [loaded, setLoaded] = useState(false)
   const playerId = useId()
+  const toggle = () => {
+    setOpen(!open)
+    setLoaded(true)
+  }
   return (
     <li>
       <div className={s.video ? `${styles.row} ${styles.rowPlayable}` : styles.row}>
@@ -31,7 +36,7 @@ function ScenarioRow({ scenario: s }: { scenario: Scenario }) {
         <div className={styles.rowText}>
           <h4>
             {s.video ? (
-              <button type="button" className={styles.rowButton} aria-expanded={open} aria-controls={playerId} onClick={() => setOpen(!open)}>
+              <button type="button" className={styles.rowButton} aria-expanded={open} aria-controls={playerId} onClick={toggle}>
                 {s.title}
               </button>
             ) : (
@@ -60,10 +65,10 @@ function ScenarioRow({ scenario: s }: { scenario: Scenario }) {
       </div>
       {s.video && (
         <div id={playerId} hidden={!open}>
-          {/* 第一次展開才載入播放器 */}
-          {open && (
+          {/* 第一次展開才載入播放器,之後只切換顯示與隱藏,收合再展開時停在原來的位置 */}
+          {loaded && (
             <div className={styles.rowPlayer}>
-              <LivePlayer script={s.video.script} title={s.video.title} onTime={() => {}} poster={FORK_POSTER} saveProgress={false} />
+              <LivePlayer script={s.video.script} title={s.video.title} onTime={() => {}} poster={FORK_POSTER} saveProgress={false} paused={!open || !visible} />
             </div>
           )}
         </div>
@@ -110,13 +115,11 @@ export function ClaudeCodeTopicPage() {
                 <span className={styles.groupCount}>{CLAUDE_CODE_SCENARIOS.length} 個情境</span>
               </button>
             </h3>
-            {expanded && (
-              <ul id={rowsId} className={styles.rows}>
-                {CLAUDE_CODE_SCENARIOS.map((s) => (
-                  <ScenarioRow key={s.title} scenario={s} />
-                ))}
-              </ul>
-            )}
+            <ul id={rowsId} className={styles.rows} hidden={!expanded}>
+              {CLAUDE_CODE_SCENARIOS.map((s) => (
+                <ScenarioRow key={s.title} scenario={s} visible={expanded} />
+              ))}
+            </ul>
           </div>
         </div>
       </section>

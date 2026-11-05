@@ -83,6 +83,7 @@
 .proposal .tabs a[aria-current="page"] { color: var(--accent); font-weight: 600; border-bottom-color: var(--accent); }
 
 .proposal main { max-width: 920px; margin: 0 auto; padding: 36px 20px 72px; }
+.proposal main.wide { max-width: 1100px; }
 
 .proposal h1 { font-size: 28px; line-height: 1.3; margin: 0 0 8px; letter-spacing: -0.01em; }
 .proposal h2 { font-size: 20px; margin: 40px 0 14px; }
@@ -255,6 +256,7 @@
   display: flex; align-items: center; gap: 6px;
   overflow-x: auto; scrollbar-width: none;
 }
+.proposal .subtabs-wrap { flex-wrap: wrap; }
 .proposal .subtabs a {
   display: inline-flex; align-items: baseline; gap: 7px; flex: none;
   padding: 5px 13px; border-radius: 999px;
@@ -270,6 +272,7 @@
 .proposal .subnav-label { font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); margin-right: 4px; flex: none; }
 @media (max-width: 760px) {
   .proposal .subtabs { padding: 6px 16px; }
+  .proposal .subtabs-wrap { flex-wrap: nowrap; }
   .proposal .nav-long { display: none; }
   .proposal .subtabs a[aria-current="page"] .nav-long { display: inline; }
 }
@@ -291,6 +294,18 @@
 .proposal .kv dd { margin: 0; }
 .proposal .kv-lead { margin: 0; font-size: 14.5px; }
 .proposal .kv-lead + .plain-list { margin-top: 4px; }
+.proposal .lesson-status { margin-top: 10px; }
+.proposal .lesson-status p { margin: 0; font-weight: 600; }
+.proposal .status-details summary { cursor: pointer; }
+.proposal .status-details summary + .plain-list { margin-top: 6px; }
+.proposal .lesson-status ul { margin: 8px 0 0; padding: 0; list-style: none; }
+.proposal .lesson-status li {
+  display: grid; grid-template-columns: 4.5em 1fr auto; gap: 10px; align-items: baseline;
+  padding: 5px 0; border-top: 1px solid var(--border);
+}
+.proposal .lesson-status li > :first-child { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+.proposal .lesson-status li > a:first-child { color: var(--accent); text-decoration: none; }
+.proposal .lesson-status li > a:first-child:hover { text-decoration: underline; }
 .proposal .links { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 640px) {
   .proposal .lesson-table thead { display: none; }

@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { COURSES, coursePath, lessonNumber, lessonPath, plannedChapterPath } from './catalog'
+import { COURSES, coursePath, lessonNumber, lessonPath, plannedChapterPath, requiresLogin } from './catalog'
 import type { CourseLesson } from './lessonTypes'
 import { ALL_LEVELS as LEVELS } from './levels'
 import { AI_AGENT_COURSE_PATH } from './aiAgent'
+
+describe('requiresLogin', () => {
+  it('只有課程地圖標示登入後免費的課程要登入', () => {
+    expect(COURSES.filter(requiresLogin).map((c) => c.slug)).toEqual(['ai-tools'])
+  })
+})
 
 const allPaths = COURSES.flatMap((c) => [
   coursePath(c),

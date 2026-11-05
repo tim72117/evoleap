@@ -240,12 +240,19 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   const dur = (): number => o.duration || 1
 
   // ---------- 縮放 ----------
+  let measuredHidden = false
   const fit = (): void => {
     const stage = $('.vp-stage')
     const s = Math.min(stage.clientWidth / W, stage.clientHeight / H)
     canvas.style.transform = `translate(${(stage.clientWidth - W * s) / 2}px, ${(stage.clientHeight - H * s) / 2}px) scale(${s})`
     root.style.setProperty('--vp-scale', String(s))
     root.classList.toggle('compact', root.clientWidth < 560)
+    // 外層把播放器隱藏時(display: none)量到的尺寸都是 0,再顯示時要重畫,鏡頭和標註才會在對的位置
+    if (stage.clientWidth === 0) measuredHidden = true
+    else if (measuredHidden) {
+      measuredHidden = false
+      draw()
+    }
   }
   const ro = new ResizeObserver(fit)
   ro.observe(root)
@@ -347,6 +354,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     root.classList.remove('stopped')
   }
   function play(): void {
+    if (root.clientWidth === 0) return // 播放器被隱藏時不播,例如收合後按了媒體鍵
     hideStop()
     if (state.ended || state.t >= dur()) {
       state.t = 0

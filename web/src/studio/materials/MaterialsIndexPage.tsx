@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ProposalLayout } from '../proposal/ProposalLayout'
 import ui from '../proposal/proposal.module.css'
 
-// 工具總覽:研發基地裡所有工具的入口(網頁工具直接開啟;指令列工具連到使用說明)。
+// 工具總覽:研發基地裡所有工具的入口。
 // 新增工具時在這裡加一張卡片。
 
 type Tool = {
@@ -25,28 +25,11 @@ const TOOLS: Tool[] = [
     path: 'web/src/studio/materials/course-map.json',
   },
   {
-    title: '即時教學畫面',
-    body: '各課的即時教學畫面在研發基地的各課「影片切分」直接播放；寫腳本、檢查畫面時看規格。',
-    how: '網頁',
-    links: [
-      { to: '/studio/tools', label: '研發基地' },
-      { to: '/docs/live', label: '規格' },
-    ],
-    path: 'web/src/live/ · web/src/content/live/',
-  },
-  {
     title: '宣傳影片',
     body: '用即時教學畫面製作的宣傳片：選一支腳本在網頁上播放（可拖曳、全螢幕、字幕）；輸出 mp4 用指令逐格錄製，有旁白語音時一併混進音軌，並輸出字幕檔。',
     how: '網頁播放；指令：在 web/ 執行 npm run record:live -- promo/檔名.json',
     links: [{ to: '/materials/promo', label: '開啟' }],
     path: 'web/src/studio/materials/PromoPage.tsx · web/scripts/record-live.mjs · web/src/content/live/promo/',
-  },
-  {
-    title: '宣傳影片錄製工具（舊版，v1 分鏡腳本）',
-    body: '舊版：用 v1 JSON 分鏡腳本產生畫面，逐格截圖錄成 1080p 影片與字幕檔。新的宣傳片改用上面的「宣傳影片」（即時教學畫面）。',
-    how: '指令：在 web/ 執行 npm run record',
-    links: [{ to: '/docs/recorder', label: '使用說明' }],
-    path: 'web/src/studio/recorder/',
   },
   {
     title: '封面設計',
@@ -68,7 +51,7 @@ export function MaterialsIndexPage() {
   return (
     <ProposalLayout title="工具" footer="研發基地 · 工具在 web/src/studio/ 與 web/src/live/">
       <h1>工具</h1>
-      <p className={ui.lead}>研發基地用的工具。網頁工具直接開啟；指令列工具連到使用說明。</p>
+      <p className={ui.lead}>研發基地用的工具。</p>
       {TOOLS.map((t) => (
         <section className={ui.card} key={t.title}>
           <div className={ui['card-head']}>

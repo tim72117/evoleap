@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
-import { COURSES, coursePath, lessonPath, plannedChapterPath } from '../content/catalog'
+import { COURSES, coursePath, lessonPath, plannedChapterPath, requiresLogin, type Course } from '../content/catalog'
+import type { CourseLesson } from '../content/lessonTypes'
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
 import { withL0Moments } from '../studio/interactive/l0-0.0'
 import { withL01Moments } from '../studio/interactive/l0-0.1'
@@ -12,6 +13,7 @@ import { CourseListPage } from './CourseListPage'
 import { CourseOverviewPage } from './CourseOverviewPage'
 import { COURSE_LIST } from '../content/topics'
 import { LessonPage } from './LessonPage'
+import { LoginGate } from './LoginGate'
 import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
 
 /** 用互動版播放的課:課號 → 把互動點加進課程腳本的函式 */
@@ -20,6 +22,21 @@ const INTERACTIVE_LESSONS: Record<string, (script: StageScript) => StageScript> 
   '0.1': withL01Moments,
   '0.2': withL02Moments,
   '0.intro': withL0IntroMoments,
+}
+
+function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
+  const page = INTERACTIVE_LESSONS[lesson.id] ? (
+    <InteractiveLessonPage key={lesson.id} course={course} lesson={lesson} prepare={INTERACTIVE_LESSONS[lesson.id]} />
+  ) : (
+    <LessonPage key={lesson.id} course={course} lesson={lesson} />
+  )
+  return requiresLogin(course) ? (
+    <LoginGate key={lesson.id} course={course} lesson={lesson}>
+      {page}
+    </LoginGate>
+  ) : (
+    page
+  )
 }
 
 // 依 catalog.ts 產生每門課的總覽頁、上課頁與規劃中章節頁的路由。
@@ -43,11 +60,7 @@ export const courseRoutes: { path: string; element: JSX.Element }[] = [
       ]),
   ...course.lessons.map((lesson) => ({
     path: lessonPath(course, lesson),
-    element: INTERACTIVE_LESSONS[lesson.id] ? (
-      <InteractiveLessonPage key={lesson.id} course={course} lesson={lesson} prepare={INTERACTIVE_LESSONS[lesson.id]} />
-    ) : (
-      <LessonPage key={lesson.id} course={course} lesson={lesson} />
-    ),
+    element: lessonElement(course, lesson),
   })),
   ...course.planned.map((chapter) => ({
     path: plannedChapterPath(course, chapter),

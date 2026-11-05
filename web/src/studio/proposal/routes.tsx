@@ -12,6 +12,7 @@ import { LifeToolsPage } from './LifeToolsPage'
 import { McpPage } from './McpPage'
 import { MemberPage } from './MemberPage'
 import { NewsFeedPage } from './NewsFeedPage'
+import { DocsPage } from './DocsPage'
 import { ProposalIndexPage } from './ProposalIndexPage'
 import { ResourcesPage } from './ResourcesPage'
 import { StructurePage } from './StructurePage'
@@ -25,6 +26,7 @@ import { VisualsPage } from './VisualsPage'
 export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio', element: <ProposalIndexPage /> },
   { path: '/studio/todo', element: <TodoPage /> },
+  { path: '/studio/docs', element: <DocsPage /> },
   { path: '/studio/tools', element: <ToolsPage /> },
   { path: '/studio/ai-tools', element: <AiToolsPage /> },
   { path: '/studio/life-tools', element: <LifeToolsPage /> },
