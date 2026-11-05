@@ -18,10 +18,10 @@ web/                 前端（React + Vite + TypeScript）
       live/            即時教學畫面的腳本（JSON，例如 l0/0.0-tools.json；單課資料以 live 欄位指定）、旁白語音清單（*.voice.json）與章節音軌清單（*.mix.json）
     live/            即時教學畫面引擎（TypeScript）：舞台 stage.ts、播放器外殼 shell.ts、演員 actors/、鏡頭 camera.ts、動畫工具 kit.ts；規格見 src/live/README.md
     home/            首頁（主題）、主題頁（課程地圖）/
-    courses/         課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁；播放進度（只有登入的會員才記）
+    courses/         全部課程 /courses、課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁；播放進度（只有登入的會員才記）
     auth/            登入頁 /login、使用者選單、登入狀態
     admin/           管理後台 /admin（只有白名單內的管理員；會員與播放進度，唯讀）
-    legal/           隱私權政策 /privacy、服務條款 /terms
+    legal/           隱私權政策 /privacy、服務條款 /terms、退款政策 /refund
     site/            共用版型、404、全站樣式、GA4、複製按鈕等
     seo/             每個網址的 SEO 資料（見下方「SEO」）
     studio/          研發基地（內部頁，限管理員，不列入搜尋）
@@ -73,7 +73,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 
 - 唯一來源：`web/src/seo/pages.ts`（公開頁）、`web/src/seo/internalPages.ts`（內部頁）。課程與章節從 `src/content/catalog.ts`、文章從 `src/studio/articles/registry.ts`／`src/studio/docs/registry.ts` 自動推導；新增其他頁面時在 `PAGES` 加一筆（漏了 build 會失敗並列出缺少的路由）。
 - `npm run build` 最後一步 `node scripts/seo.mjs`：產生 `dist/<路由>/index.html`（title、description、canonical、og:*、twitter:*、JSON-LD）、`dist/404.html`、`sitemap.xml`、`robots.txt`。開發時 `/sitemap.xml`、`/robots.txt` 由 Vite 即時產生。
-- 公開頁：`/`、`/courses/*`、`/privacy`、`/terms`。內部頁 `/docs*`、`/studio*`、`/materials*` 與 `/login`：noindex（meta + `X-Robots-Tag`）、不列入 sitemap。
+- 公開頁：`/`、`/topics/*`、`/courses`、`/courses/*`、`/privacy`、`/terms`、`/refund`。內部頁 `/docs*`、`/studio*`、`/materials*` 與 `/login`：noindex（meta + `X-Robots-Tag`）、不列入 sitemap。
 - Go server（`server/cmd/server/static.go`）：頁面回傳對應的 HTML（`Cache-Control: no-cache` + ETag），未知路由回 404 + `404.html`，結尾斜線 301 到不帶斜線的網址；`/assets/*` 一年 immutable 快取。
 - 預設分享圖 `web/public/og-default.png`（1200×630），原始檔 `web/scripts/og-image.html`。
 
