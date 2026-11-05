@@ -1,6 +1,6 @@
 {
   "note": "課程編排草稿。levels → courses → segments 的順序就是目前的編排;from 是原本的位置,changes 列出跨課程與跨程度的移動。段落 id 為「課號#步驟序號」,對應 src/content/ 單課資料的 steps。正本仍是單課資料,套用後刪除這個檔案,工具會依新的單課資料重建。",
-  "updatedAt": "2026-11-03T08:06:28.740Z",
+  "updatedAt": "2026-11-05T02:55:46.797Z",
   "changes": [],
   "levels": [
     {
@@ -8,6 +8,39 @@
       "label": "L0 起步",
       "title": "AI 工具介紹：讓 AI 在你的電腦上做出第一個網站",
       "courses": [
+        {
+          "id": "0.intro",
+          "code": "0.intro",
+          "title": "為什麼不用學寫程式，也能做出軟體",
+          "from": "tools",
+          "segments": [
+            {
+              "id": "0.intro#1",
+              "title": "以前：做一個網站要經過哪些事",
+              "from": "0.intro"
+            },
+            {
+              "id": "0.intro#2",
+              "title": "寫程式其實是在「翻譯」",
+              "from": "0.intro"
+            },
+            {
+              "id": "0.intro#3",
+              "title": "聊天式 AI：會翻譯，但手還是你的",
+              "from": "0.intro"
+            },
+            {
+              "id": "0.intro#4",
+              "title": "AI Agent：自己動手做，做完給你看",
+              "from": "0.intro"
+            },
+            {
+              "id": "0.intro#5",
+              "title": "不用寫程式，但這三件事要你來",
+              "from": "0.intro"
+            }
+          ]
+        },
         {
           "id": "0.0",
           "code": "0.0",
@@ -129,39 +162,6 @@
               "id": "0.2#9",
               "title": "最後檢查：三種寬度",
               "from": "0.2"
-            }
-          ]
-        },
-        {
-          "id": "0.intro",
-          "code": "0.intro",
-          "title": "為什麼不用學寫程式，也能做出軟體",
-          "from": "tools",
-          "segments": [
-            {
-              "id": "0.intro#1",
-              "title": "以前：做一個網站要經過哪些事",
-              "from": "0.intro"
-            },
-            {
-              "id": "0.intro#2",
-              "title": "寫程式其實是在「翻譯」",
-              "from": "0.intro"
-            },
-            {
-              "id": "0.intro#3",
-              "title": "聊天式 AI：會翻譯，但手還是你的",
-              "from": "0.intro"
-            },
-            {
-              "id": "0.intro#4",
-              "title": "AI Agent：自己動手做，做完給你看",
-              "from": "0.intro"
-            },
-            {
-              "id": "0.intro#5",
-              "title": "不用寫程式，但這三件事要你來",
-              "from": "0.intro"
             }
           ]
         }
