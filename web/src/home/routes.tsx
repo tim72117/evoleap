@@ -1,12 +1,18 @@
 import type { JSX } from 'react'
 import { HomePage } from './HomePage'
 import { ClaudeCodeTopicPage } from './ClaudeCodeTopicPage'
+import { KidsLessonPage } from './KidsLessonPage'
+import { KidsTopicPage } from './KidsTopicPage'
 import { AiAppsTopicPage, SoftwareTopicPage } from './SoftwareTopicPage'
-import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
+import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
+import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
 
 export const homeRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/', element: <HomePage /> },
   { path: SOFTWARE_TOPIC.path, element: <SoftwareTopicPage /> },
   { path: AI_APPS_TOPIC.path, element: <AiAppsTopicPage /> },
   { path: CLAUDE_CODE_TOPIC.path, element: <ClaudeCodeTopicPage /> },
+  { path: KIDS_TOPIC.path, element: <KidsTopicPage /> },
+  // 兒童課已經可以上的課,一課一頁
+  ...Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => ({ path: l.path, element: <KidsLessonPage key={id} id={id} /> })),
 ]

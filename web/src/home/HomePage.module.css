@@ -239,6 +239,42 @@
 }
 
 /* ---------- 規劃中的主題 ---------- */
+/* 「給孩子的網頁程式」:單獨一張卡片,放在「更多主題課程」上方 */
+.kids {
+  padding: 40px 0 0;
+}
+
+/* 卡片右側放預覽:左邊是標題與內容,右邊是播放器;窄螢幕時預覽排到下面 */
+.themeAside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: 24px;
+  align-items: start;
+}
+
+
+/* 兒童版播放器還沒捲到附近、還沒掛上時的佔位:和舞台一樣 16:9,掛上時版面不會跳太多 */
+.kidsPlaceholder {
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  background: var(--site-surface, #f4efe6);
+}
+
+/* 左欄「課程環節」:介紹哪些環節可互動,下面是 KidsPlayer 放進來的環節選單(chaptersSlot) */
+.kidsIntro {
+  margin: 0 0 8px;
+  color: var(--site-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+
+@media (max-width: 900px) {
+  .themeAside {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .next {
   padding: 40px 0 72px;
 }

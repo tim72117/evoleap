@@ -56,6 +56,34 @@ describe('主題頁', () => {
   })
 })
 
+describe('兒童課(給孩子的網頁程式)', () => {
+  const topic = findPage('/topics/kids')!
+  const lesson = findPage('/topics/kids/0-1')!
+
+  it('主題頁與課程頁都有 SEO 資料,標題、描述和其他主題不同', () => {
+    expect(topic).not.toBe(NOT_FOUND)
+    expect(lesson).not.toBe(NOT_FOUND)
+    const others = ['/', '/topics/software', '/topics/ai-apps', '/topics/claude-code'].map((p) => findPage(p)!)
+    expect(others.map((p) => p.title)).not.toContain(topic.title)
+    expect(others.map((p) => p.description)).not.toContain(topic.description)
+    expect(topic.description.length).toBeLessThanOrEqual(80)
+  })
+
+  it('sitemap 列出主題頁與已經可以上的課', () => {
+    const xml = sitemapXml()
+    expect(xml).toContain(`<loc>${absoluteUrl('/topics/kids')}</loc><priority>0.8</priority>`)
+    expect(xml).toContain(`<loc>${absoluteUrl('/topics/kids/0-1')}</loc>`)
+  })
+
+  it('主題頁的結構化資料列出每一課,可以上的課附網址;課程頁的麵包屑掛在主題底下', () => {
+    const list = topic.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { name: string; url?: string }[] }
+    expect(list.itemListElement.find((x) => x.name.startsWith('0.1'))?.url).toBe(absoluteUrl('/topics/kids/0-1'))
+    expect(list.itemListElement.find((x) => x.name.startsWith('0.2'))?.url).toBeUndefined()
+    expect(JSON.stringify(lesson.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))).toContain('/topics/kids')
+    expect(lesson.jsonLd?.some((x) => x['@type'] === 'Course')).toBe(true)
+  })
+})
+
 describe('PAGES', () => {
   it('paths are unique', () => {
     const paths = PAGES.map((p) => p.path)

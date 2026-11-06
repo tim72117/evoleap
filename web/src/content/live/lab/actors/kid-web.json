@@ -1,0 +1,43 @@
+{
+  "title": "kid-web：翻面、找積木、回答",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "kid-web",
+      "props": {
+        "title": "小花的家"
+      },
+      "place": {
+        "x": 160,
+        "y": 120,
+        "w": 1600,
+        "h": 760
+      }
+    }
+  },
+  "steps": [
+    {
+      "flip": "back"
+    },
+    {
+      "flip": "split"
+    },
+    {
+      "inspect": "h1"
+    },
+    {
+      "inspect": "button"
+    },
+    {
+      "check": "img",
+      "answer": "button"
+    },
+    {
+      "check": "button",
+      "answer": "button"
+    },
+    {
+      "inspect": false
+    }
+  ]
+}

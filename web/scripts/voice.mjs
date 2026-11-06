@@ -6,6 +6,7 @@
 //   npm run voice -- l0/0.0-tools.json --max-sec 20   只產生開頭約 20 秒的旁白(試做用,依字數估算)
 //   npm run voice -- l0/0.0-tools.json --limit 10     只產生前 10 段旁白(試做用)
 //   npm run voice -- --sample "一句旁白" --voices Sulafat,Kore,Charon   試聽:各聲音念同一句,輸出到 recordings/voice-samples/
+//   npm run voice -- --sample "一句旁白" --profile kids   用兒童版的語氣試聽(kids/ 底下的腳本自動用兒童版)
 //
 // 腳本在 src/content/live/,每個 steps[] 的 narration 是一段旁白。產生結果:
 //   src/content/live/l0/0.0-tools.voice.json   旁白文字 → { file, ms }(進版控;舞台用 ms 排時間,課程頁播 file)
@@ -30,6 +31,13 @@ const DEFAULTS = {
   voice: 'Sulafat',
   style: '台灣華語，語氣溫暖親切、咬字清楚，像老師在旁邊帶著學員一步一步操作，語速適中',
 }
+// 兒童版(src/content/live/kids/ 底下的腳本)的語音設定:對 9 歲孩子說話,活潑一點。試聽用 --profile kids
+const KIDS = {
+  ...DEFAULTS,
+  style: '台灣華語，對 9 歲的小朋友說話：活潑、有精神，帶著好奇和驚喜，像親切的大哥哥大姊姊陪著一起玩；句子短、咬字清楚，語速比平常稍快但不趕，說到「哇」「看看」這種驚喜的地方語氣上揚',
+}
+/** 腳本用哪一組設定:kids/ 底下用兒童版,其他用預設;腳本自己的 voice 欄位再覆寫 */
+const profileOf = (rel) => (rel.split(path.sep).join('/').startsWith('kids/') ? KIDS : DEFAULTS)
 const KBPS = 48
 const BUCKET = 'shuttle-voice'
 
@@ -151,12 +159,13 @@ const hashOf = (text, cfg) => createHash('sha1').update([cfg.model, cfg.voice, c
 async function sample() {
   const text = flag('sample')
   if (typeof text !== 'string') die('用法:npm run voice -- --sample "一句旁白" --voices Sulafat,Kore')
-  const voices = String(flag('voices') || DEFAULTS.voice).split(',').map((v) => v.trim()).filter(Boolean)
+  const base = flag('profile') === 'kids' ? KIDS : DEFAULTS
+  const voices = String(flag('voices') || base.voice).split(',').map((v) => v.trim()).filter(Boolean)
   const key = apiKey()
   const dir = path.join(WEB, 'recordings/voice-samples')
   fs.mkdirSync(dir, { recursive: true })
   for (const voice of voices) {
-    const audio = decodePcm(await synthesize(text, { ...DEFAULTS, voice }, key))
+    const audio = decodePcm(await synthesize(text, { ...base, voice }, key))
     const file = path.join(dir, `${voice}.mp3`)
     fs.writeFileSync(file, toMp3(audio))
     console.log(`${voice}:${(audio.pcm.length / audio.rate).toFixed(1)} 秒 → ${path.relative(WEB, file)}`)
@@ -168,7 +177,20 @@ async function build(rel, key) {
   const scriptPath = path.join(LIVE, rel)
   if (!fs.existsSync(scriptPath)) die(`找不到腳本:src/content/live/${rel}`)
   const script = JSON.parse(fs.readFileSync(scriptPath, 'utf8'))
-  let texts = [...new Set((script.steps || []).map((s) => s.narration).filter(Boolean))]
+  // 兒童版的互動寫在步驟裡面(互動點的 options[].steps、子腳本的 interact.spots / done),也要有語音:整份腳本往下找所有 narration;
+  // 其他腳本只取最外層的步驟(維持原本的範圍,不多產生、不多計費)
+  // 兒童版播放器停下來等孩子點時也會念題目:有選項的互動點標題(checkpoint)與子腳本的 interact.prompt 也要有語音
+  const deepNarrations = (v, out = []) => {
+    if (Array.isArray(v)) v.forEach((x) => deepNarrations(x, out))
+    else if (v && typeof v === 'object')
+      for (const [k, x] of Object.entries(v)) {
+        if (typeof x === 'string' && (k === 'narration' || k === 'prompt' || (k === 'checkpoint' && v.options))) out.push(x)
+        else deepNarrations(x, out)
+      }
+    return out
+  }
+  const all = profileOf(rel) === KIDS ? deepNarrations({ steps: script.steps, interact: script.interact }) : (script.steps || []).map((s) => s.narration)
+  let texts = [...new Set(all.filter(Boolean))]
   // --max-sec:只取開頭幾段,累計估算長度(每秒約 4.2 字)到達上限為止;其他段落沿用舊音檔或維持只有字幕
   const maxSec = Number(flag('max-sec'))
   if (maxSec > 0) {
@@ -177,7 +199,7 @@ async function build(rel, key) {
   }
   const limit = Number(flag('limit'))
   if (limit > 0) texts = texts.slice(0, limit)
-  const cfg = { ...DEFAULTS, ...(script.voice || {}) }
+  const cfg = { ...profileOf(rel), ...(script.voice || {}) }
   const manifestPath = scriptPath.replace(/\.json$/, '.voice.json')
   const old = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : { clips: {} }
   // GCS 上的路徑照腳本的資料夾(例如 l0/0.0-tools.json → l0/<hash>.mp3)

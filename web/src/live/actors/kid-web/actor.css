@@ -1,0 +1,77 @@
+/* 演員 kid-web:兒童網頁課的積木網頁。選擇器都以 .A-kid-web 開頭。
+   動畫一律由 actor.ts 依時間設定 style(位置、轉角、--on、--dim、--bad),這裡不用 animation/transition(SPEC 第 1 節)。
+   卡通網頁與積木用固定的亮色,和 studio/kids/ 的 React 試做頁一致(尺寸是 1920 寬舞台的 px)。 */
+.A-kid-web {
+  position: relative;
+  width: 100%; height: 100%;
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: 28px;
+  line-height: 1.4;
+  color: #2b2620;
+}
+.A-kid-web *, .A-kid-web *::before, .A-kid-web *::after { box-sizing: border-box; }
+.A-kid-web .kw-scene { position: absolute; inset: 0; perspective: 3200px; }
+.A-kid-web .kw-pane {
+  position: absolute; top: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border: 6px solid #2b2620; border-radius: 30px; overflow: hidden;
+  box-shadow: 0 12px 0 #2b2620;
+}
+
+/* ── 正面:卡通網頁 ── */
+.A-kid-web .kw-page-pane { background: #fffaf0; }
+.A-kid-web .kw-bar { display: flex; align-items: center; gap: 20px; padding: 16px 24px; background: #ffe7c2; border-bottom: 6px solid #2b2620; }
+.A-kid-web .kw-lights { display: flex; gap: 10px; }
+.A-kid-web .kw-lights i { width: 22px; height: 22px; border-radius: 50%; border: 4px solid #2b2620; background: #f26b5b; }
+.A-kid-web .kw-lights i:nth-child(2) { background: #f7c548; }
+.A-kid-web .kw-lights i:nth-child(3) { background: #5cc477; }
+.A-kid-web .kw-url { flex: 1; background: #fff; border: 4px solid #2b2620; border-radius: 999px; padding: 2px 24px; font-size: 26px; }
+.A-kid-web .kw-page { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 40px 28px 48px; }
+.A-kid-web .kw-part {
+  --on: 0; --dim: 0; --bad: 0;
+  padding: 10px 24px; border-radius: 28px;
+  outline: 8px solid color-mix(in srgb, var(--c) calc(var(--on) * 100%), transparent);
+  box-shadow: 0 0 0 calc(var(--on) * 20px) color-mix(in srgb, var(--c) 28%, transparent);
+  opacity: calc(1 - var(--dim) * 0.7);
+  scale: calc(1 + var(--on) * 0.05);
+}
+.A-kid-web .kw-h1 { display: block; font-size: 64px; font-weight: 900; letter-spacing: 0.04em; }
+.A-kid-web .kw-photo { display: block; font-size: 140px; line-height: 1.1; background: #ffe3b3; border: 6px solid #2b2620; border-radius: 36px; padding: 10px 56px; }
+.A-kid-web .kw-text { display: block; font-size: 34px; }
+.A-kid-web .kw-btn { display: inline-block; background: #ff9fb7; border: 6px solid #2b2620; border-radius: 999px; padding: 12px 44px; font-size: 34px; font-weight: 800; box-shadow: 0 6px 0 #2b2620; }
+
+/* ── 背面:積木 ── */
+.A-kid-web .kw-stack-pane {
+  padding: 28px 32px 40px;
+  background-color: #eef4ff;
+  background-image: linear-gradient(#d8e4fb 2px, transparent 2px), linear-gradient(90deg, #d8e4fb 2px, transparent 2px);
+  background-size: 40px 40px;
+}
+.A-kid-web .kw-back-label { margin: 0 0 30px; font-size: 30px; font-weight: 800; }
+.A-kid-web .kw-stack { display: flex; flex-direction: column; gap: 38px; }
+.A-kid-web .kw-block {
+  --on: 0; --dim: 0; --bad: 0;
+  position: relative; display: flex; align-items: stretch;
+  background: color-mix(in srgb, #c9c2b8 calc(var(--bad) * 100%), var(--c));
+  border: 6px solid color-mix(in srgb, #e0453a calc(var(--bad) * 100%), #2b2620);
+  border-radius: 24px;
+  box-shadow: 0 10px 0 #2b2620, 0 0 0 calc(var(--on) * 14px) color-mix(in srgb, var(--c) 45%, transparent);
+  opacity: calc(1 - var(--dim) * 0.65);
+  transform: translateX(calc(var(--on) * 12px)) scale(calc(1 + var(--on) * 0.03));
+}
+.A-kid-web .kw-studs { position: absolute; top: -22px; left: 48px; display: flex; gap: 32px; }
+.A-kid-web .kw-studs i { width: 48px; height: 22px; border: 6px solid #2b2620; border-bottom: 0; border-radius: 14px 14px 0 0; background: var(--c); }
+.A-kid-web .kw-tag {
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  min-width: 220px; padding: 14px 18px;
+  background: var(--d); color: #fff;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 44px; font-weight: 800; line-height: 1.2;
+  border-right: 6px solid #2b2620; border-radius: 18px 0 0 18px;
+}
+.A-kid-web .kw-tag small { font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; font-size: 22px; font-weight: 700; }
+.A-kid-web .kw-content { flex: 1; display: flex; align-items: center; margin: 16px; padding: 14px 24px; background: #fff; border: 4px solid #2b2620; border-radius: 16px; font-size: 30px; }
+
+/* ── 集星星 ── */
+.A-kid-web .kw-stars { position: absolute; right: 8px; bottom: -64px; display: flex; align-items: center; gap: 8px; font-size: 40px; }
+.A-kid-web .kw-stars:empty { display: none; }
+.A-kid-web .kw-stars em { margin-left: 14px; font-style: normal; font-size: 28px; font-weight: 700; color: #6b6156; }

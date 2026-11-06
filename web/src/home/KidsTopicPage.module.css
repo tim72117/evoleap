@@ -1,0 +1,95 @@
+/* 兒童課的課程地圖頁與課程頁:其餘樣式沿用 SoftwareTopicPage.module.css(--site-* 變數) */
+
+.units {
+  display: grid;
+  gap: 16px;
+}
+
+/* 單元標題:名稱加一行比喻(課程地圖頁的其他主題用可收合的按鈕,這裡固定展開) */
+.unitHead {
+  display: grid;
+  gap: 4px;
+  padding: 16px 20px;
+  background: var(--site-surface-2);
+  font-weight: 700;
+}
+
+.unitHead small {
+  color: var(--site-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* 課號:放得下「0.1」「1.4」這種兩段數字的膠囊 */
+.lessonNo {
+  width: auto;
+  min-width: 40px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 可以上的課:標題是一般文字樣子(沒有底線、不是連結色),整列可點,滑過時整列變底色。
+   CSS Modules 每個檔案的 class 名稱各自加雜湊,這裡不能寫 SoftwareTopicPage 的 .rowText;
+   重複一次 class 提高優先度,蓋過網站的 .site a 連結色 */
+.lessonLink.lessonLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 課程頁:全頁互動播放器撐滿網站標頭(約 56px)以下的畫面,課名一行放在上面 */
+.full {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 56px);
+  min-height: 480px;
+}
+
+.fullHead {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 10px 16px 0;
+}
+
+.fullHead h1 {
+  margin: 0;
+  font-size: clamp(18px, 2.4vw, 24px);
+}
+
+.fullPlayer {
+  flex: 1;
+  min-height: 0;
+}
+
+.back {
+  color: var(--site-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.back:hover {
+  color: var(--site-text);
+}
+
+.parents {
+  max-width: 44em;
+  margin: 28px auto 64px;
+  padding: 18px 20px;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  background: var(--site-surface);
+}
+
+.parents h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.parents p {
+  margin: 6px 0 0;
+  color: var(--site-muted);
+  line-height: 1.7;
+}

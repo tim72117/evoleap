@@ -7,6 +7,9 @@ import { AiTipsPage } from './AiTipsPage'
 import { AiToolsPage } from './AiToolsPage'
 import { CoverPage } from './CoverPage'
 import { FieldsPage } from './FieldsPage'
+import { KidsWebPage } from './KidsWebPage'
+import { KidsLesson01Page } from '../kids/KidsLesson01Page'
+import { KidsLesson01LivePage } from '../kids/KidsLesson01LivePage'
 import { L1IdeasPage } from './L1IdeasPage'
 import { LifeToolsPage } from './LifeToolsPage'
 import { McpPage } from './McpPage'
@@ -46,5 +49,8 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/actor-interaction/static', element: <InteractiveScenePage key="actor-static" script="lab/interactive-l0-claude.json" pageTitle="互動場景：靜態演員" interaction="static" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
   { path: '/studio/actor-interaction/push', element: <InteractiveScenePage key="actor-push" script="lab/interactive-l0-claude.json" pageTitle="互動場景：把演員推到主畫面" interaction="stage" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
+  { path: '/studio/kids-web', element: <KidsWebPage /> },
+  { path: '/studio/kids-web/0-1', element: <KidsLesson01Page /> },
+  { path: '/studio/kids-web/0-1/live', element: <KidsLesson01LivePage /> },
   { path: '/studio/visuals', element: <VisualsPage /> },
 ]

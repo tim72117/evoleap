@@ -1,5 +1,6 @@
 // 首頁的主題。一個主題是一組不同目標的課程:「做出自己的軟體」(levels.ts 的 LEVELS)與「打造 AI 互動軟體」(AI_APP_LEVELS)各有課程地圖頁。
 // 規劃中的主題只放暫定的名稱、標語與預計做出的成果;不要寫未確認的事實(價格、日期、收入、學員數等)。
+import { KIDS_OPEN_LESSONS, kidsLessonTitle } from './kidsCourse'
 import { AI_APP_LEVELS, SOFTWARE_LEDE } from './levels'
 
 export const HOME_INTRO = {
@@ -87,7 +88,43 @@ export type PlannedTopic = {
   flow?: string[]
   /** 整理前後的示意 */
   sample?: { caption: string; before: string[]; after: string[] }
+  /**
+   * 課程預覽:src/content/live/ 底下的腳本,用兒童版播放器(kids/KidsPlayer.tsx)播。
+   * intro 放在環節清單上方;sections 是腳本的段落名稱 → 給家長看的說明、是不是要孩子動手(可互動)
+   */
+  preview?: { script: string; intro?: string; sections?: Record<string, { note?: string; interactive?: boolean }> }
+  /** 首頁卡片的「開始」按鈕:已經可以上的第一課 */
+  start?: { label: string; path: string }
 }
+
+/**
+ * 主題「給孩子的網頁程式」:規劃中,首頁單獨放在「更多主題課程」上方;課程地圖在 /topics/kids(home/KidsTopicPage.tsx)。
+ * 單元與課程在 content/kidsCourse.ts;研發中的大綱與試做在研發基地 /studio/kids-web。這裡只寫大綱裡已有的內容。
+ */
+export const KIDS_TOPIC = {
+  name: '給孩子的網頁程式',
+  slogan: '用積木蓋網頁，陪 9 歲的孩子做出自己的小網站',
+  path: '/topics/kids',
+  seoTitle: '給孩子的網頁程式課：用積木認識 HTML、CSS、JavaScript',
+  description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程規劃中，第一課已經可以試上。',
+  start: { label: '開始第一課', path: KIDS_OPEN_LESSONS['0.1'].path },
+  flow: ['用積木蓋網頁', '幫網頁換衣服', '讓網頁動起來'],
+  outcomes: ['一張自己的寵物名片網頁', '換上自己風格的版面', '一個能玩的小遊戲'],
+  // 這張卡片是給家長看的:環節說明寫孩子會做什麼;段落名稱要和 content/live/kids/0.1.json 的 chapter 一致
+  preview: {
+    script: KIDS_OPEN_LESSONS['0.1'].script,
+    intro: '這堂課可以互動：標著「可互動」的環節會停下來，等孩子自己點畫面上的網頁和積木。點下面的環節可以直接跳過去看。',
+    sections: {
+      '看：網頁有背面': { note: '跟著旁白看：網頁翻到背面，原來是一塊一塊印著名字的積木。' },
+      '做：換你試試看': { note: '孩子自己點網頁上的東西或積木，把 4 塊積木都找出來。', interactive: true },
+      找找看: { note: '三個小問題，答錯會說明原因，再試一次。', interactive: true },
+      學會: { note: '用一句話整理：網頁是用一塊一塊積木蓋出來的。' },
+    },
+  },
+} satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
+
+/** 兒童課課程頁的標題(頁面的 document.title 與 seo/pages.ts 共用) */
+export const kidsLessonDocTitle = (id: string): string => `${kidsLessonTitle(id)}｜${KIDS_TOPIC.name}`
 
 export const PLANNED_TOPICS: PlannedTopic[] = [
   {

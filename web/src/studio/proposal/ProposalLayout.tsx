@@ -26,6 +26,7 @@ const IDEAS: Tab[] = [
   { to: '/studio/ai-tips', label: 'AI 工具技巧' },
   { to: '/studio/visuals', label: '即時教學影像' },
   { to: '/studio/actor-interaction', label: '演員互動', match: '/studio/actor-interaction' },
+  { to: '/studio/kids-web', label: '兒童網頁課', also: ['/studio/kids-web/0-1', '/studio/kids-web/0-1/live'] },
 ]
 
 /** 文件清單與每一份文件。 */

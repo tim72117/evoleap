@@ -185,6 +185,7 @@ export default defineActor({
 | `notes` | jot、lose（有狀態；桌上的便條紙，掉落的便條移到桌面下方，情境開場用） | window、note:N、note:last、floor |
 | `editor` | open、type（有狀態；通用深色程式碼編輯器，依副檔名上色 html、css、js，演出「以前自己寫程式」） | window、code、caret、tab:檔名 |
 | `macbook` | open、close、wake、sleep、type、tilt（有狀態；擬真筆電，宣傳片用，純 CSS 3D；props：opened、awake、angle、pitch、yaw、finish、wallpaper、dock、clock） | window、screen、keyboard、trackpad、lid、key:鍵 |
+| `kid-web` | flip、inspect（可帶 tap 示範點擊）、check（有狀態；兒童網頁課的積木網頁：正面卡通網頁、背面積木，props：title、blocks、view；兒童版播放器 web/src/kids/KidsPlayer.tsx 播放，子腳本與 guide 說明框見該檔開頭） | window、page、stack、stars、part:標籤、block:標籤 |
 
 **`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。
 

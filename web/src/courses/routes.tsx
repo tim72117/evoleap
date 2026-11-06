@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { COURSES, coursePath, lessonPath, plannedChapterPath, requiresLogin, type Course } from '../content/catalog'
+import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, type Course } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
 import { withL0Moments } from '../studio/interactive/l0-0.0'
@@ -31,7 +31,14 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )
   return requiresLogin(course) ? (
-    <LoginGate key={lesson.id} course={course} lesson={lesson}>
+    <LoginGate
+      key={lesson.id}
+      kicker={`${course.title} · ${lessonLabel(lesson)}`}
+      title={lesson.title}
+      docTitle={`${lessonLabel(lesson)} ${lesson.title}`}
+      back={{ to: coursePath(course), label: '回課程總覽' }}
+      note="這門課免費，登入後就能觀看，也會記錄你的播放進度。"
+    >
       {page}
     </LoginGate>
   ) : (

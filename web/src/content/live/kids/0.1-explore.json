@@ -1,0 +1,210 @@
+{
+  "title": "換你試試看",
+  "lesson": "兒童網頁課 · 0.1 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "kid-web",
+      "props": {
+        "title": "小花的家",
+        "blocks": [
+          {
+            "tag": "h1",
+            "text": "小花的家"
+          },
+          {
+            "tag": "img",
+            "text": "🐱"
+          },
+          {
+            "tag": "p",
+            "text": "小花是一隻愛睡午覺的橘貓。"
+          },
+          {
+            "tag": "button",
+            "text": "摸摸小花"
+          }
+        ],
+        "view": "split"
+      },
+      "place": {
+        "x": 40,
+        "y": 30,
+        "w": 1840,
+        "h": 900
+      },
+      "parts": {
+        "stars": false
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！先看我示範一次怎麼點。"
+    },
+    {
+      "inspect": "h1",
+      "tap": "part",
+      "narration": "像這樣，用滑鼠點一下網頁上的標題，背面的 <h1> 積木就會亮起來。"
+    },
+    {
+      "inspect": false,
+      "narration": "閃閃發亮的框框都可以點。把 4 塊積木都找出來吧！"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點網頁上的東西，或直接點積木",
+    "body": "把 4 塊積木都找出來，集滿 4 顆星星",
+    "spots": [
+      {
+        "target": "kid:part:h1",
+        "id": "h1",
+        "label": "網頁上的最大的那行字",
+        "steps": [
+          {
+            "inspect": "h1",
+            "narration": "找到了！這是 <h1> 積木，它把「小花的家」變成最大的標題。"
+          }
+        ],
+        "again": [
+          {
+            "inspect": "h1",
+            "narration": "這塊 <h1> 找過囉，找找看還沒亮過的！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:h1",
+        "id": "h1",
+        "label": "<h1> 積木",
+        "steps": [
+          {
+            "inspect": "h1",
+            "narration": "找到了！這是 <h1> 積木，它把「小花的家」變成最大的標題。"
+          }
+        ],
+        "again": [
+          {
+            "inspect": "h1",
+            "narration": "這塊 <h1> 找過囉，找找看還沒亮過的！"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:img",
+        "id": "img",
+        "label": "網頁上的小花的照片",
+        "steps": [
+          {
+            "inspect": "img",
+            "narration": "找到了！這是 <img> 積木，小花的照片就是它放上去的。"
+          }
+        ],
+        "again": [
+          {
+            "inspect": "img",
+            "narration": "這塊 <img> 找過囉，找找看還沒亮過的！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:img",
+        "id": "img",
+        "label": "<img> 積木",
+        "steps": [
+          {
+            "inspect": "img",
+            "narration": "找到了！這是 <img> 積木，小花的照片就是它放上去的。"
+          }
+        ],
+        "again": [
+          {
+            "inspect": "img",
+            "narration": "這塊 <img> 找過囉，找找看還沒亮過的！"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:p",
+        "id": "p",
+        "label": "網頁上的那段文字",
+        "steps": [
+          {
+            "inspect": "p",
+            "narration": "找到了！這是 <p> 積木，它寫出介紹小花的那段話。"
+          }
+        ],
+        "again": [
+          {
+            "inspect": "p",
+            "narration": "這塊 <p> 找過囉，找找看還沒亮過的！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:p",
+        "id": "p",
+        "label": "<p> 積木",
+        "steps": [
+          {
+            "inspect": "p",
+            "narration": "找到了！這是 <p> 積木，它寫出介紹小花的那段話。"
+          }
+        ],
+        "again": [
+          {
+            "inspect": "p",
+            "narration": "這塊 <p> 找過囉，找找看還沒亮過的！"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:button",
+        "id": "button",
+        "label": "網頁上的「摸摸小花」按鈕",
+        "steps": [
+          {
+            "inspect": "button",
+            "narration": "找到了！這是 <button> 積木，它變出「摸摸小花」按鈕。"
+          }
+        ],
+        "again": [
+          {
+            "inspect": "button",
+            "narration": "這塊 <button> 找過囉，找找看還沒亮過的！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:button",
+        "id": "button",
+        "label": "<button> 積木",
+        "steps": [
+          {
+            "inspect": "button",
+            "narration": "找到了！這是 <button> 積木，它變出「摸摸小花」按鈕。"
+          }
+        ],
+        "again": [
+          {
+            "inspect": "button",
+            "narration": "這塊 <button> 找過囉，找找看還沒亮過的！"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "seen",
+      "atLeast": 4
+    },
+    "done": {
+      "steps": [
+        {
+          "inspect": false,
+          "narration": "4 塊積木都找到了！你好厲害！"
+        }
+      ]
+    }
+  }
+}
