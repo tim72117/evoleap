@@ -705,6 +705,9 @@
   background: #000;
 }
 
+/* 手機直拿時影片是直式舞台(LivePlayer 的 data-aspect) */
+.rowPlayer:has([data-aspect='portrait']) { aspect-ratio: 9 / 16; }
+
 @media (max-width: 640px) {
   .row {
     flex-wrap: wrap;

@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { mountShell, type Shell } from '../live/shell'
 import { createStage } from '../live/stage'
+import { useAutoAspect } from '../site/useAutoAspect'
 import { narrationClips } from '../live/mixPlan'
 import { loadMix, loadScript, loadVoice } from '../live/scripts'
 import { useAuth } from '../auth/AuthContext'
@@ -48,14 +49,18 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
     },
   }))
 
+  // 手機直拿自動用直式舞台;轉向時重建播放器,從原本的時間接著(carry)
+  const aspect = useAutoAspect()
+  const carry = useRef(0)
+
   useEffect(() => {
     const box = boxRef.current
     if (!box || status === 'loading') return
     if (!memberId) clearGuestProgress()
     let cancelled = false
     const stageEl = document.createElement('div')
-    const stage = createStage(stageEl)
-    const vp = mountShell(box, { stage: stageEl, title, progress: memberId ? memberProgress(`live:${script}`) : undefined, globalKeys: false })
+    const stage = createStage(stageEl, { aspect })
+    const vp = mountShell(box, { stage: stageEl, title, progress: memberId ? memberProgress(`live:${script}`) : undefined, globalKeys: false, aspect })
     shellRef.current = vp
     setError(null)
 
@@ -64,7 +69,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
       .then(async ([data, voice, mix]) => {
         await document.fonts.ready
         if (cancelled) return
-        await stage.load(data, { voice: voice?.durations })
+        await stage.load(data, { voice: voice?.durations, aspect })
         if (cancelled) return
         const caps = stage.captions
         const posterChapter = poster && stage.chapters.find((c) => c.label === poster.chapter)
@@ -79,6 +84,10 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
           // 有產生旁白語音的段落,播到那裡就播對應的音檔(合成過章節音軌的用章節音軌)
           clips: narrationClips(stage.narrations, voice, mix),
         })
+        if (carry.current > 0) {
+          vp.seek(carry.current)
+          carry.current = 0
+        }
         onCuesRef.current?.(stage.chapters.filter((c) => c.step).map((c) => ({ step: c.step!, at: c.at / 1000 })))
       })
       .catch((e: unknown) => {
@@ -98,17 +107,18 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
     return () => {
       cancelled = true
       window.clearInterval(timer)
+      carry.current = vp.time
       vp.destroy()
       shellRef.current = null
     }
-  }, [script, title, status, memberId])
+  }, [script, title, status, memberId, aspect])
 
   useEffect(() => {
     if (paused) shellRef.current?.pause()
   }, [paused])
 
   return (
-    <div ref={boxRef} className={styles.box}>
+    <div ref={boxRef} className={styles.box} data-aspect={aspect}>
       {error && (
         <p className={styles.error} role="alert">
           無法播放：{error}

@@ -110,7 +110,8 @@ export function staticScript(script: StageScript, answers: Answers, momentId: st
     const { narration: _narration, chapter: _chapter, lessonStep: _lessonStep, focus: _focus, ...rest } = s
     return [rest]
   })
-  return { ...script, camera: undefined, cast: { [actor]: { ...script.cast[actor], place: 'full', hidden: false } }, steps: steps as unknown as ScriptStep[] }
+  // 靜態舞台只有這一位演員:不用鏡頭,也不用調度(blocking 的其他演員不在這份演員表裡)
+  return { ...script, camera: undefined, blocking: undefined, cast: { [actor]: { ...script.cast[actor], place: 'full', hidden: false } }, steps: steps as unknown as ScriptStep[] }
 }
 
 /** 靜態舞台依寬度要關掉哪些區塊:演員宣告可以收合、舞台比門檻窄、又不在互動區的 */

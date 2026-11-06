@@ -1,0 +1,214 @@
+{
+  "title": "網頁是一封信",
+  "lesson": "兒童網頁課 · 0.3 試做",
+  "cast": {
+    "kid": {
+      "actor": "kid-mail",
+      "props": {},
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "看：網頁從哪裡來",
+      "guide": {
+        "target": "kid:browser",
+        "text": "你的電腦"
+      },
+      "narration": "這是你的電腦，打開了瀏覽器。網頁還是空空的。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:server",
+        "text": "伺服器"
+      },
+      "narration": "右邊是另一台電腦，叫做伺服器。網頁就放在伺服器上，像一封一封的信。"
+    },
+    {
+      "type": "www.xiaohua.tw",
+      "tap": true,
+      "guide": {
+        "target": "kid:addressbar",
+        "text": "網址"
+      },
+      "narration": "在網址列打上網址。網址就像信封上的地址，告訴瀏覽器要找哪一封信。"
+    },
+    {
+      "send": true,
+      "narration": "按下前往，瀏覽器寄出一封信給伺服器：請把這個網址的網頁給我！"
+    },
+    {
+      "reply": true,
+      "narration": "伺服器找到小花的家，把網頁裝進信封，寄回來。"
+    },
+    {
+      "open": true,
+      "narration": "瀏覽器打開信，照著裡面的積木，一塊一塊把網頁畫出來。"
+    },
+    {
+      "checkpoint": "換你寄信",
+      "sub": "kids/0.3-mail.json",
+      "chapter": "做：換你寄信"
+    },
+    {
+      "wait": 400,
+      "chapter": "看：改改看，再重新整理",
+      "narration": "小花的家現在在你的電腦上。如果改一改上面的字，會怎麼樣呢？"
+    },
+    {
+      "edit": "h1",
+      "text": "大明的家",
+      "tap": true,
+      "narration": "在自己的電腦上，把標題改成大明的家。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:site:cat",
+        "text": "伺服器上的沒有變"
+      },
+      "narration": "可是伺服器上的那一封信沒有變，還是小花的家。你改的，只有你自己的電腦看得到。"
+    },
+    {
+      "reload": true,
+      "tap": true,
+      "guide": {
+        "target": "kid:reload",
+        "text": "重新整理"
+      },
+      "narration": "按下重新整理，瀏覽器又寄一次信，伺服器寄回原本的網頁，標題變回小花的家了。"
+    },
+    {
+      "checkpoint": "換你改改看",
+      "sub": "kids/0.3-edit.json",
+      "chapter": "做：改了再重新整理"
+    },
+    {
+      "wait": 400,
+      "chapter": "找找看",
+      "narration": "最後來想一想，一共兩題。看上面的題目，點畫面回答。"
+    },
+    {
+      "checkpoint": "第 1 題：網頁放在哪一台電腦上？",
+      "body": "點畫面上的電腦回答。",
+      "id": "quiz-1",
+      "stage": {
+        "focus": "kid:window"
+      },
+      "options": [
+        {
+          "label": "伺服器",
+          "target": "kid:server",
+          "steps": [
+            {
+              "check": "server",
+              "answer": "server",
+              "narration": "答對了！網頁放在伺服器上，瀏覽器寫信去要。"
+            }
+          ]
+        },
+        {
+          "label": "你的電腦",
+          "target": "kid:browser",
+          "steps": [
+            {
+              "check": "browser",
+              "answer": "server",
+              "narration": "這是你的電腦喔。網頁是從另一台電腦寄來的，再找找看！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "checkpoint": "第 2 題：改過的字，按哪裡可以變回來？",
+      "body": "點瀏覽器上的東西回答。",
+      "id": "quiz-2",
+      "stage": {
+        "focus": "kid:browser"
+      },
+      "options": [
+        {
+          "label": "重新整理",
+          "target": "kid:reload",
+          "steps": [
+            {
+              "check": "reload",
+              "answer": "reload",
+              "narration": "答對了！按重新整理，瀏覽器會再去伺服器拿一次網頁。"
+            }
+          ]
+        },
+        {
+          "label": "網址列",
+          "target": "kid:addressbar",
+          "steps": [
+            {
+              "check": "addressbar",
+              "answer": "reload",
+              "narration": "這是網址列，用來寫網頁的地址。再找找看！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "前往",
+          "target": "kid:go",
+          "steps": [
+            {
+              "check": "go",
+              "answer": "reload",
+              "narration": "前往是寄信去要新的網頁。哪一個是重新整理呢？再找找看！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:window",
+        "text": "網址・瀏覽器・伺服器・重新整理"
+      },
+      "narration": "網頁是從伺服器寄來的信。在自己電腦上改的，只有自己看得到；按重新整理，就拿回伺服器上原本的網頁。"
+    }
+  ]
+}

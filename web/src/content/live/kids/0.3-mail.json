@@ -1,0 +1,100 @@
+{
+  "title": "換你寄信",
+  "lesson": "兒童網頁課 · 0.3 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "kid-mail",
+      "props": {},
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！點上面的書籤，選一個網站，寄信去要網頁。三個都收到就過關。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點書籤，寄信去要網頁",
+    "body": "三個網站都收到就過關",
+    "spots": [
+      {
+        "target": "kid:bookmark:cat",
+        "id": "cat",
+        "label": "小花的家",
+        "steps": [
+          {
+            "go": "cat",
+            "narration": "寄信去要小花的家，伺服器把網頁寄回來了！"
+          }
+        ],
+        "again": [
+          {
+            "go": "cat",
+            "narration": "再要一次小花的家，伺服器又寄來同一封。"
+          }
+        ]
+      },
+      {
+        "target": "kid:bookmark:dino",
+        "id": "dino",
+        "label": "恐龍圖鑑",
+        "steps": [
+          {
+            "go": "dino",
+            "narration": "寄信去要恐龍圖鑑，伺服器把網頁寄回來了！"
+          }
+        ],
+        "again": [
+          {
+            "go": "dino",
+            "narration": "再要一次恐龍圖鑑，伺服器又寄來同一封。"
+          }
+        ]
+      },
+      {
+        "target": "kid:bookmark:sun",
+        "id": "sun",
+        "label": "天氣小站",
+        "steps": [
+          {
+            "go": "sun",
+            "narration": "寄信去要天氣小站，伺服器把網頁寄回來了！"
+          }
+        ],
+        "again": [
+          {
+            "go": "sun",
+            "narration": "再要一次天氣小站，伺服器又寄來同一封。"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "visited",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "每一個網頁，都是伺服器寄來的信。"
+        }
+      ]
+    }
+  }
+}

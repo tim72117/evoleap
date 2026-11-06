@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import kidMail from '../live/actors/kid-mail/actor'
 import kidTree from '../live/actors/kid-tree/actor'
 import kidWeb from '../live/actors/kid-web/actor'
 import type { AnyActor } from '../live/types'
@@ -12,7 +13,7 @@ type Script = { cast: Record<string, { actor: string; props?: object }>; steps: 
 
 const SCRIPTS = import.meta.glob(['./live/kids/*.json', '!./live/kids/*.voice.json'], { eager: true, import: 'default' }) as Record<string, Script>
 
-const ACTORS: Record<string, AnyActor> = { [kidWeb.name]: kidWeb as unknown as AnyActor, [kidTree.name]: kidTree as unknown as AnyActor }
+const ACTORS: Record<string, AnyActor> = { [kidWeb.name]: kidWeb as unknown as AnyActor, [kidTree.name]: kidTree as unknown as AnyActor, [kidMail.name]: kidMail as unknown as AnyActor }
 function run(actor: AnyActor, state: unknown, steps: Step[]): unknown {
   let st = state
   for (const s of steps) {

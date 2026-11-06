@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { CourseGoalsPage } from './pages/CourseGoalsPage'
+import { HyperframesPage } from './pages/HyperframesPage'
 import { MethodologyPage } from './pages/MethodologyPage'
 import { RecordingPage } from './pages/RecordingPage'
 import { ResearchReportPage } from './pages/ResearchReportPage'
@@ -16,6 +17,7 @@ const PAGES: Record<string, JSX.Element> = {
   'research/recording': <RecordingPage />,
   'research/script-template': <ScriptTemplatePage />,
   'research/video-shotcraft': <ShotcraftPage />,
+  'research/hyperframes': <HyperframesPage />,
   'research/tts-landscape': <TtsLandscapePage />,
   'research/voice-cost': <VoiceCostPage />,
 }

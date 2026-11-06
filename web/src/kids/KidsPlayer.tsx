@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ACTORS } from '../live/actors'
 import { loadScript, loadVoice, type ScriptVoice } from '../live/scripts'
+import { stageSize } from '../live/place'
 import { createStage, type Stage, type StageScript } from '../live/stage'
+import { useAutoAspect } from '../site/useAutoAspect'
 import type { AnyActor, Hotspot, ScriptStep } from '../live/types'
 import { expandAnswers, momentsOf, type Answers, type Moment } from '../studio/interactive/scene'
 import s from './KidsPlayer.module.css'
@@ -29,8 +31,6 @@ import { hush, playClip, speak } from './speech'
 //   done    { "steps": [...] }:結束前演的步驟(例如稱讚)
 // 子腳本的起始狀態寫在自己的 cast props 裡,不會自動帶入主腳本的狀態;子腳本裡的變化也不會帶回主腳本。
 
-const W = 1920
-const H = 1080
 
 type Rect = { x: number; y: number; w: number; h: number }
 /** 殼層畫的說明框:步驟上的 "guide": { "target": "kid:page", "text": "…" },從這一步開始顯示到下一步開始(舞台不看這個欄位) */
@@ -428,12 +428,18 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   const time = useRef(0)
   const voiceOn = useRef(true)
 
+  // 手機直拿時用直式舞台(1080×1920),其他時候橫式(1920×1080);轉向時重建舞台,從原本的時間接著
+  const aspect = useAutoAspect()
+  const { w: W, h: H } = stageSize(aspect)
   const [scale, setScale] = useState(0.5)
   /** 全頁版時舞台在播放畫面裡置中的位移(px) */
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const [error, setError] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   const [playing, setPlaying] = useState(false)
+  /** 目前是不是在播(轉向重建舞台時,載入完要不要接著播) */
+  const playingRef = useRef(false)
+  playingRef.current = playing
   const [now, setNow] = useState(0)
   /** 在子腳本裡時,主腳本停在哪裡(段落與指引用) */
   const [inSub, setInSub] = useState<number | null>(null)
@@ -455,6 +461,9 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   }, [])
   // iPhone 的 Safari 不能把頁面裡的元素放到全螢幕(只有影片可以):改成蓋滿整個視窗的「頁內全螢幕」,頁面不能捲動
   const [pageFull, setPageFull] = useState(false)
+  /** 手機版:段落清單收起來,按「段落」按鈕才打開(寬螢幕一直顯示,這個狀態沒有作用) */
+  const [chaptersOpen, setChaptersOpen] = useState(false)
+  const chaptersId = useId()
   useEffect(() => {
     if (!pageFull) return
     const prev = document.documentElement.style.overflow
@@ -481,7 +490,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     })
     ro.observe(box)
     return () => ro.disconnect()
-  }, [fit])
+  }, [fit, W, H])
 
   const [guides, setGuides] = useState<Guide[]>(NO_GUIDES)
 
@@ -524,8 +533,19 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   // 載入腳本
   useEffect(() => {
     let alive = true
-    stage.current = createStage(stageRef.current!)
-    subStage.current = createStage(subRef.current!)
+    // 轉向重建時:子腳本與題目收起來,主腳本從原本的時間接著(第一次載入是 0);
+    // 在子腳本裡時回到進入子腳本的那一點(checkpoint),再按播放會重新進去
+    const from = sub.current ? sub.current.returnAt : time.current
+    // 原本在播主腳本的,載入完接著播;在子腳本裡(孩子正在動手)或停著的,維持停住
+    const keepPlaying = playingRef.current && !sub.current
+    sub.current = null
+    setInSub(null)
+    setAsk(null)
+    // 停下時鐘:新舞台還在載入(長度是 0),時鐘繼續跑會被當成「看完了」
+    setPlaying(false)
+    setDone(false)
+    stage.current = createStage(stageRef.current!, { aspect })
+    subStage.current = createStage(subRef.current!, { aspect })
     loadScript(path)
       .then(async (sc) => {
         base.current = sc
@@ -540,15 +560,16 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
         await document.fonts?.ready
         await reload()
         if (!alive) return
-        draw(0)
+        draw(Math.min(from, stage.current?.duration ?? 0))
         setReady(true)
+        if (keepPlaying && from < (stage.current?.duration ?? 0)) setPlaying(true)
       })
       .catch((e: unknown) => alive && setError(e instanceof Error ? e.message : String(e)))
     return () => {
       alive = false
       hush()
     }
-  }, [path, reload, draw])
+  }, [path, reload, draw, aspect])
 
   // 停下來等孩子點時,量出各選項目標(與要聚焦的地方)在舞台上的位置
   useLayoutEffect(() => {
@@ -813,6 +834,8 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     let last = performance.now()
     const tick = (t: number) => {
       const st = active()!
+      // 舞台還在載入(轉向重建時):長度是 0,不能往前推,否則會被當成「看完了」
+      if (!PLANS.has(st)) return
       const from = time.current
       const to = from + (t - last)
       last = t
@@ -1077,6 +1100,11 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
         <button type="button" className={s.icon} aria-pressed={voice} aria-label={voice ? '旁白開' : '旁白關'} title={voice ? '旁白開' : '旁白關'} onClick={toggleVoice}>
           {voice ? '🔊' : '🔇'}
         </button>
+        {!menuOutside && chapters.length > 0 && (
+          <button type="button" className={s.chapterToggle} aria-expanded={chaptersOpen} aria-controls={chaptersId} onClick={() => setChaptersOpen((o) => !o)}>
+            ☰ 段落 {curChapter + 1}/{chapters.length}
+          </button>
+        )}
         <button type="button" aria-pressed={isFullscreen} onClick={fullscreen}>
           {isFullscreen ? '✕ 離開全螢幕' : '⛶ 全螢幕'}
         </button>
@@ -1090,10 +1118,17 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
         </label>
       )}
       {!menuOutside && (
-        <ol className={s.chapters} aria-label="段落">
+        <ol className={s.chapters} id={chaptersId} data-open={chaptersOpen ? 'true' : 'false'} aria-label="段落">
           {chapters.map((c, i) => (
             <li key={c.at} aria-current={i === curChapter ? 'step' : undefined}>
-              <button type="button" onClick={() => void jump(i)} disabled={!ready || locked}>
+              <button
+                type="button"
+                onClick={() => {
+                  setChaptersOpen(false)
+                  void jump(i)
+                }}
+                disabled={!ready || locked}
+              >
                 <span>{i + 1}</span>
                 {c.label}
               </button>
@@ -1153,7 +1188,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
         )}
       </p>
       <div className={s.box} ref={boxRef} style={fit === 'page' ? undefined : { height: H * scale }} data-sub={inSub !== null ? 'true' : 'false'}>
-        <div className={s.scaler} style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
+        <div className={s.scaler} style={{ width: W, height: H, transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }} data-aspect={aspect}>
           <div ref={stageRef} className={s.stage} hidden={inSub !== null} />
           <div ref={subRef} className={s.stage} hidden={inSub === null} />
           {ask && (

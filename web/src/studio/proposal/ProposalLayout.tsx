@@ -1,20 +1,31 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { articles } from '../articles/registry'
 import ui from './proposal.module.css'
 
-type Tab = { to: string; label: string; code?: string; match?: string; also?: string[] }
+type Tab = { to: string; label: string; code?: string; match?: string; also?: string[]; /** 相鄰、同一個 group 的頁籤框在一起,前面標群組名稱 */ group?: string }
 
 /** 一級頁籤:每一個對應一個區塊,第二排再列出該區塊裡的頁面。 */
-type Section = { id: 'overview' | 'todo' | 'levels' | 'ideas' | 'docs' | 'tools'; label: string; to: string; tabs?: Tab[]; wrapTabs?: boolean }
+type Section = { id: 'overview' | 'todo' | 'levels' | 'dev' | 'ideas' | 'docs' | 'tools'; label: string; to: string; tabs?: Tab[]; wrapTabs?: boolean }
 
-/** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級。 */
+/** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級，再接不屬於等級的課程（AI 工具技巧、兒童網頁課、網頁運作知識）。 */
 const LEVELS: Tab[] = [
-  { to: '/studio/tools', code: 'L0', label: 'AI 工具介紹' },
-  { to: '/studio/ai-tools', code: 'L1', label: 'AI 工具入門', also: ['/studio/life-tools', '/studio/l1-ideas'] },
-  { to: '/studio/vibe-coding', code: 'L2', label: 'Vibe Coding 入門' },
-  { to: '/studio/ai-agent/fields', code: 'L3', label: 'AI Agent 整合應用', match: '/studio/ai-agent' },
-  { to: '/studio/advanced', code: 'L4', label: '進階' },
+  { to: '/studio/tools', code: 'L0', group: '做出自己的軟體', label: 'AI 工具介紹' },
+  { to: '/studio/ai-tools', code: 'L1', group: '做出自己的軟體', label: 'AI 工具入門', also: ['/studio/life-tools', '/studio/l1-ideas'] },
+  { to: '/studio/vibe-coding', code: 'L2', group: '做出自己的軟體', label: 'Vibe Coding 入門' },
+  { to: '/studio/ai-agent/fields', code: 'L3', group: '做出自己的軟體', label: 'AI Agent 整合應用', match: '/studio/ai-agent' },
+  { to: '/studio/advanced', code: 'L4', group: '做出自己的軟體', label: '進階' },
+  // 不屬於 L0–L4 的課程
+  { to: '/studio/ai-tips', label: 'AI 工具技巧' },
+  { to: '/studio/kids-web', label: '兒童網頁課', also: ['/studio/kids-web/0-1', '/studio/kids-web/0-1/live', '/studio/kids-web/0-2/live', '/studio/kids-web/0-3/live', '/studio/kids-web/xray'] },
+  { to: '/studio/web-basics', label: '網頁運作知識', match: '/studio/web-basics' },
+]
+
+/** 開發中:已有原型或試做、還在做的功能。 */
+const DEV: Tab[] = [
+  { to: '/studio/visuals', label: '即時教學影像' },
+  { to: '/studio/actor-interaction', label: '演員互動', match: '/studio/actor-interaction' },
+  { to: '/studio/portrait', label: '直式舞台' },
 ]
 
 /** 跨等級構想。 */
@@ -23,11 +34,6 @@ const IDEAS: Tab[] = [
   { to: '/studio/member', label: '會員空間' },
   { to: '/studio/resources', label: '資源系統' },
   { to: '/studio/news-feed', label: '科技新知動態牆' },
-  { to: '/studio/ai-tips', label: 'AI 工具技巧' },
-  { to: '/studio/visuals', label: '即時教學影像' },
-  { to: '/studio/actor-interaction', label: '演員互動', match: '/studio/actor-interaction' },
-  { to: '/studio/kids-web', label: '兒童網頁課', also: ['/studio/kids-web/0-1', '/studio/kids-web/0-1/live', '/studio/kids-web/0-2/live', '/studio/kids-web/xray'] },
-  { to: '/studio/web-basics', label: '網頁運作知識', match: '/studio/web-basics' },
 ]
 
 /** 文件清單與每一份文件。 */
@@ -40,6 +46,7 @@ const SECTIONS: Section[] = [
   { id: 'overview', label: '總覽', to: '/studio' },
   { id: 'todo', label: '待辦', to: '/studio/todo' },
   { id: 'levels', label: '課程', to: '/studio/tools', tabs: LEVELS },
+  { id: 'dev', label: '開發', to: '/studio/visuals', tabs: DEV },
   { id: 'ideas', label: '構想', to: '/studio/mcp', tabs: IDEAS },
   { id: 'docs', label: '文件', to: '/studio/docs', tabs: DOCS, wrapTabs: true },
   { id: 'tools', label: '工具', to: '/materials' },
@@ -68,6 +75,17 @@ const ACTOR_NAV: Tab[] = [
   { to: '/studio/actor-interaction/static', label: '靜態演員' },
 ]
 
+/** 把相鄰、同一個 group 的頁籤合成一段;沒有 group 的頁籤各自一段 */
+function groupRuns(tabs: Tab[]): { group?: string; tabs: Tab[] }[] {
+  const runs: { group?: string; tabs: Tab[] }[] = []
+  for (const t of tabs) {
+    const last = runs[runs.length - 1]
+    if (t.group && last?.group === t.group) last.tabs.push(t)
+    else runs.push({ group: t.group, tabs: [t] })
+  }
+  return runs
+}
+
 const tabActive = (t: Tab, pathname: string): boolean =>
   t.match ? pathname.startsWith(t.match) : pathname === t.to || (t.also ?? []).includes(pathname)
 
@@ -77,6 +95,7 @@ function sectionOf(pathname: string): Section['id'] | null {
   if (pathname === '/studio/todo') return 'todo'
   if (DOCS.some((t) => tabActive(t, pathname))) return 'docs'
   if (LEVELS.some((t) => tabActive(t, pathname))) return 'levels'
+  if (DEV.some((t) => tabActive(t, pathname))) return 'dev'
   if (IDEAS.some((t) => tabActive(t, pathname))) return 'ideas'
   if (pathname.startsWith('/materials')) return 'tools'
   return null
@@ -127,6 +146,7 @@ export function ProposalLayout({ title, footer, back = true, wide = false, child
     return () => ro.disconnect()
   }, [])
 
+  const [openGroups, setOpenGroups] = useState<string[]>([])
   const current = sectionOf(pathname)
   const section = SECTIONS.find((x) => x.id === current)
 
@@ -148,12 +168,31 @@ export function ProposalLayout({ title, footer, back = true, wide = false, child
         {section?.tabs && (
           <div className={ui.subnav}>
             <nav ref={subtabsRef} className={section.wrapTabs ? `${ui.subtabs} ${ui['subtabs-wrap']}` : ui.subtabs} aria-label={`${section.label}頁面`}>
-              {section.tabs.map((t) => (
-                <Link key={t.to} to={t.to} aria-current={tabActive(t, pathname) ? 'page' : undefined} title={t.code ? `${t.code} ${t.label}` : t.label}>
-                  {t.code && <span className={ui['nav-short']}>{t.code}</span>}
-                  <span className={t.code ? ui['nav-long'] : undefined}>{t.label}</span>
-                </Link>
-              ))}
+              {groupRuns(section.tabs).map((run) => {
+                // 群組預設收合:只留目前所在的那一課,按群組名稱展開
+                const open = run.group ? openGroups.includes(run.group) : true
+                const shown = open ? run.tabs : run.tabs.filter((t) => tabActive(t, pathname))
+                const links = shown.map((t) => (
+                  <Link key={t.to} to={t.to} aria-current={tabActive(t, pathname) ? 'page' : undefined} title={t.code ? `${t.code} ${t.label}` : t.label}>
+                    {t.code && <span className={ui['nav-short']}>{t.code}</span>}
+                    <span className={t.code ? ui['nav-long'] : undefined}>{t.label}</span>
+                  </Link>
+                ))
+                if (!run.group) return links
+                return (
+                  <span key={`${run.group}:${run.tabs[0].to}`} className={ui['subtab-group']} role="group" aria-label={run.group}>
+                    <button
+                      type="button"
+                      className={ui['subtab-group-label']}
+                      aria-expanded={open}
+                      onClick={() => setOpenGroups((gs) => (open ? gs.filter((g) => g !== run.group) : [...gs, run.group!]))}
+                    >
+                      {run.group} {open ? '▾' : '▸'}
+                    </button>
+                    {links}
+                  </span>
+                )
+              })}
             </nav>
           </div>
         )}

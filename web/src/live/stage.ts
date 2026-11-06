@@ -37,12 +37,16 @@
 //   任何一步都可以加:
 //     "narration"(旁白/字幕;時間不夠會自動拉長)、"chapter"(章節名稱)、"lessonStep"(對應課程的第幾步)、
 //     "ms"(覆寫長度)、"pause"(之後的停頓,預設 250)、
+//     "selectable":true/false 從這一步開始,學員能不能用滑鼠選取舞台上的文字(預設不能;暫停時才選得到,播放中由外殼的手勢層接收點擊)、
 //     "focus":"claude:composer" 或 { "target": "claude:ask", "zoom": 1.8 } 鏡頭推近;false 拉回全景。
 //   頂層 "camera": "auto" 時,沒寫 focus 的步驟由演員自己建議(例如打字看輸入框),聚光燈看它的目標,其他看全景。
 //   目標寫成「演員代號:目標名稱」(目標名稱見各演員 actor.ts 開頭),只寫代號表示整個演員。
+//   頂層 "blocking": { "cast": [...], "shot": "depth" } 時,幾位演員共用一塊位置、輪流到前景(調度,見 blocking.ts);
+//   步驟可加 "foreground"、"shot"、"transition"。調度只改演員外框的 transform 與濾鏡,鏡頭、聚光燈、滑鼠量位置時會換算進去。
 //
 // 有狀態的演員(SPEC 2A.5):定義了 init(props)/apply(state, kind, step) 的演員,舞台在 load 時依序推算每一步前後的狀態,
 // render 收到 { events, view: { state, prev, ev } };操作對不上狀態時 apply 丟錯,load 會指出是腳本第幾步。演員退場時清空 state.temp。
+import { blockingAt, blockingFor, blockPreroll, checkBlocking, planBlocking, scheduleBlocking, type BlockingSpec, type BlockCue, type Mark } from './blocking'
 import { cameraPoseAt, planCameraKeys, prerollOf, scheduleCameraKeys, type CameraCue } from './camera'
 import { kit, type Rect, type Styles } from './kit'
 import { ACTORS } from './actors'
@@ -190,6 +194,8 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
   let total = 0
   let captions: StageCaption[] = []
   let chapters: StageChapter[] = []
+  /** 腳本的 selectable:從 at 開始能不能選取文字,依時間排序 */
+  let selects: { at: number; on: boolean }[] = []
   let stops: StageStop[] = []
   let camKeys: CameraKey[] = []
   let narrations: StageNarration[] = []
@@ -197,6 +203,9 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
   let showCursor = true // 使用者自己點的時候不畫虛擬滑鼠
   let cast0: Record<string, unknown> = {} // 有狀態的演員:代號 → init(props) 的起始狀態
   let views: Record<string, ActorView<unknown>> = {} // 有狀態的演員:代號 → 目前畫面的 { state, prev, ev }(render 與 target 用)
+  let blocking: BlockingSpec | null = null
+  let blockCues: BlockCue[] = []
+  let slotXform: Record<string, { tx: number; ty: number; s: number }> = {} // 調度:代號 → 外框目前的位移(px)與縮放,量位置時換算
 
   // ---------- 演員(actors/index.ts 登記的演員) ----------
   function loadActor(name: string): AnyActor {
@@ -341,6 +350,33 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     const planned = planCameraKeys(steps.map(cuesOf))
     const preroll = prerollOf(planned.filter((k) => !stageKindOf(steps[k.step].s)))
 
+    // 調度:哪幾步換前景或構圖;演員動作同樣等輪替到位(和鏡頭的預留時間取大的,兩者同時進行)
+    blocking = blockingFor(script.blocking, aspect)
+    let blocks: ReturnType<typeof planBlocking> = []
+    const hiddenAtStart = castOrder.filter((id) => cast[id].hidden)
+    if (blocking) {
+      checkBlocking(blocking, castOrder)
+      try {
+        blocks = planBlocking(
+          blocking,
+          steps.map((x) => ({
+            actor: x.actor,
+            acts: !!x.actor && (!stageKindOf(x.s) || x.kind === 'show'),
+            foreground: x.s.foreground,
+            shot: x.s.shot,
+            transition: x.s.transition,
+            show: x.kind === 'show' ? (x.actor ?? undefined) : undefined,
+            hide: x.kind === 'hide' ? (x.actor ?? undefined) : undefined,
+          })),
+          hiddenAtStart,
+        )
+      } catch (e) {
+        const i = (e as { step?: number }).step
+        throw new Error(i != null ? `${where(steps[i].n, steps[i].s)}:${(e as Error).message}` : String(e))
+      }
+      for (const [i, ms] of blockPreroll(blocks.filter((b) => !stageKindOf(steps[b.step].s)))) preroll.set(i, Math.max(preroll.get(i) ?? 0, ms))
+    }
+
     timeline = []
     let t = 400
     steps.forEach((x, i) => {
@@ -374,6 +410,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       .filter((ev) => ev.s.chapter || ev.kind === 'card')
       .map((ev) => ({ at: ev.start, label: (ev.s.chapter || (ev.s as StageStepOf<'card'>).card) as string, ...(ev.s.lessonStep ? { step: ev.s.lessonStep } : {}) }))
     if (chapters[0] && chapters[0].at <= 400) chapters[0].at = 0
+    selects = timeline.filter((ev) => typeof ev.s.selectable === 'boolean').map((ev) => ({ at: ev.start, on: ev.s.selectable as boolean }))
     stops = timeline
       .filter((ev) => ev.kind === 'checkpoint')
       .map((ev) => {
@@ -382,6 +419,9 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       })
 
     camKeys = scheduleCameraKeys(planned, (i) => timeline[i].start, preroll)
+    blockCues = blocking ? scheduleBlocking(blocking, blocks, (i) => timeline[i].start, preroll, hiddenAtStart) : []
+    slotXform = {}
+    for (const id of castOrder) kit.css(cast[id].slot, { transformOrigin: '', filter: '', zIndex: '' })
     renderAt(0)
     return total
   }
@@ -431,7 +471,16 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     if (!c) return null
     return name ? c.inst.target(name, views[id] ?? null) : c.slot
   }
-  const rectOf = (el: HTMLElement): Rect => kit.rectIn(el, $('.st-cam'))
+  // 量位置(舞台座標)。調度把外框縮放、位移過時,換算成畫面上實際的位置
+  const rectOf = (el: HTMLElement): Rect => {
+    const cam = $('.st-cam')
+    const r = kit.rectIn(el, cam)
+    const slot = el.closest<HTMLElement>('.slot')
+    const xf = slot?.dataset.cast ? slotXform[slot.dataset.cast] : undefined
+    if (!slot || !xf) return r
+    const o = kit.rectIn(slot, cam)
+    return { x: o.x + xf.tx + (r.x - o.x) * xf.s, y: o.y + xf.ty + (r.y - o.y) * xf.s, w: r.w * xf.s, h: r.h * xf.s }
+  }
   const measure = (target: string): Rect | null => {
     const el = resolve(target)
     return el ? rectOf(el) : null
@@ -439,6 +488,9 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
 
   // ---------- renderAt ----------
   function renderAt(ms: number): void {
+    // 0. 能不能選取文字:最後一個已經開始、寫了 selectable 的步驟決定;沒寫過就不能選取
+    const sel = selects.reduce((on, x) => (x.at <= ms ? x.on : on), false)
+    if (root.dataset.selectable !== String(sel)) root.dataset.selectable = String(sel)
     // 1. 演員:每個演員拿到「已經開始的、屬於自己的動作」,自己畫
     const byActor: Record<string, ActorEvent[]> = Object.fromEntries(castOrder.map((id) => [id, []]))
     const fx: { card: ActorEvent | null; callout: ActorEvent | null; cursor: { plan: CursorPlan; local: number; actor: string } | null } = {
@@ -483,20 +535,25 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
         if (local < ev.dur) fx[ev.kind] = e
       }
     }
+    const marks: Record<string, Mark> = blocking ? blockingAt(blockCues, ms, aspect) : {}
     for (const id of castOrder) {
       const c = cast[id]
       const v = vis[id]
       // 出場/退場/移動
+      let placed: Place = v.place
       if (v.move) {
         const { from, to, e } = v.move
         const p = kit.ease.inOutCubic(e.p)
         const lerp = (k: keyof Place): number | null => (from[k] == null || to[k] == null ? to[k] : kit.lerp(from[k] as number, to[k] as number, p))
-        applyPlace(c.slot, { x: lerp('x') as number, y: lerp('y') as number, w: lerp('w') as number, h: lerp('h') })
-      } else applyPlace(c.slot, v.place)
+        placed = { x: lerp('x') as number, y: lerp('y') as number, w: lerp('w') as number, h: lerp('h') }
+      }
+      applyPlace(c.slot, placed)
       let style: Styles
       if (!v.ev) style = { opacity: v.shown ? '1' : '0', transform: 'none' }
       else if (v.shown) style = kit.enter(kit.progress(v.ev.local, 0, 420), { dist: '1.5em', scale: 0.96 })
       else style = kit.enter(1 - kit.progress(v.ev.local, 0, 320), { dist: '1.5em', scale: 0.96 })
+      const mark = marks[id]
+      if (mark) applyMark(id, c.slot, placed, mark, style)
       style.visibility = Number(style.opacity) > 0 ? 'visible' : 'hidden'
       kit.css(c.slot, style)
       c.inst.render({ events: byActor[id], view: views[id] ?? null }, ms)
@@ -510,6 +567,23 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     renderCard(fx.card)
     renderCallout(fx.callout)
     renderCursor(showCursor ? fx.cursor : null)
+  }
+
+  // 調度的站位疊在出場/退場的效果上:位移與縮放放在前面(以外框左上角為原點),透明度相乘
+  // 外框大小直接用位置(舞台 px)算,不量版面;只有依內容高度(h 是 null)時才量
+  function applyMark(id: string, slot: HTMLElement, placed: Place, mark: Mark, style: Styles): void {
+    const tx = mark.tx * placed.w
+    const ty = mark.ty * (placed.h ?? slot.offsetHeight)
+    slotXform[id] = { tx, ty, s: mark.s }
+    style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${mark.s.toFixed(4)}) ${style.transform === 'none' ? '' : style.transform}`.trim()
+    style.transformOrigin = '0 0'
+    style.opacity = (Number(style.opacity) * mark.opacity).toFixed(3)
+    style.zIndex = String(Math.round(mark.z))
+    const fx: string[] = []
+    if (mark.bright < 0.999) fx.push(`brightness(${mark.bright.toFixed(3)})`)
+    if (mark.blur > 0.05) fx.push(`blur(${mark.blur.toFixed(2)}px)`)
+    if (mark.shadow > 0.01) fx.push(`drop-shadow(0 18px 36px rgba(0,0,0,${(0.28 * mark.shadow).toFixed(3)}))`)
+    style.filter = fx.join(' ') || 'none'
   }
 
   function renderCamera(ms: number): void {

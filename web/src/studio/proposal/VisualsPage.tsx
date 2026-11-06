@@ -181,8 +181,8 @@ function Evidence({ items }: { items: string[] }) {
 export function VisualsPage() {
   useHashScroll()
   return (
-    <ProposalLayout title="即時教學影像" footer="跨等級構想 · 技術規格見 web/src/live/README.md">
-      <h1>構想 · 即時教學影像</h1>
+    <ProposalLayout title="即時教學影像" footer="開發 · 技術規格見 web/src/live/README.md">
+      <h1>開發 · 即時教學影像</h1>
       <span className={`${ui.chip} ${ui.todo} ${ui['draft-banner']}`}>部分上線</span>
       <h2>定位</h2>
       <KvTable rows={POSITIONING} />

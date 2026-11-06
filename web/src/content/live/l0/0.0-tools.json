@@ -2,6 +2,13 @@
   "title": "會操作檔案的 AI 工具",
   "lesson": "L0 · 第 0 課",
   "camera": "auto",
+  "blocking": {
+    "cast": [
+      "claude",
+      "finder"
+    ],
+    "shot": "depth"
+  },
   "cast": {
     "docs": {
       "actor": "finder",
@@ -56,7 +63,7 @@
         },
         "open": "practice"
       },
-      "place": "right",
+      "place": "window",
       "hidden": true
     }
   },

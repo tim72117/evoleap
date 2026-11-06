@@ -68,8 +68,8 @@ const OPEN_QUESTIONS: { title: string; body: string }[] = [
 
 export function ActorInteractionPage() {
   return (
-    <ProposalLayout title="演員互動" footer="跨等級構想 · 尚未評估">
-      <h1>構想 · 演員互動</h1>
+    <ProposalLayout title="演員互動" footer="開發 · 尚未評估">
+      <h1>開發 · 演員互動</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>構想 · 待評估</span>
 
       <h2>定位</h2>

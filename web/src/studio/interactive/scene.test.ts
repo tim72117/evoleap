@@ -327,6 +327,9 @@ describe('staticScript', () => {
   it('只留這位演員與他的動作,演到互動點之前,沒有鏡頭、旁白與舞台效果', () => {
     const out = staticScript(script, {}, 'delete', 'claude', kinds)
     expect(out.camera).toBeUndefined()
+    // 課程腳本有調度(claude、finder),靜態舞台只有一位演員,不能帶著調度
+    expect(script.blocking).toBeDefined()
+    expect(out.blocking).toBeUndefined()
     expect(Object.keys(out.cast)).toEqual(['claude'])
     expect(out.cast.claude.place).toBe('full')
     expect(out.cast.claude.hidden).toBe(false)

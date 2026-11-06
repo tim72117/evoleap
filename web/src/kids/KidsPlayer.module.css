@@ -120,7 +120,7 @@
   border-radius: 16px;
   background: #fff8ec;
 }
-.scaler { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.scaler { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; } /* 直式時寬高由 KidsPlayer 依舞台方向寫在 style 上 */
 .stage { position: absolute; inset: 0; }
 .stage[hidden] { display: none; }
 /* 轉場:主舞台與子舞台切換時,換上來的那一個淡入(只改透明度:縮放會讓這段時間量到的說明框位置偏掉)
@@ -531,4 +531,33 @@
   .player[data-float='true'] .controlsBox { width: calc(100% - 24px); }
   /* 窄螢幕沒有右側欄,段落留在按鈕下面 */
   .player[data-float='true'] .chapters { display: flex; margin-top: 6px; }
+}
+
+/* 手機版:段落清單收起來,控制列多一顆「段落」按鈕,按了才在控制列上方往上展開成一段一列的清單(疊在舞台上,控制列不動)。
+   選擇器多帶 .player .controlsBox,才蓋得過全螢幕(data-full)與浮動版(data-float)對 .chapters 的設定 */
+.controls .chapterToggle { display: none; }
+@media (max-width: 600px) {
+  .controls .chapterToggle { display: inline-block; }
+  .player .controlsBox .chapters:not([data-open='true']) { display: none; }
+  .player:not([data-float='true']) .controlsBox { position: relative; }
+  .player .controlsBox .chapters[data-open='true'] {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 8px);
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 4px;
+    max-height: 45vh;
+    overflow-y: auto;
+    margin: 0;
+    padding: 6px;
+    border: 2px solid var(--kp-border);
+    border-radius: 16px;
+    background: var(--kp-surface);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.14);
+  }
+  .player .controlsBox .chapters[data-open='true'] button { width: 100%; font-size: 16px; text-align: left; }
 }

@@ -1,9 +1,10 @@
 {
   "title": "HTML、CSS、JavaScript 的分工",
   "lesson": "網頁怎麼運作 · 序章 0.2",
+  "blocking": { "cast": ["editor", "web"], "shot": "depth" },
   "cast": {
-    "editor": { "actor": "editor", "props": { "project": "cafe" }, "parts": { "files": false }, "place": { "x": 60, "y": 110, "w": 900, "h": 860 } },
-    "web": { "actor": "browser", "props": { "site": "web-html", "url": "file:///Documents/practice/cafe/index.html" }, "place": { "x": 990, "y": 110, "w": 870, "h": 860 }, "hidden": true }
+    "editor": { "actor": "editor", "props": { "project": "cafe" }, "parts": { "files": false }, "place": "window" },
+    "web": { "actor": "browser", "props": { "site": "web-html", "url": "file:///Documents/practice/cafe/index.html" }, "place": "window", "hidden": true }
   },
   "steps": [
     { "card": "HTML、CSS、JavaScript 的分工", "eyebrow": "網頁怎麼運作 · 序章 0.2", "chapter": "看：三個檔案各管什麼", "narration": "一個網頁，通常由三種檔案一起完成。我們拿同一個小網頁，一次加一種，看看每一種各負責什麼。" },

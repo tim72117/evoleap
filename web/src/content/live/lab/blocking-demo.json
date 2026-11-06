@@ -1,0 +1,42 @@
+{
+  "title": "調度試做：前景後景輪替",
+  "blocking": { "cast": ["claude", "browser"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "小森烘焙網站", "folder": "~/Documents/practice/bakery", "branch": null, "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window"
+    },
+    "browser": { "actor": "browser", "props": { "site": "v1", "width": "tablet" }, "place": "window" }
+  },
+  "steps": [
+    { "card": "調度試做", "eyebrow": "開發 · 直式舞台", "sub": "兩位演員共用同一塊位置，輪流到前景", "chapter": "縱深（depth）" },
+    { "user": "頁首固定在畫面最上方，點導覽連結時平滑捲動", "narration": "誰在動作，誰就到前景。現在是 Claude 在前面，瀏覽器退到後面、變暗、失焦。" },
+    { "thinking": true, "ms": 1000 },
+    { "edit": "styles.css", "lines": [[12, " ", "header {"], [13, "+", "  position: sticky;"], [14, "+", "  top: 0;"], [15, " ", "}"], [16, "+", "html { scroll-behavior: smooth; }"]] },
+    { "say": "已修改 `styles.css`：頁首固定在最上方，點導覽連結時平滑捲動。" },
+    { "site": "v2", "narration": "換瀏覽器動作：焦點轉到後面，瀏覽器走到前景，Claude 退到後面。這叫轉焦。" },
+    { "go": "faq" },
+    { "scroll": "top", "pause": 600 },
+    { "user": "商品卡片在手機上改成一欄", "narration": "再回到 Claude。後景始終看得到，學員知道另一個視窗還在。" },
+    { "thinking": true, "ms": 900 },
+    { "say": "已修改 `styles.css`：手機寬度時，商品卡片改成一欄。", "pause": 600 },
+
+    { "wait": 300, "shot": "pip", "chapter": "子母畫面（pip）", "narration": "換成子母畫面：後景縮成角落的小畫面，前景用滿整個位置，字比較大。" },
+    { "site": "v3", "narration": "瀏覽器到前景，Claude 變成角落的小畫面。" },
+    { "width": "phone" },
+    { "scroll": "products", "pause": 600 },
+    { "user": "營業時間改成週二到週日", "narration": "Claude 回到前景，瀏覽器縮到角落。" },
+    { "thinking": true, "ms": 800 },
+    { "say": "已修改 `index.html`：營業時間改成週二到週日。", "pause": 600 },
+
+    { "wait": 300, "shot": "single", "chapter": "單人鏡頭（single）", "narration": "最後是單人鏡頭：一次只看一個，像正反打，用切在兩邊來回換。" },
+    { "width": "tablet", "transition": "cut" },
+    { "scroll": "top" },
+    { "user": "謝謝，先這樣", "transition": "cut", "pause": 800 },
+
+    { "wait": 300, "shot": "depth", "chapter": "回到縱深" },
+    { "foreground": "browser", "wait": 1500, "narration": "也可以用 foreground 手動指定誰在前景，不一定要等它動作。" },
+    { "card": "調度試做結束", "sub": "depth 縱深 · pip 子母畫面 · single 單人鏡頭" }
+  ]
+}

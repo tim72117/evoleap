@@ -3,7 +3,7 @@ import { KIDS_COMPONENTS, KIDS_DEMOS, KIDS_OPEN, KIDS_POSITIONING, KIDS_PRINCIPL
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
-// 構想：給 9 歲孩子的網頁程式設計基礎課。資料在 kidsWeb.ts。
+// 課程：給 9 歲孩子的網頁程式設計基礎課。資料在 kidsWeb.ts。
 
 /** 「名稱：說明」的直向清單,手機上也不會擠成窄欄 */
 function Pairs({ items }: { items: [string, string][] }) {
@@ -21,8 +21,8 @@ function Pairs({ items }: { items: [string, string][] }) {
 export function KidsWebPage() {
   const lessonCount = KIDS_UNITS.reduce((n, u) => n + u.lessons.length, 0)
   return (
-    <ProposalLayout title="兒童網頁課" footer="跨等級構想 · 資料：src/studio/proposal/kidsWeb.ts">
-      <h1>構想 · 給孩子的網頁程式設計</h1>
+    <ProposalLayout title="兒童網頁課" footer="課程 · 資料：src/studio/proposal/kidsWeb.ts">
+      <h1>兒童網頁課 · 給孩子的網頁程式設計</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>大綱草稿 · 待評估</span>
       <p className={ui.lead}>
         讓 9 歲的孩子看懂網頁怎麼運作、說得出正確的名詞，最後能把目標說清楚、請 AI 幫忙做出來；不教語法，每課都讓孩子自己動手。共 {KIDS_UNITS.length} 個單元、

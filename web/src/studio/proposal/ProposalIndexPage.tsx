@@ -275,13 +275,13 @@ export function ProposalIndexPage() {
         </section>
       ))}
 
-      <h2>跨等級構想</h2>
+      <h2>不分等級的課程</h2>
       <section className={ui.card}>
         <div className={ui['card-head']}>
           <div className={ui['head-left']}>
             <div>
-              <h3>用 MCP 連入課程</h3>
-              <div className={ui.meta}>適用：L0–L4</div>
+              <h3>AI 工具技巧</h3>
+              <div className={ui.meta}>適用：L0 第 2 課之後</div>
             </div>
           </div>
           <div className={ui.chips}>
@@ -289,22 +289,23 @@ export function ProposalIndexPage() {
           </div>
         </div>
         <div className={ui['card-body']}>
-          <p className={ui['kv-lead']}>學員在自己的 AI 工具裡連上課程的 MCP server，就能：</p>
+          <p className={ui['kv-lead']}>跟會操作檔案的 AI 工具一起工作的技巧，例如：</p>
           <ul className={ui['plain-list']}>
-            <li>直接取得練習範本與參考產出</li>
-            <li>依完成檢核自我檢查</li>
-            <li>提交作業並取回回饋</li>
+            <li>換裝置接著做：電腦上的工作，出門用手機看進度、回覆確認</li>
+            <li>分岔：從同一段對話分出幾個分支，同時試好幾種想法</li>
+            <li>建議先做成短課接在需要它的等級後面，暫不開成首頁主題</li>
           </ul>
-          <p className={ui['kv-lead']} style={{ marginTop: 8 }}>可一併解決 L1「結業作品是否收件」「是否提供各課參考產出」。</p>
         </div>
         <div className={ui['card-foot']}>
           <div className={ui.links}>
-            <Link className={ui.btn} to="/studio/mcp">
+            <Link className={ui.btn} to="/studio/ai-tips">
               構想頁
             </Link>
           </div>
         </div>
       </section>
+
+      <h2>開發</h2>
       <section className={ui.card}>
         <div className={ui['card-head']}>
           <div className={ui['head-left']}>
@@ -331,6 +332,101 @@ export function ProposalIndexPage() {
         <div className={ui['card-foot']}>
           <div className={ui.links}>
             <Link className={ui.btn} to="/studio/visuals">
+              構想頁
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
+              <h3>演員互動</h3>
+              <div className={ui.meta}>適用：互動課程</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>在互動階段，學員可以真的點演員畫面上的東西：</p>
+          <ul className={ui['plain-list']}>
+            <li>靜態互動：不播放，只有舞台，已在演員展示試做</li>
+            <li>時間線：互動時怎麼暫停、操作怎麼變成演出、拖回去會怎樣</li>
+            <li>待決定：腳本與互動的架構，之後一起設計</li>
+          </ul>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/studio/actor-interaction">
+              構想頁
+            </Link>
+            <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/actor-interaction/showcase">
+              演員展示
+            </Link>
+            <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/actor-interaction/push">
+              把演員推到主畫面
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
+              <h3>直式舞台</h3>
+              <div className={ui.meta}>適用：互動課程、宣傳影片</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.todo}`}>已完成</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>同一支腳本換成 9:16 播放，給手機直拿看課與短影音：</p>
+          <ul className={ui['plain-list']}>
+            <li>已做：手機直拿自動直式（所有播放器）、課程腳本的直式位置與調度、兒童課演員上下排</li>
+            <li>缺口：大人課的演員照橫式比例畫，直式下留白多、字偏小</li>
+            <li>待決定：平板直拿要不要也用直式</li>
+          </ul>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/studio/portrait">
+              構想頁
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <h2>跨等級構想</h2>
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
+              <h3>用 MCP 連入課程</h3>
+              <div className={ui.meta}>適用：L0–L4</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>學員在自己的 AI 工具裡連上課程的 MCP server，就能：</p>
+          <ul className={ui['plain-list']}>
+            <li>直接取得練習範本與參考產出</li>
+            <li>依完成檢核自我檢查</li>
+            <li>提交作業並取回回饋</li>
+          </ul>
+          <p className={ui['kv-lead']} style={{ marginTop: 8 }}>可一併解決 L1「結業作品是否收件」「是否提供各課參考產出」。</p>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/studio/mcp">
               構想頁
             </Link>
           </div>
@@ -455,69 +551,8 @@ export function ProposalIndexPage() {
         </div>
       </section>
 
-      <section className={ui.card}>
-        <div className={ui['card-head']}>
-          <div className={ui['head-left']}>
-            <div>
-              <h3>演員互動</h3>
-              <div className={ui.meta}>適用：互動課程</div>
-            </div>
-          </div>
-          <div className={ui.chips}>
-            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
-          </div>
-        </div>
-        <div className={ui['card-body']}>
-          <p className={ui['kv-lead']}>在互動階段，學員可以真的點演員畫面上的東西：</p>
-          <ul className={ui['plain-list']}>
-            <li>靜態互動：不播放，只有舞台，已在演員展示試做</li>
-            <li>時間線：互動時怎麼暫停、操作怎麼變成演出、拖回去會怎樣</li>
-            <li>待決定：腳本與互動的架構，之後一起設計</li>
-          </ul>
-        </div>
-        <div className={ui['card-foot']}>
-          <div className={ui.links}>
-            <Link className={ui.btn} to="/studio/actor-interaction">
-              構想頁
-            </Link>
-            <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/actor-interaction/showcase">
-              演員展示
-            </Link>
-            <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/actor-interaction/push">
-              把演員推到主畫面
-            </Link>
-          </div>
-        </div>
-      </section>
 
-      <section className={ui.card}>
-        <div className={ui['card-head']}>
-          <div className={ui['head-left']}>
-            <div>
-              <h3>AI 工具技巧</h3>
-              <div className={ui.meta}>適用：L0 第 2 課之後</div>
-            </div>
-          </div>
-          <div className={ui.chips}>
-            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
-          </div>
-        </div>
-        <div className={ui['card-body']}>
-          <p className={ui['kv-lead']}>跟會操作檔案的 AI 工具一起工作的技巧，例如：</p>
-          <ul className={ui['plain-list']}>
-            <li>換裝置接著做：電腦上的工作，出門用手機看進度、回覆確認</li>
-            <li>分岔：從同一段對話分出幾個分支，同時試好幾種想法</li>
-            <li>建議先做成短課接在需要它的等級後面，暫不開成首頁主題</li>
-          </ul>
-        </div>
-        <div className={ui['card-foot']}>
-          <div className={ui.links}>
-            <Link className={ui.btn} to="/studio/ai-tips">
-              構想頁
-            </Link>
-          </div>
-        </div>
-      </section>
+
 
       <h2>等級間依賴</h2>
       <section className={ui.card}>

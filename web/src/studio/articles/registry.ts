@@ -55,6 +55,13 @@ export const articles: ArticleMeta[] = [
     summary: '宣傳片製作 skill 的做法整理：鏡頭配方卡、真實介面素材、分層驗收；哪些借用到即時教學畫面、哪些不照搬。',
   },
   {
+    slug: 'research/hyperframes',
+    title: '參考案例：HyperFrames 效果清單',
+    tab: 'HyperFrames',
+    category: 'research',
+    summary: 'HeyGen 開源影片框架的 448 個效果依類別整理，挑出 AI 對話、程式碼、游標操作等可借用到即時教學畫面的手法，並說明哪些不照搬。',
+  },
+  {
     slug: 'research/voice-cost',
     title: '旁白語音的費用評估',
     category: 'research',

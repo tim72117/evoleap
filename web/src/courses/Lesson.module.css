@@ -142,6 +142,12 @@
   height: 100%;
 }
 
+/* 手機直拿時影片是直式舞台(LivePlayer 的 data-aspect):播放器框改成 9:16 */
+.playerBox:has([data-aspect='portrait']) {
+  aspect-ratio: 9 / 16;
+  max-width: calc(var(--video-max-h) * 9 / 16);
+}
+
 .player {
   background: #000;
 }

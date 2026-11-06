@@ -2,6 +2,13 @@
   "title": "提出需求：做出一頁式網站並精確調整",
   "lesson": "L0 · 第 2 課",
   "camera": "auto",
+  "blocking": {
+    "cast": [
+      "claude",
+      "browser"
+    ],
+    "shot": "depth"
+  },
   "cast": {
     "claude": {
       "actor": "claude-desktop",

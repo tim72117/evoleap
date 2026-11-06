@@ -11,6 +11,11 @@
 }
 .A-kid-tree *, .A-kid-tree *::before, .A-kid-tree *::after { box-sizing: border-box; }
 .A-kid-tree .kt-scene { position: absolute; inset: 0; display: grid; grid-template-columns: 46% 1fr; gap: 4%; }
+/* 直的外框(直式舞台):網頁在上、樹在下 */
+.A-kid-tree { container: kt / size; }
+@container kt (max-aspect-ratio: 10 / 11) {
+  .A-kid-tree .kt-scene { grid-template-columns: 1fr; grid-template-rows: 44% 1fr; gap: 3%; }
+}
 .A-kid-tree .kt-pane { position: relative; border: 6px solid #2b2620; border-radius: 30px; box-shadow: 0 12px 0 #2b2620; overflow: hidden; }
 
 /* ── 左:卡通網頁 ── */

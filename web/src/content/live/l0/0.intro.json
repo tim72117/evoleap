@@ -2,26 +2,25 @@
   "title": "序章：為什麼不用學寫程式，也能做出軟體",
   "lesson": "L0 · 序章",
   "camera": "auto",
+  "blocking": {
+    "cast": [
+      "editor0",
+      "browser0",
+      "chat",
+      "editor2",
+      "browser",
+      "claude",
+      "browser4"
+    ],
+    "shot": "depth"
+  },
   "cast": {
     "editor0": {
       "actor": "editor",
       "props": {
         "project": "bakery"
       },
-      "place": {
-        "landscape": {
-          "x": 260,
-          "y": 70,
-          "w": 1400,
-          "h": 880
-        },
-        "portrait": {
-          "x": 40,
-          "y": 130,
-          "w": 1000,
-          "h": 820
-        }
-      },
+      "place": "window",
       "hidden": true
     },
     "browser0": {
@@ -31,20 +30,7 @@
         "width": "tablet",
         "url": "file:///Documents/bakery/index.html"
       },
-      "place": {
-        "landscape": {
-          "x": 975,
-          "y": 70,
-          "w": 905,
-          "h": 880
-        },
-        "portrait": {
-          "x": 40,
-          "y": 980,
-          "w": 1000,
-          "h": 760
-        }
-      },
+      "place": "window",
       "hidden": true
     },
     "boss": {
@@ -95,20 +81,7 @@
       "props": {
         "title": "聊天式 AI"
       },
-      "place": {
-        "landscape": {
-          "x": 40,
-          "y": 60,
-          "w": 580,
-          "h": 900
-        },
-        "portrait": {
-          "x": 40,
-          "y": 130,
-          "w": 1000,
-          "h": 720
-        }
-      },
+      "place": "window",
       "hidden": true
     },
     "editor2": {
@@ -116,20 +89,7 @@
       "props": {
         "project": "bakery"
       },
-      "place": {
-        "landscape": {
-          "x": 650,
-          "y": 70,
-          "w": 600,
-          "h": 880
-        },
-        "portrait": {
-          "x": 40,
-          "y": 880,
-          "w": 620,
-          "h": 800
-        }
-      },
+      "place": "window",
       "hidden": true
     },
     "browser": {
@@ -139,20 +99,7 @@
         "width": "phone",
         "url": "file:///Documents/bakery/index.html"
       },
-      "place": {
-        "landscape": {
-          "x": 1280,
-          "y": 70,
-          "w": 600,
-          "h": 880
-        },
-        "portrait": {
-          "x": 680,
-          "y": 880,
-          "w": 360,
-          "h": 800
-        }
-      },
+      "place": "window",
       "hidden": true
     },
     "claude": {
@@ -177,20 +124,7 @@
         "width": "tablet",
         "url": "file:///Documents/bakery/index.html"
       },
-      "place": {
-        "landscape": {
-          "x": 1000,
-          "y": 70,
-          "w": 880,
-          "h": 880
-        },
-        "portrait": {
-          "x": 40,
-          "y": 980,
-          "w": 1000,
-          "h": 760
-        }
-      },
+      "place": "window",
       "hidden": true
     },
     "site": {
@@ -247,24 +181,6 @@
       "callout": "editor0:code",
       "text": "HTML：決定網頁上有什麼",
       "narration": "每個角括號、每個斜線都要打對，少一個，畫面就可能出錯。",
-      "focus": false
-    },
-    {
-      "move": "editor0",
-      "to": {
-        "landscape": {
-          "x": 40,
-          "y": 70,
-          "w": 905,
-          "h": 880
-        },
-        "portrait": {
-          "x": 40,
-          "y": 130,
-          "w": 1000,
-          "h": 820
-        }
-      },
       "focus": false
     },
     {
@@ -509,23 +425,6 @@
       "arg": "open index.html",
       "result": "已用瀏覽器打開",
       "narration": "接著，它自己打開瀏覽器看結果。"
-    },
-    {
-      "move": "claude",
-      "to": {
-        "landscape": {
-          "x": 40,
-          "y": 70,
-          "w": 940,
-          "h": 880
-        },
-        "portrait": {
-          "x": 40,
-          "y": 130,
-          "w": 1000,
-          "h": 820
-        }
-      }
     },
     {
       "show": "browser4"

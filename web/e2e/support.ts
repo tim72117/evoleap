@@ -128,3 +128,12 @@ export async function loginAsNewStudent(page: Page, tag = 'student'): Promise<vo
   const email = `e2e-${tag}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
   expect((await page.request.post('/api/auth/register', { data: { email, password: 'secret-pass-123', name: '' } })).status()).toBe(200)
 }
+
+/** 手機直拿時影片預設是直式舞台(課程進度在底部抽屜);要測橫式版面(右側側欄)時,網址加上 ?aspect=landscape */
+export const landscape = (path: string): string => `${path}${path.includes('?') ? '&' : '?'}aspect=landscape`
+
+/** 用點連結進到播放頁之後,手機上改成橫式(同一頁加 ?aspect=landscape 重新開) */
+export async function ensureLandscape(page: Page): Promise<void> {
+  await page.locator('.vp').first().waitFor()
+  if (await page.locator('.vp-portrait').count()) await page.goto(landscape(new URL(page.url()).pathname))
+}

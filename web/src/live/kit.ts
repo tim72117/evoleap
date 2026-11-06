@@ -367,6 +367,23 @@ function arrowBetween(a: Rect, b: Rect, bend = 0.2): string {
 }
 
 // ---------- 版面量測與鏡頭 ----------
+/**
+ * 外框是不是比寬還高(直式舞台給演員的外框):回傳一個函式,呼叫時得到目前的答案。
+ * 外框大小改變時才重算(ResizeObserver),不在每一格量版面;第一次呼叫前還沒量到就量一次。
+ * 大小是 0(被藏起來)時不更新,元素拿掉之後停止觀察。
+ */
+function tallWatch(el: HTMLElement, ratio = 1.1): () => boolean {
+  let tall: boolean | null = null
+  if (typeof ResizeObserver === 'function') {
+    const ro = new ResizeObserver(([e]) => {
+      if (!el.isConnected) return ro.disconnect()
+      const { width, height } = e.contentRect
+      if (width > 0 && height > 0) tall = height > width * ratio
+    })
+    ro.observe(el)
+  }
+  return () => (tall ??= el.offsetHeight > el.offsetWidth * ratio)
+}
 /** 元素在 root 內的位置(不受 transform/縮放影響,用 offset 累加) */
 function rectIn(el: HTMLElement, root: Element): Rect {
   let x = 0
@@ -524,6 +541,7 @@ export const kit = {
   arrowPath,
   arrowBetween,
   rectIn,
+  tallWatch,
   focus,
   cameraStyle,
   stickBottom,

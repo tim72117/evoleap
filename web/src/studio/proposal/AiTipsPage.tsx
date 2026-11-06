@@ -3,14 +3,14 @@ import { LiveVideoPreview } from './OpeningPreviewPlayer'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
-// AI 工具技巧構想：怎麼跟會操作檔案的 AI 工具一起工作（換裝置、分岔、接續對話等），以及是否開成新主題的評估。
+// AI 工具技巧（研發基地的課程頁籤）：怎麼跟會操作檔案的 AI 工具一起工作（換裝置、分岔、接續對話等），以及是否開成新主題的評估。
 export function AiTipsPage() {
   return (
     <ProposalLayout title="AI 工具技巧" footer="資料：src/studio/proposal/aiTips.ts">
       <h1>AI 工具技巧</h1>
-      <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>構想 · 待評估</span>
+      <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>待評估</span>
       <p className={ui.lead}>
-        跟會操作檔案的 AI 工具一起工作的技巧：換裝置接著做、分岔同時試好幾種想法等。這些是做事的方法，不是做出來的成品，先放在構想區評估要放進哪一課。
+        跟會操作檔案的 AI 工具一起工作的技巧：換裝置接著做、分岔同時試好幾種想法等。這些是做事的方法，不是做出來的成品，還在評估要放進哪一課。
       </p>
 
       <h2>適不適合開新主題</h2>

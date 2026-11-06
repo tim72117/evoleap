@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, test, type Page } from '@playwright/test'
-import { collectErrors, desktopOnly, loginAsNewStudent } from './support'
+import { collectErrors, desktopOnly, landscape, loginAsNewStudent } from './support'
 
 const SCRIPTS = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'content', 'live')
 
@@ -55,7 +55,8 @@ for (const c of LESSONS) {
     test.beforeEach(async ({ page }) => {
       errors = collectErrors(page)
       await loginAsNewStudent(page)
-      await page.goto(c.path)
+      // 這裡測右側側欄的章節與步驟(橫式);手機直拿預設直式,改用網址指定橫式
+      await page.goto(landscape(c.path))
       await expect(player(page)).toBeVisible()
       await expect(player(page)).toHaveAttribute('role', 'region')
       await expect(player(page)).toHaveAttribute('aria-label', /^影片播放器:/)

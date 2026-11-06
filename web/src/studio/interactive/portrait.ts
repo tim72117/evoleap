@@ -2,16 +2,19 @@
 // 方向參數、抽屜該不該展開、把手上顯示的章節與進度,都抽出來方便單元測試。
 import type { Aspect } from '../../live/types'
 
-/** 網址參數 ?aspect= 的值 → 舞台方向;只有 "portrait" 是直式,其他(含沒給、亂寫)都是橫式 */
-export function parseAspect(value: string | null | undefined): Aspect {
-  return value === 'portrait' ? 'portrait' : 'landscape'
+/**
+ * 網址參數 ?aspect= 的值 → 舞台方向。網址寫了 portrait 或 landscape 就照網址;
+ * 沒寫(或亂寫)時用 auto:裝置自己的方向(手機直拿是直式,見 site/useAutoAspect.ts),預設橫式。
+ */
+export function parseAspect(value: string | null | undefined, auto: Aspect = 'landscape'): Aspect {
+  return value === 'portrait' || value === 'landscape' ? value : auto
 }
 
-/** 把方向寫回網址參數:橫式拿掉 aspect(網址維持原樣),直式加上 aspect=portrait;其他參數照舊 */
-export function withAspect(params: URLSearchParams, aspect: Aspect): URLSearchParams {
+/** 把方向寫回網址參數:和裝置自己的方向(auto)一樣就拿掉 aspect(網址維持原樣),不一樣才寫進網址;其他參數照舊 */
+export function withAspect(params: URLSearchParams, aspect: Aspect, auto: Aspect = 'landscape'): URLSearchParams {
   const next = new URLSearchParams(params)
-  if (aspect === 'portrait') next.set('aspect', 'portrait')
-  else next.delete('aspect')
+  if (aspect === auto) next.delete('aspect')
+  else next.set('aspect', aspect)
   return next
 }
 

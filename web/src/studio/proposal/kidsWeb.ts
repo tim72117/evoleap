@@ -7,7 +7,7 @@ import { KIDS_UNITS, type KidsLesson, type KidsUnit } from '../../content/kidsCo
 export { KIDS_UNITS, type KidsLesson, type KidsUnit }
 
 /** 已有試做頁的課:課號 → 研發基地的試做頁 */
-export const KIDS_DEMOS: Record<string, string> = { '0.1': '/studio/kids-web/0-1', '0.2': '/studio/kids-web/0-2/live' }
+export const KIDS_DEMOS: Record<string, string> = { '0.1': '/studio/kids-web/0-1', '0.2': '/studio/kids-web/0-2/live', '0.3': '/studio/kids-web/0-3/live' }
 
 export const KIDS_POSITIONING: [string, string][] = [
   ['對象', '9 歲左右、會用滑鼠和鍵盤、看得懂短句的孩子；建議家長在旁陪學。'],

@@ -18,10 +18,13 @@
         }
       },
       "place": {
-        "x": 70,
-        "y": 45,
-        "w": 1780,
-        "h": 990
+        "landscape": {
+          "x": 70,
+          "y": 45,
+          "w": 1780,
+          "h": 990
+        },
+        "portrait": "window"
       },
       "parts": {
         "account": false

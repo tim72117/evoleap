@@ -3,7 +3,7 @@ import { WEB_COMPONENTS, WEB_DEMOS, WEB_OPEN, WEB_PITCH, WEB_POSITIONING, WEB_PR
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
-// 構想：給大人的「網頁運作知識」獨立課程。資料在 webBasics.ts。
+// 課程：給大人的「網頁運作知識」獨立課程。資料在 webBasics.ts。
 
 /** 「名稱：說明」的直向清單,手機上也不會擠成窄欄 */
 function Pairs({ items }: { items: [string, string][] }) {
@@ -21,8 +21,8 @@ function Pairs({ items }: { items: [string, string][] }) {
 export function WebBasicsPage() {
   const lessonCount = WEB_UNITS.reduce((n, u) => n + u.lessons.length, 0)
   return (
-    <ProposalLayout title="網頁運作知識" footer="獨立課程構想 · 資料：src/studio/proposal/webBasics.ts">
-      <h1>構想 · 網頁怎麼運作</h1>
+    <ProposalLayout title="網頁運作知識" footer="課程 · 資料：src/studio/proposal/webBasics.ts">
+      <h1>網頁運作知識 · 網頁怎麼運作</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>架構草稿 · 待評估</span>
       <p className={ui.lead}>
         AI 時代的網頁基礎課：語法交給 AI，你要懂的是網頁怎麼運作。共 {WEB_UNITS.length} 個單元、{lessonCount} 課（暫定）。

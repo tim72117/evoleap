@@ -16,6 +16,9 @@
   background: radial-gradient(70% 70% at 25% 15%, #f3efe6, var(--st-page));
 }
 .live-stage * { box-sizing: border-box; }
+/* 選取文字:預設不能,腳本的 "selectable": true 從那一步開始才能選(stage.ts 設 data-selectable) */
+.live-stage { user-select: none; -webkit-user-select: none; }
+.live-stage[data-selectable='true'] { user-select: text; -webkit-user-select: text; }
 /* 鏡頭:演員與跟著縮放的效果都在 .st-cam 裡,由 stage.ts 設定 transform */
 .live-stage .st-cam { position: absolute; inset: 0; transform-origin: 0 0; }
 .live-stage .st-cast { position: absolute; inset: 0; }

@@ -32,10 +32,9 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 .vp-stage { position: absolute; inset: 0; }
 .vp-canvas { position: absolute; left: 0; top: 0; width: var(--vp-w, 1920px); height: var(--vp-h, 1080px); transform-origin: 0 0; }
 .vp-canvas > * { width: var(--vp-w, 1920px); height: var(--vp-h, 1080px); display: block; }
-/* 播放中由手勢層接收點擊;暫停時讓內容可以選取、複製文字 */
+/* 播放中由手勢層接收點擊;暫停時點擊穿過手勢層到內容。內容能不能選取文字由舞台決定(腳本的 selectable,預設不能) */
 .vp-hit { position: absolute; inset: 0; }
 .vp.paused .vp-hit { pointer-events: none; }
-.vp.paused .vp-canvas { user-select: text; -webkit-user-select: text; }
 .vp:not(.show-ui):not(.paused) { cursor: none; }
 
 .vp-caption {

@@ -92,11 +92,19 @@ const TYPE_CPS = 8
 /** 示範點擊:滑鼠 150ms 出發、移動 550ms,到了就點(舞台的虛擬滑鼠固定這樣移動,見 README 2A.5 已知限制) */
 const TAP_AT = 750
 
-/** 兩片(網頁、積木堆)在各個面的位置:left 與寬度是 %,轉角是 rotateY 的度數 */
-const LAYOUT: Record<Face, { page: { x: number; r: number }; stack: { x: number; r: number }; w: number }> = {
+/** 兩片(網頁、積木堆)在各個面的位置:left、top 與寬度是 %,轉角是 rotateY 的度數,s 是縮放(以上緣中間為原點) */
+type Spot = { x: number; y?: number; r: number; s?: number }
+type Layout = Record<Face, { page: Spot; stack: Spot; w: number }>
+const LAYOUT: Layout = {
   front: { page: { x: 25, r: 0 }, stack: { x: 25, r: -180 }, w: 50 },
   back: { page: { x: 25, r: 180 }, stack: { x: 25, r: 0 }, w: 50 },
   split: { page: { x: 2, r: 0 }, stack: { x: 52, r: 0 }, w: 46 },
+}
+/** 直的外框(直式舞台):兩片加寬,分開時改成上下排(網頁在上、積木在下),兩片都縮小一點才放得下 */
+const LAYOUT_TALL: Layout = {
+  front: { page: { x: 10, r: 0 }, stack: { x: 10, r: -180 }, w: 80 },
+  back: { page: { x: 10, r: 180 }, stack: { x: 10, r: 0 }, w: 80 },
+  split: { page: { x: 4, y: 0, r: 0, s: 0.86 }, stack: { x: 4, y: 47, r: 0, s: 0.86 }, w: 92 },
 }
 
 const DEFAULT_BLOCKS: KidBlock[] = [
@@ -231,6 +239,8 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
     const stars = root.querySelector<HTMLElement>('.kw-stars')!
     const reloadBtn = root.querySelector<HTMLElement>('.kw-reload')!
     const pageBody = root.querySelector<HTMLElement>('.kw-page')!
+    // 外框比寬還高(直式舞台)時用上下排的版面;外框大小改變才重算(kit.tallWatch)
+    const isTall = kit.tallWatch(root)
     /** 網頁上與積木上放字的地方(改字時換這裡) */
     const partText = new Map(blocks.map((b) => [b.tag, root.querySelector<HTMLElement>(`.kw-part[data-tag="${b.tag}"] > span`)!]))
     const blockText = new Map(blocks.map((b) => [b.tag, root.querySelector<HTMLElement>(`.kw-block[data-tag="${b.tag}"] .kw-content`)!]))
@@ -258,11 +268,18 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
         const p = ev ? kit.ease.inOutCubic(tapped ? kit.progress(ev.local, TAP_AT, INSPECT_MS) : ev.p) : 1
 
         // 翻面與分開:兩片的位置、轉角、寬度在兩個面之間內插
-        const a = LAYOUT[from.view]
-        const b = LAYOUT[to.view]
+        const table = isTall() ? LAYOUT_TALL : LAYOUT
+        const a = table[from.view]
+        const b = table[to.view]
         const w = kit.lerp(a.w, b.w, p)
-        const place = (el: HTMLElement, x0: { x: number; r: number }, x1: { x: number; r: number }) =>
-          kit.css(el, { left: `${kit.lerp(x0.x, x1.x, p).toFixed(2)}%`, width: `${w.toFixed(2)}%`, transform: `rotateY(${kit.lerp(x0.r, x1.r, p).toFixed(1)}deg)` })
+        const place = (el: HTMLElement, x0: Spot, x1: Spot) =>
+          kit.css(el, {
+            left: `${kit.lerp(x0.x, x1.x, p).toFixed(2)}%`,
+            top: `${kit.lerp(x0.y ?? 0, x1.y ?? 0, p).toFixed(2)}%`,
+            width: `${w.toFixed(2)}%`,
+            transform: `rotateY(${kit.lerp(x0.r, x1.r, p).toFixed(1)}deg) scale(${kit.lerp(x0.s ?? 1, x1.s ?? 1, p).toFixed(4)})`,
+            transformOrigin: '50% 0',
+          })
         place(pagePane, a.page, b.page)
         place(stackPane, a.stack, b.stack)
 

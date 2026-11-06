@@ -9,7 +9,7 @@
         "ip": "93.184.216.34",
         "pages": { "/": { "title": "Example Domain", "heading": "歡迎光臨", "text": "這是伺服器上的 index.html，瀏覽器把它畫成你看到的畫面。" } }
       },
-      "place": { "x": 100, "y": 80, "w": 1720, "h": 650 }
+      "place": { "landscape": { "x": 100, "y": 80, "w": 1720, "h": 650 }, "portrait": { "x": 40, "y": 110, "w": 1000, "h": 900 } }
     }
   },
   "steps": [

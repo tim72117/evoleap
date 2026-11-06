@@ -48,7 +48,7 @@ web/src/content/live/<等級>/*.json     舞台腳本(2A.2),例如 l0/0.0-tools.
 | 不用 `Date.now()`、`performance.now()`、`Math.random()` | 用傳入的時間與 `kit.rand(seed)` |
 | 素材在 `load` 階段全部預載完，`render` 期間不發網路請求 | 拖曳、截圖時不能等載入 |
 | 可以讀版面（`offsetWidth`、`kit.rectIn`），但只能在 `mount` 或依時間決定的時機讀 | 讀出來的值也要對同一個 t 一致 |
-| 文字用真的 DOM 文字，不畫進 canvas 或圖片 | 學員可以選取、複製；字幕與螢幕閱讀器可用 |
+| 文字用真的 DOM 文字，不畫進 canvas 或圖片 | 腳本開放選取時學員可以選取、複製；字幕與螢幕閱讀器可用 |
 
 ---
 
@@ -100,7 +100,7 @@ vp.time / vp.playing
 | 控制列 | 播放中 2.6 秒沒動作自動隱藏（全螢幕時也隱藏游標）；暫停時一直顯示 |
 | 手勢 | 桌機點畫面播放暫停、雙擊全螢幕；手機點一下顯示／隱藏控制列，左右兩側點兩下倒轉／快轉 10 秒 |
 | 鍵盤 | 空白／K 播放暫停、←→ 5 秒、J／L 10 秒、, . 逐格、0–9 跳到 0%–90%、F 全螢幕、C 字幕、M 靜音、< > 速度、Home／End |
-| 其他 | 記住看到哪裡、播放時螢幕不休眠（Wake Lock）、系統媒體控制（Media Session）、切換分頁自動暫停（時鐘不是單一音軌時，包括分段旁白）、暫停時可以選取複製畫面文字、手機直向小尺寸版面 |
+| 其他 | 記住看到哪裡、播放時螢幕不休眠（Wake Lock）、系統媒體控制（Media Session）、切換分頁自動暫停（時鐘不是單一音軌時，包括分段旁白）、暫停時可以選取複製畫面文字（只在腳本以 `selectable` 開放的段落，預設不能選取）、手機直向小尺寸版面 |
 
 ### 2.5 課程頁直接掛載
 
@@ -186,6 +186,7 @@ export default defineActor({
 | `editor` | open、type（有狀態；通用深色程式碼編輯器，依副檔名上色 html、css、js，演出「以前自己寫程式」） | window、code、caret、tab:檔名 |
 | `macbook` | open、close、wake、sleep、type、tilt（有狀態；擬真筆電，宣傳片用，純 CSS 3D；props：opened、awake、angle、pitch、yaw、finish、wallpaper、dock、clock） | window、screen、keyboard、trackpad、lid、key:鍵 |
 | `kid-web` | flip、inspect（可帶 tap 示範點擊）、check（有狀態；兒童網頁課的積木網頁：正面卡通網頁、背面積木，props：title、blocks、view；兒童版播放器 web/src/kids/KidsPlayer.tsx 播放，子腳本與 guide 說明框見該檔開頭） | window、page、stack、stars、part:標籤、block:標籤 |
+| `kid-mail` | type、send、reply、open、go（一次做完前四步）、edit、reload、check（有狀態；兒童網頁課 0.3「網頁是一封信」：左邊瀏覽器、右邊伺服器，信封沿著路來回；props：sites、url） | window、browser、addressbar、go、reload、page、server、road、letter、bookmark:網站、site:網站、part:標籤 |
 
 **`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。
 
@@ -232,7 +233,8 @@ export default defineActor({
 - **位置** `place`：`window`（預設）、`full`、`left`、`right`、`center`，或 `{ x, y, w, h }`（1920×1080 的 px 或百分比，`h` 可省略）。
 - **演員的動作**交給演員表中會這個動作的演員；演員表裡有多個演員都會時（例如兩個 `claude-desktop`），必須加 `"on": "代號"`，否則載入時報錯。
 - **舞台的動作**：`card`、`callout`、`show`、`hide`、`move`（移到新位置）、`checkpoint`、`wait`、`parts`（切換區塊顯示）。
-- **每一步都能加**：`narration`、`chapter`、`lessonStep`、`ms`、`pause`、`focus`。
+- **每一步都能加**：`narration`、`chapter`、`lessonStep`、`ms`、`pause`、`focus`、`selectable`。
+- **選取文字**：舞台上的文字預設不能用滑鼠選取。某一步寫 `"selectable": true` 後，從那一步開始可以選取，直到另一步寫 `"selectable": false`；播放中由外殼的手勢層接收點擊，暫停時才選得到。
 - **目標**寫成「演員代號:目標名稱」，例如 `claude:ask`；只寫代號表示整個演員。
 - **字幕**：旁白由 `kit.splitCaption` 切成單行、每條不超過約 24 個字，按字數分配時間，寫旁白不用自己斷句。
 - **旁白長度**：一段旁白到下一段旁白（或練習點）之前的時間不夠時，帶旁白的 `card`／`callout`／`show` 會自己延長，其他情況則補在最後一步之後。
@@ -643,7 +645,8 @@ packs/<name>/
 - `place`(與 `move.to`)可以寫成 `{ "landscape": <原本的寫法>, "portrait": <原本的寫法> }`;沒有指定方向的值兩種方向共用,只寫一個方向時另一個方向沿用它。語意名稱在直式自動換算:window = 留邊的滿版(1000×1560)、full = 滿版、left = 上半部、right = 下半部、center = 垂直置中;百分比相對於該方向的畫布。
 - 字卡、說明框、聚光燈、滑鼠:`.live-stage.portrait`(stage.css)調整基準字級 `--u`(24px)、字卡寬度與字級、說明框最大寬度;橫式不受影響。字幕在直式可折行(shell.css 的 `.vp-portrait`)。
 - 鏡頭(camera.ts):演算法不變,只把「目標下緣的安全線」依舞台寬高決定(`safeBottomOf`:橫式 68%、直式 84%);其餘(倍率上限、不露出空白)本來就用舞台實際寬高。
-- 直式互動課程頁:`/courses/tools/intro?aspect=portrait`(第 0、1、2 課同理,`?aspect=` 由 `studio/interactive/portrait.ts` 解析)。視窗 ≤820px 時課程章節與步驟側欄改成底部抽屜(收合 56px 把手、展開 55dvh;播到互動點自動展開並只顯示提問與選項,回答後收合);>820px 維持右側浮動面板、舞台 9:16 置中。工具列有「橫/直」切換鈕(切換時暫停、保留時間與已作答內容)。序章的 `0.intro.json` 已補 `{landscape,portrait}` 位置;第 0、1、2 課還沒補,直式下沿用橫式位置,版面不佳。
+- 手機直拿(視窗寬度 ≤600px 且直拿,`site/useAutoAspect.ts`)時,互動課程頁、首頁的嵌入播放器與一般課程頁的 `LivePlayer` 都自動用直式;網址的 `?aspect=portrait|landscape` 優先,「橫/直」切換鈕在手機上選橫式會寫成 `?aspect=landscape`。兒童課的 `KidsPlayer` 也一樣(舞台尺寸依方向,轉向時重建、主腳本從原本的時間接著;子腳本會收起來)。兒童課腳本的直式位置避開上方指引與下方大按鈕(`{ x: 40, y: 260, w: 1000, h: 1260 }`);`kid-web` 在直的外框裡加寬、分開時改成上下排,`kid-tree` 用容器查詢改成網頁在上、樹在下。
+- 直式互動課程頁:`/courses/tools/intro?aspect=portrait`(第 0、1、2 課同理,`?aspect=` 由 `studio/interactive/portrait.ts` 解析)。視窗 ≤820px 時課程章節與步驟側欄改成底部抽屜(收合 56px 把手、展開 55dvh;播到互動點自動展開並只顯示提問與選項,回答後收合);>820px 維持右側浮動面板、舞台 9:16 置中。工具列有「橫/直」切換鈕(切換時暫停、保留時間與已作答內容)。序章的 `0.intro.json` 改用調度(見「調度」一節);第 0、1、2 課還沒補,直式下沿用橫式位置,版面不佳。
 - 看直式:`/materials/promo?script=promo/portrait-demo.json&aspect=portrait`;`script` 可以是 `src/content/live/` 底下任何腳本(例如 `l0/0.2-site.json`);`&record=1` 輸出舞台、`npm run record:live -- promo/portrait-demo.json --aspect portrait` 輸出 1080×1920 的 mp4。
 
 **逐演員觀察**(各演員原樣放進直式槽,槽尺寸 1000×1400、1000×700、500×700;演員程式這次沒有改):
@@ -662,3 +665,18 @@ packs/<name>/
 沒有任何演員完全不能用(都沒有崩壞或消失),主要問題是「版面是橫式的比例,直式槽下留白多、字相對太小」與「窄槽(500)被切掉或折行」。字小的問題與基準字級 `--u` 無關(演員多用自己的 px 字級),要在演員內依槽寬換算。
 
 **橫式與直式的差別提醒**:語意名稱 `right`(橫式 h 依內容)在直式換成固定高度的下半部,依內容高度的演員(finder、person)在 `right` 直式下不再是內容高。
+
+## 調度(試做)
+
+目的:直式舞台放不下兩位演員並排,改成共用同一塊位置、輪流到前景(電影的「場面調度 / blocking」)。程式在 `blocking.ts`(純函式,有單元測試),舞台在 `stage.ts` 套用;試做腳本 `content/live/lab/blocking-demo.json`,在研發基地「開發 → 直式舞台」的試做播放。
+
+- 腳本頂層 `"blocking": { "cast": ["claude", "browser"], "shot": "depth", "auto": true }`:`cast` 是參與調度的演員(一開始由前到後),通常放在同一個 `place`。
+- 構圖 `shot`:`depth` 縱深構圖(staging in depth:前景完整;後景縮小、變暗、失焦,直式從上緣、橫式從左側露出一截)、`pip` 子母畫面(picture-in-picture,後景縮成角落的小畫面疊在前景上)、`single` 單人鏡頭(只看得到前景)。
+- `auto`(預設 true):演員動作與 `show` 的那位自動換到前景,順序像視窗一樣「最近用過的在前」。步驟可加 `"foreground": "代號"`(手動指定)、`"shot"`(換構圖)、`"transition": "cut"`(切;預設 `rack` 轉焦,約 0.9 秒)。
+- 輪替和鏡頭一樣在動作開始前完成(演員動作預留 `BLOCK_MS`,與鏡頭的預留取大的、同時進行);舞台自己的動作(章節卡、`wait`)不預留。
+- 用詞依電影與轉播的說法:調度 blocking、演員表 cast、構圖 shot、前景 foreground、轉焦 rack、切 cut、預捲 preroll;舞台每個時間點的站位叫 mark(`markOf`、`blockingAt`),排好時間的提示點叫 cue(`BlockCue`,和鏡頭的 `CameraCue` 對應)。
+- 調度只改演員外框的 `transform`(以左上角為原點的位移與縮放)、`filter`(亮度、失焦、陰影)、`z-index` 與透明度,演員程式不用改、內容等比例縮小而不重排。鏡頭、聚光燈、虛擬滑鼠量位置時(`rectOf`)會把外框的位移與縮放換算進去。
+- 兩種方向可以分開寫 `"blocking": { "portrait": { … } }`,沒寫的方向不調度。課程腳本兩種方向都用調度,參與調度的演員都放在 `window`:`l0/0.intro.json`、`l0/0.0-tools.json`(claude、finder)、`l0/0.1-project.json`(claude、finder)、`l0/0.2-site.json`(claude、browser)、`web/0.2.json`(editor、web)。原本橫式的左右並排與 `move` 都拿掉了。只有一位演員的課(`web/0.1.json`、兒童課)不需要調度。
+- 退場的演員排到最後,前後順序只算看得到的演員,所以一份 `cast` 可以放好幾段場景的演員(序章五段場景共用一份)。加了調度的腳本,時間軸會因為輪替預留的時間變長一點(旁白與字幕跟著排)。
+- 已知問題:`pip` 的小畫面固定在右下角,會蓋住前景的右下角(claude-desktop 的送出鈕、瀏覽器的內容);小畫面裡的字太小看不清,只是讓學員知道它還在。三位以上演員只做了簡單的往後疊。
+

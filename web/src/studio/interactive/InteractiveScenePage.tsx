@@ -11,6 +11,7 @@ import { useCopy } from '../../site/useCopy'
 import { ActorPush } from './ActorPush'
 import { StaticActor } from './StaticActor'
 import { answerLabel, answersOnActor, expandAnswers, INTERACTIVE_ICON, momentsOf, withoutAnswer, type Answer, type Answers, type Moment } from './scene'
+import { useAutoAspect } from '../../site/useAutoAspect'
 import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer, withAspect } from './portrait'
 import styles from './InteractiveScenePage.module.css'
 
@@ -79,7 +80,9 @@ function useNarrow(): boolean {
 
 export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course, back, embed, shrinkSlot }: Props) {
   const [params, setParams] = useSearchParams()
-  const aspect: Aspect = embed ? 'landscape' : parseAspect(params.get('aspect'))
+  // 手機直拿自動用直式;網址的 ?aspect= 優先(首頁的嵌入播放器不看網址,只看裝置)
+  const auto = useAutoAspect()
+  const aspect: Aspect = embed ? auto : parseAspect(params.get('aspect'), auto)
   const narrow = useNarrow()
   const drawer = !embed && usesDrawer(aspect, narrow)
   /** 重建播放器(切換橫/直)時帶著目前的播放時間 */
@@ -267,7 +270,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
   const toggleAspect = () => {
     carry.current = ctrl.current?.shell.time ?? 0
-    setParams(withAspect(params, aspect === 'portrait' ? 'landscape' : 'portrait'), { replace: true })
+    setParams(withAspect(params, aspect === 'portrait' ? 'landscape' : 'portrait', auto), { replace: true })
   }
 
   // 焦點移到問題標題(不是選項):習慣按空白鍵暫停的人才不會誤選答案
@@ -350,7 +353,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
   if (embed) {
     return (
-      <div ref={pageRef} data-expanded={expanded || undefined} className={[styles.embed, interaction === 'stage' && styles.pushable, current && styles.atMoment].filter(Boolean).join(' ')} lang="zh-Hant">
+      <div ref={pageRef} data-expanded={expanded || undefined} className={[styles.embed, interaction === 'stage' && styles.pushable, current && styles.atMoment, aspect === 'portrait' && styles.embedPortrait].filter(Boolean).join(' ')} lang="zh-Hant">
         <div className={styles.embedFrame}>
           <div ref={boxRef} className={styles.embedBox} />
           {staticActor}

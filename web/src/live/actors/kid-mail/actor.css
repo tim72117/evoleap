@@ -1,0 +1,104 @@
+/* 演員 kid-mail:兒童網頁課 0.3「網頁是一封信」。選擇器都以 .A-kid-mail 開頭。
+   動畫一律由 actor.ts 依時間設定 style 與 data-*,這裡不用 animation/transition(SPEC 第 1 節)。
+   配色、粗黑框和 kid-web 一致(尺寸是 1920 寬舞台的 px)。 */
+.A-kid-mail {
+  position: relative;
+  width: 100%; height: 100%;
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: 28px;
+  line-height: 1.4;
+  color: #2b2620;
+}
+.A-kid-mail *, .A-kid-mail *::before, .A-kid-mail *::after { box-sizing: border-box; }
+
+/* ── 版面:橫式左右排,直式上下排 ── */
+.A-kid-mail .km-pane { position: absolute; display: flex; flex-direction: column; }
+.A-kid-mail .km-browser { left: 0; top: 0; width: 46%; height: 100%; }
+.A-kid-mail .km-server { right: 0; top: 0; width: 30%; height: 100%; }
+.A-kid-mail[data-tall='true'] .km-browser { width: 100%; height: 50%; }
+.A-kid-mail[data-tall='true'] .km-server { left: 4%; right: auto; top: 70%; width: 92%; height: 30%; }
+
+.A-kid-mail .km-label { margin: 0 0 14px; font-size: 32px; font-weight: 900; }
+
+/* 中間的路:虛線 */
+.A-kid-mail .km-road { position: absolute; left: 47%; right: 31%; top: 34%; height: 0; }
+.A-kid-mail .km-road i { position: absolute; left: 0; right: 0; top: 0; border-top: 8px dashed #c9b89a; }
+.A-kid-mail[data-tall='true'] .km-road { left: 50%; right: auto; top: 52%; width: 0; height: 16%; }
+.A-kid-mail[data-tall='true'] .km-road i { left: 0; top: 0; bottom: 0; border-top: 0; border-left: 8px dashed #c9b89a; }
+
+/* ── 瀏覽器 ── */
+.A-kid-mail .km-win {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  border: 6px solid #2b2620; border-radius: 30px; overflow: hidden;
+  background: #fffaf0; box-shadow: 0 12px 0 #2b2620;
+}
+.A-kid-mail .km-bar { display: flex; align-items: center; gap: 16px; padding: 14px 20px; background: #ffe7c2; border-bottom: 6px solid #2b2620; }
+.A-kid-mail .km-lights { display: flex; gap: 8px; }
+.A-kid-mail .km-lights i { width: 20px; height: 20px; border-radius: 50%; border: 4px solid #2b2620; background: #f26b5b; }
+.A-kid-mail .km-lights i:nth-child(2) { background: #f7c548; }
+.A-kid-mail .km-lights i:nth-child(3) { background: #5cc477; }
+.A-kid-mail .km-reload { display: inline-grid; place-items: center; width: 52px; height: 52px; border: 4px solid #2b2620; border-radius: 50%; background: #fff; font-size: 32px; font-weight: 900; }
+.A-kid-mail .km-url {
+  flex: 1; min-width: 0; display: flex; align-items: center; height: 56px;
+  background: #fff; border: 4px solid #2b2620; border-radius: 999px; padding: 0 22px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 28px; font-weight: 700;
+  white-space: nowrap; overflow: hidden;
+}
+.A-kid-mail .km-url s { display: inline-block; width: 4px; height: 34px; margin-left: 2px; background: #2b2620; text-decoration: none; }
+.A-kid-mail .km-go { padding: 8px 20px; border: 4px solid #2b2620; border-radius: 999px; background: #ff9fb7; font-size: 26px; font-weight: 900; box-shadow: 0 4px 0 #2b2620; white-space: nowrap; }
+
+/* 書籤列:可以點的網站 */
+.A-kid-mail .km-marks { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 20px; border-bottom: 4px dashed #e4d6bc; }
+.A-kid-mail .km-mark { padding: 4px 18px; border: 4px solid #2b2620; border-radius: 999px; background: #fff; font-size: 24px; font-weight: 800; }
+.A-kid-mail .km-mark[data-on='true'] { background: #ffd84d; }
+
+/* 網頁 */
+.A-kid-mail .km-page { --photo: #ffe3b3; position: relative; flex: 1; min-height: 0; padding: 22px 24px; }
+.A-kid-mail .km-empty { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; font-size: 34px; font-weight: 800; color: #8a7d6b; }
+.A-kid-mail .km-empty:empty { display: none; }
+.A-kid-mail .km-site { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.A-kid-mail .km-site[data-show='false'] { display: none; }
+.A-kid-mail .km-part { position: relative; text-align: center; }
+.A-kid-mail .km-part > em { position: absolute; right: -44px; top: 50%; translate: 0 -50%; font-style: normal; font-size: 30px; display: none; }
+.A-kid-mail .km-part[data-edited='true'] > em { display: block; }
+.A-kid-mail .km-part[data-edited='true'] > span { background: #fff3a6; border-radius: 10px; }
+.A-kid-mail .km-part[data-tag='h1'] span { font-size: 54px; font-weight: 900; letter-spacing: 0.04em; padding: 0 10px; }
+.A-kid-mail .km-part[data-tag='img'] span { display: block; font-size: 96px; line-height: 1.1; background: var(--photo); border: 6px solid #2b2620; border-radius: 30px; padding: 6px 44px; }
+.A-kid-mail .km-part[data-tag='p'] span { font-size: 30px; padding: 0 10px; }
+.A-kid-mail .km-part[data-tag='button'] span { display: inline-block; background: #ff9fb7; border: 6px solid #2b2620; border-radius: 999px; padding: 8px 36px; font-size: 30px; font-weight: 800; box-shadow: 0 6px 0 #2b2620; }
+
+/* ── 伺服器:一個放網頁的櫃子 ── */
+.A-kid-mail .km-shelf {
+  position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 18px;
+  padding: 24px; border: 6px solid #2b2620; border-radius: 30px; background: #e8eefc; box-shadow: 0 12px 0 #2b2620;
+}
+/* 直式:三封網頁橫排在櫃子裡,櫃子留出明顯的邊(和橫式一樣看得出是一台伺服器) */
+.A-kid-mail[data-tall='true'] .km-shelf { flex-direction: row; align-items: center; gap: 16px; padding: 26px 28px 40px; }
+.A-kid-mail .km-file {
+  display: flex; align-items: center; gap: 16px; padding: 12px 18px;
+  border: 4px solid #2b2620; border-radius: 18px; background: #fff;
+}
+.A-kid-mail[data-tall='true'] .km-file { flex: 1; flex-direction: column; gap: 2px; padding: 10px 6px; text-align: center; }
+.A-kid-mail[data-tall='true'] .km-file-emoji { font-size: 44px; }
+.A-kid-mail[data-tall='true'] .km-file-text strong { font-size: 26px; }
+.A-kid-mail[data-tall='true'] .km-file-text small { font-size: 17px; }
+.A-kid-mail[data-tall='true'] .km-miss { bottom: 6px; font-size: 22px; }
+.A-kid-mail .km-file[data-on='true'] { background: #ffd84d; box-shadow: 0 0 0 12px rgba(255, 216, 77, 0.45); }
+.A-kid-mail .km-file-emoji { font-size: 54px; line-height: 1; }
+.A-kid-mail .km-file-text { display: flex; flex-direction: column; }
+.A-kid-mail .km-file-text strong { font-size: 30px; }
+.A-kid-mail .km-file-text small { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 20px; color: #6b6156; }
+.A-kid-mail .km-miss { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; margin: 0; padding: 6px 22px; border-radius: 999px; background: #e0453a; color: #fff; font-size: 26px; font-weight: 900; white-space: nowrap; display: none; }
+.A-kid-mail .km-miss[data-show='true'] { display: block; }
+
+/* ── 信封 ── */
+.A-kid-mail .km-letter { position: absolute; z-index: 3; translate: -50% -50%; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; }
+.A-kid-mail .km-letter[data-show='false'] { display: none; }
+.A-kid-mail .km-env { font-size: 110px; line-height: 1; filter: drop-shadow(0 6px 0 rgba(43, 38, 32, 0.35)); }
+.A-kid-mail .km-note { padding: 6px 18px; border: 4px solid #2b2620; border-radius: 16px; background: #fff; font-size: 24px; font-weight: 800; white-space: nowrap; }
+.A-kid-mail .km-letter[data-dir='back'] .km-note { background: #d6f2c9; }
+.A-kid-mail .km-letter[data-miss='true'] .km-note { background: #f9d0cc; }
+
+/* ── 回答題目 ── */
+.A-kid-mail [data-verdict='right'] { outline: 10px solid #3fae5a; outline-offset: 6px; border-radius: 30px; }
+.A-kid-mail [data-verdict='wrong'] { outline: 10px solid #e0453a; outline-offset: 6px; border-radius: 30px; }

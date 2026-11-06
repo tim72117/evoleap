@@ -12,12 +12,14 @@ import { WebBasicsPage } from './WebBasicsPage'
 import { KidsLesson01Page } from '../kids/KidsLesson01Page'
 import { KidsLesson01LivePage } from '../kids/KidsLesson01LivePage'
 import { KidsLesson02LivePage } from '../kids/KidsLesson02LivePage'
+import { KidsLesson03LivePage } from '../kids/KidsLesson03LivePage'
 import { KidsXrayLivePage } from '../kids/KidsXrayLivePage'
 import { L1IdeasPage } from './L1IdeasPage'
 import { LifeToolsPage } from './LifeToolsPage'
 import { McpPage } from './McpPage'
 import { MemberPage } from './MemberPage'
 import { NewsFeedPage } from './NewsFeedPage'
+import { PortraitPage } from './PortraitPage'
 import { DocsPage } from './DocsPage'
 import { ProposalIndexPage } from './ProposalIndexPage'
 import { ResourcesPage } from './ResourcesPage'
@@ -28,7 +30,7 @@ import { VibeCodingPage } from './VibeCodingPage'
 import { VisualsPage } from './VisualsPage'
 
 // 依課程地圖（src/content/levels.ts 的 LEVELS）分等級：
-// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced；跨等級構想 mcp、member、resources、news-feed、ai-tips、visuals、actor-interaction（演員互動：構想、showcase 演員展示、scene 互動教學場景、push 把演員推到主畫面、static 靜態演員）。
+// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced，再接不分等級的課程 ai-tips、kids-web、web-basics；開發 visuals、portrait(直式舞台)、actor-interaction（演員互動：構想、showcase 演員展示、scene 互動教學場景、push 把演員推到主畫面、static 靜態演員）；跨等級構想 mcp、member、resources、news-feed。
 export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio', element: <ProposalIndexPage /> },
   { path: '/studio/todo', element: <TodoPage /> },
@@ -62,6 +64,8 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/kids-web/0-1', element: <KidsLesson01Page /> },
   { path: '/studio/kids-web/0-1/live', element: <KidsLesson01LivePage /> },
   { path: '/studio/kids-web/0-2/live', element: <KidsLesson02LivePage /> },
+  { path: '/studio/kids-web/0-3/live', element: <KidsLesson03LivePage /> },
   { path: '/studio/kids-web/xray', element: <KidsXrayLivePage /> },
   { path: '/studio/visuals', element: <VisualsPage /> },
+  { path: '/studio/portrait', element: <PortraitPage /> },
 ]

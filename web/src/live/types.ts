@@ -37,9 +37,17 @@ export type CommonStepFields = {
   ms?: number
   /** 這一步之後的停頓(預設 250) */
   pause?: number
+  /** 從這一步開始,學員能不能用滑鼠選取舞台上的文字(預設不能) */
+  selectable?: boolean
   focus?: FocusSpec
   /** 有多個演員都會這個動作時,指定由誰演 */
   on?: string
+  /** 調度(頂層有 blocking 時):換到前景的演員 */
+  foreground?: string
+  /** 調度:換構圖 */
+  shot?: 'depth' | 'pip' | 'single'
+  /** 調度:這次輪替的轉場,預設 rack(轉焦) */
+  transition?: 'rack' | 'cut'
 }
 
 /** 舞台自己的動作 */
@@ -61,11 +69,16 @@ export type StageStepOf<K extends StageKind> = Extract<StageStep, Record<K, unkn
 export type ActorStepLoose = CommonStepFields & { [action: string]: unknown }
 export type ScriptStep = StageStep | ActorStepLoose
 
+/** 調度的設定(見 blocking.ts) */
+export type BlockingSpecJson = { cast: string[]; shot?: 'depth' | 'pip' | 'single'; auto?: boolean }
+
 /** 舞台腳本(JSON) */
 export interface StageScript {
   title: string
   lesson?: string
   camera?: 'auto'
+  /** 調度:幾位演員共用一塊位置時的前後景輪替(見 blocking.ts) */
+  blocking?: BlockingSpecJson | { landscape?: BlockingSpecJson; portrait?: BlockingSpecJson }
   cast: Record<string, CastEntry>
   steps: ScriptStep[]
 }

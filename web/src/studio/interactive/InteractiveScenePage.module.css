@@ -85,6 +85,12 @@
   background: #e9e5dc;
 }
 
+/* 手機直拿時嵌入的播放器也是直式舞台(9:16),停在互動點時也不用再加高 */
+.embed.embedPortrait .embedBox,
+.embed.embedPortrait.atMoment .embedBox {
+  aspect-ratio: 9 / 16;
+}
+
 .embedBox :global(.vp) {
   height: 100%;
   aspect-ratio: auto;

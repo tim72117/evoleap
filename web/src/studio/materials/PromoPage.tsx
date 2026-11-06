@@ -176,7 +176,7 @@ function ScriptList({ selected, aspect, onSelect }: { selected: string | null; a
 }
 
 /** 完整播放器外殼:旁白語音與章節音軌照 courses/LivePlayer.tsx,但不記進度、不用登入狀態 */
-function PromoPlayer({ script, aspect }: { script: string; aspect: Aspect }) {
+export function PromoPlayer({ script, aspect }: { script: string; aspect: Aspect }) {
   const boxRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string | null>(null)
 

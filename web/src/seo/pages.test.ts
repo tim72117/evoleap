@@ -79,6 +79,7 @@ describe('兒童課(給孩子的網頁程式)', () => {
     const list = topic.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { name: string; url?: string }[] }
     expect(list.itemListElement.find((x) => x.name.startsWith('0.1'))?.url).toBe(absoluteUrl('/topics/kids/0-1'))
     expect(list.itemListElement.find((x) => x.name.startsWith('0.2'))?.url).toBe(absoluteUrl('/topics/kids/0-2'))
+    expect(list.itemListElement.find((x) => x.name.startsWith('0.3'))?.url).toBe(absoluteUrl('/topics/kids/0-3'))
     // 還在規劃中的課沒有網址
     expect(list.itemListElement.find((x) => x.name.startsWith('1.1'))?.url).toBeUndefined()
     expect(JSON.stringify(lesson.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))).toContain('/topics/kids')

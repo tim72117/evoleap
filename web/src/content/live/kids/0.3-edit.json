@@ -1,0 +1,121 @@
+{
+  "title": "換你改改看",
+  "lesson": "兒童網頁課 · 0.3 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "kid-mail",
+      "props": {},
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "go": "cat",
+      "ms": 2000
+    },
+    {
+      "wait": 400,
+      "narration": "換你了！點網頁上的字，幫它換一個新的。改完再按左上角的重新整理。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點網頁上的字，幫它換一個新的",
+    "body": "改完按左上角的 ↻ 重新整理看看",
+    "spots": [
+      {
+        "target": "kid:part:h1",
+        "id": "h1",
+        "label": "網頁上的標題",
+        "steps": [
+          {
+            "edit": "h1",
+            "text": "我的超級網頁",
+            "narration": "標題變成我的超級網頁了！"
+          }
+        ],
+        "again": [
+          {
+            "edit": "h1",
+            "text": "大明和小花的家",
+            "narration": "再換一個，變成大明和小花的家。"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:p",
+        "id": "p",
+        "label": "網頁上的那段文字",
+        "steps": [
+          {
+            "edit": "p",
+            "text": "小花今天吃了三碗飯。",
+            "narration": "這段話變成小花今天吃了三碗飯。"
+          }
+        ],
+        "again": [
+          {
+            "edit": "p",
+            "text": "小花最喜歡追蝴蝶。",
+            "narration": "又換了一句：小花最喜歡追蝴蝶。"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:button",
+        "id": "button",
+        "label": "網頁上的按鈕",
+        "steps": [
+          {
+            "edit": "button",
+            "text": "跟小花玩",
+            "narration": "按鈕變成跟小花玩了！"
+          }
+        ],
+        "again": [
+          {
+            "edit": "button",
+            "text": "餵小花吃飯",
+            "narration": "按鈕又變成餵小花吃飯。"
+          }
+        ]
+      },
+      {
+        "target": "kid:reload",
+        "id": "reload",
+        "label": "重新整理",
+        "steps": [
+          {
+            "reload": true,
+            "narration": "重新整理，瀏覽器又去伺服器拿了一次網頁，全部變回原本的樣子！"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "undone",
+      "atLeast": 1
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "看到了嗎？你改的只是自己電腦裡的那一份，伺服器上的沒有變。"
+        }
+      ]
+    }
+  }
+}

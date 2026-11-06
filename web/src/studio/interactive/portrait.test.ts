@@ -10,6 +10,12 @@ describe('parseAspect', () => {
     expect(parseAspect('Portrait')).toBe('landscape')
     expect(parseAspect('')).toBe('landscape')
   })
+  it('網址沒寫時用裝置的方向(手機直拿是直式);網址寫了就照網址', () => {
+    expect(parseAspect(null, 'portrait')).toBe('portrait')
+    expect(parseAspect('nope', 'portrait')).toBe('portrait')
+    expect(parseAspect('landscape', 'portrait')).toBe('landscape')
+    expect(parseAspect('portrait', 'landscape')).toBe('portrait')
+  })
 })
 
 describe('withAspect', () => {
@@ -18,6 +24,10 @@ describe('withAspect', () => {
     expect(withAspect(new URLSearchParams('aspect=portrait'), 'landscape').toString()).toBe('')
     expect(withAspect(new URLSearchParams('a=1&aspect=portrait'), 'landscape').toString()).toBe('a=1')
     expect(withAspect(new URLSearchParams('a=1'), 'portrait').toString()).toBe('a=1&aspect=portrait')
+  })
+  it('和裝置方向一樣就不寫進網址;手機上選橫式要寫 aspect=landscape', () => {
+    expect(withAspect(new URLSearchParams(''), 'landscape', 'portrait').toString()).toBe('aspect=landscape')
+    expect(withAspect(new URLSearchParams('aspect=landscape'), 'portrait', 'portrait').toString()).toBe('')
   })
   it('不改動傳入的物件', () => {
     const p = new URLSearchParams('aspect=portrait')

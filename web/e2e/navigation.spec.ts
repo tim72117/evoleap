@@ -2,7 +2,7 @@
 // 前端換頁後 <title> 與 canonical 要和 server 預先產生的 HTML 一致;
 // 每個公開頁與主要內部頁開啟時沒有 console error / 例外 / 失敗的請求。
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
-import { collectErrors, distSitemapPaths, ORIGIN, parseHead, loginAsNewStudent } from './support'
+import { collectErrors, distSitemapPaths, ensureLandscape, landscape, ORIGIN, parseHead, loginAsNewStudent } from './support'
 
 /** server 回傳的(預先產生的)HTML 裡的 <title> */
 async function serverTitle(request: APIRequestContext, path: string): Promise<string> {
@@ -44,7 +44,9 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
   await expectHeadMatches(page, request, '/courses/tools/1')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('認識專案：工作目錄與檔案操作')
 
-  // 下一課
+  // 下一課(手機直拿時課程進度在底部抽屜,先打開)
+  const drawer = page.locator('button[aria-expanded="false"]').filter({ hasText: /\d+\/\d+|課程進度/ })
+  if (await drawer.count()) await drawer.click()
   await page.getByRole('navigation', { name: '上一課與下一課' }).getByRole('link', { name: /下一課/ }).click()
   await expectHeadMatches(page, request, '/courses/tools/2')
 
@@ -284,6 +286,73 @@ test('直接開啟不存在的網址:404 狀態且畫面顯示找不到頁面', 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('找不到頁面')
 })
 
+test('研發基地:AI 工具技巧與兒童網頁課在「課程」,直式舞台在「開發」', async ({ page }) => {
+  await page.goto('/studio/ai-tips')
+  const sub = page.getByRole('navigation', { name: '課程頁面' })
+  await expect(sub.getByRole('link', { name: '兒童網頁課' })).toHaveAttribute('href', '/studio/kids-web')
+  await expect(sub.getByRole('link', { name: '網頁運作知識' })).toHaveAttribute('href', '/studio/web-basics')
+  // 「做出自己的軟體」的 L0–L4 框成一組
+  // 預設收合(不在這一組的頁面時一課都不顯示),按群組名稱展開
+  const series = sub.getByRole('group', { name: '做出自己的軟體' })
+  await expect(series.getByRole('link')).toHaveCount(0)
+  await series.getByRole('button', { name: /做出自己的軟體/ }).click()
+  await expect(series.getByRole('button', { name: /做出自己的軟體/ })).toHaveAttribute('aria-expanded', 'true')
+  await expect(series.getByRole('link')).toHaveCount(5)
+  await expect(series.getByRole('link', { name: '兒童網頁課' })).toHaveCount(0)
+  await page.goto('/studio/portrait')
+  await expect(page.locator('h1')).toContainText('直式舞台')
+  const dev = page.getByRole('navigation', { name: '開發頁面' })
+  await expect(dev.getByRole('link', { name: '直式舞台' })).toHaveAttribute('aria-current', 'page')
+  await expect(dev.getByRole('link', { name: '演員互動' })).toBeVisible()
+  await expect(dev.getByRole('link', { name: '即時教學影像' })).toBeVisible()
+  await page.getByRole('navigation', { name: '研發基地' }).getByRole('link', { name: '構想' }).click()
+  const ideas = page.getByRole('navigation', { name: '構想頁面' })
+  await expect(ideas.getByRole('link', { name: '直式舞台' })).toHaveCount(0)
+  await expect(ideas.getByRole('link', { name: 'AI 工具技巧' })).toHaveCount(0)
+  await expect(ideas.getByRole('link', { name: '兒童網頁課' })).toHaveCount(0)
+})
+
+test('直式舞台:試做按下才載入,可換腳本與方向', async ({ page }) => {
+  const errors = collectErrors(page)
+  await page.goto('/studio/portrait')
+  const player = page.getByTestId('promo-player')
+  await expect(player).toHaveCount(0)
+  await page.getByRole('button', { name: '▶ 載入直式試做' }).click()
+  await expect(player).toHaveAttribute('data-aspect', 'portrait')
+  await expect(player.locator('.live-stage')).toBeVisible({ timeout: 15_000 })
+  await page.getByRole('group', { name: '試做腳本' }).getByRole('button', { name: /序章/ }).click()
+  await page.getByRole('group', { name: '舞台方向' }).getByRole('button', { name: '橫式 16:9' }).click()
+  await expect(player).toHaveAttribute('data-aspect', 'landscape')
+  await expect(player.locator('.live-stage')).toBeVisible({ timeout: 15_000 })
+  expect(errors).toEqual([])
+})
+
+test('直式舞台:調度試做,演員動作時輪到前景,後景變小、失焦', async ({ page }) => {
+  const errors = collectErrors(page)
+  await page.goto('/studio/portrait')
+  await page.getByRole('button', { name: '▶ 載入直式試做' }).click()
+  await page.getByRole('group', { name: '試做腳本' }).getByRole('button', { name: '調度：前後景輪替' }).click()
+  await page.waitForFunction(() => window.__promoReady === true)
+  const zAt = (at: number) =>
+    page.evaluate((ms) => {
+      window.__promo!.renderAt(ms)
+      const z = (id: string) => {
+        const el = document.querySelector<HTMLElement>(`[data-testid=promo-player] .slot[data-cast="${id}"]`)!
+        return { z: Number(el.style.zIndex), filter: el.style.filter }
+      }
+      return { claude: z('claude'), browser: z('browser') }
+    }, at)
+  const at = (text: string) => page.evaluate((t) => window.__promo!.captions.find((c) => c.text.includes(t))!.from, text)
+  // 一開始 Claude 在前景;瀏覽器動作時換到前景,Claude 退到後面、失焦
+  const first = await zAt(await at('誰在動作'))
+  expect(first.claude.z).toBeGreaterThan(first.browser.z)
+  expect(first.browser.filter).toContain('blur')
+  const swapped = await zAt((await at('換瀏覽器動作')) + 1500)
+  expect(swapped.browser.z).toBeGreaterThan(swapped.claude.z)
+  expect(swapped.claude.filter).toContain('blur')
+  expect(errors).toEqual([])
+})
+
 test('AI 工具技巧:舞台示範按下才載入,可以播放分岔的腳本', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/studio/ai-tips')
@@ -296,11 +365,12 @@ test('AI 工具技巧:舞台示範按下才載入,可以播放分岔的腳本', 
 test('互動教學場景:回答後演員回應,回答加進時間軸,可以重新回答', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/studio')
-  await page.getByRole('link', { name: '構想' }).first().click()
+  await page.getByRole('link', { name: '開發' }).first().click()
   await page.getByRole('link', { name: '演員互動' }).first().click()
   await page.getByRole('navigation', { name: '演員互動頁面' }).getByRole('link', { name: '互動教學場景' }).click()
   await expect(page).toHaveURL('/studio/actor-interaction/scene')
   await expect(page.getByRole('link', { name: '← 演員互動' })).toHaveAttribute('href', '/studio/actor-interaction')
+  await ensureLandscape(page)
 
   // 從步驟清單跳到第一個互動點
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
@@ -323,7 +393,7 @@ test('互動教學場景:回答後演員回應,回答加進時間軸,可以重�
 
 test('靜態演員:互動時影片停止,演員畫在舞台外且不受舞台縮放,回答後收起', async ({ page }) => {
   const errors = collectErrors(page)
-  await page.goto('/studio/actor-interaction/static')
+  await page.goto(landscape('/studio/actor-interaction/static'))
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
   await expect(page.getByTestId('static-actor')).toHaveCount(0)
   await panel.getByRole('button', { name: /你要送出哪一句/ }).click()
@@ -361,11 +431,12 @@ test('靜態演員:直式窄視窗播到互動點時,抽屜不展開,不擋住�
 
 test('把演員推到主畫面:側欄讓開,直接在 Claude 上選指令與按允許,側欄維持章節與步驟', async ({ page }) => {
   const errors = collectErrors(page)
-  // 在構想「演員互動」底下,返回也回到那裡
+  // 在開發「演員互動」底下,返回也回到那裡
   await page.goto('/studio/actor-interaction')
   await page.getByRole('navigation', { name: '演員互動頁面' }).getByRole('link', { name: '把演員推到主畫面' }).click()
   await expect(page).toHaveURL('/studio/actor-interaction/push')
   await expect(page.getByRole('link', { name: '← 演員互動' })).toHaveAttribute('href', '/studio/actor-interaction')
+  await ensureLandscape(page)
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
 
   await panel.getByRole('button', { name: /你要送出哪一句/ }).click()
@@ -387,7 +458,7 @@ test('L0 第 0 課是互動版:用原本的腳本,在 Claude 上回答後接著�
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
-  await page.goto('/courses/tools/0')
+  await page.goto(landscape('/courses/tools/0'))
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
   // 原本的章節都在
   await expect(panel.getByRole('button', { name: /安裝並登入/ })).toBeVisible()
@@ -410,7 +481,7 @@ test('L0 第 1 課是互動版:選錯路徑時 Claude 會提醒,接著回到正�
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
-  await page.goto('/courses/tools/1')
+  await page.goto(landscape('/courses/tools/1'))
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
   await expect(panel.getByRole('button', { name: /建立專案資料夾/ })).toBeVisible()
   await expect(panel.getByText('目前的工作目錄是哪裡？', { exact: true })).toBeVisible()
@@ -426,7 +497,7 @@ test('L0 第 2 課是互動版:播到響應式的互動點會停下,選手機後
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
-  await page.goto('/courses/tools/2')
+  await page.goto(landscape('/courses/tools/2'))
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
   await expect(page.locator('.vp')).toBeVisible()
   await expect(panel.getByRole('button', { name: /商品卡片的排列/ })).toBeVisible({ timeout: 15000 })
@@ -455,9 +526,11 @@ const PAGES = [
   '/studio/todo',
   '/studio/kids-web',
   '/studio/web-basics',
+  '/studio/portrait',
   '/studio/kids-web/0-1',
   '/studio/kids-web/0-1/live',
   '/studio/kids-web/0-2/live',
+  '/studio/kids-web/0-3/live',
   '/studio/kids-web/xray',
   '/studio/docs',
   '/materials',

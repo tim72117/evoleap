@@ -2,6 +2,13 @@
   "title": "認識專案：工作目錄與檔案操作",
   "lesson": "L0 · 第 1 課",
   "camera": "auto",
+  "blocking": {
+    "cast": [
+      "claude",
+      "finder"
+    ],
+    "shot": "depth"
+  },
   "cast": {
     "claude": {
       "actor": "claude-desktop",
@@ -28,7 +35,7 @@
         },
         "open": "practice"
       },
-      "place": "right",
+      "place": "window",
       "hidden": true
     }
   },
