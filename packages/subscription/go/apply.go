@@ -127,6 +127,7 @@ func (s *Service) applyChanged(ctx context.Context, tx Tx, source Source, ev *Ev
 	next := cur
 	if fresh {
 		next = Subscription{
+			PriceID:          ev.PriceID,
 			Status:           ev.Status,
 			CurrentPeriodEnd: ev.CurrentPeriodEnd,
 			CancelAt:         ev.CancelAt,
@@ -134,7 +135,15 @@ func (s *Service) applyChanged(ctx context.Context, tx Tx, source Source, ev *Ev
 			LastEventAt:      &ev.OccurredAt,
 		}
 	}
-	// 晚到的事件不能改狀態,但可能補上之前缺的帳號與方案。
+	// 晚到的事件不能改狀態與方案,但可能補上之前缺的帳號與方案。
+	if !fresh {
+		if cur.Tier != "" {
+			tier = cur.Tier
+		}
+		if next.PriceID == "" {
+			next.PriceID = ev.PriceID
+		}
+	}
 	next.Source, next.ExternalID, next.UserID, next.Tier = source, ev.ExternalID, userID, tier
 	if ev.CustomerID != "" {
 		next.CustomerID = ev.CustomerID
@@ -187,7 +196,7 @@ func (s *Service) markDuplicate(ctx context.Context, tx Tx, cur Subscription, fo
 	return false, nil
 }
 
-// applyRevoked:全額退款或爭議款立即停權。退款不一定會結束金流商那邊的訂閱,所以也要取消。
+// applyRevoked:全額退款或爭議款立即停權。退款不一定會結束金流商那邊的訂閱,所以也要立刻取消。
 // 退款可能比訂閱事件先到,先留下已退款的紀錄,之後的事件只會補上帳號,不會讓它恢復。
 func (s *Service) applyRevoked(ctx context.Context, tx Tx, source Source, ev *Event) (Outcome, error) {
 	cur, _, err := tx.Subscription(ctx, source, ev.ExternalID)
@@ -204,7 +213,7 @@ func (s *Service) applyRevoked(ctx context.Context, tx Tx, source Source, ev *Ev
 	if err := tx.SaveSubscription(ctx, cur); err != nil {
 		return "", err
 	}
-	if err := tx.AddTask(ctx, Task{Source: source, ExternalID: ev.ExternalID, Kind: TaskCancel}, s.now()); err != nil {
+	if err := tx.AddTask(ctx, Task{Source: source, ExternalID: ev.ExternalID, Kind: TaskCancelNow}, s.now()); err != nil {
 		return "", err
 	}
 	return OutcomeApplied, nil
@@ -247,7 +256,7 @@ func (s *Service) applyPaid(ctx context.Context, tx Tx, source Source, ev *Event
 	return outcome, nil
 }
 
-// CancelUser 排入取消使用者的全部有效訂閱,刪除帳號前呼叫。訂閱與付款紀錄會保留,用來對帳與處理爭議。
+// CancelUser 排入立刻取消使用者的全部有效訂閱,刪除帳號前呼叫。訂閱與付款紀錄會保留,用來對帳與處理爭議。
 func (s *Service) CancelUser(ctx context.Context, userID string) error {
 	err := s.store.Transact(ctx, func(tx Tx) error {
 		if err := tx.Lock(ctx, "user:"+userID); err != nil {
@@ -261,7 +270,7 @@ func (s *Service) CancelUser(ctx context.Context, userID string) error {
 			if !grantsAccess(sub.Status) {
 				continue
 			}
-			if err := tx.AddTask(ctx, Task{Source: sub.Source, ExternalID: sub.ExternalID, Kind: TaskCancel}, s.now()); err != nil {
+			if err := tx.AddTask(ctx, Task{Source: sub.Source, ExternalID: sub.ExternalID, Kind: TaskCancelNow}, s.now()); err != nil {
 				return err
 			}
 		}

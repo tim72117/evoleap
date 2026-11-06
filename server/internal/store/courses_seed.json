@@ -1,7 +1,7 @@
 [
   { "id": "tools", "title": "AI 工具介紹：讓 AI 在你的電腦上做出第一個網站", "access": "free" },
   { "id": "ai-tools", "title": "AI 工具入門：用 AI 把點子整理成可以開工的需求", "access": "login-free" },
-  { "id": "vibe-coding-basics", "title": "Vibe Coding 入門：用 AI 做出你的第一個小工具", "access": "subscription" },
-  { "id": "ai-agent", "title": "打造你的第一個 AI Agent 整合應用", "access": "subscription" },
-  { "id": "advanced", "title": "進階 AI Agent 應用", "access": "subscription" }
+  { "id": "vibe-coding-basics", "title": "Vibe Coding 入門：用 AI 做出你的第一個小工具", "access": "subscription", "tier": "basic" },
+  { "id": "ai-agent", "title": "打造你的第一個 AI Agent 整合應用", "access": "subscription", "tier": "advanced" },
+  { "id": "advanced", "title": "進階 AI Agent 應用", "access": "subscription", "tier": "advanced" }
 ]

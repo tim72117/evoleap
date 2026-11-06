@@ -20,8 +20,13 @@ const (
 // TaskKind 是要向金流商做的工作。
 type TaskKind string
 
-// TaskCancel 是在當期結束時取消訂閱。
-const TaskCancel TaskKind = "cancel"
+const (
+	// TaskCancel 是在當期結束時取消訂閱(重複訂閱的那筆)。
+	TaskCancel TaskKind = "cancel"
+	// TaskCancelNow 是立刻取消訂閱(全額退款、爭議款、刪除帳號)。
+	// 只排定期滿取消的話,顧客還能在金流商的入口撤回取消,之後照常扣款卻已經沒有權限。
+	TaskCancelNow TaskKind = "cancel_now"
+)
 
 // Task 是排入資料庫、由背景重試的工作。Attempts 包含這次。
 type Task struct {
@@ -62,6 +67,9 @@ func (s *Service) RunTasks(ctx context.Context) {
 }
 
 func (s *Service) runTask(ctx context.Context, task Task) error {
+	if task.Kind == TaskCancelNow {
+		return s.provider.CancelNow(ctx, task.ExternalID)
+	}
 	return s.provider.Cancel(ctx, task.ExternalID)
 }
 

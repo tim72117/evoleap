@@ -93,10 +93,109 @@ func (p *Provider) CreateCheckout(ctx context.Context, req subscription.Checkout
 	return subscription.Checkout{URL: out.Checkout.URL, SessionID: out.ID}, nil
 }
 
+type subscriptionState struct {
+	Status          string `json:"status"`
+	ScheduledChange *struct {
+		Action string `json:"action"`
+	} `json:"scheduled_change"`
+}
+
+func (p *Provider) subscription(ctx context.Context, externalID string) (subscriptionState, error) {
+	var cur subscriptionState
+	err := p.call(ctx, http.MethodGet, "/subscriptions/"+url.PathEscape(externalID), nil, &cur)
+	return cur, err
+}
+
 // Cancel 取消訂閱,下一個計費週期開始時生效。
+// 已經取消或已排定取消時視為完成:Paddle 對已排定變更的訂閱會回 400(subscription_locked_pending_changes)。
 func (p *Provider) Cancel(ctx context.Context, externalID string) error {
+	cur, err := p.subscription(ctx, externalID)
+	if err != nil {
+		return err
+	}
+	if cur.Status == "canceled" || (cur.ScheduledChange != nil && cur.ScheduledChange.Action == "cancel") {
+		return nil
+	}
 	in := map[string]string{"effective_from": "next_billing_period"}
 	return p.call(ctx, http.MethodPost, "/subscriptions/"+url.PathEscape(externalID)+"/cancel", in, nil)
+}
+
+// changeBody 是更換價格的內容:差額按比例立即結算;扣款失敗時不換方案。
+func changeBody(priceID string) map[string]any {
+	return map[string]any{
+		"items":                  []map[string]any{{"price_id": priceID, "quantity": 1}},
+		"proration_billing_mode": "prorated_immediately",
+		"on_payment_failure":     "prevent_change",
+	}
+}
+
+// clearScheduledChange 取消排定的變更(例如期滿取消);有排定變更時 Paddle 不接受其他修改。
+func (p *Provider) clearScheduledChange(ctx context.Context, externalID string) error {
+	cur, err := p.subscription(ctx, externalID)
+	if err != nil {
+		return err
+	}
+	if cur.ScheduledChange == nil {
+		return nil
+	}
+	return p.call(ctx, http.MethodPatch, "/subscriptions/"+url.PathEscape(externalID), map[string]any{"scheduled_change": nil}, nil)
+}
+
+// PreviewChange 試算更換價格的差額。有排定變更(例如已排定取消)時 Paddle 不接受試算,
+// 也不能在同一個請求裡清掉排定變更,所以回傳 Action unknown,實際金額以更換後的收據為準。
+func (p *Provider) PreviewChange(ctx context.Context, externalID, priceID string) (subscription.ChangePreview, error) {
+	cur, err := p.subscription(ctx, externalID)
+	if err != nil {
+		return subscription.ChangePreview{}, err
+	}
+	if cur.ScheduledChange != nil {
+		return subscription.ChangePreview{Action: subscription.ChangeUnknown}, nil
+	}
+	var out struct {
+		UpdateSummary *struct {
+			Result struct {
+				Action       string `json:"action"`
+				Amount       string `json:"amount"`
+				CurrencyCode string `json:"currency_code"`
+			} `json:"result"`
+		} `json:"update_summary"`
+	}
+	if err := p.call(ctx, http.MethodPatch, "/subscriptions/"+url.PathEscape(externalID)+"/preview", changeBody(priceID), &out); err != nil {
+		return subscription.ChangePreview{}, err
+	}
+	if out.UpdateSummary == nil {
+		return subscription.ChangePreview{}, errors.New("paddle: 試算沒有差額資料")
+	}
+	r := out.UpdateSummary.Result
+	return subscription.ChangePreview{Action: r.Action, Amount: r.Amount, Currency: r.CurrencyCode}, nil
+}
+
+// ChangePlan 更換價格,差額按比例立即結算。已排定取消的訂閱要先取消排定,Paddle 才接受更換。
+func (p *Provider) ChangePlan(ctx context.Context, externalID, priceID string) error {
+	if err := p.clearScheduledChange(ctx, externalID); err != nil {
+		return err
+	}
+	return p.call(ctx, http.MethodPatch, "/subscriptions/"+url.PathEscape(externalID), changeBody(priceID), nil)
+}
+
+// CancelNow 立刻取消訂閱。有排定的變更(例如顧客已排定期滿取消)時,Paddle 不接受取消,所以先清掉再取消。
+// 已經取消時視為完成。
+func (p *Provider) CancelNow(ctx context.Context, externalID string) error {
+	cur, err := p.subscription(ctx, externalID)
+	if err != nil {
+		return err
+	}
+	if cur.Status == "canceled" {
+		return nil
+	}
+	path := "/subscriptions/" + url.PathEscape(externalID)
+	if cur.ScheduledChange != nil {
+		if err := p.call(ctx, http.MethodPatch, path, map[string]any{"scheduled_change": nil}, nil); err != nil {
+			return err
+		}
+	}
+	in := map[string]string{"effective_from": "immediately"}
+	return p.call(ctx, http.MethodPost, path+"/cancel", in, nil)
 }
 
 // ManageLinks 建立 Paddle 顧客入口的連結,連結是暫時的,每次要重新取得。API key 要有 customer_portal_session.write 權限。
@@ -230,6 +329,27 @@ type adjustmentData struct {
 	Type           string `json:"type"`
 	Status         string `json:"status"`
 	SubscriptionID string `json:"subscription_id"`
+	Items          []struct {
+		Type string `json:"type"`
+	} `json:"items"`
+}
+
+// fullRefund:整筆退款(type full),或每個退款品項都是全額退款。
+// Paddle 後台的全額退款會送 type partial、品項 type full,所以兩種都要算。
+// 本專案的訂閱交易只有一個品項(數量固定 1),品項全額退款就等於整筆退款。
+func (d adjustmentData) fullRefund() bool {
+	if d.Type == "full" {
+		return true
+	}
+	if len(d.Items) == 0 {
+		return false
+	}
+	for _, item := range d.Items {
+		if item.Type != "full" {
+			return false
+		}
+	}
+	return true
 }
 
 // ParseWebhook 驗證簽章後轉成共通事件。一定要用原始內容驗證簽章,不能先解析再重新序列化。
@@ -326,7 +446,7 @@ func parseAdjustment(e event) (*subscription.Event, error) {
 		return nil, fmt.Errorf("%w: %v", subscription.ErrInvalidWebhook, err)
 	}
 	isReversal := data.Action == "refund" || data.Action == "chargeback"
-	if data.Status != "approved" || !isReversal || data.Type == "partial" || data.SubscriptionID == "" {
+	if data.Status != "approved" || !isReversal || !data.fullRefund() || data.SubscriptionID == "" {
 		return nil, nil
 	}
 	return &subscription.Event{

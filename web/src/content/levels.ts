@@ -42,10 +42,22 @@ export function accessOf(id: string, seed: readonly { id: string; access: string
   throw new Error(`courses_seed.json 沒有課程 ${id} 的存取方式,或值不正確:${access}`)
 }
 
+/** 訂閱課程需要的最低方案(basic、advanced),寫在 courses_seed.json 的 tier;其他課程回傳 undefined */
+export function planTierOf(id: string, seed: readonly { id: string; tier?: string }[] = courseSeed): 'basic' | 'advanced' | undefined {
+  const tier = seed.find((course) => course.id === id)?.tier
+  return tier === 'basic' || tier === 'advanced' ? tier : undefined
+}
+
 export const ACCESS_LABEL: Record<CourseAccess, string> = {
   free: '免費',
   'login-free': '登入後免費',
   subscription: '訂閱專屬',
+}
+
+/** 課程標籤:訂閱課程標出需要的方案(基礎方案、進階方案),其他課程用 ACCESS_LABEL */
+export function accessLabel(level: Pick<CourseLevel, 'id' | 'access'>): string {
+  if (level.access !== 'subscription') return ACCESS_LABEL[level.access]
+  return planTierOf(level.id) === 'advanced' ? '進階方案' : '基礎方案'
 }
 
 /** 主題「做出自己的軟體」的一句話說明:首頁卡片、課程地圖頁、搜尋描述共用 */

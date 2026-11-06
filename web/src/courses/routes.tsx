@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, requiresSubscription, type Course } from '../content/catalog'
+import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, requiresSubscription, type Course, type PlannedChapter } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
 import { withL0Moments } from '../studio/interactive/l0-0.0'
@@ -33,7 +33,7 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
   )
   if (requiresSubscription(course)) {
     return (
-      <SubscriptionGate key={lesson.id} course={course} lesson={lesson}>
+      <SubscriptionGate key={lesson.id} course={course} label={lessonLabel(lesson)} title={lesson.title}>
         {page}
       </SubscriptionGate>
     )
@@ -51,6 +51,17 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
     </LoginGate>
   ) : (
     page
+  )
+}
+
+// 規劃中的章節頁:訂閱課程沒訂閱時點進來是訂閱畫面,章節清單(課程總覽)仍公開
+function plannedChapterElement(course: Course, chapter: PlannedChapter): JSX.Element {
+  const page = <PlannedChapterPage key={chapter.slug} course={course} chapter={chapter} />
+  if (!requiresSubscription(course)) return page
+  return (
+    <SubscriptionGate key={chapter.slug} course={course} label={chapter.label} title={chapter.title}>
+      {page}
+    </SubscriptionGate>
   )
 }
 
@@ -79,7 +90,7 @@ export const courseRoutes: { path: string; element: JSX.Element }[] = [
   })),
   ...course.planned.map((chapter) => ({
     path: plannedChapterPath(course, chapter),
-    element: <PlannedChapterPage key={chapter.slug} course={course} chapter={chapter} />,
+    element: plannedChapterElement(course, chapter),
   })),
 ]),
 ]

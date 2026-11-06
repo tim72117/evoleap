@@ -112,7 +112,7 @@ export function levelIdOf(course: Course): string | undefined {
   return ALL_LEVELS.find((l) => l.link === coursePath(course))?.id
 }
 
-/** 課程地圖標示「訂閱專屬」的課程:單課頁要有訂閱才能看(SubscriptionGate) */
+/** 課程地圖標示「訂閱專屬」的課程:單課頁與章節頁要有訂閱才能看(SubscriptionGate) */
 export function requiresSubscription(course: Course): boolean {
   return ALL_LEVELS.find((l) => l.link === coursePath(course))?.access === 'subscription'
 }

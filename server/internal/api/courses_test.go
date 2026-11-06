@@ -3,8 +3,19 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"testing"
 )
+
+func courseAccessBody(t *testing.T, h http.Handler, course string, cookie *http.Cookie) courseAccessResponse {
+	t.Helper()
+	var body courseAccessResponse
+	rec := call(h, http.MethodGet, "/api/courses/"+course+"/access", "", cookie)
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+		t.Fatal(err)
+	}
+	return body
+}
 
 func TestCourseAccess(t *testing.T) {
 	h, _ := newPaddleServer(t)
@@ -27,7 +38,24 @@ func TestCourseAccess(t *testing.T) {
 	check("訂閱課程未訂閱", "vibe-coding-basics", amy, false, "subscription_required")
 
 	deliver(t, h, subscriptionEvent("active", amyID, "pri_sub"))
-	check("訂閱課程已訂閱", "vibe-coding-basics", amy, true, "")
+	check("基礎方案看基礎課", "vibe-coding-basics", amy, true, "")
+	check("基礎方案不能看進階課", "ai-agent", amy, false, "subscription_required")
+	if body := courseAccessBody(t, h, "ai-agent", amy); body.Plan != "進階方案" {
+		t.Errorf("要說明需要的方案: %+v", body)
+	}
+
+	deliver(t, h, withEventID(strings.Replace(subscriptionEvent("active", amyID, "pri_adv"), "T08:00", "T08:30", 1), "evt_upgrade"))
+	check("升級後看進階課", "ai-agent", amy, true, "")
+	check("進階方案包含基礎課", "vibe-coding-basics", amy, true, "")
+	var me struct {
+		CurrentTier  string `json:"currentTier"`
+		Subscription struct {
+			PriceID string `json:"priceId"`
+		} `json:"subscription"`
+	}
+	if err := json.Unmarshal(call(h, http.MethodGet, "/api/plan/me", "", amy).Body.Bytes(), &me); err != nil || me.CurrentTier != "advanced" || me.Subscription.PriceID != "pri_adv" {
+		t.Errorf("換方案後要記下新的價格: %+v %v", me, err)
+	}
 
 	deliver(t, h, `{"event_id":"evt_c","event_type":"subscription.updated","occurred_at":"2026-11-05T09:00:00Z","data":{"id":"sub_1","status":"canceled","custom_data":null,"items":[{"price":{"id":"pri_sub"}}]}}`)
 	check("取消後", "vibe-coding-basics", amy, false, "subscription_required")

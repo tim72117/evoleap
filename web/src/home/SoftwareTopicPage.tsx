@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
 import { AI_APPS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
-import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, type CourseLevel } from '../content/levels'
+import { accessLabel, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, type CourseLevel } from '../content/levels'
 import { COURSES, coursePath, lessonLabel, lessonPath } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { LevelArt } from './LevelArt'
@@ -26,7 +26,7 @@ function levelLessons(level: CourseLevel) {
 
 function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
   const available = level.status === 'available'
-  const access = ACCESS_LABEL[level.access]
+  const access = accessLabel(level)
   const lessons = levelLessons(level)
   const opened = lessons.filter((l) => l.open)
   return (

@@ -1,70 +1,71 @@
+/* 收費頁:置中標題 + 月繳/年繳切換 + 三張方案卡(免費、基礎、進階)。顏色全用 SiteLayout 的 --site-* 色票,淺色與暗色主題都適用。 */
 .page {
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: 40px;
   width: min(100%, var(--site-max));
   margin: 0 auto;
-  padding: 48px 20px 72px;
+  padding: 64px 20px 88px;
   box-sizing: border-box;
 }
 
-.intro h1 {
-  margin: 0 0 8px;
-  font-size: clamp(30px, 5vw, 42px);
+/* ---------- 標題 ---------- */
+.head {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 4px 12px;
+  border: 1px solid color-mix(in srgb, var(--site-accent) 40%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--site-accent) 10%, transparent);
+  color: var(--site-accent-strong);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--site-accent);
+}
+
+.head h1 {
+  margin: 0 0 16px;
+  font-size: clamp(30px, 5vw, 44px);
   line-height: 1.3;
 }
 
-.intro p {
+.accent {
+  color: var(--site-accent-strong);
+}
+
+.head p {
   margin: 0;
   color: var(--site-muted);
+  font-size: 17px;
 }
 
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.section h2 {
-  margin: 0;
-  font-size: 22px;
-}
-
-.freePlan {
-  display: grid;
-  grid-template-columns: minmax(200px, 1fr) 2fr;
-  gap: 28px;
-  padding: 28px;
-  border: 1px solid var(--site-border);
+/* ---------- 已訂閱的狀態 ---------- */
+.status {
+  width: min(100%, 640px);
+  margin: 0 auto;
+  padding: 22px 26px;
+  border: 1px solid color-mix(in srgb, var(--site-accent) 45%, var(--site-border));
   border-radius: var(--site-radius);
   background: var(--site-surface);
-}
-
-.price {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.note {
-  margin: 4px 0 18px;
-  color: var(--site-muted);
-  font-size: 14px;
-}
-
-.section > .note {
-  margin: 0;
-}
-
-.periods {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  box-sizing: border-box;
 }
 
 .success {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   font-weight: 700;
 }
 
@@ -75,91 +76,299 @@
   font-weight: 700;
 }
 
-.error {
-  margin: 12px 0 0;
-  color: var(--site-danger, #b3261e);
+/* 已排定取消:用站內的暖棕點綴色提示,不用紅色(不是錯誤,到期前仍可使用) */
+.ending {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--site-highlight);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--site-highlight) 10%, transparent);
+  color: var(--site-highlight);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ---------- 方案卡 ---------- */
+/* 月繳/年繳切換:膠囊形的分段按鈕,選中的那段用主色 */
+.toggle {
+  display: inline-flex;
+  align-self: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface);
+}
+
+.toggle button {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--site-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toggle button[aria-pressed='true'] {
+  background: var(--site-accent-solid);
+  color: var(--site-accent-contrast);
+}
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  width: min(100%, 1080px);
+  margin: 0 auto;
+}
+
+/* 年繳的折扣標示 */
+.save {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--site-highlight) 16%, transparent);
+  color: var(--site-highlight);
+  font-size: 12px;
+}
+
+.toggle button[aria-pressed='true'] .save {
+  background: color-mix(in srgb, var(--site-accent-contrast) 22%, transparent);
+  color: var(--site-accent-contrast);
+}
+
+.saveNote {
+  display: block;
+  color: var(--site-highlight);
+  font-weight: 700;
+}
+
+/* 換方案的確認框:放在原本按鈕的位置 */
+.confirm {
+  margin-top: auto;
+  padding: 14px;
+  border: 1px solid var(--site-border);
+  border-radius: 12px;
+  background: var(--site-surface-2);
   font-size: 14px;
 }
 
-.freeList {
+.confirm p {
+  margin: 0 0 6px;
+}
+
+.confirm .actions {
+  margin-top: 10px;
+}
+
+.confirm .button {
+  flex: 1;
+  width: auto;
+}
+
+.confirmNote {
+  color: var(--site-highlight);
+  font-weight: 700;
+}
+
+/* 直向排列,按鈕用 margin-top: auto 貼齊卡片底部,三張卡的按鈕才會對齊 */
+.plan {
+  display: flex;
+  flex-direction: column;
+  padding: 36px 30px;
+  border: 1px solid var(--site-border);
+  border-radius: 20px;
+  background: var(--site-surface);
+  box-shadow: var(--site-shadow);
+}
+
+.paid {
+  border-color: color-mix(in srgb, var(--site-accent) 45%, var(--site-border));
+}
+
+.plan hr {
+  width: 100%;
+  margin: 0 0 22px;
+  border: none;
+  border-top: 1px solid var(--site-border);
+}
+
+.planName {
+  margin: 0 0 10px;
+  color: var(--site-accent-strong);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 6px;
+}
+
+.num {
+  font-size: clamp(30px, 4vw, 40px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* 還沒設定價格的方案 */
+.soon {
+  color: var(--site-muted);
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.per {
+  color: var(--site-muted);
+  font-size: 14px;
+}
+
+.note {
+  margin: 0 0 24px;
+  color: var(--site-muted);
+  font-size: 14px;
+}
+
+.status .note {
+  margin: 0;
+}
+
+.features {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: 0;
+  margin: 0 0 28px;
   padding: 0;
   list-style: none;
 }
 
-.freeList li {
+.features li {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.freeList a {
-  min-width: 0;
-  color: var(--site-link);
-  overflow-wrap: anywhere;
-}
-
-.badge {
-  flex: none;
+  align-items: flex-start;
+  gap: 10px;
   color: var(--site-muted);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
-.primary {
+.stageNote {
+  margin-left: auto;
+  flex: none;
+  font-size: 13px;
+}
+
+.features svg {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  margin-top: 4px;
+  fill: none;
+  stroke: var(--site-accent-strong);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- 按鈕 ---------- */
+.button {
   display: inline-flex;
-  padding: 11px 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: 1px solid transparent;
   border-radius: 12px;
+  background: var(--site-accent-solid);
+  color: var(--site-accent-contrast) !important;
   font: inherit;
   font-weight: 700;
   text-decoration: none;
   transition: transform 0.15s;
 }
 
-.page .primary {
-  border: 1px solid transparent;
-  background: var(--site-accent-solid);
-  color: var(--site-accent-contrast);
+.plan .button {
+  width: 100%;
+  margin-top: auto;
+  box-sizing: border-box;
 }
 
-a.primary:hover {
+.secondary {
+  border-color: var(--site-border);
+  background: var(--site-surface-2);
+  color: var(--site-text) !important;
+}
+
+a.button:hover,
+button.button:enabled:hover {
   transform: translateY(-1px);
 }
 
-.page button.primary:enabled {
+button.button:enabled {
   cursor: pointer;
 }
 
-.page button.primary:enabled:hover {
-  transform: translateY(-1px);
-}
-
-.page .primary:disabled {
+button.button:disabled {
   border-color: var(--site-border);
   background: var(--site-surface-2);
-  color: var(--site-muted);
+  color: var(--site-muted) !important;
   cursor: not-allowed;
 }
 
-@media (max-width: 720px) {
+/* ---------- 頁尾說明 ---------- */
+.footNote {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--site-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.error {
+  margin: 0 auto;
+  color: var(--site-danger, #b3261e);
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 980px) {
+  .plans {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 740px);
+  }
+}
+
+@media (max-width: 640px) {
   .page {
-    gap: 36px;
-    padding: 32px 16px 56px;
+    gap: 32px;
+    padding: 40px 16px 64px;
   }
 
-  .freePlan {
+  .plans {
     grid-template-columns: 1fr;
-    padding: 22px;
+    width: min(100%, 460px);
+  }
+
+  .plan {
+    padding: 28px 22px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  a.primary:hover,
-  .page button.primary:enabled:hover {
+  a.button:hover,
+  button.button:enabled:hover {
     transform: none;
   }
 }

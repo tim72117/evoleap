@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { COURSES, coursePath, openLessonsOf, type Course } from '../content/catalog'
-import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
+import { accessLabel, ALL_LEVELS } from '../content/levels'
 import { AI_APPS_TOPIC, COURSE_LIST, SOFTWARE_TOPIC, topicOfCourse } from '../content/topics'
 import { SiteLayout } from '../site/SiteLayout'
 import styles from './CourseList.module.css'
@@ -10,7 +10,7 @@ import styles from './CourseList.module.css'
 function CourseCard({ course }: { course: Course }) {
   const path = coursePath(course)
   const level = ALL_LEVELS.find((l) => l.link === path)
-  const access = level ? ACCESS_LABEL[level.access] : null
+  const access = level ? accessLabel(level) : null
   const open = openLessonsOf(course).length
   return (
     <li className={styles.card}>

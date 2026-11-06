@@ -50,7 +50,8 @@ type Plan struct {
 	Prices []Price `json:"prices,omitempty"`
 }
 
-// Catalog 是專案提供的方案清單,Plans 依顯示順序排列,必須包含 Default。
+// Catalog 是專案提供的方案清單,Plans 由低到高排列,必須包含 Default。
+// 高的方案包含低的方案的全部權益(見 Includes)。
 type Catalog struct {
 	Default Tier
 	Plans   []Plan
@@ -82,6 +83,16 @@ func (c Catalog) Validate() error {
 		return fmt.Errorf("subscription: 預設方案 %q 不存在", c.Default)
 	}
 	return nil
+}
+
+// rank 回傳方案在清單中的位置;不存在時回傳 -1。
+func (c Catalog) rank(tier Tier) int {
+	for i, plan := range c.Plans {
+		if plan.Tier == tier {
+			return i
+		}
+	}
+	return -1
 }
 
 // HasPrices 回傳是否有任何方案可以結帳。
@@ -132,7 +143,9 @@ type Subscription struct {
 	ExternalID string
 	UserID     string
 	Tier       Tier
-	Status     Status
+	// PriceID 是目前訂閱的價格,用來判斷方案與計費週期;更換方案後由事件更新。
+	PriceID string
+	Status  Status
 	// CustomerID 是金流商的顧客 ID,開啟管理訂閱的入口時要用。
 	CustomerID       string
 	CurrentPeriodEnd *time.Time
@@ -219,6 +232,7 @@ type Payment struct {
 // CurrentSubscription 是畫面需要的訂閱狀態。
 type CurrentSubscription struct {
 	Status           Status     `json:"status"`
+	PriceID          string     `json:"priceId,omitempty"`
 	CurrentPeriodEnd *time.Time `json:"currentPeriodEnd,omitempty"`
 	CancelAt         *time.Time `json:"cancelAt,omitempty"`
 }
@@ -264,6 +278,18 @@ func (s *Service) Provider() Provider { return s.provider }
 
 // Plans 回傳全部方案。
 func (s *Service) Plans() []Plan { return s.catalog.Plans }
+
+// Includes 回傳 have 方案是否包含 need 方案的權益:方案清單中排在後面的包含前面的。
+// 任一個方案不存在時回傳 false。
+func (s *Service) Includes(have, need Tier) bool {
+	h, n := s.catalog.rank(have), s.catalog.rank(need)
+	return h >= 0 && n >= 0 && h >= n
+}
+
+// Plan 回傳方案;不存在時第二個值為 false。
+func (s *Service) Plan(tier Tier) (Plan, bool) {
+	return s.find(tier)
+}
 
 // TierForPrice 回傳價格所屬的方案。
 func (s *Service) TierForPrice(priceID string) (Tier, bool) {
@@ -335,7 +361,7 @@ func (s *Service) Status(ctx context.Context, userID string) (PlanStatus, error)
 	}
 	status := s.statusFor(sub.Tier)
 	status.Subscribed = true
-	status.Subscription = &CurrentSubscription{Status: sub.Status, CurrentPeriodEnd: sub.CurrentPeriodEnd, CancelAt: sub.CancelAt}
+	status.Subscription = &CurrentSubscription{Status: sub.Status, PriceID: sub.PriceID, CurrentPeriodEnd: sub.CurrentPeriodEnd, CancelAt: sub.CancelAt}
 	return status, nil
 }
 

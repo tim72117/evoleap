@@ -11,6 +11,8 @@ type NavItem = { label: string; to: string; end?: boolean }
 const NAV: NavItem[] = [
   { label: '首頁', to: '/', end: true },
   { label: COURSE_LIST.name, to: COURSE_LIST.path, end: true },
+  // 訂閱方案的入口直接顯示,不用環境變數開關;還沒設定 Paddle 時收費頁會顯示「即將開放訂閱」
+  { label: '訂閱方案', to: '/pricing', end: true },
 ]
 
 type Props = {

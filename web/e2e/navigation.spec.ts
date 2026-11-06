@@ -124,12 +124,25 @@ test('Claude Code 工作術:首頁卡片進入主題頁,列出情境,沒有等�
   expect(errors).toEqual([])
 })
 
-test('收費頁:訂閱方案列出 L2、按鈕停用,沒有單門購買', async ({ page }) => {
+test('收費頁:免費、基礎、進階三張卡,月繳年繳切換,只列階段不列課名,沒設定 Paddle 時按鈕停用', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/pricing')
-  await expect(page.getByRole('heading', { level: 2, name: '訂閱方案' })).toBeVisible()
-  await expect(page.getByRole('button', { name: '即將開放訂閱' })).toBeDisabled()
-  await expect(page.locator('main').getByRole('link', { name: /Vibe Coding 入門/ })).toBeVisible()
+  for (const name of ['免費', '基礎方案', '進階方案']) {
+    await expect(page.getByRole('heading', { level: 2, name })).toBeVisible()
+  }
+  await expect(page.getByRole('button', { name: '月繳' })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('button', { name: /年繳/ }).click()
+  await expect(page.getByRole('button', { name: /年繳/ })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('button', { name: '即將開放訂閱' })).toHaveCount(2)
+  await expect(page.getByText('L2 基礎')).toBeVisible()
+  await expect(page.getByText('基礎方案的全部課程')).toBeVisible()
+  await expect(page.locator('main').getByText(/Vibe Coding 入門/)).toHaveCount(0)
+  await expect(page.getByText(/購買/)).toHaveCount(0)
+  expect(errors).toEqual([])
+})
+  await expect(soon).toHaveCount(2)
+  await expect(soon.first()).toBeDisabled()
+  await expect(page.locator('main').getByRole('link', { name: /Vibe Coding 入門/ })).toHaveCount(0)
   await expect(page.getByText(/購買/)).toHaveCount(0)
   expect(errors).toEqual([])
 })

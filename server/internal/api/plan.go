@@ -19,6 +19,8 @@ func (s *Server) planRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/plan/me", s.requireAuth(h.Me))
 	mux.HandleFunc("POST /api/plan/checkout", s.requireAuth(h.Checkout))
 	mux.HandleFunc("POST /api/plan/manage", s.requireAuth(h.Manage))
+	mux.HandleFunc("POST /api/plan/change/preview", s.requireAuth(h.ChangePreview))
+	mux.HandleFunc("POST /api/plan/change", s.requireAuth(h.Change))
 	mux.HandleFunc("POST /api/paddle/webhook", h.Webhook)
 	mux.HandleFunc("POST /api/admin/subscription-events/{id}/replay", s.requireAdmin(func(w http.ResponseWriter, r *http.Request, _ store.User) {
 		h.Replay(w, r)

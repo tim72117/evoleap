@@ -101,6 +101,67 @@ func (h *Handler) Checkout(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"url": checkout.URL, "sessionId": checkout.SessionID})
 }
 
+// changeTarget 讀取要換成的價格並找出要更換的訂閱;不符合條件時已寫好錯誤回應,第三個值為 false。
+// 價格必須屬於某個方案、和目前的價格不同;使用者要有有效、不是重複的訂閱。
+func (h *Handler) changeTarget(w http.ResponseWriter, r *http.Request) (subscription.Subscription, string, bool) {
+	userID, ok := h.paymentUser(w, r)
+	if !ok {
+		return subscription.Subscription{}, "", false
+	}
+	var req struct {
+		PriceID string `json:"priceId"`
+	}
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxRequestBody)).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid_body", "內容無法讀取")
+		return subscription.Subscription{}, "", false
+	}
+	if _, ok := h.svc.TierForPrice(req.PriceID); !ok {
+		writeError(w, http.StatusBadRequest, "invalid_price", "沒有這個訂閱價格")
+		return subscription.Subscription{}, "", false
+	}
+	sub, subscribed, err := h.svc.Current(r.Context(), userID)
+	if err != nil {
+		internalError(w, err)
+		return subscription.Subscription{}, "", false
+	}
+	if !subscribed || sub.Duplicate {
+		writeError(w, http.StatusNotFound, "no_subscription", "沒有可以更換的訂閱")
+		return subscription.Subscription{}, "", false
+	}
+	if sub.PriceID == req.PriceID {
+		writeError(w, http.StatusConflict, "same_price", "已經是這個方案了")
+		return subscription.Subscription{}, "", false
+	}
+	return sub, req.PriceID, true
+}
+
+// ChangePreview 試算更換方案的差額,不會真的更換。
+func (h *Handler) ChangePreview(w http.ResponseWriter, r *http.Request) {
+	sub, priceID, ok := h.changeTarget(w, r)
+	if !ok {
+		return
+	}
+	preview, err := h.provider().PreviewChange(r.Context(), sub.ExternalID, priceID)
+	if err != nil {
+		internalError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, preview)
+}
+
+// Change 更換方案(升級、降級或換計費週期),差額按比例立即結算。方案變更以之後收到的事件為準。
+func (h *Handler) Change(w http.ResponseWriter, r *http.Request) {
+	sub, priceID, ok := h.changeTarget(w, r)
+	if !ok {
+		return
+	}
+	if err := h.provider().ChangePlan(r.Context(), sub.ExternalID, priceID); err != nil {
+		internalError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 // Manage 回傳使用者管理訂閱的網址。
 func (h *Handler) Manage(w http.ResponseWriter, r *http.Request) {
 	userID, ok := h.paymentUser(w, r)

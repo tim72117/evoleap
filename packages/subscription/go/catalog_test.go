@@ -44,3 +44,23 @@ func TestCatalogForEnv(t *testing.T) {
 		t.Errorf("不可改動原本的清單: %+v", catalog)
 	}
 }
+
+func TestIncludesFollowsCatalogOrder(t *testing.T) {
+	svc := New(nil, Catalog{Default: "free", Plans: []Plan{{Tier: "free"}, {Tier: "basic"}, {Tier: "advanced"}}}, Options{})
+	cases := []struct {
+		have, need Tier
+		want       bool
+	}{
+		{"advanced", "basic", true},
+		{"advanced", "advanced", true},
+		{"basic", "advanced", false},
+		{"free", "basic", false},
+		{"basic", "", false},
+		{"gone", "basic", false},
+	}
+	for _, c := range cases {
+		if got := svc.Includes(c.have, c.need); got != c.want {
+			t.Errorf("Includes(%q, %q) = %v", c.have, c.need, got)
+		}
+	}
+}

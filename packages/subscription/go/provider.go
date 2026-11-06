@@ -25,8 +25,26 @@ type Provider interface {
 	ParseEvent(body []byte) (*Event, error)
 	// Cancel 取消訂閱,在當期結束時生效;實際的狀態變更仍由之後的事件通知。可能重複呼叫。
 	Cancel(ctx context.Context, externalID string) error
+	// CancelNow 立刻取消訂閱,顧客不能再撤回;用在全額退款、爭議款與刪除帳號。可能重複呼叫。
+	CancelNow(ctx context.Context, externalID string) error
+	// PreviewChange 試算把訂閱換成另一個價格時,現在要多收或退回多少(按比例計算),不會真的更換。
+	PreviewChange(ctx context.Context, externalID, priceID string) (ChangePreview, error)
+	// ChangePlan 把訂閱換成另一個價格(升級、降級或換計費週期),差額按比例立即結算。
+	// 已排定取消的訂閱會先取消排定,繼續續訂。實際的方案變更仍由之後的事件通知。
+	ChangePlan(ctx context.Context, externalID, priceID string) error
 	// ManageLinks 回傳使用者可以自行管理訂閱的網址。網址是暫時的,每次都要重新取得。
 	ManageLinks(ctx context.Context, sub Subscription) (ManageLinks, error)
+}
+
+// ChangeUnknown 代表金流商這時無法試算(例如已排定取消),金額以更換後的收據為準。
+const ChangeUnknown = "unknown"
+
+// ChangePreview 是更換方案的試算結果。金額以幣別的最小單位表示(例如 30000 = NT$300.00)。
+type ChangePreview struct {
+	// Action 是 charge(現在要收款)、credit(退回額度,之後扣款時折抵)或 ChangeUnknown。
+	Action   string `json:"action"`
+	Amount   string `json:"amount"`
+	Currency string `json:"currency"`
 }
 
 // ManageLinks 是管理訂閱的網址。

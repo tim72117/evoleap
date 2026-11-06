@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
-import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
+import { accessLabel, ALL_LEVELS } from '../content/levels'
 import { coursePath, lessonLabel, lessonPath, type Course } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { topicOfCourse } from '../content/topics'
 import { LevelArt } from '../home/LevelArt'
 import { INTERACTIVE_ICON } from '../studio/interactive/scene'
 import styles from './CourseOverview.module.css'
+import { useLessonsLocked } from './useLessonsLocked'
 
 // 課程總覽:上方是課程介紹(標籤、標題、簡述、總時長與課數)與開始學習的卡片,下方是課程內容清單。
 // 清單每一列:播放圖示、課名(還沒有教學影片的課標「製作中」)、目標、形式(互動/影片/步驟)與時長。
@@ -48,9 +49,11 @@ function kindOf(lesson: CourseLesson, interactive: boolean): { label: string; ic
 export function CourseOverviewPage({ course, interactive = [] }: { course: Course; interactive?: string[] }) {
   const level = ALL_LEVELS.find((l) => l.link === coursePath(course))
   const topic = topicOfCourse(coursePath(course))
-  const access = level ? ACCESS_LABEL[level.access] : null
+  const access = level ? accessLabel(level) : null
   const total = course.lessons.reduce((n, l) => n + minutesOf(l.length), 0)
   // 開始學習:第一個已經能看的課(都還沒有就從第一課)
+  // 訂閱課程沒訂閱時,每一課標「訂閱後觀看」;點進去由 SubscriptionGate 顯示訂閱畫面
+  const locked = useLessonsLocked(course)
   const start = course.lessons.find((l) => hasVideo(l) || interactive.includes(l.id)) ?? course.lessons[0]
 
   return (
@@ -125,6 +128,7 @@ export function CourseOverviewPage({ course, interactive = [] }: { course: Cours
                         <span className={styles.rowNum}>{lessonLabel(l)}</span>
                         {l.title}
                         {!ready && <span className={styles.badge}>製作中</span>}
+                        {locked && <span className={styles.badge}>訂閱後觀看</span>}
                       </span>
                       <span className={styles.rowGoal}>{l.goal}</span>
                     </span>

@@ -3,14 +3,15 @@ import { Link, useLocation } from 'react-router-dom'
 import { authApi, type CourseAccessResult } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
-import { coursePath, lessonLabel, levelIdOf, type Course } from '../content/catalog'
-import type { CourseLesson } from '../content/lessonTypes'
+import { coursePath, levelIdOf, type Course } from '../content/catalog'
 import { SiteLayout } from '../site/SiteLayout'
 import styles from './LoginGate.module.css'
 import { gateView } from './courseGate'
+import { pricingHref } from '../pricing/plans'
 
-// 「訂閱專屬」課程的單課頁:後端確認可以看才顯示內容,查不到一律不放行。課程總覽保持公開。
-export function SubscriptionGate({ course, lesson, children }: { course: Course; lesson: CourseLesson; children: ReactNode }) {
+// 「訂閱專屬」課程的單課頁與章節頁:後端確認可以看才顯示內容,查不到一律不放行。課程總覽與章節清單保持公開。
+// label 是「第 1.1 課」「4.1」這類編號,title 是頁面標題,沒權限時只顯示這兩項。
+export function SubscriptionGate({ course, label, title, children }: { course: Course; label: string; title: string; children: ReactNode }) {
   const { status, user } = useAuth()
   const { pathname, search } = useLocation()
   const [result, setResult] = useState<CourseAccessResult | null>(null)
@@ -43,14 +44,13 @@ export function SubscriptionGate({ course, lesson, children }: { course: Course;
   const view = gateView(result, failed)
   if (view === 'allowed') return <>{children}</>
 
-  const label = lessonLabel(lesson)
   return (
-    <SiteLayout title={`${label} ${lesson.title}`}>
+    <SiteLayout title={`${label} ${title}`}>
       <div className={styles.container}>
         <p className={styles.kicker}>
           {course.title} · {label}
         </p>
-        <h1>{lesson.title}</h1>
+        <h1>{title}</h1>
         {/* 確認前只留標題,已訂閱的人不會閃過訂閱提示 */}
         {view === 'failed' && (
           <>
@@ -76,9 +76,9 @@ export function SubscriptionGate({ course, lesson, children }: { course: Course;
         )}
         {view === 'subscribe' && (
           <>
-            <p className={styles.note}>這門課要訂閱才能觀看。</p>
+            <p className={styles.note}>{result?.plan ? `這門課要訂閱${result.plan}才能觀看。` : '這門課要訂閱才能觀看。'}</p>
             <div className={styles.actions}>
-              <Link className={styles.primary} to="/pricing">
+              <Link className={styles.primary} to={pricingHref(pathname + search)}>
                 查看訂閱方案
               </Link>
               <Link to={coursePath(course)}>回課程總覽</Link>

@@ -12,7 +12,8 @@ import (
 	"github.com/tim72117/subscription/gormstore"
 )
 
-// testSubscriptions 建立訂閱服務,方案是假的;訂閱版的價格是 prices。
+// testSubscriptions 建立訂閱服務,方案代號和正式的一樣(free、basic、advanced);基礎方案的價格是 prices,
+// 進階方案固定是 pri_adv。
 func testSubscriptions(t *testing.T, st *store.Store, prices ...subscription.Price) *subscription.Service {
 	t.Helper()
 	return testSubscriptionsWith(t, st, nil, prices...)
@@ -23,7 +24,11 @@ func testSubscriptionsWith(t *testing.T, st *store.Store, provider subscription.
 	t.Helper()
 	svc, err := gormstore.NewService(st.DB(), subscription.Catalog{
 		Default: "free",
-		Plans:   []subscription.Plan{{Tier: "free"}, {Tier: "subscriber", Prices: prices}},
+		Plans: []subscription.Plan{
+			{Tier: "free", Name: "免費"},
+			{Tier: "basic", Name: "基礎方案", Prices: prices},
+			{Tier: "advanced", Name: "進階方案", Prices: []subscription.Price{{ID: "pri_adv", Period: subscription.BillingMonthly, Env: subscription.EnvSandbox}}},
+		},
 	}, subscription.Options{Provider: provider, UserExists: st.UserExists})
 	if err != nil {
 		t.Fatal(err)

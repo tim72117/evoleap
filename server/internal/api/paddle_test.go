@@ -39,6 +39,11 @@ func newPaddleServerOn(t *testing.T, st *store.Store) (h http.Handler, canceled 
 	canceled = &[]string{}
 	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		io.Copy(io.Discard, r.Body)
+		// 取消前會先查訂閱狀態;這裡一律回「還在續訂」,只記下真正送出的取消。
+		if r.Method == http.MethodGet {
+			io.WriteString(w, `{"data":{"status":"active","scheduled_change":null}}`)
+			return
+		}
 		*canceled = append(*canceled, r.URL.Path)
 		io.WriteString(w, `{"data":{}}`)
 	}))
@@ -140,7 +145,7 @@ func TestPaddleSubscriptionGrantsOnlyThatUser(t *testing.T) {
 	deliver(t, h, body)
 	deliver(t, h, body) // Paddle 重送
 
-	if got := planTier(t, h, amy); got != "subscriber" {
+	if got := planTier(t, h, amy); got != "basic" {
 		t.Errorf("amy: %s", got)
 	}
 	if got := planTier(t, h, bob); got != "free" {
@@ -157,7 +162,7 @@ func TestPaddleBothBillingPeriodsGrantSubscriber(t *testing.T) {
 	h, _ := newPaddleServer(t)
 	cookie, id := registerUser(t, h, "amy@example.com")
 	deliver(t, h, subscriptionEvent("active", id, "pri_year"))
-	if got := planTier(t, h, cookie); got != "subscriber" {
+	if got := planTier(t, h, cookie); got != "basic" {
 		t.Errorf("年繳: %s", got)
 	}
 	rec := call(h, http.MethodGet, "/api/plan/plans", "", nil)
@@ -210,7 +215,7 @@ func TestPaddleDuplicateSubscriptionIsCanceledAndRecorded(t *testing.T) {
 	if len(*canceled) != 1 || (*canceled)[0] != "/subscriptions/sub_2/cancel" {
 		t.Errorf("要取消新的那筆一次: %v", *canceled)
 	}
-	if got := planTier(t, h, cookie); got != "subscriber" {
+	if got := planTier(t, h, cookie); got != "basic" {
 		t.Errorf("原本的訂閱要保留: %s", got)
 	}
 
@@ -268,7 +273,7 @@ func TestPaddleTransactionKeepsPayment(t *testing.T) {
 	if outcome != "unknown_user" {
 		t.Errorf("事件紀錄: %q", outcome)
 	}
-	if got := planTier(t, h, cookie); got != "subscriber" {
+	if got := planTier(t, h, cookie); got != "basic" {
 		t.Errorf("付款事件不影響權限: %s", got)
 	}
 }

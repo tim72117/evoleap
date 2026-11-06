@@ -18,6 +18,8 @@ export interface PlanPrice {
 /** 有效的訂閱。past_due = 上次扣款失敗,金流商還在重試 */
 export interface PlanSubscription {
   status: 'active' | 'past_due'
+  /** 目前訂閱的價格,用來判斷方案與計費週期 */
+  priceId?: string
   currentPeriodEnd?: string
   cancelAt?: string
 }
@@ -38,6 +40,15 @@ export interface CourseAccessResult {
   access: 'free' | 'login-free' | 'subscription'
   allowed: boolean
   reason?: 'login_required' | 'subscription_required'
+  /** 沒權限時:這門課需要的最低方案名稱,例如「進階方案」 */
+  plan?: string
+}
+
+/** 更換方案的試算:charge = 現在要補收,credit = 退回額度,之後扣款時折抵,unknown = 這時無法試算。金額是幣別的最小單位 */
+export interface PlanChangePreview {
+  action: 'charge' | 'credit' | 'unknown'
+  amount: string
+  currency: string
 }
 
 /** API 回傳的錯誤;message 是可以直接顯示給使用者的中文訊息 */
@@ -84,6 +95,8 @@ export const authApi = {
   planMe: () => request<PlanMe>('GET', '/api/plan/me'),
   planCheckout: (priceId: string) => request<{ url: string; sessionId: string }>('POST', '/api/plan/checkout', { priceId }),
   planManage: () => request<PlanManageLinks>('POST', '/api/plan/manage'),
+  planChangePreview: (priceId: string) => request<PlanChangePreview>('POST', '/api/plan/change/preview', { priceId }),
+  planChange: (priceId: string) => request<void>('POST', '/api/plan/change', { priceId }),
   /** 目前的使用者能不能看這門課;未登入也能問。id 是 levels.ts 的等級 id */
   courseAccess: (id: string) => request<CourseAccessResult>('GET', `/api/courses/${encodeURIComponent(id)}/access`),
 }

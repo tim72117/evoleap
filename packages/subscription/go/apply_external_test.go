@@ -22,11 +22,13 @@ var (
 	}}
 )
 
-// fakeProvider 記下被取消的訂閱;cancelErr 不是 nil 時取消失敗。原始內容就是事件的 JSON。
+// fakeProvider 記下被取消的訂閱(canceled 含期滿與立刻取消,canceledNow 只有立刻取消);
+// cancelErr 不是 nil 時取消失敗。原始內容就是事件的 JSON。
 type fakeProvider struct {
 	subscription.Provider
-	canceled  []string
-	cancelErr error
+	canceled    []string
+	canceledNow []string
+	cancelErr   error
 }
 
 func (*fakeProvider) Source() subscription.Source { return "paddle" }
@@ -36,6 +38,14 @@ func (p *fakeProvider) Cancel(_ context.Context, externalID string) error {
 		return p.cancelErr
 	}
 	p.canceled = append(p.canceled, externalID)
+	return nil
+}
+
+func (p *fakeProvider) CancelNow(ctx context.Context, externalID string) error {
+	if err := p.Cancel(ctx, externalID); err != nil {
+		return err
+	}
+	p.canceledNow = append(p.canceledNow, externalID)
 	return nil
 }
 
@@ -187,6 +197,9 @@ func TestDuplicateIsCanceledOnceAndKeepsOriginal(t *testing.T) {
 	if len(h.provider.canceled) != 1 || h.provider.canceled[0] != "sub_2" {
 		t.Errorf("要取消新的那筆一次: %v", h.provider.canceled)
 	}
+	if len(h.provider.canceledNow) != 0 {
+		t.Errorf("重複訂閱只在期滿取消: %v", h.provider.canceledNow)
+	}
 	current, ok, err := h.svc.Current(context.Background(), "amy")
 	if err != nil || !ok || current.ExternalID != "sub_1" {
 		t.Errorf("主要的訂閱: %+v %v %v", current, ok, err)
@@ -275,8 +288,18 @@ func TestTaskGivesUpAndCanRestart(t *testing.T) {
 		t.Errorf("放棄後不再執行: %v", h.provider.canceled)
 	}
 	h.apply(revoked("sub_1", time.Hour))
-	if len(h.provider.canceled) != 1 || h.provider.canceled[0] != "sub_1" {
-		t.Errorf("%v", h.provider.canceled)
+	if len(h.provider.canceledNow) != 1 || h.provider.canceledNow[0] != "sub_1" {
+		t.Errorf("刪除帳號要立刻取消: %v", h.provider.canceledNow)
+	}
+}
+
+// 退款只排定期滿取消的話,顧客能在金流商入口撤回,之後照常扣款卻沒有權限,所以要立刻取消。
+func TestRefundCancelsImmediately(t *testing.T) {
+	h := newHarness(t)
+	h.apply(changed("sub_1", subscription.StatusActive, 0))
+	h.apply(revoked("sub_1", time.Hour))
+	if len(h.provider.canceledNow) != 1 || h.provider.canceledNow[0] != "sub_1" {
+		t.Errorf("退款要立刻取消: %v", h.provider.canceledNow)
 	}
 }
 

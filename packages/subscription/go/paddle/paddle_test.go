@@ -115,6 +115,18 @@ func TestParseAdjustment(t *testing.T) {
 			t.Errorf("%s 不該停權: %+v", body, ev)
 		}
 	}
+	// 後台全額退款:整筆標 partial,品項標 full → 要停權;任一品項只退部分 → 不停權
+	withItems := func(items string) string {
+		return `{"event_id":"evt_adj","event_type":"adjustment.updated","occurred_at":"2026-11-05T08:00:00Z","data":{"action":"refund","type":"partial","status":"approved","subscription_id":"sub_1","items":` + items + `}}`
+	}
+	if ev := parse(t, withItems(`[{"type":"full"}]`)); ev == nil || ev.Kind != subscription.EventRevoked {
+		t.Errorf("品項全額退款要停權: %+v", ev)
+	}
+	for _, items := range []string{`[{"type":"partial"}]`, `[{"type":"full"},{"type":"partial"}]`, `[]`} {
+		if ev := parse(t, withItems(items)); ev != nil {
+			t.Errorf("%s 不該停權: %+v", items, ev)
+		}
+	}
 	for _, action := range []string{"refund", "chargeback"} {
 		ev := parse(t, adjustment(action, "full", "approved", "sub_1"))
 		if ev == nil || ev.Kind != subscription.EventRevoked || ev.ExternalID != "sub_1" || ev.OccurredAt.IsZero() {
@@ -201,13 +213,46 @@ func TestCreateCheckout(t *testing.T) {
 	}
 }
 
+// cancelAPI 依 GET 回傳的訂閱狀態回應,記下收到的每個請求。
+func cancelAPI(t *testing.T, current string) (*Provider, *[]string) {
+	t.Helper()
+	var got []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		got = append(got, r.Method+" "+r.URL.Path+" "+r.Header.Get("Authorization")+" "+string(body))
+		if r.Method == http.MethodGet {
+			io.WriteString(w, `{"data":`+current+`}`)
+			return
+		}
+		io.WriteString(w, `{"data":{}}`)
+	}))
+	t.Cleanup(srv.Close)
+	return New(Config{APIKey: "key", BaseURL: srv.URL}), &got
+}
+
 func TestCancelTakesEffectAtPeriodEnd(t *testing.T) {
-	p, got := fakeAPI(t, `{"data":{}}`)
+	p, got := cancelAPI(t, `{"status":"active","scheduled_change":null}`)
 	if err := p.Cancel(context.Background(), "sub_1"); err != nil {
 		t.Fatal(err)
 	}
-	if want := `POST /subscriptions/sub_1/cancel Bearer key {"effective_from":"next_billing_period"}`; *got != want {
-		t.Errorf("%s", *got)
+	want := []string{"GET /subscriptions/sub_1 Bearer key ", `POST /subscriptions/sub_1/cancel Bearer key {"effective_from":"next_billing_period"}`}
+	if fmt.Sprint(*got) != fmt.Sprint(want) {
+		t.Errorf("%q", *got)
+	}
+}
+
+func TestCancelSkipsWhenAlreadyCanceling(t *testing.T) {
+	for _, current := range []string{
+		`{"status":"active","scheduled_change":{"action":"cancel","effective_at":"2026-12-05T08:00:00Z"}}`,
+		`{"status":"canceled","scheduled_change":null}`,
+	} {
+		p, got := cancelAPI(t, current)
+		if err := p.Cancel(context.Background(), "sub_1"); err != nil {
+			t.Fatal(err)
+		}
+		if len(*got) != 1 {
+			t.Errorf("%s 不該再送取消: %q", current, *got)
+		}
 	}
 }
 
@@ -240,5 +285,83 @@ func TestAPIErrors(t *testing.T) {
 	}
 	if err := New(Config{BaseURL: srv.URL}).Cancel(context.Background(), "sub_1"); err == nil {
 		t.Error("沒有 API key 要回傳錯誤")
+	}
+}
+
+func TestCancelNowIsImmediate(t *testing.T) {
+	p, got := cancelAPI(t, `{"status":"active","scheduled_change":null}`)
+	if err := p.CancelNow(context.Background(), "sub_1"); err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"GET /subscriptions/sub_1 Bearer key ", `POST /subscriptions/sub_1/cancel Bearer key {"effective_from":"immediately"}`}
+	if fmt.Sprint(*got) != fmt.Sprint(want) {
+		t.Errorf("%q", *got)
+	}
+}
+
+// 顧客已排定期滿取消(或撤回後又排定)時,要先清掉排定的變更,Paddle 才接受立刻取消。
+func TestCancelNowClearsScheduledChange(t *testing.T) {
+	p, got := cancelAPI(t, `{"status":"active","scheduled_change":{"action":"cancel","effective_at":"2026-12-05T08:00:00Z"}}`)
+	if err := p.CancelNow(context.Background(), "sub_1"); err != nil {
+		t.Fatal(err)
+	}
+	want := []string{
+		"GET /subscriptions/sub_1 Bearer key ",
+		`PATCH /subscriptions/sub_1 Bearer key {"scheduled_change":null}`,
+		`POST /subscriptions/sub_1/cancel Bearer key {"effective_from":"immediately"}`,
+	}
+	if fmt.Sprint(*got) != fmt.Sprint(want) {
+		t.Errorf("%q", *got)
+	}
+}
+
+func TestCancelNowSkipsCanceled(t *testing.T) {
+	p, got := cancelAPI(t, `{"status":"canceled","scheduled_change":null}`)
+	if err := p.CancelNow(context.Background(), "sub_1"); err != nil {
+		t.Fatal(err)
+	}
+	if len(*got) != 1 {
+		t.Errorf("已取消不該再送: %q", *got)
+	}
+}
+
+// 換方案:有排定取消時先取消排定,再換價格;差額按比例立即結算,扣款失敗就不換。
+func TestChangePlanClearsScheduledChangeFirst(t *testing.T) {
+	p, got := cancelAPI(t, `{"status":"active","scheduled_change":{"action":"cancel","effective_at":"2026-12-05T08:00:00Z"}}`)
+	if err := p.ChangePlan(context.Background(), "sub_1", "pri_adv"); err != nil {
+		t.Fatal(err)
+	}
+	want := []string{
+		"GET /subscriptions/sub_1 Bearer key ",
+		`PATCH /subscriptions/sub_1 Bearer key {"scheduled_change":null}`,
+		`PATCH /subscriptions/sub_1 Bearer key {"items":[{"price_id":"pri_adv","quantity":1}],"on_payment_failure":"prevent_change","proration_billing_mode":"prorated_immediately"}`,
+	}
+	if fmt.Sprint(*got) != fmt.Sprint(want) {
+		t.Errorf("%q", *got)
+	}
+}
+
+func TestPreviewChange(t *testing.T) {
+	p, got := fakeAPI(t, `{"data":{"update_summary":{"result":{"action":"charge","amount":"15000","currency_code":"TWD"}}}}`)
+	preview, err := p.PreviewChange(context.Background(), "sub_1", "pri_adv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if preview != (subscription.ChangePreview{Action: "charge", Amount: "15000", Currency: "TWD"}) {
+		t.Errorf("%+v", preview)
+	}
+	if !strings.HasPrefix(*got, "PATCH /subscriptions/sub_1/preview ") {
+		t.Errorf("%s", *got)
+	}
+}
+
+func TestPreviewChangeWithScheduledChangeIsUnknown(t *testing.T) {
+	p, got := cancelAPI(t, `{"status":"active","scheduled_change":{"action":"cancel","effective_at":"2026-12-05T08:00:00Z"}}`)
+	preview, err := p.PreviewChange(context.Background(), "sub_1", "pri_adv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if preview.Action != subscription.ChangeUnknown || len(*got) != 1 {
+		t.Errorf("%+v %q", preview, *got)
 	}
 }

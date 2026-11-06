@@ -17,6 +17,7 @@ type row struct {
 	ExternalID       string `gorm:"primaryKey;size:128"`
 	UserID           string `gorm:"size:64;index"`
 	Tier             string `gorm:"size:32"`
+	PriceID          string `gorm:"size:64"`
 	Status           string `gorm:"size:32"`
 	CustomerID       string `gorm:"size:64"`
 	CurrentPeriodEnd *time.Time
@@ -92,6 +93,7 @@ func toRow(sub subscription.Subscription) row {
 		ExternalID:       sub.ExternalID,
 		UserID:           sub.UserID,
 		Tier:             string(sub.Tier),
+		PriceID:          sub.PriceID,
 		Status:           string(sub.Status),
 		CustomerID:       sub.CustomerID,
 		CurrentPeriodEnd: sub.CurrentPeriodEnd,
@@ -107,6 +109,7 @@ func fromRow(r row) subscription.Subscription {
 		ExternalID:       r.ExternalID,
 		UserID:           r.UserID,
 		Tier:             subscription.Tier(r.Tier),
+		PriceID:          r.PriceID,
 		Status:           subscription.Status(r.Status),
 		CustomerID:       r.CustomerID,
 		CurrentPeriodEnd: r.CurrentPeriodEnd,
@@ -255,7 +258,7 @@ func (t tx) SaveSubscription(ctx context.Context, sub subscription.Subscription)
 	return t.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "source"}, {Name: "external_id"}},
 		DoUpdates: clause.AssignmentColumns([]string{
-			"user_id", "tier", "status", "customer_id", "current_period_end", "cancel_at", "duplicate", "last_event_at", "updated_at",
+			"user_id", "tier", "price_id", "status", "customer_id", "current_period_end", "cancel_at", "duplicate", "last_event_at", "updated_at",
 		}),
 	}).Create(&r).Error
 }
