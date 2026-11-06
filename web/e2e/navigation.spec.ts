@@ -27,8 +27,8 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
   await expect(page.locator('h1')).toBeVisible()
   await expectHeadMatches(page, request, '/')
 
-  // 首頁的主打主題 → 主題頁
-  await page.locator('main').getByRole('link', { name: '課程地圖', exact: true }).click()
+  // 首頁的主打主題 → 主題頁(兒童主題的卡片也有「課程地圖」,限定在主打主題裡找)
+  await page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '課程地圖', exact: true }).click()
   await expectHeadMatches(page, request, '/topics/software')
   await expect(page).toHaveURL(/#map$/)
 
@@ -136,7 +136,11 @@ test('首頁:主打主題可以播放第 0 課,開始第一課連到課程', asy
   const errors = collectErrors(page)
   await page.goto('/')
   await expect(page.locator('.vp')).toBeVisible()
-  await expect(page.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/0')
+  // 主打主題與兒童主題各有一個「開始第一課」
+  await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/0')
+  const kids = page.getByRole('region', { name: '給孩子的網頁程式' })
+  await expect(kids.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/topics/kids/0-1')
+  await expect(kids.getByRole('link', { name: '課程地圖' })).toHaveAttribute('href', '/topics/kids#map')
   await expect(page.getByText('規劃中').first()).toBeVisible()
   expect(errors).toEqual([])
 })
@@ -212,7 +216,7 @@ test('首頁的展示:一開始不放大,開始播放才往左下放大,靜態�
   expect(big.top).toBeCloseTo(small.top, 0)
   expect(big.right).toBeCloseTo(small.right, 0)
   await expect(page.getByRole('heading', { name: '做出自己的軟體' })).toBeVisible()
-  await expect(page.getByRole('link', { name: '開始第一課' })).toBeVisible()
+  await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toBeVisible()
   await expect(facts).toBeHidden()
   expect(await page.evaluate(() => document.fullscreenElement)).toBeNull()
 
