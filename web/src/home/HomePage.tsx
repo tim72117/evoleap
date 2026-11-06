@@ -178,8 +178,9 @@ function NearViewport({ children, placeholder }: { children: ReactNode; placehol
 }
 
 /**
- * 規劃中主題的卡片:名稱、標語、步驟或整理前後示意、預計做出的成果或涵蓋的情境。
- * aside 放在標題與內容的右側(窄螢幕排到下面);below 接在步驟下面、「你會做出」上面
+ * 規劃中(或已開放、t.open)主題的卡片:名稱、標語、步驟或整理前後示意、預計做出的成果或涵蓋的情境。
+ * aside 放在標題與內容的右側(窄螢幕排到下面);below 接在步驟下面。
+ * 有 aside 的卡片,「你會做出」另起一段橫跨整張卡片,放在標題與預覽下面(仿照「做出自己的軟體」的成果段)
  */
 function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactNode; below?: ReactNode }) {
   const outcomes = t.outcomes && (
@@ -194,7 +195,7 @@ function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactNode; be
   )
   const body = (
     <>
-      <p className={styles.badge}>規劃中</p>
+      {t.open ? <p className={`${styles.badge} ${styles.badgeOpen}`}>開放中</p> : <p className={styles.badge}>規劃中</p>}
       <h3>
         {t.icon && TOPIC_ICONS[t.icon]}
         {t.name}
@@ -245,7 +246,7 @@ function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactNode; be
         </div>
       )}
       {below}
-      {outcomes}
+      {!aside && outcomes}
       {t.scenarios && (
         <>
           <h4>涵蓋的情境</h4>
@@ -263,11 +264,22 @@ function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactNode; be
       )}
     </>
   )
-  if (!aside) return <article className={styles.theme}>{body}</article>
+  const cls = t.open ? `${styles.theme} ${styles.themeOpen}` : styles.theme
+  if (!aside) return <article className={cls}>{body}</article>
   return (
-    <article className={`${styles.theme} ${styles.themeAside}`}>
+    <article className={`${cls} ${styles.themeAside}`}>
       <div>{body}</div>
       {aside}
+      {t.outcomes && (
+        <div className={styles.themeResult}>
+          <h3>你會做出</h3>
+          <ol>
+            {t.outcomes.map((o) => (
+              <li key={o}>{o}</li>
+            ))}
+          </ol>
+        </div>
+      )}
     </article>
   )
 }

@@ -3,14 +3,17 @@ import type { AnyActor } from '../types'
 import browser from './browser/actor'
 import chat from './chat/actor'
 import claudeDesktop from './claude-desktop/actor'
+import devtools from './devtools/actor'
 import editor from './editor/actor'
 import finder from './finder/actor'
+import kidTree from './kid-tree/actor'
 import kidWeb from './kid-web/actor'
 import macbook from './macbook/actor'
+import netTrip from './net-trip/actor'
 import notes from './notes/actor'
 import person from './person/actor'
 
-export const ACTORS: Record<string, AnyActor> = Object.fromEntries([claudeDesktop, finder, browser, chat, person, notes, editor, macbook, kidWeb].map((def) => [def.name, def]))
+export const ACTORS: Record<string, AnyActor> = Object.fromEntries([claudeDesktop, finder, browser, chat, person, notes, editor, macbook, kidWeb, kidTree, netTrip, devtools].map((def) => [def.name, def]))
 
 // 開發時引擎的程式一改就整頁重新載入:舞台、外殼、演員是掛上去就一直在跑的物件,不是 React 元件,
 // 交給 LivePlayer 熱更新的話它的 effect 不會重跑,畫面仍是舊程式建出來的舊物件,看起來像沒有熱重載。

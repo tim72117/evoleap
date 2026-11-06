@@ -1,0 +1,133 @@
+{
+  "title": "HTML、CSS、JavaScript 的分工（試做）",
+  "lesson": "網頁運作知識 · 0.2 試做",
+  "cast": {
+    "editor": { "actor": "editor", "props": { "project": "cafe" }, "parts": { "files": false }, "place": { "x": 60, "y": 110, "w": 900, "h": 860 } },
+    "web": { "actor": "browser", "props": { "site": "web-html", "url": "file:///Documents/practice/cafe/index.html" }, "place": { "x": 990, "y": 110, "w": 870, "h": 860 }, "hidden": true }
+  },
+  "steps": [
+    { "card": "HTML、CSS、JavaScript 的分工", "eyebrow": "網頁運作知識 · 0.2", "chapter": "看：三個檔案各管什麼", "narration": "一個網頁，通常由三種檔案一起完成。我們拿同一個小網頁，一次加一種，看看每一種各負責什麼。" },
+
+    { "open": "index.html", "narration": "第一個是 HTML 檔。它寫的是這一頁有哪些東西：店名、購物車、照片、標題、介紹、價錢，還有一個按鈕。" },
+    { "type": "<title>小森咖啡</title>\n<header>\n  <p class=\"brand\">小森咖啡</p>\n  <p class=\"cart\">購物車 <span id=\"count\">0</span></p>\n</header>\n<main>\n  <div class=\"photo\">☕</div>\n  <h2>今天的手沖咖啡</h2>\n  <p>衣索比亞淺焙，帶一點花香與柑橘的酸。</p>\n  <p class=\"price\">NT$ 150</p>\n  <button id=\"add\">加入購物車</button>" },
+    { "callout": "editor:caret", "text": "這一行只說：這裡有一個按鈕", "narration": "像這一行，只是說「這裡有一個按鈕」，沒有說它長什麼樣，也沒有說按下去要做什麼。" },
+    { "type": "\n  <p id=\"toast\" hidden>已加入購物車</p>\n</main>\n" },
+    { "show": "web", "narration": "只有 HTML 的網頁，瀏覽器會用預設的樣子畫出來：黑字白底、由上往下排，該有的東西都在。" },
+    { "callout": "web:viewport", "text": "內容都在，只是瀏覽器預設的樣子" },
+    { "click": "#add", "narration": "按下按鈕，什麼事都沒有發生。" },
+
+    { "open": "styles.css", "narration": "接著是 CSS 檔。它管的是長什麼樣：顏色、字體、間距，還有東西怎麼排。" },
+    { "type": "body {\n  margin: 0;\n  font-family: sans-serif;\n  background: #f7f1e8;\n  color: #3b2a1e;\n}\nheader {\n  display: flex;\n  justify-content: space-between;\n  padding: 0 32px;\n  background: #3b2a1e;\n  color: #fff;\n}\nmain {\n  max-width: 480px;\n  margin: 32px auto;\n  text-align: center;\n}\n.photo {\n  font-size: 96px;\n  background: #ead9c2;\n  border-radius: 16px;\n}\n.price { font-weight: bold; }" },
+    { "type": "\nbutton {\n  padding: 12px 40px;\n  border: 0;\n  background: #2f7d4f;\n  border-radius: 999px;" },
+    { "callout": "editor:caret", "text": "按鈕的綠色和圓角，寫在 CSS 裡", "narration": "按鈕的綠色和圓角，就寫在這裡。" },
+    { "type": "\n  color: #fff;\n  font-size: 18px;\n}\n#toast { color: #2f7d4f; }\n" },
+    { "site": "web-css", "narration": "瀏覽器套上 CSS 之後，同樣的內容換上了外觀。HTML 一個字都沒有改。" },
+    { "callout": "web:sel:#add", "text": "圓角綠色的按鈕：CSS 做的" },
+    { "click": "#add", "narration": "按鈕看起來可以按了，但按下去還是沒有反應，因為 CSS 只管外觀，不管動作。" },
+
+    { "open": "script.js", "narration": "最後是 JavaScript 檔。它管的是會做什麼：使用者按下按鈕之後，要發生什麼事。" },
+    { "type": "const add = document.getElementById('add');\nconst count = document.getElementById('count');\nconst toast = document.getElementById('toast');\n\nadd.addEventListener('click', () => {\n  count.textContent = Number(count.textContent) + 1;" },
+    { "callout": "editor:caret", "text": "按下去：購物車的數字加 1", "narration": "這一段的意思是：按鈕被按下時，把購物車的數字加 1，再把提示顯示出來。" },
+    { "type": "\n  toast.hidden = false;\n});\n" },
+    { "site": "web-js", "narration": "加上 JavaScript，網頁看起來和剛才一模一樣。" },
+    { "click": "#add", "narration": "差別在按下去的時候：購物車變成 1，下面也出現了提示。" },
+    { "callout": "web:sel:header .cart", "text": "數字是 JavaScript 改的" },
+    { "callout": "web:sel:#toast", "text": "原本藏起來的提示，被 JavaScript 打開" },
+
+    { "reload": true, "chapter": "做：是誰負責的？", "narration": "重新整理，網頁回到剛打開的樣子。換你判斷：畫面上的變化，是哪一個檔案負責的？" },
+    {
+      "checkpoint": "按鈕變成圓角綠色，是哪一個檔案做的？",
+      "body": "想想看：這是「有什麼」、「長什麼樣」，還是「會做什麼」？",
+      "id": "look",
+      "options": [
+        {
+          "label": "HTML",
+          "steps": [
+            { "site": "web-html", "narration": "HTML 只寫了「這裡有一個按鈕」。只有 HTML 的時候，按鈕是瀏覽器預設的樣子，沒有綠色，也沒有圓角。" },
+            { "callout": "web:sel:#add", "text": "只有 HTML：瀏覽器預設的按鈕" },
+            { "open": "styles.css", "narration": "顏色和圓角寫在 CSS 檔裡，所以答案是 CSS。" },
+            { "site": "web-js" },
+            { "callout": "web:sel:#add", "text": "綠色、圓角：CSS 負責" }
+          ]
+        },
+        {
+          "label": "CSS",
+          "steps": [
+            { "open": "styles.css", "narration": "答對了。顏色、圓角這些「長什麼樣」的事，都是 CSS 負責的。" },
+            { "callout": "editor:code", "text": "button 這一段：背景色與圓角" },
+            { "callout": "web:sel:#add", "text": "綠色、圓角：CSS 負責" }
+          ]
+        },
+        {
+          "label": "JavaScript",
+          "steps": [
+            { "open": "script.js", "narration": "JavaScript 寫的是按下去之後要做什麼，裡面沒有任何顏色和圓角。" },
+            { "callout": "editor:code", "text": "這裡只有「按下去之後」的事" },
+            { "open": "styles.css", "narration": "按鈕的外觀寫在 CSS 檔裡，所以答案是 CSS。" },
+            { "callout": "web:sel:#add", "text": "綠色、圓角：CSS 負責" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          { "open": "styles.css", "narration": "答案是 CSS。顏色、圓角這些「長什麼樣」的事，都是 CSS 負責的。" },
+          { "callout": "editor:code", "text": "button 這一段：背景色與圓角" },
+          { "callout": "web:sel:#add", "text": "綠色、圓角：CSS 負責" }
+        ]
+      }
+    },
+    {
+      "checkpoint": "按下按鈕，購物車的數字變成 1，是哪一個檔案做的？",
+      "body": "數字本來就寫在網頁上。是誰在按下去的那一刻，把它改掉的？",
+      "id": "click",
+      "options": [
+        {
+          "label": "HTML",
+          "steps": [
+            { "open": "index.html", "narration": "HTML 寫的是一開始的 0。它決定頁面上有這個數字，但不會自己改變。" },
+            { "callout": "editor:code", "text": "HTML 只寫了一開始的 0" },
+            { "site": "web-css", "narration": "沒有 JavaScript 的版本，按下去數字不會動。" },
+            { "click": "#add" },
+            { "open": "script.js", "narration": "數字會變，是因為 JavaScript 在按下去的那一刻改了它，所以答案是 JavaScript。" },
+            { "site": "web-js" },
+            { "click": "#add" },
+            { "callout": "web:sel:header .cart", "text": "按下去才改變：JavaScript 負責" }
+          ]
+        },
+        {
+          "label": "CSS",
+          "steps": [
+            { "open": "styles.css", "narration": "CSS 只決定數字長什麼樣，例如顏色和大小，不會因為按了按鈕就改內容。" },
+            { "site": "web-css", "narration": "只有 HTML 和 CSS 的版本，按下去數字不會動。" },
+            { "click": "#add" },
+            { "open": "script.js", "narration": "數字會變，是因為 JavaScript 在按下去的那一刻改了它，所以答案是 JavaScript。" },
+            { "site": "web-js" },
+            { "click": "#add" },
+            { "callout": "web:sel:header .cart", "text": "按下去才改變：JavaScript 負責" }
+          ]
+        },
+        {
+          "label": "JavaScript",
+          "steps": [
+            { "open": "script.js", "narration": "答對了。按下去之後要發生什麼事，是 JavaScript 負責的。" },
+            { "callout": "editor:code", "text": "按下去：數字加 1、顯示提示" },
+            { "click": "#add" },
+            { "callout": "web:sel:header .cart", "text": "按下去才改變：JavaScript 負責" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          { "open": "script.js", "narration": "答案是 JavaScript。按下去之後要發生什麼事，是 JavaScript 負責的。" },
+          { "callout": "editor:code", "text": "按下去：數字加 1、顯示提示" },
+          { "click": "#add" },
+          { "callout": "web:sel:header .cart", "text": "按下去才改變：JavaScript 負責" }
+        ]
+      }
+    },
+
+    { "card": "HTML 管有什麼\nCSS 管長什麼樣\nJavaScript 管會做什麼", "eyebrow": "學會", "sub": "今天的名詞：HTML、CSS、JavaScript、前端", "chapter": "學會", "narration": "HTML 管有什麼，CSS 管長什麼樣，JavaScript 管會做什麼。這些在瀏覽器裡執行、使用者直接看得到和操作的部分，合起來叫做前端。" }
+  ]
+}

@@ -1,0 +1,187 @@
+/* 演員 devtools:瀏覽器視窗＋開發者工具。選擇器都以 .A-devtools 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。
+   大小以 1920 寬的舞台 px 設計;寬度不到 1100px(例如直式舞台)時開發者工具改放在下方。 */
+.A-devtools {
+  --dt-line: #d3d7dc;
+  --dt-dim: #5f6368;
+  --dt-blue: #1a73e8;
+  --dt-sel: #cfe8fc;
+  --dt-hov: #e8f0fe;
+  width: 100%; height: 100%;
+  container: dt / inline-size;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 22px;
+  line-height: 1.45;
+  color: #202124;
+}
+.A-devtools *, .A-devtools *::before, .A-devtools *::after { box-sizing: border-box; }
+.A-devtools [hidden] { display: none !important; }
+.A-devtools svg { display: block; }
+
+/* ---------- 視窗 ---------- */
+.A-devtools .dt-window {
+  height: 100%; display: flex; flex-direction: column;
+  background: #fff; border: 1px solid var(--dt-line); border-radius: 0.7em; overflow: hidden;
+  box-shadow: 0 1em 2.6em rgba(0, 0, 0, 0.22);
+}
+.A-devtools .dt-bar { flex: none; display: flex; align-items: flex-end; gap: 0.45em; height: 2.2em; padding: 0 0.8em; background: #dee1e6; }
+.A-devtools .light { flex: none; width: 0.7em; height: 0.7em; border-radius: 50%; align-self: center; }
+.A-devtools .light.red { background: #ff5f57; }
+.A-devtools .light.yellow { background: #febc2e; }
+.A-devtools .light.green { background: #28c840; }
+.A-devtools .dt-btab {
+  display: flex; align-items: center; gap: 0.5em; margin-left: 0.9em; padding: 0.3em 1.2em 0.35em;
+  min-width: 9em; background: #fff; border-radius: 0.5em 0.5em 0 0; font-size: 0.82em;
+}
+.A-devtools .dt-fav { width: 0.85em; height: 0.85em; border-radius: 0.2em; background: #2f4a3a; }
+.A-devtools .dt-addr { flex: none; display: flex; align-items: center; gap: 0.7em; padding: 0.35em 0.9em; border-bottom: 1px solid var(--dt-line); }
+.A-devtools .dt-nav { color: #9aa0a6; font-size: 0.95em; }
+.A-devtools .dt-reload { width: 1.05em; height: 1.05em; color: #5f6368; }
+.A-devtools .dt-reload svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.A-devtools .dt-url { flex: 1; min-width: 0; padding: 0.22em 0.9em; background: #f1f3f4; border-radius: 1em; font-size: 0.82em; color: #3c4043; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.A-devtools .dt-body { flex: 1; min-height: 0; display: flex; }
+@container dt (max-width: 1100px) {
+  .A-devtools .dt-body { flex-direction: column; }
+  .A-devtools .dt-panel { border-left: 0 !important; border-top: 1px solid var(--dt-line); }
+}
+
+/* ---------- 示範網頁 ---------- */
+.A-devtools .dt-page { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; background: #faf7f2; }
+.A-devtools .dt-site { min-height: 100%; display: flex; flex-direction: column; color: #2b2118; }
+.A-devtools .s-header { display: flex; align-items: center; justify-content: space-between; gap: 1em; padding: 0.7em 1.4em; background: #2f4a3a; color: #fff; }
+.A-devtools .s-logo { font-weight: 800; font-size: 1.05em; letter-spacing: 0.06em; }
+.A-devtools .s-nav { display: flex; gap: 1.1em; font-size: 0.82em; opacity: 0.92; }
+.A-devtools .s-main { flex: 1; width: 100%; max-width: 30em; margin: 0 auto; padding: 1.3em 1.2em; }
+.A-devtools .s-title { margin-bottom: 0.6em; font-size: 1.45em; font-weight: 800; }
+.A-devtools .s-card {
+  display: grid; grid-template-columns: 7.5em 1fr; grid-template-rows: 1fr auto auto auto 1fr; column-gap: 1.1em; row-gap: 0.25em;
+  padding: 1em; background: #fff; border-radius: 0.6em; box-shadow: 0 0.2em 0.8em rgba(60, 40, 20, 0.12);
+}
+.A-devtools .s-img { grid-row: 1 / 6; width: 7.5em; height: 7.5em; padding: 0.6em; background: #ede3d4; border-radius: 0.4em; }
+.A-devtools .s-img svg { width: 100%; height: 100%; }
+.A-devtools .s-name { grid-row: 2; font-size: 1.1em; font-weight: 700; }
+.A-devtools .s-price { grid-row: 3; color: #c2410c; font-weight: 800; }
+.A-devtools .s-buy { grid-row: 4; justify-self: start; margin-top: 0.3em; padding: 0.4em 1.1em; background: #2f4a3a; color: #fff; border-radius: 0.4em; font-size: 0.85em; font-weight: 700; }
+.A-devtools .s-footer { padding: 0.8em; text-align: center; font-size: 0.72em; color: #8a8178; border-top: 1px solid #ebe3d8; }
+
+/* 框出元素:藍色半透明(像真的開發者工具),旁邊是標籤與大小 */
+.A-devtools .dt-ov { position: absolute; inset: 0; pointer-events: none; }
+.A-devtools .dt-ov-box { position: absolute; background: rgba(111, 168, 220, 0.5); outline: 2px solid rgba(26, 115, 232, 0.85); }
+.A-devtools .dt-ov-tip {
+  position: absolute; padding: 0.25em 0.6em; white-space: nowrap;
+  background: #fff; border-radius: 0.3em; box-shadow: 0 0.15em 0.6em rgba(0, 0, 0, 0.3);
+  font-family: "JetBrains Mono", "Cascadia Code", Consolas, Menlo, monospace; font-size: 0.72em;
+}
+.A-devtools .dt-ov-tip b { color: #881280; font-weight: 700; }
+.A-devtools .dt-ov-tip span { color: var(--dt-dim); }
+
+/* 右鍵選單、F12 */
+.A-devtools .dt-menu {
+  position: absolute; left: 0; top: 0; min-width: 9em; padding: 0.3em 0; opacity: 0; pointer-events: none;
+  background: #fff; border: 1px solid #dadce0; border-radius: 0.4em; box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.25); font-size: 0.8em;
+}
+.A-devtools .dt-mi { padding: 0.2em 1.2em; color: #3c4043; }
+.A-devtools .dt-mi.on { background: var(--dt-blue); color: #fff; }
+.A-devtools .dt-msep { height: 1px; margin: 0.3em 0; background: #e3e5e8; }
+.A-devtools .dt-key {
+  position: absolute; right: 1em; bottom: 1em; padding: 0.3em 0.8em; opacity: 0;
+  background: #fff; border: 1px solid #c8ccd1; border-bottom-width: 4px; border-radius: 0.4em;
+  font-weight: 700; font-size: 1.1em; color: #3c4043;
+}
+
+/* ---------- 開發者工具 ---------- */
+.A-devtools .dt-panel { flex: 0 0 44%; min-width: 0; min-height: 0; display: flex; flex-direction: column; border-left: 1px solid var(--dt-line); background: #fff; font-size: 0.8em; }
+.A-devtools .dt-ph { flex: none; display: flex; align-items: stretch; height: 2.2em; padding: 0 0.3em; background: #f1f3f4; border-bottom: 1px solid var(--dt-line); }
+.A-devtools .dt-ic { display: flex; align-items: center; justify-content: center; width: 1.9em; color: var(--dt-dim); }
+.A-devtools .dt-ic svg { width: 1.1em; height: 1.1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.A-devtools .dt-picker.on { color: var(--dt-blue); background: #d2e3fc; }
+.A-devtools .dt-sep { width: 1px; margin: 0.45em 0.3em; background: #c7cbd0; }
+.A-devtools .dt-tab { position: relative; display: flex; align-items: center; gap: 0.35em; padding: 0 0.85em; color: var(--dt-dim); white-space: nowrap; }
+.A-devtools .dt-tab.on { color: #202124; background: #fff; box-shadow: inset 0 -2px 0 var(--dt-blue); }
+.A-devtools .dt-badge { min-width: 1.25em; padding: 0 0.3em; border-radius: 0.65em; background: #d93025; color: #fff; font-size: 0.72em; line-height: 1.25em; text-align: center; font-weight: 700; }
+.A-devtools .dt-gap { flex: 1; }
+.A-devtools .dt-close { font-size: 0.9em; }
+.A-devtools .dt-pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.A-devtools .dt-tool { flex: none; display: flex; align-items: center; gap: 0.5em; height: 1.9em; padding: 0 0.5em; border-bottom: 1px solid #e3e5e8; font-size: 0.9em; color: var(--dt-dim); }
+.A-devtools .dt-tool .dt-ic { width: 1.6em; }
+.A-devtools .dt-ctx { padding: 0 0.4em; }
+.A-devtools .dt-filter { flex: 1; max-width: 10em; padding: 0 0.6em; border: 1px solid #dadce0; border-radius: 0.3em; color: #9aa0a6; }
+
+/* Elements */
+.A-devtools .dt-tree { position: relative; flex: 1; min-height: 0; overflow: hidden; padding: 0.3em 0; }
+.A-devtools .dt-tree-in { position: relative; font-family: "JetBrains Mono", "Cascadia Code", Consolas, Menlo, monospace; font-size: 0.92em; line-height: 1.65; white-space: pre; }
+.A-devtools .dt-ln { position: relative; padding-right: 0.6em; overflow: hidden; text-overflow: ellipsis; }
+.A-devtools .dt-ln.hov { background: var(--dt-hov); }
+.A-devtools .dt-ln.sel { background: var(--dt-sel); }
+.A-devtools .dt-doctype { padding-left: 1.4em; color: #80868b; }
+.A-devtools .dt-arrow { display: inline-block; width: 1em; color: #727272; font-size: 0.8em; }
+.A-devtools .dt-arrow.open::before { content: "▾"; }
+.A-devtools .dt-arrow.shut::before { content: "▸"; }
+.A-devtools .dt-ln .t { color: #881280; }
+.A-devtools .dt-ln .an { color: #994500; }
+.A-devtools .dt-ln .av { color: #1a1aa6; }
+.A-devtools .dt-ln .dots { padding: 0 0.15em; margin: 0 0.1em; background: #eceff1; border-radius: 0.3em; color: #5f6368; }
+.A-devtools .dt-eq { color: #80868b; }
+.A-devtools .dt-styles { flex: none; max-height: 36%; overflow: hidden; border-top: 1px solid var(--dt-line); }
+.A-devtools .dt-sty-h { padding: 0.2em 0.8em; background: #f8f9fa; border-bottom: 1px solid #e3e5e8; font-size: 0.9em; color: var(--dt-dim); }
+.A-devtools .dt-sty { padding: 0.3em 0.9em; font-family: "JetBrains Mono", "Cascadia Code", Consolas, Menlo, monospace; font-size: 0.85em; line-height: 1.5; }
+.A-devtools .dt-sty .sel { color: #202124; }
+.A-devtools .dt-decl { padding-left: 1.4em; }
+.A-devtools .dt-sty .pn { color: #c80000; }
+.A-devtools .dt-sty .pv { color: #202124; }
+
+/* Console */
+.A-devtools .dt-msgs { flex: 1; min-height: 0; overflow: hidden; font-family: "JetBrains Mono", "Cascadia Code", Consolas, Menlo, monospace; font-size: 0.88em; }
+.A-devtools .dt-msg { display: flex; gap: 0.5em; padding: 0.3em 0.8em; border-bottom: 1px solid #f1f3f4; }
+.A-devtools .dt-mico { flex: none; width: 1em; }
+.A-devtools .dt-mtext { flex: 1; min-width: 0; white-space: pre-wrap; word-break: break-word; }
+.A-devtools .dt-msrc { flex: none; color: var(--dt-dim); }
+.A-devtools .dt-msg.warn { background: #fef7e0; border-color: #fbe6a4; color: #5c3c00; }
+.A-devtools .dt-msg.warn .dt-mico { color: #e37400; }
+.A-devtools .dt-msg.error { background: #fce8e6; border-color: #f7c6c1; color: #c5221f; }
+.A-devtools .dt-prompt { display: flex; align-items: center; gap: 0.5em; padding: 0.3em 0.8em; color: var(--dt-blue); }
+.A-devtools .dt-caret { width: 2px; height: 1.1em; background: #202124; }
+
+/* Network */
+.A-devtools .dt-rec { width: 0.75em; height: 0.75em; margin: 0 0.4em; border-radius: 50%; background: #d93025; }
+.A-devtools .dt-chip { padding: 0 0.5em; border-radius: 0.6em; }
+.A-devtools .dt-chip.on { background: #e8eaed; color: #202124; }
+.A-devtools .dt-net { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+.A-devtools .dt-hint { flex: 1; align-self: center; text-align: center; color: var(--dt-dim); line-height: 1.8; }
+.A-devtools .dt-table { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 0.88em; }
+.A-devtools .dt-tr {
+  display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 0.8fr) minmax(0, 1.5fr);
+  align-items: center; min-height: 1.9em; border-bottom: 1px solid #f1f3f4;
+}
+.A-devtools .dt-tr > span { padding: 0 0.5em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-right: 1px solid #eceef0; }
+.A-devtools .dt-th { background: #f8f9fa; color: var(--dt-dim); border-bottom: 1px solid var(--dt-line); }
+.A-devtools .dt-rows .dt-tr:nth-child(even) { background: #f8f9fb; }
+.A-devtools .dt-rows .dt-tr.sel { background: var(--dt-sel); }
+.A-devtools .dt-name { display: flex; align-items: center; gap: 0.45em; }
+.A-devtools .dt-ri { flex: none; width: 0.8em; height: 0.95em; border-radius: 0.15em; }
+.A-devtools .dim { color: #9aa0a6; }
+.A-devtools .bad { color: #d93025; }
+.A-devtools .dt-wf { position: relative; align-self: stretch; }
+.A-devtools .dt-wf i { position: absolute; top: 35%; height: 30%; border-radius: 1px; }
+.A-devtools .doc { background: #4285f4; }
+.A-devtools .css { background: #a142f4; }
+.A-devtools .js { background: #f9ab00; }
+.A-devtools .img { background: #1e8e3e; }
+.A-devtools .api { background: #e8710a; }
+.A-devtools .other { background: #9aa0a6; }
+.A-devtools .dt-foot { flex: none; padding: 0.25em 0.8em; border-top: 1px solid var(--dt-line); background: #f8f9fa; font-size: 0.82em; color: var(--dt-dim); white-space: nowrap; overflow: hidden; }
+/* 打開請求細節時,列表只留名稱 */
+.A-devtools .dt-network.detail .dt-table { flex: 0 0 34%; }
+.A-devtools .dt-network.detail .dt-tr { grid-template-columns: minmax(0, 1fr); }
+.A-devtools .dt-network.detail .dt-tr > span:not(:first-child) { display: none; }
+.A-devtools .dt-detail { flex: 1; min-width: 0; border-left: 1px solid var(--dt-line); font-size: 0.88em; overflow: hidden; }
+.A-devtools .dt-dh { display: flex; align-items: stretch; height: 1.9em; border-bottom: 1px solid var(--dt-line); background: #f8f9fa; color: var(--dt-dim); }
+.A-devtools .dt-dh > span:not(.dt-ic) { display: flex; align-items: center; padding: 0 0.7em; }
+.A-devtools .dt-dh .on { color: #202124; box-shadow: inset 0 -2px 0 var(--dt-blue); }
+.A-devtools .dt-dsec { padding: 0.4em 0.8em 0.15em; font-weight: 700; }
+.A-devtools .dt-kv { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 0.6em; padding: 0.12em 0.8em 0.12em 1.6em; }
+.A-devtools .dt-kv b { font-weight: 500; color: var(--dt-dim); }
+.A-devtools .dt-kv span { display: flex; align-items: center; gap: 0.4em; word-break: break-all; }
+.A-devtools .dt-dot { width: 0.65em; height: 0.65em; border-radius: 50%; background: #1e8e3e; }
+.A-devtools .dt-dot.bad { background: #d93025; }

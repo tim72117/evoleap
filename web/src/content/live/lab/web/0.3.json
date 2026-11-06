@@ -1,0 +1,227 @@
+{
+  "title": "打開開發者工具",
+  "lesson": "網頁運作知識 · 0.3 試做",
+  "cast": {
+    "web": {
+      "actor": "devtools",
+      "props": {
+        "url": "https://shop.example/",
+        "title": "小森選物",
+        "console": [
+          {
+            "level": "log",
+            "text": "商品資料載入完成：1 件",
+            "src": "app.js:8"
+          }
+        ]
+      },
+      "place": "window"
+    }
+  },
+  "steps": [
+    {
+      "card": "打開開發者工具",
+      "eyebrow": "網頁運作知識 · 0.3",
+      "sub": "每個網站，都能在瀏覽器裡看到它的背面",
+      "narration": "每個網站，都能在瀏覽器裡看到它的背面。這一課我們打開開發者工具，看看一個網頁是由什麼組成的。"
+    },
+    {
+      "wait": 600,
+      "chapter": "看：網頁的背面就在瀏覽器裡",
+      "narration": "這是一個賣手作杯子的小網站。平常我們只看到正面：標題、商品圖片、價格和按鈕。"
+    },
+    {
+      "open": "title",
+      "narration": "在標題上按右鍵，選「檢查」，瀏覽器旁邊就打開了開發者工具。"
+    },
+    {
+      "callout": "web:panel",
+      "text": "開發者工具：瀏覽器內建，每個網站都能打開",
+      "narration": "這就是開發者工具，英文叫 DevTools。它是瀏覽器內建的，不用另外安裝，按 F12 也能打開。"
+    },
+    {
+      "callout": "web:node:title",
+      "text": "Elements：網頁的 HTML 結構",
+      "narration": "第一個分頁是 Elements。剛才按右鍵的標題，對應的就是反白的這一行 HTML。"
+    },
+    {
+      "pick": true,
+      "narration": "左上角這個箭頭是選取工具。按下去之後，滑過網頁上的東西，就會找到它的程式碼。"
+    },
+    {
+      "hover": "img",
+      "narration": "滑到圖片上，圖片被框了起來，旁邊標出它是 img 標籤、寬高多少；右邊對應的那一行也亮了。"
+    },
+    {
+      "hover": "price",
+      "narration": "滑到價格，換成 p 這一行亮起來。"
+    },
+    {
+      "inspect": "buy",
+      "narration": "點一下「加入購物車」，就選中了按鈕那一行。"
+    },
+    {
+      "hover": "name",
+      "narration": "反過來也可以：滑過程式碼的某一行，網頁上對應的東西就會被框起來。"
+    },
+    {
+      "tab": "console",
+      "narration": "第二個分頁是 Console，主控台。網頁裡的 JavaScript 會在這裡留下訊息，例如這一行「商品資料載入完成」。"
+    },
+    {
+      "click": "buy",
+      "narration": "我們按一下「加入購物車」。"
+    },
+    {
+      "error": "Uncaught TypeError: Cannot read properties of null (reading 'addEventListener')",
+      "src": "app.js:23",
+      "narration": "Console 多了一行紅字，分頁上也出現紅色的數字。這是錯誤訊息：網頁某個功能沒反應的時候，常常可以在這裡找到原因。"
+    },
+    {
+      "tab": "network",
+      "narration": "第三個分頁是 Network，網路。它記錄網頁向伺服器要了哪些檔案。現在還是空的，因為要先重新整理網頁。"
+    },
+    {
+      "reload": true,
+      "narration": "重新整理之後，請求一筆筆出現：先是網頁本身的 HTML，接著是 CSS、JavaScript、商品圖片，還有向伺服器要的商品資料。"
+    },
+    {
+      "callout": "web:request:1",
+      "text": "第一個請求：網頁本身（document）",
+      "narration": "每一列就是一次請求。第一個永遠是網頁本身，瀏覽器讀了它，才知道還要再要哪些檔案。"
+    },
+    {
+      "request": "mug.jpg",
+      "narration": "點一列可以看細節：完整網址、狀態碼 200 代表成功，還有檔案類型和大小。"
+    },
+    {
+      "request": false
+    },
+    {
+      "tab": "elements",
+      "chapter": "做：找找看",
+      "narration": "換你找找看。"
+    },
+    {
+      "checkpoint": "想知道網頁向伺服器要了哪些檔案，該打開哪一個分頁？",
+      "body": "點開發者工具上方的分頁。",
+      "id": "tab",
+      "stage": {
+        "focus": "web:panel"
+      },
+      "options": [
+        {
+          "label": "Elements",
+          "target": "web:tab:elements",
+          "steps": [
+            {
+              "tab": "elements",
+              "narration": "Elements 看的是網頁的 HTML 結構，也就是畫面上有哪些東西，看不到檔案是怎麼來的。"
+            },
+            {
+              "tab": "network",
+              "narration": "要看請求，打開 Network：每一個向伺服器要的檔案，都會記成一列。"
+            }
+          ]
+        },
+        {
+          "label": "Console",
+          "target": "web:tab:console",
+          "steps": [
+            {
+              "tab": "console",
+              "narration": "Console 是 JavaScript 留訊息、報錯的地方，剛才重新整理時已經清空了。"
+            },
+            {
+              "tab": "network",
+              "narration": "要看請求，打開 Network：每一個向伺服器要的檔案，都會記成一列。"
+            }
+          ]
+        },
+        {
+          "label": "Network",
+          "target": "web:tab:network",
+          "steps": [
+            {
+              "tab": "network",
+              "narration": "對，Network 記錄了網頁向伺服器要的每一個檔案，一個檔案一列。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": [
+          {
+            "tab": "network",
+            "narration": "答案是 Network：網頁向伺服器要的每一個檔案，都會記成一列。"
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "哪一列是瀏覽器第一個要的檔案？",
+      "body": "點 Network 裡的一列。",
+      "id": "first",
+      "stage": {
+        "focus": "web:network"
+      },
+      "options": [
+        {
+          "label": "app.js",
+          "target": "web:request:3",
+          "steps": [
+            {
+              "request": "app.js",
+              "narration": "app.js 是 JavaScript 檔，它是網頁裡寫著要載入，瀏覽器才去要的。"
+            },
+            {
+              "request": 1,
+              "narration": "第一個是 shop.example，類型是 document，也就是網頁本身的 HTML。"
+            }
+          ]
+        },
+        {
+          "label": "shop.example",
+          "target": "web:request:1",
+          "steps": [
+            {
+              "request": 1,
+              "narration": "對，第一個是網頁本身，類型是 document。瀏覽器讀了這份 HTML，才知道還要哪些檔案。"
+            }
+          ]
+        },
+        {
+          "label": "mug.jpg",
+          "target": "web:request:4",
+          "steps": [
+            {
+              "request": "mug.jpg",
+              "narration": "mug.jpg 是商品圖片，也是先有網頁裡的 img 標籤，瀏覽器才去要的。"
+            },
+            {
+              "request": 1,
+              "narration": "第一個是 shop.example，類型是 document，也就是網頁本身的 HTML。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": [
+          {
+            "request": 1,
+            "narration": "第一列是 shop.example，類型是 document，也就是網頁本身的 HTML。瀏覽器讀了它，才知道還要哪些檔案。"
+          }
+        ]
+      }
+    },
+    {
+      "card": "每個網站都能用開發者工具看到它的背面",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：開發者工具・Elements・Console・Network",
+      "chapter": "學會",
+      "narration": "每個網站都能用開發者工具看到它的背面。Elements 看網頁的 HTML 結構，Console 看 JavaScript 的訊息和錯誤，Network 看網頁向伺服器要了哪些檔案。"
+    }
+  ]
+}

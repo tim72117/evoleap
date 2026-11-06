@@ -252,6 +252,54 @@
   align-items: start;
 }
 
+/* 有預覽的卡片:「你會做出」另起一段橫跨整張卡片,仿照「做出自己的軟體」的成果段;成果依序排成一列 */
+.themeResult {
+  grid-column: 1 / -1;
+  padding-top: 18px;
+  border-top: 1px solid var(--site-border);
+}
+
+.theme .themeResult h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.themeResult ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: outcome;
+}
+
+.themeResult li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--site-surface-2);
+  border: 1px solid var(--site-border);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  counter-increment: outcome;
+}
+
+.themeResult li::before {
+  content: counter(outcome);
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--site-accent);
+  color: var(--site-on-accent, #fff);
+  font-size: 13px;
+  font-weight: 800;
+}
 
 /* 兒童版播放器還沒捲到附近、還沒掛上時的佔位:和舞台一樣 16:9,掛上時版面不會跳太多 */
 .kidsPlaceholder {
@@ -295,6 +343,11 @@
   background: var(--site-surface);
   border: 1px dashed var(--site-border);
   border-radius: var(--site-radius);
+}
+
+/* 已開放的主題:實線外框(規劃中是虛線) */
+.themeOpen {
+  border-style: solid;
 }
 
 .theme h3 {

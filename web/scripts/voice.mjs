@@ -179,12 +179,16 @@ async function build(rel, key) {
   const script = JSON.parse(fs.readFileSync(scriptPath, 'utf8'))
   // 兒童版的互動寫在步驟裡面(互動點的 options[].steps、子腳本的 interact.spots / done),也要有語音:整份腳本往下找所有 narration;
   // 其他腳本只取最外層的步驟(維持原本的範圍,不多產生、不多計費)
-  // 兒童版播放器停下來等孩子點時也會念題目:有選項的互動點標題(checkpoint)與子腳本的 interact.prompt 也要有語音
+  // 兒童版播放器停下來等孩子點時也會念題目:有選項的互動點標題(checkpoint)與子腳本的 interact.prompt 也要有語音;
+  // 拖曳完成任務時念的話(interact.drag 的 say、else)也是
   const deepNarrations = (v, out = []) => {
     if (Array.isArray(v)) v.forEach((x) => deepNarrations(x, out))
     else if (v && typeof v === 'object')
       for (const [k, x] of Object.entries(v)) {
         if (typeof x === 'string' && (k === 'narration' || k === 'prompt' || (k === 'checkpoint' && v.options))) out.push(x)
+        // 子腳本拖曳(interact.drag)完成任務時念的話(say:任務 → 旁白)與沒完成新任務時念的話(else)
+        else if (k === 'say' && x && typeof x === 'object' && !Array.isArray(x)) out.push(...Object.values(x).filter((s) => typeof s === 'string'))
+        else if (k === 'else' && typeof x === 'string') out.push(x)
         else deepNarrations(x, out)
       }
     return out

@@ -141,6 +141,7 @@ test('首頁:主打主題可以播放第 0 課,開始第一課連到課程', asy
   const kids = page.getByRole('region', { name: '給孩子的網頁程式' })
   await expect(kids.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/topics/kids/0-1')
   await expect(kids.getByRole('link', { name: '課程地圖' })).toHaveAttribute('href', '/topics/kids#map')
+  await expect(kids.getByText('開放中')).toBeVisible()
   await expect(page.getByText('規劃中').first()).toBeVisible()
   expect(errors).toEqual([])
 })
@@ -418,9 +419,11 @@ const PAGES = [
   '/studio',
   '/studio/todo',
   '/studio/kids-web',
+  '/studio/web-basics',
   '/studio/kids-web/0-1',
   '/studio/kids-web/0-1/live',
   '/studio/kids-web/0-2/live',
+  '/studio/kids-web/xray',
   '/studio/docs',
   '/materials',
   '/studio/actor-interaction/scene',

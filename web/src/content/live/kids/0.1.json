@@ -72,19 +72,19 @@
     },
     {
       "inspect": "h1",
-      "narration": "印著 <h1> 的積木，畫出最大的標題。"
+      "narration": "標題積木，畫出最大的那行字。"
     },
     {
       "inspect": "img",
-      "narration": "印著 <img> 的積木，放上一張圖片。"
+      "narration": "圖片積木，放上一張圖片。"
     },
     {
       "inspect": "p",
-      "narration": "印著 <p> 的積木，寫出一段文字。"
+      "narration": "文字積木，寫出一段文字。"
     },
     {
       "inspect": "button",
-      "narration": "印著 <button> 的積木，變成一個可以按的按鈕。"
+      "narration": "按鈕積木，變成一個可以按的按鈕。"
     },
     {
       "inspect": false,
@@ -109,14 +109,14 @@
       },
       "options": [
         {
-          "label": "<h1> 積木",
+          "label": "標題積木",
           "target": "kid:block:h1",
           "retry": true,
           "steps": [
             {
               "check": "h1",
               "answer": "button",
-              "narration": "這塊是 <h1>，它會畫出最大的標題。再試一次！"
+              "narration": "這塊是標題積木，它會畫出最大的那行字。再試一次！"
             },
             {
               "inspect": false,
@@ -125,14 +125,14 @@
           ]
         },
         {
-          "label": "<img> 積木",
+          "label": "圖片積木",
           "target": "kid:block:img",
           "retry": true,
           "steps": [
             {
               "check": "img",
               "answer": "button",
-              "narration": "這塊是 <img>，它會放上一張圖片。再試一次！"
+              "narration": "這塊是圖片積木，它會放上一張圖片。再試一次！"
             },
             {
               "inspect": false,
@@ -141,14 +141,14 @@
           ]
         },
         {
-          "label": "<p> 積木",
+          "label": "文字積木",
           "target": "kid:block:p",
           "retry": true,
           "steps": [
             {
               "check": "p",
               "answer": "button",
-              "narration": "這塊是 <p>，它會寫出一段文字。再試一次！"
+              "narration": "這塊是文字積木，它會寫出一段文字。再試一次！"
             },
             {
               "inspect": false,
@@ -157,13 +157,13 @@
           ]
         },
         {
-          "label": "<button> 積木",
+          "label": "按鈕積木",
           "target": "kid:block:button",
           "steps": [
             {
               "check": "button",
               "answer": "button",
-              "narration": "答對了！<button> 積木會變成一個可以按的按鈕。"
+              "narration": "答對了！按鈕積木會變成一個可以按的按鈕。"
             }
           ]
         }
@@ -182,14 +182,14 @@
       },
       "options": [
         {
-          "label": "<h1> 積木",
+          "label": "標題積木",
           "target": "kid:block:h1",
           "retry": true,
           "steps": [
             {
               "check": "h1",
               "answer": "img",
-              "narration": "這塊是 <h1>，它會畫出最大的標題。再試一次！"
+              "narration": "這塊是標題積木，它會畫出最大的那行字。再試一次！"
             },
             {
               "inspect": false,
@@ -198,25 +198,25 @@
           ]
         },
         {
-          "label": "<img> 積木",
+          "label": "圖片積木",
           "target": "kid:block:img",
           "steps": [
             {
               "check": "img",
               "answer": "img",
-              "narration": "答對了！<img> 積木會放上一張圖片。"
+              "narration": "答對了！圖片積木會放上一張圖片。"
             }
           ]
         },
         {
-          "label": "<p> 積木",
+          "label": "文字積木",
           "target": "kid:block:p",
           "retry": true,
           "steps": [
             {
               "check": "p",
               "answer": "img",
-              "narration": "這塊是 <p>，它會寫出一段文字。再試一次！"
+              "narration": "這塊是文字積木，它會寫出一段文字。再試一次！"
             },
             {
               "inspect": false,
@@ -225,14 +225,14 @@
           ]
         },
         {
-          "label": "<button> 積木",
+          "label": "按鈕積木",
           "target": "kid:block:button",
           "retry": true,
           "steps": [
             {
               "check": "button",
               "answer": "img",
-              "narration": "這塊是 <button>，它會變成一個可以按的按鈕。再試一次！"
+              "narration": "這塊是按鈕積木，它會變成一個可以按的按鈕。再試一次！"
             },
             {
               "inspect": false,
@@ -255,25 +255,25 @@
       },
       "options": [
         {
-          "label": "<h1> 積木",
+          "label": "標題積木",
           "target": "kid:block:h1",
           "steps": [
             {
               "check": "h1",
               "answer": "h1",
-              "narration": "答對了！<h1> 積木會畫出最大的標題。"
+              "narration": "答對了！標題積木會畫出最大的那行字。"
             }
           ]
         },
         {
-          "label": "<img> 積木",
+          "label": "圖片積木",
           "target": "kid:block:img",
           "retry": true,
           "steps": [
             {
               "check": "img",
               "answer": "h1",
-              "narration": "這塊是 <img>，它會放上一張圖片。再試一次！"
+              "narration": "這塊是圖片積木，它會放上一張圖片。再試一次！"
             },
             {
               "inspect": false,
@@ -282,14 +282,14 @@
           ]
         },
         {
-          "label": "<p> 積木",
+          "label": "文字積木",
           "target": "kid:block:p",
           "retry": true,
           "steps": [
             {
               "check": "p",
               "answer": "h1",
-              "narration": "這塊是 <p>，它會寫出一段文字。再試一次！"
+              "narration": "這塊是文字積木，它會寫出一段文字。再試一次！"
             },
             {
               "inspect": false,
@@ -298,14 +298,14 @@
           ]
         },
         {
-          "label": "<button> 積木",
+          "label": "按鈕積木",
           "target": "kid:block:button",
           "retry": true,
           "steps": [
             {
               "check": "button",
               "answer": "h1",
-              "narration": "這塊是 <button>，它會變成一個可以按的按鈕。再試一次！"
+              "narration": "這塊是按鈕積木，它會變成一個可以按的按鈕。再試一次！"
             },
             {
               "inspect": false,

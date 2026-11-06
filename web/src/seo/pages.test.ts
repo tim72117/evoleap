@@ -78,7 +78,9 @@ describe('兒童課(給孩子的網頁程式)', () => {
   it('主題頁的結構化資料列出每一課,可以上的課附網址;課程頁的麵包屑掛在主題底下', () => {
     const list = topic.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { name: string; url?: string }[] }
     expect(list.itemListElement.find((x) => x.name.startsWith('0.1'))?.url).toBe(absoluteUrl('/topics/kids/0-1'))
-    expect(list.itemListElement.find((x) => x.name.startsWith('0.2'))?.url).toBeUndefined()
+    expect(list.itemListElement.find((x) => x.name.startsWith('0.2'))?.url).toBe(absoluteUrl('/topics/kids/0-2'))
+    // 還在規劃中的課沒有網址
+    expect(list.itemListElement.find((x) => x.name.startsWith('1.1'))?.url).toBeUndefined()
     expect(JSON.stringify(lesson.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))).toContain('/topics/kids')
     expect(lesson.jsonLd?.some((x) => x['@type'] === 'Course')).toBe(true)
   })

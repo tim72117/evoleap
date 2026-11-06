@@ -1,0 +1,121 @@
+{
+  "title": "輸入網址之後發生的事（試做）",
+  "lesson": "網頁運作知識 · 序章 0.1",
+  "cast": {
+    "net": {
+      "actor": "net-trip",
+      "props": {
+        "domain": "www.example.com",
+        "ip": "93.184.216.34",
+        "pages": { "/": { "title": "Example Domain", "heading": "歡迎光臨", "text": "這是伺服器上的 index.html，瀏覽器把它畫成你看到的畫面。" } }
+      },
+      "place": { "x": 100, "y": 80, "w": 1720, "h": 650 }
+    }
+  },
+  "steps": [
+    { "card": "輸入網址之後發生的事", "eyebrow": "網頁運作知識 · 序章 0.1", "chapter": "看：網頁怎麼來的", "narration": "在網址列按下 Enter，到畫面出現，通常不到一秒。這一課把這一秒放慢來看。" },
+    { "callout": "net:browser", "text": "瀏覽器：幫你上網、把網頁畫出來的程式", "narration": "左邊是瀏覽器，例如 Chrome、Safari、Edge。它幫你上網，也負責把網頁畫出來。" },
+    { "callout": "net:server", "text": "伺服器：放著網站檔案、一直開著的電腦", "narration": "右邊是伺服器。它是一台一直開著的電腦，網站的檔案就放在上面。" },
+    { "type": "www.example.com", "narration": "先在網址列輸入網址。網址的英文是 URL，就是一個網頁的地址。" },
+    { "callout": "net:addressbar", "text": "www.example.com 是網域：網站的名字", "narration": "這串文字是網域，也就是網站的名字。人好記，但電腦要的是另一種地址。" },
+    { "enter": true, "narration": "按下 Enter。瀏覽器知道要去哪個網站，卻還不知道它在網路上的位置。" },
+    { "callout": "net:dns", "text": "DNS：把網域換成 IP 的電話簿", "narration": "網路上的電腦靠一串數字找到彼此，叫做 IP 位址。把網域換成 IP，是 DNS 的工作，就像查電話簿。" },
+    { "lookup": true, "narration": "瀏覽器先寄一封信問 DNS：www.example.com 的 IP 是多少？" },
+    { "answer": true, "narration": "DNS 查到了，回覆一串 IP。瀏覽器記下來，現在知道伺服器在哪裡了。" },
+    { "request": true, "narration": "接著，瀏覽器照著 IP，把信寄給伺服器。這封信叫做請求。「GET /」的意思是：請給我首頁。" },
+    { "respond": true, "narration": "伺服器找到首頁的檔案 index.html，連同「200 OK」一起寄回來。這封信叫做回應，200 OK 表示成功。" },
+    { "render": true, "focus": { "target": "net:browser", "zoom": 1.4 }, "narration": "瀏覽器拿到的是一份 HTML 檔案，不是畫好的圖。它照著檔案的內容，自己把畫面一塊塊畫出來。" },
+    { "callout": "net:page", "text": "網頁是瀏覽器向伺服器要來、再自己畫出來的", "narration": "所以你看到的網頁，是瀏覽器向伺服器要來，再自己畫出來的。" },
+
+    { "restart": true, "chapter": "做：排排看", "focus": false, "narration": "換你來排順序。先把瀏覽器關掉重開，它記得的 IP 也一起忘了。" },
+    { "type": "www.example.com" },
+    { "enter": true, "narration": "網址打好，按下 Enter。" },
+    {
+      "checkpoint": "瀏覽器拿到網址後，第一件事是什麼？",
+      "body": "瀏覽器現在只知道網域 www.example.com，還不知道伺服器在哪裡。",
+      "id": "first",
+      "options": [
+        {
+          "label": "問 DNS：這個網域的 IP 是多少",
+          "steps": [
+            { "lookup": true, "narration": "答對了。瀏覽器只知道網域，要先問 DNS 換成 IP，才找得到伺服器。" },
+            { "answer": true, "narration": "DNS 回覆 IP，瀏覽器就能寄出請求了。" }
+          ]
+        },
+        {
+          "label": "直接把網頁畫出來",
+          "steps": [
+            { "callout": "net:page", "text": "手上還沒有網頁檔案，沒有東西可以畫", "narration": "還不行。瀏覽器手上還沒有網頁的檔案，沒有東西可以畫。要先找到伺服器，把檔案要過來。" },
+            { "lookup": true, "narration": "第一步是問 DNS：這個網域的 IP 是多少？" },
+            { "answer": true }
+          ]
+        },
+        {
+          "label": "直接把請求寄給伺服器",
+          "steps": [
+            { "callout": "net:dns", "text": "還不知道伺服器的 IP，信寄不出去", "narration": "差一步。寄信要有地址，瀏覽器還不知道伺服器的 IP，所以要先問 DNS。" },
+            { "lookup": true },
+            { "answer": true, "narration": "拿到 IP 之後，才能寄出請求。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": [
+          { "lookup": true, "narration": "第一件事是問 DNS：這個網域的 IP 是多少？" },
+          { "answer": true, "narration": "DNS 回覆 IP，瀏覽器就能寄出請求了。" }
+        ]
+      }
+    },
+    { "request": true, "narration": "有了 IP，瀏覽器送出請求。" },
+    { "respond": true, "narration": "伺服器回應「200 OK」，附上 index.html。" },
+    { "render": true, "narration": "瀏覽器照著檔案，把畫面畫出來。" },
+
+    { "type": "www.example.com/menu", "narration": "再試一次。這次在網址後面加上「/menu」，可是這個網站沒有這一頁。" },
+    { "enter": true },
+    { "request": true, "narration": "瀏覽器還記得這個網域的 IP，不用再問 DNS，直接送出請求：「GET /menu」。" },
+    {
+      "checkpoint": "伺服器找不到這一頁，會怎麼回應？",
+      "body": "請求的是 /menu，伺服器上只有 index.html。",
+      "id": "notfound",
+      "options": [
+        {
+          "label": "回應「404 Not Found」",
+          "steps": [
+            { "respond": true, "narration": "答對了。伺服器還是會回應，只是狀態碼換成 404，意思是找不到這一頁。" },
+            { "render": true, "narration": "瀏覽器把這個回應畫出來，就是常見的 404 頁面。" }
+          ]
+        },
+        {
+          "label": "回應「200 OK」，給一頁空白",
+          "steps": [
+            { "respond": true, "narration": "不對。200 OK 表示成功找到。找不到的時候，伺服器回的是 404 Not Found。" },
+            { "render": true, "narration": "瀏覽器畫出來的，是一頁 404 頁面。" }
+          ]
+        },
+        {
+          "label": "不回應，讓瀏覽器一直等",
+          "steps": [
+            { "respond": true, "narration": "不會。伺服器開著、也收到了請求，就會回應；找不到時回的是 404 Not Found。" },
+            { "render": true, "narration": "只有伺服器關機、信送不到的時候，才會完全沒有回應。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": [
+          { "respond": true, "narration": "伺服器找不到這一頁，回應「404 Not Found」。" },
+          { "render": true, "narration": "瀏覽器把這個回應畫出來，就是常見的 404 頁面。" }
+        ]
+      }
+    },
+
+    {
+      "card": "網頁是瀏覽器向伺服器要來、再自己畫出來的。",
+      "eyebrow": "學會",
+      "sub": "瀏覽器 · 網址（URL） · 網域 · DNS · 伺服器 · 請求 · 回應",
+      "chapter": "學會",
+      "narration": "今天學會：網頁是瀏覽器向伺服器要來，再自己畫出來的。一路上的名詞有：瀏覽器、網址、網域、DNS、伺服器、請求、回應。"
+    }
+  ]
+}

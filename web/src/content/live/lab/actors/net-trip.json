@@ -1,0 +1,34 @@
+{
+  "title": "net-trip：輸入網址到畫出網頁",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "net-trip",
+      "props": {
+        "domain": "www.example.com",
+        "ip": "93.184.216.34",
+        "pages": { "/": { "title": "Example Domain", "heading": "歡迎光臨", "text": "這是伺服器上的 index.html。" } }
+      },
+      "place": { "x": 100, "y": 90, "w": 1720, "h": 640 }
+    }
+  },
+  "steps": [
+    { "type": "www.example.com" },
+    { "enter": true },
+    { "lookup": true },
+    { "answer": true },
+    { "request": true },
+    { "respond": true },
+    { "render": true },
+    { "type": "www.example.com/menu" },
+    { "enter": true },
+    { "request": true },
+    { "respond": true },
+    { "render": true },
+    { "power": false },
+    { "type": "www.example.com" },
+    { "enter": true },
+    { "request": true },
+    { "wait": 800 }
+  ]
+}

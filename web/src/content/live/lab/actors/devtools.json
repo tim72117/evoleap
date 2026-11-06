@@ -1,0 +1,60 @@
+{
+  "title": "devtools：檢查元素、Console、Network",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "devtools",
+      "props": {
+        "console": [
+          {
+            "level": "log",
+            "text": "商品資料載入完成：1 件",
+            "src": "app.js:8"
+          }
+        ]
+      },
+      "place": {
+        "x": 120,
+        "y": 60,
+        "w": 1680,
+        "h": 900
+      }
+    }
+  },
+  "steps": [
+    {
+      "open": "title"
+    },
+    {
+      "pick": true
+    },
+    {
+      "hover": "img"
+    },
+    {
+      "inspect": "buy"
+    },
+    {
+      "hover": "price"
+    },
+    {
+      "tab": "console"
+    },
+    {
+      "error": "Uncaught TypeError: Cannot read properties of null (reading 'addEventListener')",
+      "src": "app.js:23"
+    },
+    {
+      "tab": "network"
+    },
+    {
+      "reload": true
+    },
+    {
+      "request": 1
+    },
+    {
+      "wait": 800
+    }
+  ]
+}

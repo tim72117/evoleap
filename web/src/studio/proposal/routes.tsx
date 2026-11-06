@@ -8,9 +8,11 @@ import { AiToolsPage } from './AiToolsPage'
 import { CoverPage } from './CoverPage'
 import { FieldsPage } from './FieldsPage'
 import { KidsWebPage } from './KidsWebPage'
+import { WebBasicsPage } from './WebBasicsPage'
 import { KidsLesson01Page } from '../kids/KidsLesson01Page'
 import { KidsLesson01LivePage } from '../kids/KidsLesson01LivePage'
 import { KidsLesson02LivePage } from '../kids/KidsLesson02LivePage'
+import { KidsXrayLivePage } from '../kids/KidsXrayLivePage'
 import { L1IdeasPage } from './L1IdeasPage'
 import { LifeToolsPage } from './LifeToolsPage'
 import { McpPage } from './McpPage'
@@ -51,8 +53,15 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/actor-interaction/push', element: <InteractiveScenePage key="actor-push" script="lab/interactive-l0-claude.json" pageTitle="互動場景：把演員推到主畫面" interaction="stage" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
   { path: '/studio/kids-web', element: <KidsWebPage /> },
+  { path: '/studio/web-basics', element: <WebBasicsPage /> },
+  // 網頁運作知識序章的試做:成人課的互動場景頁,腳本在 content/live/lab/web/
+  ...(['0.1', '0.2', '0.3'] as const).map((id) => ({
+    path: `/studio/web-basics/${id.replace('.', '-')}`,
+    element: <InteractiveScenePage key={`web-${id}`} script={`lab/web/${id}.json`} pageTitle={`網頁運作知識 ${id} 試做`} back={{ to: '/studio/web-basics', label: '← 網頁運作知識' }} />,
+  })),
   { path: '/studio/kids-web/0-1', element: <KidsLesson01Page /> },
   { path: '/studio/kids-web/0-1/live', element: <KidsLesson01LivePage /> },
   { path: '/studio/kids-web/0-2/live', element: <KidsLesson02LivePage /> },
+  { path: '/studio/kids-web/xray', element: <KidsXrayLivePage /> },
   { path: '/studio/visuals', element: <VisualsPage /> },
 ]

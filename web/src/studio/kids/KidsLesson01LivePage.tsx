@@ -16,7 +16,7 @@ export function KidsLesson01LivePage() {
       <h1>0.1　翻到網頁的背面</h1>
 
       {/* 孩子打開就是播放器,說明文字都放在播放器後面 */}
-      <KidsPlayer script="kids/0.1.json" />
+      <KidsPlayer script="kids/0.1.json" scrub />
 
       <h2>做到了什麼</h2>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>試做 · 引擎沒改，只加演員與兒童版播放器</span>

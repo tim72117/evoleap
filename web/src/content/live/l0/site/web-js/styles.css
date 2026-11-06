@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #f7f1e8;
+  color: #3b2a1e;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: #3b2a1e;
+  color: #fff;
+}
+main {
+  max-width: 480px;
+  margin: 32px auto;
+  text-align: center;
+}
+.photo {
+  font-size: 96px;
+  background: #ead9c2;
+  border-radius: 16px;
+}
+.price { font-weight: bold; }
+button {
+  padding: 12px 40px;
+  border: 0;
+  background: #2f7d4f;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 18px;
+}
+#toast { color: #2f7d4f; }

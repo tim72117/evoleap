@@ -25,7 +25,7 @@ export function KidsWebPage() {
       <h1>構想 · 給孩子的網頁程式設計</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>大綱草稿 · 待評估</span>
       <p className={ui.lead}>
-        讓 9 歲的孩子看得懂、做得出來：大量用舞台展示「改一行程式，網頁跟著變」，每課都讓孩子自己動手。共 {KIDS_UNITS.length} 個單元、
+        讓 9 歲的孩子看懂網頁怎麼運作、說得出正確的名詞，最後能把目標說清楚、請 AI 幫忙做出來；不教語法，每課都讓孩子自己動手。共 {KIDS_UNITS.length} 個單元、
         {lessonCount} 課（暫定）。
       </p>
 
@@ -65,6 +65,8 @@ export function KidsWebPage() {
                 做：{l.try}
                 <br />
                 學會：{l.learn}
+                <br />
+                名詞：{l.words.join('、')}
               </li>
             ))}
           </ul>

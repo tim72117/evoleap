@@ -93,12 +93,14 @@ export type PlannedTopic = {
    * intro 放在環節清單上方;sections 是腳本的段落名稱 → 給家長看的說明、是不是要孩子動手(可互動)
    */
   preview?: { script: string; intro?: string; sections?: Record<string, { note?: string; interactive?: boolean }> }
+  /** 已經開放的主題:首頁卡片標「開放中」(不寫就是「規劃中」) */
+  open?: boolean
   /** 首頁卡片的「開始」按鈕:已經可以上的第一課 */
   start?: { label: string; path: string }
 }
 
 /**
- * 主題「給孩子的網頁程式」:規劃中,首頁單獨放在「更多主題課程」上方;課程地圖在 /topics/kids(home/KidsTopicPage.tsx)。
+ * 主題「給孩子的網頁程式」:開放中(課程陸續開放),首頁單獨放在「更多主題課程」上方;課程地圖在 /topics/kids(home/KidsTopicPage.tsx)。
  * 單元與課程在 content/kidsCourse.ts;研發中的大綱與試做在研發基地 /studio/kids-web。這裡只寫大綱裡已有的內容。
  */
 export const KIDS_TOPIC = {
@@ -106,10 +108,11 @@ export const KIDS_TOPIC = {
   slogan: '用積木蓋網頁，陪 9 歲的孩子做出自己的小網站',
   path: '/topics/kids',
   seoTitle: '給孩子的網頁程式課：用積木認識 HTML、CSS、JavaScript',
-  description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程規劃中，第一課已經可以試上。',
+  description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程陸續開放中，第一課可以免費預覽。',
+  open: true,
   start: { label: '開始第一課', path: KIDS_OPEN_LESSONS['0.1'].path },
-  flow: ['用積木蓋網頁', '幫網頁換衣服', '讓網頁動起來'],
-  outcomes: ['一張自己的寵物名片網頁', '換上自己風格的版面', '一個能玩的小遊戲'],
+  flow: ['用積木蓋網頁', '幫網頁換衣服', '讓網頁動起來', '說清楚，請 AI 幫忙做'],
+  outcomes: ['說得出網頁每個部分的名字', '一張自己的寵物名片網頁', '請 AI 做出自己的小網站'],
   // 這張卡片是給家長看的:環節說明寫孩子會做什麼;段落名稱要和 content/live/kids/0.1.json 的 chapter 一致
   preview: {
     script: KIDS_OPEN_LESSONS['0.1'].script,

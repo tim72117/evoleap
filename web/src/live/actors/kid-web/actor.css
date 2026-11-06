@@ -95,3 +95,8 @@
   box-shadow: 0 4px 0 #2b2620;
   pointer-events: none;
 }
+
+/* 積木上印中文名字(不用 <h1> 這類標籤名稱):用一般字體,上面一個小圖示 */
+.A-kid-web .kw-tag { font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; font-size: 38px; gap: 2px; }
+.A-kid-web .kw-tag small { font-size: 30px; line-height: 1; }
+.A-kid-web .kw-xtag { font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; }

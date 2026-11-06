@@ -1,7 +1,7 @@
 // 演員展示頁 /studio/actor-interaction/showcase:每位演員都能播放,關掉區塊後畫面與腳本設定跟著改。
 import { expect, test } from '@playwright/test'
 
-const ACTORS = ['claude-desktop', 'finder', 'browser', 'chat', 'person', 'notes', 'editor', 'macbook']
+const ACTORS = ['claude-desktop', 'finder', 'browser', 'chat', 'person', 'notes', 'editor', 'macbook', 'net-trip', 'devtools']
 
 for (const actor of ACTORS) {
   test(`${actor} 的示範腳本載入成功`, async ({ page }) => {

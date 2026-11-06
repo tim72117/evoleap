@@ -1,0 +1,66 @@
+{
+  "title": "kid-tree：照樹畫網頁、移動節點",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "kid-tree",
+      "props": {
+        "title": "小花的家",
+        "nodes": [
+          {
+            "id": "h1",
+            "text": "小花的家"
+          },
+          {
+            "id": "card",
+            "children": [
+              {
+                "id": "img",
+                "text": "🐱"
+              },
+              {
+                "id": "p",
+                "text": "小花是一隻愛睡午覺的橘貓。"
+              }
+            ]
+          },
+          {
+            "id": "button",
+            "text": "摸摸小花"
+          }
+        ]
+      },
+      "place": {
+        "x": 60,
+        "y": 80,
+        "w": 1800,
+        "h": 800
+      }
+    }
+  },
+  "steps": [
+    {
+      "draw": true
+    },
+    {
+      "inspect": "card"
+    },
+    {
+      "put": "img",
+      "parent": "root",
+      "index": 0
+    },
+    {
+      "put": "button",
+      "parent": "card",
+      "index": 2
+    },
+    {
+      "check": "h1",
+      "answer": "img"
+    },
+    {
+      "inspect": false
+    }
+  ]
+}

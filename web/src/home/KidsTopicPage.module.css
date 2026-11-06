@@ -39,57 +39,207 @@
   text-decoration: none;
 }
 
-/* 課程頁:全頁互動播放器撐滿網站標頭(約 56px)以下的畫面,課名一行放在上面 */
-.full {
-  display: flex;
-  flex-direction: column;
-  height: calc(100dvh - 56px);
-  min-height: 480px;
+/* 課程頁:整個視窗都是播放器;回課程地圖、側欄都浮在上面(參考一般版的互動課程頁) */
+.whole {
+  position: relative;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.fullHead {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  padding: 10px 16px 0;
-}
-
-.fullHead h1 {
-  margin: 0;
-  font-size: clamp(18px, 2.4vw, 24px);
-}
-
-.fullPlayer {
+.wholePlayer {
   flex: 1;
+  min-width: 0;
   min-height: 0;
 }
 
-.back {
-  color: var(--site-muted);
+/* 給孩子用的大按鈕(至少 48px 高) */
+.bigButton,
+.floatBack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 8px 20px;
+  border: 2px solid var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-text);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--site-text) 12%, transparent);
 }
 
-.back:hover {
-  color: var(--site-text);
+.bigButton:hover,
+.floatBack:hover {
+  background: var(--site-surface-2);
 }
 
-.parents {
-  max-width: 44em;
-  margin: 28px auto 64px;
-  padding: 18px 20px;
-  border: 1px solid var(--site-border);
+.floatBack {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 5;
+  box-shadow: var(--site-shadow);
+}
+
+/* 給家長:蓋在畫面上的說明框,點外面或「知道了」關掉 */
+.parentsLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 35%);
+}
+
+.parentsCard {
+  max-width: 34em;
+  padding: 20px 22px;
   border-radius: var(--site-radius);
   background: var(--site-surface);
+  box-shadow: var(--site-shadow);
 }
 
-.parents h2 {
+.parentsCard h2 {
   margin: 0 0 6px;
   font-size: 18px;
 }
 
-.parents p {
-  margin: 6px 0 0;
+.parentsCard p {
+  margin: 8px 0 0;
   color: var(--site-muted);
   line-height: 1.7;
+}
+
+.parentsCard button {
+  margin-top: 16px;
+}
+
+/* 每一課的狀態:圓角膠囊。免費預覽是實心的綠、登入後可上是暖色加鎖頭、規劃中是淡淡的虛線 */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px 5px 6px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.statusIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+}
+.status[data-state='free'],
+.status[data-state='start'] {
+  background: var(--site-accent-solid);
+  color: var(--site-accent-contrast);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--site-accent-solid) 55%, #000);
+}
+.status[data-state='free'] .statusIcon,
+.status[data-state='start'] .statusIcon {
+  background: color-mix(in srgb, var(--site-accent-contrast) 22%, transparent);
+}
+.status[data-state='login'] {
+  background: color-mix(in srgb, var(--site-highlight) 14%, var(--site-surface));
+  color: var(--site-highlight);
+  border: 1px solid color-mix(in srgb, var(--site-highlight) 35%, transparent);
+}
+.status[data-state='login'] .statusIcon {
+  background: var(--site-surface);
+}
+.status[data-state='planned'] {
+  padding-right: 12px;
+  border: 1px dashed var(--site-border);
+  color: var(--site-muted);
+}
+.status[data-state='planned'] .statusIcon {
+  background: var(--site-surface-2);
+}
+
+/* 只給螢幕閱讀器(看不到,但頁面標題還在) */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 右上角的浮動側欄:課名、給家長、段落(KidsPlayer 的 chaptersSlot 把段落選單放進來) */
+.side {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 5;
+  width: 290px;
+  max-height: calc(100% - 28px);
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid var(--site-border);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--site-surface) 94%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--site-shadow);
+}
+
+.side[data-open='false'] {
+  width: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.sideHead h1 {
+  display: grid;
+  gap: 2px;
+  margin: 2px 4px 10px;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.sideHead h1 small {
+  color: var(--site-muted);
+  font-size: 14px;
+}
+
+.sideButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.side[data-open='true'] .sideButtons {
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+.side[data-open='false'] .bigButton {
+  box-shadow: var(--site-shadow);
+}
+
+/* 側欄裡的段落選單(KidsPlayer 的 .menu):一段一列,放大給孩子點 */
+.side li button {
+  min-height: 52px;
+  font-size: 16px;
 }

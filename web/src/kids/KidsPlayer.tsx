@@ -6,6 +6,7 @@ import { createStage, type Stage, type StageScript } from '../live/stage'
 import type { AnyActor, Hotspot, ScriptStep } from '../live/types'
 import { expandAnswers, momentsOf, type Answers, type Moment } from '../studio/interactive/scene'
 import s from './KidsPlayer.module.css'
+import { dragPlan, type DragPlan, type DropSlot } from './drag'
 import { Say as SayChips } from './say'
 import { hush, playClip, speak } from './speech'
 
@@ -38,11 +39,23 @@ type GuideSpec = { target: string; text: string }
 type Guide = { text: string; rect: Rect }
 type AskOption = { label: string; target?: string }
 /** 停下來等孩子點:題目、可以點的地方,點了做什麼 */
-type Ask = { title: string; body: string; again: boolean; focus?: string; quiz: boolean; options: AskOption[]; pick: (i: number) => void }
+type Ask = {
+  title: string
+  body: string
+  again: boolean
+  focus?: string
+  quiz: boolean
+  options: AskOption[]
+  pick: (i: number) => void
+  /** 子腳本的拖曳(interact.drag):可以拖的東西、可以放的位置,放下去演哪一步 */
+  drag?: { plan: DragPlan; drop: (step: ScriptStep) => void }
+}
 type Retry = { id: string; at: number; from: number }
 /** 子腳本列出的可點區:點 target 演 steps;點過的再點,有 again 就演 again。id 相同的可點區算同一個(例如網頁上的標題和 <h1> 積木) */
 type Spot = { target: string; id?: string; label?: string; steps: ScriptStep[]; again?: ScriptStep[] }
-type Interact = { on: string; prompt: string; body?: string; spots?: Spot[]; until?: { count: string; atLeast: number }; done?: { steps: ScriptStep[] } }
+/** 子腳本的拖曳:say 是完成某個任務時念的話(任務 id → 旁白),else 是移動了但沒有完成新任務時念的話 */
+type DragSpec = { say?: Record<string, string>; else?: string }
+type Interact = { on: string; prompt: string; body?: string; spots?: Spot[]; drag?: DragSpec; until?: { count: string; atLeast: number }; done?: { steps: ScriptStep[] } }
 type SubScript = StageScript & { interact?: Interact }
 type Sub = {
   title: string
@@ -96,6 +109,31 @@ function sayOn(st: Stage | null, text: string) {
   if (url) playClip(url)
   else speak(text)
 }
+
+/** 字幕一次最多出現幾個字(兒童版:字放大,一次不要太多字) */
+const CAPTION_MAX = 14
+/** 字幕的字數單位:<h1> 這類標籤算一個(畫成一塊小積木,不能從中間切開) */
+const units = (text: string): string[] => text.match(/<[a-z0-9]+>|./gsu) ?? []
+/** 把一段旁白照標點切成幾小句;一小句太長再從中間切開,太短就和下一句併在一起 */
+function captionParts(text: string): string[] {
+  const pieces = text.split(/(?<=[，。！？；：、])/).filter(Boolean)
+  const out: string[] = []
+  for (const p of pieces) {
+    const last = out[out.length - 1]
+    if (last && units(last).length + units(p).length <= CAPTION_MAX) out[out.length - 1] = last + p
+    else out.push(p)
+  }
+  return out.flatMap((p) => {
+    const us = units(p)
+    if (us.length <= CAPTION_MAX) return [p]
+    const n = Math.ceil(us.length / CAPTION_MAX)
+    const size = Math.ceil(us.length / n)
+    return Array.from({ length: n }, (_, i) => us.slice(i * size, (i + 1) * size).join(''))
+  })
+}
+
+/** 說明框外框比目標四周各大幾 px */
+const RING = 10
 
 const sameGuides = (a: Guide[], b: Guide[]) =>
   a.length === b.length && a.every((x, i) => x.text === b[i].text && x.rect.x === b[i].rect.x && x.rect.y === b[i].rect.y && x.rect.w === b[i].rect.w && x.rect.h === b[i].rect.h)
@@ -202,6 +240,153 @@ function reached(state: unknown, until: Interact['until']): boolean {
   return !!until && countOf(state, until) >= until.atLeast
 }
 
+/**
+ * 拖曳層(舞台座標,跟著舞台縮放):可以拖的東西疊上透明的握把;拖的時候畫出所有可以放的位置,
+ * 離指標最近的那一條變亮,放開就交給 drop。滑鼠與手指都用 Pointer Events。
+ */
+function DragLayer({
+  drag,
+  rects,
+  toStage,
+  onGrab,
+  elementOf,
+}: {
+  drag: NonNullable<Ask['drag']>
+  rects: Record<string, Rect>
+  toStage: (cx: number, cy: number) => { x: number; y: number }
+  /** 開始拖的時候(收起提示) */
+  onGrab?: () => void
+  /** 目標(「演員代號:目標」)現在對應的元素:拖的時候複製一份跟著指標走 */
+  elementOf?: (target: string) => HTMLElement | null
+}) {
+  const [held, setHeld] = useState<{ id: string; label: string; x: number; y: number; slot: DropSlot | null } | null>(null)
+  // 拖的時候整個節點跟著指標走:複製一份放進演員裡(才有演員的樣式),原本的先藏起來;放開就拿掉複製的、原本的顯示回來。
+  // 這只在停下來等孩子操作時存在,不屬於舞台的時間軸,放開後演員照新的狀態重畫
+  const lift = useRef<{ clone: HTMLElement; orig: HTMLElement; host: HTMLElement; dx: number; dy: number } | null>(null)
+  const follow = (cx: number, cy: number) => {
+    const l = lift.current
+    if (!l) return
+    const hr = l.host.getBoundingClientRect()
+    const k = hr.width / (l.host.offsetWidth || 1) || 1
+    l.clone.style.left = `${(cx - l.dx - hr.left) / k}px`
+    l.clone.style.top = `${(cy - l.dy - hr.top) / k}px`
+  }
+  const drop = () => {
+    const l = lift.current
+    if (!l) return
+    l.clone.remove()
+    l.orig.style.visibility = ''
+    lift.current = null
+  }
+  useEffect(() => drop, [])
+  const slots = held ? drag.plan.slotsFor(held.id).filter((d) => rects[d.target]) : []
+  /** 離指標最近的放置位置:指標要在那條縫的左端右邊一點以內(越往右拖越進到裡面一層),上下距離最近的 */
+  const nearest = (id: string, x: number, y: number): DropSlot | null => {
+    let best: DropSlot | null = null
+    let dist = 90
+    for (const d of drag.plan.slotsFor(id)) {
+      const r = rects[d.target]
+      if (!r || x < r.x - 70) continue
+      const dy = Math.abs(y - (r.y + r.h / 2))
+      // 同樣近時,選比較靠右(比較深)而且指標已經越過它左端的
+      if (dy < dist || (dy === dist && best && r.x > rects[best.target].x)) {
+        best = d
+        dist = dy
+      }
+    }
+    return best
+  }
+  return (
+    <>
+      {drag.plan.items.map((it) => {
+        const r = rects[it.target]
+        if (!r) return null
+        return (
+          <button
+            key={it.id}
+            type="button"
+            className={`${s.hit} ${s.grab}`}
+            aria-label={`拖動「${it.label}」`}
+            style={{ left: r.x - 10, top: r.y - 10, width: r.w + 20, height: r.h + 20 }}
+            onPointerDown={(e) => {
+              e.preventDefault()
+              e.currentTarget.setPointerCapture(e.pointerId)
+              const p = toStage(e.clientX, e.clientY)
+              setHeld({ id: it.id, label: it.label, ...p, slot: null })
+              onGrab?.()
+              const el = elementOf?.(it.target)
+              const host = el?.closest<HTMLElement>('[class^="A-"], [class*=" A-"]')
+              if (el && host) {
+                drop()
+                const er = el.getBoundingClientRect()
+                const hr = host.getBoundingClientRect()
+                const k = hr.width / (host.offsetWidth || 1) || 1
+                const clone = el.cloneNode(true) as HTMLElement
+                Object.assign(clone.style, {
+                  position: 'absolute',
+                  margin: '0',
+                  width: `${er.width / k}px`,
+                  zIndex: '60',
+                  pointerEvents: 'none',
+                  opacity: '1',
+                  filter: 'none',
+                  translate: 'none',
+                  transform: 'scale(1.08) rotate(-3deg)',
+                  boxShadow: '0 18px 30px rgba(0, 0, 0, 0.28)',
+                })
+                host.appendChild(clone)
+                el.style.visibility = 'hidden'
+                lift.current = { clone, orig: el, host, dx: e.clientX - er.left, dy: e.clientY - er.top }
+                follow(e.clientX, e.clientY)
+              }
+            }}
+            onPointerMove={(e) => {
+              if (!held || held.id !== it.id) return
+              const p = toStage(e.clientX, e.clientY)
+              follow(e.clientX, e.clientY)
+              setHeld({ ...held, ...p, slot: nearest(it.id, p.x, p.y) })
+            }}
+            onPointerUp={() => {
+              const slot = held?.slot
+              drop()
+              setHeld(null)
+              if (slot) drag.drop(slot.step)
+            }}
+            onPointerCancel={() => {
+              drop()
+              setHeld(null)
+            }}
+          />
+        )
+      })}
+      {held &&
+        slots.map((d) => {
+          const r = rects[d.target]
+          // 可以放的位置:平常是一顆小小的「+」;最靠近的那個變成一個虛線的空位,大小和拿著的節點一樣,寫著「放這裡」
+          const on = held.slot?.target === d.target
+          const size = rects[drag.plan.items.find((x) => x.id === held.id)?.target ?? '']
+          const w = Math.max(220, size?.w ?? 220)
+          const h = Math.max(70, size?.h ?? 70)
+          return on ? (
+            <span key={d.target} className={s.dropZone} style={{ left: r.x, top: r.y + r.h / 2 - h / 2, width: w, height: h }}>
+              放這裡
+            </span>
+          ) : (
+            <span key={d.target} className={s.dropDot} style={{ left: r.x, top: r.y + r.h / 2 }} aria-hidden="true">
+              +
+            </span>
+          )
+        })}
+      {/* 找不到可以複製的元素時,才用一個寫著名稱的小牌子跟著指標 */}
+      {held && !lift.current && (
+        <span className={s.ghost} style={{ left: held.x, top: held.y }} aria-hidden="true">
+          {held.label}
+        </span>
+      )}
+    </>
+  )
+}
+
 type Props = {
   /** src/content/live/ 底下的腳本路徑 */
   script: string
@@ -215,9 +400,13 @@ type Props = {
   freeJump?: boolean
   /** page:全頁版,播放器撐滿外層的高度,舞台在剩下的空間裡等比例放到最大(正式課程頁);不寫是跟著寬度排在頁面裡 */
   layout?: 'inline' | 'page'
+  /** 研發用:畫面下方多一條可以拉的時間軸,拉到哪裡就看哪裡(題目、子腳本都不擋) */
+  scrub?: boolean
+  /** 浮動版(搭配 layout="page"):舞台撐滿整個播放器,上方指引、字幕、按鈕都浮在舞台上(參考一般版的互動課程頁) */
+  floating?: boolean
 }
 
-export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'kids', freeJump = false, layout = 'inline' }: Props) {
+export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'kids', freeJump = false, layout = 'inline', scrub = false, floating = false }: Props) {
   const boxRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const subRef = useRef<HTMLDivElement>(null)
@@ -254,14 +443,29 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   const [done, setDone] = useState(false)
   /** 停在互動點太久沒點,出現提示手指 */
   const [hint, setHint] = useState(false)
+  /** 這段拖曳裡孩子開始拖過了沒(開始拖就收起提示,之後也不再出現;進到別的題目才重算) */
+  const grabbed = useRef(false)
 
   // 全螢幕時段落選單要搬回播放器裡面(放在外面的話全螢幕看不到)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [nativeFull, setNativeFull] = useState(false)
   useEffect(() => {
-    const on = () => setIsFullscreen(!!fsRef.current && document.fullscreenElement === fsRef.current)
+    const on = () => setNativeFull(!!fsRef.current && document.fullscreenElement === fsRef.current)
     document.addEventListener('fullscreenchange', on)
     return () => document.removeEventListener('fullscreenchange', on)
   }, [])
+  // iPhone 的 Safari 不能把頁面裡的元素放到全螢幕(只有影片可以):改成蓋滿整個視窗的「頁內全螢幕」,頁面不能捲動
+  const [pageFull, setPageFull] = useState(false)
+  useEffect(() => {
+    if (!pageFull) return
+    const prev = document.documentElement.style.overflow
+    document.documentElement.style.overflow = 'hidden'
+    return () => {
+      document.documentElement.style.overflow = prev
+    }
+  }, [pageFull])
+  const isFullscreen = nativeFull || pageFull
+  /** 全螢幕時一律用全頁版的排法(舞台在剩下的空間裡等比例放到最大) */
+  const fit = isFullscreen ? 'page' : layout
 
   const active = useCallback((): Stage | null => (sub.current ? subStage.current : stage.current), [])
 
@@ -271,13 +475,13 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     if (!box) return
     const ro = new ResizeObserver(() => {
       // 一般版跟著寬度縮放;全頁版在寬、高兩邊都放得下的最大倍率,置中
-      const k = layout === 'page' ? Math.min(box.clientWidth / W, box.clientHeight / H) : box.clientWidth / W
+      const k = fit === 'page' ? Math.min(box.clientWidth / W, box.clientHeight / H) : box.clientWidth / W
       setScale(k)
-      setOffset(layout === 'page' ? { x: (box.clientWidth - W * k) / 2, y: (box.clientHeight - H * k) / 2 } : { x: 0, y: 0 })
+      setOffset(fit === 'page' ? { x: (box.clientWidth - W * k) / 2, y: (box.clientHeight - H * k) / 2 } : { x: 0, y: 0 })
     })
     ro.observe(box)
     return () => ro.disconnect()
-  }, [layout])
+  }, [fit])
 
   const [guides, setGuides] = useState<Guide[]>(NO_GUIDES)
 
@@ -354,7 +558,9 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     const box = root.getBoundingClientRect()
     const k = box.width / W
     const found: Record<string, Rect> = {}
-    for (const ref of [ask.focus, ...ask.options.map((o) => o.target)]) {
+    // 拖曳時也要量可以拖的東西與每一個放置位置
+    const dragRefs = ask.drag ? [...ask.drag.plan.items.map((x) => x.target), ...new Set(ask.drag.plan.items.flatMap((x) => ask.drag!.plan.slotsFor(x.id).map((d) => d.target)))] : []
+    for (const ref of [ask.focus, ...ask.options.map((o) => o.target), ...dragRefs]) {
       const el = ref ? st.element(ref) : null
       if (!el || !ref) continue
       const r = el.getBoundingClientRect()
@@ -373,7 +579,9 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
       if (url) playClip(url)
       else speak(`${ask.again ? '再試一次。' : ''}${ask.title}${ask.body ? `。${ask.body}` : ''}`)
     }
-    const t = window.setTimeout(() => setHint(true), 4000)
+    // 孩子在這段拖曳裡已經開始動手(拖過一次)就不再出現提示;不是拖曳的題目照常
+    if (!ask.drag) grabbed.current = false
+    const t = window.setTimeout(() => !grabbed.current && setHint(true), 4000)
     return () => window.clearTimeout(t)
   }, [ask])
 
@@ -509,32 +717,51 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
       : ((cur.def.hotspots?.(state, cur.props) ?? []) as Hotspot[])
           .filter((h) => h.step)
           .map((h) => ({ label: h.label, target: `${cur.interact.on}:${h.target}`, id: h.target, steps: [h.step as ScriptStep] }))
+    /** 把孩子做的操作接到子腳本後面,從原本的結尾接著播 */
+    const perform = (steps: ScriptStep[], before?: () => void) =>
+      void (async () => {
+        if (!take()) return
+        const g = gen.current
+        const from = st.duration
+        try {
+          before?.()
+          // 沒寫 on 的步驟交給互動的演員(子腳本有多個演員時才需要自己寫 on)
+          cur.extra = [...cur.extra, ...steps.map((x) => ({ on: cur.interact.on, ...x }) as ScriptStep)]
+          await loadStage(st, subSteps(cur), cur.voice)
+        } catch (e) {
+          return setError(e instanceof Error ? e.message : String(e))
+        } finally {
+          busy.current = false
+        }
+        if (g !== gen.current) return
+        setAsk(null)
+        draw(from)
+        resume()
+      })()
+    // 拖曳(interact.drag):放下去演那一步操作;完成新的任務就念 say 裡那個任務的話,沒有就念 else
+    const spec = cur.interact.drag
+    const plan = spec ? dragPlan(cur.def.name, cur.interact.on, state) : null
+    const drop = (step: ScriptStep) => {
+      const kind = cur.def.kinds.find((k) => k in step)
+      let said = spec?.else
+      try {
+        const after = kind ? (cur.def.apply!(state, kind, step) as { achieved?: string[] }) : null
+        const before = (state as { achieved?: string[] }).achieved ?? []
+        const fresh = after?.achieved?.find((id) => !before.includes(id))
+        if (fresh && spec?.say?.[fresh]) said = spec.say[fresh]
+      } catch {
+        // 演員不接受這個操作:照樣交給舞台,載入時會顯示錯誤
+      }
+      perform([step, ...(said ? [{ wait: 300, narration: said } as ScriptStep] : [])])
+    }
     pauseAt(st.duration, {
       title: cur.interact.prompt,
       body: cur.interact.body ?? '',
       again: false,
       quiz: false,
-      options,
-      pick: (i) =>
-        void (async () => {
-          if (!take()) return
-          const g = gen.current
-          const from = st.duration
-          try {
-            cur.picked.add(options[i].id)
-            // 沒寫 on 的步驟交給互動的演員(子腳本有多個演員時才需要自己寫 on)
-            cur.extra = [...cur.extra, ...options[i].steps.map((x) => ({ on: cur.interact.on, ...x }) as ScriptStep)]
-            await loadStage(st, subSteps(cur), cur.voice)
-          } catch (e) {
-            return setError(e instanceof Error ? e.message : String(e))
-          } finally {
-            busy.current = false
-          }
-          if (g !== gen.current) return
-          setAsk(null)
-          draw(from)
-          resume()
-        })(),
+      options: plan ? [] : options,
+      pick: (i) => perform(options[i].steps, () => cur.picked.add(options[i].id)),
+      drag: plan ? { plan, drop } : undefined,
     })
   }, [draw, exitSub, pauseAt, resume])
 
@@ -559,6 +786,8 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
       const def = cast && ACTORS[cast.actor]
       if (!def) throw new Error(`子腳本 ${file}:interact.on「${interact.on}」不在演員表裡`)
       sub.current = { title, script, interact, def, props: cast.props ?? {}, extra: [], picked: new Set(), returnAt: at, finished: false, voice }
+      // 每次進到子腳本都重新算「拖過了沒」:跳回同一段或下一段拖曳時,停太久還是會出現提示
+      grabbed.current = false
       // 先讓子舞台顯示出來再載入(載入時要量得到版面);React 下一次畫面也會是這樣
       stageRef.current!.hidden = true
       subRef.current!.hidden = false
@@ -668,6 +897,39 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   }
   // 不鎖段落(freeJump):隨時都能跳到任何一段,在子腳本裡、停在題目上也可以。
   // 跳到的段落之後的回答都收回(重新載入主腳本),跳回題目時會重新問。
+  // 研發用的時間軸:拉到主腳本的任何時間點。原本在播放就從那裡繼續播,原本暫停就停在那裡。
+  // 在子腳本裡就先離開;那個時間點之後的回答都收回,經過的子腳本入口算走過,剛好停在入口上會在按播放時進去
+  const seekTo = async (ms: number) => {
+    // 停在子腳本裡等孩子操作時 playing 是 false,算暫停
+    const wasPlaying = playing
+    const g = bump()
+    setPlaying(false)
+    hush()
+    retry.current = null
+    setDone(false)
+    setAsk(null)
+    if (sub.current) {
+      sub.current = null
+      showMain()
+      setInSub(null)
+    }
+    const st = stage.current!
+    const later = new Set(st.stops.filter((x) => x.at >= ms).map((x) => x.title))
+    const kept = Object.fromEntries(Object.entries(answers.current).filter(([id]) => !later.has(moments.current.find((m) => m.id === id)?.title ?? '')))
+    if (Object.keys(kept).length !== Object.keys(answers.current).length) {
+      answers.current = kept
+      await reload()
+      if (g !== gen.current) return
+    }
+    for (const x of st.stops) {
+      if (!subEntries.current[x.title]) continue
+      if (x.at < ms) subsDone.current.add(x.title)
+      else subsDone.current.delete(x.title)
+    }
+    draw(Math.max(0, Math.min(ms, st.duration)))
+    if (wasPlaying) resume()
+  }
+
   const jumpFree = async (i: number) => {
     const target = chapters[i]
     if (!target) return
@@ -737,15 +999,18 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   const fullscreen = () => {
     const el = fsRef.current
     if (!el) return
-    if (document.fullscreenElement) void document.exitFullscreen()
-    else void el.requestFullscreen?.()
+    if (pageFull) return setPageFull(false)
+    if (document.fullscreenElement) return void document.exitFullscreen()
+    // 支援元素全螢幕就用瀏覽器的全螢幕;不支援(iPhone)或被拒絕時改用頁內全螢幕
+    if (el.requestFullscreen && document.fullscreenEnabled) void el.requestFullscreen().catch(() => setPageFull(true))
+    else setPageFull(true)
   }
 
   // 提示手指指哪裡:有正確答案的題目只指要點的區域,不洩漏答案;自由探索指第一個選項
   // 題目(有正確答案)不用手指指某一塊,免得看起來像在暗示答案:改成在作答區上緣放提示、所有選項一起閃
   const hintAt = (() => {
     if (!ask) return null
-    const ref = ask.quiz ? ask.focus : ask.options.find((o) => o.target && rects[o.target])?.target
+    const ref = ask.quiz ? ask.focus : ask.drag ? ask.drag.plan.items.find((x) => rects[x.target])?.target : ask.options.find((o) => o.target && rects[o.target])?.target
     const r = ref ? rects[ref] : undefined
     if (!r) return null
     return ask.quiz ? { x: r.x + r.w / 2, y: r.y + 8, quiz: true } : { x: r.x + r.w / 2, y: r.y + r.h / 2, quiz: false }
@@ -769,7 +1034,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cur, subPlan, started])
 
-  // 目前的旁白:整句顯示(不切成一行一行)
+  // 目前的字幕:一段旁白切成幾小句(照標點切,每句最多約 CAPTION_MAX 個字),照字數分配這段旁白的時間,一次只出現一小句
   const st = sub.current ? subStage.current : stage.current
   const narration = (() => {
     if (!st || ask) return ''
@@ -778,12 +1043,22 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     if (idx < 0) return ''
     const n = list[idx]
     const end = Math.max(...st.captions.filter((c) => c.from >= n.at - 1 && (idx + 1 >= list.length || c.from < list[idx + 1].at)).map((c) => c.to), n.at)
-    return now <= end ? n.text : ''
+    if (now > end) return ''
+    const parts = captionParts(n.text)
+    const total = parts.reduce((s, p) => s + units(p).length, 0) || 1
+    let at = n.at
+    for (const p of parts) {
+      at += ((end - n.at) * units(p).length) / total
+      if (now < at) return p
+    }
+    return parts[parts.length - 1]
   })()
 
   const menuOutside = !!chaptersSlot && !isFullscreen
   // 段落按鈕鎖住:停在題目上、在子腳本裡時不能跳(freeJump 時都不鎖)
   const locked = !freeJump && (!!ask || inSub !== null)
+  const fmt = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor(ms / 1000) % 60).padStart(2, '0')}`
+  const total = stage.current?.duration ?? 0
   const controls = (
     <div className={s.controlsBox} data-size={size}>
       <div className={s.controls}>
@@ -802,11 +1077,18 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
         <button type="button" className={s.icon} aria-pressed={voice} aria-label={voice ? '旁白開' : '旁白關'} title={voice ? '旁白開' : '旁白關'} onClick={toggleVoice}>
           {voice ? '🔊' : '🔇'}
         </button>
-        <button type="button" onClick={fullscreen}>
-          ⛶ 全螢幕
+        <button type="button" aria-pressed={isFullscreen} onClick={fullscreen}>
+          {isFullscreen ? '✕ 離開全螢幕' : '⛶ 全螢幕'}
         </button>
       </div>
 
+      {scrub && ready && (
+        <label className={s.scrub}>
+          <span>{fmt(mainNow)}</span>
+          <input type="range" min={0} max={Math.round(total)} step={100} value={Math.round(mainNow)} aria-label="拉到要看的地方" onChange={(e) => void seekTo(Number(e.target.value))} />
+          <span>{fmt(total)}</span>
+        </label>
+      )}
       {!menuOutside && (
         <ol className={s.chapters} aria-label="段落">
           {chapters.map((c, i) => (
@@ -846,7 +1128,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   )
 
   return (
-    <div className={s.player} ref={fsRef} data-size={size} data-layout={layout} data-ready={ready ? 'true' : 'false'}>
+    <div className={s.player} ref={fsRef} data-size={size} data-layout={fit} data-float={floating && fit === 'page' ? 'true' : undefined} data-full={pageFull ? 'page' : nativeFull ? 'native' : undefined} data-ready={ready ? 'true' : 'false'}>
       {/* 上方的指引一直都在(高度固定),只換內容:停下來等孩子點時是題目,其他時候說現在在做什麼 */}
       <p className={s.ask} data-asking={ask ? 'true' : 'false'} data-stars={stars ? 'true' : 'false'} role="status">
         {stars && (
@@ -870,7 +1152,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
           </>
         )}
       </p>
-      <div className={s.box} ref={boxRef} style={layout === 'page' ? undefined : { height: H * scale }} data-sub={inSub !== null ? 'true' : 'false'}>
+      <div className={s.box} ref={boxRef} style={fit === 'page' ? undefined : { height: H * scale }} data-sub={inSub !== null ? 'true' : 'false'}>
         <div className={s.scaler} style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
           <div ref={stageRef} className={s.stage} hidden={inSub !== null} />
           <div ref={subRef} className={s.stage} hidden={inSub === null} />
@@ -891,6 +1173,22 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
                   />
                 )
               })}
+              {ask.drag && (
+                <DragLayer
+                  onGrab={() => {
+                    grabbed.current = true
+                    setHint(false)
+                  }}
+                  drag={ask.drag}
+                  rects={rects}
+                  elementOf={(target) => active()?.element(target) ?? null}
+                  toStage={(cx, cy) => {
+                    const r = (sub.current ? subRef.current : stageRef.current)!.getBoundingClientRect()
+                    const k = r.width / W
+                    return { x: (cx - r.left) / k, y: (cy - r.top) / k }
+                  }}
+                />
+              )}
               {/* 沒有對應演員目標的選項(例如是非題):在舞台下方排成一列大按鈕 */}
               {ask.options.some((o) => !o.target) && (
                 <div className={s.choices} data-nudge={hint ? 'true' : 'false'}>
@@ -905,7 +1203,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
               )}
               {hint && hintAt && !hintAt.quiz && (
                 <span className={s.hand} style={{ left: hintAt.x, top: hintAt.y }} aria-hidden="true">
-                  👆<em>點這裡試試看</em>
+                  👆<em>{ask.drag ? '按住拉動這裡' : '點這裡試試看'}</em>
                 </span>
               )}
               {hint && hintAt?.quiz && (
@@ -926,7 +1224,8 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
           <div className={s.guides} aria-live="polite">
             {guides.map((g, i) => (
               <div key={`${i}:${g.text}`}>
-                <span className={s.ring} style={{ left: g.rect.x, top: g.rect.y, width: g.rect.w, height: g.rect.h }} />
+                {/* 外框比目標四周各大 RING px,位置與大小都直接算好(不靠 margin/padding,盒模型不同時才不會偏) */}
+                <span className={s.ring} style={{ left: g.rect.x - RING, top: g.rect.y - RING, width: g.rect.w + RING * 2, height: g.rect.h + RING * 2 }} />
                 <GuideBubble guide={g} box={{ w: boxRef.current?.clientWidth ?? 0, h: boxRef.current?.clientHeight ?? 0 }} />
               </div>
             ))}

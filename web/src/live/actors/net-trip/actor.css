@@ -1,0 +1,179 @@
+/* 演員 net-trip:瀏覽器、DNS、伺服器與寄送中的信。選擇器都以 .A-net-trip 開頭。
+   版面用演員畫面的百分比,字級以 1920 寬舞台的 px 為準。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-net-trip {
+  position: relative;
+  width: 100%; height: 100%;
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: 24px;
+  line-height: 1.4;
+  color: #1f2933;
+}
+.A-net-trip *, .A-net-trip *::before, .A-net-trip *::after { box-sizing: border-box; }
+
+/* ---------- 線 ---------- */
+.A-net-trip .tr-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.A-net-trip .tr-line {
+  fill: none; stroke: #b8c2cc; stroke-width: 4; stroke-dasharray: 10 10; stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.A-net-trip .tr-line.on { stroke: #3b82f6; stroke-dasharray: none; }
+.A-net-trip .tr-path { position: absolute; left: 40%; top: 53%; width: 40%; height: 10%; }
+.A-net-trip .tr-path span {
+  position: absolute; left: 50%; top: 0; transform: translate(-50%, -100%);
+  font-size: 0.75em; color: #7b8794; letter-spacing: 0.1em; white-space: nowrap;
+}
+.A-net-trip .tr-path.on span { color: #2563eb; }
+
+/* ---------- 瀏覽器 ---------- */
+.A-net-trip .tr-browser {
+  position: absolute; left: 0; top: 22%; width: 40%; height: 64%;
+  display: flex; flex-direction: column;
+  background: #fff; border-radius: 0.6em; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12), 0 1.2em 2.6em rgba(15, 23, 42, 0.16);
+}
+.A-net-trip .tr-bar { display: flex; align-items: flex-end; gap: 0.35em; height: 2.2em; padding: 0 0.7em; background: #e8ecf1; }
+.A-net-trip .tr-light { width: 0.55em; height: 0.55em; margin-bottom: 0.75em; border-radius: 50%; background: #c4cbd4; }
+.A-net-trip .tr-light:nth-child(1) { background: #f26d5b; }
+.A-net-trip .tr-light:nth-child(2) { background: #f5bf4f; }
+.A-net-trip .tr-light:nth-child(3) { background: #5ec26a; }
+.A-net-trip .tr-tab {
+  display: flex; align-items: center; gap: 0.4em;
+  max-width: 62%; height: 1.7em; margin-left: 0.6em; padding: 0 0.8em;
+  background: #fff; border-radius: 0.45em 0.45em 0 0;
+  font-size: 0.72em; color: #3e4c59; white-space: nowrap; overflow: hidden;
+}
+.A-net-trip .tr-tab-title { overflow: hidden; text-overflow: ellipsis; }
+.A-net-trip .tr-spin { flex: none; width: 0.9em; height: 0.9em; border-radius: 50%; border: 0.15em solid #cbd2d9; border-top-color: #3b82f6; }
+.A-net-trip .tr-toolbar { position: relative; display: flex; align-items: center; gap: 0.5em; padding: 0.5em 0.7em; border-bottom: 1px solid #e4e7eb; }
+.A-net-trip .tr-url {
+  position: relative; flex: 1; display: flex; align-items: center;
+  height: 1.8em; padding: 0 0.8em;
+  background: #f1f4f8; border-radius: 0.9em; border: 2px solid transparent;
+  font-size: 0.8em; font-family: "SF Mono", Menlo, Consolas, monospace; color: #1f2933;
+  white-space: nowrap; overflow: hidden;
+}
+.A-net-trip .tr-url.on { background: #fff; border-color: #3b82f6; }
+.A-net-trip .tr-caret { width: 2px; height: 1.1em; margin-left: 1px; background: #1f2933; }
+.A-net-trip .tr-placeholder { color: #9aa5b1; font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; }
+.A-net-trip .tr-enter {
+  flex: none; padding: 0.15em 0.55em; border-radius: 0.35em;
+  background: #1f2933; color: #fff; font-size: 0.7em; font-weight: 600;
+  box-shadow: 0 0.15em 0 #0b1015;
+}
+.A-net-trip .tr-ipchip {
+  height: 1.6em; padding: 0.25em 1.1em 0; font-size: 0.65em; color: #2563eb;
+  font-family: "SF Mono", Menlo, Consolas, monospace; white-space: nowrap; overflow: hidden;
+}
+.A-net-trip .tr-view { position: relative; flex: 1; overflow: hidden; }
+.A-net-trip .tr-page { position: absolute; inset: 0; }
+.A-net-trip .tr-drawing {
+  position: absolute; right: 0.8em; bottom: 0.7em;
+  padding: 0.2em 0.7em; border-radius: 0.4em;
+  background: rgba(37, 99, 235, 0.1); color: #1d4ed8; font-size: 0.62em;
+}
+.A-net-trip .tr-blank { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #cbd2d9; font-size: 0.8em; }
+
+/* 畫出來的網頁(示意:導覽列、標題、三張卡、幾行字) */
+.A-net-trip .tr-site { padding: 0.8em 1.1em; }
+.A-net-trip .tr-site-nav { display: flex; align-items: center; gap: 0.6em; padding-bottom: 0.6em; border-bottom: 1px solid #e4e7eb; font-size: 0.72em; }
+.A-net-trip .tr-site-nav b { margin-right: auto; color: #1f2933; }
+.A-net-trip .tr-site-nav i { width: 3em; height: 0.5em; border-radius: 0.25em; background: #d9e2ec; }
+.A-net-trip .tr-site-hero { padding: 0.8em 0 0.5em; }
+.A-net-trip .tr-site-hero h1 { margin: 0; font-size: 1.25em; line-height: 1.3; color: #102a43; }
+.A-net-trip .tr-site-hero p { margin: 0.3em 0 0; font-size: 0.66em; color: #52606d; }
+.A-net-trip .tr-site-cards { display: flex; gap: 0.6em; margin: 0.3em 0 0.7em; }
+.A-net-trip .tr-site-cards span { flex: 1; height: 3.2em; border-radius: 0.4em; background: linear-gradient(135deg, #dbeafe, #e0e7ff); }
+.A-net-trip .tr-site-lines i { display: block; height: 0.45em; margin: 0.45em 0; border-radius: 0.25em; background: #e4e7eb; }
+.A-net-trip .tr-site-lines i:nth-child(2) { width: 82%; }
+.A-net-trip .tr-site-lines i:nth-child(3) { width: 64%; }
+.A-net-trip .tr-site-404 .tr-site-hero h1 { font-size: 2em; color: #9aa5b1; }
+.A-net-trip .tr-error { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1em; }
+.A-net-trip .tr-error-icon {
+  width: 1.8em; height: 1.8em; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: #fde8e8; color: #d64545; font-weight: 700;
+}
+.A-net-trip .tr-error h2 { margin: 0.5em 0 0.2em; font-size: 0.95em; color: #323f4b; }
+.A-net-trip .tr-error p { margin: 0; font-size: 0.66em; color: #616e7c; }
+
+.A-net-trip .tr-tag { position: absolute; font-size: 0.8em; font-weight: 600; color: #52606d; }
+.A-net-trip .tr-tag-browser { left: 0; top: 88%; width: 40%; text-align: center; }
+
+/* ---------- 共用的節點標題 ---------- */
+.A-net-trip .tr-head { display: flex; align-items: baseline; gap: 0.5em; }
+.A-net-trip .tr-head b { font-size: 0.95em; }
+.A-net-trip .tr-head small { font-size: 0.65em; }
+
+/* ---------- DNS ---------- */
+.A-net-trip .tr-dns {
+  position: absolute; left: 44%; top: 0; width: 22%; height: 25%;
+  display: flex; flex-direction: column; gap: 0.4em; padding: 0.6em 0.8em;
+  background: #eef2ff; border: 2px solid #c7d2fe; border-radius: 0.6em;
+  box-shadow: 0 0.6em 1.4em rgba(67, 56, 202, 0.12);
+}
+.A-net-trip .tr-dns .tr-head b { color: #3730a3; }
+.A-net-trip .tr-dns .tr-head small { color: #6366f1; }
+.A-net-trip .tr-dns.miss { border-color: #f5a3a3; }
+.A-net-trip .tr-book { display: flex; flex-direction: column; gap: 0.25em; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.6em; }
+.A-net-trip .tr-row { display: flex; justify-content: space-between; gap: 0.8em; padding: 0.2em 0.5em; border-radius: 0.3em; background: #fff; color: #3e4c59; white-space: nowrap; }
+.A-net-trip .tr-row.hit { background: #fef3c7; color: #92400e; box-shadow: 0 0 0 2px #f59e0b; }
+.A-net-trip .tr-row-more { color: #b0b8c4; background: rgba(255, 255, 255, 0.5); }
+.A-net-trip .tr-bubble {
+  position: absolute; left: 100%; top: 50%; margin-left: 1em;
+  padding: 0.35em 0.8em; border-radius: 0.6em;
+  background: #312e81; color: #fff; font-size: 0.66em; font-family: "SF Mono", Menlo, Consolas, monospace;
+  white-space: nowrap; transform-origin: 0 50%;
+  box-shadow: 0 0.4em 1em rgba(49, 46, 129, 0.25);
+}
+.A-net-trip .tr-bubble::before {
+  content: ""; position: absolute; left: -0.45em; top: 50%; margin-top: -0.45em;
+  border: 0.45em solid transparent; border-left: 0; border-right-color: #312e81;
+}
+.A-net-trip .tr-bubble.bad { background: #b42318; }
+.A-net-trip .tr-bubble.bad::before { border-right-color: #b42318; }
+
+/* ---------- 伺服器 ---------- */
+.A-net-trip .tr-server {
+  position: absolute; left: 80%; top: 24%; width: 20%; height: 64%;
+  display: flex; flex-direction: column; gap: 0.5em; padding: 0.7em 0.8em;
+  background: #1f2933; border-radius: 0.6em; color: #e4e7eb;
+  box-shadow: 0 1em 2.2em rgba(15, 23, 42, 0.22);
+}
+.A-net-trip .tr-server .tr-head small { font-family: "SF Mono", Menlo, Consolas, monospace; color: #9aa5b1; }
+.A-net-trip .tr-rack { display: flex; flex-direction: column; gap: 0.35em; }
+.A-net-trip .tr-unit { display: flex; align-items: center; gap: 0.35em; height: 1.5em; padding: 0 0.5em; border-radius: 0.25em; background: #323f4b; }
+.A-net-trip .tr-unit i { width: 0.4em; height: 0.4em; border-radius: 50%; background: #5ee08a; }
+.A-net-trip .tr-unit i:nth-child(2) { background: #60a5fa; }
+.A-net-trip .tr-unit span { flex: 1; height: 0.25em; margin-left: 0.4em; border-radius: 0.15em; background: #52606d; }
+.A-net-trip .tr-files { display: flex; flex-direction: column; gap: 0.25em; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.6em; }
+.A-net-trip .tr-files span { padding: 0.15em 0.5em; border-radius: 0.3em; background: #323f4b; color: #cbd2d9; }
+.A-net-trip .tr-files span::before {
+  content: ""; display: inline-block; width: 0.7em; height: 0.85em; margin-right: 0.45em; vertical-align: -0.1em;
+  border: 1px solid currentColor; border-radius: 0.1em; opacity: 0.7;
+}
+.A-net-trip .tr-files span.hit { background: #fef3c7; color: #92400e; }
+.A-net-trip .tr-status { margin-top: auto; font-size: 0.6em; color: #5ee08a; }
+.A-net-trip .tr-server.off { background: #3e4c59; }
+.A-net-trip .tr-server.off .tr-status { color: #9aa5b1; }
+.A-net-trip .tr-note {
+  position: absolute; left: 50%; bottom: 100%; margin-bottom: 0.5em; transform: translateX(-50%);
+  padding: 0.25em 0.7em; border-radius: 0.5em; white-space: nowrap;
+  background: #fff; color: #1f2933; font-size: 0.62em; box-shadow: 0 0.3em 0.9em rgba(15, 23, 42, 0.18);
+}
+.A-net-trip .tr-note.bad { color: #b42318; }
+
+/* ---------- 信(封包) ---------- */
+.A-net-trip .tr-packet { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 0.2em; pointer-events: none; }
+.A-net-trip .tr-env { width: 2.6em; height: 1.85em; }
+.A-net-trip .tr-env svg { display: block; width: 100%; height: 100%; }
+.A-net-trip .tr-env rect { fill: #fff; stroke: #3b82f6; stroke-width: 2.5; }
+.A-net-trip .tr-env path { fill: none; stroke: #3b82f6; stroke-width: 2.5; stroke-linejoin: round; }
+.A-net-trip .tr-plabel {
+  padding: 0.12em 0.55em; border-radius: 0.4em; white-space: nowrap;
+  background: #2563eb; color: #fff; font-size: 0.62em; font-weight: 600;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+}
+.A-net-trip .tr-packet[data-tone="ok"] rect, .A-net-trip .tr-packet[data-tone="ok"] path { stroke: #16a34a; }
+.A-net-trip .tr-packet[data-tone="ok"] .tr-plabel { background: #16a34a; }
+.A-net-trip .tr-packet[data-tone="bad"] rect, .A-net-trip .tr-packet[data-tone="bad"] path { stroke: #d64545; }
+.A-net-trip .tr-packet[data-tone="bad"] .tr-plabel { background: #d64545; }

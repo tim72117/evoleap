@@ -1,4 +1,4 @@
-// 演員 kid-web:兒童網頁課的「積木網頁」。正面是一頁卡通網頁,背面是一塊一塊印著標籤名字的大積木。
+// 演員 kid-web:兒童網頁課的「積木網頁」。正面是一頁卡通網頁,背面是一塊一塊印著中文名字(標題、圖片、文字、按鈕)的大積木。
 // 規格見 ../../README.md「演員」(2A.1)、「動作要是操作」(2A.4)、「init/apply」(2A.5)。
 // 試做:只用現有的舞台與互動層能做到的部分,需要擴充的地方記在 studio/proposal/kidsWeb.ts 的 KIDS_LIVE_GAPS。
 //
@@ -73,11 +73,12 @@ const EDITABLE: readonly Tag[] = ['h1', 'p', 'button']
 const FACES: readonly Face[] = ['front', 'back', 'split']
 
 /** 每種標籤的積木:中文名稱與顏色(和 studio/kids/blocks.ts 的試做頁一致) */
-const TAGS: Record<Tag, { name: string; say: string; does: string; color: string; shade: string }> = {
-  h1: { name: '大標題', say: '念作「H 一」', does: '畫出最大的標題', color: '#f6a03c', shade: '#9a4a00' },
-  img: { name: '圖片', say: '念作「image」', does: '放上一張圖片', color: '#4fb3e8', shade: '#155f8a' },
-  p: { name: '一段文字', say: '念作「P」', does: '寫出一段文字', color: '#5cc477', shade: '#23703a' },
-  button: { name: '按鈕', say: '念作「button」', does: '變成一個可以按的按鈕', color: '#b48af0', shade: '#5b2a9e' },
+// 兒童課不教語法:積木上印的是中文名字(標題、圖片、文字、按鈕),不出現 <h1> 這類標籤名稱
+const TAGS: Record<Tag, { name: string; icon: string; does: string; color: string; shade: string }> = {
+  h1: { name: '標題', icon: '🔤', does: '畫出最大的那行字', color: '#f6a03c', shade: '#9a4a00' },
+  img: { name: '圖片', icon: '🖼️', does: '放上一張圖片', color: '#4fb3e8', shade: '#155f8a' },
+  p: { name: '文字', icon: '📝', does: '寫出一段文字', color: '#5cc477', shade: '#23703a' },
+  button: { name: '按鈕', icon: '👆', does: '變成一個可以按的按鈕', color: '#b48af0', shade: '#5b2a9e' },
 }
 const isTag = (x: unknown): x is Tag => typeof x === 'string' && x in TAGS
 
@@ -117,7 +118,7 @@ function partHtml(b: KidBlock): string {
 
 function blockHtml(b: KidBlock): string {
   const def = TAGS[b.tag]
-  return `<span class="kw-studs"><i></i><i></i></span><span class="kw-tag">&lt;${b.tag}&gt;<small>${def.name}</small></span><span class="kw-content">${kit.esc(b.text)}</span>`
+  return `<span class="kw-studs"><i></i><i></i></span><span class="kw-tag"><small>${def.icon}</small>${def.name}</span><span class="kw-content">${kit.esc(b.text)}</span>`
 }
 
 /** 某個狀態下,每塊東西的亮暗:on 1 = 亮起來、dim 1 = 變暗、bad 1 = 答錯 */
@@ -142,10 +143,10 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
     // 點了念什麼由腳本決定時,子腳本寫 interact.spots(見 kids/KidsPlayer.tsx);這裡是沒寫 spots 時的預設說法
     return blocksOf(props).flatMap((b) => {
       const def = TAGS[b.tag]
-      const narration = `這是 <${b.tag}> 積木，${def.say}，它會${def.does}。`
+      const narration = `這是${def.name}積木，它會${def.does}。`
       return [
         { target: `part:${b.tag}`, label: `網頁上的${def.name}`, step: { inspect: b.tag, narration } },
-        { target: `block:${b.tag}`, label: `<${b.tag}> 積木`, step: { inspect: b.tag, narration } },
+        { target: `block:${b.tag}`, label: `${def.name}積木`, step: { inspect: b.tag, narration } },
       ]
     })
   },
@@ -217,7 +218,7 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
       <div class="kw-scene">
         <div class="kw-pane kw-page-pane">
           <div class="kw-bar"><span class="kw-lights"><i></i><i></i><i></i></span><span class="kw-reload">↻</span><span class="kw-url">${kit.esc(props.title ?? '我的網頁')}</span></div>
-          <div class="kw-page">${blocks.map((b) => `<div class="kw-part" data-tag="${b.tag}">${partHtml(b)}<em class="kw-xtag">&lt;${b.tag}&gt;</em></div>`).join('')}</div>
+          <div class="kw-page">${blocks.map((b) => `<div class="kw-part" data-tag="${b.tag}">${partHtml(b)}<em class="kw-xtag">${TAGS[b.tag].name}</em></div>`).join('')}</div>
         </div>
         <div class="kw-pane kw-stack-pane">
           <p class="kw-back-label">網頁的背面</p>

@@ -1,0 +1,96 @@
+{
+  "title": "換你拉拉看",
+  "lesson": "兒童網頁課 · 0.2 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "kid-tree",
+      "props": {
+        "title": "小花的家",
+        "nodes": [
+          {
+            "id": "h1",
+            "text": "小花的家"
+          },
+          {
+            "id": "card",
+            "children": [
+              {
+                "id": "img",
+                "text": "🐱"
+              },
+              {
+                "id": "p",
+                "text": "小花是一隻愛睡午覺的橘貓。"
+              }
+            ]
+          },
+          {
+            "id": "button",
+            "text": "摸摸小花"
+          }
+        ],
+        "drawn": true,
+        "goals": [
+          {
+            "id": "img-top",
+            "label": "把圖片拉到最上面",
+            "first": "img"
+          },
+          {
+            "id": "button-in-card",
+            "label": "把按鈕拉進名片盒",
+            "inside": [
+              "button",
+              "card"
+            ]
+          },
+          {
+            "id": "p-before-img",
+            "label": "把文字拉到圖片上面",
+            "before": [
+              "p",
+              "img"
+            ]
+          }
+        ]
+      },
+      "place": {
+        "x": 30,
+        "y": 20,
+        "w": 1860,
+        "h": 900
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！按住樹上的節點，拉到別的位置放開，看看網頁會怎麼變。右下角有三個任務。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "按住樹上的節點，拉到別的位置",
+    "body": "完成右下角的三個任務",
+    "drag": {
+      "say": {
+        "img-top": "照片跑到最上面了！任務完成。",
+        "button-in-card": "按鈕跑進名片盒的框框裡了！任務完成。",
+        "p-before-img": "文字跑到圖片上面了！任務完成。"
+      },
+      "else": "網頁照新的樹重畫了。"
+    },
+    "until": {
+      "count": "achieved",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "三個任務都完成了！樹怎麼排，網頁就怎麼畫。"
+        }
+      ]
+    }
+  }
+}
