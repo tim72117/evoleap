@@ -5,8 +5,13 @@ import { ALL_LEVELS as LEVELS } from './levels'
 import { AI_AGENT_COURSE_PATH } from './aiAgent'
 
 describe('requiresLogin', () => {
-  it('只有課程地圖標示登入後免費的課程要登入', () => {
-    expect(COURSES.filter(requiresLogin).map((c) => c.slug)).toEqual(['ai-tools'])
+  const open = (slug: string) => {
+    const course = COURSES.find((c) => c.slug === slug)!
+    return course.lessons.filter((l) => !requiresLogin(course, l)).map((l) => l.id)
+  }
+  it('「做出自己的軟體」只有序章不用登入', () => {
+    expect(open('tools')).toEqual(['0.intro'])
+    expect(open('ai-tools')).toEqual([])
   })
 })
 

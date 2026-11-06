@@ -30,14 +30,14 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
   ) : (
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )
-  return requiresLogin(course) ? (
+  return requiresLogin(course, lesson) ? (
     <LoginGate
       key={lesson.id}
       kicker={`${course.title} · ${lessonLabel(lesson)}`}
       title={lesson.title}
       docTitle={`${lessonLabel(lesson)} ${lesson.title}`}
       back={{ to: coursePath(course), label: '回課程總覽' }}
-      note="這門課免費，登入後就能觀看，也會記錄你的播放進度。"
+      note="這門課免費，序章可以直接預覽，其他課登入後就能觀看，也會記錄你的播放進度。"
     >
       {page}
     </LoginGate>

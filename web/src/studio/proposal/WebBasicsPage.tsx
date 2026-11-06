@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { WEB_COMPONENTS, WEB_DEMOS, WEB_OPEN, WEB_POSITIONING, WEB_PRINCIPLES, WEB_UNITS } from './webBasics'
+import { WEB_COMPONENTS, WEB_DEMOS, WEB_OPEN, WEB_PITCH, WEB_POSITIONING, WEB_PRINCIPLES, WEB_UNITS } from './webBasics'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
@@ -25,8 +25,15 @@ export function WebBasicsPage() {
       <h1>構想 · 網頁怎麼運作</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>架構草稿 · 待評估</span>
       <p className={ui.lead}>
-        給大人的網頁基礎知識：不教語法，教網頁怎麼運作、每個東西叫什麼，讓學員看得懂網站、說得準需求。共 {WEB_UNITS.length} 個單元、{lessonCount} 課（暫定）。
+        AI 時代的網頁基礎課：語法交給 AI，你要懂的是網頁怎麼運作。共 {WEB_UNITS.length} 個單元、{lessonCount} 課（暫定）。
       </p>
+
+      <h2>課程說明</h2>
+      <section className={ui.card}>
+        {WEB_PITCH.map((p) => (
+          <p key={p}>{p}</p>
+        ))}
+      </section>
 
       <h2>定位</h2>
       <section className={ui.card}>

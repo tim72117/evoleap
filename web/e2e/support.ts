@@ -2,7 +2,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Page, TestInfo } from '@playwright/test'
+import { expect, type Page, type TestInfo } from '@playwright/test'
 
 export const ORIGIN = 'https://evoleap.io'
 export const DIST = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
@@ -119,4 +119,12 @@ export function collectErrors(page: Page): string[] {
     }
   })
   return errors
+}
+
+// ---- 登入 ----
+
+/** 註冊一個新帳號(註冊後即登入,cookie 留在 page 的 context):序章以外的單課要登入才能看 */
+export async function loginAsNewStudent(page: Page, tag = 'student'): Promise<void> {
+  const email = `e2e-${tag}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
+  expect((await page.request.post('/api/auth/register', { data: { email, password: 'secret-pass-123', name: '' } })).status()).toBe(200)
 }

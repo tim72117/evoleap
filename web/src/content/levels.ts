@@ -63,7 +63,7 @@ export const LEVELS: CourseLevel[] = [
       { id: '0.2', text: '一段話描述，做出一頁式網站，再精確調整到滿意' },
     ],
     status: 'planned',
-    access: 'free',
+    access: 'login-free',
     art: 'tools',
     link: '/courses/tools',
     prerequisite: '會用電腦開資料夾、用瀏覽器上網即可；需要一台可以安裝軟體的電腦',

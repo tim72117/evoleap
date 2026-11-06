@@ -102,9 +102,14 @@ export function coursePath(course: Course): string {
   return `/courses/${course.slug}`
 }
 
-/** 課程地圖標示「登入後免費」的課程:單課頁要登入才能看(LoginGate) */
-export function requiresLogin(course: Course): boolean {
-  return ALL_LEVELS.find((l) => l.link === coursePath(course))?.access === 'login-free'
+/** 不用登入就能預覽的單課:只有序章這類短導覽 */
+export function isPreviewLesson(lesson: CourseLesson): boolean {
+  return Boolean(lesson.label)
+}
+
+/** 課程地圖標示「登入後免費」的課程:預覽課以外的單課頁要登入才能看(LoginGate) */
+export function requiresLogin(course: Course, lesson: CourseLesson): boolean {
+  return ALL_LEVELS.find((l) => l.link === coursePath(course))?.access === 'login-free' && !isPreviewLesson(lesson)
 }
 
 /** 已開放的單課:有可以播放的影片,序章這類短導覽不算 */

@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
-import { coursePath, lessonLabel, lessonPath, type Course } from '../content/catalog'
+import { coursePath, lessonLabel, lessonPath, requiresLogin, type Course } from '../content/catalog'
+import { useAuth } from '../auth/AuthContext'
 import type { CourseLesson } from '../content/lessonTypes'
 import { topicOfCourse } from '../content/topics'
 import { LevelArt } from '../home/LevelArt'
@@ -10,6 +11,7 @@ import styles from './CourseOverview.module.css'
 
 // 課程總覽:上方是課程介紹(標籤、標題、簡述、總時長與課數)與開始學習的卡片,下方是課程內容清單。
 // 清單每一列:播放圖示、課名(還沒有教學影片的課標「製作中」)、目標、形式(互動/影片/步驟)與時長。
+// 未登入時,登入後免費的課程在右側標「免費預覽」(序章)或「登入後學習」;確認登入狀態前不標,已登入的人不會閃過標籤。
 
 /** 「約 15 分」「約 1 小時 20 分」→ 分鐘;看不懂的回傳 0 */
 export function minutesOf(length: string): number {
@@ -50,8 +52,10 @@ export function CourseOverviewPage({ course, interactive = [] }: { course: Cours
   const topic = topicOfCourse(coursePath(course))
   const access = level ? ACCESS_LABEL[level.access] : null
   const total = course.lessons.reduce((n, l) => n + minutesOf(l.length), 0)
-  // 開始學習:第一個已經能看的課(都還沒有就從第一課)
-  const start = course.lessons.find((l) => hasVideo(l) || interactive.includes(l.id)) ?? course.lessons[0]
+  const guest = useAuth().status === 'guest'
+  // 開始學習:第一個已經能看的課(都還沒有就從第一課);沒登入時先找不用登入就能看的課,免得一點就是登入畫面
+  const playable = course.lessons.filter((l) => hasVideo(l) || interactive.includes(l.id))
+  const start = (guest && playable.find((l) => !requiresLogin(course, l))) || playable[0] || course.lessons[0]
 
   return (
     <SiteLayout title={course.title}>
@@ -129,6 +133,13 @@ export function CourseOverviewPage({ course, interactive = [] }: { course: Cours
                       <span className={styles.rowGoal}>{l.goal}</span>
                     </span>
                     <span className={styles.rowMeta}>
+                      {guest && level?.access === 'login-free' && (
+                        requiresLogin(course, l) ? (
+                          <span className={`${styles.badge} ${styles.badgeLogin}`}>登入後學習</span>
+                        ) : (
+                          <span className={`${styles.badge} ${styles.badgePreview}`}>免費預覽</span>
+                        )
+                      )}
                       <span className={styles.chip}>
                         <Icon d={kind.icon} size={16} />
                         {kind.label}

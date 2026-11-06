@@ -3,9 +3,12 @@ import { HomePage } from './HomePage'
 import { ClaudeCodeTopicPage } from './ClaudeCodeTopicPage'
 import { KidsLessonPage } from './KidsLessonPage'
 import { KidsTopicPage } from './KidsTopicPage'
+import { WebLessonPage } from './WebLessonPage'
+import { WebTopicPage } from './WebTopicPage'
 import { AiAppsTopicPage, SoftwareTopicPage } from './SoftwareTopicPage'
 import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
-import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
+import { WEB_OPEN_LESSONS } from '../content/webCourse'
+import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 
 export const homeRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/', element: <HomePage /> },
@@ -15,4 +18,7 @@ export const homeRoutes: { path: string; element: JSX.Element }[] = [
   { path: KIDS_TOPIC.path, element: <KidsTopicPage /> },
   // 兒童課已經可以上的課,一課一頁
   ...Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => ({ path: l.path, element: <KidsLessonPage key={id} id={id} /> })),
+  { path: WEB_TOPIC.path, element: <WebTopicPage /> },
+  // 網頁怎麼運作已經可以上的課,一課一頁
+  ...Object.entries(WEB_OPEN_LESSONS).map(([id, l]) => ({ path: l.path, element: <WebLessonPage key={id} id={id} /> })),
 ]

@@ -2,6 +2,7 @@
 // 規劃中的主題只放暫定的名稱、標語與預計做出的成果;不要寫未確認的事實(價格、日期、收入、學員數等)。
 import { KIDS_OPEN_LESSONS, kidsLessonTitle } from './kidsCourse'
 import { AI_APP_LEVELS, SOFTWARE_LEDE } from './levels'
+import { WEB_OPEN_LESSONS, webLesson } from './webCourse'
 
 export const HOME_INTRO = {
   title: '善用 AI，把時間用在真正想做的事',
@@ -93,7 +94,13 @@ export type PlannedTopic = {
    * intro 放在環節清單上方;sections 是腳本的段落名稱 → 給家長看的說明、是不是要孩子動手(可互動)
    */
   preview?: { script: string; intro?: string; sections?: Record<string, { note?: string; interactive?: boolean }> }
-  /** 已經開放的主題:首頁卡片標「開放中」(不寫就是「規劃中」) */
+  /** 首頁卡片的主色標籤:有標籤時取代「開放中/規劃中」 */
+  tag?: string
+  /** 首頁卡片標語下的一段說明 */
+  intro?: string
+  /** 首頁卡片的「學完你會」 */
+  learn?: string[]
+  /** 已經開放的主題:首頁卡片用實線外框;不寫就是規劃中,標題旁標「規劃中」(首頁不標「開放中」) */
   open?: boolean
   /** 首頁卡片的「開始」按鈕:已經可以上的第一課 */
   start?: { label: string; path: string }
@@ -129,7 +136,28 @@ export const KIDS_TOPIC = {
 /** 兒童課課程頁的標題(頁面的 document.title 與 seo/pages.ts 共用) */
 export const kidsLessonDocTitle = (id: string): string => `${kidsLessonTitle(id)}｜${KIDS_TOPIC.name}`
 
+/**
+ * 主題「網頁怎麼運作」:開放中(序章可以上,其他課規劃中),課程地圖在 /topics/web(home/WebTopicPage.tsx)。
+ * 單元與課程在 content/webCourse.ts;研發中的構想在研發基地 /studio/web-basics。登入後免費:序章不用登入就能預覽。
+ */
+export const WEB_TOPIC = {
+  name: '網頁怎麼運作',
+  slogan: '語法交給 AI，看懂原理才能跟 AI 說清楚',
+  path: '/topics/web',
+  seoTitle: '網頁怎麼運作：AI 時代的網頁基礎課',
+  description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。序章可以免費預覽。',
+  open: true,
+  start: { label: '開始第一課', path: WEB_OPEN_LESSONS['0.1'].path },
+  tag: 'AI 寫程式，我還需要知道什麼？',
+  intro: 'AI 已經能寫出大部分的程式碼，但寫得出來，不代表你看得懂、說得準。這門課不教語法，教網頁怎麼運作：瀏覽器怎麼畫出畫面、樣式和資料各歸誰管、網站怎麼放上網路。',
+  learn: ['用對名詞，把想要的畫面和功能跟 AI 說清楚', '看懂 AI 改了哪裡、為什麼這樣改', '畫面壞掉時，知道該往哪裡找問題'],
+} satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
+
+/** 網頁怎麼運作課程頁的標題(頁面的 document.title 與 seo/pages.ts 共用) */
+export const webLessonDocTitle = (id: string): string => `${webLesson(id)?.title ?? id}｜${WEB_TOPIC.name}`
+
 export const PLANNED_TOPICS: PlannedTopic[] = [
+  WEB_TOPIC,
   {
     ...AI_APPS_TOPIC,
     flow: ['寫出工具', '讓 AI 呼叫工具', '做成互動介面'],

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import lesson from '../../../content/live/lab/web/0.3.json'
+import lesson from '../../../content/live/lab/web/5.1.json'
 import demo from '../../../content/live/lab/actors/devtools.json'
 import actor, { type DevtoolsState, type DevtoolsStep } from './actor'
 
@@ -34,7 +34,7 @@ function replay(script: Script): DevtoolsState {
 }
 
 describe('devtools 的腳本', () => {
-  it('0.3 課的每一步(含每個選項)都推算得過去', () => {
+  it('5.1 課的每一步(含每個選項)都推算得過去', () => {
     const st = replay(lesson as Script)
     expect(st.tab).toBe('network')
     expect(st.request).toBe(0)

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { StageScript } from '../../types'
 import { expandAnswers, momentsOf, type Answers } from '../../../studio/interactive/scene'
-import lesson from '../../../content/live/lab/web/0.1.json'
+import lesson from '../../../content/live/web/0.1.json'
 import demo from '../../../content/live/lab/actors/net-trip.json'
 import actor, { fileOf, parseUrl, type NetState, type NetStep } from './actor'
 

@@ -1,6 +1,6 @@
 {
-  "title": "輸入網址之後發生的事（試做）",
-  "lesson": "網頁運作知識 · 序章 0.1",
+  "title": "輸入網址之後發生的事",
+  "lesson": "網頁怎麼運作 · 序章 0.1",
   "cast": {
     "net": {
       "actor": "net-trip",
@@ -13,7 +13,7 @@
     }
   },
   "steps": [
-    { "card": "輸入網址之後發生的事", "eyebrow": "網頁運作知識 · 序章 0.1", "chapter": "看：網頁怎麼來的", "narration": "在網址列按下 Enter，到畫面出現，通常不到一秒。這一課把這一秒放慢來看。" },
+    { "card": "輸入網址之後發生的事", "eyebrow": "網頁怎麼運作 · 序章 0.1", "chapter": "看：網頁怎麼來的", "narration": "在網址列按下 Enter，到畫面出現，通常不到一秒。這一課把這一秒放慢來看。" },
     { "callout": "net:browser", "text": "瀏覽器：幫你上網、把網頁畫出來的程式", "narration": "左邊是瀏覽器，例如 Chrome、Safari、Edge。它幫你上網，也負責把網頁畫出來。" },
     { "callout": "net:server", "text": "伺服器：放著網站檔案、一直開著的電腦", "narration": "右邊是伺服器。它是一台一直開著的電腦，網站的檔案就放在上面。" },
     { "type": "www.example.com", "narration": "先在網址列輸入網址。網址的英文是 URL，就是一個網頁的地址。" },

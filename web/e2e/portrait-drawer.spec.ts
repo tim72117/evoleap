@@ -1,7 +1,10 @@
 // 直式互動課程頁(?aspect=portrait)與課程進度的底部抽屜:手機視窗(窄視窗)才有抽屜,不帶參數維持橫式。
 import { expect, test } from '@playwright/test'
+import { loginAsNewStudent } from './support'
 
 test.use({ viewport: { width: 390, height: 844 } })
+// 第 1 課以後要登入
+test.beforeEach(async ({ page }) => loginAsNewStudent(page))
 
 test('直式:舞台是直式、抽屜把手預設收合、點開看得到步驟', async ({ page }) => {
   await page.goto('/courses/tools/0?aspect=portrait')

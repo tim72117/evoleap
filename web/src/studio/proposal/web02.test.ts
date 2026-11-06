@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { ACTORS } from '../../live/actors'
 import type { StageScript } from '../../live/types'
 import { expandAnswers, momentsOf, type Answers } from '../interactive/scene'
-import script from '../../content/live/lab/web/0.2.json'
+import script from '../../content/live/web/0.2.json'
 
-// 網頁運作知識 0.2 的試做腳本(content/live/lab/web/0.2.json):
+// 網頁運作知識 0.2 的試做腳本(content/live/web/0.2.json):
 // 每一步交給會這個動作的演員,照順序用 init/apply 推算一遍;互動點的每個選項(與略過)組合都演一次,
 // 確認瀏覽器用到的網頁版本都存在、編輯器打出來的檔案和網頁素材一字不差。
 

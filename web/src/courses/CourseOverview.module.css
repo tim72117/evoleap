@@ -254,6 +254,18 @@
   font-weight: 700;
 }
 
+/* 未登入時的存取標籤:免費預覽用實心綠,登入後學習用外框 */
+.badgePreview {
+  background: var(--site-accent-solid);
+  color: var(--site-accent-contrast);
+}
+
+.badgeLogin {
+  border: 1px solid var(--site-border);
+  background: transparent;
+  color: var(--site-text);
+}
+
 .rowGoal {
   font-size: 15px;
   line-height: 1.6;

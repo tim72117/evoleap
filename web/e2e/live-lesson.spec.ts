@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, test, type Page } from '@playwright/test'
-import { collectErrors, desktopOnly } from './support'
+import { collectErrors, desktopOnly, loginAsNewStudent } from './support'
 
 const SCRIPTS = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'content', 'live')
 
@@ -54,6 +54,7 @@ for (const c of LESSONS) {
     let errors: string[]
     test.beforeEach(async ({ page }) => {
       errors = collectErrors(page)
+      await loginAsNewStudent(page)
       await page.goto(c.path)
       await expect(player(page)).toBeVisible()
       await expect(player(page)).toHaveAttribute('role', 'region')
@@ -131,6 +132,7 @@ test.describe('腳本 lessonStep 與課程步驟一致', () => {
       test.skip(desktopOnly(info), '比對資料,不需要每個 viewport 重跑')
       const fromScript = scriptLessonSteps(c.script)
       expect(fromScript).toEqual(Array.from({ length: c.steps }, (_, i) => i + 1))
+      await loginAsNewStudent(page)
       await page.goto(c.path)
       await expect(chapter(page, c.chapters[0])).toBeVisible({ timeout: 15_000 })
       for (const name of c.chapters) await expect(chapter(page, name)).toHaveCount(1)

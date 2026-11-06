@@ -126,7 +126,7 @@ test('?next= 登入後回到原頁;頁首「登入」連結帶上目前頁面', 
   await expect(page.getByRole('link', { name: '繼續前往' })).toHaveAttribute('href', '/courses/ai-agent')
 })
 
-test('登入後免費的課程:未登入看到登入提示,登入後回到同一課;總覽與免費課程不受影響', async ({ page }) => {
+test('登入後免費的課程:未登入看到登入提示,登入後回到同一課;總覽與序章不受影響', async ({ page }) => {
   const errors = collectErrors(page)
   const email = randomEmail('gate')
   await registerViaApi(page, email)
@@ -143,10 +143,21 @@ test('登入後免費的課程:未登入看到登入提示,登入後回到同一
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(gateLogin).toHaveCount(0)
 
-  // 免費課程不用登入
-  await page.goto('/courses/tools/2')
+  // 課程內容清單:未登入時序章標「免費預覽」,其他課標「登入後學習」
+  await page.goto('/courses/tools')
+  const rows = page.locator('#course-content ~ details li')
+  await expect(rows.filter({ hasText: '序章' }).getByText('免費預覽', { exact: true })).toBeVisible()
+  await expect(rows.filter({ hasText: '第 0 課' }).getByText('登入後學習', { exact: true })).toBeVisible()
+  await expect(page.getByText('免費預覽', { exact: true })).toHaveCount(1)
+  // 「開始學習」連到不用登入就能看的序章
+  await expect(page.getByRole('link', { name: '開始學習' })).toHaveAttribute('href', '/courses/tools/intro')
+
+  // 只有序章可以直接預覽,L0 的第 0 課起就要登入
+  await page.goto('/courses/tools/intro')
   await expect(page.locator('h1')).toBeVisible()
   await expect(gateLogin).toHaveCount(0)
+  await page.goto('/courses/tools/0')
+  await expect(gateLogin).toBeVisible()
 
   await page.goto('/courses/ai-tools/3-3')
   await gateLogin.click()
@@ -154,6 +165,12 @@ test('登入後免費的課程:未登入看到登入提示,登入後回到同一
   await expect(page).toHaveURL(/\/courses\/ai-tools\/3-3$/)
   await expect(page.locator('li[id^="step-"]').first()).toBeVisible()
   await expect(gateLogin).toHaveCount(0)
+
+  // 登入後清單不再標示
+  await page.goto('/courses/tools')
+  await expect(page.locator('#course-content ~ details li').first()).toBeVisible()
+  await expect(page.getByText('登入後學習', { exact: true })).toHaveCount(0)
+  await expect(page.getByText('免費預覽', { exact: true })).toHaveCount(0)
   expect(errors).toEqual([])
 })
 

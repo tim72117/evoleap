@@ -10,7 +10,8 @@ import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath } from
 import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
 import { KIDS_OPEN_LESSONS, KIDS_UNITS, kidsLessonTitle } from '../content/kidsCourse'
-import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, kidsLessonDocTitle, SOFTWARE_TOPIC, topicOfCourse } from '../content/topics'
+import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, kidsLessonDocTitle, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC, webLessonDocTitle } from '../content/topics'
+import { WEB_OPEN_LESSONS, WEB_UNITS, webLesson } from '../content/webCourse'
 
 type JsonLd = Record<string, unknown>
 
@@ -171,6 +172,41 @@ const KIDS_LESSON_PAGES: PageMeta[] = Object.entries(KIDS_OPEN_LESSONS).map(([id
   }
 })
 
+/** 主題「網頁怎麼運作」的課程地圖頁:結構化資料列出每一課 */
+const WEB_TOPIC_PAGE: PageMeta = {
+  path: WEB_TOPIC.path,
+  title: documentTitle(WEB_TOPIC.seoTitle),
+  sitemapPriority: 0.8,
+  description: WEB_TOPIC.description,
+  jsonLd: [
+    breadcrumb([WEB_TOPIC.name, WEB_TOPIC.path]),
+    ld({
+      '@type': 'ItemList',
+      name: WEB_TOPIC.name,
+      // 已經可以上的課附上課程頁網址
+      itemListElement: WEB_UNITS.flatMap((u) => u.lessons).map((l, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: `${l.id} ${l.title}`,
+        ...(WEB_OPEN_LESSONS[l.id] && { url: absoluteUrl(WEB_OPEN_LESSONS[l.id].path) }),
+      })),
+    }),
+  ],
+}
+
+/** 網頁怎麼運作已經可以上的課:一課一頁 */
+const WEB_LESSON_PAGES: PageMeta[] = Object.entries(WEB_OPEN_LESSONS).map(([id, l]) => {
+  const lesson = webLesson(id)
+  const title = lesson?.title ?? id
+  const description = lesson?.learn ?? WEB_TOPIC.description
+  return {
+    path: l.path,
+    title: documentTitle(webLessonDocTitle(id)),
+    description,
+    jsonLd: [breadcrumb([WEB_TOPIC.name, WEB_TOPIC.path], [title, l.path]), course(`${WEB_TOPIC.name}：${title}`, description, l.path)],
+  }
+})
+
 const AI_AGENT_COURSE: PageMeta = {
   path: AI_AGENT_COURSE_PATH,
   title: documentTitle(COURSE.title),
@@ -265,6 +301,8 @@ export const PAGES: PageMeta[] = [
   CLAUDE_CODE_TOPIC_PAGE,
   KIDS_TOPIC_PAGE,
   ...KIDS_LESSON_PAGES,
+  WEB_TOPIC_PAGE,
+  ...WEB_LESSON_PAGES,
   AI_AGENT_COURSE,
   ...COURSE_PAGES,
   ...LEGAL_PAGES,

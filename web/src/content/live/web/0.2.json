@@ -1,12 +1,12 @@
 {
-  "title": "HTML、CSS、JavaScript 的分工（試做）",
-  "lesson": "網頁運作知識 · 0.2 試做",
+  "title": "HTML、CSS、JavaScript 的分工",
+  "lesson": "網頁怎麼運作 · 序章 0.2",
   "cast": {
     "editor": { "actor": "editor", "props": { "project": "cafe" }, "parts": { "files": false }, "place": { "x": 60, "y": 110, "w": 900, "h": 860 } },
     "web": { "actor": "browser", "props": { "site": "web-html", "url": "file:///Documents/practice/cafe/index.html" }, "place": { "x": 990, "y": 110, "w": 870, "h": 860 }, "hidden": true }
   },
   "steps": [
-    { "card": "HTML、CSS、JavaScript 的分工", "eyebrow": "網頁運作知識 · 0.2", "chapter": "看：三個檔案各管什麼", "narration": "一個網頁，通常由三種檔案一起完成。我們拿同一個小網頁，一次加一種，看看每一種各負責什麼。" },
+    { "card": "HTML、CSS、JavaScript 的分工", "eyebrow": "網頁怎麼運作 · 序章 0.2", "chapter": "看：三個檔案各管什麼", "narration": "一個網頁，通常由三種檔案一起完成。我們拿同一個小網頁，一次加一種，看看每一種各負責什麼。" },
 
     { "open": "index.html", "narration": "第一個是 HTML 檔。它寫的是這一頁有哪些東西：店名、購物車、照片、標題、介紹、價錢，還有一個按鈕。" },
     { "type": "<title>小森咖啡</title>\n<header>\n  <p class=\"brand\">小森咖啡</p>\n  <p class=\"cart\">購物車 <span id=\"count\">0</span></p>\n</header>\n<main>\n  <div class=\"photo\">☕</div>\n  <h2>今天的手沖咖啡</h2>\n  <p>衣索比亞淺焙，帶一點花香與柑橘的酸。</p>\n  <p class=\"price\">NT$ 150</p>\n  <button id=\"add\">加入購物車</button>" },

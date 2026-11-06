@@ -345,6 +345,46 @@
   border-radius: var(--site-radius);
 }
 
+/* 標題列:標題與右邊的「規劃中」並排 */
+.themeHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 8px 0 2px;
+}
+
+.theme .themeHead h3 {
+  margin: 0;
+}
+
+/* 規劃中:標題右邊的小樹苗標籤(樣式同兒童課課程地圖的「規劃中」) */
+.planned {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 12px 4px 5px;
+  border: 1px dashed var(--site-border);
+  border-radius: 999px;
+  color: var(--site-muted);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.plannedIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--site-surface-2);
+  font-size: 12px;
+  line-height: 1;
+}
+
 /* 已開放的主題:實線外框(規劃中是虛線) */
 .themeOpen {
   border-style: solid;
@@ -365,6 +405,12 @@
   margin: 0;
   color: var(--site-muted);
   font-size: 14.5px;
+}
+
+.themeIntro {
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.7;
 }
 
 .theme h4 {

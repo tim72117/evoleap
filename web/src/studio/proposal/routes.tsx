@@ -54,8 +54,8 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
   { path: '/studio/kids-web', element: <KidsWebPage /> },
   { path: '/studio/web-basics', element: <WebBasicsPage /> },
-  // 網頁運作知識序章的試做:成人課的互動場景頁,腳本在 content/live/lab/web/
-  ...(['0.1', '0.2', '0.3'] as const).map((id) => ({
+  // 網頁運作知識的試做:單元 5 的 5.1 開發者工具(序章已是正式課,在 /topics/web),腳本在 content/live/lab/web/
+  ...(['5.1'] as const).map((id) => ({
     path: `/studio/web-basics/${id.replace('.', '-')}`,
     element: <InteractiveScenePage key={`web-${id}`} script={`lab/web/${id}.json`} pageTitle={`網頁運作知識 ${id} 試做`} back={{ to: '/studio/web-basics', label: '← 網頁運作知識' }} />,
   })),

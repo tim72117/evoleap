@@ -73,7 +73,9 @@ export function KidsTopicPage() {
                             {/* 狀態:開始學習與免費預覽(綠)、登入後學習(暖色,鎖頭)、規劃中(淡色) */}
                             {(() => {
                               // 登入之後(或伺服器沒開放登入)可以上的課都是「開始學習」;沒登入時第一課是免費預覽,之後的要登入
-                              const state = !open ? 'planned' : signedIn ? 'start' : kidsNeedsLogin(l.id) ? 'login' : 'free'
+                              const state = !open ? 'planned' : signedIn ? 'start' : status === 'loading' ? null : kidsNeedsLogin(l.id) ? 'login' : 'free'
+                              // 還在確認登入狀態(state 是 null)時先不標,免得已登入的人閃過「登入後學習」
+                              if (!state) return null
                               const label = { start: '開始學習', free: '免費預覽', login: '登入後學習', planned: '規劃中' }[state]
                               const icon = { start: '▶', free: '▶', login: '🔒', planned: '🌱' }[state]
                               return (

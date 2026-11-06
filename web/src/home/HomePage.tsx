@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { COURSES, coursePath, lessonPath, openLessonsOf } from '../content/catalog'
+import { useAuth } from '../auth/AuthContext'
+import { COURSES, coursePath, isPreviewLesson, lessonPath, openLessonsOf } from '../content/catalog'
 import { LEVELS } from '../content/levels'
 import { HOME_INTRO, KIDS_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, type PlannedTopic } from '../content/topics'
 import { KidsPlayer } from '../kids/KidsPlayer'
@@ -14,10 +15,11 @@ import styles from './HomePage.module.css'
 // 規劃中的主題縮小,只寫預計做出的成果。課數、連結與示範提示詞都取自課程資料,主題文案在 content/topics.ts。
 
 const tools = COURSES.find((c) => c.slug === 'tools')!
-// 主打的是第 0 課(互動點、提示詞都是它的);序章只是短短的導覽,不當主打
+// 主打的是第 0 課(互動點、提示詞都是它的),但第 0 課要登入才能看:
+// 沒登入的訪客改看序章(不用登入就能預覽);「開始第一課」不論有沒有登入都從序章開始
 const openLessons = openLessonsOf(tools)
 const firstLesson = openLessons[0]
-const firstScript = firstLesson.videos[0].live!
+const introLesson = tools.lessons.find(isPreviewLesson)!
 const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!
 
 // 這個主題的等級(L0–L2);中階、進階在主題「打造 AI 互動軟體」
@@ -42,6 +44,9 @@ export function HomePage() {
   const [shrinkSlot, setShrinkSlot] = useState<HTMLElement | null>(null)
   /** 兒童主題預覽的環節選單放在卡片左欄的這個位置(窄螢幕時左欄排在預覽上面,一樣顯示) */
   const [kidsMenu, setKidsMenu] = useState<HTMLElement | null>(null)
+  const { status } = useAuth()
+  const member = status === 'user' || status === 'disabled'
+  const featured = member ? firstLesson : introLesson
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
   return (
@@ -57,7 +62,6 @@ export function HomePage() {
         <article className={styles.featured} aria-labelledby="theme-software">
           <div className={styles.featuredMain}>
             <div className={styles.featuredText}>
-              <p className={`${styles.badge} ${styles.badgeOpen}`}>開放中</p>
               <h2 id="theme-software">{SOFTWARE_TOPIC.name}</h2>
               <p className={styles.slogan}>{SOFTWARE_TOPIC.slogan}</p>
               <p className={styles.lede}>{SOFTWARE_TOPIC.lede}</p>
@@ -80,7 +84,7 @@ export function HomePage() {
                 ))}
               </ol>
               <div className={styles.ctas}>
-                <Link className={styles.primary} to={lessonPath(tools, firstLesson)}>
+                <Link className={styles.primary} to={lessonPath(tools, introLesson)}>
                   開始第一課
                 </Link>
                 <Link className={styles.secondary} to={{ pathname: SOFTWARE_TOPIC.path, hash: 'map' }}>
@@ -90,7 +94,18 @@ export function HomePage() {
               </div>
             </div>
             <div className={styles.player}>
-              <InteractiveScenePage script={firstScript} pageTitle={firstLesson.title} interaction="static" prepare={withL0Moments} embed shrinkSlot={shrinkSlot} />
+              {/* 確認登入狀態前不放播放器,免得已登入的人先載入序章再換成第 0 課 */}
+              {status !== 'loading' && (
+                <InteractiveScenePage
+                  key={featured.id}
+                  script={featured.videos[0].live!}
+                  pageTitle={featured.title}
+                  interaction="static"
+                  prepare={featured === firstLesson ? withL0Moments : undefined}
+                  embed
+                  shrinkSlot={shrinkSlot}
+                />
+              )}
             </div>
           </div>
 
@@ -195,12 +210,34 @@ function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactNode; be
   )
   const body = (
     <>
-      {t.open ? <p className={`${styles.badge} ${styles.badgeOpen}`}>開放中</p> : <p className={styles.badge}>規劃中</p>}
-      <h3>
-        {t.icon && TOPIC_ICONS[t.icon]}
-        {t.name}
-      </h3>
+      {/* 首頁不標「開放中」:有主色標籤的主題放標籤;規劃中的主題在標題右邊標小樹苗(和兒童課的「規劃中」一樣) */}
+      {t.tag && <p className={`${styles.badge} ${styles.badgeOpen}`}>{t.tag}</p>}
+      <div className={styles.themeHead}>
+        <h3>
+          {t.icon && TOPIC_ICONS[t.icon]}
+          {t.name}
+        </h3>
+        {!t.open && (
+          <p className={styles.planned}>
+            <span className={styles.plannedIcon} aria-hidden="true">
+              🌱
+            </span>
+            規劃中
+          </p>
+        )}
+      </div>
       <p className={styles.themeSlogan}>{t.slogan}</p>
+      {t.intro && <p className={styles.themeIntro}>{t.intro}</p>}
+      {t.learn && (
+        <>
+          <h4>學完你會</h4>
+          <ul className={styles.outcomes}>
+            {t.learn.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ul>
+        </>
+      )}
       {t.flow && (
         <ol className={styles.flow} aria-label="會經歷的步驟">
           {t.flow.map((s) => (

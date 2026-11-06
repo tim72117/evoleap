@@ -2,7 +2,7 @@
 // 前端換頁後 <title> 與 canonical 要和 server 預先產生的 HTML 一致;
 // 每個公開頁與主要內部頁開啟時沒有 console error / 例外 / 失敗的請求。
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
-import { collectErrors, distSitemapPaths, ORIGIN, parseHead } from './support'
+import { collectErrors, distSitemapPaths, ORIGIN, parseHead, loginAsNewStudent } from './support'
 
 /** server 回傳的(預先產生的)HTML 裡的 <title> */
 async function serverTitle(request: APIRequestContext, path: string): Promise<string> {
@@ -23,6 +23,7 @@ async function expectHeadMatches(page: Page, request: APIRequestContext, path: s
 
 test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(前端換頁)', async ({ page, request }, testInfo) => {
   const errors = collectErrors(page)
+  await loginAsNewStudent(page)
   await page.goto('/')
   await expect(page.locator('h1')).toBeVisible()
   await expectHeadMatches(page, request, '/')
@@ -132,24 +133,56 @@ test('舊的首頁錨點導到主題頁:/#map、/#level-tools', async ({ page })
   await expect(page.locator('#level-tools')).toBeVisible()
 })
 
-test('首頁:主打主題可以播放第 0 課,開始第一課連到課程', async ({ page }) => {
+test('首頁:沒登入時主打主題播放序章,開始第一課連到序章', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/')
   await expect(page.locator('.vp')).toBeVisible()
   // 主打主題與兒童主題各有一個「開始第一課」
-  await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/0')
+  // 沒登入:第 0 課要登入,「開始第一課」連到可以免費預覽的序章,展示播放器播的也是序章
+  await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/intro')
+  await expect(page.getByRole('article', { name: '做出自己的軟體' }).locator('.vp')).toBeVisible()
   const kids = page.getByRole('region', { name: '給孩子的網頁程式' })
   await expect(kids.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/topics/kids/0-1')
   await expect(kids.getByRole('link', { name: '課程地圖' })).toHaveAttribute('href', '/topics/kids#map')
-  await expect(kids.getByText('開放中')).toBeVisible()
+  // 首頁不標「開放中」,只有規劃中的主題標「規劃中」
+  await expect(page.getByText('開放中', { exact: true })).toHaveCount(0)
   await expect(page.getByText('規劃中').first()).toBeVisible()
+  expect(errors).toEqual([])
+})
+
+test('網頁怎麼運作:首頁卡片連到主題,序章免費預覽、其他課規劃中,序章不用登入就能上', async ({ page }) => {
+  const errors = collectErrors(page)
+  await page.goto('/')
+  const card = page.locator('article').filter({ has: page.getByRole('heading', { name: '網頁怎麼運作', exact: true }) })
+  await expect(card.getByText('AI 寫程式，我還需要知道什麼？')).toBeVisible()
+  await expect(card.getByText('開放中')).toHaveCount(0)
+  await expect(card.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/topics/web/0-1')
+
+  await page.goto('/topics/web')
+  await expect(page.locator('h1')).toHaveText('網頁怎麼運作')
+  await expect(page.getByRole('heading', { name: '課程說明' })).toBeVisible()
+  const row = (title: string) => page.locator('#map li').filter({ hasText: title })
+  await expect(row('輸入網址之後發生的事').getByText('免費預覽')).toBeVisible()
+  await expect(row('HTML、CSS、JavaScript 的分工').getByText('免費預覽')).toBeVisible()
+  await expect(row('元素與標籤').getByText('規劃中')).toBeVisible()
+  await expect(row('元素與標籤').getByRole('link')).toHaveCount(0)
+
+  // 序章不用登入:直接進到互動舞台,側欄有下一課
+  await row('輸入網址之後發生的事').getByRole('link').click()
+  await expect(page).toHaveURL(/\/topics\/web\/0-1$/)
+  await expect(page.locator('.vp')).toBeVisible()
+  await expect(page.getByRole('link', { name: '下一課：0.2 →' })).toHaveAttribute('href', '/topics/web/0-2')
+  await expect(page.locator('main').getByRole('link', { name: '登入或註冊' })).toHaveCount(0)
   expect(errors).toEqual([])
 })
 
 test('首頁的展示是靜態互動:從互動點前面一點開始,播到互動點時直接在演員身上回答', async ({ page }) => {
   test.setTimeout(90000)
   const errors = collectErrors(page)
+  // 登入後展示的是第 0 課(沒登入時是序章);「開始第一課」一樣從序章開始
+  await loginAsNewStudent(page)
   await page.goto('/')
+  await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/intro')
   const first = page.getByRole('heading', { name: /你要送出哪一句/ })
   const layer = page.getByTestId('static-actor')
   // 開頁不自動播放、不捲動頁面,也還沒輪到學員
@@ -189,6 +222,7 @@ test('首頁的展示是靜態互動:從互動點前面一點開始,播到互動
 test('首頁的展示:一開始不放大,開始播放才往左下放大,靜態互動時一樣大,縮小後恢復', async ({ page }, info) => {
   test.setTimeout(90000)
   test.skip(info.project.name === 'mobile', '手機上播放器本來就是整排寬')
+  await loginAsNewStudent(page) // 登入後才是有互動點的第 0 課
   await page.goto('/')
   const card = page.locator('article').first()
   // 相對於卡片量:放大時頁面可能捲動
@@ -352,6 +386,7 @@ test('把演員推到主畫面:側欄讓開,直接在 Claude 上選指令與按�
 test('L0 第 0 課是互動版:用原本的腳本,在 Claude 上回答後接著演,側欄有下一課與提示詞', async ({ page, context }) => {
   test.setTimeout(90000)
   const errors = collectErrors(page)
+  await loginAsNewStudent(page)
   await page.goto('/courses/tools/0')
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
   // 原本的章節都在
@@ -374,12 +409,11 @@ test('L0 第 0 課是互動版:用原本的腳本,在 Claude 上回答後接著�
 test('L0 第 1 課是互動版:選錯路徑時 Claude 會提醒,接著回到正確的指令', async ({ page }) => {
   test.setTimeout(90000)
   const errors = collectErrors(page)
+  await loginAsNewStudent(page)
   await page.goto('/courses/tools/1')
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
   await expect(panel.getByRole('button', { name: /建立專案資料夾/ })).toBeVisible()
   await expect(panel.getByText('目前的工作目錄是哪裡？', { exact: true })).toBeVisible()
-  // 訪客可以從側欄登入,登入後回到這一課
-  await expect(panel.getByRole('link', { name: '登入' })).toHaveAttribute('href', '/login?next=%2Fcourses%2Ftools%2F1')
 
   await panel.getByRole('button', { name: /哪一句寫對了/ }).click()
   await page.getByRole('button', { name: '在 idea.txt 記下：首頁要有預約按鈕', exact: true }).click()
@@ -391,6 +425,7 @@ test('L0 第 1 課是互動版:選錯路徑時 Claude 會提醒,接著回到正�
 test('L0 第 2 課是互動版:播到響應式的互動點會停下,選手機後瀏覽器縮成手機寬度並說明,再繼續', async ({ page }) => {
   test.setTimeout(90000)
   const errors = collectErrors(page)
+  await loginAsNewStudent(page)
   await page.goto('/courses/tools/2')
   const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
   await expect(page.locator('.vp')).toBeVisible()
