@@ -420,6 +420,7 @@ const PAGES = [
   '/studio/kids-web',
   '/studio/kids-web/0-1',
   '/studio/kids-web/0-1/live',
+  '/studio/kids-web/0-2/live',
   '/studio/docs',
   '/materials',
   '/studio/actor-interaction/scene',

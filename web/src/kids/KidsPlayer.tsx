@@ -891,6 +891,18 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
                   />
                 )
               })}
+              {/* 沒有對應演員目標的選項(例如是非題):在舞台下方排成一列大按鈕 */}
+              {ask.options.some((o) => !o.target) && (
+                <div className={s.choices} data-nudge={hint ? 'true' : 'false'}>
+                  {ask.options.map((o, i) =>
+                    o.target ? null : (
+                      <button key={i} type="button" className={s.choice} onClick={() => ask.pick(i)}>
+                        <Say text={o.label} />
+                      </button>
+                    ),
+                  )}
+                </div>
+              )}
               {hint && hintAt && !hintAt.quiz && (
                 <span className={s.hand} style={{ left: hintAt.x, top: hintAt.y }} aria-hidden="true">
                   👆<em>點這裡試試看</em>

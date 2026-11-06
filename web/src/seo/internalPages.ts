@@ -41,6 +41,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/kids-web', '兒童網頁課'],
     ['/studio/kids-web/0-1', '兒童網頁課 0.1 試做'],
     ['/studio/kids-web/0-1/live', '兒童網頁課 0.1 live 試做'],
+    ['/studio/kids-web/0-2/live', '兒童網頁課 0.2 試做'],
     ['/studio/visuals', '即時教學影像'],
     ['/studio/actor-interaction/scene', '互動教學場景'],
     ['/studio/actor-interaction/push', '互動場景：把演員推到主畫面'],

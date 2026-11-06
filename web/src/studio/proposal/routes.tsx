@@ -10,6 +10,7 @@ import { FieldsPage } from './FieldsPage'
 import { KidsWebPage } from './KidsWebPage'
 import { KidsLesson01Page } from '../kids/KidsLesson01Page'
 import { KidsLesson01LivePage } from '../kids/KidsLesson01LivePage'
+import { KidsLesson02LivePage } from '../kids/KidsLesson02LivePage'
 import { L1IdeasPage } from './L1IdeasPage'
 import { LifeToolsPage } from './LifeToolsPage'
 import { McpPage } from './McpPage'
@@ -52,5 +53,6 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/kids-web', element: <KidsWebPage /> },
   { path: '/studio/kids-web/0-1', element: <KidsLesson01Page /> },
   { path: '/studio/kids-web/0-1/live', element: <KidsLesson01LivePage /> },
+  { path: '/studio/kids-web/0-2/live', element: <KidsLesson02LivePage /> },
   { path: '/studio/visuals', element: <VisualsPage /> },
 ]

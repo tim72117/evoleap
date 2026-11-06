@@ -1,0 +1,160 @@
+{
+  "title": "戴上 X 光眼鏡",
+  "lesson": "兒童網頁課 · 0.2 試做",
+  "cast": {
+    "kid": {
+      "actor": "kid-web",
+      "props": {
+        "title": "小花的家",
+        "blocks": [
+          {
+            "tag": "h1",
+            "text": "小花的家"
+          },
+          {
+            "tag": "img",
+            "text": "🐱"
+          },
+          {
+            "tag": "p",
+            "text": "小花是一隻愛睡午覺的橘貓。"
+          },
+          {
+            "tag": "button",
+            "text": "摸摸小花"
+          }
+        ]
+      },
+      "place": {
+        "x": 120,
+        "y": 70,
+        "w": 1680,
+        "h": 760
+      },
+      "parts": {
+        "stars": false
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "小花的網頁"
+      },
+      "chapter": "看：自己的電腦改得動",
+      "narration": "小花的網頁又見面了！上一課我們把網頁翻到背面，看到一塊一塊的積木。"
+    },
+    {
+      "xray": true,
+      "narration": "這次不用翻面。我們戴上 X 光眼鏡，網頁上每個東西旁邊，都會出現它是哪一塊積木。"
+    },
+    {
+      "inspect": "h1",
+      "narration": "最大的標題，是 <h1> 積木畫出來的。"
+    },
+    {
+      "inspect": false,
+      "ms": 300
+    },
+    {
+      "edit": "h1",
+      "text": "阿明的家",
+      "tap": true,
+      "narration": "在自己的電腦上，我可以把標題改掉。看！變成「阿明的家」了。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:reload",
+        "text": "重新整理"
+      },
+      "narration": "現在按一下重新整理，看看會發生什麼事。"
+    },
+    {
+      "reload": true,
+      "tap": true,
+      "narration": "咦？又變回「小花的家」了！"
+    },
+    {
+      "wait": 400,
+      "narration": "因為我們改的，只是自己電腦裡的那一份。小花的網頁本身，一點都沒有被改壞。"
+    },
+    {
+      "checkpoint": "換你改改看",
+      "sub": "kids/0.2-edit.json",
+      "chapter": "做：換你改改看"
+    },
+    {
+      "wait": 400,
+      "chapter": "找找看",
+      "narration": "最後來想一想，一共兩題。看上面的題目，點下面你覺得對的答案。"
+    },
+    {
+      "checkpoint": "第 1 題：我在自己的電腦上把標題改掉了，別人看到的小花的網頁會變嗎？",
+      "body": "點下面的答案。",
+      "id": "quiz-1",
+      "options": [
+        {
+          "label": "不會，只有我看得到",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "答對了！我改的只有我自己看得到，別人的網頁不會被改壞。"
+            }
+          ]
+        },
+        {
+          "label": "會，大家都看到",
+          "retry": true,
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "不會喔！我改的只是自己電腦裡的那一份。再想想看！"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wait": 300,
+      "ms": 300
+    },
+    {
+      "checkpoint": "第 2 題：改完之後按重新整理，網頁會怎麼樣？",
+      "body": "點下面的答案。",
+      "id": "quiz-2",
+      "options": [
+        {
+          "label": "變回原本的樣子",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "答對了！重新整理之後，網頁又變回原本的樣子。"
+            }
+          ]
+        },
+        {
+          "label": "一直是我改的樣子",
+          "retry": true,
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "其實重新整理之後，就變回原本的樣子了。再試一次！"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "我改的只有我看得到！"
+      },
+      "chapter": "學會",
+      "narration": "我在自己電腦上改的，只有我看得到；別人的網頁不會被改壞。"
+    }
+  ]
+}

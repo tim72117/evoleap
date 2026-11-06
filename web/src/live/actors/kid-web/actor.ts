@@ -7,6 +7,7 @@
 //   blocks   網頁的積木,由上到下:[{ "tag": "h1", "text": "小花的家" }, …]
 //            tag 是 h1、img、p、button 其中之一,一種標籤只能有一塊(目標用標籤名字指定);img 的 text 放一個 emoji
 //   view     一開始看哪一面:front(預設)、back、split(左邊網頁、右邊積木)
+//   xray     一開始就戴著 X 光眼鏡(網頁上每個東西旁邊標出它的積木名字),預設 false
 //
 // 動作:
 //   { "flip": "back" }                      翻面:front、back、split(約 1.4 秒)
@@ -15,16 +16,31 @@
 //   { "inspect": "h1", "tap": "part" }      示範操作:虛擬滑鼠移過去點一下(part 點網頁上的東西、block 點積木),點下去才亮;示範不算集星星
 //   { "check": "img", "answer": "button" }  回答「這是哪一塊積木」:孩子選了 check,正確答案是 answer;
 //                                           答對變綠、網頁上對應的東西亮起來,答錯那塊變紅、搖一搖
+//   { "xray": true }                        戴上(false 拿下)X 光眼鏡:不用翻面,網頁上每個東西旁邊出現它的積木名字
+//   { "edit": "h1", "text": "阿明的家" }    在自己的電腦上改網頁的字(h1、p、button):網頁和背面的積木一起換成新的字,逐字打出來;
+//                                           加 "tap": true 先用虛擬滑鼠點一下那個東西(示範)
+//   { "reload": true }                      按瀏覽器的重新整理:改過的字全部變回原本的樣子(props 的 blocks);加 "tap": true 示範點重新整理鈕。
+//                                           狀態的 undone:改過字之後按了幾次重新整理(給子腳本的 until 判斷「改完並重新整理過」)
 //
-// 目標:window、page(網頁正面)、stack(積木堆)、part:<標籤>(網頁上的東西)、block:<標籤>(積木)、stars
+// 目標:window、page(網頁正面)、stack(積木堆)、part:<標籤>(網頁上的東西)、block:<標籤>(積木)、stars、reload(重新整理鈕)
 import { kit } from '../../kit'
 import { defineActor, type CommonStepFields } from '../../types'
 import './actor.css'
 
-type KidKind = 'flip' | 'inspect' | 'check'
+type KidKind = 'flip' | 'inspect' | 'check' | 'xray' | 'edit' | 'reload'
 type Face = 'front' | 'back' | 'split'
 type Tag = 'h1' | 'img' | 'p' | 'button'
-type KidStep = CommonStepFields & { flip?: Face; inspect?: Tag | false; tap?: 'part' | 'block'; check?: Tag; answer?: Tag }
+type KidStep = CommonStepFields & {
+  flip?: Face
+  inspect?: Tag | false
+  tap?: 'part' | 'block' | true
+  check?: Tag
+  answer?: Tag
+  xray?: boolean
+  edit?: Tag
+  text?: string
+  reload?: boolean
+}
 interface KidBlock {
   tag: Tag
   text: string
@@ -33,6 +49,7 @@ interface KidProps {
   title?: string
   blocks?: KidBlock[]
   view?: Face
+  xray?: boolean
 }
 interface KidState {
   view: Face
@@ -40,10 +57,19 @@ interface KidState {
   /** 最近一次回答:選了哪塊、對不對 */
   verdict: { tag: Tag; right: boolean } | null
   seen: Tag[]
+  xray: boolean
+  /** 網頁上改過的字(沒改過的照 props 的 blocks) */
+  texts: Partial<Record<Tag, string>>
+  /** 上次重新整理之後改過字的積木 */
+  edited: Tag[]
+  /** 改過字之後按了幾次重新整理 */
+  undone: number
 }
-type KidTarget = 'window' | 'page' | 'stack' | 'stars' | `part:${string}` | `block:${string}`
+type KidTarget = 'window' | 'page' | 'stack' | 'stars' | 'reload' | `part:${string}` | `block:${string}`
 
-const KINDS: readonly KidKind[] = ['flip', 'inspect', 'check']
+const KINDS: readonly KidKind[] = ['flip', 'inspect', 'check', 'xray', 'edit', 'reload']
+/** 可以改字的標籤(圖片不能改字) */
+const EDITABLE: readonly Tag[] = ['h1', 'p', 'button']
 const FACES: readonly Face[] = ['front', 'back', 'split']
 
 /** 每種標籤的積木:中文名稱與顏色(和 studio/kids/blocks.ts 的試做頁一致) */
@@ -58,6 +84,10 @@ const isTag = (x: unknown): x is Tag => typeof x === 'string' && x in TAGS
 const FLIP_MS = 1400
 const INSPECT_MS = 900
 const CHECK_MS = 1200
+const XRAY_MS = 900
+const RELOAD_MS = 1500
+/** 改字時一秒打幾個字 */
+const TYPE_CPS = 8
 /** 示範點擊:滑鼠 150ms 出發、移動 550ms,到了就點(舞台的虛擬滑鼠固定這樣移動,見 README 2A.5 已知限制) */
 const TAP_AT = 750
 
@@ -131,7 +161,7 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
     }
     const view = props.view ?? 'front'
     if (!FACES.includes(view)) throw new Error(`view 要是 ${FACES.join('、')}`)
-    return { view, focus: null, verdict: null, seen: [] }
+    return { view, focus: null, verdict: null, seen: [], xray: !!props.xray, texts: {}, edited: [], undone: 0 }
   },
 
   apply(st, kind, s) {
@@ -149,19 +179,35 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
       const seen = s.tap || st.seen.includes(s.inspect) ? st.seen : [...st.seen, s.inspect]
       return { ...st, focus: s.inspect, verdict: null, seen }
     }
+    if (kind === 'xray') return { ...st, xray: s.xray !== false }
+    if (kind === 'edit') {
+      if (!isTag(s.edit) || !EDITABLE.includes(s.edit)) throw new Error(`edit:只能改 ${EDITABLE.join('、')} 的字`)
+      if (typeof s.text !== 'string' || !s.text) throw new Error('edit 要寫新的字(text)')
+      if (st.view === 'back') throw new Error('edit:背面看不到網頁,先 flip 到 front 或 split')
+      const edited = st.edited.includes(s.edit) ? st.edited : [...st.edited, s.edit]
+      return { ...st, focus: null, verdict: null, texts: { ...st.texts, [s.edit]: s.text }, edited }
+    }
+    if (kind === 'reload') return { ...st, focus: null, verdict: null, texts: {}, edited: [], undone: st.undone + (st.edited.length ? 1 : 0) }
     if (!isTag(s.check) || !isTag(s.answer)) throw new Error('check 和 answer 都要寫標籤名字,例如 { "check": "img", "answer": "button" }')
     const right = s.check === s.answer
     return { ...st, focus: right ? s.check : null, verdict: { tag: s.check, right } }
   },
 
   duration(kind, step) {
-    if (kind === 'inspect') return (step.tap ? TAP_AT : 0) + INSPECT_MS
+    const tap = step.tap ? TAP_AT : 0
+    if (kind === 'inspect') return tap + INSPECT_MS
+    if (kind === 'edit') return tap + kit.typeDuration(step.text ?? '', TYPE_CPS) + 600
+    if (kind === 'reload') return tap + RELOAD_MS
+    if (kind === 'xray') return XRAY_MS
     return kind === 'flip' ? FLIP_MS : CHECK_MS
   },
 
   cursor(kind, step) {
-    if (kind !== 'inspect' || !step.tap || !isTag(step.inspect)) return null
-    return { moves: [{ at: 150, target: `${step.tap}:${step.inspect}` }], clickAt: TAP_AT }
+    if (!step.tap) return null
+    if (kind === 'inspect' && isTag(step.inspect)) return { moves: [{ at: 150, target: `${step.tap === 'block' ? 'block' : 'part'}:${step.inspect}` }], clickAt: TAP_AT }
+    if (kind === 'edit' && isTag(step.edit)) return { moves: [{ at: 150, target: `part:${step.edit}` }], clickAt: TAP_AT }
+    if (kind === 'reload') return { moves: [{ at: 150, target: 'reload' }], clickAt: TAP_AT }
+    return null
   },
 
   mount(root, props) {
@@ -170,8 +216,8 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
     root.innerHTML = `
       <div class="kw-scene">
         <div class="kw-pane kw-page-pane">
-          <div class="kw-bar"><span class="kw-lights"><i></i><i></i><i></i></span><span class="kw-url">${kit.esc(props.title ?? '我的網頁')}</span></div>
-          <div class="kw-page">${blocks.map((b) => `<div class="kw-part" data-tag="${b.tag}">${partHtml(b)}</div>`).join('')}</div>
+          <div class="kw-bar"><span class="kw-lights"><i></i><i></i><i></i></span><span class="kw-reload">↻</span><span class="kw-url">${kit.esc(props.title ?? '我的網頁')}</span></div>
+          <div class="kw-page">${blocks.map((b) => `<div class="kw-part" data-tag="${b.tag}">${partHtml(b)}<em class="kw-xtag">&lt;${b.tag}&gt;</em></div>`).join('')}</div>
         </div>
         <div class="kw-pane kw-stack-pane">
           <p class="kw-back-label">網頁的背面</p>
@@ -182,6 +228,12 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
     const pagePane = root.querySelector<HTMLElement>('.kw-page-pane')!
     const stackPane = root.querySelector<HTMLElement>('.kw-stack-pane')!
     const stars = root.querySelector<HTMLElement>('.kw-stars')!
+    const reloadBtn = root.querySelector<HTMLElement>('.kw-reload')!
+    const pageBody = root.querySelector<HTMLElement>('.kw-page')!
+    /** 網頁上與積木上放字的地方(改字時換這裡) */
+    const partText = new Map(blocks.map((b) => [b.tag, root.querySelector<HTMLElement>(`.kw-part[data-tag="${b.tag}"] > span`)!]))
+    const blockText = new Map(blocks.map((b) => [b.tag, root.querySelector<HTMLElement>(`.kw-block[data-tag="${b.tag}"] .kw-content`)!]))
+    const original = new Map(blocks.map((b) => [b.tag, b.text]))
     const parts = new Map(blocks.map((b) => [b.tag, root.querySelector<HTMLElement>(`.kw-part[data-tag="${b.tag}"]`)!]))
     const bricks = new Map(blocks.map((b) => [b.tag, root.querySelector<HTMLElement>(`.kw-block[data-tag="${b.tag}"]`)!]))
     for (const b of blocks) {
@@ -231,6 +283,30 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
           }
         }
 
+        // 改字:網頁和積木上的字一起換;改字的動作進行中逐字打出新的字(示範點擊時點下去才開始打)
+        const typing = ev?.kind === 'edit' ? (ev.step as KidStep) : null
+        // 重新整理:進度過一半才變回原本的字,網頁在中間閃一下,重新整理鈕轉一圈
+        const reloading = ev?.kind === 'reload' ? ev : null
+        const reloadStart = reloading && (reloading.step as KidStep).tap ? TAP_AT : 0
+        const rp = reloading ? kit.progress(reloading.local, reloadStart, RELOAD_MS) : 1
+        const shown = reloading && rp < 0.5 ? from : to
+        for (const blk of blocks) {
+          let text = shown.texts[blk.tag] ?? original.get(blk.tag)!
+          if (typing && typing.edit === blk.tag && ev) {
+            const start = typing.tap ? TAP_AT : 0
+            text = ev.local < start ? (from.texts[blk.tag] ?? original.get(blk.tag)!) : kit.typewriter(text, ev.local, { start, cps: TYPE_CPS }).text
+          }
+          kit.setIf(partText.get(blk.tag)!, 'text', text)
+          kit.setIf(blockText.get(blk.tag)!, 'text', text)
+        }
+        kit.css(pageBody, { opacity: reloading ? (0.25 + 0.75 * Math.abs(rp - 0.5) * 2).toFixed(3) : '1' })
+        kit.css(reloadBtn, { transform: `rotate(${reloading ? Math.round(rp * 360) : 0}deg)` })
+
+        // X 光眼鏡:網頁上每個東西旁邊的積木名字淡入淡出
+        const xp = ev?.kind === 'xray' ? kit.ease.inOutCubic(ev.p) : 1
+        const xray = kit.lerp(from.xray ? 1 : 0, to.xray ? 1 : 0, xp)
+        root.style.setProperty('--x', xray.toFixed(3))
+
         // 集星星:看過幾塊積木
         const seen = to.seen
         kit.setIf(stars, 'html', seen.length ? `${blocks.map((b) => `<span data-on="${seen.includes(b.tag) ? 1 : 0}">${seen.includes(b.tag) ? '⭐' : '☆'}</span>`).join('')}<em>找到 ${seen.length} / ${blocks.length} 塊</em>` : '')
@@ -241,6 +317,7 @@ const actor = defineActor<KidKind, KidStep, KidProps, KidState, KidTarget>({
         if (name === 'page') return pagePane
         if (name === 'stack') return stackPane
         if (name === 'stars') return stars
+        if (name === 'reload') return reloadBtn
         const m = /^(part|block):(\w+)$/.exec(name)
         if (!m || !isTag(m[2])) return null
         return (m[1] === 'part' ? parts : bricks).get(m[2]) ?? null

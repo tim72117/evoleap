@@ -1,0 +1,133 @@
+{
+  "title": "換你改改看",
+  "lesson": "兒童網頁課 · 0.2 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "kid-web",
+      "props": {
+        "title": "小花的家",
+        "blocks": [
+          {
+            "tag": "h1",
+            "text": "小花的家"
+          },
+          {
+            "tag": "img",
+            "text": "🐱"
+          },
+          {
+            "tag": "p",
+            "text": "小花是一隻愛睡午覺的橘貓。"
+          },
+          {
+            "tag": "button",
+            "text": "摸摸小花"
+          }
+        ],
+        "xray": true
+      },
+      "place": {
+        "x": 40,
+        "y": 30,
+        "w": 1840,
+        "h": 900
+      },
+      "parts": {
+        "stars": false
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！點網頁上的字，幫它換一個新的。改完再按上面的重新整理，看看會怎麼樣。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點網頁上的字，幫它換一個新的",
+    "body": "改完按上面的 ↻ 重新整理看看",
+    "spots": [
+      {
+        "target": "kid:part:h1",
+        "id": "h1",
+        "label": "網頁上的標題",
+        "steps": [
+          {
+            "edit": "h1",
+            "text": "我的超級網頁",
+            "narration": "標題變成「我的超級網頁」了！"
+          }
+        ],
+        "again": [
+          {
+            "edit": "h1",
+            "text": "小花和我的家",
+            "narration": "再換一個！變成「小花和我的家」。"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:p",
+        "id": "p",
+        "label": "網頁上的那段文字",
+        "steps": [
+          {
+            "edit": "p",
+            "text": "小花今天吃了三碗飯。",
+            "narration": "這段話變成「小花今天吃了三碗飯」。"
+          }
+        ],
+        "again": [
+          {
+            "edit": "p",
+            "text": "小花最喜歡追蝴蝶。",
+            "narration": "又換了一句：「小花最喜歡追蝴蝶」。"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:button",
+        "id": "button",
+        "label": "網頁上的按鈕",
+        "steps": [
+          {
+            "edit": "button",
+            "text": "跟小花玩",
+            "narration": "按鈕變成「跟小花玩」了！"
+          }
+        ],
+        "again": [
+          {
+            "edit": "button",
+            "text": "餵小花吃飯",
+            "narration": "按鈕又變成「餵小花吃飯」。"
+          }
+        ]
+      },
+      {
+        "target": "kid:reload",
+        "id": "reload",
+        "label": "重新整理",
+        "steps": [
+          {
+            "reload": true,
+            "narration": "重新整理……全部變回原本的樣子了！"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "undone",
+      "atLeast": 1
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "看到了嗎？改的只是自己電腦裡的那一份，重新整理就變回來了。"
+        }
+      ]
+    }
+  }
+}

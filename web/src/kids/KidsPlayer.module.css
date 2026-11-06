@@ -371,3 +371,32 @@
 @media (prefers-reduced-motion: reduce) {
   .hit, .hand, .quizHint, .player[data-ready='true'] .stage:not([hidden]) { animation: none; }
 }
+
+/* 沒有對應演員目標的選項(是非題這類):舞台下方一列大按鈕(舞台座標,跟著舞台縮放) */
+.choices {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+.choice {
+  min-width: 420px;
+  padding: 28px 48px;
+  border: 8px solid var(--kp-accent);
+  border-radius: 999px;
+  background: var(--kp-surface);
+  color: var(--kp-ink);
+  font: inherit;
+  font-size: 48px;
+  font-weight: 800;
+  box-shadow: 0 14px 0 color-mix(in srgb, var(--kp-accent) 55%, #000);
+  cursor: pointer;
+}
+.choice:hover, .choice:focus-visible { background: color-mix(in srgb, var(--kp-accent) 16%, var(--kp-surface)); outline: none; }
+.choices[data-nudge='true'] .choice { animation: bob 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .choices[data-nudge='true'] .choice { animation: none; }
+}
