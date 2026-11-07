@@ -480,7 +480,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
                   />
                 )
               ) : current && !pushed ? (
-                <MomentForm key={current.id} moment={current} headRef={momentHeadRef} locked={onActor && locked} onAnswer={(a) => answer(current, a)} />
+                <MomentForm key={current.id} moment={current} headRef={momentHeadRef} locked={onActor && locked} onActor={onActor} onAnswer={(a) => answer(current, a)} />
               ) : (
                 <MomentList timeline={timeline} moments={moments} answers={answers} onOpen={openMoment} onReopen={reopen} againLabel={interaction === 'static' ? '回到互動點' : '重新回答'} />
               )}
@@ -604,7 +604,9 @@ function PromptCopy({ prompt }: { prompt: string }) {
   )
 }
 
-function MomentForm({ moment, headRef, locked = false, onAnswer }: { moment: Moment; headRef: RefObject<HTMLHeadingElement | null>; locked?: boolean; onAnswer: (a: Answer) => void }) {
+/** onActor:靜態互動時,已經畫在演員身上的選項(有 target,或放進 stage.choices 那一區的)不再列一次 */
+function MomentForm({ moment, headRef, locked = false, onActor = false, onAnswer }: { moment: Moment; headRef: RefObject<HTMLHeadingElement | null>; locked?: boolean; onActor?: boolean; onAnswer: (a: Answer) => void }) {
+  const listed = moment.options.map((o, option) => ({ ...o, option })).filter((o) => !onActor || (!o.target && !moment.stage?.choices))
   const [text, setText] = useState('')
   const typed = text.trim()
   const submit = (e: FormEvent) => {
@@ -636,13 +638,15 @@ function MomentForm({ moment, headRef, locked = false, onAnswer }: { moment: Mom
         {moment.title}
       </h2>
       {moment.body && <p className={styles.note}>{moment.body}</p>}
-      <div className={styles.options}>
-        {moment.options.map((o, option) => (
-          <button key={o.label} type="button" disabled={locked} onClick={() => onAnswer({ option })}>
-            {o.label}
-          </button>
-        ))}
-      </div>
+      {listed.length > 0 && (
+        <div className={styles.options}>
+          {listed.map((o) => (
+            <button key={o.label} type="button" disabled={locked} onClick={() => onAnswer({ option: o.option })}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
       {freeForm}
       {!moment.noSkip && (
         <button type="button" className={styles.skip} onClick={() => onAnswer({ skipped: true })}>
