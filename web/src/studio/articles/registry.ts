@@ -62,6 +62,12 @@ export const articles: ArticleMeta[] = [
     summary: 'HeyGen 開源影片框架的 448 個效果依類別整理，挑出 AI 對話、程式碼、游標操作等可借用到即時教學畫面的手法，並說明哪些不照搬。',
   },
   {
+    slug: 'research/marketing',
+    title: '軟體與課程行銷手法',
+    category: 'research',
+    summary: '軟體產品與線上課程常用的行銷手法、視覺效果、場景與文案，區分有量測的發現與經驗建議，並整理成課程首頁、課程頁與宣傳片的建議。',
+  },
+  {
     slug: 'research/voice-cost',
     title: '旁白語音的費用評估',
     category: 'research',

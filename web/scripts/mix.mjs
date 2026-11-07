@@ -90,9 +90,10 @@ async function layoutOf(page, script) {
   const voicePath = script.replace(/\.json$/, '.voice.json')
   return page.evaluate(
     async ({ script, voicePath }) => {
-      const [{ createStage }, { withTeacher }, scriptMod, voiceMod] = await Promise.all([
+      const [{ createStage }, { withTeacher }, { expandAnswers }, scriptMod, voiceMod] = await Promise.all([
         import('/src/live/stage.ts'),
         import('/src/live/teacher.ts'),
+        import('/src/studio/interactive/scene.ts'),
         import(/* @vite-ignore */ `/src/content/live/${script}`),
         import(/* @vite-ignore */ `/src/content/live/${voicePath}`),
       ])
@@ -103,8 +104,8 @@ async function layoutOf(page, script) {
       const stage = createStage(root)
       const durations = {}
       for (const [text, clip] of Object.entries(voiceMod.default.clips)) durations[text] = clip.ms
-      // 和播放器一樣展開開頭的老師介紹(scripts.ts 的 loadScript)
-      await stage.load(withTeacher(scriptMod.default), { voice: durations })
+      // 和播放器一樣展開開頭的老師介紹(scripts.ts 的 loadScript),以及沒回答的互動點(互動課程頁預設演 skip 的示範,scene.ts 的 expandAnswers)
+      await stage.load(expandAnswers(withTeacher(scriptMod.default), {}), { voice: durations })
       const out = {
         duration: stage.duration,
         narrations: stage.narrations.map((n) => ({ at: n.at, text: n.text })),

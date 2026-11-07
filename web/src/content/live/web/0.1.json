@@ -14,7 +14,7 @@
   },
   "teacher": {"say": "今天看輸入網址後發生的事", "line": "今天要來看看，在網址列按下 Enter 之後，到底發生了什麼事。"},
   "steps": [
-    { "card": "輸入網址之後發生的事", "eyebrow": "網頁怎麼運作 · 序章 0.1", "chapter": "看：網頁怎麼來的", "narration": "在網址列按下 Enter，到畫面出現，通常不到一秒。這一課把這一秒放慢來看。" },
+    { "card": "輸入網址之後發生的事", "eyebrow": "網頁怎麼運作 · 序章 0.1", "chapter": "網頁怎麼來的", "narration": "在網址列按下 Enter，到畫面出現，通常不到一秒。這一課把這一秒放慢來看。" },
     { "callout": "net:browser", "text": "瀏覽器：幫你上網、把網頁畫出來的程式", "narration": "左邊是瀏覽器，例如 Chrome、Safari、Edge。它幫你上網，也負責把網頁畫出來。" },
     { "callout": "net:server", "text": "伺服器：放著網站檔案、一直開著的電腦", "narration": "右邊是伺服器。它是一台一直開著的電腦，網站的檔案就放在上面。" },
     { "type": "www.example.com", "narration": "先在網址列輸入網址。網址的英文是 URL，就是一個網頁的地址。" },
@@ -28,7 +28,7 @@
     { "render": true, "focus": { "target": "net:browser", "zoom": 1.4 }, "narration": "瀏覽器拿到的是一份 HTML 檔案，不是畫好的圖。它照著檔案的內容，自己把畫面一塊塊畫出來。" },
     { "callout": "net:page", "text": "網頁是瀏覽器向伺服器要來、再自己畫出來的", "narration": "所以你看到的網頁，是瀏覽器向伺服器要來，再自己畫出來的。" },
 
-    { "restart": true, "chapter": "做：排排看", "focus": false, "narration": "換你來排順序。先把瀏覽器關掉重開，它記得的 IP 也一起忘了。" },
+    { "restart": true, "chapter": "排排看", "focus": false, "narration": "換你來排順序。先把瀏覽器關掉重開，它記得的 IP 也一起忘了。" },
     { "type": "www.example.com" },
     { "enter": true, "narration": "網址打好，按下 Enter。" },
     {

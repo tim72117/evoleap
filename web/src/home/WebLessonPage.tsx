@@ -11,12 +11,12 @@ import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage
 import styles from '../studio/interactive/InteractiveScenePage.module.css'
 
 // 「網頁怎麼運作」的一課:整個視窗都是互動舞台,右側是章節與步驟(InteractiveScenePage,和 L0 的互動課同一個外殼)。
-// 序章可以直接預覽,其他課要登入(LoginGate)。播放進度只有登入的會員才記。每一課的頁面由 WEB_OPEN_LESSONS 產生(routes.tsx),SEO 在 seo/pages.ts。
+// 第一課(0.1)可以直接預覽,其他課要登入(LoginGate)。播放進度只有登入的會員才記。每一課的頁面由 WEB_OPEN_LESSONS 產生(routes.tsx),SEO 在 seo/pages.ts。
 
 const OPEN_IDS = Object.keys(WEB_OPEN_LESSONS)
 
 export function WebLessonPage({ id }: { id: string }) {
-  const { script, path } = WEB_OPEN_LESSONS[id]
+  const { script, path, interaction } = WEB_OPEN_LESSONS[id]
   const title = webLesson(id)?.title ?? id
   const { status, user } = useAuth()
   const memberId = user?.id ?? null
@@ -35,6 +35,7 @@ export function WebLessonPage({ id }: { id: string }) {
       key={`${id}:${status === 'loading' ? 'loading' : (memberId ?? 'guest')}`}
       script={script}
       pageTitle={title}
+      interaction={interaction}
       course={{
         docTitle: documentTitle(webLessonDocTitle(id)),
         heading: title,
@@ -65,7 +66,7 @@ export function WebLessonPage({ id }: { id: string }) {
       title={title}
       docTitle={webLessonDocTitle(id)}
       back={{ to: WEB_TOPIC.path, label: '回課程地圖' }}
-      note="序章可以直接預覽；第 0 課登入後免費觀看，之後的課程需要訂閱。登入後也會記錄你的播放進度。"
+      note="第一課可以直接預覽，之後的課程要登入才能觀看。登入後也會記錄你的播放進度。"
     >
       {page}
     </LoginGate>

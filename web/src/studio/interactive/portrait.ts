@@ -10,14 +10,6 @@ export function parseAspect(value: string | null | undefined, auto: Aspect = 'la
   return value === 'portrait' || value === 'landscape' ? value : auto
 }
 
-/** 把方向寫回網址參數:和裝置自己的方向(auto)一樣就拿掉 aspect(網址維持原樣),不一樣才寫進網址;其他參數照舊 */
-export function withAspect(params: URLSearchParams, aspect: Aspect, auto: Aspect = 'landscape'): URLSearchParams {
-  const next = new URLSearchParams(params)
-  if (aspect === auto) next.delete('aspect')
-  else next.set('aspect', aspect)
-  return next
-}
-
 /** 窄視窗的直式用底部抽屜,其餘(橫式、寬視窗)用右側(或下方)的浮動側欄 */
 export const usesDrawer = (aspect: Aspect, narrow: boolean): boolean => aspect === 'portrait' && narrow
 

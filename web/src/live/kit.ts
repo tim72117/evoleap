@@ -267,6 +267,37 @@ function richCut(s: unknown, n: number): string {
   return rich(out)
 }
 
+/**
+ * AI 回答式的串流:字不是一個個打出,而是一段段湧出(每段 1–6 個字、間隔不等,由種子決定)。
+ * 回傳 local 時已經出現幾個字;平均速度約 cps 字/秒。
+ */
+function streamCount(text: string, local: number, { start = 0, cps = 30, seed = 3 } = {}): number {
+  const n = graphemes(text).length
+  const r = rand(seed)
+  let shown = 0
+  let t = start
+  while (shown < n) {
+    const size = 1 + Math.floor(r() * 6)
+    t += (size / cps) * 1000 * (0.6 + r() * 0.8)
+    if (t > local) break
+    shown = Math.min(n, shown + size)
+  }
+  return shown
+}
+/** streamCount 全部出完需要多久(毫秒,含 start) */
+function streamDuration(text: string, { start = 0, cps = 30, seed = 3 } = {}): number {
+  const n = graphemes(text).length
+  const r = rand(seed)
+  let shown = 0
+  let t = start
+  while (shown < n) {
+    const size = 1 + Math.floor(r() * 6)
+    t += (size / cps) * 1000 * (0.6 + r() * 0.8)
+    shown += size
+  }
+  return t
+}
+
 /** 數字跳動:countUp(0, 1280, p, {decimals:0, sep:true}) → "1,280" */
 function countUp(from: number, to: number, p: number, { decimals = 0, sep = true, prefix = '', suffix = '' } = {}): string {
   const v = lerp(from, to, clamp(p))
@@ -293,6 +324,23 @@ function enter(p: number, { dir = 'up', dist = '1.2em', scale = 1 }: { dir?: Dir
   const sign = dir === 'up' || dir === 'left' ? '' : '-'
   const sc = scale === 1 ? '' : ` scale(${lerp(scale, 1, e).toFixed(4)})`
   return { opacity: e.toFixed(3), transform: `translate${axis}(calc(${sign}${dist} * ${d}))${sc}` }
+}
+/** 模糊到清晰的浮現:enter 再加上模糊漸清(逐字浮現的每個字用) */
+function blurIn(p: number, { dist = '0.6em', blur = 8 }: { dist?: string; blur?: number } = {}): Styles {
+  const e = ease.outCubic(clamp(p))
+  return { ...enter(p, { dist }), filter: e >= 1 ? 'none' : `blur(${((1 - e) * blur).toFixed(2)}px)` }
+}
+/** 把 rich 文字拆成「看得到的字」:[[強調]] 內的字標 em,\n 標 br;其他標記照字面保留 */
+function richChars(s: unknown): { ch: string; em: boolean; br?: true }[] {
+  const out: { ch: string; em: boolean; br?: true }[] = []
+  let em = false
+  for (const tk of String(s).match(/\[\[|\]\]|\n|[^[\]\n]+|[[\]]/g) || []) {
+    if (tk === '[[') em = true
+    else if (tk === ']]') em = false
+    else if (tk === '\n') out.push({ ch: '', em: false, br: true })
+    else for (const ch of graphemes(tk)) out.push({ ch, em })
+  }
+  return out
 }
 /** 遮罩揭露:從 dir 方向逐漸露出(clip-path) */
 function wipe(p: number, dir: Direction = 'right'): Styles {
@@ -529,9 +577,13 @@ export const kit = {
   typeDuration,
   rich,
   richCut,
+  streamCount,
+  streamDuration,
   countUp,
   scramble,
   enter,
+  blurIn,
+  richChars,
   wipe,
   marker,
   underline,

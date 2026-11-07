@@ -187,7 +187,8 @@ export default defineActor({
 | `macbook` | open、close、wake、sleep、type、tilt（有狀態；擬真筆電，宣傳片用，純 CSS 3D；props：opened、awake、angle、pitch、yaw、finish、wallpaper、dock、clock） | window、screen、keyboard、trackpad、lid、key:鍵 |
 | `kid-web` | flip、inspect（可帶 tap 示範點擊）、check（有狀態；兒童網頁課的積木網頁：正面卡通網頁、背面積木，props：title、blocks、view；兒童版播放器 web/src/kids/KidsPlayer.tsx 播放，子腳本與 guide 說明框見該檔開頭） | window、page、stack、stars、part:標籤、block:標籤 |
 | `kid-mail` | type、send、reply、open、go（一次做完前四步）、edit、reload、check（有狀態；兒童網頁課 0.3「網頁是一封信」：左邊瀏覽器、右邊伺服器，信封沿著路來回；props：sites、url） | window、browser、addressbar、go、reload、page、server、road、letter、bookmark:網站、site:網站、part:標籤 |
-| `dom-tree` | grow、focus、anatomy、wrap、unwrap（有狀態；元素結構圖：容器是方框，上緣開頭標籤、下緣結尾標籤，子元素包在裡面；anatomy 拆開標示開頭標籤／內容／結尾標籤；wrap 把相鄰元素包進新容器、unwrap 拆開；props.look：clean（預設，成人課）或 kids（兒童課粗黑框）；網頁怎麼運作 1.1 起用） | window、tree、node:id、open:id、text:id、close:id |
+| `dom-tree` | grow、focus、anatomy、wrap、unwrap（有狀態；元素結構圖：容器是方框，上緣開頭標籤、下緣結尾標籤，子元素包在裡面；anatomy 拆開標示開頭標籤／內容／結尾標籤；wrap 把相鄰元素包進新容器、unwrap 拆開；props.look：clean（預設，成人課）或 kids（兒童課粗黑框）；網頁怎麼運作 1.1 原本用，現在改用 `kid-tree`） | window、tree、node:id、open:id、text:id、close:id |
+| `fx` | logo、stream、diff、shimmer、circle、arrow、flash、whip、reveal、clear（宣傳片特效層，參考 HyperFrames 效果目錄改寫成純函式；place 用 `full`、放在演員表最後；畫面類同時只顯示最新一個，標註類會累積，轉場用 flash／whip 蓋住、reveal 掀開；用法見 `actor.ts` 開頭，示範腳本 `content/live/promo/fx-reel.json`） | window、panel |
 
 **`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。
 
@@ -203,6 +204,8 @@ export default defineActor({
 - 登場設定：演員表寫 `"parts": { "sidebar": false, "model": false }`，沒寫的區塊照常顯示。
 - 播放途中切換：舞台動作 `{ "parts": "claude", "set": { "sidebar": true } }`，不佔時間。
 - 靜態互動時依舞台大小收合：演員用 `collapsible` 宣告可以收合的區塊與寬度門檻（`claude-desktop` 是 `{ sidebar: 900, composer: 900, titlebar: 480, head: 480 }`），舞台比門檻窄時收合。互動點用 `stage.zone` 傳入互動區，例如要學員點側欄時寫 `"zone": ["sidebar"]`、選項放在輸入框時寫 `"zone": ["composer"]`，列出的區塊就不會收合。
+- 尺寸固定的演員（`fixedSize: true`，例如 `kid-tree`：尺寸照 1920 寬的舞台設計，不跟著寬度重新排版）：靜態互動時放進一般大小的舞台，再整個等比例縮放到畫面裡。
+- 靜態互動的拖曳：互動點寫 `"stage": { "focus": "<演員>:tree", "drag": true }`，學員可以拖演員身上的東西，放下去就在靜態舞台上多演一步並播出動畫（拖放的計畫見 `kids/drag.ts`，目前支援 `kid-tree` 的節點；拖曳層 `kids/DragLayer.tsx` 和兒童版播放器共用）。`kid-tree` 的 `look: "clean"` 是成人版樣式（節點寫 `tag`，任務多了 `parent`），網頁怎麼運作 1.1、1.2 用；成人版另有 `anatomy`（拆開標示開頭標籤／內容／結尾標籤，容器多一列結尾標籤）、`wrap`／`unwrap`（相鄰節點包進新容器、拆掉容器），`fade`（節點標成藏起來：虛線、變淡，再做一次恢復）、`mark`（節點亮起來，可以同時好幾個，再做一次取消），目標多了 `open:id`、`text:id`、`close:id`；`only: "tree"` 只顯示樹，外框和瀏覽器演員一樣。
 - 名稱打錯時載入就報錯，並列出可用的區塊。關掉的區塊量不到位置，鏡頭、聚光燈、滑鼠不要再指向它。
 - 每位演員有哪些區塊、關掉後長怎樣：`/studio/actor-interaction/showcase`（演員展示：動態展示照示範腳本播放，靜態展示只有舞台、按操作才演出；示範腳本在 `content/live/lab/actors/<演員>.json`）。
 
@@ -233,7 +236,7 @@ export default defineActor({
 
 - **位置** `place`：`window`（預設）、`full`、`left`、`right`、`center`，或 `{ x, y, w, h }`（1920×1080 的 px 或百分比，`h` 可省略）。
 - **演員的動作**交給演員表中會這個動作的演員；演員表裡有多個演員都會時（例如兩個 `claude-desktop`），必須加 `"on": "代號"`，否則載入時報錯。
-- **舞台的動作**：`card`、`callout`、`show`、`hide`、`move`（移到新位置）、`checkpoint`、`wait`、`parts`（切換區塊顯示）。
+- **舞台的動作**：`card`、`callout`、`show`、`hide`、`move`（移到新位置；`{ "move": "finder", "to": "center" }`，或一次移動好幾位演員 `{ "move": { "web": "left", "tree": "right" } }`，同一段時間一起滑過去，例如疊在一起再往兩旁分開）、`checkpoint`、`wait`、`parts`（切換區塊顯示）。
 - **每一步都能加**：`narration`、`chapter`、`lessonStep`、`ms`、`pause`、`focus`、`selectable`。
 - **選取文字**：舞台上的文字預設不能用滑鼠選取。某一步寫 `"selectable": true` 後，從那一步開始可以選取，直到另一步寫 `"selectable": false`；播放中由外殼的手勢層接收點擊，暫停時才選得到。
 - **目標**寫成「演員代號:目標名稱」，例如 `claude:ask`；只寫代號表示整個演員。
@@ -339,6 +342,75 @@ export default {
 學員回答後，`scene.ts` 的 `expandAnswers` 把對應的步驟插到互動點後面，重新 `stage.load`：回答就是時間軸的一部分，畫面仍是時間的純函式（第 1 節），拖曳、倒轉、演員狀態都不用另外處理。第 2 課的互動點是響應式設計（`device`）：學員選手機、平板或桌面，瀏覽器演員用 `width` 動作（`phone` 390、`tablet` 768、`desktop` 1280，切換時內插）重新排版，再用 `callout` 說明；說明文字以當時載入的網站版本（`site/v3`）實際的 CSS 為準，選項最後還原成桌面寬度與頁面頂端。`skip` 的步驟是空的，原本步驟 4 的「手機 → 桌面」示範就接在後面。
 
 目前回答只存在頁面上，重新整理就清空；打字的回應是固定台詞，還沒接 AI。
+
+### 2A.7 互動腳本（試做：靜態互動已支援 cast、spots、until、done）
+
+目的：學員在互動點操作演員時（點網頁上的元素、點樹上的節點、拖積木），演員怎麼反應、什麼時候結束、怎麼回到主腳本，都寫在腳本裡，不寫在播放器的程式裡。現在這些散在幾個地方：成人課的 `stage.toggles`（直接切換網頁裡的 class）、`stage.beside`（旁邊的演員跟著亮）、`stage.drag`（放下去多演一步），兒童課的子腳本 `interact`（`spots`、`until`、`done`，見 `kids/KidsPlayer.tsx` 開頭）。互動腳本把它們統一成同一種寫法。
+
+**原則**
+
+- 用觸發的方式回應，不是一條統一的時間軸：學員做了一個操作（點、拖、放）就觸發一段回應，回應立刻從演員「目前的狀態」開始演，演完停在結果上。沒有可以拖拉、倒轉的互動時間軸，互動中的操作也不寫進主腳本的時間軸。
+- 回應的內容是「步驟」，和主腳本的步驟一樣交給演員的 `apply`（第 2A.4、2A.5 節）：點了照片，就是 `{ "on": "web", "click": "[data-x=photo]" }` 加 `{ "on": "tree", "inspect": "photo" }`。播放器不直接改演員的畫面（不再用 `classInPage` 這類捷徑），所以每段回應的結果都能在單元測試裡推算。
+- 每段回應只在自己的時間裡是時間的純函式（從觸發那一刻算起，第 1 節的原則縮小到一段回應）；演員的狀態跟著觸發的順序累積。
+- 同一位演員正在演上一段回應時又被觸發：上一段直接跳到結果（狀態照樣套用），新的一段接著開始，不排隊等。不同演員的回應可以同時演（例如網頁的框和樹上的節點一起亮）。
+- 回應演的時候學員還是可以操作，不鎖畫面；旁白、字幕照常出現，但不擋操作。
+- 主腳本在互動時停住、藏起來（換舞台）；互動結束才回到主腳本。
+
+**寫法**：互動點（`checkpoint`）的 `interact` 欄位
+
+```json
+{
+  "checkpoint": "點網頁上的東西，看看它是哪一種元素", "id": "explore",
+  "interact": {
+    "cast": ["web", "tree"],
+    "spots": [
+      { "target": "web:sel:[data-x=photo]", "id": "photo", "label": "照片",
+        "steps": [{ "on": "web", "click": "[data-x=photo]" }, { "on": "tree", "inspect": "photo" }],
+        "again": [{ "on": "web", "click": "[data-x=photo]" }, { "on": "tree", "inspect": false }] },
+      { "target": "tree:node:card", "id": "card", "label": "結構圖：div 容器",
+        "steps": [{ "on": "web", "click": "[data-x=card]" }, { "on": "tree", "inspect": "card" }] }
+    ],
+    "until": { "picked": 3 },
+    "done": [{ "say": "三種都看過了，按繼續往下。" }],
+    "keep": false
+  },
+  "options": [{ "label": "看完了，繼續", "steps": [ … ] }],
+  "skip": false
+}
+```
+
+- `cast`：互動時出場的演員，第一位是主要演員（放在中間），其他的放在旁邊（取代 `stage.beside`）。互動開始時的狀態，是主腳本推算到這個互動點的狀態（現在的 `staticScript`）。
+- `spots`：觸發點。學員可以點的地方（`target` 是「演員:目標」）與點了演哪些步驟（觸發的回應），`label` 是透明按鈕的名稱（螢幕閱讀器與測試用）。`id` 相同的算同一個；寫了 `again` 時，同一個觸發點第偶數次點演 `again`（收回，例如框再點一次就消失，按鈕有 `aria-pressed`），沒寫就每次都演 `steps`。寫在前面的觸發點在下層：容器寫在裡面的元素前面，點到裡面的元素時才不會被容器擋住。網頁裡藏起來（`.gone`，或在藏起來的容器裡）的元素不能點。（規劃：沒寫 `spots` 時問演員的 `hotspots(state)`。）
+- `drag`（規劃）：可以拖的演員（現在的 `stage.drag`），放下去演 `put` 這類操作步驟；`say` 是完成某個任務時接的步驟。
+- 回應要在操作之後立刻開始：`spots` 的第一步不要放 `wait`。
+- `until`：結束的條件，`{ "picked": N }`（點過 N 個不同的 `id`）。（規劃：`{ "state": "<演員>.<欄位>", "atLeast": N }` 看演員狀態，例如 `kid-tree` 的 `achieved`。）不寫就一開始就能按選項。
+- `done`：達成 `until` 時觸發的回應（稱讚、總結）。演完停在結果上，等學員按選項；`until` 達成後選項才亮起來可以按（沒有 `until` 的話一開始就能按）。
+
+**結束與返回主腳本**
+
+1. 學員按選項（例如「看完了，繼續」）。`skip: false` 時沒有略過鈕，一定要從選項結束（第 2A.6 節）。
+2. 互動舞台收起，主舞台出現。互動中觸發的變化預設不帶回主腳本（`keep: false`）：主腳本從互動點接著播，接的是選項的 `steps`，演員的狀態是互動點那一刻的狀態，所以主腳本後面的演出一定接得上（和現在一樣，選項要自己還原或接著演）。
+3. （規劃）`keep: true` 時，把觸發過的回應步驟依觸發的順序插到選項的 `steps` 前面（`expandAnswers` 的做法），主腳本接著的就是學員操作後的狀態；後面的步驟必須對任何操作結果都成立（例如只用 `inspect`、不用依賴某個節點位置的 `put`），載入時照第 2A.5 節推算，推不過就報錯。
+4. 作答紀錄只記選項（和現在一樣），互動中的操作不記；重新回答時互動從頭開始。
+
+**和現有寫法的對應**
+
+| 現在 | 互動腳本 |
+|---|---|
+| `stage.focus` 指定主要演員 | `interact.cast[0]` |
+| `stage.beside` ＋ `besideAct` | `interact.cast` 的第二位以後，跟著亮的效果寫進 `spots` 的步驟（`inspect`） |
+| `stage.toggles`（直接點網頁、切換 class） | `spots`，步驟用瀏覽器的 `click` |
+| 點樹上的節點藏起網頁上的元素（`gone`） | `spots`，步驟用網頁自己的 `click`（網頁的 script.js 決定藏起來），樹上的節點用 `inspect` 標示 |
+| `stage.drag` | `interact.drag` |
+| 兒童課子腳本的 `interact`（`on`、`spots`、`until`、`done`） | 同一套欄位；子腳本是另一份檔案（有自己的演員與起始狀態），互動腳本直接接在主腳本的互動點上 |
+
+舞台的入口（`stage.ts`）：`stage.react(steps)` 把一段回應接在演員目前的狀態上（照第 2A.5 節 `apply`，推不過就丟錯、畫面不變），回傳 `{ id, duration }`；播放器用自己的計時呼叫 `stage.reactAt(id, ms)` 從 0 播到長度。同一位演員的新回應進來時，舊的一段直接畫到結果。使用者自己點的動作沒有虛擬滑鼠：演員的 `cursor` 有 `clickAt` 時（例如瀏覽器的 `click`），回應從點下去那一刻開始。之後的 `renderAt` 會帶著這些回應的結果（重排版、網頁重新載入時照樣補回），`load` 時清空。
+
+靜態互動（`studio/interactive/StaticActor.tsx`）：`interact.cast` 的第一位放在主要舞台，第二位放在旁邊的側欄卡片（各是一個舞台），回應的步驟依演員分給兩個舞台各自 `react`。`until` 沒達成時，導覽裡的選項先不能按。目前用在網頁怎麼運作 1.1 的點點看：點網頁上的元素是瀏覽器的 `click`（網頁的 script.js 顯示框）加上樹的 `mark`（開著幾個框就亮幾個節點）；點樹上的節點是瀏覽器點網頁裡看不到的開關（`[data-hide=…]`，網頁把元素藏起來）加上樹的 `fade`（節點變虛線）。`stage.toggles`／`beside` 在靜態互動已由互動腳本取代，`toggles` 只留給推到主畫面（`ActorPush`）。
+
+和兒童課子腳本現在的差別：子腳本是把點過的步驟接進子腳本的時間軸重新載入、從頭推算到新的結尾；互動腳本改成每次觸發只演那一段，不重新載入整條時間軸。
+
+實作進度：靜態互動（`StaticActor`）已支援觸發式的 `interact.spots`、`until`、`done`，1.1 的點點看已改寫；1.2 的拖曳仍是 `stage.drag`，但排法改成和 1.1 一樣（`stage.split`：同一位演員分成兩張卡片，中間只顯示網頁、側欄只顯示樹，拖曳在側欄，放下去兩張卡片一起用 `react` 演那一步），之後再併進 `interact.drag`；兒童課的子腳本最後再看要不要改用同一套。
 
 ---
 
@@ -553,12 +625,15 @@ packs/<name>/
 | `countUp(from, to, p)` | 數字跳動（千分位、小數、前後綴） |
 | `scramble(text, p)` | 亂碼解碼效果 |
 | `graphemes(s)`、`esc(s)` | 依「看得到的字」切字、HTML 跳脫 |
+| `richChars(s)` | 把文字拆成一個個字並標出 `[[強調]]` 與換行，給逐字動畫用 |
+| `streamCount(text, local, {start, cps, seed})`、`streamDuration(text, …)` | AI 回答式的串流：一段段湧出（每段 1–6 字、間隔不等），回傳已出現的字數；以及全部出完要多久 |
 
 ### 6.4 出場與強調（回傳 style 物件，用 `css(el, …)` 套用）
 
 | 函式 | 用途 |
 |---|---|
 | `enter(p, {dir, dist, scale})` | 淡入加位移／縮放 |
+| `blurIn(p, {dist, blur})` | 淡入加位移，同時由模糊變清晰（逐字浮現） |
 | `wipe(p, dir)` | 遮罩揭露 |
 | `marker(p, color)` | 螢光筆劃過重點 |
 | `underline(p)` | 底線畫出 |
@@ -625,6 +700,7 @@ packs/<name>/
 ### 旁白語音
 
 - **產生**：`npm run voice -- l0/0.0-tools.json`（在 `web/` 執行，`--all` 全部、`--max-sec 20` 只產生開頭、`--limit 10` 只產生前 10 段、`--sample "一句" --voices A,B` 試聽）。每段 `narration` 送 Gemini TTS（`gemini-3.8-flash-tts`，聲音 Sulafat），轉成 48 kbps MP3 上傳到 GCS `gs://shuttle-voice/<腳本資料夾>/<雜湊>.mp3`（公開讀取、永久快取）。金鑰放 `web/.env.local` 的 `GEMINI_API_KEY`，只在本機用。
+- **批次模式**（一次補齊整門課，不急著聽）：`npm run voice -- --batch web/1.1.json web/1.2.json`（或 `--all --batch`）把缺的旁白整包送 Gemini Batch API（約一半價格，24 小時內完成，通常快很多），送出的批次記在 `web/recordings/voice-batch.json`（不進版控）；之後跑 `npm run voice -- --collect` 查狀態，完成就下載、轉 MP3、上傳並寫進各腳本的 `.voice.json`，和一般模式產生的一樣。同一個音檔（例如共用的老師招呼語）只送一次；一次只能有一批在跑；加 `--dry-run` 只列出要送的段落與第一筆請求，不呼叫 API。批次只支援 generateContent，請求的寫法和一般模式（Interactions API）不同，第一次正式送出時要確認回來的聲音和語氣一樣。
 - **清單**：腳本旁的 `<名稱>.voice.json`（進版控）記錄「旁白文字 → { file, ms }」與模型、聲音、語氣。雜湊由模型、聲音、語氣、文字決定；旁白改了一個字就對不到舊音檔，那段會退回只有字幕，直到重新產生。GCS 上的舊檔不自動刪除（正式站部署前仍可能用到）。
 - **播放**：課程頁讀腳本與清單；舞台用語音實際長度排時間（`load(script, { voice })`），`narrations` 給出每段開始時間；外殼的 `clips` 依時間軸播放對應音檔（兩個 `<audio>` 輪流，先載入下一段；按播放的當下取得播放權限）。音檔可先抓成 Blob 放在記憶體（往後 3 段，其餘釋放；抓不到就直接用網址；GCS bucket 設好 CORS 後以 `VITE_VOICE_BLOB=1` 開啟，預設關閉），播放中以音檔的 `currentTime` 為主時鐘（`narration.clock()`，不讓時間軸倒退）：音檔卡住時時間軸與字幕一起停，不再做偏差校正的強制 seek；旁白之間的空檔仍由外殼累加。字幕在語音長度內依字數分配。讀不到清單時只顯示字幕。
 - **章節音軌**（手機上每句換一次音檔容易斷續，所以把連續的旁白合成一個音檔）：`npm run mix -- l0/0.0-tools.json`（`--all` 全部；加 `--publish` 才上傳）。`scripts/mix.mjs` 起一個 vite、用 Playwright 在 Chrome 裡跑舞台排時間，取得每段旁白的開始時間與練習點，以練習點切章節，每章用 ffmpeg 依時間把旁白接起來、中間補靜音（48 kbps 單聲道 mp3），預設只產生在 `web/recordings/mix/`；`--publish` 上傳到 `gs://shuttle-voice/mix/<腳本>/<章節>-<雜湊>.mp3`，並寫出 `<名稱>.mix.json`（進版控）記錄每章的檔案，以及每句旁白在章節檔裡的位置、當時用的語音檔。**旁白或腳本改了要重新執行**；沒重新執行時播放器發現文字、語音檔或間隔對不上，就自動退回逐句播放，不會錯位。
@@ -675,7 +751,7 @@ packs/<name>/
 "teacher": { "say": "今天做一張訂購單", "line": "今天要來幫小森烘焙的網站，加上一張訂購單。" }
 ```
 
-`say` 是對話泡泡,`line` 是旁白。載入腳本時(`scripts.ts` 的 `loadScript`,`teacher.ts` 的 `withTeacher`)展開成:老師登場 → 共用的招呼「大家好，我是 Lena。」→ `line` → 退場,放在所有步驟前面;演員表不能再用 `teacher` 這個代號。老師的名字、造型、位置與招呼語都在 `teacher.json`,`scripts/voice.mjs`、`scripts/mix.mjs` 讀同一份;共用的招呼語在同一個資料夾只產生一次音檔,其他腳本直接沿用。演員表裡多了一位 person,原本沒寫 `on` 的 `say`(例如 Claude 的回覆)要加 `"on"`。
+`say` 是對話泡泡,`line` 是旁白。載入腳本時(`scripts.ts` 的 `loadScript`,`teacher.ts` 的 `withTeacher`)展開成:老師登場 → 共用的招呼「嗨，我是 Lena。」(一對一的口吻,不說「大家好」)→ `line` → 退場,放在所有步驟前面;演員表不能再用 `teacher` 這個代號。老師的名字、造型、位置與招呼語都在 `teacher.json`,`scripts/voice.mjs`、`scripts/mix.mjs` 讀同一份;共用的招呼語在同一個資料夾只產生一次音檔,其他腳本直接沿用。演員表裡多了一位 person,原本沒寫 `on` 的 `say`(例如 Claude 的回覆)要加 `"on"`。
 
 ## 調度(試做)
 

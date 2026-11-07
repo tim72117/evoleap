@@ -8,7 +8,7 @@
   },
   "teacher": {"say": "今天看三種檔案的分工", "line": "今天要來看看，HTML、CSS、JavaScript 三種檔案，各負責什麼。"},
   "steps": [
-    { "card": "HTML、CSS、JavaScript 的分工", "eyebrow": "網頁怎麼運作 · 序章 0.2", "chapter": "看：三個檔案各管什麼", "narration": "一個網頁，通常由三種檔案一起完成。我們拿同一個小網頁，一次加一種，看看每一種各負責什麼。" },
+    { "card": "HTML、CSS、JavaScript 的分工", "eyebrow": "網頁怎麼運作 · 序章 0.2", "chapter": "三個檔案各管什麼", "narration": "一個網頁，通常由三種檔案一起完成。我們拿同一個小網頁，一次加一種，看看每一種各負責什麼。" },
 
     { "open": "index.html", "narration": "第一個是 HTML 檔。它寫的是這一頁有哪些東西：店名、購物車、照片、標題、介紹、價錢，還有一個按鈕。" },
     { "type": "<title>小森咖啡</title>\n<header>\n  <p class=\"brand\">小森咖啡</p>\n  <p class=\"cart\">購物車 <span id=\"count\">0</span></p>\n</header>\n<main>\n  <div class=\"photo\">☕</div>\n  <h2>今天的手沖咖啡</h2>\n  <p>衣索比亞淺焙，帶一點花香與柑橘的酸。</p>\n  <p class=\"price\">NT$ 150</p>\n  <button id=\"add\">加入購物車</button>" },
@@ -36,7 +36,7 @@
     { "callout": "web:sel:header .cart", "text": "數字是 JavaScript 改的" },
     { "callout": "web:sel:#toast", "text": "原本藏起來的提示，被 JavaScript 打開" },
 
-    { "reload": true, "chapter": "做：是誰負責的？", "narration": "重新整理，網頁回到剛打開的樣子。換你判斷：畫面上的變化，是哪一個檔案負責的？" },
+    { "reload": true, "chapter": "是誰負責的？", "narration": "重新整理，網頁回到剛打開的樣子。換你判斷：畫面上的變化，是哪一個檔案負責的？" },
     {
       "checkpoint": "按鈕變成圓角綠色，是哪一個檔案做的？",
       "body": "想想看：這是「有什麼」、「長什麼樣」，還是「會做什麼」？",

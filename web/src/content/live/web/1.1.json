@@ -1,0 +1,618 @@
+{
+  "title": "元素與標籤",
+  "lesson": "網頁怎麼運作 · 單元 1 · 1.1",
+  "teacher": {
+    "say": "今天認識元素與標籤",
+    "line": "今天要來認識網頁的基本單位：元素，還有告訴瀏覽器它是什麼的標籤。"
+  },
+  "cast": {
+    "tree": {
+      "actor": "kid-tree",
+      "props": {
+        "look": "clean",
+        "only": "tree",
+        "title": "file:///Documents/practice/cafe/index.html",
+        "nodes": [
+          {
+            "id": "main",
+            "tag": "main",
+            "children": [
+              {
+                "id": "title",
+                "tag": "h1",
+                "text": "小森咖啡"
+              },
+              {
+                "id": "photo",
+                "tag": "img",
+                "text": "☕"
+              },
+              {
+                "id": "intro",
+                "tag": "p",
+                "text": "衣索比亞淺焙，帶一點花香…"
+              },
+              {
+                "id": "price",
+                "tag": "p",
+                "text": "NT$ 150"
+              },
+              {
+                "id": "add",
+                "tag": "button",
+                "text": "加入購物車"
+              }
+            ]
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 510,
+          "y": 100,
+          "w": 900,
+          "h": 860
+        },
+        "portrait": {
+          "x": 40,
+          "y": 530,
+          "w": 1000,
+          "h": 860
+        }
+      },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "el",
+        "url": "file:///Documents/practice/cafe/index.html"
+      },
+      "place": {
+        "landscape": {
+          "x": 510,
+          "y": 100,
+          "w": 900,
+          "h": 860
+        },
+        "portrait": {
+          "x": 40,
+          "y": 530,
+          "w": 1000,
+          "h": 860
+        }
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "元素與標籤",
+      "eyebrow": "網頁怎麼運作 · 單元 1 · 1.1",
+      "chapter": "網頁由元素組成",
+      "narration": "一個網頁，是由一塊一塊的東西組成的。這一課來認識這些東西叫什麼、瀏覽器怎麼知道它們是什麼，還有它們怎麼一個包住一個。"
+    },
+    {
+      "show": "web",
+      "narration": "這是小森咖啡的網頁：有店名、一張照片、一段介紹、價錢，還有一個按鈕。"
+    },
+    {
+      "site": "el-x",
+      "narration": "把每一塊框起來看。每一塊都是一個元素：店名是一個元素，照片是一個元素，按鈕也是一個元素。"
+    },
+    {
+      "callout": "web:sel:[data-h1]",
+      "text": "店名：標題元素 h1"
+    },
+    {
+      "callout": "web:sel:#photo",
+      "text": "照片：圖片元素 img",
+      "narration": "左上角的小標籤，就是這個元素的種類：h1 是大標題，img 是圖片。"
+    },
+    {
+      "callout": "web:sel:#intro",
+      "text": "介紹文字：段落元素 p",
+      "narration": "p 是一段文字，也就是段落。"
+    },
+    {
+      "callout": "web:sel:#add",
+      "text": "按鈕：button 元素",
+      "narration": "button 是按鈕。"
+    },
+    {
+      "site": "el",
+      "narration": "平常看網頁時，這些框是看不到的。但瀏覽器心裡很清楚，每一塊是什麼。"
+    },
+    {
+      "show": "tree",
+      "chapter": "標籤把內容包起來",
+      "narration": "瀏覽器是怎麼知道的？把這一頁的元素畫成結構圖來看。"
+    },
+    {
+      "move": {
+        "tree": {
+          "landscape": {
+            "x": 80,
+            "y": 100,
+            "w": 820,
+            "h": 860
+          },
+          "portrait": {
+            "x": 40,
+            "y": 1000,
+            "w": 1000,
+            "h": 800
+          }
+        },
+        "web": {
+          "landscape": {
+            "x": 940,
+            "y": 100,
+            "w": 900,
+            "h": 860
+          },
+          "portrait": {
+            "x": 40,
+            "y": 110,
+            "w": 1000,
+            "h": 860
+          }
+        }
+      }
+    },
+    {
+      "site": "el-x"
+    },
+    {
+      "grow": true,
+      "narration": "由上往下，每一個元素各佔一格：標題、圖片、兩段文字、一個按鈕。網頁上同顏色的虛線框，就是結構圖裡的同一格：藍色是容器，綠色是文字，橘色是圖片，紫色是按鈕。",
+      "on": "tree"
+    },
+    {
+      "anatomy": "title",
+      "narration": "拆開標題這一格看。它由三個部分組成。"
+    },
+    {
+      "callout": "tree:open:title",
+      "text": "開頭標籤：這裡開始是 h1",
+      "narration": "第一個是開頭標籤：角括號裡寫 h1，意思是「這裡開始是一個大標題」。"
+    },
+    {
+      "callout": "tree:text:title",
+      "text": "內容：畫面上真的會出現的字",
+      "narration": "中間是內容，也就是畫面上真的會出現的字。"
+    },
+    {
+      "callout": "tree:close:title",
+      "text": "結尾標籤：多一條斜線",
+      "narration": "最後是結尾標籤，和開頭一樣，只是多了一條斜線，意思是「標題到這裡結束」。開頭標籤、內容、結尾標籤，合起來就是一個元素。"
+    },
+    {
+      "anatomy": "photo",
+      "narration": "圖片比較特別。它沒有文字內容可以包，所以只有一個標籤，沒有結尾標籤，也不能再包別的東西。"
+    },
+    {
+      "callout": "tree:node:photo",
+      "text": "img：只有一個標籤"
+    },
+    {
+      "anatomy": false
+    },
+    {
+      "narration": "再往外看一層。這些元素全都在 main 裡面。",
+      "anatomy": "main"
+    },
+    {
+      "callout": "tree:open:main",
+      "text": "main 的開頭標籤"
+    },
+    {
+      "callout": "tree:close:main",
+      "text": "main 的結尾標籤",
+      "narration": "main 的開頭標籤和結尾標籤之間，包住了其他元素。可以把別的元素包在裡面的元素，叫做容器。"
+    },
+    {
+      "anatomy": false
+    },
+    {
+      "callout": "web:viewport",
+      "text": "沒有其他容器：一個接一個往下排",
+      "chapter": "有容器和沒有容器",
+      "narration": "現在，照片、介紹、價錢和按鈕都直接放在 main 裡，彼此之間沒有其他容器。瀏覽器就把它們一個接一個往下排。"
+    },
+    {
+      "wrap": [
+        "photo",
+        "add"
+      ],
+      "into": {
+        "id": "card",
+        "tag": "div"
+      },
+      "narration": "把照片、介紹、價錢和按鈕，包進一個新的容器 div。"
+    },
+    {
+      "site": "el-card-x",
+      "narration": "有了容器，這四個元素就成了一整塊：可以一起加上外框，照片放左邊，文字排在右邊。"
+    },
+    {
+      "callout": "web:sel:.card",
+      "text": "div 容器：裡面的元素整塊一起排"
+    },
+    {
+      "narration": "結構圖也多了一層：div 包住了這四個元素，它們變成 div 的子元素。要整塊搬動、整塊換排法，就對這個容器下手。",
+      "inspect": "card"
+    },
+    {
+      "inspect": false
+    },
+    {
+      "unwrap": "card",
+      "narration": "把容器拿掉，元素又回到 main 底下，"
+    },
+    {
+      "site": "el-x",
+      "narration": "畫面也變回一個接一個往下排。之後請 AI 調整排版時，可以說「把照片和介紹包進一個容器，並排顯示」，它就知道你要的是什麼。"
+    },
+    {
+      "hide": "tree"
+    },
+    {
+      "move": {
+        "web": {
+          "landscape": {
+            "x": 510,
+            "y": 100,
+            "w": 900,
+            "h": 860
+          },
+          "portrait": {
+            "x": 40,
+            "y": 530,
+            "w": 1000,
+            "h": 860
+          }
+        },
+        "tree": {
+          "landscape": {
+            "x": 510,
+            "y": 100,
+            "w": 900,
+            "h": 860
+          },
+          "portrait": {
+            "x": 40,
+            "y": 530,
+            "w": 1000,
+            "h": 860
+          }
+        }
+      }
+    },
+    {
+      "wrap": [
+        "photo",
+        "add"
+      ],
+      "into": {
+        "id": "card",
+        "tag": "div"
+      }
+    },
+    {
+      "site": "el-explore",
+      "chapter": "點點看",
+      "narration": "換你點點看。網頁上的每個東西都可以點：點一下，會顯示它的框和標籤；再點一下，就收起來。外面那一圈容器也可以點。"
+    },
+    {
+      "checkpoint": "點網頁上的東西，看看它是哪一種元素",
+      "body": "點一下顯示它的框和標籤，再點一下隱藏。照片和文字外面那一圈也點點看：那是一個容器。右邊的結構圖會跟著亮起來；點結構圖上的元素，網頁上的它就會藏起來（再點一次就回來），容器藏起來時，裡面的東西也一起不見。",
+      "id": "explore",
+      "stage": {
+        "focus": "web:viewport"
+      },
+      "interact": {
+        "cast": [
+          "web",
+          "tree"
+        ],
+        "spots": [
+          {
+            "target": "web:sel:[data-x=main]",
+            "id": "main",
+            "label": "main 容器",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-x=main]"
+              },
+              {
+                "on": "tree",
+                "mark": "main"
+              }
+            ],
+            "again": [
+              {
+                "on": "web",
+                "click": "[data-x=main]"
+              },
+              {
+                "on": "tree",
+                "mark": "main"
+              }
+            ]
+          },
+          {
+            "target": "web:sel:[data-x=card]",
+            "id": "card",
+            "label": "div 容器",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-x=card]"
+              },
+              {
+                "on": "tree",
+                "mark": "card"
+              }
+            ],
+            "again": [
+              {
+                "on": "web",
+                "click": "[data-x=card]"
+              },
+              {
+                "on": "tree",
+                "mark": "card"
+              }
+            ]
+          },
+          {
+            "target": "web:sel:[data-x=title]",
+            "id": "title",
+            "label": "標題",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-x=title]"
+              },
+              {
+                "on": "tree",
+                "mark": "title"
+              }
+            ],
+            "again": [
+              {
+                "on": "web",
+                "click": "[data-x=title]"
+              },
+              {
+                "on": "tree",
+                "mark": "title"
+              }
+            ]
+          },
+          {
+            "target": "web:sel:[data-x=photo]",
+            "id": "photo",
+            "label": "照片",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-x=photo]"
+              },
+              {
+                "on": "tree",
+                "mark": "photo"
+              }
+            ],
+            "again": [
+              {
+                "on": "web",
+                "click": "[data-x=photo]"
+              },
+              {
+                "on": "tree",
+                "mark": "photo"
+              }
+            ]
+          },
+          {
+            "target": "web:sel:[data-x=intro]",
+            "id": "intro",
+            "label": "介紹文字",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-x=intro]"
+              },
+              {
+                "on": "tree",
+                "mark": "intro"
+              }
+            ],
+            "again": [
+              {
+                "on": "web",
+                "click": "[data-x=intro]"
+              },
+              {
+                "on": "tree",
+                "mark": "intro"
+              }
+            ]
+          },
+          {
+            "target": "web:sel:[data-x=price]",
+            "id": "price",
+            "label": "價錢",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-x=price]"
+              },
+              {
+                "on": "tree",
+                "mark": "price"
+              }
+            ],
+            "again": [
+              {
+                "on": "web",
+                "click": "[data-x=price]"
+              },
+              {
+                "on": "tree",
+                "mark": "price"
+              }
+            ]
+          },
+          {
+            "target": "web:sel:[data-x=add]",
+            "id": "add",
+            "label": "按鈕",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-x=add]"
+              },
+              {
+                "on": "tree",
+                "mark": "add"
+              }
+            ],
+            "again": [
+              {
+                "on": "web",
+                "click": "[data-x=add]"
+              },
+              {
+                "on": "tree",
+                "mark": "add"
+              }
+            ]
+          },
+          {
+            "target": "tree:node:main",
+            "id": "node-main",
+            "label": "結構圖：main 容器",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-hide=main]"
+              },
+              {
+                "on": "tree",
+                "fade": "main"
+              }
+            ]
+          },
+          {
+            "target": "tree:node:card",
+            "id": "node-card",
+            "label": "結構圖：div 容器",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-hide=card]"
+              },
+              {
+                "on": "tree",
+                "fade": "card"
+              }
+            ]
+          },
+          {
+            "target": "tree:node:title",
+            "id": "node-title",
+            "label": "結構圖：標題",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-hide=title]"
+              },
+              {
+                "on": "tree",
+                "fade": "title"
+              }
+            ]
+          },
+          {
+            "target": "tree:node:photo",
+            "id": "node-photo",
+            "label": "結構圖：照片",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-hide=photo]"
+              },
+              {
+                "on": "tree",
+                "fade": "photo"
+              }
+            ]
+          },
+          {
+            "target": "tree:node:intro",
+            "id": "node-intro",
+            "label": "結構圖：介紹文字",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-hide=intro]"
+              },
+              {
+                "on": "tree",
+                "fade": "intro"
+              }
+            ]
+          },
+          {
+            "target": "tree:node:price",
+            "id": "node-price",
+            "label": "結構圖：價錢",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-hide=price]"
+              },
+              {
+                "on": "tree",
+                "fade": "price"
+              }
+            ]
+          },
+          {
+            "target": "tree:node:add",
+            "id": "node-add",
+            "label": "結構圖：按鈕",
+            "steps": [
+              {
+                "on": "web",
+                "click": "[data-hide=add]"
+              },
+              {
+                "on": "tree",
+                "fade": "add"
+              }
+            ]
+          }
+        ]
+      },
+      "options": [
+        {
+          "label": "看完了，繼續",
+          "steps": []
+        }
+      ],
+      "skip": false
+    },
+    {
+      "card": "網頁由一個個元素組成\n標籤告訴瀏覽器它是什麼\n容器把元素包成一整塊",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：元素、標籤、開頭標籤與結尾標籤、內容、容器",
+      "chapter": "學會",
+      "narration": "網頁由一個個元素組成。每個元素用標籤寫成：開頭標籤、內容、結尾標籤，標籤告訴瀏覽器它是什麼。容器可以把元素包成一整塊，一起排版。下一課，我們來看元素怎麼一層包一層，排成一棵樹。"
+    }
+  ]
+}

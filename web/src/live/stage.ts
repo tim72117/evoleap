@@ -28,10 +28,12 @@
 //   演員的動作:{ "user": "…" } — 交給演員表中會這個動作的演員;有多個演員會時必須加 "on": "代號",否則報錯
 //   舞台的動作:
 //     { "card": "標題", "eyebrow": "小標", "sub": "副標" }         全畫面的章節卡/片尾卡
+//       加 "fx": "rise":標題逐字由模糊浮現,[[強調]] 的字落定後畫上螢光筆(宣傳片用)
 //     { "callout": "claude:ask", "text": "說明" }                 聚光燈:其他地方變暗,框出目標並顯示說明
 //     { "show": "finder", …其他欄位轉給演員 }                     演員出場(淡入);其他欄位會當成給演員的動作
 //     { "hide": "finder" }                                        演員退場
 //     { "move": "finder", "to": "center" }                        演員移到新位置
+//     { "move": { "web": "left", "tree": "right" } }              好幾位演員在同一段時間一起移動(例如疊在一起再往兩旁分開)
 //     { "checkpoint": "換你試試", "body": "…" }                   播放器播到這裡會暫停,請學員動手(畫面不變)
 //     { "wait": 800 }
 //   任何一步都可以加:
@@ -50,7 +52,7 @@ import { blockingAt, blockingFor, blockPreroll, checkBlocking, planBlocking, sch
 import { cameraPoseAt, planCameraKeys, prerollOf, scheduleCameraKeys, type CameraCue } from './camera'
 import { kit, type Rect, type Styles } from './kit'
 import { ACTORS } from './actors'
-import { placeOf, stageSize } from './place'
+import { movesOf, placeOf, stageSize } from './place'
 import type {
   ActorEvent,
   Aspect,
@@ -87,6 +89,14 @@ export interface Stage {
   setParts(id: string, parts: Record<string, boolean>): void
   /** 「演員代號:目標」目前對應的元素(畫面上疊加互動控制項時用);找不到回傳 null */
   element(ref: string): HTMLElement | null
+  /**
+   * 互動腳本的觸發式回應(README 第 2A.7 節):把一段步驟接在演員「目前的狀態」上(照 apply 推算,推不過就丟錯、畫面不變),
+   * 回傳這段的代號與長度。不同演員同時演、同一位演員依序演;使用者自己點的動作沒有虛擬滑鼠,從點下去那一刻開始。
+   * 同一位演員上一段還沒演完又被觸發時,上一段直接跳到結果。之後 renderAt 也會帶著這些回應的結果(重排版時不會還原)。
+   */
+  react(steps: Step[]): { id: number; duration: number }
+  /** 畫出回應 id 的第 ms 毫秒(從觸發那一刻算起),舞台本身停在上一次 renderAt 的時間 */
+  reactAt(id: number, ms: number): void
   readonly duration: number
   readonly captions: StageCaption[]
   readonly chapters: StageChapter[]
@@ -166,6 +176,8 @@ interface TimelineEvent {
   state: unknown
 }
 type Moving = { from: Place; to: Place; e: ActorEvent }
+/** 觸發式回應的一個動作:at 是在這段回應裡的開始時間;lead 是略過的虛擬滑鼠時間(使用者自己點,動作從點下去開始) */
+type ReactEvent = { rid: number; actor: string; kind: string; s: Step; prev: unknown; state: unknown; at: number; dur: number; lead: number }
 type Visibility = { shown: boolean; ev: ActorEvent | null; place: Place; move: Moving | null }
 
 export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): Stage {
@@ -211,6 +223,11 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
   let blocking: BlockingSpec | null = null
   let blockCues: BlockCue[] = []
   let slotXform: Record<string, { tx: number; ty: number; s: number }> = {} // 調度:代號 → 外框目前的位移(px)與縮放,量位置時換算
+  // 觸發式回應(react):依觸發順序記下每個動作,各段回應有自己的時鐘;load 時清空
+  let reactLog: ReactEvent[] = []
+  let reactClock: Record<number, number> = {}
+  let reactSeq = 0
+  let lastMs = 0
 
   // ---------- 演員(actors/index.ts 登記的演員) ----------
   function loadActor(name: string): AnyActor {
@@ -276,8 +293,17 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       const s = raw as Step
       const stageKind = stageKindOf(s)
       if (stageKind) {
-        const actor = stageKind === 'show' || stageKind === 'hide' || stageKind === 'move' || stageKind === 'parts' ? (s[stageKind] as string) : null
+        // 一次移動好幾位演員的 move 不屬於某一位演員(actor 是 null)
+        const named = stageKind === 'show' || stageKind === 'hide' || stageKind === 'move' || stageKind === 'parts' ? s[stageKind] : null
+        const actor = typeof named === 'string' ? named : null
         if (actor && !cast[actor]) throw new Error(`${where(i + 1, s)}:演員表裡沒有「${actor}」`)
+        if (stageKind === 'move') {
+          try {
+            for (const [id] of movesOf(s as StageStepOf<'move'>)) if (!cast[id]) throw new Error(`演員表裡沒有「${id}」`)
+          } catch (e) {
+            throw new Error(`${where(i + 1, s)}:${e instanceof Error ? e.message : e}`)
+          }
+        }
         if (stageKind === 'parts') {
           try {
             checkParts(actor as string, (s as StageStepOf<'parts'>).set)
@@ -333,7 +359,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       x.pause = x.s.pause ?? (x.kind === 'parts' ? 0 : 250)
     }
 
-    // 旁白要講得完:從這一步到下一段旁白(或練習點)之前的長度不夠,就補在最後一步的停頓;
+    // 旁白要講得完:從這一步到下一段旁白(或練習點)之前的長度不夠,就補在最後一步的停頓(最後是退場時補在退場前);
     // 帶旁白的這一步本身是章節卡、聚光燈、出場這類畫面時,直接延長它(例如 show 之後接 hide,Finder 會留到講完才退場)
     const bound = (i: number): number => {
       for (let k = i + 1; k < steps.length; k++) if (steps[k].s.narration || steps[k].kind === 'checkpoint') return k
@@ -347,7 +373,12 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       const need = voice[text] != null ? voice[text] + 500 : speakMs(text)
       if (span >= need) continue
       if (STRETCH_KINDS.includes(steps[i].kind) && steps[i].s.ms == null) steps[i].dur += need - span
-      else steps[j - 1].pause += need - span
+      else {
+        // 補在最後一步的停頓;最後是退場(hide)時補在退場前面,演員留到講完才退場(下一段旁白的時間不變)
+        let k = j - 1
+        while (k > i && steps[k].kind === 'hide') k--
+        steps[k].pause += need - span
+      }
     }
 
     // 鏡頭:先規劃哪幾步要換鏡頭;演員動作前面留出鏡頭轉過去的時間,鏡頭到位後才開始演
@@ -426,6 +457,8 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     camKeys = scheduleCameraKeys(planned, (i) => timeline[i].start, preroll)
     blockCues = blocking ? scheduleBlocking(blocking, blocks, (i) => timeline[i].start, preroll, hiddenAtStart) : []
     slotXform = {}
+    reactLog = []
+    reactClock = {}
     for (const id of castOrder) kit.css(cast[id].slot, { transformOrigin: '', filter: '', zIndex: '' })
     renderAt(0)
     return total
@@ -476,10 +509,22 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     if (!c) return null
     return name ? c.inst.target(name, views[id] ?? null) : c.slot
   }
+  // 目標自己有縮放(例如瀏覽器演員的網頁畫面:照 1280 寬排版、再用 transform 縮到視窗裡)時,offsetWidth 量到的是縮放前的大小,
+  // 依它自己的 transform 與 transform-origin 換算成畫面上的位置與大小(只看目標自己,外框的縮放由下面的調度換算)
+  // 演員外框(.slot)的位移縮放由調度換算(slotXform),這裡不算;只看演員自己用內嵌樣式設定的 transform(不用每一格都查算好的樣式)
+  const ownScaled = (el: HTMLElement, r: Rect): Rect => {
+    if (!el.style.transform || el.classList.contains('slot')) return r
+    const cs = getComputedStyle(el)
+    if (!cs.transform || cs.transform === 'none') return r
+    const m = new DOMMatrixReadOnly(cs.transform)
+    if (m.b || m.c || (m.a === 1 && m.d === 1 && !m.e && !m.f)) return r
+    const [ox, oy] = cs.transformOrigin.split(' ').map((v) => parseFloat(v) || 0)
+    return { x: r.x + ox * (1 - m.a) + m.e, y: r.y + oy * (1 - m.d) + m.f, w: r.w * m.a, h: r.h * m.d }
+  }
   // 量位置(舞台座標)。調度把外框縮放、位移過時,換算成畫面上實際的位置
   const rectOf = (el: HTMLElement): Rect => {
     const cam = $('.st-cam')
-    const r = kit.rectIn(el, cam)
+    const r = ownScaled(el, kit.rectIn(el, cam))
     const slot = el.closest<HTMLElement>('.slot')
     const xf = slot?.dataset.cast ? slotXform[slot.dataset.cast] : undefined
     if (!slot || !xf) return r
@@ -493,6 +538,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
 
   // ---------- renderAt ----------
   function renderAt(ms: number): void {
+    lastMs = ms
     // 0. 能不能選取文字:最後一個已經開始、寫了 selectable 的步驟決定;沒寫過就不能選取
     const sel = selects.reduce((on, x) => (x.at <= ms ? x.on : on), false)
     if (root.dataset.selectable !== String(sel)) root.dataset.selectable = String(sel)
@@ -525,10 +571,11 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
         // show/hide 帶的其他欄位當成給演員的動作(例如 Finder 的 files)
         byActor[id].push({ ...e, kind: 'props' })
       } else if (ev.kind === 'move') {
-        const id = ev.actor as string
-        const to = placeOf((ev.s as StageStepOf<'move'>).to, aspect)
-        vis[id] = { ...vis[id], move: { from: vis[id].place, to, e } }
-        vis[id].place = to
+        for (const [id, spec] of movesOf(ev.s as StageStepOf<'move'>)) {
+          const to = placeOf(spec, aspect)
+          vis[id] = { ...vis[id], move: { from: vis[id].place, to, e } }
+          vis[id].place = to
+        }
       } else if (ev.kind === 'parts') {
         const id = ev.actor as string
         partsNow[id] = { ...partsNow[id], ...(ev.s as StageStepOf<'parts'>).set }
@@ -539,6 +586,15 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       } else if (ev.kind === 'card' || ev.kind === 'callout') {
         if (local < ev.dur) fx[ev.kind] = e
       }
+    }
+    // 觸發式回應:每位演員取最後一個已經開始的回應動作(蓋過時間軸上的狀態);還在演就帶上 ev
+    for (const e of reactLog) {
+      const t = reactClock[e.rid] ?? 0
+      if (t < e.at) continue
+      const local = t - e.at + e.lead
+      const full = e.dur + e.lead
+      const going = t - e.at < e.dur
+      views[e.actor] = { state: e.state, prev: e.prev, ev: going ? { kind: e.kind, step: e.s, start: 0, dur: full, local, p: kit.clamp(local / full) } : null }
     }
     const marks: Record<string, Mark> = blocking ? blockingAt(blockCues, ms, aspect) : {}
     for (const id of castOrder) {
@@ -605,9 +661,37 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     const s = e.step as StageStepOf<'card'>
     card.hidden = false
     card.style.opacity = Math.min(kit.progress(e.local, 0, 380), kit.progress(e.dur - e.local, 0, 380)).toFixed(3)
+    if (s.fx === 'rise') {
+      renderRiseCard(card, e, s)
+      return
+    }
     const html = `<div class="card-in">${s.eyebrow ? `<div class="eyebrow">${kit.rich(s.eyebrow)}</div>` : ''}<h1>${kit.rich(s.card)}</h1>${s.sub ? `<p>${kit.rich(s.sub)}</p>` : ''}</div>`
     kit.setIf(card, 'html', html)
     kit.css(card.firstElementChild as HTMLElement, kit.enter(kit.progress(e.local, 120, 600), { dist: '1.2em' }))
+  }
+
+  // 逐字浮現的章節卡:小標先進場,標題每個字錯開 55ms 由模糊浮現,全部落定後強調字畫上螢光筆,副標最後進場
+  function renderRiseCard(card: HTMLElement, e: ActorEvent, s: StageStepOf<'card'>): void {
+    const chars = kit.richChars(s.card)
+    let title = ''
+    chars.forEach((c, i) => {
+      const prevEm = i > 0 && chars[i - 1].em
+      if (c.em && !prevEm) title += '<em class="k-em">'
+      if (!c.em && prevEm) title += '</em>'
+      title += c.br ? '<br>' : `<span class="ch">${kit.esc(c.ch)}</span>`
+    })
+    if (chars.length && chars[chars.length - 1].em) title += '</em>'
+    const html = `<div class="card-in rise">${s.eyebrow ? `<div class="eyebrow">${kit.rich(s.eyebrow)}</div>` : ''}<h1>${title}</h1>${s.sub ? `<p>${kit.rich(s.sub)}</p>` : ''}</div>`
+    kit.setIf(card, 'html', html)
+    const inner = card.firstElementChild as HTMLElement
+    const eyebrow = inner.querySelector<HTMLElement>('.eyebrow')
+    if (eyebrow) kit.css(eyebrow, kit.enter(kit.progress(e.local, 0, 500), { dist: '0.8em' }))
+    const spans = inner.querySelectorAll<HTMLElement>('h1 .ch')
+    spans.forEach((el, i) => kit.css(el, kit.blurIn(kit.progress(e.local, 200 + i * 55, 480))))
+    const landed = 200 + Math.max(0, spans.length - 1) * 55 + 480
+    inner.querySelectorAll<HTMLElement>('h1 .k-em').forEach((el) => kit.css(el, kit.marker(kit.progress(e.local, landed + 100, 500))))
+    const sub = inner.querySelector<HTMLElement>('p')
+    if (sub) kit.css(sub, kit.enter(kit.progress(e.local, landed - 150, 500), { dist: '0.8em' }))
   }
 
   function renderCallout(e: ActorEvent | null): void {
@@ -670,9 +754,60 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     } else rip.hidden = true
   }
 
+  /** 演員目前的狀態:最後一個觸發的回應,沒有就是時間軸結尾的狀態 */
+  function stateNow(id: string): unknown {
+    for (let i = reactLog.length - 1; i >= 0; i--) if (reactLog[i].actor === id) return reactLog[i].state
+    for (let i = timeline.length - 1; i >= 0; i--) if (timeline[i].actor === id && timeline[i].state !== undefined) return timeline[i].state
+    return cast0[id]
+  }
+
+  function react(steps: Step[]): { id: number; duration: number } {
+    const rid = ++reactSeq
+    const now: Record<string, unknown> = {}
+    const offset: Record<string, number> = {}
+    const planned: ReactEvent[] = []
+    steps.forEach((s, i) => {
+      const where = `回應的第 ${i + 1} 步 ${JSON.stringify(s).slice(0, 80)}`
+      if (stageKindOf(s)) throw new Error(`${where}:回應只能是演員的動作`)
+      if (s.on && !cast[s.on]) throw new Error(`${where}:演員表裡沒有「${s.on}」`)
+      const able = (s.on ? [s.on] : castOrder).filter((x) => cast[x].def.kinds.some((k) => k in s))
+      if (!able.length) throw new Error(`${where}:沒有演員會這個動作`)
+      if (able.length > 1) throw new Error(`${where}:${able.join('、')} 都會這個動作,請用 "on" 指定演員`)
+      const id = able[0]
+      const def = cast[id].def
+      if (!def.apply) throw new Error(`${where}:「${id}」沒有狀態,不能演回應`)
+      const kind = def.kinds.find((k) => k in s) as string
+      const prev = id in now ? now[id] : stateNow(id)
+      let state: unknown
+      try {
+        state = def.apply(prev, kind, s)
+      } catch (e) {
+        throw new Error(`${where}:${e instanceof Error ? e.message : e}`)
+      }
+      // 使用者自己點的:沒有虛擬滑鼠,略過滑鼠移過去的那一段
+      const lead = Math.max(0, def.cursor?.(kind, s, prev)?.clickAt ?? 0)
+      const dur = Math.max(1, (s.ms ?? def.duration(kind, s, cast[id].props, prev)) - lead)
+      const at = offset[id] ?? 0
+      offset[id] = at + dur
+      now[id] = state
+      planned.push({ rid, actor: id, kind, s, prev, state, at, dur, lead })
+    })
+    // 同一位演員上一段還沒演完:那一段直接跳到結果
+    const touched = new Set(planned.map((e) => e.actor))
+    for (const e of reactLog) if (touched.has(e.actor)) reactClock[e.rid] = Infinity
+    reactLog.push(...planned)
+    reactClock[rid] = 0
+    return { id: rid, duration: Math.max(0, ...Object.values(offset)) }
+  }
+
   return {
     load,
     renderAt,
+    react,
+    reactAt(id, ms) {
+      reactClock[id] = ms
+      renderAt(lastMs)
+    },
     setParts(id, parts) {
       cast[id].parts = checkParts(id, parts)
     },

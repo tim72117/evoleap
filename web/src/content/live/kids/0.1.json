@@ -51,7 +51,7 @@
         "target": "kid:page",
         "text": "小花的網頁"
       },
-      "chapter": "看：網頁有背面",
+      "chapter": "網頁有背面",
       "narration": "這是小花的網頁。上面有標題、照片、一段文字，還有一個按鈕。"
     },
     {
@@ -101,7 +101,7 @@
     {
       "checkpoint": "換你試試看",
       "sub": "kids/0.1-explore.json",
-      "chapter": "做：換你試試看"
+      "chapter": "換你試試看"
     },
     {
       "wait": 400,

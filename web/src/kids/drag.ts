@@ -1,6 +1,6 @@
 // 兒童版播放器的拖曳:哪些東西可以拖、可以放到哪裡、放下去是哪一步操作。
 // 演員只負責「怎麼畫、狀態怎麼推算」,不處理拖曳(舞台與演員的介面沒有拖曳);這裡依演員的狀態算出拖放的位置,
-// 子腳本寫 interact.drag 時由 KidsPlayer 使用。目前支援 kid-tree(樹狀圖的節點)。
+// 兒童版子腳本寫 interact.drag 時由 KidsPlayer 使用;成人課的互動點寫 stage.drag 時由靜態互動(StaticActor)使用。目前支援 kid-tree(樹狀圖的節點)。
 
 import type { ScriptStep } from '../live/types'
 
@@ -10,7 +10,7 @@ export type DragPlan = { items: DragItem[]; slotsFor: (id: string) => DropSlot[]
 
 const NAMES: Record<string, string> = { h1: '標題', img: '圖片', p: '文字', button: '按鈕', card: '名片盒' }
 
-type TreeLike = { kids: Record<string, string[]> }
+type TreeLike = { kids: Record<string, string[]>; labels?: Record<string, string> }
 
 /** kid-tree:每個節點都能拖;可以放進 root 或任何盒子的任何位置,但不能放進自己或自己裡面 */
 function treePlan(on: string, st: TreeLike): DragPlan {
@@ -22,7 +22,7 @@ function treePlan(on: string, st: TreeLike): DragPlan {
   }
   const ids = Object.values(kids).flat()
   return {
-    items: ids.map((id) => ({ id, target: `${on}:node:${id}`, label: NAMES[id] ?? id })),
+    items: ids.map((id) => ({ id, target: `${on}:node:${id}`, label: st.labels?.[id] ?? NAMES[id] ?? id })),
     slotsFor(id) {
       const from = parentOf(id)
       const at = from ? kids[from].indexOf(id) : -1

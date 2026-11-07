@@ -1,0 +1,249 @@
+{
+  "title": "DOM 樹：元素包著元素",
+  "lesson": "網頁怎麼運作 · 單元 1 · 1.2",
+  "teacher": {
+    "say": "今天認識 DOM 樹",
+    "line": "今天要來看網頁的元素怎麼一層包一層，排成一棵樹，還有瀏覽器怎麼照著這棵樹，把網頁畫出來。"
+  },
+  "cast": {
+    "tree": {
+      "actor": "kid-tree",
+      "props": {
+        "look": "clean",
+        "title": "file:///Documents/practice/cafe/index.html",
+        "nodes": [
+          {
+            "id": "title",
+            "tag": "h1",
+            "text": "小森咖啡"
+          },
+          {
+            "id": "picks",
+            "tag": "section",
+            "children": [
+              {
+                "id": "picks-title",
+                "tag": "h2",
+                "text": "本週推薦"
+              },
+              {
+                "id": "latte",
+                "tag": "div",
+                "children": [
+                  {
+                    "id": "latte-img",
+                    "tag": "img",
+                    "text": "🥛"
+                  },
+                  {
+                    "id": "latte-text",
+                    "tag": "p",
+                    "text": "拿鐵 NT$ 120"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "pour",
+            "tag": "div",
+            "children": [
+              {
+                "id": "pour-img",
+                "tag": "img",
+                "text": "☕"
+              },
+              {
+                "id": "pour-text",
+                "tag": "p",
+                "text": "手沖 NT$ 150"
+              },
+              {
+                "id": "buy",
+                "tag": "button",
+                "text": "加入購物車"
+              }
+            ]
+          }
+        ],
+        "goals": [
+          {
+            "id": "pour-in",
+            "label": "把「手沖」的 div 拖進 section",
+            "inside": [
+              "pour",
+              "picks"
+            ]
+          },
+          {
+            "id": "buy-out",
+            "label": "把按鈕拖到最外層（body 底下）",
+            "parent": [
+              "buy",
+              "root"
+            ]
+          }
+        ]
+      },
+      "parts": {
+        "goals": false
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 90,
+          "w": 1800,
+          "h": 880
+        },
+        "portrait": {
+          "x": 40,
+          "y": 110,
+          "w": 1000,
+          "h": 1700
+        }
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "DOM 樹：元素包著元素",
+      "eyebrow": "網頁怎麼運作 · 單元 1 · 1.2",
+      "chapter": "元素排成一棵樹",
+      "narration": "上一課看到，元素可以把別的元素包在裡面。這一課來看，一層包一層的元素，在瀏覽器裡長什麼樣子。"
+    },
+    {
+      "show": "tree",
+      "narration": "左邊是小森咖啡的網頁，現在還是空白的。右邊是瀏覽器讀完 HTML 之後，在心裡排出來的東西。"
+    },
+    {
+      "grow": true,
+      "narration": "它把元素排成一棵樹，叫做 DOM 樹。最左邊是 body，整個網頁都在它裡面；往右一格，是 body 直接包住的元素：標題 h1、一個 section，還有一個 div。"
+    },
+    {
+      "inspect": "picks",
+      "narration": "section 往右又長出一層：一個 h2 標題，和一個 div。被包在裡面的叫子元素，包住它們的 section，就是它們的父元素。"
+    },
+    {
+      "inspect": "latte",
+      "narration": "這個 div 又是圖片和文字的父元素。一層包一層，就是巢狀。"
+    },
+    {
+      "inspect": false,
+      "ms": 300
+    },
+    {
+      "draw": "title",
+      "chapter": "瀏覽器照著樹畫",
+      "narration": "瀏覽器畫網頁的時候，就照著這棵樹走。從 body 出發，第一個是 h1，畫出店名。"
+    },
+    {
+      "draw": "picks-title",
+      "narration": "往下是 section，它往右還有一層，所以先走進去，畫出裡面的 h2：本週推薦。"
+    },
+    {
+      "draw": "latte-text",
+      "narration": "同一層往下是一個 div，再走進去，畫出拿鐵的圖片和文字。它們都在 section 的框裡面。"
+    },
+    {
+      "draw": true,
+      "narration": "section 裡的都畫完了，回到上一層往下，是手沖的 div：圖片、文字和按鈕，畫在 section 的外面。"
+    },
+    {
+      "wait": 400,
+      "narration": "同一層的元素，在畫面上由上往下排；往右多一層，就畫在外面那一層的框框裡。"
+    },
+    {
+      "put": "latte-text",
+      "parent": "latte",
+      "index": 0,
+      "tap": true,
+      "chapter": "搬動節點，畫面跟著變",
+      "narration": "如果把拿鐵的文字，拖到圖片的上面，瀏覽器就照新的樹重畫：文字跑到圖片上面了。"
+    },
+    {
+      "put": "latte-text",
+      "parent": "latte",
+      "index": 1,
+      "tap": true,
+      "narration": "拖回去，又變回原來的樣子。網頁長什麼樣子，是由這棵樹決定的。"
+    },
+    {
+      "parts": "tree",
+      "set": {
+        "goals": true
+      },
+      "chapter": "拖拖看",
+      "narration": "換你試試看。右下角有兩個任務，按住樹上的節點，拖到新的位置。"
+    },
+    {
+      "checkpoint": "拖動樹上的節點，完成右上角的兩個任務",
+      "body": "按住節點拖到新的位置再放開，網頁會照新的樹重畫；任務完成會打勾。",
+      "id": "drag",
+      "stage": {
+        "focus": "tree:tree",
+        "drag": true,
+        "split": true
+      },
+      "options": [
+        {
+          "label": "做完了，繼續",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "答案像這樣。第一個任務：把手沖這個 div 拖進 section，放在拿鐵的下面。它就變成 section 的子元素，畫面上跑進「本週推薦」裡。"
+            },
+            {
+              "put": "pour",
+              "parent": "picks",
+              "index": 2,
+              "tap": true
+            },
+            {
+              "put": "buy",
+              "parent": "root",
+              "index": 2,
+              "tap": true,
+              "narration": "第二個任務：把按鈕拖到最外層。它不再被手沖的 div 包住，畫面上就跑到卡片外面、整頁的最下面。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "直接看答案",
+        "steps": [
+          {
+            "wait": 300,
+            "narration": "答案像這樣。第一個任務：把手沖這個 div 拖進 section，放在拿鐵的下面。它就變成 section 的子元素，畫面上跑進「本週推薦」裡。"
+          },
+          {
+            "put": "pour",
+            "parent": "picks",
+            "index": 2,
+            "tap": true
+          },
+          {
+            "put": "buy",
+            "parent": "root",
+            "index": 2,
+            "tap": true,
+            "narration": "第二個任務：把按鈕拖到最外層。它不再被手沖的 div 包住，畫面上就跑到卡片外面、整頁的最下面。"
+          }
+        ]
+      }
+    },
+    {
+      "parts": "tree",
+      "set": {
+        "goals": false
+      }
+    },
+    {
+      "card": "元素可以包住元素\n瀏覽器把它們排成一棵 DOM 樹\n照著樹由上往下畫出網頁",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：巢狀、父元素與子元素、DOM、樹狀結構",
+      "chapter": "學會",
+      "narration": "元素可以一層包一層，這叫巢狀；包住別人的是父元素，被包住的是子元素。瀏覽器把它們排成一棵 DOM 樹，再照著樹由上往下畫出網頁。樹改了，畫面就跟著改。"
+    }
+  ]
+}

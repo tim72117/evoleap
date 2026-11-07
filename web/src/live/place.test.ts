@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PLACES, placeFor, placeOf, stageSize } from './place'
+import { movesOf, PLACES, placeFor, placeOf, stageSize } from './place'
 
 describe('stageSize', () => {
   it('橫式 1920×1080、直式 1080×1920,預設橫式', () => {
@@ -76,5 +76,24 @@ describe('placeOf:{ landscape, portrait }', () => {
     expect(placeFor(undefined, 'portrait')).toBeUndefined()
     const o = { x: 1, y: 2, w: 3 }
     expect(placeFor(o, 'landscape')).toBe(o)
+  })
+})
+
+describe('movesOf:move 一次移動一位或好幾位演員', () => {
+  it('一位演員:move + to', () => {
+    expect(movesOf({ move: 'finder', to: 'center' })).toEqual([['finder', 'center']])
+  })
+  it('好幾位演員:{ 代號: 位置 },依寫的順序', () => {
+    const right = { landscape: 'right', portrait: { x: 40, y: 1000, w: 1000 } }
+    expect(movesOf({ move: { web: 'left', tree: right } })).toEqual([
+      ['web', 'left'],
+      ['tree', right],
+    ])
+  })
+  it('寫法不對時丟錯', () => {
+    expect(() => movesOf({ move: 'finder' })).toThrow(/to/)
+    expect(() => movesOf({ move: {} })).toThrow(/至少/)
+    expect(() => movesOf({ move: { web: 'left' }, to: 'right' })).toThrow(/不用 "to"/)
+    expect(() => movesOf({ move: ['web'] })).toThrow(/演員代號/)
   })
 })

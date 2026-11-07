@@ -163,10 +163,14 @@ const DIMS: Record<BrowserWidth, { w: number; h: number }> = {
 /** 網頁畫面的實際尺寸。手機、平板是固定的裝置尺寸;桌面寬固定 1280(版面和 @media 判斷都照 1280),
  *  高度跟著視窗的比例調整,讓 1280 寬的網頁剛好填滿視窗的寬度:直式舞台的瘦長視窗高度拉長,
  *  比 1280×800 扁寬的視窗高度變矮(左右不留白,網頁內容和視窗一樣寬)。 */
+/** 網頁畫面四周留的灰邊(兩側合計,px):手機、平板留邊才看得出裝置的大小;桌面版和真的瀏覽器一樣貼齊視窗,不留空隙 */
+const marginOf = (width: BrowserWidth): number => (width === 'desktop' ? 0 : 16)
+
 function dimsIn(width: BrowserWidth, vw: number, vh: number): { w: number; h: number } {
   const d = DIMS[width]
-  if (width !== 'desktop' || vw <= 16 || vh <= 16) return d
-  return { w: d.w, h: (d.w * (vh - 16)) / (vw - 16) }
+  const m = marginOf(width)
+  if (width !== 'desktop' || vw <= m || vh <= m) return d
+  return { w: d.w, h: (d.w * (vh - m)) / (vw - m) }
 }
 
 // ---------- 時間表(毫秒,相對動作開始) ----------
@@ -375,7 +379,8 @@ const actor = defineActor<BrowserKind, BrowserStep, BrowserProps, BrowserState, 
         const to = dimsIn(state.width, vw, vh)
         const lw = kit.lerp(from.w, to.w, wp)
         const lh = kit.lerp(from.h, to.h, wp)
-        const scale = vw && vh ? Math.min((vw - 16) / lw, (vh - 16) / lh) : 1
+        const m = kit.lerp(marginOf(k === 'width' ? prev.width : state.width), marginOf(state.width), wp)
+        const scale = vw && vh ? Math.min((vw - m) / lw, (vh - m) / lh) : 1
         scaleNow = scale
         kit.css(frame, {
           width: `${lw.toFixed(1)}px`,

@@ -60,3 +60,22 @@ export function placeOf(spec: PlaceSpec | undefined, aspect: Aspect = 'landscape
   const { w, h } = SIZES[aspect]
   return { x: pct(r.x, w), y: pct(r.y, h), w: pct(r.w, w), h: r.h == null ? null : pct(r.h, h) }
 }
+
+/**
+ * move 步驟要移動哪些演員、各自移到哪裡:
+ *   { "move": "finder", "to": "center" }                     一位演員
+ *   { "move": { "web": "left", "tree": "right" } }           好幾位演員在同一段時間一起移動
+ * 寫法不對(沒有 to、一位都沒有、兩種寫法混用)時丟錯。
+ */
+export function movesOf(step: { move: unknown; to?: unknown }): [string, PlaceSpec][] {
+  const { move, to } = step
+  if (typeof move === 'string') {
+    if (to == null) throw new Error('move 只寫一位演員時要有 "to"')
+    return [[move, to as PlaceSpec]]
+  }
+  if (!move || typeof move !== 'object' || Array.isArray(move)) throw new Error('move 要寫演員代號,或 { 演員代號: 位置 }')
+  if (to != null) throw new Error('move 一次移動好幾位演員時,位置寫在各自的演員後面,不用 "to"')
+  const list = Object.entries(move as Record<string, PlaceSpec>)
+  if (!list.length) throw new Error('move 至少要有一位演員')
+  return list
+}

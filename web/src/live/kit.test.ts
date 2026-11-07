@@ -38,6 +38,45 @@ describe('splitCaption', () => {
 })
 
 describe('kit', () => {
+  it('blurIn 從模糊透明到清晰,結束時不留 filter', () => {
+    const a = kit.blurIn(0)
+    expect(a.opacity).toBe('0.000')
+    expect(a.filter).toBe('blur(8.00px)')
+    const b = kit.blurIn(1)
+    expect(b.opacity).toBe('1.000')
+    expect(b.filter).toBe('none')
+    expect(kit.blurIn(0.4)).toEqual(kit.blurIn(0.4))
+  })
+
+  it('streamCount 一段段湧出,不倒退,在 streamDuration 時全部出完', () => {
+    const text = '好的，我會建立 index.html，介紹商品和營業時間。'
+    const n = kit.graphemes(text).length
+    const end = kit.streamDuration(text, { start: 300 })
+    expect(kit.streamCount(text, 299, { start: 300 })).toBe(0)
+    expect(kit.streamCount(text, end, { start: 300 })).toBe(n)
+    let last = 0
+    let jumps = 0
+    for (let t = 0; t <= end; t += 10) {
+      const c = kit.streamCount(text, t, { start: 300 })
+      expect(c).toBeGreaterThanOrEqual(last)
+      if (c - last > 1) jumps++
+      last = c
+    }
+    expect(jumps).toBeGreaterThan(0)
+    expect(kit.streamCount(text, 800, { start: 300 })).toBe(kit.streamCount(text, 800, { start: 300 }))
+  })
+
+  it('richChars 依看得到的字拆開,標出強調與換行', () => {
+    expect(kit.richChars('做出[[網站]]')).toEqual([
+      { ch: '做', em: false },
+      { ch: '出', em: false },
+      { ch: '網', em: true },
+      { ch: '站', em: true },
+    ])
+    expect(kit.richChars('A\nB').map((c) => c.br ?? c.ch)).toEqual(['A', true, 'B'])
+    expect(kit.richChars('👍🏽!').map((c) => c.ch)).toEqual(['👍🏽', '!'])
+  })
+
   it('progress / map 夾在範圍內', () => {
     expect(kit.progress(-5, 0, 100)).toBe(0)
     expect(kit.progress(50, 0, 100)).toBe(0.5)

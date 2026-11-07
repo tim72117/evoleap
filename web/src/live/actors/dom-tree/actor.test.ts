@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import actor, { type DomNode } from './actor'
-import lesson from '../../../content/live/lab/web/1.1.json'
 
 const nodes: DomNode[] = [
   {
@@ -39,28 +38,5 @@ describe('dom-tree', () => {
     expect(() => actor.apply!(grown(), 'wrap', { wrap: ['title', 'main'], into: { id: 'x', tag: 'div' } })).toThrow(/同一層/)
     expect(() => actor.apply!(grown(), 'anatomy', { anatomy: 'main' })).toThrow(/容器/)
     expect(() => actor.init!({ nodes: [{ id: 'a', tag: 'img', void: true, text: 'x' }] })).toThrow(/void/)
-  })
-
-  it('網頁運作 1.1 的結構圖照腳本的動作推算得過', () => {
-    const cast = lesson.cast.tree
-    const p = cast.props as { nodes: DomNode[] }
-    let st = actor.init!(p)
-    const run = (steps: Record<string, unknown>[]) => {
-      for (const s of steps) {
-        if (s.on && s.on !== 'tree') continue
-        const kind = actor.kinds.find((k) => k in s)
-        if (kind) st = actor.apply!(st, kind, s as never)
-      }
-    }
-    run(lesson.steps as Record<string, unknown>[])
-    expect(ids(st.tree)).toBe('main(title,photo,intro,price,add)')
-    // 點點看之後(看完了或直接看答案)把結構圖包回 div
-    const explore = (lesson.steps as { id?: string; options?: { steps: Record<string, unknown>[] }[]; skip?: { steps: Record<string, unknown>[] } }[]).find((s) => s.id === 'explore')!
-    const at = st
-    for (const steps of [explore.options![0].steps, explore.skip!.steps]) {
-      st = at
-      run(steps)
-      expect(ids(st.tree)).toBe('main(title,card(photo,intro,price,add))')
-    }
   })
 })

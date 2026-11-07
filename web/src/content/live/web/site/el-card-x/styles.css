@@ -64,6 +64,7 @@ main { gap: 34px; }
 body { padding-top: 32px; }
 main.x { margin: 0 auto; padding: 46px 44px 30px; border-radius: 24px; }
 .card.x { padding: 44px 28px 28px; gap: 40px 36px; border-radius: 24px; }
-/* 透視版:卡片的格子排的是外框,照片的外框跨三列、按鈕的外框靠左 */
+/* 透視版:卡片的格子排的是外框,照片的外框跨三列 */
 .card > .x:first-child { grid-row: span 3; }
-.card > .x:last-child { justify-self: start; }
+/* 框跟著包住的元素大小走(不撐滿格子):文字短就框小,長的照樣換行 */
+.card > .x { justify-self: start; width: fit-content; max-width: 100%; }

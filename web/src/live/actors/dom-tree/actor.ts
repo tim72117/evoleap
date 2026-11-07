@@ -272,7 +272,7 @@ const actor = defineActor<Kind, Step, Props, State, Target>({
           const o = kit.clamp(shown - i)
           kit.setIf(node, 'display', o > 0 ? '' : 'none')
           const head = node.querySelector<HTMLElement>(':scope > .dt-head, :scope > .dt-line')
-          if (head) kit.css(head, { opacity: o.toFixed(3), transform: `translateX(${((1 - o) * -16).toFixed(1)}px)` })
+          if (head) kit.css(head, { opacity: o.toFixed(3), transform: `translateX(calc(${((1 - o) * -16).toFixed(1)} * var(--px)))` })
           const foot = node.querySelector<HTMLElement>(':scope > .dt-foot')
           if (foot) kit.setIf(foot, 'opacity', kit.clamp(shown - lastOf.get(n.id)! - 0.4).toFixed(3))
           // 包進/拆開的容器:只有方框、開頭與結尾標籤淡入淡出,裡面的元素一直看得到

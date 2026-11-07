@@ -53,11 +53,12 @@ export type CommonStepFields = {
 /** 舞台自己的動作 */
 export type StageStep = CommonStepFields &
   (
-    | { card: string; eyebrow?: string; sub?: string }
+    | { card: string; eyebrow?: string; sub?: string; fx?: 'rise' }
     | { callout: TargetRef; text?: string }
     | { show: string; [action: string]: unknown }
     | { hide: string; [action: string]: unknown }
     | { move: string; to: PlaceSpec }
+    | { move: Record<string, PlaceSpec> }
     | { checkpoint: string; body?: string }
     | { wait: number }
     | { parts: string; set: Record<string, boolean> }
@@ -157,6 +158,8 @@ export interface Actor<K extends string = string, S extends object = object, P e
   readonly parts?: Readonly<Record<string, string>>
   /** 靜態互動時舞台太小可以收合的區塊:parts 的名稱 → 舞台比這個寬度(px)窄時收合;互動點的 stage.zone 列出的區塊不收合 */
   readonly collapsible?: Readonly<Record<string, number>>
+  /** 尺寸照 1920 寬的舞台設計(固定 px,不跟著舞台寬度調整):靜態互動時照它在主舞台上的大小演出,再整個等比例縮放到畫面裡 */
+  readonly fixedSize?: boolean
   /** 這個動作要多久(毫秒) */
   duration(kind: K, step: S, props: P, prev: St | undefined): number
   /** camera 為 auto 時建議看哪裡;false = 全景,undefined = 沿用上一個鏡頭 */

@@ -125,8 +125,8 @@ export const KIDS_TOPIC = {
     script: KIDS_OPEN_LESSONS['0.1'].script,
     intro: '這堂課可以互動：標著「可互動」的環節會停下來，等孩子自己點畫面上的網頁和積木。點下面的環節可以直接跳過去看。',
     sections: {
-      '看：網頁有背面': { note: '跟著旁白看：網頁翻到背面，原來是一塊一塊印著名字的積木。' },
-      '做：換你試試看': { note: '孩子自己點網頁上的東西或積木，把 4 塊積木都找出來。', interactive: true },
+      網頁有背面: { note: '跟著旁白看：網頁翻到背面，原來是一塊一塊印著名字的積木。' },
+      換你試試看: { note: '孩子自己點網頁上的東西或積木，把 4 塊積木都找出來。', interactive: true },
       找找看: { note: '三個小問題，答錯會說明原因，再試一次。', interactive: true },
       學會: { note: '用一句話整理：網頁是用一塊一塊積木蓋出來的。' },
     },
@@ -137,15 +137,15 @@ export const KIDS_TOPIC = {
 export const kidsLessonDocTitle = (id: string): string => `${kidsLessonTitle(id)}｜${KIDS_TOPIC.name}`
 
 /**
- * 主題「網頁怎麼運作」:開放中(序章可以上,其他課規劃中),課程地圖在 /topics/web(home/WebTopicPage.tsx)。
- * 單元與課程在 content/webCourse.ts;研發中的構想在研發基地 /studio/web-basics。登入後免費:序章不用登入就能預覽。
+ * 主題「網頁怎麼運作」:開放中(序章、單元 1 的 1.1、1.2 可以上,其他課規劃中),課程地圖在 /topics/web(home/WebTopicPage.tsx)。
+ * 單元與課程在 content/webCourse.ts;研發中的構想在研發基地 /studio/web-basics。第一課(0.1)不用登入就能預覽,其他開放的課要登入(訂閱制上線後改成訂閱才能看)。
  */
 export const WEB_TOPIC = {
   name: '網頁怎麼運作',
   slogan: '語法交給 AI，看懂原理才能跟 AI 說清楚',
   path: '/topics/web',
   seoTitle: '網頁怎麼運作：AI 時代的網頁基礎課',
-  description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。序章可以免費預覽。',
+  description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。第一課可以免費預覽。',
   open: true,
   start: { label: '開始第一課', path: WEB_OPEN_LESSONS['0.1'].path },
   tag: 'AI 寫程式，我還需要知道什麼？',

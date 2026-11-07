@@ -6,11 +6,17 @@
 // props(登場設定):
 //   title    網址列上的網站名稱
 //   nodes    網頁的樹,由上到下:[{ "id": "h1", "text": "小花的家" }, { "id": "card", "children": [{ "id": "img", "text": "🐱" }, …] }, …]
-//            id 是 h1、img、p、button(網頁上的東西)或 card(名片盒,可以裝東西);每個 id 只能出現一次
+//            兒童版:id 是 h1、img、p、button(網頁上的東西)或 card(名片盒,可以裝東西);每個 id 只能出現一次
+//            成人版(look: "clean"):另外寫 tag(h1、h2、p、img、button、a、li 或容器 div、section、main、ul、header、footer、nav、article),
+//            id 自己取,例如 { "id": "buy", "tag": "button", "text": "加入購物車" };沒寫 tag 就當作 tag 和 id 一樣
+//   look     樣式:kids(預設,兒童課的卡通樣式)或 clean(成人課:網頁像一般網站、樹上標出 <標籤>,顏色和 dom-tree 一致)
+//   only     "tree":只顯示樹(不顯示左邊的網頁),例如放在真的瀏覽器旁邊當側欄;網頁照樣在狀態裡,只是不畫出來
+//            "page":只顯示網頁(外框和瀏覽器演員一樣),例如靜態互動時網頁放中間、樹放在旁邊的側欄(stage.split)
 //   drawn    一開始網頁畫好了沒,預設 false(空白網頁,用 draw 畫出來)
 //   grown    一開始樹長好了沒,預設和 drawn 一樣(沒長好時樹只有樹根,用 grow 長出來)
 //   goals    拖拉任務(選用):[{ "id": "img-top", "label": "把圖片拉到最上面", "first": "img" }]
-//            條件寫一種:first(最上面是它)、before: [甲, 乙](甲畫在乙前面)、inside: [甲, 盒子](甲在盒子裡面)。
+//            條件寫一種:first(最上面是它)、before: [甲, 乙](甲畫在乙前面)、inside: [甲, 盒子](甲在盒子裡面,含更深層)、
+//            parent: [甲, 盒子](甲直接在盒子底下;盒子寫 root 就是「移到最外層」)。
 //            完成過的任務記在狀態的 achieved(給子腳本的 until 判斷),網頁右下角列出任務與勾勾
 //
 // 動作:
@@ -22,13 +28,23 @@
 //                                                 網頁照新的樹重畫。加 "tap": true 用虛擬滑鼠示範拖過去
 //   { "inspect": "card" }                         樹上的節點和網頁上的東西一起亮起來;"inspect": false 恢復。加 "tap": true 示範點節點
 //   { "check": "h1", "answer": "h1" }             回答「是哪一個節點」:答對變綠,答錯變紅搖一搖
+//   { "anatomy": "title" }                        (成人版)把節點拆開標示:開頭標籤、內容、結尾標籤;img 只有一個標籤;
+//                                                 容器在它的子節點下面多一列結尾標籤(例如 </main>)。節點亮起來、其他變淡;"anatomy": false 收起
+//   { "wrap": ["photo", "add"], "into": { "id": "card", "tag": "div" } }
+//                                                 把同一層、相鄰的幾個節點(從第一個到最後一個)包進一個新的容器;容器淡入,其他節點滑到新位置
+//   { "unwrap": "card" }                          拆掉容器:裡面的節點回到容器原本那一層
+//   { "mark": "photo" }                           把節點標成亮起來(可以同時好幾個,其他節點不變淡);再做一次就取消。
+//                                                 用在「網頁上點開了哪些東西」:點開幾個就亮幾個,收回哪個就暗哪個
+//   { "fade": "card" }                            把節點標成「藏起來了」(虛線、變淡,容器連同裡面的節點);再做一次就恢復。
+//                                                 網頁上的東西不跟著變(要藏網頁的話,由網頁自己處理,例如瀏覽器演員的 click)
 //
-// 目標:window、page、tree、goals、node:<id>(樹上的節點,含 node:root)、part:<id>(網頁上的東西)、slot:<parent>:<index>(拖放的位置)
+// 目標:window、page、tree、goals、node:<id>(樹上的節點,含 node:root)、part:<id>(網頁上的東西)、slot:<parent>:<index>(拖放的位置)、
+//      open:<id>(節點上的開頭標籤)、text:<id>(節點上的內容)、close:<id>(結尾標籤,anatomy 拆開時才看得到)
 import { kit } from '../../kit'
 import { defineActor, type CommonStepFields } from '../../types'
 import './actor.css'
 
-type Kind = 'grow' | 'draw' | 'put' | 'inspect' | 'check'
+type Kind = 'grow' | 'draw' | 'put' | 'inspect' | 'check' | 'anatomy' | 'wrap' | 'unwrap' | 'fade' | 'mark'
 type Step = CommonStepFields & {
   grow?: boolean
   draw?: boolean | string
@@ -39,9 +55,17 @@ type Step = CommonStepFields & {
   check?: string
   answer?: string
   tap?: boolean
+  anatomy?: string | false
+  wrap?: [string, string]
+  into?: { id: string; tag: string }
+  unwrap?: string
+  fade?: string
+  mark?: string
 }
 interface PropNode {
   id: string
+  /** 標籤(成人版);沒寫就和 id 一樣 */
+  tag?: string
   text?: string
   children?: PropNode[]
 }
@@ -51,8 +75,12 @@ export interface Goal {
   first?: string
   before?: [string, string]
   inside?: [string, string]
+  parent?: [string, string]
 }
 interface Props {
+  look?: 'kids' | 'clean'
+  /** "tree":只顯示樹;"page":只顯示網頁 */
+  only?: 'tree' | 'page'
   title?: string
   nodes?: PropNode[]
   drawn?: boolean
@@ -72,10 +100,20 @@ export interface TreeState {
   goals: Goal[]
   /** 完成過的任務 id(完成過就算,之後拖亂了也不扣) */
   achieved: string[]
+  /** 每個節點的標籤與網頁上的字(拖曳時的無障礙名稱用) */
+  labels: Record<string, string>
+  /** anatomy 拆開標示的節點 */
+  anatomy: string | null
+  /** wrap 包進來的新容器:id → 標籤 */
+  boxes: Record<string, string>
+  /** fade 標成藏起來的節點 */
+  faded: string[]
+  /** mark 標成亮起來的節點 */
+  marked: string[]
 }
-type Target = 'window' | 'page' | 'tree' | 'goals' | `node:${string}` | `part:${string}` | `slot:${string}`
+type Target = 'window' | 'page' | 'tree' | 'goals' | `node:${string}` | `part:${string}` | `slot:${string}` | `open:${string}` | `text:${string}` | `close:${string}`
 
-const KINDS: readonly Kind[] = ['grow', 'draw', 'put', 'inspect', 'check']
+const KINDS: readonly Kind[] = ['grow', 'draw', 'put', 'inspect', 'check', 'anatomy', 'wrap', 'unwrap', 'fade', 'mark']
 
 /** 每種節點:中文名稱、樹上的小圖示、顏色(和 0.1 的積木一致,web/src/kids/tags.ts) */
 const KIND_OF: Record<string, { name: string; icon: string; color: string; shade: string; box?: true }> = {
@@ -85,7 +123,21 @@ const KIND_OF: Record<string, { name: string; icon: string; color: string; shade
   button: { name: '按鈕', icon: '👆', color: '#b48af0', shade: '#5b2a9e' },
   card: { name: '名片盒', icon: '📦', color: '#f2c94c', shade: '#8a6a00', box: true },
 }
-const isBox = (id: string) => id === 'root' || !!KIND_OF[id]?.box
+/** 成人版(look: clean)的標籤:種類決定顏色(和 dom-tree、網頁透視畫面一致:容器藍、文字綠、媒體橘、可以操作的紫) */
+const CLEAN_KIND: Record<string, 'box' | 'text' | 'media' | 'action'> = {
+  div: 'box', section: 'box', main: 'box', ul: 'box', header: 'box', footer: 'box', nav: 'box', article: 'box',
+  h1: 'text', h2: 'text', p: 'text', li: 'text',
+  img: 'media',
+  button: 'action', a: 'action',
+}
+const CLEAN_COLOR: Record<string, [string, string]> = {
+  box: ['#4f6bed', '#2f45b8'],
+  text: ['#0f9d74', '#08654a'],
+  media: ['#e07b39', '#9a4a12'],
+  action: ['#a855f7', '#6b21a8'],
+}
+/** 這個標籤是不是容器(可以放東西):兒童版只有 card,成人版是 div、section 這些 */
+const boxTag = (tag: string) => !!KIND_OF[tag]?.box || CLEAN_KIND[tag] === 'box'
 
 const DEFAULT_NODES: PropNode[] = [
   { id: 'h1', text: '小花的家' },
@@ -101,13 +153,17 @@ const DEFAULT_NODES: PropNode[] = [
 
 /** 分段畫時每個節點的時間:前一半樹上長出節點,後一半網頁畫出那一塊(慢一點才看得出對應) */
 const STEP_MS = 1600
-/** 樹每往右一層縮排多少 px */
-const INDENT = 110
+/** 樹枝離這一層縮排起點多遠(設計像素 --px);每層縮排是 CSS 的 --indent */
+const BRANCH = 34
 /** 樹長出一個節點的時間 */
 const GROW_MS = 450
 const MOVE_MS = 900
 const INSPECT_MS = 900
 const CHECK_MS = 1200
+const ANATOMY_MS = 700
+const FADE_MS = 300
+/** 會改變樹的結構、節點要滑到新位置的動作 */
+const RESHAPE: readonly Kind[] = ['put', 'wrap', 'unwrap']
 /** 示範拖拉:滑鼠先到節點、再到放的位置(舞台的虛擬滑鼠每段固定 550ms) */
 const TAP_MOVE = 1500
 const TAP_AT = 750
@@ -142,30 +198,42 @@ function met(g: Goal, kids: Record<string, string[]>): boolean {
   if (g.first) return order[0] === g.first
   if (g.before) return order.indexOf(g.before[0]) >= 0 && order.indexOf(g.before[0]) < order.indexOf(g.before[1])
   if (g.inside) return within(kids, g.inside[0], g.inside[1])
+  if (g.parent) return parentOf(kids, g.parent[0]) === g.parent[1]
   return false
 }
 
 function nodesOf(props: Props) {
   const texts: Record<string, string> = {}
+  const tags: Record<string, string> = {}
   const kids: Record<string, string[]> = { root: [] }
   const seen = new Set<string>()
+  const clean = props.look === 'clean'
+  const known = clean ? CLEAN_KIND : KIND_OF
   const add = (parent: string, list: PropNode[]) => {
     for (const n of list) {
-      if (!KIND_OF[n.id]) throw new Error(`nodes:不認得的節點「${n.id}」,目前只有 ${Object.keys(KIND_OF).join('、')}`)
+      const tag = n.tag ?? n.id
+      if (!known[tag]) throw new Error(`nodes:不認得的${clean ? '標籤' : '節點'}「${tag}」,目前只有 ${Object.keys(known).join('、')}`)
+      if (n.id === 'root') throw new Error('nodes:root 是樹根,不能當作節點的 id')
       if (seen.has(n.id)) throw new Error(`nodes:「${n.id}」只能出現一次`)
       seen.add(n.id)
+      tags[n.id] = tag
       kids[parent].push(n.id)
-      if (isBox(n.id)) {
+      if (boxTag(tag)) {
         kids[n.id] = []
         add(n.id, n.children ?? [])
       } else texts[n.id] = n.text ?? ''
     }
   }
   add('root', props.nodes ?? DEFAULT_NODES)
-  return { texts, kids }
+  return { texts, tags, kids }
 }
 
 function looks(st: TreeState, id: string): { on: number; dim: number; bad: number } {
+  const base = looksOf(st, id)
+  // mark 亮起來的節點:不管其他狀態都亮(可以同時好幾個)
+  return (st.marked ?? []).includes(id) ? { ...base, on: 1, dim: 0 } : base
+}
+function looksOf(st: TreeState, id: string): { on: number; dim: number; bad: number } {
   const v = st.verdict
   if (v) {
     if (v.id === id) return v.right ? { on: 1, dim: 0, bad: 0 } : { on: 0, dim: 0, bad: 1 }
@@ -181,21 +249,93 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
   name: 'kid-tree',
   kinds: KINDS,
   parts: { goals: '.kt-goals' },
+  fixedSize: true,
 
   init(props) {
-    const { kids } = nodesOf(props)
+    const { kids, tags, texts } = nodesOf(props)
     for (const g of props.goals ?? []) {
-      const ids = [g.first, ...(g.before ?? []), ...(g.inside ?? [])].filter(Boolean) as string[]
-      if (!ids.length) throw new Error(`goals:「${g.id}」要寫 first、before 或 inside`)
-      for (const id of ids) if (!KIND_OF[id]) throw new Error(`goals:「${g.id}」不認得「${id}」`)
+      const ids = [g.first, ...(g.before ?? []), ...(g.inside ?? []), ...(g.parent ?? [])].filter(Boolean) as string[]
+      if (!ids.length) throw new Error(`goals:「${g.id}」要寫 first、before、inside 或 parent`)
+      for (const id of ids) if (!tags[id] && !(id === 'root' && g.parent?.[1] === 'root')) throw new Error(`goals:「${g.id}」不認得「${id}」`)
     }
     const achieved = (props.goals ?? []).filter((g) => met(g, kids)).map((g) => g.id)
     const all = drawOrder(kids).length
-    return { kids, drawn: props.drawn ? all : 0, grown: props.grown ?? !!props.drawn, focus: null, verdict: null, goals: props.goals ?? [], achieved }
+    // 容器沒有自己的字:用裡面第一段文字(圖片以外)區分,例如「<div> 手沖 NT$ 150」
+    const firstText = (id: string): string => {
+      for (const k of kids[id] ?? []) {
+        const t = kids[k] ? firstText(k) : tags[k] !== 'img' ? (texts[k] ?? '') : ''
+        if (t) return t
+      }
+      return ''
+    }
+    const labels = Object.fromEntries(
+      Object.keys(tags).map((id) => {
+        if (props.look !== 'clean') return [id, KIND_OF[tags[id]]?.name ?? id]
+        const t = kids[id] ? firstText(id) : (texts[id] ?? '')
+        return [id, `<${tags[id]}>${t ? ` ${t}` : ''}`]
+      }),
+    )
+    return { kids, drawn: props.drawn ? all : 0, grown: props.grown ?? !!props.drawn, focus: null, verdict: null, goals: props.goals ?? [], achieved, labels, anatomy: null, boxes: {}, faded: [], marked: [] }
   },
 
-  apply(st, kind, s) {
+  apply(st0, kind, s) {
+    // anatomy 以外的動作都收起拆開的標籤
+    const st = kind === 'anatomy' ? st0 : { ...st0, anatomy: null }
     if (kind === 'grow') return { ...st, grown: true, focus: null, verdict: null }
+    if (kind === 'mark') {
+      const id = String(s.mark)
+      if (!(id === 'root' || parentOf(st.kids, id))) throw new Error(`mark:樹上沒有「${id}」`)
+      const marked = st.marked ?? []
+      return { ...st, marked: marked.includes(id) ? marked.filter((x) => x !== id) : [...marked, id] }
+    }
+    if (kind === 'fade') {
+      const id = String(s.fade)
+      if (!parentOf(st.kids, id)) throw new Error(`fade:樹上沒有「${id}」`)
+      const faded = st.faded ?? []
+      return { ...st, faded: faded.includes(id) ? faded.filter((x) => x !== id) : [...faded, id] }
+    }
+    if (kind === 'anatomy') {
+      if (s.anatomy === false) return { ...st, anatomy: null, focus: null, verdict: null }
+      const id = String(s.anatomy)
+      if (!parentOf(st.kids, id)) throw new Error(`anatomy:樹上沒有「${id}」`)
+      return { ...st, anatomy: id, focus: id, verdict: null }
+    }
+    if (kind === 'wrap' || kind === 'unwrap') {
+      if (!st.grown) throw new Error(`${kind}:先用 grow 把樹長出來`)
+      const all = drawOrder(st.kids).length
+      const done = (kids: Record<string, string[]>, extra: Partial<TreeState>): TreeState => {
+        const n = drawOrder(kids).length
+        // 網頁畫好了的話,新的樹也算畫好
+        const drawn = st.drawn >= all ? n : Math.min(st.drawn, n)
+        const achieved = [...st.achieved, ...st.goals.filter((g) => !st.achieved.includes(g.id) && met(g, kids)).map((g) => g.id)]
+        return { ...st, ...extra, kids, drawn, focus: null, verdict: null, achieved }
+      }
+      if (kind === 'unwrap') {
+        const id = String(s.unwrap)
+        const p = parentOf(st.kids, id)
+        if (!p || !st.kids[id]) throw new Error(`unwrap:「${id}」不是樹上的容器`)
+        const { [id]: inner, ...rest } = st.kids
+        rest[p] = rest[p].flatMap((x) => (x === id ? inner : [x]))
+        const { [id]: _gone, ...boxes } = st.boxes
+        void _gone
+        const { [id]: _label, ...labels } = st.labels
+        void _label
+        return done(rest, { boxes, labels })
+      }
+      const [a, b] = s.wrap ?? []
+      const into = s.into
+      if (!a || !b || !into?.id || !into.tag) throw new Error('wrap 要寫兩個節點和新容器,例如 { "wrap": ["photo", "add"], "into": { "id": "card", "tag": "div" } }')
+      if (!boxTag(into.tag)) throw new Error(`wrap:「${into.tag}」不是容器的標籤`)
+      if (into.id === 'root' || st.kids[into.id] || parentOf(st.kids, into.id)) throw new Error(`wrap:「${into.id}」已經在樹上了,新容器要換一個 id`)
+      const p = parentOf(st.kids, a)
+      if (!p || p !== parentOf(st.kids, b)) throw new Error(`wrap:「${a}」和「${b}」要在同一層`)
+      const list = st.kids[p]
+      const i = list.indexOf(a)
+      const j = list.indexOf(b)
+      if (i > j) throw new Error(`wrap:「${a}」要在「${b}」前面`)
+      const kids = { ...st.kids, [p]: [...list.slice(0, i), into.id, ...list.slice(j + 1)], [into.id]: list.slice(i, j + 1) }
+      return done(kids, { boxes: { ...st.boxes, [into.id]: into.tag }, labels: { ...st.labels, [into.id]: `<${into.tag}>` } })
+    }
     if (kind === 'draw') {
       const order = drawOrder(st.kids)
       const upto = s.draw === true || s.draw === undefined ? order.length : order.indexOf(String(s.draw)) + 1
@@ -218,7 +358,7 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
     const from = parentOf(st.kids, id)
     if (!from) throw new Error(`put:樹上沒有「${id}」`)
     const to = s.parent ?? 'root'
-    if (!isBox(to) || !st.kids[to]) throw new Error(`put:「${to}」不是可以放東西的地方(root 或盒子)`)
+    if (!st.kids[to]) throw new Error(`put:「${to}」不是可以放東西的地方(root 或盒子)`)
     if (to === id || within(st.kids, to, id)) throw new Error(`put:不能把「${id}」放進它自己裡面`)
     const kids = Object.fromEntries(Object.entries(st.kids).map(([p, list]) => [p, list.filter((x) => x !== id)]))
     const index = Math.max(0, Math.min(kids[to].length, s.index ?? kids[to].length))
@@ -237,6 +377,10 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
       return 600 + Math.max(1, upto - from) * STEP_MS
     }
     if (kind === 'put') return (step.tap ? TAP_MOVE : 0) + MOVE_MS
+    if (kind === 'wrap' || kind === 'unwrap') return MOVE_MS
+    if (kind === 'anatomy') return ANATOMY_MS
+    if (kind === 'fade') return FADE_MS
+    if (kind === 'mark') return INSPECT_MS
     if (kind === 'inspect') return (step.tap ? TAP_AT : 0) + INSPECT_MS
     return CHECK_MS
   },
@@ -257,19 +401,35 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
   },
 
   mount(root, props) {
-    const { texts } = nodesOf(props)
+    const { texts, tags } = nodesOf(props)
     const goals = props.goals ?? []
+    const clean = props.look === 'clean'
+    if (props.look && props.look !== 'kids' && props.look !== 'clean') throw new Error('kid-tree 的 look 只能是 kids 或 clean')
     root.classList.add('A-kid-tree')
+    root.dataset.look = clean ? 'clean' : 'kids'
+    if (props.only && props.only !== 'tree' && props.only !== 'page') throw new Error('kid-tree 的 only 只能是 tree 或 page')
+    if (props.only) root.dataset.only = props.only
+    const tagCode = (tag: string) => `<code class="kt-tag">&lt;${kit.esc(tag)}&gt;</code>`
+    /** 結尾標籤(anatomy 拆開時才顯示);img 沒有 */
+    const closeCode = (tag: string) => `<code class="kt-tag kt-close">&lt;/${kit.esc(tag)}&gt;</code>`
+    /** 節點的顏色:兒童版照積木的顏色,成人版照標籤的種類 */
+    const colorOf = (id: string): [string, string] | null => {
+      const tag = tags[id]
+      if (!tag) return null
+      if (clean) return CLEAN_COLOR[CLEAN_KIND[tag]]
+      const k = KIND_OF[tag]
+      return k ? [k.color, k.shade] : null
+    }
     root.innerHTML = `
       <div class="kt-scene">
         <div class="kt-pane kt-page-pane">
-          <div class="kt-bar"><span class="kt-lights"><i></i><i></i><i></i></span><span class="kt-url">${kit.esc(props.title ?? '我的網頁')}</span></div>
+          <div class="kt-bar"><span class="kt-lights"><i></i><i></i><i></i></span><span class="kt-url">${kit.esc(props.title ?? (clean ? 'index.html' : '我的網頁'))}</span></div>
           <div class="kt-page"></div>
         </div>
         <div class="kt-pane kt-tree-pane">
-          <p class="kt-label">網頁的樹狀圖</p>
+          <p class="kt-label">${clean ? 'DOM 樹' : '網頁的樹狀圖'}</p>
           <div class="kt-tree"></div>
-          <span class="kt-walker" aria-hidden="true">🖌️<em></em></span>
+          <span class="kt-walker" aria-hidden="true">${clean ? '<i class="kt-walker-dot"></i>' : '🖌️'}<em></em></span>
           ${goals.length ? `<ul class="kt-goals">${goals.map((g) => `<li data-goal="${kit.esc(g.id)}"><b></b>${kit.esc(g.label)}</li>`).join('')}</ul>` : ''}
         </div>
       </div>`
@@ -283,48 +443,72 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
 
     const partHtml = (id: string): string => {
       const t = kit.esc(texts[id] ?? '')
-      if (id === 'h1') return `<span class="kt-h1">${t}</span>`
-      if (id === 'img') return `<span class="kt-photo">${t}</span>`
-      if (id === 'p') return `<span class="kt-text">${t}</span>`
+      const tag = tags[id]
+      if (tag === 'h1') return `<span class="kt-h1">${t}</span>`
+      if (tag === 'h2') return `<span class="kt-h2">${t}</span>`
+      if (tag === 'img') return `<span class="kt-photo">${t}</span>`
+      if (tag === 'p') return `<span class="kt-text">${t}</span>`
+      if (tag === 'li') return `<span class="kt-text kt-li">${t}</span>`
+      if (tag === 'a') return `<span class="kt-link">${t}</span>`
       return `<span class="kt-btn">${t}</span>`
     }
+    // 容器的名牌:兒童版寫中文名稱(名片盒),成人版寫標籤
+    const boxLabel = (id: string) => (clean ? tagCode(tags[id]) : KIND_OF[tags[id]].name)
     const pageHtml = (kids: Record<string, string[]>, p = 'root'): string =>
       (kids[p] ?? [])
         .map((id) =>
-          isBox(id)
-            ? `<div class="kt-part kt-box" data-id="${id}"><span class="kt-box-label">${KIND_OF[id].name}</span>${pageHtml(kids, id)}</div>`
-            : `<div class="kt-part" data-id="${id}">${partHtml(id)}</div>`,
+          kids[id]
+            ? `<div class="kt-part kt-box" data-id="${id}" data-tag="${kit.esc(tags[id])}"><span class="kt-box-label">${boxLabel(id)}</span>${pageHtml(kids, id)}</div>`
+            : `<div class="kt-part" data-id="${id}" data-tag="${kit.esc(tags[id])}">${partHtml(id)}</div>`,
         )
         .join('')
     /** 樹上的節點:小字標出種類(說對名字),主體放網頁上實際的字或圖;盒子與樹根放圖示 */
     const chip = (id: string) => {
-      if (id === 'root') return `<span class="kt-node kt-node-root" data-id="root"><span class="kt-icon">🌳</span><span class="kt-val">網頁</span></span>`
-      const k = KIND_OF[id]
+      if (id === 'root') {
+        return clean
+          ? `<span class="kt-node kt-node-root" data-id="root">${tagCode('body')}</span>`
+          : `<span class="kt-node kt-node-root" data-id="root"><span class="kt-icon">🌳</span><span class="kt-val">網頁</span></span>`
+      }
+      const tag = tags[id]
       const raw = texts[id] ?? ''
-      const val = k.box ? `<span class="kt-icon">${k.icon}</span>` : id === 'img' ? `<span class="kt-pic">${kit.esc(raw)}</span>` : `<span class="kt-val" data-kind="${id}">${kit.esc([...raw].length > 9 ? [...raw].slice(0, 8).join('') + '…' : raw)}</span>`
+      const short = kit.esc([...raw].length > 9 ? [...raw].slice(0, 8).join('') + '…' : raw)
+      if (clean) {
+        // 成人版:一行寫完,<標籤> 加上網頁上的字(容器只有標籤)
+        const val = boxTag(tag) ? '' : tag === 'img' ? `<span class="kt-pic">${kit.esc(raw)}</span>` : `<span class="kt-val" data-kind="${kit.esc(tag)}">${short}</span>`
+        const close = boxTag(tag) || tag === 'img' ? '' : closeCode(tag)
+        return `<span class="kt-node" data-id="${id}">${tagCode(tag)}${val}${close}</span>`
+      }
+      const k = KIND_OF[tag]
+      const val = k.box ? `<span class="kt-icon">${k.icon}</span>` : tag === 'img' ? `<span class="kt-pic">${kit.esc(raw)}</span>` : `<span class="kt-val" data-kind="${tag}">${short}</span>`
       return `<span class="kt-node" data-id="${id}"><small class="kt-kind">${k.name}</small>${val}</span>`
     }
     // 樹:一個節點一列,深度越深越往右;每個容器的每個位置有一條放置用的細縫(slot)。
     // 樹枝每一列自己畫:經過這一列的直線(上面的層還有後面的兄弟)、自己的轉角(├ 或 └)、盒子往下一層的起頭。
     // 每一段樹枝都標 data-to:它通往哪一個節點。長樹時這個節點長出來,通往它的那幾段才由上往下畫出來(見 render)
-    const X = (level: number) => (level - 1) * INDENT + 34
-    const vline = (level: number, to: string, top = '0', bottom = '0') => `<i class="kt-v" data-to="${to}" style="left:${X(level)}px;top:${top};bottom:${bottom}"></i>`
+    const X = (level: number) => `calc(${level - 1} * var(--indent) + ${BRANCH} * var(--px))`
+    const vline = (level: number, to: string, top = '0', bottom = '0') => `<i class="kt-v" data-to="${to}" style="left:${X(level)};top:${top};bottom:${bottom}"></i>`
     const treeHtml = (kids: Record<string, string[]>): string => {
       const first = kids.root?.[0]
       const rows: string[] = [`<div class="kt-row" data-depth="0">${first ? vline(1, first, '50%') : ''}${chip('root')}</div>`]
       // cont[level]:那一層的直線要往下延伸到哪一個兄弟(null = 那一層後面沒有兄弟了)
+      const passingOf = (cont: (string | null)[], upto: number) => cont.slice(1, upto).map((to, k) => (to ? vline(k + 1, to) : '')).join('')
       const walk = (p: string, depth: number, cont: (string | null)[]) => {
         const list = kids[p] ?? []
-        const passing = (upto: number) => cont.slice(1, upto).map((to, k) => (to ? vline(k + 1, to) : '')).join('')
+        const passing = (upto: number) => passingOf(cont, upto)
         list.forEach((id, i) => {
           const next = list[i + 1] ?? null
           // 放置的縫:經過的直線,加上這一層通往這個節點的直線
           rows.push(`<div class="kt-slot" data-slot="${p}:${i}" style="--depth:${depth}">${passing(depth)}${vline(depth, id)}<b class="kt-slot-mark"></b></div>`)
           const firstKid = kids[id]?.[0]
           const childStart = firstKid ? vline(depth + 1, firstKid, '50%') : ''
-          const elbow = `<i class="kt-elbow" data-to="${id}" style="left:${X(depth)}px;width:${INDENT - 34}px"></i>${next ? vline(depth, next, '50%') : ''}`
+          const elbow = `<i class="kt-elbow" data-to="${id}" style="left:${X(depth)};width:calc(var(--indent) - ${BRANCH} * var(--px))"></i>${next ? vline(depth, next, '50%') : ''}`
           rows.push(`<div class="kt-row" data-depth="${depth}" style="--depth:${depth}">${passing(depth)}${elbow}${childStart}${chip(id)}</div>`)
-          if (kids[id]) walk(id, depth + 1, [...cont.slice(0, depth), next])
+          if (kids[id]) {
+            const inner = [...cont.slice(0, depth), next]
+            walk(id, depth + 1, inner)
+            // 容器的結尾標籤:子節點下面、和開頭標籤對齊的一列(anatomy 拆開時才顯示)
+            if (clean) rows.push(`<div class="kt-row kt-close-row" data-close="${id}" style="--depth:${depth}">${passingOf(inner, depth + 1)}<span class="kt-node kt-node-close" data-close="${id}">${closeCode(tags[id])}</span></div>`)
+          }
         })
         rows.push(`<div class="kt-slot" data-slot="${p}:${list.length}" style="--depth:${depth}">${passing(depth)}<b class="kt-slot-mark"></b></div>`)
       }
@@ -366,10 +550,10 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
       pageEl.innerHTML = pageHtml(kids)
       treeEl.innerHTML = treeHtml(kids)
       for (const el of root.querySelectorAll<HTMLElement>('[data-id]')) {
-        const k = KIND_OF[el.dataset.id!]
-        if (!k) continue
-        el.style.setProperty('--c', k.color)
-        el.style.setProperty('--d', k.shade)
+        const c = colorOf(el.dataset.id!)
+        if (!c) continue
+        el.style.setProperty('--c', c[0])
+        el.style.setProperty('--d', c[1])
       }
     }
     const nodeEl = (id: string) => treeEl.querySelector<HTMLElement>(`.kt-node[data-id="${id}"]`)
@@ -386,8 +570,10 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
         const lead = ev?.kind === 'put' && tap ? TAP_MOVE : ev?.kind === 'inspect' && tap ? TAP_AT : 0
         const p = ev ? kit.ease.inOutCubic(kit.progress(ev.local, lead, ev.dur - lead)) : 1
 
+        // wrap 包進來的新容器:標籤登記進來,畫樹與網頁時才認得
+        Object.assign(tags, from.boxes, to.boxes)
         // 樹與網頁的結構:移動進行到一半才換成新的樹(換的時候移動的那個彈一下)
-        const moving = ev?.kind === 'put'
+        const moving = !!ev && RESHAPE.includes(ev.kind as Kind)
         const shown = moving && tap && ev!.local < TAP_MOVE ? from : to
         build(shown.kids)
         const order = drawOrder(shown.kids)
@@ -454,7 +640,7 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
             const cut = `${((1 - f) * 100).toFixed(2)}%`
             if (el.classList.contains('kt-elbow')) {
               // 轉角:先露出左邊直的一段(含圓角),直的畫完才往右畫
-              kit.css(el, { clipPath: f < 1 || h <= 0 ? `inset(0 calc(100% - 24px) ${cut} 0)` : `inset(0 calc((100% - 24px) * ${(1 - h).toFixed(3)}) 0 0)` })
+              kit.css(el, { clipPath: f < 1 || h <= 0 ? `inset(0 calc(100% - 24 * var(--px)) ${cut} 0)` : `inset(0 calc((100% - 24 * var(--px)) * ${(1 - h).toFixed(3)}) 0 0)` })
             } else kit.css(el, { clipPath: f >= 1 ? '' : `inset(0 0 ${cut} 0)` })
           })
         }
@@ -479,7 +665,7 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
             // 節點還在長(縮小著)時,換回原本大小的左緣,小畫家才不會跟著跳
             const s = chipScale[order[c]] ?? 1
             const left = r.left + r.width / 2 - r.width / s / 2
-            kit.css(walker, { opacity: '1', left: `${((left - pane.left) / k - 60).toFixed(1)}px`, top: `${((r.top - pane.top + r.height / 2) / k - 26).toFixed(1)}px` })
+            kit.css(walker, { opacity: '1', left: `calc(${((left - pane.left) / k).toFixed(1)}px - 60 * var(--px))`, top: `calc(${((r.top - pane.top + r.height / 2) / k).toFixed(1)}px - 26 * var(--px))` })
           }
         } else kit.css(walker, { opacity: '0' })
 
@@ -510,7 +696,7 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
           if (q < 1) {
             const A = layoutOf(from.kids)
             const B = layoutOf(to.kids)
-            const movedId = (ev.step as Step).put
+            const movedId = ev.kind === 'put' ? (ev.step as Step).put : undefined
             const delta = (m: Spots['page'], n: Spots['page'], id: string) => (m[id] && n[id] ? { x: m[id].x - n[id].x, y: m[id].y - n[id].y } : { x: 0, y: 0 })
             for (const id of order) {
               const part = partEl(id)
@@ -527,6 +713,22 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
               }
             }
           }
+        }
+
+        // wrap:新容器(樹上的節點與網頁上的框)淡入
+        if (ev?.kind === 'wrap') {
+          const id = (ev.step as Step).into?.id ?? ''
+          const a = kit.ease.inOutCubic(kit.progress(ev.local, 0, MOVE_MS)).toFixed(3)
+          for (const el of [nodeEl(id), partEl(id)]) if (el) kit.css(el, { opacity: a })
+        }
+
+        // anatomy:拆開的節點顯示結尾標籤(容器是子節點下面那一列),淡入淡出
+        const anatomyOf = (st: TreeState) => st.anatomy
+        const ap = ev?.kind === 'anatomy' ? kit.ease.inOutCubic(kit.progress(ev.local, 0, ANATOMY_MS)) : 1
+        for (const el of treeEl.querySelectorAll<HTMLElement>('.kt-node[data-id] .kt-close, .kt-close-row')) {
+          const id = el.classList.contains('kt-close-row') ? el.dataset.close! : (el.closest<HTMLElement>('.kt-node')?.dataset.id ?? '')
+          const a = kit.lerp(anatomyOf(from) === id ? 1 : 0, anatomyOf(to) === id ? 1 : 0, ap)
+          kit.css(el, { display: a > 0 ? (el.classList.contains('kt-close-row') ? 'block' : 'inline-block') : 'none', opacity: a.toFixed(3) })
         }
 
         // 示範拖拉:節點被抬起來、跟著滑鼠移到放置的縫(位置用畫面上量到的距離,換回演員自己的座標)
@@ -550,6 +752,20 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
           kit.css(el, { zIndex: '' })
         }
 
+        // fade:藏起來的節點(容器連同裡面的節點)畫成虛線、變淡;這一步進行中淡入淡出
+        const fadedOf = (st: TreeState) => (id: string) => (st.faded ?? []).some((f) => f === id || within(st.kids, id, f))
+        const f0 = fadedOf(from)
+        const f1 = fadedOf(to)
+        const fp = ev?.kind === 'fade' ? kit.ease.inOutCubic(kit.progress(ev.local, 0, FADE_MS)) : 1
+        for (const id of order) {
+          const node = nodeEl(id)
+          if (!node) continue
+          const a = kit.lerp(f0(id) ? 1 : 0, f1(id) ? 1 : 0, fp)
+          if (a > 0) node.dataset.faded = '1'
+          else delete node.dataset.faded
+          node.style.setProperty('--faded', a.toFixed(3))
+        }
+
         // 任務:完成的打勾
         if (goalsEl) for (const li of goalsEl.querySelectorAll<HTMLElement>('li')) li.dataset.done = to.achieved.includes(li.dataset.goal!) ? '1' : '0'
       },
@@ -559,9 +775,12 @@ const actor = defineActor<Kind, Step, Props, TreeState, Target>({
         if (name === 'page') return pagePane
         if (name === 'tree') return treePane
         if (name === 'goals') return goalsEl
-        const m = /^(node|part|slot):(.+)$/.exec(name)
+        const m = /^(node|part|slot|open|text|close):(.+)$/.exec(name)
         if (!m) return null
         if (m[1] === 'node') return nodeEl(m[2])
+        if (m[1] === 'open') return nodeEl(m[2])?.querySelector<HTMLElement>('.kt-tag') ?? null
+        if (m[1] === 'text') return nodeEl(m[2])?.querySelector<HTMLElement>('.kt-val, .kt-pic') ?? null
+        if (m[1] === 'close') return treeEl.querySelector<HTMLElement>(`.kt-node-close[data-close="${m[2]}"]`) ?? nodeEl(m[2])?.querySelector<HTMLElement>('.kt-close') ?? null
         if (m[1] === 'part') return partEl(m[2])
         return treeEl.querySelector<HTMLElement>(`.kt-slot[data-slot="${m[2]}"] .kt-slot-mark`)
       },

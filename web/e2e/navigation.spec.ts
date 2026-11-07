@@ -152,7 +152,7 @@ test('首頁:沒登入時主打主題播放序章,開始第一課連到序章', 
   expect(errors).toEqual([])
 })
 
-test('網頁怎麼運作:首頁卡片連到主題,序章免費預覽、其他課規劃中,序章不用登入就能上', async ({ page }) => {
+test('網頁怎麼運作:首頁卡片連到主題,第一課免費預覽、其他開放的課登入後學習,第一課不用登入就能上', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/')
   const card = page.locator('article').filter({ has: page.getByRole('heading', { name: '網頁怎麼運作', exact: true }) })
@@ -165,11 +165,12 @@ test('網頁怎麼運作:首頁卡片連到主題,序章免費預覽、其他課
   await expect(page.getByRole('heading', { name: '課程說明' })).toBeVisible()
   const row = (title: string) => page.locator('#map li').filter({ hasText: title })
   await expect(row('輸入網址之後發生的事').getByText('免費預覽')).toBeVisible()
-  await expect(row('HTML、CSS、JavaScript 的分工').getByText('免費預覽')).toBeVisible()
-  await expect(row('元素與標籤').getByText('規劃中')).toBeVisible()
-  await expect(row('元素與標籤').getByRole('link')).toHaveCount(0)
+  await expect(row('HTML、CSS、JavaScript 的分工').getByText('登入後學習')).toBeVisible()
+  await expect(row('元素與標籤').getByText('登入後學習')).toBeVisible()
+  await expect(row('有意義的區塊').getByText('規劃中')).toBeVisible()
+  await expect(row('有意義的區塊').getByRole('link')).toHaveCount(0)
 
-  // 序章不用登入:直接進到互動舞台,側欄有下一課
+  // 第一課不用登入:直接進到互動舞台,側欄有下一課
   await row('輸入網址之後發生的事').getByRole('link').click()
   await expect(page).toHaveURL(/\/topics\/web\/0-1$/)
   await expect(page.locator('.vp')).toBeVisible()
@@ -474,7 +475,6 @@ const PAGES = [
   '/studio/todo',
   '/studio/kids-web',
   '/studio/web-basics',
-  '/studio/web-basics/1-1',
   '/studio/portrait',
   '/studio/extensions',
   '/studio/kids-web/0-1',

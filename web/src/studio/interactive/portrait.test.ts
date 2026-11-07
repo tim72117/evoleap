@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer, withAspect } from './portrait'
+import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer } from './portrait'
 
 describe('parseAspect', () => {
   it('只有 portrait 是直式', () => {
@@ -15,24 +15,6 @@ describe('parseAspect', () => {
     expect(parseAspect('nope', 'portrait')).toBe('portrait')
     expect(parseAspect('landscape', 'portrait')).toBe('landscape')
     expect(parseAspect('portrait', 'landscape')).toBe('portrait')
-  })
-})
-
-describe('withAspect', () => {
-  it('直式加參數、橫式拿掉,其他參數保留', () => {
-    expect(withAspect(new URLSearchParams(''), 'portrait').toString()).toBe('aspect=portrait')
-    expect(withAspect(new URLSearchParams('aspect=portrait'), 'landscape').toString()).toBe('')
-    expect(withAspect(new URLSearchParams('a=1&aspect=portrait'), 'landscape').toString()).toBe('a=1')
-    expect(withAspect(new URLSearchParams('a=1'), 'portrait').toString()).toBe('a=1&aspect=portrait')
-  })
-  it('和裝置方向一樣就不寫進網址;手機上選橫式要寫 aspect=landscape', () => {
-    expect(withAspect(new URLSearchParams(''), 'landscape', 'portrait').toString()).toBe('aspect=landscape')
-    expect(withAspect(new URLSearchParams('aspect=landscape'), 'portrait', 'portrait').toString()).toBe('')
-  })
-  it('不改動傳入的物件', () => {
-    const p = new URLSearchParams('aspect=portrait')
-    withAspect(p, 'landscape')
-    expect(p.get('aspect')).toBe('portrait')
   })
 })
 

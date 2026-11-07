@@ -212,7 +212,8 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
   max-width: min(86%, calc(100% - var(--vp-right) - 32px));
   width: max-content;
 }
-.vp.vp-float.show-ui .vp-caption, .vp.vp-float.paused .vp-caption { bottom: calc(var(--vp-below) + 84px); }
+/* 控制列出現時字幕不往上推:位置不動,膠囊直接疊在上面(膠囊在 DOM 裡排在字幕後面) */
+.vp.vp-float.show-ui .vp-caption, .vp.vp-float.paused .vp-caption { bottom: calc(var(--vp-below) + 24px); }
 
 .vp.vp-float .vp-bottom {
   left: 50%; right: auto; bottom: 14px;

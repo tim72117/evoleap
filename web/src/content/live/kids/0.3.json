@@ -24,7 +24,7 @@
   "steps": [
     {
       "wait": 400,
-      "chapter": "看：網頁從哪裡來",
+      "chapter": "網頁從哪裡來",
       "guide": {
         "target": "kid:browser",
         "text": "你的電腦"
@@ -63,11 +63,11 @@
     {
       "checkpoint": "換你寄信",
       "sub": "kids/0.3-mail.json",
-      "chapter": "做：換你寄信"
+      "chapter": "換你寄信"
     },
     {
       "wait": 400,
-      "chapter": "看：改改看，再重新整理",
+      "chapter": "改改看，再重新整理",
       "narration": "小花的家現在在你的電腦上。如果改一改上面的字，會怎麼樣呢？"
     },
     {
@@ -96,7 +96,7 @@
     {
       "checkpoint": "換你改改看",
       "sub": "kids/0.3-edit.json",
-      "chapter": "做：改了再重新整理"
+      "chapter": "改了再重新整理"
     },
     {
       "wait": 400,

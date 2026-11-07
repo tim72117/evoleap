@@ -1,0 +1,75 @@
+/* 演員 fx:宣傳片特效層。尺寸用 --u(1920 寬時 18px)。 */
+.A-fx { position: absolute; inset: 0; pointer-events: none; }
+.A-fx .fx-panel { position: absolute; inset: 0; display: grid; place-items: center; }
+.A-fx .fx-marks { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.A-fx .fx-cover { position: absolute; inset: -2%; opacity: 0; }
+.A-fx .fx-cover.flash { background: #fffdf8; }
+/* 甩鏡:一片帶橫向速度線的光幕,兩側羽化 */
+/* 寬 150%:置中時兩側羽化落在畫面外,畫面完全被蓋住 */
+.A-fx .fx-cover.whip {
+  inset: -5% -25%;
+  background: #fffdf8;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+}
+/* 速度線:只在移動時出現(--streak 由程式依速度設定),停住時就是一片白 */
+.A-fx .fx-cover.whip::before {
+  content: ''; position: absolute; inset: 0; opacity: var(--streak, 0);
+  background: repeating-linear-gradient(180deg, rgba(217, 119, 87, 0) 0 22px, rgba(217, 119, 87, 0.3) 22px 25px, rgba(43, 42, 39, 0) 25px 61px, rgba(43, 42, 39, 0.16) 61px 63px);
+}
+
+/* 品牌落定 */
+.A-fx .fx-logo { position: relative; display: grid; justify-items: center; gap: calc(var(--u) * 1.2); }
+.A-fx .fx-mark { width: calc(var(--u) * 9); height: calc(var(--u) * 9); }
+.A-fx .fx-mark svg { width: 100%; height: 100%; display: block; }
+.A-fx .fx-ring {
+  position: absolute; top: calc(var(--u) * -1.5); left: 50%;
+  width: calc(var(--u) * 12); height: calc(var(--u) * 12); margin-left: calc(var(--u) * -6);
+  border: calc(var(--u) * 0.25) solid #d97757; border-radius: 50%;
+}
+.A-fx .fx-word { font-size: calc(var(--u) * 4.2); font-weight: 800; letter-spacing: -0.02em; color: #2b2a27; line-height: 1; }
+.A-fx .fx-word span { display: inline-block; }
+.A-fx .fx-sub { margin: 0; font-size: calc(var(--u) * 1.5); color: #6b6862; }
+
+/* AI 對話串流 */
+.A-fx .fx-chat {
+  width: calc(var(--u) * 46); padding: calc(var(--u) * 2);
+  display: grid; gap: calc(var(--u) * 1.4);
+  background: #fffdf8; border: 1px solid #e2ddd0; border-radius: calc(var(--u) * 1.2);
+  box-shadow: 0 calc(var(--u) * 1.2) calc(var(--u) * 3) rgba(40, 30, 20, 0.12);
+  font-size: calc(var(--u) * 1.6); line-height: 1.6; color: #2b2a27;
+}
+.A-fx .fx-q { justify-self: end; max-width: 80%; padding: calc(var(--u) * 0.7) calc(var(--u) * 1.1); background: #f0ebe0; border-radius: calc(var(--u) * 1); }
+.A-fx .fx-a { min-height: 3.2em; }
+.A-fx .fx-dot { display: inline-block; width: 0.55em; height: 0.55em; margin-left: 0.25em; border-radius: 50%; background: #d97757; vertical-align: 0.05em; }
+
+/* 程式碼差異 */
+.A-fx .fx-diff {
+  width: calc(var(--u) * 52); padding: calc(var(--u) * 1.2) 0 calc(var(--u) * 1.4);
+  background: #1e1f22; border-radius: calc(var(--u) * 1); color: #d7d4cc;
+  box-shadow: 0 calc(var(--u) * 1.2) calc(var(--u) * 3) rgba(0, 0, 0, 0.25);
+  font: calc(var(--u) * 1.3) / 1.75 ui-monospace, Menlo, monospace;
+}
+.A-fx .fx-file { padding: 0 calc(var(--u) * 1.4) calc(var(--u) * 0.8); color: #9a968c; font-size: 0.85em; }
+.A-fx .fx-line { display: flex; height: 1.75em; overflow: hidden; white-space: pre; }
+.A-fx .fx-no { width: 3em; text-align: right; color: #5f5d58; padding-right: 1em; }
+.A-fx .fx-sign { width: 1.4em; color: #9a968c; }
+.A-fx .fx-line[data-t='del'] .fx-sign { color: #ff8a80; }
+.A-fx .fx-line[data-t='add'] .fx-sign { color: #7ee2a0; }
+.A-fx .fx-line code { font: inherit; }
+
+/* 光線掃過的標題 */
+.A-fx .fx-shimmer { text-align: center; }
+.A-fx .fx-shimmer h1 {
+  margin: 0; font-size: calc(var(--u) * 4.4); font-weight: 800; line-height: 1.2;
+  /* 光帶在漸層中段;background-size 300% 時 position 100% → 0% 讓光帶由左掃到右,兩端都是墨色 */
+  background: linear-gradient(100deg, #2b2a27 0%, #2b2a27 42%, #d97757 46%, #ffe1c4 50%, #d97757 54%, #2b2a27 58%, #2b2a27 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.A-fx .fx-shimmer h1 .k-em { color: transparent; }
+.A-fx .fx-shimmer p { margin: calc(var(--u) * 1) 0 0; font-size: calc(var(--u) * 1.5); color: #6b6862; }
+
+/* 手繪標註 */
+.A-fx .fx-circle, .A-fx .fx-arrow { fill: none; stroke: #d97757; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.A-fx .fx-label { fill: #d97757; font-size: 34px; font-weight: 700; }

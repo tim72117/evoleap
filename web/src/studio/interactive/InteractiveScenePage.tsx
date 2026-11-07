@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { Aspect } from '../../live/types'
@@ -13,7 +13,7 @@ import { ActorPush } from './ActorPush'
 import { StaticActor } from './StaticActor'
 import { answerLabel, answersOnActor, expandAnswers, INTERACTIVE_ICON, momentsOf, withoutAnswer, type Answer, type Answers, type Moment } from './scene'
 import { useAutoAspect } from '../../site/useAutoAspect'
-import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer, withAspect } from './portrait'
+import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer } from './portrait'
 import styles from './InteractiveScenePage.module.css'
 
 // 互動教學場景(試做):整個視窗都是舞台,播放條是浮動的膠囊,右側在「步驟」與「互動」之間切換。
@@ -82,7 +82,7 @@ function useNarrow(): boolean {
 }
 
 export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course, back, embed, track, shrinkSlot }: Props) {
-  const [params, setParams] = useSearchParams()
+  const [params] = useSearchParams()
   // 手機直拿自動用直式;網址的 ?aspect= 優先(首頁的嵌入播放器不看網址,只看裝置)
   const auto = useAutoAspect()
   const aspect: Aspect = embed ? auto : parseAspect(params.get('aspect'), auto)
@@ -156,7 +156,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       onStop: (stop) => {
         const stopped = list.find((m) => m.title === stop.title)
         if (!stopped) return false
-        if (interaction !== 'stage' && !drawer && !(interaction === 'static' && answersOnActor(stopped))) {
+        // 靜態互動的題目也放在導覽(側欄);首頁嵌入沒有側欄,題目留在演員旁邊
+        if (interaction !== 'stage' && !drawer && !(embed && interaction === 'static' && answersOnActor(stopped))) {
           setPanelOpen(true)
           setTab('interact')
         }
@@ -273,16 +274,14 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     prevMoment.current = drawerMoment
   }, [drawer, drawerMoment])
 
-  const toggleAspect = () => {
-    carry.current = ctrl.current?.shell.time ?? 0
-    setParams(withAspect(params, aspect === 'portrait' ? 'landscape' : 'portrait', auto), { replace: true })
-  }
-
   // 焦點移到問題標題(不是選項):習慣按空白鍵暫停的人才不會誤選答案
   const pushed = interaction === 'stage' && current?.stage ? current : undefined
   /** 靜態演員:學員直接操作演員,不開詢問框(詢問框只用在沒有演員可以操作的互動點) */
   const onActor = interaction === 'static' && !!current && answersOnActor(current)
-  const staticActor = interaction === 'static' && current?.stage && loaded && <StaticActor key={current.id} script={loaded} answers={answers} moment={current} interactive={onActor} headRef={momentHeadRef} hintSlot={embed ? hintSlot : undefined} onAnswer={(a) => answer(current, a)} />
+  // 互動腳本的 until 還沒達成:選項先不能按(StaticActor 回報)
+  const [locked, setLocked] = useState(false)
+  const onLocked = useCallback((v: boolean) => setLocked(v), [])
+  const staticActor = interaction === 'static' && current?.stage && loaded && <StaticActor key={current.id} script={loaded} answers={answers} moment={current} interactive={onActor} headRef={momentHeadRef} hint={embed} hintSlot={embed ? hintSlot : undefined} onLocked={onLocked} onAnswer={(a) => answer(current, a)} />
 
   // 嵌在頁面裡時,一開始不放大,開始播放才放大(在頁面內變寬,版面由外層用 data-expanded 決定,不是全螢幕);之後靜態互動也是這個大小,學員按縮小才變小,再開始播放又放大
   const [expanded, setExpanded] = useState(false)
@@ -318,6 +317,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     const next = { ...answers, [moment.id]: value }
     setAnswers(next)
     if (drawer) setPanelOpen(false)
+    // 互動結束:側欄回到「步驟」
+    setTab('steps')
     c.sync(next)
       .then((at) => {
         c.shell.seek(at[moment.id])
@@ -341,6 +342,9 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       .catch((e: unknown) => setError(String(e instanceof Error ? e.message : e)))
   }
 
+  // 靜態互動:導覽點回答過的互動點,就回到互動點重新操作(收回回答、停在互動點);沒回答過的照常跳過去
+  const goToMoment = (m: Moment) => (interaction === 'static' && answers[m.id] ? reopen(m) : openMoment(m))
+
   const seekTo = (ms: number) => {
     const c = ctrl.current
     if (!c) return
@@ -353,12 +357,12 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     if (!c) return
     if (!answers[m.id]) c.shell.pause()
     seekTo(timeline.momentAt[m.id])
-    if (interaction !== 'stage' && !(interaction === 'static' && answersOnActor(m))) setTab('interact')
+    if (interaction !== 'stage' && !(embed && interaction === 'static' && answersOnActor(m))) setTab('interact')
   }
 
   if (embed) {
     return (
-      <div ref={pageRef} data-expanded={expanded || undefined} className={[styles.embed, interaction === 'stage' && styles.pushable, current && styles.atMoment, aspect === 'portrait' && styles.embedPortrait].filter(Boolean).join(' ')} lang="zh-Hant">
+      <div ref={pageRef} data-expanded={expanded || undefined} className={[styles.embed, interaction === 'stage' && styles.pushable, current && styles.atMoment, staticActor && styles.staticOn, aspect === 'portrait' && styles.embedPortrait].filter(Boolean).join(' ')} lang="zh-Hant">
         <div className={styles.embedFrame}>
           <div ref={boxRef} className={styles.embedBox} />
           {staticActor}
@@ -401,6 +405,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     drawer && panelOpen && styles.drawerOpen,
     aspect === 'portrait' && styles.portrait,
     current && styles.atMoment,
+    // 換上靜態演員的舞台時,主舞台先藏起來(不是壓暗)
+    staticActor && styles.staticOn,
     interaction === 'stage' && styles.pushable,
   ]
     .filter(Boolean)
@@ -410,7 +416,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     <div ref={pageRef} className={classes} lang="zh-Hant">
       <div ref={boxRef} className={styles.box} />
 
-      {/* 在標題列之前:標題列才會在壓暗的上面 */}
+      {/* 在標題列之前:標題列才會在靜態舞台的上面 */}
       {staticActor}
 
       <header className={styles.head}>
@@ -467,16 +473,16 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
                     answers={answers}
                     t={now.t}
                     onSeek={seekTo}
-                    onMoment={openMoment}
+                    onMoment={goToMoment}
                     onReopen={interaction === 'stage' ? reopen : undefined}
                     prompts={course?.prompts}
                     hidden={drawer && !panelOpen}
                   />
                 )
-              ) : current && !pushed && !onActor ? (
-                <MomentForm key={current.id} moment={current} headRef={momentHeadRef} onAnswer={(a) => answer(current, a)} />
+              ) : current && !pushed ? (
+                <MomentForm key={current.id} moment={current} headRef={momentHeadRef} locked={onActor && locked} onAnswer={(a) => answer(current, a)} />
               ) : (
-                <MomentList timeline={timeline} moments={moments} answers={answers} onOpen={openMoment} onReopen={reopen} />
+                <MomentList timeline={timeline} moments={moments} answers={answers} onOpen={openMoment} onReopen={reopen} againLabel={interaction === 'static' ? '回到互動點' : '重新回答'} />
               )}
             </div>
             {!(drawer && pushed) && course?.footer}
@@ -487,11 +493,6 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       {toolbar &&
         createPortal(
           <>
-            <button type="button" className={`vp-btn ${styles.aspectBtn}`} aria-label="切換橫式或直式" title={aspect === 'portrait' ? '切成橫式' : '切成直式'} onClick={toggleAspect}>
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                {aspect === 'portrait' ? <path d="M3 6h18v12H3zm2 2v8h14V8z" fillRule="evenodd" /> : <path d="M7 3h10v18H7zm2 2v14h6V5z" fillRule="evenodd" />}
-              </svg>
-            </button>
             <button type="button" className="vp-btn" aria-pressed={panelOpen} aria-label="側欄" title={panelOpen ? '收合側欄' : '打開側欄'} onClick={() => setPanelOpen((v) => !v)}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M3 5h18v14H3zm2 2v10h9V7zm11 0v10h3V7z" fillRule="evenodd" />
@@ -603,7 +604,7 @@ function PromptCopy({ prompt }: { prompt: string }) {
   )
 }
 
-function MomentForm({ moment, headRef, onAnswer }: { moment: Moment; headRef: RefObject<HTMLHeadingElement | null>; onAnswer: (a: Answer) => void }) {
+function MomentForm({ moment, headRef, locked = false, onAnswer }: { moment: Moment; headRef: RefObject<HTMLHeadingElement | null>; locked?: boolean; onAnswer: (a: Answer) => void }) {
   const [text, setText] = useState('')
   const typed = text.trim()
   const submit = (e: FormEvent) => {
@@ -637,20 +638,23 @@ function MomentForm({ moment, headRef, onAnswer }: { moment: Moment; headRef: Re
       {moment.body && <p className={styles.note}>{moment.body}</p>}
       <div className={styles.options}>
         {moment.options.map((o, option) => (
-          <button key={o.label} type="button" onClick={() => onAnswer({ option })}>
+          <button key={o.label} type="button" disabled={locked} onClick={() => onAnswer({ option })}>
             {o.label}
           </button>
         ))}
       </div>
       {freeForm}
-      <button type="button" className={styles.skip} onClick={() => onAnswer({ skipped: true })}>
-        {moment.skip?.label ?? '略過，繼續看'}
-      </button>
+      {!moment.noSkip && (
+        <button type="button" className={styles.skip} onClick={() => onAnswer({ skipped: true })}>
+          {moment.skip?.label ?? '略過，繼續看'}
+        </button>
+      )}
     </div>
   )
 }
 
-function MomentList({ timeline, moments, answers, onOpen, onReopen }: { timeline: Timeline; moments: Moment[]; answers: Answers; onOpen: (m: Moment) => void; onReopen: (m: Moment) => void }) {
+/** 回答過的互動點:againLabel 是收回回答、回到互動點的按鈕文字(靜態互動叫「回到互動點」) */
+function MomentList({ timeline, moments, answers, onOpen, onReopen, againLabel }: { timeline: Timeline; moments: Moment[]; answers: Answers; onOpen: (m: Moment) => void; onReopen: (m: Moment) => void; againLabel: string }) {
   return (
     <div>
       <p className={styles.note}>播到互動點會自動暫停，在這裡回答，演員會當場回應；你的回答會加進時間軸。</p>
@@ -665,7 +669,7 @@ function MomentList({ timeline, moments, answers, onOpen, onReopen }: { timeline
               <span className={styles.note}>{a ? (label ? `你的回答：${label}` : m.skip ? `已選擇：${m.skip.label}` : '已略過') : at != null ? `還沒回答 · ${fmt(at)}` : '回答上一題後才會出現'}</span>
               {a ? (
                 <button type="button" onClick={() => onReopen(m)}>
-                  重新回答
+                  {againLabel}
                 </button>
               ) : (
                 <button type="button" disabled={at == null} onClick={() => onOpen(m)}>

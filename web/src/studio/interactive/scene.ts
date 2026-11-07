@@ -19,6 +19,8 @@ export type Moment = {
   free?: { placeholder: string; steps: ScriptStep[] }
   /** 略過時的按鈕文字與演出的步驟(例如看示範);不寫就是單純略過。還沒回答就直接播放時也演這段,所以後面的內容可以接著它 */
   skip?: { label: string; steps: ScriptStep[] }
+  /** 腳本寫 "skip": false:沒有略過鈕,一定要選一個選項才往下(還沒回答就直接播放時,照樣接著播、不演任何步驟) */
+  noSkip?: boolean
   /** 這個互動點回答過(或有示範)才會出現(後面的演出要接著前面的結果時用,例如先下指令才有確認提示) */
   requires?: string
   /**
@@ -27,8 +29,46 @@ export type Moment = {
    * toggles 是學員可以自由點的東西(不是回答):每點一次,就直接點一下這位演員網頁上的元素(sel 是 CSS 選擇器),
    * 由網頁自己的 script.js 決定點了之後顯示或隱藏什麼;點完按選項(例如「看完了，繼續」)才往下。
    * 靜態互動(StaticActor)與推到主畫面(ActorPush,正式課程頁)都支援;推到主畫面時,離開互動點會把點過的還原
+   * drag:學員可以拖演員身上的東西(目前是 kid-tree 的節點,拖放的位置見 kids/drag.ts),放下去就多演一步(例如 put);只用在靜態互動
+   * split:靜態互動時把演員分成兩張卡片,排法和互動腳本的 cast 一樣:中間放網頁(only: "page")、旁邊的側欄放樹(only: "tree");
+   *   拖曳在側欄的樹上,放下去兩張卡片一起演那一步(舞台的 react,不重新載入)。目前用在 kid-tree(網頁怎麼運作 1.2)
    */
-  stage?: { focus: string; choices?: string; zone?: string[]; toggles?: { sel: string; label: string }[] }
+  stage?: { focus: string; choices?: string; zone?: string[]; toggles?: { sel: string; label: string }[]; drag?: boolean; split?: boolean }
+  /** 互動腳本(live/README.md 第 2A.7 節):學員操作時演員怎麼回應;目前只用在靜態互動 */
+  interact?: Interact
+}
+
+/**
+ * 互動腳本的觸發點:點 target(「演員:目標」)就觸發 steps,從演員目前的狀態演起(舞台的 react)。
+ * 寫了 again 時,同一個觸發點第偶數次點演 again(用來收回,例如框再點一次就消失);id 相同的觸發點算同一個
+ */
+export type InteractSpot = { target: string; id?: string; label: string; steps: ScriptStep[]; again?: ScriptStep[] }
+/**
+ * 互動腳本:cast 第一位是主要演員(放在中間),第二位放在旁邊的側欄卡片(目前最多兩位);
+ * until.picked:點過幾個不同的觸發點就觸發 done,選項在那之後才能按(沒寫 until 一開始就能按)
+ */
+export type Interact = { cast: string[]; spots: InteractSpot[]; until?: { picked: number }; done?: ScriptStep[] }
+
+/** 觸發點的 id(沒寫就用 target) */
+export const spotId = (spot: InteractSpot): string => spot.id ?? spot.target
+
+/** 檢查互動腳本的寫法;不對就丟錯(載入時就知道) */
+export function checkInteract(it: Interact, castIds: string[], where: string): void {
+  if (!it.cast?.length || it.cast.length > 2) throw new Error(`${where}:interact.cast 要寫一到兩位演員`)
+  for (const id of it.cast) if (!castIds.includes(id)) throw new Error(`${where}:interact.cast 的「${id}」不在演員表裡`)
+  if (!it.spots?.length) throw new Error(`${where}:interact.spots 至少要有一個觸發點`)
+  for (const spot of it.spots) {
+    const owner = spot.target?.split(':')[0]
+    if (!it.cast.includes(owner)) throw new Error(`${where}:觸發點「${spot.target}」的演員不在 interact.cast 裡`)
+    if (!spot.label) throw new Error(`${where}:觸發點「${spot.target}」要寫 label(按鈕的名稱)`)
+    if (!spot.steps?.length) throw new Error(`${where}:觸發點「${spot.target}」要寫 steps`)
+    for (const st of [...spot.steps, ...(spot.again ?? [])]) {
+      const on = (st as { on?: string }).on
+      if (on && !it.cast.includes(on)) throw new Error(`${where}:觸發點「${spot.target}」的步驟用到不在 interact.cast 裡的「${on}」`)
+    }
+  }
+  const ids = new Set(it.spots.map(spotId))
+  if (it.until && (it.until.picked < 1 || it.until.picked > ids.size)) throw new Error(`${where}:until.picked 要在 1 到 ${ids.size} 之間`)
 }
 
 /** 互動點能不能直接在演員身上回答:有對應的演員才行,要自己打字的也還是用詢問框 */
@@ -38,7 +78,7 @@ export const answersOnActor = (moment: Moment): boolean => !!moment.stage && !mo
 export type Answer = { option: number } | { text: string } | { skipped: true }
 export type Answers = Record<string, Answer>
 
-type CheckpointFields = { checkpoint?: string; body?: string; id?: string; options?: MomentOption[]; free?: Moment['free']; skip?: Moment['skip']; requires?: string; stage?: Moment['stage'] }
+type CheckpointFields = { checkpoint?: string; body?: string; id?: string; options?: MomentOption[]; free?: Moment['free']; skip?: Moment['skip'] | false; requires?: string; stage?: Moment['stage']; interact?: Interact }
 
 /** 列出腳本裡的互動點;id 或標題重複、沒有選項、requires 不是前面的互動點時丟錯(標題用來對應舞台的 stops) */
 export function momentsOf(script: StageScript): Moment[] {
@@ -49,7 +89,8 @@ export function momentsOf(script: StageScript): Moment[] {
     if (!s.options?.length) throw new Error(`互動點「${s.id}」沒有選項`)
     if (moments.some((m) => m.id === s.id || m.title === s.checkpoint)) throw new Error(`互動點「${s.id}」的 id 或標題重複`)
     if (s.requires && !moments.some((m) => m.id === s.requires)) throw new Error(`互動點「${s.id}」的 requires 要指向前面的互動點`)
-    moments.push({ id: s.id, title: s.checkpoint, body: s.body ?? '', options: s.options, free: s.free, skip: s.skip, requires: s.requires, stage: s.stage })
+    if (s.interact) checkInteract(s.interact, Object.keys(script.cast ?? {}), `互動點「${s.id}」`)
+    moments.push({ interact: s.interact, id: s.id, title: s.checkpoint, body: s.body ?? '', options: s.options, free: s.free, skip: s.skip || undefined, noSkip: s.skip === false || undefined, requires: s.requires, stage: s.stage })
   }
   return moments
 }
@@ -66,7 +107,7 @@ const fillText = (step: ScriptStep, text: string): ScriptStep =>
   Object.fromEntries(Object.entries(step).map(([k, v]) => [k, typeof v === 'string' ? v.split('{{text}}').join(text) : v])) as ScriptStep
 
 function stepsOf(moment: CheckpointFields, answer: Answer | undefined): ScriptStep[] {
-  if (!answer || 'skipped' in answer) return moment.skip?.steps ?? []
+  if (!answer || 'skipped' in answer) return (moment.skip || undefined)?.steps ?? []
   if ('text' in answer) {
     if (!moment.free) throw new Error(`互動點「${moment.id}」不能自己打字`)
     return moment.free.steps.map((s) => fillText(s, answer.text))
@@ -90,7 +131,7 @@ export function expandAnswers(script: StageScript, answers: Answers): StageScrip
       const s = raw as CheckpointFields
       if (s.id && s.requires && !hasPerformance(s.requires)) return []
       const answer = s.id ? answers[s.id] : undefined
-      const chapter = answer && ('skipped' in answer ? s.skip?.label : '你的回答')
+      const chapter = answer && ('skipped' in answer ? (s.skip || undefined)?.label : '你的回答')
       const inserted = s.id ? stepsOf(s, answer) : []
       return [raw, ...inserted.map((x, i) => (i === 0 && chapter ? { ...x, chapter } : x))]
     }),
@@ -111,6 +152,8 @@ export function staticScript(script: StageScript, answers: Answers, momentId: st
     const owner = s.show ?? s.hide ?? s.parts ?? s.on
     if (owner !== undefined ? owner !== actor : !kinds.some((k) => k in s)) return []
     const { narration: _narration, chapter: _chapter, lessonStep: _lessonStep, focus: _focus, ...rest } = s
+    // focus 通常是鏡頭要看哪裡(靜態舞台沒有鏡頭,拿掉);但演員本身有 focus 動作(例如 dom-tree)、這一步又沒有其他動作時,focus 就是動作本身,要留著
+    if ('focus' in s && kinds.includes('focus') && !kinds.some((k) => k !== 'focus' && k in s)) return [{ ...rest, focus: s.focus }]
     return [rest]
   })
   // 靜態舞台只有這一位演員:不用鏡頭,也不用調度(blocking 的其他演員不在這份演員表裡)
@@ -155,4 +198,14 @@ export function clickInPage(stage: { element(ref: string): HTMLElement | null },
   }
   if (el) el.click()
   else console.warn(`toggles:演員「${actor}」的網頁裡找不到「${sel}」`)
+}
+
+
+/** 演員網頁裡這個元素(或它外面的容器)有沒有被藏起來(帶 gone class) */
+export function goneInPage(stage: { element(ref: string): HTMLElement | null }, actor: string, sel: string): boolean {
+  try {
+    return !!stage.element(`${actor}:viewport`)?.shadowRoot?.querySelector<HTMLElement>(sel)?.closest('.gone')
+  } catch {
+    return false
+  }
 }

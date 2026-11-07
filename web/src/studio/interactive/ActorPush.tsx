@@ -150,9 +150,11 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
           </h2>
           {moment.body && <p className={styles.note}>{moment.body}</p>}
           {!choicesRect && chips.length > 0 && <div className={styles.pushChips}>{chips}</div>}
-          <button type="button" className={styles.skip} onClick={() => onAnswer({ skipped: true })}>
-            {moment.skip?.label ?? '略過，繼續看'}
-          </button>
+          {!moment.noSkip && (
+            <button type="button" className={styles.skip} onClick={() => onAnswer({ skipped: true })}>
+              {moment.skip?.label ?? '略過，繼續看'}
+            </button>
+          )}
         </div>
       )}
 

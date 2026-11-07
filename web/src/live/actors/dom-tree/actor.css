@@ -1,8 +1,12 @@
 /* 演員 dom-tree:元素結構圖。選擇器都以 .A-dom-tree 開頭。
    動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。
    兩種樣式:data-look="clean"(成人課,預設)與 data-look="kids"(兒童課,和 kid-web、kid-tree 同一套粗黑框)。
-   尺寸是 1920 寬舞台的 px。 */
+   尺寸寫成 N * var(--px)(見下方 .A-dom-tree),跟著 --u 變;主舞台上就是 1920 寬舞台的 px。 */
 .A-dom-tree {
+  /* 一個設計像素:演員的尺寸是照 1920 寬的舞台(--u 18px)設計的,都寫成 N * --px。
+     主舞台 --u 是 18px,--px 就是 1px,畫面不變;靜態舞台給固定的 --u(正常字體),整個演員照這個大小重新排版,不用整張縮放。
+     框線與陰影留 px,不跟著字變粗變細 */
+  --px: calc(var(--u, 18px) / 18);
   --ink: #1f2430;
   --muted: #6b7280;
   --line: #d9dee8;
@@ -18,18 +22,18 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  padding: 36px 40px;
-  border-radius: 24px;
+  padding: calc(36 * var(--px)) calc(40 * var(--px));
+  border-radius: calc(24 * var(--px));
   background: var(--bg);
   box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 18px 48px rgba(15, 23, 42, 0.12);
   font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
-  font-size: 28px;
+  font-size: calc(28 * var(--px));
   line-height: 1.4;
   color: var(--ink);
 }
 .A-dom-tree *, .A-dom-tree *::before, .A-dom-tree *::after { box-sizing: border-box; }
 
-.A-dom-tree .dt-tree { display: flex; flex-direction: column; gap: 14px; }
+.A-dom-tree .dt-tree { display: flex; flex-direction: column; gap: calc(14 * var(--px)); }
 .A-dom-tree .dt-node { --c: var(--c-text); position: relative; }
 .A-dom-tree .dt-node[data-kind='box'] { --c: var(--c-box); }
 .A-dom-tree .dt-node[data-kind='media'] { --c: var(--c-media); }
@@ -38,8 +42,8 @@
 /* 標籤:等寬字的小膠囊,顏色跟著元素種類 */
 .A-dom-tree .dt-tag {
   display: inline-block;
-  padding: 2px 12px;
-  border-radius: 10px;
+  padding: calc(2 * var(--px)) calc(12 * var(--px));
+  border-radius: calc(10 * var(--px));
   background: color-mix(in srgb, var(--c) 12%, #fff);
   color: var(--c);
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -50,33 +54,33 @@
 
 /* 容器:彩色虛線方框把子元素包起來(和網頁透視畫面的框同色),上緣開頭標籤、下緣結尾標籤,左邊一條樹幹 */
 .A-dom-tree .dt-box {
-  padding: 12px 16px 12px 18px;
+  padding: calc(12 * var(--px)) calc(16 * var(--px)) calc(12 * var(--px)) calc(18 * var(--px));
   border: 3px dashed color-mix(in srgb, var(--c) calc(var(--box) * 100%), transparent);
-  border-radius: 18px;
+  border-radius: calc(18 * var(--px));
   background: color-mix(in srgb, var(--c) calc(var(--box) * 5%), var(--paper));
 }
 .A-dom-tree .dt-kids {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin: 12px 0 12px 22px;
-  padding-left: 26px;
+  gap: calc(12 * var(--px));
+  margin: calc(12 * var(--px)) 0 calc(12 * var(--px)) calc(22 * var(--px));
+  padding-left: calc(26 * var(--px));
 }
 .A-dom-tree .dt-kids::before {
   content: "";
   position: absolute;
   left: 0;
-  top: -6px;
-  bottom: 18px;
+  top: calc(-6 * var(--px));
+  bottom: calc(18 * var(--px));
   border-left: 2px solid color-mix(in srgb, var(--c-box) 35%, transparent);
 }
 .A-dom-tree .dt-kids > .dt-node::before {
   content: "";
   position: absolute;
-  left: -26px;
-  top: 26px;
-  width: 20px;
+  left: calc(-26 * var(--px));
+  top: calc(26 * var(--px));
+  width: calc(20 * var(--px));
   border-top: 2px solid color-mix(in srgb, var(--c-box) 35%, transparent);
 }
 
@@ -85,11 +89,11 @@
 .A-dom-tree .dt-line {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: calc(10 * var(--px));
   max-width: 100%;
-  padding: 10px 16px;
+  padding: calc(10 * var(--px)) calc(16 * var(--px));
   border: 3px dashed var(--c);
-  border-radius: 14px;
+  border-radius: calc(14 * var(--px));
   background: var(--paper);
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
 }
@@ -105,12 +109,12 @@
 .A-dom-tree .dt-part { position: relative; display: inline-flex; min-width: 0; }
 .A-dom-tree .dt-cap {
   position: absolute;
-  top: calc(100% + 18px);
+  top: calc(100% + calc(18 * var(--px)));
   left: 50%;
   translate: -50% 0;
   display: none;
-  padding: 2px 12px;
-  border-radius: 999px;
+  padding: calc(2 * var(--px)) calc(12 * var(--px));
+  border-radius: calc(999 * var(--px));
   background: var(--ink);
   color: #fff;
   font-size: 0.68em;
@@ -120,7 +124,7 @@
 }
 .A-dom-tree .dt-void-note .dt-cap { position: static; translate: none; }
 .A-dom-tree .dt-cap-void { background: var(--c-media); }
-.A-dom-tree .dt-leaf[data-anatomy='true'] { margin-bottom: 44px; }
+.A-dom-tree .dt-leaf[data-anatomy='true'] { margin-bottom: calc(44 * var(--px)); }
 .A-dom-tree .dt-leaf[data-anatomy='true'] .dt-cap { display: block; }
 .A-dom-tree .dt-leaf[data-anatomy='true'] .dt-line { border-color: var(--c); box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 18%, transparent); }
 
@@ -142,13 +146,13 @@
   --c-media: #ff9f43;
   --c-action: #ff6fa0;
   border: 6px solid #2b2620;
-  border-radius: 30px;
+  border-radius: calc(30 * var(--px));
   box-shadow: 0 12px 0 #2b2620;
-  font-size: 30px;
+  font-size: calc(30 * var(--px));
 }
 .A-dom-tree[data-look='kids'] .dt-tag {
   border: 3px solid #2b2620;
-  border-radius: 999px;
+  border-radius: calc(999 * var(--px));
   background: var(--c);
   color: #fff;
   font-family: inherit;
@@ -156,7 +160,7 @@
 }
 .A-dom-tree[data-look='kids'] .dt-box {
   border: 5px solid color-mix(in srgb, #2b2620 calc(var(--box) * 100%), transparent);
-  border-radius: 26px;
+  border-radius: calc(26 * var(--px));
   background: color-mix(in srgb, var(--c) calc(var(--box) * 14%), var(--paper));
   box-shadow: 0 6px 0 color-mix(in srgb, #2b2620 calc(var(--box) * 100%), transparent);
 }
@@ -164,7 +168,7 @@
 .A-dom-tree[data-look='kids'] .dt-kids > .dt-node::before { border-color: #2b2620; border-width: 4px; border-style: dashed; }
 .A-dom-tree[data-look='kids'] .dt-line {
   border: 4px solid #2b2620;
-  border-radius: 20px;
+  border-radius: calc(20 * var(--px));
   box-shadow: 0 5px 0 #2b2620;
 }
 .A-dom-tree[data-look='kids'] .dt-text { font-weight: 800; }

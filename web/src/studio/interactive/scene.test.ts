@@ -10,7 +10,7 @@ import l02 from '../../content/live/l0/0.2-site.json'
 import { withL02Moments } from './l0-0.2'
 import intro from '../../content/live/l0/0.intro.json'
 import { withL0IntroMoments } from './l0-intro'
-import { answerLabel, expandAnswers, momentsOf, collapsedParts, staticScript, withoutAnswer, type Answer, type Moment } from './scene'
+import { answerLabel, checkInteract, expandAnswers, momentsOf, collapsedParts, staticScript, withoutAnswer, type Answer, type Moment } from './scene'
 
 const script = {
   title: 't',
@@ -59,6 +59,23 @@ describe('expandAnswers', () => {
 })
 
 describe('momentsOf', () => {
+  it('互動腳本:演員要在 cast 裡、觸發點要有名稱與步驟、until 不能超過觸發點的數量', () => {
+    const spot = { target: 'web:sel:#a', id: 'a', label: 'A', steps: [{ on: 'web', click: '#a' }] }
+    const ok = { cast: ['web', 'tree'], spots: [spot], until: { picked: 1 } }
+    expect(() => checkInteract(ok as never, ['web', 'tree'], 'x')).not.toThrow()
+    expect(() => checkInteract({ ...ok, cast: ['nope'] } as never, ['web'], 'x')).toThrow(/不在演員表/)
+    expect(() => checkInteract({ ...ok, spots: [{ ...spot, target: 'tree:node:a' }], cast: ['web'] } as never, ['web', 'tree'], 'x')).toThrow(/不在 interact.cast/)
+    expect(() => checkInteract({ ...ok, spots: [{ ...spot, label: '' }] } as never, ['web', 'tree'], 'x')).toThrow(/label/)
+    expect(() => checkInteract({ ...ok, until: { picked: 2 } } as never, ['web', 'tree'], 'x')).toThrow(/until/)
+  })
+  it('"skip": false 表示沒有略過鈕;沒回答就播過去時不演任何步驟', () => {
+    const script = { cast: {}, steps: [{ checkpoint: '點點看', id: 'explore', options: [{ label: '看完了', steps: [{ wait: 100 }] }], skip: false }, { wait: 200 }] } as unknown as StageScript
+    const [m] = momentsOf(script)
+    expect(m.noSkip).toBe(true)
+    expect(m.skip).toBeUndefined()
+    expect(expandAnswers(script, {}).steps).toHaveLength(2)
+    expect(expandAnswers(script, { explore: { option: 0 } }).steps).toHaveLength(3)
+  })
   it('只列出有 id 的 checkpoint', () => {
     const plain = { ...script, steps: [...script.steps, { checkpoint: '一般練習點' }] } as StageScript
     expect(momentsOf(plain).map((m) => m.id)).toEqual(['a'])

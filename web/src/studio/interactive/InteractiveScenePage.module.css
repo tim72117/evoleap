@@ -5,7 +5,7 @@
   --accent: #d97757;
   --fg: #1f1e1b;
   --dim: #6f6c64;
-  --surface: #fffdf8;
+  --surface: #fffefc;
   --line: #e2ddd0;
   --vp-inset-right: 0px;
   --vp-inset-bottom: 0px;
@@ -22,7 +22,7 @@
   --accent: #d97757;
   --fg: #1f1e1b;
   --dim: #6f6c64;
-  --surface: #fffdf8;
+  --surface: #fffefc;
   --line: #e2ddd0;
   --vp-inset-right: 0px;
   --vp-inset-bottom: 0px;
@@ -598,16 +598,28 @@
 }
 
 /* ---------- 互動時的靜態演員(StaticActor) ---------- */
-/* 避開側欄與膠囊控制列;只有演員身上的選項可以點,其他地方穿透到後面的播放器 */
+/* 避開側欄;膠囊控制列不讓位,出現時直接疊在最上層(見下面的 .staticOn .vp-ui)。
+   只有演員身上的選項可以點,其他地方穿透到後面的播放器(主舞台這時藏起來,見 .staticOn) */
 .staticLayer {
   position: absolute;
-  inset: 0 var(--vp-inset-right) calc(var(--vp-inset-bottom) + 72px) 0;
+  inset: 0 var(--vp-inset-right) var(--vp-inset-bottom) 0;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 60px 24px 24px; /* 上方讓出標題列 */
-  background: rgb(20 18 16 / 55%);
   pointer-events: none;
+}
+
+/* 播放器的控制列、字幕、大播放鍵疊在靜態舞台上面(靜態舞台在 DOM 裡排在播放器後面,不加 z-index 會蓋住它們) */
+.staticOn :global(.vp-ui) {
+  z-index: 1;
+}
+
+/* 換舞台:靜態演員的舞台出現時,前一個舞台(主舞台)先藏起來,不是壓暗疊在後面;播放器外殼與控制列照常顯示 */
+/* 用 opacity:舞台會在演員的位置上設定 visibility,用 visibility 藏不住 */
+.staticOn .box :global(.live-stage),
+.staticOn .embedBox :global(.live-stage) {
+  opacity: 0;
 }
 
 /* 嵌在小播放器裡:蓋滿播放器的畫面(問題和選項在下方),不留邊也不露出控制列 */
@@ -650,6 +662,73 @@
   width: 100%;
   height: auto;
   min-height: 0;
+}
+
+/* 旁邊一起看的演員(stage.beside):浮在主要演員右邊的側欄卡片,中間留一點間隙 */
+.staticBeside {
+  position: relative;
+  /* 和旁邊的主要演員(例如瀏覽器)一樣寬,1:1 */
+  flex: 1 1 0;
+  /* 樹的字不縮放(固定 --u),太窄會截掉;不夠寬時由左邊的瀏覽器讓位(它會重新排版) */
+  min-width: 320px;
+  align-self: stretch;
+  margin-left: 16px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f6f8fb;
+  box-shadow: 0 18px 60px rgb(0 0 0 / 35%);
+}
+
+/* 有側欄卡片時,主要演員讓出空間(不然寬度 100% 會把卡片擠出畫面) */
+.staticLayer:has(.staticBeside) .staticHost {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* 照卡片大小排版,不縮放:--u 固定,演員的字(以 --px 寫的尺寸)就是一般網頁的大小。要蓋過舞台與演員自己的 --u */
+.staticBeside .besideRoot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.staticBeside .besideRoot,
+.staticBeside .besideRoot :global(.slot) {
+  --u: 11px;
+}
+
+/* 窄的時候間隙小一點(staticLayer 本身是 container,不能在這裡改它的排列方向,直式另外處理) */
+@container (max-width: 640px) {
+  .staticBeside {
+    margin-left: 10px;
+  }
+}
+
+/* 直式舞台:側欄卡片放不到旁邊(手機上會把瀏覽器擠成一條),改成上下排:主要演員在上、樹在下,一樣高 */
+.portrait .staticLayer:has(.staticBeside),
+.embedPortrait .staticLayer:has(.staticBeside) {
+  flex-direction: column;
+}
+.portrait .staticLayer:has(.staticBeside) .staticHost,
+.embedPortrait .staticLayer:has(.staticBeside) .staticHost {
+  flex: 1 1 0;
+  min-height: 0;
+}
+.portrait .staticBeside,
+.embedPortrait .staticBeside {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 10px 0 0;
+}
+/* 直式時樹只有下半的高度,字小一點才放得下整棵樹 */
+.portrait .staticBeside .besideRoot,
+.portrait .staticBeside .besideRoot :global(.slot),
+.embedPortrait .staticBeside .besideRoot,
+.embedPortrait .staticBeside .besideRoot :global(.slot) {
+  --u: 9px;
 }
 
 /* 放在演員輸入框裡的選項 */
@@ -862,10 +941,6 @@
 }
 
 /* ---------- 切換橫/直的按鈕 ---------- */
-.aspectBtn {
-  flex: none;
-}
-
 /* ---------- 直式 + 窄視窗(手機直立):課程進度是底部抽屜 ----------
    舞台鋪滿視窗,只讓出播放條與收合時的把手;抽屜展開時蓋住舞台下半部。 */
 .panelInner {
@@ -991,4 +1066,61 @@
   background: rgb(79 107 237 / 10%);
   outline: 2px solid rgb(79 107 237 / 55%);
   outline-offset: 2px;
+}
+
+/* ---------- 靜態互動的拖曳(stage.drag,例如 DOM 樹的節點):握把、可以放的位置、最靠近的「放這裡」 ---------- */
+.dragGrab {
+  position: absolute;
+  padding: 0;
+  border: 2px dashed rgb(79 107 237 / 0%);
+  border-radius: 14px;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  pointer-events: auto;
+}
+.dragGrab:hover,
+.dragGrab:focus-visible {
+  border-color: rgb(79 107 237 / 70%);
+  background: rgb(79 107 237 / 8%);
+  outline: none;
+}
+.dragGrab:active { cursor: grabbing; }
+.dropDot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  border: 2px dashed rgb(79 107 237 / 55%);
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #4f6bed;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+.dropZone {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 2px dashed #4f6bed;
+  border-radius: 12px;
+  background: rgb(79 107 237 / 10%);
+  color: #2f45b8;
+  font-size: 14px;
+  font-weight: 700;
+  pointer-events: none;
+}
+.dragGhost {
+  position: absolute;
+  padding: 4px 12px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
+  font-size: 14px;
+  pointer-events: none;
+  translate: -50% -50%;
 }

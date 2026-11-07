@@ -564,18 +564,30 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     showUi()
   })
   bar.addEventListener('pointermove', (e) => {
+    // 滑鼠已經放開了卻沒收到放開的事件(例如在視窗外放開):當作拖完
+    if (state.scrubbing && e.pointerType === 'mouse' && e.buttons === 0) return endScrub()
     if (state.scrubbing) seek(posToMs(e.clientX))
     if (state.scrubbing || e.pointerType === 'mouse') showTip(e.clientX)
   })
-  const endScrub = (): void => {
+  // 拖曳靠 pointer capture 收到放開的事件;capture 掉了(瀏覽器收回、在視窗外放開)沒有 pointerup 時也要結束,
+  // 不然一直停在拖曳中:進度條跟著滑鼠走,按播放也沒反應
+  function endScrub(resume = true): void {
     if (!state.scrubbing) return
     state.scrubbing = false
     root.classList.remove('scrubbing', 'tip')
-    if (wasPlaying && state.t < dur()) play()
+    if (resume && wasPlaying && state.t < dur()) play()
     else draw()
   }
-  bar.addEventListener('pointerup', endScrub)
-  bar.addEventListener('pointercancel', endScrub)
+  bar.addEventListener('pointerup', () => endScrub())
+  bar.addEventListener('pointercancel', () => endScrub())
+  bar.addEventListener('lostpointercapture', () => endScrub())
+  // 按下其他地方時還在拖曳中:先結束拖曳,這一下照常生效。按的是播放鈕(或大播放鍵)時不自己恢復播放,
+  // 播放或暫停交給那個按鈕(不然先恢復播放、按鈕再切換,變成按了播放卻停下來)
+  root.addEventListener('pointerdown', (e) => {
+    if (!state.scrubbing || bar.contains(e.target as Node)) return
+    const t = e.target as Element
+    endScrub(!t.closest?.('.vp-play, .vp-big'))
+  }, true)
   bar.addEventListener('pointerleave', () => {
     if (!state.scrubbing) root.classList.remove('tip')
   })

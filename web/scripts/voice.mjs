@@ -7,6 +7,10 @@
 //   npm run voice -- l0/0.0-tools.json --limit 10     只產生前 10 段旁白(試做用)
 //   npm run voice -- --sample "一句旁白" --voices Sulafat,Kore,Charon   試聽:各聲音念同一句,輸出到 recordings/voice-samples/
 //   npm run voice -- --sample "一句旁白" --profile kids   用兒童版的語氣試聽(kids/ 底下的腳本自動用兒童版)
+//   npm run voice -- --batch web/1.1.json web/1.2.json   批次模式:缺的旁白整包送出(Gemini Batch API,約一半價格,24 小時內完成,通常快很多),
+//                                                不用等;送出的批次記在 recordings/voice-batch.json(不進版控)。也可以 --all --batch
+//   npm run voice -- --batch web/1.1.json --dry-run   只列出要送哪些段落與第一筆請求,不呼叫 API、不花錢
+//   npm run voice -- --collect                   查批次跑完沒;跑完就下載音訊、轉 mp3、上傳,寫進各腳本的 .voice.json(之後和一般模式一樣)
 //
 // 腳本在 src/content/live/,每個 steps[] 的 narration 是一段旁白。產生結果:
 //   src/content/live/l0/0.0-tools.voice.json   旁白文字 → { file, ms }(進版控;舞台用 ms 排時間,課程頁播 file)
@@ -106,6 +110,9 @@ function findAudio(json) {
     if (Array.isArray(v)) v.forEach(walk)
     else if (v && typeof v === 'object') {
       if (v.type === 'audio' && typeof v.data === 'string') found = v.data
+      // generateContent(批次模式)的回應:candidates[].content.parts[].inlineData.data
+      const inline = v.inlineData ?? v.inline_data
+      if (inline && typeof inline.data === 'string') found = inline.data
       Object.values(v).forEach(walk)
     }
   }
@@ -175,12 +182,16 @@ async function sample() {
 }
 
 // ---------- 產生一份腳本的旁白 ----------
-async function build(rel, key) {
+/**
+ * 產生一份腳本的旁白。audio(text, cfg, file) 回傳這段的音訊(WAV 或 PCM 的 Buffer);回傳 null 表示這次沒有(略過,維持只有字幕)。
+ * 一般模式即時呼叫 TTS;批次模式送出時只記下要產生哪些(plan),收結果時從批次的結果拿(collect)
+ */
+async function build(rel, audio) {
   const scriptPath = path.join(LIVE, rel)
   if (!fs.existsSync(scriptPath)) die(`找不到腳本:src/content/live/${rel}`)
   const script = JSON.parse(fs.readFileSync(scriptPath, 'utf8'))
   // 兒童版的互動寫在步驟裡面(互動點的 options[].steps、子腳本的 interact.spots / done),也要有語音:整份腳本往下找所有 narration;
-  // 其他腳本只取最外層的步驟(維持原本的範圍,不多產生、不多計費)
+  // 其他腳本取最外層的步驟,加上互動點的選項回應與示範
   // 兒童版播放器停下來等孩子點時也會念題目:有選項的互動點標題(checkpoint)與子腳本的 interact.prompt 也要有語音;
   // 拖曳完成任務時念的話(interact.drag 的 say、else)也是
   const deepNarrations = (v, out = []) => {
@@ -197,7 +208,10 @@ async function build(rel, key) {
   }
   // 腳本頂層的 teacher:開頭的老師介紹(src/live/teacher.ts 展開),共用的招呼語與這一課的一句也要有語音
   const intro = script.teacher ? [script.teacher.greeting ?? TEACHER.greeting, script.teacher.line] : []
-  const all = [...intro, ...(profileOf(rel) === KIDS ? deepNarrations({ steps: script.steps, interact: script.interact }) : (script.steps || []).map((s) => s.narration))]
+  // 互動點(有 id 的 checkpoint)的選項回應與示範(skip,學員沒回答直接播放時也會演)也要有語音;自己打字的回應(free)內容不固定,不產生
+  const topLevel = (steps) =>
+    (steps || []).flatMap((s) => [s.narration, ...(s.id && s.checkpoint ? [...(s.options || []).flatMap((o) => (o.steps || []).map((x) => x.narration)), ...(s.skip?.steps || []).map((x) => x.narration)] : [])])
+  const all = [...intro, ...(profileOf(rel) === KIDS ? deepNarrations({ steps: script.steps, interact: script.interact }) : topLevel(script.steps))]
   let texts = [...new Set(all.filter(Boolean))]
   // --max-sec:只取開頭幾段,累計估算長度(每秒約 4.2 字)到達上限為止;其他段落沿用舊音檔或維持只有字幕
   const maxSec = Number(flag('max-sec'))
@@ -246,7 +260,9 @@ async function build(rel, key) {
     process.stdout.write(process.stdout.isTTY ? `\r${line}\x1b[K${done >= todo ? '\n' : ''}` : `${line}\n`)
   }
   let made = 0
-  if (todo) progress(0)
+  // 批次模式送出時(plan):只記下缺的段落,不畫進度、不寫清單
+  const plan = !!audio.plan
+  if (todo && !plan) progress(0)
   for (const text of texts) {
     const prev = cachedOf(text)
     if (prev) {
@@ -254,13 +270,16 @@ async function build(rel, key) {
       continue
     }
     const file = `${prefix}/${hashOf(text, cfg)}.mp3`
-    const audio = decodePcm(await synthesize(text, cfg, key))
-    upload(toMp3(audio), file)
-    clips[text] = { file, ms: Math.round((audio.pcm.length / audio.rate) * 1000) }
+    const raw = await audio(text, cfg, file)
+    if (!raw) continue
+    const pcm = decodePcm(raw)
+    upload(toMp3(pcm), file)
+    clips[text] = { file, ms: Math.round((pcm.pcm.length / pcm.rate) * 1000) }
     made++
     save()
     progress(made)
   }
+  if (plan) return
   save()
   const total = Object.values(clips).reduce((n, c) => n + c.ms, 0)
   console.log(`${rel}:${texts.length} 段旁白(新產生 ${made}),共 ${(total / 1000).toFixed(0)} 秒`)
@@ -268,13 +287,105 @@ async function build(rel, key) {
 
 async function main() {
   if (flag('sample')) return sample()
+  if (flag('collect')) return collectBatch(apiKey())
   const all = flag('all')
   const targets = all
-    ? fs.readdirSync(LIVE, { recursive: true }).map(String).filter((f) => f.endsWith('.json') && !f.endsWith('.voice.json')).map((f) => f.split(path.sep).join('/'))
+    ? fs.readdirSync(LIVE, { recursive: true }).map(String).filter((f) => f.endsWith('.json') && !f.endsWith('.voice.json') && !f.endsWith('.mix.json')).map((f) => f.split(path.sep).join('/'))
     : args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--') && ['max-sec', 'limit', 'voices', 'sample'].includes(args[i - 1].slice(2))))
   if (!targets.length) die('用法:npm run voice -- l0/0.0-tools.json(或 --all、--sample)')
+  if (flag('batch') && flag('dry-run')) return submitBatch(targets, null)
   const key = apiKey()
-  for (const t of targets) await build(t, key)
+  if (flag('batch')) return submitBatch(targets, key)
+  for (const t of targets) await build(t, (text, cfg) => synthesize(text, cfg, key))
+}
+
+// ---------- 批次模式(Gemini Batch API) ----------
+const BATCH_FILE = path.join(WEB, 'recordings/voice-batch.json')
+const API = 'https://generativelanguage.googleapis.com/v1beta'
+
+async function api(method, url, key, body) {
+  const res = await fetch(url, { method, headers: { 'x-goog-api-key': key, 'Content-Type': 'application/json' }, body: body && JSON.stringify(body) })
+  const raw = await res.text()
+  let json
+  try {
+    json = JSON.parse(raw)
+  } catch {
+    die(`批次 API 回應不是 JSON(${res.status}):${raw.slice(0, 300)}`)
+  }
+  if (!res.ok) die(`批次 API 失敗(${res.status}):${JSON.stringify(json.error ?? json).slice(0, 800)}`)
+  return json
+}
+
+/** 一段旁白的 generateContent 請求(批次只支援 generateContent):語氣放在 part 的 speech_metadata,不放進要念的文字 */
+const ttsRequest = (text, cfg) => ({
+  contents: [{ role: 'user', parts: [{ text, speech_metadata: { style: cfg.style } }] }],
+  generation_config: { response_modalities: ['AUDIO'], speech_config: { voice_config: { prebuilt_voice_config: { voice_name: cfg.voice } } } },
+})
+
+async function submitBatch(targets, key) {
+  if (fs.existsSync(BATCH_FILE)) die(`已經有一批還沒收:${path.relative(WEB, BATCH_FILE)}。先 npm run voice -- --collect,收完再送新的`)
+  // 照一般模式的流程走一遍,只記下缺的段落(同一個音檔只送一次,例如共用的老師招呼語)
+  const items = new Map()
+  for (const t of targets) {
+    const note = (text, cfg, file) => {
+      if (!items.has(file)) items.set(file, { key: file, text, cfg, targets: [] })
+      if (!items.get(file).targets.includes(t)) items.get(file).targets.push(t)
+      return null
+    }
+    note.plan = true
+    await build(t, note)
+  }
+  if (!items.size) return console.log('沒有缺的旁白,不用送出')
+  const models = new Set([...items.values()].map((x) => x.cfg.model))
+  if (models.size > 1) die(`一批只能用同一個模型(這次有 ${[...models].join('、')}),請分開送`)
+  const model = [...models][0]
+  // --dry-run:只列出要送的段落與第一筆請求,不呼叫 API、不花錢
+  if (flag('dry-run')) {
+    for (const x of items.values()) console.log(`  ${x.key}  ${x.targets.join('、')}  ${x.text.slice(0, 30)}`)
+    console.log(`共 ${items.size} 段、${[...items.values()].reduce((n, x) => n + [...x.text].length, 0)} 字,模型 ${model}。第一筆請求:`)
+    return console.log(JSON.stringify({ request: ttsRequest(items.values().next().value.text, items.values().next().value.cfg), metadata: { key: items.values().next().value.key } }, null, 2))
+  }
+  const batch = await api('POST', `${API}/models/${model}:batchGenerateContent`, key, {
+    batch: {
+      display_name: `voice-${new Date().toISOString().slice(0, 16)}`,
+      input_config: { requests: { requests: [...items.values()].map((x) => ({ request: ttsRequest(x.text, x.cfg), metadata: { key: x.key } })) } },
+    },
+  })
+  const name = batch.name ?? batch.metadata?.name
+  if (!name) die(`送出了,但回應裡找不到批次名稱:${JSON.stringify(batch).slice(0, 500)}`)
+  fs.mkdirSync(path.dirname(BATCH_FILE), { recursive: true })
+  fs.writeFileSync(BATCH_FILE, JSON.stringify({ name, model, created: new Date().toISOString(), targets, items: [...items.values()].map(({ key, text, targets: t }) => ({ key, text, targets: t })) }, null, 2) + '\n')
+  console.log(`送出 ${items.size} 段旁白(${targets.length} 份腳本),批次 ${name}。之後跑 npm run voice -- --collect 收結果`)
+}
+
+async function collectBatch(key) {
+  if (!fs.existsSync(BATCH_FILE)) die('沒有送出中的批次(recordings/voice-batch.json)')
+  const saved = JSON.parse(fs.readFileSync(BATCH_FILE, 'utf8'))
+  const job = await api('GET', `${API}/${saved.name}`, key)
+  const state = String(job.metadata?.state ?? job.state ?? '')
+  if (!/SUCCEEDED/.test(state)) {
+    if (/FAILED|CANCELLED|EXPIRED/.test(state)) {
+      fs.rmSync(BATCH_FILE)
+      die(`批次 ${saved.name} 沒有完成(${state}):${JSON.stringify(job.error ?? job.metadata?.error ?? '').slice(0, 500)}。紀錄已清掉,可以重新送出`)
+    }
+    return console.log(`批次 ${saved.name} 還在處理(${state || '狀態不明'}),送出於 ${saved.created}。晚點再跑一次 --collect`)
+  }
+  // 結果的位置在不同版本的回應裡不太一樣:response 或 dest 底下的 inlinedResponses(可能再包一層)
+  const box = job.response ?? job.metadata?.output ?? job.dest ?? {}
+  const list = box.inlinedResponses?.inlinedResponses ?? box.inlinedResponses ?? box.inlined_responses ?? []
+  if (!Array.isArray(list) || !list.length) die(`批次完成了,但找不到結果:${JSON.stringify(job).slice(0, 800)}`)
+  const audio = new Map()
+  const failed = []
+  list.forEach((x, i) => {
+    // 每筆結果帶著送出時的 key;沒有的話照送出的順序對回去
+    const k = x.metadata?.key ?? x.key ?? saved.items[i]?.key
+    const data = x.response ? findAudio(x.response) : null
+    if (data) audio.set(k, Buffer.from(data, 'base64'))
+    else failed.push(`${k}:${JSON.stringify(x.error ?? x).slice(0, 200)}`)
+  })
+  for (const t of [...new Set(saved.items.flatMap((x) => x.targets))]) await build(t, (_text, _cfg, file) => audio.get(file) ?? null)
+  fs.rmSync(BATCH_FILE)
+  console.log(`收到 ${audio.size} 段${failed.length ? `,${failed.length} 段失敗(之後重送一次就會補上):\n  ${failed.join('\n  ')}` : ''}`)
 }
 
 await main()

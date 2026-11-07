@@ -47,6 +47,8 @@
 .live-stage .st-card p { margin: 0; color: var(--st-dim); font-size: 1.25em; }
 .live-stage .st-card .k-code { font-family: ui-monospace, Menlo, monospace; font-size: 0.9em; }
 .live-stage .st-card .k-em { font-style: normal; color: var(--st-accent); }
+.live-stage .st-card .rise .ch { display: inline-block; white-space: pre; will-change: transform, filter; }
+.live-stage .st-card .rise .k-em { padding: 0 0.08em; }
 
 .live-stage .st-cursor {
   position: absolute; left: 0; top: 0; width: calc(var(--u) * 1.6); height: calc(var(--u) * 1.6);

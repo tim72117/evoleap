@@ -30,17 +30,6 @@ test('直式:播到互動點抽屜自動展開,選一個選項後收合並繼續
   await expect(page.locator('.vp')).not.toHaveClass(/paused/)
 })
 
-test('切換橫/直:手機上選橫式才寫進網址,切回直式網址恢復原樣', async ({ page }) => {
-  await page.goto('/courses/tools/0')
-  await expect(page.locator('.vp.vp-portrait')).toBeVisible()
-  await page.getByRole('button', { name: '切換橫式或直式' }).click()
-  await expect(page).toHaveURL(/aspect=landscape/)
-  await expect(page.locator('.vp.vp-portrait')).toHaveCount(0)
-  await page.getByRole('button', { name: '切換橫式或直式' }).click()
-  await expect(page).not.toHaveURL(/aspect=/)
-  await expect(page.locator('.vp.vp-portrait')).toBeVisible()
-})
-
 test('手機直拿不帶參數:自動直式、有抽屜把手;?aspect=landscape 時維持橫式', async ({ page }) => {
   await page.goto('/courses/tools/0')
   await expect(page.locator('.vp.vp-portrait')).toBeVisible()

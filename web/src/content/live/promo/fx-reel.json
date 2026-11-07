@@ -1,0 +1,123 @@
+{
+  "title": "特效樣片（試做）：參考 HyperFrames 的六組效果",
+  "lesson": "宣傳影片",
+  "cast": {
+    "mac": {
+      "actor": "macbook",
+      "props": {
+        "opened": true,
+        "awake": true,
+        "finish": "silver",
+        "wallpaper": "dawn",
+        "dock": 7,
+        "clock": "週三 9:41"
+      },
+      "place": {
+        "x": 539.3,
+        "y": 160,
+        "w": 841.4,
+        "h": 760
+      },
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "card": "特效[[樣片]]",
+      "eyebrow": "evoleap · 參考 HyperFrames",
+      "sub": "六組效果，各演幾秒",
+      "fx": "rise",
+      "chapter": "逐字浮現＋螢光筆",
+      "narration": "第一組，標題逐字浮現，再畫上螢光筆。"
+    },
+    {
+      "flash": true,
+      "chapter": "白閃轉場",
+      "narration": "第二組，白閃轉場。"
+    },
+    {
+      "show": "mac",
+      "ms": 400
+    },
+    {
+      "reveal": true,
+      "pause": 600
+    },
+    {
+      "circle": { "x": 630, "y": 243, "w": 660, "h": 429 },
+      "seed": 4,
+      "chapter": "手繪圈選與箭頭",
+      "narration": "第三組，手繪的圈選和箭頭，像講師在畫面上標註。"
+    },
+    {
+      "arrow": { "from": [330, 830], "to": [590, 600] },
+      "label": "你的工作畫面",
+      "pause": 900
+    },
+    {
+      "whip": "left",
+      "chapter": "甩鏡轉場",
+      "narration": "第四組，甩鏡轉場。"
+    },
+    {
+      "hide": "mac",
+      "ms": 300
+    },
+    {
+      "clear": true
+    },
+    {
+      "reveal": true,
+      "pause": 300
+    },
+    {
+      "stream": "好的！我會先建立 index.html，放上商品介紹、預約取貨流程和營業時間，再用溫暖的手作風格排版。",
+      "prompt": "幫我做一個烘焙小店的一頁式網站",
+      "chapter": "AI 串流回答",
+      "narration": "第五組，AI 的回答一段一段湧出來，不是一個字一個字打。",
+      "pause": 700
+    },
+    {
+      "clear": true
+    },
+    {
+      "diff": "index.html",
+      "lines": [
+        [" ", "<header class=\"site-header\">"],
+        [" ", "  <h1>小森烘焙</h1>"],
+        ["-", "  <p>歡迎光臨</p>"],
+        ["+", "  <p>每天現烤的手作麵包</p>"],
+        ["+", "  <a class=\"btn\" href=\"#order\">預約取貨</a>"],
+        [" ", "</header>"]
+      ],
+      "chapter": "程式碼差異",
+      "narration": "第六組，程式碼差異：刪掉的行收起來，新增的行展開。",
+      "pause": 600
+    },
+    {
+      "clear": true
+    },
+    {
+      "shimmer": "不會寫程式，也能做出自己的網站",
+      "sub": "免費開始第一課",
+      "chapter": "光線掃過",
+      "narration": "加碼一組，光線掃過標題。",
+      "pause": 400
+    },
+    {
+      "clear": true
+    },
+    {
+      "logo": "evoleap",
+      "sub": "不會寫程式，也能做軟體",
+      "chapter": "品牌落定",
+      "narration": "最後是結尾的品牌落定。",
+      "pause": 800
+    }
+  ]
+}

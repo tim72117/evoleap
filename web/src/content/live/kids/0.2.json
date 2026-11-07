@@ -54,7 +54,7 @@
         "target": "kid:page",
         "text": "還沒畫的網頁"
       },
-      "chapter": "看：瀏覽器照著樹畫",
+      "chapter": "瀏覽器照著樹畫",
       "narration": "這是一個還沒畫出來的網頁，空空的。"
     },
     {
@@ -110,7 +110,7 @@
     {
       "checkpoint": "換你拉拉看",
       "sub": "kids/0.2-drag.json",
-      "chapter": "做：換你拉拉看"
+      "chapter": "換你拉拉看"
     },
     {
       "wait": 400,

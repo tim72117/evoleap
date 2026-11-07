@@ -71,8 +71,8 @@ export const WEB_UNITS: WebUnit[] = [
       {
         id: '1.2',
         title: 'DOM 樹：元素包著元素',
-        show: '橫向的樹狀圖（沿用兒童版 0.2 的樹，換成成人版的樣子），瀏覽器照樹由上往下畫出網頁；拖動節點，畫面跟著重畫。',
-        try: '拖動樹上的節點完成任務（把卡片移進清單、把按鈕移出區塊），看畫面怎麼變。',
+        show: '把網頁的元素排成一棵橫向的 DOM 樹，瀏覽器照著樹由上往下畫出網頁；拖動樹上的節點，畫面跟著重畫。',
+        try: '拖動樹上的節點完成任務（把商品卡片移進「本週推薦」、把按鈕移到最外層），看畫面怎麼變。',
         learn: '元素可以包住元素，瀏覽器照著這棵樹由上往下畫。',
         terms: ['巢狀', '父元素與子元素', 'DOM', '樹狀結構'],
       },
@@ -276,14 +276,17 @@ export const WEB_UNITS: WebUnit[] = [
   },
 ]
 
-/** 已經可以上的課:課號 → 公開的課程頁路徑與腳本(src/content/live/ 底下)。序章不用登入,之後的課要登入 */
-export const WEB_OPEN_LESSONS: Record<string, { path: string; script: string }> = {
+/** 已經可以上的課:課號 → 公開的課程頁路徑與腳本(src/content/live/ 底下)。第一課(0.1)不用登入,之後的課要登入 */
+/** 已經開放的課:課程頁的網址與腳本;interaction 是互動點的做法(static:影片停下來,學員直接操作演員) */
+export const WEB_OPEN_LESSONS: Record<string, { path: string; script: string; interaction?: 'static' }> = {
   '0.1': { path: '/topics/web/0-1', script: 'web/0.1.json' },
   '0.2': { path: '/topics/web/0-2', script: 'web/0.2.json' },
+  '1.1': { path: '/topics/web/1-1', script: 'web/1.1.json', interaction: 'static' },
+  '1.2': { path: '/topics/web/1-2', script: 'web/1.2.json', interaction: 'static' },
 }
 
-/** 序章(單元 0)的課可以直接預覽,其他課要登入 */
-export const webNeedsLogin = (id: string): boolean => !id.startsWith('0.')
+/** 只有第一課(0.1)可以直接預覽,其他課要登入 */
+export const webNeedsLogin = (id: string): boolean => id !== '0.1'
 
 const ALL_WEB_LESSONS = WEB_UNITS.flatMap((u) => u.lessons)
 

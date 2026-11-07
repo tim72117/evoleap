@@ -1,0 +1,135 @@
+{
+  "title": "短版宣傳片（試做）：說一句話，AI 幫你做出網站",
+  "lesson": "宣傳影片",
+  "cast": {
+    "mac": {
+      "actor": "macbook",
+      "props": {
+        "opened": false,
+        "finish": "silver",
+        "wallpaper": "dawn",
+        "dock": 7,
+        "clock": "週三 9:41"
+      },
+      "place": {
+        "x": 428.6,
+        "y": 60,
+        "w": 1062.9,
+        "h": 960
+      },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~/Documents/bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": {
+        "x": 553,
+        "y": 185,
+        "w": 813,
+        "h": 515
+      },
+      "parts": {
+        "sidebar": false
+      },
+      "hidden": true
+    },
+    "browser": {
+      "actor": "browser",
+      "props": {
+        "site": "v3",
+        "width": "desktop",
+        "url": "file:///Documents/bakery/index.html"
+      },
+      "place": {
+        "x": 553,
+        "y": 185,
+        "w": 813,
+        "h": 515
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "想做網站，卻卡在[[不會寫程式]]？",
+      "eyebrow": "你是不是也這樣想",
+      "fx": "rise",
+      "chapter": "痛點",
+      "narration": "想做一個網站，卻卡在不會寫程式？"
+    },
+    {
+      "card": "用說的，AI 幫你[[做出來]]",
+      "eyebrow": "evoleap",
+      "fx": "rise",
+      "chapter": "一句話",
+      "narration": "現在，用說的就好。"
+    },
+    {
+      "show": "mac",
+      "chapter": "示範"
+    },
+    {
+      "on": "mac",
+      "open": true,
+      "narration": "打開電腦，叫出 Claude。"
+    },
+    {
+      "on": "mac",
+      "wake": true
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "user": "幫我做一個烘焙小店的一頁式網站",
+      "focus": "mac:screen",
+      "narration": "說出你想做的網站。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "say": "好的，我會建立 `index.html`，介紹商品和營業時間。"
+    },
+    {
+      "tool": "Write",
+      "arg": "index.html",
+      "result": "已建立",
+      "narration": "AI 動手寫好網頁。"
+    },
+    {
+      "show": "browser",
+      "narration": "打開瀏覽器，網站已經做好了。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "scroll": "bottom",
+      "on": "browser",
+      "ms": 1800
+    },
+    {
+      "focus": false,
+      "wait": 700
+    },
+    {
+      "card": "不會寫程式，也能做出[[自己的網站]]",
+      "eyebrow": "evoleap.io",
+      "sub": "免費開始第一課",
+      "fx": "rise",
+      "chapter": "結尾",
+      "narration": "不會寫程式，也能做出自己的網站。免費開始第一課。"
+    }
+  ]
+}

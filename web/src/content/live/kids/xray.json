@@ -51,7 +51,7 @@
         "target": "kid:page",
         "text": "小花的網頁"
       },
-      "chapter": "看：自己的電腦改得動",
+      "chapter": "自己的電腦改得動",
       "narration": "小花的網頁又見面了！上一課我們把網頁翻到背面，看到一塊一塊的積木。"
     },
     {
@@ -92,7 +92,7 @@
     {
       "checkpoint": "換你改改看",
       "sub": "kids/xray-edit.json",
-      "chapter": "做：換你改改看"
+      "chapter": "換你改改看"
     },
     {
       "wait": 400,
