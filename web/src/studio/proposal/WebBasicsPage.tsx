@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Fold } from './Fold'
 import { WEB_COMPONENTS, WEB_DEMOS, WEB_OPEN, WEB_PITCH, WEB_POSITIONING, WEB_PRINCIPLES, WEB_UNITS } from './webBasics'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
@@ -35,15 +36,17 @@ export function WebBasicsPage() {
         ))}
       </section>
 
-      <h2>定位</h2>
-      <section className={ui.card}>
-        <Pairs items={WEB_POSITIONING} />
-      </section>
+      <Fold title="定位">
+        <section className={ui.card}>
+          <Pairs items={WEB_POSITIONING} />
+        </section>
+      </Fold>
 
-      <h2>設計原則</h2>
-      <section className={ui.card}>
-        <Pairs items={WEB_PRINCIPLES} />
-      </section>
+      <Fold title="設計原則">
+        <section className={ui.card}>
+          <Pairs items={WEB_PRINCIPLES} />
+        </section>
+      </Fold>
 
       <h2>課程大綱</h2>
       {WEB_UNITS.map((unit) => (

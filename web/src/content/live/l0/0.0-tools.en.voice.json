@@ -1,0 +1,115 @@
+{
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Sulafat",
+  "style": "Warm, friendly American English. Clear and unhurried, like a teacher sitting next to the learner and guiding them step by step.",
+  "clips": {
+    "Hi everyone, I'm Lena.": {
+      "file": "l0/d6621b409dff.mp3",
+      "ms": 2600
+    },
+    "Today we'll install an AI tool that can work with your files, and learn how to safely allow and deny what it does.": {
+      "file": "l0/001058985922.mp3",
+      "ms": 9520
+    },
+    "In this lesson we'll do four things: see what this kind of AI tool can do with your files, install it and sign in, create a folder just for it to practice in, and finally have it create its first file in that folder — and practice saying no.": {
+      "file": "l0/da5cc863ddd2.mp3",
+      "ms": 19760
+    },
+    "These tools can do three things with your files. First, read files on your computer — like checking what's in a folder, or reading through meeting notes.": {
+      "file": "l0/886de6cc0816.mp3",
+      "ms": 12040
+    },
+    "Second, create and edit files — like saving a summary as a new file, or changing the text on a web page.": {
+      "file": "l0/2758a4d65d34.mp3",
+      "ms": 9400
+    },
+    "Third, run commands on your computer — like opening a web page in your browser, or moving and deleting files.": {
+      "file": "l0/7b0ade9f2a94.mp3",
+      "ms": 9680
+    },
+    "The biggest difference from a chat tool on the web is this: it changes the files on your computer directly. That's why it asks you before it acts, and why we'll set up a folder just for it to practice in.": {
+      "file": "l0/96a7df4327ff.mp3",
+      "ms": 15120
+    },
+    "There are several tools like this — Claude Code, OpenAI Codex CLI, Gemini CLI, and Cursor's Agent mode. Installation and plans differ, so follow the official instructions. This lesson shows one of them; the others work in much the same way.": {
+      "file": "l0/eff6d655f69e.mp3",
+      "ms": 18720
+    },
+    "Next, let's install the tool. Only download it from the official website or an official extension store. If you're not sure, check the official link in the handout.": {
+      "file": "l0/b33a8661a56b.mp3",
+      "ms": 11880
+    },
+    "Once it's installed and you've signed in following the prompts, you'll see this screen.": {
+      "file": "l0/3e35a95b2ef7.mp3",
+      "ms": 6080
+    },
+    "Your account shows in the sidebar, which means you're signed in.": {
+      "file": "l0/35341dbbbeac.mp3",
+      "ms": 4320
+    },
+    "If the tool lets you choose a permission mode, set it to ask before every action — here it's called Ask permissions. While you're starting out, look at every step yourself before you allow it.": {
+      "file": "l0/4b6e79d0e767.mp3",
+      "ms": 14000
+    },
+    "Open your Documents folder. This is where your everyday files live, so we won't let the AI practice here.": {
+      "file": "l0/7137650051b9.mp3",
+      "ms": 7760
+    },
+    "Create a new folder and name it practice. Use English letters, with no spaces.": {
+      "file": "l0/52427ea9a572.mp3",
+      "ms": 6880
+    },
+    "Open it — it's empty. From now on, the AI only works inside this folder.": {
+      "file": "l0/70aa63e34ad0.mp3",
+      "ms": 7000
+    },
+    "Be careful not to open the AI tool on your desktop, your whole user folder, or a shared work folder. And don't put important files in the practice folder.": {
+      "file": "l0/b9814b779e5b.mp3",
+      "ms": 12000
+    },
+    "The folder is ready. Open the tool from practice, and the current working folder shows at the top of the screen.": {
+      "file": "l0/57d5ad947861.mp3",
+      "ms": 8040
+    },
+    "Before we start, take a look at the top. The folder Claude is working in should be practice, the one we just created.": {
+      "file": "l0/ffc05e232bb9.mp3",
+      "ms": 8360
+    },
+    "Okay, let's ask it in one sentence to create hello.txt.": {
+      "file": "l0/1b59aa57d79f.mp3",
+      "ms": 6000
+    },
+    "Notice that it didn't just go ahead — it showed a confirmation prompt first.": {
+      "file": "l0/d76262889802.mp3",
+      "ms": 5680
+    },
+    "Before you click, check three things: which file it will create, in which folder, and what the content or command is. Only allow it if all three look right.": {
+      "file": "l0/e73c1671eae3.mp3",
+      "ms": 13520
+    },
+    "Everything looks fine this time, so we'll choose Allow once.": {
+      "file": "l0/70c74b874476.mp3",
+      "ms": 4840
+    },
+    "Open Finder and take a look — there really is a new hello.txt in practice. That's the biggest difference from a web chat tool: it changes the files on your computer directly.": {
+      "file": "l0/597f9d22fba6.mp3",
+      "ms": 13280
+    },
+    "Now let's practice saying no. We'll ask it to delete the file we just made.": {
+      "file": "l0/08b165971082.mp3",
+      "ms": 6200
+    },
+    "Hmm… wait — I almost clicked Always allow. Deleting files is something you should always check yourself while you're starting out, so this time we'll choose Deny.": {
+      "file": "l0/2cde420d930a.mp3",
+      "ms": 12320
+    },
+    "Back in Finder, hello.txt is still there. When you say no, it doesn't act.": {
+      "file": "l0/08323c66f6cd.mp3",
+      "ms": 7400
+    },
+    "The tool is installed, the practice folder is ready, and you've allowed once and denied once. In the next lesson, we'll look at where the AI works: projects and the working directory.": {
+      "file": "l0/d18cd4fc37b9.mp3",
+      "ms": 14680
+    }
+  }
+}

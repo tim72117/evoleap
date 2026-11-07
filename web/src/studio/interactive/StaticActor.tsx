@@ -2,8 +2,8 @@ import { useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { ACTORS } from '../../live/actors'
 import { placeOf } from '../../live/place'
-import { createStage, type StageScript } from '../../live/stage'
-import { collapsedParts, staticScript, type Answer, type Answers, type Moment } from './scene'
+import { createStage, type Stage, type StageScript } from '../../live/stage'
+import { clickInPage, collapsedParts, staticScript, type Answer, type Answers, type Moment } from './scene'
 import styles from './InteractiveScenePage.module.css'
 
 // 互動時的靜態演員:影片停在互動點,主舞台壓暗留在後面,這裡是另一個舞台,只有這位演員,停在同一個狀態。
@@ -32,6 +32,12 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
   const hostRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const [measured, setMeasured] = useState<Measured | null>(null)
+  // 學員自由點過的東西(stage.toggles):直接點靜態舞台上的網頁元素,網頁的 script.js 決定顯示或隱藏什麼。
+  // 不重建舞台;舞台因為寬度改變重畫(網頁重新載入)時,再依序補點一次(clicksRef)
+  const [clicks, setClicks] = useState<string[]>([])
+  const clicksRef = useRef<string[]>([])
+  const stageRef = useRef<Stage | null>(null)
+  const toggles = moment.stage?.toggles
   const [error, setError] = useState<string | null>(null)
   const actor = (moment.stage?.focus ?? '').split(':')[0]
   const choicesRef = moment.stage?.choices
@@ -47,7 +53,11 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
     host.style.maxWidth = `${place.w}px`
     if (place.h != null) host.style.maxHeight = `${place.h}px`
     const stage = createStage(root)
-    const refs = [choicesRef, ...moment.options.map((o) => o.target)].filter((x): x is string => !!x)
+    stageRef.current = stage
+    const replay = (): void => {
+      for (const sel of clicksRef.current) clickInPage(stage, actor, sel)
+    }
+    const refs = [choicesRef, ...moment.options.map((o) => o.target), ...(toggles ?? []).map((t) => `${actor}:sel:${t.sel}`)].filter((x): x is string => !!x)
     const cast = script.cast[actor]
     let collapsed = ''
     /** 依舞台寬度收合區塊;寬度沒有跨過門檻就不重畫 */
@@ -60,6 +70,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
       // 區塊是畫完才套用,演員的捲動位置是依舊版面算的:先換到別的時間讓區塊生效,再畫一次才會依新版面重算
       stage.renderAt(0)
       stage.renderAt(stage.duration)
+      replay()
     }
     const measure = (): void => {
       const box = host.getBoundingClientRect()
@@ -88,9 +99,10 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
     return () => {
       cancelled = true
       ro?.disconnect()
+      stageRef.current = null
       root.replaceChildren()
     }
-  }, [script, answers, moment, actor, choicesRef])
+  }, [script, answers, moment, actor, choicesRef, toggles])
 
   const rects = measured?.rects ?? {}
   const height = measured?.height ?? 0
@@ -126,6 +138,26 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
         )}
         {interactive && (
           <>
+            {/* 自由點的東西:容器先放、裡面的元素後放,點到裡面的元素時不會被外面的容器擋住 */}
+            {(toggles ?? []).map((t) => {
+              const r = rects[`${actor}:sel:${t.sel}`]
+              const on = clicks.filter((c) => c === t.sel).length % 2 === 1
+              return r ? (
+                <button
+                  key={t.sel}
+                  type="button"
+                  className={styles.toggleHit}
+                  style={{ left: r.x, top: r.y, width: r.w, height: r.h }}
+                  aria-label={t.label}
+                  aria-pressed={on}
+                  onClick={() => {
+                    clicksRef.current = [...clicksRef.current, t.sel]
+                    setClicks(clicksRef.current)
+                    if (stageRef.current) clickInPage(stageRef.current, actor, t.sel)
+                  }}
+                />
+              ) : null
+            })}
             {moment.options.map((o, option) => {
               const r = o.target ? rects[o.target] : undefined
               return r ? <button key={o.label} type="button" className={styles.pushHit} style={{ left: r.x, top: r.y, width: r.w, height: r.h }} aria-label={o.label} onClick={() => onAnswer({ option })} /> : null

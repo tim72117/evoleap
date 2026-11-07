@@ -61,12 +61,12 @@ export const CLAUDE_CODE_SCENARIOS: {
   { title: '任務要跑很久，不想一直盯著', summary: '把對話丟到背景繼續跑，先去忙別的，之後再回來看結果。', tools: ['/background', 'claude agents'] },
 ]
 
-/** 全部課程的清單頁:跨主題列出 catalog.ts 的每一門課 */
+/** 全部課程的清單頁:跨主題列出 catalog.ts 的每一門課,以及網頁怎麼運作、給孩子的網頁程式、Claude Code 工作術 */
 export const COURSE_LIST = {
   name: '全部課程',
   path: '/courses',
   seoTitle: '全部課程：從零基礎到 AI 互動軟體',
-  description: '依主題列出所有 AI 課程：從零基礎做出自己的網站與小工具，到打造會查資料、跑分析的 AI 互動軟體。可以看到每門課目前開放與規劃中的狀態。',
+  description: '依主題列出所有 AI 課程：從零基礎做出自己的網站與小工具、看懂網頁怎麼運作、給孩子的網頁程式課，到打造會查資料、跑分析的 AI 互動軟體，也整理 Claude Code 的常見使用情境。可以看到每門課目前開放與規劃中的狀態。',
 }
 
 /** 課程所在的主題(依課程頁路徑判斷):麵包屑、「課程地圖」連結用 */

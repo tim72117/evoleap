@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Fold } from './Fold'
 import { KIDS_COMPONENTS, KIDS_DEMOS, KIDS_OPEN, KIDS_POSITIONING, KIDS_PRINCIPLES, KIDS_UNITS } from './kidsWeb'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
@@ -29,15 +30,17 @@ export function KidsWebPage() {
         {lessonCount} 課（暫定）。
       </p>
 
-      <h2>定位</h2>
-      <section className={ui.card}>
-        <Pairs items={KIDS_POSITIONING} />
-      </section>
+      <Fold title="定位">
+        <section className={ui.card}>
+          <Pairs items={KIDS_POSITIONING} />
+        </section>
+      </Fold>
 
-      <h2>設計原則</h2>
-      <section className={ui.card}>
-        <Pairs items={KIDS_PRINCIPLES} />
-      </section>
+      <Fold title="設計原則">
+        <section className={ui.card}>
+          <Pairs items={KIDS_PRINCIPLES} />
+        </section>
+      </Fold>
 
       <h2>課程大綱</h2>
       {KIDS_UNITS.map((unit) => (

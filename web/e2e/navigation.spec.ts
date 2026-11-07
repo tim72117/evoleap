@@ -474,6 +474,7 @@ const PAGES = [
   '/studio/todo',
   '/studio/kids-web',
   '/studio/web-basics',
+  '/studio/web-basics/1-1',
   '/studio/portrait',
   '/studio/extensions',
   '/studio/kids-web/0-1',

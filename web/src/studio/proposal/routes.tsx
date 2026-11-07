@@ -60,10 +60,11 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
   { path: '/studio/kids-web', element: <KidsWebPage /> },
   { path: '/studio/web-basics', element: <WebBasicsPage /> },
-  // 網頁運作知識的試做:單元 5 的 5.1 開發者工具(序章已是正式課,在 /topics/web),腳本在 content/live/lab/web/
-  ...(['5.1'] as const).map((id) => ({
+  // 網頁運作知識的試做:單元 1 的 1.1 元素與標籤、單元 5 的 5.1 開發者工具(序章已是正式課,在 /topics/web),腳本在 content/live/lab/web/
+  ...(['1.1', '5.1'] as const).map((id) => ({
     path: `/studio/web-basics/${id.replace('.', '-')}`,
-    element: <InteractiveScenePage key={`web-${id}`} script={`lab/web/${id}.json`} pageTitle={`網頁運作知識 ${id} 試做`} back={{ to: '/studio/web-basics', label: '← 網頁運作知識' }} />,
+    // 1.1 的互動是靜態的:影片停下來,學員直接點網頁上的元素(顯示或隱藏框與標籤)
+    element: <InteractiveScenePage key={`web-${id}`} script={`lab/web/${id}.json`} pageTitle={`網頁運作知識 ${id} 試做`} interaction={id === '1.1' ? 'static' : undefined} back={{ to: '/studio/web-basics', label: '← 網頁運作知識' }} />,
   })),
   { path: '/studio/kids-web/0-1', element: <KidsLesson01Page /> },
   { path: '/studio/kids-web/0-1/live', element: <KidsLesson01LivePage /> },

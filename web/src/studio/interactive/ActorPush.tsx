@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { stageSize } from '../../live/place'
 import type { Stage } from '../../live/stage'
 import type { Aspect } from '../../live/types'
-import type { Answer, Moment } from './scene'
+import { clickInPage, type Answer, type Moment } from './scene'
 import styles from './InteractiveScenePage.module.css'
 
 // 把演員推到主畫面互動:整個舞台推近聚焦的目標、其他地方變暗,學員直接操作演員身上的選項與按鈕。
@@ -44,6 +44,25 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
   const [extra, setExtra] = useState(0)
   const focusRef = moment.stage?.focus ?? ''
   const choicesRef = moment.stage?.choices
+  // 自由點的東西(stage.toggles):直接點舞台上的網頁元素,網頁的 script.js 決定顯示或隱藏什麼;
+  // 離開互動點時把點過奇數次的再點一次,舞台回到原本的樣子(畫面仍是時間的純函式)
+  const toggles = moment.stage?.toggles
+  const toggleRef = (sel: string) => `${focusRef.split(':')[0]}:sel:${sel}`
+  const [clicks, setClicks] = useState<string[]>([])
+  const clicksRef = useRef<string[]>([])
+  useLayoutEffect(
+    () => () => {
+      const odd = new Set<string>()
+      for (const sel of clicksRef.current) {
+        if (odd.has(sel)) odd.delete(sel)
+        else odd.add(sel)
+      }
+      for (const sel of odd) clickInPage(stage, focusRef.split(':')[0], sel)
+      clicksRef.current = []
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [stage],
+  )
 
   useLayoutEffect(() => {
     // 目標和舞台根元素在同一個縮放底下,換算成舞台座標時不受縮放與推近影響
@@ -60,7 +79,7 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
         h: r.height / s,
       }
     }
-    const refs = [focusRef, choicesRef, ...moment.options.map((o) => o.target)].filter((x): x is string => !!x)
+    const refs = [focusRef, choicesRef, ...moment.options.map((o) => o.target), ...(toggles ?? []).map((t) => toggleRef(t.sel))].filter((x): x is string => !!x)
     const found: Record<string, Rect> = {}
     for (const ref of refs) {
       const rect = measure(ref)
@@ -79,7 +98,8 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
       root.style.transform = ''
       root.style.removeProperty('--push-zoom')
     }
-  }, [stage, root, moment, focusRef, choicesRef, STAGE_W, portrait, inDrawer])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, root, moment, focusRef, choicesRef, toggles, STAGE_W, portrait, inDrawer])
 
   // 焦點放在問題上(不是選項):習慣按空白鍵暫停的人才不會誤選答案
   useLayoutEffect(() => {
@@ -151,6 +171,26 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
         </div>
       )}
 
+      {/* 自由點的東西:容器先放、裡面的元素後放,點到裡面的元素時不會被外面的容器擋住 */}
+      {(toggles ?? []).map((t) => {
+        const r = rects[toggleRef(t.sel)]
+        const on = clicks.filter((c) => c === t.sel).length % 2 === 1
+        return r ? (
+          <button
+            key={t.sel}
+            type="button"
+            className={styles.toggleHit}
+            style={box(r)}
+            aria-label={t.label}
+            aria-pressed={on}
+            onClick={() => {
+              clicksRef.current = [...clicksRef.current, t.sel]
+              setClicks(clicksRef.current)
+              clickInPage(stage, focusRef.split(':')[0], t.sel)
+            }}
+          />
+        ) : null
+      })}
       {moment.options.map((o, option) => {
         const r = o.target ? rects[o.target] : undefined
         return r ? <button key={o.label} type="button" className={styles.pushHit} style={box(r)} aria-label={o.label} onClick={() => onAnswer({ option })} /> : null

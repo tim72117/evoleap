@@ -1,0 +1,69 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #f7f1e8;
+  color: #3b2a1e;
+}
+main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 72px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 28px;
+}
+h1 { margin: 0; font-size: 72px; letter-spacing: 0.02em; }
+img { display: block; width: 480px; height: 270px; border-radius: 20px; }
+p { margin: 0; font-size: 32px; line-height: 1.5; }
+#price { font-size: 40px; font-weight: bold; }
+button {
+  padding: 18px 56px;
+  border: 0;
+  background: #2f7d4f;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 30px;
+}
+
+/* 卡片容器:照片、介紹、價錢和按鈕包在一起,整塊加框;照片在左,文字在右 */
+.card {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  align-items: start;
+  gap: 22px 36px;
+  width: 100%;
+  padding: 32px;
+  border: 3px solid #d9c4a5;
+  border-radius: 28px;
+  background: #fff;
+}
+.card img { width: 420px; height: 236px; grid-row: span 3; }
+.card button { justify-self: start; }
+
+/* 透視:每個元素用虛線框起來,顏色和結構圖(dom-tree)一樣:容器藍、文字綠、圖片橘、按鈕紫;
+   左上角標出它的標籤。示範畫面用,課程裡寫的 HTML 沒有這些外框。 */
+main { gap: 34px; }
+.x { --c: #0f9d74; position: relative; padding: 12px 14px; border: 4px dashed var(--c); border-radius: 16px; }
+.x[data-kind='box'] { --c: #4f6bed; }
+.x[data-kind='media'] { --c: #e07b39; }
+.x[data-kind='action'] { --c: #a855f7; }
+.x::before {
+  content: attr(data-tag);
+  position: absolute;
+  top: -19px;
+  left: 14px;
+  z-index: 1;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--c);
+  color: #fff;
+  font: bold 22px/34px monospace;
+}
+body { padding-top: 32px; }
+main.x { margin: 0 auto; padding: 46px 44px 30px; border-radius: 24px; }
+.card.x { padding: 44px 28px 28px; gap: 40px 36px; border-radius: 24px; }
+/* 透視版:卡片的格子排的是外框,照片的外框跨三列、按鈕的外框靠左 */
+.card > .x:first-child { grid-row: span 3; }
+.card > .x:last-child { justify-self: start; }

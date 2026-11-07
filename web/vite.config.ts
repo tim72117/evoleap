@@ -189,6 +189,9 @@ export default defineConfig({
     allowedHosts: ['.ts.net'],
     // src/studio/docs/registry.ts 以 ?raw 讀取 web/ 外層的 Markdown 文件,dev server 需放行上一層目錄。
     fs: { allow: ['..'] },
+    // 產生旁白語音(npm run voice、mix)時每段都會改寫 .voice.json / .mix.json,不忽略的話頁面會一直重新載入;
+    // 改過的語音設定要重開 dev server 才會讀到
+    watch: { ignored: ['**/*.voice.json', '**/*.mix.json'] },
     proxy: {
       '/api': 'http://127.0.0.1:8190',
     },

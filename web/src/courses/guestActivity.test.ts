@@ -53,6 +53,31 @@ describe('startGuestView', () => {
     expect(Math.abs(watched.at(-1)! - (10_000 + FLUSH_MS + 5000))).toBeLessThan(200)
   })
 
+  it('onPlay(首頁展示):只打開不記,第一次播放才記一筆', async () => {
+    const { api, watched } = fakeApi()
+    let playing = false
+    const stop = startGuestView('home:live:a.json', () => playing, api, true)
+    vi.advanceTimersByTime(10_000)
+    expect(api.open).not.toHaveBeenCalled()
+    playing = true
+    vi.advanceTimersByTime(3000)
+    await vi.waitFor(() => expect(api.open).toHaveBeenCalledWith('home:live:a.json'))
+    playing = false
+    vi.advanceTimersByTime(1000)
+    await vi.waitFor(() => expect(watched.length).toBeGreaterThan(0))
+    expect(api.open).toHaveBeenCalledTimes(1)
+    expect(watched.at(-1)!).toBeGreaterThanOrEqual(2000)
+    stop()
+  })
+
+  it('onPlay:一直沒播放就不記', () => {
+    const { api } = fakeApi()
+    const stop = startGuestView('home:live:a.json', () => false, api, true)
+    vi.advanceTimersByTime(60_000)
+    stop()
+    expect(api.open).not.toHaveBeenCalled()
+  })
+
   it('休眠之類的長時間空白不算進播放時間', async () => {
     const { api, watched } = fakeApi()
     const stop = startGuestView('live:a.json', () => true, api)

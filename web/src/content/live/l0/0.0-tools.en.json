@@ -28,14 +28,11 @@
     "login": {
       "actor": "claude-desktop",
       "props": {
-        "title": "新的 session",
         "folder": "~",
         "branch": null,
         "mode": "ask",
         "sessions": [],
-        "labels": {
-          "placeholder": "描述你要做的事…"
-        }
+        "lang": "en"
       },
       "place": "window",
       "hidden": true
@@ -43,14 +40,11 @@
     "claude": {
       "actor": "claude-desktop",
       "props": {
-        "title": "新的 session",
         "folder": "~/Documents/practice",
         "branch": null,
         "mode": "ask",
         "sessions": [],
-        "labels": {
-          "placeholder": "描述你要做的事…"
-        }
+        "lang": "en"
       },
       "place": "window",
       "hidden": true
@@ -182,7 +176,7 @@
     },
     {
       "on": "claude",
-      "user": "建立 hello.txt，寫一句問候",
+      "user": "Create hello.txt with a short greeting",
       "chapter": "建立第一個檔案",
       "narration": "Okay, let's ask it in one sentence to create hello.txt."
     },
@@ -193,14 +187,14 @@
     },
     {
       "on": "claude",
-      "say": "好的，我會在目前的資料夾建立 hello.txt。"
+      "say": "Sure — I'll create hello.txt in the current folder."
     },
     {
       "on": "claude",
       "ask": "hello.txt",
-      "q": "Claude 想要建立這個檔案",
+      "q": "Claude wants to create this file",
       "where": "~/Documents/practice",
-      "preview": "哈囉！這是我在 practice 資料夾裡建立的第一個檔案。",
+      "preview": "Hello! This is the first file I created in the practice folder.",
       "chapter": "看懂確認提示",
       "narration": "Notice that it didn't just go ahead — it showed a confirmation prompt first."
     },
@@ -218,11 +212,11 @@
       "on": "claude",
       "tool": "Write",
       "arg": "hello.txt",
-      "result": "已建立"
+      "result": "Created"
     },
     {
       "on": "claude",
-      "say": "已建立 `hello.txt`，裡面是一句問候。"
+      "say": "Created `hello.txt` with a short greeting."
     },
     {
       "show": "finder",
@@ -239,7 +233,7 @@
     },
     {
       "on": "claude",
-      "user": "刪除 hello.txt",
+      "user": "Delete hello.txt",
       "chapter": "練習拒絕",
       "narration": "Now let's practice saying no. We'll ask it to delete the file we just made.",
       "lessonStep": 5
@@ -252,9 +246,9 @@
     {
       "on": "claude",
       "ask": "rm hello.txt",
-      "q": "Claude 想要執行這個指令",
+      "q": "Claude wants to run this command",
       "where": "~/Documents/practice",
-      "note": "這會刪除 hello.txt"
+      "note": "This will delete hello.txt"
     },
     {
       "on": "claude",
@@ -267,7 +261,7 @@
     },
     {
       "on": "claude",
-      "say": "好的，我不會刪除 `hello.txt`。之後需要的話再告訴我。"
+      "say": "Okay, I won't delete `hello.txt`. Just let me know if you need it later."
     },
     {
       "show": "finder",

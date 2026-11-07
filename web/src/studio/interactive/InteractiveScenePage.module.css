@@ -974,3 +974,21 @@
     transition: none;
   }
 }
+
+/* 靜態互動的自由點擊(stage.toggles):不畫外框,網頁自己會顯示或隱藏;滑過、鍵盤移到時淡淡標出可以點的範圍 */
+.toggleHit {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.toggleHit:hover,
+.toggleHit:focus-visible {
+  background: rgb(79 107 237 / 10%);
+  outline: 2px solid rgb(79 107 237 / 55%);
+  outline-offset: 2px;
+}

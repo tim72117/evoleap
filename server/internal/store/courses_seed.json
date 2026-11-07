@@ -1,0 +1,188 @@
+[
+  {"id": "tools", "title": "AI 工具介紹：讓 AI 在你的電腦上做出第一個網站", "access": "free"},
+  {"id": "ai-tools", "title": "AI 工具入門：用 AI 把點子整理成可以開工的需求", "access": "login-free"},
+  {"id": "vibe-coding-basics", "title": "Vibe Coding 入門：用 AI 做出你的第一個小工具", "access": "subscription", "tier": "basic"},
+  {"id": "ai-agent", "title": "打造你的第一個 AI Agent 整合應用", "access": "subscription", "tier": "advanced"},
+  {"id": "advanced", "title": "進階 AI Agent 應用", "access": "subscription", "tier": "advanced"},
+  {
+    "id": "kids",
+    "title": "給孩子的網頁程式",
+    "access": "login-free",
+    "units": [
+      {
+        "id": "0",
+        "title": "序章：網頁是怎麼出現的",
+        "metaphor": "網頁是一封寫給瀏覽器的信，信裡是一塊一塊的積木，瀏覽器照著積木把畫面畫出來。",
+        "lessons": [
+          {
+            "id": "0.1",
+            "title": "翻到網頁的背面",
+            "summary": "網頁是一塊一塊積木組成的，每一塊都有名字。",
+            "access": "free",
+            "status": "open"
+          },
+          {
+            "id": "0.2",
+            "title": "網頁是一棵樹",
+            "summary": "瀏覽器照著樹由上往下、一層一層畫；樹改了，畫面就跟著改。",
+            "status": "open"
+          },
+          {
+            "id": "0.3",
+            "title": "網頁是一封信",
+            "summary": "網頁是從別的電腦送來的；我在自己電腦上改的，只有我看得到。",
+            "status": "open"
+          }
+        ]
+      },
+      {
+        "id": "1",
+        "title": "單元 1　HTML：用積木蓋網頁",
+        "metaphor": "HTML 是網頁的積木：每一種積木負責一種內容，叫對名字，才知道要用哪一塊。",
+        "lessons": [
+          {
+            "id": "1.1",
+            "title": "標題和段落",
+            "summary": "標題告訴大家在講什麼，段落把話說完。",
+            "status": "planned"
+          },
+          {
+            "id": "1.2",
+            "title": "一項一項的清單",
+            "summary": "一項一項的東西，用清單排好。",
+            "status": "planned"
+          },
+          {
+            "id": "1.3",
+            "title": "圖片要有說明",
+            "summary": "圖片要有說明，看不到圖片的人也知道是什麼。",
+            "status": "planned"
+          },
+          {
+            "id": "1.4",
+            "title": "連結把網頁連起來",
+            "summary": "連結把網頁一頁一頁連在一起。",
+            "status": "planned"
+          },
+          {
+            "id": "1.5",
+            "title": "作品：我的寵物名片",
+            "summary": "我能說出網頁上每個部分的名字。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "title": "單元 2　CSS：幫網頁換衣服",
+        "metaphor": "CSS 是網頁的衣服：內容不變，換一套衣服，看起來就不一樣；要說清楚「哪一塊」換成「什麼樣子」。",
+        "lessons": [
+          {
+            "id": "2.1",
+            "title": "文字顏色和背景顏色",
+            "summary": "文字顏色和背景顏色是兩件事，要分開說。",
+            "status": "planned"
+          },
+          {
+            "id": "2.2",
+            "title": "字的大小和粗細",
+            "summary": "字的大小和粗細，讓重要的東西更顯眼。",
+            "status": "planned"
+          },
+          {
+            "id": "2.3",
+            "title": "盒子：邊框和留白",
+            "summary": "留白讓網頁不擠；說清楚是裡面還是外面留白。",
+            "status": "planned"
+          },
+          {
+            "id": "2.4",
+            "title": "排排站：置中和並排",
+            "summary": "同樣的東西，可以上下排、並排或置中。",
+            "status": "planned"
+          },
+          {
+            "id": "2.5",
+            "title": "作品：幫寵物名片換裝",
+            "summary": "我能說清楚「哪一塊」要換成「什麼樣子」。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "title": "單元 3　JavaScript：讓網頁動起來",
+        "metaphor": "JavaScript 是網頁的魔法：說好「什麼時候」要「做什麼」，網頁就會照著做。",
+        "lessons": [
+          {
+            "id": "3.1",
+            "title": "按下去會發生事",
+            "summary": "說好「點了什麼」就「做什麼」。",
+            "status": "planned"
+          },
+          {
+            "id": "3.2",
+            "title": "出現和藏起來",
+            "summary": "網頁上的東西可以出現，也可以藏起來。",
+            "status": "planned"
+          },
+          {
+            "id": "3.3",
+            "title": "會記數字的盒子",
+            "summary": "網頁可以用貼著名字的盒子記住數字。",
+            "status": "planned"
+          },
+          {
+            "id": "3.4",
+            "title": "如果……就……",
+            "summary": "說清楚「如果什麼時候」，網頁才知道要不要做。",
+            "status": "planned"
+          },
+          {
+            "id": "3.5",
+            "title": "擲骰子",
+            "summary": "網頁也可以每次都不一樣。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "title": "單元 4　請 AI 幫忙做：我的小網站",
+        "metaphor": "AI 小幫手很會做網頁，但只照你說的做：名字叫對、目標說清楚，它才做得出你想要的。",
+        "lessons": [
+          {
+            "id": "4.1",
+            "title": "叫對名字，AI 才聽得懂",
+            "summary": "叫對名字，別人和 AI 才知道我說的是哪一個。",
+            "status": "planned"
+          },
+          {
+            "id": "4.2",
+            "title": "說清楚：要什麼、在哪裡、長什麼樣",
+            "summary": "說得越清楚，AI 越能做出我想要的。",
+            "status": "planned"
+          },
+          {
+            "id": "4.3",
+            "title": "檢查和修正",
+            "summary": "做出來要檢查，不一樣就把描述改清楚。",
+            "status": "planned"
+          },
+          {
+            "id": "4.4",
+            "title": "先畫草圖，拆成幾句話",
+            "summary": "大目標先拆成幾句小描述。",
+            "status": "planned"
+          },
+          {
+            "id": "4.5",
+            "title": "作品：我的小網站",
+            "summary": "我可以把想法說清楚，請 AI 做成網站。",
+            "status": "planned"
+          }
+        ]
+      }
+    ]
+  }
+]

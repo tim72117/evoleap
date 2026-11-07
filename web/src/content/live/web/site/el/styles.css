@@ -1,0 +1,28 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #f7f1e8;
+  color: #3b2a1e;
+}
+main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 72px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 28px;
+}
+h1 { margin: 0; font-size: 72px; letter-spacing: 0.02em; }
+img { display: block; width: 480px; height: 270px; border-radius: 20px; }
+p { margin: 0; font-size: 32px; line-height: 1.5; }
+#price { font-size: 40px; font-weight: bold; }
+button {
+  padding: 18px 56px;
+  border: 0;
+  background: #2f7d4f;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 30px;
+}

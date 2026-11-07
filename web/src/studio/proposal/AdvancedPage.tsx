@@ -1,4 +1,5 @@
 import { ALL_LEVELS } from '../../content/levels'
+import { Fold } from './Fold'
 import { List } from './BasicsOutline'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
@@ -26,21 +27,22 @@ export function AdvancedPage() {
       <h1>L4 · 進階 AI Agent 應用</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>未開始 · 預留頁</span>
 
-      <h2>定位</h2>
-      <section className={ui.card}>
-        <table>
-          <tbody>
-            {POSITIONING.map(([k, v]) => (
-              <tr key={k}>
-                <td className={ui.nowrap} style={{ width: '9em' }}>
-                  <strong>{k}</strong>
-                </td>
-                <td>{v}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <Fold title="定位">
+        <section className={ui.card}>
+          <table>
+            <tbody>
+              {POSITIONING.map(([k, v]) => (
+                <tr key={k}>
+                  <td className={ui.nowrap} style={{ width: '9em' }}>
+                    <strong>{k}</strong>
+                  </td>
+                  <td>{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </Fold>
 
       <h2>暫定主題</h2>
       <p className={ui.lead}>取自課程地圖，尚未拆成單元。</p>

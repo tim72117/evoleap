@@ -39,7 +39,7 @@ func Open(dsn string) (*Store, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)
 	}
-	if err := db.AutoMigrate(&userRow{}, &progressRow{}, &guestViewRow{}); err != nil {
+	if err := db.AutoMigrate(&userRow{}, &progressRow{}, &guestViewRow{}, &courseRow{}, &unitRow{}, &lessonRow{}); err != nil {
 		return nil, fmt.Errorf("migrate: %w", err)
 	}
 	if isPostgres(dsn) {
@@ -52,7 +52,12 @@ func Open(dsn string) (*Store, error) {
 		sqlDB.SetMaxIdleConns(maxOpenConns)
 		sqlDB.SetConnMaxIdleTime(5 * time.Minute)
 	}
-	return &Store{db: db}, nil
+	s := &Store{db: db}
+	// 課程的存取方式以 courses_seed.json 為準,每次啟動同步進 courses 表
+	if err := s.SeedCourses(context.Background()); err != nil {
+		return nil, fmt.Errorf("seed courses: %w", err)
+	}
+	return s, nil
 }
 
 func isPostgres(dsn string) bool {

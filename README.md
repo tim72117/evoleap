@@ -62,6 +62,12 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 - 管理員判定沿用 tripace：沒有獨立的管理員帳號，管理員就是「一般會員 + Email 在白名單內」。白名單是環境變數 `ADMIN_BOOTSTRAP_EMAIL`（可用逗號分隔多個，忽略大小寫），而且必須用 Google 登入（Email 經 Google 驗證）才算管理員，純密碼註冊的帳號不算（密碼註冊不驗證 Email 所有權，否則任何人都能搶註冊成管理員）；任何帳號第一次用 Google 登入綁定時，都會清掉原本的密碼，並讓綁定前發出的登入 cookie 失效，所以先用別人的 Email 註冊的人無法繼續登入（已經綁了另一個 Google 帳號的 Email 不會被別的 Google 帳號覆蓋，回 409）；未設定時沒有任何人是管理員（fail-closed）。每次請求都重新比對，移出白名單立即生效。
 - 未登入回 401、已登入但不在白名單回 403；本機用 `-open-studio` 啟動時不檢查（和研發基地一起開放，Cloud Run 上拒絕啟動）。程式在 `server/internal/api/admin.go`、`server/internal/store/admin.go`、`web/src/admin/`。
 
+## 課程資料庫
+
+- 一門課 `courses`（存取方式 `access`：`free`／`login-free`／`subscription`，訂閱課程的最低方案 `tier`）→ 單元 `course_units` → 一堂課 `lessons`（`status`：`open`／`planned`；`access` 空的就照這門課，只有例外才填，例如第一課免費預覽）。
+- 資料以 `server/internal/store/courses_seed.json` 為準，伺服器每次啟動同步進資料表（有寫 `units` 的課程，單元與課整份換成種子的內容）。程式在 `server/internal/store/courses.go`、`lessons.go`。
+- 公開 API `GET /api/courses/{id}/map` 回傳課程地圖。目前兒童課的課程地圖（`/topics/kids#map`）由它讀取（讀到之前與讀不到時先用前端內建的同一份資料；不用登入，登入功能沒開也能讀，只有沒接資料庫時回 503）；課程頁、SEO 與研發基地仍用前端的 `web/src/content/kidsCourse.ts`，`web/src/content/courseMap.test.ts` 檢查兩邊一致。
+
 ## 研發基地的權限
 
 - `/studio`、`/materials`、`/docs` 與打包內容 `/assets/internal/*` 只有管理員能取得（判定條件同上），由 Go server 檢查（`server/cmd/server/static.go`）。未登入開頁面導向 `/login?next=…`；其他沒有權限的請求回 404。

@@ -4,7 +4,8 @@
 //
 // props(登場設定,寫在腳本 cast 裡):
 //   title、folder、branch(null 不顯示)、model、mode(auto|ask|plan|accept)、
-//   sessions(側欄其他項目)、labels(介面文字)、cps({ user, say } 打字/回覆速度)、dark、noframe
+//   sessions(側欄其他項目)、lang(介面語言,預設 zh-TW;文字檔在 lang/<語言>.json,加一個檔案就多一種語言)、
+//   labels(個別覆寫介面文字)、cps({ user, say } 打字/回覆速度)、dark、noframe
 //   側欄左下角的帳號固定是 evoleap(標誌與名稱),不用設定。
 //
 // 動作(腳本 steps 裡,鍵名就是動作種類):
@@ -35,6 +36,35 @@ import { kit } from '../../kit'
 import { defineActor, type ActorEvent, type CommonStepFields, type CursorPlan, type Hotspot } from '../../types'
 import './actor.css'
 import LOGO_SVG from '../../../../public/favicon.svg?raw'
+
+// ---------- 介面文字(lang/<語言>.json) ----------
+
+/** 一種語言的介面文字;{name}、{title}、{option} 會換成實際的內容 */
+export interface ClaudeUi {
+  title: string
+  labels: Labels
+  tools: Record<string, string>
+  done: string
+  todos: string
+  askQuestion: string
+  /** 確認提示的預設選項;第 0 個是拒絕 */
+  askOptions: string[]
+  resolved: string
+  forked: string
+  switchTo: string
+  menuOf: string
+  input: string
+}
+const LANGS: Record<string, ClaudeUi> = Object.fromEntries(
+  Object.entries(import.meta.glob('./lang/*.json', { eager: true, import: 'default' }) as Record<string, ClaudeUi>).map(([f, ui]) => [f.replace(/^.*\/|\.json$/g, ''), ui]),
+)
+export const CLAUDE_LANGS = Object.keys(LANGS)
+function uiOf(lang: string | undefined): ClaudeUi {
+  const ui = LANGS[lang ?? 'zh-TW']
+  if (!ui) throw new Error(`claude-desktop 沒有「${lang}」的介面文字(有:${CLAUDE_LANGS.join('、')};要加就新增 lang/${lang}.json)`)
+  return ui
+}
+const fill = (t: string, v: Record<string, string>): string => t.replace(/\{(\w+)\}/g, (m, k: string) => v[k] ?? m)
 
 // 側欄左下角的帳號頭像:evoleap 的標誌(favicon 的同一份 SVG;拿掉跟著系統深色模式換色的樣式,固定用墨綠黑)
 const LOGO = LOGO_SVG.replace(/<style>.*?<\/style>/s, '').replace('<svg ', '<svg aria-hidden="true" style="color:#10231f" ')
@@ -86,6 +116,8 @@ export interface ClaudeProps {
   model?: string
   mode?: Mode
   sessions?: string[]
+  /** 介面語言(lang/ 底下的檔名),預設 zh-TW */
+  lang?: string
   labels?: Partial<Labels>
   cps?: Partial<Cps>
   dark?: boolean
@@ -98,6 +130,7 @@ interface Conf {
   model: string
   mode: Mode
   sessions: string[]
+  ui: ClaudeUi
   labels: Labels
   cps: Cps
   dark: boolean
@@ -122,39 +155,32 @@ const cut = (s: string, n: number): string => {
 }
 const len = (x: unknown): number => [...String(x || '')].length
 
-const DEFAULTS: Conf = {
-  title: '新的 session',
+const DEFAULTS: Omit<Conf, 'ui' | 'labels' | 'title'> = {
   folder: '~/projects/demo',
   branch: 'main',
   model: 'Opus 5.5',
   mode: 'auto',
   sessions: [],
-  labels: { new: '新增 session', recent: '最近', placeholder: '描述你要做的事…', thinking: '思考中' },
   cps: { user: 14, say: 45 },
   dark: false,
   noframe: false,
 }
 const MODES: Record<Mode, string> = { auto: 'Auto', ask: 'Ask permissions', plan: 'Plan mode', accept: 'Accept edits' }
 const ICONS: Record<string, string> = { Read: '▤', Write: '✎', Edit: '✎', Bash: '›_', Grep: '⌕', Glob: '⌕', WebFetch: '◎', WebSearch: '◎' }
-const TOOL_VERB: Record<string, string> = {
-  Read: '讀取',
-  Write: '寫入',
-  Edit: '修改',
-  Bash: '執行',
-  Grep: '搜尋',
-  Glob: '找檔案',
-  WebFetch: '讀取網頁',
-  WebSearch: '搜尋網路',
+const askOptions = (s: StepOf<'ask'>, ui: ClaudeUi): string[] => s.options || ui.askOptions
+const conf = (props: ClaudeProps): Conf => {
+  const ui = uiOf(props.lang)
+  return {
+    ...DEFAULTS,
+    title: ui.title,
+    ...props,
+    ui,
+    branch: props.branch === undefined ? DEFAULTS.branch : props.branch,
+    sessions: props.sessions ?? DEFAULTS.sessions,
+    labels: { ...ui.labels, ...(props.labels || {}) },
+    cps: { ...DEFAULTS.cps, ...(props.cps || {}) },
+  }
 }
-const askOptions = (s: StepOf<'ask'>): string[] => s.options || ['拒絕', '允許一次', '一律允許']
-const conf = (props: ClaudeProps): Conf => ({
-  ...DEFAULTS,
-  ...props,
-  branch: props.branch === undefined ? DEFAULTS.branch : props.branch,
-  sessions: props.sessions ?? DEFAULTS.sessions,
-  labels: { ...DEFAULTS.labels, ...(props.labels || {}) },
-  cps: { ...DEFAULTS.cps, ...(props.cps || {}) },
-})
 
 // 選擇確認提示的時間表:先依序停在 hover 的選項(每個停 700ms),最後移到要選的選項按下
 interface ChoosePlan {
@@ -198,6 +224,8 @@ interface Check {
   active: string
   /** 等待選擇的確認提示有哪些選項 */
   asking: string[] | null
+  /** 介面文字(互動熱點的標籤用) */
+  ui: ClaudeUi
 }
 
 /** 一個確認提示在這一格的樣子 */
@@ -251,7 +279,7 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
 
   init(props) {
     const c = conf(props)
-    return { names: [c.title, ...c.sessions], menu: null, active: c.title, asking: null }
+    return { names: [c.title, ...c.sessions], menu: null, active: c.title, asking: null, ui: c.ui }
   },
 
   apply(st, kind, step) {
@@ -287,7 +315,7 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
         return { ...st, names: [...st.names, name], menu: null, active: name }
       }
       case 'ask':
-        return (step as StepOf<'ask'>).select == null ? { ...st, asking: askOptions(step as StepOf<'ask'>) } : st
+        return (step as StepOf<'ask'>).select == null ? { ...st, asking: askOptions(step as StepOf<'ask'>, st.ui) } : st
       case 'choose':
         return { ...st, asking: null }
       default:
@@ -304,12 +332,12 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
     // 選單開著時只有 Fork 接得上下一步
     if (st.menu) return [{ target: 'menuitem:Fork', label: 'Fork', step: { fork: unique(`${st.menu} (fork)`) } }]
     const spots: Hotspot<ClaudeStep>[] = [
-      { target: 'new', label: '新增 session', step: { newSession: unique('新的 session') } },
-      ...st.names.filter((n) => n !== st.active).map((n) => ({ target: `session:${n}`, label: `切換到「${n}」`, step: { session: n } })),
-      ...st.names.map((n) => ({ target: `more:${n}`, label: `「${n}」的選單`, step: { menu: n }, glyph: '⋯' })),
+      { target: 'new', label: st.ui.labels.new, step: { newSession: unique(st.ui.title) } },
+      ...st.names.filter((n) => n !== st.active).map((n) => ({ target: `session:${n}`, label: fill(st.ui.switchTo, { name: n }), step: { session: n } })),
+      ...st.names.map((n) => ({ target: `more:${n}`, label: fill(st.ui.menuOf, { name: n }), step: { menu: n }, glyph: '⋯' })),
     ]
     if (st.asking) return [...spots, ...st.asking.map((o, i) => ({ target: `option:${i}`, label: o, step: { choose: i } }))]
-    return [...spots, { target: 'composer', label: '輸入訊息', input: { placeholder: '描述你要做的事…', step: (text: string) => ({ user: text }) } }]
+    return [...spots, { target: 'composer', label: st.ui.input, input: { placeholder: st.ui.labels.placeholder, step: (text: string) => ({ user: text }) } }]
   },
 
   duration(kind, step, props) {
@@ -414,10 +442,10 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
     function toolHtml(s: StepOf<'tool'>, p: number, ms: number): string {
       const done = p >= 1
       const state = done
-        ? `<span class="state ok">${esc(s.result || '完成')}</span>`
+        ? `<span class="state ok">${esc(s.result || c.ui.done)}</span>`
         : `<span class="state"><span class="spin" style="--r:${kit.spin(ms, 100).toFixed(1)}deg"></span></span>`
       const out = done && s.out ? `<div class="out">${esc(s.out)}</div>` : ''
-      return `<div class="tool"><div class="row"><span class="icon">${esc(ICONS[s.tool] || '•')}</span><span class="verb">${esc(TOOL_VERB[s.tool] || s.tool)}</span><span class="arg">${esc(s.arg || '')}</span>${state}</div>${out}</div>`
+      return `<div class="tool"><div class="row"><span class="icon">${esc(ICONS[s.tool] || '•')}</span><span class="verb">${esc(c.ui.tools[s.tool] || s.tool)}</span><span class="arg">${esc(s.arg || '')}</span>${state}</div>${out}</div>`
     }
     function editHtml(s: StepOf<'edit'>, p: number): string {
       const shown = Math.ceil(kit.clamp(p * 1.15) * s.lines.length)
@@ -433,13 +461,14 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
       return `<div class="card edit"><div class="card-head"><span class="icon">✎</span><span class="file">${esc(s.edit)}</span>${plus ? `<span class="plus-n">+${plus}</span>` : ''}${minus ? `<span class="minus-n">−${minus}</span>` : ''}</div><div class="diff">${rows}</div></div>`
     }
     const todosHtml = (items: StepOf<'todos'>['todos']): string =>
-      `<div class="card todos-card"><div class="card-head"><span>待辦清單</span></div><div class="todos">${items.map(([text, st]) => `<div class="todo ${st}"><span class="box">${st === 'done' ? '✓' : ''}</span><span class="txt">${esc(text)}</span></div>`).join('')}</div></div>`
+      `<div class="card todos-card"><div class="card-head"><span>${esc(c.ui.todos)}</span></div><div class="todos">${items.map(([text, st]) => `<div class="todo ${st}"><span class="box">${st === 'done' ? '✓' : ''}</span><span class="txt">${esc(text)}</span></div>`).join('')}</div></div>`
     function askHtml(s: StepOf<'ask'>, st: AskState): string {
-      const options = askOptions(s)
+      const options = askOptions(s, c.ui)
       if (st.resolved) {
         const chosen = st.chosen ?? 0
-        const deny = chosen === 0 || /拒絕/.test(options[chosen])
-        return `<div class="resolved${deny ? ' deny' : ''}">${deny ? '✕' : '✓'} 已${esc(options[chosen])}：<span class="code">${esc(s.ask)}</span></div>`
+        // 選第 0 個,或選項文字含有這個語言的「拒絕」(例如自訂的「拒絕，先不要」)就是拒絕
+        const deny = chosen === 0 || options[chosen].includes(c.ui.askOptions[0])
+        return `<div class="resolved${deny ? ' deny' : ''}">${deny ? '✕' : '✓'} ${esc(fill(c.ui.resolved, { option: options[chosen] }))}<span class="code">${esc(s.ask)}</span></div>`
       }
       const opts = options
         .map((o, i) => {
@@ -447,7 +476,7 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
           return `<span class="opt${cls}" data-opt="${i}">${esc(o)}</span>`
         })
         .join('')
-      return `<div class="card ask pending"><div class="q">${esc(s.q || '允許 Claude 執行這個指令?')}</div>${s.where ? `<div class="where">▣ ${esc(s.where)}</div>` : ''}<div class="cmd">${esc(s.ask)}</div>${s.preview ? `<div class="preview">${esc(s.preview)}</div>` : ''}${s.note ? `<div class="note">${esc(s.note)}</div>` : ''}<div class="opts">${opts}</div></div>`
+      return `<div class="card ask pending"><div class="q">${esc(s.q || c.ui.askQuestion)}</div>${s.where ? `<div class="where">▣ ${esc(s.where)}</div>` : ''}<div class="cmd">${esc(s.ask)}</div>${s.preview ? `<div class="preview">${esc(s.preview)}</div>` : ''}${s.note ? `<div class="note">${esc(s.note)}</div>` : ''}<div class="opts">${opts}</div></div>`
     }
 
     function menuHtml(hoverItem: string): string {
@@ -590,7 +619,7 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
               const from = logOf(menuOf)
               const child: SessionLog = {
                 ...emptyLog(s.fork, s.branch === undefined ? from.branch : s.branch, from.mode, from.title),
-                blocks: [...from.blocks, `<div class="forked">⑂ 從「${esc(from.title)}」分支</div>`],
+                blocks: [...from.blocks, `<div class="forked">⑂ ${esc(fill(c.ui.forked, { title: from.title }))}</div>`],
                 asks: from.asks.map((a) => ({ ...a })),
                 todos: from.todos,
                 todosAt: from.todosAt,

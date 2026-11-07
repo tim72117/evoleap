@@ -1,6 +1,6 @@
 // 構想：給大人的「網頁運作知識」獨立課程。頁面在 WebBasicsPage.tsx。
 // 2026-11-06 提出；已改為正式主題「網頁怎麼運作」(/topics/web),單元與課程搬到 content/webCourse.ts,序章兩課已開放。
-// 這裡留研發用的定位、設計原則、元件與待決定;5.1 開發者工具仍是研發基地的試做。
+// 這裡留研發用的定位、設計原則、元件與待決定;1.1 元素與標籤、5.1 開發者工具是研發基地的試做。
 // 和兒童網頁課（kidsWeb.ts）同一個想法：不教語法（語法交給 AI），教運作概念、正確的名詞，
 // 讓學員看得懂網頁、說得準要什麼。兒童版用積木和比喻，成人版用真正的名詞與真實網站的例子。
 
@@ -9,7 +9,7 @@ import { WEB_PITCH, WEB_UNITS, type WebLesson, type WebUnit } from '../../conten
 export { WEB_PITCH, WEB_UNITS, type WebLesson, type WebUnit }
 
 /** 已有試做頁的課:課號 → 研發基地的試做頁(序章已是正式課,連到公開的課程頁) */
-export const WEB_DEMOS: Record<string, string> = { '0.1': '/topics/web/0-1', '0.2': '/topics/web/0-2', '5.1': '/studio/web-basics/5-1' }
+export const WEB_DEMOS: Record<string, string> = { '0.1': '/topics/web/0-1', '0.2': '/topics/web/0-2', '1.1': '/studio/web-basics/1-1', '5.1': '/studio/web-basics/5-1' }
 
 export const WEB_POSITIONING: [string, string][] = [
   ['課名（暫定）', '網頁怎麼運作：看懂網站背後的基礎知識'],
@@ -18,7 +18,7 @@ export const WEB_POSITIONING: [string, string][] = [
   ['不教什麼', '不教語法、不要求寫程式；語法生成交給 AI，遇到程式碼只看「這一段在做什麼」。'],
   ['定位', '獨立主題「網頁怎麼運作」（/topics/web），不是 L0–L2 的一部分；可以單獨上，也可以當作 L2 Vibe Coding 之前的觀念補充。登入後免費：序章不用登入就能預覽，其他課登入後學習。'],
   ['規模（暫定）', '序章與 5 個單元，共 25 課；每課 5–8 分鐘，一課講一個觀念。'],
-  ['研發階段', '序章兩課已開放（還沒產生語音，只有字幕）；5.1 開發者工具有試做頁（研發基地）；其他課規劃中。'],
+  ['研發階段', '序章兩課已開放（還沒產生語音，只有字幕）；1.1 元素與標籤、5.1 開發者工具有試做頁（研發基地）；其他課規劃中。'],
 ]
 
 export const WEB_PRINCIPLES: [string, string][] = [

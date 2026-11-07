@@ -177,7 +177,7 @@ export default defineActor({
 
 | 演員 | 動作 | 目標 |
 |---|---|---|
-| `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode、newSession、session、menu、fork、state（多個 session 見 `actor.ts` 開頭） | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos、new、sessions、session:名稱、more:名稱、menu、menuitem:項目 |
+| `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode、newSession、session、menu、fork、state（多個 session 見 `actor.ts` 開頭；介面語言用 `props.lang` 選 `lang/<語言>.json`，目前有 `zh-TW`（預設）與 `en`，新增語言就加一個檔案） | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos、new、sessions、session:名稱、more:名稱、menu、menuitem:項目 |
 | `finder` | open、mkdir、create、delete、rename、select、drag、drop、highlight（有狀態，見 2A.5） | window、file:名稱（或 item:名稱） |
 | `browser` | site、width、scroll、go、click、fill、reload（有狀態；網頁放在 Shadow DOM，寬度條件由腳本指定的寬度判斷，素材在 `content/live/<課程>/site/<版本>/`，版本名稱不能重複；fill 逐字填表單欄位，填完觸發 input／change；表單送出不會離開頁面） | window、tab、addressbar、content、viewport、section:id、sel:css選擇器 |
 | `chat` | receive（帶 from）、reply（有狀態；通用手機聊天畫面，情境開場用） | window、msg:N、msg:last |
@@ -187,6 +187,7 @@ export default defineActor({
 | `macbook` | open、close、wake、sleep、type、tilt（有狀態；擬真筆電，宣傳片用，純 CSS 3D；props：opened、awake、angle、pitch、yaw、finish、wallpaper、dock、clock） | window、screen、keyboard、trackpad、lid、key:鍵 |
 | `kid-web` | flip、inspect（可帶 tap 示範點擊）、check（有狀態；兒童網頁課的積木網頁：正面卡通網頁、背面積木，props：title、blocks、view；兒童版播放器 web/src/kids/KidsPlayer.tsx 播放，子腳本與 guide 說明框見該檔開頭） | window、page、stack、stars、part:標籤、block:標籤 |
 | `kid-mail` | type、send、reply、open、go（一次做完前四步）、edit、reload、check（有狀態；兒童網頁課 0.3「網頁是一封信」：左邊瀏覽器、右邊伺服器，信封沿著路來回；props：sites、url） | window、browser、addressbar、go、reload、page、server、road、letter、bookmark:網站、site:網站、part:標籤 |
+| `dom-tree` | grow、focus、anatomy、wrap、unwrap（有狀態；元素結構圖：容器是方框，上緣開頭標籤、下緣結尾標籤，子元素包在裡面；anatomy 拆開標示開頭標籤／內容／結尾標籤；wrap 把相鄰元素包進新容器、unwrap 拆開；props.look：clean（預設，成人課）或 kids（兒童課粗黑框）；網頁怎麼運作 1.1 起用） | window、tree、node:id、open:id、text:id、close:id |
 
 **`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。
 

@@ -11,7 +11,7 @@ import s from './KidsPlayer.module.css'
 import { dragPlan, type DragPlan, type DropSlot } from './drag'
 import { Say as SayChips } from './say'
 import { hush, playClip, speak } from './speech'
-import { useGuestView } from '../courses/guestActivity'
+import { homeShowcaseKey, useGuestView } from '../courses/guestActivity'
 
 // 兒童版播放器殼層(試做):給 9 歲孩子用,不用 live/shell.ts 的外殼,舞台與腳本引擎照舊。
 // - 只有大按鈕:播放／暫停、上一段、下一段、重來、旁白、全螢幕;沒有時間軸、倍速與快捷鍵選單。
@@ -405,8 +405,8 @@ type Props = {
   scrub?: boolean
   /** 浮動版(搭配 layout="page"):舞台撐滿整個播放器,上方指引、字幕、按鈕都浮在舞台上(參考一般版的互動課程頁) */
   floating?: boolean
-  /** 正式課程頁用:訪客(未登入)打開這一課與播放的時間要記下來(guestActivity.ts);研發頁與首頁的預覽不記 */
-  track?: boolean
+  /** 訪客(未登入)打開與播放的時間要記下來(guestActivity.ts):true 是正式課程頁(kids:<腳本>),'home' 是首頁的預覽(記成「首頁展示」home:kids:<腳本>);不寫(研發頁)不記 */
+  track?: boolean | 'home'
 }
 
 export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'kids', freeJump = false, layout = 'inline', scrub = false, floating = false, track = false }: Props) {
@@ -443,7 +443,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   /** 目前是不是在播(轉向重建舞台時,載入完要不要接著播) */
   const playingRef = useRef(false)
   playingRef.current = playing
-  useGuestView(track ? `kids:${path}` : null, () => playingRef.current)
+  useGuestView(track === 'home' ? homeShowcaseKey(`kids:${path}`) : track ? `kids:${path}` : null, () => playingRef.current)
   const [now, setNow] = useState(0)
   /** 在子腳本裡時,主腳本停在哪裡(段落與指引用) */
   const [inSub, setInSub] = useState<number | null>(null)

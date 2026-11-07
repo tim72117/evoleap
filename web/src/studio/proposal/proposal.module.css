@@ -413,3 +413,16 @@
   -webkit-line-clamp: 3; -webkit-box-orient: vertical;
   font-size: 13px; line-height: 1.6; color: var(--ink-soft);
 }
+
+/* ---- 可收合的段落(Fold.tsx):課程頁的定位、設計依據預設收起 ---- */
+.proposal .fold > summary { list-style: none; cursor: pointer; }
+.proposal .fold > summary::-webkit-details-marker { display: none; }
+.proposal .fold > summary h2 { display: inline-flex; align-items: baseline; gap: 8px; }
+.proposal .fold > summary h2::before {
+  content: "▸";
+  color: var(--accent);
+  font-size: 0.8em;
+  transition: transform 0.15s;
+}
+.proposal .fold[open] > summary h2::before { transform: rotate(90deg); }
+.proposal .fold > summary:hover h2 { color: var(--accent); }

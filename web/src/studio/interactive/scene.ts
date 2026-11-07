@@ -24,8 +24,11 @@ export type Moment = {
   /**
    * 把演員推到主畫面互動時要聚焦的目標;choices 是沒有 target 的選項要放在哪個區域(例如輸入框裡);
    * zone 是互動區:演員的區塊(parts 的名稱),靜態互動時舞台太小也不收合,例如要學員點側欄時寫 ["sidebar"]
+   * toggles 是學員可以自由點的東西(不是回答):每點一次,就直接點一下這位演員網頁上的元素(sel 是 CSS 選擇器),
+   * 由網頁自己的 script.js 決定點了之後顯示或隱藏什麼;點完按選項(例如「看完了，繼續」)才往下。
+   * 靜態互動(StaticActor)與推到主畫面(ActorPush,正式課程頁)都支援;推到主畫面時,離開互動點會把點過的還原
    */
-  stage?: { focus: string; choices?: string; zone?: string[] }
+  stage?: { focus: string; choices?: string; zone?: string[]; toggles?: { sel: string; label: string }[] }
 }
 
 /** 互動點能不能直接在演員身上回答:有對應的演員才行,要自己打字的也還是用詢問框 */
@@ -136,4 +139,20 @@ export function stepFinder(steps: Record<string, unknown>[], file: string) {
 export function answerLabel(moment: Moment, answer: Answer | undefined): string | null {
   if (!answer || 'skipped' in answer) return null
   return 'text' in answer ? answer.text : (moment.options[answer.option]?.label ?? null)
+}
+
+/**
+ * 點一下演員網頁裡真正的元素(stage.toggles 用)。stage.element('<演員>:sel:…') 拿到的是定位用的替身(量位置、鏡頭用),
+ * 點它不會觸發網頁的程式,所以從網頁畫面(viewport,Shadow DOM 的宿主)裡找到真正的元素再點
+ */
+export function clickInPage(stage: { element(ref: string): HTMLElement | null }, actor: string, sel: string): void {
+  const root = stage.element(`${actor}:viewport`)?.shadowRoot
+  let el: HTMLElement | null = null
+  try {
+    el = root?.querySelector<HTMLElement>(sel) ?? null
+  } catch {
+    el = null // 選擇器不合法
+  }
+  if (el) el.click()
+  else console.warn(`toggles:演員「${actor}」的網頁裡找不到「${sel}」`)
 }

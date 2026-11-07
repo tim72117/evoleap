@@ -1,0 +1,23 @@
+{
+  "title": "新的 session",
+  "labels": { "new": "新增 session", "recent": "最近", "placeholder": "描述你要做的事…", "thinking": "思考中" },
+  "tools": {
+    "Read": "讀取",
+    "Write": "寫入",
+    "Edit": "修改",
+    "Bash": "執行",
+    "Grep": "搜尋",
+    "Glob": "找檔案",
+    "WebFetch": "讀取網頁",
+    "WebSearch": "搜尋網路"
+  },
+  "done": "完成",
+  "todos": "待辦清單",
+  "askQuestion": "允許 Claude 執行這個指令?",
+  "askOptions": ["拒絕", "允許一次", "一律允許"],
+  "resolved": "已{option}：",
+  "forked": "從「{title}」分支",
+  "switchTo": "切換到「{name}」",
+  "menuOf": "「{name}」的選單",
+  "input": "輸入訊息"
+}

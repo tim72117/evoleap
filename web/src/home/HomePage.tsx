@@ -94,6 +94,7 @@ export function HomePage() {
                 pageTitle={featured.title}
                 interaction="static"
                 embed
+                track="home"
                 shrinkSlot={shrinkSlot}
               />
             </div>
@@ -125,6 +126,7 @@ export function HomePage() {
                     script={KIDS_TOPIC.preview.script}
                     size="compact"
                     freeJump
+                    track="home"
                     chaptersSlot={kidsMenu}
                     chapterInfo={KIDS_TOPIC.preview.sections}
                   />

@@ -6,6 +6,7 @@ import { loginHref } from '../auth/paths'
 import { adminApi, type AdminOverview, type AdminUser, type UserProgress } from './api'
 import { ADMIN_PATH } from './paths'
 import { formatDateTime, formatDuration, percentOf } from './format'
+import { isHomeShowcase } from '../courses/guestActivity'
 import styles from './AdminPage.module.css'
 
 // 管理後台:會員列表、播放進度與訪客上課紀錄的概況。放在研發基地的「會員」標籤(studio/proposal/MembersPage.tsx),
@@ -74,7 +75,7 @@ function Dashboard({ data }: { data: Data }) {
         <Stat label="會員數" value={overview.users} />
         <Stat label="有播放紀錄" value={overview.activeUsers} />
         <Stat label="訪客" value={overview.guests} />
-        <Stat label="有人學習的課" value={overview.lessons.length} />
+        <Stat label="有人學習的課" value={overview.lessons.filter((l) => !isHomeShowcase(l.lesson)).length} />
       </div>
 
       <h2 className={styles.heading}>各課概況</h2>
@@ -97,7 +98,10 @@ function Dashboard({ data }: { data: Data }) {
             <tbody>
               {overview.lessons.map((l) => (
                 <tr key={l.lesson}>
-                  <td>{l.lesson}</td>
+                  <td>
+                    {isHomeShowcase(l.lesson) && <span className={styles.tag}>首頁展示</span>}
+                    {l.lesson}
+                  </td>
                   <td>{l.learners}</td>
                   <td>{l.completed}</td>
                   <td>{l.learners ? `${Math.round(l.avgPercent)}%` : '—'}</td>

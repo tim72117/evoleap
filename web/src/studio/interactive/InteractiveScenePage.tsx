@@ -5,7 +5,7 @@ import type { Aspect } from '../../live/types'
 import { narrationClips } from '../../live/mixPlan'
 import { loadMix, loadScript, loadVoice, type ScriptMix, type ScriptVoice } from '../../live/scripts'
 import { mountShell, type ProgressStore, type Shell } from '../../live/shell'
-import { useGuestView } from '../../courses/guestActivity'
+import { homeShowcaseKey, useGuestView } from '../../courses/guestActivity'
 import { createStage, type Stage, type StageChapter, type StageScript } from '../../live/stage'
 import '../../live/shell.css'
 import { useCopy } from '../../site/useCopy'
@@ -63,6 +63,8 @@ type Props = {
   back?: { to: string; label: string }
   /** 嵌進其他頁面(首頁的展示):一開始停在第一個互動點前面一點,按播放後很快就輪到學員動手,題目放在播放器下方(選項在演員身上),開始播放才放大(在頁面內變寬,外層用 data-expanded 調整版面),學員可以縮小,再播放時又放大;不記進度、不改頁面標題,不提供全螢幕 */
   embed?: boolean
+  /** 嵌進首頁時寫 'home':訪客打開首頁與播放展示影片的時間記成「首頁展示」(home:live:<腳本>),和打開課程頁的紀錄分開算 */
+  track?: 'home'
   /** 嵌進其他頁面時,「縮小播放器」要放在哪裡(開始播放放大後才出現);不寫就在播放器下方 */
   shrinkSlot?: HTMLElement | null
 }
@@ -79,7 +81,7 @@ function useNarrow(): boolean {
   return narrow
 }
 
-export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course, back, embed, shrinkSlot }: Props) {
+export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course, back, embed, track, shrinkSlot }: Props) {
   const [params, setParams] = useSearchParams()
   // 手機直拿自動用直式;網址的 ?aspect= 優先(首頁的嵌入播放器不看網址,只看裝置)
   const auto = useAutoAspect()
@@ -98,7 +100,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const embedMomentRef = useRef<HTMLDivElement>(null)
   const ctrl = useRef<Controller | null>(null)
   // 正式課程頁:訪客打開這一課與播放的時間要記下來(研發頁的試做、首頁的展示不記)
-  useGuestView(course && !embed ? `live:${scriptPath}` : null, () => ctrl.current?.shell.playing ?? false)
+  useGuestView(embed ? (track === 'home' ? homeShowcaseKey(`live:${scriptPath}`) : null) : course ? `live:${scriptPath}` : null, () => ctrl.current?.shell.playing ?? false)
   const [moments, setMoments] = useState<Moment[]>([])
   const [title, setTitle] = useState('')
   const [timeline, setTimeline] = useState<Timeline>({

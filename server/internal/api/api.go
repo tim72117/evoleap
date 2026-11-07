@@ -61,6 +61,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /api/me", s.handleMe)
 	mux.HandleFunc("GET /api/progress", s.requireUser(s.handleProgressGet))
 	mux.HandleFunc("PUT /api/progress", s.requireUser(s.handleProgressPut))
+	mux.HandleFunc("GET /api/courses/{id}/map", s.handleCourseMap)
 	mux.HandleFunc("POST /api/guest/views", s.requireAuth(s.handleGuestOpen))
 	mux.HandleFunc("PUT /api/guest/views/{id}", s.requireAuth(s.handleGuestWatch))
 	mux.HandleFunc("GET /api/admin/me", s.requireAdmin(s.handleAdminMe))

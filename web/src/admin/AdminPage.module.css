@@ -116,3 +116,16 @@
 .muted {
   color: var(--site-muted);
 }
+
+/* 首頁展示的紀錄:和打開課程頁的紀錄分開看 */
+.tag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 0.8em;
+  font-weight: 600;
+  white-space: nowrap;
+}

@@ -1,0 +1,23 @@
+{
+  "title": "New session",
+  "labels": { "new": "New session", "recent": "Recents", "placeholder": "Describe what you want to do…", "thinking": "Thinking" },
+  "tools": {
+    "Read": "Read",
+    "Write": "Write",
+    "Edit": "Edit",
+    "Bash": "Run",
+    "Grep": "Search",
+    "Glob": "Find files",
+    "WebFetch": "Fetch",
+    "WebSearch": "Web search"
+  },
+  "done": "Done",
+  "todos": "To-dos",
+  "askQuestion": "Allow Claude to run this command?",
+  "askOptions": ["Deny", "Allow once", "Always allow"],
+  "resolved": "{option}: ",
+  "forked": "Forked from “{title}”",
+  "switchTo": "Switch to “{name}”",
+  "menuOf": "Menu for “{name}”",
+  "input": "Type a message"
+}

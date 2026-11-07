@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Fold } from './Fold'
 import { KNOWLEDGE_AREAS, type CourseLesson } from '../../content/lessonTypes'
 import {
   BRIDGE,
@@ -461,28 +462,30 @@ export function TierOutline({ tier }: { tier: Tier }) {
         {TIER_LABEL[tier]} · {mods.length} 個單元、{lessonCount} 課，各課估計時長加總約 {hours} 小時。
       </p>
 
-      <h2>定位</h2>
-      <section className={ui.card}>
-        <table>
-          <tbody>
-            {info.positioning.map(([k, v]) => (
-              <tr key={k}>
-                <td className={ui.nowrap} style={{ width: '8em' }}>
-                  <strong>{k}</strong>
-                </td>
-                <td>{v}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <Fold title="定位">
+        <section className={ui.card}>
+          <table>
+            <tbody>
+              {info.positioning.map(([k, v]) => (
+                <tr key={k}>
+                  <td className={ui.nowrap} style={{ width: '8em' }}>
+                    <strong>{k}</strong>
+                  </td>
+                  <td>{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </Fold>
 
-      <h2>設計依據</h2>
-      <section className={ui.card}>
-        <div className={ui['card-body']}>
-          <List items={info.rationale} />
-        </div>
-      </section>
+      <Fold title="設計依據">
+        <section className={ui.card}>
+          <div className={ui['card-body']}>
+            <List items={info.rationale} />
+          </div>
+        </section>
+      </Fold>
 
       <h2>大綱：單元 → 課</h2>
       <div className={ui.flow} aria-label="單元進程">

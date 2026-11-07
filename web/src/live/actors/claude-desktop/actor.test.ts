@@ -60,3 +60,18 @@ describe('claude-desktop 的可點區', () => {
     expect(composer.input?.step('你好')).toEqual({ user: '你好' })
   })
 })
+
+describe('claude-desktop 的介面語言(lang/<語言>.json)', () => {
+  it('預設繁體中文;lang: en 換成英文的預設名稱、選項與熱點標籤', () => {
+    expect(actor.init!({}).names).toEqual(['新的 session'])
+    const en = actor.init!({ lang: 'en' })
+    expect(en.names).toEqual(['New session'])
+    const asking = actor.apply!(en, 'ask', { ask: 'hello.txt' })
+    expect(asking.asking).toEqual(['Deny', 'Allow once', 'Always allow'])
+    expect(actor.hotspots!(en, { lang: 'en' }).map((h) => h.label)).toEqual(['New session', 'Menu for “New session”', 'Type a message'])
+  })
+
+  it('沒有這個語言的文字檔時報錯', () => {
+    expect(() => actor.init!({ lang: 'fr' })).toThrow('lang/fr.json')
+  })
+})

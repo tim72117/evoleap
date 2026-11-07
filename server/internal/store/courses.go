@@ -1,0 +1,97 @@
+package store
+
+import (
+	"context"
+	_ "embed"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+// courseRow 記錄每門課的存取方式,Access 為 subscription 代表要訂閱才能看。
+// 資料來源是 courses_seed.json,啟動時同步進這張表。目前只有課程地圖 API(兒童課)讀它;伺服器還沒有依它擋權限
+// (訂閱檢查還沒做),前端的存取規則仍在 content/catalog.ts、kidsCourse.ts,兒童課由 content/courseMap.test.ts 檢查兩邊一致。
+type courseRow struct {
+	ID     string `gorm:"primaryKey;size:64"`
+	Title  string `gorm:"size:200;not null"`
+	Access string `gorm:"size:16;not null"`
+	// Tier 是訂閱課程需要的最低方案(例如 basic、advanced);其他課程是空的。
+	Tier      string `gorm:"size:32"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (courseRow) TableName() string { return "courses" }
+
+// Access 是課程的存取方式。
+type Access string
+
+const (
+	AccessFree         Access = "free"
+	AccessLoginFree    Access = "login-free"
+	AccessSubscription Access = "subscription"
+)
+
+// ErrCourseNotFound 是查不到課程時回傳的錯誤。
+var ErrCourseNotFound = errors.New("course not found")
+
+// CourseAccess 回傳課程的存取方式(之後的訂閱檢查用,目前還沒有呼叫的地方),以及訂閱課程需要的最低方案(其他課程是空字串)。
+func (s *Store) CourseAccess(ctx context.Context, id string) (Access, string, error) {
+	var r courseRow
+	err := s.db.WithContext(ctx).First(&r, "id = ?", id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return "", "", ErrCourseNotFound
+	}
+	if err != nil {
+		return "", "", err
+	}
+	return Access(r.Access), r.Tier, nil
+}
+
+// courseSeedRow 是 courses_seed.json 的一列。
+type courseSeedRow struct {
+	ID     string `json:"id"`
+	Title  string `json:"title"`
+	Access string `json:"access"`
+	Tier   string `json:"tier,omitempty"`
+	// Units 是這門課的單元與每一堂課(見 lessons.go);沒寫就不動這門課的單元與課
+	Units []unitSeed `json:"units,omitempty"`
+}
+
+//go:embed courses_seed.json
+var courseSeed []byte
+
+// SeedCourses 把 courses_seed.json 同步進資料表:新增還不存在的課程,更新已存在課程的名稱與存取方式;
+// 有寫 units 的課程,單元與每一堂課整份換成種子的內容。
+func (s *Store) SeedCourses(ctx context.Context) error {
+	var seeds []courseSeedRow
+	if err := json.Unmarshal(courseSeed, &seeds); err != nil {
+		return fmt.Errorf("parse course seed: %w", err)
+	}
+	at := now()
+	rows := make([]courseRow, len(seeds))
+	for i, c := range seeds {
+		rows[i] = courseRow{ID: c.ID, Title: c.Title, Access: c.Access, Tier: c.Tier, CreatedAt: at, UpdatedAt: at}
+	}
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "id"}},
+			DoUpdates: clause.AssignmentColumns([]string{"title", "access", "tier", "updated_at"}),
+		}).Create(&rows).Error; err != nil {
+			return err
+		}
+		for _, c := range seeds {
+			if c.Units == nil {
+				continue
+			}
+			if err := syncUnits(tx, c.ID, c.Units); err != nil {
+				return fmt.Errorf("sync units of %s: %w", c.ID, err)
+			}
+		}
+		return nil
+	})
+}
