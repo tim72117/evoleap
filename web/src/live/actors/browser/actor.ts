@@ -8,7 +8,7 @@
 //
 // props(登場設定,只描述起始狀態):
 //   site    一開始顯示的版本(預設第一個版本,依名稱排序)
-//   width   phone | tablet | desktop(預設 desktop;實際寬度 390 / 768 / 1280)
+//   width   phone | tablet | desktop(預設 desktop;實際寬度 390 / 768 / 1280。手機、平板高度固定;桌面在瘦長的視窗裡高度拉長填滿)
 //   url     網址列顯示的文字(預設 file:///Documents/practice/bakery/index.html;不要用真實使用者路徑)
 //
 // 動作:
@@ -150,6 +150,14 @@ const DIMS: Record<BrowserWidth, { w: number; h: number }> = {
   phone: { w: 390, h: 780 },
   tablet: { w: 768, h: 1024 },
   desktop: { w: 1280, h: 800 },
+}
+
+/** 網頁畫面的實際尺寸。手機、平板是固定的裝置尺寸;桌面寬 1280 不變(@media 判斷不受影響),
+ *  視窗比 1280×800 瘦長時(直式舞台)高度跟著拉長填滿視窗,不會只剩中間一條橫的網頁;橫式維持 800。 */
+function dimsIn(width: BrowserWidth, vw: number, vh: number): { w: number; h: number } {
+  const d = DIMS[width]
+  if (width !== 'desktop' || vw <= 16 || vh <= 16) return d
+  return { w: d.w, h: Math.max(d.h, (d.w * (vh - 16)) / (vw - 16)) }
 }
 
 // ---------- 時間表(毫秒,相對動作開始) ----------
@@ -305,12 +313,12 @@ const actor = defineActor<BrowserKind, BrowserStep, BrowserProps, BrowserState, 
 
         // 寬度(過渡中依進度在前後兩個尺寸之間插值)
         const wp = k === 'width' ? kit.ease.inOutCubic(kit.progress(local, 0, T.width)) : 1
-        const from = DIMS[k === 'width' ? prev.width : state.width]
-        const to = DIMS[state.width]
-        const lw = kit.lerp(from.w, to.w, wp)
-        const lh = kit.lerp(from.h, to.h, wp)
         const vw = view.clientWidth
         const vh = view.clientHeight
+        const from = dimsIn(k === 'width' ? prev.width : state.width, vw, vh)
+        const to = dimsIn(state.width, vw, vh)
+        const lw = kit.lerp(from.w, to.w, wp)
+        const lh = kit.lerp(from.h, to.h, wp)
         const scale = vw && vh ? Math.min((vw - 16) / lw, (vh - 16) / lh) : 1
         scaleNow = scale
         kit.css(frame, {
