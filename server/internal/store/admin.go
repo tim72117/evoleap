@@ -27,12 +27,17 @@ type LessonStat struct {
 	Learners   int     `json:"learners"`   // 有進度紀錄的會員數
 	Completed  int     `json:"completed"`  // 看完的會員數
 	AvgPercent float64 `json:"avgPercent"` // 平均觀看百分比(0–100)
+	// 訪客(未登入)的紀錄,見 guest.go
+	GuestViews     int   `json:"guestViews"`     // 訪客打開這一課的次數
+	GuestVisitors  int   `json:"guestVisitors"`  // 打開過這一課的訪客數(不同的訪客代號)
+	GuestWatchedMs int64 `json:"guestWatchedMs"` // 訪客在這一課累計的播放時間
 }
 
 // AdminOverview 是儀表板的總覽數字。
 type AdminOverview struct {
 	Users       int          `json:"users"`
 	ActiveUsers int          `json:"activeUsers"` // 至少有一筆進度的會員數
+	Guests      int          `json:"guests"`      // 保存期間內有紀錄的訪客數(不同的訪客代號)
 	Lessons     []LessonStat `json:"lessons"`
 }
 
@@ -74,7 +79,7 @@ func (s *Store) AdminUsers(ctx context.Context) ([]AdminUser, error) {
 	return out, nil
 }
 
-// AdminOverview 回傳會員數與各課統計(學習人數多的在前)。
+// AdminOverview 回傳會員數與各課統計(學習人數多的在前,再來是訪客打開次數)。
 func (s *Store) AdminOverview(ctx context.Context) (AdminOverview, error) {
 	var total int64
 	if err := s.db.WithContext(ctx).Model(&userRow{}).Count(&total).Error; err != nil {
@@ -84,19 +89,30 @@ func (s *Store) AdminOverview(ctx context.Context) (AdminOverview, error) {
 	if err := s.db.WithContext(ctx).Find(&rows).Error; err != nil {
 		return AdminOverview{}, err
 	}
+	var views []guestViewRow
+	if err := s.db.WithContext(ctx).Find(&views).Error; err != nil {
+		return AdminOverview{}, err
+	}
 	type acc struct {
 		learners, completed, measured int // measured:知道總長的紀錄數(平均進度只算這些)
 		percent                       float64
+		guestViews                    int
+		guestWatched                  int64
+		guests                        map[string]bool
 	}
 	lessons := map[string]*acc{}
+	lessonOf := func(name string) *acc {
+		a := lessons[name]
+		if a == nil {
+			a = &acc{guests: map[string]bool{}}
+			lessons[name] = a
+		}
+		return a
+	}
 	active := map[string]bool{}
 	for _, p := range rows {
 		active[p.UserID] = true
-		a := lessons[p.Lesson]
-		if a == nil {
-			a = &acc{}
-			lessons[p.Lesson] = a
-		}
+		a := lessonOf(p.Lesson)
 		a.learners++
 		if isCompleted(p) {
 			a.completed++
@@ -110,19 +126,33 @@ func (s *Store) AdminOverview(ctx context.Context) (AdminOverview, error) {
 			a.percent += ratio * 100
 		}
 	}
+	guests := map[string]bool{}
+	for _, v := range views {
+		guests[v.GuestID] = true
+		a := lessonOf(v.Lesson)
+		a.guestViews++
+		a.guestWatched += int64(v.WatchedMs)
+		a.guests[v.GuestID] = true
+	}
 	stats := make([]LessonStat, 0, len(lessons))
 	for name, a := range lessons {
 		avg := 0.0
 		if a.measured > 0 {
 			avg = a.percent / float64(a.measured)
 		}
-		stats = append(stats, LessonStat{Lesson: name, Learners: a.learners, Completed: a.completed, AvgPercent: avg})
+		stats = append(stats, LessonStat{
+			Lesson: name, Learners: a.learners, Completed: a.completed, AvgPercent: avg,
+			GuestViews: a.guestViews, GuestVisitors: len(a.guests), GuestWatchedMs: a.guestWatched,
+		})
 	}
 	sort.Slice(stats, func(i, j int) bool {
 		if stats[i].Learners != stats[j].Learners {
 			return stats[i].Learners > stats[j].Learners
 		}
+		if stats[i].GuestViews != stats[j].GuestViews {
+			return stats[i].GuestViews > stats[j].GuestViews
+		}
 		return stats[i].Lesson < stats[j].Lesson
 	})
-	return AdminOverview{Users: int(total), ActiveUsers: len(active), Lessons: stats}, nil
+	return AdminOverview{Users: int(total), ActiveUsers: len(active), Guests: len(guests), Lessons: stats}, nil
 }

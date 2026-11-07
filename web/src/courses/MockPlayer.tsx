@@ -98,7 +98,7 @@ export const MockPlayer = forwardRef<PlayerHandle, Props>(function MockPlayer(
   return (
     <div className={styles.player} tabIndex={0} onKeyDown={onKeyDown} aria-label={`預覽大綱：${title}`} role="group">
       <div className={styles.screen} onClick={toggle}>
-        <span className={styles.badge}>預覽大綱 · 影片製作中</span>
+        <span className={styles.badge}>預覽大綱 · <span aria-hidden="true">🌱 </span>影片規劃中</span>
         <p className={styles.title}>{title}</p>
         <p className={styles.chapter} aria-live="polite">
           {chapter ? chapter.label : time === 0 && !playing ? '按下播放預覽大綱' : '開場：目標 → 步驟拆解'}

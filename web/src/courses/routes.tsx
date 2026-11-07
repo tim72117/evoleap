@@ -24,9 +24,13 @@ const INTERACTIVE_LESSONS: Record<string, (script: StageScript) => StageScript> 
   '0.intro': withL0IntroMoments,
 }
 
+/** 有即時教學影片的課都用滿版播放器(InteractiveLessonPage);有互動點的課再把互動點加進腳本 */
+const hasLive = (lesson: CourseLesson) => Boolean(lesson.videos[0]?.live)
+const asIs = (script: StageScript) => script
+
 function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
-  const page = INTERACTIVE_LESSONS[lesson.id] ? (
-    <InteractiveLessonPage key={lesson.id} course={course} lesson={lesson} prepare={INTERACTIVE_LESSONS[lesson.id]} />
+  const page = hasLive(lesson) ? (
+    <InteractiveLessonPage key={lesson.id} course={course} lesson={lesson} prepare={INTERACTIVE_LESSONS[lesson.id] ?? asIs} />
   ) : (
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )
@@ -37,7 +41,7 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
       title={lesson.title}
       docTitle={`${lessonLabel(lesson)} ${lesson.title}`}
       back={{ to: coursePath(course), label: '回課程總覽' }}
-      note="這門課免費，序章可以直接預覽，其他課登入後就能觀看，也會記錄你的播放進度。"
+      note="序章可以直接預覽；第 0 課登入後免費觀看，之後的課程需要訂閱。登入後也會記錄你的播放進度。"
     >
       {page}
     </LoginGate>
@@ -59,7 +63,7 @@ export const courseRoutes: { path: string; element: JSX.Element }[] = [
           path: coursePath(course),
           element:
             course.lessons.length > 0 ? (
-              <CourseOverviewPage course={course} interactive={Object.keys(INTERACTIVE_LESSONS)} />
+              <CourseOverviewPage course={course} interactive={course.lessons.filter(hasLive).map((l) => l.id)} />
             ) : (
               <PlannedCourseOverviewPage course={course} />
             ),

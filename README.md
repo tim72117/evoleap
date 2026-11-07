@@ -20,7 +20,7 @@ web/                 前端（React + Vite + TypeScript）
     home/            首頁（主題）、主題頁（課程地圖）/
     courses/         全部課程 /courses、課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁；播放進度（只有登入的會員才記）
     auth/            登入頁 /login、使用者選單、登入狀態
-    admin/           管理後台 /admin（只有白名單內的管理員；會員與播放進度，唯讀）
+    admin/           管理後台元件，放在研發基地的「會員」標籤 /studio/members（/admin 轉到這裡；只有白名單內的管理員，本機 -open-studio 不檢查；會員、播放進度與訪客上課紀錄，唯讀）
     legal/           隱私權政策 /privacy、服務條款 /terms、退款政策 /refund
     site/            共用版型、404、全站樣式、GA4、複製按鈕等
     seo/             每個網址的 SEO 資料（見下方「SEO」）
@@ -58,9 +58,9 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 
 ## 管理後台
 
-- 網址 `/admin`（noindex），API 在 `/api/admin/*`：`me`、`overview`（會員數、各課學習人數／看完人數／平均進度）、`users`（會員列表與進度概況）、`users/{id}/progress`（單一會員各課進度）。全部唯讀。
+- 在研發基地的「會員」標籤 `/studio/members`（舊網址 `/admin` 轉到這裡），API 在 `/api/admin/*`：`me`、`overview`（會員數、訪客數、各課學習人數／看完人數／平均進度、訪客打開次數／人數／播放時間）、`users`（會員列表與進度概況）、`users/{id}/progress`（單一會員各課進度）。全部唯讀。
 - 管理員判定沿用 tripace：沒有獨立的管理員帳號，管理員就是「一般會員 + Email 在白名單內」。白名單是環境變數 `ADMIN_BOOTSTRAP_EMAIL`（可用逗號分隔多個，忽略大小寫），而且必須用 Google 登入（Email 經 Google 驗證）才算管理員，純密碼註冊的帳號不算（密碼註冊不驗證 Email 所有權，否則任何人都能搶註冊成管理員）；任何帳號第一次用 Google 登入綁定時，都會清掉原本的密碼，並讓綁定前發出的登入 cookie 失效，所以先用別人的 Email 註冊的人無法繼續登入（已經綁了另一個 Google 帳號的 Email 不會被別的 Google 帳號覆蓋，回 409）；未設定時沒有任何人是管理員（fail-closed）。每次請求都重新比對，移出白名單立即生效。
-- 未登入回 401、已登入但不在白名單回 403。程式在 `server/internal/api/admin.go`、`server/internal/store/admin.go`、`web/src/admin/`。
+- 未登入回 401、已登入但不在白名單回 403；本機用 `-open-studio` 啟動時不檢查（和研發基地一起開放，Cloud Run 上拒絕啟動）。程式在 `server/internal/api/admin.go`、`server/internal/store/admin.go`、`web/src/admin/`。
 
 ## 研發基地的權限
 

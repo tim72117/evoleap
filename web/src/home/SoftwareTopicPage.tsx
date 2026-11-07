@@ -41,7 +41,6 @@ function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
       <article className={styles.card}>
         <div className={styles.art}>
           <span className={styles.artLevel}>
-            Level {index}
             <strong>{level.levelLabel}</strong>
           </span>
           <LevelArt art={level.art} />
@@ -58,7 +57,7 @@ function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
             ) : opened.length ? (
               <span className={`${styles.badge} ${styles.badgeOpen}`}>{opened.map((l) => l.label).join('、')}已開放</span>
             ) : (
-              <span className={styles.badge}>規劃中</span>
+              <span className={`${styles.badge} ${styles.badgePlanned}`}><span aria-hidden="true">🌱 </span>規劃中</span>
             )}
           </p>
           <h3>{level.title}</h3>

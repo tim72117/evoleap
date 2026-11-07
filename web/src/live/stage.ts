@@ -122,8 +122,13 @@ let stageSeq = 0
 // 這幾種疊加畫面有旁白時直接延長到講完,不讓畫面空等
 const STRETCH_KINDS: readonly string[] = ['card', 'callout', 'show']
 const NARRATION_DELAY = 150 // 字幕與旁白語音在這一步開始後多久出現
-// 中文旁白約每秒 4.2 字(與 record.mjs 相同),再留一點換氣
-const speakMs = (text: string): number => (String(text).replace(/\s/g, '').length / 4.2) * 1000 + 700
+// 還沒有語音時估算旁白長度:中文約每秒 4.2 字(與 record.mjs 相同);沒有中文的旁白(英文語音試做)約每秒 2.6 個字(word),
+// 都再留一點換氣
+const speakMs = (text: string): number => {
+  const t = String(text)
+  if (!/[\u3400-\u9fff]/.test(t)) return ((t.match(/[A-Za-z0-9'’]+/g)?.length ?? 0) / 2.6) * 1000 + 700
+  return (t.replace(/\s/g, '').length / 4.2) * 1000 + 700
+}
 
 /** 演員表裡的一位演員:定義、掛在畫面上的實例與位置 */
 interface Member {

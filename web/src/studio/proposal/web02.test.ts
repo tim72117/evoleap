@@ -39,7 +39,9 @@ function replay(steps: Step[]): Record<string, unknown> {
   for (const id of Object.keys(cast)) st[id] = ACTORS[cast[id].actor].init?.(cast[id].props ?? {})
   for (const s of steps) {
     const o = ownerOf(s)
-    if (o) st[o.id] = ACTORS[cast[o.id].actor].apply!(st[o.id], o.kind, s)
+    // 沒有狀態的演員(例如開場的老師 person)沒有 apply
+    const apply = o && ACTORS[cast[o.id].actor].apply
+    if (o && apply) st[o.id] = apply(st[o.id], o.kind, s)
   }
   return st
 }

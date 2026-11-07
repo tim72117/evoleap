@@ -59,7 +59,7 @@ export function withL01Moments(base: StageScript): StageScript {
             steps: [
               { user: '幫我做小森烘焙的網站' },
               { thinking: true, ms: 1000 },
-              { say: '好的。開始之前想先確認：要在目前的資料夾 `bakery` 裡建立嗎？', narration: '它還不知道你想確認工作目錄。想知道什麼，就直接問。' },
+              { on: 'claude', say: '好的。開始之前想先確認：要在目前的資料夾 `bakery` 裡建立嗎？', narration: '它還不知道你想確認工作目錄。想知道什麼，就直接問。' },
               { user: ASK_WORKDIR },
               ...steps.slice(askDir + 1, dirCallout + 1),
             ],
@@ -81,7 +81,7 @@ export function withL01Moments(base: StageScript): StageScript {
             steps: [
               { user: '建立一個網頁' },
               { thinking: true, ms: 1300 },
-              { say: '我會建立 `index.html`（網頁內容）和 `styles.css`（網頁樣式）。', narration: '這次檔名是它自己決定的。下一課要接著用，最好把檔名寫清楚。' },
+              { on: 'claude', say: '我會建立 `index.html`（網頁內容）和 `styles.css`（網頁樣式）。', narration: '這次檔名是它自己決定的。下一課要接著用，最好把檔名寫清楚。' },
             ],
           },
           {
@@ -89,7 +89,7 @@ export function withL01Moments(base: StageScript): StageScript {
             steps: [
               { user: '幫我把整個網站做好' },
               { thinking: true, ms: 1300 },
-              { say: '這需要好幾個步驟。我先建立 `index.html`（網頁內容）和 `styles.css`（網頁樣式）。', narration: '目標太大，它只能先猜第一步。一次交代一件事，結果比較好確認。' },
+              { on: 'claude', say: '這需要好幾個步驟。我先建立 `index.html`（網頁內容）和 `styles.css`（網頁樣式）。', narration: '目標太大，它只能先猜第一步。一次交代一件事，結果比較好確認。' },
             ],
           },
         ],
@@ -109,7 +109,7 @@ export function withL01Moments(base: StageScript): StageScript {
             steps: [
               { user: '在 idea.txt 記下：首頁要有預約按鈕' },
               { thinking: true, ms: 1000 },
-              { say: '這樣檔案會放在工作目錄最外層，不在 drafts 裡。你要放在哪裡？', narration: '只寫檔名，就是放在工作目錄最外層。要放進 drafts，路徑就要寫出來。' },
+              { on: 'claude', say: '這樣檔案會放在工作目錄最外層，不在 drafts 裡。你要放在哪裡？', narration: '只寫檔名，就是放在工作目錄最外層。要放進 drafts，路徑就要寫出來。' },
               { user: NOTE },
               ...steps.slice(note + 1, noteAsk),
             ],
@@ -119,7 +119,7 @@ export function withL01Moments(base: StageScript): StageScript {
             steps: [
               { user: '在桌面的 idea.txt 記下：首頁要有預約按鈕' },
               { thinking: true, ms: 1000 },
-              { say: '桌面不在這次的工作目錄 `bakery` 裡，建議放在專案裡面。', narration: '桌面在專案外面。專案的東西，就放在專案的資料夾裡。' },
+              { on: 'claude', say: '桌面不在這次的工作目錄 `bakery` 裡，建議放在專案裡面。', narration: '桌面在專案外面。專案的東西，就放在專案的資料夾裡。' },
               { user: NOTE },
               ...steps.slice(note + 1, noteAsk),
             ],
@@ -140,7 +140,7 @@ export function withL01Moments(base: StageScript): StageScript {
             target: 'claude:option:0',
             steps: [
               { choose: 0, narration: '你拒絕了，檔案都沒有動。這個練習還要整理筆記，我們再送一次。' },
-              { say: '好的，我不會動這些檔案。' },
+              { on: 'claude', say: '好的，我不會動這些檔案。' },
               { user: MOVE },
               { thinking: true, ms: 1000 },
               steps[moveAsk],
@@ -164,7 +164,7 @@ export function withL01Moments(base: StageScript): StageScript {
             target: 'claude:option:0',
             steps: [
               { choose: 0, narration: '你拒絕了，drafts 還在。空資料夾留著也不影響專案，不確定時先拒絕就對了。' },
-              { say: '好的，`drafts` 資料夾先留著。' },
+              { on: 'claude', say: '好的，`drafts` 資料夾先留著。' },
               { show: 'finder', highlight: 'drafts' },
               { hide: 'finder' },
             ],

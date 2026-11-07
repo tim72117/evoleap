@@ -6,6 +6,7 @@
     "editor": { "actor": "editor", "props": { "project": "cafe" }, "parts": { "files": false }, "place": "window" },
     "web": { "actor": "browser", "props": { "site": "web-html", "url": "file:///Documents/practice/cafe/index.html" }, "place": "window", "hidden": true }
   },
+  "teacher": {"say": "今天看三種檔案的分工", "line": "今天要來看看，HTML、CSS、JavaScript 三種檔案，各負責什麼。"},
   "steps": [
     { "card": "HTML、CSS、JavaScript 的分工", "eyebrow": "網頁怎麼運作 · 序章 0.2", "chapter": "看：三個檔案各管什麼", "narration": "一個網頁，通常由三種檔案一起完成。我們拿同一個小網頁，一次加一種，看看每一種各負責什麼。" },
 

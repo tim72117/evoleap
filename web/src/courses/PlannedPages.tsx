@@ -38,7 +38,7 @@ export function ChapterList({ course }: { course: Course }) {
       {course.planned.map((c) => (
         <li key={c.slug}>
           <Link to={plannedChapterPath(course, c)}>
-            <span className={styles.lessonNum}>{c.label} · 規劃中</span>
+            <span className={styles.lessonNum}>{c.label} · <span aria-hidden="true">🌱 </span>規劃中</span>
             <span className={styles.lessonTitle}>{c.title}</span>
             <span className={styles.lessonGoal}>{c.summary}</span>
           </Link>
@@ -54,11 +54,11 @@ export function PlannedCourseOverviewPage({ course }: { course: Course }) {
       <div className={styles.page}>
         <Crumb course={course} />
         <header className={styles.head}>
-          <p className={styles.kicker}>{course.level} · 規劃中</p>
+          <p className={styles.kicker}>{course.level} · <span aria-hidden="true">🌱 </span>規劃中</p>
           <h1>{course.title}</h1>
           <p className={styles.lead}>{course.summary}</p>
         </header>
-        <h2>章節（規劃中）</h2>
+        <h2>章節（<span aria-hidden="true">🌱 </span>規劃中）</h2>
         <ChapterList course={course} />
       </div>
     </SiteLayout>
@@ -76,7 +76,7 @@ export function PlannedChapterPage({ course, chapter }: { course: Course; chapte
         <Crumb course={course} current={chapter.label} />
         <header className={styles.head}>
           <p className={styles.kicker}>
-            {course.level} · {chapter.label} · 規劃中
+            {course.level} · {chapter.label} · <span aria-hidden="true">🌱 </span>規劃中
           </p>
           <h1>{chapter.title}</h1>
         </header>

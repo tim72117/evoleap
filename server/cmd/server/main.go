@@ -22,7 +22,7 @@ func main() {
 	addr := flag.String("addr", "127.0.0.1:8190", "HTTP 監聽位址(本機預設 8190,避開其他專案常用的 8080-8082)")
 	dbPath := flag.String("db", "shuttle.db", "DATABASE_URL 未設定時使用的本機 SQLite 檔案")
 	distDir := flag.String("dist", "", "從磁碟目錄提供前端 build(例如 ../web/dist);留空使用內嵌的 build")
-	openStudio := flag.Bool("open-studio", false, "不檢查內部頁(研發基地)權限,只給本機與 E2E 測試用;Cloud Run 上會拒絕啟動")
+	openStudio := flag.Bool("open-studio", false, "不檢查內部頁(研發基地)與管理後台的權限,只給本機與 E2E 測試用;Cloud Run 上會拒絕啟動")
 	flag.Parse()
 
 	// PORT 由平台注入(Cloud Run 預設 8080),覆寫監聽位址。
@@ -47,6 +47,8 @@ func main() {
 		GoogleClientID: os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		SecureCookie:   onCloudRun,
 		AdminEmails:    os.Getenv("ADMIN_BOOTSTRAP_EMAIL"),
+		// -open-studio 時管理後台也不檢查權限(研發基地與 /admin 一起開放,只給本機開發用)
+		OpenAdmin: *openStudio,
 	}
 	if dsn == "" {
 		log.Print("未設定 DATABASE_URL:登入功能停用")

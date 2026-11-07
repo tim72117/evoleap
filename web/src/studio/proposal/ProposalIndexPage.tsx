@@ -551,6 +551,35 @@ export function ProposalIndexPage() {
         </div>
       </section>
 
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
+              <h3>延伸課程</h3>
+              <div className={ui.meta}>適用：所有主題</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>上一門課時，把其他主題裡相關的課一起排進來：</p>
+          <ul className={ui['plain-list']}>
+            <li>開課前自己勾選要一起上的延伸課，排在對應段落後面</li>
+            <li>或在章節結束、練習點之後看到推薦卡片，可以點進去也可以略過</li>
+            <li>待決定：誰挑推薦、算不算完成、跨主題怎麼收費</li>
+          </ul>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/studio/extensions">
+              構想頁
+            </Link>
+          </div>
+        </div>
+      </section>
+
 
 
 

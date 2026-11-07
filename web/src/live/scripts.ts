@@ -2,6 +2,7 @@
 // 各腳本分開打包,播到那一課才載入。
 import type { MixChapter } from './mixPlan'
 import type { StageScript } from './stage'
+import { withTeacher } from './teacher'
 
 // lab/ 與 promo/ 只有研發基地用,由 studio/StudioApp 註冊,不打包進公開的 JS。
 type Loaders = Record<string, () => Promise<unknown>>
@@ -21,7 +22,8 @@ export const scriptPaths = () => Object.keys(SCRIPTS).map((k) => k.replace('../c
 export function loadScript(path: string): Promise<StageScript> {
   const load = SCRIPTS[`../content/live/${path}`]
   if (!load) return Promise.reject(new Error(`找不到即時教學畫面的腳本:${path}`))
-  return load() as Promise<StageScript>
+  // 腳本有 teacher 時在這裡展開成開頭的老師介紹,之後的程式(互動點、舞台、章節音軌)看到的都是展開後的腳本
+  return (load() as Promise<StageScript>).then(withTeacher)
 }
 
 // 旁白語音(scripts/voice.mjs 產生):腳本旁的 <名稱>.voice.json 記錄每段旁白的音檔與長度,

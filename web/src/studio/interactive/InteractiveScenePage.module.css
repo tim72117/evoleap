@@ -292,9 +292,38 @@
   font-size: 14px;
 }
 
+.panelFooter {
+  align-items: center;
+}
+
+/* 上一課、下一課(或下一章):做成按鈕,不用底線;往前走的那一顆是實心的 */
 .panelFooter a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
   color: var(--fg);
   font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.panelFooter a:hover {
+  border-color: var(--dim);
+}
+
+.panelFooter a:last-child {
+  margin-left: auto;
+  border-color: var(--fg);
+  background: var(--fg);
+  color: var(--surface);
+}
+
+.panelFooter a:last-child:hover {
+  opacity: 0.85;
 }
 
 /* ---------- 步驟 ---------- */

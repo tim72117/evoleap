@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext'
 import { COURSES, coursePath, isPreviewLesson, lessonPath, openLessonsOf } from '../content/catalog'
 import { LEVELS } from '../content/levels'
 import { HOME_INTRO, KIDS_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, type PlannedTopic } from '../content/topics'
 import { KidsPlayer } from '../kids/KidsPlayer'
 import { SiteLayout } from '../site/SiteLayout'
 import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage'
-import { withL0Moments } from '../studio/interactive/l0-0.0'
 import bakerySite from './assets/bakery-site.jpg'
 import styles from './HomePage.module.css'
 
@@ -15,16 +13,14 @@ import styles from './HomePage.module.css'
 // 規劃中的主題縮小,只寫預計做出的成果。課數、連結與示範提示詞都取自課程資料,主題文案在 content/topics.ts。
 
 const tools = COURSES.find((c) => c.slug === 'tools')!
-// 主打的是第 0 課(互動點、提示詞都是它的),但第 0 課要登入才能看:
-// 沒登入的訪客改看序章(不用登入就能預覽);「開始第一課」不論有沒有登入都從序章開始
+// 展示影片一律播序章(不用登入就能看),從頭開始;「開始第一課」也從序章開始
 const openLessons = openLessonsOf(tools)
-const firstLesson = openLessons[0]
 const introLesson = tools.lessons.find(isPreviewLesson)!
 const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!
 
-// 這個主題的等級(L0–L2);中階、進階在主題「打造 AI 互動軟體」
+// 這個主題的等級(起步、零基礎、基礎);中階、進階在主題「打造 AI 互動軟體」
 const LADDER = COURSES.filter((c) => LEVELS.some((l) => l.link === coursePath(c))).map((c) => ({
-  name: c.level.split(' ')[1],
+  name: c.level,
   open: c.lessons.some((l) => l.videos.some((v) => v.live)),
 }))
 
@@ -44,9 +40,7 @@ export function HomePage() {
   const [shrinkSlot, setShrinkSlot] = useState<HTMLElement | null>(null)
   /** 兒童主題預覽的環節選單放在卡片左欄的這個位置(窄螢幕時左欄排在預覽上面,一樣顯示) */
   const [kidsMenu, setKidsMenu] = useState<HTMLElement | null>(null)
-  const { status } = useAuth()
-  const member = status === 'user' || status === 'disabled'
-  const featured = member ? firstLesson : introLesson
+  const featured = introLesson
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
   return (
@@ -94,18 +88,14 @@ export function HomePage() {
               </div>
             </div>
             <div className={styles.player}>
-              {/* 確認登入狀態前不放播放器,免得已登入的人先載入序章再換成第 0 課 */}
-              {status !== 'loading' && (
-                <InteractiveScenePage
-                  key={featured.id}
-                  script={featured.videos[0].live!}
-                  pageTitle={featured.title}
-                  interaction="static"
-                  prepare={featured === firstLesson ? withL0Moments : undefined}
-                  embed
-                  shrinkSlot={shrinkSlot}
-                />
-              )}
+              <InteractiveScenePage
+                key={featured.id}
+                script={featured.videos[0].live!}
+                pageTitle={featured.title}
+                interaction="static"
+                embed
+                shrinkSlot={shrinkSlot}
+              />
             </div>
           </div>
 

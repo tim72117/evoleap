@@ -28,7 +28,7 @@ export function KidsLessonPage({ id }: { id: string }) {
   const page = (
     <div className={`${site.site} ${own.whole}`} lang="zh-Hant">
       <main className={own.wholePlayer}>
-        <KidsPlayer script={lesson.script} layout="page" floating chaptersSlot={side} />
+        <KidsPlayer script={lesson.script} layout="page" floating chaptersSlot={side} track />
       </main>
 
       {/* 浮在左上角:回課程地圖(大按鈕,孩子點得到) */}

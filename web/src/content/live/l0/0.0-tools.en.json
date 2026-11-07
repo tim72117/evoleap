@@ -1,0 +1,291 @@
+{
+  "title": "AI tools that work with your files (English voice trial)",
+  "lesson": "起步 · 第 0 課",
+  "camera": "auto",
+  "blocking": {
+    "cast": [
+      "claude",
+      "finder"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "docs": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "文件": {
+            "工作報告.docx": "",
+            "旅行照片": {},
+            "家庭帳本.xlsx": ""
+          }
+        },
+        "open": "文件"
+      },
+      "place": "center",
+      "hidden": true
+    },
+    "login": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~/Documents/practice",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "practice": {}
+        },
+        "open": "practice"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "teacher": {
+    "say": "Today: install an AI tool that works with files",
+    "line": "Today we'll install an AI tool that can work with your files, and learn how to safely allow and deny what it does.",
+    "greetingSay": "Hi everyone, I'm Lena!",
+    "greeting": "Hi everyone, I'm Lena."
+  },
+  "steps": [
+    {
+      "card": "會操作檔案的 AI 工具",
+      "eyebrow": "起步 · 第 0 課 · 影片 1",
+      "sub": "認識工具、安裝登入、準備練習資料夾，再讓 AI 建立第一個檔案",
+      "narration": "In this lesson we'll do four things: see what this kind of AI tool can do with your files, install it and sign in, create a folder just for it to practice in, and finally have it create its first file in that folder — and practice saying no."
+    },
+    {
+      "card": "讀取檔案",
+      "eyebrow": "它能做的事 · 1／3",
+      "sub": "例如看看資料夾裡有哪些檔案、讀完一份會議記錄",
+      "chapter": "它能對你的檔案做什麼",
+      "lessonStep": 1,
+      "narration": "These tools can do three things with your files. First, read files on your computer — like checking what's in a folder, or reading through meeting notes."
+    },
+    {
+      "card": "建立與修改檔案",
+      "eyebrow": "它能做的事 · 2／3",
+      "sub": "例如把整理好的重點存成新檔案、修改網頁上的文字",
+      "narration": "Second, create and edit files — like saving a summary as a new file, or changing the text on a web page."
+    },
+    {
+      "card": "執行指令",
+      "eyebrow": "它能做的事 · 3／3",
+      "sub": "例如用瀏覽器打開網頁、搬移或刪除檔案",
+      "narration": "Third, run commands on your computer — like opening a web page in your browser, or moving and deleting files."
+    },
+    {
+      "card": "它會直接改動你電腦上的檔案",
+      "eyebrow": "和網頁聊天工具最大的差別",
+      "sub": "所以它動手前會先問你，我們也會準備一個專用的練習資料夾",
+      "narration": "The biggest difference from a chat tool on the web is this: it changes the files on your computer directly. That's why it asks you before it acts, and why we'll set up a folder just for it to practice in."
+    },
+    {
+      "card": "常見的工具",
+      "eyebrow": "選一個就好",
+      "sub": "Claude Code · OpenAI Codex CLI · Gemini CLI · Cursor 的 Agent 模式",
+      "narration": "There are several tools like this — Claude Code, OpenAI Codex CLI, Gemini CLI, and Cursor's Agent mode. Installation and plans differ, so follow the official instructions. This lesson shows one of them; the others work in much the same way."
+    },
+    {
+      "card": "從官方網站下載",
+      "eyebrow": "安裝並登入",
+      "sub": "只從工具的官方網站或官方擴充功能商店下載；網址見講義",
+      "chapter": "安裝並登入",
+      "lessonStep": 2,
+      "narration": "Next, let's install the tool. Only download it from the official website or an official extension store. If you're not sure, check the official link in the handout."
+    },
+    {
+      "show": "login",
+      "narration": "Once it's installed and you've signed in following the prompts, you'll see this screen."
+    },
+    {
+      "callout": "login:sidebar",
+      "text": "看到自己的帳號，代表已經登入",
+      "narration": "Your account shows in the sidebar, which means you're signed in."
+    },
+    {
+      "callout": "login:mode",
+      "text": "權限模式選「每次都詢問」（這裡是 Ask permissions）",
+      "narration": "If the tool lets you choose a permission mode, set it to ask before every action — here it's called Ask permissions. While you're starting out, look at every step yourself before you allow it."
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "依官方說明安裝工具並登入，確認工具可以啟動、顯示已登入。做完按「完成了，繼續」。"
+    },
+    {
+      "hide": "login"
+    },
+    {
+      "show": "docs",
+      "chapter": "建立專用的練習資料夾",
+      "lessonStep": 3,
+      "narration": "Open your Documents folder. This is where your everyday files live, so we won't let the AI practice here."
+    },
+    {
+      "on": "docs",
+      "mkdir": "practice",
+      "narration": "Create a new folder and name it practice. Use English letters, with no spaces."
+    },
+    {
+      "on": "docs",
+      "open": "practice",
+      "narration": "Open it — it's empty. From now on, the AI only works inside this folder."
+    },
+    {
+      "callout": "docs",
+      "text": "不要把 AI 工具開在桌面、整個使用者資料夾或公司的共用資料夾",
+      "narration": "Be careful not to open the AI tool on your desktop, your whole user folder, or a shared work folder. And don't put important files in the practice folder."
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "在「文件」底下新增一個 practice 資料夾，確認裡面是空的。做完按「完成了，繼續」。"
+    },
+    {
+      "hide": "docs"
+    },
+    {
+      "show": "claude",
+      "narration": "The folder is ready. Open the tool from practice, and the current working folder shows at the top of the screen.",
+      "chapter": "在練習資料夾開啟工具",
+      "lessonStep": 4
+    },
+    {
+      "callout": "claude:head",
+      "text": "先確認：上方的資料夾是 practice",
+      "narration": "Before we start, take a look at the top. The folder Claude is working in should be practice, the one we just created."
+    },
+    {
+      "on": "claude",
+      "user": "建立 hello.txt，寫一句問候",
+      "chapter": "建立第一個檔案",
+      "narration": "Okay, let's ask it in one sentence to create hello.txt."
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1300
+    },
+    {
+      "on": "claude",
+      "say": "好的，我會在目前的資料夾建立 hello.txt。"
+    },
+    {
+      "on": "claude",
+      "ask": "hello.txt",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice",
+      "preview": "哈囉！這是我在 practice 資料夾裡建立的第一個檔案。",
+      "chapter": "看懂確認提示",
+      "narration": "Notice that it didn't just go ahead — it showed a confirmation prompt first."
+    },
+    {
+      "callout": "claude:ask",
+      "text": "按下去之前先看三件事：哪個檔案？在哪個資料夾？內容或指令是什麼？",
+      "narration": "Before you click, check three things: which file it will create, in which folder, and what the content or command is. Only allow it if all three look right."
+    },
+    {
+      "on": "claude",
+      "choose": 1,
+      "narration": "Everything looks fine this time, so we'll choose Allow once."
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "hello.txt",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "say": "已建立 `hello.txt`，裡面是一句問候。"
+    },
+    {
+      "show": "finder",
+      "create": "hello.txt",
+      "chapter": "在 Finder 確認",
+      "narration": "Open Finder and take a look — there really is a new hello.txt in practice. That's the biggest difference from a web chat tool: it changes the files on your computer directly."
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "在你自己的 practice 資料夾，請 AI 建立 hello.txt。看到確認提示時，先讀清楚「哪個檔案、在哪個資料夾、內容是什麼」再允許。做完按「完成了，繼續」。"
+    },
+    {
+      "on": "claude",
+      "user": "刪除 hello.txt",
+      "chapter": "練習拒絕",
+      "narration": "Now let's practice saying no. We'll ask it to delete the file we just made.",
+      "lessonStep": 5
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "ask": "rm hello.txt",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/Documents/practice",
+      "note": "這會刪除 hello.txt"
+    },
+    {
+      "on": "claude",
+      "choose": 0,
+      "hover": [
+        2,
+        1
+      ],
+      "narration": "Hmm… wait — I almost clicked Always allow. Deleting files is something you should always check yourself while you're starting out, so this time we'll choose Deny."
+    },
+    {
+      "on": "claude",
+      "say": "好的，我不會刪除 `hello.txt`。之後需要的話再告訴我。"
+    },
+    {
+      "show": "finder",
+      "highlight": "hello.txt",
+      "narration": "Back in Finder, hello.txt is still there. When you say no, it doesn't act."
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "card": "下一課：專案與工作目錄",
+      "eyebrow": "這支影片完成了",
+      "sub": "✓ 建好 practice　✓ 工具已登入　✓ 允許過一次、拒絕過一次",
+      "chapter": "回顧",
+      "narration": "The tool is installed, the practice folder is ready, and you've allowed once and denied once. In the next lesson, we'll look at where the AI works: projects and the working directory."
+    }
+  ],
+  "voice": {
+    "style": "Warm, friendly American English. Clear and unhurried, like a teacher sitting next to the learner and guiding them step by step."
+  }
+}

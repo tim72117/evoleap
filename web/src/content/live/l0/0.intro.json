@@ -1,6 +1,6 @@
 {
   "title": "序章：為什麼不用學寫程式，也能做出軟體",
-  "lesson": "L0 · 序章",
+  "lesson": "起步 · 序章",
   "camera": "auto",
   "blocking": {
     "cast": [
@@ -151,10 +151,11 @@
       "hidden": true
     }
   },
+  "teacher": {"say": "今天聊聊：不寫程式也能做軟體", "line": "今天先來聊聊，為什麼不用學寫程式，也能做出自己的軟體。"},
   "steps": [
     {
       "card": "以前，做一個網站要自己寫程式",
-      "eyebrow": "L0 · 序章",
+      "eyebrow": "起步 · 序章",
       "chapter": "以前：自己寫程式",
       "narration": "以前想做一個網站，第一件事是學寫程式。",
       "lessonStep": 1,
@@ -231,7 +232,7 @@
     },
     {
       "card": "寫程式，其實是在「翻譯」",
-      "eyebrow": "L0 · 序章 · 現在",
+      "eyebrow": "起步 · 序章 · 現在",
       "chapter": "寫程式其實是在翻譯",
       "lessonStep": 2,
       "narration": "剛才看到，以前做網站最花時間的，是學程式語言、一行一行寫。為什麼？因為寫程式，其實是在「翻譯」。"
@@ -276,7 +277,7 @@
     },
     {
       "card": "聊天式 AI：會翻譯，但手還是你的",
-      "eyebrow": "L0 · 序章 · 現在",
+      "eyebrow": "起步 · 序章 · 現在",
       "chapter": "聊天式 AI：會翻譯，手還是你的",
       "lessonStep": 3,
       "narration": "那讓 AI 來翻譯呢？先看聊天式 AI，也就是在聊天視窗裡，一來一往對話的那一種。"
@@ -366,7 +367,7 @@
     },
     {
       "card": "AI Agent：自己動手做，做完給你看",
-      "eyebrow": "L0 · 序章 · 現在",
+      "eyebrow": "起步 · 序章 · 現在",
       "sub": "Agent ＝「代理人」：替你動手做事的 AI。這門課用的就是這一類工具",
       "chapter": "AI Agent：自己動手做",
       "lessonStep": 4,
@@ -475,7 +476,7 @@
     },
     {
       "card": "不用寫程式，但這三件事要你來",
-      "eyebrow": "L0 · 序章 · 現在",
+      "eyebrow": "起步 · 序章 · 現在",
       "chapter": "這三件事要你來",
       "lessonStep": 5,
       "narration": "所以，用 AI Agent，你不用寫程式。但有三件事，還是要你來。"

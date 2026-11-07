@@ -81,6 +81,10 @@ export interface StageScript {
   blocking?: BlockingSpecJson | { landscape?: BlockingSpecJson; portrait?: BlockingSpecJson }
   cast: Record<string, CastEntry>
   steps: ScriptStep[]
+  /** 影片開頭的老師介紹(所有課程共用,見 teacher.ts):say 是對話泡泡,line 是旁白「今天要來…」 */
+  teacher?: { say: string; line: string; /** 換掉共用的招呼語(其他語言的試做用,例如英文語音) */ greeting?: string; greetingSay?: string }
+  /** 旁白語音設定(scripts/voice.mjs 讀;覆寫預設的 model、voice、style,例如英文語音的語氣) */
+  voice?: { model?: string; voice?: string; style?: string }
 }
 
 // ---------- 舞台 → 演員 ----------

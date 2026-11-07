@@ -68,7 +68,7 @@ export const L1T_T2_LESSONS: CourseLesson[] = [
     },
     deliverable: '證件浮水印工具（index.html、styles.css、script.js）與一張加上浮水印的虛構證件範例圖。',
     materials: [
-      'L0 的 practice 練習資料夾與已登入的 AI 工具',
+      '起步課程的 practice 練習資料夾與已登入的 AI 工具',
       '瀏覽器',
       '虛構證件範例圖（由課程提供，不使用真實證件）',
       '講義：證件影本浮水印的寫法（用途＋日期）與擺放位置',
@@ -145,7 +145,7 @@ export const L1T_T2_LESSONS: CourseLesson[] = [
     },
     deliverable: '照片批次縮小工具（index.html、styles.css、script.js）與縮小後、不帶拍攝位置的範例照片。',
     materials: [
-      'L0 的 practice 練習資料夾與已登入的 AI 工具',
+      '起步課程的 practice 練習資料夾與已登入的 AI 工具',
       '瀏覽器',
       '範例照片（由課程提供：含拍攝位置等資訊，並有直式與橫式各一張、一張超過 20MB 的大檔）',
       '講義：查看照片拍攝資訊的方法（Windows 檔案內容的「詳細資料」、macOS 預覽程式的檢閱器）',

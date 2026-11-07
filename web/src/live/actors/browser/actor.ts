@@ -1,14 +1,15 @@
 // 演員 browser:仿瀏覽器視窗,顯示「AI 做出來的網頁」,可以切換手機/平板/桌面寬度、捲動、點擊。
 // 規格見 ../../README.md「演員」(2A.1)、「動作要是操作」(2A.4)、「init/apply」(2A.5)。
 //
-// 網頁來自 src/content/live/l0/site/<版本>/(index.html、styles.css、可選 script.js),放在 Shadow DOM 裡(樣式不會漏出去)。
+// 網頁來自 src/content/live/<課程>/site/<版本>/(index.html、styles.css、可選 script.js),放在 Shadow DOM 裡(樣式不會漏出去)。
+// 版本名稱在所有課程之間不能重複(例如 l0 的 v1…v7、l1 的 o1…)。
 // 寬度由腳本指定:載入 CSS 時,每段 @media 的寬度條件(min-width、max-width)用「目前的畫面寬度」自己判斷,
 // 符合才套用,所以不依賴真的瀏覽器視窗,結果只由時間決定(可拖曳、倒轉、逐格重現)。
 // 頁面的捲動位置、點擊後的展開狀態也由本演員依時間設定;script.js 會真的執行(以 Shadow DOM 當作它的 document)。
 //
 // props(登場設定,只描述起始狀態):
 //   site    一開始顯示的版本(預設第一個版本,依名稱排序)
-//   width   phone | tablet | desktop(預設 desktop;實際寬度 390 / 768 / 1280。手機、平板高度固定;桌面在瘦長的視窗裡高度拉長填滿)
+//   width   phone | tablet | desktop(預設 desktop;實際寬度 390 / 768 / 1280。手機、平板高度固定;桌面寬 1280 填滿視窗的寬度,高度跟著視窗比例)
 //   url     網址列顯示的文字(預設 file:///Documents/practice/bakery/index.html;不要用真實使用者路徑)
 //
 // 動作:
@@ -17,6 +18,9 @@
 //   { "scroll": "faq" }                   平滑捲到某個區塊(id),也可寫 "top"、"bottom" 或像素數字
 //   { "go": "faq" }                       (滑鼠)點導覽裡指向 #faq 的連結,接著平滑捲到那個區塊
 //   { "click": "summary" }                (滑鼠)點頁面裡的一個元素(CSS 選擇器,取第一個符合的),例如 "summary"、"#menu"、".menu-btn"
+//   { "fill": { "#phone": "0912", "#slot": "evening" } }   填表單:依序把值填進欄位(文字欄位逐字打出,下拉選單與日期直接選好),
+//                                         填完觸發 input、change 事件,頁面的 script.js 會照常反應。空字串清空欄位。
+//   表單送出(submit)一律不會真的離開頁面;要演「送出後頁面重新整理」就接著寫 reload。
 //   { "reload": true }                    重新整理:畫面閃一下,頁面回到剛載入的狀態(點擊造成的展開/收合還原)
 //   操作對不上(版本不存在、寬度名稱錯誤…)時載入就報錯,並指出第幾步。
 //
@@ -29,7 +33,7 @@ import './actor.css'
 
 // ---------- 網頁素材 ----------
 
-const RAW = import.meta.glob('../../../content/live/l0/site/*/*', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+const RAW = import.meta.glob('../../../content/live/*/site/*/*', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
 
 interface SiteFiles {
   html: string
@@ -107,7 +111,8 @@ function prepare(id: string): Prepared {
 }
 
 // 頁面自己的動畫與過場是即時發生的,不是時間的函式,一律關掉
-const FREEZE = '*,*::before,*::after{animation:none!important;transition:none!important}'
+// 頁面的動畫、轉場與平滑捲動都關掉:捲動位置由本演員依時間逐格設定,網頁自己的 scroll-behavior: smooth 會讓位置落後、逐格輸出時停在原地
+const FREEZE = '*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}'
 const cssAt = (p: Prepared, width: number): string => p.parts.filter((x) => width >= x.min && width <= x.max).map((x) => x.css).join('\n') + FREEZE
 
 // ---------- 型別 ----------
@@ -118,6 +123,8 @@ export interface BrowserProps {
   width?: BrowserWidth
   url?: string
 }
+/** 填表單:選擇器 → 值 */
+type Fill = Record<string, string>
 /** 滑到哪裡:區塊 id、"top"、"bottom" 或像素 */
 type ScrollSpec = string | number
 
@@ -125,13 +132,13 @@ export interface BrowserState {
   site: string
   width: BrowserWidth
   scroll: ScrollSpec
-  /** 這一次載入之後點過的元素(選擇器),照順序重播 */
-  clicks: string[]
+  /** 這一次載入之後做過的操作,照順序重播:字串是點過的元素(選擇器),物件是填過的表單欄位 */
+  clicks: (string | Fill)[]
   /** 重新整理的次數(改變就重新載入頁面) */
   loads: number
 }
 
-const KINDS = ['site', 'width', 'scroll', 'go', 'click', 'reload'] as const
+const KINDS = ['site', 'width', 'scroll', 'go', 'click', 'fill', 'reload'] as const
 type BrowserKind = (typeof KINDS)[number]
 export type BrowserStep = CommonStepFields &
   (
@@ -140,6 +147,7 @@ export type BrowserStep = CommonStepFields &
     | { scroll: ScrollSpec }
     | { go: string }
     | { click: string }
+    | { fill: Fill }
     | { reload: true }
   )
 type StepOf<K extends BrowserKind> = Extract<BrowserStep, Record<K, unknown>>
@@ -152,12 +160,13 @@ const DIMS: Record<BrowserWidth, { w: number; h: number }> = {
   desktop: { w: 1280, h: 800 },
 }
 
-/** 網頁畫面的實際尺寸。手機、平板是固定的裝置尺寸;桌面寬 1280 不變(@media 判斷不受影響),
- *  視窗比 1280×800 瘦長時(直式舞台)高度跟著拉長填滿視窗,不會只剩中間一條橫的網頁;橫式維持 800。 */
+/** 網頁畫面的實際尺寸。手機、平板是固定的裝置尺寸;桌面寬固定 1280(版面和 @media 判斷都照 1280),
+ *  高度跟著視窗的比例調整,讓 1280 寬的網頁剛好填滿視窗的寬度:直式舞台的瘦長視窗高度拉長,
+ *  比 1280×800 扁寬的視窗高度變矮(左右不留白,網頁內容和視窗一樣寬)。 */
 function dimsIn(width: BrowserWidth, vw: number, vh: number): { w: number; h: number } {
   const d = DIMS[width]
   if (width !== 'desktop' || vw <= 16 || vh <= 16) return d
-  return { w: d.w, h: Math.max(d.h, (d.w * (vh - 16)) / (vw - 16)) }
+  return { w: d.w, h: (d.w * (vh - 16)) / (vw - 16) }
 }
 
 // ---------- 時間表(毫秒,相對動作開始) ----------
@@ -168,11 +177,32 @@ const T = {
   go: 2100,
   click: 1300,
   reload: 1000,
+  fill: 0, // 依內容算,見 fillMs
   clickAt: 800, // 滑鼠 150 出發、800 到達並點下
+  fillStart: 700, // fill:滑鼠到第一個欄位之後才開始打字
+  fillChar: 90, // fill:每個字
+  fillGap: 350, // fill:換下一個欄位
   goScroll: 800, // go:點下去之後才開始捲
   goScrollMs: 1100,
   reloadSwap: 350, // reload:畫面蓋白時才還原頁面
 } as const
+/** fill 的時間表:每個欄位從 at 開始打字,打 chars 個字(下拉選單、日期算 1 個字,直接選好) */
+function fillPlan(fill: Fill): { sel: string; value: string; at: number; chars: number }[] {
+  let at = T.fillStart
+  return Object.entries(fill).map(([sel, value]) => {
+    const chars = Math.max(1, [...value].length)
+    const item = { sel, value, at, chars }
+    at += chars * T.fillChar + T.fillGap
+    return item
+  })
+}
+const fillMs = (fill: Fill): number => {
+  const plan = fillPlan(fill)
+  const last = plan[plan.length - 1]
+  return last.at + last.chars * T.fillChar + 300
+}
+const TYPED = new Set(['text', 'tel', 'email', 'search', 'number', 'url', 'password', ''])
+
 const kindOf = (ev: ActorEvent): BrowserKind | null =>
   (KINDS as readonly string[]).includes(ev.kind) ? (ev.kind as BrowserKind) : (KINDS.find((k) => k in ev.step) ?? null)
 
@@ -188,7 +218,7 @@ const actor = defineActor<BrowserKind, BrowserStep, BrowserProps, BrowserState, 
   },
 
   init(props) {
-    if (!SITE_IDS.length) throw new Error('browser:找不到網頁素材(src/content/live/l0/site/<版本>/index.html)')
+    if (!SITE_IDS.length) throw new Error('browser:找不到網頁素材(src/content/live/<課程>/site/<版本>/index.html)')
     const site = props.site ?? SITE_IDS[0]
     if (!SITES[site]?.html) throw new Error(`browser 的 props.site:找不到版本「${site}」(有:${SITE_IDS.join('、')})`)
     const width = props.width ?? 'desktop'
@@ -219,23 +249,34 @@ const actor = defineActor<BrowserKind, BrowserStep, BrowserProps, BrowserState, 
         if (typeof v !== 'string' || !v.trim()) throw new Error('click 要給 CSS 選擇器')
         return { ...st, clicks: [...st.clicks, v] }
       }
+      case 'fill': {
+        if (!v || typeof v !== 'object' || Array.isArray(v) || !Object.keys(v).length || Object.values(v).some((x) => typeof x !== 'string'))
+          throw new Error('fill 要給 { "選擇器": "值" },至少一個欄位,值都是字串')
+        return { ...st, clicks: [...st.clicks, v as Fill] }
+      }
       case 'reload':
         return { ...st, clicks: [], loads: st.loads + 1 }
     }
     throw new Error(`browser 不會「${kind}」`)
   },
 
-  duration(kind) {
-    return T[kind]
+  duration(kind, step) {
+    return kind === 'fill' ? fillMs((step as StepOf<'fill'>).fill) : T[kind]
   },
 
   autoFocus(kind, step): BrowserTarget {
     if (kind === 'click') return `sel:${(step as StepOf<'click'>).click}` // 鏡頭看被點的那個元素
+    if (kind === 'fill') return `sel:${Object.keys((step as StepOf<'fill'>).fill)[0]}`
     return kind === 'site' || kind === 'width' || kind === 'reload' ? 'content' : 'viewport'
   },
 
   cursor(kind, step): CursorPlan | null {
     if (kind === 'click') return { moves: [{ at: 150, target: `sel:${(step as StepOf<'click'>).click}` }], clickAt: T.clickAt }
+    if (kind === 'fill') {
+      const plan = fillPlan((step as StepOf<'fill'>).fill)
+      // 滑鼠依序移到每個欄位;點一下第一個欄位再開始打字
+      return { moves: plan.map((f) => ({ at: Math.max(150, f.at - 550), target: `sel:${f.sel}` })), clickAt: plan[0].at - 100 }
+    }
     if (kind === 'go') return { moves: [{ at: 150, target: `sel:a[href="#${(step as StepOf<'go'>).go}"]` }], clickAt: T.clickAt }
     return null
   },
@@ -259,12 +300,22 @@ const actor = defineActor<BrowserKind, BrowserStep, BrowserProps, BrowserState, 
     frame.setAttribute('aria-hidden', 'true') // 示範畫面:對輔助技術來說只是裝飾,旁白與字幕已經說明內容
     const shadow = frame.attachShadow({ mode: 'open' })
     shadow.innerHTML = `<style class="bw-base">.bw-doc{position:absolute;inset:0;overflow-anchor:none;overflow-x:hidden;overflow-y:auto;background:#fff}.bw-body{min-height:100%}</style><style class="bw-site"></style><div class="bw-doc"><div class="bw-body"></div></div>`
+    // 示範的網頁不能真的送出表單(會讓整個課程頁離開);頁面自己的 submit 監聽照常執行
+    shadow.addEventListener('submit', (e) => e.preventDefault(), true)
+    const CREATE = new Set(['createElement', 'createTextNode', 'createDocumentFragment'])
+    const pageDoc = new Proxy(shadow, {
+      get(t, key) {
+        if (typeof key === 'string' && CREATE.has(key)) return (document as unknown as Record<string, (...a: unknown[]) => unknown>)[key].bind(document)
+        const v = Reflect.get(t, key) as unknown
+        return typeof v === 'function' ? (v as (...a: unknown[]) => unknown).bind(t) : v
+      },
+    })
     const siteStyle = shadow.querySelector<HTMLStyleElement>('.bw-site')!
     const doc = shadow.querySelector<HTMLElement>('.bw-doc')!
     const body = shadow.querySelector<HTMLElement>('.bw-body')!
 
     // 目前頁面上載入的是哪個版本、第幾次載入、已經重播了幾次點擊
-    const page = { site: '', loads: -1, applied: 0 }
+    const page = { site: '', loads: -1, applied: 0, typing: false }
     function load(id: string, loads: number): void {
       const p = prepare(id)
       body.innerHTML = p.body
@@ -272,10 +323,12 @@ const actor = defineActor<BrowserKind, BrowserStep, BrowserProps, BrowserState, 
       page.site = id
       page.loads = loads
       page.applied = 0
+      page.typing = false
       if (p.js) {
-        // script.js 以 Shadow DOM 當作 document 執行(getElementById、querySelector 都有),事件監聽留在這份新建的元素上
+        // script.js 以 Shadow DOM 當作 document 執行(getElementById、querySelector 都有;createElement 這類建立節點的方法借用真的 document),
+        // 事件監聽留在這份新建的元素上
         try {
-          new Function('document', p.js)(shadow)
+          new Function('document', p.js)(pageDoc)
         } catch (e) {
           console.warn(`browser:版本「${id}」的 script.js 執行失敗`, e)
         }
@@ -310,6 +363,9 @@ const actor = defineActor<BrowserKind, BrowserStep, BrowserProps, BrowserState, 
         let eff = state
         if (k === 'reload' && local < T.reloadSwap) eff = prev
         if (k === 'click' && local < T.clickAt) eff = prev
+        // 填表單:打字過程中先停在填之前,打完才當作填好(觸發事件)
+        const filling = k === 'fill' && ev ? fillPlan((ev.step as StepOf<'fill'>).fill) : null
+        if (filling && local < fillMs((ev!.step as StepOf<'fill'>).fill) - 300) eff = prev
 
         // 寬度(過渡中依進度在前後兩個尺寸之間插值)
         const wp = k === 'width' ? kit.ease.inOutCubic(kit.progress(local, 0, T.width)) : 1
@@ -334,16 +390,41 @@ const actor = defineActor<BrowserKind, BrowserStep, BrowserProps, BrowserState, 
 
         // 頁面:版本或載入次數變了、或點擊比應有的多(倒轉)就重新載入(同步完成,不會閃空白)
         const nClicks = eff.clicks.length
-        if (page.site !== eff.site || page.loads !== eff.loads || page.applied > nClicks) load(eff.site, eff.loads)
+        // 打字留下的半截內容:離開打字中的畫面(例如倒轉到填之前)時重新載入,回到乾淨的頁面
+        const typingNow = !!filling && eff === prev
+        if (page.site !== eff.site || page.loads !== eff.loads || page.applied > nClicks || (page.typing && !typingNow)) load(eff.site, eff.loads)
         kit.setIf(siteStyle, 'text', cssAt(prepare(eff.site), lw))
         kit.setIf(tabTitle, 'text', prepare(eff.site).title || '小森烘焙')
 
         // 重播還沒做的點擊(summary 會展開、按鈕會執行頁面的程式)
         for (; page.applied < nClicks; page.applied++) {
-          const sel = eff.clicks[page.applied]
-          const el = shadow.querySelector<HTMLElement>(sel)
-          if (el) el.click()
-          else console.warn(`browser:頁面「${page.site}」裡找不到「${sel}」,這次點擊略過`)
+          const op = eff.clicks[page.applied]
+          if (typeof op === 'string') {
+            const el = shadow.querySelector<HTMLElement>(op)
+            if (el) el.click()
+            else console.warn(`browser:頁面「${page.site}」裡找不到「${op}」,這次點擊略過`)
+          } else {
+            for (const [sel, value] of Object.entries(op)) {
+              const el = shadow.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(sel)
+              if (!el) {
+                console.warn(`browser:頁面「${page.site}」裡找不到欄位「${sel}」,略過`)
+                continue
+              }
+              el.value = value
+              el.dispatchEvent(new Event('input', { bubbles: true }))
+              el.dispatchEvent(new Event('change', { bubbles: true }))
+            }
+          }
+        }
+        // 打字中:文字欄位顯示打到一半的字(不觸發事件;打完上面那段才正式填入)
+        if (filling && eff === prev) {
+          for (const f of filling) {
+            const el = shadow.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(f.sel)
+            if (!el || local < f.at) continue
+            const typed = el instanceof HTMLSelectElement || (el instanceof HTMLInputElement && !TYPED.has(el.type)) ? (local >= f.at + T.fillChar ? f.value : null) : [...f.value].slice(0, Math.floor((local - f.at) / T.fillChar) + 1).join('')
+            if (typed !== null && el.value !== typed) el.value = typed
+            page.typing = true
+          }
         }
 
         // 捲動:scroll、go 依進度在前後兩個位置之間插值,其他時候停在目前位置

@@ -20,7 +20,7 @@ function CourseCard({ course }: { course: Course }) {
         {open > 0 ? (
           <span className={`${styles.badge} ${styles.badgeOpen}`}>已開放 {open} 課</span>
         ) : (
-          <span className={styles.badge}>規劃中</span>
+          <span className={`${styles.badge} ${styles.badgePlanned}`}><span aria-hidden="true">🌱 </span>規劃中</span>
         )}
       </p>
       <h3>
@@ -71,7 +71,6 @@ export function CourseListPage() {
           <ul className={styles.grid}>
             <li className={styles.card}>
               <p className={styles.badges}>
-                <span className={styles.badge}>登入後免費</span>
                 <span className={`${styles.badge} ${styles.badgeOpen}`}>已開放 {Object.keys(WEB_OPEN_LESSONS).length} 課</span>
               </p>
               <h3>

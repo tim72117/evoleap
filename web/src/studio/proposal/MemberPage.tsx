@@ -3,17 +3,18 @@ import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
 // 跨等級構想：登入前後的差異（會員空間）。2026-11-03 整理。
-// 「播放進度」已實作（server/internal/api/progress.go、web/src/courses/progress.ts）；其餘為構想，尚未決定是否實作。
+// 「播放進度」已實作（server/internal/api/progress.go、web/src/courses/progress.ts），訪客上課紀錄也已實作（server/internal/api/guest.go、web/src/courses/guestActivity.ts）；其餘為構想，尚未決定是否實作。
 // 新增任何會員資料前必須先更新隱私權政策（web/src/legal/PrivacyPage.tsx）。
 
 const POSITIONING: [string, string][] = [
   ['研發階段', '部分已做（播放進度）；其餘為構想，尚未評估工時，優先順序尚未決定。'],
-  ['一句話', '登入前後要有差別，會員才有理由註冊：訪客看課、不留下任何紀錄；登入後有自己的學習紀錄與工具。'],
+  ['一句話', '登入前後要有差別，會員才有理由註冊：訪客看課、不記住看到哪裡（只留匿名的上課紀錄給我們統計）；登入後有自己的學習紀錄與工具。'],
   ['適用等級', 'L0–L4 都適用；「我的學習」頁與步驟打勾直接延伸現有的播放進度。'],
 ]
 
 const DONE: [string, string, string][] = [
-  ['訪客', '不儲存播放進度；舊版留在瀏覽器的進度會被清掉；課程頁提示「登入後會記住你看到哪裡」。', '前端不呼叫、後端也一律回 401'],
+  ['訪客', '不儲存播放進度；舊版留在瀏覽器的進度會被清掉；課程頁提示「登入後會記住你看到哪裡」。', '進度 API 前端不呼叫、後端也一律回 401'],
+  ['訪客上課紀錄', '未登入打開一課記一筆（打開的時間），播放時累計實際播放的時間（約每 30 秒、暫停與離開時送）；保存 180 天；後台總覽看得到各課的訪客打開次數、人數與播放時間。', 'cookie evoleap_guest（隨機代號、HttpOnly、180 天）；資料表 guest_views：代號、課、打開時間、播放時間；POST /api/guest/views、PUT /api/guest/views/{id}'],
   ['會員', '自動記住每一課看到哪裡，下次從那裡接著看（約每 2 秒與離開頁面時存一次）。', '資料表 progress：使用者、課、位置、全長、更新時間；GET／PUT /api/progress'],
 ]
 
@@ -134,7 +135,7 @@ export function MemberPage() {
           </tbody>
         </table>
       </section>
-      <p className={ui.lead}>隱私權政策已同步改成現況：登入後記錄播放進度、未登入不儲存任何進度。</p>
+      <p className={ui.lead}>隱私權政策已同步改成現況：登入後記錄播放進度；未登入不儲存進度，只留匿名的訪客上課紀錄（「訪客上課紀錄」一節）。</p>
 
       <h2>核心（建議先做）</h2>
       <p className={ui.lead}>這三項直接延續現有的進度資料，工作量小、學員最有感，合起來就是一個「我的學習」頁。</p>

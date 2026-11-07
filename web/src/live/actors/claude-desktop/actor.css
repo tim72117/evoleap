@@ -94,8 +94,9 @@
 .A-claude-desktop .cd-me { margin-top: auto; padding: 0.4em 0.7em; color: var(--dim); display: flex; align-items: center; gap: 0.6em; }
 .A-claude-desktop .cd-me .avatar {
   display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 50%;
-  background: var(--fg); color: var(--bg); font-size: 0.85em; font-weight: 700;
+  background: #ffffff; border: 1px solid var(--line, #d9d7cf); overflow: hidden;
 }
+.A-claude-desktop .cd-me .avatar svg { width: 78%; height: 78%; }
 
 /* ---------- main ---------- */
 .A-claude-desktop .cd-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }

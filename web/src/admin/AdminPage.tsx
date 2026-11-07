@@ -1,6 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { SiteLayout } from '../site/SiteLayout'
+import { Link, Navigate } from 'react-router-dom'
 import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
@@ -9,7 +8,8 @@ import { ADMIN_PATH } from './paths'
 import { formatDateTime, formatDuration, percentOf } from './format'
 import styles from './AdminPage.module.css'
 
-// 管理後台:會員列表與播放進度概況。權限由伺服器判定(Email 白名單),
+// 管理後台:會員列表、播放進度與訪客上課紀錄的概況。放在研發基地的「會員」標籤(studio/proposal/MembersPage.tsx),
+// 舊的 /admin 轉到那裡。權限由伺服器判定(Email 白名單;本機 -open-studio 時不檢查),
 // 這裡只負責呈現;非管理員打 API 會得到 403,顯示「沒有權限」。
 
 type Data = { overview: AdminOverview; users: AdminUser[] }
@@ -20,16 +20,23 @@ type State =
   | { kind: 'error'; message: string }
   | { kind: 'ready'; data: Data }
 
-export function AdminPage() {
+/** 舊網址 /admin:轉到研發基地的「會員」標籤 */
+export function AdminRedirect() {
+  return <Navigate to={ADMIN_PATH} replace />
+}
+
+/** 後台內容(不含版面):依登入狀態與權限顯示載入中、請先登入、沒有權限或儀表板 */
+export function AdminConsole() {
   const auth = useAuth()
   const [state, setState] = useState<State>({ kind: 'loading' })
 
   useEffect(() => {
     if (auth.status === 'loading') return
-    if (auth.status !== 'user') {
+    if (auth.status === 'disabled') {
       setState({ kind: 'guest' })
       return
     }
+    // 沒登入也先問伺服器:本機用 -open-studio 啟動時後台不檢查權限;正式環境會回 401,顯示「請先登入」
     let cancelled = false
     Promise.all([adminApi.overview(), adminApi.users()])
       .then(([overview, users]) => !cancelled && setState({ kind: 'ready', data: { overview, users } }))
@@ -45,9 +52,7 @@ export function AdminPage() {
   }, [auth.status])
 
   return (
-    <SiteLayout title="管理後台">
-      <div className={styles.wrap}>
-        <h1 className={styles.title}>管理後台</h1>
+    <div className={styles.console}>
         {state.kind === 'loading' && <p className={styles.note}>載入中…</p>}
         {state.kind === 'guest' && (
           <p className={styles.note}>
@@ -57,8 +62,7 @@ export function AdminPage() {
         {state.kind === 'forbidden' && <p className={styles.note}>這個帳號沒有管理權限。</p>}
         {state.kind === 'error' && <p className={styles.note}>{state.message}</p>}
         {state.kind === 'ready' && <Dashboard data={state.data} />}
-      </div>
-    </SiteLayout>
+    </div>
   )
 }
 
@@ -69,6 +73,7 @@ function Dashboard({ data }: { data: Data }) {
       <div className={styles.stats}>
         <Stat label="會員數" value={overview.users} />
         <Stat label="有播放紀錄" value={overview.activeUsers} />
+        <Stat label="訪客" value={overview.guests} />
         <Stat label="有人學習的課" value={overview.lessons.length} />
       </div>
 
@@ -84,6 +89,9 @@ function Dashboard({ data }: { data: Data }) {
                 <th>學習人數</th>
                 <th>看完人數</th>
                 <th>平均進度</th>
+                <th>訪客打開</th>
+                <th>訪客人數</th>
+                <th>訪客播放</th>
               </tr>
             </thead>
             <tbody>
@@ -92,7 +100,10 @@ function Dashboard({ data }: { data: Data }) {
                   <td>{l.lesson}</td>
                   <td>{l.learners}</td>
                   <td>{l.completed}</td>
-                  <td>{Math.round(l.avgPercent)}%</td>
+                  <td>{l.learners ? `${Math.round(l.avgPercent)}%` : '—'}</td>
+                  <td>{l.guestViews}</td>
+                  <td>{l.guestVisitors}</td>
+                  <td>{formatDuration(l.guestWatchedMs)}</td>
                 </tr>
               ))}
             </tbody>

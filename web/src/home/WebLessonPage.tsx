@@ -65,7 +65,7 @@ export function WebLessonPage({ id }: { id: string }) {
       title={title}
       docTitle={webLessonDocTitle(id)}
       back={{ to: WEB_TOPIC.path, label: '回課程地圖' }}
-      note="這門課免費，序章可以直接預覽，其他課登入後就能學習，也會記錄你的播放進度。"
+      note="序章可以直接預覽；第 0 課登入後免費觀看，之後的課程需要訂閱。登入後也會記錄你的播放進度。"
     >
       {page}
     </LoginGate>

@@ -121,7 +121,7 @@ export function AiAgentCoursePage() {
                 <div className={styles.unitBody}>
                   <h3>
                     <Link to={`${AI_AGENT_COURSE_PATH}/${u.num === '★' ? 'capstone' : `unit-${u.num}`}`}>{u.title}</Link>
-                    {u.status === 'planned' && <span className={styles.badge}>規劃中</span>}
+                    {u.status === 'planned' && <span className={`${styles.badge} ${styles.badgePlanned}`}><span aria-hidden="true">🌱 </span>規劃中</span>}
                   </h3>
                   <p className={styles.unitGoal}>{u.goal}</p>
                   <dl>

@@ -13,11 +13,17 @@ export interface LessonStat {
   learners: number
   completed: number
   avgPercent: number
+  /** 訪客(未登入)打開這一課的次數、不同訪客數、累計播放時間 */
+  guestViews: number
+  guestVisitors: number
+  guestWatchedMs: number
 }
 
 export interface AdminOverview {
   users: number
   activeUsers: number
+  /** 保存期間(180 天)內有紀錄的訪客數 */
+  guests: number
   lessons: LessonStat[]
 }
 

@@ -1,16 +1,12 @@
-/* 管理後台。沿用 SiteLayout 的 --site-* tokens。 */
+/* 管理後台(放在研發基地的「會員」標籤)。樣式用 --site-* tokens,這裡對應到研發基地(proposal.module.css)的顏色。 */
 
-.wrap {
-  max-width: var(--site-max);
-  margin: 0 auto;
-  padding: 28px 20px 48px;
+.console {
+  --site-border: var(--border);
+  --site-muted: var(--ink-soft);
+  --site-surface: var(--surface);
+  --site-radius: 10px;
 }
 
-.title {
-  margin: 0 0 16px;
-  font-size: 26px;
-  letter-spacing: 0.04em;
-}
 
 .heading {
   margin: 28px 0 10px;

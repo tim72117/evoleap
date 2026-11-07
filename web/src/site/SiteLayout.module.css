@@ -241,27 +241,23 @@
   letter-spacing: 0;
 }
 
+/* 帳號選單的外框:不影響排版,頁首最右邊就是帳號 */
+.account {
+  display: contents;
+}
+
 @media (max-width: 640px) {
+  /* 手機:標誌、導覽連結、切換鈕、帳號排在同一列,帳號(頭像或「登入」)在最右邊 */
   .headerInner {
-    flex-direction: column;
-    align-items: stretch;
     gap: 6px;
-    padding: 8px 14px;
+    padding: 8px 12px;
   }
 
   .brandTagline {
     display: none;
   }
 
-  /* 直排的頁首裡,切換鈕放在標誌同一列的右邊,不另佔一列 */
-  .headerInner {
-    position: relative;
-  }
-
   .themeToggle {
-    position: absolute;
-    top: 6px;
-    right: 14px;
     width: 30px;
     height: 30px;
   }
@@ -271,17 +267,34 @@
   }
 
   .nav {
-    margin: 0 -6px;
+    gap: 0;
   }
 
   .site .nav a {
-    padding: 4px 10px;
+    padding: 4px 8px;
     font-size: 14px;
+    white-space: nowrap;
   }
 
   .footerInner {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* 很窄的手機(約 320px):縮小標誌與間距,導覽連結才放得下,不用左右捲 */
+@media (max-width: 360px) {
+  .headerInner {
+    gap: 4px;
+    padding: 8px 8px;
+  }
+
+  .brandLogo {
+    height: 24px;
+  }
+
+  .site .nav a {
+    padding: 4px 6px;
   }
 }
 

@@ -23,6 +23,8 @@ import { fileURLToPath } from 'node:url'
 import { Mp3Encoder } from '@breezystack/lamejs'
 
 const WEB = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+// 影片開頭的老師介紹(共用的招呼語),和網頁端 src/live/teacher.ts 讀同一份
+const TEACHER = JSON.parse(fs.readFileSync(path.join(WEB, 'src/live/teacher.json'), 'utf8'))
 const LIVE = path.join(WEB, 'src/content/live')
 
 // 預設設定(之後要換聲音或語氣,改這裡再重跑;舊音檔會被清掉)
@@ -193,7 +195,9 @@ async function build(rel, key) {
       }
     return out
   }
-  const all = profileOf(rel) === KIDS ? deepNarrations({ steps: script.steps, interact: script.interact }) : (script.steps || []).map((s) => s.narration)
+  // 腳本頂層的 teacher:開頭的老師介紹(src/live/teacher.ts 展開),共用的招呼語與這一課的一句也要有語音
+  const intro = script.teacher ? [script.teacher.greeting ?? TEACHER.greeting, script.teacher.line] : []
+  const all = [...intro, ...(profileOf(rel) === KIDS ? deepNarrations({ steps: script.steps, interact: script.interact }) : (script.steps || []).map((s) => s.narration))]
   let texts = [...new Set(all.filter(Boolean))]
   // --max-sec:只取開頭幾段,累計估算長度(每秒約 4.2 字)到達上限為止;其他段落沿用舊音檔或維持只有字幕
   const maxSec = Number(flag('max-sec'))
@@ -212,9 +216,18 @@ async function build(rel, key) {
   // 這次沒處理到的段落(--max-sec、--limit)保留原本的音檔
   const clips = maxSec > 0 || limit > 0 ? { ...(old.clips || {}) } : {}
   // 每產生一段就寫一次清單:中途失敗(額度、網路)時已完成的段落不會遺失,重跑會從斷點接續、不重複計費
+  // 同一個資料夾的其他腳本已經產生過的同一段(例如每支影片共用的老師招呼語):音檔名由文字與語音設定決定,
+  // 直接沿用那份音檔與長度,不要重新合成(重新合成會用同一個檔名覆蓋雲端的音檔,其他腳本記錄的長度就對不上了)
+  const shared = {}
+  for (const name of fs.readdirSync(path.dirname(scriptPath))) {
+    if (!name.endsWith('.voice.json') || path.join(path.dirname(scriptPath), name) === manifestPath) continue
+    const other = JSON.parse(fs.readFileSync(path.join(path.dirname(scriptPath), name), 'utf8'))
+    for (const c of Object.values(other.clips || {})) shared[c.file] = c
+  }
   const cachedOf = (text) => {
+    const file = `${prefix}/${hashOf(text, cfg)}.mp3`
     const prev = old.clips?.[text]
-    return prev && prev.file === `${prefix}/${hashOf(text, cfg)}.mp3` ? prev : undefined
+    return prev && prev.file === file ? prev : shared[file]
   }
   // 還沒輪到的段落先帶著原本的快取寫進去:中途失敗時清單不會缺段,已上傳的音檔重跑也不會重複合成
   const save = () => {

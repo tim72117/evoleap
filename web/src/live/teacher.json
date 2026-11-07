@@ -1,0 +1,8 @@
+{
+  "name": "Lena",
+  "look": "teacher",
+  "mood": "happy",
+  "greetingSay": "大家好，我是 Lena！",
+  "greeting": "大家好，我是 Lena。",
+  "place": { "landscape": { "x": 560, "y": 380, "w": 800, "h": 320 }, "portrait": { "x": 140, "y": 780, "w": 800, "h": 360 } }
+}

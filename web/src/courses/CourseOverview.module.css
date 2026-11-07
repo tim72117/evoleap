@@ -345,3 +345,29 @@
     margin-left: 46px;
   }
 }
+
+/* 課程內容下方:連到同一主題的下一章(下一門課) */
+.nextCourse {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px 20px;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  background: var(--site-surface);
+  color: inherit;
+  font-weight: 700;
+  text-decoration: none;
+}
+.nextCourse small {
+  color: var(--site-muted);
+  font-weight: 600;
+}
+.nextCourse span:last-child {
+  margin-left: auto;
+  color: var(--site-accent-strong);
+}
+.nextCourse:hover {
+  border-color: var(--site-accent);
+}

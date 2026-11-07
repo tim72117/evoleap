@@ -1,6 +1,6 @@
 {
   "title": "訂購單：情境開場（試做）",
-  "lesson": "L1 · 1.0",
+  "lesson": "零基礎 · 訂購單",
   "cast": {
     "phone": { "actor": "chat", "props": { "title": "小森烘焙" }, "place": { "landscape": { "x": 140, "y": 130, "w": 560, "h": 780 }, "portrait": { "x": 40, "y": 110, "w": 500, "h": 760 } }, "hidden": true },
     "desk": { "actor": "notes", "props": { "label": "今日訂單" }, "place": { "landscape": { "x": 780, "y": 110, "w": 600, "h": 820 }, "portrait": { "x": 560, "y": 110, "w": 480, "h": 760 } }, "hidden": true },

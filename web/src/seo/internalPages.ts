@@ -21,6 +21,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
   [
     ['/studio', '總覽'],
     ['/studio/todo', '待辦'],
+    ['/studio/members', '會員'],
     ['/studio/docs', '文件'],
     ['/studio/tools', 'L0 AI 工具介紹'],
     ['/studio/ai-tools', 'L1 AI 工具入門'],
@@ -35,6 +36,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/member', '會員空間'],
     ['/studio/resources', '資源系統'],
     ['/studio/news-feed', '科技新知動態牆'],
+    ['/studio/extensions', '延伸課程'],
     ['/studio/actor-interaction', '演員互動'],
     ['/studio/actor-interaction/showcase', '演員展示'],
     ['/studio/ai-tips', 'AI 工具技巧'],

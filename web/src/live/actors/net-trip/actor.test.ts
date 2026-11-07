@@ -10,10 +10,11 @@ const start = () => actor.init!({})
 
 /** 照舞台載入的方式(stage.ts):從 init 開始,依序 apply 演員的每個動作;回傳最後的狀態 */
 function run(script: StageScript): NetState {
-  const id = Object.keys(script.cast)[0]
+  const id = Object.keys(script.cast).find((k) => script.cast[k].actor === 'net-trip')!
   let st = actor.init!(script.cast[id].props ?? {})
   script.steps.forEach((raw, i) => {
     const s = raw as Record<string, unknown>
+    if (s.on && s.on !== id) return // 其他演員(例如開場的老師)的動作
     const stage = STAGE.find((k) => k in s)
     if (stage && stage !== 'show' && stage !== 'hide') return
     const kinds = actor.kinds.filter((k) => k in s)

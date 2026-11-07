@@ -41,7 +41,14 @@ func (s *Server) isAdmin(u store.User) bool {
 }
 
 // requireAdmin 要求已登入且在管理員白名單內;未登入 401、非管理員 403。
+// cfg.OpenAdmin(本機 -open-studio)時不檢查:有登入就帶著那位使用者,沒登入給一個空的使用者。
 func (s *Server) requireAdmin(h func(http.ResponseWriter, *http.Request, store.User)) http.HandlerFunc {
+	if s.cfg.OpenAdmin {
+		return s.requireAuth(func(w http.ResponseWriter, r *http.Request) {
+			user, _ := s.currentUser(r)
+			h(w, r, user)
+		})
+	}
 	return s.requireUser(func(w http.ResponseWriter, r *http.Request, user store.User) {
 		if !s.isAdmin(user) {
 			writeError(w, http.StatusForbidden, "forbidden", "沒有管理權限")

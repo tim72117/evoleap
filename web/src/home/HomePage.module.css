@@ -161,32 +161,33 @@
   min-width: 0;
 }
 
-/* 放大(開始播放後,靜態互動與播放都是這個大小;一開始不放大):右上角不動,播放器往左下長;左欄變窄,只留主題名稱、標語與按鈕,其他收起來,縮小後再出現 */
-@media (min-width: 821px) {
-  .featuredMain {
-    transition: grid-template-columns 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  }
+/* 放大(開始播放後;一開始不放大):播放器和卡片內容一樣寬放在最上面,主題名稱、標語與按鈕移到播放器下面;
+   其他說明收起來,縮小後再出現 */
+.featuredMain:has([data-expanded]) {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
 
-  .featuredMain:has([data-expanded]) {
-    grid-template-columns: minmax(220px, 3fr) 9fr;
-    align-items: start;
-  }
+.featuredMain:has([data-expanded]) .featuredText {
+  display: contents;
+}
 
-  .featuredMain:has([data-expanded]) .lede,
-  .featuredMain:has([data-expanded]) .facts,
-  .featuredMain:has([data-expanded]) .ladder {
-    display: none;
-  }
+.featuredMain:has([data-expanded]) .lede,
+.featuredMain:has([data-expanded]) .facts,
+.featuredMain:has([data-expanded]) .ladder {
+  display: none;
+}
 
-  .featuredMain:has([data-expanded]) .featuredText h2 {
-    font-size: 24px;
-  }
+.featuredMain:has([data-expanded]) .featuredText h2 {
+  font-size: 24px;
+}
 
-  .featuredMain:has([data-expanded]) .ctas {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
-  }
+.featuredMain:has([data-expanded]) .player {
+  order: -1;
+}
+
+.featuredMain:has([data-expanded]) .ctas {
+  order: 2;
 }
 
 /* 這個主題的成果:和上面同一張卡片、同一個底色,不要看起來像另一個主題 */

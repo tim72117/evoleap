@@ -246,3 +246,18 @@ func TestAdminAvgPercentIgnoresUnknownDuration(t *testing.T) {
 		t.Errorf("兩筆 100%% 加一筆不知總長:平均應該是 100,學習人數 3: %d %s", rec.Code, rec.Body)
 	}
 }
+
+// 本機 -open-studio:管理後台 API 不檢查登入與白名單
+func TestAdminOpenWithOpenStudio(t *testing.T) {
+	st := openTestStore(t)
+	h := New(Config{Store: st, Signer: auth.NewSigner("test-secret", time.Hour), OpenAdmin: true}).Routes()
+	for _, p := range []string{"/api/admin/overview", "/api/admin/users"} {
+		if rec := call(h, http.MethodGet, p, "", nil); rec.Code != http.StatusOK {
+			t.Errorf("%s guest: %d %s", p, rec.Code, rec.Body)
+		}
+	}
+	amy := registerCookie(t, h, "amy@example.com")
+	if rec := call(h, http.MethodGet, "/api/admin/me", "", amy); rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "amy@example.com") {
+		t.Errorf("me: %d %s", rec.Code, rec.Body)
+	}
+}

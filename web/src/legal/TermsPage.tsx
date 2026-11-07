@@ -3,7 +3,7 @@ import { ContactEmail, Ext, Fill, LegalDoc, Note, type LegalSection } from './Le
 import { OPERATOR_NAME } from './operator'
 
 /** 最後更新日期;內容有實質變更時一併更新 */
-const TERMS_UPDATED = '2026-11-05'
+const TERMS_UPDATED = '2026-11-07'
 
 const sections: LegalSection[] = [
   {
@@ -21,7 +21,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          本網站提供從零開始的 AI 學習課程，包括課程地圖、教學影片、文字說明與可複製的提示詞範例。目前開放的課程內容可免費觀看，其中標示「登入後免費」的課程要註冊並登入才能觀看；部分課程與互動功能規劃納入付費訂閱。
+          本網站提供從零開始的 AI 學習課程，包括課程地圖、教學影片、文字說明與可複製的提示詞範例。每門課的序章不用登入即可觀看；第 0 課要註冊並登入，登入後免費觀看；之後的課程納入付費訂閱。
         </p>
         <ul>
           <li>註冊並登入後會記錄您的播放進度（帳號規則見後面的「帳號」）。</li>

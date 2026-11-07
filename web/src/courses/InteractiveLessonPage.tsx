@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
-import { coursePath, lessonLabel, lessonPath, type Course } from '../content/catalog'
+import { coursePath, lessonLabel, lessonPath, nextCourse, type Course } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { SOFTWARE_TOPIC } from '../content/topics'
 import type { StageScript } from '../live/stage'
@@ -34,6 +34,7 @@ export function InteractiveLessonPage({ course, lesson, prepare }: Props) {
   const index = course.lessons.indexOf(lesson)
   const prev = course.lessons[index - 1]
   const next = course.lessons[index + 1]
+  const nextC = next ? undefined : nextCourse(course)
   const name = `${lessonLabel(lesson)} ${lesson.title}`
 
   return (
@@ -59,7 +60,13 @@ export function InteractiveLessonPage({ course, lesson, prepare }: Props) {
             )}
             <nav className={styles.panelFooter} aria-label="上一課與下一課">
               {prev ? <Link to={lessonPath(course, prev)}>← 上一課：{lessonLabel(prev)}</Link> : <span />}
-              {next ? <Link to={lessonPath(course, next)}>下一課：{lessonLabel(next)} →</Link> : <Link to={`${SOFTWARE_TOPIC.path}#map`}>課程地圖 →</Link>}
+              {next ? (
+                <Link to={lessonPath(course, next)}>下一課：{lessonLabel(next)} →</Link>
+              ) : nextC ? (
+                <Link to={coursePath(nextC)}>下一章：{nextC.level} →</Link>
+              ) : (
+                <Link to={`${SOFTWARE_TOPIC.path}#map`}>課程地圖 →</Link>
+              )}
             </nav>
           </>
         ),

@@ -11,7 +11,6 @@
         "branch": "feat/order-form",
         "mode": "auto",
         "dark": true,
-        "user": "E",
         "labels": {
           "recent": "bakery",
           "new": "New session"
@@ -32,6 +31,7 @@
       "hidden": true
     }
   },
+  "teacher": {"say": "今天介紹 Fork", "line": "今天要來介紹 Fork：帶著目前的對話，另開一條路試試看。"},
   "steps": [
     {
       "card": "同一段對話，另開一條路",
@@ -98,7 +98,8 @@
       ]
     },
     {
-      "say": "訂購表單加好了，在 `index.html` 第 42 行，送出後會顯示確認訊息。"
+      "say": "訂購表單加好了，在 `index.html` 第 42 行，送出後會顯示確認訊息。",
+      "on": "claude"
     },
     {
       "state": "ok",
@@ -147,7 +148,8 @@
       "ms": 900
     },
     {
-      "say": "要改兩個地方：把 `index.html` 第 42 到 47 行的表單換成 LINE 訂購按鈕，再拿掉送出後的確認訊息。目前還沒有改任何檔案。"
+      "say": "要改兩個地方：把 `index.html` 第 42 到 47 行的表單換成 LINE 訂購按鈕，再拿掉送出後的確認訊息。目前還沒有改任何檔案。",
+      "on": "claude"
     },
     {
       "state": "ok",

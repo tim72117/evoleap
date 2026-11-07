@@ -90,7 +90,9 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
               <path d={dark ? SUN : MOON} />
             </svg>
           </button>
-          <UserMenu />
+          <div className={styles.account}>
+            <UserMenu />
+          </div>
         </div>
       </header>
 

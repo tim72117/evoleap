@@ -3,10 +3,10 @@ import { ContactEmail, Ext, Fill, LegalDoc, Note, Table, type LegalSection } fro
 import { OPERATOR_NAME } from './operator'
 
 /** 最後更新日期;內容有實質變更時一併更新 */
-const PRIVACY_UPDATED = '2026-11-05'
+const PRIVACY_UPDATED = '2026-11-07'
 
 // 本政策描述的是網站「目前」的實際狀況:Email/密碼與 Google 登入(帳號存在 Cloud SQL)、
-// 登入 cookie evoleap_session、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
+// 登入 cookie evoleap_session、訪客上課紀錄與訪客 cookie evoleap_guest(server/internal/api/guest.go、web/src/courses/guestActivity.ts)、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
 // 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)、Paddle 付款與訂閱紀錄(訂閱制條文先於程式改寫,開放付費前 purchases 要改成對應的訂閱資料)。新增任何蒐集資料的功能(例如練習完成狀態、表單)前,
 // 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/api/progress.go、server/internal/store/users.go、server/internal/store/progress.go、server/internal/api/paddle.go、server/internal/store/purchases.go、web/src/pricing/、
 // web/src/site/analytics.ts。
@@ -40,10 +40,13 @@ const sections: LegalSection[] = [
             <strong>播放進度</strong>（只有登入後才有）：您看過哪幾課的教學畫面、停在第幾秒、該課全長與最後更新時間。
           </li>
           <li>
+            <strong>訪客上課紀錄</strong>（只有未登入時才有）：您打開了哪一課、打開的時間，以及那一次實際播放了多久。只用一個隨機的訪客代號區分（見「訪客上課紀錄」），不包含姓名、Email 等資料。
+          </li>
+          <li>
             <strong>訂閱紀錄</strong>（只有訂閱後才有）：訂閱編號、方案、價格編號、訂閱狀態、當期起訖時間、取消時間，以及每筆交易的編號、付款與退款時間。付款資料由 Paddle 處理，我們拿不到您的卡號（見「付款與訂閱紀錄」）。
           </li>
           <li>
-            <strong>登入狀態</strong>：登入後放在您瀏覽器裡的 <code>evoleap_session</code> cookie。
+            <strong>登入狀態與訪客代號</strong>：登入後放在您瀏覽器裡的 <code>evoleap_session</code> cookie；未登入時打開課程，放在您瀏覽器裡的 <code>evoleap_guest</code> cookie。
           </li>
           <li>
             <strong>網站使用統計</strong>：透過 Google Analytics 4 蒐集的瀏覽頁面、互動事件、裝置與大略地區等資料。
@@ -65,7 +68,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          標示「免費」的課程不登入也能觀看，標示「登入後免費」的課程要登入才能觀看；登入後會記錄您的播放進度。註冊與登入有兩種方式：
+          每門課的序章不登入也能觀看，其他課程要登入才能觀看（第 0 課登入後免費，之後的課程需訂閱）；登入後會記錄您的播放進度。註冊與登入有兩種方式：
         </p>
         <h3>以 Email 與密碼註冊</h3>
         <ul>
@@ -101,12 +104,33 @@ const sections: LegalSection[] = [
         </ul>
         <Note>
           <p>
-            帳號只保存上面列出的資料，以及訂閱後的訂閱紀錄（見「付款與訂閱紀錄」）。<strong>登入後</strong>，我們會記錄您的播放進度，讓您下次從上次看到的地方接著看；<strong>未登入時不會儲存任何播放進度</strong>，先前留在瀏覽器裡的舊進度也會被清除。除此之外沒有記錄其他觀看紀錄，也不會把您的 Email 或帳號編號傳給 Google Analytics。日後若要記錄其他學習資料（例如練習完成狀態），會先更新本政策說明。
+            帳號只保存上面列出的資料，以及訂閱後的訂閱紀錄（見「付款與訂閱紀錄」）。<strong>登入後</strong>，我們會記錄您的播放進度，讓您下次從上次看到的地方接著看；<strong>未登入時不會儲存播放進度</strong>（不會記住看到哪裡），先前留在瀏覽器裡的舊進度也會被清除；未登入時只會留下「訪客上課紀錄」。登入後的觀看不會記在訪客紀錄裡，訪客紀錄也不會併入您的帳號。除此之外沒有記錄其他觀看紀錄，也不會把您的 Email 或帳號編號傳給 Google Analytics。日後若要記錄其他學習資料（例如練習完成狀態），會先更新本政策說明。
           </p>
         </Note>
         <h3>刪除帳號</h3>
         <p>
           網站目前還沒有「刪除帳號」的按鈕。如需刪除帳號，請用您註冊時的 Email 來信 <ContactEmail /> 提出，我們確認是本人後會刪除您的帳號資料（詳見「保存期間」與「您的權利」）。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'guest',
+    title: '訪客上課紀錄',
+    body: (
+      <>
+        <p>
+          為了解課程有沒有人看、看了多久、哪一課需要改進，您<strong>未登入</strong>時打開課程，我們會在伺服器記下：
+        </p>
+        <ul>
+          <li>打開了哪一課，以及打開的時間。</li>
+          <li>那一次實際播放了多久（暫停時不算；播放中大約每 30 秒，以及暫停、離開頁面時更新一次）。</li>
+        </ul>
+        <p>
+          這些紀錄只用一個隨機產生的訪客代號區分，代號放在您瀏覽器的 <code>evoleap_guest</code> cookie 裡（HttpOnly，網頁上的 JavaScript 讀不到）。紀錄不包含姓名、Email 或帳號，也不會傳給 Google Analytics 或其他第三方；您登入後不會再記在這裡，先前的訪客紀錄也不會併入您的帳號。每筆紀錄保存 180 天後自動刪除。
+        </p>
+        <p>
+          不想留下這些紀錄，可以在瀏覽器封鎖或刪除本網站的 <code>evoleap_guest</code> cookie（刪除後就會換成新的代號，和先前的紀錄串不起來；完全封鎖 cookie 時每次打開課程都像新的訪客），或登入後觀看。這不影響您觀看免費課程。
         </p>
       </>
     ),
@@ -224,6 +248,12 @@ const sections: LegalSection[] = [
               '登入起 30 天；登出時立即清除',
             ],
             [
+              <code>evoleap_guest</code>,
+              '本網站',
+              '未登入時打開課程才會設定。內容是一個隨機的訪客代號，用來把同一個瀏覽器的上課紀錄串在一起（見「訪客上課紀錄」）；網頁上的 JavaScript 無法讀取（HttpOnly）。',
+              '180 天',
+            ],
+            [
               <code>_ga</code>,
               '本網站，透過 Google Analytics',
               '以隨機編號區分不同的訪客（瀏覽器）。',
@@ -252,7 +282,7 @@ const sections: LegalSection[] = [
           ]}
         />
         <p>
-          <code>evoleap_session</code> 是登入所必需的，封鎖它就無法登入；<code>_ga</code> 與 <code>_ga_&lt;ID&gt;</code> 只用於統計，封鎖或刪除不影響網站功能。您可以在瀏覽器設定中隨時查看、刪除或封鎖 cookie。
+          <code>evoleap_session</code> 是登入所必需的，封鎖它就無法登入；<code>evoleap_guest</code> 只用來統計訪客的上課情形，封鎖或刪除不影響觀看課程；<code>_ga</code> 與 <code>_ga_&lt;ID&gt;</code> 只用於統計，封鎖或刪除不影響網站功能。您可以在瀏覽器設定中隨時查看、刪除或封鎖 cookie。
         </p>
       </>
     ),
@@ -268,7 +298,7 @@ const sections: LegalSection[] = [
             <strong>蒐集目的：</strong>提供網站與課程服務、會員帳號管理與登入驗證、付費訂閱的開通、續訂、取消與退款處理、網站使用情形的統計分析與服務改善、網站維運與資訊安全管理、回應您的請求。
           </li>
           <li>
-            <strong>資料類別：</strong>帳號資料（Email、名稱、密碼雜湊值、Google 帳號 ID）；訂閱紀錄（訂閱編號、方案、價格編號、訂閱狀態、當期起訖時間、取消時間，以及交易編號、付款與退款時間）；登入 cookie；GA 統計資料（瀏覽頁面、互動事件、裝置資訊、大略地區、訪客識別碼）；伺服器存取記錄（IP 位址、時間、請求網址、User-Agent、Referer 等）。
+            <strong>資料類別：</strong>帳號資料（Email、名稱、密碼雜湊值、Google 帳號 ID）；訂閱紀錄（訂閱編號、方案、價格編號、訂閱狀態、當期起訖時間、取消時間，以及交易編號、付款與退款時間）；訪客上課紀錄（隨機訪客代號、打開的課程與時間、播放時間）；登入與訪客 cookie；GA 統計資料（瀏覽頁面、互動事件、裝置資訊、大略地區、訪客識別碼）；伺服器存取記錄（IP 位址、時間、請求網址、User-Agent、Referer 等）。
           </li>
           <li>
             <strong>利用期間：</strong>見下一節「保存期間」。
@@ -284,7 +314,7 @@ const sections: LegalSection[] = [
           </li>
         </ul>
         <p>
-          您可以自由選擇是否註冊帳號；不註冊仍可觀看標示「免費」的課程，但無法觀看標示「登入後免費」的課程，也不會記錄播放進度；訂閱則需要帳號。伺服器存取記錄是網站運作時自動產生的，GA 則可依前述方式拒絕。
+          您可以自由選擇是否註冊帳號；不註冊仍可觀看每門課的序章，但無法觀看其他課程，也不會記錄播放進度（仍會留下訪客上課紀錄，可依「訪客上課紀錄」一節的方式拒絕）；訂閱則需要帳號。伺服器存取記錄是網站運作時自動產生的，GA 則可依前述方式拒絕。
         </p>
       </>
     ),
@@ -302,6 +332,9 @@ const sections: LegalSection[] = [
         </li>
         <li>
           <strong>登入 cookie：</strong>存在您的瀏覽器中，最長 30 天，登出時清除。
+        </li>
+        <li>
+          <strong>訪客上課紀錄與訪客 cookie：</strong>每筆紀錄自打開課程起保存 180 天，之後自動刪除；<code>evoleap_guest</code> cookie 最長 180 天。
         </li>
         <li>
           <strong>GA 資料：</strong>依 GA 後台設定的保存期限（GA4 預設 2 個月）自動刪除；彙整後不含個人資料的統計報表可能保存較久。
@@ -362,7 +395,7 @@ const sections: LegalSection[] = [
           Paddle 保有的付款資料，請依 Paddle 隱私權政策向 Paddle 提出；我們也可以協助轉達。
         </p>
         <p>
-          伺服器存取記錄並未與帳號連結，若要查詢這部分，請一併提供您當時使用的 IP 位址與大約的瀏覽時間。GA 資料只以隨機的訪客識別碼記錄，我們通常無法辨認哪些屬於您；您可以依「網站使用統計」一節的方式拒絕 GA，或清除瀏覽器的 <code>_ga</code> cookie。
+          伺服器存取記錄並未與帳號連結，若要查詢這部分，請一併提供您當時使用的 IP 位址與大約的瀏覽時間。訪客上課紀錄只以隨機的訪客代號記錄，存在 HttpOnly cookie 裡，您和我們通常都無法從頁面上得知，因此一般無法確認哪些屬於您；您可以清除瀏覽器的 <code>evoleap_guest</code> cookie，之後的紀錄就不會再和先前的串在一起。GA 資料只以隨機的訪客識別碼記錄，我們通常無法辨認哪些屬於您；您可以依「網站使用統計」一節的方式拒絕 GA，或清除瀏覽器的 <code>_ga</code> cookie。
         </p>
         <p>
           我們會依個資法規定的期限回覆（查詢、閱覽或複製本原則上 15 日內，更正、刪除、停止利用原則上 30 日內；必要時得依法延長並告知原因）。依法律規定或為履行法定義務而必須保留的資料，我們可能無法刪除，屆時會向您說明。
@@ -404,7 +437,7 @@ export function PrivacyPage() {
     <LegalDoc
       title="隱私權政策"
       updated={PRIVACY_UPDATED}
-      intro="簡單說：看標示「免費」的課程不必註冊，標示「登入後免費」的課程要登入。若您註冊或登入，我們會保存 Email、名稱，以及密碼的雜湊值（不是密碼本身）或 Google 帳號 ID，資料存放在 Google Cloud 的臺灣機房，並用一個 cookie 記住您的登入狀態。我們用 Google Analytics 統計網站使用情形，但不會把您的 Email 或帳號傳給它；Google 登入按鈕則由 Google 依其政策處理；付費訂閱的付款由 Paddle 處理，我們拿不到您的完整卡號。我們不出售您的資料，您可以隨時來信要求查詢、更正或刪除。以下是完整說明。"
+      intro="簡單說：看每門課的序章不必註冊，其他課程要登入（第 0 課之後的課程需訂閱）。若您註冊或登入，我們會保存 Email、名稱，以及密碼的雜湊值（不是密碼本身）或 Google 帳號 ID，資料存放在 Google Cloud 的臺灣機房，並用一個 cookie 記住您的登入狀態。未登入時打開課程，我們會用一個隨機的訪客代號（cookie）記下您打開了哪一課與播放了多久，保存 180 天。我們用 Google Analytics 統計網站使用情形，但不會把您的 Email 或帳號傳給它；Google 登入按鈕則由 Google 依其政策處理；付費訂閱的付款由 Paddle 處理，我們拿不到您的完整卡號。我們不出售您的資料，您可以隨時來信要求查詢、更正或刪除。以下是完整說明。"
       sections={sections}
     />
   )

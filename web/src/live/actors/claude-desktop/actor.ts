@@ -3,8 +3,9 @@
 // 演員只負責「自己長什麼樣、每個動作畫成什麼樣子」;章節卡、聚光燈、鏡頭、滑鼠、旁白時間由舞台處理。
 //
 // props(登場設定,寫在腳本 cast 裡):
-//   title、folder、branch(null 不顯示)、model、mode(auto|ask|plan|accept)、user(頭像字母)、
+//   title、folder、branch(null 不顯示)、model、mode(auto|ask|plan|accept)、
 //   sessions(側欄其他項目)、labels(介面文字)、cps({ user, say } 打字/回覆速度)、dark、noframe
+//   側欄左下角的帳號固定是 evoleap(標誌與名稱),不用設定。
 //
 // 動作(腳本 steps 裡,鍵名就是動作種類):
 //   { "user": "幫我…" }                         在輸入框打字後送出
@@ -33,6 +34,10 @@
 import { kit } from '../../kit'
 import { defineActor, type ActorEvent, type CommonStepFields, type CursorPlan, type Hotspot } from '../../types'
 import './actor.css'
+import LOGO_SVG from '../../../../public/favicon.svg?raw'
+
+// 側欄左下角的帳號頭像:evoleap 的標誌(favicon 的同一份 SVG;拿掉跟著系統深色模式換色的樣式,固定用墨綠黑)
+const LOGO = LOGO_SVG.replace(/<style>.*?<\/style>/s, '').replace('<svg ', '<svg aria-hidden="true" style="color:#10231f" ')
 
 // ---------- 型別 ----------
 
@@ -80,8 +85,6 @@ export interface ClaudeProps {
   branch?: string | null
   model?: string
   mode?: Mode
-  /** 頭像字母 */
-  user?: string
   sessions?: string[]
   labels?: Partial<Labels>
   cps?: Partial<Cps>
@@ -94,7 +97,6 @@ interface Conf {
   branch: string | null
   model: string
   mode: Mode
-  user: string
   sessions: string[]
   labels: Labels
   cps: Cps
@@ -126,7 +128,6 @@ const DEFAULTS: Conf = {
   branch: 'main',
   model: 'Opus 5.5',
   mode: 'auto',
-  user: 'T',
   sessions: [],
   labels: { new: '新增 session', recent: '最近', placeholder: '描述你要做的事…', thinking: '思考中' },
   cps: { user: 14, say: 45 },
@@ -365,7 +366,7 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
               <div class="newbtn cd-new"><span class="plus">+</span><span>${esc(c.labels.new)}</span></div>
               <div class="side-label">${esc(c.labels.recent)}</div>
               <div class="cd-sessions"></div>
-              <div class="cd-me"><span class="avatar">${esc(c.user)}</span><span>Max</span></div>
+              <div class="cd-me"><span class="avatar">${LOGO}</span><span>evoleap</span></div>
             </aside>
             <main class="cd-main">
               <header class="cd-head">

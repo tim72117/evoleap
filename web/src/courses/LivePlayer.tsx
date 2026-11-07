@@ -6,6 +6,7 @@ import { narrationClips } from '../live/mixPlan'
 import { loadMix, loadScript, loadVoice } from '../live/scripts'
 import { useAuth } from '../auth/AuthContext'
 import { clearGuestProgress, memberProgress } from './progress'
+import { useGuestView } from './guestActivity'
 import '../live/shell.css'
 import type { PlayerHandle } from './playerHandle'
 import styles from './LivePlayer.module.css'
@@ -13,7 +14,7 @@ import styles from './LivePlayer.module.css'
 // 即時教學畫面:不是影片檔,而是 src/live 的舞台依腳本(src/content/live/)即時畫出,由播放器外殼負責播放。
 // 透過 onTime 回報播放秒數、透過 ref.seekTo 跳轉(課程頁播放器共用的 PlayerHandle);
 // 腳本裡標了 lessonStep 的章節會透過 onCues 回報,讓課程頁播到那裡就展開對應的步驟。
-// 播放進度只有登入的會員才記(存伺服器);訪客不存,登入後才開始。
+// 播放進度只有登入的會員才記(存伺服器);訪客不存,登入後才開始。訪客只記打開了哪一課與播放了多久(guestActivity.ts)。
 // 全螢幕、手機橫放滿版、播放器的快捷鍵都由外殼處理(焦點在播放器裡時 ←/→ 是倒退/快轉,在頁面上時由課程頁切換步驟)。
 
 type Props = {
@@ -41,6 +42,8 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
   // 登入狀態確認前先不建立播放器,免得會員的進度被當成訪客略過
   const { status, user } = useAuth()
   const memberId = saveProgress ? (user?.id ?? null) : null
+  // 訪客打開這一課與播放的時間要記下來;不記進度的預覽播放器也不記
+  useGuestView(saveProgress ? `live:${script}` : null, () => shellRef.current?.playing ?? false)
 
   useImperativeHandle(ref, () => ({
     seekTo(seconds) {

@@ -285,7 +285,7 @@ const LOGIN_PAGE: PageMeta = {
   noindex: true,
 }
 
-// 管理後台:僅管理員使用(權限由伺服器判定),noindex、不列入 sitemap。
+// 管理後台的舊網址:現在轉到研發基地的「會員」標籤(/studio/members),noindex、不列入 sitemap。
 const ADMIN_PAGE: PageMeta = {
   path: '/admin',
   title: documentTitle('管理後台'),

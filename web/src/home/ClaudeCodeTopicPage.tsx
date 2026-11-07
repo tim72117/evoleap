@@ -59,7 +59,7 @@ function ScenarioRow({ scenario: s, visible }: { scenario: Scenario; visible: bo
               <span>{s.video.duration}</span>
             </>
           ) : (
-            <span className={`${styles.tag} ${styles.tagPlanned}`}>規劃中</span>
+            <span className={`${styles.tag} ${styles.tagPlanned}`}><span aria-hidden="true">🌱 </span>規劃中</span>
           )}
         </div>
       </div>
@@ -88,7 +88,7 @@ export function ClaudeCodeTopicPage() {
     <SiteLayout title={topic.seoTitle}>
       <section className={styles.hero}>
         <div className={styles.heroInner}>
-          <p className={styles.kicker}>規劃中</p>
+          <p className={styles.kicker}><span aria-hidden="true">🌱 </span>規劃中</p>
           <h1>{topic.name}</h1>
           <p className={styles.pitch}>{topic.slogan}。遇到哪個情況就看哪一個，不用照順序。</p>
           <div className={styles.ctas}>

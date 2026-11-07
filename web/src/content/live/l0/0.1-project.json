@@ -1,6 +1,6 @@
 {
   "title": "認識專案：工作目錄與檔案操作",
-  "lesson": "L0 · 第 1 課",
+  "lesson": "起步 · 第 1 課",
   "camera": "auto",
   "blocking": {
     "cast": [
@@ -39,10 +39,11 @@
       "hidden": true
     }
   },
+  "teacher": {"say": "今天認識專案和工作目錄", "line": "今天要來認識專案和工作目錄，請 AI 幫你建立、搬移檔案。"},
   "steps": [
     {
       "card": "認識專案：工作目錄與檔案操作",
-      "eyebrow": "L0 · 第 1 課",
+      "eyebrow": "起步 · 第 1 課",
       "sub": "為小森烘焙建立專案，請 AI 建立、改名、移動和刪除檔案",
       "narration": "這一課要為小森烘焙的網站建立一個專案。你會知道 AI 在哪個資料夾工作，也會請它建立、改名、移動和刪除檔案。"
     },
@@ -89,7 +90,8 @@
       "ms": 1000
     },
     {
-      "say": "目前的工作目錄是 `/Users/you/Documents/practice/bakery`，這個資料夾目前是空的。"
+      "say": "目前的工作目錄是 `/Users/you/Documents/practice/bakery`，這個資料夾目前是空的。",
+      "on": "claude"
     },
     {
       "callout": "claude:say",
@@ -111,7 +113,8 @@
       "ms": 1300
     },
     {
-      "say": "好的，我會建立 `index.html`（網頁內容）和 `styles.css`（網頁樣式）。"
+      "say": "好的，我會建立 `index.html`（網頁內容）和 `styles.css`（網頁樣式）。",
+      "on": "claude"
     },
     {
       "ask": "index.html",
@@ -143,7 +146,8 @@
       "result": "已建立"
     },
     {
-      "say": "已建立 `index.html` 和 `styles.css`。"
+      "say": "已建立 `index.html` 和 `styles.css`。",
+      "on": "claude"
     },
     {
       "show": "finder",
@@ -182,7 +186,8 @@
       "result": "已建立"
     },
     {
-      "say": "已在 `drafts/idea.txt` 記下：首頁要有預約按鈕。"
+      "say": "已在 `drafts/idea.txt` 記下：首頁要有預約按鈕。",
+      "on": "claude"
     },
     {
       "show": "finder",
@@ -222,7 +227,8 @@
       "ms": 1100
     },
     {
-      "say": "還沒有 notes 資料夾，我會先建立，再把檔案改名移過去。"
+      "say": "還沒有 notes 資料夾，我會先建立，再把檔案改名移過去。",
+      "on": "claude"
     },
     {
       "ask": "mkdir notes && mv drafts/idea.txt notes/homepage-idea.txt",
@@ -245,7 +251,10 @@
       "narration": "回到 Finder，多了 notes 資料夾。"
     },
     {
-      "rename": ["drafts/idea.txt", "notes/homepage-idea.txt"]
+      "rename": [
+        "drafts/idea.txt",
+        "notes/homepage-idea.txt"
+      ]
     },
     {
       "open": "notes",
@@ -291,7 +300,8 @@
       "result": "完成"
     },
     {
-      "say": "已刪除空的 `drafts` 資料夾。"
+      "say": "已刪除空的 `drafts` 資料夾。",
+      "on": "claude"
     },
     {
       "show": "finder",

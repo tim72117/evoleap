@@ -24,15 +24,19 @@ type Config struct {
 	AdminEmails string
 	// AuthRateLimit 是每個來源 IP 每分鐘可嘗試登入、註冊的次數;0 代表不限流(本機開發與 E2E 用)。
 	AuthRateLimit int
+	// OpenAdmin 為 true 時管理後台 API(/api/admin/*)不檢查登入與白名單(-open-studio,只給本機開發用;Cloud Run 上 main 會拒絕啟動)。
+	OpenAdmin bool
 	// VerifyGoogle 驗證 Google 登入憑證;nil 時用 auth.VerifyGoogleToken。測試可替換。
 	VerifyGoogle func(ctx context.Context, credential, clientID string) (auth.GoogleIdentity, error)
 }
 
 type Server struct {
 	cfg Config
-	// authIP、loginEmail 在 cfg.AuthRateLimit 為 0 時是 nil,代表不限流。
+	// authIP、loginEmail、guestOpen 在 cfg.AuthRateLimit 為 0 時是 nil,代表不限流。
 	authIP     *rateLimiter
 	loginEmail *rateLimiter
+	guestOpen  *rateLimiter
+	prune      guestPruner
 }
 
 func New(cfg Config) *Server {
@@ -40,6 +44,7 @@ func New(cfg Config) *Server {
 	if cfg.AuthRateLimit > 0 {
 		s.authIP = newRateLimiter(cfg.AuthRateLimit, time.Minute)
 		s.loginEmail = newRateLimiter(loginEmailLimit, time.Minute)
+		s.guestOpen = newRateLimiter(guestOpenLimit, time.Minute)
 	}
 	return s
 }
@@ -56,6 +61,8 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /api/me", s.handleMe)
 	mux.HandleFunc("GET /api/progress", s.requireUser(s.handleProgressGet))
 	mux.HandleFunc("PUT /api/progress", s.requireUser(s.handleProgressPut))
+	mux.HandleFunc("POST /api/guest/views", s.requireAuth(s.handleGuestOpen))
+	mux.HandleFunc("PUT /api/guest/views/{id}", s.requireAuth(s.handleGuestWatch))
 	mux.HandleFunc("GET /api/admin/me", s.requireAdmin(s.handleAdminMe))
 	mux.HandleFunc("GET /api/admin/overview", s.requireAdmin(s.handleAdminOverview))
 	mux.HandleFunc("GET /api/admin/users", s.requireAdmin(s.handleAdminUsers))

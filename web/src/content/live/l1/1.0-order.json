@@ -1,0 +1,534 @@
+{
+  "title": "訂購單：哪些資料要在送出前檢查",
+  "lesson": "零基礎 · 訂購單",
+  "camera": "auto",
+  "blocking": {
+    "landscape": {
+      "cast": [
+        "claude",
+        "browser"
+      ],
+      "shot": "single"
+    },
+    "portrait": {
+      "cast": [
+        "claude",
+        "browser"
+      ],
+      "shot": "depth"
+    }
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~/Documents/practice/bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": {
+        "landscape": "full",
+        "portrait": "window"
+      },
+      "hidden": true
+    },
+    "browser": {
+      "actor": "browser",
+      "props": {
+        "site": "v7",
+        "width": "desktop"
+      },
+      "place": {
+        "landscape": "full",
+        "portrait": "window"
+      },
+      "hidden": true
+    }
+  },
+  "teacher": {"say": "今天做一張訂購單", "line": "今天要來幫小森烘焙的網站，加上一張訂購單。"},
+  "steps": [
+    {
+      "card": "訂購單：哪些資料要在送出前檢查",
+      "eyebrow": "零基礎 · AI 工具入門",
+      "sub": "先列欄位，再寫每個欄位的資料規格，加上店家的規則",
+      "narration": "客人用聊天訊息訂蛋糕，常常漏講取貨時間、電話打錯一碼。這一課用一張訂購單，練習把需求說清楚：要收哪些資料、每個欄位的規格，還有店家的規則。"
+    },
+    {
+      "show": "claude",
+      "chapter": "從 bakery 專案開始",
+      "lessonStep": 1,
+      "narration": "從「AI 工具介紹」做好的 bakery 專案開始，工具已經從這個資料夾開啟。"
+    },
+    {
+      "show": "browser",
+      "site": "v7",
+      "narration": "先用瀏覽器看一下，網站和上一門課結束時一樣。"
+    },
+    {
+      "scroll": "hours"
+    },
+    {
+      "scroll": "top"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "user": "在網站加一張訂購單：品項、數量、取貨日期、取貨時段、姓名、手機",
+      "chapter": "在網站加上訂購單",
+      "lessonStep": 2,
+      "narration": "第一步，說出要收哪些資料：品項、數量、取貨日期、取貨時段、姓名、手機。"
+    },
+    {
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "好的，我會在 `index.html` 的交通資訊前面加一個「訂購單」區塊，放這六個欄位和送出按鈕，並在 `styles.css` 加上樣式。"
+    },
+    {
+      "edit": "index.html",
+      "lines": [
+        [
+          112,
+          " ",
+          "    </section>"
+        ],
+        [
+          113,
+          "+",
+          "    <section id=\"order\">"
+        ],
+        [
+          114,
+          "+",
+          "      <h2>訂購單</h2>"
+        ],
+        [
+          115,
+          "+",
+          "      <form id=\"orderForm\" class=\"order\">"
+        ],
+        [
+          116,
+          "+",
+          "        <label for=\"item\">品項</label> …"
+        ],
+        [
+          117,
+          "+",
+          "        <button type=\"submit\">送出訂單</button>"
+        ],
+        [
+          118,
+          "+",
+          "      </form>"
+        ],
+        [
+          119,
+          "+",
+          "    </section>"
+        ]
+      ]
+    },
+    {
+      "callout": "claude:edit",
+      "text": "要加後端、資料庫、寄信？先拒絕",
+      "narration": "如果它想加後端、資料庫，或寄信、簡訊服務，先拒絕。這一課只做網頁上的訂購單。"
+    },
+    {
+      "on": "claude",
+      "say": "已在 `index.html` 加上訂購單，導覽也多了「訂購單」連結。"
+    },
+    {
+      "show": "browser",
+      "site": "o1",
+      "narration": "打開網頁看看。"
+    },
+    {
+      "go": "order",
+      "narration": "導覽多了訂購單，六個欄位和送出按鈕都在。欄位的樣式和排列由 AI 決定，每個人的可能不一樣。"
+    },
+    {
+      "click": "#submitBtn",
+      "chapter": "什麼都不填，直接送出",
+      "lessonStep": 3,
+      "narration": "現在什麼都不填，直接按送出。"
+    },
+    {
+      "reload": true,
+      "narration": "頁面重新整理，什麼都沒檢查，一張空白的訂單就這樣送出去了。這就是這一課要解決的問題。"
+    },
+    {
+      "go": "order"
+    },
+    {
+      "callout": "browser:section:order",
+      "text": "表單＝欄位＋送出",
+      "narration": "表單就是欄位加上送出。每個欄位都要先決定：要不要必填、要什麼格式、可以填的範圍。這些決定合起來，叫做資料規格。"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "送出「在網站加一張訂購單：品項、數量、取貨日期、取貨時段、姓名、手機」，打開網頁，什麼都不填直接按送出，看看發生什麼事。做完按「完成了，繼續」。"
+    },
+    {
+      "user": "列出訂購單每個欄位的資料規格：必填、格式、範圍。先不要修改",
+      "chapter": "列出每個欄位的資料規格",
+      "lessonStep": 4,
+      "narration": "接著請 AI 列出每個欄位的資料規格。先不要修改，只要列出來。"
+    },
+    {
+      "thinking": true,
+      "ms": 1500
+    },
+    {
+      "on": "claude",
+      "say": "訂購單的資料規格：\n- **品項**：必填，從本週商品選一項\n- **數量**：必填，1 以上的整數（上限待確認）\n- **取貨日期**：必填，不能是過去的日期\n- **取貨時段**：必填，上午、下午、傍晚三選一\n- **姓名**：必填\n- **手機**：必填，09 開頭的 10 碼數字"
+    },
+    {
+      "callout": "claude:say",
+      "text": "推測的規則先標「待確認」",
+      "narration": "老闆只交代了兩條規則，其他數字，例如數量上限，是 AI 推測的。先標成待確認，問過店家才算數。"
+    },
+    {
+      "user": "照這份規格在送出前檢查，填錯時在欄位旁邊提醒",
+      "chapter": "照規格在送出前檢查",
+      "lessonStep": 5,
+      "narration": "規格列好了，請它照這份規格，在送出前檢查。"
+    },
+    {
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "edit": "script.js",
+      "lines": [
+        [
+          15,
+          "+",
+          "form.addEventListener('submit', (e) => {"
+        ],
+        [
+          16,
+          "+",
+          "  e.preventDefault();"
+        ],
+        [
+          17,
+          "+",
+          "  const errs = check();"
+        ],
+        [
+          18,
+          "+",
+          "  IDS.forEach((id) => show(id, errs[id] || ''));"
+        ],
+        [
+          19,
+          "+",
+          "});"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "已修改 `script.js` 與 `styles.css`：送出前照規格檢查每個欄位，填錯時在欄位下方顯示紅字提醒，全部正確才能送出。"
+    },
+    {
+      "show": "browser",
+      "site": "o2"
+    },
+    {
+      "go": "order"
+    },
+    {
+      "click": "#submitBtn",
+      "narration": "一樣什麼都不填就送出。這次每個必填欄位下面，都出現了提醒。"
+    },
+    {
+      "fill": {
+        "#item": "可頌",
+        "#qty": "2",
+        "#date": "2026-11-12"
+      },
+      "narration": "再來填一次，這次故意把手機只填前四碼。"
+    },
+    {
+      "click": "#slot-morning"
+    },
+    {
+      "fill": {
+        "#name": "測試用",
+        "#phone": "0912"
+      }
+    },
+    {
+      "click": "#submitBtn",
+      "narration": "送出。其他欄位都通過了，只有手機提醒格式不對。"
+    },
+    {
+      "callout": "browser:sel:.err[data-for=\"phone\"]",
+      "text": "填錯的地方當場提醒"
+    },
+    {
+      "fill": {
+        "#phone": "0912345678"
+      }
+    },
+    {
+      "click": "#submitBtn",
+      "narration": "補成十碼再送出，檢查通過。測試時姓名和手機，都用虛構的資料。"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "user": "蛋糕要提前 2 天訂；週日沒有傍晚時段",
+      "chapter": "加上店家的規則",
+      "lessonStep": 6,
+      "narration": "再加上老闆交代的兩條規則：蛋糕要提前兩天訂，週日沒有傍晚時段。"
+    },
+    {
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "edit": "script.js",
+      "lines": [
+        [
+          40,
+          "+",
+          "  if (cake && d < addDays(today, 2)) errs.date = '蛋糕要提前 2 天訂';"
+        ],
+        [
+          41,
+          "+",
+          "  if (isSunday(d) && slot === '傍晚') errs.slot = '週日沒有傍晚時段';"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "已修改 `script.js`：選蛋糕時取貨日期至少要在 2 天後；取貨日期選週日時，傍晚時段不能選。"
+    },
+    {
+      "show": "browser",
+      "site": "o3"
+    },
+    {
+      "go": "order"
+    },
+    {
+      "fill": {
+        "#item": "生日蛋糕",
+        "#qty": "1",
+        "#date": "2026-11-11"
+      },
+      "narration": "假設今天是十一月十日。訂一個生日蛋糕，選明天取貨。"
+    },
+    {
+      "click": "#slot-afternoon"
+    },
+    {
+      "fill": {
+        "#name": "測試用",
+        "#phone": "0912345678"
+      }
+    },
+    {
+      "click": "#submitBtn",
+      "narration": "送出，取貨日期提醒：蛋糕要提前兩天訂。"
+    },
+    {
+      "fill": {
+        "#date": "2026-11-15"
+      },
+      "narration": "把日期改成週日，傍晚時段就不能選了。"
+    },
+    {
+      "callout": "browser:section:slot-evening",
+      "text": "依「選了什麼」來判斷",
+      "narration": "這兩條是店家的規則，和格式檢查不同，要依客人選了什麼來判斷。改完也要確認，前一步的檢查還在。"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "依序送出「照這份規格在送出前檢查，填錯時在欄位旁邊提醒」和「蛋糕要提前 2 天訂；週日沒有傍晚時段」。每次都到瀏覽器故意填錯，確認有提醒；填對才能送出。做完按「完成了，繼續」。"
+    },
+    {
+      "user": "檢查通過後顯示訂購摘要和總金額，可以一鍵複製",
+      "chapter": "送出前顯示訂購摘要",
+      "lessonStep": 7,
+      "narration": "這一課沒有後端，訂單不會傳到店家。所以檢查通過後，顯示整理好的摘要，讓客人複製後自己傳給店家。"
+    },
+    {
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "on": "claude",
+      "say": "已修改 `script.js` 與 `styles.css`：檢查通過後顯示訂購摘要（品項、數量、總金額、取貨日期與時段、姓名、手機），旁邊有「複製訂購內容」按鈕。"
+    },
+    {
+      "show": "browser",
+      "site": "o4"
+    },
+    {
+      "go": "order"
+    },
+    {
+      "fill": {
+        "#item": "生日蛋糕",
+        "#qty": "1",
+        "#date": "2026-11-13"
+      }
+    },
+    {
+      "click": "#slot-afternoon"
+    },
+    {
+      "fill": {
+        "#name": "測試用",
+        "#phone": "0912345678"
+      }
+    },
+    {
+      "click": "#submitBtn",
+      "narration": "全部填對再送出，出現訂購摘要，總金額也算好了。"
+    },
+    {
+      "click": "#copyBtn",
+      "narration": "按複製，再貼到記事本，確認內容正確。"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "show": "browser",
+      "site": "o4",
+      "chapter": "自己測試",
+      "lessonStep": 8,
+      "narration": "接下來自己測試：空白、數量填零、負數、二點五、過去的日期、週日傍晚，都試試看。"
+    },
+    {
+      "go": "order"
+    },
+    {
+      "fill": {
+        "#item": "可頌",
+        "#qty": "3",
+        "#date": "2026-11-13"
+      }
+    },
+    {
+      "click": "#slot-morning"
+    },
+    {
+      "fill": {
+        "#name": "測試用",
+        "#phone": "0912-345-678"
+      },
+      "narration": "例如手機中間加了減號。"
+    },
+    {
+      "click": "#submitBtn",
+      "narration": "被當成格式錯誤。要算錯，還是自動去掉減號，由你決定，再告訴 AI。"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "user": "手機填 0912-345-678 時顯示格式錯誤，請自動去掉「-」和空白，其他地方不要改",
+      "narration": "用這個句型請它修正：輸入了什麼、發生什麼問題，請修正，其他地方不要改。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "edit": "script.js",
+      "lines": [
+        [
+          12,
+          "-",
+          "const phoneValue = () => $('phone').value.trim();"
+        ],
+        [
+          12,
+          "+",
+          "const phoneValue = () => $('phone').value.trim().replace(/[\\s-]/g, '');"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "已修改 `script.js`：檢查手機前先去掉「-」和空白，摘要裡也顯示去掉後的號碼。"
+    },
+    {
+      "show": "browser",
+      "site": "o5"
+    },
+    {
+      "go": "order"
+    },
+    {
+      "fill": {
+        "#item": "可頌",
+        "#qty": "3",
+        "#date": "2026-11-13"
+      }
+    },
+    {
+      "click": "#slot-morning"
+    },
+    {
+      "fill": {
+        "#name": "測試用",
+        "#phone": "0912-345-678"
+      }
+    },
+    {
+      "click": "#submitBtn",
+      "narration": "再試一次，這次通過了，摘要裡的手機是去掉減號的十碼。"
+    },
+    {
+      "hide": "browser"
+    },
+    {
+      "user": "生日蛋糕每天最多 8 個，這張訂購單擋得住嗎？還有哪些規則要等後端？",
+      "chapter": "找出前端擋不住的規則",
+      "lessonStep": 9,
+      "narration": "最後，老闆說生日蛋糕每天最多八個。問問 AI，這張訂購單擋得住嗎？"
+    },
+    {
+      "thinking": true,
+      "ms": 1500
+    },
+    {
+      "on": "claude",
+      "say": "擋不住。要知道當天已經訂了幾個，需要所有客人的訂單，這些資料要存在店家那邊（後端），這張訂購單只在客人自己的瀏覽器裡執行。\n\n其他要等後端的事：\n- 店家看到所有訂單\n- 取貨前一天提醒\n- 客人取消或修改訂單"
+    },
+    {
+      "callout": "claude:say",
+      "text": "前端檢查讓客人少填錯，不是真正的把關",
+      "narration": "送出前的檢查，是讓客人填得順、少填錯，不是真正的把關。之後做了後端，這些規則在伺服器上還要再檢查一次。"
+    },
+    {
+      "card": "描述需求＝要收哪些資料＋每個欄位的規格＋店家的規則",
+      "eyebrow": "回顧",
+      "sub": "前端擋得住的先做，擋不住的記下來等後端",
+      "narration": "回顧一下：描述需求，就是說清楚要收哪些資料、每個欄位的規格、店家的規則。前端擋得住的先做，擋不住的記下來，等後端。"
+    }
+  ]
+}

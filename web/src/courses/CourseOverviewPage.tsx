@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
-import { coursePath, lessonLabel, lessonPath, requiresLogin, type Course } from '../content/catalog'
+import { coursePath, lessonLabel, lessonPath, nextCourse, requiresLogin, type Course } from '../content/catalog'
 import { useAuth } from '../auth/AuthContext'
 import type { CourseLesson } from '../content/lessonTypes'
 import { topicOfCourse } from '../content/topics'
@@ -10,7 +10,7 @@ import { INTERACTIVE_ICON } from '../studio/interactive/scene'
 import styles from './CourseOverview.module.css'
 
 // 課程總覽:上方是課程介紹(標籤、標題、簡述、總時長與課數)與開始學習的卡片,下方是課程內容清單。
-// 清單每一列:播放圖示、課名(還沒有教學影片的課標「製作中」)、目標、形式(互動/影片/步驟)與時長。
+// 清單每一列:播放圖示、課名(還沒有教學影片的課標「🌱 規劃中」,不寫步驟數)、目標、形式(互動/影片/步驟)與時長。
 // 未登入時,登入後免費的課程在右側標「免費預覽」(序章)或「登入後學習」;確認登入狀態前不標,已登入的人不會閃過標籤。
 
 /** 「約 15 分」「約 1 小時 20 分」→ 分鐘;看不懂的回傳 0 */
@@ -39,15 +39,16 @@ const BOOK = 'M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-
 const PLAY = 'M8 5.5v13l10.5-6.5z'
 const CHEVRON = 'M9 6l6 6-6 6'
 const FILM = 'M4 6h16v12H4zM4 10h16M9 6v4M15 6v4'
-const LIST = 'M9 7h11M9 12h11M9 17h11M4.5 7h.01M4.5 12h.01M4.5 17h.01'
 
-function kindOf(lesson: CourseLesson, interactive: boolean): { label: string; icon: string } {
+/** 已做好的課標「互動」或「影片」;還沒做好的不標類型(只標「規劃中」,不寫步驟數) */
+function kindOf(lesson: CourseLesson, interactive: boolean): { label: string; icon: string } | null {
   if (interactive) return { label: '互動', icon: INTERACTIVE_ICON }
   if (hasVideo(lesson)) return { label: '影片', icon: FILM }
-  return { label: `${lesson.steps.length} 個步驟`, icon: LIST }
+  return null
 }
 
 export function CourseOverviewPage({ course, interactive = [] }: { course: Course; interactive?: string[] }) {
+  const next = nextCourse(course)
   const level = ALL_LEVELS.find((l) => l.link === coursePath(course))
   const topic = topicOfCourse(coursePath(course))
   const access = level ? ACCESS_LABEL[level.access] : null
@@ -128,22 +129,28 @@ export function CourseOverviewPage({ course, interactive = [] }: { course: Cours
                       <span className={styles.rowTitle}>
                         <span className={styles.rowNum}>{lessonLabel(l)}</span>
                         {l.title}
-                        {!ready && <span className={styles.badge}>製作中</span>}
                       </span>
                       <span className={styles.rowGoal}>{l.goal}</span>
                     </span>
                     <span className={styles.rowMeta}>
-                      {guest && level?.access === 'login-free' && (
+                      {!ready && (
+                        <span className={styles.badge}>
+                          <span aria-hidden="true">🌱 </span>規劃中
+                        </span>
+                      )}
+                      {guest && ready && level?.access === 'login-free' && (
                         requiresLogin(course, l) ? (
                           <span className={`${styles.badge} ${styles.badgeLogin}`}>登入後學習</span>
                         ) : (
                           <span className={`${styles.badge} ${styles.badgePreview}`}>免費預覽</span>
                         )
                       )}
-                      <span className={styles.chip}>
-                        <Icon d={kind.icon} size={16} />
-                        {kind.label}
-                      </span>
+                      {kind && (
+                        <span className={styles.chip}>
+                          <Icon d={kind.icon} size={16} />
+                          {kind.label}
+                        </span>
+                      )}
                       {minutes > 0 && (
                         <span className={styles.time}>
                           <Icon d={CLOCK} size={18} />
@@ -157,6 +164,15 @@ export function CourseOverviewPage({ course, interactive = [] }: { course: Cours
             })}
           </ol>
         </details>
+        {next && (
+          <Link className={styles.nextCourse} to={coursePath(next)}>
+            <small>下一章</small>
+            <span>
+              {next.level} · {next.title}
+            </span>
+            <span aria-hidden="true">→</span>
+          </Link>
+        )}
       </section>
     </SiteLayout>
   )

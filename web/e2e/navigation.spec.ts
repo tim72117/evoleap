@@ -140,7 +140,7 @@ test('首頁:沒登入時主打主題播放序章,開始第一課連到序章', 
   await page.goto('/')
   await expect(page.locator('.vp')).toBeVisible()
   // 主打主題與兒童主題各有一個「開始第一課」
-  // 沒登入:第 0 課要登入,「開始第一課」連到可以免費預覽的序章,展示播放器播的也是序章
+  // 「開始第一課」連到可以免費預覽的序章,展示播放器播的也是序章(登入後也一樣)
   await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/intro')
   await expect(page.getByRole('article', { name: '做出自己的軟體' }).locator('.vp')).toBeVisible()
   const kids = page.getByRole('region', { name: '給孩子的網頁程式' })
@@ -178,95 +178,43 @@ test('網頁怎麼運作:首頁卡片連到主題,序章免費預覽、其他課
   expect(errors).toEqual([])
 })
 
-test('首頁的展示是靜態互動:從互動點前面一點開始,播到互動點時直接在演員身上回答', async ({ page }) => {
-  test.setTimeout(90000)
-  const errors = collectErrors(page)
-  // 登入後展示的是第 0 課(沒登入時是序章);「開始第一課」一樣從序章開始
-  await loginAsNewStudent(page)
-  await page.goto('/')
-  await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/intro')
-  const first = page.getByRole('heading', { name: /你要送出哪一句/ })
-  const layer = page.getByTestId('static-actor')
-  // 開頁不自動播放、不捲動頁面,也還沒輪到學員
-  await expect(page.locator('.vp.paused')).toBeVisible()
-  await expect(page.locator('.vp-time')).not.toHaveText(/^0:00 /)
-  await expect(layer).toHaveCount(0)
-  expect(await page.evaluate(() => scrollY)).toBe(0)
-
-  await page.locator('.vp-big').click()
-  await expect(first).toBeVisible({ timeout: 20000 })
-  const still = layer.locator('.A-claude-desktop')
-  await expect(still).toContainText('描述你要做的事')
-  const scale = await still.evaluate((el) => el.getBoundingClientRect().width / (el as HTMLElement).offsetWidth)
-  expect(scale).toBeCloseTo(1, 2)
-
-  await layer.getByRole('button', { name: '建立 hello.txt，寫一句問候', exact: true }).click()
-  await expect(first).toHaveCount(0)
-  await expect(layer).toHaveCount(0)
-
-  // 第二題要學員看確認框的內容:整個確認框都要在畫面裡
-  await expect(page.getByRole('heading', { name: /你要允許嗎/ })).toBeVisible({ timeout: 40000 })
-  const frame = await layer.boundingBox()
-  const ask = await still.locator('.ask.pending').boundingBox()
-  expect(ask!.y).toBeGreaterThanOrEqual(frame!.y)
-  expect(ask!.y + ask!.height).toBeLessThanOrEqual(frame!.y + frame!.height)
-  // 收合輸入框騰出空間後,對話要依新版面重排:上面的訊息也看得到
-  const log = await still.locator('.cd-log').boundingBox()
-  const said = await still.getByText('建立 hello.txt，寫一句問候').first().boundingBox()
-  expect(said!.y).toBeGreaterThanOrEqual(log!.y)
-  // 提示放在播放器外面,不會蓋住確認框
-  const hint = await page.getByRole('heading', { name: /你要允許嗎/ }).boundingBox()
-  expect(hint!.y).toBeGreaterThanOrEqual(frame!.y + frame!.height)
-  await expect(page).toHaveTitle(/^evoleap/)
-  expect(errors).toEqual([])
-})
-
-test('首頁的展示:一開始不放大,開始播放才往左下放大,靜態互動時一樣大,縮小後恢復', async ({ page }, info) => {
-  test.setTimeout(90000)
+test('首頁的展示:播序章、從頭開始;開始播放後播放器和卡片同寬放最上面,標題與按鈕移到下面,縮小後恢復', async ({ page }, info) => {
+  test.setTimeout(60000)
   test.skip(info.project.name === 'mobile', '手機上播放器本來就是整排寬')
-  await loginAsNewStudent(page) // 登入後才是有互動點的第 0 課
+  const errors = collectErrors(page)
+  await loginAsNewStudent(page) // 登入後一樣播序章
   await page.goto('/')
-  const card = page.locator('article').first()
-  // 相對於卡片量:放大時頁面可能捲動
-  const box = async () => {
-    const c = (await card.boundingBox())!
-    const v = (await page.locator('.vp').boundingBox())!
-    return { left: v.x - c.x, top: v.y - c.y, right: v.x + v.width - c.x, bottom: v.y + v.height - c.y, width: v.width }
-  }
+  const card = page.getByRole('article', { name: '做出自己的軟體' })
   const facts = page.getByText('不用先學')
   const shrink = page.getByRole('button', { name: '縮小播放器' })
 
-  // 一開始不放大:左欄完整,沒有縮小按鈕
-  await expect(page.locator('.vp')).toBeVisible()
+  // 一開始不放大、不自動播放,從 0 秒開始;左欄完整
+  await expect(page.locator('.vp.paused')).toBeVisible()
+  await expect(page.locator('.vp-time')).toHaveText(/^0:00 /)
   await expect(facts).toBeVisible()
   await expect(shrink).toHaveCount(0)
-  const small = await box()
+  const small = (await page.locator('.vp').boundingBox())!
 
-  // 開始播放:右上角不動,往左下放大;左欄只留主題名稱與按鈕;不是全螢幕
+  // 開始播放:播放器和卡片內容同寬、在最上面,標題與按鈕在播放器下面;其他說明收起來
   await page.locator('.vp-big').click()
   await expect(shrink).toBeVisible()
-  await expect.poll(async () => (await box()).width).toBeGreaterThan(small.width * 1.15)
-  await page.waitForTimeout(500) // 等版面的過渡結束
-  const big = await box()
-  expect(big.left).toBeLessThan(small.left)
-  expect(big.bottom).toBeGreaterThan(small.bottom)
-  expect(big.top).toBeCloseTo(small.top, 0)
-  expect(big.right).toBeCloseTo(small.right, 0)
-  await expect(page.getByRole('heading', { name: '做出自己的軟體' })).toBeVisible()
-  await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toBeVisible()
+  await expect.poll(async () => (await page.locator('.vp').boundingBox())!.width).toBeGreaterThan(small.width * 1.3)
+  const c = (await card.boundingBox())!
+  const v = (await page.locator('.vp').boundingBox())!
+  const h2 = (await card.getByRole('heading', { name: '做出自己的軟體' }).boundingBox())!
+  const start = (await card.getByRole('link', { name: '開始第一課' }).boundingBox())!
+  expect(c.width - v.width).toBeLessThan(80) // 只差卡片的內距
+  expect(h2.y).toBeGreaterThanOrEqual(v.y + v.height)
+  expect(start.y).toBeGreaterThan(h2.y)
   await expect(facts).toBeHidden()
   expect(await page.evaluate(() => document.fullscreenElement)).toBeNull()
-
-  // 播到互動點(靜態演員)也一樣大
-  await expect(page.getByRole('heading', { name: /你要送出哪一句/ })).toBeVisible({ timeout: 20000 })
-  await expect(page.getByTestId('static-actor')).toBeVisible()
-  expect((await box()).width).toBeCloseTo(big.width, 0)
 
   // 縮小:回到原本的大小,次要內容回來
   await shrink.click()
   await expect(shrink).toHaveCount(0)
   await expect(facts).toBeVisible()
-  await expect.poll(async () => (await box()).width).toBeCloseTo(small.width, 0)
+  await expect.poll(async () => (await page.locator('.vp').boundingBox())!.width).toBeCloseTo(small.width, 0)
+  expect(errors).toEqual([])
 })
 
 test('前端換到不存在的網址顯示找不到頁面,head 為 noindex 且沒有 canonical', async ({ page }) => {
@@ -527,6 +475,7 @@ const PAGES = [
   '/studio/kids-web',
   '/studio/web-basics',
   '/studio/portrait',
+  '/studio/extensions',
   '/studio/kids-web/0-1',
   '/studio/kids-web/0-1/live',
   '/studio/kids-web/0-2/live',

@@ -179,9 +179,9 @@ export default defineActor({
 |---|---|---|
 | `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode、newSession、session、menu、fork、state（多個 session 見 `actor.ts` 開頭） | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos、new、sessions、session:名稱、more:名稱、menu、menuitem:項目 |
 | `finder` | open、mkdir、create、delete、rename、select、drag、drop、highlight（有狀態，見 2A.5） | window、file:名稱（或 item:名稱） |
-| `browser` | site、width、scroll、go、click、reload（有狀態；網頁放在 Shadow DOM，寬度條件由腳本指定的寬度判斷，素材在 `content/live/l0/site/<版本>/`） | window、tab、addressbar、content、viewport、section:id、sel:css選擇器 |
+| `browser` | site、width、scroll、go、click、fill、reload（有狀態；網頁放在 Shadow DOM，寬度條件由腳本指定的寬度判斷，素材在 `content/live/<課程>/site/<版本>/`，版本名稱不能重複；fill 逐字填表單欄位，填完觸發 input／change；表單送出不會離開頁面） | window、tab、addressbar、content、viewport、section:id、sel:css選擇器 |
 | `chat` | receive（帶 from）、reply（有狀態；通用手機聊天畫面，情境開場用） | window、msg:N、msg:last |
-| `person` | say（帶 mood：calm、tired、worried、happy、busy；SVG 插畫半身像＋對話泡泡，props.look：boss、staff、customer；情境開場用） | window、face、bubble |
+| `person` | say（帶 mood：calm、tired、worried、happy、busy；SVG 插畫半身像＋對話泡泡，props.look：boss、staff、teacher（課程老師 Lena）、customer；情境開場用） | window、face、bubble |
 | `notes` | jot、lose（有狀態；桌上的便條紙，掉落的便條移到桌面下方，情境開場用） | window、note:N、note:last、floor |
 | `editor` | open、type（有狀態；通用深色程式碼編輯器，依副檔名上色 html、css、js，演出「以前自己寫程式」） | window、code、caret、tab:檔名 |
 | `macbook` | open、close、wake、sleep、type、tilt（有狀態；擬真筆電，宣傳片用，純 CSS 3D；props：opened、awake、angle、pitch、yaw、finish、wallpaper、dock、clock） | window、screen、keyboard、trackpad、lid、key:鍵 |
@@ -656,7 +656,7 @@ packs/<name>/
 | person | 人物固定畫在槽左上角、尺寸很小,槽再大也只是旁邊多一大片空白;對話泡泡在 500 寬槽內折成兩行還擠著人物 | 依槽放大(半身像撐滿槽寬),泡泡改放人物下方或上方;槽很窄時泡泡在頭像下方 |
 | chat | 1000×1400 時訊息全擠在底部、上方一大片空;字級小(手機畫面被拉成平板比例,像寬螢幕);500×700 剛好像手機,表現最好 | 直式槽固定成手機比例(置中、寬度受限),或字級依槽寬放大;訊息區比例跟著槽高 |
 | claude-desktop | 為桌面橫向設計:側欄占去約 1/5 寬,對話區變窄、文字再折行;全部是小字(1000 寬下約 8 到 9px 等效),手機上不可讀;1400 高時中間大片空白,輸入框貼底、離內容很遠;500 寬時側欄只剩縮寫 | 直式隱藏側欄、字級放大約 1.6 倍、輸入框與內容靠近;或只演 composer + log 的精簡版 |
-| browser | 網頁寬度固定(tablet 768 / desktop 1280)再縮放進槽:寬槽下字清楚、卻整頁高度長得塞不滿(0.17.2 起 desktop 在比 1280×800 瘦長的槽裡高度跟著拉長填滿);500×700 時被縮到約 0.6,字很小;網址列 500 寬被截斷 | 直式預設用 phone 寬度(390)並撐滿槽高,網址列簡化成只有網域;上下堆疊時內容區 phone 化 |
+| browser | 網頁寬度固定(tablet 768 / desktop 1280)再縮放進槽:寬槽下字清楚、卻整頁高度長得塞不滿(0.17.2 起 desktop 在比 1280×800 瘦長的槽裡高度跟著拉長填滿;之後一律寬 1280 填滿槽寬、高度跟著槽的比例,比它扁寬的槽高度變矮,左右不留白);500×700 時被縮到約 0.6,字很小;網址列 500 寬被截斷 | 直式預設用 phone 寬度(390)並撐滿槽高,網址列簡化成只有網域;上下堆疊時內容區 phone 化 |
 | editor | 程式碼字級小且行很少,1400 高時下半部全空;500 寬時右側程式碼被切掉(沒有折行,也沒有橫向捲動)、檔案清單占掉約 1/5 寬 | 直式隱藏檔案清單、字級放大、長行折行;槽高很大時行距加大或只顯示最近 N 行 |
 | finder | 列表視窗寬度鋪滿,但每列只有一個小圖示和短檔名,內容只占頂端幾列,其餘白色空白;字小 | 直式改圖示格狀(icon view)或放大列高與字級;高度依內容自動縮短(h 不寫) |
 | notes | 便條位置是固定的(em 為單位、左右交錯、往下排),桌面超大時便條集中在上方、下面大片空;1000 寬時便條只占中間;文字在 500 寬時折行 | 便條散布依槽尺寸縮放、置中排列,桌面尺寸跟內容走 |
@@ -665,6 +665,16 @@ packs/<name>/
 沒有任何演員完全不能用(都沒有崩壞或消失),主要問題是「版面是橫式的比例,直式槽下留白多、字相對太小」與「窄槽(500)被切掉或折行」。字小的問題與基準字級 `--u` 無關(演員多用自己的 px 字級),要在演員內依槽寬換算。
 
 **橫式與直式的差別提醒**:語意名稱 `right`(橫式 h 依內容)在直式換成固定高度的下半部,依內容高度的演員(finder、person)在 `right` 直式下不再是內容高。
+
+## 老師開場
+
+每支課程影片開頭由老師 Lena(`person` 演員,`look: "teacher"`)簡短打招呼,再說這一課要做什麼。腳本頂層寫:
+
+```json
+"teacher": { "say": "今天做一張訂購單", "line": "今天要來幫小森烘焙的網站，加上一張訂購單。" }
+```
+
+`say` 是對話泡泡,`line` 是旁白。載入腳本時(`scripts.ts` 的 `loadScript`,`teacher.ts` 的 `withTeacher`)展開成:老師登場 → 共用的招呼「大家好，我是 Lena。」→ `line` → 退場,放在所有步驟前面;演員表不能再用 `teacher` 這個代號。老師的名字、造型、位置與招呼語都在 `teacher.json`,`scripts/voice.mjs`、`scripts/mix.mjs` 讀同一份;共用的招呼語在同一個資料夾只產生一次音檔,其他腳本直接沿用。演員表裡多了一位 person,原本沒寫 `on` 的 `say`(例如 Claude 的回覆)要加 `"on"`。
 
 ## 調度(試做)
 

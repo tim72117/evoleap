@@ -19,6 +19,7 @@ import { LifeToolsPage } from './LifeToolsPage'
 import { McpPage } from './McpPage'
 import { MemberPage } from './MemberPage'
 import { NewsFeedPage } from './NewsFeedPage'
+import { ExtensionsPage } from './ExtensionsPage'
 import { PortraitPage } from './PortraitPage'
 import { DocsPage } from './DocsPage'
 import { ProposalIndexPage } from './ProposalIndexPage'
@@ -28,12 +29,14 @@ import { TodoPage } from './TodoPage'
 import { ToolsPage } from './ToolsPage'
 import { VibeCodingPage } from './VibeCodingPage'
 import { VisualsPage } from './VisualsPage'
+import { MembersPage } from './MembersPage'
 
 // 依課程地圖（src/content/levels.ts 的 LEVELS）分等級：
-// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced，再接不分等級的課程 ai-tips、kids-web、web-basics；開發 visuals、portrait(直式舞台)、actor-interaction（演員互動：構想、showcase 演員展示、scene 互動教學場景、push 把演員推到主畫面、static 靜態演員）；跨等級構想 mcp、member、resources、news-feed。
+// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced，再接不分等級的課程 ai-tips、kids-web、web-basics；開發 visuals、portrait(直式舞台)、actor-interaction（演員互動：構想、showcase 演員展示、scene 互動教學場景、push 把演員推到主畫面、static 靜態演員）；跨等級構想 mcp、member、resources、news-feed、extensions(延伸課程)。
 export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio', element: <ProposalIndexPage /> },
   { path: '/studio/todo', element: <TodoPage /> },
+  { path: '/studio/members', element: <MembersPage /> },
   { path: '/studio/docs', element: <DocsPage /> },
   { path: '/studio/tools', element: <ToolsPage /> },
   { path: '/studio/ai-tools', element: <AiToolsPage /> },
@@ -48,6 +51,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/member', element: <MemberPage /> },
   { path: '/studio/resources', element: <ResourcesPage /> },
   { path: '/studio/news-feed', element: <NewsFeedPage /> },
+  { path: '/studio/extensions', element: <ExtensionsPage /> },
   { path: '/studio/actor-interaction', element: <ActorInteractionPage /> },
   { path: '/studio/actor-interaction/showcase', element: <ActorsPage /> },
   { path: '/studio/actor-interaction/scene', element: <InteractiveScenePage key="bakery" script="lab/interactive-bakery.json" pageTitle="互動教學場景" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },

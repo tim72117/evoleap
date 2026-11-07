@@ -4,7 +4,7 @@
 //
 // props(登場設定):
 //   name    名字,例如「老闆」「店員B」
-//   look    造型:boss(戴烘焙帽、留鬍子)、staff(包頭巾、綠圍裙)、customer(預設,衣服顏色依名字變)
+//   look    造型:boss(戴烘焙帽、留鬍子)、staff(包頭巾、綠圍裙)、teacher(課程的老師 Lena:及肩短髮、眼鏡、深藍外套)、customer(預設,衣服顏色依名字變)
 //
 // 動作:
 //   { "say": "每一張都要再回問一次。", "mood": "tired" }   說一句話:泡泡冒出、逐字出現、嘴巴跟著動;mood 換表情
@@ -18,7 +18,7 @@ import './actor.css'
 
 type PersonKind = 'say'
 type Mood = 'calm' | 'tired' | 'worried' | 'happy' | 'busy'
-type Look = 'boss' | 'staff' | 'customer'
+type Look = 'boss' | 'staff' | 'teacher' | 'customer'
 type PersonStep = CommonStepFields & { say?: string; mood?: Mood }
 interface PersonProps {
   name?: string
@@ -27,7 +27,7 @@ interface PersonProps {
 type PersonTarget = 'window' | 'face' | 'bubble'
 
 const MOODS: readonly Mood[] = ['calm', 'tired', 'worried', 'happy', 'busy']
-const LOOKS: readonly Look[] = ['boss', 'staff', 'customer']
+const LOOKS: readonly Look[] = ['boss', 'staff', 'teacher', 'customer']
 const CPS = 9
 const HOLD = 1100
 const INK = '#3b2a20'
@@ -40,7 +40,10 @@ function figure(look: Look, name: string): { back: string; front: string } {
   const shirt = look === 'customer' ? `hsl(${hueOf(name)} 45% 62%)` : '#f4efe6'
   const body = `<path d="M18 230 C18 176 56 154 100 154 C144 154 182 176 182 230 Z" fill="${shirt}"/>`
   const apron =
-    look === 'customer'
+    look === 'teacher'
+      ? // 深藍外套敞開,裡面是淺色上衣
+        `<path d="M18 230 C18 176 56 154 100 154 L86 230 Z" fill="#2f4a6d"/><path d="M182 230 C182 176 144 154 100 154 L114 230 Z" fill="#2f4a6d"/>`
+      : look === 'customer'
       ? ''
       : `<path d="M64 166 L136 166 L146 230 L54 230 Z" fill="${look === 'boss' ? '#8b5e3c' : '#5b8c6a'}"/>` +
         `<path d="M70 166 L80 150 M130 166 L120 150" stroke="${look === 'boss' ? '#6f4a2e' : '#467055'}" stroke-width="5" stroke-linecap="round"/>`
@@ -66,6 +69,13 @@ function figure(look: Look, name: string): { back: string; front: string } {
       // 頭巾
       `<path d="M52 72 C60 40 140 40 148 72 C130 60 70 60 52 72 Z" fill="#e07a5f"/>` +
       `<path d="M146 64 L164 56 L160 74 Z" fill="#c9654b"/>`
+  } else if (look === 'teacher') {
+    // 及肩短髮(後面一層垂到下巴下方)
+    hairBack = `<path d="M48 100 C42 50 76 34 100 34 C128 34 158 50 152 100 L154 146 C140 152 130 146 138 124 L62 124 C70 146 60 152 46 146 Z" fill="#3a2c2a"/>`
+    hair =
+      `<path d="M52 98 C46 52 76 36 102 38 C132 40 154 58 148 98 C144 70 128 60 112 62 C98 70 74 74 52 98 Z" fill="#3a2c2a"/>` +
+      // 眼鏡(鏡片透明,眼睛畫在上面)
+      `<g fill="none" stroke="#2b2b33" stroke-width="3.5"><rect x="68" y="86" width="28" height="22" rx="8"/><rect x="104" y="86" width="28" height="22" rx="8"/><path d="M96 95 L104 95"/></g>`
   } else {
     hair = `<path d="M54 96 C48 54 74 38 100 38 C130 38 154 56 146 96 C142 76 126 64 108 66 C96 76 72 80 54 96 Z" fill="#4a3426"/>`
   }

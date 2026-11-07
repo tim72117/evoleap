@@ -726,3 +726,8 @@
     margin: 4px 0 8px;
   }
 }
+
+/* 規劃中:靠右 */
+.badgePlanned {
+  margin-left: auto;
+}

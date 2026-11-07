@@ -5,6 +5,7 @@ import type { Aspect } from '../../live/types'
 import { narrationClips } from '../../live/mixPlan'
 import { loadMix, loadScript, loadVoice, type ScriptMix, type ScriptVoice } from '../../live/scripts'
 import { mountShell, type ProgressStore, type Shell } from '../../live/shell'
+import { useGuestView } from '../../courses/guestActivity'
 import { createStage, type Stage, type StageChapter, type StageScript } from '../../live/stage'
 import '../../live/shell.css'
 import { useCopy } from '../../site/useCopy'
@@ -96,6 +97,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const momentHeadRef = useRef<HTMLHeadingElement>(null)
   const embedMomentRef = useRef<HTMLDivElement>(null)
   const ctrl = useRef<Controller | null>(null)
+  // 正式課程頁:訪客打開這一課與播放的時間要記下來(研發頁的試做、首頁的展示不記)
+  useGuestView(course && !embed ? `live:${scriptPath}` : null, () => ctrl.current?.shell.playing ?? false)
   const [moments, setMoments] = useState<Moment[]>([])
   const [title, setTitle] = useState('')
   const [timeline, setTimeline] = useState<Timeline>({

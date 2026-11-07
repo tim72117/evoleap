@@ -5,7 +5,7 @@ import { loginHref } from '../auth/paths'
 import { SiteLayout } from '../site/SiteLayout'
 import { useCopy } from '../site/useCopy'
 import type { CourseLesson, LessonStep } from '../content/lessonTypes'
-import { coursePath, lessonLabel, lessonPath, type Course } from '../content/catalog'
+import { coursePath, lessonLabel, lessonPath, nextCourse, type Course } from '../content/catalog'
 import styles from './Lesson.module.css'
 import type { PlayerHandle } from './playerHandle'
 import { MockPlayer } from './MockPlayer'
@@ -101,6 +101,8 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
   const index = course.lessons.indexOf(lesson)
   const prev = course.lessons[index - 1]
   const next = course.lessons[index + 1]
+  // 這門課的最後一課:連到同一主題的下一章(下一門課)
+  const nextC = next ? undefined : nextCourse(course)
   const label = lessonLabel(lesson)
   const auth = useAuth()
   const location = useLocation()
@@ -444,6 +446,11 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
             {next ? (
               <Link to={lessonPath(course, next)} className={styles.next}>
                 <small>下一課</small>{lessonLabel(next)} {next.title}
+              </Link>
+            ) : nextC ? (
+              <Link to={coursePath(nextC)} className={styles.next}>
+                <small>下一章</small>
+                {nextC.level} · {nextC.title}
               </Link>
             ) : (
               <Link to={`${SOFTWARE_TOPIC.path}#map`} className={styles.next}>

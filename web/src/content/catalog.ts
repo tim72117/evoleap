@@ -2,7 +2,7 @@
 // - lessons：已有完整內容的章節（目標、步驟、提示詞），用 LessonPage 呈現；與提案頁共用資料。
 // - planned：規劃中的章節，只有標題與簡述，用 PlannedChapterPage 呈現；內容完成後改放進 lessons。
 // 新增一門課：在這裡加一筆，routes.tsx 與 seo/pages.ts 會自動產生路由與 SEO。
-import { ALL_LEVELS, type CourseLevel } from './levels'
+import { ALL_LEVELS, LEVELS, type CourseLevel } from './levels'
 import { L2_MODULES } from './l2Outline'
 import { UNITS } from './aiAgent'
 import type { CourseLesson } from './lessonTypes'
@@ -23,7 +23,7 @@ export interface PlannedChapter {
 export interface Course {
   /** 網址 /courses/<slug> */
   slug: string
-  /** 等級標籤，例如「L0 起步」 */
+  /** 等級標籤，例如「起步」 */
   level: string
   title: string
   summary: string
@@ -47,19 +47,19 @@ function fromLevel(id: string, slug: string, levelLabel: string): Pick<Course, '
 
 export const COURSES: Course[] = [
   {
-    ...fromLevel('tools', 'tools', 'L0 起步'),
+    ...fromLevel('tools', 'tools', '起步'),
     status: 'available',
     lessons: L0_LESSONS,
     planned: [],
   },
   {
-    ...fromLevel('ai-tools', 'ai-tools', 'L1 零基礎'),
+    ...fromLevel('ai-tools', 'ai-tools', '零基礎'),
     status: 'available',
     lessons: L1_LESSONS,
     planned: [],
   },
   {
-    ...fromLevel('vibe-coding-basics', 'vibe-coding', 'L2 基礎'),
+    ...fromLevel('vibe-coding-basics', 'vibe-coding', '基礎'),
     status: 'planned',
     lessons: [],
     planned: L2_MODULES.flatMap((m) =>
@@ -100,6 +100,15 @@ export const COURSES: Course[] = [
 
 export function coursePath(course: Course): string {
   return `/courses/${course.slug}`
+}
+
+/** 同一個主題的下一章(下一門課):起步 → 零基礎 → 基礎;中階 → 進階。最後一章回傳 undefined */
+export function nextCourse(course: Course): Course | undefined {
+  const lv = ALL_LEVELS.find((l) => l.link === coursePath(course))
+  if (!lv) return undefined
+  const group = LEVELS.includes(lv) ? LEVELS : ALL_LEVELS.filter((l) => !LEVELS.includes(l))
+  const nextLevel = group[group.indexOf(lv) + 1]
+  return nextLevel && COURSES.find((c) => coursePath(c) === nextLevel.link)
 }
 
 /** 不用登入就能預覽的單課:只有序章這類短導覽 */
