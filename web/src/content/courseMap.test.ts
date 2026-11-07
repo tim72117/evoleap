@@ -1,11 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import SEED_JSON from '../../../server/internal/store/courses_seed.json'
 import { KIDS_OPEN_LESSONS, KIDS_PREVIEW_LESSON, KIDS_UNITS } from './kidsCourse'
 
 // 課程地圖的資料在伺服器的種子資料(資料庫);課程頁、SEO、研發基地還是用前端的 kidsCourse.ts。兩邊要一致。
 type Seed = { id: string; access: string; units?: { id: string; title: string; metaphor: string; lessons: { id: string; title: string; summary: string; access?: string; status: string }[] }[] }
 
+// 種子資料在 web/ 外面:用 import.meta.glob 在測試執行時才讀(tsc 不檢查路徑)。
+// 部署時 Docker 只複製 web/ 來建置前端,直接 import 的話 tsc -b 找不到檔案會讓建置失敗
+const SEED_JSON = Object.values(import.meta.glob('../../../server/internal/store/courses_seed.json', { eager: true, import: 'default' }))[0]
+
 describe('兒童課的課程地圖(資料庫種子)和前端課程資料一致', () => {
+  it('讀得到伺服器的種子資料', () => {
+    expect(SEED_JSON).toBeDefined()
+  })
+
   const kids = (SEED_JSON as Seed[]).find((c) => c.id === 'kids')!
 
   it('單元與每一課的名稱、學會什麼相同', () => {

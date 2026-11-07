@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-11-07
+
+修正 0.19.0 部署失敗。
+
+### 修正
+
+- **部署建置失敗**：`web/src/content/courseMap.test.ts` 直接 import 伺服器的 `server/internal/store/courses_seed.json`，部署時 Docker 只複製 `web/` 來建置前端，`tsc -b` 找不到檔案而失敗。改成測試執行時用 `import.meta.glob` 讀取，並多一項檢查確認讀得到種子資料。
+
 ## [0.19.0] - 2026-11-07
 
 網頁怎麼運作 1.1「元素與標籤」試做（新演員 dom-tree、靜態互動「點點看」）；兒童課的課程地圖改從課程資料庫讀取；首頁展示影片按下播放後記成「首頁展示」；Claude 演員可以切換介面語言；全部課程頁補上其他主題。
