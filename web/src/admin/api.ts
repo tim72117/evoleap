@@ -17,6 +17,44 @@ export interface LessonStat {
   guestViews: number
   guestVisitors: number
   guestWatchedMs: number
+  /** 訪客漏斗(server/internal/store/admin.go):只算有裝置資料的紀錄;爬蟲另外算、不進漏斗 */
+  guestBots: number
+  /** 真人打開的次數(漏斗第一層) */
+  guestTracked: number
+  guestReady: number
+  guestFailed: number
+  guestPlayed: number
+  /** 真人打開卻沒播放的,頁面平均在前景多久 */
+  guestIdleVisibleMs: number
+  guestReadyAvgMs: number
+}
+
+export interface Count {
+  name: string
+  count: number
+}
+
+export interface GuestBreakdown {
+  devices: Count[]
+  sources: Count[]
+  errors: Count[]
+  /** 真人打開後沒有播放的,依頁面在前景的時間分組:under10s、10to60s、over60s */
+  idleVisible: Count[]
+  /** 最近沒有播放的真人造訪(含登入門檻),新的在前,最多 30 筆 */
+  idleVisits: GuestVisit[]
+}
+
+/** 一次沒有播放的造訪與它的足跡 */
+export interface GuestVisit {
+  lesson: string
+  device: string
+  source: string
+  readyMs: number
+  loadError: string
+  visibleMs: number
+  /** t:打開後第幾毫秒;e:事件代碼(courses/guestActivity.ts) */
+  events: { t: number; e: string }[]
+  openedAt: string
 }
 
 export interface AdminOverview {
@@ -25,6 +63,7 @@ export interface AdminOverview {
   /** 保存期間(180 天)內有紀錄的訪客數 */
   guests: number
   lessons: LessonStat[]
+  guestStats: GuestBreakdown
 }
 
 export interface UserProgress {

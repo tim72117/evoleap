@@ -100,7 +100,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const embedMomentRef = useRef<HTMLDivElement>(null)
   const ctrl = useRef<Controller | null>(null)
   // 正式課程頁:訪客打開這一課與播放的時間要記下來(研發頁的試做、首頁的展示不記)
-  useGuestView(embed ? (track === 'home' ? homeShowcaseKey(`live:${scriptPath}`) : null) : course ? `live:${scriptPath}` : null, () => ctrl.current?.shell.playing ?? false)
+  const guest = useGuestView(embed ? (track === 'home' ? homeShowcaseKey(`live:${scriptPath}`) : null) : course ? `live:${scriptPath}` : null, () => ctrl.current?.shell.playing ?? false)
   const [moments, setMoments] = useState<Moment[]>([])
   const [title, setTitle] = useState('')
   const [timeline, setTimeline] = useState<Timeline>({
@@ -113,6 +113,10 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const [panelOpen, setPanelOpen] = useState(!drawer)
   const [toolbar, setToolbar] = useState<HTMLElement | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // 載入失敗也回報(訪客紀錄用來找出打開了卻沒有播放的原因)
+  useEffect(() => {
+    if (error) guest.fail(error)
+  }, [error, guest])
   const [pushHost, setPushHost] = useState<{
     stage: Stage
     root: HTMLElement
@@ -226,6 +230,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         setLesson(data.lesson ?? '')
         setLoaded(data)
         const at = await sync(answersRef.current)
+        if (!cancelled) guest.ready()
         if (embed && list[0]) carry.current = Math.max(0, (at[list[0].id] ?? 0) - EMBED_LEAD_MS)
         if (carry.current > 0) {
           shell.seek(carry.current)
@@ -250,7 +255,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     }
     // drawer 只在建立時決定要不要攔截 onStop,模式改變時另有效果處理側欄,不必重建
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scriptPath, interaction, prepare, pageTitle, progress, ready, aspect])
+  }, [scriptPath, interaction, prepare, pageTitle, progress, ready, aspect, guest])
 
   // 停在還沒回答的互動點上:由播放器目前的狀態決定,拖走或按播放就自然離開
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { FLUSH_MS, startGuestView } from './guestActivity'
+import { FLUSH_MS, startGuestView, type GuestExtra } from './guestActivity'
 
 // 播放器的「在不在播放」由測試控制;時鐘用假的(setInterval 與 performance.now 一起快轉)
 function fakeApi() {
@@ -8,7 +8,7 @@ function fakeApi() {
     watched,
     api: {
       open: vi.fn(async () => 'v1'),
-      watch: vi.fn(async (_id: string, ms: number) => {
+      watch: vi.fn(async (_id: string, ms: number, _extra?: GuestExtra) => {
         watched.push(Math.round(ms))
         return new Response(null, { status: 204 })
       }),
@@ -21,6 +21,7 @@ describe('startGuestView', () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] })
     const doc = Object.assign(new EventTarget(), { visibilityState: 'visible' })
     vi.stubGlobal('document', doc)
+    vi.stubGlobal('location', { pathname: '/topics/web/0-1', origin: 'http://x', href: 'http://x/topics/web/0-1' })
     vi.stubGlobal('window', Object.assign(new EventTarget(), { setInterval, clearInterval }))
   })
   afterEach(() => {
@@ -100,5 +101,51 @@ describe('startGuestView', () => {
     vi.advanceTimersByTime(FLUSH_MS * 2)
     stop()
     expect(api.watch).not.toHaveBeenCalled()
+  })
+
+  it('回報載入完成的時間(只記第一次)與頁面在前景的時間', async () => {
+    const { api } = fakeApi()
+    const stop = startGuestView('live:a.json', () => false, api)
+    await vi.waitFor(() => expect(api.open).toHaveBeenCalled())
+    vi.advanceTimersByTime(3000)
+    stop.ready()
+    await vi.waitFor(() => expect(api.watch).toHaveBeenCalledTimes(1))
+    const first = api.watch.mock.calls[0][2]!
+    expect(first.readyMs).toBeGreaterThanOrEqual(3000)
+    stop.ready()
+    vi.advanceTimersByTime(20_000)
+    stop()
+    const last = api.watch.mock.calls.at(-1)![2]!
+    expect(api.watch).toHaveBeenCalledTimes(2)
+    expect(last.readyMs).toBeUndefined()
+    expect(last.visibleMs).toBeGreaterThanOrEqual(22_000)
+  })
+
+  it('載入失敗:回報錯誤訊息;還沒拿到紀錄編號時等拿到再送', async () => {
+    const { api } = fakeApi()
+    const stop = startGuestView('live:a.json', () => false, api)
+    stop.fail('找不到腳本')
+    await vi.waitFor(() => expect(api.watch).toHaveBeenCalled())
+    expect(api.watch.mock.calls[0][2]).toMatchObject({ error: '找不到腳本' })
+    stop()
+  })
+
+  it('足跡:播放、暫停、點擊、站內離開都記下來,停止時整份送出', async () => {
+    const { api } = fakeApi()
+    let playing = false
+    const stop = startGuestView('live:a.json', () => playing, api)
+    await vi.waitFor(() => expect(api.open).toHaveBeenCalled())
+    await Promise.resolve()
+    stop.ready()
+    document.dispatchEvent(new Event('click'))
+    document.dispatchEvent(new Event('click')) // 連按同一處只記一次
+    playing = true
+    vi.advanceTimersByTime(3000)
+    playing = false
+    vi.advanceTimersByTime(1000)
+    ;(location as { pathname: string }).pathname = '/topics/web'
+    stop()
+    const events = api.watch.mock.calls.at(-1)![2]!.events!.map((x) => x.e)
+    expect(events).toEqual(['ready', 'click:畫面', 'play', 'pause', 'leave:/topics/web'])
   })
 })

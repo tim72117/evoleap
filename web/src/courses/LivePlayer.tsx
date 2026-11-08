@@ -43,7 +43,11 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
   const { status, user } = useAuth()
   const memberId = saveProgress ? (user?.id ?? null) : null
   // 訪客打開這一課與播放的時間要記下來;不記進度的預覽播放器也不記
-  useGuestView(saveProgress ? `live:${script}` : null, () => shellRef.current?.playing ?? false)
+  const guest = useGuestView(saveProgress ? `live:${script}` : null, () => shellRef.current?.playing ?? false)
+  // 載入失敗也回報(訪客紀錄用來找出打開了卻沒有播放的原因)
+  useEffect(() => {
+    if (error) guest.fail(error)
+  }, [error, guest])
 
   useImperativeHandle(ref, () => ({
     seekTo(seconds) {
@@ -87,6 +91,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
           // 有產生旁白語音的段落,播到那裡就播對應的音檔(合成過章節音軌的用章節音軌)
           clips: narrationClips(stage.narrations, voice, mix),
         })
+        guest.ready()
         if (carry.current > 0) {
           vp.seek(carry.current)
           carry.current = 0
@@ -114,7 +119,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
       vp.destroy()
       shellRef.current = null
     }
-  }, [script, title, status, memberId, aspect])
+  }, [script, title, status, memberId, aspect, guest])
 
   useEffect(() => {
     if (paused) shellRef.current?.pause()

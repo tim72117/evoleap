@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"strconv"
 	"strings"
 	"testing"
@@ -130,7 +131,7 @@ func TestGuestViewRateLimit(t *testing.T) {
 func TestPruneGuestViews(t *testing.T) {
 	st := openTestStore(t)
 	ctx := context.Background()
-	if _, err := st.OpenGuestView(ctx, strings.Repeat("b", 32), "live:a.json"); err != nil {
+	if _, err := st.OpenGuestView(ctx, strings.Repeat("b", 32), "live:a.json", store.GuestMeta{}); err != nil {
 		t.Fatal(err)
 	}
 	if n, err := st.PruneGuestViews(ctx, time.Now().Add(-time.Hour)); err != nil || n != 0 {
@@ -138,5 +139,100 @@ func TestPruneGuestViews(t *testing.T) {
 	}
 	if n, err := st.PruneGuestViews(ctx, time.Now().Add(time.Hour)); err != nil || n != 1 {
 		t.Errorf("old pruned: %d %v", n, err)
+	}
+}
+
+func TestDeviceAndSource(t *testing.T) {
+	for ua, want := range map[string]string{
+		"": store.DeviceBot,
+		"Mozilla/5.0 (compatible; Googlebot/2.1)":                                    store.DeviceBot,
+		"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 HeadlessChrome/120.0":    store.DeviceBot,
+		"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile/15E148":       store.DeviceMobile,
+		"Mozilla/5.0 (Linux; Android 14; Pixel 8) Mobile Safari/537.36":              store.DeviceMobile,
+		"Mozilla/5.0 (Linux; Android 14; SM-X710) Safari/537.36":                     store.DeviceTablet,
+		"Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)":                              store.DeviceTablet,
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/130.0 Safari/537.36": store.DeviceDesktop,
+	} {
+		if got := deviceOf(ua); got != want {
+			t.Errorf("deviceOf(%q) = %q, want %q", ua, got, want)
+		}
+	}
+	for ref, want := range map[string]string{
+		"":                                   store.SourceDirect,
+		"not a url":                          store.SourceDirect,
+		"https://www.google.com/search?q=x":  "google.com",
+		"https://evoleap.example/topics/web": store.SourceSelf,
+		"https://line.me/R/":                 "line.me",
+	} {
+		if got := sourceOf(ref, "evoleap.example:443"); got != want {
+			t.Errorf("sourceOf(%q) = %q, want %q", ref, got, want)
+		}
+	}
+}
+
+func TestGuestFunnel(t *testing.T) {
+	env := newAdminEnv(t, "boss@example.com")
+	h := env.h
+	open := func(ua string, c *http.Cookie) (string, *http.Cookie) {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodPost, "/api/guest/views", strings.NewReader(`{"lesson":"kids:kids/0.1.json","from":"https://www.google.com/"}`))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("User-Agent", ua)
+		if c != nil {
+			req.AddCookie(c)
+		}
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("open: %d %s", rec.Code, rec.Body)
+		}
+		if nc := guestCookieFrom(t, rec.Result()); nc != nil {
+			c = nc
+		}
+		return between(rec.Body.String(), `"id":"`, `"}`), c
+	}
+	report := func(id, body string, c *http.Cookie) {
+		t.Helper()
+		if rec := call(h, http.MethodPut, "/api/guest/views/"+id, body, c); rec.Code != http.StatusNoContent {
+			t.Fatalf("report: %d %s", rec.Code, rec.Body)
+		}
+	}
+	const phone = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile/15E148"
+	played, c := open(phone, nil)
+	report(played, `{"watchedMs":40000,"visibleMs":50000,"readyMs":1200}`, c)
+	idle, c := open(phone, c)
+	report(idle, `{"watchedMs":0,"visibleMs":4000,"readyMs":800}`, c)
+	report(idle, `{"watchedMs":0,"visibleMs":3000,"readyMs":9999}`, c) // 舊值晚到:前景時間不變小、載入時間只記第一次
+	report(idle, `{"watchedMs":0,"visibleMs":4000,"events":[{"t":900,"e":"ready"},{"t":2500,"e":"click:段落"},{"t":4000,"e":"leave:/topics/kids"}]}`, c)
+	report(idle, `{"watchedMs":0,"visibleMs":4000,"events":[{"t":900,"e":"ready"}]}`, c) // 較短的舊足跡晚到,不蓋掉
+	failed, c := open(phone, c)
+	report(failed, `{"watchedMs":0,"visibleMs":20000,"error":"找不到腳本"}`, c)
+	open("Googlebot/2.1", nil)
+
+	views, err := env.st.GuestViews(context.Background(), c.Value)
+	if err != nil || len(views) != 3 {
+		t.Fatalf("views: %v %+v", err, views)
+	}
+	for _, v := range views {
+		if v.Device != store.DeviceMobile || v.Source != "google.com" {
+			t.Errorf("meta: %+v", v)
+		}
+		if v.ID == idle && (v.VisibleMs != 4000 || v.ReadyMs != 800) {
+			t.Errorf("idle: %+v", v)
+		}
+	}
+
+	boss := env.googleCookie(t, "boss@example.com")
+	body := call(h, http.MethodGet, "/api/admin/overview", "", boss).Body.String()
+	for _, want := range []string{
+		`"guestBots":1,"guestTracked":3,"guestReady":2,"guestFailed":1,"guestPlayed":1,"guestIdleVisibleMs":12000,"guestReadyAvgMs":1000`,
+		`"errors":[{"name":"找不到腳本","count":1}]`,
+		`"events":[{"t":900,"e":"ready"},{"t":2500,"e":"click:段落"},{"t":4000,"e":"leave:/topics/kids"}]`,
+		`"sources":[{"name":"google.com","count":3}]`,
+		`"idleVisible":[{"name":"under10s","count":1},{"name":"10to60s","count":1},{"name":"over60s","count":0}]`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("overview missing %s\n%s", want, body)
+		}
 	}
 }

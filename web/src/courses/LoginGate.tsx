@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { GATE_PREFIX, useGuestView } from './guestActivity'
 import { loginHref } from '../auth/paths'
 import { SiteLayout } from '../site/SiteLayout'
 import styles from './LoginGate.module.css'
@@ -23,6 +24,8 @@ type Props = {
 export function LoginGate({ kicker, title, docTitle, back, note, children }: Props) {
   const { status, checkFailed } = useAuth()
   const { pathname, search } = useLocation()
+  // 訪客看到登入門檻也記一筆(gate:<網址>),後台看得出有多少人卡在這裡
+  useGuestView(status === 'guest' && !checkFailed ? GATE_PREFIX + pathname : null, () => false)
   if (status === 'user' || status === 'disabled') return <>{children}</>
 
   return (

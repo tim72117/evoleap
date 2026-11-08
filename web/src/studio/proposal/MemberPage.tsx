@@ -14,7 +14,7 @@ const POSITIONING: [string, string][] = [
 
 const DONE: [string, string, string][] = [
   ['訪客', '不儲存播放進度；舊版留在瀏覽器的進度會被清掉；課程頁提示「登入後會記住你看到哪裡」。', '進度 API 前端不呼叫、後端也一律回 401'],
-  ['訪客上課紀錄', '未登入打開一課記一筆（打開的時間），播放時累計實際播放的時間（約每 30 秒、暫停與離開時送）；保存 180 天；後台總覽看得到各課的訪客打開次數、人數與播放時間。', 'cookie evoleap_guest（隨機代號、HttpOnly、180 天）；資料表 guest_views：代號、課、打開時間、播放時間；POST /api/guest/views、PUT /api/guest/views/{id}'],
+  ['訪客上課紀錄', '未登入打開一課記一筆（打開的時間），播放時累計實際播放的時間（約每 30 秒、暫停與離開時送）；另記裝置類型、進站來源網域、播放器載入時間或錯誤、前景停留時間與瀏覽足跡（按了哪些按鈕、最後去了哪一頁）；看到登入門檻也記一筆（gate:）；保存 180 天；後台有各課概況、訪客漏斗（打開 → 載入完成 → 有播放）與最近沒播放的造訪足跡。', 'cookie evoleap_guest（隨機代號、HttpOnly、180 天）；資料表 guest_views：代號、課、打開時間、播放時間、device、source、ready_ms、load_error、visible_ms、events；POST /api/guest/views、PUT /api/guest/views/{id}'],
   ['會員', '自動記住每一課看到哪裡，下次從那裡接著看（約每 2 秒與離開頁面時存一次）。', '資料表 progress：使用者、課、位置、全長、更新時間；GET／PUT /api/progress'],
 ]
 

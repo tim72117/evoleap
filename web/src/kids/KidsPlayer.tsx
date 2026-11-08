@@ -13,6 +13,9 @@ import { DragLayer } from './DragLayer'
 import { Say as SayChips } from './say'
 import { hush, playClip, speak } from './speech'
 import { homeShowcaseKey, useGuestView } from '../courses/guestActivity'
+import { memberProgress } from '../courses/progress'
+import { useAuth } from '../auth/AuthContext'
+import { resumeChapter, toPlain, type Chapter } from './resume'
 
 // 兒童版播放器殼層(試做):給 9 歲孩子用,不用 live/shell.ts 的外殼,舞台與腳本引擎照舊。
 // - 只有大按鈕:播放／暫停、上一段、下一段、重來、旁白、全螢幕;沒有時間軸、倍速與快捷鍵選單。
@@ -140,6 +143,8 @@ const RING = 10
 const sameGuides = (a: Guide[], b: Guide[]) =>
   a.length === b.length && a.every((x, i) => x.text === b[i].text && x.rect.x === b[i].rect.x && x.rect.y === b[i].rect.y && x.rect.w === b[i].rect.w && x.rect.h === b[i].rect.h)
 const NO_GUIDES: Guide[] = []
+/** 段落選單上的段落(不含插進去的「你的回答」) */
+const chaptersOf = (st: Stage): Chapter[] => st.chapters.filter((c) => c.label !== '你的回答')
 
 type Side = 'above' | 'below' | 'right' | 'left' | 'inside'
 const GAP = 16
@@ -260,7 +265,8 @@ type Props = {
   scrub?: boolean
   /** 浮動版(搭配 layout="page"):舞台撐滿整個播放器,上方指引、字幕、按鈕都浮在舞台上(參考一般版的互動課程頁) */
   floating?: boolean
-  /** 訪客(未登入)打開與播放的時間要記下來(guestActivity.ts):true 是正式課程頁(kids:<腳本>),'home' 是首頁的預覽(記成「首頁展示」home:kids:<腳本>);不寫(研發頁)不記 */
+  /** 訪客(未登入)打開與播放的時間要記下來(guestActivity.ts):true 是正式課程頁(kids:<腳本>),'home' 是首頁的預覽(記成「首頁展示」home:kids:<腳本>);不寫(研發頁)不記。
+   *  true 時會員另外存播放進度(kids:<腳本>,resume.ts),下次從那一段接著看 */
   track?: boolean | 'home'
 }
 
@@ -298,7 +304,19 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   /** 目前是不是在播(轉向重建舞台時,載入完要不要接著播) */
   const playingRef = useRef(false)
   playingRef.current = playing
-  useGuestView(track === 'home' ? homeShowcaseKey(`kids:${path}`) : track ? `kids:${path}` : null, () => playingRef.current)
+  const guest = useGuestView(track === 'home' ? homeShowcaseKey(`kids:${path}`) : track ? `kids:${path}` : null, () => playingRef.current)
+  // 載入失敗也回報(訪客紀錄用來找出打開了卻沒有播放的原因)
+  useEffect(() => {
+    if (error) guest.fail(error)
+  }, [error, guest])
+  // 會員的播放進度:只有正式課程頁(track 為 true)才存;首頁預覽與研發頁不存
+  const { user } = useAuth()
+  const memberId = track === true ? (user?.id ?? null) : null
+  const store = useMemo(() => (memberId ? memberProgress(`kids:${path}`) : null), [memberId, path])
+  /** 沒有回答時的段落與總長度(存進度用的時間軸,見 resume.ts) */
+  const plain = useRef<{ chapters: Chapter[]; duration: number } | null>(null)
+  /** 接著看時跳過的題目(段落名稱):當成走過了,跳段不會被擋;往回跳再播到時照樣會問 */
+  const passed = useRef<Set<string>>(new Set())
   const [now, setNow] = useState(0)
   /** 在子腳本裡時,主腳本停在哪裡(段落與指引用) */
   const [inSub, setInSub] = useState<number | null>(null)
@@ -419,8 +437,11 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
         await document.fonts?.ready
         await reload()
         if (!alive) return
+        // 還沒有任何回答時,記下沒有回答的時間軸(存進度用)
+        if (stage.current && !Object.keys(answers.current).length) plain.current = { chapters: chaptersOf(stage.current), duration: stage.current.duration }
         draw(Math.min(from, stage.current?.duration ?? 0))
         setReady(true)
+        guest.ready()
         if (keepPlaying && from < (stage.current?.duration ?? 0)) setPlaying(true)
       })
       .catch((e: unknown) => alive && setError(e instanceof Error ? e.message : String(e)))
@@ -428,7 +449,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
       alive = false
       hush()
     }
-  }, [path, reload, draw, aspect])
+  }, [path, reload, draw, aspect, guest])
 
   // 停下來等孩子點時,量出各選項目標(與要聚焦的地方)在舞台上的位置
   useLayoutEffect(() => {
@@ -749,6 +770,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     setPlaying(false)
     hush()
     answers.current = {}
+    passed.current = new Set()
     retry.current = null
     plainDur.current = {}
     sub.current = null
@@ -773,7 +795,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     // 子腳本可以跳過(不改主腳本的演員狀態);還沒回答的題目不能跳過
     const stop = st.stops.find((x) => {
       const m = moments.current.find((y) => y.title === x.title)
-      return m && !answers.current[m.id]
+      return m && !answers.current[m.id] && !passed.current.has(x.title)
     })
     return stop ? stop.at : st.duration
   }
@@ -871,6 +893,75 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     // 跳過去就開始播:段落開頭是子腳本入口時馬上切換過去,是題目時馬上停下來問
     resume()
   }
+
+  // ── 會員的播放進度 ──
+
+  const doneRef = useRef(false)
+  doneRef.current = done
+  /** 套用過上次的進度了沒(之前不存,免得把上次的進度洗掉) */
+  const resumed = useRef(false)
+  const lastSaved = useRef(-1)
+  const saveNow = useCallback(() => {
+    const p = plain.current
+    const st = stage.current
+    if (!store || !resumed.current || !p || !st) return
+    // 在子腳本裡時算主腳本停在進入子腳本的那一點;看完了存全長
+    const main = sub.current ? sub.current.returnAt : time.current
+    const pos = Math.round(doneRef.current ? p.duration : toPlain(main, chaptersOf(st), p.chapters, p.duration))
+    // 還在開頭不存(重新打開看完的課時,不會把「看完」的紀錄洗掉);位置沒變不重送
+    if (pos < 1000 || pos === lastSaved.current) return
+    lastSaved.current = pos
+    store.save(pos, Math.round(p.duration))
+  }, [store])
+
+  // 打開時套用上次的進度:孩子還沒開始播才套用,停在那一段的開頭(不自動播)
+  useEffect(() => {
+    resumed.current = false
+    lastSaved.current = -1
+  }, [store])
+  useEffect(() => {
+    if (!store || !ready || resumed.current) return
+    let alive = true
+    void store.load().then((saved) => {
+      if (!alive) return
+      resumed.current = true
+      const p = plain.current
+      const st = stage.current
+      if (!p || !st || playingRef.current || sub.current || time.current >= 1000 || Object.keys(answers.current).length) return
+      const c = resumeChapter(saved, p.chapters, p.duration)
+      const to = c && st.chapters.find((x) => x.label === c.label)?.at
+      if (to == null) return
+      // 那一段之前的題目當成走過了、子腳本算走完了
+      for (const x of st.stops) {
+        if (x.at >= to) continue
+        if (subEntries.current[x.title]) subsDone.current.add(x.title)
+        else passed.current.add(x.title)
+      }
+      lastSaved.current = Math.round(saved ?? -1)
+      draw(to)
+    })
+    return () => {
+      alive = false
+    }
+  }, [store, ready, draw])
+
+  // 播放時每 10 秒存一次;暫停、停在題目、看完、切到背景、離開頁面時補存
+  useEffect(() => {
+    if (!store) return
+    const t = window.setInterval(() => playingRef.current && saveNow(), 10_000)
+    const onHide = () => document.visibilityState === 'hidden' && saveNow()
+    document.addEventListener('visibilitychange', onHide)
+    window.addEventListener('pagehide', saveNow)
+    return () => {
+      window.clearInterval(t)
+      document.removeEventListener('visibilitychange', onHide)
+      window.removeEventListener('pagehide', saveNow)
+      saveNow()
+    }
+  }, [store, saveNow])
+  useEffect(() => {
+    if (!playing) saveNow()
+  }, [playing, done, saveNow])
 
   const toggleVoice = () => {
     voiceOn.current = !voice

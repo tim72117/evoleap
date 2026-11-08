@@ -3,10 +3,10 @@ import { Link, Navigate } from 'react-router-dom'
 import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
-import { adminApi, type AdminOverview, type AdminUser, type UserProgress } from './api'
+import { adminApi, type AdminOverview, type AdminUser, type Count, type GuestVisit, type LessonStat, type UserProgress } from './api'
 import { ADMIN_PATH } from './paths'
 import { formatDateTime, formatDuration, percentOf } from './format'
-import { isHomeShowcase } from '../courses/guestActivity'
+import { isGate, isHomeShowcase } from '../courses/guestActivity'
 import styles from './AdminPage.module.css'
 
 // 管理後台:會員列表、播放進度與訪客上課紀錄的概況。放在研發基地的「會員」標籤(studio/proposal/MembersPage.tsx),
@@ -99,8 +99,7 @@ function Dashboard({ data }: { data: Data }) {
               {overview.lessons.map((l) => (
                 <tr key={l.lesson}>
                   <td>
-                    {isHomeShowcase(l.lesson) && <span className={styles.tag}>首頁展示</span>}
-                    {l.lesson}
+                    <LessonName lesson={l.lesson} />
                   </td>
                   <td>{l.learners}</td>
                   <td>{l.completed}</td>
@@ -115,9 +114,227 @@ function Dashboard({ data }: { data: Data }) {
         </div>
       )}
 
+      <GuestFunnel overview={overview} />
+
       <h2 className={styles.heading}>會員列表（{users.length}）</h2>
       <UserTable users={users} />
     </>
+  )
+}
+
+function LessonName({ lesson }: { lesson: string }) {
+  return (
+    <>
+      {isHomeShowcase(lesson) && <span className={styles.tag}>首頁展示</span>}
+      {isGate(lesson) && <span className={styles.tag}>登入門檻</span>}
+      {lesson}
+    </>
+  )
+}
+
+const DEVICE_LABEL: Record<string, string> = { bot: '爬蟲／自動化', mobile: '手機', tablet: '平板', desktop: '桌機' }
+const SOURCE_LABEL: Record<string, string> = { direct: '直接進入', self: '站內' }
+const IDLE_LABEL: Record<string, string> = { under10s: '不到 10 秒', '10to60s': '10–60 秒', over60s: '超過 1 分鐘' }
+
+const pct = (n: number, of: number): string => (of > 0 ? `${Math.round((n / of) * 100)}%` : '—')
+
+/** 訪客漏斗:真人打開 → 播放器載入完成 → 有播放;爬蟲、載入失敗另外列。只算加上漏斗欄位之後的紀錄 */
+function GuestFunnel({ overview }: { overview: AdminOverview }) {
+  const { guestStats: g } = overview
+  // 登入門檻不是播放器,不進漏斗
+  const rows = overview.lessons.filter((l) => !isGate(l.lesson) && (l.guestTracked > 0 || l.guestBots > 0))
+  const gates = overview.lessons.filter((l) => isGate(l.lesson) && l.guestTracked > 0)
+  const sum = (k: keyof LessonStat) => rows.reduce((n, l) => n + (l[k] as number), 0)
+  const total = { tracked: sum('guestTracked'), ready: sum('guestReady'), played: sum('guestPlayed'), failed: sum('guestFailed'), bots: sum('guestBots') }
+  const steps = [
+    { label: '真人打開', n: total.tracked },
+    { label: '播放器載入完成', n: total.ready },
+    { label: '有播放', n: total.played },
+  ]
+  return (
+    <>
+      <h2 className={styles.heading}>訪客漏斗</h2>
+      {total.tracked + total.bots === 0 ? (
+        <p className={styles.note}>還沒有漏斗資料（加上追蹤之後的訪客紀錄才算）。</p>
+      ) : (
+        <>
+          <ol className={styles.funnel}>
+            {steps.map((s, i) => (
+              <li key={s.label}>
+                <span className={styles.funnelLabel}>{s.label}</span>
+                <span className={styles.funnelTrack}>
+                  <span className={styles.funnelBar} style={{ width: total.tracked ? `${(s.n / total.tracked) * 100}%` : 0 }} />
+                </span>
+                <span className={styles.funnelValue}>
+                  {s.n}
+                  <small>{i === 0 ? '' : ` ${pct(s.n, total.tracked)}`}</small>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className={styles.note}>
+            另外：爬蟲／自動化瀏覽器打開 {total.bots} 次（不算在漏斗裡）；載入失敗 {total.failed} 次。
+          </p>
+
+          <div className={styles.breakdown}>
+            <CountList title="裝置" items={g.devices} label={DEVICE_LABEL} />
+            <CountList title="進站來源（真人）" items={g.sources} label={SOURCE_LABEL} />
+            <CountList title="沒播放的人，頁面待了多久" items={g.idleVisible} label={IDLE_LABEL} />
+            <CountList title="載入錯誤" items={g.errors} empty="沒有" />
+          </div>
+
+          <div className={styles.scroll}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>課程</th>
+                  <th>真人打開</th>
+                  <th>載入完成</th>
+                  <th>有播放</th>
+                  <th>載入失敗</th>
+                  <th>沒播放平均停留</th>
+                  <th>平均載入時間</th>
+                  <th>爬蟲</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((l) => (
+                  <tr key={l.lesson}>
+                    <td>
+                      <LessonName lesson={l.lesson} />
+                    </td>
+                    <td>{l.guestTracked}</td>
+                    <td>
+                      {l.guestReady} <small className={styles.muted}>{pct(l.guestReady, l.guestTracked)}</small>
+                    </td>
+                    <td>
+                      {l.guestPlayed} <small className={styles.muted}>{pct(l.guestPlayed, l.guestTracked)}</small>
+                    </td>
+                    <td>{l.guestFailed}</td>
+                    <td>{l.guestTracked - l.guestPlayed > 0 ? formatDuration(l.guestIdleVisibleMs) : '—'}</td>
+                    <td>{l.guestReady ? (l.guestReadyAvgMs < 1000 ? `${l.guestReadyAvgMs} 毫秒` : `${(l.guestReadyAvgMs / 1000).toFixed(1)} 秒`) : '—'}</td>
+                    <td>{l.guestBots}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+      <IdleVisits visits={g.idleVisits ?? []} />
+      {gates.length > 0 && (
+        <div className={styles.breakdown}>
+          <CountList title="看到登入門檻（訪客打開要登入的課）" items={gates.map((l) => ({ name: l.lesson.slice('gate:'.length), count: l.guestTracked }))} />
+        </div>
+      )}
+    </>
+  )
+}
+
+/** 足跡的事件代碼 → 後台顯示的文字 */
+export function describeEvent(e: string): string {
+  const [kind, ...rest] = e.split(':')
+  const arg = rest.join(':')
+  switch (kind) {
+    case 'ready':
+      return '播放器載入完成'
+    case 'error':
+      return '載入失敗'
+    case 'play':
+      return '開始播放'
+    case 'pause':
+      return '暫停'
+    case 'hide':
+      return '切到別的分頁／App'
+    case 'show':
+      return '回到這頁'
+    case 'close':
+      return '關掉或離開網站'
+    case 'scroll':
+      return `捲到 ${arg}`
+    case 'click':
+      return arg === '畫面' ? '點了畫面（不是按鈕）' : `按「${arg}」`
+    case 'link':
+      return `點連結 ${arg}`
+    case 'leave':
+      return `離開到 ${arg}`
+    default:
+      return e
+  }
+}
+
+/** 最近沒播放的造訪:每一筆列出這次造訪的足跡 */
+function IdleVisits({ visits }: { visits: GuestVisit[] }) {
+  if (!visits.length) return null
+  return (
+    <>
+      <h3 className={styles.subheading}>沒有播放的人做了什麼（最近 {visits.length} 筆）</h3>
+      <div className={styles.scroll}>
+        <table className={`${styles.table} ${styles.visits}`}>
+          <thead>
+            <tr>
+              <th>打開時間</th>
+              <th>課程</th>
+              <th>裝置／來源</th>
+              <th>載入</th>
+              <th>前景停留</th>
+              <th>足跡</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visits.map((v, i) => (
+              <tr key={i}>
+                <td>{formatDateTime(v.openedAt)}</td>
+                <td>
+                  <LessonName lesson={v.lesson} />
+                </td>
+                <td>
+                  {DEVICE_LABEL[v.device] ?? v.device}
+                  <br />
+                  <small className={styles.muted}>{SOURCE_LABEL[v.source] ?? v.source}</small>
+                </td>
+                <td>{v.loadError ? <span title={v.loadError}>失敗</span> : v.readyMs ? (v.readyMs < 1000 ? `${v.readyMs} 毫秒` : `${(v.readyMs / 1000).toFixed(1)} 秒`) : isGate(v.lesson) ? '—' : '沒載入完'}</td>
+                <td>{formatDuration(v.visibleMs)}</td>
+                <td>
+                  {v.events.length === 0 ? (
+                    <span className={styles.muted}>沒有任何動作</span>
+                  ) : (
+                    <ol className={styles.trail}>
+                      {v.events.map((x, j) => (
+                        <li key={j}>
+                          <span className={styles.muted}>{(x.t / 1000).toFixed(1)}s</span> {describeEvent(x.e)}
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                  {v.loadError && <div className={styles.muted}>錯誤：{v.loadError}</div>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )
+}
+
+function CountList({ title, items, label = {}, empty = '—' }: { title: string; items: Count[]; label?: Record<string, string>; empty?: string }) {
+  return (
+    <section className={styles.countBox}>
+      <h3 className={styles.subheading}>{title}</h3>
+      {items.length === 0 ? (
+        <p className={styles.note}>{empty}</p>
+      ) : (
+        <ul className={styles.countList}>
+          {items.map((c) => (
+            <li key={c.name}>
+              <span>{label[c.name] ?? c.name}</span>
+              <b>{c.count}</b>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }
 

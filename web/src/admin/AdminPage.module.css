@@ -129,3 +129,107 @@
   font-weight: 600;
   white-space: nowrap;
 }
+
+/* 訪客漏斗 */
+.funnel {
+  display: grid;
+  gap: 8px;
+  max-width: 640px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.funnel li {
+  display: grid;
+  grid-template-columns: 9em 1fr 5.5em;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.funnelTrack {
+  height: 14px;
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.funnelBar {
+  display: block;
+  height: 100%;
+  background: var(--accent, #3b6fd8);
+}
+
+.funnelValue {
+  font-weight: 700;
+  text-align: right;
+}
+
+.funnelValue small,
+.muted {
+  color: var(--site-muted);
+  font-weight: 400;
+}
+
+.subheading {
+  margin: 0 0 6px;
+  font-size: 14.5px;
+}
+
+.breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 14px 0 16px;
+}
+
+.countBox {
+  padding: 12px 14px;
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+}
+
+.countList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.countList li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+}
+
+.countList li span {
+  overflow-wrap: anywhere;
+}
+
+/* 沒播放的造訪足跡 */
+.visits td {
+  vertical-align: top;
+}
+
+.trail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  max-width: 560px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  white-space: normal;
+}
+
+.trail li {
+  padding: 1px 8px;
+  font-size: 13px;
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+}
