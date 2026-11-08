@@ -45,6 +45,23 @@ export interface GuestBreakdown {
   /** 從首頁進來的造訪走過的路徑(最常見的 20 條)與從首頁進來的造訪次數 */
   homePaths: HomePath[]
   homeVisits: number
+  /** 訪客打開登入／註冊頁的次數與結果 */
+  login: LoginStats
+}
+
+/** 登入／註冊頁:outcomes 的 name 是 signin、register、google(成功)、failed(試過但失敗)、left(沒有登入就離開) */
+export interface LoginStats {
+  visits: number
+  outcomes: Count[]
+  /** 登入後要回到哪裡(next 參數;直接打開登入頁是 /) */
+  next: Count[]
+  /** 登入或註冊失敗時看到的訊息 */
+  fails: Count[]
+  /** Google 登入按鈕:畫好幾次、從打開登入頁到畫好的平均毫秒、載入失敗幾次與原因 */
+  googleReady: number
+  googleReadyAvgMs: number
+  googleFailed: number
+  googleErrors: Count[]
 }
 
 /** 一條路徑:每一站是 guest_views 的 lesson(page:/…、live:…、kids:…、home:…、gate:…),最後可能是 exit(關掉頁面)或 leave:<網址>(換到沒有記錄的頁面) */

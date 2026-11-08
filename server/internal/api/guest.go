@@ -18,6 +18,7 @@ import (
 // 打開時另外記裝置類型(由 User-Agent 分類,爬蟲標成 bot)與進站來源(前端傳的 document.referrer,只留網域)。
 // 訪客代號放在 evoleap_guest cookie(HttpOnly,伺服器第一次記錄時發給瀏覽器),只用來把同一個瀏覽器的紀錄串在一起,不連到帳號。
 // 已登入的會員不記在這裡(會員有自己的播放進度),兩個端點對會員一律回 204、什麼都不做。
+// 例外:訪客在登入頁登入或註冊成功時,auth.go 的 noteGuestLogin 在這位訪客的登入頁紀錄記下結果(只記結果,不記帳號)。
 
 const guestCookie = "evoleap_guest"
 

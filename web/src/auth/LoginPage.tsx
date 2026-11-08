@@ -3,7 +3,8 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { ApiError, authApi, type User } from './api'
 import { useAuth } from './AuthContext'
-import { safeNextPath } from './paths'
+import { LOGIN_PATH, safeNextPath } from './paths'
+import { PAGE_PREFIX, useGuestView } from '../courses/guestActivity'
 import styles from './LoginPage.module.css'
 import { SOFTWARE_TOPIC } from '../content/topics'
 
@@ -48,6 +49,12 @@ export function LoginPage() {
   // 剛在本頁完成登入時不顯示「你已登入」畫面,直接導頁
   const [justSignedIn, setJustSignedIn] = useState(false)
 
+  // 訪客打開登入頁也記一筆(page:/login):從哪一課被帶過來(next)、登入失敗的訊息;登入成功由伺服器記(store.NoteGuestLogin)
+  const guest = useGuestView(PAGE_PREFIX + LOGIN_PATH, () => false)
+  useEffect(() => {
+    if (next !== '/') guest.note(`next:${next}`)
+  }, [guest, next])
+
   const onSignedIn = (u: User) => {
     setJustSignedIn(true)
     setUser(u)
@@ -72,7 +79,13 @@ export function LoginPage() {
         ) : status === 'user' && user ? (
           <SignedIn user={user} next={next} onLogout={logout} />
         ) : (
-          <AuthForm onSignedIn={onSignedIn} />
+          <AuthForm
+            onSignedIn={onSignedIn}
+            onFail={(message) => guest.note(`fail:${message}`)}
+            // Google 登入按鈕從打開登入頁到畫好花了多久、載入失敗的原因(記在這筆紀錄的載入時間與載入錯誤)
+            onGoogleReady={guest.ready}
+            onGoogleError={guest.fail}
+          />
         )}
       </div>
     </SiteLayout>
@@ -118,7 +131,18 @@ function SignedIn({ user, next, onLogout }: { user: User; next: string; onLogout
   )
 }
 
-function AuthForm({ onSignedIn }: { onSignedIn: (u: User) => void }) {
+/** onFail:登入或註冊失敗時顯示的訊息(訪客紀錄用,不含輸入的內容);onGoogleReady／onGoogleError:Google 登入按鈕畫好／載入失敗 */
+function AuthForm({
+  onSignedIn,
+  onFail,
+  onGoogleReady,
+  onGoogleError,
+}: {
+  onSignedIn: (u: User) => void
+  onFail: (message: string) => void
+  onGoogleReady: () => void
+  onGoogleError: (message: string) => void
+}) {
   const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -154,14 +178,17 @@ function AuthForm({ onSignedIn }: { onSignedIn: (u: User) => void }) {
     setError('')
     if (!email.trim()) {
       setError('請輸入 Email')
+      onFail('請輸入 Email')
       return
     }
     if (isRegister && password.length < 8) {
       setError('密碼至少需要 8 個字元')
+      onFail('密碼至少需要 8 個字元')
       return
     }
     if (!password) {
       setError('請輸入密碼')
+      onFail('請輸入密碼')
       return
     }
     setSubmitting(true)
@@ -172,6 +199,7 @@ function AuthForm({ onSignedIn }: { onSignedIn: (u: User) => void }) {
       onSignedIn(u)
     } catch (err) {
       setError(errorMessage(err))
+      onFail(errorMessage(err))
       setSubmitting(false)
     }
   }
@@ -183,6 +211,7 @@ function AuthForm({ onSignedIn }: { onSignedIn: (u: User) => void }) {
       onSignedIn(await authApi.google(credential))
     } catch (err) {
       setError(errorMessage(err))
+      onFail(errorMessage(err))
       setSubmitting(false)
     }
   }
@@ -225,7 +254,13 @@ function AuthForm({ onSignedIn }: { onSignedIn: (u: User) => void }) {
               clientId={googleClientId}
               text={isRegister ? 'signup_with' : 'signin_with'}
               onCredential={onGoogleCredential}
-              onError={() => setError('無法載入 Google 登入，請改用 Email 或稍後再試')}
+              onReady={onGoogleReady}
+              onError={(reason) => {
+                setError('無法載入 Google 登入，請改用 Email 或稍後再試')
+                onGoogleError(reason)
+              }}
+              // 只是太久沒偵測到按鈕畫好:記下來就好,不在畫面上顯示錯誤(按鈕可能其實是好的)
+              onSlow={onGoogleError}
             />
             <div className={styles.divider}>
               <span>或使用 Email</span>
@@ -331,19 +366,58 @@ function GoogleButton({
   clientId,
   text,
   onCredential,
+  onReady,
   onError,
+  onSlow,
 }: {
   clientId: string
   text: 'signin_with' | 'signup_with'
   onCredential: (credential: string) => void
-  onError: () => void
+  /** 按鈕畫好(Google 的按鈕 iframe 載入完成) */
+  onReady: () => void
+  /** 載入失敗(Google 登入程式載不到);reason 是原因 */
+  onError: (reason: string) => void
+  /** 20 秒內沒偵測到按鈕畫好(只記錄,不當成載入失敗顯示給使用者) */
+  onSlow: (reason: string) => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
   // GSI 會保存 callback;透過 ref 取得最新的處理函式
-  const handlers = useRef({ onCredential, onError })
+  const handlers = useRef({ onCredential, onReady, onError, onSlow })
   useEffect(() => {
-    handlers.current = { onCredential, onError }
+    handlers.current = { onCredential, onReady, onError, onSlow }
   })
+
+  // 按鈕畫好的時間:renderButton 之後 Google 會放進 iframe,任一個 iframe 載入完成就算畫好
+  // (每個新出現的 iframe 都聽:切換登入／註冊時按鈕重畫,原本的 iframe 會被換掉);20 秒內沒偵測到只記錄
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let done = false
+    const finish = (ok: boolean): void => {
+      if (done) return
+      done = true
+      mo.disconnect()
+      window.clearTimeout(timer)
+      if (ok) handlers.current.onReady()
+      else handlers.current.onSlow('Google 登入按鈕 20 秒內沒有偵測到畫好')
+    }
+    const seen = new WeakSet<HTMLIFrameElement>()
+    const watch = (): void => {
+      for (const frame of el.querySelectorAll('iframe')) {
+        if (seen.has(frame)) continue
+        seen.add(frame)
+        frame.addEventListener('load', () => finish(true), { once: true })
+      }
+    }
+    const mo = new MutationObserver(watch)
+    mo.observe(el, { childList: true, subtree: true })
+    const timer = window.setTimeout(() => finish(false), 20_000)
+    return () => {
+      done = true
+      mo.disconnect()
+      window.clearTimeout(timer)
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -372,7 +446,7 @@ function GoogleButton({
         })
       })
       .catch(() => {
-        if (!cancelled) handlers.current.onError()
+        if (!cancelled) handlers.current.onError('Google 登入程式載入失敗')
       })
     return () => {
       cancelled = true

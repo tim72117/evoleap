@@ -99,6 +99,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
+	s.noteGuestLogin(r, store.LoginRegister)
 	s.startSession(w, user)
 }
 
@@ -126,6 +127,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusUnauthorized, "invalid_credentials", "Email 或密碼不正確")
 		return
 	}
+	s.noteGuestLogin(r, store.LoginSignIn)
 	s.startSession(w, user)
 }
 
@@ -168,6 +170,7 @@ func (s *Server) handleGoogle(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
+	s.noteGuestLogin(r, store.LoginGoogle)
 	s.startSession(w, user)
 }
 
@@ -245,4 +248,16 @@ func decode(w http.ResponseWriter, r *http.Request, v any) bool {
 func internalError(w http.ResponseWriter, err error) {
 	log.Printf("api: %v", err)
 	writeError(w, http.StatusInternalServerError, "internal", "伺服器發生錯誤，請稍後再試")
+}
+
+// noteGuestLogin:這個瀏覽器之前以訪客身分打開過登入頁,就在那筆紀錄記下登入／註冊成功(訪客漏斗用,只記結果,不記帳號)。
+// 登入後前端就不能再回報訪客紀錄,所以在這裡記;記不起來不影響登入。
+func (s *Server) noteGuestLogin(r *http.Request, outcome string) {
+	id := guestID(r)
+	if id == "" || s.cfg.Store == nil {
+		return
+	}
+	if err := s.cfg.Store.NoteGuestLogin(r.Context(), id, outcome); err != nil {
+		log.Printf("guest login note: %v", err)
+	}
 }

@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"time"
 	"unicode/utf8"
 
@@ -19,6 +20,16 @@ const GuestRetention = 180 * 24 * time.Hour
 
 // PagePrefix 是首頁、課程地圖這類不是單課的頁面紀錄(lesson 為 page:<網址>,前端 guestActivity.ts 的 PAGE_PREFIX)
 const PagePrefix = "page:"
+
+// LoginPage 是訪客打開登入／註冊頁的紀錄(前端 auth/LoginPage.tsx)
+const LoginPage = PagePrefix + "/login"
+
+// 登入頁紀錄的結果(Outcome):在這一頁用 Email 登入、Email 註冊、Google 登入成功
+const (
+	LoginSignIn   = "signin"
+	LoginRegister = "register"
+	LoginGoogle   = "google"
+)
 
 // GuestView 是訪客打開一課的一筆紀錄。
 type GuestView struct {
@@ -79,16 +90,18 @@ type GuestReport struct {
 }
 
 type guestViewRow struct {
-	ID        string    `gorm:"primaryKey;size:32"`
-	GuestID   string    `gorm:"index;size:32;not null"`
-	Lesson    string    `gorm:"size:200;not null"`
-	WatchedMs int       `gorm:"not null"`
-	Device    string    `gorm:"size:16;not null;default:''"`
-	Source    string    `gorm:"size:100;not null;default:''"`
-	ReadyMs   int       `gorm:"not null;default:0"`
-	LoadError string    `gorm:"size:200;not null;default:''"`
-	VisibleMs int       `gorm:"not null;default:0"`
-	Events    string    `gorm:"type:text;not null;default:''"`
+	ID        string `gorm:"primaryKey;size:32"`
+	GuestID   string `gorm:"index;size:32;not null"`
+	Lesson    string `gorm:"size:200;not null"`
+	WatchedMs int    `gorm:"not null"`
+	Device    string `gorm:"size:16;not null;default:''"`
+	Source    string `gorm:"size:100;not null;default:''"`
+	ReadyMs   int    `gorm:"not null;default:0"`
+	LoadError string `gorm:"size:200;not null;default:''"`
+	VisibleMs int    `gorm:"not null;default:0"`
+	Events    string `gorm:"type:text;not null;default:''"`
+	// Outcome:登入頁的紀錄才有,在這一頁登入或註冊成功時由伺服器記下(LoginSignIn 等);只記結果,不記帳號
+	Outcome   string    `gorm:"size:16;not null;default:''"`
 	OpenedAt  time.Time `gorm:"index"`
 	UpdatedAt time.Time
 }
@@ -177,4 +190,23 @@ func (s *Store) PruneGuestViews(ctx context.Context, before time.Time) (int64, e
 	// 存的是 UTC;SQLite 以字串比較,時區要一致
 	res := s.db.WithContext(ctx).Where("opened_at < ?", before.UTC()).Delete(&guestViewRow{})
 	return res.RowsAffected, res.Error
+}
+
+// noteLoginWindow:登入成功時,只把結果記在這段時間內打開的登入頁紀錄上(太久以前打開的不算這一次)
+const noteLoginWindow = 6 * time.Hour
+
+// NoteGuestLogin 在這位訪客最近一次打開登入頁的紀錄記下登入／註冊成功(outcome 是 LoginSignIn 等)。
+// 登入後瀏覽器就是會員,前端不能再回報訪客紀錄,所以由登入的端點記。只記結果,不記是哪個帳號。沒有符合的紀錄時什麼都不做。
+func (s *Store) NoteGuestLogin(ctx context.Context, guestID, outcome string) error {
+	var row guestViewRow
+	err := s.db.WithContext(ctx).
+		Where("guest_id = ? AND lesson = ? AND opened_at > ?", guestID, LoginPage, now().Add(-noteLoginWindow)).
+		Order("opened_at desc").First(&row).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	return s.db.WithContext(ctx).Model(&guestViewRow{}).Where("id = ?", row.ID).Updates(map[string]any{"outcome": outcome, "updated_at": now()}).Error
 }

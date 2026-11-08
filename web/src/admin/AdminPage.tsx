@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom'
 import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
-import { adminApi, type AdminOverview, type AdminUser, type Count, type GuestVisit, type HomePath, type LessonStat, type UserProgress } from './api'
+import { adminApi, type AdminOverview, type AdminUser, type Count, type GuestVisit, type HomePath, type LessonStat, type LoginStats, type UserProgress } from './api'
 import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
 import { WEB_OPEN_LESSONS } from '../content/webCourse'
@@ -216,7 +216,7 @@ function GuestFunnel({ overview }: { overview: AdminOverview }) {
                     </td>
                     <td>{l.guestFailed}</td>
                     <td>{l.guestTracked - l.guestPlayed > 0 ? formatDuration(l.guestIdleVisibleMs) : '—'}</td>
-                    <td>{l.guestReady ? (l.guestReadyAvgMs < 1000 ? `${l.guestReadyAvgMs} 毫秒` : `${(l.guestReadyAvgMs / 1000).toFixed(1)} 秒`) : '—'}</td>
+                    <td>{l.guestReady ? formatMs(l.guestReadyAvgMs) : '—'}</td>
                     <td>{l.guestBots}</td>
                   </tr>
                 ))}
@@ -232,11 +232,54 @@ function GuestFunnel({ overview }: { overview: AdminOverview }) {
           <CountList title="看到登入門檻（訪客打開要登入的課）" items={gates.map((l) => ({ name: l.lesson.slice('gate:'.length), count: l.guestTracked }))} />
         </div>
       )}
+      <LoginFunnel login={g.login} />
+    </>
+  )
+}
+
+/** 載入時間:不到 1 秒用毫秒,其餘用秒(一位小數) */
+const formatMs = (ms: number): string => (ms < 1000 ? `${ms} 毫秒` : `${(ms / 1000).toFixed(1)} 秒`)
+
+const LOGIN_OUTCOME: Record<string, string> = {
+  signin: 'Email 登入成功',
+  register: 'Email 註冊成功',
+  google: 'Google 登入成功',
+  failed: '試過但失敗，沒有登入',
+  left: '沒有登入就離開',
+}
+
+/** 訪客打開登入／註冊頁:結果、登入後要去哪裡、看到的錯誤訊息 */
+function LoginFunnel({ login }: { login?: LoginStats }) {
+  if (!login?.visits) return null
+  const ok = login.outcomes.filter((c) => c.name === 'signin' || c.name === 'register' || c.name === 'google').reduce((n, c) => n + c.count, 0)
+  return (
+    <>
+      <h3 className={`${styles.subheading} ${styles.section}`}>
+        登入／註冊頁（訪客打開 {login.visits} 次，登入或註冊成功 {ok} 次，{pct(ok, login.visits)}）
+      </h3>
+      <div className={styles.breakdown}>
+        <CountList title="結果" items={login.outcomes} label={LOGIN_OUTCOME} />
+        <CountList title="登入後要去哪裡" items={login.next} label={{ '/': '沒有指定（直接打開登入頁）' }} />
+        <CountList title="看到的錯誤訊息" items={login.fails} empty="沒有" />
+      </div>
+      {(login.googleReady > 0 || login.googleFailed > 0) && (
+        <>
+          <p className={styles.note}>
+            Google 登入按鈕：畫好 {login.googleReady} 次，從打開登入頁到畫好平均 {login.googleReady ? formatMs(login.googleReadyAvgMs) : '—'}；載入失敗 {login.googleFailed} 次。
+          </p>
+          {login.googleFailed > 0 && (
+            <div className={styles.breakdown}>
+              <CountList title="Google 按鈕載入失敗的原因" items={login.googleErrors} />
+            </div>
+          )}
+        </>
+      )}
     </>
   )
 }
 
 const PAGE_NAME: Record<string, string> = {
+  '/login': '登入／註冊頁',
   '/': '首頁',
   [SOFTWARE_TOPIC.path]: `${SOFTWARE_TOPIC.name}（地圖）`,
   [AI_APPS_TOPIC.path]: `${AI_APPS_TOPIC.name}（地圖）`,
@@ -366,7 +409,7 @@ function IdleVisits({ visits }: { visits: GuestVisit[] }) {
                   <br />
                   <small className={styles.muted}>{SOURCE_LABEL[v.source] ?? v.source}</small>
                 </td>
-                <td>{v.loadError ? <span title={v.loadError}>失敗</span> : v.readyMs ? (v.readyMs < 1000 ? `${v.readyMs} 毫秒` : `${(v.readyMs / 1000).toFixed(1)} 秒`) : isGate(v.lesson) ? '—' : '沒載入完'}</td>
+                <td>{v.loadError ? <span title={v.loadError}>失敗</span> : v.readyMs ? formatMs(v.readyMs) : isGate(v.lesson) ? '—' : '沒載入完'}</td>
                 <td>{formatDuration(v.visibleMs)}</td>
                 <td>
                   {v.events.length === 0 ? (

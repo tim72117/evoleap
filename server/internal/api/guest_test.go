@@ -283,11 +283,65 @@ func TestHomePaths(t *testing.T) {
 		if !strings.Contains(body, want) {
 			t.Errorf("overview missing %s\n%s", want, body)
 		}
-	}	// 首頁、課程地圖不是課:不進各課概況,裝置分布只算三筆課的紀錄(甲、丙各打開一課;乙沒有打開課)
+	} // 首頁、課程地圖不是課:不進各課概況,裝置分布只算三筆課的紀錄(甲、丙各打開一課;乙沒有打開課)
 	if strings.Contains(body, `"lesson":"page:/","learners"`) {
 		t.Errorf("page rows should not be lesson stats\n%s", body)
 	}
 	if !strings.Contains(body, `"devices":[{"name":"desktop","count":2}]`) {
 		t.Errorf("devices should count lesson rows only\n%s", body)
+	}
+}
+
+func TestGuestLoginOutcome(t *testing.T) {
+	env := newAdminEnv(t, "boss@example.com")
+	h := env.h
+	const desk = "Mozilla/5.0 (Macintosh) Chrome/130 Safari/537.36"
+	open := func(lesson string, c *http.Cookie) (string, *http.Cookie) {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodPost, "/api/guest/views", strings.NewReader(`{"lesson":"`+lesson+`"}`))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("User-Agent", desk)
+		if c != nil {
+			req.AddCookie(c)
+		}
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		if nc := guestCookieFrom(t, rec.Result()); nc != nil {
+			c = nc
+		}
+		return between(rec.Body.String(), `"id":"`, `"}`), c
+	}
+	report := func(id, body string, c *http.Cookie) {
+		t.Helper()
+		if rec := call(h, http.MethodPut, "/api/guest/views/"+id, body, c); rec.Code != http.StatusNoContent {
+			t.Fatalf("report: %d %s", rec.Code, rec.Body)
+		}
+	}
+	// 訪客甲:從第 1 課被擋下來 → 登入頁,密碼打錯一次,再註冊成功(伺服器記下 register)
+	view, a := open("page:/login", nil)
+	report(view, `{"watchedMs":0,"readyMs":1200,"events":[{"t":10,"e":"next:/courses/tools/1"},{"t":900,"e":"fail:Email 或密碼不正確"}]}`, a)
+	if rec := call(h, http.MethodPost, "/api/auth/register", `{"email":"guest-a@example.com","password":"secret123"}`, a); rec.Code != http.StatusOK {
+		t.Fatalf("register: %d %s", rec.Code, rec.Body)
+	}
+	// 訪客乙:打開登入頁,登入失敗後離開
+	view, b := open("page:/login", nil)
+	report(view, `{"watchedMs":0,"error":"Google 登入程式載入失敗","events":[{"t":500,"e":"fail:Email 或密碼不正確"},{"t":900,"e":"close"}]}`, b)
+	// 訪客丙:打開登入頁什麼都沒做就離開
+	open("page:/login", nil)
+
+	boss := env.googleCookie(t, "boss@example.com")
+	body := call(h, http.MethodGet, "/api/admin/overview", "", boss).Body.String()
+	for _, want := range []string{
+		`"login":{"visits":3,`,
+		`{"name":"register","count":1}`,
+		`{"name":"failed","count":1}`,
+		`{"name":"left","count":1}`,
+		`{"name":"/courses/tools/1","count":1}`,
+		`"fails":[{"name":"Email 或密碼不正確","count":2}]`,
+		`"googleReady":1,"googleReadyAvgMs":1200,"googleFailed":1,"googleErrors":[{"name":"Google 登入程式載入失敗","count":1}]`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("overview missing %s\n%s", want, body)
+		}
 	}
 }

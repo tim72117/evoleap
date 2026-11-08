@@ -192,6 +192,69 @@ type GuestBreakdown struct {
 	HomePaths []PathCount `json:"homePaths"`
 	// 從首頁進來的造訪次數
 	HomeVisits int `json:"homeVisits"`
+	// 訪客打開登入／註冊頁的次數與結果
+	Login LoginStats `json:"login"`
+}
+
+// LoginStats 是訪客打開登入／註冊頁(store.LoginPage)的統計:結果、想去哪一課、登入失敗的訊息。
+type LoginStats struct {
+	Visits int `json:"visits"` // 真人打開幾次
+	// 結果:signin(Email 登入)、register(Email 註冊)、google(Google 登入)、failed(試過但失敗,最後沒有登入)、left(沒有登入就離開)
+	Outcomes []Count `json:"outcomes"`
+	Next     []Count `json:"next"`  // 登入後要回到哪裡(登入頁的 next 參數;直接打開登入頁是 /)
+	Fails    []Count `json:"fails"` // 登入或註冊失敗時看到的訊息
+	// Google 登入按鈕:畫好幾次、從打開登入頁到畫好的平均毫秒、載入失敗幾次與原因(有設定 Google 登入時才有)
+	GoogleReady      int     `json:"googleReady"`
+	GoogleReadyAvgMs int64   `json:"googleReadyAvgMs"`
+	GoogleFailed     int     `json:"googleFailed"`
+	GoogleErrors     []Count `json:"googleErrors"`
+}
+
+// loginStats 統計真人打開登入頁的紀錄。結果由伺服器在登入成功時記(Outcome);沒有結果的看足跡:有失敗訊息(fail:)算 failed,否則 left。
+func loginStats(views []guestViewRow) LoginStats {
+	st := LoginStats{}
+	outcomes, next, fails, googleErrs := map[string]int{}, map[string]int{}, map[string]int{}, map[string]int{}
+	var readySum int64
+	for _, v := range views {
+		if v.Lesson != LoginPage || v.Device == "" || v.Device == DeviceBot {
+			continue
+		}
+		st.Visits++
+		if v.ReadyMs > 0 {
+			st.GoogleReady++
+			readySum += int64(v.ReadyMs)
+		}
+		if v.LoadError != "" {
+			st.GoogleFailed++
+			googleErrs[v.LoadError]++
+		}
+		failed := false
+		to := "/"
+		for _, e := range parseEvents(v.Events) {
+			switch {
+			case strings.HasPrefix(e.E, "fail:"):
+				failed = true
+				fails[strings.TrimPrefix(e.E, "fail:")]++
+			case strings.HasPrefix(e.E, "next:"):
+				to = strings.TrimPrefix(e.E, "next:")
+			}
+		}
+		next[to]++
+		switch {
+		case v.Outcome != "":
+			outcomes[v.Outcome]++
+		case failed:
+			outcomes["failed"]++
+		default:
+			outcomes["left"]++
+		}
+	}
+	st.Outcomes = topCounts(outcomes, 0)
+	st.Next = topCounts(next, 10)
+	st.Fails = topCounts(fails, 10)
+	st.GoogleReadyAvgMs = avgOf(readySum, st.GoogleReady)
+	st.GoogleErrors = topCounts(googleErrs, 10)
+	return st
 }
 
 // AdminOverview 是儀表板的總覽數字。
@@ -397,6 +460,7 @@ func (s *Store) AdminOverview(ctx context.Context) (AdminOverview, error) {
 		IdleVisits: idleVisits,
 		HomePaths:  home,
 		HomeVisits: homeVisits,
+		Login:      loginStats(views),
 		Devices:    topCounts(devices, 0),
 		Sources:    topCounts(sources, 10),
 		Errors:     topCounts(errs, 10),

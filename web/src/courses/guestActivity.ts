@@ -4,6 +4,8 @@
 // 為了看出「打開了卻沒有播放」的原因,另外回報:進站來源(document.referrer,伺服器只留網域)、頁面在前景的時間、
 // 播放器多久載入完成(ready)或載入失敗的訊息(fail)。看到登入門檻的訪客也記一筆(gate: 開頭,LoginGate.tsx);
 // 打開首頁、課程地圖也記一筆(page:<網址>,PageView),後台串成「從首頁進來的路徑」。
+// 打開登入頁也記一筆(page:/login,auth/LoginPage.tsx):頁面用 note() 記下 next:<網址>、fail:<訊息>,用 ready／fail 記 Google 登入按鈕的載入時間;
+// 登入或註冊成功由伺服器記在這筆紀錄上(store.NoteGuestLogin),因為登入後前端就不能再回報訪客紀錄。
 // 另外記這次造訪的足跡(events):載入完成／失敗、按了哪個按鈕或連結(只記按鈕上的名稱與連結的站內網址,不記輸入的文字)、
 // 捲動到頁面的幾成、切到別的分頁又回來、開始／暫停播放、最後離開到哪一頁或關掉頁面。後台用來看「打開了卻沒有播放的人做了什麼」。
 import { useEffect, useMemo, useRef, type ReactNode } from 'react'
@@ -94,7 +96,7 @@ export const guestApi = {
 }
 
 /** startGuestView 的回傳值:呼叫它停止記錄;ready()、fail() 回報播放器載入完成或失敗(只記第一次) */
-export type GuestTracker = (() => void) & { ready: (elapsedMs?: number) => void; fail: (message: string) => void }
+export type GuestTracker = (() => void) & { ready: (elapsedMs?: number) => void; fail: (message: string) => void; note: (event: string) => void }
 
 /**
  * 開始記錄訪客打開了這一課;isPlaying 回報播放器現在是不是在播放。回傳停止記錄的函式(會補送最後的資料)。
@@ -235,6 +237,11 @@ export function startGuestView(lesson: string, isPlaying: () => boolean, api = g
       pending = true
       flush()
     },
+    /** 頁面自己的事件(例如登入頁的 next:<網址>、fail:<訊息>),記進足跡並馬上送出 */
+    note: (event: string) => {
+      mark(event)
+      flush(true)
+    },
     fail: (message: string) => {
       if (error) return
       error = message.slice(0, 200) || '載入失敗'
@@ -261,6 +268,8 @@ const viewStart = (): number => {
 export interface GuestReporter {
   ready: () => void
   fail: (message: string) => void
+  /** 記一件頁面自己的事(足跡的事件代碼);開始記錄前發生的先存著,開始時補上 */
+  note: (event: string) => void
 }
 
 /**
@@ -277,7 +286,7 @@ export function useGuestView(lesson: string | null, isPlaying: () => boolean): G
   const tracker = useRef<GuestTracker | null>(null)
   /** 還沒開始記錄(登入狀態確認中)時先記下載入結果,開始記錄時補上 */
   // since:打開這一課的時間(載入時間從這裡算,不是從確認完登入狀態、開始記錄時算)
-  const early = useRef<{ lesson: string | null; since: number; readyMs?: number; error?: string } | null>(null)
+  const early = useRef<{ lesson: string | null; since: number; readyMs?: number; error?: string; notes?: string[] } | null>(null)
   if (!early.current || early.current.lesson !== lesson) early.current = { lesson, since: lesson ? viewStart() : 0 }
   useEffect(() => {
     if (!lesson || status !== 'guest') return
@@ -285,6 +294,8 @@ export function useGuestView(lesson: string | null, isPlaying: () => boolean): G
     tracker.current = t
     if (early.current?.error) t.fail(early.current.error)
     else if (early.current?.readyMs) t.ready(early.current.readyMs)
+    for (const e of early.current?.notes ?? []) t.note(e)
+    if (early.current) early.current.notes = []
     return () => {
       tracker.current = null
       noteNavigation() // 站內換頁時這裡已經是下一頁的網址(換到沒有記錄的頁面再回來也算換過頁)
@@ -301,6 +312,10 @@ export function useGuestView(lesson: string | null, isPlaying: () => boolean): G
       fail: (message: string) => {
         early.current!.error ??= message
         tracker.current?.fail(message)
+      },
+      note: (event: string) => {
+        if (tracker.current) tracker.current.note(event)
+        else (early.current!.notes ??= []).push(event)
       },
     }),
     [],
