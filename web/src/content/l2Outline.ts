@@ -24,67 +24,9 @@ export type OutlineModule = {
 export const L2_MODULES: OutlineModule[] = [
   {
     num: '4',
-    title: '開發者的電腦基本功',
-    length: '約 1.5 小時',
-    why: '之後每個工具都靠檔案路徑與終端機操作；先把這層打穩，安裝時出錯才看得懂。',
-    lessons: [
-      {
-        title: '檔案、資料夾與路徑',
-        length: '約 25 分',
-        objective: '顯示副檔名與隱藏檔，分辨絕對路徑與相對路徑，知道專案資料夾為什麼不要放在雲端同步資料夾或含空白的路徑。',
-        result: '在家目錄下建立一個 projects 資料夾，作為整門課的工作區。',
-      },
-      {
-        title: '終端機入門（Windows 與 macOS）',
-        length: '約 30 分',
-        objective: '打開終端機（Windows：Windows Terminal／PowerShell；macOS：終端機／zsh），使用 pwd、ls、cd、mkdir 移動與建立資料夾。',
-        result: '只用指令在 projects 裡建立 hello 資料夾並進入它。',
-      },
-      {
-        title: '指令從哪來：PATH 與環境變數',
-        length: '約 25 分',
-        objective: '理解輸入指令時系統如何在 PATH 中尋找程式，這是「找不到指令」最常見的原因。',
-        result: '印出自己的 PATH，並用 where（Windows）／which（macOS）找到一個指令的位置。',
-      },
-    ],
-  },
-  {
-    num: '5',
-    title: '安裝並設定開發環境',
-    length: '約 2 小時',
-    why: '一次裝好、逐項驗證，後面的課才不會卡在環境問題。每個工具都先說它負責什麼，再安裝。',
-    lessons: [
-      {
-        title: 'VS Code：編輯器與內建終端機',
-        length: '約 25 分',
-        objective: '安裝 VS Code（可選裝繁體中文語言套件），用「開啟資料夾」打開專案，使用內建終端機。',
-        result: '在 VS Code 開啟 hello 資料夾，建立第一個檔案並存檔。',
-      },
-      {
-        title: 'Node.js LTS 與 npm',
-        length: '約 30 分',
-        objective: '說明 Node.js 讓 JavaScript 在瀏覽器外執行、npm 負責安裝套件；安裝 LTS 版本並驗證。',
-        result: '執行 node hello.js，在終端機看到自己寫的輸出。',
-      },
-      {
-        title: 'Git 與 GitHub：程式的存檔點',
-        length: '約 35 分',
-        objective: '安裝 Git、設定 user.name 與 user.email、註冊 GitHub 帳號，理解 commit 與 push 的差別。',
-        result: '建立第一個 GitHub repository，從本機 push 上去。',
-      },
-      {
-        title: '瀏覽器開發者工具入門',
-        length: '約 25 分',
-        objective: '使用 Elements 檢視網頁結構、Console 看錯誤訊息與執行 JavaScript、Network 看請求。',
-        result: '在任一網頁用 Console 改掉標題文字，並找到一則錯誤或警告訊息。',
-      },
-    ],
-  },
-  {
-    num: '6',
     title: 'AI 程式助手：安裝與第一次使用',
-    length: '約 1.5 小時',
-    why: '這是 Vibe Coding 的核心工具；先理解它能讀寫你的檔案、執行指令，才知道要怎麼放心地用。',
+    length: '約 2 小時',
+    why: '這是 Vibe Coding 的核心工具，所以放在最前面：先裝好它、理解它能讀寫你的檔案與執行指令，之後學終端機、安裝工具、看不懂錯誤訊息時，都可以請它陪著做；第一個請它代裝的工具就是 Node.js。',
     lessons: [
       {
         title: 'AI 程式助手的三種形式',
@@ -95,14 +37,72 @@ export const L2_MODULES: OutlineModule[] = [
       {
         title: '安裝、登入與權限',
         length: '約 30 分',
-        objective: '依官方說明安裝並登入選定的助手，理解它讀檔、改檔、執行指令前的確認機制。',
-        result: '請助手說明 hello 資料夾裡有什麼，並回答它的一次權限確認。',
+        objective: '依官方說明安裝並登入選定的助手（這時還沒學終端機，優先用安裝程式或桌面 App 的版本），理解它讀檔、改檔、執行指令前的確認機制。',
+        result: '請助手在家目錄建立 projects 資料夾作為整門課的工作區，並回答它的一次權限確認。',
+      },
+      {
+        title: '請 AI 程式助手安裝 Node.js',
+        length: '約 30 分',
+        objective: '說明 Node.js 讓 JavaScript 在瀏覽器外執行、npm 負責安裝套件；請 AI 程式助手依你的作業系統，用官方的方式安裝 LTS 版本：每個安裝指令先看懂確認提示再允許，需要輸入電腦密碼的步驟自己來，最後請它執行 node -v 與 npm -v 驗證。',
+        result: '終端機印出 node 與 npm 的版本；請助手在 projects 裡建立 hello 資料夾與 hello.js，執行 node hello.js 看到輸出。',
       },
       {
         title: '第一次和 AI 一起改程式',
         length: '約 30 分',
-        objective: '描述需求 → 檢視變更內容（diff）→ 接受或要求修改 → 用 Git commit 存檔，失敗時能還原。',
-        result: '讓助手修改 hello.js，檢視差異後 commit；再故意退回上一個版本。',
+        objective: '描述需求 → 看助手改了哪些檔案、哪幾行 → 接受或要求修改；看不懂的步驟或訊息，請它用白話解釋。',
+        result: '請助手在 hello 資料夾建立 hello.html，在瀏覽器打開後再請它改一處文字。',
+      },
+    ],
+  },
+  {
+    num: '5',
+    title: '開發者的電腦基本功',
+    length: '約 1.5 小時',
+    why: '之後每個工具都靠檔案路徑與終端機操作；先把這層打穩，安裝時出錯才看得懂，也看得懂 AI 程式助手替你執行了哪些指令。',
+    lessons: [
+      {
+        title: '檔案、資料夾與路徑',
+        length: '約 25 分',
+        objective: '顯示副檔名與隱藏檔，分辨絕對路徑與相對路徑，知道專案資料夾為什麼不要放在雲端同步資料夾或含空白的路徑。',
+        result: '寫出單元 4 建立的 projects 資料夾的絕對路徑，以及從家目錄出發的相對路徑。',
+      },
+      {
+        title: '終端機入門（Windows 與 macOS）',
+        length: '約 30 分',
+        objective: '打開終端機（Windows：Windows Terminal／PowerShell；macOS：終端機／zsh），使用 pwd、ls、cd、mkdir 移動與建立資料夾。',
+        result: '只用指令進入 projects 裡的 hello 資料夾、列出檔案，並建立一個新資料夾；看不懂的輸出請 AI 程式助手解釋。',
+      },
+      {
+        title: '指令從哪來：PATH 與環境變數',
+        length: '約 25 分',
+        objective: '理解輸入指令時系統如何在 PATH 中尋找程式，這是「找不到指令」最常見的原因。',
+        result: '印出自己的 PATH，並用 where（Windows）／which（macOS）找到一個指令的位置。',
+      },
+    ],
+  },
+  {
+    num: '6',
+    title: '安裝並設定開發環境',
+    length: '約 1.5 小時',
+    why: '一次裝好、逐項驗證，後面的課才不會卡在環境問題。每個工具都先說它負責什麼，再安裝；安裝卡住時，把畫面上的訊息交給單元 4 裝好的 AI 程式助手判斷。',
+    lessons: [
+      {
+        title: 'VS Code：編輯器與內建終端機',
+        length: '約 25 分',
+        objective: '安裝 VS Code（可選裝繁體中文語言套件），用「開啟資料夾」打開專案，使用內建終端機。',
+        result: '在 VS Code 開啟 hello 資料夾，建立第一個檔案並存檔。',
+      },
+      {
+        title: 'Git 與 GitHub：程式的存檔點',
+        length: '約 35 分',
+        objective: '安裝 Git、設定 user.name 與 user.email、註冊 GitHub 帳號，理解 commit 與 push 的差別；請 AI 程式助手改完檔案後先看差異（diff）再 commit，改壞時退回上一個版本。',
+        result: '建立第一個 GitHub repository，從本機 push 上去；請助手修改 hello.js，看過差異後 commit，再故意退回上一個版本。',
+      },
+      {
+        title: '瀏覽器開發者工具入門',
+        length: '約 25 分',
+        objective: '使用 Elements 檢視網頁結構、Console 看錯誤訊息與執行 JavaScript、Network 看請求。',
+        result: '在任一網頁用 Console 改掉標題文字，並找到一則錯誤或警告訊息。',
       },
     ],
   },
@@ -164,7 +164,7 @@ export const L2_MODULES: OutlineModule[] = [
     num: '9',
     title: '用 Git 管理版本',
     length: '約 2 小時',
-    why: '本專案實作紀錄：做這個網站時，每一步都靠 commit 存檔、看 diff 確認 AI 改了什麼，檢查 .gitignore 確保 .env、本機資料庫、build 產物與 node_modules 沒進版控，並用 v* 標籤觸發部署。5.3 與 6.3 只教到 commit、push 與退回一次；這個單元補齊日常會用到的版本管理，讓學員敢讓 AI 大幅修改，也為單元 10 的大規模搬檔做好存檔點。',
+    why: '本專案實作紀錄：做這個網站時，每一步都靠 commit 存檔、看 diff 確認 AI 改了什麼，檢查 .gitignore 確保 .env、本機資料庫、build 產物與 node_modules 沒進版控，並用 v* 標籤觸發部署。6.2 只教到 commit、push 與退回一次；這個單元補齊日常會用到的版本管理，讓學員敢讓 AI 大幅修改，也為單元 10 的大規模搬檔做好存檔點。',
     lessons: [
       {
         title: '先看再存：status、diff 與 commit 訊息',

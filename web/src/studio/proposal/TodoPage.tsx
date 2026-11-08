@@ -60,6 +60,16 @@ const GROUPS: { title: string; items: Todo[] }[] = [
     ],
   },
   {
+    title: '互動影片',
+    items: [
+      {
+        title: '手機直式的靜態互動仍顯示播放條與下方資訊',
+        problem: '手機直式播放時，進到靜態互動（影片停住、學員直接操作演員），畫面仍留著播放條和下方的課程資訊，佔掉本來就不大的操作空間。',
+        action: '手機直式、停在靜態互動時，隱藏播放條和下方資訊，讓演員佔滿畫面；離開互動、繼續播放時再顯示（InteractiveScenePage 的 static 互動）。',
+      },
+    ],
+  },
+  {
     title: 'Claude Code 工作術',
     items: [
       {

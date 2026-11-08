@@ -1,5 +1,5 @@
-/* 互動教學場景:播放器鋪滿視窗,側欄浮在右側。
-   --vp-inset-* 告訴膠囊版面的外殼(shell.css 的 .vp-float)要讓出多少空間給側欄,舞台與膠囊都會避開。
+/* 互動教學場景:播放器鋪滿視窗,側欄浮在上面(橫式在右側、直式在下方),不讓出空間。
+   --vp-inset-* 是膠囊版面的外殼(shell.css 的 .vp-float)要讓出的空間,這頁只用來讓字幕避開手機的播放條與抽屜把手。
    顏色跟舞台與播放器一致(stage.css、shell.css),舞台固定亮色,所以這頁不跟著網站切換深色。 */
 .page {
   --accent: #d97757;
@@ -124,8 +124,26 @@
   scroll-margin: 80px 0 16px;
 }
 
+/* 側欄浮在舞台上:舞台一律鋪滿視窗,不讓出空間(下面 .vp-stage 的規則)。
+   播放控制列、字幕、大播放鍵也不讓,都以整個視窗置中,側欄停在控制列上方(--bar-zone 是控制列佔的高度)。
+   --panel-right／--panel-bottom 只讓靜態互動的畫面避開側欄,免得要操作的東西被蓋住按不到。
+   --vp-inset-bottom 只用來讓字幕避開手機上固定在最下方的播放條與抽屜把手。
+   橫式舞台:側欄浮在右側;直式舞台:浮在下方(窄視窗是可以收合的抽屜)。側欄預設收合。 */
+.page {
+  --panel-w: 368px;
+  --bar-zone: 72px;
+  --panel-right: 0px;
+  --panel-bottom: 0px;
+}
+
+.page :global(.vp.vp-float .vp-stage),
+.page :global(.vp.vp-float .vp-ui) {
+  right: 0;
+  bottom: 0;
+}
+
 .panelOpen {
-  --vp-inset-right: 392px;
+  --panel-right: calc(var(--panel-w) + 24px);
 }
 
 .box {
@@ -200,8 +218,8 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  bottom: 12px;
-  width: 368px;
+  bottom: var(--bar-zone);
+  width: var(--panel-w);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -602,7 +620,7 @@
    只有演員身上的選項可以點,其他地方穿透到後面的播放器(主舞台這時藏起來,見 .staticOn) */
 .staticLayer {
   position: absolute;
-  inset: 0 var(--vp-inset-right) var(--vp-inset-bottom) 0;
+  inset: 0 var(--panel-right) max(var(--panel-bottom), var(--vp-inset-bottom)) 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -911,29 +929,45 @@
   }
 }
 
-/* ---------- 窄視窗:側欄移到下方 ---------- */
-@media (max-width: 820px) {
+/* ---------- 窄視窗或矮視窗(手機橫放):橫式舞台的側欄窄一點 ---------- */
+@media (max-width: 820px), (max-height: 500px) and (pointer: coarse) {
+  .page {
+    --panel-w: min(340px, 44vw);
+  }
+
   .panelOpen {
-    --vp-inset-right: 0px;
-    --vp-inset-bottom: 52dvh;
+    --panel-right: calc(var(--panel-w) + 16px);
   }
 
   .panel {
-    top: auto;
-    left: 8px;
-    right: 8px;
-    /* 下方留一排給播放條(固定在螢幕最下方,和手機的影片播放器一樣單手好按) */
-    bottom: calc(var(--bar-zone) + 8px);
-    width: auto;
-    height: calc(52dvh - var(--bar-zone) - 16px);
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    right: calc(8px + env(safe-area-inset-right, 0px));
+    bottom: calc(var(--bar-zone) + 4px);
+    border-radius: 12px;
   }
+}
 
-  /* 手機:播放條放在螢幕最下方,不是舞台下緣(舞台下緣是側欄的上緣) */
+/* ---------- 直式舞台、寬視窗(網址指定 ?aspect=portrait):側欄浮在下方 ---------- */
+.page.portrait.panelOpen:not(.drawerMode) {
+  --panel-right: 0px;
+  --panel-bottom: calc(40dvh + var(--bar-zone));
+}
+
+.page.portrait:not(.drawerMode) .panel {
+  top: auto;
+  left: 12px;
+  right: 12px;
+  bottom: var(--bar-zone);
+  width: auto;
+  height: 40dvh;
+}
+
+@media (max-width: 820px) {
+  /* 手機:播放條放在螢幕最下方 */
   .page {
     --bar-zone: calc(60px + env(safe-area-inset-bottom, 0px));
-  }
-  .page :global(.vp.vp-float .vp-ui) {
-    bottom: 0;
+    /* 字幕在播放條上面 */
+    --vp-inset-bottom: var(--bar-zone);
   }
   .page :global(.vp.vp-float .vp-bottom) {
     bottom: calc(8px + env(safe-area-inset-bottom, 0px));
@@ -941,17 +975,16 @@
 }
 
 /* ---------- 切換橫/直的按鈕 ---------- */
-/* ---------- 直式 + 窄視窗(手機直立):課程進度是底部抽屜 ----------
-   舞台鋪滿視窗,只讓出播放條與收合時的把手;抽屜展開時蓋住舞台下半部。 */
+/* ---------- 手機(直立的直式、橫放):課程進度是底部抽屜 ----------
+   收合時只有右上角的章節膠囊;打開時從下方蓋住舞台,頂端的把手按了收回。 */
 .panelInner {
   display: contents;
 }
 
-@media (max-width: 820px) {
+@media (max-width: 820px), (max-height: 500px) and (pointer: coarse) {
   .page.drawerMode {
     --handle-h: 56px;
-    --vp-inset-right: 0px;
-    --vp-inset-bottom: calc(var(--bar-zone) + var(--handle-h) + 6px);
+    --panel-right: 0px;
   }
 
   .page.drawerMode .panel {
@@ -1038,9 +1071,16 @@
   }
 }
 
-@media (min-width: 821px) {
+@media (min-width: 821px) and (min-height: 501px) {
   .handle {
     display: none;
+  }
+}
+
+/* 手機橫放:畫面矮,抽屜打開時幾乎蓋滿(留出標題列那一排) */
+@media (max-height: 500px) and (pointer: coarse) {
+  .page.drawerOpen .panel {
+    height: calc(100dvh - var(--bar-zone) - 64px);
   }
 }
 
@@ -1123,4 +1163,551 @@
   font-size: 14px;
   pointer-events: none;
   translate: -50% -50%;
+}
+
+/* ---------- 右上角:字幕鈕(手機)與側欄收合時的章節膠囊 ---------- */
+.topRight {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 字幕鈕只在手機出現(下面的媒體查詢),桌機與平板用控制列上的 */
+/* 速度、字幕鈕:白字、半透明深色底(和畫面中間的播放鍵一樣) */
+.ccTop {
+  display: none;
+  width: 36px;
+  height: 36px;
+  padding: 7px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 45%);
+  color: rgb(255 255 255 / 60%);
+  cursor: pointer;
+}
+
+.ccTop :global(svg) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+/* 字幕開著:圖示全白;關掉:半透明(不另外畫底線,圓形按鈕上看起來不乾淨) */
+.ccTop[aria-pressed='true'] {
+  color: #fff;
+}
+
+.ccTop[aria-pressed='false'] {
+  color: rgb(255 255 255 / 45%);
+}
+
+/* 速度與字幕鈕排成一排(直拿時章節膠囊排到這一排下面) */
+.topTools {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 播放速度:按鈕與往下展開的清單(手機才出現) */
+.rateTop {
+  position: relative;
+  display: none;
+}
+
+.rateTop > button {
+  min-width: 44px;
+  height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 45%);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.rateMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 84px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgb(24 22 20 / 80%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.rateMenu button {
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rateMenu button[aria-checked='true'] {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* 手機(直拿或橫放):播放速度與字幕鈕在右上角,控制列上不放速度、字幕、音量與側欄鈕(播放鍵在畫面中間,見 shell.css;課程進度用抽屜) */
+@media (max-width: 600px), (max-height: 500px) and (pointer: coarse) {
+  .topTools {
+    display: flex;
+  }
+
+  .ccTop,
+  .rateTop {
+    display: block;
+  }
+
+  .page :global(.vp.vp-float .vp-cc),
+  .page :global(.vp.vp-float .vp-vol),
+  .page :global(.vp.vp-float .vp-ratebox),
+  .page :global(.vp.vp-float .vp-btn[aria-label='側欄']) {
+    display: none;
+  }
+}
+
+.chapterPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(360px, 46vw);
+  padding: 7px 14px 7px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 14%);
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chapterPill:hover,
+.chapterPill:focus-visible {
+  box-shadow: 0 4px 16px rgb(0 0 0 / 14%), 0 0 0 2px var(--accent);
+  outline: none;
+}
+
+.pillStep {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--line);
+  color: var(--dim);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pillLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 820px) {
+  .topRight {
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    right: calc(10px + env(safe-area-inset-right, 0px));
+  }
+
+  .chapterPill {
+    font-size: 13px;
+  }
+}
+
+/* 手機直拿:左上角的標題列幾乎佔滿一排,字幕鈕留在第一排的右上角,章節膠囊排到它下面(仍靠右) */
+@media (max-width: 600px) {
+  .topRight {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    max-width: calc(100% - 20px);
+  }
+
+  .chapterPill {
+    max-width: 100%;
+  }
+}
+
+/* ---------- 控制面板(ControlPanel.tsx):標題列與章節膠囊跟著播放器的控制列一起淡出淡入 ---------- */
+.controlPanel {
+  display: contents;
+}
+
+.controlPanel > * {
+  transition: opacity 0.25s;
+}
+
+.controlPanel[data-hidden] > * {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controlPanel > * {
+    transition: none;
+  }
+}
+
+/* ---------- 手機抽屜:收合時播放條上方的把手(往上拉打開),打開時從下往上滑出 ---------- */
+.drawerGrip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--bar-zone) + 2px);
+  z-index: 4;
+  width: 120px;
+  height: 28px;
+  margin-left: -60px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: grab;
+  touch-action: none;
+}
+
+.drawerGrip span {
+  display: block;
+  width: 44px;
+  height: 5px;
+  margin: 0 auto;
+  border-radius: 3px;
+  background: rgb(0 0 0 / 35%);
+}
+
+.drawerGrip:focus-visible span {
+  background: var(--accent);
+}
+
+.handle {
+  touch-action: none;
+}
+
+@keyframes drawerUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.page.drawerOpen .panel {
+  animation: drawerUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page.drawerOpen .panel {
+    animation: none;
+  }
+}
+
+/* 手機抽屜疊在所有元素上面(標題列、右上角、播放條都不動),從螢幕最下緣往上蓋 */
+@media (max-width: 820px), (max-height: 500px) and (pointer: coarse) {
+  .page.drawerMode .panel {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 32px rgb(0 0 0 / 22%);
+  }
+
+  .page.drawerOpen .panel {
+    height: 55dvh;
+  }
+}
+
+@media (max-height: 500px) and (pointer: coarse) {
+  .page.drawerOpen .panel {
+    height: calc(100dvh - 56px);
+  }
+}
+
+/* 手機(直拿或橫放)的播放器(只在互動課程頁,首頁的嵌入播放器不套用):播放/暫停只放在畫面中間的大按鈕,控制列上不放。播放中控制列出現時,大按鈕跟著出現(變成暫停鍵) */
+@media (max-width: 600px), (max-height: 500px) and (pointer: coarse) {
+  .page :global(.vp.vp-float .vp-play) { display: none; }
+  .page :global(.vp.vp-float.show-ui:not(.scrubbing):not(.stopped) .vp-big) { display: block; }
+  /* 播放條不用黑色膠囊底:深色的按鈕與時間軸直接放在畫面上 */
+  .page :global(.vp.vp-float .vp-bottom) { background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; color: #1f1e1b; }
+  .page :global(.vp.vp-float .vp-bottom .vp-btn:hover), .page :global(.vp.vp-float .vp-bottom .vp-btn:focus-visible) { background: rgba(0, 0, 0, 0.08); }
+  .page :global(.vp.vp-float .vp-track) { background: rgba(0, 0, 0, 0.16); }
+  /* 全螢幕鈕放在播放條的右上方(和左上方的時間對稱,同樣是半透明深色底) */
+  .page :global(.vp.vp-float .vp-bottom .vp-fs) {
+    position: absolute; right: 10px; bottom: calc(100% + 4px); width: 30px; height: 30px; padding: 6px;
+    border-radius: 50%; background: rgba(0, 0, 0, 0.45); color: #fff;
+  }
+  .page :global(.vp.vp-float .vp-bottom .vp-fs:hover), .page :global(.vp.vp-float .vp-bottom .vp-fs:focus-visible) { background: rgba(0, 0, 0, 0.6); }
+  /* 時間放在播放條的左上方(播放條外面,用和中間播放鍵一樣的半透明深色底) */
+  .page :global(.vp.vp-float .vp-bottom .vp-time) {
+    display: block; position: absolute; left: 10px; bottom: calc(100% + 6px); margin: 0;
+    padding: 2px 9px; border-radius: 999px; background: rgba(0, 0, 0, 0.45); color: #fff; font-size: 12px;
+  }
+}
+
+/* ---------- 手機直拿:上方 4:5 播放窗,下方字幕與課程資訊,最底下露出抽屜 ----------
+   舞台改成 1080×1350(演員位置是舞台高度的百分比,跟著等比壓矮;字與元件大小不變),
+   播放器外殼照舞台實際大小縮放(shell.ts 的 fit)。播放條緊接在播放窗下面,字幕在播放條下面(不疊在舞台上)。 */
+.phonePortrait {
+  --win-h: calc(100vw * 5 / 4);
+  /* 資訊區底下留給手機的安全區 */
+  --peek-h: env(safe-area-inset-bottom, 0px);
+}
+
+.phonePortrait :global(.live-stage.portrait) {
+  height: 1350px !important;
+}
+
+/* 舞台裁在播放窗裡:演員、鏡頭推近、章節卡都不會超出到下面的字幕與資訊區(膠囊版面本來讓它們可以超出舞台) */
+.phonePortrait :global(.vp.vp-float .vp-stage) {
+  bottom: auto;
+  height: var(--win-h);
+  overflow: hidden;
+}
+
+/* 播放窗和下面的資訊區分開:播放窗用舞台的底色,下面是白底 */
+.phonePortrait :global(.vp.vp-float) {
+  background:
+    radial-gradient(70% 70% at 25% 15%, #f3efe6, #e9e5dc) top / 100% var(--win-h) no-repeat,
+    var(--surface);
+}
+
+.phonePortrait :global(.vp.vp-float .vp-ui) {
+  z-index: 3;
+}
+
+/* 播放條不佔位置:疊在播放窗的最下緣(跟著控制面板淡出淡入),時間與全螢幕鈕在它上面的左右兩側;播放窗正下方就是字幕 */
+.phonePortrait :global(.vp.vp-float .vp-bottom) {
+  /* 進度線貼齊播放窗的下緣、和播放窗同寬(播放條一排 28px,進度線在中間,高 4px) */
+  top: calc(var(--win-h) - 14px);
+  bottom: auto;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 0;
+  transform: none;
+}
+
+.phonePortrait :global(.vp.vp-float .vp-bar) {
+  margin: 0;
+}
+
+.phonePortrait :global(.vp.vp-float .vp-track) {
+  border-radius: 0;
+}
+
+.phonePortrait :global(.vp.vp-float .vp-big) {
+  top: calc(var(--win-h) / 2);
+}
+
+/* 字幕:在播放窗裡的下方,進度條上面、時間與全螢幕鈕之間(和其他版面一樣是深色底白字,置中、可以折行) */
+.phonePortrait :global(.vp.vp-float .vp-caption),
+.phonePortrait :global(.vp.vp-float.show-ui .vp-caption),
+.phonePortrait :global(.vp.vp-float.paused .vp-caption) {
+  z-index: 2;
+  top: auto;
+  /* 和左下的時間、右下的全螢幕鈕同一排(在它們中間),不被那一排推高 */
+  bottom: calc(100% - var(--win-h) + 16px);
+  left: 0;
+  right: 0;
+  width: fit-content;
+  max-width: calc(100% - 192px);
+  margin: 0 auto;
+  transform: none;
+  text-align: center;
+  white-space: normal;
+  opacity: 1;
+}
+
+.phoneInfo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--win-h) + 24px);
+  bottom: var(--peek-h);
+  z-index: 1;
+  padding: 0 18px;
+  overflow: hidden;
+  font-size: 13.5px;
+}
+
+
+
+
+
+
+
+/* 手機:右上角有速度與字幕鈕,標題列讓出那一塊(太長的標題用 … 截斷) */
+@media (max-width: 600px), (max-height: 500px) and (pointer: coarse) {
+  .head {
+    max-width: calc(100% - 24px - 104px);
+  }
+}
+
+/* 手機橫放:字幕和左下的時間、右下的全螢幕鈕同一排(在它們中間,進度條上面),不被推高 */
+@media (max-height: 500px) and (pointer: coarse) {
+  .page :global(.vp.vp-float .vp-caption),
+  .page :global(.vp.vp-float.show-ui .vp-caption),
+  .page :global(.vp.vp-float.paused .vp-caption) {
+    bottom: 46px;
+    max-width: calc(100% - 280px);
+  }
+
+  /* 拉起抽屜的把手在字幕那一排上面 */
+  .drawerGrip {
+    bottom: 82px;
+  }
+}
+
+/* 手機橫放:倍速與字幕鈕排在最右邊,章節膠囊在它們左邊 */
+@media (max-height: 500px) and (pointer: coarse) {
+  .topTools {
+    order: 2;
+  }
+}
+
+/* 手機直拿:課程名稱放在播放條下面(資訊區第一行),左上角只留返回 */
+.phonePortrait .head h1 {
+  display: none;
+}
+
+.phoneTitle {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* 右上角的倍速、字幕鈕:點過不留瀏覽器預設的藍色焦點框;用鍵盤移到時才顯示白色細框 */
+.ccTop:focus,
+.rateTop > button:focus {
+  outline: none;
+}
+
+.ccTop:focus-visible,
+.rateTop > button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* 手機:左上角的返回(與橫放時的標題)和右上角的倍速、字幕鈕同一種風格:白字、半透明深色底 */
+@media (max-width: 600px), (max-height: 500px) and (pointer: coarse) {
+  .head {
+    background: rgb(0 0 0 / 45%);
+    box-shadow: none;
+    color: #fff;
+  }
+
+  .back {
+    color: #fff;
+  }
+
+  .back:hover,
+  .back:focus-visible {
+    background: rgb(255 255 255 / 14%);
+  }
+}
+
+/* 手機直拿:標題列只剩返回,外框貼著返回鈕(高度和右上角的按鈕一樣) */
+.phonePortrait .head {
+  height: 36px;
+  padding: 0 4px;
+}
+
+/* 手機:控制面板的元素統一風格(返回、章節膠囊、倍速、字幕、時間、全螢幕、中間的播放鍵):白字、45% 黑的半透明底、沒有陰影 */
+@media (max-width: 600px), (max-height: 500px) and (pointer: coarse) {
+  .chapterPill {
+    background: rgb(0 0 0 / 45%);
+    box-shadow: none;
+    color: #fff;
+  }
+
+  .chapterPill:hover,
+  .chapterPill:focus-visible {
+    box-shadow: none;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  .chapterPill:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  .chapterPill .pillStep {
+    background: rgb(255 255 255 / 20%);
+    color: #fff;
+  }
+
+  .page :global(.vp.vp-float .vp-big) {
+    background: rgb(0 0 0 / 45%);
+  }
+}
+
+/* 手機直拿:資訊區是課程名稱加上可以捲動的步驟清單 */
+.phoneInfo {
+  display: block;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.phoneTitle {
+  flex: none;
+  padding: 0 18px;
+}
+
+.phoneSteps {
+  padding: 0 10px;
+}
+
+/* 手機橫放按「縮小」但瀏覽器不能自己轉向時的提示 */
+.rotateHint {
+  position: absolute;
+  /* 在中間播放鍵的上方,不疊在一起 */
+  top: 28%;
+  left: 50%;
+  z-index: 30;
+  margin: 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 70%);
+  color: #fff;
+  font-size: 14px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* 手機直拿:步驟清單下面打開「互動」分頁的按鈕 */
+.phoneMoments {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 18px 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
 }

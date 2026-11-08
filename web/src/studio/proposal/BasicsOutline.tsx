@@ -5,6 +5,7 @@ import {
   BRIDGE,
   CHECKLIST,
   MODULES,
+  OUTLINE_DEMOS,
   TIER_INFO,
   TIER_LABEL,
   type Lesson,
@@ -403,6 +404,12 @@ function ModuleCard({ mod }: { mod: Module }) {
                   <strong>
                     {l.course?.id ?? `${mod.num}.${i + 1}`} {l.title}
                   </strong>
+                  {OUTLINE_DEMOS[`${mod.tier}:${mod.num}.${i + 1}`] && (
+                    <>
+                      {' '}
+                      <Link to={OUTLINE_DEMOS[`${mod.tier}:${mod.num}.${i + 1}`]}>看試做 →</Link>
+                    </>
+                  )}
                 </td>
                 <td className={`${ui.nowrap} ${ui.small}`}>{l.length}</td>
                 <td className={ui.small}>{l.objective}</td>

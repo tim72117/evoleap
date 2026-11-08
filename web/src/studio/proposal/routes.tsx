@@ -65,6 +65,11 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
     path: `/studio/web-basics/${id.replace('.', '-')}`,
     element: <InteractiveScenePage key={`web-${id}`} script={`lab/web/${id}.json`} pageTitle={`網頁運作知識 ${id} 試做`} back={{ to: '/studio/web-basics', label: '← 網頁運作知識' }} />,
   })),
+  // L2 基礎的試做,腳本在 content/live/lab/vibe-coding/
+  ...(['4.1', '4.2', '4.3'] as const).map((id) => ({
+    path: `/studio/vibe-coding/${id.replace('.', '-')}`,
+    element: <InteractiveScenePage key={`vibe-${id}`} script={`lab/vibe-coding/${id}.json`} pageTitle={`L2 基礎 ${id} 試做`} back={{ to: '/studio/vibe-coding', label: '← L2 Vibe Coding 入門' }} />,
+  })),
   { path: '/studio/kids-web/0-1', element: <KidsLesson01Page /> },
   { path: '/studio/kids-web/0-1/live', element: <KidsLesson01LivePage /> },
   { path: '/studio/kids-web/0-2/live', element: <KidsLesson02LivePage /> },

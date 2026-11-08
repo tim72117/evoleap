@@ -66,7 +66,8 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 
 - 一門課 `courses`（存取方式 `access`：`free`／`login-free`／`subscription`，訂閱課程的最低方案 `tier`）→ 單元 `course_units` → 一堂課 `lessons`（`status`：`open`／`planned`；`access` 空的就照這門課，只有例外才填，例如第一課免費預覽）。
 - 資料以 `server/internal/store/courses_seed.json` 為準，伺服器每次啟動同步進資料表（有寫 `units` 的課程，單元與課整份換成種子的內容）。程式在 `server/internal/store/courses.go`、`lessons.go`。
-- 公開 API `GET /api/courses/{id}/map` 回傳課程地圖。目前兒童課的課程地圖（`/topics/kids#map`）由它讀取（讀到之前與讀不到時先用前端內建的同一份資料；不用登入，登入功能沒開也能讀，只有沒接資料庫時回 503）；課程頁、SEO 與研發基地仍用前端的 `web/src/content/kidsCourse.ts`，`web/src/content/courseMap.test.ts` 檢查兩邊一致。
+- 單元的 `subtitle` 是課程地圖上單元標題下的小字（兒童課是比喻，網頁怎麼運作是這個單元回答的問題）。
+- 公開 API `GET /api/courses/{id}/map` 回傳課程地圖。目前兒童課（`/topics/kids#map`）與網頁怎麼運作（`/topics/web#map`）的課程地圖由它讀取，畫法共用 `web/src/home/CourseMapUnits.tsx`（讀到之前與讀不到時先用前端內建的同一份資料；不用登入，登入功能沒開也能讀，只有沒接資料庫時回 503）；課程說明、課程頁、SEO 與研發基地仍用前端的 `web/src/content/kidsCourse.ts`、`webCourse.ts`，`web/src/content/courseMap.test.ts` 檢查兩邊一致。
 
 ## 研發基地的權限
 

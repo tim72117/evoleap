@@ -137,3 +137,22 @@ export async function ensureLandscape(page: Page): Promise<void> {
   await page.locator('.vp').first().waitFor()
   if (await page.locator('.vp-portrait').count()) await page.goto(landscape(new URL(page.url()).pathname))
 }
+
+/**
+ * 互動課程頁的課程進度:側欄預設收合,點右上角的章節膠囊打開(已經打開就不動),回傳側欄。
+ * 手機直拿時步驟、下一課直接列在播放窗下方的資訊區,回傳那一區。
+ */
+export async function openCoursePanel(page: Page) {
+  const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
+  const pill = page.getByRole('button', { name: /^課程進度:/ })
+  const info = page.getByRole('region', { name: '課程資訊' })
+  await expect(pill.or(panel).or(info).first()).toBeVisible()
+  if (await info.isVisible()) return info
+  // 播放中控制面板(含膠囊)會淡出:先把滑鼠移到播放器上叫出來
+  if (await pill.isVisible()) {
+    await page.locator('.vp').first().hover()
+    await pill.click()
+  }
+  await expect(panel).toBeVisible()
+  return panel
+}

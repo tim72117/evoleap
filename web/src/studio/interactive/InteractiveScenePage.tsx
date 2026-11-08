@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { Aspect } from '../../live/types'
@@ -13,6 +13,7 @@ import { ActorPush } from './ActorPush'
 import { StaticActor } from './StaticActor'
 import { answerLabel, answersOnActor, expandAnswers, INTERACTIVE_ICON, momentsOf, withoutAnswer, type Answer, type Answers, type Moment } from './scene'
 import { useAutoAspect } from '../../site/useAutoAspect'
+import { CaptionToggle, ControlPanel, RateMenu } from './ControlPanel'
 import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer } from './portrait'
 import styles from './InteractiveScenePage.module.css'
 
@@ -69,25 +70,70 @@ type Props = {
   shrinkSlot?: HTMLElement | null
 }
 
-/** 窄視窗(手機直立):直式用底部抽屜 */
-function useNarrow(): boolean {
-  const [narrow, setNarrow] = useState(() => matchMedia('(max-width: 820px)').matches)
+/** 視窗符不符合這個媒體查詢(轉向、改變大小時跟著變) */
+function useMedia(query: string): boolean {
+  const [on, setOn] = useState(() => matchMedia(query).matches)
   useEffect(() => {
-    const mq = matchMedia('(max-width: 820px)')
-    const on = () => setNarrow(mq.matches)
-    mq.addEventListener('change', on)
-    return () => mq.removeEventListener('change', on)
-  }, [])
-  return narrow
+    const mq = matchMedia(query)
+    const sync = () => setOn(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [query])
+  return on
 }
 
 export function InteractiveScenePage({ script: scriptPath, pageTitle, interaction, prepare, course, back, embed, track, shrinkSlot }: Props) {
   const [params] = useSearchParams()
   // 手機直拿自動用直式;網址的 ?aspect= 優先(首頁的嵌入播放器不看網址,只看裝置)
   const auto = useAutoAspect()
-  const aspect: Aspect = embed ? auto : parseAspect(params.get('aspect'), auto)
-  const narrow = useNarrow()
-  const drawer = !embed && usesDrawer(aspect, narrow)
+  /** 手機直拿時按全螢幕:改用橫式舞台全螢幕(縮小回來就回到直式) */
+  const [fsLandscape, setFsLandscape] = useState(false)
+  const fsLandscapeRef = useRef(false)
+  fsLandscapeRef.current = fsLandscape
+  const aspect: Aspect = embed ? auto : fsLandscape ? 'landscape' : parseAspect(params.get('aspect'), auto)
+  // 窄視窗(手機直立)的直式、手機橫放(矮視窗)都用底部抽屜
+  const narrow = useMedia('(max-width: 820px)')
+  // 手機橫放:矮、橫,而且是觸控裝置(桌機把視窗拉矮不算;CSS 的手機樣式用同一組條件)
+  const phoneLandscape = useMedia('(max-height: 500px) and (orientation: landscape) and (pointer: coarse)')
+  const drawer = !embed && (usesDrawer(aspect, narrow) || phoneLandscape)
+  /** 手機直拿:上方 4:5 的播放窗,下方是字幕與課程資訊,最底下露出抽屜 */
+  const phonePortrait = drawer && aspect === 'portrait'
+  const phonePortraitRef = useRef(false)
+  phonePortraitRef.current = phonePortrait
+  // 手機橫放本身就是「放大」:全螢幕鈕顯示成「縮小」,按了請手機轉回直的
+  const phoneLandscapeRef = useRef(false)
+  phoneLandscapeRef.current = !embed && phoneLandscape && !fsLandscape
+  const [rotateHint, setRotateHint] = useState(false)
+  useEffect(() => {
+    if (!rotateHint) return
+    const t = window.setTimeout(() => setRotateHint(false), 2600)
+    return () => window.clearTimeout(t)
+  }, [rotateHint])
+  // 手機橫放與否變了(舞台方向沒變時播放器不會重建):重新告訴播放器全螢幕鈕該顯示「放大」還是「縮小」
+  useEffect(() => {
+    const doc = document as Document & { webkitFullscreenElement?: Element | null }
+    const full = !!pageRef.current && (doc.fullscreenElement || doc.webkitFullscreenElement) === pageRef.current
+    ctrl.current?.shell.setExternalFullscreen(full || fsLandscape || (!embed && phoneLandscape && !fsLandscape))
+  }, [phoneLandscape, fsLandscape, embed])
+  // 搭配手機本身的轉向:橫式全螢幕時把手機轉成橫的、再轉回直的,就像影片 App 一樣自動縮小回直式
+  useEffect(() => {
+    if (!fsLandscape) return
+    const mq = matchMedia('(orientation: portrait)')
+    let wasLandscape = !mq.matches
+    const on = (): void => {
+      if (!mq.matches) wasLandscape = true
+      else if (wasLandscape) {
+        setFsLandscape(false)
+        const doc = document as Document & { webkitExitFullscreen?: () => void; webkitFullscreenElement?: Element | null }
+        if (document.fullscreenElement) void document.exitFullscreen().catch(() => {})
+        else if (doc.webkitFullscreenElement) doc.webkitExitFullscreen?.()
+      }
+    }
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [fsLandscape])
+
   /** 重建播放器(切換橫/直)時帶著目前的播放時間 */
   const carry = useRef(0)
   const answersRef = useRef<Answers>({})
@@ -110,7 +156,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const [answers, setAnswers] = useState<Answers>({})
   const [now, setNow] = useState({ t: 0, playing: false })
   const [tab, setTab] = useState<Tab>('steps')
-  const [panelOpen, setPanelOpen] = useState(!drawer)
+  // 側欄浮在舞台上,預設收合(停在互動點時自動打開,見 onStop)
+  const [panelOpen, setPanelOpen] = useState(false)
   const [toolbar, setToolbar] = useState<HTMLElement | null>(null)
   const [error, setError] = useState<string | null>(null)
   // 載入失敗也回報(訪客紀錄用來找出打開了卻沒有播放的原因)
@@ -168,19 +215,64 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         return true
       },
       // 全螢幕要包含側欄,所以是整頁進入全螢幕;瀏覽器不支援元素全螢幕(iPhone)時交回外殼的滿版備援
+      // 不支援整頁全螢幕又不是手機直拿(或它換成的橫式全螢幕)時不接手,交給外殼的滿版備援
       onFullscreenRequest: embed
         ? () => {}
-        : canFullscreen
-        ? (on) => {
-            if (!on) {
+        : !canFullscreen && !phonePortraitRef.current && !fsLandscapeRef.current && !phoneLandscapeRef.current
+        ? undefined
+        : (on) => {
+            // 手機直拿放大:換成橫式舞台(播放器重建,整頁仍是全螢幕),能鎖定方向的瀏覽器順便轉成橫向;縮小:回到直式
+            const toLandscape = on && phonePortraitRef.current
+            const leaving = !on && fsLandscapeRef.current
+            const orientation = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> }
+            // 手機橫放按「縮小」:離開全螢幕,能鎖定方向的轉回直的,不行的提示把手機轉直
+            if (!on && phoneLandscapeRef.current && !leaving) {
+              const exit = () => {
+                if (doc.fullscreenElement || doc.webkitFullscreenElement) {
+                  if (doc.exitFullscreen) void doc.exitFullscreen().catch(() => {})
+                  else doc.webkitExitFullscreen?.()
+                }
+              }
+              // 全螢幕中能鎖定方向(Android):留在全螢幕、鎖成直向,畫面直接轉直(離開全螢幕會解除鎖定,又轉回橫的)
+              if (orientation?.lock && (doc.fullscreenElement || doc.webkitFullscreenElement)) {
+                void orientation.lock('portrait').catch(() => {
+                  exit()
+                  setRotateHint(true)
+                })
+              } else {
+                exit()
+                setRotateHint(true)
+              }
+              return
+            }
+            if (!canFullscreen && !toLandscape && !leaving) return
+            if (on && canFullscreen) {
+              if (el.requestFullscreen) void el.requestFullscreen().catch(() => {})
+              else el.webkitRequestFullscreen?.()
+            } else if (!on && (doc.fullscreenElement || doc.webkitFullscreenElement)) {
               if (doc.exitFullscreen) void doc.exitFullscreen().catch(() => {})
               else doc.webkitExitFullscreen?.()
-            } else if (el.requestFullscreen) void el.requestFullscreen().catch(() => {})
-            else el.webkitRequestFullscreen?.()
-          }
-        : undefined,
+            }
+            if (toLandscape) {
+              setFsLandscape(true)
+              void orientation?.lock?.('landscape').catch(() => {})
+            } else if (leaving) {
+              setFsLandscape(false)
+              orientation?.unlock?.()
+            }
+            shell.setExternalFullscreen(toLandscape || (on && isFull()) || phoneLandscapeRef.current)
+          },
     })
-    const onFullscreen = () => shell.setExternalFullscreen((doc.fullscreenElement || doc.webkitFullscreenElement) === page)
+    // 橫式全螢幕(手機直拿放大)時按鈕一律是「縮小」:瀏覽器不讓整頁全螢幕也能按回直式
+    const isFull = (): boolean => (doc.fullscreenElement || doc.webkitFullscreenElement) === page
+    const onFullscreen = () => {
+      const full = isFull()
+      shell.setExternalFullscreen(full || fsLandscapeRef.current || phoneLandscapeRef.current)
+      // 用手勢或 Esc 離開全螢幕:橫式全螢幕也回到直式
+      if (!full && fsLandscapeRef.current) setFsLandscape(false)
+    }
+    // 換成橫式全螢幕後播放器重建:只更新按鈕(這時全螢幕可能還沒生效,不能當成離開)
+    shell.setExternalFullscreen(isFull() || fsLandscapeRef.current || phoneLandscapeRef.current)
     document.addEventListener('fullscreenchange', onFullscreen)
     document.addEventListener('webkitfullscreenchange', onFullscreen)
     setToolbar(tools)
@@ -261,9 +353,11 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   useEffect(() => {
     answersRef.current = answers
   }, [answers])
-  // 進入或離開抽屜模式:抽屜預設收合,側欄預設打開
+  // 抽屜頂端的把手:往下拉收回
+  const swipeDown = useSwipe({ down: () => setPanelOpen(false) })
+  // 進入或離開抽屜模式:側欄與抽屜都預設收合
   useEffect(() => {
-    setPanelOpen(!drawer)
+    setPanelOpen(false)
   }, [drawer])
 
   const current = moments.find((m) => {
@@ -275,8 +369,10 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const drawerMoment = interaction === 'static' && current && answersOnActor(current) ? undefined : current?.id
   const prevMoment = useRef<string | undefined>(undefined)
   useEffect(() => {
-    setPanelOpen((open) => nextDrawerOpen(open, drawer, prevMoment.current, drawerMoment))
+    // 先記下上一個互動點再更新:setState 的函式晚一點才執行,那時 prevMoment 已經換成這一個了
+    const prev = prevMoment.current
     prevMoment.current = drawerMoment
+    setPanelOpen((open) => nextDrawerOpen(open, drawer, prev, drawerMoment))
   }, [drawer, drawerMoment])
 
   // 焦點移到問題標題(不是選項):習慣按空白鍵暫停的人才不會誤選答案
@@ -321,7 +417,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     if (!c) return
     const next = { ...answers, [moment.id]: value }
     setAnswers(next)
-    if (drawer) setPanelOpen(false)
+    // 回答後收合:回應由演員在舞台上演出,不要被側欄擋住
+    setPanelOpen(false)
     // 互動結束:側欄回到「步驟」
     setTab('steps')
     c.sync(next)
@@ -409,6 +506,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     drawer && styles.drawerMode,
     drawer && panelOpen && styles.drawerOpen,
     aspect === 'portrait' && styles.portrait,
+    phonePortrait && styles.phonePortrait,
     current && styles.atMoment,
     // 換上靜態演員的舞台時,主舞台先藏起來(不是壓暗)
     staticActor && styles.staticOn,
@@ -424,13 +522,79 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       {/* 在標題列之前:標題列才會在靜態舞台的上面 */}
       {staticActor}
 
-      <header className={styles.head}>
-        <Link to={course?.back.to ?? back?.to ?? '/studio/mcp'} className={styles.back}>
-          {course?.back.label ?? back?.label ?? '← 構想'}
-        </Link>
-        <h1>{course?.heading ?? (title || pageTitle)}</h1>
-        {!course && <span className={styles.draft}>試做</span>}
-      </header>
+      {/* 控制面板:標題列、章節膠囊和播放器的控制列一起淡出淡入(ControlPanel.tsx) */}
+      <ControlPanel box={boxRef} shell={() => ctrl.current?.shell}>
+        <header className={styles.head}>
+          <Link to={course?.back.to ?? back?.to ?? '/studio/mcp'} className={styles.back}>
+            {course?.back.label ?? back?.label ?? '← 構想'}
+          </Link>
+          {/* 手機直拿:課程名稱移到播放窗下方的資訊區(那裡的 h1),這裡不放,頁面只有一個標題 */}
+          {!phonePortrait && <h1>{course?.heading ?? (title || pageTitle)}</h1>}
+          {!course && <span className={styles.draft}>試做</span>}
+        </header>
+
+        {/* 右上角:播放速度、字幕鈕(手機)與章節膠囊 */}
+        <div className={styles.topRight}>
+          <div className={styles.topTools}>
+            <RateMenu box={boxRef} shell={() => ctrl.current?.shell} className={styles.rateTop} menuClassName={styles.rateMenu} />
+            <CaptionToggle box={boxRef} className={styles.ccTop} />
+          </div>
+          {/* 側欄收合時:右上角的膠囊顯示目前章節,點了打開側欄 */}
+          {/* 手機的抽屜疊在最上層、不影響其他元素,打開時膠囊照樣留著 */}
+          {(!panelOpen || drawer) && !phonePortrait && (
+            <button type="button" className={styles.chapterPill} aria-label={`課程進度:${summary?.label ?? ''},打開側欄`} onClick={() => setPanelOpen(true)}>
+              {summary && (
+                <span className={styles.pillStep}>
+                  {summary.index}/{summary.total}
+                </span>
+              )}
+              <span className={styles.pillLabel}>{summary?.label ?? '課程進度'}</span>
+            </button>
+          )}
+        </div>
+        {/* 手機:抽屜收合時,播放條上方有一條把手,往上拉(或點一下)拉出課程進度 */}
+        {drawer && !panelOpen && !phonePortrait && <DrawerGrip onOpen={() => setPanelOpen(true)} />}
+      </ControlPanel>
+
+      {/* 手機直拿:播放窗下方的課程資訊(字幕在它上面一排),最底下露出抽屜,往上拉展開步驟清單 */}
+      {phonePortrait && (
+        <PhoneInfo heading={course?.heading ?? (title || pageTitle)}>
+          <StepList
+            timeline={timeline}
+            moments={moments}
+            answers={answers}
+            t={now.t}
+            onSeek={seekTo}
+            onMoment={goToMoment}
+            onReopen={interaction === 'stage' ? reopen : undefined}
+            prompts={course?.prompts}
+            hidden={panelOpen}
+          />
+          {/* 互動點的清單(回頭重新作答、回到互動點)在抽屜的「互動」分頁 */}
+          {interaction !== 'stage' && moments.length > 0 && (
+            <button
+              type="button"
+              className={styles.phoneMoments}
+              onClick={() => {
+                setTab('interact')
+                setPanelOpen(true)
+              }}
+            >
+              <InteractiveMark />
+              互動點
+              {pendingCount > 0 && <span className={styles.count}>{pendingCount}</span>}
+            </button>
+          )}
+          {/* 下一課與登入提示(其他版面在側欄底部) */}
+          {course?.footer}
+        </PhoneInfo>
+      )}
+
+      {rotateHint && (
+        <p className={styles.rotateHint} role="status">
+          把手機轉成直的，就會回到直式
+        </p>
+      )}
 
       {error && (
         <p className={styles.error} role="alert">
@@ -440,10 +604,10 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
       {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} inDrawer={drawer} moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
 
-      {(panelOpen || drawer) && (
+      {panelOpen && (
         <aside className={styles.panel} aria-label="課程章節與步驟">
           {drawer && (
-            <button type="button" className={styles.handle} aria-expanded={panelOpen} onClick={() => setPanelOpen((v) => !v)}>
+            <button type="button" className={styles.handle} aria-expanded={panelOpen} onClick={() => setPanelOpen((v) => !v)} {...swipeDown}>
               <span className={styles.grip} aria-hidden="true" />
               <span className={styles.handleLabel}>{current ? `換你回答 · ${current.title}` : (summary?.label ?? '課程進度')}</span>
               {summary && <span className={styles.handleStep}>{current ? '互動' : `${summary.index}/${summary.total}`}</span>}
@@ -490,7 +654,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
                 <MomentList timeline={timeline} moments={moments} answers={answers} onOpen={openMoment} onReopen={reopen} againLabel={interaction === 'static' ? '回到互動點' : '重新回答'} />
               )}
             </div>
-            {!(drawer && pushed) && course?.footer}
+            {!(drawer && pushed) && !phonePortrait && course?.footer}
           </div>
         </aside>
       )}
@@ -510,6 +674,125 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   )
 }
 
+/**
+ * 上下滑動的手勢:按下後往上(或往下)滑超過 24px 就呼叫對應的函式;滑動後的 click 不再觸發。
+ * 手勢的狀態放在 ref:播放中畫面每一格都重新 render,狀態若放在每次 render 的閉包裡,按下到移動之間就會遺失。
+ */
+function useSwipe(handlers: { up?: () => void; down?: () => void }) {
+  const state = useRef<{ y: number | null; moved: boolean }>({ y: null, moved: false })
+  const latest = useRef(handlers)
+  latest.current = handlers
+  return useMemo(
+    () => ({
+      onPointerDown: (e: React.PointerEvent) => {
+        state.current = { y: e.clientY, moved: false }
+        // 手指移出把手範圍也繼續收到移動事件
+        ;(e.currentTarget as Element).setPointerCapture?.(e.pointerId)
+      },
+      onPointerMove: (e: React.PointerEvent) => {
+        const st = state.current
+        if (st.y == null) return
+        const dy = e.clientY - st.y
+        const { up, down } = latest.current
+        if (dy < -24 && up) {
+          state.current = { y: null, moved: true }
+          up()
+        } else if (dy > 24 && down) {
+          state.current = { y: null, moved: true }
+          down()
+        }
+      },
+      onPointerUp: () => {
+        state.current.y = null
+      },
+      onClickCapture: (e: React.MouseEvent) => {
+        if (state.current.moved) {
+          e.stopPropagation()
+          e.preventDefault()
+          state.current.moved = false
+        }
+      },
+    }),
+    [],
+  )
+}
+
+/** 手機抽屜收合時的把手:往上拉或點一下打開課程進度 */
+function DrawerGrip({ onOpen }: { onOpen: () => void }) {
+  const swipeUp = useSwipe({ up: onOpen })
+  return (
+    <button type="button" className={styles.drawerGrip} aria-label="拉起課程進度" onClick={onOpen} {...swipeUp}>
+      <span aria-hidden="true" />
+    </button>
+  )
+}
+
+/**
+ * 手機直拿的資訊區:課程名稱與步驟清單(播到哪一步就亮哪一步,點了跳過去)。步驟已經在這裡,所以沒有往上拉的抽屜;
+ * 抽屜只在停在互動點時自動打開(題目與選項在裡面),回答後收起。
+ */
+function PhoneInfo({ heading, children }: { /** 課程名稱:直拿時從左上角的標題列移到這裡(播放條下面) */ heading: string; children: ReactNode }) {
+  const drag = useDragScroll()
+  return (
+    // 整塊一起捲動(課程名稱跟著步驟捲上去,不固定在上面)
+    <section className={styles.phoneInfo} aria-label="課程資訊" {...drag}>
+      {/* 左上角標題列的 h1 這時藏起來,這裡接手當頁面的標題 */}
+      <h1 className={styles.phoneTitle}>{heading}</h1>
+      <div className={styles.phoneSteps}>{children}</div>
+    </section>
+  )
+}
+
+/**
+ * 用滑鼠按住拖曳也能捲動(手指滑動本來就會捲;電腦瀏覽器縮成手機寬度時,滑鼠拖曳不會捲)。
+ * 拖超過 5px 才算捲動,之後放開的那一下 click 不會觸發步驟。
+ */
+function useDragScroll() {
+  const state = useRef<{ y: number; top: number; moved: boolean } | null>(null)
+  const moved = useRef(false)
+  return useMemo(
+    () => ({
+      onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return
+        state.current = { y: e.clientY, top: e.currentTarget.scrollTop, moved: false }
+        moved.current = false
+      },
+      onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
+        const st = state.current
+        if (!st) return
+        // 在清單外放開(還沒鎖定指標,收不到 pointerup):按鍵已經放開就結束,不再跟著滑鼠捲
+        if (e.buttons === 0) {
+          state.current = null
+          return
+        }
+        const dy = e.clientY - st.y
+        if (!st.moved && Math.abs(dy) < 5) return
+        if (!st.moved) {
+          st.moved = true
+          e.currentTarget.setPointerCapture(e.pointerId)
+          // 拖曳中不選取經過的文字
+          e.currentTarget.style.userSelect = 'none'
+          window.getSelection()?.removeAllRanges()
+        }
+        e.currentTarget.scrollTop = st.top - dy
+      },
+      onPointerUp: (e: React.PointerEvent<HTMLElement>) => {
+        moved.current = !!state.current?.moved
+        state.current = null
+        e.currentTarget.style.userSelect = ''
+      },
+      onClickCapture: (e: React.MouseEvent) => {
+        if (moved.current) {
+          e.stopPropagation()
+          e.preventDefault()
+          moved.current = false
+        }
+      },
+    }),
+    [],
+  )
+}
+
 /** 「互動」標籤的圖示,和課程清單同一個 */
 function InteractiveMark() {
   return (
@@ -517,6 +800,17 @@ function InteractiveMark() {
       <path d={INTERACTIVE_ICON} />
     </svg>
   )
+}
+
+/** 把元素捲進最近一層可捲動的外框(效果同 scrollIntoView({ block: 'nearest' }),但不會捲動更外層的頁面) */
+function scrollWithin(el: HTMLElement): void {
+  let box = el.parentElement
+  while (box && !/(auto|scroll)/.test(getComputedStyle(box).overflowY)) box = box.parentElement
+  if (!box) return
+  const rel = el.getBoundingClientRect().top - box.getBoundingClientRect().top
+  const elTop = box.scrollTop + rel
+  if (rel < 0) box.scrollTop = elTop
+  else if (rel + el.offsetHeight > box.clientHeight) box.scrollTop = elTop + el.offsetHeight - box.clientHeight
 }
 
 function StepList({
@@ -564,9 +858,10 @@ function StepList({
       })),
   ].sort((x, y) => x.at - y.at)
   const active = items.filter((x) => x.at <= t).length - 1
-  // 章節多的時候,播到哪裡就捲到哪裡
+  // 章節多的時候,播到哪裡就捲到哪裡。只捲清單自己的捲動區(scrollIntoView 會連外層一起捲:
+  // 手機抽屜剛打開時還在往上滑、目前這一步在螢幕外,整個播放器會被捲上去再彈回來)
   useEffect(() => {
-    if (!hidden) activeRef.current?.scrollIntoView({ block: 'nearest' })
+    if (!hidden && activeRef.current) scrollWithin(activeRef.current)
   }, [active, hidden])
   if (!items.length) return <p className={styles.note}>載入中…</p>
   return (

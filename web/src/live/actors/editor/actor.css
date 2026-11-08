@@ -53,3 +53,6 @@
 .A-editor .ed-prop { color: #9cdcfe; }
 .A-editor .ed-n { color: #b5cea8; }
 .A-editor .ed-kw { color: #c586c0; }
+/* AI 補全的灰色建議(還沒接受) */
+.A-editor .ed-ghost { color: #7d8590; font-style: italic; white-space: pre; }
+.A-editor .ed-ghost-row .ed-num { opacity: .5; }

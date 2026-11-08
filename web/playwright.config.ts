@@ -5,8 +5,9 @@ import { defineConfig, devices } from '@playwright/test'
 // 資料庫用暫存 SQLite,每次測試都是乾淨的。port 8198 避開開發用的 8190/5190。
 // 管理員必須用 Google 登入,E2E 做不到,所以測內部頁功能的 server(8198)加 -open-studio 不檢查權限;
 // 權限本身由另一台照正式設定跑的 server(8199)測試,見 e2e/studio-access.spec.ts。
-const PORT = 8198
-const GATED_PORT = 8199
+// 同時有別的 session 在跑 E2E 時可以用 E2E_PORT 換一組埠(GATED 用下一個)
+const PORT = Number(process.env.E2E_PORT ?? 8198)
+const GATED_PORT = PORT + 1
 const tmpDb = (name: string) => `${process.env.RUNNER_TEMP ?? process.env.TEMP ?? '/tmp'}/shuttle-e2e-${name}-${Date.now()}.db`
 const server = (port: number, flags: string, db: string) => ({
   command: `go run ./cmd/server -addr 127.0.0.1:${port} -dist ../web/dist -db "${db}"${flags}`,

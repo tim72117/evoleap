@@ -1,23 +1,21 @@
 import { Link } from 'react-router-dom'
-import { useAuth } from '../auth/AuthContext'
-import { useCourseMap, type MapUnit } from '../content/courseMap'
+import type { MapUnit } from '../content/courseMap'
 import { KIDS_OPEN_LESSONS, KIDS_UNITS, kidsNeedsLogin } from '../content/kidsCourse'
 import { KIDS_TOPIC } from '../content/topics'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
+import { CourseMapUnits } from './CourseMapUnits'
 import styles from './SoftwareTopicPage.module.css'
-import own from './KidsTopicPage.module.css'
 
 // 主題「給孩子的網頁程式」的課程地圖頁:給家長看,列出每個單元與每一課學會什麼。
-// 單元與每一課從資料庫讀(content/courseMap.ts,GET /api/courses/kids/map;讀到之前與讀不到時用前端內建的同一份資料):已開放的課(status open)連到課程頁,
-// 每一堂的 access 是 free 標「免費預覽」、login-free 標「登入後學習」;規劃中的標「規劃中」。版面沿用「做出自己的軟體」的課程地圖頁。
+// 單元與每一課從資料庫讀(GET /api/courses/kids/map),畫法與狀態標籤見 CourseMapUnits。版面沿用「做出自己的軟體」的課程地圖頁。
 
 /** 前端內建的同一份課程地圖(content/kidsCourse.ts):資料庫讀到之前先顯示它,讀不到(伺服器沒接資料庫、網路錯誤)就一直用它。
  *  兩邊一致由 content/courseMap.test.ts 檢查 */
 const LOCAL_UNITS: MapUnit[] = KIDS_UNITS.map((u) => ({
   id: u.id,
   title: u.title,
-  metaphor: u.metaphor,
+  subtitle: u.metaphor,
   lessons: u.lessons.map((l) => ({
     id: l.id,
     title: l.title,
@@ -27,15 +25,9 @@ const LOCAL_UNITS: MapUnit[] = KIDS_UNITS.map((u) => ({
   })),
 }))
 
-/** 一堂兒童課的課程頁網址(課號 0.1 → /topics/kids/0-1) */
-const lessonPath = (id: string): string => `${KIDS_TOPIC.path}/${id.replace('.', '-')}`
-
 export function KidsTopicPage() {
   useHashScroll()
-  const { status } = useAuth()
-  const signedIn = status === 'user' || status === 'disabled'
   const topic = KIDS_TOPIC
-  const map = useCourseMap('kids')
   return (
     <SiteLayout title={topic.seoTitle}>
       <section className={styles.hero}>
@@ -60,63 +52,7 @@ export function KidsTopicPage() {
             <h2>課程地圖</h2>
             <p className={styles.lead}>課程陸續開放中，還沒開放的課標「規劃中」。第一課不用登入就能預覽，之後的課登入後就能學習。</p>
           </header>
-          <div className={own.units}>
-            {(map.status === 'ready' ? map.map.units : LOCAL_UNITS).map((unit) => (
-              <div className={styles.group} key={unit.id}>
-                <h3 className={`${styles.groupHead} ${own.unitHead}`}>
-                  {unit.title}
-                  <small>{unit.metaphor}</small>
-                </h3>
-                <ul className={styles.rows}>
-                  {unit.lessons.map((l) => {
-                    const open = l.status === 'open' ? { path: lessonPath(l.id) } : null
-                    return (
-                      <li key={l.id}>
-                        <div className={open ? `${styles.row} ${styles.rowPlayable}` : styles.row}>
-                          <span className={`${styles.rowIcon} ${own.lessonNo}`} aria-hidden="true">
-                            {l.id}
-                          </span>
-                          <div className={styles.rowText}>
-                            {/* 可以上的課整列都能點(rowButton 的 ::after 蓋住整列),標題不畫成底線連結 */}
-                            <h4>
-                              {open ? (
-                                <Link className={`${styles.rowButton} ${own.lessonLink}`} to={open.path}>
-                                  {l.title}
-                                </Link>
-                              ) : (
-                                l.title
-                              )}
-                            </h4>
-                            <p>{l.summary}</p>
-                          </div>
-                          <div className={styles.rowMeta}>
-                            {/* 第一課免費預覽,之後開放的課要登入 */}
-                            {/* 狀態:開始學習與免費預覽(綠)、登入後學習(暖色,鎖頭)、規劃中(淡色) */}
-                            {(() => {
-                              // 登入之後(或伺服器沒開放登入)可以上的課都是「開始學習」;沒登入時第一課是免費預覽,之後的要登入
-                              const state = !open ? 'planned' : signedIn ? 'start' : status === 'loading' ? null : l.access === 'free' ? 'free' : 'login'
-                              // 還在確認登入狀態(state 是 null)時先不標,免得已登入的人閃過「登入後學習」
-                              if (!state) return null
-                              const label = { start: '開始學習', free: '免費預覽', login: '登入後學習', planned: '規劃中' }[state]
-                              const icon = { start: '▶', free: '▶', login: '🔒', planned: '🌱' }[state]
-                              return (
-                                <span className={own.status} data-state={state}>
-                                  <span className={own.statusIcon} aria-hidden="true">
-                                    {icon}
-                                  </span>
-                                  {label}
-                                </span>
-                              )
-                            })()}
-                          </div>
-                        </div>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
+          <CourseMapUnits course="kids" topicPath={topic.path} fallback={LOCAL_UNITS} />
         </div>
       </section>
     </SiteLayout>

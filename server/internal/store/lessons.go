@@ -16,8 +16,8 @@ type unitRow struct {
 	CourseID string `gorm:"primaryKey;size:64"`
 	ID       string `gorm:"primaryKey;size:32"`
 	Title    string `gorm:"size:200;not null"`
-	// Metaphor 是這個單元用來解釋概念的比喻(課程地圖上的小字)
-	Metaphor string `gorm:"size:500"`
+	// Subtitle 是課程地圖上單元標題下的小字(兒童課是解釋概念的比喻,網頁怎麼運作是這個單元回答的問題)
+	Subtitle string `gorm:"size:500"`
 	Position int    `gorm:"not null"`
 }
 
@@ -49,7 +49,7 @@ const (
 type unitSeed struct {
 	ID       string       `json:"id"`
 	Title    string       `json:"title"`
-	Metaphor string       `json:"metaphor"`
+	Subtitle string       `json:"subtitle"`
 	Lessons  []lessonSeed `json:"lessons"`
 }
 
@@ -72,7 +72,7 @@ func syncUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 	var us []unitRow
 	var ls []lessonRow
 	for i, u := range units {
-		us = append(us, unitRow{CourseID: courseID, ID: u.ID, Title: u.Title, Metaphor: u.Metaphor, Position: i})
+		us = append(us, unitRow{CourseID: courseID, ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Position: i})
 		for _, l := range u.Lessons {
 			if l.Status != LessonOpen && l.Status != LessonPlanned {
 				return fmt.Errorf("課程 %s 的 %s:status 要是 open 或 planned", courseID, l.ID)
@@ -108,7 +108,7 @@ type CourseMap struct {
 type MapUnit struct {
 	ID       string      `json:"id"`
 	Title    string      `json:"title"`
-	Metaphor string      `json:"metaphor"`
+	Subtitle string      `json:"subtitle"`
 	Lessons  []MapLesson `json:"lessons"`
 }
 
@@ -143,7 +143,7 @@ func (s *Store) CourseMapOf(ctx context.Context, id string) (CourseMap, error) {
 	index := map[string]int{}
 	for _, u := range units {
 		index[u.ID] = len(m.Units)
-		m.Units = append(m.Units, MapUnit{ID: u.ID, Title: u.Title, Metaphor: u.Metaphor, Lessons: []MapLesson{}})
+		m.Units = append(m.Units, MapUnit{ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Lessons: []MapLesson{}})
 	}
 	for _, l := range lessons {
 		i, ok := index[l.UnitID]

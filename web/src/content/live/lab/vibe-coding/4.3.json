@@ -1,0 +1,266 @@
+{
+  "title": "請 AI 程式助手安裝 Node.js",
+  "lesson": "基礎 · 單元 4 · 4.3 試做",
+  "teacher": {
+    "say": "今天請 AI 幫你裝 Node.js",
+    "line": "今天第一次請 AI 程式助手幫你安裝工具：Node.js。它會一步一步跟你確認，我們練習看懂每個安裝指令再允許；要輸入電腦密碼的地方，你自己來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "安裝 Node.js",
+        "folder": "~/projects",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 程式助手安裝 Node.js",
+      "eyebrow": "基礎 · 單元 4 · 4.3",
+      "sub": "讓 AI 代裝工具，你負責看懂指令、輸入密碼、確認結果",
+      "chapter": "Node.js 是什麼",
+      "narration": "這一課請 AI 程式助手幫你安裝第一個開發工具：Node.js。它負責查、下載、執行指令；你負責看懂它要做什麼、輸入密碼，最後確認真的裝好了。"
+    },
+    {
+      "card": "Node.js：讓 JavaScript 在瀏覽器外執行",
+      "eyebrow": "先知道它負責什麼",
+      "sub": "npm 跟著一起裝好，負責下載別人寫好的套件",
+      "narration": "JavaScript 原本只能在瀏覽器裡跑。Node.js 讓它也能在你的電腦上直接執行；一起裝好的 npm，負責下載別人寫好的套件。之後很多工具都需要它。"
+    },
+    {
+      "show": "claude",
+      "chapter": "請它先查再裝",
+      "narration": "打開 AI 程式助手，工作資料夾是上一課建立的 projects。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我安裝 Node.js 的 LTS 版本，用官方的方式。裝之前先告訴我你打算怎麼做",
+      "narration": "我們把話說清楚：要裝什麼、要長期支援的 LTS 版本、用官方的方式，而且先說明再動手。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "ask": "node -v",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects",
+      "note": "查看電腦上有沒有 Node.js，不會改動任何東西",
+      "narration": "它先想查查看，你的電腦有沒有裝過。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "node -v 只是印出版本，不會改動任何東西",
+      "narration": "node 加上 dash v 只是印出版本，不會改動任何東西，可以允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node -v",
+      "result": "找不到指令",
+      "out": "zsh: command not found: node",
+      "narration": "結果是找不到指令，代表還沒裝。"
+    },
+    {
+      "on": "claude",
+      "say": "你的電腦還沒有 Node.js。我打算這樣做：\n1. 從官方網站 **nodejs.org** 下載 macOS 的 LTS 安裝檔\n2. 安裝時需要你的電腦密碼，請你自己打開安裝檔完成\n3. 裝好後我執行 `node -v` 和 `npm -v` 確認",
+      "narration": "它列出計畫：從官方網站下載、密碼的部分交給你、最後再驗證。先看懂計畫，再讓它開始。"
+    },
+    {
+      "on": "claude",
+      "user": "好，開始吧"
+    },
+    {
+      "on": "claude",
+      "ask": "curl -o ~/Downloads/node-lts.pkg https://nodejs.org/dist/v24.11.1/node-v24.11.1.pkg",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects",
+      "note": "從 nodejs.org 下載安裝檔到「下載」資料夾",
+      "chapter": "看懂下載指令",
+      "narration": "這次它想執行 curl，意思是從網路下載檔案。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "看網址：nodejs.org 是官方網站；檔案存到「下載」資料夾",
+      "narration": "下載指令最重要的是看網址。這裡是 nodejs.org，Node.js 的官方網站；檔案會存到下載資料夾。沒問題，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -o ~/Downloads/node-lts.pkg https://nodejs.org/dist/…",
+      "result": "已下載"
+    },
+    {
+      "on": "claude",
+      "say": "安裝檔已下載到「下載」資料夾的 `node-lts.pkg`。請打開它，照畫面按「繼續」，需要密碼時輸入你的電腦密碼。裝好之後告訴我。",
+      "chapter": "密碼的部分自己來",
+      "narration": "接下來要輸入電腦密碼。它沒有要你把密碼貼進對話，而是請你自己打開安裝檔。"
+    },
+    {
+      "card": "密碼只輸入在系統的視窗",
+      "eyebrow": "你自己來",
+      "sub": "打開下載的安裝檔，照畫面按「繼續」；不要把密碼貼進和 AI 的對話",
+      "narration": "打開下載資料夾裡的安裝檔，照畫面按繼續。要密碼的時候，只輸入在系統跳出來的視窗；不管是誰，都不要把電腦密碼貼進和 AI 的對話。"
+    },
+    {
+      "on": "claude",
+      "user": "裝好了",
+      "chapter": "確認真的裝好了"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "ask": "node -v && npm -v",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects",
+      "note": "印出 node 與 npm 的版本",
+      "narration": "它再執行一次查版本的指令，這次加上 npm。一樣只是印出版本，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node -v && npm -v",
+      "result": "完成",
+      "out": "v24.11.1\n11.6.2",
+      "narration": "兩個都印出版本號了，代表 Node.js 和 npm 都裝好了。"
+    },
+    {
+      "on": "claude",
+      "user": "在 projects 裡建立 hello 資料夾和 hello.js，印出一句問候，再執行它",
+      "chapter": "第一支 JavaScript 程式",
+      "narration": "最後試試看：請它寫一支小程式，在終端機印出一句問候。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "ask": "hello/hello.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects",
+      "preview": "console.log('哈囉！這是我的第一支 Node.js 程式')",
+      "narration": "要建立的是 hello 資料夾裡的 hello.js，內容只有一行。允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "hello/hello.js",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "node hello/hello.js",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects",
+      "note": "用 Node.js 執行 hello.js"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node hello/hello.js",
+      "result": "完成",
+      "out": "哈囉！這是我的第一支 Node.js 程式",
+      "narration": "用 node 執行 hello.js，問候就印出來了。這是 JavaScript 第一次不靠瀏覽器，在你的電腦上跑起來。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "安裝 Node.js 的過程中，下面哪一個可以放心允許？",
+      "body": "選一個。",
+      "id": "safe",
+      "options": [
+        {
+          "label": "從 nodejs.org 下載安裝檔",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "nodejs.org 是官方網站，下載前先看網址",
+              "narration": "答對了。nodejs.org 是 Node.js 的官方網站。下載指令先看網址，是官方的才允許。"
+            }
+          ]
+        },
+        {
+          "label": "從 node-js-download.net 下載最新版",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "名字很像，但不是官方網站，可能被動過手腳",
+              "narration": "這個網址名字很像，但不是 Node.js 的官方網站，下載的檔案可能被動過手腳。看到不認識的網址，先拒絕，請它改用官方網站。"
+            },
+            {
+              "card": "答案：從 nodejs.org 下載",
+              "eyebrow": "判斷看看",
+              "sub": "下載前先看網址，是官方網站才允許",
+              "narration": "可以放心允許的，是從官方網站 nodejs.org 下載。"
+            }
+          ]
+        },
+        {
+          "label": "把電腦密碼貼給它，讓它直接安裝",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "密碼只輸入在系統跳出的視窗，不貼進和 AI 的對話",
+              "narration": "密碼貼進對話，就留在對話紀錄裡了。需要密碼的步驟自己來，只輸入在系統跳出的視窗。"
+            },
+            {
+              "card": "答案：從 nodejs.org 下載",
+              "eyebrow": "判斷看看",
+              "sub": "下載前先看網址，是官方網站才允許",
+              "narration": "可以放心允許的，是從官方網站 nodejs.org 下載。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "請 AI 代裝，先聽它的計畫\n下載先看網址\n密碼自己輸入",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：Node.js、npm、LTS、版本號",
+      "chapter": "學會",
+      "narration": "請 AI 代裝工具時，先聽它的計畫；下載指令先看網址是不是官方的；要密碼的地方自己輸入；最後查版本號，確認真的裝好。下一課，我們就和 AI 一起改程式。"
+    }
+  ]
+}

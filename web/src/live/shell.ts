@@ -79,6 +79,8 @@ export interface Shell {
   toggleFullscreen(): void
   update(next: Partial<ShellOptions>): void
   setExternalFullscreen(on: boolean): void
+  /** 外層的控制項(例如互動課程頁的標題列與章節膠囊)被滑鼠指著時保持控制列顯示;放開後照常計時收起 */
+  holdControls(on: boolean): void
   /** 目前時間(毫秒) */
   readonly time: number
   readonly playing: boolean
@@ -99,6 +101,8 @@ interface PlayerState {
   ext: boolean
   lastTick: number
   hideTimer: ReturnType<typeof setTimeout> | undefined
+  /** 外層的控制項被指著:不收起控制列(holdControls) */
+  held: boolean
   scrubbing: boolean
   raf: number
   wake: WakeLockSentinel | null
@@ -110,7 +114,7 @@ type WebkitDocument = Document & { webkitFullscreenElement?: Element | null; web
 type WebkitElement = HTMLElement & { webkitRequestFullscreen?: () => void }
 
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2]
-const HIDE_MS = 2600
+const HIDE_MS = 4500
 const STEP_MS = 1000 / 30
 /** 播放中每隔多久存一次進度(暫停與離開頁面時另外存) */
 const PROGRESS_SAVE_MS = 10_000
@@ -232,6 +236,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     ext: false,
     lastTick: 0,
     hideTimer: undefined,
+    held: false,
     scrubbing: false,
     raf: 0,
     wake: null,
@@ -243,8 +248,11 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   let measuredHidden = false
   const fit = (): void => {
     const stage = $('.vp-stage')
-    const s = Math.min(stage.clientWidth / W, stage.clientHeight / H)
-    canvas.style.transform = `translate(${(stage.clientWidth - W * s) / 2}px, ${(stage.clientHeight - H * s) / 2}px) scale(${s})`
+    // 照舞台內容實際的大小縮放(外層可以用 CSS 把直式舞台改矮,例如手機直拿的 4:5 播放窗)
+    const cw = o.stage.offsetWidth || W
+    const ch = o.stage.offsetHeight || H
+    const s = Math.min(stage.clientWidth / cw, stage.clientHeight / ch)
+    canvas.style.transform = `translate(${(stage.clientWidth - cw * s) / 2}px, ${(stage.clientHeight - ch * s) / 2}px) scale(${s})`
     root.style.setProperty('--vp-scale', String(s))
     root.classList.toggle('compact', root.clientWidth < 560)
     // 外層把播放器隱藏時(display: none)量到的尺寸都是 0,再顯示時要重畫,鏡頭和標註才會在對的位置
@@ -483,14 +491,14 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     clearTimeout(state.hideTimer)
     if (!state.playing) return
     state.hideTimer = setTimeout(() => {
-      if (state.playing && !state.scrubbing && !root.querySelector('.vp-menu:not([hidden])')) root.classList.remove('show-ui')
+      if (state.playing && !state.scrubbing && !state.held && !root.querySelector('.vp-menu:not([hidden])')) root.classList.remove('show-ui')
     }, HIDE_MS)
   }
   root.addEventListener('pointermove', (e) => {
     if (e.pointerType === 'mouse') showUi()
   })
   root.addEventListener('mouseleave', () => {
-    if (state.playing) root.classList.remove('show-ui')
+    if (state.playing && !state.held) root.classList.remove('show-ui')
   })
 
   // ---------- 點擊與觸控手勢 ----------
@@ -797,6 +805,13 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     },
     get playing() {
       return state.playing
+    },
+    holdControls(on) {
+      state.held = on
+      if (on) {
+        clearTimeout(state.hideTimer)
+        root.classList.add('show-ui')
+      } else scheduleHide()
     },
     destroy() {
       saveProgress()

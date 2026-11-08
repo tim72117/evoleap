@@ -1,0 +1,242 @@
+{
+  "title": "AI 程式助手的三種形式",
+  "lesson": "基礎 · 單元 4 · 4.1 試做",
+  "teacher": {
+    "say": "今天認識 AI 程式助手",
+    "line": "今天要來看，AI 程式助手有哪三種形式：在聊天視窗裡問、在編輯器裡幫你寫，還有直接在專案裡動手做事。看完你就知道，這門課要用哪一種。"
+  },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "AI 聊天" },
+      "place": { "x": 150, "y": 110, "w": 560, "h": 860 },
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": {
+        "project": "hello",
+        "files": { "index.html": "<h1>你好，我是小安</h1>\n" }
+      },
+      "place": { "x": 780, "y": 170, "w": 1040, "h": 720 },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "自我介紹頁",
+        "folder": "~/projects/hello",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "AI 程式助手的三種形式",
+      "eyebrow": "基礎 · 單元 4 · 4.1",
+      "sub": "聊天視窗、編輯器裡的助手、會在專案裡動手的代理",
+      "chapter": "同一件事，三種做法",
+      "narration": "我們用同一件小事，看三種 AI 程式助手各怎麼做：在自我介紹頁的標題下面，加一段介紹文字。"
+    },
+    {
+      "show": "phone",
+      "chapter": "形式一：聊天視窗",
+      "narration": "第一種是聊天視窗，就是你在網頁或手機上跟 AI 聊天。"
+    },
+    {
+      "on": "phone",
+      "reply": "幫我寫一段 HTML 自我介紹，放在標題下面",
+      "narration": "我們把需求打給它。"
+    },
+    {
+      "on": "phone",
+      "receive": "好的，可以這樣寫：\n<p>我喜歡做點心，\n想做一個訂購網站。</p>",
+      "from": "AI",
+      "narration": "它回了一段程式碼。寫得不錯，可是它看不到你電腦上的檔案，也不知道你的標題長什麼樣子。"
+    },
+    {
+      "show": "code",
+      "narration": "所以接下來是你的事：打開編輯器，找到 index.html。"
+    },
+    {
+      "on": "code",
+      "paste": "<p>我喜歡做點心，想做一個訂購網站。</p>\n",
+      "narration": "把它回的程式碼複製過來，貼到對的位置，存檔。"
+    },
+    {
+      "callout": "code:code",
+      "text": "聊天視窗：AI 只給答案，複製、貼上、存檔都要自己來",
+      "narration": "聊天視窗很適合問問題、請它解釋，但結果要你自己搬進檔案。檔案一多，就很容易貼錯地方。"
+    },
+    {
+      "hide": "phone"
+    },
+    {
+      "move": "code",
+      "to": "window",
+      "chapter": "形式二：編輯器裡的助手",
+      "narration": "第二種是裝在編輯器裡的助手，例如 GitHub Copilot。它就在你寫程式的地方，看得到你正在寫的檔案。"
+    },
+    {
+      "on": "code",
+      "type": "<p>",
+      "narration": "我們再寫一段。才打了開頭，"
+    },
+    {
+      "on": "code",
+      "suggest": "我也在學怎麼用 AI 做網站。</p>\n",
+      "narration": "游標後面就出現一段灰色的字。這是它猜你接下來要寫的內容，叫做補全。"
+    },
+    {
+      "callout": "code:ghost",
+      "text": "灰色的字是建議，按 Tab 才會寫進檔案",
+      "narration": "灰色的字還沒寫進檔案，你覺得對，按 Tab 才會留下來。"
+    },
+    {
+      "on": "code",
+      "accept": true,
+      "narration": "按下 Tab，就寫進去了。"
+    },
+    {
+      "callout": "code:window",
+      "text": "編輯器裡的助手：一邊寫一邊幫你，也能在側邊對話",
+      "narration": "這類助手通常也有側邊的對話窗，可以問它這個檔案在做什麼。它幫你寫得更快，但每一步還是你在寫、你在決定。"
+    },
+    {
+      "hide": "code"
+    },
+    {
+      "show": "claude",
+      "chapter": "形式三：會動手的代理",
+      "narration": "第三種是會動手的代理，例如 Claude Code。它在你的專案資料夾裡工作，可以讀檔案、改檔案，還能執行指令。"
+    },
+    {
+      "callout": "claude:head",
+      "text": "它在這個資料夾裡工作：~/projects/hello",
+      "narration": "上方是它工作的資料夾。它只在這個資料夾裡動手。"
+    },
+    {
+      "on": "claude",
+      "user": "在 index.html 的標題下面加一段自我介紹，再用瀏覽器打開讓我看",
+      "narration": "這次我們不給程式碼，只講想要的結果。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "index.html",
+      "result": "1 行",
+      "narration": "它先自己打開檔案看，知道標題在哪裡。"
+    },
+    {
+      "on": "claude",
+      "ask": "index.html",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/hello",
+      "preview": "<h1>你好，我是小安</h1>\n<p>我喜歡做點心，想做一個訂購網站。</p>",
+      "narration": "要改檔案之前，它會先問你。看清楚要改哪個檔案、改成什麼。"
+    },
+    {
+      "on": "claude",
+      "choose": 1,
+      "narration": "沒問題，允許。"
+    },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [
+        [1, " ", "<h1>你好，我是小安</h1>"],
+        [2, "+", "<p>我喜歡做點心，想做一個訂購網站。</p>"]
+      ],
+      "narration": "它直接改好檔案，綠色那一行是新加的。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "open index.html",
+      "result": "已在瀏覽器打開",
+      "narration": "接著還自己執行指令，用瀏覽器打開網頁給你看。"
+    },
+    {
+      "on": "claude",
+      "say": "已在標題下面加上自我介紹，並用瀏覽器打開 `index.html`。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "會動手的代理：自己讀檔、改檔、執行指令，動手前先問你",
+      "narration": "你只要說清楚想要什麼、看懂它要做什麼再允許。這一門課的主力，就是這一種。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "chapter": "選選看",
+      "checkpoint": "你想要 AI 直接把專案裡好幾個檔案都改好，還幫你打開網頁確認。該用哪一種？",
+      "body": "選一個。",
+      "id": "pick",
+      "options": [
+        {
+          "label": "聊天視窗",
+          "steps": [
+            {
+              "card": "聊天視窗：要自己搬",
+              "eyebrow": "再想想",
+              "sub": "它看不到你的檔案，好幾個檔案就要一個一個複製貼上",
+              "narration": "聊天視窗看不到你的檔案。好幾個檔案，你就要一個一個複製、貼上、存檔，打開網頁也要自己來。"
+            },
+            {
+              "card": "答案：會動手的代理",
+              "eyebrow": "選選看",
+              "sub": "它在專案資料夾裡讀檔、改檔、執行指令",
+              "narration": "要它直接改好、還幫你打開網頁，用會動手的代理。"
+            }
+          ]
+        },
+        {
+          "label": "編輯器裡的助手",
+          "steps": [
+            {
+              "card": "編輯器助手：寫得更快",
+              "eyebrow": "再想想",
+              "sub": "它在你寫的地方給建議，但主要還是你一個檔案一個檔案地寫",
+              "narration": "編輯器裡的助手會在你寫的地方給建議，但主要還是你一個檔案一個檔案地寫。"
+            },
+            {
+              "card": "答案：會動手的代理",
+              "eyebrow": "選選看",
+              "sub": "它在專案資料夾裡讀檔、改檔、執行指令",
+              "narration": "要它直接改好、還幫你打開網頁，用會動手的代理。"
+            }
+          ]
+        },
+        {
+          "label": "會動手的代理",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "選選看",
+              "sub": "它在專案資料夾裡讀檔、改檔、執行指令，動手前會先問你",
+              "narration": "答對了。會動手的代理能自己讀檔、改好好幾個檔案，還能執行指令打開網頁；每次動手前，它都會先問你。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "聊天視窗：問問題\n編輯器助手：邊寫邊建議\n代理：在專案裡動手做",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：AI 程式助手、補全、代理（Agent）、工作資料夾",
+      "chapter": "學會",
+      "narration": "聊天視窗適合問問題、請它解釋；編輯器裡的助手邊寫邊給建議；會動手的代理直接在專案裡讀檔、改檔、執行指令。下一課，我們就來安裝這門課的主力：會動手的代理。"
+    }
+  ]
+}

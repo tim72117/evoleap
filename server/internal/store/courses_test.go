@@ -42,8 +42,8 @@ func TestCoursesSeededOnOpen(t *testing.T) {
 	defer st.Close()
 	var n int64
 	st.db.Model(&courseRow{}).Count(&n)
-	if n != 6 {
-		t.Errorf("courses: want 6, got %d", n)
+	if n != 7 {
+		t.Errorf("courses: want 7, got %d", n)
 	}
 }
 
@@ -73,5 +73,38 @@ func TestKidsCourseMap(t *testing.T) {
 	}
 	if _, err := st.CourseMapOf(context.Background(), "nope"); !errors.Is(err, ErrCourseNotFound) {
 		t.Errorf("nope: %v", err)
+	}
+}
+
+func TestWebCourseMap(t *testing.T) {
+	st, err := Open(filepath.Join(t.TempDir(), "test.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	m, err := st.CourseMapOf(context.Background(), "web")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m.Access != AccessLoginFree || len(m.Units) < 2 || m.Units[0].Subtitle == "" {
+		t.Fatalf("map: %+v", m)
+	}
+	open := map[string]Access{}
+	for _, u := range m.Units {
+		for _, l := range u.Lessons {
+			if l.Status == LessonOpen {
+				open[l.ID] = l.Access
+			}
+		}
+	}
+	// 序章兩課與單元 1 的 1.1、1.2 已開放;只有 0.1 免費預覽
+	want := map[string]Access{"0.1": AccessFree, "0.2": AccessLoginFree, "1.1": AccessLoginFree, "1.2": AccessLoginFree}
+	if len(open) != len(want) {
+		t.Errorf("open lessons: %+v", open)
+	}
+	for id, a := range want {
+		if open[id] != a {
+			t.Errorf("%s: want %q, got %q", id, a, open[id])
+		}
 	}
 }

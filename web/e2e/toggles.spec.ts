@@ -1,7 +1,7 @@
 // 互動腳本的觸發點(interact.spots):網頁怎麼運作 1.1 的「點點看」。
 // 點網頁上的元素顯示它的框與標籤,再點一次隱藏;要點到網頁裡真正的元素(不是定位用的替身),網頁的 script.js 才會切換。
 import { expect, test } from '@playwright/test'
-import { desktopOnly, loginAsNewStudent } from './support'
+import { desktopOnly, loginAsNewStudent, openCoursePanel } from './support'
 
 test('點點看:點一下顯示元素的框,再點一下隱藏,按繼續接著播', async ({ page }, info) => {
   test.skip(desktopOnly(info), '只在桌面版測一次')
@@ -10,6 +10,7 @@ test('點點看:點一下顯示元素的框,再點一下隱藏,按繼續接著�
   await page.goto('/topics/web/1-1?aspect=landscape')
   const player = page.locator('.vp')
   await expect(player.getByRole('slider', { name: '播放進度' })).not.toHaveAttribute('aria-valuemax', '0', { timeout: 15_000 })
+  await openCoursePanel(page) // 側欄預設收合
   await page.getByText('點點看', { exact: true }).click()
   await player.getByRole('button', { name: /播放/ }).first().click()
   const photo = page.getByRole('button', { name: '照片', exact: true })

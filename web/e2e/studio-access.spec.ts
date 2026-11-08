@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { expect, test, type APIRequestContext } from '@playwright/test'
 import { DIST } from './support'
 
-const GATED = 'http://127.0.0.1:8199'
+const GATED = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 8198) + 1}`
 const PAGES = ['/studio', '/studio/tools', '/materials', '/studio/actor-interaction/showcase', '/materials/promo', '/docs/live', '/docs/course-goals', '/studio/no-such-page']
 const internalAssets = () => readdirSync(join(DIST, 'assets/internal')).map((f) => `/assets/internal/${f}`)
 

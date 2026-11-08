@@ -14,7 +14,13 @@ export type MapLesson = {
   /** open:已開放;planned:規劃中 */
   status: 'open' | 'planned'
 }
-export type MapUnit = { id: string; title: string; metaphor: string; lessons: MapLesson[] }
+export type MapUnit = {
+  id: string
+  title: string
+  /** 單元標題下的小字(兒童課是比喻,網頁怎麼運作是這個單元回答的問題) */
+  subtitle: string
+  lessons: MapLesson[]
+}
 export type CourseMap = { id: string; title: string; access: CourseAccess; tier?: string; units: MapUnit[] }
 
 export async function fetchCourseMap(id: string): Promise<CourseMap> {

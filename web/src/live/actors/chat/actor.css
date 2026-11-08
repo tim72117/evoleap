@@ -28,6 +28,6 @@
 }
 .A-chat .ch-col { display: flex; flex-direction: column; gap: 0.15em; max-width: 78%; }
 .A-chat .ch-name { font-size: 0.72em; color: #6f747b; }
-.A-chat .ch-bubble { padding: 0.5em 0.8em; background: #ffffff; border-radius: 0.3em 1.1em 1.1em 1.1em; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+.A-chat .ch-bubble { white-space: pre-wrap; padding: 0.5em 0.8em; background: #ffffff; border-radius: 0.3em 1.1em 1.1em 1.1em; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
 .A-chat .ch-row.mine .ch-bubble { background: #d7f0c9; border-radius: 1.1em 0.3em 1.1em 1.1em; }
 .A-chat .ch-typing { color: #8a8f96; }

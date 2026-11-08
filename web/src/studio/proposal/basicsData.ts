@@ -186,7 +186,7 @@ export const TIER_INFO: Record<Tier, TierInfo> = {
       ['環境需求', '目前的提示詞以網頁聊天工具撰寫（貼上文字、複製表格）：電腦瀏覽器、一個 AI 聊天工具帳號（ChatGPT、Claude、Gemini 皆有免費網頁版）與任一種試算表。L0 已改用會操作檔案的 AI 工具，L1 要不要跟著改用（需求清單、工作項目存成專案裡的檔案）待決定，見總覽的「待決定」。'],
       ['存取', '登入後免費（對齊課程地圖 LEVELS 的 access: login-free）。'],
       ['規模估計', '開場 1 章＋3 個單元、9 課、38 個步驟、21 支影片（影片約 2.6 小時），含跟做約 4.8 小時。'],
-      ['往下銜接', 'L1 的產出（需求清單、工作項目表）就是 L2 動手做的起點；結業時列出的手動步驟（例如把工作項目一個一個建立到工作追蹤工具）作為之後用程式自動化的題目，L1 只提及不教。L2 的單元 6（AI 程式助手）沿用 L1 的四要素提問、具體追問與查證習慣。'],
+      ['往下銜接', 'L1 的產出（需求清單、工作項目表）就是 L2 動手做的起點；結業時列出的手動步驟（例如把工作項目一個一個建立到工作追蹤工具）作為之後用程式自動化的題目，L1 只提及不教。L2 的單元 4（AI 程式助手）沿用 L1 的四要素提問、具體追問與查證習慣。'],
     ],
     rationale: [
       '不講生成式 AI 的原理：第一課前幾分鐘就讓學員把一則真實感的需求訊息整理成需求清單，把「我做得到」放在最前面（研究報告：前段安排看得見的成果）。',
@@ -338,12 +338,12 @@ export const TIER_INFO: Record<Tier, TierInfo> = {
       ['往上銜接', 'AI Agent 整合應用課（L3）要求終端機、Git、npm、JavaScript／TypeScript 與 Web 前端；L2 負責前三項與「讀懂」網頁程式碼，其餘仍有落差（見「與 L3 的銜接對照」）。'],
     ],
     rationale: [
-      '單元 4 先處理檔案、路徑、終端機與 PATH：後續所有安裝錯誤都要靠這層概念才看得懂。',
-      '單元 5 每個工具都先說它負責什麼，再安裝，最後用一個指令驗證，形成固定節奏。',
-      '單元 6 在動手寫專案前先講 AI 程式助手的權限與 Git 存檔點，讓學員敢放手讓 AI 改檔。',
+      '單元 4 先裝好 AI 程式助手並講清楚它的權限：之後學終端機、安裝工具、讀錯誤訊息，都可以請它陪著做；4.3 接著請它代裝 Node.js，學員練習看懂安裝指令再允許。',
+      '單元 5 處理檔案、路徑、終端機與 PATH：後續所有安裝錯誤都要靠這層概念才看得懂，也看得懂 AI 替你執行了什麼。',
+      '單元 6 其餘工具（VS Code、Git）每個都先說它負責什麼，再安裝，最後用一個指令驗證，形成固定節奏；Git 一裝好就用來替 AI 的修改存檔，讓學員敢放手讓 AI 改檔。',
       '單元 7 串起整條流程（想法 → 程式 → 預覽 → 版本控制 → 公開網址），是 L2 的主要成就點。',
       '疑難排解獨立成單元 8，並附各作業系統的環境檢查表，供 L3 開課前重用。',
-      '單元 9–13 取自本專案實作紀錄：教的是真的做過、真的會遇到的事，而不是想像的練習題；既有單元 4–8 的編號不動（公開章節網址依編號產生），新單元接在後面。',
+      '單元 9–13 取自本專案實作紀錄：教的是真的做過、真的會遇到的事，而不是想像的練習題；新單元接在單元 8 後面編號（公開章節網址依編號產生）。',
       '單元 9 放在整理結構之前：大規模搬檔前先學會 diff、存檔點與還原，出錯才救得回來；.gitignore 以本專案的檢查為例（.env、本機資料庫、build 產物、node_modules）。',
       '單元 10 強調「結構清楚，AI 才改得對」：先看方案再搬、搬完用型別檢查／build／逐頁點擊驗證，README 同步更新。',
       '單元 11、12 的每一課都以可檢查的結果收尾（curl 看到 404 狀態碼、GA4 即時報表有資料、資料庫只存密碼雜湊、測試通過），讓學員能驗證 AI 的成果。',
@@ -554,10 +554,10 @@ export const CHECKLIST: { os: string; rows: CheckRow[] }[] = [
 
 /** 銜接 AI Agent 課先備條件的對照：[AI Agent 課要求, 基礎課涵蓋, 狀態, 說明] */
 export const BRIDGE: { need: string; covered: string; status: 'done' | 'todo'; note: string }[] = [
-  { need: '會使用終端機', covered: '單元 4、8', status: 'done', note: '涵蓋基本指令、PATH 與錯誤排除。' },
-  { need: 'Git 基本版本控制', covered: '單元 5、6、7、9', status: 'done', note: 'commit、push、diff、.gitignore、restore／revert、分支與 Pull Request、版本標籤觸發部署。' },
-  { need: 'npm 套件管理', covered: '單元 5', status: 'todo', note: '只教到安裝與驗證；npm install、package.json 可考慮放進單元 7。' },
-  { need: '程式碼編輯器、Claude Code', covered: '單元 5、6', status: 'done', note: '若主力工具不選 Claude Code，AI Agent 課需另外引導。' },
+  { need: '會使用終端機', covered: '單元 5、8', status: 'done', note: '涵蓋基本指令、PATH 與錯誤排除。' },
+  { need: 'Git 基本版本控制', covered: '單元 6、7、9', status: 'done', note: 'commit、push、diff、.gitignore、restore／revert、分支與 Pull Request、版本標籤觸發部署。' },
+  { need: 'npm 套件管理', covered: '單元 4', status: 'todo', note: '只教到安裝與驗證；npm install、package.json 可考慮放進單元 7。' },
+  { need: '程式碼編輯器、Claude Code', covered: '單元 4、6', status: 'done', note: '若主力工具不選 Claude Code，AI Agent 課需另外引導。' },
   { need: 'JavaScript 基礎與 Web 前端（DOM、fetch）', covered: '單元 7（只到讀懂）', status: 'todo', note: '落差最大，需要另一門 JavaScript 課或在 L2 加單元。' },
   { need: 'TypeScript', covered: '未涵蓋', status: 'todo', note: '可在 AI Agent 課開頭補，或列為 L2 延伸。' },
 ]
@@ -588,7 +588,7 @@ export const OPEN_QUESTIONS: { tier: Tier; title: string; body: string }[] = [
   { tier: 'L1T', title: '課程名稱與 L2 的重疊', body: 'L2 在課程地圖上的標題是「Vibe Coding 入門：用 AI 做出你的第一個小工具」，與這門課的定位重疊。要改這門課的名稱，還是改 L2 的副標？' },
   { tier: 'L1T', title: '是否加入公開課程地圖', body: '目前只在研發基地頁。加入時要決定在課程地圖上的呈現（L1 同一個等級兩張卡片，或在 L1 卡片裡分兩條路線），以及建議學員先上哪一門。' },
   { tier: 'L1T', title: '一課一個專案，還是一個工具箱專案', body: '目前每個工具一個專案資料夾，學員每課重複練習「建專案 → 說需求 → 測試」。另一個做法是一個 toolbox 專案、首頁連到各工具，最後成品比較完整，但專案越來越大，AI 改錯檔案的機會也變多。' },
-  { tier: 'L2', title: '與新版 L0 的重疊', body: 'L0 已改為用會操作檔案的 AI 工具：安裝與登入、確認提示（權限）、工作目錄與相對路徑、檔案操作、純 HTML／CSS 一頁式網站與在瀏覽器打開。與 L2 單元 4（檔案、資料夾與路徑）、單元 6（AI 程式助手的形式、安裝、權限）、單元 7（用 AI 做出個人介紹頁、讀懂 HTML／CSS）重疊。L2 要改成「接續 L0 的專案」（補終端機、Git、部署，把 L0 的網站上線），還是保留現有安排並標示可跳過？' },
+  { tier: 'L2', title: '與新版 L0 的重疊', body: 'L0 已改為用會操作檔案的 AI 工具：安裝與登入、確認提示（權限）、工作目錄與相對路徑、檔案操作、純 HTML／CSS 一頁式網站與在瀏覽器打開。與 L2 單元 4（AI 程式助手的形式、安裝、權限）、單元 5（檔案、資料夾與路徑）、單元 7（用 AI 做出個人介紹頁、讀懂 HTML／CSS）重疊。L2 要改成「接續 L0 的專案」（補終端機、Git、部署，把 L0 的網站上線），還是保留現有安排並標示可跳過？' },
   { tier: 'L2', title: '登入功能（與 SEO）放在 L2 還是 L3', body: '單元 9–12 依本專案實作紀錄新增。單元 12 的登入功能需要後端、資料庫、Google Cloud 設定與機密管理，對「完成 L1、剛裝好開發環境」的 L2 學員偏重，也讓 L2 變成約 19 小時。選項：(A) 留在 L2 並標示為進階；(B) 移到 L3 AI Agent 整合應用課（L3 本來就要後端與部署）；(C) 拆成獨立的選修單元。SEO（單元 11）的靜態部分（title、sitemap、404）適合 L2，GA4 與隱私權政策可一起考慮。' },
   { tier: 'L2', title: '測試單元（13）的學習順序', body: '編號接在 12 之後，但內容與 Git（單元 9）最相關。選項：(A) 緊接單元 9 學，之後的整理結構、SEO、登入都能用測試驗證（建議）；(B) 放在最後當作收尾；(C) 更早，在單元 7 做出個人頁後就先加一個簡單的端對端測試。課程頁的排列順序要跟著決定。' },
   { tier: 'L2', title: '主力 AI 程式助手', body: '統一用 Claude Code（與 AI Agent 課一致，但需付費方案或 API 帳號），還是 GitHub Copilot（VS Code 整合），或兩者並列只示範一個？' },
@@ -599,3 +599,6 @@ export const OPEN_QUESTIONS: { tier: Tier; title: string; body: string }[] = [
   { tier: 'L2', title: 'JavaScript 落差', body: 'AI Agent 課要求 JavaScript／TypeScript 與 DOM、fetch；基礎課目前只教到「讀懂」。要另開一門 JavaScript 課，還是在 L2 加單元？' },
   { tier: 'L2', title: 'Docker 的位置', body: 'AI Agent 課的準備清單有 Docker；基礎課不打算教。若 AI Agent 課保留部署單元，需要決定在哪裡補。' },
 ]
+
+/** 大綱裡已有試做頁的課：鍵是「等級:課號」，值是試做頁網址 */
+export const OUTLINE_DEMOS: Record<string, string> = { 'L2:4.1': '/studio/vibe-coding/4-1', 'L2:4.2': '/studio/vibe-coding/4-2', 'L2:4.3': '/studio/vibe-coding/4-3' }

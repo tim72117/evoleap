@@ -1,9 +1,232 @@
 [
-  {"id": "tools", "title": "AI 工具介紹：讓 AI 在你的電腦上做出第一個網站", "access": "free"},
-  {"id": "ai-tools", "title": "AI 工具入門：用 AI 把點子整理成可以開工的需求", "access": "login-free"},
-  {"id": "vibe-coding-basics", "title": "Vibe Coding 入門：用 AI 做出你的第一個小工具", "access": "subscription", "tier": "basic"},
-  {"id": "ai-agent", "title": "打造你的第一個 AI Agent 整合應用", "access": "subscription", "tier": "advanced"},
-  {"id": "advanced", "title": "進階 AI Agent 應用", "access": "subscription", "tier": "advanced"},
+  {
+    "id": "tools",
+    "title": "AI 工具介紹：讓 AI 在你的電腦上做出第一個網站",
+    "access": "free"
+  },
+  {
+    "id": "ai-tools",
+    "title": "AI 工具入門：用 AI 把點子整理成可以開工的需求",
+    "access": "login-free"
+  },
+  {
+    "id": "vibe-coding-basics",
+    "title": "Vibe Coding 入門：用 AI 做出你的第一個小工具",
+    "access": "subscription",
+    "tier": "basic"
+  },
+  {
+    "id": "ai-agent",
+    "title": "打造你的第一個 AI Agent 整合應用",
+    "access": "subscription",
+    "tier": "advanced"
+  },
+  {
+    "id": "advanced",
+    "title": "進階 AI Agent 應用",
+    "access": "subscription",
+    "tier": "advanced"
+  },
+  {
+    "id": "web",
+    "title": "網頁怎麼運作",
+    "access": "login-free",
+    "units": [
+      {
+        "id": "0",
+        "title": "序章：網頁從哪裡來",
+        "subtitle": "在網址列按下 Enter 之後，到看到畫面之間發生了什麼？",
+        "lessons": [
+          {
+            "id": "0.1",
+            "title": "輸入網址之後發生的事",
+            "summary": "網頁是瀏覽器向伺服器要來、再自己畫出來的。",
+            "access": "free",
+            "status": "open"
+          },
+          {
+            "id": "0.2",
+            "title": "HTML、CSS、JavaScript 的分工",
+            "summary": "HTML 管有什麼、CSS 管長什麼樣、JavaScript 管會做什麼。",
+            "status": "open"
+          }
+        ]
+      },
+      {
+        "id": "1",
+        "title": "單元 1　結構：網頁是一棵樹",
+        "subtitle": "網頁的內容是怎麼組織起來的？",
+        "lessons": [
+          {
+            "id": "1.1",
+            "title": "元素與標籤",
+            "summary": "網頁由一個個元素組成，標籤告訴瀏覽器它是什麼。",
+            "status": "open"
+          },
+          {
+            "id": "1.2",
+            "title": "DOM 樹：元素包著元素",
+            "summary": "元素可以包住元素，瀏覽器照著這棵樹由上往下畫。",
+            "status": "open"
+          },
+          {
+            "id": "1.3",
+            "title": "有意義的區塊",
+            "summary": "用有意義的區塊組織網頁，人和機器都比較好理解。",
+            "status": "planned"
+          },
+          {
+            "id": "1.4",
+            "title": "屬性：連結、圖片與替代文字",
+            "summary": "屬性補充元素的細節，例如連到哪裡、圖片是什麼。",
+            "status": "planned"
+          },
+          {
+            "id": "1.5",
+            "title": "表單：使用者輸入的入口",
+            "summary": "表單把使用者輸入的資料收集起來，送到伺服器。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "title": "單元 2　外觀：同樣的內容，不同的樣子",
+        "subtitle": "CSS 怎麼決定網頁長什麼樣子？",
+        "lessons": [
+          {
+            "id": "2.1",
+            "title": "選擇器：樣式要套給誰",
+            "summary": "樣式要先選中對的元素，才不會改到不該改的地方。",
+            "status": "planned"
+          },
+          {
+            "id": "2.2",
+            "title": "盒模型",
+            "summary": "每個元素都是盒子，大小由內容、內距、邊框、外距決定。",
+            "status": "planned"
+          },
+          {
+            "id": "2.3",
+            "title": "排版：Flex 與 Grid",
+            "summary": "一排東西用 Flex，像表格的版面用 Grid。",
+            "status": "planned"
+          },
+          {
+            "id": "2.4",
+            "title": "響應式：手機和電腦的不同排法",
+            "summary": "同一份網頁可以依螢幕寬度換排法。",
+            "status": "planned"
+          },
+          {
+            "id": "2.5",
+            "title": "字體、顏色與一致的設計",
+            "summary": "把顏色、字級整理成一套規則，網站看起來才一致。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "title": "單元 3　互動：網頁怎麼回應你",
+        "subtitle": "按下按鈕之後，網頁是怎麼改變的？",
+        "lessons": [
+          {
+            "id": "3.1",
+            "title": "事件：發生了什麼事",
+            "summary": "網頁靠事件知道使用者做了什麼。",
+            "status": "planned"
+          },
+          {
+            "id": "3.2",
+            "title": "狀態與畫面更新",
+            "summary": "畫面是狀態畫出來的，狀態變了，畫面才會變。",
+            "status": "planned"
+          },
+          {
+            "id": "3.3",
+            "title": "條件與重複",
+            "summary": "程式用條件決定要做什麼，用重複把一份資料畫成很多個。",
+            "status": "planned"
+          },
+          {
+            "id": "3.4",
+            "title": "非同步：等資料回來",
+            "summary": "跟伺服器要資料要等，等的時候要讓使用者知道。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "title": "單元 4　前端與後端：資料從哪裡來",
+        "subtitle": "網站怎麼記住資料、怎麼記住你？",
+        "lessons": [
+          {
+            "id": "4.1",
+            "title": "前端與後端各做什麼",
+            "summary": "前端管看得到的畫面，後端管資料與規則。",
+            "status": "planned"
+          },
+          {
+            "id": "4.2",
+            "title": "API 與 JSON",
+            "summary": "前端和後端用 API 溝通，資料常用 JSON 傳。",
+            "status": "planned"
+          },
+          {
+            "id": "4.3",
+            "title": "資料庫",
+            "summary": "資料存在資料庫裡，關掉網頁也不會不見。",
+            "status": "planned"
+          },
+          {
+            "id": "4.4",
+            "title": "登入怎麼記住你",
+            "summary": "登入靠伺服器發的通行證記住你，重要的資料只能放在後端。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "5",
+        "title": "單元 5　上線：把網站放上網路",
+        "subtitle": "做好的網站怎麼讓別人看到，而且又快又安全？",
+        "lessons": [
+          {
+            "id": "5.1",
+            "title": "打開開發者工具",
+            "summary": "每個網站都能用開發者工具看到它的背面。",
+            "status": "planned"
+          },
+          {
+            "id": "5.2",
+            "title": "部署：把網站放上網路",
+            "summary": "部署是把網站放到別人連得到的伺服器上。",
+            "status": "planned"
+          },
+          {
+            "id": "5.3",
+            "title": "網域與 HTTPS",
+            "summary": "網域是網站的名字，HTTPS 讓資料在路上被保護。",
+            "status": "planned"
+          },
+          {
+            "id": "5.4",
+            "title": "速度與搜尋引擎",
+            "summary": "網頁要快，搜尋引擎也要看得懂。",
+            "status": "planned"
+          },
+          {
+            "id": "5.5",
+            "title": "安全的基本觀念",
+            "summary": "秘密不放前端、使用者輸入不能直接相信、每個請求都要檢查權限。",
+            "status": "planned"
+          }
+        ]
+      }
+    ]
+  },
   {
     "id": "kids",
     "title": "給孩子的網頁程式",
@@ -12,7 +235,7 @@
       {
         "id": "0",
         "title": "序章：網頁是怎麼出現的",
-        "metaphor": "網頁是一封寫給瀏覽器的信，信裡是一塊一塊的積木，瀏覽器照著積木把畫面畫出來。",
+        "subtitle": "網頁是一封寫給瀏覽器的信，信裡是一塊一塊的積木，瀏覽器照著積木把畫面畫出來。",
         "lessons": [
           {
             "id": "0.1",
@@ -38,7 +261,7 @@
       {
         "id": "1",
         "title": "單元 1　HTML：用積木蓋網頁",
-        "metaphor": "HTML 是網頁的積木：每一種積木負責一種內容，叫對名字，才知道要用哪一塊。",
+        "subtitle": "HTML 是網頁的積木：每一種積木負責一種內容，叫對名字，才知道要用哪一塊。",
         "lessons": [
           {
             "id": "1.1",
@@ -75,7 +298,7 @@
       {
         "id": "2",
         "title": "單元 2　CSS：幫網頁換衣服",
-        "metaphor": "CSS 是網頁的衣服：內容不變，換一套衣服，看起來就不一樣；要說清楚「哪一塊」換成「什麼樣子」。",
+        "subtitle": "CSS 是網頁的衣服：內容不變，換一套衣服，看起來就不一樣；要說清楚「哪一塊」換成「什麼樣子」。",
         "lessons": [
           {
             "id": "2.1",
@@ -112,7 +335,7 @@
       {
         "id": "3",
         "title": "單元 3　JavaScript：讓網頁動起來",
-        "metaphor": "JavaScript 是網頁的魔法：說好「什麼時候」要「做什麼」，網頁就會照著做。",
+        "subtitle": "JavaScript 是網頁的魔法：說好「什麼時候」要「做什麼」，網頁就會照著做。",
         "lessons": [
           {
             "id": "3.1",
@@ -149,7 +372,7 @@
       {
         "id": "4",
         "title": "單元 4　請 AI 幫忙做：我的小網站",
-        "metaphor": "AI 小幫手很會做網頁，但只照你說的做：名字叫對、目標說清楚，它才做得出你想要的。",
+        "subtitle": "AI 小幫手很會做網頁，但只照你說的做：名字叫對、目標說清楚，它才做得出你想要的。",
         "lessons": [
           {
             "id": "4.1",

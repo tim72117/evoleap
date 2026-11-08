@@ -145,7 +145,7 @@ const L3_PROGRESS: { item: string; status: Status; chip: string; to: string; pag
 
 const DEPENDENCIES: string[] = [
   'L0 → L1：L1 假設學員已有帳號、會開新對話、找對話紀錄、上傳檔案；L1 第一課直接做任務。',
-  'L1 → L2：L1 產出的需求清單與工作項目表是 L2 動手做的起點；L2 單元 6（AI 程式助手）沿用 L1 的提問結構與查證習慣。',
+  'L1 → L2：L1 產出的需求清單與工作項目表是 L2 動手做的起點；L2 單元 4（AI 程式助手）沿用 L1 的提問結構與查證習慣。',
   'L2 → L3：L3 要求 JavaScript／TypeScript 與 Web 前端；L2 目前只教到「讀懂」，落差未解決（見 L2 銜接對照）。',
   'L2 → L3：L2 的主力 AI 程式助手若不是 Claude Code，L3 開頭需要另外引導安裝。',
   'L3 → L4：L3 移出的單元（即時／非同步呼叫、前後端串接、額度、部署）是否改放 L4，影響 L4 範圍。',

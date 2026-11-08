@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, test, type Page } from '@playwright/test'
-import { collectErrors, desktopOnly, landscape, loginAsNewStudent } from './support'
+import { collectErrors, desktopOnly, landscape, loginAsNewStudent, openCoursePanel } from './support'
 
 const SCRIPTS = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'content', 'live')
 
@@ -60,6 +60,7 @@ for (const c of LESSONS) {
       await expect(player(page)).toBeVisible()
       await expect(player(page)).toHaveAttribute('role', 'region')
       await expect(player(page)).toHaveAttribute('aria-label', /^影片播放器:/)
+      await openCoursePanel(page) // 側欄預設收合
       // 播放器載入腳本後,右側才有章節的時間
       await expect(chapter(page, c.chapters[0])).toBeVisible({ timeout: 15_000 })
     })
@@ -135,6 +136,7 @@ test.describe('腳本 lessonStep 與課程步驟一致', () => {
       expect(fromScript).toEqual(Array.from({ length: c.steps }, (_, i) => i + 1))
       await loginAsNewStudent(page)
       await page.goto(c.path)
+      await openCoursePanel(page)
       await expect(chapter(page, c.chapters[0])).toBeVisible({ timeout: 15_000 })
       for (const name of c.chapters) await expect(chapter(page, name)).toHaveCount(1)
     })
