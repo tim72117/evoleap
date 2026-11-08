@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"sort"
 	"strings"
 	"time"
@@ -62,6 +63,119 @@ type GuestVisit struct {
 	OpenedAt  time.Time    `json:"openedAt"`
 }
 
+// PathStep 是路徑上的一站:打開的頁面或課(lesson,同 guest_views.lesson),這一站有沒有播放。
+type PathStep struct {
+	Lesson string `json:"lesson"`
+	Played bool   `json:"played"`
+}
+
+// PathCount 是一條路徑與走過的次數。Played 是其中有播放過任何東西的次數。
+type PathCount struct {
+	Steps  []PathStep `json:"steps"`
+	Count  int        `json:"count"`
+	Played int        `json:"played"`
+}
+
+const (
+	// pathSessionGap:同一位訪客兩次打開之間超過這麼久,算成另一次造訪
+	pathSessionGap = 30 * time.Minute
+	// maxPathSteps:路徑最多列幾站(之後的合併成「…」)
+	maxPathSteps = 6
+	// maxPaths:後台列出最常見的幾條路徑
+	maxPaths = 20
+	homePage = PagePrefix + "/"
+)
+
+// homePaths 把每位訪客的紀錄依時間串成一次次造訪,只看從首頁進來的(造訪的第一站是首頁),
+// 統計走過的路徑:首頁 → 課程地圖 → 某一課(有沒有播放)…。爬蟲與沒有裝置資料的舊紀錄不算。
+func homePaths(views []guestViewRow) (top []PathCount, total int) {
+	byGuest := map[string][]guestViewRow{}
+	for _, v := range views {
+		if v.Device == "" || v.Device == DeviceBot {
+			continue
+		}
+		byGuest[v.GuestID] = append(byGuest[v.GuestID], v)
+	}
+	type acc struct {
+		steps         []PathStep
+		count, played int
+	}
+	paths := map[string]*acc{}
+	// last 是這次造訪的最後一筆:看它的足跡怎麼結束(關掉頁面記成 exit;換到沒有記錄的頁面,例如登入頁,記成 leave:<網址>)
+	add := func(steps []PathStep, last guestViewRow) {
+		if len(steps) == 0 || steps[0].Lesson != homePage {
+			return
+		}
+		if ev := parseEvents(last.Events); len(ev) > 0 {
+			switch e := ev[len(ev)-1].E; {
+			case e == "close":
+				steps = append(steps, PathStep{Lesson: "exit"})
+			case strings.HasPrefix(e, "leave:"):
+				steps = append(steps, PathStep{Lesson: e})
+			}
+		}
+		played := false
+		for _, s := range steps {
+			played = played || s.Played
+		}
+		if len(steps) > maxPathSteps {
+			steps = append(steps[:maxPathSteps:maxPathSteps], PathStep{Lesson: "…"})
+		}
+		b, _ := json.Marshal(steps)
+		a := paths[string(b)]
+		if a == nil {
+			a = &acc{steps: steps}
+			paths[string(b)] = a
+		}
+		a.count++
+		total++
+		if played {
+			a.played++
+		}
+	}
+	for _, list := range byGuest {
+		sort.Slice(list, func(i, j int) bool { return list[i].OpenedAt.Before(list[j].OpenedAt) })
+		var steps []PathStep
+		var lastActive time.Time
+		var prev guestViewRow
+		for _, v := range list {
+			if len(steps) > 0 && v.OpenedAt.Sub(lastActive) > pathSessionGap {
+				add(steps, prev)
+				steps = nil
+			}
+			prev = v
+			step := PathStep{Lesson: v.Lesson, Played: v.WatchedMs > 0}
+			// 同一頁連續記了兩筆(例如重新整理)只算一站
+			if n := len(steps); n > 0 && steps[n-1].Lesson == step.Lesson {
+				steps[n-1].Played = steps[n-1].Played || step.Played
+			} else {
+				steps = append(steps, step)
+			}
+			if v.UpdatedAt.After(lastActive) {
+				lastActive = v.UpdatedAt
+			}
+			if v.OpenedAt.After(lastActive) {
+				lastActive = v.OpenedAt
+			}
+		}
+		add(steps, prev)
+	}
+	out := make([]PathCount, 0, len(paths))
+	for _, a := range paths {
+		out = append(out, PathCount{Steps: a.steps, Count: a.count, Played: a.played})
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Count != out[j].Count {
+			return out[i].Count > out[j].Count
+		}
+		return len(out[i].Steps) < len(out[j].Steps)
+	})
+	if len(out) > maxPaths {
+		out = out[:maxPaths]
+	}
+	return out, total
+}
+
 // maxIdleVisits 是後台列出幾筆最近沒播放的造訪。
 const maxIdleVisits = 30
 
@@ -74,6 +188,10 @@ type GuestBreakdown struct {
 	IdleVisible []Count `json:"idleVisible"`
 	// 最近沒有播放的真人造訪(含登入門檻),新的在前,最多 maxIdleVisits 筆
 	IdleVisits []GuestVisit `json:"idleVisits"`
+	// 從首頁進來的造訪走過的路徑,最常見的在前,最多 maxPaths 條
+	HomePaths []PathCount `json:"homePaths"`
+	// 從首頁進來的造訪次數
+	HomeVisits int `json:"homeVisits"`
 }
 
 // AdminOverview 是儀表板的總覽數字。
@@ -197,6 +315,10 @@ func (s *Store) AdminOverview(ctx context.Context) (AdminOverview, error) {
 	idleBuckets := map[string]int{}
 	for _, v := range views {
 		guests[v.GuestID] = true
+		// 首頁、課程地圖不是課:不算進各課概況、漏斗與裝置／來源分布(它們的去向看 HomePaths)
+		if strings.HasPrefix(v.Lesson, PagePrefix) {
+			continue
+		}
 		a := lessonOf(v.Lesson)
 		a.guestViews++
 		a.guestWatched += int64(v.WatchedMs)
@@ -270,8 +392,11 @@ func (s *Store) AdminOverview(ctx context.Context) (AdminOverview, error) {
 	if len(idleVisits) > maxIdleVisits {
 		idleVisits = idleVisits[:maxIdleVisits]
 	}
+	home, homeVisits := homePaths(views)
 	breakdown := GuestBreakdown{
 		IdleVisits: idleVisits,
+		HomePaths:  home,
+		HomeVisits: homeVisits,
 		Devices:    topCounts(devices, 0),
 		Sources:    topCounts(sources, 10),
 		Errors:     topCounts(errs, 10),

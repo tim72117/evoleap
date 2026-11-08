@@ -3,10 +3,13 @@ import { Link, Navigate } from 'react-router-dom'
 import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
-import { adminApi, type AdminOverview, type AdminUser, type Count, type GuestVisit, type LessonStat, type UserProgress } from './api'
+import { adminApi, type AdminOverview, type AdminUser, type Count, type GuestVisit, type HomePath, type LessonStat, type UserProgress } from './api'
+import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
+import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
+import { WEB_OPEN_LESSONS } from '../content/webCourse'
 import { ADMIN_PATH } from './paths'
 import { formatDateTime, formatDuration, percentOf } from './format'
-import { isGate, isHomeShowcase } from '../courses/guestActivity'
+import { isGate, isHomeShowcase, isPage } from '../courses/guestActivity'
 import styles from './AdminPage.module.css'
 
 // 管理後台:會員列表、播放進度與訪客上課紀錄的概況。放在研發基地的「會員」標籤(studio/proposal/MembersPage.tsx),
@@ -75,7 +78,7 @@ function Dashboard({ data }: { data: Data }) {
         <Stat label="會員數" value={overview.users} />
         <Stat label="有播放紀錄" value={overview.activeUsers} />
         <Stat label="訪客" value={overview.guests} />
-        <Stat label="有人學習的課" value={overview.lessons.filter((l) => !isHomeShowcase(l.lesson)).length} />
+        <Stat label="有人學習的課" value={overview.lessons.filter((l) => !isHomeShowcase(l.lesson) && !isGate(l.lesson) && !isPage(l.lesson)).length} />
       </div>
 
       <h2 className={styles.heading}>各課概況</h2>
@@ -127,6 +130,7 @@ function LessonName({ lesson }: { lesson: string }) {
     <>
       {isHomeShowcase(lesson) && <span className={styles.tag}>首頁展示</span>}
       {isGate(lesson) && <span className={styles.tag}>登入門檻</span>}
+      {isPage(lesson) && <span className={styles.tag}>頁面</span>}
       {lesson}
     </>
   )
@@ -142,7 +146,7 @@ const pct = (n: number, of: number): string => (of > 0 ? `${Math.round((n / of) 
 function GuestFunnel({ overview }: { overview: AdminOverview }) {
   const { guestStats: g } = overview
   // 登入門檻不是播放器,不進漏斗
-  const rows = overview.lessons.filter((l) => !isGate(l.lesson) && (l.guestTracked > 0 || l.guestBots > 0))
+  const rows = overview.lessons.filter((l) => !isGate(l.lesson) && !isPage(l.lesson) && (l.guestTracked > 0 || l.guestBots > 0))
   const gates = overview.lessons.filter((l) => isGate(l.lesson) && l.guestTracked > 0)
   const sum = (k: keyof LessonStat) => rows.reduce((n, l) => n + (l[k] as number), 0)
   const total = { tracked: sum('guestTracked'), ready: sum('guestReady'), played: sum('guestPlayed'), failed: sum('guestFailed'), bots: sum('guestBots') }
@@ -221,12 +225,81 @@ function GuestFunnel({ overview }: { overview: AdminOverview }) {
           </div>
         </>
       )}
+      <HomePaths paths={g.homePaths ?? []} total={g.homeVisits ?? 0} />
       <IdleVisits visits={g.idleVisits ?? []} />
       {gates.length > 0 && (
         <div className={styles.breakdown}>
           <CountList title="看到登入門檻（訪客打開要登入的課）" items={gates.map((l) => ({ name: l.lesson.slice('gate:'.length), count: l.guestTracked }))} />
         </div>
       )}
+    </>
+  )
+}
+
+const PAGE_NAME: Record<string, string> = {
+  '/': '首頁',
+  [SOFTWARE_TOPIC.path]: `${SOFTWARE_TOPIC.name}（地圖）`,
+  [AI_APPS_TOPIC.path]: `${AI_APPS_TOPIC.name}（地圖）`,
+  [CLAUDE_CODE_TOPIC.path]: `${CLAUDE_CODE_TOPIC.name}（地圖）`,
+  [KIDS_TOPIC.path]: `${KIDS_TOPIC.name}（地圖）`,
+  [WEB_TOPIC.path]: `${WEB_TOPIC.name}（地圖）`,
+}
+const LESSON_NAME: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(WEB_OPEN_LESSONS).map(([id, l]) => [`live:${l.script}`, `網頁課 ${id}`])),
+  ...Object.fromEntries(Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => [`kids:${l.script}`, `兒童課 ${id}`])),
+}
+
+/** 路徑上的一站 → 後台顯示的名稱 */
+export function stepName(lesson: string): string {
+  if (lesson === 'exit') return '離開網站'
+  if (lesson === '…') return '…'
+  if (lesson.startsWith('leave:')) return `去了 ${lesson.slice('leave:'.length)}`
+  if (isPage(lesson)) {
+    const path = lesson.slice('page:'.length)
+    return PAGE_NAME[path] ?? path
+  }
+  if (isGate(lesson)) return `登入門檻 ${lesson.slice('gate:'.length)}`
+  if (isHomeShowcase(lesson)) return '首頁展示影片'
+  return LESSON_NAME[lesson] ?? lesson
+}
+
+/** 從首頁進來的造訪:最常見的路徑 */
+function HomePaths({ paths, total }: { paths: HomePath[]; total: number }) {
+  if (!paths.length) return null
+  return (
+    <>
+      <h3 className={`${styles.subheading} ${styles.section}`}>從首頁進來的路徑（{total} 次造訪，最常見的 {paths.length} 條）</h3>
+      <div className={styles.scroll}>
+        <table className={`${styles.table} ${styles.visits}`}>
+          <thead>
+            <tr>
+              <th>次數</th>
+              <th>有播放</th>
+              <th>路徑</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paths.map((p, i) => (
+              <tr key={i}>
+                <td>
+                  {p.count} <small className={styles.muted}>{pct(p.count, total)}</small>
+                </td>
+                <td>{p.played}</td>
+                <td>
+                  <ol className={styles.path}>
+                    {p.steps.map((s, j) => (
+                      <li key={j} data-end={s.lesson === 'exit' || s.lesson.startsWith('leave:') ? 'true' : undefined}>
+                        {stepName(s.lesson)}
+                        {s.played && <span className={styles.played}>▶ 有播放</span>}
+                      </li>
+                    ))}
+                  </ol>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   )
 }
@@ -268,7 +341,7 @@ function IdleVisits({ visits }: { visits: GuestVisit[] }) {
   if (!visits.length) return null
   return (
     <>
-      <h3 className={styles.subheading}>沒有播放的人做了什麼（最近 {visits.length} 筆）</h3>
+      <h3 className={`${styles.subheading} ${styles.section}`}>沒有播放的人做了什麼（最近 {visits.length} 筆）</h3>
       <div className={styles.scroll}>
         <table className={`${styles.table} ${styles.visits}`}>
           <thead>

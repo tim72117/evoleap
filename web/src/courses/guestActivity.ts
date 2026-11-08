@@ -2,16 +2,22 @@
 // 訪客代號在 evoleap_guest cookie(伺服器發的 HttpOnly cookie,前端讀不到也不用管);會員不記在這裡(會員有自己的播放進度)。
 // 伺服器端見 server/internal/api/guest.go。送不出去都靜默略過,不影響上課。
 // 為了看出「打開了卻沒有播放」的原因,另外回報:進站來源(document.referrer,伺服器只留網域)、頁面在前景的時間、
-// 播放器多久載入完成(ready)或載入失敗的訊息(fail)。看到登入門檻的訪客也記一筆(gate: 開頭,LoginGate.tsx)。
+// 播放器多久載入完成(ready)或載入失敗的訊息(fail)。看到登入門檻的訪客也記一筆(gate: 開頭,LoginGate.tsx);
+// 打開首頁、課程地圖也記一筆(page:<網址>,PageView),後台串成「從首頁進來的路徑」。
 // 另外記這次造訪的足跡(events):載入完成／失敗、按了哪個按鈕或連結(只記按鈕上的名稱與連結的站內網址,不記輸入的文字)、
 // 捲動到頁面的幾成、切到別的分頁又回來、開始／暫停播放、最後離開到哪一頁或關掉頁面。後台用來看「打開了卻沒有播放的人做了什麼」。
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, type ReactNode } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 
 /** 首頁展示影片的紀錄名稱前綴:和打開課程頁的紀錄分開算(後台標成「首頁展示」) */
 export const HOME_SHOWCASE_PREFIX = 'home:'
 export const homeShowcaseKey = (lesson: string): string => HOME_SHOWCASE_PREFIX + lesson
 export const isHomeShowcase = (lesson: string): boolean => lesson.startsWith(HOME_SHOWCASE_PREFIX)
+/** 訪客打開首頁、課程地圖這類不是單課的頁面:page:<網址>(後台用來串出「從首頁進來的路徑」) */
+export const PAGE_PREFIX = 'page:'
+export const isPage = (lesson: string): boolean => lesson.startsWith(PAGE_PREFIX)
+
 /** 訪客打開要登入的課、看到登入門檻的紀錄名稱前綴(後台標成「登入門檻」) */
 export const GATE_PREFIX = 'gate:'
 export const isGate = (lesson: string): boolean => lesson.startsWith(GATE_PREFIX)
@@ -52,6 +58,10 @@ export function clickLabel(target: EventTarget | null): string {
 const TICK_MS = 1000
 /** 累計多少新的播放時間就回報一次(另外在暫停後、離開頁面與換課時補送) */
 export const FLUSH_MS = 30_000
+/** 有新的足跡或前景時間時,最多隔多久就送一次:關掉分頁、離開到別的網站時,離開那一刻補送的請求不一定送得到,最多只掉這麼久的資料 */
+export const HEARTBEAT_MS = 10_000
+/** 沒有新的足跡、沒有播放,只有前景時間變多時,心跳間隔從 HEARTBEAT_MS 逐次加倍到這個值 */
+export const MAX_IDLE_BEAT_MS = 5 * 60_000
 /** 兩次檢查的間隔超過這個值就不算(電腦休眠、分頁在背景被節流太久),免得一次加上好幾個小時 */
 const MAX_GAP_MS = 65_000
 
@@ -105,6 +115,9 @@ export function startGuestView(lesson: string, isPlaying: () => boolean, api = g
   let pending = false
   let wasPlaying = false
   let last = started
+  let lastFlush = started
+  /** 只有前景時間變多時的心跳間隔(有新的足跡或播放就回到 HEARTBEAT_MS) */
+  let idleBeat = HEARTBEAT_MS
   const events: GuestEvent[] = []
   let eventsSent = 0
   const startPath = location.pathname
@@ -135,6 +148,7 @@ export function startGuestView(lesson: string, isPlaying: () => boolean, api = g
     sent = watched
     visibleSent = visible
     eventsSent = events.length
+    lastFlush = performance.now()
     const extra: GuestExtra = { visibleMs: visible, events: [...events] }
     if (pending) {
       if (readyMs) extra.readyMs = readyMs
@@ -159,6 +173,16 @@ export function startGuestView(lesson: string, isPlaying: () => boolean, api = g
     }
     wasPlaying = playing
     if (watched - sent >= FLUSH_MS) flush()
+    // 心跳:有新的足跡或播放時,每 HEARTBEAT_MS 送一次
+    else if (t - lastFlush >= HEARTBEAT_MS && (events.length > eventsSent || watched - sent >= 1000)) {
+      idleBeat = HEARTBEAT_MS
+      flush(true)
+    }
+    // 只是頁面開著(前景時間變多)時間隔逐次加倍,最多 MAX_IDLE_BEAT_MS:放著不動一小時只送十幾次
+    else if (t - lastFlush >= idleBeat && visible - visibleSent >= 1000) {
+      idleBeat = Math.min(idleBeat * 2, MAX_IDLE_BEAT_MS)
+      flush(true)
+    }
   }
   const timer = window.setInterval(tick, TICK_MS)
   const onHide = (): void => {
@@ -221,12 +245,16 @@ export function startGuestView(lesson: string, isPlaying: () => boolean, api = g
   })
 }
 
-/** 這個頁面還沒記過任何一課:第一課的載入時間從瀏覽器開始載入頁面算起(performance.now() 的起點,含下載程式),之後站內換頁從換頁時算起 */
-let firstOnPage = true
+/** 一進網站打開的那一頁(著陸頁):那一頁上的載入時間從瀏覽器開始載入頁面算起(performance.now() 的起點,含下載程式),
+ * 換過頁之後從換頁時算起。同一頁上可以有好幾筆(例如首頁的 page:/ 與展示影片),都從頁面開始載入算。 */
+const landingPath = typeof location === 'undefined' ? '' : location.pathname
+let navigated = false
+const noteNavigation = (): void => {
+  if (location.pathname !== landingPath) navigated = true
+}
 const viewStart = (): number => {
-  if (!firstOnPage) return performance.now()
-  firstOnPage = false
-  return 0
+  noteNavigation()
+  return navigated ? performance.now() : 0
 }
 
 /** useGuestView 的回傳值:播放器載入完成、失敗時呼叫(不是訪客或不記錄時什麼都不做;同一課只記第一次) */
@@ -259,6 +287,7 @@ export function useGuestView(lesson: string | null, isPlaying: () => boolean): G
     else if (early.current?.readyMs) t.ready(early.current.readyMs)
     return () => {
       tracker.current = null
+      noteNavigation() // 站內換頁時這裡已經是下一頁的網址(換到沒有記錄的頁面再回來也算換過頁)
       t()
     }
   }, [lesson, status, onPlay])
@@ -276,4 +305,11 @@ export function useGuestView(lesson: string | null, isPlaying: () => boolean): G
     }),
     [],
   )
+}
+
+/** 首頁、課程地圖這類頁面:訪客打開時記一筆 page:<網址>(沒有播放器,只看停留時間與足跡) */
+export function PageView({ children }: { children: ReactNode }): ReactNode {
+  const { pathname } = useLocation()
+  useGuestView(PAGE_PREFIX + pathname, () => false)
+  return children
 }

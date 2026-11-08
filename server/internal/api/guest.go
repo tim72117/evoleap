@@ -13,7 +13,7 @@ import (
 	"github.com/tim72117/evoleap/internal/store"
 )
 
-// 訪客的上課紀錄(未登入的人):打開一課(或按下播放首頁的展示影片,lesson 以 home: 開頭;看到登入門檻時 gate: 開頭)時 POST /api/guest/views 記一筆,
+// 訪客的上課紀錄(未登入的人):打開一課(或按下播放首頁的展示影片,lesson 以 home: 開頭;看到登入門檻時 gate: 開頭;打開首頁、課程地圖時 page: 開頭)時 POST /api/guest/views 記一筆,
 // 播放時 PUT /api/guest/views/{id} 回報累計的播放時間、頁面在前景的時間、播放器載入完成的時間或載入錯誤。
 // 打開時另外記裝置類型(由 User-Agent 分類,爬蟲標成 bot)與進站來源(前端傳的 document.referrer,只留網域)。
 // 訪客代號放在 evoleap_guest cookie(HttpOnly,伺服器第一次記錄時發給瀏覽器),只用來把同一個瀏覽器的紀錄串在一起,不連到帳號。

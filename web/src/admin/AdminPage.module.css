@@ -233,3 +233,48 @@
   border: 1px solid var(--site-border);
   border-radius: 999px;
 }
+
+/* 從首頁進來的路徑:每一站之間畫箭頭 */
+.path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  white-space: normal;
+}
+
+.path li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  font-size: 13px;
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+}
+
+.path li + li::before {
+  content: '→';
+  margin: 0 6px 0 -4px;
+  color: var(--site-muted);
+}
+
+.path li[data-end] {
+  color: var(--site-muted);
+  border-style: dashed;
+}
+
+.played {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent, #3b6fd8);
+}
+
+/* 漏斗下面各區塊的標題,和上一張表隔開 */
+.section {
+  margin-top: 26px;
+}

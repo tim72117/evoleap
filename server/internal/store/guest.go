@@ -17,6 +17,9 @@ import (
 // GuestRetention 是訪客紀錄保存的期間(也是訪客 cookie 的有效期間)。
 const GuestRetention = 180 * 24 * time.Hour
 
+// PagePrefix 是首頁、課程地圖這類不是單課的頁面紀錄(lesson 為 page:<網址>,前端 guestActivity.ts 的 PAGE_PREFIX)
+const PagePrefix = "page:"
+
 // GuestView 是訪客打開一課的一筆紀錄。
 type GuestView struct {
 	ID        string       `json:"id"`

@@ -236,3 +236,58 @@ func TestGuestFunnel(t *testing.T) {
 		}
 	}
 }
+
+func TestHomePaths(t *testing.T) {
+	env := newAdminEnv(t, "boss@example.com")
+	h := env.h
+	const desk = "Mozilla/5.0 (Macintosh) Chrome/130 Safari/537.36"
+	open := func(lesson string, c *http.Cookie) (string, *http.Cookie) {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodPost, "/api/guest/views", strings.NewReader(`{"lesson":"`+lesson+`"}`))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("User-Agent", desk)
+		if c != nil {
+			req.AddCookie(c)
+		}
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		if nc := guestCookieFrom(t, rec.Result()); nc != nil {
+			c = nc
+		}
+		return between(rec.Body.String(), `"id":"`, `"}`), c
+	}
+	report := func(id, body string, c *http.Cookie) {
+		t.Helper()
+		if rec := call(h, http.MethodPut, "/api/guest/views/"+id, body, c); rec.Code != http.StatusNoContent {
+			t.Fatalf("report: %d %s", rec.Code, rec.Body)
+		}
+	}
+	// 訪客甲:首頁 → 網頁課地圖 → 0.1(有播放)→ 關掉
+	_, a := open("page:/", nil)
+	_, a = open("page:/topics/web", a)
+	lesson, a := open("live:web/0.1.json", a)
+	report(lesson, `{"watchedMs":5000,"events":[{"t":100,"e":"ready"},{"t":9000,"e":"close"}]}`, a)
+	// 訪客乙:首頁 → 登入頁(沒有記錄的頁面)
+	home, b := open("page:/", nil)
+	report(home, `{"watchedMs":0,"events":[{"t":3000,"e":"link:/login"},{"t":3000,"e":"leave:/login"}]}`, b)
+	// 訪客丙:直接打開一課(不是從首頁進來,不算)
+	open("live:web/0.1.json", nil)
+
+	boss := env.googleCookie(t, "boss@example.com")
+	body := call(h, http.MethodGet, "/api/admin/overview", "", boss).Body.String()
+	for _, want := range []string{
+		`{"steps":[{"lesson":"page:/","played":false},{"lesson":"page:/topics/web","played":false},{"lesson":"live:web/0.1.json","played":true},{"lesson":"exit","played":false}],"count":1,"played":1}`,
+		`{"steps":[{"lesson":"page:/","played":false},{"lesson":"leave:/login","played":false}],"count":1,"played":0}`,
+		`"homeVisits":2`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("overview missing %s\n%s", want, body)
+		}
+	}	// 首頁、課程地圖不是課:不進各課概況,裝置分布只算三筆課的紀錄(甲、丙各打開一課;乙沒有打開課)
+	if strings.Contains(body, `"lesson":"page:/","learners"`) {
+		t.Errorf("page rows should not be lesson stats\n%s", body)
+	}
+	if !strings.Contains(body, `"devices":[{"name":"desktop","count":2}]`) {
+		t.Errorf("devices should count lesson rows only\n%s", body)
+	}
+}

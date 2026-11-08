@@ -42,6 +42,17 @@ export interface GuestBreakdown {
   idleVisible: Count[]
   /** 最近沒有播放的真人造訪(含登入門檻),新的在前,最多 30 筆 */
   idleVisits: GuestVisit[]
+  /** 從首頁進來的造訪走過的路徑(最常見的 20 條)與從首頁進來的造訪次數 */
+  homePaths: HomePath[]
+  homeVisits: number
+}
+
+/** 一條路徑:每一站是 guest_views 的 lesson(page:/…、live:…、kids:…、home:…、gate:…),最後可能是 exit(關掉頁面)或 leave:<網址>(換到沒有記錄的頁面) */
+export interface HomePath {
+  steps: { lesson: string; played: boolean }[]
+  count: number
+  /** 其中有播放過任何東西的次數 */
+  played: number
 }
 
 /** 一次沒有播放的造訪與它的足跡 */
