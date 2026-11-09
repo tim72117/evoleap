@@ -42,6 +42,25 @@ test.describe('訪客上課紀錄', () => {
     expect((await put.response())?.status()).toBe(204)
   })
 
+  test('從做好到上線:打開課程地圖記 page:,第一課記 live:;還沒開放的課是規劃中', async ({ page }) => {
+    const opened = (lesson: string) =>
+      page.waitForRequest((r) => r.url().endsWith('/api/guest/views') && r.method() === 'POST' && (JSON.parse(r.postData() ?? '{}') as { lesson: string }).lesson === lesson)
+    // 照正式設定跑的 server:訪客看到的狀態和正式站一樣
+    const gated = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 8198) + 1}`
+    const map = opened('page:/topics/launch')
+    await page.goto(`${gated}/topics/launch#map`)
+    await map
+    const rows = page.locator('#map li')
+    await expect(rows.filter({ hasText: '本機與網路上' }).getByText('免費預覽')).toBeVisible()
+    await expect(rows.filter({ hasText: '上線前要想清楚的事' }).getByText('登入後學習')).toBeVisible()
+    // 1.1 還沒開放:訪客看到規劃中、沒有連結
+    await expect(rows.filter({ hasText: '環境變數與設定' }).getByText('規劃中')).toBeVisible()
+    await expect(rows.filter({ hasText: '環境變數與設定' }).getByRole('link')).toHaveCount(0)
+    const lesson = opened('live:launch/0.1.json')
+    await page.goto(`${gated}/topics/launch/0-1`)
+    await lesson
+  })
+
   test('打開首頁記成 page:/(首頁沒有展示影片,不會有 home: 紀錄)', async ({ page }) => {
     const lessons: string[] = []
     page.on('request', (r) => {

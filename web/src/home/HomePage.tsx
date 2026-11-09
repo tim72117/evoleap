@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { COURSES, coursePath, isPreviewLesson, lessonPath, openLessonsOf } from '../content/catalog'
 import { LEVELS } from '../content/levels'
-import { HOME_INTRO, KIDS_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, type PlannedTopic } from '../content/topics'
+import { HOME_INTRO, KIDS_TOPIC, LAUNCH_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, type PlannedTopic } from '../content/topics'
 import { SiteLayout } from '../site/SiteLayout'
 import bakerySite from './assets/bakery-site.jpg'
 import styles from './HomePage.module.css'
@@ -115,6 +115,11 @@ export function HomePage() {
           </button>
         </article>
 
+        {/* 接在「做出自己的軟體」後面:做好之後的下一步 */}
+        <section className={styles.kids} aria-label={LAUNCH_TOPIC.name}>
+          <ThemeCard t={LAUNCH_TOPIC} />
+        </section>
+
         <section className={styles.kids} aria-label={KIDS_TOPIC.name}>
           <ThemeCard t={KIDS_TOPIC} />
         </section>
@@ -169,9 +174,19 @@ export function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactN
       </div>
       <p className={styles.themeSlogan}>{t.slogan}</p>
       {t.intro && <p className={styles.themeIntro}>{t.intro}</p>}
+      {t.pains && (
+        <>
+          <h4>你是不是也卡在這裡</h4>
+          <ul className={styles.outcomes}>
+            {t.pains.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ul>
+        </>
+      )}
       {t.learn && (
         <>
-          <h4>學完你會</h4>
+          <h4>{t.learnTitle ?? '學完你會'}</h4>
           <ul className={styles.outcomes}>
             {t.learn.map((s) => (
               <li key={s}>{s}</li>

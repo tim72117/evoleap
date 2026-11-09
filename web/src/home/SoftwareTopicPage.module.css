@@ -115,7 +115,8 @@
   margin-top: 28px;
 }
 
-.ctas a {
+.ctas a,
+.ctas button {
   display: inline-flex;
   align-items: center;
   padding: 12px 22px;
@@ -125,11 +126,20 @@
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
-.ctas a:hover {
+.ctas button {
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ctas a:hover,
+.ctas button:hover {
   transform: translateY(-1px);
 }
 
-.ctas a.primary {
+.ctas a.primary,
+.ctas button.primary {
   background: var(--site-accent-solid);
   color: var(--site-accent-contrast);
   box-shadow: 0 6px 18px color-mix(in srgb, var(--site-accent) 35%, transparent);

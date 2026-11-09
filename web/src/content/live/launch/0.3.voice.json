@@ -1,0 +1,79 @@
+{
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Sulafat",
+  "style": "台灣華語，語氣溫暖親切、咬字清楚，像老師在旁邊帶著學員一步一步操作，語速適中",
+  "clips": {
+    "嗨，我是 Lena。": {
+      "file": "launch/a6611b610921.mp3",
+      "ms": 1680
+    },
+    "今天要請 AI 檢查你專案的 .gitignore，用 git status 確認沒有漏掉該擋的檔案，最後留下一份附註解的 .gitignore 和檢查清單。": {
+      "file": "launch/97dfe825a050.mp3",
+      "ms": 11320
+    },
+    "這是一個做了會員登入的專案，準備要 commit 了。": {
+      "file": "launch/787e78b635f9.mp3",
+      "ms": 4320
+    },
+    "工作區裡除了改過的 login.js，還有 .env、資料庫檔、dist 裡的檔案，和一個 .DS_Store。目前 .gitignore 只擋了 node_modules。": {
+      "file": "launch/14ac274101e8.mp3",
+      "ms": 12720
+    },
+    "如果現在 git add 點，這些全都會被存進去。": {
+      "file": "launch/55af40fdfce8.mp3",
+      "ms": 5040
+    },
+    "四件事：找、補、確認、查歷史。最後要一份清單，以後每個專案都能照著檢查。": {
+      "file": "launch/c4d63d333912.mp3",
+      "ms": 9280
+    },
+    "它一個一個說明為什麼不該存。.DS_Store 是你的 Mac 自己產生的小檔案，上一堂沒提到，AI 也幫你抓到了。": {
+      "file": "launch/4fb5cc60fdc0.mp3",
+      "ms": 9640
+    },
+    "它重寫 .gitignore。注意看，每一段上面都有一行說明。": {
+      "file": "launch/bb441f405874.mp3",
+      "ms": 6000
+    },
+    "井字號開頭的是註解，給人看的，Git 會略過。驚嘆號那一行意思是「例外」：.env 開頭的都擋，但 .env.example 這個範本要留著。": {
+      "file": "launch/f75276f20c34.mp3",
+      "ms": 13360
+    },
+    "存檔之後，Git 立刻不再理 .env，": {
+      "file": "launch/638b7381a616.mp3",
+      "ms": 4160
+    },
+    "其他幾個也一個一個移到忽略那一格。": {
+      "file": "launch/f0ddb26ffc51.mp3",
+      "ms": 4120
+    },
+    "再跑一次 git status，只剩 .gitignore 和 login.js，這兩個是該存的。": {
+      "file": "launch/4a92897f7278.mp3",
+      "ms": 7960
+    },
+    "它還用 check-ignore 逐一確認，每個檔案是被 .gitignore 的第幾行擋住的。": {
+      "file": "launch/065289baac67.mp3",
+      "ms": 6960
+    },
+    "最後查歷史：.env 以前有沒有被 commit 過？結果是空的，代表從來沒進去過，金鑰是安全的。": {
+      "file": "launch/18a828e3123e.mp3",
+      "ms": 9640
+    },
+    "最後它整理出一份檢查清單。第四條很重要：萬一金鑰曾經被存進去，除了移除，一定要到後台換新的。": {
+      "file": "launch/3babb2d63558.mp3",
+      "ms": 10680
+    },
+    "要 commit 了。它沒有用 add 點，而是點名兩個檔案，更保險。允許。": {
+      "file": "launch/6a65a0b211ae.mp3",
+      "ms": 6680
+    },
+    "存好了。.env、資料庫和 dist 都安全地留在你的電腦上。": {
+      "file": "launch/f073089bafd3.mp3",
+      "ms": 6200
+    },
+    "commit 前先看 git status，.gitignore 每一段加上註解，萬一金鑰被存過，要移除還要換新。下一課，我們把寫死在程式裡的金鑰和網址搬進設定檔。": {
+      "file": "launch/38afcdb8b20a.mp3",
+      "ms": 16280
+    }
+  }
+}

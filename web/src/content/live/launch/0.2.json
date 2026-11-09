@@ -1,0 +1,138 @@
+{
+  "title": "上線前要想清楚的事",
+  "lesson": "從做好到上線 · 序章 · 0.2",
+  "teacher": {
+    "say": "上線前，先想四件事",
+    "line": "今天先不動手設定。我們把上線前要想清楚的四件事，一件一件想清楚，之後動手才不會繞路。"
+  },
+  "cast": {
+    "mei": {
+      "actor": "person",
+      "props": { "name": "小美", "look": "customer" },
+      "place": "center",
+      "hidden": true
+    },
+    "todo": {
+      "actor": "notes",
+      "props": { "label": "上線前要回答" },
+      "place": "center",
+      "hidden": true
+    },
+    "map": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "小森烘焙的網站，要讓客人用",
+        "nodes": {
+          "me": { "label": "你的電腦", "sub": "做好的網站在這裡", "icon": "code", "x": 14, "y": 50 },
+          "customer": { "label": "客人", "sub": "用手機打開", "icon": "phone", "x": 86, "y": 50 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "上線前要想清楚的事",
+      "eyebrow": "從做好到上線 · 序章 · 0.2",
+      "sub": "放哪裡 · 用什麼網址 · 資料存哪 · 秘密怎麼保管",
+      "chapter": "作品要讓別人用",
+      "narration": "你已經用 AI 做出一個網站，在自己的電腦上跑得好好的。"
+    },
+    { "show": "mei", "on": "mei", "say": "小森烘焙的訂購網站做好了，我想給客人用！", "mood": "happy", "narration": "上一課說過，localhost 只有你自己看得到。要讓別人用，就得把它放上網路。" },
+    { "on": "mei", "say": "可是要放哪裡？要花錢嗎？客人的訂單又存在哪？", "mood": "worried", "narration": "一想到上線，問題就一個接一個冒出來。別急，整理一下，其實只有四個問題。" },
+    { "hide": "mei" },
+    { "show": "todo", "jot": "① 放哪裡？", "narration": "第一，網站放在哪裡。" },
+    { "jot": "② 用什麼網址？", "narration": "第二，別人用什麼網址打開。" },
+    { "jot": "③ 資料存哪？", "narration": "第三，使用者填的資料存在哪裡。" },
+    { "jot": "④ 秘密怎麼保管？", "narration": "第四，金鑰和密碼這些秘密，要怎麼保管。" },
+    { "callout": "todo:window", "text": "先回答這四題，再動手", "narration": "這四題先想清楚，再挑平台、開帳號，才不會做到一半發現要整個搬家。" },
+    { "hide": "todo" },
+
+    { "show": "map", "chapter": "放哪裡", "narration": "我們拿小森烘焙的網站，一題一題來看。它有兩個部分：介紹店家的菜單頁，和客人填的訂購單。" },
+    { "spawn": "pages", "label": "靜態網站託管", "sub": "例如 GitHub Pages", "icon": "cloud", "x": 50, "y": 18, "link": "me" },
+    { "send": ["me", "pages"], "label": "菜單頁、介紹頁", "tone": "data", "narration": "菜單頁只有畫面，檔案做好就能直接給人看，這叫靜態網站。" },
+    { "send": ["pages", "customer"], "label": "直接看檔案", "tone": "ok", "narration": "放在 GitHub Pages 這類靜態網站託管就好，很多都是免費的。" },
+    { "spawn": "server", "label": "伺服器", "sub": "雲端的電腦，一直開著", "icon": "server", "x": 50, "y": 55 },
+    { "send": ["me", "server"], "label": "訂購單的程式", "tone": "data", "narration": "訂購單就不一樣了。客人按下送出，要有程式接住、處理、存起來，這部分叫後端。" },
+    { "send": ["customer", "server"], "label": "送出訂單", "tone": "req", "narration": "有後端的服務，要放在能跑程式的伺服器上。客人的訂單是送到這裡，不是送到你的電腦。" },
+    { "callout": "map:node:server", "text": "有後端、要存資料：要放伺服器", "narration": "記一個判斷法：只有畫面，放靜態託管；有後端、要存資料，就要伺服器。" },
+
+    { "tidy": true, "chapter": "用什麼網址" },
+    { "pulse": "pages", "text": "免費網址：○○.github.io", "tone": "ok", "narration": "第二題，網址。放上去之後，平台會送你一個免費網址，馬上能用，只是有點長，還帶著平台的名字。" },
+    { "spawn": "domain", "label": "bakery.tw", "sub": "自己買的網域，每年付費", "icon": "globe", "x": 86, "y": 18 },
+    { "send": ["domain", "pages"], "label": "指到你的網站", "tone": "ok", "narration": "想要好記一點，可以買自己的網域，例如 bakery.tw，每年付一筆費用，再把它指到你的網站。" },
+    { "callout": "map:node:domain", "text": "先用免費網址，之後再換也來得及", "narration": "一開始用免費網址就夠了，等作品穩定、想推廣了再買，之後再換也來得及。" },
+
+    { "tidy": true, "chapter": "資料存哪" },
+    { "pulse": "pages", "text": "", "tone": "none" },
+    { "spawn": "localdb", "label": "訂單資料", "sub": "存在你的電腦裡", "icon": "db", "x": 14, "y": 85, "link": "me" },
+    { "send": ["server", "localdb"], "label": "存一筆訂單", "tone": "warn", "narration": "第三題，資料。你在自己電腦上試的時候，客人填的資料就存在你的電腦裡。" },
+    { "pulse": "me", "text": "關機了", "tone": "bad", "narration": "可是你的電腦一關機、一睡著，伺服器就找不到資料，客人也查不到自己的訂單。" },
+    { "vanish": "localdb" },
+    { "spawn": "clouddb", "label": "雲端資料庫", "sub": "一直開著，還有備份", "icon": "db", "x": 50, "y": 88, "link": "server" },
+    { "send": ["server", "clouddb"], "label": "存一筆訂單", "tone": "data", "narration": "所以資料要放在雲端的資料庫。它和伺服器一樣一直開著，你的電腦關了也不影響。" },
+    { "pulse": "me", "text": "", "tone": "none" },
+
+    { "tidy": true, "chapter": "秘密怎麼保管" },
+    { "spawn": "key", "label": "金鑰、密碼", "sub": "例如寄信服務的金鑰", "icon": "key", "x": 14, "y": 18, "narration": "第四題，秘密。訂購單要寄確認信，就要用寄信服務的金鑰；連資料庫，也要密碼。" },
+    { "send": ["key", "pages"], "label": "寫在畫面的程式裡", "tone": "bad", "narration": "如果把金鑰寫在畫面的程式裡，它會跟著網頁，一起送到每個人的瀏覽器。" },
+    { "spawn": "stranger", "label": "陌生人", "sub": "打開網頁原始碼", "icon": "user", "x": 86, "y": 85, "tone": "bad" },
+    { "send": ["pages", "stranger"], "label": "金鑰被看到", "tone": "bad", "narration": "任何人打開網頁原始碼都看得到。被拿去用，額度和帳單都算你的。" },
+    { "vanish": "stranger" },
+    { "wire": ["key", "pages"], "cut": true },
+    { "send": ["key", "server"], "label": "放在伺服器的設定裡", "tone": "key", "narration": "正確的做法是：秘密只放在伺服器的設定裡，只有伺服器讀得到。" },
+    { "callout": "map:node:key", "text": "不寫進程式、不放上畫面", "narration": "記住兩個不：不寫進程式，不放上畫面。" },
+    { "hide": "map" },
+
+    {
+      "chapter": "想一想",
+      "checkpoint": "瑜珈教室的預約表單：要存預約資料，還要寄確認信。上線時它需要什麼？",
+      "body": "選一個最完整的答案。",
+      "id": "booking",
+      "options": [
+        {
+          "label": "放在 GitHub Pages 就夠了",
+          "steps": [
+            { "card": "只有畫面還不夠", "eyebrow": "再想想", "sub": "要存預約、要寄信，得有程式接住，也就是後端", "narration": "GitHub Pages 只能放畫面。要存預約、寄確認信，得有程式接住處理，這要放在伺服器上。" },
+            { "card": "伺服器＋雲端資料庫\n＋金鑰放在伺服器設定", "eyebrow": "答案", "sub": "預約存在雲端資料庫，寄信金鑰只有伺服器讀得到", "narration": "答案是：伺服器，加上雲端資料庫，寄信的金鑰放在伺服器的設定裡。" }
+          ]
+        },
+        {
+          "label": "伺服器，資料存在自己電腦",
+          "steps": [
+            { "card": "電腦一關，預約就查不到", "eyebrow": "再想想", "sub": "資料要放在一直開著的雲端資料庫", "narration": "資料存在自己電腦，電腦一關機，預約就存不進去、也查不到。要放在雲端的資料庫。" },
+            { "card": "伺服器＋雲端資料庫\n＋金鑰放在伺服器設定", "eyebrow": "答案", "sub": "預約存在雲端資料庫，寄信金鑰只有伺服器讀得到", "narration": "完整的答案是：伺服器，加上雲端資料庫，寄信的金鑰放在伺服器的設定裡。" }
+          ]
+        },
+        {
+          "label": "伺服器、雲端資料庫，金鑰放伺服器設定",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "想一想", "sub": "有後端放伺服器，預約存雲端資料庫，寄信金鑰只放伺服器設定", "narration": "答對了。要接住表單就要伺服器，預約存在雲端資料庫，寄信的金鑰只放在伺服器的設定裡。" }
+          ]
+        },
+        {
+          "label": "伺服器、雲端資料庫，金鑰寫在畫面程式裡",
+          "steps": [
+            { "card": "金鑰會被看光", "eyebrow": "再想想", "sub": "畫面的程式會送到每個人的瀏覽器，打開原始碼就看得到", "narration": "前兩樣都對，可惜金鑰寫在畫面的程式裡，任何人打開原始碼就看得到，要改放在伺服器的設定裡。" },
+            { "card": "伺服器＋雲端資料庫\n＋金鑰放在伺服器設定", "eyebrow": "答案", "sub": "預約存在雲端資料庫，寄信金鑰只有伺服器讀得到", "narration": "完整的答案是：伺服器，加上雲端資料庫，寄信的金鑰放在伺服器的設定裡。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          { "card": "伺服器＋雲端資料庫\n＋金鑰放在伺服器設定", "eyebrow": "答案", "sub": "有後端放伺服器，預約存雲端資料庫，寄信金鑰只放伺服器設定", "narration": "答案是：要接住表單就要伺服器，預約存在雲端資料庫，寄信的金鑰只放在伺服器的設定裡。" }
+        ]
+      }
+    },
+
+    {
+      "card": "放哪裡：靜態託管或伺服器\n網址：免費網址或自己的網域\n資料：存在雲端資料庫\n秘密：只放在伺服器設定",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：靜態網站、後端、伺服器、網域、資料庫、金鑰",
+      "chapter": "學會",
+      "narration": "今天想清楚四件事：放哪裡、用什麼網址、資料存哪、秘密怎麼保管。下一課先處理最急的一件：推上 GitHub 之前，把金鑰這些檔案擋在外面。"
+    }
+  ]
+}

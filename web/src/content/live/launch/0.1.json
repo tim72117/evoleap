@@ -1,0 +1,225 @@
+{
+  "title": "本機與網路上",
+  "lesson": "從做好到上線 · 序章 · 0.1",
+  "teacher": {
+    "say": "今天看你的網站在哪裡",
+    "line": "網站做好了，網址傳給朋友卻打不開？今天先弄懂，你的網站現在在哪裡、誰看得到。"
+  },
+  "cast": {
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "http://localhost:5173" },
+      "place": "window",
+      "hidden": true
+    },
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "net": {
+      "actor": "net-trip",
+      "props": {
+        "domain": "www.example.com",
+        "ip": "93.184.216.34",
+        "pages": { "/": { "title": "小森烘焙", "heading": "小森烘焙", "text": "放在伺服器上的網站，誰打開都看得到。" } }
+      },
+      "place": { "landscape": { "x": 100, "y": 80, "w": 1720, "h": 650 }, "portrait": { "x": 40, "y": 110, "w": 1000, "h": 900 } },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "本機與網路上",
+      "eyebrow": "從做好到上線 · 序章 · 0.1",
+      "sub": "localhost 和網址，差在哪裡",
+      "chapter": "網址傳出去，朋友打不開",
+      "narration": "你用 AI 做好了一個網站。做好之後，第一件想做的事，大概就是傳給朋友看。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "npm run dev",
+      "out": "  VITE  ready in 320 ms\n\n  ➜  Local:   http://localhost:5173/",
+      "narration": "做網站的時候，AI 通常會請你在終端機跑一行指令，把網站開起來。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "網站開好了，網址是 http://localhost:5173",
+      "narration": "跑起來之後，終端機給了你一個網址，開頭是 localhost。"
+    },
+    { "hide": "term" },
+    {
+      "show": "web",
+      "narration": "用瀏覽器打開這個網址，網站好好的，圖片、按鈕都正常。"
+    },
+    {
+      "callout": "web:addressbar",
+      "text": "網址列：http://localhost:5173",
+      "narration": "你把網址列上的網址複製下來。"
+    },
+    { "hide": "web" },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "我的網站做好了！快看 http://localhost:5173",
+      "narration": "傳給朋友阿哲。"
+    },
+    {
+      "on": "phone",
+      "receive": "打不開耶，畫面說「無法連上這個網站」",
+      "from": "阿哲",
+      "narration": "過了一下，阿哲回你：打不開。可是你自己明明打得開。"
+    },
+
+    {
+      "callout": "phone:msg:1",
+      "text": "localhost＝「這台電腦自己」",
+      "chapter": "localhost 是哪一台電腦",
+      "narration": "問題出在 localhost。它的意思是「這台電腦自己」。"
+    },
+    {
+      "callout": "phone:msg:2",
+      "text": "阿哲的 localhost，是他自己的手機",
+      "narration": "你打開 localhost，找的是你的電腦。阿哲打開 localhost，找的是他自己的手機，他的手機裡，當然沒有你的網站。"
+    },
+    { "hide": "phone" },
+    {
+      "show": "term",
+      "narration": "那你的網站在哪裡？就在剛剛這個終端機裡，在你的電腦上跑著。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "5173：這台電腦上的一個門號",
+      "narration": "後面的 5173 像是門號。同一台電腦可以同時開好幾個網站，用門號分開。"
+    },
+    {
+      "on": "term",
+      "print": "^C",
+      "tone": "dim",
+      "narration": "你關掉這個終端機，或是按下 Ctrl 加 C，網站就停了。"
+    },
+    {
+      "callout": "term:window",
+      "text": "網站停了：誰都打不開，連你自己也是",
+      "narration": "電腦關機、闔上筆電，也一樣。所以現在這個網站，只有你自己看得到，而且只在你的電腦開著的時候。"
+    },
+    { "hide": "term" },
+
+    {
+      "show": "net",
+      "chapter": "上線之後的網址",
+      "narration": "上線之後，網址會變成像這樣：https://www.example.com。"
+    },
+    {
+      "callout": "net:server",
+      "text": "伺服器：24 小時開著、連著網路的電腦",
+      "narration": "網站不在你的電腦上，而是放在一台伺服器上。伺服器是一台 24 小時開著、連著網路的電腦。"
+    },
+    {
+      "on": "net",
+      "type": "https://www.example.com",
+      "narration": "這次換阿哲，在他的手機上輸入這個網址。"
+    },
+    { "on": "net", "enter": true },
+    {
+      "on": "net",
+      "lookup": true,
+      "narration": "這個網址會帶他找到那台伺服器，而不是找他自己的手機。"
+    },
+    { "on": "net", "answer": true },
+    { "on": "net", "request": true },
+    { "on": "net", "respond": true },
+    {
+      "on": "net",
+      "render": true,
+      "narration": "網站出現了。不管是誰、在哪裡打開，找到的都是同一台伺服器，看到的都是同一個網站。"
+    },
+    {
+      "on": "net",
+      "power": false,
+      "narration": "反過來，如果這台伺服器也關機了呢？"
+    },
+    { "on": "net", "type": "https://www.example.com" },
+    { "on": "net", "enter": true },
+    {
+      "on": "net",
+      "request": true,
+      "narration": "結果和你關掉終端機一樣：誰都打不開。"
+    },
+    {
+      "callout": "net:server",
+      "text": "上線＝把網站放到一直開著的伺服器上",
+      "narration": "所以上線，就是把網站放到一台一直開著、大家都連得到的伺服器上。"
+    },
+    { "on": "net", "power": true },
+
+    {
+      "checkpoint": "哪一個網址，可以傳給朋友？",
+      "body": "你的網站在自己電腦上跑著，也已經放上了伺服器，網址是 https://www.example.com。",
+      "id": "share",
+      "chapter": "換你判斷",
+      "options": [
+        {
+          "label": "http://localhost:5173",
+          "steps": [
+            {
+              "card": "localhost 指的是「這台電腦自己」",
+              "eyebrow": "不對",
+              "sub": "朋友打開 localhost，找的是他自己的電腦或手機",
+              "narration": "不對。localhost 是「這台電腦自己」。朋友打開它，找的是他自己的手機，那裡沒有你的網站。"
+            }
+          ]
+        },
+        {
+          "label": "https://www.example.com",
+          "steps": [
+            {
+              "card": "放在伺服器上的網址，誰都連得到",
+              "eyebrow": "答對了",
+              "sub": "伺服器 24 小時開著，你的電腦關機也沒關係",
+              "narration": "答對了。這個網址找的是那台一直開著的伺服器，誰打開都看得到，你的電腦關機也沒關係。"
+            }
+          ]
+        },
+        {
+          "label": "兩個都可以，只要我的電腦開著",
+          "steps": [
+            {
+              "card": "localhost 再怎麼開著，朋友也連不到",
+              "eyebrow": "差一點",
+              "sub": "localhost 只指向打開它的那台電腦",
+              "narration": "差一點。你的電腦開著，你自己打得開 localhost，但朋友打開的是他自己的手機。能傳的只有伺服器的網址。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "能傳給朋友的是 https://www.example.com",
+            "eyebrow": "答案",
+            "sub": "localhost 只有自己的電腦打得開",
+            "narration": "能傳給朋友的，是伺服器上的網址。localhost 只有你自己的電腦打得開。"
+          }
+        ]
+      }
+    },
+
+    {
+      "card": "localhost 是你自己的電腦，只有你看得到。\n要讓別人打得開，網站得放上一直開著的伺服器。",
+      "eyebrow": "學會",
+      "sub": "localhost · 門號（5173） · 伺服器 · 上線",
+      "chapter": "學會",
+      "narration": "今天學會：localhost 是你自己的電腦，網站現在只有你看得到。要讓別人打得開，就要放上一台一直開著的伺服器。下一課，我們先想清楚上線前要決定的幾件事。"
+    }
+  ]
+}

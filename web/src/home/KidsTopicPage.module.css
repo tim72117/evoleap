@@ -167,6 +167,14 @@
 .status[data-state='planned'] .statusIcon {
   background: var(--site-surface-2);
 }
+/* 草稿:只有管理員看得到,虛線外框加強調色,和規劃中分得開 */
+.status[data-state='draft'] {
+  border: 1px dashed var(--site-highlight);
+  color: var(--site-highlight);
+}
+.status[data-state='draft'] .statusIcon {
+  background: color-mix(in srgb, var(--site-highlight) 14%, var(--site-surface));
+}
 
 /* 只給螢幕閱讀器(看不到,但頁面標題還在) */
 .srOnly {

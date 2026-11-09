@@ -1,6 +1,7 @@
 // 首頁的主題。一個主題是一組不同目標的課程:「做出自己的軟體」(levels.ts 的 LEVELS)與「打造 AI 互動軟體」(AI_APP_LEVELS)各有課程地圖頁。
 // 規劃中的主題只放暫定的名稱、標語與預計做出的成果;不要寫未確認的事實(價格、日期、收入、學員數等)。
 import { KIDS_OPEN_LESSONS, kidsLessonTitle } from './kidsCourse'
+import { launchLessonPath } from './launchCourse'
 import { AI_APP_LEVELS, SOFTWARE_LEDE } from './levels'
 import { WEB_OPEN_LESSONS, webLesson } from './webCourse'
 
@@ -39,6 +40,26 @@ export const CLAUDE_CODE_TOPIC = {
   description: '整理使用 Claude Code 時的常見情境：換手機接著做、同時試好幾版、接回昨天的對話、把規則寫下來。遇到哪個情況就看哪一個。內容規劃中。',
 }
 
+/** 主題「從做好到上線」:開放中(序章三課可以上,其他課規劃中),課程地圖在 /topics/launch(home/LaunchTopicPage.tsx),大綱在 content/launchCourse.ts;首頁放在「做出自己的軟體」下方 */
+export const LAUNCH_TOPIC = {
+  name: '從做好到上線',
+  slogan: '繁雜的上線流程交給 AI，輕鬆讓作品變成服務',
+  path: '/topics/launch',
+  seoTitle: '從做好到上線：用 AI 處理繁雜流程，輕鬆把作品放上線',
+  description: '部署、網域、資料與登入、收費、監控，這些繁雜的上線流程，學會用 AI 處理，輕鬆把做好的網站與工具變成別人能用的服務。序章開放中，第一課可以免費預覽。',
+  open: true,
+  start: { label: '開始第一課', path: launchLessonPath('0.1') },
+  pains: [
+    '做好了，網址卻是 localhost，傳給朋友打不開',
+    '一上線就白畫面、資料不見，錯誤訊息看不懂',
+    '金鑰放在程式裡安不安全？流量變大會不會收到一大筆帳單？',
+    '想讓人登入、想收費，不知道從哪裡開始',
+    '上線後有沒有人在用、哪裡壞了，都要等別人來講才知道',
+  ],
+  learnTitle: '你會學會',
+  learn: ['用 AI 架設公開網站', '用 AI 做自動部署', '用 AI 避開資安風險', '用 AI 做網站監控'],
+} satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
+
 /** 這個主題的情境,依遇到的情況列出,沒有先後順序。tools 是會用到的功能,名稱以官方文件為準,改版時要更新 */
 export const CLAUDE_CODE_SCENARIOS: {
   title: string
@@ -61,7 +82,7 @@ export const CLAUDE_CODE_SCENARIOS: {
   { title: '任務要跑很久，不想一直盯著', summary: '把對話丟到背景繼續跑，先去忙別的，之後再回來看結果。', tools: ['/background', 'claude agents'] },
 ]
 
-/** 全部課程的清單頁:跨主題列出 catalog.ts 的每一門課,以及網頁怎麼運作、給孩子的網頁程式、Claude Code 工作術 */
+/** 全部課程的清單頁:跨主題列出 catalog.ts 的每一門課,以及網頁怎麼運作、從做好到上線、給孩子的網頁程式、Claude Code 工作術 */
 export const COURSE_LIST = {
   name: '全部課程',
   path: '/courses',
@@ -83,6 +104,8 @@ export type PlannedTopic = {
   path?: string
   /** 預計會做出的成果 */
   outcomes?: string[]
+  /** 這個主題解決的痛點(首頁卡片的「你是不是也卡在這裡」) */
+  pains?: string[]
   /** 只整理使用情境、沒有實作的主題:列出涵蓋的情境(取代 outcomes) */
   scenarios?: string[]
   /** 過程的步驟(沒有 sample 時顯示) */
@@ -100,6 +123,8 @@ export type PlannedTopic = {
   intro?: string
   /** 首頁卡片的「學完你會」 */
   learn?: string[]
+  /** learn 的標題(預設「學完你會」) */
+  learnTitle?: string
   /** 已經開放的主題:首頁卡片用實線外框;不寫就是規劃中,標題旁標「規劃中」(首頁不標「開放中」) */
   open?: boolean
   /** 首頁卡片的「開始」按鈕:已經可以上的第一課 */

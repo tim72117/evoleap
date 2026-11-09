@@ -1,6 +1,7 @@
 // 主題頁的課程地圖從資料庫讀(GET /api/courses/{id}/map;資料是 server/internal/store/courses_seed.json):
 // 未登入時第一課免費預覽、其他開放的課登入後學習、還沒開放的規劃中;開放的課連到課程頁。
 import { expect, test } from '@playwright/test'
+import { collectErrors, desktopOnly, loginAsNewStudent } from './support'
 
 test('兒童課程地圖由資料庫讀取', async ({ page }) => {
   const res = page.waitForResponse((r) => r.url().endsWith('/api/courses/kids/map'))
@@ -27,4 +28,25 @@ test('網頁怎麼運作的課程地圖由資料庫讀取', async ({ page }) => 
   await expect(row('1.2')).toContainText('登入後學習')
   await expect(row('1.3')).toContainText('規劃中')
   await expect(row('1.3').getByRole('link')).toHaveCount(0)
+})
+
+// 序章三課已開放:第一課不用登入,其他課登入後能上;腳本載入後整課拖到底都不出錯
+test('從做好到上線:序章第一課免費預覽、其他課要登入,三課都播得動', async ({ page }, info) => {
+  test.skip(desktopOnly(info), '只在桌面版測一次')
+  const errors = collectErrors(page)
+  const slider = () => page.getByRole('slider', { name: '播放進度' }).first()
+  const playToEnd = async (path: string) => {
+    await page.goto(path)
+    await expect(slider()).not.toHaveAttribute('aria-valuemax', '0', { timeout: 15_000 })
+    await slider().focus()
+    await page.keyboard.press('End')
+    await expect(page.getByText('找不到')).toHaveCount(0)
+  }
+  await playToEnd('/topics/launch/0-1')
+  await page.goto('/topics/launch/0-2')
+  await expect(page.getByRole('link', { name: /登入/ }).first()).toBeVisible()
+  await loginAsNewStudent(page)
+  await playToEnd('/topics/launch/0-2')
+  await playToEnd('/topics/launch/0-3')
+  expect(errors).toEqual([])
 })

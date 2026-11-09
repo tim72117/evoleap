@@ -1,0 +1,54 @@
+/* 演員 fc1-terminal:通用的終端機視窗。選擇器都以 .A-fc1-terminal 開頭。
+   動畫一律由 actor.ts 依時間設定,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-fc1-terminal {
+  width: 100%; height: 100%;
+  font-size: 24px;
+  color: #e6e8eb;
+}
+.A-fc1-terminal *, .A-fc1-terminal *::before, .A-fc1-terminal *::after { box-sizing: border-box; }
+.A-fc1-terminal .ft-window {
+  height: 100%;
+  display: flex; flex-direction: column;
+  background: #1c1f24;
+  border-radius: 0.7em;
+  box-shadow: 0 1.2em 3em rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 1px solid #333840;
+}
+.A-fc1-terminal.win .ft-window { background: #0f1b2d; border-color: #24364f; border-radius: 0.35em; }
+.A-fc1-terminal .ft-bar {
+  display: flex; align-items: center; gap: 0.45em;
+  padding: 0.55em 0.8em;
+  background: #2a2e35; color: #aab0b8;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 0.8em;
+}
+.A-fc1-terminal.win .ft-bar { background: #1a2a42; flex-direction: row-reverse; justify-content: flex-start; }
+.A-fc1-terminal .ft-dot { width: 0.8em; height: 0.8em; border-radius: 50%; background: #4a4f57; }
+.A-fc1-terminal.win .ft-dot { border-radius: 0; width: 0.9em; height: 0.15em; background: #8392a8; }
+.A-fc1-terminal .ft-title { margin-left: 0.6em; }
+.A-fc1-terminal.win .ft-title { margin-left: 0; margin-right: auto; }
+.A-fc1-terminal .ft-screen {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0.7em 0.9em 0.9em;
+  overflow: hidden;
+  font-family: "SF Mono", Menlo, Consolas, "Noto Sans Mono", "Noto Sans TC", monospace;
+  line-height: 1.45;
+}
+.A-fc1-terminal.embed .ft-window { border-radius: 0; box-shadow: none; border: 0; }
+.A-fc1-terminal.embed .ft-bar { display: none; }
+.A-fc1-terminal .ft-log { display: flex; flex-direction: column; gap: 0.15em; }
+.A-fc1-terminal .ft-line { white-space: pre-wrap; word-break: break-all; }
+.A-fc1-terminal .ft-prompt { color: #7fd1a8; font-weight: 600; }
+.A-fc1-terminal.win .ft-prompt { color: #e9d36b; font-weight: 400; }
+.A-fc1-terminal .ft-out { white-space: pre-wrap; word-break: break-all; color: #c9ced6; }
+.A-fc1-terminal .ft-out.err { color: #ff8a80; }
+.A-fc1-terminal .ft-out.ok { color: #8be39b; }
+.A-fc1-terminal .ft-out.dim { color: #7d848e; }
+.A-fc1-terminal .ft-key { color: #f3c969; font-size: 0.8em; }
+.A-fc1-terminal .ft-caret {
+  display: inline-block; width: 0.55em; height: 1.1em; vertical-align: -0.18em;
+  background: #e6e8eb;
+}
+.A-fc1-terminal .ft-caret.off { opacity: 0; }

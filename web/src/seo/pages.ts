@@ -10,7 +10,8 @@ import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath } from
 import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
 import { KIDS_OPEN_LESSONS, KIDS_UNITS, kidsLessonTitle } from '../content/kidsCourse'
-import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, kidsLessonDocTitle, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC, webLessonDocTitle } from '../content/topics'
+import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, kidsLessonDocTitle, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC, webLessonDocTitle } from '../content/topics'
+import { LAUNCH_LESSON_PAGES, launchLesson, launchLessonPath } from '../content/launchCourse'
 import { WEB_OPEN_LESSONS, WEB_UNITS, webLesson } from '../content/webCourse'
 
 type JsonLd = Record<string, unknown>
@@ -293,6 +294,28 @@ const ADMIN_PAGE: PageMeta = {
   noindex: true,
 }
 
+/** 主題「從做好到上線」(序章開放中):課程地圖頁與有課程頁的課;課還是草稿時訪客看到「還沒開放」 */
+const LAUNCH_PAGES: PageMeta[] = [
+  {
+    path: LAUNCH_TOPIC.path,
+    title: documentTitle(LAUNCH_TOPIC.seoTitle),
+    description: LAUNCH_TOPIC.description,
+    sitemapPriority: 0.3,
+    jsonLd: [breadcrumb([LAUNCH_TOPIC.name, LAUNCH_TOPIC.path])],
+  },
+  ...LAUNCH_LESSON_PAGES.map((id) => {
+    const lesson = launchLesson(id)
+    const title = lesson?.title ?? id
+    return {
+      path: launchLessonPath(id),
+      title: documentTitle(`${title}｜${LAUNCH_TOPIC.name}`),
+      description: lesson?.learn ?? LAUNCH_TOPIC.description,
+      sitemapPriority: 0.2,
+      jsonLd: [breadcrumb([LAUNCH_TOPIC.name, LAUNCH_TOPIC.path], [title, launchLessonPath(id)])],
+    }
+  }),
+]
+
 /** 展示頁(home/ShowcasePage.tsx):首頁拿掉的影片預覽搬到這裡當行銷頁;站內沒有連結,公開頁一律收錄(pages.test.ts) */
 const SHOWCASE_PAGE: PageMeta = {
   path: '/showcase',
@@ -311,6 +334,7 @@ export const PAGES: PageMeta[] = [
   ...KIDS_LESSON_PAGES,
   WEB_TOPIC_PAGE,
   ...WEB_LESSON_PAGES,
+  ...LAUNCH_PAGES,
   SHOWCASE_PAGE,
   AI_AGENT_COURSE,
   ...COURSE_PAGES,

@@ -11,8 +11,10 @@ export type MapLesson = {
   summary: string
   /** 實際的存取方式(伺服器已套用這門課的預設) */
   access: CourseAccess
-  /** open:已開放;planned:規劃中 */
-  status: 'open' | 'planned'
+  /** open:已開放;draft:草稿(只有管理員會拿到,其他人看到的是 planned);planned:規劃中 */
+  status: 'open' | 'draft' | 'planned'
+  /** 課程頁要播的腳本(src/content/live/ 底下的路徑);看得到這一課的人才有,暫時記在課程資料裡 */
+  script?: string
 }
 export type MapUnit = {
   id: string
@@ -31,7 +33,7 @@ export async function fetchCourseMap(id: string): Promise<CourseMap> {
 
 export type CourseMapState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; map: CourseMap }
 
-/** 讀一門課的課程地圖;讀不到時是 error(畫面提示稍後再試) */
+/** 讀一門課的課程地圖;讀不到時是 error(畫面提示稍後再試)。草稿的課只有管理員拿得到(伺服器依登入的人決定) */
 export function useCourseMap(id: string): CourseMapState {
   const [state, setState] = useState<CourseMapState>({ status: 'loading' })
   useEffect(() => {

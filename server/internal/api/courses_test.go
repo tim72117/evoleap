@@ -29,3 +29,29 @@ func TestCourseMapWithoutAuth(t *testing.T) {
 		t.Errorf("no store: %d", rec.Code)
 	}
 }
+
+// 草稿的課:訪客看到規劃中、沒有腳本;管理員(本機 -open-studio)看得到草稿與腳本;有草稿的課不快取
+func TestCourseMapDrafts(t *testing.T) {
+	st := openTestStore(t)
+	if err := st.ReplaceUnitsJSON("tools", `[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"draft","script":"x/0.1.json"}]}]`); err != nil {
+		t.Fatal(err)
+	}
+	guest := call(New(Config{Store: st}).Routes(), http.MethodGet, "/api/courses/tools/map", "", nil)
+	if guest.Code != http.StatusOK || strings.Contains(guest.Body.String(), `"draft"`) || strings.Contains(guest.Body.String(), "launch/1.1.json") {
+		t.Fatalf("guest: %d %s", guest.Code, guest.Body)
+	}
+	if cc := guest.Header().Get("Cache-Control"); cc != "private, no-store" {
+		t.Errorf("guest cache: %q", cc)
+	}
+	admin := call(New(Config{Store: st, OpenAdmin: true}).Routes(), http.MethodGet, "/api/courses/tools/map", "", nil)
+	if !strings.Contains(admin.Body.String(), `"status":"draft","script":"x/0.1.json"`) {
+		t.Fatalf("admin: %s", admin.Body)
+	}
+	if cc := admin.Header().Get("Cache-Control"); cc != "private, no-store" {
+		t.Errorf("admin cache: %q", cc)
+	}
+	// 沒有草稿的課照舊可以共用快取
+	if cc := call(New(Config{Store: st}).Routes(), http.MethodGet, "/api/courses/web/map", "", nil).Header().Get("Cache-Control"); cc != "public, max-age=60" {
+		t.Errorf("web cache: %q", cc)
+	}
+}

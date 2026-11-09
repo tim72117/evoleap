@@ -4,8 +4,9 @@ import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
 import { adminApi, type AdminOverview, type AdminUser, type Count, type AdminRange, type GuestVisit, type HomePath, type HomeStay, type LessonStat, type LoginStats, type UserProgress } from './api'
-import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
+import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
+import { LAUNCH_LESSON_PAGES, launchLessonPath, launchScriptKey } from '../content/launchCourse'
 import { WEB_OPEN_LESSONS } from '../content/webCourse'
 import { ADMIN_PATH } from './paths'
 import { formatDateTime, formatDuration, percentOf } from './format'
@@ -336,10 +337,14 @@ const PAGE_NAME: Record<string, string> = {
   [CLAUDE_CODE_TOPIC.path]: `${CLAUDE_CODE_TOPIC.name}（地圖）`,
   [KIDS_TOPIC.path]: `${KIDS_TOPIC.name}（地圖）`,
   [WEB_TOPIC.path]: `${WEB_TOPIC.name}（地圖）`,
+  [LAUNCH_TOPIC.path]: `${LAUNCH_TOPIC.name}（地圖）`,
+  // 這幾課還沒開放時,訪客看到的是提示頁(LaunchLessonPage 的 Notice),記成 page:<網址>
+  ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [launchLessonPath(id), `上線課 ${id}（還沒開放）`])),
 }
 const LESSON_NAME: Record<string, string> = {
   ...Object.fromEntries(Object.entries(WEB_OPEN_LESSONS).map(([id, l]) => [`live:${l.script}`, `網頁課 ${id}`])),
   ...Object.fromEntries(Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => [`kids:${l.script}`, `兒童課 ${id}`])),
+  ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [launchScriptKey(id), `上線課 ${id}`])),
 }
 
 /** 路徑上的一站 → 後台顯示的名稱 */

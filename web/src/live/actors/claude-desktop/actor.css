@@ -229,6 +229,8 @@
 .A-claude-desktop .ask .preview {
   margin: 0.3em 0.9em; padding: 0.5em 0.8em; border-left: 3px solid var(--line);
   color: var(--dim); font-size: 0.95em;
+  /* 預覽常是多行程式碼或檔案內容:保留換行與縮排 */
+  white-space: pre-wrap;
 }
 .A-claude-desktop .ask .note { margin: 0.2em 0.9em; color: var(--del-fg); font-size: 0.9em; }
 .A-claude-desktop .ask .opt.hov { border-color: var(--fg); color: var(--fg); }

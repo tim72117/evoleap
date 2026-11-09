@@ -1,0 +1,114 @@
+/* 演員 fc3-flow:流程圖解。選擇器都以 .A-fc3-flow 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-fc3-flow {
+  position: relative;
+  width: 100%; height: 100%;
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 24px;
+  color: #1f2a37;
+}
+.A-fc3-flow *, .A-fc3-flow *::before, .A-fc3-flow *::after { box-sizing: border-box; }
+.A-fc3-flow .fl-board {
+  position: absolute; inset: 0;
+  display: flex;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(31, 42, 55, 0.08) 1px, transparent 1.5px) 0 0 / 28px 28px,
+    linear-gradient(180deg, #fbfaf7, #f3f1ea);
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16), inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+.A-fc3-flow .fl-title {
+  position: absolute; left: 30px; top: 22px; z-index: 3;
+  font-size: 0.95em; font-weight: 700; color: #475569;
+  letter-spacing: 0.04em;
+}
+.A-fc3-flow .fl-area { position: relative; flex: 1; height: 100%; }
+.A-fc3-flow .fl-wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.A-fc3-flow .fl-wires line { stroke: #94a3b8; stroke-width: 4; stroke-linecap: round; fill: none; }
+.A-fc3-flow .fl-wires line.dash { stroke-dasharray: 10 10; }
+.A-fc3-flow .fl-wires line.cut { stroke: #dc2626; }
+.A-fc3-flow .fl-wires line.flow { stroke-width: 8; stroke: #2563eb; }
+.A-fc3-flow .fl-wires line.flow[data-tone="ok"] { stroke: #16a34a; }
+.A-fc3-flow .fl-wires line.flow[data-tone="bad"] { stroke: #dc2626; }
+.A-fc3-flow .fl-wires line.flow[data-tone="warn"] { stroke: #d97706; }
+.A-fc3-flow .fl-wires line.flow[data-tone="key"] { stroke: #7c3aed; }
+.A-fc3-flow .fl-wires line.flow[data-tone="data"] { stroke: #0d9488; }
+
+.A-fc3-flow .fl-node {
+  position: absolute;
+  width: 230px; min-height: 150px;
+  padding: 16px 14px 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: #ffffff;
+  border: 3px solid #cbd5e1;
+  border-radius: 20px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+  text-align: center;
+  z-index: 2;
+}
+.A-fc3-flow .fl-ring { position: absolute; inset: -10px; border-radius: 26px; border: 5px solid #2563eb; opacity: 0; pointer-events: none; }
+.A-fc3-flow .fl-ic { width: 64px; height: 64px; color: #334155; }
+.A-fc3-flow .fl-ic svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.A-fc3-flow .fl-lb { font-weight: 800; font-size: 1em; line-height: 1.25; }
+.A-fc3-flow .fl-sub { font-size: 0.72em; color: #64748b; line-height: 1.25; }
+.A-fc3-flow .fl-st { font-size: 0.72em; font-weight: 700; color: #1d4ed8; line-height: 1.3; min-height: 0; }
+.A-fc3-flow .fl-st:empty { display: none; }
+.A-fc3-flow .fl-node[data-tone="ok"] { border-color: #16a34a; background: #f0fdf4; }
+.A-fc3-flow .fl-node[data-tone="ok"] .fl-ic, .A-fc3-flow .fl-node[data-tone="ok"] .fl-st { color: #15803d; }
+.A-fc3-flow .fl-node[data-tone="bad"] { border-color: #dc2626; background: #fef2f2; }
+.A-fc3-flow .fl-node[data-tone="bad"] .fl-ic, .A-fc3-flow .fl-node[data-tone="bad"] .fl-st { color: #b91c1c; }
+.A-fc3-flow .fl-node[data-tone="warn"] { border-color: #d97706; background: #fffbeb; }
+.A-fc3-flow .fl-node[data-tone="warn"] .fl-ic, .A-fc3-flow .fl-node[data-tone="warn"] .fl-st { color: #b45309; }
+.A-fc3-flow .fl-node[data-tone="key"] { border-color: #7c3aed; background: #f5f3ff; }
+.A-fc3-flow .fl-node[data-tone="key"] .fl-ic, .A-fc3-flow .fl-node[data-tone="key"] .fl-st { color: #6d28d9; }
+.A-fc3-flow .fl-node[data-tone="data"], .A-fc3-flow .fl-node[data-tone="req"] { border-color: #0d9488; background: #f0fdfa; }
+.A-fc3-flow .fl-node[data-tone="data"] .fl-ic, .A-fc3-flow .fl-node[data-tone="req"] .fl-ic { color: #0f766e; }
+
+.A-fc3-flow .fl-tag, .A-fc3-flow .fl-packet {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace, "PingFang TC";
+  font-size: 0.7em; font-weight: 700;
+  white-space: nowrap;
+  background: #dbeafe; color: #1e3a8a; border: 2px solid #93c5fd;
+  z-index: 3;
+}
+.A-fc3-flow .fl-packet {
+  z-index: 4; display: none; align-items: center; gap: 8px;
+  font-size: 0.78em;
+  background: #2563eb; color: #fff; border-color: #1d4ed8;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+}
+.A-fc3-flow .fl-packet::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: #fff; opacity: 0.85; }
+.A-fc3-flow [data-tone="ok"].fl-tag { background: #dcfce7; color: #14532d; border-color: #86efac; }
+.A-fc3-flow [data-tone="bad"].fl-tag { background: #fee2e2; color: #7f1d1d; border-color: #fca5a5; }
+.A-fc3-flow [data-tone="warn"].fl-tag { background: #fef3c7; color: #78350f; border-color: #fcd34d; }
+.A-fc3-flow [data-tone="key"].fl-tag { background: #ede9fe; color: #4c1d95; border-color: #c4b5fd; }
+.A-fc3-flow [data-tone="data"].fl-tag { background: #ccfbf1; color: #134e4a; border-color: #5eead4; }
+.A-fc3-flow [data-tone="ok"].fl-packet { background: #16a34a; border-color: #15803d; box-shadow: 0 8px 20px rgba(22, 163, 74, 0.35); }
+.A-fc3-flow [data-tone="bad"].fl-packet { background: #dc2626; border-color: #b91c1c; box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35); }
+.A-fc3-flow [data-tone="warn"].fl-packet { background: #d97706; border-color: #b45309; box-shadow: 0 8px 20px rgba(217, 119, 6, 0.35); }
+.A-fc3-flow [data-tone="key"].fl-packet { background: #7c3aed; border-color: #6d28d9; box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35); }
+.A-fc3-flow [data-tone="data"].fl-packet { background: #0d9488; border-color: #0f766e; box-shadow: 0 8px 20px rgba(13, 148, 136, 0.35); }
+
+.A-fc3-flow .fl-log {
+  width: 30%; height: 100%;
+  display: flex; flex-direction: column;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+}
+.A-fc3-flow .fl-log-h { padding: 22px 22px 12px; font-weight: 800; font-size: 0.9em; color: #334155; border-bottom: 1px solid #e2e8f0; }
+.A-fc3-flow .fl-rows { flex: 1; overflow: hidden; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+.A-fc3-flow .fl-row { display: flex; gap: 12px; padding: 10px 12px; border-radius: 12px; background: #f8fafc; border-left: 6px solid #2563eb; }
+.A-fc3-flow .fl-row .n { font-weight: 800; color: #94a3b8; font-size: 0.75em; padding-top: 2px; }
+.A-fc3-flow .fl-row .who { font-size: 0.66em; color: #64748b; }
+.A-fc3-flow .fl-row .what { font-family: ui-monospace, "SF Mono", Menlo, monospace, "PingFang TC"; font-size: 0.72em; font-weight: 700; color: #0f172a; word-break: break-all; }
+.A-fc3-flow .fl-row .note { font-size: 0.64em; color: #475569; margin-top: 2px; }
+.A-fc3-flow .fl-row[data-tone="ok"] { border-left-color: #16a34a; }
+.A-fc3-flow .fl-row[data-tone="bad"] { border-left-color: #dc2626; }
+.A-fc3-flow .fl-row[data-tone="warn"] { border-left-color: #d97706; }
+.A-fc3-flow .fl-row[data-tone="key"] { border-left-color: #7c3aed; }
+.A-fc3-flow .fl-row[data-tone="data"] { border-left-color: #0d9488; }

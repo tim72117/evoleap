@@ -407,5 +407,268 @@
         ]
       }
     ]
+  },
+  {
+    "id": "launch",
+    "title": "從做好到上線",
+    "access": "login-free",
+    "units": [
+      {
+        "id": "0",
+        "title": "序章　上線前準備",
+        "subtitle": "自己電腦上的作品和網路上的服務，差在哪裡？",
+        "lessons": [
+          {
+            "id": "0.1",
+            "title": "本機與網路上",
+            "summary": "看懂 localhost 和網址的差別，知道作品現在只有自己看得到。",
+            "access": "free",
+            "status": "open",
+            "script": "launch/0.1.json"
+          },
+          {
+            "id": "0.2",
+            "title": "上線前要想清楚的事",
+            "summary": "放哪裡、用什麼網址、資料存哪、秘密怎麼保管，先想清楚再動手。",
+            "status": "open",
+            "script": "launch/0.2.json"
+          },
+          {
+            "id": "0.3",
+            "title": "哪些檔案絕不能 commit：.gitignore",
+            "summary": "推上 GitHub 前，先把金鑰和不該公開的檔案排除。",
+            "status": "open",
+            "script": "launch/0.3.json"
+          }
+        ]
+      },
+      {
+        "id": "1",
+        "title": "單元 1　先讓別人打得開",
+        "subtitle": "怎麼讓作品有一個別人連得到、屬於自己的網址？",
+        "lessons": [
+          {
+            "id": "1.1",
+            "title": "環境變數與設定",
+            "summary": "把寫死的金鑰與網址搬進設定檔，本機和正式站各用各的。",
+            "status": "planned"
+          },
+          {
+            "id": "1.2",
+            "title": "部署到 GitHub Pages",
+            "summary": "拿到第一個可以分享的公開網址，之後推上去就自動更新。",
+            "status": "planned"
+          },
+          {
+            "id": "1.3",
+            "title": "HTTPS 與快取",
+            "summary": "網址有鎖頭，更新後馬上看得到新版。",
+            "status": "planned"
+          },
+          {
+            "id": "1.4",
+            "title": "網域是什麼、怎麼挑",
+            "summary": "比較網域名稱、網域商與續約價，選好自己的網域。",
+            "status": "planned"
+          },
+          {
+            "id": "1.5",
+            "title": "買網域",
+            "summary": "買下網域，確認自動續約與隱私保護都設好。",
+            "status": "planned"
+          },
+          {
+            "id": "1.6",
+            "title": "DNS 紀錄入門",
+            "summary": "看懂網域的 DNS 紀錄各在做什麼。",
+            "status": "planned"
+          },
+          {
+            "id": "1.7",
+            "title": "把網域接到網站",
+            "summary": "用自己的網域打開網站。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "title": "單元 2　會記住資料的服務",
+        "subtitle": "使用者填的資料要存在哪裡，才不會不見？",
+        "lessons": [
+          {
+            "id": "2.1",
+            "title": "前端、後端與 API",
+            "summary": "分出畫面和伺服器各自負責的事，知道什麼時候需要後端。",
+            "status": "planned"
+          },
+          {
+            "id": "2.2",
+            "title": "什麼時候需要資料庫",
+            "summary": "依自己的作品選定資料庫，說得出理由。",
+            "status": "planned"
+          },
+          {
+            "id": "2.3",
+            "title": "建立帳號與專案",
+            "summary": "開好雲端帳號與專用的專案。",
+            "status": "planned"
+          },
+          {
+            "id": "2.4",
+            "title": "先設預算警示",
+            "summary": "費用超過預算就收到通知，不怕突然來一筆大帳單。",
+            "status": "planned"
+          },
+          {
+            "id": "2.5",
+            "title": "用 Docker 打包",
+            "summary": "把後端打包成容器，在自己電腦上先跑起來。",
+            "status": "planned"
+          },
+          {
+            "id": "2.6",
+            "title": "部署到 Cloud Run",
+            "summary": "後端放上雲端，拿到打得開的網址。",
+            "status": "planned"
+          },
+          {
+            "id": "2.7",
+            "title": "雲端資料庫 Cloud SQL",
+            "summary": "正式站的資料存在雲端資料庫，有自動備份。",
+            "status": "planned"
+          },
+          {
+            "id": "2.8",
+            "title": "機密放進 Secret Manager",
+            "summary": "正式站的金鑰都由雲端保管，程式和 GitHub 上都沒有。",
+            "status": "planned"
+          },
+          {
+            "id": "2.9",
+            "title": "用 Google 帳號登入",
+            "summary": "使用者用 Google 帳號就能註冊登入，不用自己保管密碼。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "title": "單元 3　放心讓別人用",
+        "subtitle": "別人能看到什麼？用的人變多會發生什麼事？",
+        "lessons": [
+          {
+            "id": "3.1",
+            "title": "機密不外洩",
+            "summary": "掃描程式與紀錄裡的金鑰，也準備好外洩時的更換步驟。",
+            "status": "planned"
+          },
+          {
+            "id": "3.2",
+            "title": "常見攻擊與防護",
+            "summary": "擋下最常見的攻擊，每一項都有測試證明。",
+            "status": "planned"
+          },
+          {
+            "id": "3.3",
+            "title": "串接第三方 API",
+            "summary": "用到 AI 或其他服務時，金鑰放在後端，也知道用量上限在哪。",
+            "status": "planned"
+          },
+          {
+            "id": "3.4",
+            "title": "上線前請 AI 做安全審查",
+            "summary": "請另一個 AI 從頭審查一次，修好再上線。",
+            "status": "planned"
+          },
+          {
+            "id": "3.5",
+            "title": "隱私權政策與服務條款",
+            "summary": "依網站實際收集的資料，寫出隱私權政策與服務條款。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "title": "單元 4　收費與通知",
+        "subtitle": "怎麼收錢、怎麼通知使用者？",
+        "lessons": [
+          {
+            "id": "4.1",
+            "title": "選金流服務",
+            "summary": "依商品與所在地比較金流，選定一家並備好開通資料。",
+            "status": "planned"
+          },
+          {
+            "id": "4.2",
+            "title": "用測試模式串接結帳",
+            "summary": "先用測試卡號跑通付款流程，再切換成正式收款。",
+            "status": "planned"
+          },
+          {
+            "id": "4.3",
+            "title": "用 webhook 同步訂閱狀態",
+            "summary": "付款、取消訂閱後，會員權限自動跟著改。",
+            "status": "planned"
+          },
+          {
+            "id": "4.4",
+            "title": "寄信服務與寄件網域驗證",
+            "summary": "寄出去的信不會被當成垃圾信。",
+            "status": "planned"
+          },
+          {
+            "id": "4.5",
+            "title": "交易信：註冊確認與重設密碼",
+            "summary": "寄出註冊確認信與重設密碼信。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "5",
+        "title": "單元 5　上線之後",
+        "subtitle": "出問題時，怎麼比使用者先知道、先處理？",
+        "lessons": [
+          {
+            "id": "5.1",
+            "title": "推送標籤才部署",
+            "summary": "發版時推一個標籤，自動測試、自動部署。",
+            "status": "planned"
+          },
+          {
+            "id": "5.2",
+            "title": "讀雲端紀錄",
+            "summary": "使用者說壞了，知道去哪裡查最近的錯誤。",
+            "status": "planned"
+          },
+          {
+            "id": "5.3",
+            "title": "只在正式環境發生的錯誤",
+            "summary": "本機好好的、正式站卻壞了，找出兩邊的差別。",
+            "status": "planned"
+          },
+          {
+            "id": "5.4",
+            "title": "網站掛了會通知",
+            "summary": "網站打不開時，幾分鐘內收到通知。",
+            "status": "planned"
+          },
+          {
+            "id": "5.5",
+            "title": "上線後出問題：退版",
+            "summary": "新版出錯時，快速切回上一個正常的版本。",
+            "status": "planned"
+          },
+          {
+            "id": "5.6",
+            "title": "備份與還原演練",
+            "summary": "真的從備份把資料救回來一次，出事時才不慌。",
+            "status": "planned"
+          }
+        ]
+      }
+    ]
   }
 ]

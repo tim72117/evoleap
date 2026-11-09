@@ -42,8 +42,8 @@ func TestCoursesSeededOnOpen(t *testing.T) {
 	defer st.Close()
 	var n int64
 	st.db.Model(&courseRow{}).Count(&n)
-	if n != 7 {
-		t.Errorf("courses: want 7, got %d", n)
+	if n != 8 {
+		t.Errorf("courses: want 8, got %d", n)
 	}
 }
 
@@ -53,7 +53,7 @@ func TestKidsCourseMap(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer st.Close()
-	m, err := st.CourseMapOf(context.Background(), "kids")
+	m, err := st.CourseMapOf(context.Background(), "kids", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,10 +68,10 @@ func TestKidsCourseMap(t *testing.T) {
 		t.Errorf("0.1 open: %+v", first[0])
 	}
 	// 沒有單元的課回空清單
-	if m, err := st.CourseMapOf(context.Background(), "tools"); err != nil || len(m.Units) != 0 {
+	if m, err := st.CourseMapOf(context.Background(), "tools", false); err != nil || len(m.Units) != 0 {
 		t.Errorf("tools: %+v %v", m, err)
 	}
-	if _, err := st.CourseMapOf(context.Background(), "nope"); !errors.Is(err, ErrCourseNotFound) {
+	if _, err := st.CourseMapOf(context.Background(), "nope", false); !errors.Is(err, ErrCourseNotFound) {
 		t.Errorf("nope: %v", err)
 	}
 }
@@ -82,7 +82,7 @@ func TestWebCourseMap(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer st.Close()
-	m, err := st.CourseMapOf(context.Background(), "web")
+	m, err := st.CourseMapOf(context.Background(), "web", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,5 +106,57 @@ func TestWebCourseMap(t *testing.T) {
 		if open[id] != a {
 			t.Errorf("%s: want %q, got %q", id, a, open[id])
 		}
+	}
+}
+
+// 草稿的課只有管理員看得到狀態與腳本路徑;其他人看到的是規劃中、沒有腳本
+func TestDraftLessonsGate(t *testing.T) {
+	st, err := Open(filepath.Join(t.TempDir(), "test.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	units := []unitSeed{{ID: "0", Lessons: []lessonSeed{{ID: "0.1", Status: LessonDraft, Script: "x/0.1.json"}, {ID: "0.2", Status: LessonOpen, Script: "x/0.2.json"}}}}
+	if err := syncUnits(st.db, "launch", units); err != nil {
+		t.Fatal(err)
+	}
+	lessons := func(drafts bool) []MapLesson {
+		m, err := st.CourseMapOf(context.Background(), "launch", drafts)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !m.HasDrafts() {
+			t.Fatalf("drafts=%v:應該有草稿", drafts)
+		}
+		return m.Units[0].Lessons
+	}
+	if l := lessons(true)[0]; l.Status != LessonDraft || l.Script != "x/0.1.json" {
+		t.Errorf("管理員看得到草稿與腳本: %+v", l)
+	}
+	l := lessons(false)
+	if l[0].Status != LessonPlanned || l[0].Script != "" {
+		t.Errorf("其他人看到規劃中、沒有腳本: %+v", l[0])
+	}
+	if l[1].Status != LessonOpen || l[1].Script != "x/0.2.json" {
+		t.Errorf("開放的課每個人都拿得到腳本: %+v", l[1])
+	}
+	if m, _ := st.CourseMapOf(context.Background(), "web", true); m.HasDrafts() {
+		t.Error("web 沒有草稿")
+	}
+}
+
+func TestSeedRejectsPlannedScript(t *testing.T) {
+	st, err := Open(filepath.Join(t.TempDir(), "test.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	bad := []unitSeed{{ID: "0", Lessons: []lessonSeed{{ID: "0.1", Status: LessonPlanned, Script: "x.json"}}}}
+	if err := syncUnits(st.db, "launch", bad); err == nil {
+		t.Error("規劃中的課有 script 應該報錯")
+	}
+	bad[0].Lessons[0] = lessonSeed{ID: "0.1", Status: "hidden"}
+	if err := syncUnits(st.db, "launch", bad); err == nil {
+		t.Error("不認得的 status 應該報錯")
 	}
 }
