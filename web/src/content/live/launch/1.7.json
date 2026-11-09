@@ -1,0 +1,404 @@
+{
+  "title": "把網域接到網站",
+  "lesson": "從做好到上線 · 單元 1 · 1.7",
+  "camera": "auto",
+  "teacher": {
+    "say": "用自己的網域打開網站",
+    "line": "今天把網域接到網站。GitHub 這邊的設定和檢查交給 AI，網域商後台由你登入、照著貼，最後你自己打開網址確認。"
+  },
+  "blocking": { "cast": ["flow", "claude", "web"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "電話簿現在指到哪裡",
+        "nodes": {
+          "domain": { "label": "xiaosen-bakery.example", "sub": "你的網域", "icon": "globe", "x": 24, "y": 50 },
+          "parking": { "label": "停放頁", "sub": "網域商的佔位網頁", "icon": "store", "x": 76, "y": 18 },
+          "pages": { "label": "GitHub Pages", "sub": "你的網站", "icon": "cloud", "x": 76, "y": 50 },
+          "mail": { "label": "信件轉寄", "sub": "MX、TXT", "icon": "mail", "x": 76, "y": 82 }
+        },
+        "links": [["domain", "parking"], ["domain", "mail"]]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "接上網域",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v6", "width": "desktop", "url": "https://xiaosen-bakery.example/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "把網域接到網站",
+      "eyebrow": "從做好到上線 · 單元 1 · 1.7",
+      "sub": "你交代目標 → AI 設定、給值 → 你在後台照貼 → AI 查到生效 → 你自己打開",
+      "chapter": "網址太長，打不出來",
+      "narration": "網站上線了，網域也買了。阿哲又傳訊息來。"
+    },
+    {
+      "show": "phone",
+      "on": "phone",
+      "receive": "小森烘焙的網址好長，我媽打不出來。你不是買了網域嗎？",
+      "from": "阿哲"
+    },
+    {
+      "on": "phone",
+      "reply": "對！今天就接上去。",
+      "narration": "今天就把它接上去。"
+    },
+    { "hide": "phone" },
+    {
+      "show": "flow",
+      "chapter": "要改電話簿的哪裡",
+      "narration": "上一課看過電話簿。現在網域的 A 和 www，都指到網域商的停放頁。"
+    },
+    {
+      "callout": "flow:node:pages",
+      "text": "今天要把線接到這裡",
+      "narration": "今天要做的，就是把線從停放頁換到 GitHub Pages。信件那條線，不要動。"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "交代目標，和怎樣算完成" },
+    {
+      "on": "claude",
+      "user": "幫我把 xiaosen-bakery.example 和 www 接到這個專案的 GitHub Pages 網站。\n網域商後台你碰不到，也不需要我的密碼：請先查託管平台的官方文件，逐筆告訴我要刪哪些、新增哪些（類型、名稱、值），還有哪些不要動。要改 GitHub 上的設定時，先停下來問我。\n我填好之後，你自己查到生效才停。\n完成的標準：兩個網址都回 200，頁面看得到「小森烘焙」，樣式正常，HTTPS 憑證有效，打 http 會轉到 https。",
+      "narration": "和之前一樣：目標、什麼時候要問你，還有怎樣算完成。這次多一件事：後台的分工要先講清楚。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "後台由你填，檢查交給 AI，密碼不用給它",
+      "narration": "網域商後台要登入你的帳號，所以由你自己操作。AI 負責給值，以及之後的檢查。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "vite.config.js",
+      "result": "讀了設定",
+      "out": "base: '/bakery/',",
+      "chapter": "AI 動手：GitHub 這邊",
+      "narration": "它先看專案。部署那一課加的 base，今天要改。"
+    },
+    {
+      "on": "claude",
+      "say": "我會做兩件事：在 GitHub 設定自訂網域，再把 `base` 改回 `/`。接上網域後，網站就在網址的最前面，不再多一段 `/bakery/`，不改的話圖片和樣式會找不到。\n\n**要你決定**：切換的這段時間，網站可能暫時打不開。舊紀錄的 TTL 是 3600，最久大約 1 小時。要現在開始嗎？",
+      "narration": "它發現一個容易漏掉的細節，也先告訴你：切換時網站可能暫時打不開。什麼時候做，由你決定。"
+    },
+    {
+      "on": "claude",
+      "user": "現在沒什麼人在用，開始吧。",
+      "narration": "小森烘焙現在沒什麼人在看，就現在做。"
+    },
+    {
+      "on": "claude",
+      "ask": "gh api -X PUT repos/your-name/bakery/pages -f cname=xiaosen-bakery.example",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "這會把 GitHub Pages 的自訂網域設成 xiaosen-bakery.example。",
+      "narration": "這會改 GitHub 上的設定，所以它停下來問你。網域拼對了，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh api -X PUT repos/your-name/bakery/pages -f cname=xiaosen-bakery.example",
+      "result": "完成"
+    },
+    {
+      "on": "claude",
+      "edit": "vite.config.js",
+      "lines": [
+        [1, " ", "import { defineConfig } from 'vite'"],
+        [3, " ", "export default defineConfig({"],
+        [4, "-", "  base: '/bakery/',"],
+        [4, "+", "  base: '/',"],
+        [5, " ", "})"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git add vite.config.js && git commit -m \"接上自己的網域：base 改回 /\" && git push && gh run watch --exit-status",
+      "result": "完成",
+      "out": "main -> main\n✓ main Deploy to GitHub Pages\n✓ deploy in 50s",
+      "narration": "推上去，它等部署跑完。GitHub 這邊好了，接下來是電話簿。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "docs.github.com：GitHub Pages 設定自訂網域",
+      "result": "讀完",
+      "out": "網域本身：A 紀錄，四筆 IP\nwww：CNAME，指到 your-name.github.io",
+      "chapter": "AI 給值，你來貼",
+      "narration": "要填的值，它去查官方文件，不是憑記憶。"
+    },
+    {
+      "on": "claude",
+      "say": "請到網域商的 **DNS 紀錄**頁面。這裡我碰不到，也不需要你的密碼。\n\n**刪除 2 筆**（停放頁）\n- `@` A `203.0.113.10`\n- `www` CNAME `parking.registrar-b.example`\n\n**新增 5 筆**（TTL 選 300）\n- `@` A `198.51.100.11`\n- `@` A `198.51.100.12`\n- `@` A `198.51.100.13`\n- `@` A `198.51.100.14`\n- `www` CNAME `your-name.github.io`\n\n**不要動**\n- MX、TXT、NS\n\n填完按儲存，再告訴我。",
+      "narration": "刪哪些、加哪些、哪些不要動，它逐筆列好。四個 IP 是四台主機，一台出問題還有別台，所以四筆都要填。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "這裡的 IP 是示範值，真正的值以託管平台的文件為準",
+      "narration": "這堂課的 IP 是教學用的示範值。你要填的值，以託管平台的文件為準，所以才請 AI 先查文件，再列給你。"
+    },
+    {
+      "card": "登入網域商 → 打開 DNS 紀錄頁\n照著貼：刪 2 筆、加 5 筆、按儲存",
+      "eyebrow": "這一步要你自己做",
+      "sub": "每家後台長得不太一樣，找不到就問 AI；密碼和驗證碼不要給它",
+      "chapter": "只有你能做：登入後台",
+      "narration": "這一步只有你能做。登入網域商，打開 DNS 紀錄頁，照 AI 給的值一筆一筆貼上，按儲存。每家後台長得不太一樣，找不到按鈕就問 AI。密碼和驗證碼，不要給它。"
+    },
+    {
+      "show": "flow",
+      "on": "flow",
+      "wire": ["domain", "parking"],
+      "cut": true,
+      "narration": "你按下儲存，電話簿就改了。通往停放頁的線斷了。"
+    },
+    {
+      "on": "flow",
+      "send": ["domain", "pages"],
+      "label": "A 四筆、www 別名",
+      "tone": "ok",
+      "narration": "新的線接到 GitHub Pages。"
+    },
+    {
+      "on": "flow",
+      "pulse": "mail",
+      "text": "沒有動",
+      "tone": "ok",
+      "narration": "信件那條線還在，因為你沒有動 MX 和 TXT。"
+    },
+    { "hide": "flow" },
+    {
+      "on": "claude",
+      "user": "填好了，也按了儲存。請你查。",
+      "chapter": "AI 查到生效為止"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +short xiaosen-bakery.example A @ns1.registrar-b.example; dig +short www.xiaosen-bakery.example CNAME @ns1.registrar-b.example; dig +short xiaosen-bakery.example MX @ns1.registrar-b.example",
+      "result": "都對",
+      "out": "198.51.100.11\n198.51.100.12\n198.51.100.13\n198.51.100.14\nyour-name.github.io.\n10 mx.forward.registrar-b.example.",
+      "narration": "DNS 是公開資料，AI 不用登入，從外面就查得到。它直接問管電話簿的 NS：五筆都對，信件的紀錄也還在。"
+    },
+    {
+      "on": "claude",
+      "say": "你填的都對 ✓ MX 也還在。\n\n接下來要等兩件事：\n1. 各地的查詢站，等舊答案過期\n2. GitHub 替這個網域申請 HTTPS 憑證，要 DNS 生效後才發得下來\n\n我寫一個 `check-domain.sh`，每分鐘查一次，兩個都好了才停。",
+      "narration": "電話簿改好了，但大家不是直接問它，而是問附近的查詢站，像你家的網路、手機的行動網路。它們還記著舊答案，最久記到 TTL 用完。"
+    },
+    {
+      "on": "claude",
+      "ask": "check-domain.sh",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "#!/bin/bash\n# 每分鐘查一次 DNS 和 HTTPS，都好了才停"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "edit": "check-domain.sh",
+      "lines": [
+        [1, "+", "#!/bin/bash"],
+        [2, "+", "# 每分鐘查一次 DNS 和 HTTPS，都好了才停；最多查 120 次"],
+        [3, "+", "D=xiaosen-bakery.example; WANT=198.51.100.11"],
+        [4, "+", "for i in $(seq 1 120); do"],
+        [5, "+", "  ip=$(dig +short $D A @1.1.1.1 | sort | head -1)"],
+        [6, "+", "  code=$(curl -s -o /dev/null -w '%{http_code}' https://$D/)"],
+        [7, "+", "  echo \"[$i] DNS: $ip  HTTPS: $code\""],
+        [8, "+", "  [ \"$ip\" = \"$WANT\" ] && [ \"$code\" = 200 ] && { echo \"全部生效 ✓\"; exit 0; }"],
+        [9, "+", "  sleep 60"],
+        [10, "+", "done"],
+        [11, "+", "echo \"查了兩小時還沒好，停下來回報\"; exit 1"]
+      ],
+      "narration": "腳本做的事很單純：IP 對不對、HTTPS 打不打得開，兩個都對才停。查太久沒好，也會停下來回報。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bash check-domain.sh > check.log & sleep 360; tail -n 3 check.log",
+      "result": "還在查",
+      "out": "[4] DNS: 203.0.113.10  HTTPS: 000\n[5] DNS: 203.0.113.10  HTTPS: 000\n[6] DNS: 198.51.100.11  HTTPS: 000",
+      "narration": "跑了六分鐘。前幾次還是舊的停放頁，第六次，DNS 換成新的了。HTTPS 回 000，代表還連不上，憑證還沒好。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "網域接好了，你打開 xiaosen-bakery.example 看看",
+      "narration": "你等不及，先傳給阿哲。"
+    },
+    {
+      "on": "phone",
+      "receive": "怎麼寫「此網域由網域商代管」？是不是壞了？",
+      "from": "阿哲"
+    },
+    { "hide": "phone" },
+    {
+      "chapter": "換你判斷",
+      "checkpoint": "電話簿已經改好，阿哲卻還看到停放頁。這時候要怎麼做？",
+      "body": "AI 的腳本還在跑。選一個。",
+      "id": "wait-ttl",
+      "options": [
+        {
+          "label": "先不動，等腳本查到生效，再請他重新打開",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "換你判斷",
+              "sub": "他那邊的查詢站還記著舊答案，最久等一個 TTL；每個人看到的不一樣是正常的",
+              "narration": "答對了。他那邊的查詢站還記著舊答案，最久等一個 TTL。這段時間每個人看到的不一樣，是正常的。"
+            }
+          ]
+        },
+        {
+          "label": "到後台把五筆刪掉，重新填一次",
+          "steps": [
+            {
+              "card": "電話簿已經是對的",
+              "eyebrow": "再想想",
+              "sub": "重填不會讓別人更快忘記舊答案，還可能填錯；讓腳本繼續查",
+              "narration": "電話簿已經是對的。重填不會讓別人更快忘記舊答案，還可能填錯。讓腳本繼續查就好。"
+            }
+          ]
+        },
+        {
+          "label": "把網域商的密碼給 AI，讓它進後台檢查",
+          "steps": [
+            {
+              "card": "密碼不要給 AI",
+              "eyebrow": "千萬不要",
+              "sub": "也不需要：DNS 是公開資料，AI 從外面就查得到；等它查到生效就好",
+              "narration": "千萬不要。也不需要：DNS 是公開資料，AI 從外面就查得到。等它查到生效就好。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "先不動，等腳本查到生效",
+            "eyebrow": "答案",
+            "sub": "他那邊的查詢站還記著舊答案，最久等一個 TTL；不用重填，也不用給密碼",
+            "narration": "先不動，等腳本查到生效。他那邊的查詢站還記著舊答案，最久等一個 TTL。不用重填，也不用給密碼。"
+          }
+        ]
+      }
+    },
+    {
+      "show": "claude",
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "sleep 720; tail -n 3 check.log",
+      "result": "全部生效",
+      "out": "[17] DNS: 198.51.100.11  HTTPS: 000\n[18] DNS: 198.51.100.11  HTTPS: 200\n全部生效 ✓",
+      "chapter": "AI 自己驗證",
+      "narration": "第十八分鐘，HTTPS 也好了。順序一定是先 DNS 生效，憑證才發得下來。這段時間你什麼都不用做，也不用一直按重新整理。"
+    },
+    {
+      "on": "claude",
+      "ask": "gh api -X PUT repos/your-name/bakery/pages -F https_enforced=true",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "打開強制 HTTPS：打 http 的人會自動轉到 https。",
+      "narration": "憑證好了，打開強制 HTTPS，這樣打 http 的人也會轉到安全的網址。這也是 GitHub 上的設定，一樣先問你。"
+    },
+    { "on": "claude", "choose": 1, "narration": "允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh api -X PUT repos/your-name/bakery/pages -F https_enforced=true; curl -sI http://xiaosen-bakery.example/ | grep -iE '^(HTTP|location)'",
+      "result": "完成",
+      "out": "HTTP/1.1 301 Moved Permanently\nLocation: https://xiaosen-bakery.example/"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for u in https://xiaosen-bakery.example/ https://www.xiaosen-bakery.example/ https://your-name.github.io/bakery/; do curl -sL -o /dev/null -w '%{http_code} %{url_effective}\\n' $u; done",
+      "result": "都是 200",
+      "out": "200 https://xiaosen-bakery.example/\n200 https://xiaosen-bakery.example/\n200 https://xiaosen-bakery.example/",
+      "narration": "再照你給的標準查。網域、www 和舊網址，都回 200，最後都到同一個地方。之前傳出去的舊網址也不會壞。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s https://xiaosen-bakery.example/ | grep -oE '<title>[^<]*|href=\"[^\"]*\\.css\"'",
+      "result": "都對",
+      "out": "<title>小森烘焙｜預約取貨\nhref=\"/assets/index-a1b2c3.css\"",
+      "narration": "內容也對，標題是小森烘焙。樣式的路徑不再有 /bakery/。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ `https://xiaosen-bakery.example/` 打得開。\n\n**驗證**\n- 網域和 www 都回 **200**，舊網址也會轉過來\n- 標題是「小森烘焙｜預約取貨」，樣式路徑已更新\n- 用 https 連得上，代表憑證有效；http 會轉到 https\n- MX 紀錄還在\n\n`check-domain.sh` 留著，之後改 DNS 可以再用。請你也打開確認一次。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "好的回報：有網址，也有驗證的證據",
+      "narration": "一樣，好的回報會附上它怎麼確認的。"
+    },
+    {
+      "show": "web",
+      "chapter": "你自己打開看",
+      "narration": "AI 說好了還不夠，你要自己打開看一次。"
+    },
+    {
+      "callout": "web:addressbar",
+      "text": "你自己的網域，不再是 github.io",
+      "narration": "網址列是你自己的網域。沒有 github.io，也沒有 /bakery/。"
+    },
+    { "on": "web", "scroll": "products", "pause": 500, "narration": "往下看，商品和圖片都在，樣式也正常。" },
+    { "on": "web", "scroll": "top" },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "好了！再打開一次 xiaosen-bakery.example",
+      "narration": "再傳給阿哲。他那邊也換過來了。"
+    },
+    {
+      "on": "phone",
+      "receive": "打開了！這個網址我媽也打得出來。",
+      "from": "阿哲"
+    },
+    { "hide": "phone" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：接上你的網域",
+      "body": "對 AI 說：「幫我把（你的網域）和 www 接到這個專案的網站。網域商後台你碰不到，也不需要我的密碼：請先查託管平台的官方文件，附上連結，逐筆告訴我要刪哪些、新增哪些（類型、名稱、值），還有哪些不要動。要改平台上的設定時，先停下來問我。我填好之後，你自己查到生效才停。完成的標準：兩個網址都回 200，頁面看得到（你的網站名稱），樣式正常，HTTPS 憑證有效，打 http 會轉到 https。」接著自己登入網域商，照著貼、按儲存。生效後，用手機的行動網路打開確認；有用網域收信的話，寄一封測試信。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "用自己的網域打開網站。",
+      "eyebrow": "學會",
+      "sub": "自訂網域 · A 紀錄 · CNAME · 查詢站 · HTTPS 憑證 · 生效時間",
+      "chapter": "學會",
+      "narration": "今天學會：用自己的網域打開網站。AI 處理設定、給值、查到生效；你登入後台照貼，最後自己打開確認。單元 1 到這裡結束，你的作品有了別人打得開的網址。可是客人填的資料還沒有地方放。下一個單元「會記住資料的服務」，我們來解決這件事。"
+    }
+  ]
+}

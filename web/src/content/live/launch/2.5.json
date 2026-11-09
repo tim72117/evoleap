@@ -1,0 +1,360 @@
+{
+  "title": "用 Docker 打包",
+  "lesson": "從做好到上線 · 單元 2 · 2.5",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天把後端裝進便當盒",
+    "line": "今天請 AI 把後端打包成容器，在你的電腦上先跑起來。失敗了讓它讀錯誤再修。你負責安裝軟體、決定密碼怎麼給，最後自己試一筆預約。"
+  },
+  "blocking": { "cast": ["flow", "claude", "web", "term"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "從食譜到打開來跑",
+        "nodes": {
+          "recipe": { "label": "Dockerfile", "sub": "食譜：一步一步怎麼裝", "icon": "file", "x": 16, "y": 50 },
+          "image": { "label": "映像檔", "sub": "封好的便當", "icon": "lock", "x": 46, "y": 50 },
+          "local": { "label": "容器", "sub": "在你的電腦打開來跑", "icon": "browser", "x": 80, "y": 24 },
+          "cloud": { "label": "容器", "sub": "在雲端打開來跑", "icon": "cloud", "x": 80, "y": 76 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "用 Docker 打包",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "http://localhost:8080" },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用 Docker 打包",
+      "eyebrow": "從做好到上線 · 單元 2 · 2.5",
+      "sub": "把後端打包成容器，在自己電腦上先跑起來",
+      "chapter": "在我電腦上可以跑",
+      "narration": "雲端專案開好了，預算警示也設好了。接下來要把小森烘焙的後端搬上去。"
+    },
+    {
+      "show": "phone",
+      "on": "phone",
+      "receive": "線上預約做好了嗎？我想訂週六的可頌。",
+      "from": "阿哲",
+      "narration": "阿哲又來問了。"
+    },
+    { "on": "phone", "reply": "做好了！在我電腦上可以跑。" },
+    {
+      "on": "phone",
+      "receive": "那你的電腦關機的時候呢？",
+      "from": "阿哲",
+      "narration": "問得好。後端要放到雲端，才能一直開著。"
+    },
+    {
+      "callout": "phone:msg:last",
+      "text": "換一台電腦，環境就不一樣",
+      "narration": "可是雲端那台電腦，沒有你裝好的 Node，也沒有你裝好的套件。程式搬過去，很可能就跑不起來。"
+    },
+    { "hide": "phone" },
+    {
+      "show": "flow",
+      "chapter": "便當盒：連環境一起帶走",
+      "narration": "解法是把程式連同它需要的一切，裝進一個便當盒。這個工具叫 Docker。"
+    },
+    {
+      "callout": "flow:node:recipe",
+      "text": "Dockerfile：寫好步驟，照著做就一模一樣",
+      "narration": "第一樣是食譜，叫 Dockerfile。上面寫著用哪一版 Node、裝哪些套件、最後怎麼啟動。"
+    },
+    {
+      "send": ["recipe", "image"],
+      "label": "docker build",
+      "tone": "req",
+      "narration": "照食譜做好、封起來，就是映像檔。裡面什麼都帶齊了，封好之後內容不會再變。"
+    },
+    {
+      "send": ["image", "local"],
+      "label": "docker run",
+      "tone": "ok",
+      "narration": "把映像檔打開來跑，就是容器。今天先在你的電腦上打開。"
+    },
+    {
+      "send": ["image", "cloud"],
+      "label": "下一課",
+      "tone": "data",
+      "narration": "同一個便當，在雲端打開也一樣。那是下一課的事。"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "交代目標，和怎樣算完成" },
+    {
+      "on": "claude",
+      "user": "幫 bakery 寫 Dockerfile，把網站和後端打包成容器，在我電腦上跑起來。\n.env 裡的密碼不能包進映像檔。\n建置失敗就讀錯誤修。要安裝軟體，或是要我決定的事，先停下來問我。\n完成的標準：docker run 之後，curl http://localhost:8080 回 200，頁面看得到「小森烘焙」。",
+      "narration": "Dockerfile 怎麼寫，不用你學。你一樣說清楚目標、什麼時候要問你、怎樣算完成，再加一條：密碼不能包進去。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker info --format '{{.ServerVersion}}'",
+      "result": "連不上",
+      "out": "Cannot connect to the Docker daemon. Is the docker daemon running?",
+      "narration": "它先看 Docker 開了沒。結果是連不上。"
+    },
+    {
+      "on": "claude",
+      "say": "你的電腦上 Docker 還沒開。\n\n**這一步要你自己來**：還沒安裝的話，請到 Docker 官網下載 Docker Desktop，條款要你自己看過、同意。裝好之後把它打開，再告訴我。",
+      "narration": "安裝軟體、同意條款，這些由你自己來。"
+    },
+    {
+      "on": "claude",
+      "user": "Docker Desktop 開好了，繼續。",
+      "chapter": "AI 動手：寫食譜"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "package.json",
+      "result": "讀了 scripts",
+      "out": "\"scripts\": { \"dev\": \"vite\", \"build\": \"vite build\", \"start\": \"node server.js\" }",
+      "narration": "它先看懂專案：畫面要 build，後端用 server.js 啟動。"
+    },
+    {
+      "on": "claude",
+      "ask": "Dockerfile、.dockerignore",
+      "q": "Claude 想要建立這些檔案",
+      "where": "~/projects/bakery",
+      "preview": "FROM node:22-slim\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --omit=dev\nCOPY . .\nRUN npm run build\nCMD [\"node\", \"server.js\"]\n\n# .dockerignore\nnode_modules\ndist\n.env\n.git",
+      "narration": "它要建兩個檔案。第二個 .dockerignore，寫的是不要裝進便當的東西。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "看一眼：.env 在不要裝進去的清單裡",
+      "narration": "你不用看懂每一行，只要確認 .env 在清單裡。有，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker build -t bakery .",
+      "result": "失敗",
+      "out": "=> [5/6] RUN npm run build\n> vite build\nsh: 1: vite: not found\nERROR: failed to solve: process \"/bin/sh -c npm run build\" did not complete successfully: exit code: 127",
+      "chapter": "第一輪：建置失敗",
+      "narration": "第一次建置，失敗了。這很正常，看 AI 怎麼處理。"
+    },
+    {
+      "on": "claude",
+      "say": "讀錯誤：`vite: not found`。\n\n`--omit=dev` 跳過了開發用的套件，可是 build 畫面正好要用 Vite。\n修法：先裝全部的套件，build 完再拿掉開發用的。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "從一長串訊息裡，找到真正的原因",
+      "narration": "錯誤訊息很長，它找到關鍵那一行，再說出原因和修法。你看得懂這句話就夠了。"
+    },
+    {
+      "on": "claude",
+      "edit": "Dockerfile",
+      "lines": [
+        [3, " ", "COPY package*.json ./"],
+        [4, "-", "RUN npm ci --omit=dev"],
+        [4, "+", "RUN npm ci"],
+        [5, " ", "COPY . ."],
+        [6, " ", "RUN npm run build"],
+        [7, "+", "RUN npm prune --omit=dev"],
+        [8, " ", "CMD [\"node\", \"server.js\"]"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker build -t bakery . && docker run -d --name bakery -p 8080:8080 bakery && sleep 2 && curl -s -o /dev/null -w '%{http_code}\\n' http://localhost:8080",
+      "result": "連不上",
+      "out": "naming to docker.io/library/bakery:latest done\na41f…\n000",
+      "chapter": "第二輪：開起來了，卻連不上",
+      "narration": "建置成功，容器也打開了。可是回覆代號是 000，代表根本連不上。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker logs bakery",
+      "result": "完成",
+      "out": "小森烘焙伺服器啟動：http://127.0.0.1:3000",
+      "narration": "它沒有亂猜，先去看容器的紀錄。"
+    },
+    {
+      "on": "claude",
+      "say": "兩個問題：\n1. 伺服器開在 **3000**，我們對外接的是 **8080**\n2. `127.0.0.1` 只接受容器**裡面**的連線，外面連不進去\n\n修法：改成讀 `PORT` 環境變數，預設 8080，並且聽 `0.0.0.0`。下一課上雲端也需要這樣。",
+      "narration": "容器像一個獨立的小房間。伺服器只聽房間裡面的聲音，外面當然叫不動它。"
+    },
+    {
+      "on": "claude",
+      "edit": "server.js",
+      "lines": [
+        [42, "-", "app.listen(3000, '127.0.0.1', () => console.log('小森烘焙伺服器啟動：http://127.0.0.1:3000'))"],
+        [42, "+", "const port = process.env.PORT || 8080"],
+        [43, "+", "app.listen(port, '0.0.0.0', () => console.log(`小森烘焙伺服器啟動：port ${port}`))"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker rm -f bakery && docker build -t bakery . && docker run -d --name bakery -p 8080:8080 bakery && sleep 2 && curl -s -o /dev/null -w '%{http_code}\\n' http://localhost:8080 && curl -s http://localhost:8080 | grep -o '<title>[^<]*'",
+      "result": "完成",
+      "out": "200\n<title>小森烘焙｜預約取貨",
+      "narration": "重建、重開、再測一次。200，標題也對了。"
+    },
+    {
+      "on": "claude",
+      "say": "完成標準達到了 ✓\n`http://localhost:8080` 回 **200**，標題是「小森烘焙｜預約取貨」。\n修了兩個問題：build 少了 Vite、port 與 0.0.0.0。請你也試試看。",
+      "narration": "AI 說好了還不夠。"
+    },
+    {
+      "show": "web",
+      "chapter": "你自己試：抓到 AI 沒測的地方",
+      "narration": "你自己打開看。網址和平常的開發畫面不一樣了，這個網站現在是從容器裡跑出來的。"
+    },
+    { "on": "web", "scroll": "products", "pause": 500, "narration": "商品和圖片都在，樣式也正常。" },
+    { "on": "web", "scroll": "top" },
+    { "hide": "web" },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "curl -s -X POST -d 'item=可頌&qty=2' http://localhost:8080/api/reservations",
+      "out": "{\"error\":\"伺服器錯誤\"}",
+      "tone": "err",
+      "narration": "做這個後端，就是為了預約。所以你再送一筆預約試試，這一行只是用指令代替按下送出。結果出錯了。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "首頁回 200，不代表預約能用",
+      "narration": "AI 的標準只有首頁，所以它沒測到。這就是為什麼你要自己試。"
+    },
+    { "hide": "term" },
+    {
+      "on": "claude",
+      "user": "首頁正常，可是送出預約，回了「伺服器錯誤」。請查原因，先不要改。",
+      "narration": "把你看到的情況告訴 AI。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker logs bakery | tail -2",
+      "result": "完成",
+      "out": "Error: 缺少環境變數 DB_PASSWORD\n    at connectDb (db.js:8)",
+      "narration": "紀錄寫得很清楚：缺少資料庫的密碼。"
+    },
+    {
+      "on": "claude",
+      "say": "原因：容器裡沒有 `DB_PASSWORD`。\n\n照你的要求，`.env` 沒有包進映像檔，所以容器拿不到密碼。\n接下來密碼要怎麼交給容器？",
+      "narration": "AI 停下來問你了。"
+    },
+    {
+      "checkpoint": "容器需要資料庫密碼，可是 .env 沒有包進映像檔。要怎麼給它？",
+      "body": "記得：映像檔之後會上傳到雲端，裡面的東西封好了就不會再變。",
+      "id": "secret",
+      "chapter": "你來決定",
+      "options": [
+        {
+          "label": "把 .env 從 .dockerignore 拿掉，一起包進去",
+          "steps": [
+            { "card": "密碼就封進便當了", "eyebrow": "再想想", "sub": "拿到映像檔的人，都打得開、看得到", "narration": "這樣密碼就封進便當了。拿到映像檔的人，都打得開、看得到。正確的做法是執行容器時才給。" }
+          ]
+        },
+        {
+          "label": "映像檔不放密碼，執行容器時才給",
+          "steps": [
+            { "card": "答對了", "eyebrow": "你來決定", "sub": "便當裡沒有密碼；打開的時候才交給它", "narration": "答對了。便當裡沒有密碼，打開的時候才交給它。同一個映像檔，放到不同地方，就可以用不同的密碼。" }
+          ]
+        },
+        {
+          "label": "把密碼直接寫在 Dockerfile 裡",
+          "steps": [
+            { "card": "Dockerfile 會推上 GitHub", "eyebrow": "千萬不要", "sub": "這就是寫死，1.1 才剛把它搬走", "narration": "千萬不要。Dockerfile 會推上 GitHub，這就是寫死，我們才剛把它搬走。正確的做法是執行容器時才給。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          { "card": "映像檔不放密碼，執行容器時才給", "eyebrow": "答案", "sub": "便當裡沒有密碼；打開的時候才交給它", "narration": "映像檔不放密碼，執行容器時才給。便當裡沒有密碼，打開的時候才交給它。" }
+        ]
+      }
+    },
+    {
+      "on": "claude",
+      "user": "映像檔不放密碼，執行容器時才給，值不要印出來。\n修好後送一筆測試預約，再確認映像檔裡沒有 .env。",
+      "chapter": "第三輪：密碼執行時才給",
+      "narration": "把決定告訴 AI，也多加兩個標準。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "say": "我會在執行時用 `--env-file .env` 把設定交給容器。\n\n還要改一個地方：`.env` 裡的資料庫位址是 `localhost`，可是在容器裡，`localhost` 指的是**容器自己**。我把它換成 `host.docker.internal`，意思是你的電腦。",
+      "narration": "還記得 localhost 嗎？它指的是這台電腦自己。到了容器裡，它就變成容器自己了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker rm -f bakery && docker run -d --name bakery --env-file .env -e DB_HOST=host.docker.internal -p 8080:8080 bakery && sleep 2 && curl -s -X POST -o /dev/null -w '%{http_code}\\n' -d 'item=測試預約&qty=1' http://localhost:8080/api/reservations && docker run --rm bakery sh -c 'test ! -f .env && echo 映像檔裡沒有 .env'",
+      "result": "完成",
+      "out": "201\n映像檔裡沒有 .env",
+      "narration": "這次不用重新 build，便當沒有變，只是打開的方式不同。201 代表預約建立成功，映像檔裡也找不到 .env。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "curl -s -X POST -d 'item=可頌&qty=2' http://localhost:8080/api/reservations",
+      "out": "{\"ok\":true}",
+      "tone": "ok",
+      "chapter": "你再驗收一次",
+      "narration": "你再送一筆。這次成功了。"
+    },
+    { "hide": "term" },
+    {
+      "on": "claude",
+      "ask": "git add Dockerfile .dockerignore server.js && git commit -m \"把後端打包成容器\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "只點名這 3 個檔案，.env 不在裡面",
+      "narration": "最後存進紀錄。看一眼點名的檔案，沒有 .env。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把你的後端裝進容器",
+      "body": "還沒有 Docker 的話，先自己安裝並打開 Docker Desktop。然後在你的專案裡對 AI 說：「幫我寫 Dockerfile，把後端打包成容器，在我電腦上跑起來。.env 裡的密碼不能包進映像檔，執行容器時才給。建置失敗就讀錯誤修，要我決定的事先問我。完成的標準：docker run 之後，curl http://localhost:8080 回 200，頁面看得到（你的網站名稱）。」跑起來後，自己操作最重要的功能，出錯就把看到的情況告訴它。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "把後端打包成容器，在自己電腦上先跑起來。",
+      "eyebrow": "學會",
+      "sub": "Dockerfile · 映像檔 · 容器 · 密碼執行時才給",
+      "chapter": "學會",
+      "narration": "今天學會：把後端打包成容器，在自己電腦上先跑起來。AI 寫食譜、讀錯誤、一次修一個問題；你負責安裝、決定密碼怎麼給，也抓到它沒測到的地方。下一課，把這個便當送上 Cloud Run，拿到打得開的網址。"
+    }
+  ]
+}

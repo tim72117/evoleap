@@ -1,0 +1,36 @@
+/* 廣告要和課程內容明顯區分:上方固定標示「廣告」,外框和課程按鈕不同 */
+.slot {
+  flex: none;
+  padding: 8px 16px 10px;
+  border-top: 1px solid var(--line, rgba(127, 127, 127, 0.25));
+  text-align: center;
+}
+
+/* AdSense 回報沒有廣告可放時,整塊收起來 */
+.slot:has(ins[data-ad-status='unfilled']) {
+  display: none;
+}
+
+.label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-align: left;
+  opacity: 0.6;
+}
+
+.frame {
+  width: 100%;
+  overflow: hidden;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed currentColor;
+  border-radius: 4px;
+  font-size: 12px;
+  opacity: 0.45;
+}

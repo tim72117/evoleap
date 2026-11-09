@@ -1,0 +1,477 @@
+{
+  "title": "用 Google 帳號登入",
+  "lesson": "從做好到上線 · 單元 2 · 2.9",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天接上 Google 登入",
+    "line": "預約要知道是誰訂的，今天幫小森烘焙接上 Google 登入。Google 主控台 AI 碰不到，它給值、你來貼；後端檢查交給 AI，最後你本人登入一次。"
+  },
+  "blocking": { "cast": ["flow", "claude"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "用 Google 帳號登入",
+        "log": "發生的順序",
+        "nodes": {
+          "browser": { "label": "瀏覽器", "sub": "客人打開小森烘焙", "icon": "browser", "x": 14, "y": 50 },
+          "google": { "label": "Google", "sub": "負責認人", "icon": "google", "x": 50, "y": 18 },
+          "server": { "label": "你的後端", "sub": "Cloud Run", "icon": "server", "x": 50, "y": 82 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "用 Google 帳號登入",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "me": {
+      "actor": "person",
+      "props": { "name": "你", "look": "customer" },
+      "place": { "landscape": { "x": 560, "y": 380, "w": 800, "h": 320 }, "portrait": { "x": 140, "y": 620, "w": 800, "h": 320 } },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用 Google 帳號登入",
+      "eyebrow": "從做好到上線 · 單元 2 · 2.9",
+      "sub": "你建好 Google 的設定 → AI 寫後端檢查 → 你本人登入驗收",
+      "chapter": "預約要知道是誰訂的",
+      "narration": "資料存好了，機密也收好了。可是預約還有一個問題。"
+    },
+    {
+      "show": "phone",
+      "on": "phone",
+      "receive": "我昨天預約了兩條吐司，想改時間。可是店家說有兩個人都填「阿哲」，不知道哪筆是我的。",
+      "from": "阿哲",
+      "narration": "阿哲傳訊息來。"
+    },
+    {
+      "callout": "phone:msg:last",
+      "text": "網站分不出誰是誰",
+      "narration": "網站分不出誰是誰，所以客人要登入。"
+    },
+    { "hide": "phone" },
+    {
+      "card": "自己做帳號密碼：你要保管別人的密碼\n用 Google 登入：認人交給 Google",
+      "eyebrow": "兩種做法",
+      "sub": "客人不用多記一組密碼，你的資料庫裡也沒有密碼",
+      "narration": "自己做帳號密碼，就要保管別人的密碼，還要做忘記密碼。交給 Google 認人，客人不用多記一組，你也不用保管。"
+    },
+    {
+      "show": "flow",
+      "chapter": "Google 認人，後端檢查",
+      "narration": "我們先看一次，按下 Google 登入時發生了什麼。"
+    },
+    {
+      "send": ["browser", "google"],
+      "label": "我是小森烘焙（用戶端 ID）",
+      "note": "客人按下「使用 Google 帳號登入」",
+      "narration": "瀏覽器先跟 Google 自我介紹。用戶端 ID 是你事先向 Google 登記這個網站，拿到的編號。"
+    },
+    {
+      "pulse": "google",
+      "text": "這個網址在允許清單裡嗎？",
+      "tone": "warn",
+      "narration": "Google 先檢查網址在不在你登記的清單裡。不在就拒絕，這樣假網站就算偷用你的編號也沒用。"
+    },
+    {
+      "pulse": "google",
+      "text": "客人在 Google 的頁面輸入密碼",
+      "tone": "ok",
+      "narration": "客人在 Google 自己的頁面登入。密碼只在 Google 那裡，你的網站碰不到。"
+    },
+    {
+      "send": ["google", "browser"],
+      "label": "ID Token",
+      "tone": "key",
+      "note": "Google 蓋過章的身分證明",
+      "narration": "Google 交回一張 ID Token：寫著這個人是誰，還蓋了 Google 的章。"
+    },
+    {
+      "send": ["browser", "server"],
+      "label": "ID Token",
+      "tone": "key",
+      "note": "交給後端檢查",
+      "narration": "瀏覽器把它交給你的後端。"
+    },
+    {
+      "pulse": "server",
+      "text": "檢查：章對不對、開給誰、過期沒",
+      "tone": "warn",
+      "narration": "後端要檢查三件事：章是不是 Google 的、是不是開給你的網站、有沒有過期。"
+    },
+    {
+      "callout": "flow:node:server",
+      "text": "只有後端檢查過，才算登入",
+      "narration": "瀏覽器在客人手上，送來的東西都可能是假的。所以只信後端檢查過的結果，畫面上的判斷不算數。"
+    },
+    { "tidy": true },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "交代目標，和怎樣算完成" },
+    {
+      "on": "claude",
+      "user": "幫我加上「用 Google 帳號登入」，預約要記下是誰訂的。\n只在後端檢查 ID Token，前端送來的資料都不能直接信。\n正式網址是 https://xiaosen-bakery.example，本機是 http://localhost:5173。\nGoogle 主控台你碰不到，請給我逐步操作和要填的值。要部署時先問我。\n完成的標準：正式站和本機都能登入，假的 token 會被擋下，我的 Google 密碼不經過你。",
+      "narration": "目標、規則、怎樣算完成，都說清楚。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "兩個網址都要講：正式網址和本機",
+      "narration": "把兩個網址都告訴它，等一下要填進允許清單。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid",
+      "result": "讀完設定步驟",
+      "narration": "它先讀 Google 的官方說明，你不用自己查。"
+    },
+    {
+      "on": "claude",
+      "say": "Google 主控台的設定我碰不到，**要你自己建**。專案選 `bakery-demo`，照這樣做：\n\n1. **API 和服務 → OAuth 同意畫面**：應用程式名稱填 `小森烘焙`，目標對象選**外部**，再按**發布應用程式**\n2. **憑證 → 建立憑證 → OAuth 用戶端 ID**\n3. 應用程式類型選**網頁應用程式**，名稱填 `bakery-web`\n4. **已授權的 JavaScript 來源**加這兩個：\n`https://xiaosen-bakery.example`\n`http://localhost:5173`\n5. 按**建立**，把結果告訴我\n\n沒有發布的話，只有測試名單裡的人能登入。",
+      "chapter": "主控台要你自己來",
+      "narration": "OAuth 是請 Google 幫你認人的標準做法，用戶端就是你向 Google 登記的這個網站。這些頁面要登入你的 Google 帳號，AI 進不去。它能做的，是把每一步和要填的值都寫好。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "允許的網址要有正式網址，一字不差",
+      "narration": "最容易出錯的是第四步。只填本機，上線就不能登入。網址要一字不差，少一個 s、多一個斜線都會被拒絕。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "到 Google 的頁面\n照步驟點、把值貼上去",
+      "eyebrow": "換你動手",
+      "sub": "AI 給值，你來貼；這一段 AI 看不到",
+      "narration": "換你。打開主控台，照步驟一項一項做。值直接從對話複製，不用自己打。"
+    },
+    { "show": "me" },
+    {
+      "on": "me",
+      "say": "建好了！畫面上有用戶端 ID，也有用戶端密碼。",
+      "mood": "calm"
+    },
+    {
+      "chapter": "你來判斷",
+      "checkpoint": "畫面上有用戶端 ID 和用戶端密碼。哪個可以貼給 AI？",
+      "body": "選一個。",
+      "id": "clientid",
+      "options": [
+        {
+          "label": "只貼用戶端 ID",
+          "steps": [
+            {
+              "card": "用戶端 ID 本來就公開",
+              "eyebrow": "答對了",
+              "sub": "它會出現在網頁上；這個做法用不到用戶端密碼",
+              "narration": "答對了。用戶端 ID 本來就會出現在網頁上。檢查 ID Token 用不到用戶端密碼，所以不用貼。"
+            }
+          ]
+        },
+        {
+          "label": "兩個都貼，AI 比較好做事",
+          "steps": [
+            {
+              "card": "密碼不貼進對話",
+              "eyebrow": "再想想",
+              "sub": "這個做法用不到用戶端密碼；只貼用戶端 ID 就好",
+              "narration": "這個做法用不到用戶端密碼，名字裡有密碼的東西也不該貼進對話。只貼用戶端 ID 就好。"
+            }
+          ]
+        },
+        {
+          "label": "兩個都不貼，都是機密",
+          "steps": [
+            {
+              "card": "用戶端 ID 不是機密",
+              "eyebrow": "再想想",
+              "sub": "它會出現在網頁上，AI 需要它才能接上登入",
+              "narration": "用戶端 ID 不是機密，它會出現在每個人看得到的網頁上。AI 需要它才能接上登入。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "只貼用戶端 ID",
+            "eyebrow": "答案",
+            "sub": "用戶端 ID 本來就公開；這個做法用不到用戶端密碼",
+            "narration": "只貼用戶端 ID。它本來就公開，而這個做法用不到用戶端密碼。"
+          }
+        ]
+      }
+    },
+    { "hide": "me" },
+    { "show": "claude", "chapter": "AI 寫後端檢查" },
+    {
+      "on": "claude",
+      "user": "建好了，兩個網址都加了，也發布了。用戶端 ID 是 1234567890-example.apps.googleusercontent.com。",
+      "narration": "回報給 AI。這裡是示範用的假編號。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "edit": ".env",
+      "lines": [
+        [6, "+", "GOOGLE_CLIENT_ID=1234567890-example.apps.googleusercontent.com"],
+        [7, "+", "VITE_GOOGLE_CLIENT_ID=1234567890-example.apps.googleusercontent.com"]
+      ],
+      "narration": "用戶端 ID 不是機密，放在環境設定就好，不用進上一課的保險箱。"
+    },
+    {
+      "on": "claude",
+      "edit": "server/routes/auth.js",
+      "lines": [
+        [1, "+", "const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)"],
+        [2, "+", "router.post('/auth/google', async (req, res) => {"],
+        [3, "+", "  try {"],
+        [4, "+", "    const t = await client.verifyIdToken({ idToken: req.body.credential, audience: process.env.GOOGLE_CLIENT_ID })"],
+        [5, "+", "    const p = t.getPayload()  // 套件已檢查：Google 的章、開給誰、過期沒"],
+        [6, "+", "    if (!p.email_verified) return res.status(401).end()"],
+        [7, "+", "    const user = await upsertUser({ googleId: p.sub, email: p.email, name: p.name })"],
+        [8, "+", "    await startSession(req, user.id)"],
+        [9, "+", "    res.json({ name: user.name })"],
+        [10, "+", "  } catch { res.status(401).json({ error: '登入驗證失敗' }) }"],
+        [11, "+", "})"]
+      ],
+      "narration": "後端用 Google 官方的套件檢查 ID Token，通過才算登入。你不用看懂每一行，看得出檢查放在後端就好。"
+    },
+    {
+      "on": "claude",
+      "edit": "db/migrations/003_users.sql",
+      "lines": [
+        [1, "+", "CREATE TABLE users (id SERIAL PRIMARY KEY, google_id TEXT UNIQUE NOT NULL, email TEXT, name TEXT);"],
+        [2, "+", "ALTER TABLE reservations ADD COLUMN user_id INTEGER REFERENCES users(id);"]
+      ],
+      "narration": "資料庫多一張會員表，只存 Google 給的編號、email 和名字，沒有密碼欄位。"
+    },
+    {
+      "on": "claude",
+      "edit": "server/routes/reservations.js",
+      "lines": [
+        [12, "-", "  await db.addReservation(req.body)"],
+        [12, "+", "  if (!req.session.userId) return res.status(401).end()"],
+        [13, "+", "  await db.addReservation({ ...req.body, userId: req.session.userId })"]
+      ],
+      "narration": "預約改成記下登入的人。誰訂的由後端決定，不看前端填了什麼名字。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/login.js",
+      "lines": [
+        [1, "+", "google.accounts.id.initialize({"],
+        [2, "+", "  client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,"],
+        [3, "+", "  callback: ({ credential }) => postJson(`${API_URL}/auth/google`, { credential }),"],
+        [4, "+", "})"]
+      ],
+      "narration": "畫面加上 Google 的按鈕。拿到 ID Token 不自己判斷，直接交給後端。"
+    },
+    {
+      "on": "claude",
+      "edit": ".github/workflows/deploy.yml",
+      "lines": [
+        [16, " ", "      - run: npm ci && npm run build"],
+        [17, "+", "        env:"],
+        [18, "+", "          VITE_GOOGLE_CLIENT_ID: 1234567890-example.apps.googleusercontent.com"]
+      ],
+      "narration": "前端在 GitHub 上 build，也要拿得到用戶端 ID。它是公開的，可以寫在這裡。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- tests/auth-google.test.js",
+      "result": "4 / 4 通過",
+      "out": "✓ 亂打的 token 回 401\n✓ 過期的 token 回 401\n✓ 開給別的網站的 token 回 401\n✓ 正確的 token 可以登入（測試用的假 token）",
+      "chapter": "AI 部署、自己驗證",
+      "narration": "它自己寫測試：亂打的、過期的、開給別的網站的，都要被擋下。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run deploy bakery，再 git push 前端",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud run deploy bakery --source . --region asia-east1 \\\n  --update-env-vars GOOGLE_CLIENT_ID=1234567890-example.apps.googleusercontent.com\ngit add server src db .github/workflows/deploy.yml && git commit -m \"加上 Google 登入\" && git push",
+      "note": "上一課的機密設定不變。.env 不在 git add 裡。",
+      "narration": "要部署了，它先問你。機密設定不變，.env 也不在要 commit 的檔案裡。"
+    },
+    { "on": "claude", "choose": 1, "narration": "允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run deploy bakery --source . --region asia-east1 --update-env-vars GOOGLE_CLIENT_ID=1234567890-example.apps.googleusercontent.com && git add server src db .github/workflows/deploy.yml && git commit -m \"加上 Google 登入\" && git push && gh run watch --exit-status",
+      "result": "完成",
+      "out": "✓ Deploying… Done.\n✓ 啟動時套用 db/migrations/003_users.sql\nService URL: https://bakery-xxxxx-de.a.run.app\nmain -> main\n✓ main Deploy to GitHub Pages"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}\\n' -X POST -H 'Content-Type: application/json' -d '{\"credential\":\"fake\"}' https://bakery-xxxxx-de.a.run.app/auth/google",
+      "result": "假的被擋下",
+      "out": "401",
+      "narration": "它到正式站送一張假的 token，被擋下了，401 代表「你沒有登入」。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s https://xiaosen-bakery.example/ | grep -c 'accounts.google.com/gsi/client'",
+      "result": "按鈕載入了",
+      "out": "1",
+      "narration": "正式網址的頁面，也載入了 Google 的登入按鈕。"
+    },
+    {
+      "on": "claude",
+      "say": "已部署：假的 token 回 **401**，正式站有 Google 登入按鈕 ✓\n\n**最後一步我做不到：真的登入。**\n請你打開 `https://xiaosen-bakery.example`，按「使用 Google 帳號登入」。密碼只在 Google 的頁面輸入，我碰不到。\n再請一位朋友也試試，確認不是只有你能登入。",
+      "narration": "AI 能測假的，真的登入要你本人。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "flow",
+      "chapter": "你本人登入",
+      "narration": "你打開正式網址，按下 Google 登入。"
+    },
+    { "send": ["browser", "google"], "label": "https://xiaosen-bakery.example 來登入", "note": "你本人，用正式網址" },
+    {
+      "pulse": "google",
+      "text": "正式網址在清單裡：通過",
+      "tone": "ok",
+      "narration": "你剛才登記的正式網址，通過了。"
+    },
+    { "pulse": "google", "text": "你在 Google 的頁面輸入密碼", "tone": "ok", "narration": "在 Google 的頁面選帳號、輸入密碼。" },
+    { "send": ["google", "browser"], "label": "ID Token", "tone": "key" },
+    { "send": ["browser", "server"], "label": "ID Token", "tone": "key" },
+    {
+      "pulse": "server",
+      "text": "檢查通過：登入成功",
+      "tone": "ok",
+      "narration": "後端檢查通過，網站認得你了。"
+    },
+    { "hide": "flow" },
+    { "show": "me" },
+    {
+      "on": "me",
+      "say": "登入了！右上角是我的名字。再請阿哲試試。",
+      "mood": "happy"
+    },
+    { "hide": "me" },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "網站可以用 Google 登入了！再預約一次看看：https://xiaosen-bakery.example",
+      "narration": "傳給阿哲。"
+    },
+    {
+      "on": "phone",
+      "receive": "一按就登入了，不用多記一組密碼。這次預約上面有我的名字了！",
+      "from": "阿哲",
+      "narration": "用別人的帳號也可以，預約也知道是誰訂的了。"
+    },
+    { "hide": "phone" },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我和阿哲都登入成功了。請看正式站的紀錄確認，不要印出 email。",
+      "chapter": "看紀錄收尾",
+      "narration": "最後請它對一次紀錄。別人的 email 也是要保護的資料，不用印出來。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud logging read 'resource.labels.service_name=\"bakery\" AND textPayload:\"/auth/google\"' --limit 3 --format='value(textPayload)'",
+      "result": "看到這幾次登入",
+      "out": "POST /auth/google 200  使用者 #2\nPOST /auth/google 200  使用者 #1\nPOST /auth/google 401",
+      "narration": "兩次真的登入都是 200，最早那次假的是 401。"
+    },
+    {
+      "on": "claude",
+      "say": "確認完成 ✓\n- 正式站：你和阿哲都登入成功，是兩個不同的使用者\n- 假的 token 被擋下\n- 預約會記下登入的人\n- 資料庫裡沒有密碼，你的 Google 密碼也沒有經過我"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "AI 測假的，你和朋友測真的",
+      "narration": "AI 測假的，你和朋友測真的，兩邊都過才算完成。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "本機可以登入，朋友打開正式站按 Google 登入，卻出現 origin_mismatch 的錯誤。要改哪裡？",
+      "body": "origin 就是網站的網址開頭。選一個。",
+      "id": "origin",
+      "options": [
+        {
+          "label": "到 Google 主控台，把正式網址加進允許的來源",
+          "steps": [
+            {
+              "card": "答對了",
+              "eyebrow": "想一想",
+              "sub": "Google 不認得這個網址；程式不用改，改完等幾分鐘再試",
+              "narration": "答對了。Google 不認得這個網址，所以把它加進清單。程式不用改，改完等幾分鐘再試。"
+            }
+          ]
+        },
+        {
+          "label": "請 AI 改後端檢查 ID Token 的程式",
+          "steps": [
+            {
+              "card": "還沒走到後端",
+              "eyebrow": "再想想",
+              "sub": "錯誤發生在 Google 那一關，要到主控台加上正式網址",
+              "narration": "這時還沒走到後端，錯誤發生在 Google 那一關。要到主控台，把正式網址加進去。"
+            }
+          ]
+        },
+        {
+          "label": "把用戶端 ID 換成用戶端密碼",
+          "steps": [
+            {
+              "card": "密碼不能放在網頁上",
+              "eyebrow": "千萬不要",
+              "sub": "放上去誰都看得到；要到主控台加上正式網址",
+              "narration": "千萬不要，放在網頁上誰都看得到。要到主控台，把正式網址加進去。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "到 Google 主控台\n把正式網址加進允許的來源",
+            "eyebrow": "答案",
+            "sub": "Google 不認得這個網址；程式不用改",
+            "narration": "到 Google 主控台，把正式網址加進允許的來源。Google 不認得這個網址，程式不用改。"
+          }
+        ]
+      }
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：幫你的作品接上 Google 登入",
+      "body": "在你的專案裡對 AI 說：「幫我加上『用 Google 帳號登入』。只在後端檢查 ID Token，前端送來的資料都不能直接信。正式網址是（你的網址），本機是（你的本機網址）。Google 主控台你碰不到，請給我逐步操作和要填的值。要部署時先問我。完成的標準：正式站和本機都能登入，假的 token 會被擋下，我的 Google 密碼不經過你。」照步驟建好後，只把用戶端 ID 給它。最後你本人在正式站登入一次，再請一位朋友試試。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "使用者用 Google 帳號就能註冊登入，\n不用自己保管密碼。",
+      "eyebrow": "學會",
+      "sub": "OAuth 用戶端 · 用戶端 ID · ID Token · 允許的網址",
+      "chapter": "學會",
+      "narration": "今天學會：使用者用 Google 帳號就能註冊登入，不用自己保管密碼。AI 給值、寫後端檢查，你負責主控台，最後本人登入。單元 2 到這裡結束，作品會記住資料，也知道是誰在用。下一個單元「放心讓別人用」，來看別人能看到什麼，用的人變多又會發生什麼事。"
+    }
+  ]
+}

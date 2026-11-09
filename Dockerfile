@@ -20,6 +20,11 @@ COPY web/ ./
 # 未傳或留空時前端完全不載入 Google Analytics。
 ARG VITE_GA_MEASUREMENT_ID=""
 ENV VITE_GA_MEASUREMENT_ID=$VITE_GA_MEASUREMENT_ID
+# AdSense 發布商 ID 與廣告單元 ID(Vite 於 build 時內嵌);任一個留空時前端完全不載入 AdSense。
+ARG VITE_ADSENSE_CLIENT=""
+ENV VITE_ADSENSE_CLIENT=$VITE_ADSENSE_CLIENT
+ARG VITE_ADSENSE_SLOT=""
+ENV VITE_ADSENSE_SLOT=$VITE_ADSENSE_SLOT
 # build 含 scripts/seo.mjs:產生各路由的 HTML(SEO 標籤)、404.html、sitemap.xml、robots.txt。
 RUN npm run build
 

@@ -1,0 +1,504 @@
+{
+  "title": "部署到 GitHub Pages",
+  "lesson": "從做好到上線 · 單元 1 · 1.2",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天拿到公開網址",
+    "line": "今天要拿到第一個可以傳給朋友的公開網址。繁雜的設定交給 AI，你負責登入、決定公開或私人，最後自己打開網址確認。"
+  },
+  "blocking": { "cast": ["claude", "web", "term"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "部署到 GitHub Pages",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v4", "width": "desktop", "url": "https://your-name.github.io/bakery/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "部署到 GitHub Pages",
+      "eyebrow": "從做好到上線 · 單元 1 · 1.2",
+      "sub": "拿到第一個可以分享的公開網址，之後 push 就自動更新",
+      "chapter": "還是打不開的網址",
+      "narration": "還記得阿哲嗎？"
+    },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "我的網站做好了！快看 http://localhost:5173",
+      "narration": "你把網址傳給他。"
+    },
+    {
+      "on": "phone",
+      "receive": "還是打不開耶，你的網站到底在哪裡？",
+      "from": "阿哲"
+    },
+    {
+      "callout": "phone:msg:1",
+      "text": "localhost＝「這台電腦自己」，朋友連不到",
+      "narration": "localhost 指的是這台電腦自己。要讓阿哲打得開，網站得放到別人連得到的地方。"
+    },
+    { "hide": "phone" },
+    {
+      "card": "你的電腦 →（push）→ GitHub repository\n→（GitHub Pages）→ 公開網址",
+      "eyebrow": "今天要走的路",
+      "sub": "把作品放到別人連得到的地方，就叫部署",
+      "chapter": "檔案怎麼走到公開網址",
+      "narration": "把作品放到別人連得到的地方，就叫部署。repository 是 GitHub 上放專案的地方，push 是把電腦裡存好的紀錄送過去，GitHub Pages 再把它變成一個公開網址。"
+    },
+    { "show": "claude", "chapter": "交代目標，和怎樣算完成" },
+    {
+      "on": "claude",
+      "user": "幫我把這個專案部署到 GitHub Pages，讓朋友打得開。\n先檢查要推上去的檔案裡沒有金鑰和 .env。\n要我登入、要決定公開或私人，或是要改 GitHub 上的設定時，先停下來問我。\n完成的標準：公開網址回 200，頁面看得到「小森烘焙」，之後 push 到 main 會自動更新。",
+      "narration": "不用查文件，也不用知道要設定什麼。你只要說三件事：目標、什麼時候要問你，還有怎樣算完成。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "「完成的標準」讓 AI 知道做到哪裡才能停",
+      "narration": "有了完成的標準，AI 不會改完設定就說好了，它會自己去確認。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "package.json",
+      "result": "讀了 scripts",
+      "out": "\"scripts\": { \"dev\": \"vite\", \"build\": \"vite build\" }",
+      "chapter": "登入要你自己來",
+      "narration": "它先看懂你的專案。這個專案要先 build，才能放上網。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh auth status",
+      "result": "還沒登入",
+      "out": "You are not logged into any GitHub hosts.\nTo log in, run: gh auth login",
+      "narration": "接著看 GitHub 登入了沒。gh 是操作 GitHub 的指令工具，結果是還沒登入。"
+    },
+    {
+      "on": "claude",
+      "say": "這個專案用 Vite，部署前要先 build，這些設定我來處理。\n\n但 **GitHub 登入要你自己來**：請在終端機跑 `gh auth login`，照畫面到瀏覽器授權。密碼不用告訴我。",
+      "narration": "這一步 AI 做不了，也不該由它做。帳號是你的，授權也要你自己點。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "gh auth login",
+      "out": "! First copy your one-time code: ABCD-1234\nOpen this URL to continue in your web browser: https://github.com/login/device\n✓ Authentication complete.\n✓ Logged in as your-name",
+      "narration": "你在終端機打這一行，到瀏覽器貼上驗證碼、按下授權。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "登入與授權是你的事，密碼不用交給 AI",
+      "narration": "登入成功。整個過程，你的密碼都沒有經過 AI。"
+    },
+    { "hide": "term" },
+    { "on": "claude", "user": "登入好了，繼續。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git ls-files | grep -E '(^|/)\\.env$|\\.db$'; git log --all --oneline -- .env",
+      "result": "沒有",
+      "out": "",
+      "chapter": "公開之前，先看秘密",
+      "narration": "推上去之前，它照你的交代先檢查。.env 和資料庫檔不在要推的檔案裡，以前也沒有被存過。"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "sk_live|API_KEY|SECRET",
+      "result": "沒有符合",
+      "out": "",
+      "narration": "程式裡也沒有寫死的金鑰。這就是前兩課做的事：金鑰放進設定檔，再用 .gitignore 擋住。"
+    },
+    {
+      "on": "claude",
+      "say": "檢查過了：`.env` 被 `.gitignore` 擋住，也沒有被 commit 過，程式裡沒有寫死的金鑰。\n\n接下來要建 repository，**公開或私人要你決定**：\n- 公開：所有檔案和 commit 紀錄，誰都看得到\n- 私人：別人看不到，但免費帳號不能用 GitHub Pages\n\n你要哪一個？",
+      "narration": "AI 停下來問你了。這個決定，要你點頭。"
+    },
+    {
+      "checkpoint": "bakery 這個專案沒有金鑰，只是店家介紹網站。repository 要怎麼開？",
+      "body": "記得：公開的 repository，裡面每個檔案和每次 commit，誰都看得到。",
+      "id": "visibility",
+      "chapter": "你來決定",
+      "options": [
+        {
+          "label": "公開：確認過沒有秘密，可以用免費的 GitHub Pages",
+          "steps": [
+            {
+              "card": "確認過沒有秘密，就可以公開",
+              "eyebrow": "答對了",
+              "sub": "以後每次 push，也要記得裡面的東西都是公開的",
+              "narration": "答對了。先確認過沒有秘密，再選公開。以後每次 push，也要記得裡面的東西誰都看得到。"
+            }
+          ]
+        },
+        {
+          "label": "私人：比較安全，部署應該一樣可以",
+          "steps": [
+            {
+              "card": "免費帳號的私人 repository，開不了 Pages",
+              "eyebrow": "再想想",
+              "sub": "這個專案沒有秘密，選公開就好",
+              "narration": "免費帳號的私人 repository，開不了 GitHub Pages。這個專案確認過沒有秘密，選公開就好。"
+            }
+          ]
+        },
+        {
+          "label": "公開，而且把 .env 也放上去，部署才讀得到",
+          "steps": [
+            {
+              "card": "放上去，全世界都看得到你的金鑰",
+              "eyebrow": "千萬不要",
+              "sub": ".env 繼續留在 .gitignore 裡，只有 repository 公開",
+              "narration": "千萬不要。.env 一放上公開的 repository，全世界都看得到你的金鑰。它要繼續留在 .gitignore 裡。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "確認過沒有秘密，就選公開",
+            "eyebrow": "答案",
+            "sub": "免費帳號的 GitHub Pages 要公開的 repository；.env 不放上去",
+            "narration": "這個專案確認過沒有秘密，所以選公開。免費帳號的 GitHub Pages 要公開的 repository，而 .env 不放上去。"
+          }
+        ]
+      }
+    },
+    {
+      "on": "claude",
+      "user": "用公開的，名稱就叫 bakery。",
+      "chapter": "AI 動手：開 repository、寫設定",
+      "narration": "這個專案沒有秘密，我們選公開，交回給 AI。"
+    },
+    {
+      "on": "claude",
+      "ask": "gh repo create bakery --public --source=. --remote=origin --push",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "--public：公開的 repository。--push：把存好的 commit 送上去。",
+      "narration": "這個指令會在 GitHub 上建立公開的 repository，並且 push 上去。看一下，是你剛才決定的公開，沒問題。"
+    },
+    { "on": "claude", "choose": 1, "narration": "允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh repo create bakery --public --source=. --remote=origin --push",
+      "result": "完成",
+      "out": "✓ Created repository your-name/bakery on GitHub\n✓ Added remote https://github.com/your-name/bakery.git\n✓ Pushed commits to https://github.com/your-name/bakery.git",
+      "narration": "檔案到 GitHub 了。但這時只是存起來，還不是網站。"
+    },
+    {
+      "on": "claude",
+      "edit": "vite.config.js",
+      "lines": [
+        [1, " ", "import { defineConfig } from 'vite'"],
+        [3, " ", "export default defineConfig({"],
+        [4, "+", "  base: '/bakery/',"],
+        [5, " ", "})"]
+      ],
+      "narration": "公開網址的最後會多一段 /bakery/，AI 先改好設定，圖片和樣式才找得到。這種細節，你不用自己記。"
+    },
+    {
+      "on": "claude",
+      "edit": ".github/workflows/deploy.yml",
+      "lines": [
+        [1, "+", "name: Deploy to GitHub Pages"],
+        [2, "+", "on:"],
+        [3, "+", "  push:"],
+        [4, "+", "    branches: [main]"],
+        [5, "+", "permissions:"],
+        [6, "+", "  contents: read"],
+        [7, "+", "  pages: write"],
+        [8, "+", "  id-token: write"],
+        [9, "+", "jobs:"],
+        [10, "+", "  deploy:"],
+        [11, "+", "    runs-on: ubuntu-latest"],
+        [12, "+", "    environment: github-pages"],
+        [13, "+", "    steps:"],
+        [14, "+", "      - uses: actions/checkout@v4"],
+        [15, "+", "      - uses: actions/setup-node@v4"],
+        [16, "+", "      - run: npm ci && npm run build"],
+        [17, "+", "      - uses: actions/upload-pages-artifact@v3"],
+        [18, "+", "        with:"],
+        [19, "+", "          path: dist"],
+        [20, "+", "      - uses: actions/deploy-pages@v4"]
+      ],
+      "narration": "再寫一份自動部署的設定。你不用看懂每一行。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "只要記一件事：push 到 main，就自動 build、自動部署",
+      "narration": "只要知道它說了什麼：每次 push 到 main，GitHub 就自動 build，再自動部署。"
+    },
+    {
+      "on": "claude",
+      "ask": "gh api -X POST repos/your-name/bakery/pages -f build_type=workflow",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "這會開啟 GitHub Pages，網站會對外公開。",
+      "narration": "這一步會改 GitHub 上的設定，你交代過要先問，所以它停下來了。"
+    },
+    { "on": "claude", "choose": 1, "narration": "就是要開 GitHub Pages，允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh api -X POST repos/your-name/bakery/pages -f build_type=workflow",
+      "result": "完成",
+      "out": "\"html_url\": \"https://your-name.github.io/bakery/\"\n\"build_type\": \"workflow\""
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git add vite.config.js .github/workflows/deploy.yml && git commit -m \"設定自動部署到 GitHub Pages\" && git push",
+      "result": "完成",
+      "out": "main -> main",
+      "narration": "把設定 push 上去，第一次部署就開始了。注意它點名檔案，沒有用 add 點。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh run watch --exit-status",
+      "result": "完成",
+      "out": "✓ main Deploy to GitHub Pages\n✓ deploy in 52s",
+      "chapter": "AI 自己驗證",
+      "narration": "它等部署跑完，沒有急著說好了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}\\n' https://your-name.github.io/bakery/",
+      "result": "完成",
+      "out": "200",
+      "narration": "再照你給的標準驗證。先看伺服器的回覆代號，200 代表「好，網頁在這裡」。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s https://your-name.github.io/bakery/ | grep -o '<title>[^<]*'",
+      "result": "完成",
+      "out": "<title>小森烘焙｜預約取貨",
+      "narration": "再看內容，標題裡有小森烘焙。兩個標準都達到了。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 已部署到 GitHub Pages。\n公開網址：`https://your-name.github.io/bakery/`\n驗證：回應 **200**，頁面標題是「小森烘焙｜預約取貨」。之後 push 到 main，大約一分鐘會自動更新。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "好的回報：有網址，也有驗證的證據",
+      "narration": "好的回報，除了說做完了，還會附上它怎麼確認的。"
+    },
+    {
+      "show": "web",
+      "chapter": "你自己打開看",
+      "narration": "AI 說好了還不夠，你要自己打開看一次。"
+    },
+    {
+      "callout": "web:addressbar",
+      "text": "公開網址：不再是 localhost",
+      "narration": "網址列不再是 localhost。這個網址，誰打開都一樣。"
+    },
+    { "on": "web", "scroll": "products", "pause": 500, "narration": "往下看，商品和圖片都在，樣式也正常。" },
+    { "on": "web", "scroll": "top" },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "再試一次！https://your-name.github.io/bakery/",
+      "narration": "把網址傳給阿哲。"
+    },
+    {
+      "on": "phone",
+      "receive": "打開了！不過常見問題好長，要滑很久。",
+      "from": "阿哲",
+      "narration": "打開了。而且他還給了你意見。"
+    },
+    { "hide": "phone" },
+    {
+      "show": "web",
+      "chapter": "改一次，看它自動更新",
+      "narration": "正好來試試更新。"
+    },
+    {
+      "on": "web",
+      "scroll": "faq",
+      "narration": "這是公開網址上現在的樣子，常見問題全部攤開。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "常見問題太長了，改成點問題才打開答案。push 之後，確認公開網址上已經是新的。",
+      "narration": "完成的標準一樣寫清楚：公開網址上已經是新的。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [
+        [87, "-", "      <div class=\"qa\">"],
+        [87, "+", "      <details>"],
+        [88, "-", "        <h3>可以現場購買嗎？</h3>"],
+        [88, "+", "        <summary>可以現場購買嗎？</summary>"],
+        [89, " ", "        <p>可以，但熱門商品常在中午前售完，建議先預約。</p>"],
+        [90, "-", "      </div>"],
+        [90, "+", "      </details>"],
+        [91, "-", "      <div class=\"qa\">"],
+        [91, "+", "      <details>"],
+        [92, "-", "        <h3>預約後可以更改嗎？</h3>"],
+        [92, "+", "        <summary>預約後可以更改嗎？</summary>"],
+        [93, " ", "        <p>取貨前一天 18:00 前聯絡我們即可更改數量或日期。</p>"],
+        [94, "-", "      </div>"],
+        [94, "+", "      </details>"],
+        [95, "-", "      <div class=\"qa\">"],
+        [95, "+", "      <details>"],
+        [96, "-", "        <h3>有提供宅配嗎？</h3>"],
+        [96, "+", "        <summary>有提供宅配嗎？</summary>"],
+        [97, " ", "        <p>目前只提供到店取貨，暫無宅配服務。</p>"],
+        [98, "-", "      </div>"],
+        [98, "+", "      </details>"]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": "styles.css",
+      "lines": [
+        [116, "-", ".qa { margin-bottom: 14px; }"],
+        [116, "+", "details { margin-bottom: 10px; background: #fff; border: 1px solid #e6d5bc; border-radius: 8px; padding: 10px 14px; }"],
+        [117, "-", ".qa h3 { margin: 0; font-size: 17px; }"],
+        [117, "+", "summary { cursor: pointer; font-weight: bold; font-size: 17px; }"],
+        [118, "-", ".qa p { margin: 2px 0 0; }"],
+        [118, "+", "details p { margin: 8px 0 0; }"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git add index.html styles.css && git commit -m \"常見問題改成點開才看答案\" && git push",
+      "result": "完成",
+      "out": "main -> main",
+      "narration": "存檔還不夠，要 push 上去。這次不用再設定，push 就是全部的動作。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh run watch --exit-status",
+      "result": "完成",
+      "out": "✓ main Deploy to GitHub Pages\n✓ deploy in 48s",
+      "narration": "剛才那份設定自動開始跑了，不用你再按什麼。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s https://your-name.github.io/bakery/ | grep -c '<details>'",
+      "result": "完成",
+      "out": "3",
+      "narration": "它再去公開網址抓內容，三題都是新的寫法。"
+    },
+    { "on": "claude", "say": "已 push，公開網址上的常見問題已經更新 ✓\n三題都改成點問題才打開答案，請你也打開確認一次。" },
+    { "show": "web", "narration": "一樣，你自己確認。" },
+    { "on": "web", "site": "v5", "narration": "重新整理，同一個網址，已經是新版了。" },
+    { "on": "web", "scroll": "faq" },
+    { "on": "web", "click": "summary", "narration": "點問題才打開答案。你只有 push，網站就自己更新了。" },
+    {
+      "callout": "web:section:faq",
+      "text": "同一個網址，push 之後自動換成新版",
+      "narration": "網址沒有變，朋友也不用做任何事。"
+    },
+    {
+      "checkpoint": "你改了首頁的標題，也存檔了，阿哲打開公開網址卻還是舊標題。最可能是什麼原因？",
+      "body": "選一個。",
+      "id": "push",
+      "chapter": "想一想",
+      "options": [
+        {
+          "label": "還沒有 push",
+          "steps": [
+            {
+              "card": "存檔只改你的電腦",
+              "eyebrow": "答對了",
+              "sub": "push 之後，大約一分鐘，公開網址才會換成新版",
+              "narration": "答對了。存檔只改了你自己的電腦，要 push 上去，才會自動部署。"
+            }
+          ]
+        },
+        {
+          "label": "網址打錯了",
+          "steps": [
+            {
+              "card": "網址沒錯，舊版也打得開",
+              "eyebrow": "再想想",
+              "sub": "看得到舊標題，代表網址是對的；是新版還沒 push",
+              "narration": "看得到舊標題，代表網址是對的。問題是新版還沒有 push 上去。"
+            }
+          ]
+        },
+        {
+          "label": "要請 AI 重新開一次 GitHub Pages",
+          "steps": [
+            {
+              "card": "GitHub Pages 只要開一次",
+              "eyebrow": "再想想",
+              "sub": "設定不用重做；舊標題是因為還沒 push",
+              "narration": "GitHub Pages 只要開一次，設定也不用重做。舊標題是因為還沒有 push。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "最可能是還沒有 push",
+            "eyebrow": "答案",
+            "sub": "存檔只改你的電腦；push 之後才會自動部署",
+            "narration": "最可能是還沒有 push。存檔只改了你自己的電腦，push 之後才會自動部署。"
+          }
+        ]
+      }
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：請 AI 把你的作品部署上去",
+      "body": "在你的專案裡對 AI 說：「幫我把這個專案部署到 GitHub Pages，讓朋友打得開。先檢查要推上去的檔案裡沒有金鑰和 .env。要我登入、要決定公開或私人，或是要改 GitHub 上的設定時，先停下來問我。完成的標準：公開網址回 200，頁面看得到（你的網站名稱），之後 push 到 main 會自動更新。」還沒有 GitHub 帳號的話，要先自己註冊。部署好後，用手機打開公開網址，再請 AI 改一個小地方、push，確認網址上變新了。做完按「完成了，繼續」。"
+    },
+    { "hide": "web" },
+    {
+      "card": "拿到第一個可以分享的公開網址，\n之後 push 上去就自動更新。",
+      "eyebrow": "學會",
+      "sub": "部署 · 公開網址 · GitHub Pages · repository · push",
+      "chapter": "學會",
+      "narration": "今天學會：拿到第一個可以分享的公開網址，之後 push 上去就自動更新。AI 處理繁雜的設定，你負責登入、決定公開或私人、確認沒有秘密，最後自己打開來看。下一課，我們來看網址上的鎖頭，還有更新後怎麼馬上看到新版。"
+    }
+  ]
+}

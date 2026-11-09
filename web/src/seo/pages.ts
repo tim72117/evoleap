@@ -309,7 +309,8 @@ const LAUNCH_PAGES: PageMeta[] = [
     return {
       path: launchLessonPath(id),
       title: documentTitle(`${title}｜${LAUNCH_TOPIC.name}`),
-      description: lesson?.learn ?? LAUNCH_TOPIC.description,
+      // 課程地圖上的一句話有些太短,接上主題與課名
+      description: lesson ? `${lesson.learn}${LAUNCH_TOPIC.name}：${title}。` : LAUNCH_TOPIC.description,
       sitemapPriority: 0.2,
       jsonLd: [breadcrumb([LAUNCH_TOPIC.name, LAUNCH_TOPIC.path], [title, launchLessonPath(id)])],
     }

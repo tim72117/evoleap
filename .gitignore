@@ -44,8 +44,3 @@ web/recordings/
 
 # 本機預覽設定(每台電腦的路徑與旗標不同)
 .claude/launch.json
-
-# 本機工具,不進這個專案的版控
-/mac/
-/ops/
-/claude-go/

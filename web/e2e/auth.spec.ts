@@ -147,7 +147,7 @@ test('登入後免費的課程:未登入看到登入提示,登入後回到同一
   await page.goto('/courses/tools')
   const rows = page.locator('#course-content ~ details li')
   await expect(rows.filter({ hasText: '序章' }).getByText('免費預覽', { exact: true })).toBeVisible()
-  await expect(rows.filter({ hasText: '第 0 課' }).getByText('登入後學習', { exact: true })).toBeVisible()
+  await expect(rows.filter({ hasText: '第 0 課' }).getByRole('img', { name: '登入後學習' })).toBeVisible()
   await expect(page.getByText('免費預覽', { exact: true })).toHaveCount(1)
   // 「開始學習」連到不用登入就能看的序章
   await expect(page.getByRole('link', { name: '開始學習' })).toHaveAttribute('href', '/courses/tools/intro')
@@ -169,7 +169,7 @@ test('登入後免費的課程:未登入看到登入提示,登入後回到同一
   // 登入後清單不再標示
   await page.goto('/courses/tools')
   await expect(page.locator('#course-content ~ details li').first()).toBeVisible()
-  await expect(page.getByText('登入後學習', { exact: true })).toHaveCount(0)
+  await expect(page.getByRole('img', { name: '登入後學習' })).toHaveCount(0)
   await expect(page.getByText('免費預覽', { exact: true })).toHaveCount(0)
   expect(errors).toEqual([])
 })

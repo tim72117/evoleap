@@ -1,0 +1,290 @@
+{
+  "title": "DNS 紀錄入門",
+  "lesson": "從做好到上線 · 單元 1 · 1.6",
+  "camera": "auto",
+  "teacher": {
+    "say": "翻開網域的電話簿",
+    "line": "網域買好了，它的電話簿裡已經有東西。今天請 AI 把每一筆查出來、用白話說明，你看懂它們各在做什麼，再自己查一次對照。"
+  },
+  "blocking": { "cast": ["net", "claude", "records", "term"], "shot": "depth" },
+  "cast": {
+    "net": {
+      "actor": "net-trip",
+      "props": {
+        "domain": "xiaosen-bakery.example",
+        "ip": "203.0.113.10",
+        "pages": { "/": { "title": "此網域由網域商代管", "heading": "這個網域剛被買下", "text": "網站還沒有接上來。" } }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "看懂 DNS 紀錄",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "records": {
+      "actor": "editor",
+      "props": { "project": "bakery" },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "DNS 紀錄入門",
+      "eyebrow": "從做好到上線 · 單元 1 · 1.6",
+      "sub": "你交代目標 → AI 查出來、用白話說明 → 你自己查一次對照",
+      "chapter": "輸入網址的那一秒",
+      "narration": "網域買好了。先打開看看，現在會發生什麼事。這堂課的 xiaosen-bakery 點 example 是示範用的名字。"
+    },
+    { "show": "net", "on": "net", "type": "xiaosen-bakery.example" },
+    { "on": "net", "enter": true },
+    {
+      "on": "net",
+      "lookup": true,
+      "narration": "瀏覽器不認得名字，只認得 IP 位址，也就是主機的號碼。所以它先去問 DNS：這個網域的 IP 是多少？"
+    },
+    {
+      "on": "net",
+      "answer": true,
+      "narration": "DNS 查電話簿，回覆 IP。DNS 就是網路的電話簿，把好記的名字換成機器認得的號碼。"
+    },
+    { "on": "net", "request": true, "narration": "拿到 IP，瀏覽器才把請求送到那台主機。" },
+    { "on": "net", "respond": true },
+    {
+      "on": "net",
+      "render": true,
+      "narration": "打開了，可是不是小森烘焙。這是停放頁：網域剛買好時，網域商先放的佔位網頁。"
+    },
+    {
+      "callout": "net:dns",
+      "text": "你買了網域，就能決定電話簿裡寫什麼",
+      "narration": "重點來了：買了網域，你就有權決定電話簿裡寫什麼。裡面的每一行，叫做一筆 DNS 紀錄。"
+    },
+    { "hide": "net" },
+    { "show": "claude", "chapter": "交代目標，和怎樣算完成" },
+    {
+      "on": "claude",
+      "user": "我剛買了 xiaosen-bakery.example。請用 dig 查它目前的 DNS 紀錄：A、AAAA、CNAME、MX、TXT、NS，www 也要查。\n只查，不要改任何東西。\n每一筆用白話說明用途，整理成 dns-records.md。\n完成的標準：檔案裡的值和查到的一樣，而且告訴我網域現在指到哪裡。",
+      "narration": "這些類型的名字，現在看不懂沒關係，等一下會一個一個看。dig 是查 DNS 的指令。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "只查不改，也說清楚怎樣算完成",
+      "narration": "第一次看電話簿，先說好只查不改。DNS 是公開資料，誰都查得到，所以不用登入，也不用給 AI 任何密碼。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +noall +answer xiaosen-bakery.example A; dig +noall +answer xiaosen-bakery.example AAAA",
+      "result": "1 筆",
+      "out": "xiaosen-bakery.example. 3600 IN A 203.0.113.10",
+      "chapter": "AI 一種一種查",
+      "narration": "它一種一種查。A 紀錄有一筆，AAAA 沒有。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "每一行：名稱、TTL、類型、值",
+      "narration": "輸出不難讀。每一行依序是名稱、TTL、類型和值。TTL 等一下再說。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +noall +answer www.xiaosen-bakery.example",
+      "result": "2 行",
+      "out": "www.xiaosen-bakery.example. 3600 IN CNAME parking.registrar-b.example.\nparking.registrar-b.example. 300 IN A 203.0.113.10"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +noall +answer xiaosen-bakery.example MX; dig +noall +answer xiaosen-bakery.example TXT",
+      "result": "2 筆",
+      "out": "xiaosen-bakery.example. 3600 IN MX 10 mx.forward.registrar-b.example.\nxiaosen-bakery.example. 3600 IN TXT \"v=spf1 include:forward.registrar-b.example ~all\""
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +noall +answer xiaosen-bakery.example NS",
+      "result": "2 筆",
+      "out": "xiaosen-bakery.example. 86400 IN NS ns1.registrar-b.example.\nxiaosen-bakery.example. 86400 IN NS ns2.registrar-b.example."
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s http://xiaosen-bakery.example | grep -o '<title>[^<]*'",
+      "result": "停放頁",
+      "out": "<title>此網域由網域商代管",
+      "narration": "它還多看了一步：打開那個 IP 上的網頁，確認是停放頁。"
+    },
+    {
+      "on": "claude",
+      "ask": "dns-records.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "# xiaosen-bakery.example 的電話簿\n# 名稱  TTL  類型  值…",
+      "narration": "要建檔案了，先問你。只是一份筆記，不會改到電話簿。"
+    },
+    { "on": "claude", "choose": 1, "narration": "允許。" },
+    { "on": "claude", "tool": "Write", "arg": "dns-records.md", "result": "已建立" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "grep -q \"$(dig +short xiaosen-bakery.example A)\" dns-records.md && echo 一致",
+      "result": "一致",
+      "out": "一致",
+      "narration": "寫完，它拿檔案和重新查到的值對一次。"
+    },
+    {
+      "on": "claude",
+      "say": "查完了，整理在 `dns-records.md`。\n\n**網域現在指到哪裡**\n網域和 www 都指到網域商的**停放頁**（`203.0.113.10`），還不是你的網站。\n\n**另外還有**\n- MX、TXT：網域商附贈的信件轉寄\n- NS：這本電話簿由網域商管理\n\n我沒有改任何東西。"
+    },
+    {
+      "show": "records",
+      "on": "records",
+      "open": "dns-records.md",
+      "chapter": "電話簿裡的每一行",
+      "narration": "一行一行看。@ 是小老鼠符號，代表網域本身。"
+    },
+    {
+      "on": "records",
+      "paste": "# xiaosen-bakery.example 的電話簿\n# 名稱  TTL  類型  值\n\n# 網站的地址（現在指到停放頁）\n@     3600  A      203.0.113.10\n\n",
+      "narration": "A 紀錄是地址：這個名字的 IP。剛才 DNS 回答的就是這一行。AAAA 也是地址，只是新版、比較長的 IPv6，沒有也正常。"
+    },
+    {
+      "on": "records",
+      "paste": "# 別名（也指到停放頁）\nwww   3600  CNAME  parking.registrar-b.example\n\n",
+      "narration": "CNAME 是別名。它不寫 IP，而是說：www 的地址，去問另一個名字。對方換主機，你也不用改。"
+    },
+    {
+      "callout": "records:code",
+      "text": "這兩行決定網站開到哪裡，現在都是停放頁",
+      "narration": "這兩行，決定別人打開你的網域會看到什麼。"
+    },
+    {
+      "on": "records",
+      "paste": "# 收信的郵局（網域商附贈的信件轉寄）\n@     3600  MX     10 mx.forward.registrar-b.example\n\n",
+      "narration": "MX 是收信的郵局。寄到這個網域的信，要送去哪裡，就看這一行。"
+    },
+    {
+      "on": "records",
+      "paste": "# 告示：誰可以替這個網域寄信\n@     3600  TXT    v=spf1 include:forward.registrar-b.example ~all\n\n",
+      "narration": "TXT 是貼在門上的告示，寫給其他服務看。常用來證明網域是你的，或聲明誰可以替你寄信。"
+    },
+    {
+      "on": "records",
+      "paste": "# 誰在管這本電話簿\n@    86400  NS     ns1.registrar-b.example\n@    86400  NS     ns2.registrar-b.example\n",
+      "narration": "NS 說的是誰在管這本電話簿。現在是網域商。改了它，等於換一個地方管整本，沒事不要動。"
+    },
+    {
+      "on": "claude",
+      "user": "第二欄的 TTL 是什麼？如果我現在改 A 紀錄，最慢多久所有人都看得到？",
+      "chapter": "看不懂就問",
+      "narration": "看不懂的地方，直接問。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "say": "TTL 是別人查到答案後，可以記住幾秒。\n\n`3600` 秒就是 **1 小時**。你改了紀錄，別人可能還記著舊答案，最慢大約 1 小時才會看到新的。\n\n想縮短等待，可以先把 TTL 改成 `300`（5 分鐘），等舊的 1 小時過了，再改 A 紀錄。",
+      "narration": "TTL 就是記住多久。所以改了紀錄，不一定馬上看得到，這是正常的。下一課會實際遇到。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "dig +short xiaosen-bakery.example",
+      "out": "203.0.113.10",
+      "chapter": "你自己查一次",
+      "narration": "AI 說完了，你自己也查一次。打開終端機，打這一行。加上 short，就只印出答案。"
+    },
+    {
+      "on": "term",
+      "type": "dig +short www.xiaosen-bakery.example",
+      "out": "parking.registrar-b.example.\n203.0.113.10"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "和 dns-records.md 寫的一樣",
+      "narration": "和檔案裡寫的一樣：網域和 www，都指到停放頁。讀完了，也對過了。"
+    },
+    { "hide": "term" },
+    {
+      "chapter": "換你判斷",
+      "checkpoint": "下一課要讓網域打開你的網站。這本電話簿裡，要改的是哪幾筆？",
+      "body": "想想每一筆各在做什麼。選一個。",
+      "id": "which-records",
+      "options": [
+        {
+          "label": "A 和 www 的 CNAME：它們決定網站開到哪裡",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "換你判斷",
+              "sub": "A 和 www 現在指到停放頁，下一課換成你的網站；其他的不用動",
+              "narration": "答對了。A 和 www 現在指到停放頁，下一課換成你的網站。其他的都不用動。"
+            }
+          ]
+        },
+        {
+          "label": "MX 和 TXT：看起來用不到，先刪掉",
+          "steps": [
+            {
+              "card": "這兩筆和網站無關",
+              "eyebrow": "再想想",
+              "sub": "它們是信件用的，刪了信可能就收不到；要改的是 A 和 www",
+              "narration": "這兩筆是信件用的，和網站無關，刪了信可能就收不到。要改的是 A 和 www。"
+            }
+          ]
+        },
+        {
+          "label": "NS：把電話簿換個地方管",
+          "steps": [
+            {
+              "card": "不用換管理者",
+              "eyebrow": "再想想",
+              "sub": "電話簿留在網域商就好；要改的是裡面 A 和 www 那兩行",
+              "narration": "電話簿留在網域商就好，不用換管理者。要改的是裡面 A 和 www 那兩行。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "要改的是 A 和 www 的 CNAME",
+            "eyebrow": "答案",
+            "sub": "它們決定網站開到哪裡；MX、TXT 是信件用的，NS 是管理者，都不用動",
+            "narration": "要改的是 A 和 www 的 CNAME，它們決定網站開到哪裡。MX、TXT 是信件用的，NS 是管理者，都不用動。"
+          }
+        ]
+      }
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：讀出你網域的電話簿",
+      "body": "對 AI 說：「請用 dig 查（你的網域）目前的 DNS 紀錄：A、AAAA、CNAME、MX、TXT、NS，www 也要查。只查，不要改任何東西。每一筆用白話說明用途，整理成 dns-records.md。完成的標準：檔案裡的值和查到的一樣，而且告訴我網域現在指到哪裡。」電腦沒有 dig 的話，請它改用 nslookup。看不懂就問：「這一行在做什麼？刪掉會怎樣？」最後自己在終端機查一次，和檔案對照。還沒買網域，可以先查一個你常用網站的網域來練習。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "看懂網域的 DNS 紀錄各在做什麼。",
+      "eyebrow": "學會",
+      "sub": "DNS · A／AAAA：地址 · CNAME：別名 · MX：收信 · TXT：告示 · NS：管理者 · TTL：記住多久",
+      "chapter": "學會",
+      "narration": "今天學會：看懂網域的 DNS 紀錄各在做什麼。AI 查出來、用白話說明，你看懂，再自己查一次對照。下一課，就把停放頁換成你的網站。"
+    }
+  ]
+}

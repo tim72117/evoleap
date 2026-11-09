@@ -254,16 +254,10 @@
   font-weight: 700;
 }
 
-/* 未登入時的存取標籤:免費預覽用實心綠,登入後學習用外框 */
+/* 未登入時的存取標籤:免費預覽用實心綠,登入後學習只放鎖頭(site/LockIcon.tsx) */
 .badgePreview {
   background: var(--site-accent-solid);
   color: var(--site-accent-contrast);
-}
-
-.badgeLogin {
-  border: 1px solid var(--site-border);
-  background: transparent;
-  color: var(--site-text);
 }
 
 .rowGoal {

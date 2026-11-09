@@ -8,6 +8,7 @@ import type { CourseLesson, LessonStep } from '../content/lessonTypes'
 import { coursePath, lessonLabel, lessonPath, nextCourse, type Course } from '../content/catalog'
 import styles from './Lesson.module.css'
 import type { PlayerHandle } from './playerHandle'
+import { LessonAd } from './LessonAd'
 import { MockPlayer } from './MockPlayer'
 import { LivePlayer } from './LivePlayer'
 import { effectiveCues, mmss, stepAt } from './lessonTiming'
@@ -432,6 +433,8 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
               <p>{lesson.tryYourOwn}</p>
             </section>
           )}
+
+          <LessonAd course={course} lesson={lesson} />
 
           <nav className={styles.pager} aria-label="上一課與下一課">
             {prev ? (

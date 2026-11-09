@@ -1,0 +1,307 @@
+{
+  "title": "HTTPS 與快取",
+  "lesson": "從做好到上線 · 單元 1 · 1.3",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天看鎖頭和新舊版",
+    "line": "網站更新了，朋友卻說還是舊的。今天請 AI 把原因查出來，順便確認網址的鎖頭沒問題。你要做的是看結果、做決定，最後自己打開確認。"
+  },
+  "blocking": { "cast": ["flow", "claude", "web"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "網頁怎麼走到阿哲的手機",
+        "nodes": {
+          "host": { "label": "GitHub Pages 主機", "sub": "放網站的地方", "icon": "cloud", "x": 80, "y": 45 },
+          "cdn": { "label": "CDN", "sub": "各地的轉運站", "icon": "globe", "x": 50, "y": 45 },
+          "mobile": { "label": "阿哲的手機", "sub": "瀏覽器", "icon": "phone", "x": 20, "y": 45 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "檢查 HTTPS 與快取",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v5", "width": "phone", "url": "https://your-name.github.io/bakery/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "HTTPS 與快取",
+      "eyebrow": "從做好到上線 · 單元 1 · 1.3",
+      "sub": "你說目標 → AI 檢查並回報 → 你做決定、自己打開確認",
+      "chapter": "明明更新了",
+      "narration": "上一課，網站有了公開網址。今天你又改了一個地方，手機版的選單收起來了。"
+    },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "手機版的選單改好了，已經部署成功！再點一次網址看看",
+      "narration": "部署成功，你馬上告訴阿哲。"
+    },
+    {
+      "on": "phone",
+      "receive": "還是舊的耶，選單一樣佔了好幾行。",
+      "from": "阿哲"
+    },
+    { "hide": "phone" },
+    {
+      "show": "web",
+      "narration": "這是阿哲手機上的畫面。他只是再點一次連結，沒有重新整理。"
+    },
+    {
+      "callout": "web:sel:nav",
+      "text": "新版已經部署了，他看到的卻還是舊選單",
+      "narration": "網站沒有壞，部署也成功了。那舊版是從哪裡來的？"
+    },
+    { "hide": "web" },
+    {
+      "show": "flow",
+      "chapter": "一路上的副本：快取",
+      "narration": "網頁從主機出發，會先經過 CDN。CDN 是放在各地的轉運站，離你近，送得快。"
+    },
+    { "on": "flow", "send": ["host", "cdn"], "label": "網頁", "tone": "data" },
+    {
+      "on": "flow",
+      "send": ["cdn", "mobile"],
+      "label": "網頁＋保存期限",
+      "tone": "data",
+      "narration": "網頁送到瀏覽器時，會附上一張保存期限。這一路留下的副本，就叫快取。"
+    },
+    {
+      "on": "flow",
+      "pulse": "mobile",
+      "text": "期限內直接用副本",
+      "narration": "期限還沒到，瀏覽器就直接拿副本，不再問主機。這樣打開比較快。"
+    },
+    {
+      "callout": "flow:tag:cdn>mobile",
+      "text": "Cache-Control：寫在回應裡的保存期限",
+      "narration": "這張保存期限，叫 Cache-Control。它是回應裡的一行標頭，標頭就是附在網頁外面、給瀏覽器看的說明。"
+    },
+    {
+      "on": "flow",
+      "pulse": "host",
+      "text": "已經是新版",
+      "tone": "ok",
+      "narration": "所以主機已經是新版，手機裡的副本卻還沒過期，阿哲看到的就是舊版。"
+    },
+    { "on": "flow", "tidy": true, "chapter": "網址的鎖頭：HTTPS" },
+    {
+      "on": "flow",
+      "pulse": "host",
+      "tone": "none",
+      "text": "",
+      "narration": "再看另一件事。瀏覽器網址列的鎖頭或安全標示，代表這個網站用 HTTPS。"
+    },
+    { "on": "flow", "send": ["host", "cdn"], "label": "HTTPS", "tone": "key" },
+    {
+      "on": "flow",
+      "send": ["cdn", "mobile"],
+      "label": "HTTPS：加密傳送",
+      "tone": "key",
+      "narration": "HTTPS 代表傳送時有加密。中途的人看不到內容，也改不了內容。"
+    },
+    {
+      "callout": "flow:node:host",
+      "text": "憑證：網站的身分證，平台會自動申請與換新",
+      "narration": "要加密，網站需要一張憑證，就像身分證。GitHub Pages 會幫你處理，不用自己申請。"
+    },
+    { "on": "flow", "tidy": true },
+    {
+      "on": "flow",
+      "send": ["mobile", "cdn"],
+      "label": "http://…",
+      "tone": "warn",
+      "keep": false,
+      "narration": "如果有人打了沒加密的 http 開頭網址呢？"
+    },
+    {
+      "on": "flow",
+      "send": ["cdn", "mobile"],
+      "label": "301：請改走 https",
+      "tone": "ok",
+      "narration": "網站這邊會回一個 301，意思是永久搬家。瀏覽器看到，就自動換成 https 的網址。這叫轉址。"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "交代目標，和怎樣算完成" },
+    {
+      "on": "claude",
+      "user": "阿哲說他還看到舊版。請檢查公開網址 https://your-name.github.io/bakery/：\n1. http 會不會自動轉到 https，憑證有沒有效\n2. 主機上是不是已經是新版\n3. 網頁會被保存多久，這個期限能不能改短\n要改設定或 push 之前先問我。\n完成的標準：每一項都附檢查結果，再告訴我客人多久會看到新版。",
+      "narration": "這些檢查不用自己查指令。你只要說目標、什麼時候要問你，還有怎樣算完成。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -sI http://your-name.github.io/bakery/ | grep -iE '^HTTP|^location'",
+      "result": "301",
+      "out": "HTTP/1.1 301 Moved Permanently\nLocation: https://your-name.github.io/bakery/",
+      "chapter": "AI 一項一項查",
+      "narration": "curl 是在終端機抓網頁的工具，加上 -I，只看標頭。先查轉址：打 http，回 301，指向 https。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -sv -o /dev/null https://your-name.github.io/bakery/ 2>&1 | grep -E 'expire date|verify ok'",
+      "result": "憑證有效",
+      "out": "*  expire date: Mar  7 23:59:59 2027 GMT\n*  SSL certificate verify ok.",
+      "narration": "再查憑證：驗證通過，也還沒到期。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s https://your-name.github.io/bakery/ | grep -c 'menuBtn'",
+      "result": "找到新版",
+      "out": "1",
+      "narration": "接著直接抓一次網頁，裡面找得到新選單的按鈕。所以主機上已經是新版。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -sI https://your-name.github.io/bakery/ | grep -iE '^HTTP|^cache-control'",
+      "result": "保存 600 秒",
+      "out": "HTTP/2 200\ncache-control: max-age=600",
+      "narration": "最後看保存期限。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "max-age=600 秒＝10 分鐘：這就是看到舊版的原因",
+      "narration": "max-age 是可以保存幾秒。六百秒是十分鐘。阿哲打開過一次，接下來十分鐘內，都可能看到舊版。"
+    },
+    {
+      "on": "claude",
+      "say": "查完了：\n✓ `http` 會用 **301** 自動轉到 `https`\n✓ 憑證有效，到期前平台會自動換新\n✓ 主機上已經是新版\n\n**看到舊版的原因**：網頁的保存期限是 `max-age=600`，也就是 10 分鐘，阿哲手機裡的副本還沒過期。\n\n**這個期限我改不了**：GitHub Pages 不能自己設定保存期限。\n\n所以沒做任何事的客人，通常 10 分鐘內會看到新版；重新整理，就馬上看得到。",
+      "narration": "它把結果一項一項列出來。沒有亂改設定，也老實說這個期限改不了。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "好的回報：有證據，也說清楚做不到什麼",
+      "narration": "做不到的事講清楚，你才能做決定。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "你重新整理一下看看",
+      "chapter": "你自己確認",
+      "narration": "先請阿哲重新整理。"
+    },
+    {
+      "on": "phone",
+      "receive": "有了！選單收起來了，清爽多了。",
+      "from": "阿哲"
+    },
+    { "hide": "phone" },
+    {
+      "show": "web",
+      "narration": "AI 查過了，你也要自己打開看一次。一樣用手機，重新整理。"
+    },
+    { "on": "web", "site": "v6", "narration": "同一個網址，已經是新版了。" },
+    {
+      "callout": "web:addressbar",
+      "text": "https 開頭：瀏覽器會在這裡顯示鎖頭或安全標示",
+      "narration": "順便看網址列。https 開頭，你的瀏覽器會在這裡顯示鎖頭或安全標示。"
+    },
+    { "on": "web", "click": "#menuBtn", "narration": "點開選單，新功能也能用。" },
+    {
+      "callout": "web:sel:#menuBtn",
+      "text": "重新整理就是新版；重新整理還是舊的，再試強制重新整理",
+      "narration": "重新整理通常就夠了。如果還是舊的，再試強制重新整理，叫瀏覽器跳過副本，直接跟主機要最新的。"
+    },
+    {
+      "checkpoint": "你想讓客人盡快看到新版，但他們不會知道要重新整理。這個店家介紹網站，要怎麼做？",
+      "body": "記得：GitHub Pages 的保存期限是 10 分鐘，不能自己改。選一個做法。",
+      "id": "wait",
+      "chapter": "你來決定",
+      "options": [
+        {
+          "label": "接受通常 10 分鐘內更新：店家介紹晚一點看到沒關係",
+          "steps": [
+            {
+              "card": "這個網站，等 10 分鐘沒關係",
+              "eyebrow": "答對了",
+              "sub": "不用多花力氣；你自己重新整理就能先確認新版",
+              "narration": "答對了。店家介紹晚幾分鐘更新，沒有影響。你自己重新整理，就能先確認新版。"
+            }
+          ]
+        },
+        {
+          "label": "請 AI 在專案裡加設定檔，把保存期限改短",
+          "steps": [
+            {
+              "card": "GitHub Pages 不讀這種設定",
+              "eyebrow": "再想想",
+              "sub": "有些平台可以自訂，但為了這個網站搬家不划算",
+              "narration": "GitHub Pages 不讀這種設定，加了也沒有效果。有些平台可以自訂，但店家介紹晚幾分鐘沒關係，不用為了這個搬家。"
+            }
+          ]
+        },
+        {
+          "label": "請每位客人強制重新整理",
+          "steps": [
+            {
+              "card": "客人不會這樣做",
+              "eyebrow": "再想想",
+              "sub": "你也沒辦法一個一個通知；這個網站等 10 分鐘就好",
+              "narration": "客人不會知道要這樣做，你也沒辦法一個一個通知。這個網站，等十分鐘就好。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "接受通常 10 分鐘內更新",
+            "eyebrow": "答案",
+            "sub": "店家介紹晚一點看到沒關係；你自己重新整理就能先確認",
+            "narration": "答案是接受。店家介紹晚幾分鐘更新，沒有影響。你自己重新整理，就能先確認新版。"
+          }
+        ]
+      }
+    },
+    { "hide": "web" },
+    {
+      "card": "1. push，等部署跑完\n2. AI 抓公開網址，確認有新內容\n3. 你重新整理，自己看一次",
+      "eyebrow": "之後每次更新",
+      "sub": "要朋友馬上看，就請他重新整理",
+      "chapter": "之後每次更新",
+      "narration": "之後每次更新，都走這三步。等部署跑完，請 AI 抓公開網址確認，你再重新整理看一次。要朋友馬上看，就請他重新整理。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：檢查你的網址",
+      "body": "在你的專案裡對 AI 說：「請檢查我的公開網址（貼上你的網址）：http 會不會自動轉到 https，憑證有沒有效，網頁會被保存多久，這個期限能不能改短。要改設定或 push 之前先問我。完成的標準：每一項都附檢查結果，再告訴我客人多久會看到新版。」看過結果後，請 AI 改一個小地方、push，等部署跑完。你再用手機重新整理，確認看到新版。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "網址有鎖頭，更新後馬上看得到新版。",
+      "eyebrow": "學會",
+      "sub": "HTTPS · 憑證 · 301 轉址 · 快取 · Cache-Control · CDN",
+      "chapter": "學會",
+      "narration": "今天學會：確認網址有鎖頭，更新後重新整理，馬上看得到新版。AI 查轉址、憑證和保存期限，你決定要不要等，最後自己打開確認。不過這個網址的名字，還是 GitHub 的。下一課，來看網域是什麼、怎麼挑。"
+    }
+  ]
+}

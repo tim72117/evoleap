@@ -7,6 +7,8 @@ export interface User {
   createdAt: string
   /** 只用來決定要不要顯示研發基地的入口;真正的權限由伺服器判定 */
   isAdmin?: boolean
+  /** 有效訂閱,訂閱者不看廣告。訂閱功能合併前伺服器不會回傳,視為沒訂閱 */
+  subscribed?: boolean
 }
 
 /** API 回傳的錯誤;message 是可以直接顯示給使用者的中文訊息 */

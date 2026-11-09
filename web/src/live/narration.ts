@@ -109,6 +109,7 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
     evict(i)
     if (nextEl.dataset.url === c.url) {
       clipEl.pause() // 交換後舊的會變成預載用的元素,先停掉,否則聲音會疊在新的一段上
+      clipEl.muted = true // 預載用的元素一律靜音(見 unlock 的說明)
       ;[clipEl, nextEl] = [nextEl, clipEl]
     }
     setSrc(clipEl, c.url) // 沒有預載好的就直接設;交換後若 Blob 已抓好,換成本機來源
@@ -166,7 +167,9 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
       unlocked = true
       const list = clips()
       const i = Math.max(0, clipAt(view.t))
-      // 靜音播一下再停,只為了取得播放權限,不會聽到聲音;被瀏覽器拒絕(NotAllowedError)時下次按播放再試
+      // 靜音播一下再停,只為了取得播放權限(iOS 的權限是每個元素各自算的,換段時下一段的元素才能播);被瀏覽器拒絕(NotAllowedError)時下次按播放再試。
+      // 預載下一段的元素解鎖後不取消靜音:iOS Safari 偶爾在剛開始播時 pause() 沒有真的停下(paused 已是 true,聲音還在出),
+      // 取消靜音就會聽到下一段從頭疊在目前這段上,而且外殼按暫停也停不掉。輪到它播時 startClip 會設成正確的靜音狀態。
       for (const el of [clipEl, nextEl]) {
         setSrc(el, list[Math.min(i + (el === nextEl ? 1 : 0), list.length - 1)].url)
         el.muted = true
@@ -178,7 +181,7 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
             if ((e as { name?: string } | null)?.name === 'NotAllowedError') unlocked = false
           })
           .finally(() => {
-            el.muted = muted
+            el.muted = el === clipEl ? muted : true
           })
       }
     },
@@ -187,14 +190,16 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
       clipIdx = -1
     },
     pause() {
+      // 預載的元素也停:萬一它在背景出聲(見 unlock),按暫停至少能停掉
       clipEl.pause()
+      nextEl.pause()
     },
     setRate(rate) {
       clipEl.playbackRate = nextEl.playbackRate = rate
     },
     setMuted(m) {
       muted = m
-      clipEl.muted = nextEl.muted = m
+      clipEl.muted = m // 預載的元素保持靜音,輪到它播時 startClip 再設
     },
     destroy() {
       destroyed = true

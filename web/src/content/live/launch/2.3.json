@@ -1,0 +1,403 @@
+{
+  "title": "建立帳號與專案",
+  "lesson": "從做好到上線 · 單元 2 · 2.3",
+  "camera": "auto",
+  "teacher": {
+    "say": "註冊你來，專案交給 AI",
+    "line": "今天開始用 Google Cloud。註冊、同意條款、輸入信用卡，一定是你自己做。AI 幫你寫步驟，等你註冊好，再替你建立專案、連上帳單。"
+  },
+  "blocking": { "cast": ["map", "claude", "term"], "shot": "depth" },
+  "cast": {
+    "map": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "Google Cloud 的三層",
+        "nodes": {
+          "account": { "label": "帳號", "sub": "你是誰", "icon": "user", "x": 50, "y": 14 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "雲端專案",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "me": {
+      "actor": "person",
+      "props": { "name": "你", "look": "customer" },
+      "place": "center",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "建立帳號與專案",
+      "eyebrow": "從做好到上線 · 單元 2 · 2.3",
+      "sub": "註冊、條款、信用卡：你自己　建立專案：AI 動手",
+      "chapter": "後端要住在哪裡",
+      "narration": "小森烘焙的後端和資料庫，都要放在一直開著的電腦上。向別人租用這樣的電腦和服務，就叫雲端，用多少付多少。這個單元，我們用 Google Cloud。"
+    },
+    {
+      "show": "map",
+      "chapter": "看懂三層",
+      "narration": "開始之前，先看懂它的結構。最外層是帳號，就是你登入用的 Google 帳號，代表你是誰。"
+    },
+    {
+      "on": "map",
+      "spawn": "billing",
+      "label": "帳單帳戶",
+      "sub": "誰付錢，上面綁信用卡",
+      "icon": "card",
+      "x": 20,
+      "y": 50,
+      "link": "account",
+      "narration": "第二層是帳單帳戶，代表誰付錢，上面綁著信用卡。"
+    },
+    {
+      "on": "map",
+      "spawn": "project",
+      "label": "專案",
+      "sub": "裝一組服務的資料夾",
+      "icon": "file",
+      "x": 62,
+      "y": 50,
+      "link": "account",
+      "narration": "第三層是專案，像一個資料夾，裝著同一個作品要用的東西。"
+    },
+    {
+      "on": "map",
+      "wire": ["billing", "project"],
+      "narration": "專案要連上帳單帳戶，裡面的服務才開得起來，費用也算到那裡。"
+    },
+    {
+      "on": "map",
+      "spawn": "run",
+      "label": "Cloud Run",
+      "sub": "放後端",
+      "icon": "server",
+      "x": 38,
+      "y": 84,
+      "link": "project",
+      "narration": "專案裡面放的是服務：後端放 Cloud Run，"
+    },
+    {
+      "on": "map",
+      "spawn": "sql",
+      "label": "Cloud SQL",
+      "sub": "放資料庫",
+      "icon": "db",
+      "x": 62,
+      "y": 84,
+      "link": "project",
+      "narration": "資料庫放 Cloud SQL，"
+    },
+    {
+      "on": "map",
+      "spawn": "secret",
+      "label": "Secret Manager",
+      "sub": "放金鑰",
+      "icon": "lock",
+      "x": 86,
+      "y": 84,
+      "link": "project",
+      "narration": "金鑰放 Secret Manager。這些後面都會一個一個用到。"
+    },
+    {
+      "callout": "map:node:project",
+      "text": "一個作品一個專案：費用看得清楚，也不會互相影響",
+      "narration": "一個作品開一個專用的專案。費用看得清楚，動到這邊也不會影響到別的作品。"
+    },
+    { "hide": "map" },
+    { "show": "claude", "chapter": "先說清楚分工" },
+    {
+      "on": "claude",
+      "user": "我要開始用 Google Cloud，放小森烘焙的後端和資料庫。\n註冊、同意條款、輸入信用卡我自己來，請寫逐步操作，每一步寫我會看到什麼。不要跟我要密碼或卡號。\n我做完之後，請你用 gcloud 建立專用的專案、連上帳單帳戶。會建立東西、會影響費用的指令，先問我。\n完成的標準：把專案狀態和帳單狀態讀出來給我看。",
+      "narration": "一樣先說清楚：哪些是你的，哪些交給 AI，什麼時候要問你，還有怎樣算完成。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "密碼和卡號，不交給 AI",
+      "narration": "特別講明：密碼和卡號，不要交給 AI。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "**註冊步驟（你自己做）**\n1. 用你的 Google 帳號登入 Google Cloud 主控台，你會看到開始使用的按鈕\n2. 選國家，**自己讀過條款**再勾選同意\n3. 付款資訊的畫面，**信用卡由你自己輸入**，不用告訴我\n4. 完成後，你會看到主控台首頁。到「帳單」頁面，確認有一個帳單帳戶\n5. 照官方安裝頁裝好 gcloud，這是操作 Google Cloud 的指令工具\n\n試用方案和免費額度常常調整，請以註冊畫面和官方頁面寫的為準，我這裡不列數字。\n\n做完告訴我帳單帳戶的名稱就好。",
+      "narration": "AI 寫好步驟，也告訴你每一步會看到什麼。試用和免費額度常常調整，所以看官方的畫面，不看它的記憶。"
+    },
+    {
+      "chapter": "換你判斷",
+      "checkpoint": "註冊 Google Cloud 的時候，哪一件事可以交給 AI？",
+      "body": "選一個。",
+      "id": "whodoes",
+      "options": [
+        {
+          "label": "把卡號貼給它，請它幫忙填",
+          "steps": [
+            {
+              "card": "卡號永遠不交給 AI",
+              "eyebrow": "千萬不要",
+              "sub": "只在付款畫面由你自己輸入；AI 寫步驟就好",
+              "narration": "千萬不要。卡號只在付款畫面由你自己輸入，對話裡不要出現。可以交給 AI 的，是查步驟和解釋。"
+            }
+          ]
+        },
+        {
+          "label": "請它替你讀條款，直接按同意",
+          "steps": [
+            {
+              "card": "同意條款是你的決定",
+              "eyebrow": "再想想",
+              "sub": "可以請它解釋看不懂的地方，按同意的是你",
+              "narration": "條款是你和雲端公司之間的約定。看不懂可以請 AI 解釋，但讀過、按同意的要是你。"
+            }
+          ]
+        },
+        {
+          "label": "寫步驟，說明每一步會看到什麼",
+          "steps": [
+            {
+              "card": "答對了",
+              "eyebrow": "換你判斷",
+              "sub": "AI 查步驟、解釋；帳號、條款、信用卡由你自己來",
+              "narration": "答對了。AI 查步驟、解釋畫面；帳號、條款和信用卡，由你自己來。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "可以交給 AI 的是寫步驟",
+            "eyebrow": "答案",
+            "sub": "條款你自己讀、自己同意；卡號只在付款畫面由你輸入",
+            "narration": "可以交給 AI 的，是寫步驟和解釋。條款你自己讀、自己同意；卡號只在付款畫面由你輸入。"
+          }
+        ]
+      }
+    },
+    { "hide": "claude" },
+    {
+      "card": "登入 Google 帳號\n自己讀條款、按同意\n自己輸入信用卡",
+      "eyebrow": "只有你能做",
+      "sub": "決定今天的付款方式、接受條款的，都是你",
+      "chapter": "你照步驟註冊",
+      "narration": "接下來的三件事，只有你能做。登入你的帳號，自己讀條款，自己輸入信用卡。"
+    },
+    {
+      "show": "me",
+      "on": "me",
+      "say": "條款我自己看過了，卡號也自己填好了。",
+      "mood": "calm",
+      "narration": "這個過程，AI 沒有看到你的密碼和卡號，也不需要看到。"
+    },
+    { "hide": "me" },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "註冊好了，帳單帳戶叫「我的帳單帳戶」。",
+      "chapter": "登入 gcloud，也是你來",
+      "narration": "回到 AI，只要告訴它帳單帳戶的名稱。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud auth list",
+      "result": "還沒登入",
+      "out": "No credentialed accounts.\n\nTo login, run:\n  $ gcloud auth login",
+      "narration": "gcloud 剛才已經照步驟裝好。它先看登入了沒，結果是還沒有。"
+    },
+    {
+      "on": "claude",
+      "say": "接下來的指令要用你的帳號。**登入要你自己來**：請在終端機跑 `gcloud auth login`，照畫面到瀏覽器授權。密碼不用告訴我。\n\n登入之後，我下的 gcloud 指令就是用你的權限，所以建立東西、影響費用的指令，我都會先問你。",
+      "narration": "這句話很重要。登入之後，AI 下的指令就是用你的權限。所以每個確認提示，你都要看一眼。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "gcloud auth login",
+      "out": "Your browser has been opened to visit Google sign-in.\n\nYou are now logged in as [your-name@example.com].",
+      "narration": "你在終端機打這一行，到瀏覽器確認要授權的內容，再按下允許。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "授權你自己點，密碼不經過 AI",
+      "narration": "登入成功。整個過程，你的密碼都沒有經過 AI。"
+    },
+    { "hide": "term" },
+    { "on": "claude", "user": "登入好了，繼續。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud billing accounts list",
+      "result": "找到 1 個",
+      "out": "ACCOUNT_ID            NAME        OPEN\n000000-AAAAAA-BBBBBB  我的帳單帳戶  True",
+      "chapter": "AI 動手：建立專案",
+      "narration": "它列出帳單帳戶，名稱和你說的一樣。這裡的編號是示範用的。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud projects create bakery --name=\"小森烘焙\"",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "建立一個專案，還沒有開任何服務",
+      "narration": "要建立專案了，它先問你。這裡的名稱是課程示範用的，你的可以取自己的。還沒有開任何服務，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud projects create bakery --name=\"小森烘焙\"",
+      "result": "失敗",
+      "out": "ERROR: The project ID you specified is already in use by another project.",
+      "narration": "失敗了。專案編號全世界不能重複，這個已經有人用了。"
+    },
+    {
+      "on": "claude",
+      "say": "`bakery` 已經被別人用掉了。我改用 `bakery-demo`，顯示名稱一樣是「小森烘焙」。",
+      "narration": "遇到錯誤，它讀懂原因，提出新的名稱。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud projects create bakery-demo --name=\"小森烘焙\"",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "換一個專案編號，再建立一次",
+      "narration": "指令變了，所以再問一次。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud projects create bakery-demo --name=\"小森烘焙\"",
+      "result": "完成",
+      "out": "Create in progress for [projects/bakery-demo]… done."
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud billing projects link bakery-demo --billing-account=000000-AAAAAA-BBBBBB",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "連上帳單帳戶後，這個專案開始用服務就會計費",
+      "narration": "連上帳單，是會影響費用的一步。看清楚提示：連上之後，開始用服務就會計費。現在什麼服務都還沒開，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud billing projects link bakery-demo --billing-account=000000-AAAAAA-BBBBBB && gcloud config set project bakery-demo",
+      "result": "完成",
+      "out": "billingEnabled: true\nUpdated property [core/project]."
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud projects describe bakery-demo --format='value(name,lifecycleState)' && gcloud billing projects describe bakery-demo --format='value(billingEnabled)'",
+      "result": "完成",
+      "out": "小森烘焙  ACTIVE\nTrue",
+      "chapter": "AI 自己確認",
+      "narration": "最後照你給的標準讀出來：專案是啟用狀態，帳單也連上了。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 專案 `bakery-demo`（小森烘焙）已建立，也連上帳單帳戶。\n確認結果：專案 **ACTIVE**，帳單 **True**。目前還沒有開任何服務。\n\n請你也自己確認一次。下一步建議**先設預算警示**，再開始用任何服務。",
+      "narration": "回報裡有證據，也說了還沒做的事。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "gcloud projects list",
+      "out": "PROJECT_ID           NAME      PROJECT_NUMBER\nbakery-demo  小森烘焙  000000000000",
+      "chapter": "你自己看一次",
+      "narration": "AI 說好了，你也要自己看一次。在終端機列出你的專案，新專案就在這裡。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "也到主控台的專案選單看一眼",
+      "narration": "再到 Google Cloud 主控台，打開左上角的專案選單，也看得到它。到帳單頁面，確認它連的是你的帳單帳戶。"
+    },
+    { "hide": "term" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你想試一個新服務，又怕不小心弄壞小森烘焙。最好怎麼做？",
+      "body": "選一個。",
+      "id": "sandbox",
+      "options": [
+        {
+          "label": "開一個練習用的專案來試",
+          "steps": [
+            {
+              "card": "答對了",
+              "eyebrow": "想一想",
+              "sub": "專案彼此分開；試完整個關掉，小森烘焙不受影響",
+              "narration": "答對了。專案彼此分開。試完把練習專案整個關掉，小森烘焙不受影響。"
+            }
+          ]
+        },
+        {
+          "label": "再註冊一個新帳號",
+          "steps": [
+            {
+              "card": "不用那麼麻煩",
+              "eyebrow": "再想想",
+              "sub": "同一個帳號開一個新專案，就能隔開",
+              "narration": "不用另外註冊帳號。同一個帳號開一個新的專案，就能隔開。"
+            }
+          ]
+        },
+        {
+          "label": "直接在小森烘焙的專案裡試，小心一點",
+          "steps": [
+            {
+              "card": "小心擋不住意外",
+              "eyebrow": "再想想",
+              "sub": "開一個練習專案，費用也分得清楚",
+              "narration": "再小心也可能出錯。開一個練習專案，就算弄壞也沒關係，費用也分得清楚。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "開一個練習用的專案",
+            "eyebrow": "答案",
+            "sub": "專案彼此分開；試完整個關掉，費用也分得清楚",
+            "narration": "開一個練習用的專案。專案彼此分開，試完整個關掉，費用也分得清楚。"
+          }
+        ]
+      }
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：開好你的雲端專案",
+      "body": "對 AI 說：「我要開始用 Google Cloud，放（你的作品）的後端和資料庫。註冊、同意條款、輸入信用卡我自己來，請寫逐步操作，每一步寫我會看到什麼。不要跟我要密碼或卡號。」自己註冊好、跑過 gcloud auth login，再說：「請用 gcloud 建立專用的專案、連上帳單帳戶。會建立東西、會影響費用的指令，先問我。完成的標準：把專案狀態和帳單狀態讀出來給我看。」最後自己到主控台看一次。這一步需要信用卡，還不想綁卡，可以先看完課程再決定。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "開好雲端帳號與專用的專案。",
+      "eyebrow": "學會",
+      "sub": "雲端 · 帳號 · 帳單帳戶 · 專案 · gcloud",
+      "chapter": "學會",
+      "narration": "今天學會：開好雲端帳號與專用的專案。帳號、條款和信用卡是你的事，建立專案和連帳單交給 AI，最後你自己看一次。下一課，開任何服務之前，第一件事：先設預算警示。"
+    }
+  ]
+}

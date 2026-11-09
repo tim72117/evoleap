@@ -9,7 +9,7 @@ const PRIVACY_UPDATED = '2026-11-09'
 // 登入 cookie evoleap_session、訪客上課紀錄與訪客 cookie evoleap_guest(server/internal/api/guest.go、web/src/courses/guestActivity.ts)、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
 // 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)、Paddle 付款與訂閱紀錄(訂閱制條文先於程式改寫,開放付費前 purchases 要改成對應的訂閱資料)。新增任何蒐集資料的功能(例如練習完成狀態、表單)前,
 // 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/api/progress.go、server/internal/store/users.go、server/internal/store/progress.go、server/internal/api/paddle.go、server/internal/store/purchases.go、web/src/pricing/、
-// web/src/site/analytics.ts。
+// web/src/site/analytics.ts。廣告:web/src/site/AdSlot.tsx、web/src/courses/lessonAds.ts(僅正式環境且有設定 AdSense ID 時)。
 
 const sections: LegalSection[] = [
   {
@@ -57,8 +57,11 @@ const sections: LegalSection[] = [
           <li>
             <strong>第三方服務自行蒐集的資料</strong>：「使用 Google 帳號登入」由 Google 依其政策處理。課程影片由本網站直接產生畫面，不透過 YouTube 等第三方影音平台播放。
           </li>
+          <li>
+            <strong>廣告</strong>（只有登入、未訂閱，並觀看第 0 課之後的課程時才有）：廣告由 Google AdSense 提供，Google 會自行蒐集相關資料（見「廣告」）。
+          </li>
         </ul>
-        <p>本網站目前沒有留言或報名表單，也沒有放置廣告或廣告追蹤像素。</p>
+        <p>本網站目前沒有留言或報名表單。</p>
       </>
     ),
   },
@@ -190,7 +193,7 @@ const sections: LegalSection[] = [
           </li>
         </ul>
         <p>
-          我們<strong>不會</strong>把您的姓名、Email、帳號編號或任何帳號資料傳給 GA，本網站沒有廣告，我們也不把 GA 資料用於廣告投放。我們在 GA 中只看到彙整後的統計報表，無法用它認出特定的人。
+          我們<strong>不會</strong>把您的姓名、Email、帳號編號或任何帳號資料傳給 GA，也不把 GA 資料用於廣告投放。我們在 GA 中只看到彙整後的統計報表，無法用它認出特定的人。
         </p>
         <p>
           GA 中與 cookie、訪客識別碼相關的事件資料，依我們在 GA 後台設定的保存期限自動刪除（GA4 預設為 2 個月）；彙整後的統計報表不含可識別個人的資料，可能保存較久。
@@ -205,6 +208,24 @@ const sections: LegalSection[] = [
         <p>
           Google 如何處理這些資料，請參考{' '}
           <Ext href="https://policies.google.com/technologies/partner-sites?hl=zh-TW">Google 如何使用採用其服務的網站或應用程式中的資訊</Ext>。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'ads',
+    title: '廣告',
+    body: (
+      <>
+        <p>
+          序章與每門課的第 0 課沒有廣告，訂閱者也不會看到廣告。其他課程會對登入、未訂閱的使用者顯示 Google AdSense 廣告，並標示「廣告」。只有這些頁面會連線到 AdSense。
+        </p>
+        <p>
+          Google 等第三方供應商可能使用 cookie，依您先前造訪本網站或其他網站的紀錄放送廣告，並統計廣告的顯示與點擊；您的瀏覽器會直接連線到 Google，Google 可能因此取得您的 IP 位址、裝置資訊與正在瀏覽的網址。我們<strong>不會</strong>把您的姓名、Email 或帳號編號傳給廣告服務。
+        </p>
+        <p>
+          您可以到 <Ext href="https://adssettings.google.com/?hl=zh-TW">Google 廣告設定</Ext>關閉個人化廣告，或到 <Ext href="https://www.aboutads.info/choices/">aboutads.info</Ext> 管理第三方供應商的個人化廣告 cookie。Google 如何使用這些資料，請參考{' '}
+          <Ext href="https://policies.google.com/technologies/ads?hl=zh-TW">Google 廣告技術說明</Ext>。
         </p>
       </>
     ),
@@ -287,6 +308,12 @@ const sections: LegalSection[] = [
               '「使用 Google 帳號登入」按鈕，以及 Google 自己的用途。',
               '依 Google 的設定，詳見 Google 的 cookie 說明',
             ],
+            [
+              '由 Google 與第三方供應商決定',
+              'Google 與第三方廣告供應商',
+              '放送廣告、個人化廣告、統計廣告的顯示與點擊。只有看到廣告的頁面才會設定（見「廣告」）。',
+              '依各供應商的設定，詳見 Google 廣告技術說明',
+            ],
           ]}
         />
         <p>
@@ -315,7 +342,7 @@ const sections: LegalSection[] = [
             <strong>利用地區：</strong>帳號資料存放於 Google Cloud 位於臺灣的資料中心。伺服器存取記錄與 GA 資料由 Google 處理，可能存放或處理於臺灣境外的 Google 資料中心。Paddle 位於臺灣境外，您在結帳時提供的資料與我們交給 Paddle 的 Email、帳號編號會傳送到境外處理。
           </li>
           <li>
-            <strong>利用對象：</strong>我們；受我們委託處理資料的 Google（Google Cloud 代管網站與資料庫、Google Analytics 統計、Google 帳號登入）；處理訂單與付款的 Paddle；另於法律要求時，提供給依法有權調閱的機關。
+            <strong>利用對象：</strong>我們；受我們委託處理資料的 Google（Google Cloud 代管網站與資料庫、Google Analytics 統計、Google 帳號登入）；處理訂單與付款的 Paddle；提供廣告的 Google 與第三方供應商（由您的瀏覽器直接提供，見「廣告」）；另於法律要求時，提供給依法有權調閱的機關。
           </li>
           <li>
             <strong>利用方式：</strong>以自動化系統蒐集、儲存與處理；統計資料以彙整報表方式查看；帳號資料與存取記錄於維運、排查問題或處理您的請求時由我們查閱。
@@ -358,7 +385,7 @@ const sections: LegalSection[] = [
     title: '不出售您的資料',
     body: (
       <p>
-        我們不會出售、出租或交換您的個人資料，也不會將其提供給第三方做行銷用途。除了上面提到受託處理資料的 Google（Google Cloud、Google Analytics、Google 帳號登入）、處理訂單的 Paddle，以及法律要求或為保護本網站與使用者安全所必要的情形外，我們不會將資料提供給他人。
+        我們不會出售、出租或交換您的個人資料，也不會將其提供給第三方做行銷用途。除了上面提到受託處理資料的 Google（Google Cloud、Google Analytics、Google 帳號登入）、處理訂單的 Paddle，以及法律要求或為保護本網站與使用者安全所必要的情形外，我們不會將資料提供給他人。顯示廣告時，您的瀏覽器會直接連線到 Google 與第三方供應商（見「廣告」），我們不會把帳號資料交給它們。
       </p>
     ),
   },

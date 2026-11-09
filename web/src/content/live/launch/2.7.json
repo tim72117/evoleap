@@ -1,0 +1,418 @@
+{
+  "title": "雲端資料庫 Cloud SQL",
+  "lesson": "從做好到上線 · 單元 2 · 2.7",
+  "camera": "auto",
+  "teacher": {
+    "say": "搬資料，一筆都不能少",
+    "line": "今天請 AI 建立雲端資料庫、把資料搬上去，還要能證明一筆都沒少，才讓網站改用它。你負責看費用、授權連線、同意覆蓋資料，最後自己確認備份有開。"
+  },
+  "blocking": { "cast": ["flow", "claude", "term"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "資料放在容器外面",
+        "nodes": {
+          "run": { "label": "Cloud Run", "sub": "容器隨時會換掉", "icon": "cloud", "x": 18, "y": 40 },
+          "sql": { "label": "Cloud SQL", "sub": "雲端資料庫", "icon": "db", "x": 55, "y": 40 },
+          "backup": { "label": "自動備份", "sub": "每天一份", "icon": "shield", "x": 85, "y": 40 },
+          "local": { "label": "本機資料庫", "sub": "你電腦上的那一份", "icon": "browser", "x": 55, "y": 82 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "雲端資料庫",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "雲端資料庫 Cloud SQL",
+      "eyebrow": "從做好到上線 · 單元 2 · 2.7",
+      "sub": "正式站的資料存在雲端資料庫，有自動備份",
+      "chapter": "預約還是送不出去",
+      "narration": "上一課，網站上了雲端，可是預約送不出去。因為資料庫還在你的電腦上。"
+    },
+    {
+      "show": "flow",
+      "narration": "那把資料庫裝進同一個容器呢？不行。Cloud Run 的容器隨時可能換掉，寫在裡面的資料也會跟著不見。"
+    },
+    {
+      "callout": "flow:node:run",
+      "text": "容器裡的資料留不住，要放在容器外面",
+      "narration": "預約不能不見，所以資料要放在容器外面，一個一直開著的地方。"
+    },
+    {
+      "pulse": "sql",
+      "text": "升級、更新、修主機，雲端來做",
+      "tone": "ok",
+      "chapter": "託管：雜事交給雲端",
+      "narration": "這就是 Cloud SQL，Google 的託管資料庫。託管的意思是，顧資料庫的雜事交給雲端，你只管資料本身。"
+    },
+    {
+      "send": ["run", "sql"],
+      "label": "加密通道",
+      "tone": "key",
+      "narration": "Cloud Run 有內建的連線器，走加密的通道連過去，不用把資料庫開放給整個網路。"
+    },
+    {
+      "send": ["sql", "backup"],
+      "label": "每天自動",
+      "tone": "data",
+      "narration": "它還能每天自動備份。不小心刪錯資料，還有機會救回來。"
+    },
+    {
+      "pulse": "sql",
+      "text": "一直開著，一直計費",
+      "tone": "warn",
+      "chapter": "它和 Cloud Run 不一樣",
+      "narration": "要特別注意一件事。Cloud Run 沒人用就關，資料庫不會。"
+    },
+    {
+      "callout": "flow:node:sql",
+      "text": "就算沒人用，只要開著就會計費",
+      "narration": "就算一整天沒有客人，它也一直在計費。所以這一步一定要你看過費用，自己點頭。"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "交代任務：要能證明沒少" },
+    {
+      "on": "claude",
+      "user": "幫我把本機的 Postgres 搬到 Cloud SQL。專案 bakery-demo，地區和 Cloud Run 一樣用 asia-east1，最小規格，開自動備份。\n密碼用電腦隨機產生，存進 .env，不要顯示在對話裡。\n會花錢、要授權、會覆蓋或刪除資料的動作，先停下來問我。\n完成的標準：寫一個腳本，比對本機和雲端每張表的筆數，全部一致才讓 Cloud Run 改連，再送一筆測試預約，確認寫進雲端。",
+      "narration": "這次的重點是最後一句。搬完不能只說搬好了，要能證明一筆都沒少。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立 Cloud SQL（最小規格，開備份）", "doing"],
+        ["建立資料庫與帳號，密碼寫進 .env", "pending"],
+        ["匯出本機資料、匯入雲端", "pending"],
+        ["寫比對筆數的腳本", "pending"],
+        ["Cloud Run 改連 Cloud SQL，測一筆預約", "pending"]
+      ],
+      "narration": "它列成待辦，一項一項來。"
+    },
+    {
+      "on": "claude",
+      "say": "**下一步會開始計費，要你決定：** 建立 Cloud SQL `bakery-db`\n- 花錢嗎：**會，而且一直計費**，沒人用也一樣。實際金額請看 Google Cloud 的價目表\n- 規格：最小規格；地區：`asia-east1`\n- 自動備份：開啟，保留 7 天。備份也會占用儲存空間\n- 建立大約要幾分鐘\n\n建議你先確認 2.4 的預算警示金額夠不夠用。",
+      "chapter": "費用要你點頭",
+      "narration": "它停下來，先把費用說清楚。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "一直計費的東西：看過費用、預算夠，你才點頭",
+      "narration": "這堂課不報價，因為價格會變，要看官方的價目表。回頭看看 2.4 的預算警示，夠不夠用，由你決定。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud sql instances create bakery-db",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud services enable sqladmin.googleapis.com\ngcloud sql instances create bakery-db \\\n  --database-version=POSTGRES_16 --edition=enterprise \\\n  --tier=db-f1-micro --region=asia-east1 \\\n  --backup-start-time=19:00 --retained-backups-count=7",
+      "note": "建立後就開始計費。備份時間用世界標準時間，19:00 是台灣凌晨三點。",
+      "narration": "最小規格、台灣機房、每天半夜備份。看過費用了，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud services enable sqladmin.googleapis.com && gcloud sql instances create bakery-db --database-version=POSTGRES_16 --edition=enterprise --tier=db-f1-micro --region=asia-east1 --backup-start-time=19:00 --retained-backups-count=7",
+      "result": "完成",
+      "out": "Creating Cloud SQL instance for POSTGRES_16…done.\nNAME       REGION      TIER         STATUS\nbakery-db  asia-east1  db-f1-micro  RUNNABLE",
+      "narration": "資料庫建好了。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立 Cloud SQL（最小規格，開備份）", "done"],
+        ["建立資料庫與帳號，密碼寫進 .env", "doing"],
+        ["匯出本機資料、匯入雲端", "pending"],
+        ["寫比對筆數的腳本", "pending"],
+        ["Cloud Run 改連 Cloud SQL，測一筆預約", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "PW=$(openssl rand -base64 24) && gcloud sql databases create bakery --instance=bakery-db && gcloud sql users create bakery --instance=bakery-db --password=\"$PW\" && echo \"CLOUD_DB_PASSWORD=$PW\" >> .env && echo '密碼已寫入 .env（不顯示）'",
+      "result": "完成",
+      "out": "Created database [bakery].\nCreated user [bakery].\n密碼已寫入 .env（不顯示）",
+      "chapter": "密碼不出現在對話裡",
+      "narration": "密碼由電腦隨機產生，直接寫進 .env，對話裡看不到值。你不用想密碼，也不用把密碼貼給 AI。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "指令裡只有 $PW，對話裡沒有真正的值",
+      "narration": ".env 已經被 .gitignore 擋住，不會推上 GitHub。"
+    },
+    {
+      "on": "claude",
+      "say": "要把資料匯進去，我得先從你的電腦連到 Cloud SQL，工具是 `cloud-sql-proxy`，一條加密通道。\n\n它要用你的身分連線，**這個授權要你自己來**：請在終端機跑 `gcloud auth application-default login`。",
+      "chapter": "連線授權要你自己來",
+      "narration": "AI 又停下來了。這不是上一課那個登入，是另外給工具用的授權。一樣由你自己按。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "gcloud auth application-default login",
+      "out": "Your browser has been opened to visit:\n    https://accounts.google.com/o/oauth2/auth?…\n\nCredentials saved to file: [~/.config/gcloud/application_default_credentials.json]",
+      "narration": "到瀏覽器看過權限，按下允許。"
+    },
+    { "hide": "term" },
+    { "on": "claude", "user": "授權好了，繼續。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "(cloud-sql-proxy bakery-demo:asia-east1:bakery-db --port 5433 &) && sleep 3 && PGPASSWORD=$(grep '^DB_PASSWORD=' .env | cut -d= -f2-) pg_dump --no-owner --no-privileges -h localhost -U bakery bakery > /tmp/bakery.sql && PGPASSWORD=$(grep '^CLOUD_DB_PASSWORD=' .env | cut -d= -f2-) psql -h 127.0.0.1 -p 5433 -U bakery bakery -q -f /tmp/bakery.sql && echo 匯入完成",
+      "result": "完成",
+      "out": "匯入完成",
+      "chapter": "搬資料，再做檢查工具",
+      "narration": "它匯出本機資料，再透過加密通道匯入雲端。"
+    },
+    {
+      "on": "claude",
+      "edit": "compare-counts.mjs",
+      "lines": [
+        [1, "+", "// 比對本機與 Cloud SQL 每張表的筆數（只讀）"],
+        [2, "+", "const local = new pg.Client({ host: 'localhost', user: 'bakery', database: 'bakery', password: process.env.DB_PASSWORD })"],
+        [3, "+", "const cloud = new pg.Client({ host: '127.0.0.1', port: 5433, user: 'bakery', database: 'bakery', password: process.env.CLOUD_DB_PASSWORD })"],
+        [4, "+", "for (const t of await tables(local)) {"],
+        [5, "+", "  const [a, b] = [await count(local, t), await count(cloud, t)]"],
+        [6, "+", "  console.log(a === b ? '✓' : '✗', t.padEnd(14), a, b)"],
+        [7, "+", "}"]
+      ],
+      "narration": "接著做檢查工具。它把每張表的筆數，在本機和雲端各數一次，一樣就打勾。這個工具只讀，不會改資料。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node --env-file=.env compare-counts.mjs",
+      "result": "不一致",
+      "out": "  表              本機  雲端\n✓ products          18    18\n✗ reservations      12    11",
+      "narration": "跑一次：預約少了一筆。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "沒有這個工具，這一筆就悄悄不見了",
+      "narration": "如果沒有這個工具，AI 會說搬好了，你也不會知道少了一筆。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "PGPASSWORD=$(grep '^DB_PASSWORD=' .env | cut -d= -f2-) psql -h localhost -U bakery bakery -c \"select id, created_at from reservations order by id desc limit 1\"",
+      "result": "完成",
+      "out": " id |     created_at\n 12 | 2026-11-09 14:32:08（匯出之後才進來）"
+    },
+    {
+      "on": "claude",
+      "say": "少的那一筆，是**匯出之後**才進來的。\n\n你電腦上的容器還開著，搬資料的途中，又收到一筆預約。真的上線之後，這就是客人正在下的單。\n\n接下來怎麼處理？",
+      "narration": "它查出原因：搬資料的途中，網站還開著。接下來怎麼辦，要你決定。"
+    },
+    {
+      "checkpoint": "比對結果少一筆，是搬資料途中才進來的預約。接下來要怎麼做？",
+      "body": "雲端這一份現在還沒有人在用。選一個。",
+      "id": "gap",
+      "chapter": "你來決定",
+      "options": [
+        {
+          "label": "只差一筆，先切換過去，之後再說",
+          "steps": [
+            { "card": "這一筆就是客人的預約", "eyebrow": "再想想", "sub": "切換之後，兩邊會越差越多，更難補回來", "narration": "這一筆就是客人的預約。切換之後，兩邊會越差越多，更難補回來。要先暫停接單，重新搬一次。" }
+          ]
+        },
+        {
+          "label": "先暫停接單，重新搬一次，再比對",
+          "steps": [
+            { "card": "答對了", "eyebrow": "你來決定", "sub": "資料不再變動，比對才有意義；切換前都可以重來", "narration": "答對了。先讓資料不再變動，重新搬一次，比對才有意義。" }
+          ]
+        },
+        {
+          "label": "把比對的腳本改成允許差幾筆",
+          "steps": [
+            { "card": "這樣是把警報關掉", "eyebrow": "再想想", "sub": "問題還在，只是你看不到了", "narration": "這樣是把警報關掉。問題還在，只是你看不到了。要先暫停接單，重新搬一次。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          { "card": "先暫停接單，重新搬一次，再比對", "eyebrow": "答案", "sub": "資料不再變動，比對才有意義", "narration": "先暫停接單，重新搬一次，再比對。資料不再變動，比對才有意義。" }
+        ]
+      }
+    },
+    {
+      "on": "claude",
+      "user": "我已經把本機的網站停了。請重新搬一次，再比對。",
+      "chapter": "覆蓋之前，再問你一次",
+      "narration": "停網站這件事由你來做，再交回給 AI。"
+    },
+    {
+      "on": "claude",
+      "ask": "清掉雲端這份資料表，重新匯入",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "pg_dump --no-owner --no-privileges --clean --if-exists … > /tmp/bakery.sql\npsql -h 127.0.0.1 -p 5433 … -f /tmp/bakery.sql\nnode --env-file=.env compare-counts.mjs\nrm /tmp/bakery.sql",
+      "note": "--clean：匯入時會先刪掉雲端的資料表。",
+      "narration": "這個指令會刪掉雲端的資料表，所以 AI 照你的交代，先問。雲端現在沒有人在用，連的又是對的地方。允許。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "看到刪除、覆蓋：先確認刪的是哪一份",
+      "narration": "以後看到刪除或覆蓋，都先問一句：刪的是哪一份？上線之後，雲端這份就是正式資料，不能再這樣做。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "PGPASSWORD=$(grep '^DB_PASSWORD=' .env | cut -d= -f2-) pg_dump --no-owner --no-privileges --clean --if-exists -h localhost -U bakery bakery > /tmp/bakery.sql && PGPASSWORD=$(grep '^CLOUD_DB_PASSWORD=' .env | cut -d= -f2-) psql -h 127.0.0.1 -p 5433 -U bakery bakery -q -f /tmp/bakery.sql && node --env-file=.env compare-counts.mjs && rm /tmp/bakery.sql",
+      "result": "全部一致",
+      "out": "  表              本機  雲端\n✓ products          18    18\n✓ reservations      12    12\n全部一致",
+      "narration": "全部一致。匯出的檔案裡有客人的資料，它也順手刪掉了。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立 Cloud SQL（最小規格，開備份）", "done"],
+        ["建立資料庫與帳號，密碼寫進 .env", "done"],
+        ["匯出本機資料、匯入雲端", "done"],
+        ["寫比對筆數的腳本", "done"],
+        ["Cloud Run 改連 Cloud SQL，測一筆預約", "doing"]
+      ]
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run services update bakery（改連 Cloud SQL）",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud run services update bakery --region asia-east1 \\\n  --add-cloudsql-instances bakery-demo:asia-east1:bakery-db \\\n  --update-env-vars DB_HOST=/cloudsql/bakery-demo:asia-east1:bakery-db,DB_USER=bakery,DB_NAME=bakery,DB_PASSWORD=（從 .env 讀，不顯示）",
+      "note": "密碼暫時放在 Cloud Run 的環境設定，下一課搬走。",
+      "chapter": "全部一致，才切換",
+      "narration": "全部一致，才讓網站改連雲端資料庫。密碼暫時放在環境設定，下一課再搬走。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services update bakery --region asia-east1 --add-cloudsql-instances bakery-demo:asia-east1:bakery-db --update-env-vars DB_HOST=/cloudsql/bakery-demo:asia-east1:bakery-db,DB_USER=bakery,DB_NAME=bakery,DB_PASSWORD=\"$(grep '^CLOUD_DB_PASSWORD=' .env | cut -d= -f2-)\" >/dev/null && curl -s -X POST -o /dev/null -w '%{http_code}\\n' -d 'item=測試預約&qty=1' https://bakery-abc123-de.a.run.app/api/reservations && node --env-file=.env compare-counts.mjs | grep reservations",
+      "result": "完成",
+      "out": "201\n✗ reservations      12    13",
+      "narration": "送出一筆測試預約：201。再比對一次，這個打叉是好消息：雲端多了一筆，代表新預約真的寫進雲端了。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立 Cloud SQL（最小規格，開備份）", "done"],
+        ["建立資料庫與帳號，密碼寫進 .env", "done"],
+        ["匯出本機資料、匯入雲端", "done"],
+        ["寫比對筆數的腳本", "done"],
+        ["Cloud Run 改連 Cloud SQL，測一筆預約", "done"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- 兩張表筆數一致後才切換，切換後測試預約寫進雲端（**13 筆**）\n- 本機的資料庫之後只當開發用\n\n**還要你處理**\n1. 自己確認資料庫狀態和備份設定\n2. 第一份備份要等到排定的時間才會有，明天到 Cloud SQL 的備份頁看一次\n3. 那筆測試預約還留著，要不要刪由你決定\n\n⚠ 資料庫密碼目前放在 Cloud Run 的環境設定，能進主控台的人看得到。下一課搬進 Secret Manager。",
+      "narration": "它回報做到哪裡，也老實列出還沒做完的事。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "密碼還在環境設定：下一課搬走",
+      "narration": "特別注意最後這一行。密碼現在放在環境設定，沒有進 GitHub，但還不夠好。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "gcloud sql instances describe bakery-db --format=\"value(state,settings.backupConfiguration.enabled)\"",
+      "out": "RUNNABLE\tTrue",
+      "tone": "ok",
+      "chapter": "你自己確認",
+      "narration": "AI 說有備份，你自己查一次。RUNNABLE 代表資料庫正在跑，True 代表自動備份開著。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "備份開著還不夠：5.6 會真的還原一次",
+      "narration": "有備份，不等於救得回來。單元 5 會真的從備份還原一次。"
+    },
+    { "hide": "term" },
+    { "hide": "claude" },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "預約修好了，再試一次！",
+      "narration": "最後請阿哲試試看。"
+    },
+    {
+      "on": "phone",
+      "receive": "送出了！週六兩個可頌，幫我留著。",
+      "from": "阿哲",
+      "narration": "他的預約，現在存在雲端資料庫裡。你的電腦關機也沒關係。"
+    },
+    { "hide": "phone" },
+    {
+      "checkpoint": "你另外開了一個 Cloud SQL 做練習，練習完就沒人用了。接下來會怎樣？",
+      "body": "選一個。",
+      "id": "billing",
+      "chapter": "想一想",
+      "options": [
+        {
+          "label": "沒人用就不收錢，放著沒關係",
+          "steps": [
+            { "card": "那是 Cloud Run，不是資料庫", "eyebrow": "再想想", "sub": "資料庫開著就一直計費；練習的用完，確認過就刪", "narration": "那是 Cloud Run。資料庫開著就一直計費。練習用的，確認過裡面沒有要留的資料，就請 AI 刪掉，由你點頭。" }
+          ]
+        },
+        {
+          "label": "會繼續計費，確認沒有要留的資料，再點頭刪掉",
+          "steps": [
+            { "card": "答對了", "eyebrow": "想一想", "sub": "刪除救不回來，所以 AI 動手前一定要你點頭", "narration": "答對了。它會繼續計費，只暫停也可能還要付儲存空間的錢。確認沒有要留的資料，再點頭刪掉。刪除救不回來，所以一定要你點頭。" }
+          ]
+        },
+        {
+          "label": "把 Cloud Run 關掉，資料庫會一起停",
+          "steps": [
+            { "card": "它們是兩個獨立的服務", "eyebrow": "再想想", "sub": "關掉 Cloud Run，資料庫照樣開著、照樣計費", "narration": "它們是兩個獨立的服務。關掉 Cloud Run，資料庫照樣開著、照樣計費。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          { "card": "會繼續計費，確認沒有要留的資料，再點頭刪掉", "eyebrow": "答案", "sub": "資料庫不會沒人用就關；刪除救不回來，一定要你點頭", "narration": "它會繼續計費。資料庫不會沒人用就關。確認沒有要留的資料，再點頭刪掉。" }
+        ]
+      }
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把資料庫搬上雲端",
+      "body": "先確認 2.4 的預算警示還夠用：資料庫會一直計費。在你的專案裡對 AI 說：「幫我把本機的資料庫搬到 Cloud SQL，地區和 Cloud Run 一樣，最小規格，開自動備份。密碼用電腦隨機產生，存進 .env，不要顯示在對話裡。會花錢、要授權、會覆蓋或刪除資料的動作，先停下來問我。完成的標準：寫一個腳本，比對本機和雲端每張表的筆數，全部一致才讓 Cloud Run 改連，再送一筆測試資料，確認寫進雲端。」搬資料前，先暫停網站接單。最後自己查備份有沒有開。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "正式站的資料存在雲端資料庫，有自動備份。",
+      "eyebrow": "學會",
+      "sub": "Cloud SQL · 託管 · 自動備份 · 比對筆數 · 一直計費",
+      "chapter": "學會",
+      "narration": "今天學會：正式站的資料存在雲端資料庫，有自動備份。AI 建立、搬資料、做檢查工具；你看費用、授權連線、同意覆蓋，也自己確認備份。資料庫密碼還放在環境設定裡。下一課，把它放進 Secret Manager，讓機密由雲端保管。"
+    }
+  ]
+}

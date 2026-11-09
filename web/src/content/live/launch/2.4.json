@@ -1,0 +1,284 @@
+{
+  "title": "先設預算警示",
+  "lesson": "從做好到上線 · 單元 2 · 2.4",
+  "camera": "auto",
+  "teacher": {
+    "say": "開服務前，先設預算",
+    "line": "專案開好了，先別急著開服務。今天你決定每個月的預算，請 AI 設好通知，再自己確認。費用超過預算，就會收到信。"
+  },
+  "blocking": { "cast": ["meter", "claude", "term"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "meter": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "雲端的費用，像水錶一樣往上跑",
+        "nodes": {
+          "service": { "label": "服務", "sub": "開著就可能計費", "icon": "cloud", "x": 14, "y": 50 },
+          "bill": { "label": "本月費用", "sub": "用多少，算多少", "icon": "chart", "x": 44, "y": 50 },
+          "mail": { "label": "通知信", "icon": "mail", "x": 72, "y": 50 },
+          "you": { "label": "你", "sub": "看帳單、做決定", "icon": "user", "x": 90, "y": 50 }
+        },
+        "links": [["service", "bill"]]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "預算警示",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "先設預算警示",
+      "eyebrow": "從做好到上線 · 單元 2 · 2.4",
+      "sub": "你決定金額，AI 設好通知，你再確認一次",
+      "chapter": "阿哲的帳單",
+      "narration": "專案開好了。在開任何服務之前，先看阿哲傳來的訊息。"
+    },
+    { "show": "phone", "on": "phone", "receive": "救命！這個月的雲端帳單嚇死我了", "from": "阿哲" },
+    {
+      "on": "phone",
+      "receive": "上個月練習開了一台資料庫，練完就忘了關……",
+      "from": "阿哲",
+      "narration": "練習完忘了關，服務就一直開著，一直計費，到月底才發現。"
+    },
+    { "on": "phone", "reply": "你沒有設預算警示嗎？" },
+    { "on": "phone", "receive": "那是什麼？", "from": "阿哲" },
+    { "hide": "phone" },
+    {
+      "show": "meter",
+      "chapter": "預算只會通知",
+      "narration": "雲端是用多少付多少，像水錶。服務開著、有人用、資料變多，數字就一直往上跑，月底一起結帳。"
+    },
+    { "on": "meter", "send": ["service", "bill"], "label": "用量累積", "tone": "data" },
+    {
+      "on": "meter",
+      "pulse": "bill",
+      "text": "預算：你畫的一條線",
+      "tone": "ok",
+      "narration": "預算，是你自己畫的一條線，例如一個月多少錢。"
+    },
+    { "on": "meter", "send": ["service", "bill"], "label": "用量累積", "tone": "data" },
+    {
+      "on": "meter",
+      "pulse": "bill",
+      "text": "用到 50%",
+      "tone": "warn",
+      "narration": "警示，是在這條線的幾成時通知你。常見的設法是百分之五十、九十、一百。"
+    },
+    {
+      "on": "meter",
+      "send": ["bill", "mail"],
+      "label": "已用 50%",
+      "tone": "warn"
+    },
+    {
+      "on": "meter",
+      "send": ["mail", "you"],
+      "label": "寄到信箱",
+      "tone": "warn",
+      "narration": "花到一半就收到信，你還有時間去查，是什麼在花錢。"
+    },
+    { "on": "meter", "send": ["service", "bill"], "label": "用量累積", "tone": "data" },
+    {
+      "on": "meter",
+      "pulse": "bill",
+      "text": "超過 100%：服務照跑，照樣計費",
+      "tone": "bad",
+      "narration": "最重要的一點：超過預算之後呢？服務照跑，照樣計費。"
+    },
+    {
+      "callout": "meter:node:bill",
+      "text": "預算只通知，不會自動停掉服務",
+      "narration": "預算只會通知，不會自動幫你停掉服務。所以要在開服務之前就設好，收到信也要去處理。"
+    },
+    { "hide": "meter" },
+    {
+      "show": "claude",
+      "chapter": "金額你定，設定交給 AI",
+      "narration": "每個月花多少，只有你能決定。這裡用三百元示範，這不是建議的數字。費用怎麼算會調整，開服務前，請看官方的價格頁。"
+    },
+    {
+      "on": "claude",
+      "user": "請替我的帳單帳戶建立每月預算 NT$300，用到 50%、90%、100% 都通知我。\n執行前先說明指令會做什麼、會不會花錢；會改雲端設定的指令，先問我。\n完成的標準：把預算設定讀出來給我看，也告訴我通知會寄到哪裡。",
+      "narration": "要給的資訊只有兩個：每月多少錢、幾成時通知。再加上什麼時候要問你，和怎樣算完成。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "我要執行 `gcloud billing budgets create`。這個指令只是在帳單帳戶上加一條預算線，**本身不會開任何服務**。\n通知預設會寄給帳單管理員，也就是你。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "執行前先說：做什麼、會不會花錢",
+      "narration": "注意你要求它做的事：執行雲端指令之前，先說會做什麼、會不會花錢。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud billing budgets create",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud billing budgets create \\\n  --billing-account=000000-AAAAAA-BBBBBB \\\n  --display-name=\"每月預算\" --budget-amount=300TWD \\\n  --threshold-rule=percent=0.5 \\\n  --threshold-rule=percent=0.9 \\\n  --threshold-rule=percent=1.0",
+      "narration": "看一下提示：金額是你定的三百元，三個門檻也都對。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud billing budgets create --billing-account=000000-AAAAAA-BBBBBB --display-name=\"每月預算\" --budget-amount=300TWD --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0",
+      "result": "失敗",
+      "out": "ERROR: Billing Budget API has not been used in project bakery-demo before or it is disabled.",
+      "chapter": "遇到錯誤，AI 讀懂原因",
+      "narration": "第一次失敗了。用指令建立預算，要先開一個開關，這裡的 API 指的就是 Google 提供的這項功能。"
+    },
+    {
+      "on": "claude",
+      "say": "要先在專案啟用預算的 API，才能用指令建立預算。這只是打開功能，**不會開任何服務**。",
+      "narration": "它讀懂錯誤，也說明這一步會做什麼。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud services enable billingbudgets.googleapis.com",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "在這個專案啟用預算功能",
+      "narration": "這會改雲端設定，你交代過要先問，所以它停下來了。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud services enable billingbudgets.googleapis.com && gcloud billing budgets create --billing-account=000000-AAAAAA-BBBBBB --display-name=\"每月預算\" --budget-amount=300TWD --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0",
+      "result": "完成",
+      "out": "Operation finished successfully.\nCreated budget [每月預算]."
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud billing budgets list --billing-account=000000-AAAAAA-BBBBBB --format=\"yaml(displayName,amount,thresholdRules)\"",
+      "result": "完成",
+      "out": "displayName: 每月預算\namount:\n  specifiedAmount: { currencyCode: TWD, units: '300' }\nthresholdRules:\n- thresholdPercent: 0.5\n- thresholdPercent: 0.9\n- thresholdPercent: 1.0",
+      "chapter": "AI 自己確認",
+      "narration": "建好之後，它照你給的標準讀出來確認：三百元，三個門檻都在。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 每月預算 NT$300，用到 **150、270、300 元**時通知，信會寄給帳單管理員，也就是你。\n\n**要記得**\n- 預算只通知，不會自動停掉服務\n- 帳單資料有時間差，通知可能比實際花費晚\n\n請你也自己看一次。",
+      "narration": "它還提醒兩件事：預算不會自動停掉服務，通知也可能比實際花費晚一點。所以門檻要設得比你的上限早一些。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "gcloud billing budgets list --billing-account=000000-AAAAAA-BBBBBB --format=\"value(displayName)\"",
+      "out": "每月預算",
+      "chapter": "你自己確認",
+      "narration": "AI 說好了，你也要自己看一次。在終端機列出預算，它在這裡。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "再到主控台的帳單頁面，確認金額和門檻",
+      "narration": "再到 Google Cloud 主控台的帳單頁面，打開預算的設定，看金額和門檻是不是你定的。"
+    },
+    { "hide": "term" },
+    {
+      "card": "這個信箱，你真的會看嗎？",
+      "eyebrow": "還要確認一件事",
+      "sub": "通知寄到帳單管理員的信箱；不常看，就換成常看的",
+      "narration": "還要確認一件事。通知會寄到帳單管理員的信箱。如果這個信箱你不常看，通知再多也沒用。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "月中收到「已用 50%」的信。你該做什麼？",
+      "body": "你設了每月預算和 50%、90%、100% 的通知。選一個。",
+      "id": "alert",
+      "options": [
+        {
+          "label": "不用管，到 100% 會自動停",
+          "steps": [
+            {
+              "card": "不會自動停",
+              "eyebrow": "再想想",
+              "sub": "預算只通知；超過了照樣計費。打開帳單看是什麼在花錢",
+              "narration": "不會自動停。預算只是通知，超過了照樣計費。收到信，要去看是什麼在花錢。"
+            }
+          ]
+        },
+        {
+          "label": "打開帳單，看是什麼在花錢",
+          "steps": [
+            {
+              "card": "答對了",
+              "eyebrow": "想一想",
+              "sub": "看不懂的項目，截圖問 AI；要不要關，你決定",
+              "narration": "答對了。打開帳單，看哪個服務花最多，是不是有忘了關的。看不懂的項目，截圖問 AI，要不要關由你決定。"
+            }
+          ]
+        },
+        {
+          "label": "把預算調高，就不會再收到信",
+          "steps": [
+            {
+              "card": "費用沒有變少",
+              "eyebrow": "再想想",
+              "sub": "調高只是不通知；先看帳單，是什麼在花錢",
+              "narration": "調高預算只是不通知，費用沒有變少。先打開帳單，看是什麼在花錢。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "打開帳單，看是什麼在花錢",
+            "eyebrow": "答案",
+            "sub": "預算不會自動停；看不懂的項目，截圖問 AI",
+            "narration": "打開帳單，看是什麼在花錢。預算不會自動停。看不懂的項目，截圖問 AI，要不要關由你決定。"
+          }
+        ]
+      }
+    },
+    {
+      "card": "截圖帳單，請 AI 解釋每一項\n哪一項是忘了關的？可以省嗎？",
+      "eyebrow": "收到通知之後",
+      "sub": "截圖前，先遮住帳單帳戶編號和付款資訊",
+      "chapter": "看不懂的帳單",
+      "narration": "之後收到帳單，看不懂也沒關係。截圖給 AI，請它解釋每一項是什麼，哪一項是忘了關的。截圖前，先遮住帳單帳戶編號和付款資訊。要不要關掉，你決定。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：設定你的預算警示",
+      "body": "先看官方的價格頁，決定你每個月能接受的金額。再對 AI 說：「請替我的帳單帳戶建立每月預算（你的金額），用到 50%、90%、100% 都通知我。執行前先說明指令會做什麼、會不會花錢；會改雲端設定的指令，先問我。完成的標準：把預算設定讀出來給我看，也告訴我通知會寄到哪裡。」最後到主控台的帳單頁面，自己確認金額、門檻和信箱。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "費用超過預算就收到通知，\n不怕突然來一筆大帳單。",
+      "eyebrow": "學會",
+      "sub": "預算 · 警示門檻 · 帳單；預算只通知，不會自動停",
+      "chapter": "學會",
+      "narration": "今天學會：費用超過預算就收到通知，不怕突然來一筆大帳單。金額你決定，設定交給 AI，你再確認一次。雲端準備好了。下一課，用 Docker 把後端打包起來，先在自己的電腦上跑。"
+    }
+  ]
+}

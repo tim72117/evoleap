@@ -1,0 +1,345 @@
+{
+  "title": "買網域",
+  "lesson": "從做好到上線 · 單元 1 · 1.5",
+  "camera": "auto",
+  "teacher": {
+    "say": "你付款，AI 把關",
+    "line": "這一課真的要花錢。登入、同意條款、填卡號、按付款，全部由你自己來。AI 看不到購買頁面，它負責寫步驟和檢查清單，幫你抓漏掉的設定。"
+  },
+  "blocking": { "cast": ["flow", "claude"], "shot": "depth" },
+  "cast": {
+    "mei": {
+      "actor": "person",
+      "props": { "name": "花店的美玲", "look": "customer" },
+      "place": { "x": 560, "y": 380, "w": 800, "h": 320 },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "買完要檢查的四件事",
+        "nodes": {
+          "renew": { "label": "自動續約", "sub": "網域不會忘了續", "icon": "receipt", "x": 28, "y": 28 },
+          "lock": { "label": "轉移鎖定", "sub": "網域不會被轉走", "icon": "lock", "x": 72, "y": 28 },
+          "privacy": { "label": "隱私保護", "sub": "聯絡資料不公開", "icon": "shield", "x": 28, "y": 70 },
+          "email": { "label": "Email 驗證", "sub": "網域商寄來的信", "icon": "mail", "x": 72, "y": 70 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "買網域",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "me": {
+      "actor": "person",
+      "props": { "name": "你", "look": "customer" },
+      "place": { "x": 560, "y": 380, "w": 800, "h": 320 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "買網域",
+      "eyebrow": "從做好到上線 · 單元 1 · 1.5",
+      "sub": "AI 寫步驟和檢查清單 → 你登入、付款 → AI 抓漏，你再確認",
+      "chapter": "美玲的網域不見了",
+      "narration": "上一課選好了名字和網域商。下單之前，先聽一個常見的故事。"
+    },
+    { "show": "mei" },
+    {
+      "on": "mei",
+      "say": "我的花店網站突然打不開。一查才發現，網域到期沒續到，已經被別人買走了！",
+      "mood": "worried",
+      "narration": "美玲換過信用卡，自動扣款失敗，通知信又掉進垃圾信。"
+    },
+    {
+      "on": "mei",
+      "say": "而且開店後，常常接到推銷電話。他們怎麼知道我的電話？",
+      "mood": "tired",
+      "narration": "這兩件事，都和買網域時的設定有關。"
+    },
+    { "hide": "mei" },
+    {
+      "show": "flow",
+      "chapter": "買完要檢查的四件事",
+      "narration": "買網域時，有幾個設定要看懂。"
+    },
+    {
+      "on": "flow",
+      "pulse": "renew",
+      "text": "到期前自動扣款",
+      "narration": "第一個，自動續約。到期前自動扣款，不會忘記。不過卡換了，要記得回來更新。"
+    },
+    {
+      "on": "flow",
+      "pulse": "lock",
+      "text": "要搬家時才解鎖",
+      "narration": "第二個，轉移鎖定。網域可以轉到別家網域商。鎖住之後，要先由你登入解鎖，才轉得走。"
+    },
+    {
+      "on": "flow",
+      "pulse": "privacy",
+      "text": "換成網域商的代號",
+      "narration": "第三個，隱私保護。註冊要填聯絡資料，這些可能出現在公開的名冊 WHOIS。打開保護，公開的資料就會遮起來。美玲的推銷電話，可能就是這樣來的。"
+    },
+    {
+      "on": "flow",
+      "pulse": "email",
+      "text": "要點信裡的連結",
+      "narration": "第四個，Email 驗證。網域商會寄信給你，要點連結確認。一直沒驗證，網域可能會被暫停。"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "交代目標，也劃好界線" },
+    {
+      "on": "claude",
+      "user": "我要在網域商乙買 xiaosen-bakery.example。\n購買頁面你看不到，請給我逐步操作，還有買完要檢查的清單。\n帳號、密碼、卡號和個人資料都由我自己填，你不用碰。\n我每做完一步會截圖給你，截圖前我會遮掉個人資料和付款資料。\n完成的標準：到期日、自動續約、轉移鎖定、隱私保護和 Email 驗證都確認過，最後你再用 whois 查一次。",
+      "narration": "目標、完成的標準都講清楚。也講清楚哪些東西 AI 不會碰。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "帳號、密碼、卡號：你自己填，不交給 AI",
+      "narration": "花的是你的錢，帳號也是你的。這些不要交給 AI。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "say": "好的。**購買步驟：**\n1. 登入網域商乙，搜尋 `xiaosen-bakery.example`，看清楚結尾和續約價\n2. 加入購物車\n3. 結帳頁勾選：**自動續約、轉移鎖定、隱私保護**，年數選 1 年\n4. 看過服務條款和總金額，由你填資料、同意、按下付款\n5. 到信箱點驗證連結\n\n**買完檢查清單：** 到期日、三個開關都開、Email 已驗證。\n\n金額以結帳頁為準。如果和報告差很多，先別付款，告訴我。",
+      "narration": "步驟和檢查清單，一次給齊。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "金額以結帳頁為準，差很多就先別付款",
+      "narration": "價格會變動，也可能有稅金或其他費用。要花多少錢，由你在結帳頁決定。"
+    },
+    { "hide": "claude" },
+    { "show": "me", "chapter": "這幾步，由你自己來" },
+    {
+      "on": "me",
+      "say": "我登入網域商乙，搜尋 xiaosen-bakery.example，結尾和續約價都對，加入購物車。",
+      "mood": "calm",
+      "narration": "你照著步驟操作。密碼是你自己打的，AI 不知道。"
+    },
+    {
+      "on": "me",
+      "say": "到結帳頁了。要填信用卡，也想請 AI 幫我對一下……",
+      "mood": "worried",
+      "narration": "到了要填卡號的地方。"
+    },
+    {
+      "checkpoint": "結帳頁要填信用卡，你想請 AI 幫忙確認。要怎麼做？",
+      "body": "選一個做法。",
+      "id": "card",
+      "chapter": "你來判斷",
+      "options": [
+        {
+          "label": "卡號自己填；截圖給 AI 前，遮掉卡號和個人資料",
+          "steps": [
+            {
+              "card": "卡號不經過 AI",
+              "eyebrow": "答對了",
+              "sub": "AI 只要看得到商品、年數、開關和金額，就能幫你對",
+              "narration": "答對了。AI 只要看得到商品、年數、開關和金額，就能幫你對。卡號不用經過它。"
+            }
+          ]
+        },
+        {
+          "label": "把卡號貼給 AI，請它告訴我怎麼填",
+          "steps": [
+            {
+              "card": "卡號不要貼進對話",
+              "eyebrow": "千萬不要",
+              "sub": "自己填就好；截圖前也要遮掉卡號和個人資料",
+              "narration": "千萬不要。卡號不要貼進對話，自己填就好。截圖前，也要遮掉卡號和個人資料。"
+            }
+          ]
+        },
+        {
+          "label": "把網域商的密碼給 AI，請它幫我操作",
+          "steps": [
+            {
+              "card": "密碼不交給 AI",
+              "eyebrow": "千萬不要",
+              "sub": "帳號是你的，由你登入；AI 看遮過的截圖就能幫忙",
+              "narration": "千萬不要。帳號是你的，由你登入。AI 看遮過的截圖，就能幫上忙。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "卡號自己填，截圖前遮掉",
+            "eyebrow": "答案",
+            "sub": "AI 只要看得到商品、年數、開關和金額，就能幫你對",
+            "narration": "答案是卡號自己填，截圖前遮掉卡號和個人資料。AI 只要看得到商品、年數、開關和金額，就能幫你對。"
+          }
+        ]
+      }
+    },
+    {
+      "on": "me",
+      "say": "條款看過了，總金額也確認了。卡號我自己填好，按下付款。",
+      "mood": "calm",
+      "narration": "同意條款、確認金額、按下付款，都由你決定。"
+    },
+    { "hide": "me" },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "（附上截圖，個人資料已遮掉）付款完成了，這是網域管理頁。",
+      "chapter": "AI 對檢查清單",
+      "narration": "付款完成。打開網域管理頁，把資料遮好，截圖給 AI。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "對照檢查清單：\n✓ 到期日 2027/11/09\n✓ 自動續約：開\n✓ 轉移鎖定：開\n✗ **隱私保護：關**，結帳時可能漏勾了，請在這頁打開\n✗ **Email：未驗證**，請到信箱點驗證連結",
+      "narration": "它一項一項對。果然抓到兩個沒完成的地方。"
+    },
+    {
+      "show": "flow",
+      "narration": "把結果放回剛才那張清單。"
+    },
+    { "on": "flow", "pulse": "renew", "text": "開了", "tone": "ok" },
+    { "on": "flow", "pulse": "lock", "text": "開了", "tone": "ok" },
+    { "on": "flow", "pulse": "privacy", "text": "還沒開", "tone": "bad" },
+    {
+      "on": "flow",
+      "pulse": "email",
+      "text": "還沒驗證",
+      "tone": "bad",
+      "narration": "兩個綠的，兩個紅的。這就是檢查清單的用處。"
+    },
+    {
+      "callout": "flow:node:privacy",
+      "text": "買到了不等於設好了",
+      "narration": "就算付款成功，設定也可能漏掉。而這些在你的帳號裡，要由你自己打開。"
+    },
+    { "hide": "flow" },
+    { "hide": "claude" },
+    { "show": "me", "chapter": "補上漏掉的設定" },
+    {
+      "on": "me",
+      "say": "我在管理頁打開隱私保護，也到信箱點了驗證連結。",
+      "mood": "happy",
+      "narration": "打開開關，再到信箱點連結。兩件都是你自己的事。"
+    },
+    { "hide": "me" },
+    { "show": "flow" },
+    { "on": "flow", "pulse": "privacy", "text": "開了", "tone": "ok" },
+    {
+      "on": "flow",
+      "pulse": "email",
+      "text": "驗證了",
+      "tone": "ok",
+      "narration": "四個都綠了。可是畫面上的開關，要怎麼確定真的生效？"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "AI 從外面再查一次" },
+    {
+      "on": "claude",
+      "user": "（附上截圖，個人資料已遮掉）隱私保護開了，Email 也驗證了。請照完成的標準，從外面再查一次。",
+      "narration": "再截一次圖，請它照完成的標準確認。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "whois xiaosen-bakery.example | grep -iE 'Registrant Name|Domain Status|Expiry'",
+      "result": "已查到",
+      "out": "Registry Expiry Date: 2027-11-09\nDomain Status: clientTransferProhibited\nRegistrant Name: REDACTED FOR PRIVACY",
+      "narration": "AI 用 whois 從外面查。任何人查到的，也是這樣。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "REDACTED：名字遮住了　clientTransferProhibited：轉移鎖住了",
+      "narration": "你的名字被遮住，轉移也鎖住了，和開關一樣。"
+    },
+    {
+      "on": "claude",
+      "say": "全部確認過 ✓\n- 到期日 2027/11/09，自動續約已開\n- 轉移鎖定生效（`clientTransferProhibited`）\n- 公開資料已遮住你的姓名\n- Email 已驗證\n\n**這兩件事要你自己記得：**\n1. 換信用卡時，回網域商更新付款方式\n2. 網域商的通知信，別讓它掉進垃圾信",
+      "narration": "全部確認過。最後它提醒你兩件事，都是 AI 替你做不了的。"
+    },
+    {
+      "on": "claude",
+      "user": "我也登入網域商看過了：xiaosen-bakery.example 在我的帳號裡，到期日和開關都和你查到的一樣。",
+      "narration": "最後，你自己登入看一次，這樣才算買好。"
+    },
+    {
+      "checkpoint": "自動續約已經打開了。下面哪一件事，還是要你自己記得做？",
+      "body": "想想美玲的網域是怎麼不見的。",
+      "id": "renew",
+      "chapter": "想一想",
+      "options": [
+        {
+          "label": "換信用卡時，回網域商更新付款方式",
+          "steps": [
+            {
+              "card": "自動續約靠的是那張卡",
+              "eyebrow": "答對了",
+              "sub": "卡換了、過期了，扣款就會失敗",
+              "narration": "答對了。自動續約靠的是那張卡。卡換了、過期了，扣款就會失敗。"
+            }
+          ]
+        },
+        {
+          "label": "每年手動按一次續約",
+          "steps": [
+            {
+              "card": "不用手動按",
+              "eyebrow": "再想想",
+              "sub": "要注意的是付款方式還有效，換卡時記得更新",
+              "narration": "不用手動按，自動續約會自己扣款。要注意的是付款方式還有效，換卡時記得更新。"
+            }
+          ]
+        },
+        {
+          "label": "每個月請 AI 幫我登入檢查一次",
+          "steps": [
+            {
+              "card": "不用，也不要交出密碼",
+              "eyebrow": "再想想",
+              "sub": "要記得的是換卡時更新付款方式",
+              "narration": "不用這樣，密碼也不要交給 AI。要記得的是換卡時，更新付款方式。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "換信用卡時，更新付款方式",
+            "eyebrow": "答案",
+            "sub": "自動續約靠的是那張卡；卡換了，扣款就會失敗",
+            "narration": "答案是換信用卡時，回網域商更新付款方式。自動續約靠的是那張卡，卡換了，扣款就會失敗。"
+          }
+        ]
+      }
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：買下你的網域",
+      "body": "這一步真的要花錢，要不要買由你決定。想先看流程，可以走到結帳頁就停下來。要買的話，對 AI 說：「我要在（網域商）買（你的網域）。購買頁面你看不到，請給我逐步操作，還有買完要檢查的清單。帳號、密碼、卡號和個人資料都由我自己填，你不用碰。我每做完一步會截圖給你，截圖前我會遮掉個人資料和付款資料。完成的標準：到期日、自動續約、轉移鎖定、隱私保護和 Email 驗證都確認過，最後你再用 whois 查一次。」金額以結帳頁為準。做完按「完成了，繼續」。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "買下網域，確認自動續約與隱私保護都設好。",
+      "eyebrow": "學會",
+      "sub": "自動續約 · 轉移鎖定 · WHOIS · 隱私保護 · Email 驗證",
+      "chapter": "學會",
+      "narration": "今天學會：買下網域，確認自動續約與隱私保護都設好。AI 寫步驟、對清單、從外面查；你登入、付款、點驗證信。網域是你的了，可是它還不知道要帶客人去哪裡。下一課，先看懂網域的 DNS 紀錄。"
+    }
+  ]
+}

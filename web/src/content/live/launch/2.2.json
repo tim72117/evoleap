@@ -1,0 +1,380 @@
+{
+  "title": "什麼時候需要資料庫",
+  "lesson": "從做好到上線 · 單元 2 · 2.2",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天幫預約選個家",
+    "line": "客人的預約不能不見。今天先看資料會怎麼不見，再請 AI 依你的專案比較幾種資料庫。AI 查資料、寫比較，你做決定，也要說得出理由。"
+  },
+  "blocking": { "cast": ["term", "flow", "opts", "claude", "doc"], "shot": "depth" },
+  "cast": {
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "兩位客人同時預約",
+        "nodes": {
+          "a": { "label": "客人甲", "icon": "phone", "x": 12, "y": 25 },
+          "b": { "label": "客人乙", "icon": "phone", "x": 12, "y": 75 },
+          "server": { "label": "伺服器", "icon": "server", "x": 44, "y": 50 },
+          "file": { "label": "reservations.json", "sub": "一個檔案，目前 5 筆", "icon": "file", "x": 80, "y": 50 }
+        },
+        "links": [["a", "server"], ["b", "server"], ["server", "file"]]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "opts": {
+      "actor": "fc3-flow",
+      "props": { "title": "資料可以放在哪裡" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "選資料庫",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "plan",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "doc": {
+      "actor": "editor",
+      "props": { "project": "bakery" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "什麼時候需要資料庫",
+      "eyebrow": "從做好到上線 · 單元 2 · 2.2",
+      "sub": "依自己的作品選定資料庫，說得出理由",
+      "chapter": "預約不見了",
+      "narration": "上一課的後端收得到預約了，可是資料放在記憶體裡。我們來試一件事。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "curl -s 'localhost:3000/api/availability?date=2026-11-14&item=可頌'",
+      "out": "{\"date\":\"2026-11-14\",\"item\":\"可頌\",\"left\":18}",
+      "narration": "週六的可頌還能訂 18 個，阿哲訂的兩個有算進去。"
+    },
+    { "on": "term", "print": "（伺服器關掉，再重新啟動）", "tone": "dim", "narration": "現在把伺服器關掉，再重新啟動。" },
+    {
+      "on": "term",
+      "type": "curl -s 'localhost:3000/api/availability?date=2026-11-14&item=可頌'",
+      "out": "{\"date\":\"2026-11-14\",\"item\":\"可頌\",\"left\":20}",
+      "narration": "再查一次。又變回 20 個。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "又變回 20：阿哲的預約不見了",
+      "narration": "阿哲的預約不見了。記憶體只有程式開著時才記得。更新版本、當機、雲端換一台機器，伺服器都會重開。"
+    },
+    { "hide": "term" },
+    {
+      "show": "flow",
+      "chapter": "存成一個檔案夠嗎",
+      "narration": "那存成一個檔案呢？客人少的時候沒問題。可是有一天，兩位客人幾乎同時按下送出。"
+    },
+    { "on": "flow", "send": ["a", "server"], "label": "訂 2 個可頌", "keep": false },
+    { "on": "flow", "send": ["server", "file"], "label": "讀出 5 筆", "tone": "data", "narration": "伺服器處理客人甲：先把檔案讀出來，裡面有 5 筆。" },
+    { "on": "flow", "send": ["b", "server"], "label": "訂 1 個肉桂捲", "keep": false, "narration": "還沒寫回去，客人乙的預約也到了。" },
+    { "on": "flow", "send": ["file", "server"], "label": "也讀到 5 筆", "tone": "data", "narration": "處理乙的時候，讀到的也是同樣的 5 筆。" },
+    { "on": "flow", "send": ["server", "file"], "label": "寫回 6 筆（加甲）", "tone": "warn", "narration": "甲處理完，5 筆加上甲，寫回 6 筆。" },
+    { "on": "flow", "send": ["server", "file"], "label": "寫回 6 筆（加乙）", "tone": "bad", "narration": "乙也處理完，5 筆加上乙，同樣寫回 6 筆，把剛剛那份蓋掉了。" },
+    {
+      "on": "flow",
+      "pulse": "file",
+      "text": "只剩 6 筆：甲的預約不見了",
+      "tone": "bad",
+      "narration": "客人甲的預約憑空消失，而且沒有任何錯誤訊息。"
+    },
+    { "on": "flow", "tidy": true },
+    {
+      "on": "flow",
+      "pulse": "file",
+      "label": "資料庫",
+      "sub": "專門管資料的程式",
+      "icon": "db",
+      "text": "一筆一筆排隊寫入：7 筆都在",
+      "tone": "ok",
+      "narration": "資料庫就是專門處理這種事的程式。很多人同時寫，它會讓動作排好隊，也能很快地查詢、加總。"
+    },
+    { "hide": "flow" },
+    {
+      "show": "opts",
+      "on": "opts",
+      "spawn": "file",
+      "label": "檔案",
+      "sub": "像筆記本：同時寫會互相蓋掉",
+      "icon": "file",
+      "x": 28,
+      "y": 30,
+      "chapter": "四種常見的選擇",
+      "narration": "資料可以放在哪裡？常見的有四種。檔案像一本筆記本，最簡單，但就像剛剛看到的，同時寫會互相蓋掉。"
+    },
+    {
+      "on": "opts",
+      "spawn": "sqlite",
+      "label": "SQLite",
+      "sub": "像抽屜檔案櫃：一個檔案就是資料庫",
+      "icon": "db",
+      "x": 72,
+      "y": 30,
+      "narration": "SQLite 像抽屜裡的檔案櫃。一個檔案就是一個資料庫，能查詢加總，但它跟著一台電腦。"
+    },
+    {
+      "on": "opts",
+      "spawn": "pg",
+      "label": "Postgres",
+      "sub": "像銀行金庫：獨立的資料庫伺服器",
+      "icon": "bank",
+      "x": 28,
+      "y": 74,
+      "narration": "Postgres 像銀行金庫，是獨立的資料庫伺服器。很多人同時讀寫也穩，代價是要另外開一個服務。"
+    },
+    {
+      "on": "opts",
+      "spawn": "fs",
+      "label": "Firestore",
+      "sub": "像雲端共用筆記本：即時同步",
+      "icon": "cloud",
+      "x": 72,
+      "y": 74,
+      "narration": "Firestore 像雲端的共用筆記本，手機和網頁能即時同步，複雜的統計比較麻煩。"
+    },
+    {
+      "callout": "opts:window",
+      "text": "沒有最好的，只有最適合你現在的",
+      "narration": "沒有哪一種最好。要看幾個人同時寫、網站放在哪裡、要不要做統計。這些都是你的專案才有的答案。"
+    },
+    { "hide": "opts" },
+    { "show": "claude", "chapter": "要它先問你" },
+    {
+      "callout": "claude:mode",
+      "text": "規劃模式：只讀、只想，不改檔案",
+      "narration": "選資料庫會影響很久，所以先切到規劃模式。這時它只能讀和想，不會改任何檔案。"
+    },
+    {
+      "on": "claude",
+      "user": "小森烘焙要存客人的預約，不能不見。請比較檔案、SQLite、Postgres、Firestore，建議一種並說明理由。\n開始前，先問我你需要知道的事，也請自己看專案的狀況。\n完成的標準：比較要扣住我回答的需求，費用要查官方的資料，查不到的要直接說。先不要改程式。",
+      "narration": "交代它先問你，也自己去看專案。沒查到的不能猜，要直接說。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "先問幾個問題：\n1. 大概一天幾筆預約？尖峰時會不會很多人同時訂？\n2. 後端打算放在哪裡？\n3. 之後會有會員登入、線上付款嗎？\n4. 需要統計嗎？\n5. 每個月最多能接受多少費用？",
+      "narration": "它先問你。這些問題你最清楚，不用懂技術，用白話回答就好。"
+    },
+    {
+      "on": "claude",
+      "user": "一天大約 30 筆，週末早上會擠。後端想放 Google Cloud 的 Cloud Run。之後要會員登入，可能也要線上付款。月底想看每種麵包訂了多少。預算我還沒想好，請先告訴我要注意什麼。",
+      "narration": "Cloud Run 是雲端上跑後端的服務，後面會實際用到。預算還沒想好，也可以老實說。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "package.json、server.js",
+      "result": "Express 後端，資料在記憶體",
+      "out": "server.js:5  const reservations = [] // 先放記憶體",
+      "chapter": "它查過才建議",
+      "narration": "接著它自己讀專案，確認資料現在放在記憶體。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebSearch",
+      "arg": "Cloud Run container filesystem persistence",
+      "result": "官方文件：容器裡的檔案是暫時的",
+      "out": "容器停掉或換一台，寫在裡面的檔案就會消失；要長期保存，請用資料庫或雲端儲存。",
+      "narration": "然後查官方文件，確認一件關鍵的事：Cloud Run 的容器隨時可能換掉，寫在裡面的檔案會不見。容器就是打包好、可以搬到別的電腦跑的程式，之後會細講。"
+    },
+    {
+      "on": "claude",
+      "say": "**關鍵限制**：放在 Cloud Run，容器裡的檔案會消失，所以**檔案和 SQLite 都留不住資料**。\n\n**建議 Postgres**（Google Cloud 的 Cloud SQL 代管）：\n- 週末早上同時預約，不會互相蓋掉\n- 預約之後要對上會員和付款\n- 月底統計一句查詢就好\n\n**Firestore** 也留得住資料，但月底統計要多做一些事。\n\n**費用要注意**：Cloud SQL 開著就會計費，就算沒人用，通常也比這裡其他選項貴。價格會調整，我不在這裡寫數字，請你看官方的價格頁再決定。\n\n要用哪一種，由你決定。",
+      "narration": "它的建議有根據：先講你的專案才有的限制，再說為什麼。費用它沒有亂報數字，請你看官方價格頁。最後，把決定交還給你。"
+    },
+    {
+      "chapter": "你來決定",
+      "checkpoint": "小森烘焙的預約，你會選哪一種？",
+      "body": "記得條件：後端放 Cloud Run、週末早上會同時預約、之後要登入和付款、月底要統計。",
+      "id": "pickdb",
+      "options": [
+        {
+          "label": "Postgres：同時預約穩，也好統計",
+          "steps": [
+            {
+              "card": "這是這一課的選擇",
+              "eyebrow": "答對了",
+              "sub": "每個條件都對得上；代價是要另外開服務，也要看預算",
+              "narration": "每個條件都對得上。代價是要另外開一個服務，所以開之前要先看過預算。"
+            }
+          ]
+        },
+        {
+          "label": "SQLite：一個檔案，最簡單",
+          "steps": [
+            {
+              "card": "放在 Cloud Run 留不住",
+              "eyebrow": "再想想",
+              "sub": "容器換掉，檔案就不見了；放在自己的電腦才適合",
+              "narration": "SQLite 是一個檔案，放在 Cloud Run 上，容器一換就不見了。這一課我們選 Postgres。"
+            }
+          ]
+        },
+        {
+          "label": "Firestore：不用自己管伺服器",
+          "steps": [
+            {
+              "card": "也走得通，但多一些事",
+              "eyebrow": "可以考慮",
+              "sub": "資料留得住；月底統計比較麻煩。這一課我們選 Postgres",
+              "narration": "它也留得住資料，只是月底統計要多做一些事。理由說得出來就是好決定。這一課我們選 Postgres 繼續。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "這一課選 Postgres",
+            "eyebrow": "答案",
+            "sub": "同時預約穩、好統計；要另外開服務，開之前先看預算",
+            "narration": "這一課選 Postgres。同時預約穩，也好統計。它要另外開一個服務，所以開之前要先看過預算。"
+          }
+        ]
+      }
+    },
+    {
+      "on": "claude",
+      "mode": "ask",
+      "chapter": "AI 寫下決定",
+      "narration": "決定好了，切回一般模式，讓它把決定寫下來。"
+    },
+    {
+      "on": "claude",
+      "user": "就用 Postgres。把比較和理由寫進 docs/decisions/database.md。完成的標準：我回答的每個需求都有比較，理由要講到 Cloud Run。程式先不要改。",
+      "narration": "完成的標準一樣寫清楚。"
+    },
+    {
+      "on": "claude",
+      "ask": "docs/decisions/database.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "# 小森烘焙要用哪一種資料庫\n| 需求 | 檔案 | SQLite | Postgres | Firestore |",
+      "narration": "要建立檔案，它先問你。內容是比較表，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git status --short",
+      "result": "只多了一份文件",
+      "out": "?? docs/decisions/database.md",
+      "narration": "它自己確認：只多了這份文件，程式真的沒有動。"
+    },
+    {
+      "on": "claude",
+      "say": "已寫好 `docs/decisions/database.md`，你回答的需求都有比較，理由也講到 Cloud Run。程式沒有改，換資料庫放到之後做。\n\n請你讀一遍，確認條件都對。"
+    },
+    {
+      "show": "doc",
+      "on": "doc",
+      "open": "docs/decisions/database.md",
+      "chapter": "你來驗收",
+      "narration": "打開它寫的文件，你自己讀一遍。"
+    },
+    {
+      "on": "doc",
+      "paste": "# 小森烘焙要用哪一種資料庫\n\n條件：後端放 Cloud Run，一天約 30 筆，週末早上會擠\n\n| 需求         | 檔案 | SQLite | Postgres | Firestore |\n| 容器換掉還在 | 否   | 否     | 是       | 是        |\n| 同時預約穩   | 否   | 普通   | 是       | 是        |\n| 月底統計     | 麻煩 | 方便   | 方便     | 麻煩      |\n| 對上會員付款 | 麻煩 | 方便   | 方便     | 普通      |\n\n決定：Postgres（Cloud SQL 代管）\n理由：Cloud Run 留不住檔案；週末會同時預約；要統計\n要注意：開著就計費。費用以官方價格頁為準，開服務前先設預算\n"
+    },
+    {
+      "callout": "doc:code",
+      "text": "每一列都是你的需求，不是一般的優缺點",
+      "narration": "比較表的每一列，都是你剛剛回答的需求。條件有寫錯，結論也會錯，這一點只有你看得出來。"
+    },
+    {
+      "callout": "doc:code",
+      "text": "驗收：不看文件，你說得出為什麼嗎？",
+      "narration": "最後這樣驗收：不看文件，你能用自己的話說出為什麼選它嗎？說得出來，這個決定才是你的。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你想做一個只有自己用的記帳小工具，放在自己的電腦上，偶爾想查「這個月花最多的是什麼」。哪一種最適合？",
+      "body": "條件變了，答案也會變。選一個。",
+      "id": "bookkeeping",
+      "options": [
+        {
+          "label": "Postgres",
+          "steps": [
+            {
+              "card": "能用，但太重了",
+              "eyebrow": "再想想",
+              "sub": "只有你一個人、在一台電腦上，不需要另外開資料庫伺服器",
+              "narration": "能用，但太重了。只有你一個人用，不需要另外開資料庫伺服器。SQLite 就夠了。"
+            }
+          ]
+        },
+        {
+          "label": "SQLite",
+          "steps": [
+            {
+              "card": "答對了",
+              "eyebrow": "想一想",
+              "sub": "檔案留在自己的電腦，不用另外開伺服器，又能查詢加總",
+              "narration": "答對了。檔案留在自己的電腦，不用另外開伺服器，又能做「這個月花最多」這種查詢。"
+            }
+          ]
+        },
+        {
+          "label": "Firestore",
+          "steps": [
+            {
+              "card": "即時同步用不到",
+              "eyebrow": "再想想",
+              "sub": "它擅長多人即時同步；這個工具用 SQLite 就夠了",
+              "narration": "Firestore 擅長多人即時同步，這個工具用不到。SQLite 就夠了。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "SQLite 就夠了",
+            "eyebrow": "答案",
+            "sub": "一個人、一台電腦，不用另外開伺服器，又能查詢加總",
+            "narration": "SQLite 就夠了。一個人、一台電腦，不用另外開伺服器，又能查詢加總。"
+          }
+        ]
+      }
+    },
+    { "hide": "doc" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：為你的作品選資料庫",
+      "body": "先切到規劃模式，對 AI 說：「我的作品要存（你的資料）。請比較檔案、SQLite、Postgres、Firestore，建議一種並說明理由。開始前，先問我你需要知道的事，也請自己看專案的狀況。完成的標準：比較要扣住我回答的需求，費用要查官方的資料，查不到的要直接說。先不要改程式。」做好決定後，請它把比較和理由寫進 docs/decisions/database.md。最後不看文件，用自己的話說一次為什麼選它。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "依自己的作品選定資料庫，\n說得出理由。",
+      "eyebrow": "學會",
+      "sub": "資料庫 · SQLite · Postgres · Firestore · 規劃模式",
+      "chapter": "學會",
+      "narration": "今天學會：依自己的作品選定資料庫，說得出理由。AI 問清楚、查過資料再建議，決定由你來做。資料庫和後端都要放到雲端。下一課，先開好雲端帳號，和一個專用的專案。"
+    }
+  ]
+}

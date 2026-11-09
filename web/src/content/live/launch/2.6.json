@@ -1,0 +1,356 @@
+{
+  "title": "部署到 Cloud Run",
+  "lesson": "從做好到上線 · 單元 2 · 2.6",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天把便當送上雲端",
+    "line": "今天請 AI 把上一課的容器部署到 Cloud Run，拿到打得開的網址。你負責登入、選地區、決定要不要公開、看過費用才點頭，最後自己打開確認。"
+  },
+  "blocking": { "cast": ["flow", "claude", "web", "term"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "便當怎麼送上雲端",
+        "nodes": {
+          "pc": { "label": "你的電腦", "sub": "映像檔在這裡", "icon": "browser", "x": 15, "y": 28 },
+          "repo": { "label": "映像檔倉庫", "sub": "Artifact Registry", "icon": "file", "x": 50, "y": 28 },
+          "run": { "label": "Cloud Run", "sub": "幫你打開容器", "icon": "cloud", "x": 50, "y": 74 },
+          "url": { "label": "公開網址", "sub": "誰都打得開", "icon": "globe", "x": 85, "y": 74 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "部署到 Cloud Run",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "https://bakery-abc123-de.a.run.app" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "部署到 Cloud Run",
+      "eyebrow": "從做好到上線 · 單元 2 · 2.6",
+      "sub": "後端放上雲端，拿到打得開的網址",
+      "chapter": "便當要送到哪裡",
+      "narration": "上一課，容器在你的電腦上跑起來了。今天把它送上雲端。"
+    },
+    {
+      "show": "flow",
+      "narration": "要放的地方叫 Cloud Run，是 Google 專門幫你開容器的服務。"
+    },
+    {
+      "send": ["pc", "repo"],
+      "label": "docker push",
+      "tone": "req",
+      "narration": "映像檔先上傳到雲端的倉庫，叫 Artifact Registry。"
+    },
+    {
+      "send": ["repo", "run"],
+      "label": "部署",
+      "tone": "ok",
+      "narration": "Cloud Run 從倉庫拿便當，幫你打開來跑。"
+    },
+    {
+      "send": ["run", "url"],
+      "label": "拿到網址",
+      "tone": "ok",
+      "narration": "最後給你一個網址，誰都連得到。"
+    },
+    { "tidy": true },
+    {
+      "pulse": "run",
+      "text": "沒人用：0 個容器",
+      "tone": "none",
+      "chapter": "沒人就關，有人才開",
+      "narration": "Cloud Run 像一台聰明的餐車。沒有客人就收攤，一個容器都不開。不用你開機，也不用你顧主機，這叫無伺服器。"
+    },
+    {
+      "pulse": "run",
+      "text": "客人來了：打開 1 個",
+      "tone": "ok",
+      "narration": "客人來了，它才打開一個容器招呼他。"
+    },
+    {
+      "pulse": "run",
+      "text": "客人變多：自動多開幾個",
+      "tone": "ok",
+      "narration": "客人變多，自動多開幾個；人少了，再自動關掉。"
+    },
+    {
+      "pulse": "run",
+      "text": "第一位客人要多等一下",
+      "tone": "warn",
+      "narration": "代價是：沒人用一陣子之後，第一位客人要等容器從頭打開，會慢一點。這叫冷啟動。"
+    },
+    {
+      "callout": "flow:node:run",
+      "text": "冷啟動：第一位比較慢，之後就快了",
+      "narration": "想避開也可以，讓它隨時保留一個容器。但那個容器一直開著，就一直計費。小店通常接受偶爾慢一下。"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "交代目標，和什麼時候要問你" },
+    {
+      "on": "claude",
+      "user": "把 bakery 部署到 Cloud Run，專案是 bakery-demo。\n要我登入、要花錢、要決定地區或是否公開時，先停下來問我。\n完成的標準：雲端網址回 200，頁面看得到「小森烘焙」，/api/health 回 ok。",
+      "narration": "一樣是三件事：目標、什麼時候要問你、怎樣算完成。bakery-demo 是這堂課示範用的專案名稱，你要換成自己的。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "標準裡多了 /api/health：後端也要確認活著",
+      "narration": "上一課學到，只看首頁不夠。所以這次的標準，也要確認後端有回應。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud auth list",
+      "result": "還沒登入",
+      "out": "No credentialed accounts.\n\nTo login, run:\n  $ gcloud auth login `ACCOUNT`",
+      "chapter": "登入要你自己來",
+      "narration": "gcloud 是操作 Google Cloud 的指令工具。它先看你登入了沒，結果是還沒。"
+    },
+    {
+      "on": "claude",
+      "say": "**Google Cloud 登入要你自己來**：請在終端機跑 `gcloud auth login`，到瀏覽器選帳號、按授權。\n\n接著跑 `gcloud config set project bakery-demo`，指定專案。\n密碼不用告訴我。",
+      "narration": "這個帳號連著你的帳單。授權一定要你自己點，密碼也不用交給 AI。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "gcloud auth login",
+      "out": "Your browser has been opened to visit:\n    https://accounts.google.com/o/oauth2/auth?…\n\nYou are now logged in as [your-name@example.com].",
+      "narration": "你在終端機打這一行，到瀏覽器選帳號、看過權限，按下允許。"
+    },
+    {
+      "on": "term",
+      "type": "gcloud config set project bakery-demo",
+      "out": "Updated property [core/project].",
+      "narration": "再指定 2.3 開好的專案。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "登入與授權是你的事",
+      "narration": "登入好了。整個過程，你的密碼都沒有經過 AI。"
+    },
+    { "hide": "term" },
+    { "on": "claude", "user": "登入好了，繼續。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud config get-value project && gcloud billing projects describe bakery-demo --format='value(billingEnabled)'",
+      "result": "完成",
+      "out": "bakery-demo\nTrue",
+      "narration": "它確認專案對了，帳單也開通了。"
+    },
+    {
+      "on": "claude",
+      "say": "動手之前，有三件事要你決定：\n\n1. **地區**：機房放哪裡。客人在台灣，建議 `asia-east1`（台灣）\n2. **費用**：存映像檔、有人使用時，可能會產生費用。實際金額請看 Google Cloud 的價目表\n3. **要不要公開**：任何人都能打開，還是只有登入的人可以\n\n記憶體建議先用 `512Mi`，最少 0 個容器，也就是沒人用時不開。",
+      "chapter": "你來決定",
+      "narration": "AI 把要決定的事列出來。地區選離客人近的。記憶體是每個容器的工作桌，太小會被強制重開，太大比較貴。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "2.4 的預算警示只會通知，不會自動停止收費",
+      "narration": "費用這一項，要回頭想想 2.4 設的預算警示。超過預算它會通知你，但不會幫你把服務關掉。收到通知，還是要你處理。"
+    },
+    {
+      "checkpoint": "小森烘焙的網站要讓客人直接打開、送出預約。這個服務要不要開放給任何人？",
+      "body": "選一個。不管選哪個，後端的金鑰都不會因此公開，它們不在畫面的程式裡。",
+      "id": "public",
+      "options": [
+        {
+          "label": "開放給任何人：客人不用有 Google Cloud 帳號",
+          "steps": [
+            { "card": "答對了", "eyebrow": "你來決定", "sub": "公開的是網址；想保護的資料，要靠程式裡的登入和權限", "narration": "答對了。客人沒有 Google Cloud 帳號，要開放才打得開。公開的是網址，想保護的資料，要靠程式裡的登入和權限。" }
+          ]
+        },
+        {
+          "label": "不開放：比較安全，客人應該一樣打得開",
+          "steps": [
+            { "card": "不開放，客人只會看到 403", "eyebrow": "再想想", "sub": "403 代表沒有權限。內部工具才適合不開放；這個網站要開放", "narration": "不開放的話，客人只會看到 403，代表沒有權限。內部工具才適合這樣做。這個網站要開放。" }
+          ]
+        },
+        {
+          "label": "先不開放，等客人反應打不開再說",
+          "steps": [
+            { "card": "這樣客人第一次來就打不開", "eyebrow": "再想想", "sub": "這是給客人用的網站，部署時就要開放", "narration": "這樣客人第一次來就打不開了。這是給客人用的網站，部署時就要開放。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          { "card": "開放給任何人", "eyebrow": "答案", "sub": "客人沒有 Google Cloud 帳號；想保護的資料，要靠程式裡的登入和權限", "narration": "要開放給任何人。客人沒有 Google Cloud 帳號，不開放就打不開。想保護的資料，要靠程式裡的登入和權限。" }
+        ]
+      }
+    },
+    {
+      "on": "claude",
+      "user": "地區用 asia-east1，記憶體 512Mi，最少 0 個容器，開放給任何人。費用我知道了，請繼續。",
+      "chapter": "AI 動手：上傳映像檔",
+      "narration": "決定好了，交回給 AI。"
+    },
+    {
+      "on": "claude",
+      "ask": "開啟服務、建立映像檔倉庫、上傳映像檔",
+      "q": "允許 Claude 執行這些指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud services enable run.googleapis.com artifactregistry.googleapis.com\ngcloud artifacts repositories create bakery --repository-format=docker --location=asia-east1\ngcloud auth configure-docker asia-east1-docker.pkg.dev\ndocker build --platform linux/amd64 -t asia-east1-docker.pkg.dev/bakery-demo/bakery/web:v1 .\ndocker push asia-east1-docker.pkg.dev/bakery-demo/bakery/web:v1",
+      "note": "會在 bakery-demo 建立倉庫，存放映像檔可能產生費用。",
+      "narration": "這幾行會在你的雲端專案裡建東西。看一下：專案和地區都對。"
+    },
+    { "on": "claude", "choose": 1, "narration": "允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud services enable run.googleapis.com artifactregistry.googleapis.com && gcloud artifacts repositories create bakery --repository-format=docker --location=asia-east1 && gcloud auth configure-docker asia-east1-docker.pkg.dev --quiet && docker build --platform linux/amd64 -t asia-east1-docker.pkg.dev/bakery-demo/bakery/web:v1 . && docker push asia-east1-docker.pkg.dev/bakery-demo/bakery/web:v1",
+      "result": "完成",
+      "out": "Operation finished successfully.\nCreated repository [bakery].\nnaming to asia-east1-docker.pkg.dev/bakery-demo/bakery/web:v1 done\nv1: digest: sha256:4be1… size: 2417",
+      "narration": "映像檔上傳了。它特別指定平台，因為雲端機器的晶片，可能和你的電腦不一樣。這種細節，你不用自己記。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run deploy bakery",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud run deploy bakery \\\n  --image asia-east1-docker.pkg.dev/bakery-demo/bakery/web:v1 \\\n  --region asia-east1 --memory 512Mi --min-instances 0 \\\n  --allow-unauthenticated",
+      "note": "--allow-unauthenticated：任何人都能打開。",
+      "chapter": "部署",
+      "narration": "這一步網站就對外了。地區、記憶體、公開，都和你的決定一樣。"
+    },
+    { "on": "claude", "choose": 1, "narration": "允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run deploy bakery --image asia-east1-docker.pkg.dev/bakery-demo/bakery/web:v1 --region asia-east1 --memory 512Mi --min-instances 0 --allow-unauthenticated",
+      "result": "完成",
+      "out": "Deploying container to Cloud Run service [bakery]\n✓ Creating Revision…\n✓ Routing traffic…\nService URL: https://bakery-abc123-de.a.run.app",
+      "narration": "拿到網址了。Cloud Run 會告訴程式要聽哪個 port，上一課改成讀 PORT、聽 0.0.0.0，這裡就派上用場。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "URL=https://bakery-abc123-de.a.run.app; curl -s -o /dev/null -w '%{http_code}\\n' $URL && curl -s $URL | grep -o '<title>[^<]*' && curl -s $URL/api/health",
+      "result": "完成",
+      "out": "200\n<title>小森烘焙｜預約取貨\n{\"status\":\"ok\"}",
+      "chapter": "AI 自己驗證",
+      "narration": "它照你的標準一項一項驗證：200，標題對，後端也回 ok。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -X POST -o /dev/null -w '%{http_code}\\n' -d 'item=測試預約&qty=1' https://bakery-abc123-de.a.run.app/api/reservations; gcloud run services logs read bakery --region asia-east1 --limit 2",
+      "result": "500",
+      "out": "500\nError: 缺少環境變數 DB_PASSWORD\n    at connectDb (db.js:8)",
+      "narration": "它還多試了一筆預約，這是網站最重要的功能。果然失敗了，紀錄和上一課一樣：缺少資料庫密碼。"
+    },
+    {
+      "on": "claude",
+      "say": "完成標準都達到了 ✓\n網址：`https://bakery-abc123-de.a.run.app`\n驗證：首頁 **200**，標題正確，`/api/health` 回 ok。\n\n**還不能用的地方**：預約會失敗。雲端連不到你電腦上的資料庫，也沒有密碼。這要等雲端資料庫建好。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "好的回報：做到了什麼，也說出還不能用什麼",
+      "narration": "好的回報，除了做到什麼，也會老實說還不能用什麼。"
+    },
+    {
+      "show": "web",
+      "chapter": "你自己打開看",
+      "narration": "換你自己打開。這個畫面現在是從雲端的容器送出來的。"
+    },
+    {
+      "callout": "web:addressbar",
+      "text": "雲端網址：畫面和後端都在這裡",
+      "narration": "畫面和後端包在同一個容器，所以一個網址就全有了。GitHub Pages 的舊網址只有畫面。等預約穩定了，再把自己的網域接過來。"
+    },
+    { "on": "web", "scroll": "products", "pause": 500, "narration": "往下看，商品和圖片都在。" },
+    { "on": "web", "scroll": "top" },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "show": "phone",
+      "on": "phone",
+      "reply": "打開這個看看！https://bakery-abc123-de.a.run.app",
+      "narration": "把網址傳給阿哲。這次不靠你的電腦了。"
+    },
+    {
+      "on": "phone",
+      "receive": "打得開！不過第一次等比較久，重新整理就很快。還有，預約送不出去耶。",
+      "from": "阿哲",
+      "narration": "打開了。他還回報了兩件事。預約的問題，你已經知道了。另一件呢？"
+    },
+    {
+      "checkpoint": "阿哲說：第一次打開等比較久，重新整理就很快。這是什麼現象？",
+      "body": "選一個。",
+      "id": "cold",
+      "chapter": "想一想",
+      "options": [
+        {
+          "label": "冷啟動：沒人用時容器關了，要重新打開",
+          "steps": [
+            { "card": "答對了", "eyebrow": "想一想", "sub": "要不要花錢保留一個容器，由你決定；小店通常接受", "narration": "答對了。沒人用時容器關了，第一位客人要等它重新打開。要不要花錢保留一個容器，由你決定。" }
+          ]
+        },
+        {
+          "label": "記憶體不夠，要調大",
+          "steps": [
+            { "card": "只有第一次慢，不是記憶體", "eyebrow": "再想想", "sub": "記憶體不夠，每位客人都可能變慢或出錯", "narration": "記憶體不夠的話，每位客人都可能變慢或出錯。只有第一次慢、之後都快，是冷啟動。" }
+          ]
+        },
+        {
+          "label": "部署壞了，要重新部署",
+          "steps": [
+            { "card": "沒有壞，重新部署也一樣", "eyebrow": "再想想", "sub": "只有第一次慢，是冷啟動", "narration": "沒有壞。重新部署也一樣，下次沒人用之後，第一位還是會慢一點。這是冷啟動。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          { "card": "這是冷啟動", "eyebrow": "答案", "sub": "沒人用時容器關了，第一位客人要等它重新打開", "narration": "這是冷啟動。沒人用時容器關了，第一位客人要等它重新打開。" }
+        ]
+      }
+    },
+    { "hide": "phone" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把你的後端放上雲端",
+      "body": "先確認已經設好 2.4 的預算警示。在你的專案裡對 AI 說：「把這個專案部署到 Cloud Run，專案是（你的專案 ID）。要我登入、要花錢、要決定地區或是否公開時，先停下來問我。完成的標準：雲端網址回 200，頁面看得到（你的網站名稱），後端的健康檢查回 ok。」登入要在終端機自己跑 gcloud auth login。部署好後，用手機打開網址，也試試最重要的功能。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "後端放上雲端，拿到打得開的網址。",
+      "eyebrow": "學會",
+      "sub": "Cloud Run · 映像檔倉庫 · 地區 · 記憶體 · 冷啟動",
+      "chapter": "學會",
+      "narration": "今天學會：後端放上雲端，拿到打得開的網址。AI 上傳、部署、驗證；你負責登入、選地區、決定公開、看過費用才點頭。可是預約還送不出去。下一課，建立雲端資料庫 Cloud SQL，讓資料真的存下來。"
+    }
+  ]
+}

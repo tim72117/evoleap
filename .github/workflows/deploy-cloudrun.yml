@@ -52,12 +52,14 @@ jobs:
         run: gcloud auth configure-docker asia-east1-docker.pkg.dev --quiet
 
       # GA_MEASUREMENT_ID 為 GitHub repo variable(Settings → Variables);未設定時為空字串,
-      # 前端即不載入 Google Analytics。
+      # 前端即不載入 Google Analytics。ADSENSE_CLIENT、ADSENSE_SLOT 同樣是 repo variable,未設定時不載入 AdSense。
       - name: Build Docker image
         if: github.event.inputs.skip_build != 'true'
         run: |
           docker build \
             --build-arg VITE_GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID }} \
+            --build-arg VITE_ADSENSE_CLIENT=${{ vars.ADSENSE_CLIENT }} \
+            --build-arg VITE_ADSENSE_SLOT=${{ vars.ADSENSE_SLOT }} \
             -t ${{ env.IMAGE }}:${{ github.sha }} \
             -t ${{ env.IMAGE }}:latest \
             .

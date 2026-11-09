@@ -164,8 +164,8 @@ test('網頁怎麼運作:首頁卡片連到主題,第一課免費預覽、其他
   await expect(page.getByRole('heading', { name: '課程說明' })).toBeVisible()
   const row = (title: string) => page.locator('#map li').filter({ hasText: title })
   await expect(row('輸入網址之後發生的事').getByText('免費預覽')).toBeVisible()
-  await expect(row('HTML、CSS、JavaScript 的分工').getByText('登入後學習')).toBeVisible()
-  await expect(row('元素與標籤').getByText('登入後學習')).toBeVisible()
+  await expect(row('HTML、CSS、JavaScript 的分工').getByRole('img', { name: '登入後學習' })).toBeVisible()
+  await expect(row('元素與標籤').getByRole('img', { name: '登入後學習' })).toBeVisible()
   await expect(row('有意義的區塊').getByText('規劃中')).toBeVisible()
   await expect(row('有意義的區塊').getByRole('link')).toHaveCount(0)
 
@@ -489,6 +489,7 @@ const PAGES = [
   '/studio/todo',
   '/studio/kids-web',
   '/studio/web-basics',
+  '/studio/ops-course',
   '/studio/vibe-coding/4-1',
   '/studio/vibe-coding/4-2',
   '/studio/vibe-coding/4-3',

@@ -1,0 +1,396 @@
+{
+  "title": "前端、後端與 API",
+  "lesson": "從做好到上線 · 單元 2 · 2.1",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天讓網站接得住預約",
+    "line": "小森烘焙想讓客人在網站上預約。今天先弄懂畫面和伺服器各自負責什麼，再請 AI 做一個最小的後端。你負責定規則，最後自己打一次確認。"
+  },
+  "blocking": { "cast": ["flow", "claude", "web", "term"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v5", "width": "desktop", "url": "https://your-name.github.io/bakery/" },
+      "place": "window",
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "客人按下「送出預約」之後",
+        "log": "這次的往來",
+        "nodes": {
+          "browser": { "label": "瀏覽器", "sub": "前端：客人看到的畫面", "icon": "browser", "x": 14, "y": 50 },
+          "pages": { "label": "GitHub Pages", "sub": "放網頁檔案的地方", "icon": "cloud", "x": 46, "y": 18 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "線上預約的後端",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "前端、後端與 API",
+      "eyebrow": "從做好到上線 · 單元 2 · 2.1",
+      "sub": "分出畫面和伺服器各自負責的事",
+      "chapter": "客人想線上預約",
+      "narration": "小森烘焙的網站上線了。這個單元，要讓它記得住客人填的資料。"
+    },
+    {
+      "show": "phone",
+      "on": "phone",
+      "receive": "週六想訂兩個可頌，網站上要怎麼訂？",
+      "from": "阿哲",
+      "narration": "阿哲又傳訊息來了。"
+    },
+    { "on": "phone", "reply": "現在要打電話給店裡。" },
+    {
+      "on": "phone",
+      "receive": "店裡一忙就沒人接耶。不能在網站上直接預約嗎？",
+      "from": "阿哲",
+      "narration": "他說得對。店家也想要線上預約，而且客人的預約不能不見。"
+    },
+    { "hide": "phone" },
+    {
+      "show": "web",
+      "on": "web",
+      "scroll": "flow",
+      "narration": "看一下現在的網站。預約流程只是一段說明，第二步還是打電話或傳訊息。"
+    },
+    {
+      "callout": "web:section:flow",
+      "text": "現在的網站只能看，不能送出資料",
+      "narration": "這個網站只能看，客人沒辦法把資料送出去。要做到線上預約，得先多認識一個角色。"
+    },
+    { "hide": "web" },
+    {
+      "show": "flow",
+      "chapter": "只有畫面，接不住預約",
+      "narration": "客人看到、按得到的畫面，叫做前端。它跑在客人手機或電腦的瀏覽器裡。"
+    },
+    {
+      "on": "flow",
+      "send": ["pages", "browser"],
+      "label": "網頁檔案",
+      "tone": "data",
+      "note": "打開網址，拿到畫面",
+      "narration": "打開網址時，GitHub Pages 把網頁檔案送過來。到這裡都沒問題。"
+    },
+    {
+      "on": "flow",
+      "send": ["browser", "pages"],
+      "label": "送出預約",
+      "tone": "bad",
+      "note": "沒有人接",
+      "narration": "那客人按下送出呢？"
+    },
+    {
+      "on": "flow",
+      "pulse": "pages",
+      "text": "只會送檔案，沒有程式接住",
+      "tone": "bad",
+      "narration": "GitHub Pages 只負責送檔案，上面沒有程式在跑。預約送過去，沒有人接。"
+    },
+    {
+      "on": "flow",
+      "spawn": "server",
+      "label": "伺服器",
+      "sub": "後端：照規則處理",
+      "icon": "server",
+      "x": 46,
+      "y": 80,
+      "link": "browser",
+      "narration": "所以要多一個角色：伺服器。上面的程式一直開著，等人送東西來，這部分叫做後端。"
+    },
+    { "on": "flow", "tidy": true, "chapter": "API：兩邊約好的格式" },
+    { "on": "flow", "pulse": "pages", "text": "", "tone": "none" },
+    {
+      "on": "flow",
+      "spawn": "api",
+      "label": "API",
+      "sub": "前後端約好的格式",
+      "icon": "file",
+      "x": 16,
+      "y": 16,
+      "tone": "key",
+      "narration": "前端和後端要事先約好：要送什麼、會拿到什麼。這份約定就叫 API。"
+    },
+    {
+      "on": "flow",
+      "send": ["browser", "server"],
+      "label": "POST /api/reservations",
+      "note": "POST：新增一筆",
+      "narration": "客人按下送出，瀏覽器照約定送出一個請求。POST 的意思是新增一筆，後面是要送到哪裡。要拿資料時，則是用 GET。"
+    },
+    {
+      "on": "flow",
+      "pulse": "server",
+      "text": "資料齊全嗎？額滿了嗎？",
+      "tone": "ok",
+      "narration": "伺服器照規則檢查：資料齊全嗎？那天額滿了嗎？"
+    },
+    {
+      "on": "flow",
+      "send": ["server", "browser"],
+      "label": "201 預約成功",
+      "tone": "ok",
+      "note": "2 開頭：成功",
+      "narration": "沒問題就回一個狀態碼，這裡的 201 代表成功建立了一筆。"
+    },
+    {
+      "on": "flow",
+      "send": ["browser", "server"],
+      "label": "POST（沒填電話）",
+      "tone": "warn",
+      "note": "資料沒填好",
+      "narration": "如果客人沒填電話呢？"
+    },
+    {
+      "on": "flow",
+      "send": ["server", "browser"],
+      "label": "400 缺少電話",
+      "tone": "bad",
+      "note": "4 開頭：請求有問題",
+      "narration": "伺服器回 400，代表這個請求有問題，畫面就能提醒客人補上。"
+    },
+    {
+      "callout": "flow:log",
+      "text": "2 開頭成功　4 開頭請求有問題　5 開頭伺服器出錯",
+      "narration": "看第一個數字就知道大方向。之後網站出錯，先看它是 4 開頭還是 5 開頭，就知道從哪一邊查起。"
+    },
+    { "hide": "flow" },
+    {
+      "card": "畫面、按鈕、排版 → 前端\n規則、秘密、別人的資料 → 後端",
+      "eyebrow": "怎麼分",
+      "sub": "前端的程式會送到每個人的瀏覽器，誰都看得到",
+      "chapter": "哪些事要放後端",
+      "narration": "怎麼分？前端的程式會送到每個人的瀏覽器，誰都看得到，也改得動。所以規則、秘密和別人的資料，都要放在後端。"
+    },
+    {
+      "chapter": "換你判斷",
+      "checkpoint": "小森烘焙還想加三個功能。哪一個一定要有後端？",
+      "body": "想想看：這件事只靠客人手機上的畫面，做得到嗎？",
+      "id": "needbackend",
+      "options": [
+        {
+          "label": "手機上把選單收起來",
+          "steps": [
+            {
+              "card": "這件事前端就做得到",
+              "eyebrow": "再想想",
+              "sub": "只改畫面，不用記住資料；要後端的是限量預約",
+              "narration": "這只是改畫面，前端就做得到。一定要後端的，是限量預約。"
+            }
+          ]
+        },
+        {
+          "label": "常見問題點開才看答案",
+          "steps": [
+            {
+              "card": "這件事前端就做得到",
+              "eyebrow": "再想想",
+              "sub": "上一個單元只 push 了畫面就改好了；要後端的是限量預約",
+              "narration": "這個我們已經做過，只改畫面就好。一定要後端的，是限量預約。"
+            }
+          ]
+        },
+        {
+          "label": "週六可頌限量 20 個，訂滿就不能再訂",
+          "steps": [
+            {
+              "card": "答對了",
+              "eyebrow": "換你判斷",
+              "sub": "要記得所有人訂了多少，規則也不能讓人從瀏覽器改掉",
+              "narration": "答對了。要記得所有人訂了多少，這個規則也不能讓人從瀏覽器改掉，所以要放在後端。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "限量預約一定要有後端",
+            "eyebrow": "答案",
+            "sub": "另外兩個只改畫面，前端就做得到",
+            "narration": "答案是限量預約。它要記得所有人訂了多少，規則也不能被改掉。另外兩個只改畫面，前端就做得到。"
+          }
+        ]
+      }
+    },
+    { "show": "claude", "chapter": "交代目標，和怎樣算完成" },
+    {
+      "on": "claude",
+      "user": "小森烘焙要讓客人在網站上預約。請在這個專案加一個最小的後端：\n- POST /api/reservations 收預約（姓名、電話、商品、數量、取貨日期）\n- GET /api/availability 查某一天某個商品還能訂多少\n- 規則放後端：每天每種商品最多 20 個\n客人的資料不能讓別人查到。資料先放記憶體，存哪裡我之後決定。\n要安裝套件或啟動服務時，先問我。\n完成的標準：每個路由都實際打過，正常和錯誤的情況各一次，把請求和狀態碼列給我看，存成 docs/request-flow.md。",
+      "narration": "不用自己寫程式。你說清楚要什麼、規則是什麼，還有什麼時候要問你。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "完成的標準：實際打過，不能只憑印象",
+      "narration": "最後一句最重要。每個路由都要實際打一次，它就不能只憑印象說做好了。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "package.json",
+      "result": "只有畫面，還沒有後端",
+      "out": "\"scripts\": { \"dev\": \"vite\", \"build\": \"vite build\" }",
+      "chapter": "AI 動手，也自己驗證",
+      "narration": "它先看懂專案：目前只有畫面，還沒有後端。"
+    },
+    {
+      "on": "claude",
+      "todos": [["安裝後端套件", "doing"], ["寫 server.js", "pending"], ["啟動，逐條實際打一次", "pending"], ["寫 docs/request-flow.md", "pending"]],
+      "narration": "接著列出要做的事。"
+    },
+    {
+      "on": "claude",
+      "ask": "npm install express",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "express：寫後端常用的套件，只裝在這個專案",
+      "narration": "要安裝套件了，它照你的交代先問。express 是寫後端常用的套件，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm install express",
+      "result": "完成",
+      "out": "added 64 packages"
+    },
+    {
+      "on": "claude",
+      "edit": "server.js",
+      "lines": [
+        [1, "+", "import express from 'express'"],
+        [2, "+", ""],
+        [3, "+", "const app = express()"],
+        [4, "+", "const LIMIT = 20 // 每天每種商品的上限"],
+        [5, "+", "const reservations = [] // 先放記憶體"],
+        [6, "+", ""],
+        [7, "+", "app.get('/api/availability', (req, res) => { /* 算還能訂多少 */ })"],
+        [8, "+", "app.post('/api/reservations', (req, res) => { /* 檢查資料、額滿，再收下 */ })"]
+      ],
+      "narration": "這就是後端。你不用看懂每一行，看得出兩條路由，還有上限 20 個就好。"
+    },
+    {
+      "on": "claude",
+      "todos": [["安裝後端套件", "done"], ["寫 server.js", "done"], ["啟動，逐條實際打一次", "doing"], ["寫 docs/request-flow.md", "pending"]]
+    },
+    {
+      "on": "claude",
+      "ask": "npm start &",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "note": "在背景啟動本機的伺服器",
+      "narration": "要啟動伺服器，一樣先問。這只在你的電腦上跑，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bash scripts/try-routes.sh   # 每個路由打一次，正常和錯誤都試",
+      "result": "5 個請求都有回應",
+      "out": "GET  /api/availability（有帶日期和商品）→ 200\nGET  /api/availability（沒帶日期）      → 400\nPOST /api/reservations（資料齊全）      → 201\nPOST /api/reservations（沒填電話）      → 400\nPOST /api/reservations（超過 20 個）    → 409",
+      "narration": "它把每個路由都打過一次。資料齊全回 201，沒填電話回 400，超過上限回 409，意思是和目前的狀況衝突。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "正常和錯誤的情況，它都試過",
+      "narration": "不只試成功的情況，也故意送錯的，確認伺服器擋得住。"
+    },
+    {
+      "on": "claude",
+      "edit": "docs/request-flow.md",
+      "lines": [
+        [1, "+", "# 請求流程"],
+        [2, "+", "瀏覽器 → 伺服器：POST /api/reservations"],
+        [3, "+", "伺服器 → 瀏覽器：201 成功／400 資料有問題／409 額滿"],
+        [4, "+", "瀏覽器 → 伺服器：GET /api/availability"],
+        [5, "+", "伺服器 → 瀏覽器：200 還能訂多少／400 沒帶日期"]
+      ],
+      "narration": "再把實際打到的結果寫成文件。之後要加功能或查問題，先打開這份。"
+    },
+    {
+      "on": "claude",
+      "todos": [["安裝後端套件", "done"], ["寫 server.js", "done"], ["啟動，逐條實際打一次", "done"], ["寫 docs/request-flow.md", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 兩條路由都實際打過，結果在 `docs/request-flow.md`。\n\n**這些要讓你知道**\n- 沒有做列出所有預約的路由，別人查不到客人的資料\n- 資料還在記憶體，伺服器一重開就會不見\n- 畫面的預約表單還沒接，這次先把後端做好\n\n請你也自己打一次看看。",
+      "narration": "好的回報，除了做了什麼，也會說還沒做的：資料還在記憶體，表單也還沒接。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "curl -s 'localhost:3000/api/availability?date=2026-11-14&item=可頌'",
+      "out": "{\"date\":\"2026-11-14\",\"item\":\"可頌\",\"left\":20}",
+      "chapter": "你自己打一次",
+      "narration": "AI 說好了還不夠。請它給你指令，你自己在終端機打一次。curl 就是不用畫面、直接送請求的工具。週六的可頌，還能訂 20 個。"
+    },
+    {
+      "on": "term",
+      "type": "curl -s -X POST localhost:3000/api/reservations -H 'Content-Type: application/json' -d '{\"name\":\"阿哲\",\"phone\":\"0900-000-000\",\"item\":\"可頌\",\"qty\":2,\"date\":\"2026-11-14\"}'",
+      "out": "{\"id\":1,\"status\":\"new\"}",
+      "narration": "幫阿哲訂兩個。電話是示範用的假資料。成功收下了。"
+    },
+    {
+      "on": "term",
+      "type": "curl -s 'localhost:3000/api/availability?date=2026-11-14&item=可頌'",
+      "out": "{\"date\":\"2026-11-14\",\"item\":\"可頌\",\"left\":18}",
+      "narration": "再查一次，變成 18 個。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "剩 18 個：這是後端算出來的",
+      "narration": "這個數字是後端算的，客人沒辦法從瀏覽器改掉。"
+    },
+    {
+      "on": "term",
+      "type": "curl -s -o /dev/null -w '%{http_code}\\n' localhost:3000/api/reservations",
+      "out": "404",
+      "narration": "最後確認你定的規則：直接要全部的預約，回 404，查不到。客人的資料沒有被列出來。"
+    },
+    { "hide": "term" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：分出你的作品的前端和後端",
+      "body": "在你的專案裡對 AI 說：「請看懂這個專案，列出每個功能是放前端還是後端，並說明理由。如果不需要後端，也直接告訴我。先不要改。」需要後端的話，再說：「請做一個最小的後端，規則是（你的規則）。要安裝套件或啟動服務時先問我。完成的標準：每個路由都實際打過，正常和錯誤的情況各一次，把請求和狀態碼列給我看。」最後請它給你指令，自己打一次。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "分出畫面和伺服器各自負責的事，\n知道什麼時候需要後端。",
+      "eyebrow": "學會",
+      "sub": "前端 · 後端 · 伺服器 · API · 請求 · 狀態碼",
+      "chapter": "學會",
+      "narration": "今天學會：分出畫面和伺服器各自負責的事，知道什麼時候需要後端。AI 寫程式、自己打過一遍，你定規則，也親手確認。不過，預約現在還放在記憶體裡。下一課，來看什麼時候需要資料庫。"
+    }
+  ]
+}

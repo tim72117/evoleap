@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
 import { coursePath, lessonLabel, lessonPath, nextCourse, requiresLogin, type Course } from '../content/catalog'
+import { LockIcon } from '../site/LockIcon'
 import { useAuth } from '../auth/AuthContext'
 import type { CourseLesson } from '../content/lessonTypes'
 import { topicOfCourse } from '../content/topics'
@@ -140,7 +141,7 @@ export function CourseOverviewPage({ course, interactive = [] }: { course: Cours
                       )}
                       {guest && ready && level?.access === 'login-free' && (
                         requiresLogin(course, l) ? (
-                          <span className={`${styles.badge} ${styles.badgeLogin}`}>登入後學習</span>
+                          <LockIcon label="登入後學習" />
                         ) : (
                           <span className={`${styles.badge} ${styles.badgePreview}`}>免費預覽</span>
                         )

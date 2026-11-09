@@ -42,6 +42,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/ai-tips', 'AI 工具技巧'],
     ['/studio/kids-web', '兒童網頁課'],
     ['/studio/web-basics', '網頁運作知識'],
+    ['/studio/ops-course', '從上線到維運'],
     ['/studio/web-basics/5-1', '網頁運作知識 5.1 試做'],
     ['/studio/vibe-coding/4-1', 'L2 基礎 4.1 試做'],
     ['/studio/vibe-coding/4-2', 'L2 基礎 4.2 試做'],

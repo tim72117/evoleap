@@ -1,0 +1,387 @@
+{
+  "title": "網域是什麼、怎麼挑",
+  "lesson": "從做好到上線 · 單元 1 · 1.4",
+  "camera": "auto",
+  "teacher": {
+    "say": "幫網站挑個好名字",
+    "line": "想讓客人記得你的網站，就需要自己的網域。今天請 AI 查名字、比價格，整理成一份報告；你對過價格，再決定名字和網域商。這一課先不買。"
+  },
+  "blocking": { "cast": ["flow", "claude", "report"], "shot": "depth" },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "landscape": { "x": 680, "y": 100, "w": 560, "h": 860 }, "portrait": { "x": 190, "y": 220, "w": 700, "h": 1100 } },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "網域：網站的門牌",
+        "nodes": {
+          "ip": { "label": "203.0.113.10", "sub": "IP 位址：主機的地址", "icon": "server", "x": 50, "y": 22 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "挑網域",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "report": {
+      "actor": "editor",
+      "props": {
+        "project": "bakery",
+        "files": {
+          "domain-report.md": "# 小森烘焙：網域候選與比較\n（這堂課的網域商和價格都是示範，不是真實報價）\n\n## 名字\nxiaosen.example         已被註冊（2014 年）\nxiaosen-bakery.example  查無登記\nxiaosenbakery.example   查無登記\n\n## 網域商（單位：元）\n     第一年  續約  隱私保護   三年總共\n甲   330     380   免費       1090\n乙   350     350   免費       1050\n丙   99      690   每年 300   2379\n\n價格頁：\n甲 https://registrar-a.example/pricing\n乙 https://registrar-b.example/pricing\n丙 https://registrar-c.example/pricing\n\n## 推薦\nxiaosen-bakery.example ＋ 網域商乙\n和店名一致；續約不漲，三年總共最少。\n價格會變動，結帳前請再看一次。\n"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "網域是什麼、怎麼挑",
+      "eyebrow": "從做好到上線 · 單元 1 · 1.4",
+      "sub": "你說要比什麼 → AI 查好、算好 → 你對價格、做決定",
+      "chapter": "太長的網址",
+      "narration": "網站打得開了，也能馬上更新。這時候，阿哲又傳訊息來。"
+    },
+    {
+      "show": "phone",
+      "on": "phone",
+      "receive": "網站不錯！不過 your-name.github.io/bakery 好長，印在名片上，客人打得出來嗎？",
+      "from": "阿哲"
+    },
+    {
+      "callout": "phone:msg:last",
+      "text": "這個網址的名字是 GitHub 的，不是你的",
+      "narration": "他說得對。這個網址又長，又掛在 GitHub 的名字底下。"
+    },
+    { "hide": "phone" },
+    {
+      "show": "flow",
+      "chapter": "網域是門牌",
+      "narration": "網路上每台主機都有一個地址，叫 IP 位址，是一串數字。要客人記住這個，太難了。"
+    },
+    {
+      "on": "flow",
+      "spawn": "domain",
+      "label": "xiaosen-bakery.example",
+      "sub": "網域：好記的名字",
+      "icon": "globe",
+      "x": 50,
+      "y": 68,
+      "link": "ip",
+      "narration": "所以幫這串數字取一個好記的名字，就是網域，像網站的門牌。"
+    },
+    {
+      "callout": "flow:node:domain",
+      "text": ".example 是教學專用的結尾，真的買不到",
+      "narration": "這堂課用點 example 當例子，它是專門留給教學用的，真的買不到。你買的時候，這裡會是點 com、點 tw 這些結尾。"
+    },
+    { "on": "flow", "vanish": "ip" },
+    { "on": "flow", "vanish": "domain", "chapter": "從右邊讀到左邊" },
+    {
+      "on": "flow",
+      "spawn": "tld",
+      "label": ".example",
+      "sub": "頂級網域",
+      "icon": "globe",
+      "x": 78,
+      "y": 26,
+      "narration": "讀網域，要從右邊讀到左邊。最右邊是頂級網域，例如點 com、點 tw、點 shop。"
+    },
+    {
+      "on": "flow",
+      "spawn": "name",
+      "label": "xiaosen-bakery",
+      "sub": "你取的名字",
+      "icon": "store",
+      "x": 50,
+      "y": 26,
+      "link": "tld",
+      "narration": "中間是你取的名字。名字加上頂級網域，就是你要買的網域。同一個網域，同一時間只會有一個人擁有。"
+    },
+    {
+      "on": "flow",
+      "spawn": "sub",
+      "label": "www",
+      "sub": "子網域：買了之後自己加",
+      "icon": "file",
+      "x": 22,
+      "y": 26,
+      "link": "name",
+      "narration": "最左邊是子網域，例如 www、shop。買了網域之後可以自己加，之後的課會用到。"
+    },
+    {
+      "on": "flow",
+      "spawn": "registrar",
+      "label": "網域商",
+      "sub": "代售的店家",
+      "icon": "store",
+      "x": 34,
+      "y": 72,
+      "chapter": "去哪裡買、怎麼付錢",
+      "narration": "網域要去哪裡買？通常透過網域商，它就像代售的店家。"
+    },
+    {
+      "on": "flow",
+      "spawn": "registry",
+      "label": "管理機構",
+      "sub": "保管總名冊",
+      "icon": "receipt",
+      "x": 68,
+      "y": 72,
+      "link": "registrar",
+      "narration": "網域商再到管理機構的總名冊登記。你不用直接跟管理機構打交道。"
+    },
+    {
+      "callout": "flow:node:registrar",
+      "text": "網域是按年租用，不是買斷",
+      "narration": "要特別記得：網域是按年租用，不是買斷。不續約，名字就會被收回。"
+    },
+    {
+      "on": "flow",
+      "pulse": "registrar",
+      "text": "看第一年，也要看續約",
+      "tone": "warn",
+      "narration": "所以要看兩個價格：第一年和續約。有些第一年很便宜，續約卻貴很多。你會用很多年，真正要比的是續約價。"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "交代要比什麼，和怎樣算完成" },
+    {
+      "on": "claude",
+      "user": "我要幫小森烘焙挑網域。先不要買，也不要註冊任何帳號。\n候選名字：xiaosen.example、xiaosen-bakery.example、xiaosenbakery.example\n1. 查每個名字有沒有被註冊\n2. 比三家網域商：第一年、續約、隱私保護要不要錢，再算三年總共多少\n完成的標準：寫成 domain-report.md，每個價格都附官方價格頁的連結，最後推薦一個並說出理由。",
+      "narration": "這些功課可以交給 AI。把候選名字、要比的項目，和怎樣算完成都講清楚。隱私保護是把你的聯絡資料遮起來的服務，下一課會細講。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "先講清楚：不要買、不要註冊",
+      "narration": "第一句就劃好界線：這一步只查資料。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "todos": [["查三個名字", "doing"], ["查三家網域商的價格頁", "pending"], ["算三年總共多少", "pending"], ["寫成 domain-report.md", "pending"]],
+      "narration": "它先列出要做的事。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "whois xiaosen.example | grep -iE 'Creation Date|Registrar:'",
+      "result": "已被註冊",
+      "out": "Registrar: Example Registrar\nCreation Date: 2014-03-02",
+      "chapter": "AI 查名字、比價格",
+      "narration": "whois 是查網域登記資料的工具。第一個名字，二〇一四年就有人註冊了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for d in xiaosen-bakery.example xiaosenbakery.example; do echo \"$d: $(whois $d | grep -ciE 'No match|NOT FOUND')\"; done",
+      "result": "查無登記",
+      "out": "xiaosen-bakery.example: 1\nxiaosenbakery.example: 1",
+      "narration": "另外兩個都查無登記，看起來還沒有人註冊。"
+    },
+    {
+      "on": "claude",
+      "todos": [["查三個名字", "done"], ["查三家網域商的價格頁", "doing"], ["算三年總共多少", "pending"], ["寫成 domain-report.md", "pending"]]
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "三家網域商的官方價格頁",
+      "result": "已讀 3 頁",
+      "out": "甲：第一年 330／續約 380／隱私保護免費\n乙：第一年 350／續約 350／隱私保護免費\n丙：第一年 99／續約 690／隱私保護每年 300",
+      "narration": "接著讀三家的價格頁。這堂課的網域商和數字都是示範，真實價格會變動，要看你買的時候。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node -e \"for (const [n,f,r,p] of [['甲',330,380,0],['乙',350,350,0],['丙',99,690,300]]) console.log(n, f + r * 2 + p * 3)\"",
+      "result": "算好了",
+      "out": "甲 1090\n乙 1050\n丙 2379",
+      "narration": "三年總共多少，它用程式算，不靠心算。"
+    },
+    {
+      "on": "claude",
+      "ask": "domain-report.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "# 小森烘焙：網域候選與比較\n## 名字\n## 網域商\n## 推薦",
+      "narration": "只是在專案裡建一份報告，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "domain-report.md", "result": "已建立" },
+    {
+      "on": "claude",
+      "todos": [["查三個名字", "done"], ["查三家網域商的價格頁", "done"], ["算三年總共多少", "done"], ["寫成 domain-report.md", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "報告寫好了。每個名字都查過，每家都有價格與官方價格頁連結。\n\n推薦 `xiaosen-bakery.example` 和網域商乙：名字和店名一致，續約不漲，三年總共最少。\n\n**我沒辦法保證的事**：價格會變動，查無登記也不代表一定買得到。請你打開價格頁再對一次，最後以結帳頁為準。",
+      "narration": "它給了推薦，也講清楚自己保證不了什麼。"
+    },
+    {
+      "show": "report",
+      "chapter": "你對價格",
+      "narration": "打開報告看看。"
+    },
+    {
+      "callout": "report:code",
+      "text": "丙第一年最便宜，三年卻最貴",
+      "narration": "看網域商丙：第一年只要九十九元，可是續約六百九十元，隱私保護還要另外付。三年下來，它最貴。"
+    },
+    { "hide": "report" },
+    {
+      "on": "claude",
+      "user": "我打開乙的官方價格頁對過了：第一年、續約和隱私保護都跟報告一樣。",
+      "narration": "AI 查到的是今天的資料，也可能讀錯。花錢之前，你要打開官方價格頁，自己對一次。"
+    },
+    {
+      "checkpoint": "小森烘焙要印在名片上，名字選哪一個？",
+      "body": "想想：好不好記、唸給別人聽會不會打錯。",
+      "id": "name",
+      "chapter": "你來決定",
+      "options": [
+        {
+          "label": "xiaosen-bakery.example",
+          "steps": [
+            {
+              "card": "短、好唸、和店名一致",
+              "eyebrow": "好選擇",
+              "sub": "唸給別人聽，也不容易打錯",
+              "narration": "好選擇。名字短、好唸，也和店名一致，唸給別人聽不容易打錯。"
+            }
+          ]
+        },
+        {
+          "label": "xs-bkry-2026.example",
+          "steps": [
+            {
+              "card": "太難記了",
+              "eyebrow": "再想想",
+              "sub": "縮寫加數字，客人聽一次記不住",
+              "narration": "縮寫加數字很難記，客人聽一次記不住。這裡選 xiaosen-bakery 比較好。"
+            }
+          ]
+        },
+        {
+          "label": "xiaosenbakeryshoptaiwan.example",
+          "steps": [
+            {
+              "card": "太長了",
+              "eyebrow": "再想想",
+              "sub": "越長越容易打錯，名片也不好放",
+              "narration": "太長了，越長越容易打錯，名片也不好放。這裡選 xiaosen-bakery 比較好。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "xiaosen-bakery.example",
+            "eyebrow": "答案",
+            "sub": "短、好唸、和店名一致",
+            "narration": "這裡選 xiaosen-bakery。名字短、好唸，也和店名一致。"
+          }
+        ]
+      }
+    },
+    {
+      "checkpoint": "你打算用很多年，網域商選哪一家？",
+      "body": "三年總共：甲 1090、乙 1050、丙 2379（都是示範數字）。",
+      "id": "registrar",
+      "options": [
+        {
+          "label": "網域商乙：續約不漲，三年總共最少",
+          "steps": [
+            {
+              "card": "看續約，也看總共多少",
+              "eyebrow": "答對了",
+              "sub": "用很多年的東西，不能只看第一年",
+              "narration": "答對了。用很多年的東西，要看續約，也要看總共多少。"
+            }
+          ]
+        },
+        {
+          "label": "網域商丙：第一年最便宜",
+          "steps": [
+            {
+              "card": "第一年便宜，之後每年都貴",
+              "eyebrow": "再想想",
+              "sub": "加上續約和隱私保護，三年最貴",
+              "narration": "第一年便宜，之後每年都貴。加上續約和隱私保護，它三年最貴。這裡選乙比較好。"
+            }
+          ]
+        },
+        {
+          "label": "網域商甲：第一年比乙便宜 20 元",
+          "steps": [
+            {
+              "card": "只便宜第一年",
+              "eyebrow": "再想想",
+              "sub": "甲的續約比較貴，三年總共比乙多",
+              "narration": "只便宜第一年。甲的續約比較貴，三年總共比乙多。這裡選乙比較好。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "網域商乙",
+            "eyebrow": "答案",
+            "sub": "續約不漲，三年總共最少",
+            "narration": "這裡選乙。續約不漲，三年總共最少。"
+          }
+        ]
+      }
+    },
+    {
+      "on": "claude",
+      "user": "決定用 xiaosen-bakery.example 和網域商乙，寫進報告最後一行。還是先不要買。",
+      "chapter": "把決定記下來",
+      "narration": "接下來的課，我們都用這個例子。下決定的是你，AI 只負責記下來。"
+    },
+    {
+      "on": "claude",
+      "edit": "domain-report.md",
+      "lines": [
+        [24, "+", ""],
+        [25, "+", "## 決定：xiaosen-bakery.example ＋ 網域商乙"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "記下來了，我沒有買任何東西，也沒有註冊帳號。\n\n買的時候要由你自己登入、確認金額和付款。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：請 AI 幫你挑網域",
+      "body": "列出三到四個你喜歡的名字，對 AI 說：「我要幫（你的作品）挑網域。先不要買，也不要註冊任何帳號。候選名字：（你的名字）。1. 查每個名字有沒有被註冊。2. 比三家網域商：第一年、續約、隱私保護要不要錢，再算三年總共多少。完成的標準：寫成 domain-report.md，每個價格都附官方價格頁的連結，最後推薦一個並說出理由。」拿到報告後，自己打開官方價格頁對一次，再決定名字和網域商。價格以你買的時候為準。做完按「完成了，繼續」。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "比較網域名稱、網域商與續約價，選好自己的網域。",
+      "eyebrow": "學會",
+      "sub": "IP 位址 · 網域 · 頂級網域 · 子網域 · 網域商 · 續約",
+      "chapter": "學會",
+      "narration": "今天學會：比較網域名稱、網域商與續約價，選好自己的網域。AI 查名字、比價格、算總共多少，你對過價格，再做決定。下一課，就去把它買下來。"
+    }
+  ]
+}

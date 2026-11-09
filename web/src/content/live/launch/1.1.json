@@ -1,0 +1,304 @@
+{
+  "title": "環境變數與設定",
+  "lesson": "從做好到上線 · 單元 1 · 1.1",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天把寫死的金鑰搬家",
+    "line": "今天請 AI 把專案裡寫死的金鑰和網址全部找出來，搬進設定檔。你要做的是看清單、做決定，最後驗收它真的搬乾淨了。"
+  },
+  "blocking": { "cast": ["flow", "claude", "code"], "shot": "depth" },
+  "cast": {
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "同一份程式，跑在兩個地方",
+        "nodes": {
+          "program": { "label": "程式", "sub": "只有一份，會推上 GitHub", "icon": "code", "x": 50, "y": 16 },
+          "local": { "label": "本機", "sub": "你的電腦", "icon": "browser", "x": 24, "y": 50 },
+          "prod": { "label": "正式環境", "sub": "客人用的網站", "icon": "cloud", "x": 76, "y": 50 },
+          "envfile": { "label": ".env", "sub": "本機的設定檔", "icon": "file", "x": 24, "y": 84 },
+          "prodconf": { "label": "正式環境的設定", "sub": "存在雲端平台", "icon": "lock", "x": 76, "y": 84 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "設定搬進 .env",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": {
+        "project": "shop",
+        "files": {
+          ".env": "STRIPE_SECRET_KEY=FAKE_stripe_test_key\n",
+          "src/mail.js": "// 寄確認信\nconst MAIL_KEY = 'mail_live_FAKE_EXAMPLE'\nconst SITE_URL = 'http://localhost:5173'\n\nconst link = `${SITE_URL}/confirm`\n"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "環境變數與設定",
+      "eyebrow": "從做好到上線 · 單元 1 · 1.1",
+      "sub": "AI 找出來、搬進設定檔 → 你看清單、做決定、驗收",
+      "chapter": "寫死在程式裡",
+      "narration": "上一課，我們用 .gitignore 把 .env 擋在外面。可是有些金鑰根本不在 .env 裡。"
+    },
+    {
+      "show": "code",
+      "narration": "這是同一個專案的寄信程式。金鑰和網址，直接寫在程式裡，這叫寫死。"
+    },
+    {
+      "callout": "code:code",
+      "text": ".gitignore 擋得住檔案，擋不住寫在程式裡的金鑰",
+      "narration": "這個檔案要推上 GitHub，金鑰就跟著公開。別人拿去用，帳單算你的。"
+    },
+    {
+      "callout": "code:code",
+      "text": "網址寫死 localhost，上線後連結就打不開",
+      "narration": "網址也一樣。上線後，客人點信裡的連結，會連到 localhost，也就是他自己的手機，什麼都打不開。"
+    },
+    { "hide": "code" },
+    {
+      "show": "flow",
+      "chapter": "程式和設定分開",
+      "narration": "解法是把程式和設定分開。程式只有一份，跑在兩個地方：你的電腦叫本機，客人用的網站叫正式環境。"
+    },
+    { "send": ["program", "local"], "label": "同一份程式", "keep": false },
+    { "send": ["program", "prod"], "label": "同一份程式", "keep": false, "narration": "兩邊跑的是同一份程式，只有設定不一樣。" },
+    {
+      "send": ["envfile", "local"],
+      "label": "測試金鑰、localhost",
+      "tone": "key",
+      "narration": "本機的值放在設定檔，檔名叫 .env。上一課已經把它擋下來，不會推上去。"
+    },
+    {
+      "send": ["prodconf", "prod"],
+      "label": "正式金鑰、正式網址",
+      "tone": "key",
+      "narration": "正式環境的值，填在雲端平台的設定裡，不放進 GitHub。"
+    },
+    {
+      "callout": "flow:node:program",
+      "text": "程式只寫名稱，不寫真正的值",
+      "narration": "程式裡只寫「去讀 MAIL_API_KEY」，值由每個環境自己決定。這種設定就叫環境變數。"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "先找出來，你看清單" },
+    {
+      "on": "claude",
+      "user": "這個專案準備上線了。請先找出程式裡寫死的金鑰、密碼和網址，列給我看：在哪個檔案、做什麼用。不要印出金鑰的值，也先不要改。",
+      "narration": "這些繁雜的事交給 AI。第一句只請它找，先不要改，也不要把金鑰的值印出來。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "-i \"(key|secret|password|token|https?://)\" src/",
+      "result": "4 處",
+      "out": "src/mail.js:2   const MAIL_KEY = 'mail_live_…（已遮住）'\nsrc/mail.js:3   const SITE_URL = 'http://localhost:5173'\nsrc/login.js:5  const SESSION_SECRET = '…（已遮住）'\nsrc/api.js:1    const API_URL = 'http://localhost:3000'",
+      "narration": "它把整個專案搜過一遍，找到四處，金鑰的值都遮住了。"
+    },
+    {
+      "on": "claude",
+      "say": "找到 4 個寫死的值：\n\n**秘密**\n- `src/mail.js`：寄信服務的金鑰\n- `src/login.js`：登入用的密語\n\n**網址**\n- `src/mail.js`：確認信裡的網站連結\n- `src/api.js`：畫面呼叫後端的網址\n\n建議 4 個都搬進設定檔。要照這樣做嗎？",
+      "narration": "它分成秘密和網址兩類，然後停下來問你。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "看一遍清單，你點頭才動手",
+      "narration": "這份清單你要看一遍：這些你認得嗎？有沒有漏掉你知道的金鑰？你點頭，它才動手。"
+    },
+    {
+      "on": "claude",
+      "user": "這四個都搬。請搬進 .env，程式改成讀環境變數，再寫一份只有名稱、沒有值的 .env.example。畫面的程式只能放網址，不能放金鑰。值不要印出來。",
+      "chapter": "AI 一個個搬家",
+      "narration": "第二句下決定，也把規則講清楚：畫面的程式會送到每個人的瀏覽器，所以只能放網址。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "todos": [["改 src/mail.js、src/login.js、src/api.js", "doing"], ["把 4 個值寫進 .env", "pending"], ["寫 .env.example", "pending"]],
+      "narration": "它列成待辦，一項一項來。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/mail.js",
+      "lines": [
+        [1, " ", "// 寄確認信"],
+        [2, "-", "const MAIL_KEY = 'mail_live_…'"],
+        [3, "-", "const SITE_URL = 'http://localhost:5173'"],
+        [2, "+", "const MAIL_KEY = process.env.MAIL_API_KEY"],
+        [3, "+", "const SITE_URL = process.env.SITE_URL"]
+      ],
+      "narration": "紅色的寫死值拿掉，綠色的只寫名稱。看不懂程式也沒關係，看得出值不見了就好。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/login.js",
+      "lines": [
+        [5, "-", "const SESSION_SECRET = '…'"],
+        [5, "+", "const SESSION_SECRET = process.env.SESSION_SECRET"]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": "src/api.js",
+      "lines": [
+        [1, "-", "const API_URL = 'http://localhost:3000'"],
+        [1, "+", "const API_URL = import.meta.env.VITE_API_URL"]
+      ],
+      "narration": "畫面用的網址也搬了。三個檔案都改好。"
+    },
+    {
+      "on": "claude",
+      "todos": [["改 src/mail.js、src/login.js、src/api.js", "done"], ["把 4 個值寫進 .env", "doing"], ["寫 .env.example", "pending"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/move-settings.js   # 把原本寫死的值搬進 .env，不印出",
+      "result": "已寫入 .env（4 項）",
+      "out": "MAIL_API_KEY    ✓ 有值\nSESSION_SECRET  ✓ 有值\nSITE_URL        ✓ 有值\nVITE_API_URL    ✓ 有值",
+      "narration": "真正的值搬進 .env。它只回報每一項有沒有值，不把內容印出來。"
+    },
+    {
+      "on": "claude",
+      "todos": [["改 src/mail.js、src/login.js、src/api.js", "done"], ["把 4 個值寫進 .env", "done"], ["寫 .env.example", "done"]]
+    },
+    {
+      "show": "code",
+      "open": ".env",
+      "narration": "打開 .env 看看。這裡的值是這堂課示範用的假值，你的檔案裡會是真的，所以它絕對不能上傳。"
+    },
+    { "on": "code", "paste": "MAIL_API_KEY=FAKE_mail_key\nSESSION_SECRET=FAKE_session_value\nSITE_URL=http://localhost:5173\nVITE_API_URL=http://localhost:3000\n" },
+    {
+      "on": "code",
+      "open": ".env.example",
+      "narration": "另一份 .env.example 只有名稱。別人拿到專案，就知道要設定哪些東西。這份可以上傳。"
+    },
+    { "on": "code", "paste": "# 複製成 .env 再填值；正式環境的值填在雲端平台\nSTRIPE_SECRET_KEY=\nMAIL_API_KEY=\nSESSION_SECRET=\nSITE_URL=\nVITE_API_URL=\n" },
+    {
+      "callout": "code:window",
+      "text": ".env：真的值，不上傳　.env.example：只有名稱，可以上傳",
+      "narration": "記住這兩個檔案的分工。"
+    },
+    {
+      "on": "claude",
+      "user": "我要驗收，請給我證據：\n1. 用舊的值再搜一次，程式裡一個都不能剩\n2. 確認 .env 不會進 git\n3. 啟動網站，確認照常能跑\n4. 查舊版本紀錄裡有沒有這些金鑰\n最後列出正式環境要填哪些設定。",
+      "chapter": "你來驗收",
+      "narration": "AI 說做完了，不等於做對了。第三句請它拿出證據，四件事，一件一件看。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "\"(mail_live_|FAKE_session|localhost)\" --glob '!.env'",
+      "result": "0 處",
+      "out": "（沒有符合的結果）",
+      "narration": "第一，用舊的值再搜一次，零處，程式裡一個都不剩。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git check-ignore -v .env && git status --short",
+      "result": ".env 被擋住",
+      "out": ".gitignore:5:.env\t.env\n M src/api.js\n M src/login.js\n M src/mail.js\n?? .env.example",
+      "narration": "第二，.env 被上一課寫的 .gitignore 擋住了。變更清單裡沒有它，只有 .env.example。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm start & sleep 2; curl -s -o /dev/null -w '%{http_code}' localhost:3000/",
+      "result": "200",
+      "out": "200",
+      "narration": "第三，網站照常能跑。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log --all --oneline -G \"mail_live_|FAKE_session\"",
+      "result": "2 筆舊紀錄",
+      "out": "8a1f3c2 加上會員登入\n3d9e0b7 建立專案",
+      "narration": "第四，舊版本紀錄裡有。金鑰從程式裡搬走了，以前存過的版本還留著它們。"
+    },
+    {
+      "on": "claude",
+      "say": "檢查結果：\n✓ 程式裡已經沒有寫死的值\n✓ `.env` 不會進 git\n✓ 網站照常回 **200**\n✗ 舊版本紀錄裡有兩把舊金鑰\n\n**這兩件事要你自己做**\n1. 到寄信服務的後台作廢舊金鑰、重新建立一把\n2. 把新的金鑰貼進 `.env`，登入密語也換一個新的\n\n**正式環境要填這 5 項**\n- `MAIL_API_KEY`、`STRIPE_SECRET_KEY`：正式的金鑰，和本機不同\n- `SESSION_SECRET`：另外產生一個\n- `SITE_URL`、`VITE_API_URL`：正式的網址",
+      "chapter": "換掉舊金鑰，列出正式環境",
+      "narration": "下一課要推上 GitHub，舊紀錄也會跟著上去。最可靠的做法是把舊金鑰作廢、換新的。這要登入你的帳號，所以由你自己操作。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "你決定：換金鑰、正式環境填哪一把",
+      "narration": "最後它列出正式環境要填的五項。這份清單留著，之後部署時會用到。"
+    },
+    {
+      "on": "claude",
+      "ask": "git add src/mail.js src/login.js src/api.js .env.example && git commit -m \"把金鑰和網址搬進環境變數\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "只點名這 4 個檔案，.env 不在裡面",
+      "narration": "要 commit 了。你再看一眼：點名四個檔案，沒有 .env。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "chapter": "換你判斷",
+      "checkpoint": "網站上線了，客人點確認信的連結，卻連到 localhost。要改哪裡？",
+      "body": "本機一切正常。選一個做法。",
+      "id": "siteurl",
+      "options": [
+        {
+          "label": "把程式裡的網址改成正式網址",
+          "steps": [
+            { "card": "這樣又寫死了", "eyebrow": "再想想", "sub": "改完之後，在本機測試時，連結反而連到正式站", "narration": "這樣又寫死了。改完之後，你在本機測試時，連結反而都連到正式站。程式不用動。" },
+            { "card": "到正式環境的設定\n把 SITE_URL 填成正式網址", "eyebrow": "答案", "sub": "程式只有一份，兩邊各填各的值", "narration": "答案是：到正式環境的設定，把 SITE_URL 填成正式網址。" }
+          ]
+        },
+        {
+          "label": "到正式環境的設定，把 SITE_URL 填成正式網址",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "換你判斷", "sub": "程式不用動，兩邊各填各的值", "narration": "答對了。程式不用動，正式環境填正式網址，本機的 .env 還是 localhost。" }
+          ]
+        },
+        {
+          "label": "把 .env 也推上 GitHub",
+          "steps": [
+            { "card": ".env 不能上傳", "eyebrow": "再想想", "sub": "裡面有真的金鑰；而且它的網址是本機用的 localhost", "narration": ".env 裡有真的金鑰，不能上傳。而且它的網址本來就是 localhost，推上去也救不了。" },
+            { "card": "到正式環境的設定\n把 SITE_URL 填成正式網址", "eyebrow": "答案", "sub": "程式只有一份，兩邊各填各的值", "narration": "答案是：到正式環境的設定，把 SITE_URL 填成正式網址。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          { "card": "到正式環境的設定\n把 SITE_URL 填成正式網址", "eyebrow": "答案", "sub": "程式不用動，本機的 .env 還是 localhost", "narration": "答案是：到正式環境的設定，把 SITE_URL 填成正式網址。程式不用動，本機的 .env 還是 localhost。" }
+        ]
+      }
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "在你的專案裡，對 AI 說這三句。先說：「請找出程式裡寫死的金鑰、密碼和網址，列給我看，不要印出值，也先不要改。」看過清單再說：「請搬進 .env，程式改成讀環境變數，再寫一份只有名稱的 .env.example。」最後說：「我要驗收：用舊的值再搜一次，確認 .env 不會進 git，啟動網站確認能跑，查舊版本紀錄有沒有金鑰，再列出正式環境要填哪些設定。」做完按「完成了，繼續」。"
+    },
+    {
+      "card": "程式只寫名稱，值放在設定\n本機用 .env，正式環境填在雲端\n舊紀錄有金鑰：作廢換新",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：環境變數、設定檔、.env、本機、正式環境",
+      "chapter": "學會",
+      "narration": "今天 AI 找出寫死的值、搬進設定檔，你看清單、做決定、驗收。本機和正式環境，從此各用各的。下一課，把作品部署到 GitHub Pages，拿到第一個公開網址。"
+    }
+  ]
+}

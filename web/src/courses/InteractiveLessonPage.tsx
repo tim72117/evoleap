@@ -9,6 +9,7 @@ import type { StageScript } from '../live/stage'
 import { documentTitle } from '../site/siteInfo'
 import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage'
 import styles from '../studio/interactive/InteractiveScenePage.module.css'
+import { LessonAd } from './LessonAd'
 import { clearGuestProgress, memberProgress } from './progress'
 
 // 互動版的單課頁:整個視窗都是舞台,學員直接操作演員,右側是課程章節與步驟(見 InteractiveScenePage)。
@@ -58,6 +59,7 @@ export function InteractiveLessonPage({ course, lesson, prepare }: Props) {
                 <Link to={loginHref(location.pathname)}>登入</Link>後會記住你看到哪裡，下次從這裡接著看。
               </p>
             )}
+            <LessonAd course={course} lesson={lesson} />
             <nav className={styles.panelFooter} aria-label="上一課與下一課">
               {prev ? <Link to={lessonPath(course, prev)}>← 上一課：{lessonLabel(prev)}</Link> : <span />}
               {next ? (

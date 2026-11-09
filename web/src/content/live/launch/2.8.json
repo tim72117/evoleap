@@ -1,0 +1,499 @@
+{
+  "title": "機密放進 Secret Manager",
+  "lesson": "從做好到上線 · 單元 2 · 2.8",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天把密碼收進保險箱",
+    "line": "上一課留了一件事：資料庫密碼還放在環境設定裡。今天請 AI 開好雲端的保險箱、接上網站，值由你自己放進去。AI 從頭到尾看不到密碼。"
+  },
+  "blocking": { "cast": ["flow", "claude", "term", "web"], "shot": "depth" },
+  "cast": {
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "網站的密碼從哪裡來",
+        "nodes": {
+          "code": { "label": "程式", "sub": "在 GitHub，只寫名稱", "icon": "code", "x": 50, "y": 16 },
+          "run": { "label": "Cloud Run", "sub": "你的後端", "icon": "server", "x": 50, "y": 50 },
+          "env": { "label": "環境設定", "sub": "值是明碼", "icon": "file", "x": 18, "y": 84 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "機密放進 Secret Manager",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/bakery" },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "https://xiaosen-bakery.example/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "機密放進 Secret Manager",
+      "eyebrow": "從做好到上線 · 單元 2 · 2.8",
+      "sub": "AI 開好保險箱、接上網站 → 值由你自己放 → 你來驗收",
+      "chapter": "環境設定，還不是保險箱",
+      "narration": "小森烘焙的後端已經在 Cloud Run 上，也連上了雲端資料庫。上一課留了一件事：資料庫密碼還放在環境設定裡。"
+    },
+    {
+      "show": "flow",
+      "narration": "還記得 1.1 嗎？程式和設定分開，本機用 .env，正式環境的值填在雲端。"
+    },
+    {
+      "send": ["code", "run"],
+      "label": "讀 DB_PASSWORD",
+      "keep": false,
+      "narration": "程式裡只寫名稱，這一點沒問題。"
+    },
+    {
+      "send": ["env", "run"],
+      "label": "DB_PASSWORD＝明碼",
+      "tone": "warn",
+      "narration": "值從環境設定來。這裡的值是明碼，也就是沒有加密的原文。"
+    },
+    {
+      "callout": "flow:node:env",
+      "text": "進得了主控台，就看得到密碼",
+      "narration": "能打開這個服務設定的人，都看得到密碼。每部署一次，舊版本還會留著一份。"
+    },
+    {
+      "spawn": "vault",
+      "label": "Secret Manager",
+      "sub": "雲端的保險箱",
+      "icon": "lock",
+      "x": 82,
+      "y": 84,
+      "chapter": "雲端的保險箱",
+      "narration": "密碼、金鑰這些被別人拿到就糟了的東西，叫做機密。Secret Manager 就是放機密的保險箱：每個機密一格，加密存放。"
+    },
+    {
+      "send": ["vault", "run"],
+      "label": "執行時才拿",
+      "tone": "key",
+      "narration": "網站執行時才去拿。設定裡只留一句「去保險箱拿」，看不到值。"
+    },
+    {
+      "pulse": "run",
+      "text": "只有服務帳號 bakery-run 打得開",
+      "tone": "ok",
+      "narration": "誰能打開呢？我們給網站一個執行用的身分，叫服務帳號。鑰匙只給它，用不到的人就不給。"
+    },
+    {
+      "pulse": "vault",
+      "text": "換密碼＝存新版本：v1 → v2",
+      "tone": "ok",
+      "narration": "換密碼時，存一個新版本就好，不用改程式。"
+    },
+    { "hide": "flow" },
+    { "show": "claude", "chapter": "交代目標，和怎樣算完成" },
+    {
+      "on": "claude",
+      "user": "幫我把正式站的機密搬進 Secret Manager。專案是 bakery-demo，服務是 Cloud Run 的 bakery。\n先找出環境設定、程式和 git 紀錄裡有哪些機密，只列名稱，不要印出值。\n值由我自己放進去，不要經過這個對話。要改雲端設定時，先問我。\n完成的標準：Cloud Run 的設定裡沒有明碼，舊版本也沒有留著，只有網站讀得到機密，網站還連得上資料庫。",
+      "narration": "一樣說清楚目標、什麼時候要問你，還有怎樣算完成。這次多一條規則。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "「只列名稱」「值我自己放」：機密不經過對話",
+      "narration": "機密的值不經過對話。AI 只需要知道名稱，就能把事情做完。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud projects describe bakery-demo --format='value(projectId)'",
+      "result": "要重新登入",
+      "out": "ERROR: (gcloud.projects.describe) Reauthentication failed.\nPlease run: gcloud auth login",
+      "chapter": "授權要你自己來",
+      "narration": "gcloud 是操作 Google Cloud 的指令工具。它一試，發現登入過期了。"
+    },
+    {
+      "on": "claude",
+      "say": "gcloud 的登入過期了。**這一步要你自己來**：請在終端機跑 `gcloud auth login`，再到瀏覽器按授權。密碼不用告訴我。",
+      "narration": "帳號是你的，授權也要你自己點。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "gcloud auth login",
+      "out": "Your browser has been opened to complete sign-in.\n\nYou are now logged in as [your-name@example.com].\nYour current project is [bakery-demo].",
+      "narration": "在終端機打這一行，到瀏覽器選帳號、按允許。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "雲端帳號的授權，由你親手按",
+      "narration": "授權好了。你的 Google 密碼，只在 Google 的頁面上輸入。"
+    },
+    { "hide": "term" },
+    { "on": "claude", "user": "登入好了，繼續。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services describe bakery --region asia-east1 --format='value(spec.template.spec.containers[0].env[].name)'",
+      "result": "6 個名稱",
+      "out": "DB_HOST;DB_USER;DB_NAME;DB_PASSWORD;MAIL_API_KEY;SITE_URL",
+      "chapter": "先找出來，只看名稱",
+      "narration": "它先列環境設定。指令只取名稱，所以值不會出現在畫面上。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git grep -nIE \"(DB_PASSWORD|MAIL_API_KEY) *[=:] *['\\\"]\"; git log --all --oneline -- .env",
+      "result": "沒有",
+      "out": "",
+      "narration": "再搜程式和 git 紀錄，都沒有寫死的密碼，.env 也沒有被存過。前面課程做的事還有效。"
+    },
+    {
+      "on": "claude",
+      "say": "環境設定有 6 項：\n\n**機密，要進保險箱**\n- `DB_PASSWORD`：資料庫密碼\n- `MAIL_API_KEY`：寄信服務的金鑰\n\n**不是機密，留在環境設定**\n- `DB_HOST`、`DB_USER`、`DB_NAME`、`SITE_URL`\n\n程式本來就讀環境變數，**不用改程式**。\n費用：每個機密每月幾元台幣。\n\n要照這樣做嗎？",
+      "narration": "它分成兩類，停下來問你。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "看過清單，你點頭才動手",
+      "narration": "不是每一項都要進保險箱。網址、主機名稱被看到沒關係，密碼和金鑰才要收好。名稱不變，所以程式一行都不用動。"
+    },
+    {
+      "on": "claude",
+      "user": "照這樣做。先開好兩格，值我自己放。",
+      "chapter": "AI 開好格子"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud secrets create（2 個）",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud services enable secretmanager.googleapis.com\ngcloud secrets create db-password\ngcloud secrets create mail-api-key",
+      "note": "只開格子，裡面還沒有值。",
+      "narration": "要改雲端了，它照你的交代先問。這幾行只是開格子，裡面還沒有值。"
+    },
+    { "on": "claude", "choose": 1, "narration": "允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud services enable secretmanager.googleapis.com && gcloud secrets create db-password && gcloud secrets create mail-api-key",
+      "result": "完成",
+      "out": "Created secret [db-password].\nCreated secret [mail-api-key]."
+    },
+    {
+      "chapter": "你來決定",
+      "checkpoint": "格子開好了。資料庫密碼的值，要怎麼放進去？",
+      "body": "選一個。",
+      "id": "paste",
+      "options": [
+        {
+          "label": "貼進對話，請 AI 幫我存",
+          "steps": [
+            {
+              "card": "機密不貼進對話",
+              "eyebrow": "再想想",
+              "sub": "貼進去就留在對話紀錄裡；自己在終端機貼，AI 碰不到",
+              "narration": "貼進對話，密碼就留在對話紀錄裡了。自己在終端機貼，AI 碰不到。"
+            }
+          ]
+        },
+        {
+          "label": "自己在終端機貼，畫面不顯示",
+          "steps": [
+            {
+              "card": "值只經過你的手",
+              "eyebrow": "答對了",
+              "sub": "AI 給指令，你貼值；AI 只看到「存好了」",
+              "narration": "答對了。AI 給指令，你自己貼值。它只看得到「存好了」這個結果。"
+            }
+          ]
+        },
+        {
+          "label": "寫進程式，推上 GitHub，部署時自動讀",
+          "steps": [
+            {
+              "card": "這樣又寫死了",
+              "eyebrow": "千萬不要",
+              "sub": "看得到 repository 的人都拿得到；刪掉後舊紀錄還在",
+              "narration": "千萬不要。這樣又回到寫死，看得到 repository 的人都拿得到，刪掉之後舊紀錄還在。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "自己在終端機貼",
+            "eyebrow": "答案",
+            "sub": "AI 給指令，你貼值；值不經過對話，也不進程式",
+            "narration": "答案是自己在終端機貼。AI 給指令，你貼值。值不經過對話，也不進程式。"
+          }
+        ]
+      }
+    },
+    {
+      "on": "claude",
+      "say": "兩格開好了，現在是空的。\n\n**值要你自己放，不要貼給我。**\n值可以從 Cloud Run 主控台 `bakery` 服務的「變數與密鑰」複製。\n\n請在終端機跑這一行，貼上值再按 Enter，畫面不會顯示：\n`read -rs V; printf %s \"$V\" | gcloud secrets versions add db-password --data-file=-; unset V`\n\n`mail-api-key` 也一樣，把指令裡的名稱換掉。",
+      "chapter": "你自己放進去",
+      "narration": "AI 把指令寫好。這一行的意思是：讓你貼上值、畫面不顯示，直接送進保險箱，再把暫存的值清掉。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "type": "read -rs V; printf %s \"$V\" | gcloud secrets versions add db-password --data-file=-; unset V",
+      "cps": 45,
+      "narration": "換你。先到主控台複製密碼，再回終端機跑這一行。"
+    },
+    { "on": "term", "secret": "貼上值，按 Enter（畫面不會顯示）：", "narration": "貼上去，畫面上什麼都不會出現，這是正常的。" },
+    { "on": "term", "print": "Created version [1] of the secret [db-password].", "tone": "ok" },
+    {
+      "on": "term",
+      "type": "read -rs V; printf %s \"$V\" | gcloud secrets versions add mail-api-key --data-file=-; unset V",
+      "cps": 45,
+      "narration": "寄信金鑰也一樣。"
+    },
+    { "on": "term", "secret": "貼上值，按 Enter（畫面不會顯示）：" },
+    { "on": "term", "print": "Created version [1] of the secret [mail-api-key].", "tone": "ok" },
+    {
+      "callout": "term:screen",
+      "text": "值只經過你的剪貼簿和終端機",
+      "narration": "兩個都放好了。值沒有經過對話，也沒有留在畫面上。"
+    },
+    { "hide": "term" },
+    { "on": "claude", "user": "兩個值都放好了。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for s in db-password mail-api-key; do gcloud secrets versions list $s --format='table(name.basename(),state)'; done",
+      "result": "各 1 版",
+      "out": "NAME  STATE\n1     ENABLED\nNAME  STATE\n1     ENABLED",
+      "chapter": "AI 接上保險箱",
+      "narration": "它查的是版本清單，不是內容。確認有放進去，但不去讀值。"
+    },
+    {
+      "on": "claude",
+      "ask": "建立服務帳號 bakery-run，給它兩把鑰匙",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud iam service-accounts create bakery-run --display-name=\"網站執行用\"\ngcloud secrets add-iam-policy-binding db-password \\\n  --member=serviceAccount:bakery-run@bakery-demo.iam.gserviceaccount.com \\\n  --role=roles/secretmanager.secretAccessor\n（mail-api-key 也一樣）\ngcloud projects add-iam-policy-binding bakery-demo \\\n  --member=serviceAccount:bakery-run@bakery-demo.iam.gserviceaccount.com \\\n  --role=roles/cloudsql.client",
+      "note": "只給它讀這兩個機密、連資料庫，沒有別的權限。",
+      "narration": "接著建網站的身分。看 note 就好：只能讀這兩個機密、連資料庫。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud iam service-accounts create bakery-run … && gcloud secrets add-iam-policy-binding …（2 個）&& gcloud projects add-iam-policy-binding bakery-demo …",
+      "result": "完成",
+      "out": "Created service account [bakery-run].\n✓ db-password：secretAccessor\n✓ mail-api-key：secretAccessor\n✓ bakery-demo：cloudsql.client"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run services update bakery（改讀保險箱）",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud run services update bakery --region asia-east1 \\\n  --service-account bakery-run@bakery-demo.iam.gserviceaccount.com \\\n  --remove-env-vars DB_PASSWORD,MAIL_API_KEY \\\n  --set-secrets DB_PASSWORD=db-password:latest,MAIL_API_KEY=mail-api-key:latest",
+      "note": "--remove-env-vars：拿掉明碼。--set-secrets：同樣的名稱，改從保險箱拿最新版。",
+      "narration": "這一步讓網站改讀保險箱。名稱一樣，只是值的來源換了。"
+    },
+    { "on": "claude", "choose": 1, "narration": "就是要這樣，允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services update bakery --region asia-east1 --service-account bakery-run@bakery-demo.iam.gserviceaccount.com --remove-env-vars DB_PASSWORD,MAIL_API_KEY --set-secrets DB_PASSWORD=db-password:latest,MAIL_API_KEY=mail-api-key:latest",
+      "result": "完成",
+      "out": "✓ Deploying… Done.\nService [bakery] revision [bakery-00004-xyz] is serving 100 percent of traffic.\nService URL: https://bakery-xxxxx-de.a.run.app"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services describe bakery --region asia-east1 --format='yaml(spec.template.spec.containers[0].env)' | grep -A1 -E 'DB_PASSWORD|MAIL_API_KEY'",
+      "result": "沒有明碼",
+      "out": "- name: DB_PASSWORD\n  valueFrom: { secretKeyRef: { name: db-password, key: latest } }\n- name: MAIL_API_KEY\n  valueFrom: { secretKeyRef: { name: mail-api-key, key: latest } }",
+      "chapter": "AI 自己驗證",
+      "narration": "它照你的標準一項一項驗。第一，設定裡只剩「去保險箱拿」，沒有明碼。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s https://bakery-xxxxx-de.a.run.app/api/health",
+      "result": "連得上",
+      "out": "{\"db\":\"ok\"}",
+      "narration": "第二，網站連得上資料庫，代表它真的拿得到密碼。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run revisions list --service bakery --region asia-east1 --format='value(name)'",
+      "result": "4 個版本",
+      "out": "bakery-00004-xyz\nbakery-00003-def\nbakery-00002-cde\nbakery-00001-abc",
+      "narration": "第三，舊版本。每次部署，Cloud Run 都留一個版本，叫修訂版本。舊的三個，設定裡還留著明碼。"
+    },
+    {
+      "on": "claude",
+      "say": "目前的版本沒有明碼，網站也連得上資料庫 ✓\n\n✗ 還有 3 個**舊版本**，設定裡留著明碼，還沒達到你的標準。\n\n刪掉之後，就不能退回這 3 個版本，現在的版本不受影響。要刪嗎？",
+      "narration": "這件事有取捨，所以它問你。"
+    },
+    {
+      "on": "claude",
+      "user": "刪掉。現在的版本連得上資料庫就好。",
+      "narration": "這三個版本都是今天之前的舊東西，網站也確認好了，我們決定刪掉。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run revisions delete（3 個）",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/projects/bakery",
+      "preview": "gcloud run revisions delete bakery-00003-def --region asia-east1 --quiet\ngcloud run revisions delete bakery-00002-cde --region asia-east1 --quiet\ngcloud run revisions delete bakery-00001-abc --region asia-east1 --quiet",
+      "note": "刪除後不能復原。bakery-00004-xyz 不在裡面。",
+      "narration": "刪除不能復原，再看一眼：現在用的 00004 不在裡面。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for r in bakery-00003-def bakery-00002-cde bakery-00001-abc; do gcloud run revisions delete $r --region asia-east1 --quiet; done",
+      "result": "完成",
+      "out": "Deleted revision [bakery-00003-def].\nDeleted revision [bakery-00002-cde].\nDeleted revision [bakery-00001-abc]."
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud secrets get-iam-policy db-password --format='value(bindings.members)'; gcloud secrets get-iam-policy mail-api-key --format='value(bindings.members)'",
+      "result": "只有 bakery-run",
+      "out": "serviceAccount:bakery-run@bakery-demo.iam.gserviceaccount.com\nserviceAccount:bakery-run@bakery-demo.iam.gserviceaccount.com",
+      "narration": "第四，機密只授權給網站的服務帳號。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- `DB_PASSWORD`、`MAIL_API_KEY` 都在 Secret Manager，設定裡沒有明碼\n- 舊版本已刪除，只剩 `bakery-00004-xyz`\n- 機密只授權給 `bakery-run`；你是專案擁有者，也打得開\n- `/api/health` 回 `{\"db\":\"ok\"}`\n- 程式和 git 紀錄裡沒有機密\n\n我從頭到尾沒有看過值。請你也確認一次。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "每一項標準，都附上證據",
+      "narration": "好的回報，每一項都有證據。連「你也打得開」這種細節，都老實寫出來。"
+    },
+    {
+      "show": "term",
+      "on": "term",
+      "clear": true,
+      "chapter": "你自己驗收",
+      "narration": "AI 說好了還不夠，你自己看一次。"
+    },
+    {
+      "on": "term",
+      "type": "gcloud run services describe bakery --region asia-east1 | grep -E 'DB_PASSWORD|MAIL_API_KEY'",
+      "out": "DB_PASSWORD     db-password:latest\nMAIL_API_KEY    mail-api-key:latest",
+      "cps": 30
+    },
+    {
+      "callout": "term:out:last",
+      "text": "看到的是格子的名稱，不是密碼",
+      "narration": "這裡顯示的是保險箱的格子名稱，不是密碼。到主控台的「變數與密鑰」看，也一樣。"
+    },
+    { "hide": "term" },
+    {
+      "show": "web",
+      "narration": "再打開正式網站。"
+    },
+    {
+      "on": "web",
+      "scroll": "products",
+      "pause": 400,
+      "narration": "網站照常。再實際送一筆預約，重新整理之後還在，才算資料庫真的連上了。"
+    },
+    { "on": "web", "scroll": "top" },
+    { "hide": "web" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "幾個月後，你不小心把資料庫密碼貼進了和 AI 的對話。接下來該怎麼做？",
+      "body": "選一個。",
+      "id": "rotate",
+      "options": [
+        {
+          "label": "刪掉那段對話就好",
+          "steps": [
+            {
+              "card": "看過就要當作外洩",
+              "eyebrow": "再想想",
+              "sub": "刪掉對話，收不回已經送出去的密碼；要換一組新的",
+              "narration": "刪掉對話，收不回已經送出去的密碼。要當作外洩，換一組新的。"
+            },
+            {
+              "card": "資料庫改新密碼\n存成 db-password 的新版本",
+              "eyebrow": "答案",
+              "sub": "你自己放新值，再請 AI 重新部署、停用舊版本",
+              "narration": "答案是：資料庫改新密碼，存成新版本。新值一樣你自己放，再請 AI 重新部署、停用舊版本。"
+            }
+          ]
+        },
+        {
+          "label": "資料庫改新密碼，存成 db-password 的新版本",
+          "steps": [
+            {
+              "card": "換密碼＝存新版本",
+              "eyebrow": "答對了",
+              "sub": "新值你自己放，再請 AI 重新部署、停用舊版本",
+              "narration": "答對了。新值一樣你自己放，再請 AI 重新部署，讓網站讀最新版，舊版本停用。程式不用改。"
+            }
+          ]
+        },
+        {
+          "label": "把 db-password 刪掉，換個名稱重建",
+          "steps": [
+            {
+              "card": "換名稱，密碼還是舊的",
+              "eyebrow": "再想想",
+              "sub": "外洩的是密碼的值，資料庫不改，舊密碼一樣能用",
+              "narration": "外洩的是密碼的值。資料庫的密碼沒改，舊密碼一樣能用。"
+            },
+            {
+              "card": "資料庫改新密碼\n存成 db-password 的新版本",
+              "eyebrow": "答案",
+              "sub": "你自己放新值，再請 AI 重新部署、停用舊版本",
+              "narration": "答案是：資料庫改新密碼，存成新版本。新值一樣你自己放，再請 AI 重新部署、停用舊版本。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "資料庫改新密碼\n存成 db-password 的新版本",
+            "eyebrow": "答案",
+            "sub": "你自己放新值，再請 AI 重新部署、停用舊版本",
+            "narration": "答案是：資料庫改新密碼，存成新版本。新值一樣你自己放，再請 AI 重新部署、停用舊版本。"
+          }
+        ]
+      }
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把你的機密收進保險箱",
+      "body": "在你的專案裡對 AI 說：「幫我把正式站的機密搬進 Secret Manager。先找出環境設定、程式和 git 紀錄裡有哪些機密，只列名稱，不要印出值。值由我自己放進去，不要經過這個對話，請給我畫面不顯示的指令。要改雲端設定時，先問我。完成的標準：Cloud Run 的設定裡沒有明碼，舊版本也沒有留著，只有網站讀得到機密，網站還連得上資料庫。」要登入 gcloud 時，自己在終端機跑 gcloud auth login。如果 git 紀錄裡找到機密，先到那個服務的後台換一組新的，再把新值放進去。最後自己看一次設定，也實際送一筆資料。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "正式站的金鑰都由雲端保管，\n程式和 GitHub 上都沒有。",
+      "eyebrow": "學會",
+      "sub": "機密 · Secret Manager · 版本 · 服務帳號 · 修訂版本",
+      "chapter": "學會",
+      "narration": "今天學會：正式站的金鑰都由雲端保管，程式和 GitHub 上都沒有。AI 開好保險箱、接上網站，你負責授權、自己放值、最後驗收。下一課，預約要知道是誰訂的，我們來接上 Google 帳號登入。"
+    }
+  ]
+}

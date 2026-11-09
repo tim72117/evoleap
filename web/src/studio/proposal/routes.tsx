@@ -8,6 +8,7 @@ import { AiToolsPage } from './AiToolsPage'
 import { CoverPage } from './CoverPage'
 import { FieldsPage } from './FieldsPage'
 import { KidsWebPage } from './KidsWebPage'
+import { OpsCoursePage } from './OpsCoursePage'
 import { WebBasicsPage } from './WebBasicsPage'
 import { KidsLesson01Page } from '../kids/KidsLesson01Page'
 import { KidsLesson01LivePage } from '../kids/KidsLesson01LivePage'
@@ -60,6 +61,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
   { path: '/studio/kids-web', element: <KidsWebPage /> },
   { path: '/studio/web-basics', element: <WebBasicsPage /> },
+  { path: '/studio/ops-course', element: <OpsCoursePage /> },
   // 網頁運作知識的試做:單元 5 的 5.1 開發者工具(序章、1.1、1.2 已是正式課,在 /topics/web),腳本在 content/live/lab/web/
   ...(['5.1'] as const).map((id) => ({
     path: `/studio/web-basics/${id.replace('.', '-')}`,
