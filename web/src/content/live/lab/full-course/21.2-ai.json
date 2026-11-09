@@ -1,0 +1,173 @@
+{
+  "title": "網站掛了會通知",
+  "lesson": "全環節 · 單元 21 · 21.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天設定告警並實測",
+    "line": "這一課請 AI 設定健康檢查和通知，然後故意把服務停掉，看看幾分鐘內會不會收到通知。設定好卻沒測過，等於沒設。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "健康檢查與告警",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "收件匣" },
+      "place": { "x": 1290, "y": 150, "w": 500, "h": 780 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "網站掛了會通知",
+      "eyebrow": "全環節 · 單元 21 · 21.2 用 AI 完成",
+      "sub": "設定健康檢查與通知 → 故意停掉 → 看多久收到",
+      "narration": "這次一次交代清楚，讓 AI 從設定一路做到實測。"
+    },
+    {
+      "show": "claude",
+      "chapter": "交代：設定加實測",
+      "narration": "完成的標準不是「設定好了」，而是「真的收到通知」。"
+    },
+    {
+      "on": "claude",
+      "user": "幫網站設定健康檢查：從 3 個地區每分鐘檢查 /health，連續 2 次失敗就寄信到我的 Email。先在測試環境 shop-staging 演練：故意讓它停掉，確認幾分鐘內收到通知，再恢復，也要收到恢復通知。停掉前先問我。",
+      "narration": "我們先在測試環境 shop staging 演練，不去動正式網站。停掉前先問我。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "/health",
+      "result": "找不到",
+      "narration": "它先找網站有沒有 health 這個網址：沒有。所以要先做一個。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/server.ts",
+      "lines": [
+        [40, "+", "app.get('/health', async (req, res) => {"],
+        [41, "+", "  await db.query('select 1')   // 順便確認資料庫連得上"],
+        [42, "+", "  res.send('ok')"],
+        [43, "+", "})"]
+      ],
+      "chapter": "做好 /health",
+      "narration": "health 會順便查一下資料庫。資料庫連不上，它就不會回 ok。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run deploy shop-staging --source . && curl -s https://shop-staging.example.app/health",
+      "result": "ok"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud monitoring uptime create shop-staging-health --resource-type=uptime-url --host=shop-staging.example.app --path=/health --period=1 --regions=asia-pacific,usa-virginia,europe",
+      "result": "已建立健康檢查",
+      "chapter": "健康檢查、通知、告警",
+      "narration": "接著建立健康檢查：三個地區、每分鐘一次。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud beta monitoring channels create --type=email --channel-labels=email_address=you@example.com",
+      "result": "已建立通知管道（Email）"
+    },
+    {
+      "on": "claude",
+      "edit": "monitoring/alert.yaml",
+      "lines": [
+        [1, "+", "displayName: shop-staging 健康檢查失敗"],
+        [2, "+", "conditions:"],
+        [3, "+", "  - 失敗的地區 >= 2，持續 2 分鐘"],
+        [4, "+", "notificationChannels: [Email]"],
+        [5, "+", "alertStrategy: { notificationPrompts: [OPENED, CLOSED] }"]
+      ],
+      "narration": "告警規則寫成一個檔案，留在專案裡。兩個以上的地區失敗、持續兩分鐘才通知；發生和恢復都要通知。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "OPENED、CLOSED：出事通知一次，恢復再通知一次",
+      "narration": "最後一行就是「恢復也要通知」。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud alpha monitoring policies create --policy-from-file=monitoring/alert.yaml", "result": "已建立告警規則" },
+    {
+      "on": "claude",
+      "ask": "gcloud run services update shop-staging --ingress=internal",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "讓測試環境 shop-staging 從外面連不到，模擬網站掛掉",
+      "chapter": "故意停掉測試",
+      "narration": "設定好了，開始實測。它要讓測試環境從外面連不到，模擬網站掛掉。照交代，先問。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "確認是 shop-staging（測試環境），不是正式的 shop",
+      "narration": "看清楚服務名稱是 shop staging，不是正式網站，才允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud run services update shop-staging --ingress=internal", "result": "20:01 已停止對外" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud monitoring uptime list-configs … 每 30 秒查一次狀態",
+      "result": "20:03 三個地區都失敗",
+      "narration": "它每三十秒看一次檢查結果。兩分鐘後，三個地區都失敗了。"
+    },
+    { "show": "phone" },
+    {
+      "on": "phone",
+      "receive": "🚨［告警］shop-staging 健康檢查失敗：3 個地區無回應（20:03）",
+      "from": "雲端監控",
+      "narration": "信箱收到了告警。從停掉到收到，大約兩分鐘。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services update shop-staging --ingress=all && curl -s https://shop-staging.example.app/health",
+      "result": "ok（20:04 恢復）",
+      "chapter": "恢復，也要收到通知",
+      "narration": "確認收到後，它把服務恢復。"
+    },
+    {
+      "on": "phone",
+      "receive": "✅［已恢復］shop-staging 健康檢查恢復正常（20:06）",
+      "from": "雲端監控",
+      "narration": "兩分鐘後，恢復通知也來了。"
+    },
+    { "hide": "phone" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud monitoring uptime create shop-health --host=shop.example.app --path=/health … && 套用同一份 alert.yaml",
+      "result": "正式網站的健康檢查與告警已建立",
+      "narration": "測試環境驗證過了，它才用同一份設定，替正式網站建立健康檢查。"
+    },
+    {
+      "on": "claude",
+      "say": "完成。實測結果：20:01 停掉 → 20:03 收到告警（約 2 分鐘）；20:04 恢復 → 20:06 收到恢復通知。正式網站 `shop` 已套用同一份設定。",
+      "narration": "它回報實測的時間：停掉兩分鐘後收到告警，恢復後也收到通知。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 為你的網站做 /health、設定多地區健康檢查與 Email 通知。在測試環境故意停掉，記下幾分鐘收到通知；恢復後也要收到恢復通知。",
+      "narration": "換你做做看。記得一定要實測，記下幾分鐘收到通知。"
+    },
+    {
+      "card": "幾分鐘內收到通知",
+      "eyebrow": "這一課的成果",
+      "sub": "設定好不算數，實測收到才算",
+      "narration": "這一課的成果：網站掛了，幾分鐘內你就會知道。下一課，我們來追蹤客人瀏覽器裡發生的錯誤。"
+    }
+  ]
+}

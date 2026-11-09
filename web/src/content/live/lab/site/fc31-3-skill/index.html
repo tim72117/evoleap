@@ -1,0 +1,20 @@
+<!doctype html><html><head><title>技能就像食譜卡</title></head><body><div class="wrap">
+<h1 class="ttl">技能（skill）＝一張食譜卡</h1>
+<p class="sub">說一句「發版」，AI 就翻出這張卡，照著做</p>
+<div class="cols">
+ <div class="card box" id="recipe">
+  <div class="h">檸檬塔（食譜卡）</div>
+  <div class="ln" data-at="k1"><span class="tag">什麼時候用</span> 客人訂檸檬塔時</div>
+  <div class="ln" data-at="k2"><span class="tag">步驟</span> 1 烤塔皮 → 2 煮檸檬餡 → 3 冷藏 4 小時</div>
+  <div class="ln" data-at="k3"><span class="tag">規矩</span> 塔皮一定要先盲烤；不加色素</div>
+ </div>
+ <div class="card box code" id="skillfile">
+  <div class="h mono">.claude/skills/release/SKILL.md</div>
+  <div class="ln mono" data-at="k1"><b>description:</b> 使用者說「發版」時使用</div>
+  <div class="ln mono" data-at="k2"><b>步驟:</b> 1 跑測試 → 2 改版號與 CHANGELOG → 3 打 tag</div>
+  <div class="ln mono" data-at="k3"><b>規則:</b> 測試沒過不准發版；版號照 CHANGELOG</div>
+ </div>
+</div>
+<div class="trig" data-at="k4"><span class="say">「幫我發版」</span> → 找到 release 技能 → 照步驟做完 → 回報</div>
+<div class="btns"><button id="t1" data-go="k1">何時用</button><button id="t2" data-go="k2">步驟</button><button id="t3" data-go="k3">規則</button><button id="t4" data-go="k4">說一句話</button></div>
+</div></body></html>

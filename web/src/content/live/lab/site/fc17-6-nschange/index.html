@@ -1,0 +1,18 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>網域商乙 · nameserver</title></head><body>
+<div id="app" class="reg">
+<header class="top"><span class="logo">◎ 網域商乙</span><nav>搜尋網域　我的網域　說明</nav><span class="me">登入中：你</span></header>
+<main class="wrap">
+<p class="kicker">我的網域 ／ xiaosen-bakery.com ／ nameserver</p>
+<h1>nameserver 設定</h1>
+<div class="box">
+<label class="opt"><input type="radio" name="ns" id="def" checked> 使用網域商乙的 DNS（預設）<small>ns1.registrar-b.example、ns2.registrar-b.example</small></label>
+<label class="opt"><input type="radio" name="ns" id="custom" data-go="1"> 使用自訂的 nameserver</label>
+<div class="fields" data-at="1">
+<label>nameserver 1<input id="ns1" class="mono" placeholder="例如 xxx.ns.example.com"></label>
+<label>nameserver 2<input id="ns2" class="mono" placeholder="例如 yyy.ns.example.com"></label>
+</div>
+<p class="note">⚠ 改了之後，這裡的 DNS 紀錄就不再生效，改由新的 nameserver 回答。生效可能需要 24–48 小時。</p>
+<button id="save" class="primary" data-go="2">儲存</button>
+<div class="saved" data-only="2">✓ 已送出變更：nameserver 會改為你填的兩組。</div>
+</div>
+</main></div></body></html>

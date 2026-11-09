@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>需求單.txt</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="tabs"><button class="tab" data-go="1">輸入</button><button class="tab" data-go="2">處理</button><button class="tab" data-go="3">輸出</button><button class="tab" data-go="4">範例資料</button><button class="tab" data-go="5">手算答案</button></div>
+  <div class="flow">
+    <div class="st in r1"><div class="k">輸入</div><div class="v">群組裡的訊息，一行一杯：<br><span class="mono">姓名 品項 甜度冰塊 價格</span></div></div>
+    <div class="ar r2">⟶</div>
+    <div class="st pr r2"><div class="k">處理</div><div class="v">同品項、同甜冰的合併杯數；<br>算總金額、每人金額</div></div>
+    <div class="ar r3">⟶</div>
+    <div class="st out r3"><div class="k">輸出</div><div class="v">給店家的訂購單、<br>總杯數、總金額、每人金額</div></div>
+  </div>
+  <div class="bottom">
+    <div class="ex r4"><div class="k">範例資料（虛構）</div>
+      <div class="mono">同事甲 珍奶 半糖少冰 55<br>同事乙 紅茶 無糖去冰 35<br>同事丙 珍奶 半糖少冰 55<br>同事丁 珍奶 無糖去冰 55</div>
+      <div class="warn">不放真實姓名、電話、帳號：這段會送給 AI</div>
+    </div>
+    <div class="ans r5"><div class="k">手算的正確答案</div>
+      <div>珍奶 半糖少冰 × 2<br>珍奶 無糖去冰 × 1<br>紅茶 無糖去冰 × 1<br><b>共 4 杯、200 元</b><br>甲 55、乙 35、丙 55、丁 55</div>
+      <div class="note">之後驗證工具的標準答案</div>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

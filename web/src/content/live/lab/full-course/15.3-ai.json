@@ -1,0 +1,331 @@
+{
+  "title": "常見攻擊與防護",
+  "lesson": "全環節 · 單元 15 · 15.3 用 AI 完成",
+  "camera": "auto",
+  "blocking": {
+    "cast": [
+      "claude",
+      "web"
+    ],
+    "shot": "depth"
+  },
+  "teacher": {
+    "say": "每一項都要證明擋得住",
+    "line": "這一堂請 AI 把四種攻擊逐項檢查、加上防護。說「加好了」不算數：每一項都要寫一個攻擊測試，真的攻擊一次，證明擋得住。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "攻擊防護",
+        "folder": "~/projects/shop",
+        "branch": "security/attacks",
+        "mode": "auto",
+        "sessions": []
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "fc15-3-safe",
+        "width": "desktop",
+        "url": "http://localhost:3000/products/soap#reviews"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "常見攻擊與防護",
+      "eyebrow": "全環節 · 單元 15 · 15.3 用 AI 完成",
+      "sub": "逐項：檢查 → 加防護 → 寫攻擊測試 → 證明擋得住",
+      "chapter": "交代",
+      "narration": "完成標準：四項都有防護，而且四項都有攻擊測試通過。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "請逐項檢查這個網站有沒有 XSS、SQL 注入、CSRF、暴力登入的問題，缺的就加上防護。每一項都要寫一個「攻擊測試」：真的用攻擊的方式打一次，證明擋得住。最後列一張表：每一項原本的狀況、改了什麼、測試名稱。",
+      "narration": "交代清楚：逐項檢查、缺的補上，而且每項都要有一個真的去攻擊的測試。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "XSS：留言、姓名、地址",
+          "doing"
+        ],
+        [
+          "SQL 注入：登入、搜尋",
+          "pending"
+        ],
+        [
+          "CSRF：改資料的表單",
+          "pending"
+        ],
+        [
+          "暴力登入：登入次數限制",
+          "pending"
+        ],
+        [
+          "攻擊測試全部執行",
+          "pending"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "innerHTML|dangerouslySetInnerHTML",
+      "result": "1 處",
+      "out": "src/pages/reviews.js:22  list.innerHTML += `<p>${review.text}</p>`",
+      "chapter": "XSS",
+      "narration": "先找 XSS：哪裡把別人給的文字直接當成網頁放進去。找到一處：留言。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/reviews.js",
+      "lines": [
+        [
+          22,
+          "-",
+          "  list.innerHTML += `<p>${review.text}</p>`"
+        ],
+        [
+          22,
+          "+",
+          "  const p = document.createElement('p')"
+        ],
+        [
+          23,
+          "+",
+          "  p.textContent = review.text // 當成文字，不當成程式"
+        ],
+        [
+          24,
+          "+",
+          "  list.append(p)"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": "tests/attacks/xss.spec.ts",
+      "lines": [
+        [
+          1,
+          "+",
+          "test('留言裡的程式碼不會被執行', async ({ page }) => {"
+        ],
+        [
+          2,
+          "+",
+          "  page.on('dialog', () => { throw new Error('XSS 成功了！') })"
+        ],
+        [
+          3,
+          "+",
+          "  await postReview(page, '<img src=x onerror=alert(1)>')"
+        ],
+        [
+          4,
+          "+",
+          "  await expect(page.getByText('<img src=x onerror=alert(1)>')).toBeVisible()"
+        ],
+        [
+          5,
+          "+",
+          "})"
+        ]
+      ],
+      "narration": "攻擊測試：留一則藏著程式的留言。如果跳出視窗，就代表攻擊成功、測試失敗；要看到它原封不動顯示成文字才通過。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "XSS：留言、姓名、地址",
+          "done"
+        ],
+        [
+          "SQL 注入：登入、搜尋",
+          "doing"
+        ],
+        [
+          "CSRF：改資料的表單",
+          "pending"
+        ],
+        [
+          "暴力登入：登入次數限制",
+          "pending"
+        ],
+        [
+          "攻擊測試全部執行",
+          "pending"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "query\\(`",
+      "result": "1 處把輸入拼進 SQL",
+      "out": "src/api/search.ts:9  db.query(`SELECT * FROM products WHERE name LIKE '%${q}%'`)\n（登入已經用參數帶入，沒問題）",
+      "chapter": "SQL 注入",
+      "narration": "SQL 注入：登入已經是安全的寫法，但搜尋把輸入直接拼進指令。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/api/search.ts",
+      "lines": [
+        [
+          9,
+          "-",
+          "  db.query(`SELECT * FROM products WHERE name LIKE '%${q}%'`)"
+        ],
+        [
+          9,
+          "+",
+          "  db.query('SELECT * FROM products WHERE name LIKE ?', [`%${q}%`]) // 參數帶入"
+        ]
+      ],
+      "narration": "改成參數帶入，並寫測試：搜尋一段注入的字，應該什麼都找不到，資料表也還在。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "XSS：留言、姓名、地址",
+          "done"
+        ],
+        [
+          "SQL 注入：登入、搜尋",
+          "done"
+        ],
+        [
+          "CSRF：改資料的表單",
+          "doing"
+        ],
+        [
+          "暴力登入：登入次數限制",
+          "pending"
+        ],
+        [
+          "攻擊測試全部執行",
+          "pending"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": "src/server.ts",
+      "lines": [
+        [
+          14,
+          "+",
+          "app.use(csrfToken()) // 改資料的表單都要附上一次性權杖"
+        ],
+        [
+          15,
+          "+",
+          "app.use(session({ cookie: { sameSite: 'lax', httpOnly: true, secure: true } }))"
+        ],
+        [
+          16,
+          "+",
+          "app.post('/login', loginLimiter({ max: 5, per: '15m', by: ['email', 'ip'] }))"
+        ]
+      ],
+      "chapter": "CSRF 與暴力登入",
+      "narration": "CSRF：改資料的表單都附上一次性權杖，登入的 Cookie 設成 SameSite。暴力登入：同一個帳號或同一個 IP，十五分鐘內失敗五次就暫停。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "XSS：留言、姓名、地址",
+          "done"
+        ],
+        [
+          "SQL 注入：登入、搜尋",
+          "done"
+        ],
+        [
+          "CSRF：改資料的表單",
+          "done"
+        ],
+        [
+          "暴力登入：登入次數限制",
+          "done"
+        ],
+        [
+          "攻擊測試全部執行",
+          "doing"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright test tests/attacks",
+      "result": "4 項攻擊都被擋下",
+      "out": " ✓ XSS：留言裡的程式碼不會被執行\n ✓ SQL 注入：搜尋 ' OR 1=1 -- 找不到任何商品，資料表完整\n ✓ CSRF：從別的網站送出改 Email 表單 → 403\n ✓ 暴力登入：第 6 次錯誤密碼 → 429 請 15 分鐘後再試\n 4 passed",
+      "chapter": "證明擋得住",
+      "narration": "四個攻擊測試全部通過，也就是四種攻擊都被擋下來了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git stash && npx playwright test tests/attacks; git stash pop",
+      "result": "拿掉修改：4 項攻擊都成功",
+      "out": "（拿掉這次的修改再跑一次）\n ✗ XSS：XSS 成功了！\n ✗ SQL 注入：回傳了全部 42 項商品\n ✗ CSRF：Email 被改掉\n ✗ 暴力登入：錯了 100 次還能繼續猜",
+      "narration": "它還做了一件很重要的事：把修改先拿掉，再跑一次攻擊測試，確認沒有防護時攻擊會成功。記得偵煙器嗎？這證明測試真的會叫。"
+    },
+    {
+      "show": "web",
+      "chapter": "你親手試一次",
+      "narration": "你也可以親手試一次。打開商品的留言區。"
+    },
+    {
+      "on": "web",
+      "fill": {
+        "#name": "測試",
+        "#msg": "<script>alert('偷資料')</script>"
+      },
+      "narration": "在留言裡打一段程式碼。"
+    },
+    {
+      "on": "web",
+      "click": "#send",
+      "narration": "送出。它原封不動顯示成文字，沒有被執行。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- **XSS**：留言原本直接放進網頁 → 改成文字顯示（xss.spec.ts）\n- **SQL 注入**：搜尋原本拼字串 → 參數帶入（sql.spec.ts）\n- **CSRF**：原本沒有權杖 → 權杖＋SameSite（csrf.spec.ts）\n- **暴力登入**：原本沒有限制 → 15 分鐘 5 次（login-limit.spec.ts）",
+      "narration": "最後的表：每一項原本怎樣、改了什麼、用哪個測試證明。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：每項都要有攻擊測試",
+      "body": "請 AI 逐項檢查四種攻擊、補上防護，每一項寫一個真的去攻擊的測試；再請它拿掉修改跑一次，確認沒有防護時測試會失敗。"
+    },
+    {
+      "card": "逐項檢查 · 每項一個攻擊測試\n拿掉防護再跑一次",
+      "eyebrow": "學會",
+      "sub": "「加好了」不算數，擋得住才算",
+      "chapter": "學會",
+      "narration": "請 AI 加防護時，每一項都要有攻擊測試；再拿掉防護跑一次，確認測試會失敗。說加好了不算數，證明擋得住才算。"
+    }
+  ]
+}

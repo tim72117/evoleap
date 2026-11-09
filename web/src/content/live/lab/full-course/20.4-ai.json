@@ -1,0 +1,162 @@
+{
+  "title": "上線後出問題：退版",
+  "lesson": "全環節 · 單元 20 · 20.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天演練一次退版",
+    "line": "這一課做一次退版演練：請 AI 找出最後一個正常的版本、把流量切回去，確認恢復之後，再寫一份事故紀錄。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "退版演練",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc20-4-revs-bad", "url": "https://console.example-cloud.com/run/shop/revisions" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "上線後出問題：退版",
+      "eyebrow": "全環節 · 單元 20 · 20.4 用 AI 完成",
+      "sub": "找出正常版本 → 切回流量 → 確認恢復 → 寫事故紀錄",
+      "narration": "情境是上一堂的週五晚上：新版的結帳壞了。我們請 AI 處理。"
+    },
+    {
+      "show": "web",
+      "chapter": "現況",
+      "narration": "先看雲端主控台：新版 00013 拿走了全部流量，錯誤率百分之三十八。"
+    },
+    {
+      "callout": "web:section:r13",
+      "text": "錯誤率 38%：每三個請求就有一個失敗",
+      "narration": "這時候你不用自己判斷該切到哪一版，交給 AI，但要交代清楚完成標準。"
+    },
+    {
+      "show": "claude",
+      "chapter": "交代：先止血",
+      "narration": "打開 Claude。"
+    },
+    {
+      "on": "claude",
+      "user": "正式網站結帳壞了。先別修程式：找出最後一個正常的版本，把流量全部切回去，確認結帳恢復正常再告訴我。切流量前先問我。",
+      "narration": "重點是「先別修程式」。先止血，修理是之後的事。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run revisions list --service=shop",
+      "result": "00013（100%）、00012、00011",
+      "chapter": "找出最後一個正常的版本",
+      "narration": "它先列出所有版本。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud logging read 'resource.labels.revision_name=shop-00012 AND severity>=ERROR' --freshness=7d --limit=20",
+      "result": "7 天內 2 筆錯誤（都是客人輸入錯誤）",
+      "narration": "接著查 00012 這七天的錯誤紀錄：只有兩筆，都是客人自己輸入錯，不是程式的問題。"
+    },
+    {
+      "on": "claude",
+      "say": "`shop-00012`（v1.0.2）上線 7 天，錯誤率 0.1%，結帳正常，是最後一個正常的版本。`shop-00013` 的錯誤從 19:42 部署後開始，集中在 `/api/checkout`。",
+      "narration": "它的判斷有依據：00012 上線七天都正常，00013 的錯誤從部署那一刻開始。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run services update-traffic shop --to-revisions=shop-00012=100",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "把 100% 流量切回 shop-00012（v1.0.2）",
+      "chapter": "切回流量",
+      "narration": "要切流量了，照交代，它先問。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "看清楚：切回的版本是 00012，100%",
+      "narration": "確認版本編號和比例，是 00012，百分之百，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud run services update-traffic shop --to-revisions=shop-00012=100", "result": "流量：shop-00012 100%（4 秒）" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}' -X POST https://shop.example.app/api/checkout/test",
+      "result": "200",
+      "out": "連續 20 次測試結帳：20 次成功",
+      "chapter": "確認恢復",
+      "narration": "切完不算數，要確認恢復。它用測試用的結帳連續試二十次，二十次都成功。"
+    },
+    {
+      "on": "web",
+      "site": "fc20-4-revs-ok",
+      "narration": "主控台上，流量已經回到 00012。從下指令到恢復，不到一分鐘。"
+    },
+    {
+      "on": "claude",
+      "user": "很好。現在查 00013 為什麼壞，再寫一份事故紀錄到 docs/incidents。",
+      "chapter": "事後：寫事故紀錄",
+      "narration": "網站穩住了，才有空查原因。請它查清楚，順便寫事故紀錄。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud logging read 'resource.labels.revision_name=shop-00013 AND severity>=ERROR' --limit=5",
+      "result": "TypeError: 無法讀取 delivery.fee（delivery 是空的）"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "delivery.fee",
+      "result": "src/checkout.ts:48",
+      "narration": "原因找到了：新加的宅配功能，在客人沒選宅配時，程式讀到空的資料就當掉。"
+    },
+    {
+      "on": "claude",
+      "edit": "docs/incidents/2026-11-08-checkout.md",
+      "lines": [
+        [1, "+", "# 結帳失敗（2026-11-08 19:42–20:31）"],
+        [2, "+", "影響：約 49 分鐘，38% 的結帳失敗"],
+        [3, "+", "時間線：19:42 部署 v1.1.0 → 20:05 客服收到回報 → 20:30 退回 v1.0.2 → 20:31 恢復"],
+        [4, "+", "原因：沒選宅配時 delivery 是空的，checkout.ts:48 讀取 fee 出錯"],
+        [5, "+", "處理：流量切回 shop-00012"],
+        [6, "+", "改進：補「不選宅配也能結帳」的測試；部署後先給 10% 流量"]
+      ],
+      "narration": "事故紀錄寫了五件事：影響多大、發生的時間線、原因、怎麼處理，以及以後怎麼避免。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "事故紀錄不是檢討誰：是記下下次怎麼避免",
+      "narration": "事故紀錄的目的不是怪誰，是讓下次不再發生。最後一行的改進，就是之後要做的事。"
+    },
+    {
+      "on": "claude",
+      "say": "已退回 `shop-00012`，結帳恢復正常（20/20 成功）。原因與改進寫在 `docs/incidents/2026-11-08-checkout.md`。修好之後要先補測試，再發 v1.1.1。",
+      "narration": "它回報：已恢復、原因、紀錄放在哪裡，以及下一步。"
+    },
+    {
+      "checkpoint": "換你演練",
+      "body": "在你的專案部署一個故意有小錯的版本（例如某一頁顯示錯字），再請 AI：找出最後一個正常的版本、切流量前先問你、確認恢復，最後寫一份事故紀錄。",
+      "narration": "換你演練一次。故意部署一個有小錯的版本，讓 AI 退版、確認恢復、寫事故紀錄。真的出事時，你就不會慌。"
+    },
+    {
+      "card": "一次退版演練與事故紀錄",
+      "eyebrow": "這一課的成果",
+      "sub": "先止血、確認恢復，再找原因、寫紀錄",
+      "narration": "這一課的成果：一次退版演練和一份事故紀錄。下一個單元，我們來學怎麼讀雲端上的紀錄。"
+    }
+  ]
+}

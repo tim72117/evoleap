@@ -1,0 +1,11 @@
+<!doctype html><html><head><title>訂單狀態（內部）</title></head><body><div class="wrap">
+<div class="top"><b>今天的訂單</b><span class="tag">讀 data/orders.csv</span><span class="cnt">今天要取貨 2 筆 · 未付款 2 筆</span></div>
+<div class="filters"><button id="fToday" data-go="today">只看今天取貨</button><button id="fUnpaid" data-go="unpaid">只看未付款</button></div>
+<table class="tb">
+<tr><th>單號</th><th>客人</th><th>品項</th><th>取貨</th><th>狀態</th></tr>
+<tr data-off="unpaid" class="on"><td>A102</td><td>陳先生</td><td>可頌 x6</td><td class="today">今天 09:00</td><td class="ok">已付款</td></tr>
+<tr class="on"><td>A103</td><td>林小姐</td><td>司康 x4</td><td class="today">今天 10:30</td><td class="bad">未付款</td></tr>
+<tr data-off="today" class="on"><td>A101</td><td>王小姐</td><td>生日蛋糕 6 吋</td><td>11/10 15:00</td><td class="bad">未付款</td></tr>
+<tr data-off="today unpaid" class="on"><td>A104</td><td>張先生</td><td>吐司 x2</td><td>11/11 08:00</td><td class="ok">已付款</td></tr>
+</table>
+</div></body></html>

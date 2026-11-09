@@ -1,0 +1,99 @@
+{
+  "title": "到達頁與 A/B 測試",
+  "lesson": "全環節 · 單元 27 · 27.5 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "做兩版，等數據說話",
+    "line": "今天請 AI 做兩個版本的到達頁，把訪客平均分到兩邊，還要事先算好要多少人。等數據夠了，再請它解讀。"
+  },
+  "blocking": { "cast": ["claude", "page"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "到達頁 A/B 測試", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "page": { "actor": "browser", "props": { "site": "fc27-5-landing", "width": "desktop", "url": "https://komori-bakery.example/chestnut" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "到達頁與 A/B 測試",
+      "eyebrow": "全環節 · 單元 27 · 27.5 用 AI 完成",
+      "sub": "一次交代：兩個版本、分流、要多少人、怎樣算結束",
+      "chapter": "一次交代清楚",
+      "narration": "這一堂只下一次指令，但要把結束條件講清楚：人數夠了才看結果，不偷看。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫栗子季的到達頁做 A/B 測試：A 標題「栗子季開賣」、B 標題「撕開，聽得到聲音的可頌」，其他都一樣。訪客隨機各分一半，同一個人每次看到同一版。記錄每一版的來訪和預約。先幫我算：預約率大約 6%，想看出 2 個百分點的差距，每邊要多少人？做完自己驗證分流真的是一半一半。",
+      "narration": "說清楚只改標題、隨機分一半、同一個人每次看到同一版，還請它先算要多少人。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "python3 -c \"from statsmodels.stats.power import NormalIndPower as P; …\"",
+      "result": "完成",
+      "out": "預約率 6% → 8%，顯著水準 5%、檢定力 80%\n每邊需要約 2,550 人",
+      "narration": "它先算出樣本數：每邊大約要兩千五百五十人。以現在的流量，大概要兩週。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/lib/ab.js",
+      "lines": [
+        [1, "+", "export function variant(visitorId) {"],
+        [2, "+", "  return hash(visitorId + ':chestnut-title') % 2 === 0 ? 'A' : 'B'"],
+        [3, "+", "}"]
+      ],
+      "narration": "分流用訪客的代號算出來：同一個人每次都得到同一個結果，不同的人平均分到兩邊。"
+    },
+    { "on": "claude", "tool": "Write", "arg": "src/pages/chestnut.astro", "result": "已修改", "narration": "頁面依版本換標題，並在來訪與預約時記錄是哪一版。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/ab-selfcheck.mjs --visitors 10000",
+      "result": "通過",
+      "out": "模擬 10,000 位訪客：A 4,987 · B 5,013（49.9% / 50.1%）✓\n同一位訪客重複來訪 20 次：版本不變 ✓\n兩版除了標題，HTML 完全相同 ✓",
+      "chapter": "AI 自己驗證分流",
+      "narration": "它模擬一萬位訪客：兩邊幾乎剛好一半；同一個人來二十次，版本都不變；兩版除了標題，其他完全一樣。"
+    },
+    { "show": "page", "narration": "實際看一下兩個版本。這是 A。" },
+    { "on": "page", "click": "#t-b", "narration": "這是 B。只有標題和副標不一樣。" },
+    {
+      "on": "claude",
+      "say": "已上線。每邊到 2,550 人之前，報表我會先藏起來，只顯示人數進度，避免太早下結論。到了我會通知你。",
+      "narration": "AI 還主動把結果藏起來，人數到了才顯示，避免你忍不住偷看、太早喊停。"
+    },
+    { "hide": "page" },
+    { "whip": "left", "narration": "兩週後。" },
+    { "reveal": true },
+    { "on": "claude", "user": "人數到了，幫我解讀結果，用白話說。", "chapter": "兩週後：解讀結果" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/ab-report.mjs chestnut-title",
+      "result": "完成",
+      "out": "A  2,604 人  157 預約  6.0%\nB  2,571 人  208 預約  8.1%\n差距 +2.1 個百分點，p = 0.003",
+      "narration": "A 是百分之六，B 是百分之八點一。"
+    },
+    {
+      "on": "claude",
+      "say": "**結論：B 比較好，而且不太可能是運氣。**\n- 如果兩版其實一樣好，出現這麼大差距的機會只有 0.3%\n- B 每 100 人多 2 個預約\n\n建議全部改用 B。下一個可以測的是按鈕文字，一樣一次只改一個地方。",
+      "narration": "AI 用白話說：如果兩版其實一樣，會出現這麼大差距的機會只有千分之三，所以可以放心改用 B。下一次，再測另一個地方。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "選一個你想改的地方（標題、按鈕或圖片，只選一個）。請 AI 先算要多少人，再做兩個版本、隨機分流並自己驗證。人數到了才請它解讀。"
+    },
+    {
+      "card": "先算要多少人\n分流要隨機、要固定\n人數到了才看結果",
+      "eyebrow": "學會",
+      "sub": "結論用白話：差距多大、是不是運氣",
+      "chapter": "學會",
+      "narration": "先算要多少人，分流要隨機也要固定，人數到了才看結果。請 AI 用白話告訴你：差距多大，是不是運氣。"
+    }
+  ]
+}

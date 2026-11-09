@@ -1,0 +1,25 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; color: #33302a; background:
+  radial-gradient(circle at 20% 10%, #f6efe2 0, transparent 40%), #efe7d8; }
+.wrap { padding: 34px 30px; }
+.card { background: #fffdf8; border-radius: 16px; box-shadow: 0 10px 30px rgba(80, 60, 30, .16); border: 1px solid #e6dcc8; overflow: hidden; }
+.card-head { display: flex; align-items: center; gap: 12px; padding: 18px 24px; background: #3f6b5a; color: #fff; }
+.pin { width: 16px; height: 16px; border-radius: 50%; background: #f2c14e; box-shadow: inset -3px -3px 0 rgba(0,0,0,.15); }
+.card-head h1 { margin: 0; font-size: 22px; letter-spacing: .02em; }
+.card-head small { display: block; font-size: 13px; opacity: .8; font-weight: normal; }
+.flow { display: flex; align-items: center; gap: 8px; padding: 12px 24px; font-size: 14px; color: #6d6555; border-bottom: 1px dashed #e0d5c0; }
+.flow b { background: #f3ecdf; padding: 3px 10px; border-radius: 999px; color: #4a4336; }
+.flow i { font-style: normal; color: #b3a68c; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; }
+.sec { padding: 18px 22px 22px; border-right: 1px solid #eee5d4; border-bottom: 1px solid #eee5d4; min-height: 230px; cursor: pointer; }
+.sec:nth-child(2n) { border-right: 0; }
+.sec h2 { margin: 0 0 10px; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+.sec h2 .ico { width: 30px; height: 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; }
+#sec-input .ico { background: #4f86c6; } #sec-steps .ico { background: #e08a3c; } #sec-output .ico { background: #3f9d6d; } #sec-check .ico { background: #b45ca8; }
+.blank { height: 110px; border: 2px dashed #e0d5c0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 34px; color: #cfc3aa; }
+.body { display: none; font-size: 15px; line-height: 1.7; margin: 0; padding-left: 20px; }
+.filled .blank { display: none; }
+.filled .body { display: block; }
+.filled { background: #fffaf0; }
+.chg { background: linear-gradient(transparent 55%, #ffe58a 55%); }
+.chg::after { content: "改"; font-size: 11px; margin-left: 6px; padding: 0 6px; border-radius: 4px; background: #e2a400; color: #fff; vertical-align: 2px; }

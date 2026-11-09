@@ -1,0 +1,197 @@
+{
+  "title": "換你換驚喜",
+  "lesson": "兒童網頁課 · 3.4 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "神秘驚喜",
+        "emoji": "🎁",
+        "buttons": [
+          {
+            "id": "go",
+            "text": "按一下"
+          }
+        ],
+        "box": {
+          "name": "按了幾下",
+          "value": 0
+        },
+        "rules": [
+          {
+            "id": "count",
+            "when": "go",
+            "do": [
+              {
+                "add": 1
+              }
+            ]
+          },
+          {
+            "id": "boom",
+            "when": "box",
+            "if": {
+              "is": 3
+            },
+            "do": []
+          }
+        ],
+        "drawer": [
+          {
+            "id": "fire",
+            "do": {
+              "fireworks": true
+            }
+          },
+          {
+            "id": "pink",
+            "do": {
+              "paint": "粉紅"
+            }
+          },
+          {
+            "id": "blue",
+            "do": {
+              "paint": "藍色"
+            }
+          },
+          {
+            "id": "yay",
+            "do": {
+              "say": "好棒！"
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 40,
+          "y": 30,
+          "w": 1840,
+          "h": 900
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:when:boom",
+        "text": "條件是 3"
+      },
+      "narration": "換你了！這裡的條件是：如果「按了幾下」是 3。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:do:boom",
+        "text": "放一個驚喜"
+      },
+      "narration": "「就」的格子還是空的。從積木盒選一個驚喜放進去，再按到 3 看看。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:reload",
+        "text": "重新整理"
+      },
+      "narration": "按超過 3 也沒關係，按重新整理，盒子就回到 0，可以再來一次。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "放一個驚喜，再按到 3",
+    "body": "讓條件成立兩次，集滿 2 顆星星",
+    "spots": [
+      {
+        "target": "kid:block:fire",
+        "id": "block:fire",
+        "label": "放煙火的積木",
+        "steps": [
+          {
+            "snap": "fire",
+            "into": "boom",
+            "narration": "放好放煙火了！按到 3 看看。"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:pink",
+        "id": "block:pink",
+        "label": "背景變粉紅的積木",
+        "steps": [
+          {
+            "snap": "pink",
+            "into": "boom",
+            "narration": "放好背景變粉紅了！按到 3 看看。"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:blue",
+        "id": "block:blue",
+        "label": "背景變藍色的積木",
+        "steps": [
+          {
+            "snap": "blue",
+            "into": "boom",
+            "narration": "放好背景變藍色了！按到 3 看看。"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:yay",
+        "id": "block:yay",
+        "label": "說好棒的積木",
+        "steps": [
+          {
+            "snap": "yay",
+            "into": "boom",
+            "narration": "放好說好棒了！按到 3 看看。"
+          }
+        ]
+      },
+      {
+        "target": "kid:button:go",
+        "id": "button:go",
+        "label": "按一下按鈕",
+        "steps": [
+          {
+            "press": "go",
+            "narration": "按了一下！盒子裡是幾？"
+          }
+        ]
+      },
+      {
+        "target": "kid:reload",
+        "id": "reload",
+        "label": "重新整理",
+        "steps": [
+          {
+            "reload": true,
+            "narration": "盒子回到 0，再按到 3 看看。"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "hits",
+      "atLeast": 2
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 400,
+          "narration": "條件成立，驚喜就出現了！你會用如果……就……了！"
+        }
+      ]
+    }
+  }
+}

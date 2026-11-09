@@ -1,0 +1,32 @@
+<!doctype html><html><head><title>安全審查</title></head><body>
+<div class="app">
+  <div class="list" id="list">
+    <h3>安全審查清單</h3>
+    <ul>
+      <li id="c1">登入與權限：每個人只碰得到自己的東西？</li>
+      <li id="c2">輸入：XSS、SQL 注入、上傳檔案</li>
+      <li id="c3">機密：金鑰有沒有進程式或紀錄</li>
+      <li id="c4">套件：有沒有高風險漏洞</li>
+      <li id="c5">錯誤訊息：會不會洩漏程式細節</li>
+      <li id="c6">設定：HTTPS、Cookie、管理後台</li>
+      <li id="c7">個資：存了哪些、誰看得到</li>
+    </ul>
+  </div>
+  <div class="mx" id="mx">
+    <h3>風險分級：影響 × 可能性</h3>
+    <div class="grid">
+      <div class="ylab">影響<br>大</div><div class="cell m2" id="x13"></div><div class="cell m3" id="x23"></div><div class="cell m4" id="x33"></div>
+      <div class="ylab">中</div><div class="cell m1" id="x12"></div><div class="cell m2" id="x22"></div><div class="cell m3" id="x32"></div>
+      <div class="ylab">小</div><div class="cell m1" id="x11"></div><div class="cell m1" id="x21"></div><div class="cell m2" id="x31"></div>
+      <div></div><div class="xlab">不太可能</div><div class="xlab">有可能</div><div class="xlab">很容易發生</div>
+    </div>
+    <div class="legend"><span class="m4">嚴重：上線前一定要修</span><span class="m3">高：上線前修</span><span class="m2">中：排進計畫</span><span class="m1">低：記錄</span></div>
+  </div>
+  <div class="chips">
+    <button id="f1" data-c="x33" data-t="任何會員都看得到別人的訂單">發現 1</button>
+    <button id="f2" data-c="x32" data-t="錯誤頁面顯示程式細節">發現 2</button>
+    <button id="f3" data-c="x23" data-t="管理後台沒有兩步驟驗證">發現 3</button>
+    <button id="f4" data-c="x21" data-t="Cookie 少了 secure 設定">發現 4</button>
+  </div>
+</div>
+</body></html>

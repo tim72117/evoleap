@@ -1,0 +1,35 @@
+<!doctype html><html><head><title>拆開一個錯誤</title></head><body>
+<div class="app s0">
+  <div class="grid">
+    <div class="err" id="err">
+      <div class="l0"><span class="type" id="type">TypeError</span>: <span class="msg" id="msg">Cannot read properties of undefined (reading 'price')</span></div>
+      <div class="f mine" id="f1">    at itemTotal (<b>src/cart/total.js:12:24</b>)</div>
+      <div class="f lib">    at Array.map (&lt;anonymous&gt;)</div>
+      <div class="f mine" id="f3">    at cartTotal (src/cart/total.js:5:22)</div>
+      <div class="f mine" id="f4">    at checkout (src/routes/checkout.js:31:17)</div>
+      <div class="f lib">    at Layer.handle (node_modules/express/lib/router/layer.js:95:5)</div>
+      <div class="f lib">    at next (node_modules/express/lib/router/route.js:149:13)</div>
+    </div>
+    <div class="plates" id="plates">
+      <div class="pl p4"><span>④ itemTotal：拿 item.price</span><em>💥 在這裡出事</em></div>
+      <div class="pl p3"><span>③ cartTotal：一個個算商品小計</span></div>
+      <div class="pl p2"><span>② checkout：結帳，先算總金額</span></div>
+      <div class="pl p1"><span>① 網站收到「結帳」的請求</span></div>
+      <div class="cap">呼叫的路像一疊盤子：先放的在下面</div>
+    </div>
+  </div>
+  <div class="explain">
+    <p class="e0">一大段紅字看起來很嚇人，其實只有兩個部分：上面一行說「發生什麼事」，下面幾行說「怎麼走到這裡」。</p>
+    <p class="e1"><b>錯誤類型</b> TypeError：拿東西的方式不對，例如對「不存在的東西」拿它的價格。</p>
+    <p class="e2"><b>錯誤訊息</b>：讀不到 undefined（不存在的東西）的 price。也就是：有一個商品「不存在」。</p>
+    <p class="e3"><b>由下往上讀</b>，就是事情發生的順序：收到請求 → 結帳 → 算總金額 → 算小計時出事。</p>
+    <p class="e4"><b>找你自己的檔案</b>：node_modules 是別人寫的套件，先跳過。最靠近出事點的自己的檔案：total.js 第 12 行。</p>
+  </div>
+  <div class="chips">
+    <button id="b1" data-s="1">① 錯誤類型</button>
+    <button id="b2" data-s="2">② 錯誤訊息</button>
+    <button id="b3" data-s="3">③ 由下往上讀</button>
+    <button id="b4" data-s="4">④ 找你的檔案</button>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>分隔符號</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="ttl">工具怎麼知道哪裡是姓名、哪裡是單位？</div>
+    <div class="tabs"><button class="tab" data-go="1">打字的名單</button><button class="tab" data-go="2">從試算表複製</button><button class="tab" data-go="3">修好之後</button></div>
+  </div>
+  <div class="rows">
+    <div class="line">
+      <div class="src">陳怡君<span class="cut">,</span>行銷部</div>
+      <div class="to">⟶</div>
+      <div class="out"><span class="cell">陳怡君</span><span class="cell u">行銷部</span><span class="ok">✓</span></div>
+      <div class="note">看到<b>逗號</b>就切開</div>
+    </div>
+    <div class="line r2">
+      <div class="src sheet"><span class="xl">試算表</span>陳怡君<span class="tabk">⇥ Tab</span>行銷部</div>
+      <div class="to">⟶</div>
+      <div class="out"><span class="cell wide p2">陳怡君　行銷部</span><span class="bad p2">✗ 黏在一起</span><span class="p3"><span class="cell">陳怡君</span><span class="cell u">行銷部</span><span class="ok">✓</span></span></div>
+      <div class="note"><span class="p2">欄與欄之間是看不見的 <b>Tab</b>，工具只認逗號</span><span class="p3">請 AI 把 Tab 也當成分隔</span></div>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

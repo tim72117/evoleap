@@ -1,0 +1,147 @@
+{
+  "title": "用白話問數據",
+  "lesson": "全環節 · 單元 23 · 23.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天用白話問數據",
+    "line": "這一課不寫查詢、不拉報表，直接用白話問 AI 三個營運問題。重點是：請它每個答案都附上依據，說清楚數字從哪來、有什麼限制。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "問數據",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "auto",
+        "labels": { "placeholder": "用白話問…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc23-4-answers", "url": "file:///projects/shop/reports/questions-2026-11.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用白話問數據",
+      "eyebrow": "全環節 · 單元 23 · 23.4 用 AI 完成",
+      "sub": "三個問題 · 每個答案附上依據與限制",
+      "narration": "這次只要會問問題。但要先立好規矩：答案要附依據。"
+    },
+    {
+      "show": "claude",
+      "chapter": "先立規矩",
+      "narration": "第一句話，先說好回答的方式。"
+    },
+    {
+      "on": "claude",
+      "user": "等一下我會用白話問你營運問題。每個答案請附上：資料從哪裡來（資料庫或 GA4）、用了哪段時間、查詢本身，以及這個數字有什麼限制。只能讀資料，不要改任何東西。",
+      "narration": "四樣依據：來源、時間範圍、查詢本身、限制。另外說清楚只能讀，不能改。"
+    },
+    {
+      "on": "claude",
+      "say": "好的。我會用唯讀的資料庫帳號查詢，GA4 只用報表 API，每個答案都附上依據。",
+      "narration": "它說會用唯讀的帳號，就算查詢寫錯，也動不到資料。"
+    },
+    {
+      "on": "claude",
+      "user": "上個月哪個商品賣最好？",
+      "chapter": "問題一：哪個商品賣最好",
+      "narration": "第一個問題。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql $READONLY_URL -c \"select product, sum(qty), sum(amount) from order_items join orders using(order_id) where status='paid' and paid_at >= '2026-10-01' and paid_at < '2026-11-01' group by 1 order by 2 desc limit 3\"",
+      "result": "草莓蛋糕 268 · 可頌 201 · 巴斯克 144"
+    },
+    {
+      "on": "claude",
+      "say": "**草莓蛋糕**，268 個，占營收 24%。\n\n依據：訂單資料庫，10/1–10/31，只算已付款的訂單（查詢如上）。\n限制：以「個數」排名；如果用營收排，第二名會換成巴斯克（單價較高）。",
+      "narration": "答案、依據都有，還主動提醒：用個數和用營收排，結果不一樣。這就是一個好的答案。"
+    },
+    {
+      "on": "claude",
+      "user": "客人大多從哪裡來？",
+      "chapter": "問題二：客人從哪裡來",
+      "narration": "第二個問題。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/ga-report.mjs --dimension=sessionSource --metric=sessions --range=30d",
+      "result": "instagram 41% · google 33% · (direct) 18% · 其他 8%"
+    },
+    {
+      "on": "claude",
+      "say": "**Instagram 41%**，Google 搜尋 33%，直接輸入網址 18%。\n\n依據：GA4，最近 30 天的工作階段來源。\n限制：GA4 會漏掉擋廣告或拒絕 Cookie 的人，上週約少記 17%。看比例可以，不要當成精確的人數。",
+      "narration": "這次來源是 GA4，它就說明了上一堂學的限制：會漏，看比例可以，看精確人數不行。"
+    },
+    {
+      "on": "claude",
+      "user": "週末的訂單比平日多嗎？",
+      "chapter": "問題三：週末比平日多嗎",
+      "narration": "第三個問題。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql $READONLY_URL -c \"select is_weekend, avg(daily) from (每日已付款訂單數, 最近 8 週) group by 1\"",
+      "result": "週末 52 · 平日 31"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "同上，但排除 9/18–9/25（中秋節前一週）",
+      "result": "週末 47 · 平日 31",
+      "narration": "它跑了兩次：第二次把中秋節前一週排除掉。"
+    },
+    {
+      "on": "claude",
+      "say": "**多**，週末平均每天 47 筆，平日 31 筆，約 1.5 倍。\n\n依據：訂單資料庫，最近 8 週。我排除了中秋節前一週，因為那段時間不管平日週末都特別多，會讓差距看起來更大（含節日是 52 筆）。",
+      "narration": "它注意到節日會影響結果，自己排除掉，並且把兩個數字都告訴你。"
+    },
+    {
+      "on": "claude",
+      "user": "那是不是代表週末投廣告比較有效？",
+      "chapter": "追問：小心因果",
+      "narration": "你忍不住追問一句。"
+    },
+    {
+      "on": "claude",
+      "say": "目前的資料還不能這樣說。週末訂單多，可能只是大家週末比較有空、本來就會買，和廣告無關。要知道廣告的效果，可以連續幾週，週末一半投、一半不投，比較兩邊的下單數。要我幫你設計這個比較嗎？",
+      "narration": "它沒有順著你說「對」，而是說明相關不等於因果，還提出一個比較公平的驗證方法。"
+    },
+    {
+      "on": "claude",
+      "user": "先不用。把這三個問題的答案和依據整理成一份報告。"
+    },
+    {
+      "show": "web",
+      "chapter": "三個問題的答案",
+      "narration": "報告整理好了。每個答案下面，都有依據或限制。"
+    },
+    {
+      "callout": "web:section:q2",
+      "text": "答案 + 限制：這個數字能怎麼用、不能怎麼用",
+      "narration": "以後別人看這份報告，也知道每個數字能怎麼用、不能怎麼用。"
+    },
+    {
+      "checkpoint": "換你問",
+      "body": "先跟 AI 立好規矩：每個答案附上資料來源、時間範圍、查詢、限制，只能讀不能改。再用白話問三個你的網站的營運問題，最後追問一個「是不是因為……」，看它怎麼回答。",
+      "narration": "換你問三個問題。記得先立規矩，最後再追問一個因果的問題，看它會不會小心回答。"
+    },
+    {
+      "card": "三個營運問題的答案",
+      "eyebrow": "這一課的成果",
+      "sub": "白話提問 · 每個答案附上來源、時間、查詢與限制",
+      "narration": "這一課的成果：三個有依據的答案。下一個單元，我們來處理網站的法務與客服，從隱私權政策開始。"
+    }
+  ]
+}

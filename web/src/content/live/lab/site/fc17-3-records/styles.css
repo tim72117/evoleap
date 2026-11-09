@@ -1,0 +1,34 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; color: #1f2a37; background: #f5f7fb; line-height: 1.6; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 26px 40px 40px; }
+.kicker { font-size: 14px; letter-spacing: .08em; color: #6b7a90; margin: 0; }
+h1 { font-size: 30px; margin: 2px 0 6px; color: #13213a; }
+.lead { color: #55657a; margin: 0 0 16px; font-size: 17px; }
+.tabs { display: flex; gap: 10px; margin: 0 0 18px; flex-wrap: wrap; }
+.tabs button { border: 1px solid #c9d4e3; background: #fff; border-radius: 999px; padding: 6px 16px; font: inherit; font-size: 15px; color: #3b4a5e; cursor: pointer; }
+.tabs button.cur { background: #2563eb; color: #fff; border-color: #2563eb; }
+[data-at] { opacity: .08; }
+[data-at].on { opacity: 1; }
+[data-only]:not(.on) { display: none !important; }
+.note { background: #fff8e6; border: 1px solid #f1d58a; border-radius: 10px; padding: 10px 14px; font-size: 15px; color: #6b4e00; }
+.box { background: #fff; border: 1px solid #dbe3ee; border-radius: 14px; padding: 16px 18px; box-shadow: 0 2px 6px rgba(20,40,80,.05); }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.pill { display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 13px; background: #e7eefb; color: #2952a3; }
+.pill.ok { background: #dcf5e6; color: #13703d; }
+.pill.bad { background: #fde3e3; color: #a32020; }
+.pill.wait { background: #fff1d6; color: #8a5a00; }
+svg text { font-family: "Noto Sans TC", "PingFang TC", sans-serif; }
+.book { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; }
+.rec { width: 100%; border-collapse: collapse; background: #fffdf5; border: 2px solid #e8dcb5; border-radius: 12px; font-size: 18px; }
+.rec th, .rec td { padding: 14px 12px; border-bottom: 1px dashed #e8dcb5; text-align: left; }
+.rec th { background: #f7efd5; }
+.ty { display: inline-block; min-width: 70px; text-align: center; border-radius: 8px; padding: 2px 8px; font-weight: 800; color: #fff; font-size: 15px; }
+.a { background: #2563eb; } .aaaa { background: #4f46e5; } .cname { background: #0d9488; } .mx { background: #d97706; } .txt { background: #7c3aed; }
+b.h.a, b.h.aaaa, b.h.cname, b.h.mx, b.h.txt { background: none; }
+.h { font-size: 24px; display: block; margin-bottom: 6px; }
+.h.a { color: #2563eb; } .h.aaaa { color: #4f46e5; } .h.cname { color: #0d9488; } .h.mx { color: #d97706; } .h.txt { color: #7c3aed; }
+.side p { font-size: 18px; margin: 0; line-height: 1.8; }
+.ic { margin-top: 14px; font-size: 20px; background: #f1f5f9; border-radius: 10px; padding: 10px 14px; font-family: Menlo, monospace; }
+#app[data-s="1"] .r1, #app[data-s="2"] .r2, #app[data-s="3"] .r3, #app[data-s="4"] .r4, #app[data-s="5"] .r5 { background: #fff1b8; }
+#app[data-s="1"] .rec tr:not(.r1):not(:first-child), #app[data-s="2"] .rec tr:not(.r2):not(:first-child), #app[data-s="3"] .rec tr:not(.r3):not(:first-child), #app[data-s="4"] .rec tr:not(.r4):not(:first-child), #app[data-s="5"] .rec tr:not(.r5):not(:first-child) { opacity: .3; }
+#app[data-s="6"] .ttl { background: #fff1b8; font-weight: 800; }

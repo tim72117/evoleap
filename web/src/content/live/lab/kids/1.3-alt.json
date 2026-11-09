@@ -1,0 +1,162 @@
+{
+  "title": "換你寫說明",
+  "lesson": "兒童網頁課 · 1.3 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt8-kid-page",
+      "props": {
+        "title": "小花的相簿",
+        "items": [
+          {
+            "id": "t",
+            "kind": "h1",
+            "text": "小花的相簿"
+          },
+          {
+            "id": "eat",
+            "kind": "img",
+            "pic": "🐱🐟",
+            "want": "eat"
+          },
+          {
+            "id": "play",
+            "kind": "img",
+            "pic": "🐱🧶",
+            "want": "play"
+          },
+          {
+            "id": "sun",
+            "kind": "img",
+            "pic": "🐱☀️",
+            "want": "sun"
+          }
+        ],
+        "cards": [
+          {
+            "id": "play",
+            "text": "小花在玩毛線球"
+          },
+          {
+            "id": "sun",
+            "text": "小花在窗邊曬太陽"
+          },
+          {
+            "id": "eat",
+            "text": "小花在吃小魚乾"
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 80,
+          "y": 50,
+          "w": 1760,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "小花的相簿"
+      },
+      "narration": "換你幫小花的相簿寫說明。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:tools",
+        "text": "先選一張說明卡"
+      },
+      "narration": "先選一張說明卡，再點它說的那張照片。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "先選一張說明卡，再點它說的照片",
+    "body": "3 張照片都配對，集滿 3 顆星星",
+    "spots": [
+      {
+        "target": "kid:tool:eat",
+        "id": "card-eat",
+        "label": "說明卡：小花在吃小魚乾",
+        "steps": [
+          {
+            "pick": "eat"
+          }
+        ]
+      },
+      {
+        "target": "kid:tool:play",
+        "id": "card-play",
+        "label": "說明卡：小花在玩毛線球",
+        "steps": [
+          {
+            "pick": "play"
+          }
+        ]
+      },
+      {
+        "target": "kid:tool:sun",
+        "id": "card-sun",
+        "label": "說明卡：小花在窗邊曬太陽",
+        "steps": [
+          {
+            "pick": "sun"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:eat",
+        "id": "eat",
+        "label": "照片 🐱🐟",
+        "steps": [
+          {
+            "use": "eat"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:play",
+        "id": "play",
+        "label": "照片 🐱🧶",
+        "steps": [
+          {
+            "use": "play"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:sun",
+        "id": "sun",
+        "label": "照片 🐱☀️",
+        "steps": [
+          {
+            "use": "sun"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "right",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "broken": true,
+          "narration": "照片都載不出來了！可是看說明，還是知道每張照的是什麼。"
+        }
+      ]
+    }
+  }
+}

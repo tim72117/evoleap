@@ -1,0 +1,131 @@
+{
+  "title": "前端、後端與 API：請 AI 畫出你的請求流程圖",
+  "lesson": "全環節 · 單元 8 · 8.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 畫你的流程圖",
+    "line": "今天請 AI 讀你自己的專案，把每一個請求畫成流程圖，而且要它自己打一遍確認，畫的跟實際的一樣。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc8-1-flowmap", "url": "file:///projects/bakery/docs/request-flow.html" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "請求流程圖", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "請 AI 畫出你的請求流程圖",
+      "eyebrow": "全環節 · 單元 8 · 8.1 用 AI 完成",
+      "sub": "先看成果，再倒回去看它怎麼做出來",
+      "chapter": "先看成果",
+      "narration": "這一堂我們先看最後的成果，再倒回去看怎麼請 AI 做出來。"
+    },
+    { "show": "web", "focus": false, "narration": "這是小森烘焙專案的請求流程圖。左邊瀏覽器、中間伺服器、右邊資料庫，每一列是一次請求。" },
+    { "on": "web", "click": "#m2", "narration": "例如這一列：瀏覽器要商品清單，伺服器去資料庫查，再回 200 和資料。" },
+    { "on": "web", "click": "#m4", "narration": "這一列是沒登入就去看自己的訂單，伺服器回 401。這是 AI 實際打過一遍才寫上去的，不是猜的。" },
+    { "flash": true, "chapter": "倒帶：怎麼交代" },
+    { "hide": "web", "ms": 300 },
+    { "show": "claude", "ms": 300 },
+    { "reveal": true, "narration": "倒回去。你只要在專案裡打開 AI，交代清楚三件事：畫什麼、放哪裡、怎樣才算完成。" },
+    {
+      "on": "claude",
+      "user": "把這個專案所有的請求畫成流程圖：瀏覽器、伺服器、資料庫之間怎麼傳，標出方法、網址和狀態碼。存成 docs/request-flow.md。完成的標準：每一條路由你都實際用 curl 打一次，圖上寫的狀態碼要和實際回應一樣。",
+      "narration": "最後一句最重要：每一條路由都要實際打一次，圖上的狀態碼要跟回應一樣。這樣它不能只憑印象畫。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "todos": [["找出所有路由", "doing"], ["啟動伺服器，逐條用 curl 確認", "pending"], ["畫流程圖、寫進 docs/request-flow.md", "pending"]],
+      "chapter": "AI 自己找、自己驗證",
+      "narration": "它先列出要做的事。"
+    },
+    { "on": "claude", "tool": "Grep", "arg": "app\\.(get|post|patch|delete)", "result": "server.js 裡 4 條路由", "out": "server.js:12  app.get('/')\nserver.js:18  app.get('/api/menu')\nserver.js:27  app.post('/api/orders')\nserver.js:41  app.get('/api/orders/me')", "narration": "第一步，在程式裡搜尋路由，找到四條。" },
+    { "on": "claude", "tool": "Read", "arg": "server.js", "result": "58 行", "narration": "再讀程式，看每一條會不會去資料庫。" },
+    {
+      "on": "claude",
+      "todos": [["找出所有路由", "done"], ["啟動伺服器，逐條用 curl 確認", "doing"], ["畫流程圖、寫進 docs/request-flow.md", "pending"]]
+    },
+    { "on": "claude", "ask": "npm start &", "q": "Claude 想要執行這個指令", "where": "~/projects/bakery", "note": "在背景啟動本機伺服器", "narration": "要啟動伺服器之前，它先問你。看清楚是本機的 npm start，允許。" },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for r in 'GET /' 'GET /api/menu' 'POST /api/orders' 'GET /api/orders/me'; do curl -s -o /dev/null -w \"$r → %{http_code}\\n\" -X ${r% *} localhost:3000${r#* }; done",
+      "result": "4 條都有回應",
+      "out": "GET / → 200\nGET /api/menu → 200\nPOST /api/orders → 400\nGET /api/orders/me → 401",
+      "narration": "它把四條路由各打一次。咦，送訂單回的是 400，不是成功。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "POST 沒帶訂單資料，所以回 400（請求有問題）",
+      "narration": "因為剛剛只是空打，沒帶訂單資料。400 代表請求有問題，伺服器擋得很對。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -w ' → %{http_code}' -X POST localhost:3000/api/orders -H 'Content-Type: application/json' -d '{\"item\":\"可頌\",\"qty\":1}'",
+      "result": "201",
+      "out": "{\"id\":42,\"status\":\"new\"} → 201",
+      "narration": "它自己補上一筆測試訂單再打一次，這次回 201，建立成功。正常的情況和錯誤的情況都確認到了。"
+    },
+    {
+      "on": "claude",
+      "todos": [["找出所有路由", "done"], ["啟動伺服器，逐條用 curl 確認", "done"], ["畫流程圖、寫進 docs/request-flow.md", "doing"]]
+    },
+    {
+      "on": "claude",
+      "edit": "docs/request-flow.md",
+      "lines": [
+        [1, "+", "# 請求流程圖"],
+        [2, "+", "```mermaid"],
+        [3, "+", "sequenceDiagram"],
+        [4, "+", "  瀏覽器->>伺服器: GET /api/menu"],
+        [5, "+", "  伺服器->>資料庫: SELECT 商品"],
+        [6, "+", "  伺服器-->>瀏覽器: 200 商品清單 JSON"],
+        [7, "+", "  瀏覽器->>伺服器: GET /api/orders/me"],
+        [8, "+", "  伺服器-->>瀏覽器: 401 沒登入"]
+      ],
+      "narration": "接著它把流程圖寫成文字格式的圖，存進 docs 資料夾。這種寫法很多編輯器和 GitHub 都能直接畫出來。"
+    },
+    {
+      "on": "claude",
+      "todos": [["找出所有路由", "done"], ["啟動伺服器，逐條用 curl 確認", "done"], ["畫流程圖、寫進 docs/request-flow.md", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "已完成 `docs/request-flow.md`：4 條路由都實際打過。\n- `GET /api/menu`、`POST /api/orders` 會經過資料庫\n- `POST /api/orders` 沒帶資料回 **400**、帶資料回 **201**\n- `GET /api/orders/me` 沒登入回 **401**",
+      "narration": "它回報做了什麼，還把它發現的事情講清楚。"
+    },
+    { "hide": "claude" },
+    { "show": "web", "focus": false, "chapter": "讀懂這張圖", "narration": "打開它畫好的圖，對照它的回報。" },
+    { "on": "web", "click": "#m3", "narration": "送訂單：瀏覽器到伺服器，伺服器寫進資料庫，回 201。" },
+    {
+      "callout": "web:sel:.seq",
+      "text": "每一列：誰發出 → 送到哪 → 回來什麼",
+      "narration": "以後要加功能、或網站出錯時，先打開這張圖，就知道是哪一段在跑。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "在你的專案裡請 AI 畫請求流程圖，記得加上「每條路由都用 curl 實際打一次，圖上的狀態碼要和回應一樣」。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "交代：畫什麼、放哪裡、怎樣算完成",
+      "eyebrow": "學會",
+      "sub": "要 AI 實際打一次再畫，圖才會跟真的一樣",
+      "chapter": "學會",
+      "narration": "這一堂的重點：交代 AI 畫什麼、放哪裡、怎樣算完成。要它實際打一次再畫，畫出來的圖才會跟你的網站一樣。"
+    }
+  ]
+}

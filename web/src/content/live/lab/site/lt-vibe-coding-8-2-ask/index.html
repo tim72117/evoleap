@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>求助描述</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap">
+  <h1>寫一則別人幫得上忙的求助</h1>
+  <div class="grid">
+    <form class="form">
+      <label for="os">① 環境：作業系統與版本</label>
+      <select id="os">
+        <option value="">請選擇</option>
+        <option value="macOS 15（Apple 晶片），Node.js v24.11.1">macOS 15（Apple 晶片）</option>
+        <option value="Windows 11，Node.js v24.11.1">Windows 11</option>
+      </select>
+      <label for="cmd">② 執行的指令</label>
+      <input id="cmd" type="text" placeholder="例如 npm install -g serve">
+      <label for="err">③ 完整的錯誤訊息（複製文字，不要截圖）</label>
+      <textarea id="err" rows="3" placeholder="從指令那一行貼到最後一行"></textarea>
+      <label for="tried">④ 已經試過什麼</label>
+      <input id="tried" type="text" placeholder="例如 重開終端機">
+      <label for="goal">⑤ 我想做到什麼</label>
+      <input id="goal" type="text" placeholder="例如 預覽自己的網站">
+    </form>
+    <div class="side">
+      <div class="preview">
+        <div class="ph">預覽：要貼出去的求助</div>
+        <div class="msg" id="msg"><span class="empty">填左邊的欄位，這裡會組成一則求助。</span></div>
+      </div>
+      <ul class="checks">
+        <li id="k-os">環境</li>
+        <li id="k-cmd">指令</li>
+        <li id="k-err">完整錯誤</li>
+        <li id="k-tried">試過什麼</li>
+        <li id="k-goal">目的</li>
+      </ul>
+      <div class="note">送出前檢查：密碼、金鑰、權杖（token）一律遮掉。</div>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body></html>

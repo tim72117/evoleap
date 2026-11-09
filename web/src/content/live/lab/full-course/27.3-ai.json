@@ -1,0 +1,97 @@
+{
+  "title": "UTM 與成效追蹤",
+  "lesson": "全環節 · 單元 27 · 27.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "做產生器，再算成效",
+    "line": "今天請 AI 先做一個 UTM 網址產生器，讓拼法永遠一致。一個月後，再請它把各管道帶來多少人、多少預約，整理成一張表。"
+  },
+  "blocking": { "cast": ["claude", "tool", "report"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "UTM 與成效", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "tool": { "actor": "browser", "props": { "site": "fc27-3-builder", "width": "desktop", "url": "http://localhost:5173/tools/utm" }, "place": "window", "hidden": true },
+    "report": { "actor": "browser", "props": { "site": "fc27-3-report", "width": "desktop", "url": "http://localhost:5173/reports/channels" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "UTM 與成效追蹤",
+      "eyebrow": "全環節 · 單元 27 · 27.3 用 AI 完成",
+      "sub": "先做工具守住拼法，再用工具的紀錄算成效",
+      "chapter": "為什麼要做工具",
+      "narration": "手打 UTM，今天寫 line、明天寫 Line、後天少打一個字母，報表就亂了。所以先請 AI 做一個工具，讓拼法永遠一致。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我做一個 UTM 網址產生器，放在 tools/utm：來源只能從清單選（line、ig、newsletter、threads），medium 依來源自動帶入，活動名稱自動轉小寫、空白換成 -。每產生一個網址就記到 links.csv。",
+      "narration": "說清楚工具要守的規則：來源只能選、管道自動帶、活動名稱自動整理，而且每個網址都要記下來。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "Write", "arg": "tools/utm/index.html", "result": "已建立" },
+    {
+      "on": "claude",
+      "edit": "tools/utm/rules.js",
+      "lines": [
+        [1, "+", "export const MEDIUM = { line: 'social', ig: 'social', threads: 'social', newsletter: 'email' }"],
+        [2, "+", "export const slug = (s) => s.trim().toLowerCase().replace(/\\s+/g, '-')"]
+      ],
+      "narration": "規則寫成兩行：來源對應的管道，還有把活動名稱整理乾淨。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- utm",
+      "result": "3 通過",
+      "out": "✓ ig 自動帶入 social\n✓ 「Chestnut Week」變成 chestnut-week\n✓ 產生後寫入 links.csv",
+      "narration": "它也寫了測試，確定這些規則真的有效。"
+    },
+    { "show": "tool", "chapter": "用工具產生網址", "narration": "打開工具，要做一個放在 LINE 貼文的網址。" },
+    { "on": "tool", "fill": { "#src": "line", "#cmp": "Chestnut Week" }, "narration": "來源選 line，管道自動填 social。活動名稱打大寫、有空白也沒關係。" },
+    { "callout": "tool:sel:#out", "text": "自動變成 chestnut-week，拼法不會亂", "narration": "產生的網址裡，活動名稱自動變成小寫、空白換成連字號。" },
+    { "on": "tool", "click": "#copy", "narration": "複製，貼到 LINE 貼文。IG、電子報也照樣各產生一個。" },
+    {
+      "card": "一個月後",
+      "eyebrow": "數據累積了",
+      "sub": "從網站分析工具匯出來訪資料（CSV），預約資料在網站的資料庫",
+      "chapter": "一個月後：整理成效",
+      "narration": "一個月後，從網站分析工具匯出來訪資料，放進專案。預約的資料，本來就在網站的資料庫裡。"
+    },
+    {
+      "on": "claude",
+      "user": "我把 10 月的來訪資料放在 reports/visits-10.csv。幫我寫一支程式，對照預約資料，算出每個來源帶來多少人、多少預約、轉換率，做成一頁報表。以後每個月我都要跑。",
+      "narration": "請它寫成一支程式，因為每個月都要再跑一次。"
+    },
+    { "on": "claude", "tool": "Write", "arg": "scripts/channel-report.mjs", "result": "已建立" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/channel-report.mjs --month 2026-10",
+      "result": "完成",
+      "out": "來源        來訪   預約  轉換率\nnewsletter   420    38   9.0%\nline         610    31   5.1%\nig           980    22   2.2%\ngoogle      1340    40   3.0%\nthreads      150     2   1.3%\n（沒有 UTM 的來訪：312，已歸到 direct）",
+      "narration": "跑出來了。它還告訴你，有三百多次來訪沒有帶 UTM，另外歸成直接來訪，沒有偷偷丟掉。"
+    },
+    { "show": "report", "narration": "做成報表頁，一眼就看得出差別。" },
+    { "callout": "report:sel:#row-newsletter", "text": "電子報：人最少，轉換率最高", "narration": "電子報帶來的人不多，轉換率卻最高。IG 帶來很多人，但預約的比例很低。" },
+    {
+      "on": "claude",
+      "say": "建議：\n1. 電子報轉換率 9%，最值得經營：在網站多放訂閱表單\n2. IG 來訪多但轉換低：貼文連到首頁，改成直接連到預約頁試試\n3. 這是「最後一次接觸」的算法，IG 可能讓很多人先認識你，不要急著停掉",
+      "narration": "AI 的建議也記得上一堂學的歸因：IG 可能是讓人第一次認識你的地方，不要只看這張表就停掉。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 做一個 UTM 網址產生器，守住來源、管道與活動名稱的拼法。之後發文都用它產生網址。一個月後，請 AI 寫一支程式整理各管道的來訪、轉換與轉換率。"
+    },
+    {
+      "card": "工具守住拼法\n每個網址都記下來\n成效整理也寫成程式，每月重跑",
+      "eyebrow": "學會",
+      "sub": "看建議時記得：報表用的是哪一種歸因",
+      "chapter": "學會",
+      "narration": "用工具守住拼法，每個網址都記下來，成效整理也寫成程式，每個月重跑。看建議的時候，記得報表用的是哪一種歸因。"
+    }
+  ]
+}

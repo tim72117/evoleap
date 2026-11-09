@@ -1,0 +1,248 @@
+{
+  "title": "換你請小幫手",
+  "lesson": "兒童網頁課 · 4.1 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {
+        "page": {
+          "parts": [
+            {
+              "id": "h1",
+              "kind": "h1",
+              "text": "小花的家",
+              "color": "#e53935"
+            },
+            {
+              "id": "img",
+              "kind": "img",
+              "emoji": "🐱"
+            },
+            {
+              "id": "p",
+              "kind": "p",
+              "text": "小花是一隻愛睡午覺的橘貓。"
+            },
+            {
+              "id": "btn",
+              "kind": "button",
+              "text": "摸摸小花"
+            }
+          ]
+        },
+        "goal": {
+          "parts": [
+            {
+              "id": "h1",
+              "kind": "h1",
+              "text": "小花的家",
+              "color": "#e53935"
+            },
+            {
+              "id": "img",
+              "kind": "img",
+              "emoji": "🐱",
+              "bg": "#cfe8ff"
+            },
+            {
+              "id": "p",
+              "kind": "p",
+              "text": "小花是一隻愛睡午覺的橘貓。",
+              "color": "#1f6fd1"
+            },
+            {
+              "id": "btn",
+              "kind": "button",
+              "text": "摸摸小花",
+              "bg": "#ffd84d"
+            }
+          ]
+        },
+        "cards": [
+          {
+            "id": "a2",
+            "text": "把[[那些小字]]改成藍色",
+            "reply": "小字？段落和按鈕上都有字耶。你說的是哪一個？",
+            "mood": "puzzled"
+          },
+          {
+            "id": "b1",
+            "text": "把[[按鈕]]改成黃色",
+            "ops": [
+              {
+                "set": "btn",
+                "bg": "#ffd84d"
+              }
+            ],
+            "reply": "好！按鈕變成黃色了。",
+            "star": "btn"
+          },
+          {
+            "id": "c2",
+            "text": "把[[那個圓圓的]]改成淺藍色",
+            "reply": "圓圓的？按鈕和照片都圓圓的耶……是哪一個？",
+            "mood": "puzzled"
+          },
+          {
+            "id": "a1",
+            "text": "把[[段落]]改成藍色",
+            "ops": [
+              {
+                "set": "p",
+                "color": "#1f6fd1"
+              }
+            ],
+            "reply": "好！段落變成藍色了。",
+            "star": "p"
+          },
+          {
+            "id": "c1",
+            "text": "把[[圖片]]的背景改成淺藍色",
+            "ops": [
+              {
+                "set": "img",
+                "bg": "#cfe8ff"
+              }
+            ],
+            "reply": "好！圖片的背景變成淺藍色了。",
+            "star": "img"
+          },
+          {
+            "id": "b2",
+            "text": "把[[那個可以按的]]改成黃色",
+            "reply": "可以按的？叫它的名字，我才不會猜錯喔！",
+            "mood": "puzzled"
+          }
+        ],
+        "starsOf": 3
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:paper",
+        "text": "目標"
+      },
+      "narration": "換你了！左邊是目標圖。點下面的卡片，請小幫手把網頁改得和目標一樣。拿到三顆星星就過關。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點卡片，請小幫手改對地方",
+    "body": "拿到三顆星星就過關",
+    "spots": [
+      {
+        "target": "kid:card:a2",
+        "id": "a2",
+        "label": "把那些小字改成藍色",
+        "steps": [
+          {
+            "ask": "a2",
+            "narration": "小幫手不知道是哪一個。選一張叫對名字的卡片吧！"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:b1",
+        "id": "b1",
+        "label": "把按鈕改成黃色",
+        "steps": [
+          {
+            "ask": "b1",
+            "narration": "叫對名字，一次就改對了！"
+          }
+        ],
+        "again": [
+          {
+            "reply": "這個已經改好了喔！",
+            "narration": "這個已經改好了，看看目標圖還有哪裡不一樣。"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:c2",
+        "id": "c2",
+        "label": "把那個圓圓的改成淺藍色",
+        "steps": [
+          {
+            "ask": "c2",
+            "narration": "小幫手不知道是哪一個。選一張叫對名字的卡片吧！"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:a1",
+        "id": "a1",
+        "label": "把段落改成藍色",
+        "steps": [
+          {
+            "ask": "a1",
+            "narration": "叫對名字，一次就改對了！"
+          }
+        ],
+        "again": [
+          {
+            "reply": "這個已經改好了喔！",
+            "narration": "這個已經改好了，看看目標圖還有哪裡不一樣。"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:c1",
+        "id": "c1",
+        "label": "把圖片的背景改成淺藍色",
+        "steps": [
+          {
+            "ask": "c1",
+            "narration": "叫對名字，一次就改對了！"
+          }
+        ],
+        "again": [
+          {
+            "reply": "這個已經改好了喔！",
+            "narration": "這個已經改好了，看看目標圖還有哪裡不一樣。"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:b2",
+        "id": "b2",
+        "label": "把那個可以按的改成黃色",
+        "steps": [
+          {
+            "ask": "b2",
+            "narration": "小幫手不知道是哪一個。選一張叫對名字的卡片吧！"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "stars",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "compare": true,
+          "narration": "三顆星星！網頁和目標圖一模一樣了。"
+        }
+      ]
+    }
+  }
+}

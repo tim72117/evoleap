@@ -1,0 +1,96 @@
+{
+  "title": "結構化資料（JSON-LD）",
+  "lesson": "全環節 · 單元 25 · 25.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "AI 加，你測，它修",
+    "line": "今天請 AI 在商品頁加上結構化資料。測試工具的網頁由你來操作，把結果交回給 AI 修，來回到沒有錯誤為止。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "商品頁 JSON-LD", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc25-3-tester", "width": "desktop", "url": "https://rich-results-test.example/" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "結構化資料（JSON-LD）",
+      "eyebrow": "全環節 · 單元 25 · 25.3 用 AI 完成",
+      "sub": "AI 寫資料 → 你用測試工具檢查 → 結果交給 AI 修",
+      "chapter": "請 AI 加上 JSON-LD",
+      "narration": "這一堂是一來一回的合作。AI 寫資料，你用測試工具檢查，再把結果交給它修。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫每個商品頁加上 Product 的 JSON-LD：名稱、圖片、價格、評分、庫存，資料從商品清單讀，要和頁面上顯示的一致。加好後部署到預覽網址，再告訴我怎麼用結構化資料測試工具檢查。",
+      "narration": "請它加上商品的結構化資料，還有一個要求：資料要和頁面上顯示的一致。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "edit": "src/components/ProductJsonLd.astro",
+      "lines": [
+        [1, "+", "<script type=\"application/ld+json\" set:html={JSON.stringify({"],
+        [2, "+", "  '@context': 'https://schema.org', '@type': 'Product',"],
+        [3, "+", "  name: p.name, price: p.priceText,"],
+        [4, "+", "  aggregateRating: { ratingValue: p.rating, reviewCount: p.reviews },"],
+        [5, "+", "  offers: { price: p.priceText, priceCurrency: 'TWD', availability: 'InStock' }"],
+        [6, "+", "})} />"]
+      ],
+      "narration": "它做了一個元件，每個商品頁都會帶入自己的資料。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm run deploy:preview", "result": "已部署", "out": "預覽網址：https://preview.komori-bakery.example" },
+    {
+      "on": "claude",
+      "say": "已加上並部署到預覽網址。測試工具是網頁，我沒辦法替你操作，請照這樣做：\n1. 打開結構化資料測試工具\n2. 貼上 `https://preview.komori-bakery.example/croissant`\n3. 按「測試網址」\n4. 把結果的畫面截圖貼給我",
+      "chapter": "你來操作測試工具",
+      "narration": "測試工具是一個網頁。AI 寫出步驟，交給你操作。"
+    },
+    { "show": "web", "narration": "打開測試工具。" },
+    { "on": "web", "fill": { "#url": "https://preview.komori-bakery.example/croissant" }, "narration": "貼上商品頁的網址。" },
+    { "on": "web", "click": "#run", "narration": "按測試網址。" },
+    { "callout": "web:sel:#err1", "text": "一個錯誤、一個警告", "narration": "結果有一個錯誤：缺少圖片。還有一個警告：價格的格式不對。不用自己研究怎麼改，截圖交給 AI。" },
+    { "on": "claude", "user": "［截圖］測試結果：錯誤「缺少欄位 image」，警告「price 的格式不正確：NT$65」", "chapter": "第一輪：把結果交給 AI" },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "找到原因了：\n- 我漏了 `image`\n- `price` 用了顯示用的文字「NT$65」，應該只放數字 `65`\n我來修。",
+      "narration": "AI 一看就懂：它漏了圖片，價格也用了給人看的文字，而不是純數字。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/components/ProductJsonLd.astro",
+      "lines": [
+        [3, "-", "  name: p.name, price: p.priceText,"],
+        [3, "+", "  name: p.name, image: new URL(p.image, site).href,"],
+        [5, "-", "  offers: { price: p.priceText, priceCurrency: 'TWD', availability: 'InStock' }"],
+        [5, "+", "  offers: { price: p.price, priceCurrency: 'TWD', availability: p.stock > 0 ? 'InStock' : 'OutOfStock' }"]
+      ],
+      "narration": "補上圖片的完整網址，價格改成數字。它還順手讓庫存跟著真實數量走，不是永遠寫有現貨。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm run deploy:preview", "result": "已部署" },
+    { "on": "claude", "say": "已修好並重新部署，請再測一次同一個網址。" },
+    { "show": "web", "site": "fc25-3-tester-ok", "chapter": "第二輪：再測一次", "narration": "回到測試工具，再測一次。" },
+    { "on": "web", "fill": { "#url": "https://preview.komori-bakery.example/croissant" } },
+    { "on": "web", "click": "#run" },
+    { "callout": "web:sel:#errs", "text": "沒有錯誤、沒有警告", "narration": "這次沒有錯誤，也沒有警告。" },
+    { "on": "claude", "user": "［截圖］沒有錯誤，也沒有警告了" },
+    { "on": "claude", "say": "太好了。正式上線後，記得拿正式網址再測一次。顯示與否由搜尋引擎決定，通常要等幾天到幾週。", "narration": "AI 提醒你，正式上線後再測一次，而且要耐心等搜尋引擎更新。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 幫你的商品或文章頁加上 JSON-LD 並部署到預覽網址。照它給的步驟用測試工具檢查，把結果截圖貼回去，直到沒有錯誤。"
+    },
+    {
+      "card": "AI 寫資料，你操作測試工具\n結果截圖交回給 AI\n來回到沒有錯誤",
+      "eyebrow": "學會",
+      "sub": "不用自己看懂錯誤訊息，交給 AI 判斷原因",
+      "chapter": "學會",
+      "narration": "AI 碰不到的網頁由你操作，結果截圖交回去。你不用自己看懂錯誤訊息，AI 會找出原因並修好。"
+    }
+  ]
+}

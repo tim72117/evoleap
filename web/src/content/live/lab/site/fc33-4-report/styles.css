@@ -1,0 +1,24 @@
+/* fc8 圖解共用底稿(複製到各版本的 styles.css 開頭) */
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; color: #1f2733; background: #f6f4ef; }
+.wrap { padding: 36px 48px; box-sizing: border-box; min-height: 640px; }
+.ttl { font-size: 30px; font-weight: 700; margin: 0 0 6px; }
+.sub { font-size: 18px; color: #5b6575; margin: 0 0 22px; }
+[data-at] { opacity: .13; }
+[data-at].on { opacity: 1; }
+[data-go] { cursor: pointer; }
+.box { background: #fff; border: 2px solid #d9d4c7; border-radius: 14px; padding: 14px 18px; box-sizing: border-box; }
+.tag { display: inline-block; font-size: 14px; padding: 3px 10px; border-radius: 999px; background: #ece7db; color: #4a5260; }
+.ok { color: #1f8a4c; } .bad { color: #c2412d; } .warn { color: #b7791f; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.wrap { position: relative; }
+.cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.side { background: #fff; border: 2px solid #d9d4c7; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+.side.b { border-color: #6cc08b; }
+.hd { font-size: 19px; font-weight: 800; }
+.row { display: grid; grid-template-columns: 110px 1fr 90px; gap: 10px; align-items: center; font-size: 16px; }
+.row i { display: block; height: 24px; border-radius: 6px; background: #e9a23b; }
+.b .row i { background: #6cc08b; }
+.row b { text-align: right; }
+.tot { font-size: 20px; border-top: 1px dashed #ccc; padding-top: 10px; }
+.tips { margin-top: 18px; font-size: 19px; background: #e7f6ec; border: 2px solid #6cc08b; border-radius: 12px; padding: 12px 16px; font-weight: 700; }
+.more { position: absolute; right: 48px; top: 40px; font: inherit; font-size: 16px; padding: 8px 14px; border-radius: 10px; border: 2px solid #6cc08b; background: #fff; }

@@ -1,0 +1,147 @@
+{
+  "title": "明明更新了，為什麼還是舊版？",
+  "lesson": "全環節 · 單元 16 · 16.3 基礎知識",
+  "teacher": {
+    "say": "破解「看到舊版」之謎",
+    "line": "網站更新了，打開卻還是舊的，這是上線後最常見的困惑。今天弄懂快取，順便認識網址前面那個鎖頭：HTTPS。"
+  },
+  "cast": {
+    "shop": {
+      "actor": "browser",
+      "props": { "site": "fc16-3-old", "width": "desktop", "url": "https://bakery-7ka.pages.dev" },
+      "place": "window",
+      "hidden": true
+    },
+    "map": {
+      "actor": "browser",
+      "props": { "site": "fc16-3-cache", "width": "desktop", "url": "https://learn.example/diagram/cache-https" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "明明更新了，為什麼還是舊版？",
+      "eyebrow": "全環節 · 單元 16 · 16.3 基礎知識",
+      "sub": "憑證、HTTP 轉 HTTPS、快取",
+      "chapter": "一個怪現象",
+      "narration": "先看一個怪現象。"
+    },
+    {
+      "show": "shop",
+      "narration": "你剛把橫幅改成「中秋禮盒開放預訂」，也 push 了，平台顯示部署成功。打開網站，卻還是「本週新品：奶油可頌」。"
+    },
+    {
+      "on": "shop",
+      "reload": true,
+      "narration": "重新整理一下。"
+    },
+    {
+      "callout": "shop:sel:.ban",
+      "text": "還是舊的橫幅",
+      "narration": "還是舊的。網站沒壞，新版其實已經在主機上了。問題出在這一路上的「副本」。"
+    },
+    { "hide": "shop" },
+    {
+      "show": "map",
+      "chapter": "一路上的副本：快取",
+      "narration": "網頁從主機送到你手上，中間會經過轉運站，你的瀏覽器也會留一份副本。這些副本，就叫快取。"
+    },
+    {
+      "on": "map",
+      "click": "#b1",
+      "narration": "第一份副本在你的瀏覽器。主機回傳網頁時，會附上一張保存期限，例如十分鐘。期限內，瀏覽器直接拿電腦裡的舊副本，不再問主機。"
+    },
+    {
+      "callout": "map:sel:.expl .mono",
+      "text": "Cache-Control：主機寫給瀏覽器的「保存期限」",
+      "narration": "這張保存期限叫 Cache-Control，是回應裡的一行標頭。標頭就是附在網頁外面、給瀏覽器看的說明。"
+    },
+    {
+      "on": "map",
+      "click": "#b2",
+      "narration": "第二份副本在 CDN。CDN 是平台放在世界各地的轉運站，離你近、送得快。它的副本也有期限。"
+    },
+    {
+      "callout": "map:sel:.road",
+      "text": "主機已經是新版，但路上兩份副本還沒過期",
+      "narration": "所以主機已經是新版，路上的兩份副本卻還沒過期，你看到的就是舊版。"
+    },
+    {
+      "on": "map",
+      "click": "#b3",
+      "chapter": "鎖頭：HTTPS",
+      "narration": "再看另一件事：網址前面的鎖頭。HTTPS 代表這一路都加密，中途的人看不到、也改不了內容。"
+    },
+    {
+      "callout": "map:sel:.expl",
+      "text": "憑證＝網站的身分證，平台會自動申請與換新",
+      "narration": "要加密，網站需要一張憑證，就像身分證，證明它真的是這個網域。好消息是，託管平台都會自動幫你申請、到期前自動換新。"
+    },
+    {
+      "on": "map",
+      "click": "#b4",
+      "narration": "最後，有人打了沒加密的 http 開頭網址怎麼辦？主機回一個 301 轉址，叫瀏覽器改走 https。"
+    },
+    {
+      "callout": "map:sel:.redir",
+      "text": "301：永久搬家，請改走 https://",
+      "narration": "301 的意思是永久搬家。瀏覽器看到，就自動跳到 https 的網址。"
+    },
+    { "hide": "map" },
+    {
+      "show": "shop",
+      "chapter": "回到怪現象",
+      "narration": "回到剛剛的網站。快取還沒過期時，你可以強制重新整理，叫瀏覽器跳過副本，直接跟主機要最新的。"
+    },
+    {
+      "on": "shop",
+      "site": "fc16-3-new",
+      "narration": "新的橫幅出來了。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你自己強制重新整理後看到新版了，可是客人說他們還是看到舊版。真正的解法是什麼？",
+      "body": "選一個。",
+      "id": "cache",
+      "options": [
+        {
+          "label": "請每個客人強制重新整理",
+          "steps": [
+            {
+              "card": "客人不會這樣做",
+              "eyebrow": "再想想",
+              "sub": "你沒辦法一個一個通知客人",
+              "narration": "客人不會知道要這樣做，你也沒辦法一個一個通知。要從網站這邊調整。"
+            },
+            {
+              "card": "調整快取標頭",
+              "eyebrow": "答案",
+              "sub": "會常改的 HTML 設成「每次都問主機」；不常改的圖片才保存久一點",
+              "narration": "答案是調整快取標頭：常改的 HTML，設成每次都先問主機有沒有新版；不常改的圖片，才讓它保存久一點。"
+            }
+          ]
+        },
+        {
+          "label": "調整快取標頭",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "想一想",
+              "sub": "常改的 HTML 設成「每次都問主機」；不常改的圖片才保存久一點",
+              "narration": "答對了。常改的 HTML，設成每次都先問主機；不常改的圖片，才讓它保存久一點。下一堂，就請 AI 用 curl 檢查並調整。"
+            }
+          ]
+        }
+      ]
+    },
+    { "hide": "shop" },
+    {
+      "card": "看到舊版，多半是快取\n鎖頭來自憑證，平台自動處理",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：快取、Cache-Control、CDN、憑證、HTTPS、301 轉址",
+      "chapter": "學會",
+      "narration": "看到舊版，多半是路上的快取還沒過期；網址的鎖頭來自憑證，平台會自動處理。下一堂，請 AI 檢查轉址和快取標頭，讓更新後馬上看得到新版。"
+    }
+  ]
+}

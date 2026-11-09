@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>訂閱的四步</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">一個人訂閱電子報，會經過四步</div>
+ <div class="flow">
+  <div class="box" data-k="1"><div class="ic">📝</div><b>填表單</b><span>留下 Email</span></div><div class="ar">→</div>
+  <div class="box" data-k="2"><div class="ic">✉️</div><b>確認信</b><span>「是你本人嗎？」</span></div><div class="ar">→</div>
+  <div class="box" data-k="3"><div class="ic">👆</div><b>點確認連結</b><span>正式加入名單</span></div><div class="ar">→</div>
+  <div class="box" data-k="4"><div class="ic">👋</div><b>退訂</b><span>每封信最下面都有</span></div>
+ </div>
+ <table class="t card list"><tr><th>名單</th><th>狀態</th><th>收得到電子報嗎</th></tr>
+  <tr data-s="1" id="r1"><td class="mono">mei@example.com</td><td><span class="pill warn" data-t1="待確認" data-t3="已確認">待確認</span></td><td data-t1="還不會" data-t3="會">還不會</td></tr>
+  <tr data-s="2" id="r2"><td class="mono">mei@exmaple.com <span class="pill bad">打錯字</span></td><td><span class="pill warn">待確認</span></td><td>不會：沒人點確認，名單保持乾淨</td></tr>
+  <tr data-s="4" id="r3" class="unsub"><td class="mono">jay@example.com</td><td><span class="pill">已退訂</span></td><td>不會：退訂後馬上停止，不能再寄</td></tr>
+ </table>
+ <div class="stepbar"><button class="btn" id="next">下一步 ▶</button><span class="cap" data-t0="名單：願意收你信的人" data-t1="填了表單，先是「待確認」" data-t2="寄一封確認信：打錯的、別人亂填的，都不會被加進來" data-t3="點了確認連結，才算正式加入：這叫雙重確認" data-t4="退訂：一鍵就要生效"></span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

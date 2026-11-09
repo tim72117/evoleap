@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>山屋訂位</title></head>
+<body>
+<div class="app">
+  <div class="page" id="page">
+    <header class="top"><div class="brand">雲杉山屋</div><span class="sub">線上訂位</span></header>
+    <div class="query">
+      <div class="q-field"><span class="q-label">入住日期</span><span class="q-val">11/22（六）</span></div>
+      <div class="q-field"><span class="q-label">人數</span><span class="q-val">2 人</span></div>
+      <button id="search">查詢空位</button>
+    </div>
+    <div class="result" id="result"><p class="idle">選好日期後，按「查詢空位」。</p></div>
+  </div>
+  <aside class="back" id="back">
+    <div class="b-title">幕後：時間軸 <small>網頁和伺服器之間發生的事</small></div>
+    <div class="lanes"><span>網頁</span><span>伺服器</span></div>
+    <div class="timeline" id="timeline"><p class="t-empty">還沒有請求</p></div>
+    <div class="server" id="server">
+      <div class="s-title">伺服器（由老師扮演）</div>
+      <div class="s-btns">
+        <button class="sb ok" id="ok">回傳結果</button>
+        <button class="sb fail" id="fail">回傳錯誤</button>
+        <button class="sb wait" id="wait">⏱ 過了 10 秒</button>
+      </div>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

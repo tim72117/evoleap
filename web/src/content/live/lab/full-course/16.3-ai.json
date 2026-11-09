@@ -1,0 +1,165 @@
+{
+  "title": "HTTPS 與快取",
+  "lesson": "全環節 · 單元 16 · 16.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "讓新版馬上看得到",
+    "line": "這一堂請 AI 用 curl 檢查網站的轉址和快取標頭，再調整到每次更新後，客人一打開就是新版。"
+  },
+  "blocking": { "cast": ["claude", "shop"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "快取設定",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "shop": {
+      "actor": "browser",
+      "props": { "site": "fc16-3-old", "width": "desktop", "url": "https://bakery-7ka.pages.dev" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "HTTPS 與快取",
+      "eyebrow": "全環節 · 單元 16 · 16.3 用 AI 完成",
+      "sub": "用 curl -I 看網站「說了什麼」，再調整",
+      "chapter": "交代任務",
+      "narration": "上一堂看到的問題：更新了，客人卻看到舊版。這次請 AI 找出原因並修好。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "用 curl -I 檢查我的網站：http 會不會轉到 https、HTML 和圖片的快取標頭是什麼。再調整成：HTML 每次都先問主機有沒有新版，圖片可以保存久一點。完成標準：curl -I 看得到新的標頭，而且更新後不用強制重新整理就看到新版。",
+      "narration": "curl 加上 -I，只看網站回應的標頭，不下載整個網頁，很適合拿來檢查。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -sI http://bakery-7ka.pages.dev",
+      "result": "完成",
+      "out": "HTTP/1.1 301 Moved Permanently\nLocation: https://bakery-7ka.pages.dev/",
+      "chapter": "AI 先檢查",
+      "narration": "先查轉址。打 http 的網址，回應 301，指向 https。這一項沒問題。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -sI https://bakery-7ka.pages.dev/ | grep -i -E 'HTTP/|cache-control'",
+      "result": "完成",
+      "out": "HTTP/2 200\ncache-control: public, max-age=14400",
+      "narration": "再看首頁的快取標頭：max-age 一萬四千四百秒。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "max-age=14400 秒＝4 小時：這就是看到舊版的原因",
+      "narration": "換算是四個小時。也就是說，客人打開過一次，接下來四小時都可能看到舊版。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -sI https://bakery-7ka.pages.dev/images/croissant.jpg | grep -i cache-control",
+      "result": "完成",
+      "out": "cache-control: public, max-age=14400"
+    },
+    {
+      "on": "claude",
+      "say": "找到原因了：首頁 HTML 被設成保存 **4 小時**，所以更新後客人可能看到舊版。\n我會加一個 `_headers` 檔（Cloudflare Pages 讀這個檔決定標頭）：\n- HTML：`no-cache`，每次先問主機有沒有新版\n- 圖片：保存 1 天"
+    },
+    {
+      "on": "claude",
+      "ask": "_headers",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/bakery",
+      "preview": "/*.html\n  Cache-Control: no-cache\n/\n  Cache-Control: no-cache\n/images/*\n  Cache-Control: public, max-age=86400",
+      "chapter": "調整標頭"
+    },
+    { "on": "claude", "choose": 1, "narration": "看一下要寫的內容：HTML 和首頁不保存，圖片保存一天。允許。" },
+    {
+      "on": "claude",
+      "edit": "_headers",
+      "lines": [
+        [1, "+", "/*.html"],
+        [2, "+", "  Cache-Control: no-cache"],
+        [3, "+", "/"],
+        [4, "+", "  Cache-Control: no-cache"],
+        [5, "+", "/images/*"],
+        [6, "+", "  Cache-Control: public, max-age=86400"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git add _headers && git commit -m \"調整快取標頭\" && git push",
+      "result": "完成",
+      "out": "main -> main"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "sleep 60; curl -sI https://bakery-7ka.pages.dev/ | grep -i cache-control; curl -sI https://bakery-7ka.pages.dev/images/croissant.jpg | grep -i cache-control",
+      "result": "完成",
+      "out": "cache-control: no-cache\ncache-control: public, max-age=86400",
+      "chapter": "AI 自己驗證",
+      "narration": "部署完再查一次：首頁變成 no-cache，圖片保存一天。標頭對了。"
+    },
+    {
+      "on": "claude",
+      "say": "標頭已生效 ✓ 再做一次實測：我把橫幅改成「中秋禮盒開放預訂！」，push 後直接抓首頁確認。"
+    },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [
+        [21, "-", "  <div class=\"ban\">本週新品：奶油可頌</div>"],
+        [21, "+", "  <div class=\"ban\">中秋禮盒開放預訂！</div>"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git commit -am \"換中秋橫幅\" && git push && sleep 60 && curl -s https://bakery-7ka.pages.dev/ | grep -o '中秋禮盒開放預訂'",
+      "result": "完成",
+      "out": "main -> main\n中秋禮盒開放預訂",
+      "narration": "標頭驗證完，它還做了實際的測試：改橫幅、push，再抓首頁，新字出現了。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- http → https：301 轉址正常\n- HTML：`no-cache`，更新後一般重新整理就是新版\n- 圖片：保存 1 天。之後要換圖片，請換新檔名，客人才會馬上看到。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "換圖片要換檔名：這是保存一天的代價",
+      "narration": "注意最後一句。圖片保存一天，載入比較快；代價是換圖片時要換新檔名，客人才會馬上看到。"
+    },
+    {
+      "show": "shop",
+      "chapter": "你自己確認",
+      "narration": "你自己打開網站確認。這次不用強制重新整理，"
+    },
+    { "on": "shop", "site": "fc16-3-new", "narration": "一般重新整理，就是新的橫幅。" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：檢查你網站的快取",
+      "body": "請 AI 用 curl -I 看你網站首頁的 cache-control 是多少秒，換算成時間說給你聽；再請它調整成 HTML 每次都先問主機，並用實際更新一次來驗證。"
+    },
+    { "hide": "shop" },
+    {
+      "card": "curl -I：看網站回了什麼標頭",
+      "eyebrow": "學會",
+      "sub": "HTML 設 no-cache、圖片保存久一點；改完用實際更新驗證",
+      "chapter": "學會",
+      "narration": "curl -I 讓你看到網站回了什麼標頭。HTML 每次都先問主機，圖片保存久一點，改完再用一次實際的更新來驗證。這樣，更新後馬上就看得到新版。"
+    }
+  ]
+}

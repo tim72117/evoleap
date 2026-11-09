@@ -1,0 +1,723 @@
+{
+  "title": "會記住的購物清單：關掉再打開也還在",
+  "lesson": "生活小工具 · T1.2 試做",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做一個會記住的購物清單",
+    "line": "今天要來做一個購物清單。想到就記，關掉瀏覽器再打開，記過的東西都還在，還能備份帶著走。"
+  },
+  "blocking": {
+    "cast": [
+      "claude",
+      "tool"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "notes": {
+      "actor": "notes",
+      "props": {
+        "label": "冰箱上的便條"
+      },
+      "place": {
+        "x": 80,
+        "y": 140,
+        "w": 820,
+        "h": 760
+      },
+      "hidden": true
+    },
+    "phone": {
+      "actor": "chat",
+      "props": {
+        "title": "傳給自己"
+      },
+      "place": {
+        "x": 1120,
+        "y": 110,
+        "w": 560,
+        "h": 860
+      },
+      "hidden": true
+    },
+    "me": {
+      "actor": "person",
+      "props": {
+        "name": "主角"
+      },
+      "place": {
+        "x": 560,
+        "y": 160,
+        "w": 800,
+        "h": 700
+      },
+      "hidden": true
+    },
+    "board": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-life-tools-T1-2-where",
+        "width": "desktop",
+        "url": "講義 · 清單存在哪裡"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "購物清單",
+        "folder": "~/Documents/practice/shopping-list",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "tool": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-life-tools-T1-2-list-v1",
+        "width": "desktop",
+        "url": "file:///Documents/practice/shopping-list/index.html"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "other": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-life-tools-T1-2-list-v2",
+        "width": "desktop",
+        "url": "file:///Documents/practice/shopping-list/index.html（另一個瀏覽器）"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "下載": {
+            "photo-01.jpg": ""
+          }
+        },
+        "open": "下載"
+      },
+      "place": {
+        "x": 1100,
+        "y": 380,
+        "w": 760,
+        "h": 520
+      },
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "card": "會記住的購物清單",
+      "eyebrow": "生活小工具 · T1.2",
+      "sub": "關掉再打開，記過的東西都還在",
+      "chapter": "清單去哪了",
+      "narration": "先看看平常你是怎麼記要買的東西。"
+    },
+    {
+      "show": "notes",
+      "narration": "平日想到要買什麼，隨手寫在便條紙上。"
+    },
+    {
+      "on": "notes",
+      "jot": "牛奶"
+    },
+    {
+      "on": "notes",
+      "jot": "洗碗精",
+      "narration": "牛奶、洗碗精。"
+    },
+    {
+      "show": "phone",
+      "narration": "又想到一樣，用手機傳給自己。"
+    },
+    {
+      "on": "phone",
+      "reply": "衛生紙"
+    },
+    {
+      "on": "phone",
+      "receive": "週六幾點集合？",
+      "from": "社團群組",
+      "narration": "可是接下來，一則一則別的訊息湧進來。"
+    },
+    {
+      "on": "phone",
+      "receive": "我帶飲料！",
+      "from": "社團群組"
+    },
+    {
+      "on": "phone",
+      "receive": "記得繳這個月的費用喔",
+      "from": "社團群組"
+    },
+    {
+      "on": "notes",
+      "lose": "洗碗精",
+      "narration": "便條紙呢，也不知道掉到哪裡去了。"
+    },
+    {
+      "hide": "notes"
+    },
+    {
+      "hide": "phone"
+    },
+    {
+      "show": "me"
+    },
+    {
+      "on": "me",
+      "say": "還要買什麼？",
+      "mood": "worried",
+      "narration": "週末到了超市，推著空推車站在走道中間：還要買什麼？"
+    },
+    {
+      "hide": "me"
+    },
+    {
+      "card": "做一個關掉再打開也還在的清單",
+      "eyebrow": "這一課的任務",
+      "sub": "新增、勾選、刪除，記住內容，還能備份",
+      "narration": "這一課，我們做一個購物清單。能新增、勾選、刪除，關掉再打開，記過的東西都還在。"
+    },
+    {
+      "show": "claude",
+      "chapter": "產生第一版清單",
+      "lessonStep": 1,
+      "narration": "在 practice 裡建一個新資料夾 shopping-list，從這裡重新開啟 AI 工具。上一課的先關掉，它才不會改到分帳計算機。"
+    },
+    {
+      "on": "claude",
+      "user": "做一個購物清單，用 index.html、styles.css、script.js。輸入：項目名稱；處理：新增、勾選已買、刪除；輸出：目前的清單。",
+      "lessonStep": 2,
+      "narration": "需求一樣用三件事說：輸入是項目名稱；處理是新增、勾選、刪除；輸出是目前的清單。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1500
+    },
+    {
+      "on": "claude",
+      "say": "好的，我用 `index.html`、`styles.css`、`script.js` 做一個購物清單，可以新增項目、勾選已買、刪除。"
+    },
+    {
+      "on": "claude",
+      "ask": "index.html",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/shopping-list",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "index.html",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "styles.css",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/shopping-list",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "styles.css",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "script.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/shopping-list",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "script.js",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "say": "完成了，雙擊 `index.html` 就能使用。"
+    },
+    {
+      "show": "tool",
+      "narration": "雙擊打開。先加三個項目試試。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#item": "牛奶"
+      }
+    },
+    {
+      "on": "tool",
+      "click": "#add"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#item": "雞蛋"
+      }
+    },
+    {
+      "on": "tool",
+      "click": "#add"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#item": "衛生紙"
+      }
+    },
+    {
+      "on": "tool",
+      "click": "#add",
+      "narration": "牛奶、雞蛋、衛生紙。"
+    },
+    {
+      "on": "tool",
+      "click": "li[data-item=\"牛奶\"] .check",
+      "narration": "勾選牛奶，買到了。"
+    },
+    {
+      "on": "tool",
+      "click": "li[data-item=\"雞蛋\"] .del",
+      "narration": "雞蛋不用買了，刪掉。新增、勾選、刪除都正常。"
+    },
+    {
+      "on": "tool",
+      "reload": true,
+      "chapter": "重新整理，清單不見了",
+      "lessonStep": 3,
+      "narration": "接著做一件事：按一下重新整理。"
+    },
+    {
+      "callout": "tool:sel:#list",
+      "text": "重新整理後，全部消失",
+      "narration": "剛才的項目全部不見了。網頁本身不會記住你輸入的東西，要另外告訴它：存起來。先親眼看到這個問題，才知道要請 AI 改什麼。"
+    },
+    {
+      "on": "claude",
+      "user": "把清單存在瀏覽器裡（localStorage），關掉再打開內容還在",
+      "chapter": "讓清單記住內容",
+      "lessonStep": 4,
+      "narration": "請它把清單存在瀏覽器裡。localStorage 是瀏覽器給每個網頁的一個小抽屜，資料放在這台電腦、這個瀏覽器裡，不會上傳到任何地方。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1300
+    },
+    {
+      "on": "claude",
+      "edit": "script.js",
+      "lines": [
+        [
+          1,
+          "+",
+          "var items = JSON.parse(localStorage.getItem('shopping-list') || '[]');"
+        ],
+        [
+          20,
+          "+",
+          "  localStorage.setItem('shopping-list', JSON.stringify(items));"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "已改成每次變動都把清單存進瀏覽器的 localStorage，打開網頁時再讀回來。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "只用瀏覽器的儲存，不要帳號、雲端或資料庫",
+      "narration": "如果 AI 提議用帳號登入、雲端同步或資料庫，先拒絕，請它只用瀏覽器的儲存。"
+    },
+    {
+      "on": "tool",
+      "site": "lt-life-tools-T1-2-list-v2",
+      "narration": "重新整理，換上新版本，再加一次項目。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#item": "牛奶"
+      }
+    },
+    {
+      "on": "tool",
+      "click": "#add"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#item": "洗碗精"
+      }
+    },
+    {
+      "on": "tool",
+      "click": "#add"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#item": "衛生紙"
+      }
+    },
+    {
+      "on": "tool",
+      "click": "#add"
+    },
+    {
+      "on": "tool",
+      "click": "li[data-item=\"牛奶\"] .check",
+      "narration": "牛奶、洗碗精、衛生紙，勾選牛奶。"
+    },
+    {
+      "on": "tool",
+      "site": "lt-life-tools-T1-2-list-v2-saved",
+      "narration": "再按一次重新整理。"
+    },
+    {
+      "callout": "tool:sel:#list",
+      "text": "項目和勾選都還在",
+      "narration": "這次都還在，連牛奶的勾選也記得。"
+    },
+    {
+      "hide": "tool",
+      "chapter": "換個瀏覽器看看",
+      "lessonStep": 5,
+      "narration": "再狠一點：把整個瀏覽器關掉。"
+    },
+    {
+      "show": "tool",
+      "narration": "重新雙擊 index.html，清單還在。"
+    },
+    {
+      "hide": "tool"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "other",
+      "narration": "那換另一個瀏覽器，打開同一個 index.html 呢？"
+    },
+    {
+      "callout": "other:sel:#list",
+      "text": "另一個瀏覽器：空的",
+      "narration": "是空的。同一個檔案、同一台電腦，換了瀏覽器，清單就不在了。"
+    },
+    {
+      "hide": "other"
+    },
+    {
+      "show": "board",
+      "narration": "用一張圖來看清單到底存在哪裡。每個瀏覽器都有自己的抽屜，你的清單放在平常用的那個瀏覽器 A 的抽屜裡。"
+    },
+    {
+      "checkpoint": "這些情況，清單還在嗎？",
+      "body": "點下方的三種情況：清除瀏覽資料、換一個瀏覽器、換一台電腦，看看抽屜會怎樣。",
+      "id": "where",
+      "stage": {
+        "focus": "board:viewport"
+      },
+      "interact": {
+        "cast": [
+          "board"
+        ],
+        "spots": [
+          {
+            "target": "board:sel:#op-clear",
+            "id": "clear",
+            "label": "清除瀏覽資料",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#op-clear"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#op-switch",
+            "id": "switch",
+            "label": "換一個瀏覽器",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#op-switch"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#op-pc",
+            "id": "pc",
+            "label": "換一台電腦",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#op-pc"
+              }
+            ]
+          }
+        ],
+        "until": {
+          "picked": 3
+        },
+        "done": [
+          {
+            "on": "board",
+            "click": "#op-pc"
+          }
+        ],
+        "keep": false
+      },
+      "options": [
+        {
+          "label": "看完了，繼續",
+          "steps": []
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": [
+          {
+            "on": "board",
+            "click": "#op-clear",
+            "narration": "清除瀏覽資料，也就是 Cookie 與網站資料，抽屜會一起被清空。"
+          },
+          {
+            "on": "board",
+            "click": "#op-switch",
+            "narration": "換瀏覽器，另一個瀏覽器有自己的抽屜，裡面是空的。"
+          },
+          {
+            "on": "board",
+            "click": "#op-pc",
+            "narration": "換電腦，清單也不會跟過去。"
+          }
+        ]
+      }
+    },
+    {
+      "on": "board",
+      "click": "#op-backup",
+      "narration": "三種情況，清單都不會跟著你走。所以要做一份備份檔：它是一般的檔案，可以帶到別的瀏覽器、別台電腦，匯入就回來。"
+    },
+    {
+      "hide": "board"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "加一個「匯出備份」按鈕，把清單下載成一個檔案",
+      "chapter": "匯出備份檔",
+      "lessonStep": 6,
+      "narration": "請它加一個匯出備份的按鈕。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "已加上「匯出備份」按鈕，會把清單下載成 `shopping-list-backup.json`。"
+    },
+    {
+      "show": "tool",
+      "site": "lt-life-tools-T1-2-list-v3-saved",
+      "narration": "重新整理，清單還在，下面多了兩個按鈕。"
+    },
+    {
+      "on": "tool",
+      "click": "#export",
+      "narration": "按匯出備份。"
+    },
+    {
+      "callout": "tool:sel:#toast",
+      "text": "備份檔就是一般的文字檔",
+      "narration": "下載了一個 json 檔，打開來看得到清單上的項目文字。"
+    },
+    {
+      "show": "finder",
+      "create": "shopping-list-backup.json",
+      "narration": "在下載資料夾找得到它。任何人拿到都看得到內容，所以清單裡不要記密碼或個資。重要的清單，定期匯出一次。"
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "on": "claude",
+      "user": "加一個「匯入備份」按鈕，選擇匯出的檔案還原清單，取代前先確認",
+      "chapter": "在另一個瀏覽器還原",
+      "lessonStep": 7,
+      "narration": "再請它加一個匯入備份的按鈕，取代之前先問一聲。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "已加上「匯入備份」：選擇備份檔後會先確認，再用備份取代目前的清單。"
+    },
+    {
+      "hide": "tool"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "other",
+      "site": "lt-life-tools-T1-2-list-v3",
+      "narration": "回到剛才那個空白的瀏覽器，重新整理。"
+    },
+    {
+      "on": "other",
+      "click": "#import",
+      "narration": "按匯入備份，選剛才下載的備份檔。"
+    },
+    {
+      "on": "other",
+      "click": "[data-file=backup]"
+    },
+    {
+      "callout": "other:sel:#confirm",
+      "text": "取代之前先確認",
+      "narration": "它先問你：要不要用備份取代目前的清單。檔案是你自己在瀏覽器裡選的，不會交給 AI，也不會上傳。"
+    },
+    {
+      "on": "other",
+      "click": "#ok"
+    },
+    {
+      "callout": "other:sel:#list",
+      "text": "項目和勾選都回來了",
+      "narration": "清單回來了，牛奶的勾選也在。"
+    },
+    {
+      "hide": "other"
+    },
+    {
+      "show": "tool",
+      "chapter": "自己測試：刻意做奇怪的操作",
+      "lessonStep": 8,
+      "narration": "最後，故意做點奇怪的操作。回到原本的瀏覽器，匯入一個不是備份的檔案，例如起步課程的 hello.txt。"
+    },
+    {
+      "on": "tool",
+      "click": "#import"
+    },
+    {
+      "on": "tool",
+      "click": "[data-file=hello]"
+    },
+    {
+      "callout": "tool:sel:#list",
+      "text": "選錯檔案，清單被清空了",
+      "narration": "糟糕，清單整個被清空了。這種錯，平常用的時候一不小心就會遇到。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "匯入不是備份的檔案時清單被清空了，改成顯示「檔案格式不對」，保留原本的清單",
+      "narration": "照句型描述：在什麼情況、看到什麼、希望變成什麼。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "已修正：匯入的檔案不是備份格式時，顯示「檔案格式不對」，原本的清單不動。也順便擋掉了空白項目。"
+    },
+    {
+      "on": "tool",
+      "site": "lt-life-tools-T1-2-list-v4-saved",
+      "narration": "重新整理，再試一次。"
+    },
+    {
+      "on": "tool",
+      "click": "#import"
+    },
+    {
+      "on": "tool",
+      "click": "[data-file=hello]"
+    },
+    {
+      "callout": "tool:sel:#toast",
+      "text": "清單沒有變動",
+      "narration": "這次顯示檔案格式不對，清單還在。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#item": "   "
+      },
+      "narration": "再試一個只有空格的項目。"
+    },
+    {
+      "on": "tool",
+      "click": "#add"
+    },
+    {
+      "callout": "tool:sel:#hint",
+      "text": "空白項目不會加進去",
+      "narration": "它提醒你輸入項目名稱，不會多一行空白。修好之後記得再重新整理一次，確認清單還記得。"
+    },
+    {
+      "checkpoint": "換你做做看",
+      "body": "做出自己的購物清單：關掉整個瀏覽器再打開，項目與勾選還在；匯出備份，在另一個瀏覽器匯入還原；再試空白項目、很長的文字、重複的項目、匯入錯的檔案、匯入時按取消。"
+    },
+    {
+      "hide": "tool"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "on": "fx",
+      "shimmer": "會計算、會記住、會備份",
+      "sub": "資料在這台電腦的這個瀏覽器裡"
+    },
+    {
+      "on": "fx",
+      "clear": true,
+      "narration": "回顧這個單元：分帳計算機會計算，購物清單會記住資料，還能備份。記得資料只在這個瀏覽器裡，重要的定期匯出。"
+    },
+    {
+      "card": "下一個單元：處理自己的檔案",
+      "eyebrow": "下一課",
+      "sub": "證件影本浮水印：交出去之前先標明用途",
+      "narration": "週末到超市，打開清單，平日記下的東西都在，一項項勾掉就好。下一個單元，開始處理自己的檔案。"
+    }
+  ]
+}

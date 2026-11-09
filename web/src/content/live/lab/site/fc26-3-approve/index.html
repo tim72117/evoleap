@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>貼文草稿 · 等你核准</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>貼文草稿<span class="sp"></span><span class="who">等你核准：1 篇</span></div>
+<div class="wrap row">
+ <div class="card col">
+  <div class="muted">來源：CHANGELOG v1.8.0 · AI 起草</div>
+  <div class="draft" id="draft">新功能上線！現在可以在網站上直接預約取貨時段，不用再打電話囉 🥐 週末名額有限，早點預約～</div>
+  <div class="row meta"><span class="pill">附圖：預約畫面.png</span><span class="pill">連結：/reserve</span><span class="pill warn">預定：明天 10:00</span></div>
+  <label class="field"><span>在最後補一句（選用）</span><input id="add"></label>
+  <div class="stepbar"><button class="btn green" id="approve">核准並排程</button><button class="btn ghost" id="reject">退回重寫</button><span id="st" class="pill">待核准</span></div>
+ </div>
+ <div class="card side2"><div class="ttl s">檢查清單</div><div>☐ 日期、價格、名額正確</div><div>☐ 連結點得開</div><div>☐ 語氣像我們</div><div>☐ 沒有誇大或承諾做不到的事</div></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+{
+  "title": "VS Code：編輯器與內建終端機",
+  "camera": "auto",
+  "teacher": {
+    "say": "AI 出步驟，你來操作",
+    "line": "安裝軟體的畫面，AI 看不到也按不到。這一堂請 AI 列出步驟和推薦的擴充套件，你照著做，卡住就截圖給它看。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "安裝 VS Code", "folder": "~/projects", "branch": null, "mode": "ask", "sessions": [] },
+      "place": { "x": 30, "y": 40, "w": 940, "h": 1000 },
+      "parts": { "sidebar": false },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc3-1-download", "url": "https://code.example/download" },
+      "place": { "x": 1000, "y": 150, "w": 890, "h": 720 },
+      "hidden": true
+    },
+    "ed": {
+      "actor": "editor",
+      "props": { "project": "hello", "files": { "hello.html": "<!DOCTYPE html>\n<h1>Hello！我是小安</h1>\n<p>我是新手，正在學做網站。</p>\n<button>聯絡我</button>\n" } },
+      "place": { "x": 1000, "y": 120, "w": 890, "h": 560 },
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/hello", "embed": true },
+      "place": { "x": 1000, "y": 680, "w": 890, "h": 240 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "AI 寫步驟，你來操作",
+      "eyebrow": "全環節 · 單元 3 · 3.1 用 AI 完成",
+      "sub": "AI 碰不到的畫面：照步驟做，截圖回報",
+      "chapter": "請 AI 列步驟",
+      "narration": "下載、安裝、按「打開」這些畫面，AI 都碰不到。這時候的分工是：它寫步驟，你操作，有問題截圖給它看。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我要在 Mac 裝 VS Code。請列出安裝步驟（我自己操作），再推薦 3 個新手用的擴充套件，說明各做什麼。完成的標準：在 VS Code 打開 ~/projects/hello。"
+    },
+    {
+      "on": "claude",
+      "say": "**安裝步驟**\n1. 到官方網站 code.visualstudio.com 按「macOS」下載\n2. 打開「下載項目」，點兩下 zip 解壓縮\n3. 把 Visual Studio Code 拖進「應用程式」\n4. 從「應用程式」打開它\n5. 選單「檔案 → 打開資料夾」，選 `projects/hello`\n\n**推薦擴充套件**\n- **Chinese (Traditional) Language Pack**：介面變繁體中文\n- **Prettier**：存檔時自動排好程式碼\n- **Live Server**：改完網頁自動重新整理\n\n每做完一步有疑問，截圖給我看。",
+      "narration": "它給你一份編號的步驟，還有三個擴充套件，每個都說明用途。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "有編號、有終點：打開 hello 就算完成",
+      "narration": "注意最後一步就是完成標準：在 VS Code 打開 hello 資料夾。"
+    },
+    {
+      "show": "web",
+      "chapter": "你照步驟做",
+      "narration": "第一步，打開官方網站的下載頁。"
+    },
+    {
+      "on": "web",
+      "click": "#dl-mac",
+      "narration": "按 macOS。"
+    },
+    {
+      "callout": "web:sel:.done",
+      "text": "下載好了，照第 2、3 步做",
+      "narration": "下載好了，照著第二、第三步，解壓縮、拖進應用程式。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）打開時跳出一個視窗：「Visual Studio Code」是從網際網路下載的 App，確定要打開嗎？",
+      "chapter": "卡住了，截圖問它",
+      "narration": "第一次打開，跳出一個你沒看過的視窗。不確定能不能按，就截圖給 AI。"
+    },
+    {
+      "on": "claude",
+      "say": "這是 macOS 的正常提醒，凡是從網路下載的 App 第一次打開都會出現。你是從官方網站下載的，按「打開」就好。\n\n下一步：選單「檔案 → 打開資料夾」，選 `projects` 裡的 `hello`。",
+      "narration": "它看了截圖，判斷這是正常的系統提醒，告訴你按哪個鈕，再給你下一步。"
+    },
+    { "hide": "web" },
+    {
+      "show": "ed",
+      "narration": "打開資料夾。左邊出現 hello 和裡面的檔案。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）左邊出現 HELLO，下面有 hello.html。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 左邊的 HELLO 就是你的工作區。\n\n最後確認一件事：按 **⌃ + `**（Control 加上 Esc 下面那個鍵）打開內建終端機，打 `pwd`。",
+      "narration": "它從截圖確認：工作區打開了。最後再請你驗證一次內建終端機。"
+    },
+    { "show": "term" },
+    {
+      "on": "term",
+      "type": "pwd",
+      "out": "/Users/you/projects/hello",
+      "tone": "ok",
+      "narration": "pwd 印出 hello 的路徑：終端機就站在工作區裡。"
+    },
+    {
+      "callout": "ed:window",
+      "text": "在 VS Code 開啟 hello 資料夾 ✓",
+      "narration": "完成了。這次每個按鈕都是你自己按的，AI 負責告訴你下一步、看截圖判斷。"
+    },
+    {
+      "checkpoint": "換你：照 AI 的步驟裝好 VS Code",
+      "body": "請 AI 列出你作業系統的安裝步驟和三個推薦的擴充套件。你照著做；看到不確定的畫面就截圖問它。最後在 VS Code 打開 ~/projects/hello，用內建終端機打 pwd 確認。"
+    },
+    {
+      "card": "在 VS Code 開啟 hello 資料夾 ✓",
+      "eyebrow": "3.1 完成",
+      "sub": "下一堂：Git 與 GitHub，程式的存檔點",
+      "narration": "你的工作桌準備好了。下一堂，學怎麼替程式存檔。"
+    }
+  ]
+}

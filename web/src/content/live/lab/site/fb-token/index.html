@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>開發者網站：權杖工具</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top"><b>開發者網站</b><span>網站發文小幫手 · 開發模式</span></header>
+  <main>
+    <h1>取得粉專權杖</h1>
+    <section id="perms">
+      <h2>1. 只勾需要的權限</h2>
+      <label><input id="p-posts" type="checkbox"> pages_manage_posts <small>在粉專發文</small></label>
+      <label><input id="p-read" type="checkbox"> pages_read_engagement <small>讀取粉專與貼文的資料</small></label>
+      <label class="no"><input id="p-msg" type="checkbox"> pages_messaging <small>用粉專回覆私訊（這次用不到）</small></label>
+    </section>
+    <section id="page">
+      <h2>2. 選擇粉絲專頁</h2>
+      <select id="which"><option value="">請選擇</option><option value="cafe">小安的點心教室</option></select>
+    </section>
+    <button id="gen">產生粉專權杖</button>
+    <section id="token" hidden>
+      <h2>粉專權杖</h2>
+      <div class="tok"><code>EAAG••••••••••••••••••••••••••••</code><button id="copy">複製</button></div>
+      <p class="warn">權杖等於這個粉專的發文密碼：只貼進自己的 .env，不要貼進任何對話或程式碼。</p>
+    </section>
+  </main>
+</body>
+</html>

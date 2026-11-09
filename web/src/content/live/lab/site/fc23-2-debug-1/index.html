@@ -1,0 +1,18 @@
+<!doctype html><html><head><title>分析工具 · 偵錯檢視</title></head><body>
+<div class="bar"><span class="lg">📈</span>示意流量分析後台<span class="crumb">/ 偵錯檢視 · 你的手機</span></div>
+<div class="pg"><h1>剛剛收到的事件（依時間）</h1>
+<div id="list">
+<div class="ev"><time>15:02:01</time><code>page_view</code><span>/</span></div>
+<div class="ev"><time>15:02:09</time><code>view_item</code><span>草莓蛋糕</span></div>
+<div class="ev"><time>15:02:15</time><code>add_to_cart</code><span>草莓蛋糕 × 1</span></div>
+<div class="ev dup" id="dup"><time>15:02:22</time><code>begin_checkout</code><span>NT$580</span></div>
+<div class="ev dup"><time>15:02:22</time><code>begin_checkout</code><span>NT$580（重複）</span></div>
+<div class="ev miss" id="miss"><time>15:03:05</time><code>purchase</code><span>沒有收到</span></div>
+</div>
+<div class="side" id="side"><h3>漏斗需要的事件</h3>
+<div class="chk"><span>page_view</span><b class="ok">✓ 1</b></div>
+<div class="chk"><span>view_item</span><b class="ok">✓ 1</b></div>
+<div class="chk"><span>add_to_cart</span><b class="ok">✓ 1</b></div>
+<div class="chk"><span>begin_checkout</span><b class="bad">✕ 2（應該 1）</b></div>
+<div class="chk"><span>purchase</span><b class="warn">✕ 0（應該 1）</b></div></div>
+</div></body></html>

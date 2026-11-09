@@ -1,0 +1,156 @@
+{
+  "title": "寫給 AI 看的專案說明",
+  "camera": "auto",
+  "teacher": {
+    "say": "起草，再用新對話考它",
+    "line": "這一堂請 AI 讀過專案，幫你起草 CLAUDE.md。寫好之後，開一個新對話考考它，看它有沒有照規矩做。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "起草 CLAUDE.md", "folder": "~/projects/bakery", "branch": null, "mode": "accept", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "起草專案說明，再用新對話測試",
+      "eyebrow": "全環節 · 單元 1 · 1.5 用 AI 完成",
+      "sub": "寫好不算完成；新的對話照做，才算完成",
+      "chapter": "讓 AI 起草",
+      "narration": "這次的完成標準很特別：檔案寫好不算數，要新的對話也照規矩做，才算完成。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "讀過這個專案，幫我起草 CLAUDE.md：專案在做什麼、常用指令、慣例、禁止事項。要短，先給我看。"
+    },
+    {
+      "on": "claude",
+      "tool": "Glob",
+      "arg": "**/*",
+      "result": "18 個檔案",
+      "narration": "它先看專案裡有哪些檔案，"
+    },
+    { "on": "claude", "tool": "Read", "arg": "package.json", "result": "24 行", "narration": "讀 package.json，找出常用的指令，" },
+    { "on": "claude", "tool": "Read", "arg": "README.md", "result": "31 行", "narration": "再讀說明文件，了解專案在做什麼。" },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [[1, "+", "# 小森烘焙網站"], [2, "+", "麵包店的預訂網站，客人多半用手機。"], [3, "+", ""], [4, "+", "## 常用指令"], [5, "+", "- npm run dev：本機預覽"], [6, "+", "- npm test：跑測試"], [7, "+", ""], [8, "+", "## 慣例"], [9, "+", "- 回覆用繁體中文"]],
+      "narration": "這是它起草的第一版。目前是自動接受修改模式，所以寫檔不用每次問。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "專案介紹 · 常用指令 · 慣例",
+      "narration": "有專案介紹、常用指令、慣例。可是少了一樣：禁止事項。"
+    },
+    {
+      "on": "claude",
+      "user": "加一個「禁止」段落：不要修改 .env，裡面是密鑰。"
+    },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [[10, "+", ""], [11, "+", "## 禁止"], [12, "+", "- 不要修改 .env（裡面是密鑰）"]]
+    },
+    {
+      "on": "claude",
+      "say": "加好了。`CLAUDE.md` 現在 12 行。之後每個新對話開始時都會先讀它。"
+    },
+    {
+      "on": "claude",
+      "newSession": "測試 1",
+      "chapter": "第一次測試",
+      "narration": "接下來開一個新對話。新對話不記得剛剛聊過什麼，只會讀 CLAUDE.md，正好拿來測試。"
+    },
+    {
+      "on": "claude",
+      "user": "首頁加上營業時間：早上 8 點到晚上 6 點。",
+      "narration": "交代一件普通的小事，不提任何規矩。"
+    },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [[12, "+", "<p class=\"hours\">營業時間：08:00–18:00</p>"]]
+    },
+    {
+      "on": "claude",
+      "say": "加好了，營業時間放在首頁標題下方。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "繁體中文 ✓　跑測試 ✗",
+      "narration": "檢查一下：用繁體中文回覆，有照做。但是它沒有跑測試就說完成了。為什麼？"
+    },
+    {
+      "card": "因為說明檔裡沒寫",
+      "sub": "「npm test」只寫在常用指令，沒有寫「改完一定要跑」",
+      "narration": "回頭看說明檔：npm test 只寫在常用指令裡，沒有寫「改完一定要跑」。它不是不聽話，是你沒寫清楚。"
+    },
+    {
+      "on": "claude",
+      "session": "起草 CLAUDE.md",
+      "chapter": "補上規則，再測一次",
+      "narration": "回到剛剛的對話，把規則補上。"
+    },
+    {
+      "on": "claude",
+      "user": "慣例再加一條：改完一定要跑 npm test，失敗要修好才算完成。"
+    },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [[10, "+", "- 改完一定要跑 npm test，失敗要修好才算完成"]]
+    },
+    {
+      "on": "claude",
+      "newSession": "測試 2",
+      "narration": "再開一個新對話，用同一個要求測試。"
+    },
+    { "on": "claude", "user": "首頁加上營業時間：早上 8 點到晚上 6 點。" },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [[12, "+", "<p class=\"hours\">營業時間：08:00–18:00</p>"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test",
+      "out": "✓ 14 passed (1.2s)",
+      "narration": "這次它自己跑了測試。"
+    },
+    {
+      "on": "claude",
+      "say": "加好了，營業時間放在首頁標題下方。`npm test` 14 個測試全部通過。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "繁體中文 ✓　跑測試 ✓",
+      "narration": "兩條規矩都照做了。你沒有在這個對話裡提醒任何事，它是從 CLAUDE.md 學到的。"
+    },
+    {
+      "on": "claude",
+      "user": "順便把 .env 裡的 API 金鑰換成 test-123。",
+      "chapter": "測試禁止事項",
+      "narration": "最後測禁止事項：故意請它改 .env。"
+    },
+    {
+      "on": "claude",
+      "say": "專案的 CLAUDE.md 規定不要修改 `.env`（裡面是密鑰），所以我先不動。要換金鑰的話，請你自己打開 `.env` 修改；需要的話我可以告訴你在哪一行。",
+      "narration": "它想起規定，停下來說明，請你自己改。這正是我們要的。"
+    },
+    {
+      "checkpoint": "換你：起草、再用新對話考它",
+      "body": "請 AI 讀過你的專案，起草 CLAUDE.md（專案在做什麼、常用指令、慣例、禁止事項）。然後開一個新對話，給它一件小事，檢查每一條規矩有沒有照做；沒照做，就回去把那一條寫得更清楚，再測一次。"
+    },
+    {
+      "card": "新的對話也照專案規則做 ✓",
+      "eyebrow": "1.5 完成",
+      "sub": "單元 1 完成：你已經有一位會照規矩做事的 AI 助手",
+      "narration": "新的對話也照規則做了。單元一到這裡完成：你已經有一位裝好、懂規矩的 AI 助手。"
+    }
+  ]
+}

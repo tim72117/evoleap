@@ -1,0 +1,138 @@
+{
+  "title": "用 webhook 同步訂閱狀態",
+  "lesson": "全環節 · 單元 11 · 11.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天一個一個事件測",
+    "line": "今天請 AI 串接 webhook，然後用金流服務的模擬工具，一個一個事件送過去，看資料有沒有跟著變對。哪個不對，就告訴 AI 改，再送一次。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "訂閱 webhook", "folder": "~/projects/bakery", "branch": "subscription", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "sim": {
+      "actor": "browser",
+      "props": { "site": "fc11-3-sim", "url": "https://dashboard.pay.example/test/webhooks" },
+      "place": { "x": 40, "y": 40, "w": 1100, "h": 760 },
+      "hidden": true
+    },
+    "db": {
+      "actor": "fc3-table",
+      "props": {
+        "title": "本機資料庫",
+        "tables": [
+          { "name": "members", "label": "會員", "key": "id", "cols": ["id", "name", "role"], "rows": [[7, "小安", "一般"]] },
+          { "name": "subscriptions", "label": "訂閱", "key": "id", "cols": ["id", "member_id", "status"], "rows": [] }
+        ],
+        "links": [["subscriptions.member_id", "members.id"]]
+      },
+      "place": { "x": 1160, "y": 40, "w": 720, "h": 760 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用 webhook 同步訂閱狀態",
+      "eyebrow": "全環節 · 單元 11 · 11.3 用 AI 完成",
+      "sub": "AI 串接 → 你用模擬工具送事件 → 看資料對不對 → 不對就改",
+      "chapter": "AI 串接",
+      "narration": "這一堂是來回測試。AI 先串好，你在模擬工具一個事件一個事件送，看右邊的資料有沒有變對。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "串接訂閱的 webhook：驗簽章、記住處理過的事件編號、馬上回 200。要處理：訂閱成立、續訂扣款失敗、取消訂閱。會員的 role 要跟著訂閱狀態變。用測試模式，並把模擬工具的事件轉到本機。",
+      "narration": "把上一堂學的三個重點都寫進交代：驗簽章、記事件編號、馬上回 200。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "edit": "routes/webhook.js",
+      "lines": [
+        [1, "+", "router.post('/api/webhook', raw(), async (req, res) => {"],
+        [2, "+", "  let ev; try { ev = pay.webhooks.verify(req.body, req.get('Pay-Signature'), process.env.PAY_WEBHOOK_SECRET) }"],
+        [3, "+", "  catch { return res.status(400).send('簽章驗證失敗') }"],
+        [4, "+", "  if (await seen(ev.id)) return res.sendStatus(200)  // 處理過了"],
+        [5, "+", "  await remember(ev.id)"],
+        [6, "+", "  if (ev.type === 'subscription.created') await setSub(ev, 'active', '訂閱會員')"],
+        [7, "+", "  if (ev.type === 'subscription.canceled') await setSub(ev, 'canceled', '一般')"],
+        [8, "+", "  res.sendStatus(200)"],
+        [9, "+", "})"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "pay-cli listen --forward-to localhost:3000/api/webhook --print-secret | write-env PAY_WEBHOOK_SECRET",
+      "result": "事件會轉到本機",
+      "out": "已把 webhook 密鑰寫進 .env（不顯示）\n正在把測試事件轉到 localhost:3000/api/webhook …",
+      "narration": "它用金流服務的工具，把測試事件轉到你的電腦，簽章用的密鑰直接寫進 .env。"
+    },
+    { "on": "claude", "say": "串好了。請在模擬工具依序送出事件，每送一個看一下資料庫有沒有變對。" },
+    { "hide": "claude" },
+    { "show": "sim", "focus": false, "chapter": "第一個事件：訂閱成立" },
+    { "show": "db" },
+    { "on": "sim", "click": "#e-created", "narration": "送出「訂閱成立」。" },
+    { "on": "db", "insert": "subscriptions", "row": ["sub_01", 7, "active"] },
+    { "on": "db", "cell": "members", "row": 1, "col": "role", "value": "訂閱會員", "narration": "訂閱表多了一筆 active，小安變成訂閱會員。對了。" },
+    { "on": "sim", "click": "#e-failed", "chapter": "第二個事件：扣款失敗", "narration": "接著送「續訂扣款失敗」。伺服器回 200。" },
+    { "callout": "db:table:subscriptions", "text": "扣款失敗了，狀態還是 active？", "narration": "可是右邊的資料一動也不動。扣款失敗了，小安還是訂閱會員，下個月照樣出貨。回 200 不代表處理對了，要看資料。" },
+    { "hide": "sim" },
+    { "hide": "db" },
+    { "show": "claude" },
+    { "on": "claude", "user": "送了 invoice.payment_failed，回 200，但訂閱狀態沒變，還是 active。扣款失敗應該先標成待補款，並寄信提醒他更新卡片；連續失敗、金流服務取消訂閱時，才改成一般會員。", "narration": "把你看到的、和你希望的，一起告訴它。" },
+    {
+      "on": "claude",
+      "say": "對，我漏處理 `invoice.payment_failed` 了，它落到最後直接回 200。補上：狀態改 `past_due`、寄提醒信（先記下來排程寄，不拖慢回應）；會員資格先保留，等 `subscription.canceled` 再拿掉。",
+      "narration": "它找到原因：這個事件沒有被處理，就直接回了 200。修的時候，它也記得寄信要排程，不能拖慢回應。"
+    },
+    {
+      "on": "claude",
+      "edit": "routes/webhook.js",
+      "lines": [
+        [7, " ", "  if (ev.type === 'subscription.canceled') await setSub(ev, 'canceled', '一般')"],
+        [8, "+", "  if (ev.type === 'invoice.payment_failed') { await setSub(ev, 'past_due'); await queueMail('update-card', ev) }"]
+      ]
+    },
+    { "hide": "claude" },
+    { "show": "sim", "focus": false },
+    { "show": "db" },
+    { "on": "sim", "click": "#e-failed", "narration": "再送一次扣款失敗。" },
+    { "on": "db", "cell": "subscriptions", "row": 1, "col": "status", "value": "past_due", "narration": "這次狀態變成待補款了。" },
+    { "on": "sim", "click": "#e-canceled", "chapter": "第三個事件：取消訂閱", "narration": "送出「取消訂閱」。" },
+    { "on": "db", "cell": "subscriptions", "row": 1, "col": "status", "value": "canceled" },
+    { "on": "db", "cell": "members", "row": 1, "col": "role", "value": "一般", "narration": "訂閱變成已取消，小安的權限也跟著變回一般會員。" },
+    { "on": "db", "stamp": "members", "text": "權限跟著改變 ✓", "tone": "ok" },
+    { "on": "sim", "click": "#e-dup", "chapter": "重送與假冒", "narration": "再送一次同一個取消事件，模擬重送。" },
+    { "callout": "db:table:subscriptions", "text": "同一個事件：資料不變", "narration": "回 200，資料沒有重複變動。" },
+    { "on": "sim", "click": "#e-forged", "narration": "最後送一個簽章不對的事件。" },
+    { "callout": "sim:sel:#log", "text": "假冒的事件被擋下：400", "narration": "伺服器回 400，簽章驗證失敗。五個事件都測完了。" },
+    { "hide": "sim" },
+    { "hide": "db" },
+    { "show": "claude", "chapter": "請它補上自動測試" },
+    { "on": "claude", "user": "五個事件都對了。把剛剛這些情況寫成自動測試，以後改程式也能重跑。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- tests/webhook.test.js",
+      "result": "5 / 5 通過",
+      "out": "✓ 訂閱成立 → active、訂閱會員\n✓ 扣款失敗 → past_due、排程提醒信\n✓ 取消 → canceled、一般\n✓ 同一個事件送兩次只處理一次\n✓ 簽章不對回 400、資料不變",
+      "narration": "手動測過的情況，請它寫成自動測試。以後再改程式，一個指令就能全部重測。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 串接 webhook，再用金流服務的模擬工具一個一個送事件。每送一個都看資料庫，不對就把「看到的」和「希望的」告訴它。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "回 200 不代表處理對了\n每個事件都要看資料",
+      "eyebrow": "學會",
+      "sub": "一個一個送、看結果、指出問題、再送一次；最後寫成自動測試",
+      "chapter": "學會",
+      "narration": "這一堂的重點：回 200 不代表處理對了，每送一個事件都要看資料有沒有變對。不對就告訴 AI 改，再送一次；全部對了，寫成自動測試。"
+    }
+  ]
+}

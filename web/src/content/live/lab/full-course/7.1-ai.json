@@ -1,0 +1,118 @@
+{
+  "title": "為什麼結構會影響 AI 的表現",
+  "lesson": "全環節 · 單元 7 · 7.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 畫出專案地圖",
+    "line": "今天要請 AI 把你的專案畫成一張地圖：列出目錄樹、說明每個資料夾放什麼，並標出放錯位置的檔案。先看清楚現況，下一課才動手整理。"
+  },
+  "blocking": { "cast": ["claude", "files"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "專案地圖",
+        "folder": "~/projects/profile",
+        "branch": "main",
+        "mode": "plan",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "profile": {
+            "index.html": "", "contact.html": "", "final2-改.html": "", "styles.css": "", "style-old.css": "", "main.js": "", "utils.js": "", "check-button.mjs": "", "a11y-check.mjs": "",
+            "locales": { "zh-TW.json": "", "en.json": "" },
+            "新增資料夾": { "index copy.html": "", "a.html": "" },
+            "README.md": "", "package.json": ""
+          }
+        },
+        "open": "profile"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 畫出專案地圖",
+      "eyebrow": "全環節 · 單元 7 · 7.1 用 AI 完成",
+      "sub": "列出目錄樹 → 說明用途 → 標出放錯的檔案 → 寫進 README",
+      "chapter": "現在的專案長這樣",
+      "narration": "經過前面幾個單元，你的專案越長越大。"
+    },
+    {
+      "show": "files",
+      "narration": "頁面、樣式、檢查用的小工具、語系檔全擠在一起，還有一個新增資料夾。"
+    },
+    {
+      "show": "claude",
+      "chapter": "只看，不動手",
+      "narration": "這次把 AI 切到計畫模式。計畫模式下它只能讀、不能改，很適合「先看清楚」這種任務。"
+    },
+    {
+      "callout": "claude:mode",
+      "text": "Plan mode：只讀不改",
+      "narration": "左下角顯示 Plan mode。"
+    },
+    {
+      "on": "claude",
+      "user": "請列出這個專案的目錄樹，每個資料夾和檔案用一句話說明用途。再標出：放錯位置的、看名字猜不出用途的、可能是舊副本可以刪的。先不要搬或刪任何東西。",
+      "narration": "請它做三件事：列出來、說明用途、標出有問題的。最後再提醒一次，先不要動。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "tree -a -I 'node_modules|.git' --dirsfirst",
+      "result": "2 個資料夾，15 個檔案",
+      "out": ".\n├── locales/\n│   ├── en.json\n│   └── zh-TW.json\n├── 新增資料夾/\n│   ├── a.html\n│   └── index copy.html\n├── README.md\n├── a11y-check.mjs\n├── check-button.mjs\n├── contact.html\n├── final2-改.html\n├── index.html\n├── main.js\n├── package.json\n├── style-old.css\n├── styles.css\n└── utils.js",
+      "chapter": "AI 列出目錄樹",
+      "narration": "它先用 tree 指令列出整個目錄樹，像一張地圖。"
+    },
+    { "on": "claude", "tool": "Grep", "arg": "final2-改.html|style-old.css|main.js|utils.js", "result": "找到 4 處引用", "narration": "接著它搜尋，看哪些檔案真的有被其他頁面用到。" },
+    {
+      "on": "claude",
+      "say": "**目錄與用途**\n| 位置 | 用途 |\n| `index.html`、`contact.html` | 首頁、聯絡表單頁 |\n| `final2-改.html` | 其實是「關於我」頁，index.html 有連到它 |\n| `styles.css` | 目前使用中的樣式 |\n| `main.js` | 打招呼按鈕的程式 |\n| `utils.js` | 日期與數字格式的小工具 |\n| `locales/` | 中英文語系檔 |\n| `check-button.mjs`、`a11y-check.mjs` | 檢查用的腳本 |\n\n**需要注意**\n1. 名字猜不出用途：`final2-改.html`（建議 about.html）、`main.js`（建議 hello.js）\n2. 放錯位置：兩個檢查腳本和頁面混在一起，建議放 `tools/`\n3. 可能是舊副本：`style-old.css`（沒有任何頁面引用）、`新增資料夾/`（內容和 index.html 幾乎一樣）",
+      "chapter": "AI 標出問題",
+      "narration": "它整理出一張表，每個檔案一句話。然後分三類標出問題。注意它是用「有沒有被引用」來判斷，不是只看名字。"
+    },
+    { "on": "files", "highlight": "final2-改.html", "narration": "名字猜不出用途的，" },
+    { "on": "files", "highlight": "a11y-check.mjs", "narration": "放錯位置的，" },
+    { "on": "files", "highlight": "style-old.css", "narration": "還有可能是舊副本的。" },
+    {
+      "on": "claude",
+      "user": "很清楚。把「目錄與用途」那張表整理好寫進 README.md 的「專案結構」一節，問題清單先不要寫。",
+      "chapter": "把地圖寫進 README",
+      "narration": "這張地圖值得留下來。以後 AI 每次打開專案，讀 README 就知道怎麼找東西。"
+    },
+    { "on": "claude", "mode": "accept", "narration": "要寫檔了，切回 Accept edits 模式。" },
+    { "on": "claude", "thinking": true, "ms": 700 },
+    {
+      "on": "claude",
+      "edit": "README.md",
+      "lines": [[8, "+", "## 專案結構"], [9, "+", "| 位置 | 用途 |"], [10, "+", "| index.html、contact.html | 首頁、聯絡表單頁 |"], [11, "+", "| styles.css | 全站樣式 |"], [12, "+", "| locales/ | 中英文語系檔 |"], [13, "+", "| *.mjs | 檢查用的腳本 |"]]
+    },
+    {
+      "on": "claude",
+      "say": "已在 `README.md` 加上「專案結構」一節。問題清單我先記在對話裡，等你決定要不要整理。",
+      "narration": "目錄樹和用途說明完成了。放錯位置的檔案，下一課再請它提方案、搬過去。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "在你的專案裡切到計畫模式，對 AI 說：「請列出目錄樹，每個資料夾和檔案用一句話說明用途，標出放錯位置的、看名字猜不出用途的、可能是舊副本的。先不要搬或刪。」看懂後，請它把「目錄與用途」寫進 README.md。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "先看清楚，再動手\n計畫模式只讀不改\n地圖寫進 README",
+      "eyebrow": "學會",
+      "sub": "判斷能不能刪，看「有沒有被引用」，不是只看名字",
+      "chapter": "學會",
+      "narration": "先請 AI 畫出地圖、標出問題，用計畫模式確保它只看不改，最後把地圖寫進 README。下一課，我們請它提整理方案，確認後再搬。"
+    }
+  ]
+}

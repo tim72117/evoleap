@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { registerSites } from '../live/actors/browser/actor'
 import { findInternalPage } from '../seo/internalPages'
 import { usePageMeta } from '../seo/usePageMeta'
 import { NotFoundPage } from '../site/NotFoundPage'
@@ -12,6 +13,8 @@ import { proposalRoutes } from './proposal/routes'
 /** 內部頁的所有路由;scripts/seo.mjs 與 pages.test 用來和 SEO 資料對照 */
 export const internalRoutes = [...proposalRoutes, ...materialsRoutes, ...docsRoutes, ...articleRoutes]
 
+// 研發基地試做用的網頁素材(content/live/lab/site/<版本>/)不打包進公開的 browser 演員,只在研發基地這包加進去
+registerSites(import.meta.glob('../content/live/lab/site/*/*', { query: '?raw', import: 'default', eager: true }) as Record<string, string>)
 
 export default function StudioApp() {
   usePageMeta(findInternalPage)

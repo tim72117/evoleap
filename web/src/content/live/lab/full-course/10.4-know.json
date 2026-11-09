@@ -1,0 +1,90 @@
+{
+  "title": "上線前的兩件事：機密保管與隱私權政策",
+  "lesson": "全環節 · 單元 10 · 10.4 基礎知識",
+  "teacher": {
+    "say": "今天準備登入上線",
+    "line": "今天我們準備把登入功能放上正式網站。上線前有兩件事：正式環境的機密放在哪裡，還有隱私權政策要寫什麼。"
+  },
+  "cast": {
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "機密管理服務：雲端的保險箱",
+        "nodes": {
+          "you": { "label": "你", "sub": "或部署流程", "icon": "user", "x": 12, "y": 50 },
+          "vault": { "label": "機密管理服務", "sub": "例如 Secret Manager", "icon": "lock", "x": 45, "y": 50, "tone": "key" },
+          "run": { "label": "正式伺服器", "sub": "Cloud Run", "icon": "cloud", "x": 80, "y": 25 },
+          "audit": { "label": "存取紀錄", "sub": "誰、何時讀過", "icon": "receipt", "x": 80, "y": 78 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc10-4-privacy", "url": "https://bakery.example/privacy" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "上線前的兩件事",
+      "eyebrow": "全環節 · 單元 10 · 10.4 基礎知識",
+      "sub": "機密管理服務與隱私權政策要寫什麼",
+      "chapter": "正式環境的機密放哪裡",
+      "narration": "本機的機密放在 .env。那正式網站呢？像簽 session 的密鑰、資料庫密碼，總不能把 .env 檔案傳到伺服器上就算了。"
+    },
+    { "show": "flow", "narration": "雲端服務通常有一個機密管理服務，像一個保險箱。" },
+    { "send": ["you", "vault"], "label": "存入 SESSION_SECRET、DATABASE_URL", "tone": "key", "narration": "你把機密存進保險箱，每一項有名字、有版本。" },
+    { "send": ["run", "vault"], "label": "啟動時：給我 SESSION_SECRET", "narration": "正式伺服器啟動時，向保險箱要它需要的機密。" },
+    { "pulse": "vault", "text": "檢查：這台伺服器有權限", "tone": "ok", "narration": "保險箱先檢查：這台伺服器有沒有被允許讀這一項。" },
+    { "send": ["vault", "run"], "label": "給你（不寫進檔案）", "tone": "key", "narration": "有權限才給，而且只放在記憶體裡，不會變成一個檔案躺在伺服器上。" },
+    { "send": ["vault", "audit"], "label": "11/09 10:02 正式伺服器讀取", "tone": "data", "narration": "每一次讀取都會留下紀錄：誰、什麼時候。萬一出事，查得到。" },
+    { "tidy": true },
+    { "spawn": "stranger", "label": "其他程式", "sub": "沒有被授權", "icon": "code", "x": 45, "y": 88, "tone": "bad" },
+    { "send": ["stranger", "vault"], "label": "給我資料庫密碼", "tone": "bad" },
+    { "send": ["vault", "stranger"], "label": "403 沒有權限", "tone": "bad", "narration": "沒被授權的程式，什麼都拿不到。" },
+    { "vanish": "stranger" },
+    { "tidy": true },
+    { "send": ["you", "vault"], "label": "SESSION_SECRET 換成第 2 版", "tone": "warn", "narration": "要換密鑰時，存一個新版本就好，伺服器下次啟動就讀新的，程式完全不用改。" },
+    { "callout": "flow:node:vault", "text": "有權限控管、有版本、有存取紀錄", "narration": "比起把 .env 傳到伺服器，保險箱多了三樣東西：權限控管、版本、存取紀錄。" },
+    { "hide": "flow" },
+    {
+      "show": "web",
+      "chapter": "隱私權政策要回答什麼",
+      "narration": "第二件事：有了會員登入，你就在收集別人的個人資料，網站要有一份隱私權政策，講清楚你怎麼處理。它不是法律術語的堆砌，而是回答客人的六個問題。"
+    },
+    { "click": "#q1", "narration": "收集什麼：用 Google 登入，你會拿到 email、名字和大頭貼；下訂單還有電話。" },
+    { "click": "#q2", "narration": "拿來做什麼：處理訂單、通知取貨。沒寫到的用途，就不要拿去做。" },
+    { "click": "#q3", "narration": "給了誰：Google 和金流服務都要寫出來。" },
+    { "click": "#q4", "narration": "存多久：刪除帳號後多久刪資料，交易紀錄依法要保留的另外說明。" },
+    { "click": "#q5", "narration": "怎麼刪除：客人要能查詢、更正、刪除自己的資料。" },
+    { "click": "#q6", "narration": "找誰問：留一個聯絡方式。" },
+    { "callout": "web:sel:.need", "text": "六個問題都回答到，再請專業的人看過", "narration": "AI 可以依你網站實際收集的資料，幫你寫出草稿；正式上線前，最好請懂法規的人看過。" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你新增了「用手機號碼收簡訊通知」的功能。隱私權政策要不要改？",
+      "body": "選一個。",
+      "id": "privacyupdate",
+      "options": [
+        {
+          "label": "不用，之前寫過了",
+          "steps": [{ "card": "多收了手機號碼，就要更新", "eyebrow": "再想想", "sub": "收集什麼、給了誰（簡訊服務商）都變了", "narration": "多收了手機號碼，還多了一家簡訊服務商，收集什麼、給了誰都變了，所以要更新。" }]
+        },
+        {
+          "label": "要，收集的資料變了",
+          "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "功能變了就檢查一次：收集什麼、給了誰、存多久", "narration": "答對了。每次功能改變，都檢查一次這六個問題。" }]
+        }
+      ]
+    },
+    { "hide": "web" },
+    {
+      "card": "正式機密：放保險箱\n隱私權政策：回答六個問題",
+      "eyebrow": "學會",
+      "sub": "保險箱有權限、版本、存取紀錄；功能改了，政策也要跟著檢查",
+      "chapter": "學會",
+      "narration": "今天的重點：正式環境的機密放在機密管理服務；隱私權政策要回答收集什麼、做什麼、給了誰、存多久、怎麼刪、找誰問。下一堂，請 AI 寫登入測試、搬機密、更新隱私權政策，讓正式網址可以登入。"
+    }
+  ]
+}

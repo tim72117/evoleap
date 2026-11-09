@@ -1,0 +1,577 @@
+{
+  "title": "第一個任務：把老闆的訊息整理成需求清單",
+  "lesson": "零基礎 · AI 工具入門 1.1",
+  "camera": "auto",
+  "blocking": {
+    "landscape": {
+      "cast": [
+        "claude",
+        "board"
+      ],
+      "shot": "single"
+    },
+    "portrait": {
+      "cast": [
+        "claude",
+        "board"
+      ],
+      "shot": "depth"
+    }
+  },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": {
+        "title": "小森烘焙 老闆"
+      },
+      "place": {
+        "landscape": {
+          "x": 220,
+          "y": 110,
+          "w": 600,
+          "h": 820
+        },
+        "portrait": {
+          "x": 40,
+          "y": 110,
+          "w": 1000,
+          "h": 1060
+        }
+      },
+      "hidden": true
+    },
+    "me": {
+      "actor": "person",
+      "props": {
+        "name": "你",
+        "look": "customer"
+      },
+      "place": {
+        "landscape": {
+          "x": 1000,
+          "y": 300,
+          "w": 620,
+          "h": 460
+        },
+        "portrait": {
+          "x": 140,
+          "y": 1200,
+          "w": 800,
+          "h": 440
+        }
+      },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "整理老闆的訊息",
+        "folder": "~/Documents/小森烘焙",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "輸入訊息…"
+        }
+      },
+      "parts": {
+        "folder": false,
+        "branch": false,
+        "mode": false
+      },
+      "place": {
+        "landscape": "full",
+        "portrait": "window"
+      },
+      "hidden": true
+    },
+    "board": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-l1-1-1-mask",
+        "width": "desktop",
+        "url": "https://board.example/xiaosen"
+      },
+      "place": {
+        "landscape": "full",
+        "portrait": "window"
+      },
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "teacher": {
+    "say": "從一則長訊息開始",
+    "line": "今天是你接到的第一個任務：小森烘焙的老闆傳來一則很長的訊息，我們一起把它整理成一張需求清單。"
+  },
+  "steps": [
+    {
+      "card": "第一個任務：把老闆的訊息整理成需求清單",
+      "eyebrow": "零基礎 · AI 工具入門 1.1",
+      "sub": "整理 → 標出原文與推測 → 分出一定要有",
+      "narration": "整門課都跟著同一個案子：小森烘焙想做一個線上預約取貨的系統。今天是第一步。"
+    },
+    {
+      "show": "phone",
+      "chapter": "老闆傳來一則長訊息",
+      "narration": "週一早上，你的手機跳出小森烘焙老闆的訊息。"
+    },
+    {
+      "receive": "嗨，我是小森烘焙的老闆。最近預訂蛋糕的客人越來越多，現在都用 LINE 和電話接，常常漏單或記錯取貨時間，週末尤其亂。",
+      "from": "老闆"
+    },
+    {
+      "receive": "我想做一個讓客人自己在網路上預約取貨的東西。客人可以看到這週有哪些蛋糕和麵包可以預訂、選數量、選取貨日期和時段，送出後我們這邊要能看到所有訂單。",
+      "from": "老闆",
+      "narration": "一段接一段，往下捲了好幾次還沒到底。"
+    },
+    {
+      "receive": "每天能做的生日蛋糕有上限，大概 8 個，滿了就不要再讓人訂。取貨時段大概分上午、下午、傍晚。",
+      "from": "老闆"
+    },
+    {
+      "receive": "客人訂完最好能收到確認通知，取貨前一天再提醒一次，因為常有人忘記來拿。",
+      "from": "老闆"
+    },
+    {
+      "receive": "店員B 不太會用電腦，後台要很簡單。付款的話先現場付就好，之後再看要不要線上付。",
+      "from": "老闆"
+    },
+    {
+      "receive": "如果可以的話，希望之後也能做會員集點，不過不急。",
+      "from": "老闆",
+      "narration": "最後還補一句：會員集點，不過不急。"
+    },
+    {
+      "show": "me"
+    },
+    {
+      "on": "me",
+      "say": "應該也要能改訂單吧？",
+      "mood": "calm",
+      "narration": "讀著讀著，你心裡也冒出自己的想法：應該也要能改訂單吧？"
+    },
+    {
+      "on": "me",
+      "say": "哪些是老闆真的說的？哪些要先做？",
+      "mood": "worried",
+      "narration": "讀完一遍，還是不知道該從哪裡下手。哪些是老闆真的說的，哪些是你自己猜的？"
+    },
+    {
+      "hide": "me"
+    },
+    {
+      "hide": "phone"
+    },
+    {
+      "card": "把老闆的長訊息整理成一張需求清單",
+      "eyebrow": "這一課的任務",
+      "sub": "分清楚哪些是原文、哪些是推測，哪些一定要有",
+      "narration": "這一課的任務：把這則長訊息整理成一張需求清單，分清楚哪些是原文、哪些是推測，哪些一定要有。需求，就是對方希望這個東西能做到的事。"
+    },
+    {
+      "show": "board",
+      "chapter": "貼上之前先遮蔽",
+      "lessonStep": 1,
+      "narration": "請 AI 整理之前，先做一件事。真實的客戶訊息裡，常常有名字、電話、Email 和地址。"
+    },
+    {
+      "click": "#find",
+      "narration": "先把這些個人資料找出來。這張是另一位客戶的示意訊息，裡面有五處要處理。"
+    },
+    {
+      "callout": "board:sel:.msg",
+      "text": "店名、姓名、電話、Email、地址",
+      "narration": "店名、姓名、電話、Email、地址，這些都和需求本身無關。"
+    },
+    {
+      "click": "#mask",
+      "narration": "把它們換成代稱，例如「老闆A」「店家A」，電話和地址換成括號。這個動作叫遮蔽。"
+    },
+    {
+      "callout": "board:sel:.out",
+      "text": "需求的內容都還在",
+      "narration": "遮蔽後，要做什麼、什麼時候公休，內容一樣不少，AI 照樣整理得出來。這門課的範例都是虛構的，人名也已經換成代稱，可以直接貼。"
+    },
+    {
+      "hide": "board"
+    },
+    {
+      "show": "claude",
+      "chapter": "一則長訊息 → 一張需求清單",
+      "narration": "打開 AI 聊天工具。提示詞只要一句話，說清楚要做什麼。"
+    },
+    {
+      "user": "把這則老闆的訊息整理成需求清單。\n\n【貼上老闆的訊息】",
+      "lessonStep": 1,
+      "narration": "把這則老闆的訊息整理成需求清單，下面貼上整則訊息。"
+    },
+    {
+      "thinking": true,
+      "ms": 1400
+    },
+    {
+      "on": "claude",
+      "say": "**小森烘焙 線上預約取貨系統：需求清單**\n\n**客人**\n- 看到本週可預訂的蛋糕和麵包\n- 選數量、取貨日期與時段（上午、下午、傍晚）\n- 訂完收到確認通知，取貨前一天收到提醒\n- 可以修改或取消訂單\n\n**店家**\n- 看到所有訂單\n- 生日蛋糕每天上限 8 個，滿了不能再訂\n- 後台簡單好用，店員能修改訂單\n\n**之後再做**\n- 線上付款、會員集點"
+    },
+    {
+      "callout": "claude:say",
+      "text": "清單看起來很完整",
+      "narration": "幾秒鐘，一張清單就出來了。誰要用、要能做什麼，都排得整整齊齊。你拿到的條數和分類可能不一樣，沒關係。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "把第 1 步的提示詞連同老闆的訊息貼給 AI，整理出第一份需求清單。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "清單看起來很完整",
+      "eyebrow": "先停一下",
+      "sub": "可是，每一條都是老闆說的嗎？",
+      "narration": "清單看起來很完整。可是，每一條都是老闆說的嗎？"
+    },
+    {
+      "user": "標出剛才的清單裡，哪些是訊息原文、哪些是你推測的。",
+      "chapter": "原文還是推測？",
+      "lessonStep": 2,
+      "narration": "接著追問。追問就是接著剛才的對話再問一句，不用重貼訊息。"
+    },
+    {
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "- 看到本週可預訂的品項：**原文**（「這週有哪些蛋糕和麵包可以預訂」）\n- 選數量、日期與時段：**原文**\n- 確認通知、前一天提醒：**原文**\n- 可以修改或取消訂單：**推測**，訊息裡沒有提到\n- 看到所有訂單：**原文**\n- 生日蛋糕每天上限 8 個：**原文**（「大概 8 個」）\n- 店員能修改訂單：**推測**，從「後台要很簡單」延伸的\n- 線上付款、會員集點：**原文**（「之後再看」「不急」）"
+    },
+    {
+      "callout": "claude:say",
+      "text": "推測：訊息裡找不到",
+      "narration": "原文，是訊息裡真的找得到的句子；推測，是 AI 自己補上的。修改、取消訂單，老闆一個字都沒提。"
+    },
+    {
+      "show": "board",
+      "site": "lt-l1-1-1-board",
+      "narration": "把清單抄成一張張便條，放到便條板上，換你來當偵探。"
+    },
+    {
+      "checkpoint": "點一張便條，看它從哪裡來",
+      "id": "source",
+      "body": "點便條紙，會翻出它的來源：綠色是訊息原文，紅色是推測。至少點三張，再按「看完了，繼續」。",
+      "stage": {
+        "focus": "board:viewport"
+      },
+      "interact": {
+        "cast": [
+          "board"
+        ],
+        "spots": [
+          {
+            "target": "board:sel:#n1",
+            "id": "n1",
+            "label": "客人看到本週可預訂的品項",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n1"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n1"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#n2",
+            "id": "n2",
+            "label": "選數量、取貨日期和時段",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n2"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n2"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#n3",
+            "id": "n3",
+            "label": "店家看到所有訂單",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n3"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n3"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#n4",
+            "id": "n4",
+            "label": "生日蛋糕每天上限 8 個",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n4"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n4"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#n5",
+            "id": "n5",
+            "label": "確認通知＋取貨前一天提醒",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n5"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n5"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#n6",
+            "id": "n6",
+            "label": "後台要很簡單",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n6"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n6"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#n7",
+            "id": "n7",
+            "label": "線上付款",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n7"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n7"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#n8",
+            "id": "n8",
+            "label": "會員集點",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n8"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n8"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#n9",
+            "id": "n9",
+            "label": "店員能修改訂單",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n9"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n9"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#n10",
+            "id": "n10",
+            "label": "客人能自己取消訂單",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#n10"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#n10"
+              }
+            ]
+          }
+        ],
+        "until": {
+          "picked": 3
+        },
+        "keep": false
+      },
+      "options": [
+        {
+          "label": "看完了，繼續",
+          "steps": []
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": []
+      }
+    },
+    {
+      "checkpoint": "「客人能自己取消訂單」是原文還是推測？",
+      "id": "guess",
+      "body": "回想老闆的訊息，選一個。",
+      "stage": {
+        "focus": "board:sel:#n10"
+      },
+      "options": [
+        {
+          "label": "原文，老闆有說",
+          "steps": [
+            {
+              "callout": "board:sel:#n10",
+              "text": "訊息裡找不到「取消」",
+              "narration": "再看一次老闆的訊息：預約、上限、提醒、後台、付款、集點，就是沒有「取消」。這一條是推測。"
+            }
+          ]
+        },
+        {
+          "label": "推測，訊息裡沒有",
+          "steps": [
+            {
+              "callout": "board:sel:#n10",
+              "text": "對，訊息裡找不到",
+              "narration": "對。老闆從頭到尾沒提到取消。聽起來很合理，但合理不等於老闆要的。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "callout": "board:sel:#n10",
+            "text": "推測：訊息裡找不到",
+            "narration": "答案是推測。老闆從頭到尾沒提到取消。"
+          }
+        ]
+      }
+    },
+    {
+      "click": "#tagAll",
+      "narration": "全部翻開來看：十張裡有兩張是推測，修改訂單和取消訂單。"
+    },
+    {
+      "callout": "board:sel:#n9",
+      "text": "你心裡猜的，AI 也猜了",
+      "narration": "還記得你一開始心裡冒出的「應該也要能改訂單吧」？AI 也這樣猜了。推測不能直接當成客戶要的，下一單元會把它們變成要問老闆的問題。"
+    },
+    {
+      "callout": "board:sel:#desk",
+      "text": "自己對照原訊息看一次",
+      "narration": "AI 標的也可能有錯。最後一定要自己拿老闆的原訊息，逐條對一次。"
+    },
+    {
+      "hide": "board"
+    },
+    {
+      "user": "把需求分成：一定要有、有了更好、待確認。推測的先放待確認。",
+      "chapter": "分出一定要有",
+      "lessonStep": 3,
+      "narration": "最後一步，請它分成三組：一定要有、有了更好、待確認。推測的先放待確認。"
+    },
+    {
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "**一定要有**\n- 看到本週品項、選數量與取貨日期時段\n- 店家看到所有訂單\n- 生日蛋糕每天上限 8 個\n- 確認通知、取貨前一天提醒\n- 後台簡單好用\n\n**有了更好**\n- 線上付款（「之後再看」）\n- 會員集點（「不急」）\n\n**待確認**\n- 店員能修改訂單（推測）\n- 客人能取消訂單（推測）"
+    },
+    {
+      "show": "board",
+      "narration": "回到便條板，照著分一次。"
+    },
+    {
+      "click": "#sortMust",
+      "narration": "一定要有的，都能對到老闆說的麻煩：漏單、記錯取貨時間。"
+    },
+    {
+      "click": "#sortNice",
+      "narration": "線上付款和會員集點，老闆自己說「之後再看」「不急」，放在有了更好。"
+    },
+    {
+      "click": "#sortTbd",
+      "narration": "兩張推測的，放進待確認。"
+    },
+    {
+      "callout": "board:sel:.tbd",
+      "text": "待確認：要問過老闆才算數",
+      "narration": "待確認，就是還沒問清楚、不能先當真的事。這樣就知道先做哪些了。分法和你想的不一樣時，直接問 AI 為什麼這樣分。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "接著同一段對話，送出第 2、3 步的提示詞：先標出原文與推測，再分成一定要有、有了更好、待確認。最後自己拿老闆的原訊息對照一次。"
+    },
+    {
+      "hide": "board"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "shimmer": "需求清單第 1 版",
+      "sub": "每條標出原文／推測 · 分成三組",
+      "chapter": "回顧"
+    },
+    {
+      "clear": true,
+      "ms": 300
+    },
+    {
+      "card": "回顧",
+      "eyebrow": "1.1 完成",
+      "sub": "貼上前遮蔽 · 拿到後標出原文與推測 · 分出一定要有。下一課：加入會議筆記。",
+      "narration": "回顧一下：貼上前先遮蔽；拿到清單後，標出原文和推測；再分出一定要有。下一課，老闆他們開了一次會，我們把會議筆記也加進來。"
+    }
+  ]
+}

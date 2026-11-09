@@ -1,0 +1,95 @@
+{
+  "title": "兩個廚師，一張砧板",
+  "lesson": "全環節 · 單元 32 · 32.1 基礎知識",
+  "teacher": {
+    "say": "今天讓兩個 AI 同時工作",
+    "line": "這一課講怎麼讓兩個 AI 同時做不同的事，又不會互相打架。先從一間廚房說起。"
+  },
+  "cast": {
+    "boss": { "actor": "person", "props": { "name": "師傅甲", "look": "boss" }, "place": { "x": 160, "y": 200, "w": 700, "h": 640 }, "hidden": true },
+    "staff": { "actor": "person", "props": { "name": "師傅乙", "look": "staff" }, "place": { "x": 1060, "y": 200, "w": 700, "h": 640 }, "hidden": true },
+    "web": { "actor": "browser", "props": { "site": "fc32-1-worktree", "url": "https://notes.example/worktree" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "兩個廚師，一張砧板",
+      "eyebrow": "全環節 · 單元 32 · 32.1 基礎知識",
+      "sub": "多個 AI 同時做不同的事",
+      "chapter": "一間廚房的故事",
+      "narration": "麵包店請了兩位師傅，想讓出餐快一倍。"
+    },
+    { "show": "boss" },
+    { "on": "boss", "say": "我來切水果做塔。", "mood": "calm" },
+    { "show": "staff" },
+    {
+      "on": "staff",
+      "say": "我要在同一張砧板上揉麵團……",
+      "mood": "worried",
+      "narration": "可是廚房只有一張砧板。一個切水果，一個揉麵團，麵團沾到果汁，水果沾滿麵粉。"
+    },
+    {
+      "on": "boss",
+      "say": "那就各用一張砧板，做完再一起裝盤！",
+      "mood": "happy",
+      "narration": "解法很簡單：一人一張砧板，各做各的，最後再一起裝盤。"
+    },
+    { "hide": "boss" },
+    { "hide": "staff" },
+    {
+      "card": "AI 也一樣",
+      "eyebrow": "對照",
+      "sub": "廚師＝工作階段　砧板＝worktree　裝盤＝合併",
+      "chapter": "工作階段與 worktree",
+      "narration": "AI 也一樣。每開一個新對話，就是一個工作階段，等於多了一位廚師。如果兩位都在同一個資料夾改檔案，就像共用一張砧板。"
+    },
+    {
+      "show": "web",
+      "narration": "我們畫出來看。中間是你的專案，main 是主要的版本。"
+    },
+    {
+      "on": "web",
+      "click": "#g1",
+      "narration": "worktree 的意思是：從同一個專案，再拉出一張「工作桌」，放在另一個資料夾，有自己的分支。分支就是一條獨立的修改路線。"
+    },
+    {
+      "callout": "web:sel:.desks",
+      "text": "兩張桌子：檔案各自一份，改來改去都不會碰到對方",
+      "narration": "AI 一號在工作桌 A 改菜單頁，AI 二號在工作桌 B 修頁尾。檔案各有一份，互相看不到對方改到一半的東西。"
+    },
+    {
+      "on": "web",
+      "click": "#g2",
+      "narration": "兩邊都做完，再各自合併回 main。因為改的是不同檔案，合併很順。"
+    },
+    {
+      "on": "web",
+      "click": "#g3",
+      "chapter": "哪些可以平行",
+      "narration": "什麼事可以這樣平行做？改不同的頁面、寫文件、查資料、跑測試，彼此不相干的都可以。"
+    },
+    {
+      "on": "web",
+      "click": "#g4",
+      "narration": "什麼事會打架？兩個都改同一個檔案、同時改資料庫的結構、同時部署。就算各用一張桌子，最後合併還是會撞在一起。"
+    },
+    {
+      "callout": "web:sel:.rules",
+      "text": "先問：這兩件事會不會改到同一個地方？",
+      "narration": "所以開兩個之前，先問自己一句：這兩件事，會不會改到同一個地方？"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "一次開兩個就好",
+      "sub": "你還要看每一個的結果",
+      "chapter": "開幾個才好",
+      "narration": "剛開始，同時開兩個就好。AI 做得很快，但每一個的結果都還要你看，開太多，你反而變成瓶頸。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "挑兩件不相干的事",
+      "body": "從你的待辦裡挑兩件可以同時做的事，確認它們不會改到同一個檔案或同一份資料。下一堂讓兩個 AI 各做一件。",
+      "narration": "換你挑挑看：從待辦裡挑兩件不會改到同一個地方的事。下一堂就讓兩個 AI 各做一件。"
+    }
+  ]
+}

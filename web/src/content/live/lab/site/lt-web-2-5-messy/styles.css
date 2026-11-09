@@ -1,0 +1,32 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif; background: #ffffff; color: #333; }
+a { color: inherit; text-decoration: none; }
+h1, h2, p { margin: 0; }
+.app { padding: 0 0 20px; }
+.top { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; border-bottom: 1px solid #eee; }
+.brand { font-size: 21px; font-weight: 800; color: #2b6cb0; }
+.nav { display: flex; gap: 22px; font-size: 15px; color: #444; }
+.intro { padding: 22px 32px 6px; }
+.title { font-size: 30px; color: #111; }
+.lead { margin-top: 6px; font-size: 15px; color: #777; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 16px 32px; }
+.card { padding: 14px; border: 1px solid #e6e6e6; border-radius: 14px; }
+.pic { height: 96px; margin-bottom: 12px; border-radius: 10px; }
+.p1 { background: linear-gradient(135deg, #fde7c8, #f9c4a7); }
+.p2 { background: linear-gradient(135deg, #d6ecf5, #b9d7f0); }
+.p3 { background: linear-gradient(135deg, #e3e9d6, #c6d8b2); }
+/* 標題:三張卡片各寫各的大小與字體 */
+.h-a { font-size: 26px; font-weight: 800; }
+.h-b { font-size: 19px; font-weight: 600; }
+.h-c { font-size: 23px; font-family: "Songti TC", "Noto Serif TC", serif; }
+.meta { margin-top: 6px; font-size: 13px; color: #888; }
+.desc { margin-top: 8px; font-size: 15px; line-height: 1.5; color: #555; }
+.desc.low { color: #c4c4c4; }
+/* 按鈕:三種藍、三種圓角 */
+button { margin-top: 12px; padding: 9px 22px; border: 0; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+.b1 { background: #2b6cb0; border-radius: 6px; }
+.b2 { background: #4a90e2; border-radius: 20px; }
+.b3 { background: #1c4f8c; border-radius: 0; font-size: 13px; }
+.full { margin-left: 6px; color: #e53e3e; font-weight: 700; }
+.note { padding: 4px 32px; font-size: 14px; color: #666; }
+.warn { color: #ff6b6b; font-weight: 700; }

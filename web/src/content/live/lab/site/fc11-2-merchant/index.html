@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>金流後台｜開通商家帳號</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div style="--brand:#0f766e">
+<header class="top"><div class="logo"><i></i>金流後台</div><span class="sp"></span><span class="who">開通商家帳號</span></header>
+<div class="wrap">
+  <ol class="steps"><li class="on" id="k1">1 商店資料</li><li id="k2">2 身分驗證</li><li id="k3">3 收款帳戶</li><li id="k4">4 送出審核</li></ol>
+  <div class="card f" id="f1">
+    <h2>商店資料</h2>
+    <label for="shop">商店名稱</label><input id="shop" placeholder="例如 小森烘焙">
+    <label for="site">網站網址</label><input id="site" placeholder="https://">
+    <label for="what">賣什麼</label><select id="what"><option value="">請選擇</option><option value="food">食品・烘焙</option><option value="digital">數位內容</option></select>
+    <button class="btn" id="n1">下一步</button>
+  </div>
+  <div class="card f hide" id="f2">
+    <h2>身分驗證</h2>
+    <div class="lock">🔒 身分證字號、生日、證件照片：<b>這一頁請你自己填</b>。AI 不會看到、也不會代填。</div>
+    <div class="ph"></div><div class="ph"></div><div class="ph short"></div>
+    <button class="btn" id="n2">下一步</button>
+  </div>
+  <div class="card f hide" id="f3">
+    <h2>收款帳戶</h2>
+    <div class="lock">🔒 銀行代碼、帳號、戶名：<b>這一頁請你自己填</b>，填好自己按下一步。</div>
+    <div class="ph"></div><div class="ph"></div>
+    <button class="btn" id="n3">下一步</button>
+  </div>
+  <div class="card f hide" id="f4">
+    <h2>確認並送出</h2>
+    <p>送出後會進入審核，通常 1–3 個工作天。審核期間可以先用<b>測試模式</b>開發。</p>
+    <button class="btn" id="n4">送出審核</button>
+  </div>
+  <div class="card f ok hide" id="f5"><h2>已送出，審核中</h2><p>測試模式已經可以使用：到「開發者 · 金鑰」拿測試金鑰。</p></div>
+</div>
+</div>
+</body></html>

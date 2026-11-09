@@ -1,0 +1,110 @@
+{
+  "title": "每個網頁都有背面",
+  "camera": "auto",
+  "teacher": {
+    "say": "翻到網頁的背面看看",
+    "line": "每個網頁都有一個背面，叫做開發者工具。今天認識裡面最常用的三個分頁：Elements、Console、Network。"
+  },
+  "cast": {
+    "dev": {
+      "actor": "devtools",
+      "props": { "url": "https://shop.example/", "title": "小森選物" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "每個網頁都有背面",
+      "eyebrow": "全環節 · 單元 3 · 3.3 基礎知識",
+      "sub": "Elements 看長相 · Console 看訊息 · Network 看搬了什麼",
+      "chapter": "打開背面",
+      "narration": "你每天看到的網頁，都只是正面。翻到背面，就能看到它是怎麼組成的、出了什麼錯。"
+    },
+    {
+      "show": "dev",
+      "narration": "這是一家示範用的小店網頁。"
+    },
+    {
+      "on": "dev",
+      "open": true,
+      "narration": "按 F12，或在網頁上按右鍵選「檢查」，右邊就打開開發者工具。"
+    },
+    {
+      "callout": "dev:panel",
+      "text": "開發者工具：每個瀏覽器都有，不用安裝",
+      "narration": "它是瀏覽器內建的，每個網站都能看，不用另外安裝。改了也只改你自己的畫面，重新整理就恢復。"
+    },
+    {
+      "on": "dev",
+      "pick": true,
+      "chapter": "Elements：網頁的骨架",
+      "narration": "第一個分頁，Elements。按左上角的箭頭，進入選取模式。"
+    },
+    {
+      "on": "dev",
+      "hover": "price",
+      "narration": "滑鼠移到價格上，網頁上框出它，右邊也亮起對應的那一行。"
+    },
+    { "on": "dev", "inspect": "price" },
+    {
+      "callout": "dev:node:price",
+      "text": "網頁上每一塊，都對到這裡的一行",
+      "narration": "網頁上看到的每一塊，在這裡都對得到一行標籤。之後 AI 說「改那個 p 標籤」，你就知道去哪裡找。"
+    },
+    {
+      "on": "dev",
+      "tab": "console",
+      "chapter": "Console：網頁的留言板",
+      "narration": "第二個分頁，Console。網頁的程式會在這裡留下訊息。"
+    },
+    {
+      "on": "dev",
+      "log": "購物車載入完成",
+      "src": "app.js:8",
+      "narration": "一般的訊息是灰色或白色。"
+    },
+    {
+      "on": "dev",
+      "error": "Uncaught TypeError: Cannot read properties of undefined (reading 'price')",
+      "src": "app.js:23",
+      "narration": "出錯時，會跳出一行紅字。"
+    },
+    {
+      "callout": "dev:console:last",
+      "text": "紅字＝錯誤；右邊是哪個檔案第幾行",
+      "narration": "紅字就是錯誤。右邊寫著出錯的檔案和行數，app.js 第 23 行。按鈕沒反應、畫面空白，第一件事就是來這裡找紅字。"
+    },
+    {
+      "on": "dev",
+      "tab": "network",
+      "chapter": "Network：網頁搬了什麼",
+      "narration": "第三個分頁，Network。"
+    },
+    {
+      "on": "dev",
+      "reload": true,
+      "narration": "重新整理，網頁載入時跟伺服器要了哪些東西，一筆一筆列出來。"
+    },
+    {
+      "on": "dev",
+      "request": "products",
+      "narration": "點其中一筆，看細節。"
+    },
+    {
+      "callout": "dev:detail",
+      "text": "狀態碼、類型、大小、花多久",
+      "narration": "可以看到它成功了沒有、拿回什麼樣的資料、多大、花了多久。網頁很慢、資料沒出來，就來這裡查。"
+    },
+    {
+      "checkpoint": "想一想：按了「加入購物車」沒反應，你先打開哪個分頁？",
+      "body": "先看 Console，找有沒有紅色的錯誤，記下檔案和行數。下一堂會練習：把紅字複製給 AI，請它解釋。"
+    },
+    {
+      "card": "Elements 看長相 · Console 看錯誤 · Network 看搬了什麼",
+      "eyebrow": "3.3 重點",
+      "sub": "在這裡改的東西，重新整理就恢復",
+      "narration": "總結：Elements 看長相、Console 看訊息和錯誤、Network 看搬了什麼。放心點，改了什麼，重新整理就恢復。"
+    }
+  ]
+}

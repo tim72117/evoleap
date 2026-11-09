@@ -1,0 +1,31 @@
+* { box-sizing: border-box; }
+#app { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif; color: #2b2a27; background: #f7f3ea; min-height: 100%; padding: 26px 40px 32px; font-size: 21px; line-height: 1.45; }
+.ttl { font-size: 32px; font-weight: 800; margin: 0; }
+.head { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; flex-wrap: wrap; }
+.tools { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { border: 2px solid #c9bfae; background: #fff; color: #5b4a36; border-radius: 999px; padding: 6px 18px; font: inherit; font-size: 18px; font-weight: 700; cursor: pointer; }
+.btn.done { background: #5b4a36; color: #fff; border-color: #5b4a36; }
+.card { background: #fff; border-radius: 16px; box-shadow: 0 2px 10px rgba(60,40,10,.08); padding: 16px 20px; }
+.muted { color: #7a7266; }
+.tag { display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 15px; font-weight: 700; background: #ece6da; color: #6b5c48; white-space: nowrap; }
+.tag.g { background: #e1f3e8; color: #1d7a4c; } .tag.r { background: #fbe4e1; color: #b9382c; } .tag.y { background: #fcf0d4; color: #9a6a0a; } .tag.b { background: #e3ecfb; color: #2c5fb8; }
+.row { display: flex; gap: 20px; }
+.grow { flex: 1; min-width: 0; }
+.hide { display: none !important; }
+.flow { align-items: stretch; }
+.arrow { display: flex; align-items: center; }
+.msg p, .out p { margin: 12px 0; font-size: 23px; }
+.lbl { margin-bottom: 6px; }
+.pii { border-radius: 6px; padding: 0 2px; }
+.found .pii-k { margin-right: 6px; }
+#app.f1 .pii { background: #ffe58a; box-shadow: 0 0 0 2px #f2c94c; }
+#app.f1 .pii::after { content: attr(data-k); font-size: 13px; font-weight: 700; color: #9a6a0a; vertical-align: super; margin-left: 2px; }
+.found { margin-top: 12px; visibility: hidden; }
+#app.f1 .found { visibility: visible; }
+.safe { display: none; }
+#app.f2 .safe { display: block; }
+#app.f2 .empty { display: none; }
+.empty { margin-top: 60px; text-align: center; font-size: 22px; }
+.safe b { background: #e1f3e8; color: #1d7a4c; border-radius: 6px; padding: 0 4px; }
+.ok { margin-top: 14px; }
+.tip { margin-top: 18px; font-size: 19px; text-align: center; }

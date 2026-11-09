@@ -1,0 +1,142 @@
+{
+  "title": "一大段紅字，其實只說了兩件事",
+  "lesson": "全環節 · 單元 14 · 14.1 基礎知識",
+  "teacher": {
+    "say": "紅字別怕，我們拆開來看",
+    "line": "這一課學讀錯誤訊息。一大段紅字看起來很嚇人，拆開來只有兩件事：發生了什麼，和怎麼走到這裡。"
+  },
+  "cast": {
+    "dev": {
+      "actor": "devtools",
+      "props": {
+        "url": "https://shop.example/cart",
+        "title": "購物車 · 小森選物",
+        "open": true,
+        "tab": "console"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "fc14-1-trace",
+        "width": "desktop",
+        "url": "https://learn.example/read-an-error"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "一大段紅字，其實只說了兩件事",
+      "eyebrow": "全環節 · 單元 14 · 14.1 基礎知識",
+      "sub": "錯誤類型、錯誤訊息、堆疊追蹤",
+      "chapter": "紅字出現了",
+      "narration": "你按下結帳，什麼事都沒發生。"
+    },
+    {
+      "show": "dev",
+      "narration": "打開開發者工具的 Console，也就是網頁的訊息區。"
+    },
+    {
+      "on": "dev",
+      "error": "Uncaught TypeError: Cannot read properties of undefined (reading 'price') at itemTotal (total.js:12)",
+      "src": "total.js:12",
+      "narration": "一行紅字跳出來。很多人看到這裡，就直接關掉了。"
+    },
+    {
+      "callout": "dev:console:last",
+      "text": "先別關：這行字就是線索",
+      "narration": "先別關。這行字，是程式留給你的線索。我們把完整的錯誤拿出來，拆開看。"
+    },
+    {
+      "hide": "dev"
+    },
+    {
+      "show": "web",
+      "chapter": "拆開來看",
+      "narration": "這是伺服器上記下的完整錯誤。"
+    },
+    {
+      "on": "web",
+      "click": "#b1",
+      "narration": "第一行最前面，是錯誤類型。TypeError 的意思是：拿東西的方式不對。"
+    },
+    {
+      "on": "web",
+      "click": "#b2",
+      "narration": "冒號後面是錯誤訊息：讀不到 undefined 的 price。undefined 是「不存在的東西」。翻成白話：有一個商品不存在，程式卻想拿它的價格。"
+    },
+    {
+      "on": "web",
+      "click": "#b3",
+      "chapter": "由下往上讀",
+      "narration": "下面這些 at 開頭的行，叫堆疊追蹤，記錄程式怎麼一路走到出事的地方。它像一疊盤子，先放的在下面。所以由下往上讀，就是事情發生的順序。"
+    },
+    {
+      "callout": "web:sel:#plates",
+      "text": "由下往上：收到請求 → 結帳 → 算總金額 → 算小計時出事",
+      "narration": "網站收到結帳的請求，結帳先算總金額，總金額一個個算商品小計，算到某一個商品時，出事了。最上面那一盤，就是出事的地方。"
+    },
+    {
+      "on": "web",
+      "click": "#b4",
+      "chapter": "找你自己的檔案",
+      "narration": "最後，找你自己的檔案。node_modules 開頭的是別人寫的套件，問題通常不在那裡，先跳過。最靠近出事點的自己的檔案，是 total 點 js 第十二行。"
+    },
+    {
+      "callout": "web:sel:#f1",
+      "text": "檔名:行號:第幾個字 → 直接告訴你去哪裡看",
+      "narration": "後面的數字是行號和第幾個字。它直接告訴你，去哪裡看。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "TypeError：拿的東西不存在或不對\nReferenceError：用了沒定義的名字\nSyntaxError：程式的文法寫錯",
+      "eyebrow": "最常見的三種錯誤類型",
+      "sub": "看類型就能猜到大方向",
+      "chapter": "三種常見錯誤",
+      "narration": "最常見的錯誤類型有三種。TypeError，拿的東西不存在或不對。ReferenceError，用了一個沒定義過的名字，常常是打錯字。SyntaxError，程式的文法寫錯，例如少了括號。"
+    },
+    {
+      "chapter": "考考你",
+      "checkpoint": "錯誤寫著「ReferenceError: totl is not defined」，最可能是什麼問題？",
+      "body": "選一個。",
+      "id": "ref",
+      "options": [
+        {
+          "label": "名字打錯了（total 打成 totl）",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "考考你",
+              "sub": "ReferenceError：用了沒定義的名字，常常是打錯字",
+              "narration": "答對了。ReferenceError 是用了沒定義的名字，這裡就是 total 少打了一個 a。"
+            }
+          ]
+        },
+        {
+          "label": "商品的價格不存在",
+          "steps": [
+            {
+              "card": "那是 TypeError",
+              "eyebrow": "考考你",
+              "sub": "ReferenceError 是名字沒定義，常常是打錯字",
+              "narration": "拿不存在的東西的價格，會是 TypeError。ReferenceError 是名字沒定義過，這裡是 total 打成了 totl。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "第一行：發生什麼事\n由下往上：怎麼走到這裡\n找自己的檔案和行號",
+      "eyebrow": "學會",
+      "sub": "下一堂：把完整的錯誤交給 AI，請它找到那一行、解釋再修",
+      "chapter": "學會",
+      "narration": "讀錯誤三步驟：第一行看發生什麼事，由下往上看怎麼走到這裡，再找自己的檔案和行號。下一堂，我們把完整的錯誤交給 AI，請它找到那一行、用白話解釋，再修好。"
+    }
+  ]
+}

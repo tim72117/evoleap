@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>雲端主控台｜OAuth 用戶端</title><link rel="stylesheet" href="styles.css"></head>
+<body style="--brand:#2563eb">
+<header class="top"><div class="logo"><i></i>雲端主控台</div><span class="proj">專案：bakery-site ▾</span><span class="sp"></span><span class="who">你的帳號 ▾</span></header>
+<div class="app">
+  <nav class="side"><a>總覽</a><a>OAuth 同意畫面</a><a class="on">憑證</a><a>已啟用的 API</a></nav>
+  <main class="main">
+    <div class="crumb muted">API 和服務 › 憑證</div>
+    <div id="list">
+      <h1>憑證</h1>
+      <div class="card"><div class="lh"><span>OAuth 2.0 用戶端 ID</span><button class="btn" id="new">＋ 建立憑證</button></div><p class="muted" id="none">目前沒有用戶端。</p></div>
+    </div>
+    <div id="form" class="hide">
+      <h1>建立 OAuth 用戶端 ID</h1>
+      <div class="card f">
+        <label for="type">應用程式類型</label><select id="type"><option value="">請選擇</option><option value="web">網頁應用程式</option><option value="android">Android</option><option value="ios">iOS</option></select>
+        <label for="cname">名稱</label><input id="cname" placeholder="例如 bakery-web">
+        <label for="origin">已授權的 JavaScript 來源</label><input id="origin" placeholder="https://…">
+        <label for="origin2">（第二個來源）</label><input id="origin2" placeholder="http://localhost:5173">
+        <div style="margin-top:14px"><button class="btn" id="create">建立</button></div>
+      </div>
+    </div>
+    <div id="done" class="hide">
+      <h1>已建立 OAuth 用戶端</h1>
+      <div class="card ok">
+        <div class="kv"><span>用戶端 ID</span><b class="mono">1234-abcd.apps.googleusercontent.com</b></div>
+        <div class="kv"><span>已授權的來源</span><b class="mono" id="orShow"></b></div>
+        <p class="muted">用戶端 ID 本來就會出現在網頁上，可以貼給 AI。這一頁不需要用戶端密碼。</p>
+      </div>
+    </div>
+  </main>
+</div>
+</body></html>

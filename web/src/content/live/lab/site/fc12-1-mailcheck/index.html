@@ -1,0 +1,41 @@
+<!doctype html><html><head><title>收件信箱的三道檢查</title></head><body>
+<div class="app">
+  <div class="head"><b>一封信進信箱前，要過三道檢查</b><span>寄件人：shop.example</span></div>
+  <div class="road">
+    <div class="sender">
+      <svg viewBox="0 0 120 90" class="srv"><rect x="20" y="8" width="80" height="22" rx="4"/><rect x="20" y="34" width="80" height="22" rx="4"/><rect x="20" y="60" width="80" height="22" rx="4"/><circle cx="34" cy="19" r="3"/><circle cx="34" cy="45" r="3"/><circle cx="34" cy="71" r="3"/></svg>
+      <div>寄信服務</div><small>代表 shop.example 寄信</small>
+    </div>
+    <div class="st st1" id="spf">
+      <svg viewBox="0 0 80 80"><rect x="16" y="10" width="48" height="62" rx="5" class="pp"/><rect x="28" y="5" width="24" height="12" rx="3" class="clip"/><path d="M26 32h28M26 44h28M26 56h18" class="ln"/></svg>
+      <b>SPF</b><span>授權名單</span><i class="ok">✓</i><i class="no">✗</i>
+    </div>
+    <div class="st st2" id="dkim">
+      <svg viewBox="0 0 80 80"><rect x="10" y="20" width="60" height="42" rx="4" class="pp"/><path d="M10 22l30 22 30-22" class="ln"/><circle cx="40" cy="52" r="12" class="seal"/><path d="M35 52l4 4 7-8" class="sealmark"/></svg>
+      <b>DKIM</b><span>封蠟簽章</span><i class="ok">✓</i><i class="no">✗</i>
+    </div>
+    <div class="st st3" id="dmarc">
+      <svg viewBox="0 0 80 80"><path d="M14 14h22a8 8 0 0 1 8 8v46a6 6 0 0 0-6-6H14z" class="pp"/><path d="M66 14H50a8 8 0 0 0-6 8v46a6 6 0 0 1 6-6h16z" class="pp"/><path d="M20 28h16M20 38h16M50 28h10M50 38h10" class="ln"/></svg>
+      <b>DMARC</b><span>沒過怎麼辦</span><i class="ok">✓</i><i class="no">✗</i>
+    </div>
+    <div class="dest">
+      <div class="box inbox" id="inbox">📥 收件匣</div>
+      <div class="box spam" id="spam">⚠️ 垃圾郵件</div>
+    </div>
+    <div class="env"><svg viewBox="0 0 60 40"><rect x="2" y="2" width="56" height="36" rx="4"/><path d="M2 4l28 18 28-18"/></svg><em>假冒</em></div>
+  </div>
+  <div class="explain">
+    <p class="e0">信寄出去之後，收件的信箱（例如 Gmail）會先檢查：這封信真的是 shop.example 寄的嗎？</p>
+    <p class="e1"><b>SPF</b>：網域在 DNS 公布一份「誰可以代表我寄信」的名單。寄信服務在名單上，第一關過。</p>
+    <p class="e2"><b>DKIM</b>：寄出時蓋上只有你有的封蠟（數位簽章），收件方用 DNS 上公開的印模比對，證明信沒被改過。</p>
+    <p class="e3"><b>DMARC</b>：告訴收件方「前兩關沒過的信要怎麼處理」：放行、丟垃圾郵件，還是直接退回。</p>
+    <p class="e4">冒充 shop.example 的信：不在名單上、沒有封蠟，照 DMARC 的規則送進垃圾郵件。</p>
+  </div>
+  <div class="chips">
+    <button id="b1" data-s="1">① 查名單</button>
+    <button id="b2" data-s="2">② 驗封蠟</button>
+    <button id="b3" data-s="3">③ 看規則</button>
+    <button id="b4" data-s="4">④ 冒充的信</button>
+  </div>
+</div>
+</body></html>

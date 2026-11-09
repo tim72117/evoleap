@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>不能進版控的四種檔案</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="grid">
+  <div id="env" class="card c-env"><div class="ic"><svg viewBox="0 0 48 48"><circle cx="16" cy="24" r="9" fill="none" stroke="currentColor" stroke-width="4"/><path d="M25 24 H44 M38 24 V31 M44 24 V30" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg></div>
+    <b>.env</b><span class="what">密碼、API 金鑰</span>
+    <div class="why"><p>推上去等於把家裡鑰匙貼在公布欄。別人拿到金鑰，可以用你的帳號花錢。</p><em>改放：.env.example（只寫欄位名稱，不寫值）</em></div></div>
+  <div id="db" class="card c-db"><div class="ic"><svg viewBox="0 0 48 48"><ellipse cx="24" cy="11" rx="15" ry="6" fill="none" stroke="currentColor" stroke-width="4"/><path d="M9 11 V37 C9 41 39 41 39 37 V11 M9 24 C9 28 39 28 39 24" fill="none" stroke="currentColor" stroke-width="4"/></svg></div>
+    <b>data.db</b><span class="what">資料庫檔案</span>
+    <div class="why"><p>裡面是使用者的真實資料，而且一直在變。每次 commit 都多一份，越存越大，也可能外洩個資。</p><em>改用：建立資料表的程式（migration）＋假資料</em></div></div>
+  <div id="dist" class="card c-dist"><div class="ic"><svg viewBox="0 0 48 48"><rect x="8" y="14" width="32" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 22 H40 M18 8 L24 14 L30 8" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></div>
+    <b>dist/</b><span class="what">build 產物</span>
+    <div class="why"><p>是從原始碼「產生」出來的。存進去只會和原始碼打架：改了原始碼卻忘了重新 build，兩份就對不上。</p><em>需要時：npm run build 重新產生</em></div></div>
+  <div id="nm" class="card c-nm"><div class="ic"><svg viewBox="0 0 48 48"><rect x="6" y="6" width="14" height="14" rx="2" fill="currentColor"/><rect x="28" y="6" width="14" height="14" rx="2" fill="currentColor" opacity=".6"/><rect x="6" y="28" width="14" height="14" rx="2" fill="currentColor" opacity=".6"/><rect x="28" y="28" width="14" height="14" rx="2" fill="currentColor" opacity=".35"/></svg></div>
+    <b>node_modules/</b><span class="what">下載來的套件</span>
+    <div class="why"><p>動不動就上萬個檔案、幾百 MB，而且都是別人的程式。package.json 已經記下要哪些套件。</p><em>需要時：npm install 全部裝回來</em></div></div>
+</div>
+</body></html>

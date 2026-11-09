@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>自動發文的流程</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">程式怎麼替你發文</div>
+ <div class="flow">
+  <div class="box" data-s="1" data-k="1"><div class="ic">📄</div><b>新消息</b><span>CHANGELOG、新課</span></div><div class="ar" data-s="2">→</div>
+  <div class="box" data-s="2" data-k="2"><div class="ic">✍️</div><b>AI 起草</b><span>寫成貼文草稿</span></div><div class="ar" data-s="3">→</div>
+  <div class="box hum" data-s="3" data-k="3"><div class="ic">🙋</div><b>人核准</b><span>看過才放行</span></div><div class="ar" data-s="4">→</div>
+  <div class="box" data-s="4" data-k="4"><div class="ic">⚙️</div><b>程式發布</b><span>帶著權杖呼叫 API</span></div><div class="ar" data-s="4">→</div>
+  <div class="box" data-s="4" data-k="5"><div class="ic">📣</div><b>粉絲專頁</b><span>貼文出現</span></div>
+ </div>
+ <div class="row lower">
+  <div class="card col key" data-s="5" data-k="5"><div class="kh">🔑 權杖（token）</div><div>程式的通行證，代表「誰、能做什麼、到什麼時候」</div>
+   <div class="kt"><span class="pill">能發文到「小森烘焙」</span><span class="pill warn">60 天後過期</span><span class="pill bad">不能讀私訊</span></div>
+   <div class="muted">像大樓的磁卡：只開得了該開的門，弄丟了要馬上註銷</div></div>
+  <div class="card col gate" data-s="6" data-k="6"><div class="kh">🛂 平台審核</div><div>要用「發文」這種權限，平台會先審核你的應用程式：用途、隱私權政策、示範影片</div><div class="muted">只發到自己的粉專，有時可以用開發模式先試</div></div>
+ </div>
+ <div class="stepbar"><button class="btn" id="next">下一步 ▶</button><span class="cap" data-t0="整條流程有五站" data-t1="起點：一則值得發的新消息" data-t2="AI 把它寫成貼文草稿" data-t3="最重要的一站：人看過才放行" data-t4="程式拿著權杖，呼叫平台的 API 發出去" data-t5="權杖：程式的通行證" data-t6="平台審核：申請發文權限要先過關"></span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

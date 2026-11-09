@@ -1,0 +1,132 @@
+{
+  "title": "寫清楚任務：目標、限制、完成條件",
+  "lesson": "全環節 · 單元 30 · 30.1 用 AI 完成",
+  "teacher": {
+    "say": "今天做個小實驗",
+    "line": "這一堂做個小實驗：同一個任務，先用一句話交代，再用三格的任務卡交代，各開一個工作階段，最後把兩個結果放在一起比。"
+  },
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "一句話", "folder": "~/projects/bakery", "branch": "try-vague", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc30-1-before", "url": "http://localhost:5173/" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "寫清楚任務：目標、限制、完成條件",
+      "eyebrow": "全環節 · 單元 30 · 30.1 用 AI 完成",
+      "sub": "同一個任務，交代兩次",
+      "chapter": "改之前",
+      "narration": "先看首頁現在的樣子：關於我們、今天的麵包，還沒有營業時間。"
+    },
+    { "show": "web" },
+    {
+      "show": "claude",
+      "chapter": "第一次：一句話",
+      "narration": "第一個工作階段，我們只說一句話。為了讓實驗快一點，這裡讓它自動接受修改，而且開在一個實驗用的分支上，隨時可以丟掉。"
+    },
+    { "on": "claude", "user": "首頁加營業時間" },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "edit": "index.html", "lines": [[3, "+", "<div class=\"banner\">新開幕！全館九折</div>"], [8, "+", "<section id=\"hours\">…Opening Hours 營業時間…</section>"], [20, "-", "<footer>小森烘焙・台北市</footer>"], [20, "+", "<footer>© Komori Bakery — Follow us!</footer>"]] },
+    { "on": "claude", "edit": "style.css", "lines": [[2, "-", "  --brand: #6b4a2f;"], [2, "+", "  --brand: #2b6b3f;"], [3, "+", "nav a { font-family: Georgia, serif; }"]] },
+    {
+      "on": "claude",
+      "say": "完成了！我加了營業時間，也順便讓首頁更有質感：加了開幕優惠橫幅、換成森林綠的主色、選單改成英文、頁尾加上社群連結。",
+      "narration": "它說完成了，還「順便」做了好多事。"
+    },
+    {
+      "show": "web",
+      "site": "fc30-1-vague",
+      "narration": "打開來看。"
+    },
+    {
+      "callout": "web:section:banner",
+      "text": "沒要求：優惠橫幅（還寫錯了，根本沒有九折）",
+      "narration": "多了一條沒要求的優惠橫幅，你根本沒有打九折。"
+    },
+    {
+      "callout": "web:section:hdr",
+      "text": "沒要求：主色、選單語言都換了",
+      "narration": "主色換了，選單變英文。"
+    },
+    {
+      "callout": "web:section:hours",
+      "text": "營業時間寫錯：週一其實公休",
+      "narration": "最糟的是營業時間本身：它寫「每天」，可是週一公休。它不知道，只好猜。"
+    },
+    {
+      "on": "claude",
+      "newSession": "任務卡",
+      "branch": "try-clear",
+      "chapter": "第二次：三格任務卡",
+      "narration": "再開第二個工作階段，從原本的首頁開始，這次用任務卡。"
+    },
+    {
+      "on": "claude",
+      "user": "目標：在「關於我們」下面加營業時間區塊：週二～週日 9:00–18:00，週一公休。\n限制：只改 index.html、style.css；配色、字型、其他區塊都不要動。\n完成條件：手機寬度一行一天不換行；npm test 通過；截圖給我看。",
+      "foreground": "claude"
+    },
+    {
+      "callout": "claude:user",
+      "text": "目標 · 限制 · 完成條件",
+      "narration": "目標、限制、完成條件，三格都有。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    { "on": "claude", "tool": "Read", "arg": "index.html", "result": "22 行" },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [[7, " ", "</section>"], [8, "+", "<section id=\"hours\" class=\"hours\">"], [9, "+", "  <h2>營業時間</h2>"], [10, "+", "  <table><tr><td>週二～週日</td><td>9:00–18:00</td></tr><tr><td>週一</td><td>公休</td></tr></table>"], [11, "+", "</section>"]]
+    },
+    { "on": "claude", "edit": "style.css", "lines": [[40, "+", ".hours td { white-space: nowrap; padding-right: 18px; }"]] },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "通過", "out": "Tests  18 passed" },
+    { "on": "claude", "tool": "Bash", "arg": "npx playwright screenshot --viewport 390x844 http://localhost:5173 hours-phone.png", "result": "已截圖" },
+    {
+      "on": "claude",
+      "say": "完成：\n- 在「關於我們」下面加了營業時間（週一公休）\n- 只改了 `index.html`、`style.css`，其他沒動\n- 手機寬度截圖 hours-phone.png：一行一天沒有換行\n- `npm test`：18 passed",
+      "narration": "回報也跟著任務卡走：做了什麼、只動了哪些檔案、完成條件的結果。"
+    },
+    {
+      "show": "web",
+      "site": "fc30-1-clear",
+      "narration": "打開來看：只多了營業時間，其他一模一樣。"
+    },
+    { "callout": "web:section:hours", "text": "週一公休，正確", "narration": "週一公休，也是對的。" },
+    { "on": "web", "width": "phone", "narration": "縮成手機寬度，一行一天，沒有換行。" },
+    {
+      "diff": "兩次的差別",
+      "lines": [["-", "一句話：改了 2 個檔、7 處；4 處沒要求；營業時間寫錯"], ["+", "任務卡：改了 2 個檔、2 處；全部是要求的；附上測試和截圖"]],
+      "chapter": "比一比",
+      "narration": "比一比：一句話那次，多了四處沒要求的修改，重點還寫錯。任務卡那次，只改要求的地方，還附上證據。"
+    },
+    { "clear": true },
+    {
+      "on": "claude",
+      "user": "把剛剛的三格寫法存成 docs/task-card.md 當範本；try-vague 分支我不要了，幫我列出要刪的指令就好，我自己刪",
+      "chapter": "留下範本",
+      "foreground": "claude"
+    },
+    { "on": "claude", "tool": "Write", "arg": "docs/task-card.md", "result": "9 行", "out": "## 目標（要做什麼、放哪裡、內容）\n## 限制（只改哪些檔；不能動什麼）\n## 完成條件（AI 自己能檢查的事）" },
+    {
+      "on": "claude",
+      "say": "範本存好了。要刪掉實驗分支，切回 main 後執行：\n`git branch -D try-vague`",
+      "narration": "範本存好了。刪除分支是丟掉資料的動作，這裡我們請它只給指令，自己確認後再執行。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "挑一件你想讓 AI 做的事，先用一句話交代一次，再用 docs/task-card.md 的三格交代一次（各開一個工作階段、各在一個實驗分支）。比較兩次改了幾處、有沒有沒要求的修改。",
+      "narration": "換你做這個實驗。同一件事交代兩次，數數看兩次各改了幾處，有幾處是你沒要求的。"
+    }
+  ]
+}

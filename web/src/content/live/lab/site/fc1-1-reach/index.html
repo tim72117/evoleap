@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>AI 碰得到哪裡</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-pick="none">
+<div class="ttl">AI 碰得到你電腦的哪裡？</div>
+<div class="sub">點上面的三種助手，看亮起來的範圍</div>
+<div class="tabs">
+  <button class="tab" id="t-chat" data-pick="chat">💬 聊天視窗</button>
+  <button class="tab" id="t-editor" data-pick="editor">🧩 編輯器裡的助手</button>
+  <button class="tab" id="t-agent" data-pick="agent">🛠 終端機代理</button>
+</div>
+<div class="row">
+  <div class="pc grow">
+    <div class="pc-head">🖥 你的電腦</div>
+    <div class="pc-body">
+      <div class="zone z-folder" id="z-folder">
+        <div class="zt">📁 projects/bakery</div>
+        <div class="file">📄 index.html</div><div class="file">🎨 style.css</div><div class="file">⚙️ app.js</div><div class="file">📦 package.json</div>
+      </div>
+      <div class="col2">
+        <div class="zone z-editor" id="z-editor"><div class="zt">✏️ 編輯器：正在開的檔案</div><div class="mono code">&lt;h1&gt;小森烘焙&lt;/h1&gt;<br>&lt;p&gt;今日麵包…&lt;/p&gt;</div></div>
+        <div class="zone z-term" id="z-term"><div class="zt">⌨️ 終端機：執行指令</div><div class="mono code">npm test<br>✓ 12 passed</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="side">
+    <div class="zone z-paste" id="z-paste"><div class="zt">📋 你貼上去的那一段</div><div class="mono code">&lt;p&gt;今日麵包…&lt;/p&gt;</div></div>
+    <div class="legend card" id="legend">
+      <div class="l l-none">先選一種助手 ↑</div>
+      <div class="l l-chat"><b>聊天視窗</b><br>看得到：只有你貼上的<br>做得到：給你答案，搬進檔案要自己來</div>
+      <div class="l l-editor"><b>編輯器裡的助手</b><br>看得到：你開著的檔案<br>做得到：邊寫邊補全、改這個檔案</div>
+      <div class="l l-agent"><b>終端機代理</b><br>看得到：整個專案資料夾<br>做得到：讀寫檔案、自己執行指令、看結果再修</div>
+    </div>
+  </div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

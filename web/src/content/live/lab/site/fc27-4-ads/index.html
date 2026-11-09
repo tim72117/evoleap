@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>廣告管理</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>廣告管理<span class="sp"></span><span class="who">小森烘焙</span></div>
+<div class="wrap">
+ <div class="tabs"><span class="tb act" data-tab="set" id="t-set">建立廣告</span><span class="tb" data-tab="rep" id="t-rep">成效報表</span></div>
+ <div data-panel="set" class="row">
+  <div class="card col">
+   <div class="row"><label class="field col"><span>地區</span><input id="geo"></label><label class="field" style="width:200px"><span>年齡</span><input id="age"></label></div>
+   <label class="field"><span>興趣</span><input id="interest"></label>
+   <div class="row"><label class="field col"><span>每日預算（NT$）</span><input id="budget"></label><label class="field col"><span>期間</span><input id="days"></label></div>
+   <label class="field"><span>標題</span><input id="headline"></label>
+   <label class="field"><span>轉換追蹤</span><select id="conv"><option value="">未設定</option><option value="reserve">預約完成（/reserve/done）</option></select></label>
+  </div>
+  <div class="card side3">
+   <div class="ttl s">付款與送出</div>
+   <div class="pay" id="pay">💳 付款方式：<b id="paystate">尚未設定</b></div>
+   <div class="muted">付款資料請自己在這裡輸入，不要交給任何人代填</div>
+   <button class="btn ghost" id="addpay">新增付款方式</button>
+   <button class="btn green" id="submit">送出廣告</button>
+   <div id="sent" class="pill ok gone">審核中 · 通常 24 小時內</div>
+  </div>
+ </div>
+ <div data-panel="rep" class="gone">
+  <table class="t card" id="rep"><tr><th>廣告</th><th>曝光</th><th>點擊</th><th>點擊率</th><th>花費</th><th>預約</th><th>每筆預約</th></tr>
+   <tr id="ad-a"><td>A：「栗子季開賣」</td><td>7,400</td><td>74</td><td>1.0%</td><td>NT$750</td><td>1</td><td>NT$750</td></tr>
+   <tr id="ad-b"><td>B：「撕開聽得到聲音的可頌」</td><td>4,600</td><td>106</td><td>2.3%</td><td>NT$750</td><td>5</td><td>NT$150</td></tr>
+  </table>
+ </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+{
+  "title": "瀏覽器開發者工具入門",
+  "camera": "auto",
+  "teacher": {
+    "say": "你動手，AI 解釋",
+    "line": "這一堂你自己操作開發者工具：先在 Console 改掉網頁標題，再找出一則錯誤，貼給 AI 請它解釋，來回問到你懂為止。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc3-3-console", "url": "http://localhost:5173/" },
+      "place": { "x": 30, "y": 60, "w": 1000, "h": 960 },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "看懂錯誤", "folder": "~/projects/shop", "branch": null, "mode": "ask", "sessions": [] },
+      "place": { "x": 1060, "y": 40, "w": 830, "h": 1000 },
+      "parts": { "sidebar": false },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "你動手，AI 解釋",
+      "eyebrow": "全環節 · 單元 3 · 3.3 用 AI 完成",
+      "sub": "改標題 → 找錯誤 → 貼給 AI → 再問",
+      "chapter": "在 Console 改標題",
+      "narration": "左邊是網頁，下面已經打開開發者工具的 Console；右邊是 AI。這次由你動手。"
+    },
+    { "show": "web" },
+    {
+      "callout": "web:sel:#cmd",
+      "text": "Console 最下面可以打字",
+      "narration": "Console 最下面有一個大於符號，那裡可以直接打 JavaScript，網頁會馬上照做。"
+    },
+    {
+      "on": "web",
+      "fill": { "#cmd": "document.querySelector('.title').textContent = '小安的店'" },
+      "narration": "我們打：找到標題，把它的文字換成「小安的店」。按 Enter。"
+    },
+    {
+      "callout": "web:sel:.title",
+      "text": "標題變了！重新整理就會恢復",
+      "narration": "標題馬上變了。這只改了你眼前的畫面，檔案沒有動，重新整理就會恢復。"
+    },
+    {
+      "on": "web",
+      "click": "#err",
+      "chapter": "找到一則錯誤",
+      "narration": "再看上面那行紅字。點一下，展開細節。"
+    },
+    {
+      "callout": "web:sel:#err",
+      "text": "看不懂沒關係：整段複製",
+      "narration": "一長串英文，看不懂沒關係。整段複製下來。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "網頁的 Console 出現這個錯誤，是什麼意思？\nUncaught TypeError: Cannot read properties of null (reading 'addEventListener') at app.js:14",
+      "narration": "貼給 AI，問它是什麼意思。"
+    },
+    {
+      "on": "claude",
+      "say": "用白話說：**app.js 第 14 行**想替某個東西「裝上點擊的反應」（addEventListener），但它要找的東西**不存在**（null 就是「沒有」）。\n\n最常見的原因：程式裡寫的 id，和網頁上元素的 id 對不起來。可以把 app.js 第 14 行附近貼給我，或先在 Console 檢查那個元素在不在。",
+      "narration": "它把錯誤拆成白話：第 14 行想替一個東西裝上點擊的反應，可是找不到那個東西。null 就是「沒有」的意思。"
+    },
+    {
+      "on": "claude",
+      "user": "第 14 行是 document.querySelector('#cart-btn').addEventListener(…)。要怎麼在 Console 檢查？",
+      "chapter": "再問一輪",
+      "narration": "我們還想多懂一點，就接著問。"
+    },
+    {
+      "on": "claude",
+      "say": "在 Console 打：\n`document.querySelector('#cart-btn')`\n如果回 `null`，就代表網頁上沒有 id 是 cart-btn 的元素。"
+    },
+    {
+      "on": "web",
+      "fill": { "#cmd": "document.querySelector('#cart-btn')" },
+      "narration": "照它說的，在 Console 打這一行。"
+    },
+    {
+      "callout": "web:sel:.nul",
+      "text": "null：網頁上真的沒有它",
+      "narration": "回 null。網頁上真的沒有這個元素。"
+    },
+    {
+      "on": "web",
+      "fill": { "#cmd": "document.querySelector('#cartBtn')" },
+      "narration": "我們用 Elements 看了一下，按鈕的 id 好像是 cartBtn，再試一次。"
+    },
+    {
+      "on": "claude",
+      "user": "#cart-btn 回 null，#cartBtn 有找到按鈕。",
+      "narration": "把結果告訴 AI。"
+    },
+    {
+      "on": "claude",
+      "say": "找到原因了 ✓ 按鈕的 id 是 **cartBtn**，程式卻寫 **cart-btn**，名字差了一點，所以找不到。\n把 app.js 第 14 行的 `#cart-btn` 改成 `#cartBtn` 就好。要我幫你改嗎？",
+      "narration": "它確認了原因：名字對不起來。這一堂的重點不是修好，而是你自己找到錯誤、看懂它在說什麼。"
+    },
+    {
+      "checkpoint": "換你：改標題、找錯誤、問 AI",
+      "body": "打開任何一個你自己的網頁，按 F12 到 Console。打 document.querySelector('h1').textContent = '新標題' 試試看。再找一則紅色錯誤（沒有的話，用課程的練習頁），整段貼給 AI 請它用白話解釋，看不懂就繼續問。"
+    },
+    {
+      "card": "用 Console 改掉標題並找到一則錯誤 ✓",
+      "eyebrow": "3.3 完成",
+      "sub": "下一堂：讓 AI 自己打開瀏覽器找錯誤",
+      "narration": "你會用 Console 了。下一堂，讓 AI 自己打開瀏覽器、自己找錯誤。"
+    }
+  ]
+}

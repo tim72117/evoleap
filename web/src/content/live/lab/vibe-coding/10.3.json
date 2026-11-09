@@ -1,0 +1,416 @@
+{
+  "title": "搬檔並更新所有引用",
+  "lesson": "基礎 · 單元 10 · 10.3 試做",
+  "teacher": {
+    "say": "今天照清單搬檔",
+    "line": "上一課你和 AI 確認好搬移清單，也先存了檔。今天真的動手搬，重點不是搬，而是把所有指向這些檔案的地方一起改好，再找出漏改的。"
+  },
+  "cast": {
+    "map": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "誰在用這些檔案（引用）",
+        "nodes": [
+          { "id": "idx", "label": "index.html", "sub": "首頁", "icon": "📄", "x": 13, "y": 22, "w": 9 },
+          { "id": "abt", "label": "about.html", "sub": "關於我", "icon": "📄", "x": 13, "y": 50, "w": 9 },
+          { "id": "prj", "label": "projects.html", "sub": "作品", "icon": "📄", "x": 13, "y": 78, "w": 9 },
+          { "id": "css", "label": "style.css", "sub": "樣式", "icon": "🎨", "x": 50, "y": 30, "w": 9 },
+          { "id": "json", "label": "projects.json", "sub": "作品資料", "icon": "🗂", "x": 50, "y": 74, "w": 9, "shape": "db" },
+          { "id": "img", "label": "圖片", "sub": "photo、cover、bg", "icon": "🖼", "x": 86, "y": 52, "w": 9 }
+        ],
+        "edges": [
+          { "from": "idx", "to": "css" },
+          { "from": "abt", "to": "css" },
+          { "from": "prj", "to": "css" },
+          { "from": "idx", "to": "img" },
+          { "from": "abt", "to": "img" },
+          { "from": "prj", "to": "json", "label": "fetch" },
+          { "from": "css", "to": "img", "label": "背景圖" },
+          { "from": "json", "to": "img", "label": "封面路徑" }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "整理專案結構",
+        "folder": "~/projects/my-site",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "my-site": {
+            "index.html": "", "about.html": "", "projects.html": "", "style.css": "", "projects.json": "",
+            "photo.jpg": "", "cover-1.jpg": "", "cover-2.jpg": "", "bg.svg": "", "resize-photos.js": "", "README.md": ""
+          }
+        },
+        "open": "my-site"
+      },
+      "place": "center",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "lt-vibe-coding-10-3-broken", "width": "desktop", "url": "http://localhost:8000/projects.html" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "搬家，不只是把箱子搬過去",
+      "eyebrow": "基礎 · 單元 10 · 10.3",
+      "sub": "還要通知每個會寄信給你的人：地址改了",
+      "chapter": "搬檔就像搬家",
+      "narration": "搬家不只是把箱子搬過去。銀行、朋友、網購平台，每個會寄東西給你的人，都要知道新地址，不然信就寄丟了。搬檔案也是一樣。"
+    },
+    {
+      "show": "map",
+      "narration": "這是你專案裡的檔案，箭頭代表「誰在用誰」。例如三個頁面都用了 style.css，這種寫在檔案裡、指向另一個檔案的路徑，叫做引用。"
+    },
+    {
+      "callout": "map:edge:json>img",
+      "text": "引用不只在 HTML：CSS、JSON 資料裡也會寫路徑",
+      "narration": "注意右邊這兩條：CSS 裡的背景圖、作品資料裡的封面，也都寫著圖片的路徑。引用不只出現在 HTML。"
+    },
+    {
+      "on": "map",
+      "light": "css",
+      "tone": "warn",
+      "sub": "搬到 assets/",
+      "chapter": "只搬不改會怎樣",
+      "narration": "如果只把 style.css 搬進 assets 資料夾，什麼都不改呢？"
+    },
+    {
+      "on": "map",
+      "cut": "idx>css",
+      "narration": "首頁還照著舊地址找 style.css，找不到。"
+    },
+    {
+      "on": "map",
+      "cut": "abt>css"
+    },
+    {
+      "on": "map",
+      "cut": "prj>css",
+      "narration": "三個頁面一起斷線，全部變成白底黑字、沒有樣式的樣子。"
+    },
+    {
+      "on": "map",
+      "light": "idx",
+      "tone": "bad",
+      "sub": "沒有樣式"
+    },
+    {
+      "card": "搬檔和改引用，要一起做",
+      "eyebrow": "只搬不改會怎樣",
+      "sub": "搬完之後，每一個指向舊位置的地方都要換成新路徑",
+      "narration": "所以搬檔和改引用一定要一起做：每搬一個檔案，就把所有指向它舊位置的地方，換成新的路徑。"
+    },
+    {
+      "hide": "map"
+    },
+    {
+      "show": "claude",
+      "chapter": "交給 AI 照清單搬",
+      "narration": "這件事很適合交給 AI 程式助手：它會搜尋整個專案，一處都不放過。我們把上一課確認過的清單交給它。"
+    },
+    {
+      "on": "claude",
+      "user": "照我們確認過的搬移清單搬檔：style.css 和圖片放 assets/，projects.json 放 content/，resize-photos.js 放 tools/。用 git mv 搬，搬完把 HTML 連結和 CSS、JS 裡的路徑一起改好，最後列出改了哪些地方",
+      "narration": "提示詞說清楚三件事：照哪份清單、用 git mv 搬、搬完把引用一起改好。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["確認工作區是乾淨的", "doing"],
+        ["用 git mv 搬移 7 個檔案", "pending"],
+        ["搜尋並更新引用", "pending"],
+        ["列出改了哪些地方", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git status --short",
+      "result": "沒有未存檔的修改",
+      "narration": "它先確認工作區是乾淨的，上一課的存檔點還在。萬一搬壞了，隨時可以回到這裡。"
+    },
+    {
+      "on": "claude",
+      "ask": "mkdir -p assets/images content tools && git mv style.css assets/ && git mv photo.jpg cover-1.jpg cover-2.jpg bg.svg assets/images/ && git mv projects.json content/ && git mv resize-photos.js tools/",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "建立三個資料夾，用 git mv 搬移 7 個檔案",
+      "narration": "接著它要建立資料夾，再用 git mv 搬檔。對照清單，七個檔案、目的地都對，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git mv …（7 個檔案）",
+      "result": "完成"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "files",
+      "narration": "在 Finder 裡看，就是這樣搬的。"
+    },
+    { "on": "files", "mkdir": "assets" },
+    { "on": "files", "mkdir": "assets/images", "pause": 0 },
+    { "on": "files", "mkdir": "content", "pause": 0 },
+    { "on": "files", "mkdir": "tools", "pause": 0 },
+    { "on": "files", "rename": ["style.css", "assets/style.css"] },
+    { "on": "files", "rename": ["photo.jpg", "assets/images/photo.jpg"] },
+    { "on": "files", "rename": ["cover-1.jpg", "assets/images/cover-1.jpg"] },
+    { "on": "files", "rename": ["cover-2.jpg", "assets/images/cover-2.jpg"] },
+    { "on": "files", "rename": ["bg.svg", "assets/images/bg.svg"] },
+    { "on": "files", "rename": ["projects.json", "content/projects.json"] },
+    {
+      "on": "files",
+      "rename": ["resize-photos.js", "tools/resize-photos.js"],
+      "narration": "最上層只剩頁面和 README，其他的都進了各自的資料夾。"
+    },
+    {
+      "callout": "files:window",
+      "text": "git mv：搬檔，同時讓 Git 知道「這是同一個檔案換了位置」",
+      "narration": "為什麼要用 git mv，不直接拖過去？因為 git mv 搬檔的同時，會讓 Git 知道這是同一個檔案換了位置，修改紀錄不會斷掉。"
+    },
+    {
+      "hide": "files"
+    },
+    {
+      "show": "claude",
+      "chapter": "搜尋並改寫引用",
+      "narration": "搬完，接著找出所有引用。"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "style.css|photo.jpg|bg.svg|projects.json",
+      "result": "4 個檔案、7 處",
+      "out": "index.html:5   <link rel=\"stylesheet\" href=\"style.css\">\nindex.html:14  <img src=\"photo.jpg\" alt=\"小安\">\nabout.html:5   <link rel=\"stylesheet\" href=\"style.css\">\nabout.html:18  <img src=\"photo.jpg\" alt=\"小安\">\nprojects.html:5  <link rel=\"stylesheet\" href=\"style.css\">\nprojects.html:28 fetch('projects.json')\nstyle.css:40   background: url(\"bg.svg\");",
+      "narration": "它在四個檔案裡找到七處，連 CSS 裡的背景圖都找到了。"
+    },
+    {
+      "on": "fx",
+      "diff": "index.html",
+      "lines": [
+        [" ", "<head>"],
+        ["-", "  <link rel=\"stylesheet\" href=\"style.css\">"],
+        ["+", "  <link rel=\"stylesheet\" href=\"assets/style.css\">"],
+        [" ", "…"],
+        ["-", "  <img src=\"photo.jpg\" alt=\"小安\">"],
+        ["+", "  <img src=\"assets/images/photo.jpg\" alt=\"小安\">"]
+      ],
+      "narration": "以首頁為例：舊路徑換成新路徑，樣式指向 assets，照片指向 assets/images。"
+    },
+    {
+      "on": "fx",
+      "clear": true
+    },
+    {
+      "on": "claude",
+      "edit": "projects.html",
+      "lines": [
+        [5, "-", "  <link rel=\"stylesheet\" href=\"style.css\">"],
+        [5, "+", "  <link rel=\"stylesheet\" href=\"assets/style.css\">"],
+        [28, "-", "  fetch('projects.json')"],
+        [28, "+", "  fetch('content/projects.json')"]
+      ],
+      "narration": "作品頁、關於我、CSS 也照樣改好。"
+    },
+    {
+      "on": "claude",
+      "edit": "assets/style.css",
+      "lines": [
+        [40, "-", "  background: url(\"bg.svg\");"],
+        [40, "+", "  background: url(\"assets/images/bg.svg\");"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "搬了 7 個檔案，改了 4 個檔案裡的 7 處引用：\n- `index.html`、`about.html`：樣式與照片\n- `projects.html`：樣式與 `content/projects.json`\n- `assets/style.css`：背景圖",
+      "narration": "它列出改了哪些地方。先別急著相信，我們自己驗證。"
+    },
+    {
+      "on": "claude",
+      "user": "跑 git status，給我看搬移有沒有被記成改名",
+      "chapter": "git status：確認是改名",
+      "narration": "第一個驗證：看 git status。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git status",
+      "result": "完成",
+      "out": "Changes to be committed:\n  renamed:  style.css -> assets/style.css\n  renamed:  photo.jpg -> assets/images/photo.jpg\n  renamed:  cover-1.jpg -> assets/images/cover-1.jpg\n  renamed:  cover-2.jpg -> assets/images/cover-2.jpg\n  renamed:  bg.svg -> assets/images/bg.svg\n  renamed:  projects.json -> content/projects.json\n  renamed:  resize-photos.js -> tools/resize-photos.js\nChanges not staged for commit:\n  modified: index.html\n  modified: about.html\n  modified: projects.html\n  modified: assets/style.css"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "renamed：Git 知道是同一個檔案換位置；modified：改了裡面的路徑",
+      "narration": "七個檔案都標成 renamed，也就是改名，代表 Git 知道是同一個檔案換了位置。下面四個 modified，是改了裡面路徑的檔案。如果看到 deleted 加上一個新檔，代表搬了還沒加進暫存區，git add 之後就會變成 renamed。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx serve .",
+      "result": "已啟動",
+      "out": "Serving! Local: http://localhost:8000",
+      "chapter": "用 Console 找漏改",
+      "narration": "第二個驗證：在本機把網站跑起來，用瀏覽器打開，看開發者工具的 Console。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "web",
+      "narration": "打開作品頁。樣式回來了，可是兩張封面圖都破掉了。"
+    },
+    {
+      "callout": "web:sel:#e1",
+      "text": "404：照著舊路徑 /cover-1.jpg 去找，找不到",
+      "narration": "Console 有兩行紅字：cover-1.jpg、cover-2.jpg，404 找不到。瀏覽器還照著舊路徑，到最上層去找封面圖。"
+    },
+    {
+      "card": "漏掉的引用，藏在資料裡",
+      "eyebrow": "用 Console 找漏改",
+      "sub": "封面路徑寫在 projects.json 裡，剛才只搜尋了 HTML、CSS、JS 會寫的檔名",
+      "narration": "為什麼會漏？封面的路徑寫在 projects.json 這份資料裡，剛才它搜尋的是 style.css、photo.jpg 這些檔名，沒有搜 cover。路徑寫在資料裡的，最容易漏。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "show": "claude",
+      "narration": "把 Console 看到的錯誤，原封不動交給 AI。"
+    },
+    {
+      "on": "claude",
+      "user": "Console 出現 GET /cover-1.jpg 404 和 /cover-2.jpg 404。搜尋整個專案還有哪裡用舊路徑，包括 JSON 資料，一起改"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "cover-",
+      "result": "1 個檔案、2 處",
+      "out": "content/projects.json:4   \"cover\": \"cover-1.jpg\",\ncontent/projects.json:9   \"cover\": \"cover-2.jpg\","
+    },
+    {
+      "on": "claude",
+      "edit": "content/projects.json",
+      "lines": [
+        [4, "-", "    \"cover\": \"cover-1.jpg\","],
+        [4, "+", "    \"cover\": \"assets/images/cover-1.jpg\","],
+        [9, "-", "    \"cover\": \"cover-2.jpg\","],
+        [9, "+", "    \"cover\": \"assets/images/cover-2.jpg\","]
+      ],
+      "narration": "它在 projects.json 找到兩處，改成新路徑。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "web",
+      "site": "lt-vibe-coding-10-3-fixed",
+      "narration": "重新整理作品頁：封面回來了，Console 也沒有紅字了。"
+    },
+    {
+      "callout": "web:sel:#ok",
+      "text": "Console 沒有「找不到檔案」的錯誤",
+      "narration": "這就是這一課的完成標準：Console 沒有找不到檔案的錯誤。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "有型別檢查或 build 的專案，也要跑一次",
+      "eyebrow": "其他驗證方法",
+      "sub": "npx tsc --noEmit、npm run build：找不到的 import 會直接報錯，連是哪一行都告訴你",
+      "narration": "如果你的專案用 TypeScript，或有 build 指令，搬完也要跑一次型別檢查和 build。找不到的 import 會直接報錯，連在哪一行都告訴你，比一頁一頁看還快。"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "搬完之後 git status 顯示「deleted: photo.jpg」，還有一個沒追蹤的新檔「assets/images/photo.jpg」。這代表什麼？",
+      "body": "選一個。",
+      "id": "renamed",
+      "options": [
+        {
+          "label": "照片被刪掉了，救不回來",
+          "steps": [
+            {
+              "card": "別緊張",
+              "eyebrow": "判斷看看",
+              "sub": "新位置那份就是你的照片，只是 Git 還沒把兩邊連起來",
+              "narration": "別緊張，新位置那一份就是你的照片，只是 Git 還沒把兩邊連起來。"
+            },
+            {
+              "card": "答案：搬了，但還沒加進暫存區",
+              "eyebrow": "判斷看看",
+              "sub": "git add 之後，就會顯示成 renamed",
+              "narration": "這是直接拖過去搬的結果：搬了，但還沒加進暫存區。執行 git add 之後，Git 會比對內容，顯示成 renamed。"
+            }
+          ]
+        },
+        {
+          "label": "搬了，但還沒加進暫存區",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "git add 之後，Git 比對內容，就會顯示成 renamed",
+              "narration": "答對了。直接拖過去搬，就會看到刪除加新檔。執行 git add 之後，Git 會比對內容，顯示成 renamed。用 git mv 搬，一開始就是 renamed。"
+            }
+          ]
+        },
+        {
+          "label": "Git 壞了，要重新安裝",
+          "steps": [
+            {
+              "card": "Git 沒壞",
+              "eyebrow": "判斷看看",
+              "sub": "它只是還不知道這兩個檔案是同一個",
+              "narration": "Git 沒壞，它只是還不知道這兩個檔案是同一個。"
+            },
+            {
+              "card": "答案：搬了，但還沒加進暫存區",
+              "eyebrow": "判斷看看",
+              "sub": "git add 之後，就會顯示成 renamed",
+              "narration": "搬了，但還沒加進暫存區。執行 git add 之後，Git 會比對內容，顯示成 renamed。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "動手做：照清單搬檔，讓 Console 乾乾淨淨",
+      "eyebrow": "練習",
+      "sub": "請 AI 用 git mv 照清單搬檔並更新引用 → git status 確認 renamed → 打開網站看 Console，有 404 就交給 AI 再找",
+      "chapter": "動手做",
+      "narration": "換你試試看。請 AI 照上一課的清單，用 git mv 搬檔、更新引用。用 git status 確認都是 renamed，再打開網站看 Console，有 404 就把錯誤交給 AI 再找一次。"
+    },
+    {
+      "card": "搬檔和改引用一起做\ngit status 確認是 renamed\nConsole 找出漏改的路徑",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：引用、git mv、renamed、404",
+      "chapter": "學會",
+      "narration": "搬檔和改引用要一起做；用 git status 確認搬移被記成改名；用 Console 找出漏改的路徑，路徑寫在資料裡的最容易漏。下一課，我們逐頁驗證，再更新 README。"
+    }
+  ]
+}

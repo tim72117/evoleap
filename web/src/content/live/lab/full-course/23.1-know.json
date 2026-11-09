@@ -1,0 +1,103 @@
+{
+  "title": "GA4 的三個詞：事件、工作階段、即時",
+  "lesson": "全環節 · 單元 23 · 23.1 基礎知識",
+  "teacher": {
+    "say": "今天看懂 GA4 的基本詞",
+    "line": "網站上線後，你會想知道有多少人來、做了什麼。這一課用一位訪客的例子，看懂 GA4 最基本的三個詞：事件、工作階段，和即時報表。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc23-1-session", "url": "https://learn.example/ga4-basics" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "GA4 的三個詞",
+      "eyebrow": "全環節 · 單元 23 · 23.1 基礎知識",
+      "sub": "事件 · 工作階段 · 即時報表",
+      "narration": "GA4 是 Google 的網站流量分析工具，免費，很多網站都在用。它的報表看起來很複雜，但底層只有幾個概念。"
+    },
+    {
+      "show": "web",
+      "chapter": "事件：每一個動作",
+      "narration": "我們跟著一位訪客，看 GA4 怎麼記錄。上面三個數字，是 GA4 數到的東西。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "早上十點，她打開首頁。"
+    },
+    {
+      "callout": "web:sel:.e1",
+      "text": "事件 page_view：看了一頁",
+      "narration": "GA4 記下一個事件，叫 page view，看了一頁。GA4 裡的一切，都是事件：每個動作記一筆，有名字、有時間。"
+    },
+    { "on": "web", "click": "#next", "narration": "她往下捲到底，又一個事件：scroll。" },
+    { "on": "web", "click": "#next", "narration": "點進菜單，又一個 page view。" },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "把草莓蛋糕加入購物車：add to cart。"
+    },
+    {
+      "callout": "web:section:c-ev",
+      "text": "四個動作 = 四個事件",
+      "narration": "到目前為止，四個動作，四個事件。有些事件 GA4 會自動記，像看頁面、捲動；有些要你自己加，像加入購物車，這是之後的課。"
+    },
+    {
+      "callout": "web:section:ss1",
+      "text": "工作階段：一次「來訪」，裡面有好幾個事件",
+      "chapter": "工作階段：一次來訪",
+      "narration": "虛線框起來的，叫工作階段，就是「一次來訪」。從她打開網站開始，這些事件都算在同一次裡。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "接著她去泡咖啡，離開了四十分鐘。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "回來再看購物車。"
+    },
+    {
+      "callout": "web:section:ss2",
+      "text": "超過 30 分鐘沒動作 → 算新的一次來訪",
+      "narration": "因為中間超過三十分鐘沒有動作，GA4 把它算成新的工作階段。所以現在是：五個事件、兩個工作階段，"
+    },
+    {
+      "callout": "web:section:c-us",
+      "text": "使用者：還是同一個人",
+      "narration": "但使用者還是一位，因為是同一個瀏覽器。事件、工作階段、使用者，是由小到大的三層。"
+    },
+    {
+      "callout": "web:section:rt",
+      "text": "即時報表：過去 30 分鐘，誰在網站上",
+      "chapter": "即時報表",
+      "narration": "最後是即時報表：顯示過去三十分鐘，有多少人在網站上、正在看哪一頁。剛裝好 GA4 時，用它最快：自己打開網站，幾秒鐘就會看到自己。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "事件 ⊂ 工作階段 ⊂ 使用者",
+      "sub": "每個動作一個事件 · 一次來訪一個工作階段 · 同一個瀏覽器一位使用者",
+      "chapter": "重點整理",
+      "narration": "整理一下：每個動作是一個事件，一次來訪是一個工作階段，同一個瀏覽器是一位使用者。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "數數看",
+      "body": "一位客人：中午打開首頁、看了兩個商品頁，離開；晚上九點又打開首頁、下單。只算 page_view 的話，共有幾個事件、幾個工作階段、幾位使用者？",
+      "narration": "數數看：中午看了三頁離開，晚上又來看一頁下單。只算看頁面，有幾個事件、幾個工作階段、幾位使用者？"
+    },
+    {
+      "card": "4 個事件 · 2 個工作階段 · 1 位使用者",
+      "eyebrow": "答案",
+      "sub": "中午 3 頁 + 晚上 1 頁；中間隔很久，算兩次來訪；同一個瀏覽器，是同一位",
+      "narration": "答案是四個事件、兩個工作階段、一位使用者。下一堂，你建立 GA4 的資源，AI 負責把它裝進網站。"
+    }
+  ]
+}

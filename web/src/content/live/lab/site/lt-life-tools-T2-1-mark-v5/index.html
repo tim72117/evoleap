@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>證件浮水印</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main class="wm-app" id="app" data-v="5" data-today="2026/11/09">
+  <aside class="panel">
+    <h1>證件浮水印</h1>
+    <p class="sub">圖片只在這個瀏覽器裡處理，不會上傳</p>
+    <button id="pick" class="btn">選擇圖片</button>
+    <div class="fname">目前：<span id="fname">尚未選擇</span></div>
+    <label class="f">浮水印文字<input id="text" type="text" placeholder="例如：僅供租屋申請使用"></label>
+    <div class="note">後面會自動加上今天的日期</div>
+    <label class="f">透明度 <span id="opacity-v"></span><input id="opacity" type="range" min="10" max="80" value="30"></label>
+    <label class="f">字級 <span id="size-v"></span><input id="size" type="range" min="16" max="60" value="22"></label>
+    <button id="download" class="btn ghost">下載新圖片</button>
+    <div id="toast" class="toast gone"></div>
+  </aside>
+  <section class="preview">
+    <div class="stage" id="stage">
+      <div class="empty" id="empty">按「選擇圖片」，預覽會出現在這裡</div>
+      <div class="broken gone" id="broken">無法顯示這個檔案</div>
+
+      <div class="idcard" id="idcard">
+        <div class="id-head"><span>身分證明文件</span><span class="id-sample">虛構範例 SAMPLE</span></div>
+        <div class="id-body">
+          <svg class="id-photo" viewBox="0 0 120 150"><rect width="120" height="150" fill="#dfe7ef"/><circle cx="60" cy="58" r="26" fill="#9fb2c6"/><path d="M14 150c4-34 24-50 46-50s42 16 46 50z" fill="#9fb2c6"/></svg>
+          <dl class="id-fields">
+            <dt>姓名</dt><dd>林小安</dd>
+            <dt>出生日期</dt><dd>1991 年 1 月 1 日</dd>
+            <dt>證號</dt><dd class="mono">Z000000000</dd>
+            <dt>住址</dt><dd>範例市範例區範例路 1 號</dd>
+          </dl>
+        </div>
+        <div class="id-foot">此為課程虛構範例，非真實證件</div>
+      </div>
+      <div class="wm" id="wm" aria-hidden="true"></div>
+    </div>
+  </section>
+</main>
+<div class="modal gone" id="modal">
+  <div class="sheet">
+    <h2>選擇檔案（下載）</h2>
+    <button class="file" data-file="id">🖼 虛構證件範例.png <small>820 KB</small></button>
+    <button class="file" data-file="txt">📄 說明.txt <small>1 KB</small></button>
+    <div class="row"><button class="btn ghost" id="pick-cancel">取消</button></div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

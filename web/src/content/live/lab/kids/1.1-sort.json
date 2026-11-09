@@ -1,0 +1,177 @@
+{
+  "title": "換你分分看",
+  "lesson": "兒童網頁課 · 1.1 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt8-kid-page",
+      "props": {
+        "title": "豆豆的家",
+        "items": [
+          {
+            "id": "e1",
+            "kind": "raw",
+            "text": "我的狗狗豆豆",
+            "want": "h1"
+          },
+          {
+            "id": "e2",
+            "kind": "raw",
+            "text": "長相",
+            "want": "h2"
+          },
+          {
+            "id": "e3",
+            "kind": "raw",
+            "text": "豆豆是一隻白色的小狗，耳朵垂垂的。",
+            "want": "p"
+          },
+          {
+            "id": "e4",
+            "kind": "raw",
+            "text": "最愛的事",
+            "want": "h2"
+          },
+          {
+            "id": "e5",
+            "kind": "raw",
+            "text": "豆豆最愛追球，追到就搖尾巴。",
+            "want": "p"
+          }
+        ],
+        "tools": [
+          "h1",
+          "h2",
+          "p"
+        ],
+        "labels": true
+      },
+      "place": {
+        "landscape": {
+          "x": 80,
+          "y": 50,
+          "w": 1760,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！這是阿明的狗狗豆豆的網頁，字也擠在一起了。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:tools",
+        "text": "先選一塊積木"
+      },
+      "narration": "先在積木盒選一塊積木，再點網頁上的字。5 句都排對就完成了！"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "先選一塊積木，再點網頁上的字",
+    "body": "把 5 句都排對，集滿 5 顆星星",
+    "spots": [
+      {
+        "target": "kid:tool:h1",
+        "id": "tool-h1",
+        "label": "大標題積木",
+        "steps": [
+          {
+            "pick": "h1"
+          }
+        ]
+      },
+      {
+        "target": "kid:tool:h2",
+        "id": "tool-h2",
+        "label": "小標題積木",
+        "steps": [
+          {
+            "pick": "h2"
+          }
+        ]
+      },
+      {
+        "target": "kid:tool:p",
+        "id": "tool-p",
+        "label": "段落積木",
+        "steps": [
+          {
+            "pick": "p"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:e1",
+        "id": "e1",
+        "label": "網頁上的「我的狗狗豆豆」",
+        "steps": [
+          {
+            "use": "e1"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:e2",
+        "id": "e2",
+        "label": "網頁上的「長相」",
+        "steps": [
+          {
+            "use": "e2"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:e3",
+        "id": "e3",
+        "label": "網頁上的「豆豆是一隻白色的小狗，耳朵垂垂的。」",
+        "steps": [
+          {
+            "use": "e3"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:e4",
+        "id": "e4",
+        "label": "網頁上的「最愛的事」",
+        "steps": [
+          {
+            "use": "e4"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:e5",
+        "id": "e5",
+        "label": "網頁上的「豆豆最愛追球，追到就搖尾巴。」",
+        "steps": [
+          {
+            "use": "e5"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "right",
+      "atLeast": 5
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "全部排對了！一眼就看得懂豆豆的網頁了。"
+        }
+      ]
+    }
+  }
+}

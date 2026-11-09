@@ -1,0 +1,126 @@
+{
+  "title": "自動檢查：Hooks",
+  "lesson": "全環節 · 單元 31 · 31.4 用 AI 完成",
+  "teacher": {
+    "say": "請 AI 設定自動檢查",
+    "line": "這一堂請 AI 設定 Hooks：每次改完檔，自動整理格式、檢查型別。設好之後，故意讓它改一個會出錯的地方，看檢查站有沒有攔下來。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "設定 Hooks", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "自動檢查：Hooks",
+      "eyebrow": "全環節 · 單元 31 · 31.4 用 AI 完成",
+      "sub": "先做檢查站，再讓每次修改都經過它",
+      "chapter": "交代要設定什麼",
+      "narration": "這次 AI 要做的工具，是一組設定：讓檢查自動發生。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我設定這個專案的 hooks：每次你改完 .ts 或 .tsx 檔，自動跑 prettier 整理那個檔案，再跑 tsc 檢查型別；你要結束工作前跑一次 npm test。設在專案的 .claude/settings.json，讓別人拿到專案也有。設完故意改一個小錯誤，證明它真的會攔下來。",
+      "narration": "說清楚三件事：什麼時候跑、跑什麼、設在哪裡。最後要它證明設定真的有效。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "package.json",
+      "result": "有 prettier、typescript、vitest",
+      "narration": "它先確認專案裡已經裝了這三個工具。"
+    },
+    {
+      "on": "claude",
+      "ask": ".claude/settings.json",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "{\n  \"hooks\": {\n    \"PostToolUse\": [{\n      \"matcher\": \"Edit|Write\",\n      \"hooks\": [{ \"type\": \"command\",\n        \"command\": \"sh scripts/check-file.sh\" }]\n    }],\n    \"Stop\": [{\n      \"hooks\": [{ \"type\": \"command\", \"command\": \"npm test --silent\" }]\n    }]\n  }\n}",
+      "chapter": "設定檢查站",
+      "narration": "設定檔有兩站。PostToolUse 是改檔之後：只要它用了 Edit 或 Write，就執行一個檢查腳本。Stop 是要結束時：跑測試。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "matcher：只有改檔的動作才觸發",
+      "narration": "matcher 這一行的意思是，只有改檔的動作才觸發，讀檔、搜尋都不會。看懂了，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "ask": "scripts/check-file.sh",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "#!/bin/sh\n# 從 hook 收到剛改的檔名\nf=$(jq -r '.tool_input.file_path')\ncase \"$f\" in *.ts|*.tsx) ;; *) exit 0;; esac\nnpx prettier --write \"$f\"\nnpx tsc --noEmit || exit 2   # 2 = 把錯誤交回給 AI",
+      "narration": "檢查腳本也是它寫的。只處理 ts 檔；型別有錯時用代碼 2 結束，意思是「把錯誤交回給 AI」。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "say": "設定好了。現在來證明它有效：我把 `src/order.ts` 的價格故意寫成文字，型別應該會被攔下來。",
+      "chapter": "故意出錯，看它攔不攔",
+      "narration": "接著是驗證。它故意製造一個錯誤。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/order.ts",
+      "lines": [[8, "-", "const price: number = item.price"], [8, "+", "const price: number = item.price.toFixed(0)"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Hook",
+      "arg": "PostToolUse · sh scripts/check-file.sh",
+      "result": "攔下 1 個錯誤",
+      "out": "src/order.ts 已整理格式\nsrc/order.ts:8:7 - error TS2322:\n  Type 'string' is not assignable to type 'number'.",
+      "narration": "改完的那一刻，檢查站自動跑了，沒有人叫它。型別錯誤被攔下來，錯誤訊息直接交回給 AI。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/order.ts",
+      "lines": [[8, "-", "const price: number = item.price.toFixed(0)"], [8, "+", "const price: number = item.price"]],
+      "narration": "它把測試用的錯誤改回來，"
+    },
+    {
+      "on": "claude",
+      "tool": "Hook",
+      "arg": "PostToolUse · sh scripts/check-file.sh",
+      "result": "沒有錯誤",
+      "narration": "又經過一次檢查站，這次乾淨了。"
+    },
+    {
+      "on": "claude",
+      "say": "驗證完成：改檔後的檢查會自動執行，而且會把型別錯誤交回給我。",
+      "narration": "它準備結束這次工作。"
+    },
+    {
+      "on": "claude",
+      "tool": "Hook",
+      "arg": "Stop · npm test --silent",
+      "result": "45 passed",
+      "narration": "要結束時，第二站也自動跑了：測試四十五個全部通過。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "兩站都會自動執行，不用再提醒",
+      "chapter": "以後的每一次修改",
+      "narration": "從現在開始，不管是你叫它改什麼，每次改檔、每次結束，都會自動經過這兩站。"
+    },
+    {
+      "diff": ".claude/settings.json",
+      "lines": [["+", "PostToolUse：改完 .ts → prettier + tsc"], ["+", "Stop：結束前 → npm test"]],
+      "narration": "這份設定放在專案裡，跟著專案走。換一台電腦、換一個人、換一個 AI 工作階段，都一樣有效。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "換你設定",
+      "body": "請 AI 為你的專案設定兩個 hooks：改檔後跑一個快的檢查、結束前跑測試。最後一定要它故意出一個錯，證明真的會被攔下來。",
+      "narration": "換你試試。請 AI 設定兩個檢查站，最後一定要它故意出個錯，證明真的會攔下來。"
+    }
+  ]
+}

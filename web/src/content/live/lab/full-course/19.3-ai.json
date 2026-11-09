@@ -1,0 +1,175 @@
+{
+  "title": "雲端資料庫 Cloud SQL",
+  "lesson": "全環節 · 單元 19 · 19.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "搬資料，一筆都不能少",
+    "line": "這一堂請 AI 建立 Cloud SQL、把訂單資料搬上去，再寫一個檢查腳本，比對本機和雲端每張表的筆數，確定一筆都沒少，才讓正式網站改用雲端資料庫。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "搬資料庫",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "雲端資料庫 Cloud SQL",
+      "eyebrow": "全環節 · 單元 19 · 19.3 用 AI 完成",
+      "sub": "建立 → 搬資料 → 檢查腳本比對筆數 → 網站改用",
+      "chapter": "交代任務",
+      "narration": "這次的重點是「搬完要能證明沒少」。所以除了請 AI 搬，還要請它做一個檢查工具。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我把本機的 PostgreSQL 搬到 Cloud SQL：地區 asia-east1，最小規格。資料庫密碼自動產生，存進 .env，不要顯示出來。搬完寫一個腳本，比對本機和雲端每張表的筆數。全部一致後，再讓 Cloud Run 的網站改連雲端資料庫，並測試下一筆訂單。",
+      "narration": "一樣交代清楚：在哪、多大、密碼怎麼處理、怎樣才算搬完。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立 Cloud SQL（PostgreSQL，最小規格）", "doing"],
+        ["建立資料庫與帳號，密碼寫進 .env", "pending"],
+        ["匯出本機資料、匯入雲端", "pending"],
+        ["寫 compare-counts.mjs 比對筆數", "pending"],
+        ["Cloud Run 改連 Cloud SQL，測一筆訂單", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "**下一個指令：** 建立 Cloud SQL 執行個體 `bakery-db`\n- 花錢嗎：**會，而且會一直計費**（就算沒人用）。最小規格每月大約一兩百元台幣，會用掉你預算的一大半，建議之後把預算調高一點\n- 自動備份：開啟，保留 7 天\n- 建立大約要 5–10 分鐘"
+    },
+    {
+      "callout": "claude:say",
+      "text": "會一直計費：說清楚，由你決定",
+      "narration": "這是目前為止最花錢的一步，而且是一直計費。它說清楚每月大概多少、會占掉多少預算，由你決定。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud sql instances create bakery-db",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud sql instances create bakery-db \\\n  --database-version=POSTGRES_16 --edition=enterprise \\\n  --tier=db-f1-micro --region=asia-east1 \\\n  --backup-start-time=03:00 --retained-backups-count=7"
+    },
+    { "on": "claude", "choose": 1, "narration": "最小規格、台灣、每天凌晨三點備份。允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud sql instances create bakery-db --database-version=POSTGRES_16 --edition=enterprise --tier=db-f1-micro --region=asia-east1 --backup-start-time=03:00 --retained-backups-count=7",
+      "result": "完成",
+      "out": "Creating Cloud SQL instance for POSTGRES_16…done. (7m 12s)\nNAME       REGION      TIER         STATUS\nbakery-db  asia-east1  db-f1-micro  RUNNABLE",
+      "chapter": "建立與搬資料"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "PW=$(openssl rand -base64 24) && gcloud sql databases create bakery --instance=bakery-db && gcloud sql users create bakery --instance=bakery-db --password=\"$PW\" && echo \"CLOUD_DB_PASSWORD=$PW\" >> .env && echo '密碼已寫入 .env（不顯示）'",
+      "result": "完成",
+      "out": "Created database [bakery].\nCreated user [bakery].\n密碼已寫入 .env（不顯示）",
+      "narration": "密碼由電腦隨機產生，直接寫進 .env，畫面上完全不顯示。.env 本來就在 .gitignore 裡，不會被 push 上去。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "pg_dump --no-owner bakery > /tmp/bakery.sql && (cloud-sql-proxy xiaosen-bakery-prod-2611:asia-east1:bakery-db --port 5433 &) && sleep 3 && PGPASSWORD=$(grep CLOUD_DB_PASSWORD .env | cut -d= -f2-) psql -h 127.0.0.1 -p 5433 -U bakery bakery -q < /tmp/bakery.sql && echo 匯入完成",
+      "result": "完成",
+      "out": "匯入完成",
+      "narration": "匯出本機資料，再透過一條加密通道，匯入雲端資料庫。"
+    },
+    {
+      "on": "claude",
+      "edit": "compare-counts.mjs",
+      "lines": [
+        [1, "+", "// 比對本機與 Cloud SQL 每張表的筆數（只讀）"],
+        [2, "+", "const local = new pg.Client({ database: 'bakery' })"],
+        [3, "+", "const cloud = new pg.Client({ host: '127.0.0.1', port: 5433, user: 'bakery', database: 'bakery', password: process.env.CLOUD_DB_PASSWORD })"],
+        [4, "+", "for (const t of await tables(local)) {"],
+        [5, "+", "  const [a, b] = [await count(local, t), await count(cloud, t)]"],
+        [6, "+", "  console.log(a === b ? '✓' : '✗', t.padEnd(12), a, b)"],
+        [7, "+", "}"]
+      ],
+      "chapter": "做檢查工具：比對筆數",
+      "narration": "接著做檢查工具。它把每張表的筆數，在本機和雲端各數一次，一樣就打勾。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node --env-file=.env compare-counts.mjs",
+      "result": "完成",
+      "out": "  表          本機   雲端\n✓ products       18     18\n✗ orders       1285   1284\n✓ customers     412    412",
+      "narration": "跑一次：訂單少了一筆。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql bakery -c \"select id, created_at from orders order by id desc limit 1\"",
+      "result": "完成",
+      "out": " id  |     created_at\n1285 | 2026-11-09 14:32:08（匯出之後才進來）"
+    },
+    {
+      "on": "claude",
+      "say": "少的那一筆是**匯出之後**才進來的新訂單，網站還開著，客人一直在下單。\n做法：請你把網站切到「暫停接單」幾分鐘，我重新匯出、匯入，再比對一次。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "工具抓到：搬家途中進來的新訂單",
+      "narration": "檢查工具抓到一個很容易漏的問題：搬資料的途中，客人還在下單。解法是短暫暫停接單，再搬一次。"
+    },
+    {
+      "on": "claude",
+      "user": "好，已經暫停接單了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "pg_dump --no-owner --clean --if-exists bakery > /tmp/bakery.sql && PGPASSWORD=$(grep CLOUD_DB_PASSWORD .env | cut -d= -f2-) psql -h 127.0.0.1 -p 5433 -U bakery bakery -q < /tmp/bakery.sql && node --env-file=.env compare-counts.mjs",
+      "result": "完成",
+      "out": "  表          本機   雲端\n✓ products       18     18\n✓ orders       1285   1285\n✓ customers     412    412\n全部一致",
+      "narration": "重新搬一次，再比對：三張表全部一致。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run services update bakery（改連 Cloud SQL）",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud run services update bakery --region asia-east1 \\\n  --add-cloudsql-instances xiaosen-bakery-prod-2611:asia-east1:bakery-db \\\n  --update-env-vars DB_HOST=/cloudsql/xiaosen-bakery-prod-2611:asia-east1:bakery-db \\\n  --update-env-vars DB_PASSWORD=（從 .env 讀，暫時的做法）",
+      "chapter": "網站改用雲端資料庫"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services update bakery --region asia-east1 --add-cloudsql-instances xiaosen-bakery-prod-2611:asia-east1:bakery-db --update-env-vars DB_HOST=/cloudsql/xiaosen-bakery-prod-2611:asia-east1:bakery-db,DB_PASSWORD=\"$(grep CLOUD_DB_PASSWORD .env | cut -d= -f2-)\" >/dev/null && curl -s -X POST -o /dev/null -w '%{http_code}\\n' -d 'item=測試訂單&qty=1' https://bakery-5qx3k2-de.a.run.app/api/orders && node --env-file=.env compare-counts.mjs | grep orders",
+      "result": "完成",
+      "out": "201\n✗ orders       1285   1286",
+      "narration": "網站改連雲端資料庫後，送出一筆測試訂單：二〇一。再用檢查工具看，這次雲端多了一筆，代表新訂單真的寫進雲端了。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- Cloud SQL `bakery-db`：PostgreSQL 16，asia-east1，每天自動備份、保留 7 天\n- 三張表筆數一致後才切換；切換後測試訂單寫進雲端（1286）\n- 可以恢復接單了。本機資料庫之後只當備份用\n⚠ 目前密碼放在 Cloud Run 的環境變數裡，主控台看得到。下一步改放 Secret Manager。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把資料庫搬上雲端",
+      "body": "請 AI 先說明費用（資料庫會一直計費），再建立 Cloud SQL；密碼自動產生、存進 .env 不顯示。搬完請它寫比對筆數的腳本，全部一致才讓網站改連，並送一筆測試訂單確認。"
+    },
+    {
+      "card": "搬完要能證明沒少：\n寫一個比對筆數的工具",
+      "eyebrow": "學會",
+      "sub": "搬家途中還在接單會漏資料；一致了才切換",
+      "chapter": "學會",
+      "narration": "搬資料最重要的是能證明一筆都沒少。AI 做的比對工具，抓到了搬家途中進來的新訂單；全部一致了，才讓網站改用雲端資料庫。下一堂，把密碼搬進 Secret Manager。"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>把功能切開</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="w" data-s="0">
+  <div class="big"><b>app.js</b><span>820 行</span><ul><li>商品資料</li><li>購物車加減</li><li>金額格式</li><li>畫面更新</li><li>商品資料又一份</li><li>…</li></ul><p>什麼都在這裡：改一處，要讀完整個檔案才敢動</p></div>
+  <div class="split">
+    <div class="type"><b>types.ts</b><code>type Product = {<br>&nbsp;&nbsp;name: string<br>&nbsp;&nbsp;<em class="f-old">price</em><em class="f-new">unitPrice</em>: number<br>}</code><span>約定：商品長什麼樣子</span></div>
+    <svg class="ln" viewBox="0 0 100 100" preserveAspectRatio="none"><path class="l1" d="M50 30 L14 66"/><path class="l2" d="M50 30 L38 66"/><path class="l3" d="M50 30 L62 66"/><path class="l4" d="M50 30 L86 66"/></svg>
+    <div class="mods">
+      <div class="m m1"><b>product.ts</b><span>商品資料</span><small>匯出 products</small></div>
+      <div class="m m2 use"><b>cart.ts</b><span>購物車</span><small>用到 price</small></div>
+      <div class="m m3 use"><b>format.ts</b><span>金額格式</span><small>用到 price</small></div>
+      <div class="m m4 use"><b>ui.ts</b><span>畫面</span><small>用到 price</small></div>
+    </div>
+    <div class="err">型別檢查：3 個地方還在用 price，要跟著改</div>
+    <div class="ok">型別檢查通過：0 個錯誤</div>
+  </div>
+  <div class="btns"><button id="split" type="button">拆開</button><button id="rename" type="button">把 price 改名</button><button id="fix" type="button">跟著改好</button></div>
+</div>
+</body></html>

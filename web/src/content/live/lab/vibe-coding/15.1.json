@@ -1,0 +1,280 @@
+{
+  "title": "建立 Meta 開發者 App，取得粉專權杖",
+  "lesson": "基礎 · 單元 15 · 15.1 試做",
+  "teacher": {
+    "say": "今天讓程式拿到粉專的發文權限",
+    "line": "這個單元要讓程式幫你在粉絲專頁發文。今天先做第一步：建立 App、拿到粉專權杖，安全地放好，再確認它真的能用。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fb-app", "width": "desktop", "url": "https://developers.facebook.com/apps" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "粉專權杖",
+        "folder": "~/projects/my-site",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "建立 Meta 開發者 App，取得粉專權杖",
+      "eyebrow": "基礎 · 單元 15 · 15.1",
+      "sub": "讓程式拿到在粉專發文的權限，並且安全地放好",
+      "chapter": "三樣東西",
+      "narration": "要讓程式在粉絲專頁發文，Facebook 得先知道兩件事：是哪一支程式在發文，以及它有沒有得到粉專的同意。"
+    },
+    {
+      "card": "App：你的程式的身分\n使用者權杖：你本人的同意\n粉專權杖：在這個粉專發文的鑰匙",
+      "eyebrow": "先分清楚",
+      "sub": "程式發文用的是粉專權杖",
+      "narration": "App 是你的程式在 Facebook 的身分。你登入後同意它，會拿到使用者權杖；再用它換出粉專權杖，這才是在粉專發文用的鑰匙。"
+    },
+    {
+      "show": "web",
+      "chapter": "建立 App",
+      "narration": "打開 Meta 的開發者網站，這一段畫面要你自己操作，AI 碰不到。介面常改版，按鈕位置以當時的畫面為準。"
+    },
+    {
+      "on": "web",
+      "fill": { "#name": "網站發文小幫手", "#use": "pages" },
+      "narration": "取一個看得懂的名字，用途選管理粉絲專頁。"
+    },
+    {
+      "on": "web",
+      "click": "#create",
+      "narration": "建立 App。"
+    },
+    {
+      "on": "web",
+      "site": "fb-token",
+      "chapter": "只勾需要的權限",
+      "narration": "接著到權杖工具，先選權限。"
+    },
+    {
+      "on": "web",
+      "click": "#p-posts",
+      "narration": "要發文，勾 pages manage posts。"
+    },
+    {
+      "on": "web",
+      "click": "#p-read",
+      "narration": "要讀粉專名稱和貼文成效，勾 pages read engagement。"
+    },
+    {
+      "callout": "web:sel:.no",
+      "text": "用不到的權限不要勾：權杖外洩時，能做的事越少越好",
+      "narration": "私訊這次用不到，就不要勾。權限越少，萬一權杖外洩，別人能做的事就越少。"
+    },
+    {
+      "on": "web",
+      "fill": { "#which": "cafe" },
+      "narration": "選擇要發文的粉絲專頁。"
+    },
+    {
+      "on": "web",
+      "click": "#gen",
+      "narration": "產生粉專權杖。"
+    },
+    {
+      "on": "web",
+      "scroll": "token"
+    },
+    {
+      "callout": "web:section:token",
+      "text": "權杖等於粉專的發文密碼：只放進自己的 .env",
+      "narration": "這一串就是粉專權杖，拿到它就能用你的粉專發文。它跟密碼一樣，不要貼進和 AI 的對話，也不要寫進程式碼。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "show": "claude",
+      "chapter": "把權杖放好",
+      "narration": "回到 AI 程式助手。我們請它準備好放權杖的地方，但權杖本身由你自己貼。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我在 .env 加上 FB_PAGE_TOKEN 的空欄位，並確認 .env 不會被 commit。權杖我自己貼"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "ask": ".env",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/my-site",
+      "preview": "FB_PAGE_TOKEN=",
+      "narration": "它要在 .env 加一行空的欄位，值留給你填。允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": ".env",
+      "result": "已加上 1 行"
+    },
+    {
+      "on": "claude",
+      "ask": "git check-ignore .env",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "檢查 .env 有沒有被 .gitignore 擋住，不會改動任何東西",
+      "narration": "再來它想確認 .env 有沒有被 gitignore 擋住。這只是檢查，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git check-ignore .env",
+      "result": "完成",
+      "out": ".env",
+      "narration": "印出 .env，代表它被擋住了，不會被 commit。"
+    },
+    {
+      "on": "claude",
+      "say": "`.env` 已經加上 `FB_PAGE_TOKEN=`，而且被 `.gitignore` 擋住，不會被 commit。請你自己打開 `.env`，把權杖貼在等號後面並存檔。",
+      "narration": "它請你自己打開 .env，把權杖貼在等號後面。"
+    },
+    {
+      "card": "權杖自己貼進 .env",
+      "eyebrow": "你自己來",
+      "sub": "用編輯器打開 .env，貼在 FB_PAGE_TOKEN= 後面，存檔",
+      "narration": "用編輯器打開 .env，貼上、存檔。這樣權杖只存在你的電腦，不會出現在對話紀錄裡。"
+    },
+    {
+      "on": "claude",
+      "user": "貼好了。寫一支只讀不寫的腳本，印出粉專名稱，確認權杖有效",
+      "chapter": "確認權杖能用"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "ask": "check-page.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/my-site",
+      "preview": "const res = await fetch(`https://graph.facebook.com/me?fields=name&access_token=${process.env.FB_PAGE_TOKEN}`)\nconsole.log('粉專：', (await res.json()).name)",
+      "narration": "它要建立一支小腳本：從環境變數讀權杖，向 Facebook 問這個粉專叫什麼名字。只讀，不會發文。允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "check-page.js",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "node --env-file=.env check-page.js",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "讀取 .env 的設定，執行 check-page.js",
+      "narration": "執行時加上 env file，Node.js 會從 .env 讀進權杖，權杖不用出現在指令裡。允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node --env-file=.env check-page.js",
+      "result": "完成",
+      "out": "粉專： 小安的點心教室",
+      "narration": "印出粉專名稱，權杖可以用了。"
+    },
+    {
+      "on": "claude",
+      "say": "權杖有效，可以讀到粉專「小安的點心教室」。下一步可以寫發文腳本。提醒：權杖會過期，到時候重新產生一組，換掉 `.env` 裡的值就好。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "拿到粉專權杖之後，應該放在哪裡？",
+      "body": "選一個。",
+      "id": "token",
+      "options": [
+        {
+          "label": "貼進和 AI 的對話，請它幫我填好",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "貼進對話，權杖就留在對話紀錄裡了",
+              "narration": "貼進對話，權杖就留在對話紀錄裡。請 AI 準備好欄位，權杖自己貼。"
+            },
+            {
+              "card": "答案：放進 .env，確認被 .gitignore 擋住",
+              "eyebrow": "判斷看看",
+              "sub": "權杖只存在自己的電腦，程式從環境變數讀",
+              "narration": "權杖放進 .env，並確認它被 gitignore 擋住；程式從環境變數讀取。"
+            }
+          ]
+        },
+        {
+          "label": "直接寫在程式碼裡，一起 commit",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "commit 之後，看得到程式碼的人都拿得到權杖",
+              "narration": "寫進程式碼再 commit，推上 GitHub 之後，看得到程式碼的人都能用你的粉專發文。萬一發生，要立刻重新產生權杖。"
+            },
+            {
+              "card": "答案：放進 .env，確認被 .gitignore 擋住",
+              "eyebrow": "判斷看看",
+              "sub": "權杖只存在自己的電腦，程式從環境變數讀",
+              "narration": "權杖放進 .env，並確認它被 gitignore 擋住；程式從環境變數讀取。"
+            }
+          ]
+        },
+        {
+          "label": "放進 .env，確認被 .gitignore 擋住",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "權杖只存在自己的電腦，程式從環境變數讀",
+              "narration": "答對了。權杖放進 .env、確認 gitignore 擋住它，程式從環境變數讀取，權杖就不會出現在程式碼和對話裡。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "App 是程式的身分\n只勾需要的權限\n權杖自己貼進 .env",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：App、權限、粉專權杖、環境變數",
+      "chapter": "學會",
+      "narration": "App 是程式的身分；權限只勾需要的；粉專權杖跟密碼一樣，自己貼進 .env，並確認不會被 commit。下一課，我們就用這組權杖，第一次用程式發文。"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>自動化信件的時間軸</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">小美訂閱之後的 30 天</div>
+ <div class="line">
+  <div class="tick" style="left:2%">第 0 天</div><div class="tick" style="left:22%">第 2 天</div><div class="tick" style="left:45%">第 7 天</div><div class="tick" style="left:88%">第 30 天</div>
+ </div>
+ <div class="mails">
+  <div class="mail m1" data-s="1"><b>歡迎信</b><span>馬上寄：謝謝你、你會收到什麼、送一張小優惠</span><em>開信率最高的一封</em></div>
+  <div class="mail m2" data-s="2"><b>介紹信</b><span>第 2 天：店的故事、最受歡迎的三款</span></div>
+  <div class="mail m3" data-s="3"><b>提醒信</b><span>第 7 天：優惠快到期了，沒用的人才收到</span><em>依行為決定要不要寄</em></div>
+  <div class="mail m4" data-s="4"><b>回流信</b><span>第 30 天：好久沒來，有新品了</span><em>很久沒開信的人</em></div>
+ </div>
+ <div class="branch" data-s="3"><span class="pill ok">已用優惠 → 不寄提醒</span><span class="pill warn">沒用優惠 → 寄提醒</span></div>
+ <div class="stepbar"><button class="btn" id="next">下一封 ▶</button><span class="cap" data-t0="不是一次寄完，而是在對的時間寄對的信" data-t1="剛訂閱的時候，最在意你：馬上寄歡迎信" data-t2="還記得你的時候，多認識你一點" data-t3="看她做了什麼，再決定寄不寄" data-t4="很久沒互動，拉她回來；再沒反應就少寄"></span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

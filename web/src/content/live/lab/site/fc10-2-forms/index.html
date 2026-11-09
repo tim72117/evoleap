@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>小森烘焙｜會員</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="top" style="--brand:#b45309"><div class="logo"><i></i>小森烘焙</div><span class="sp"></span><span class="who" id="who">訪客</span></header>
+<div class="wrap">
+  <div class="left card">
+    <div class="tabs"><button class="tb on" id="tReg">註冊</button><button class="tb" id="tLogin">登入</button></div>
+    <form id="reg">
+      <label for="rEmail">Email</label><input id="rEmail" type="text">
+      <label for="rPw">密碼</label><input id="rPw" type="password">
+      <p class="msg" id="rMsg"></p>
+      <button class="btn" id="rGo" type="submit">建立帳號</button>
+    </form>
+    <form id="login" class="hide">
+      <label for="lEmail">Email</label><input id="lEmail" type="text">
+      <label for="lPw">密碼</label><input id="lPw" type="password">
+      <p class="msg" id="lMsg"></p>
+      <button class="btn" id="lGo" type="submit">登入</button>
+    </form>
+    <div id="home" class="hide"><p class="hi">歡迎回來！</p><button class="btn ghost" id="out">登出</button></div>
+  </div>
+  <div class="right card">
+    <h2>伺服器做了哪些檢查</h2>
+    <ul class="chk" id="chk"><li class="idle">還沒有送出任何表單</li></ul>
+  </div>
+</div>
+</body></html>

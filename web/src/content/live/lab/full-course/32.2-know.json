@@ -1,0 +1,96 @@
+{
+  "title": "別再盯著進度條",
+  "lesson": "全環節 · 單元 32 · 32.2 基礎知識",
+  "teacher": {
+    "say": "今天把長任務丟到背景",
+    "line": "這一課講長時間的任務，例如完整測試和部署：放到背景跑，跑完通知你，中間你可以做別的事。"
+  },
+  "camera": "auto",
+  "cast": {
+    "you": { "actor": "person", "props": { "name": "你", "look": "staff" }, "place": "center", "hidden": true },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "部署", "folder": "~/projects/bakery", "branch": "main", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc32-2-bg", "url": "https://notes.example/background" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "別再盯著進度條",
+      "eyebrow": "全環節 · 單元 32 · 32.2 基礎知識",
+      "sub": "背景執行與通知",
+      "chapter": "等待的二十分鐘",
+      "narration": "先看一個你可能很熟悉的畫面。"
+    },
+    { "show": "claude" },
+    { "on": "claude", "user": "跑完整測試，過了就部署到測試網站" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run test:all && npm run deploy:staging",
+      "result": "執行中……（約 20 分鐘）",
+      "narration": "AI 開始跑完整測試加部署，要二十分鐘左右。這段時間，對話框被它佔住了。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "you",
+      "on": "you",
+      "say": "……還沒好嗎？我什麼都不敢動。",
+      "mood": "tired",
+      "narration": "你不敢關、不敢打斷，只好盯著畫面等。二十分鐘就這樣過去了。"
+    },
+    { "hide": "you" },
+    {
+      "show": "web",
+      "chapter": "前景與背景",
+      "narration": "我們把這二十分鐘畫出來比一比。"
+    },
+    {
+      "on": "web",
+      "click": "#x1",
+      "narration": "上面是放在前景跑：你只能等，等完才看結果。前景的意思是，它佔著你眼前的畫面。"
+    },
+    {
+      "on": "web",
+      "click": "#x2",
+      "narration": "下面是放在背景跑：測試和部署在後面自己跑，你的對話框是空的，可以繼續交代別的事、寫文案、回客人訊息。"
+    },
+    {
+      "on": "web",
+      "click": "#x3",
+      "narration": "跑完了，它會通知你。你不用一直回來看。"
+    },
+    {
+      "callout": "web:section:bgr",
+      "text": "背景執行：長任務在後面跑，你繼續做別的事",
+      "narration": "同樣二十分鐘，下面那條多做了好幾件事。"
+    },
+    {
+      "on": "web",
+      "click": "#x4",
+      "chapter": "交代背景任務的訣竅",
+      "narration": "交代背景任務，最重要的是先說好跑完要回報什麼：過了幾個、失敗在哪一步、部署後的網址。這樣通知一來，你一眼就知道下一步。"
+    },
+    { "hide": "web" },
+    {
+      "stream": "完整測試、打包與部署、大量圖片轉檔、整理一整年的訂單資料。這些要跑好幾分鐘、跑的時候不需要你做決定的事，都適合放背景。",
+      "prompt": "哪些事適合放背景跑？",
+      "narration": "要跑好幾分鐘、而且跑的時候不需要你做決定的事，都適合放背景。"
+    },
+    { "clear": true },
+    {
+      "card": "背景任務也要守規矩",
+      "eyebrow": "注意",
+      "sub": "部署到正式網站、刪資料這類事，背景也一樣要先問你",
+      "narration": "最後提醒：放背景不代表可以跳過確認。部署到正式網站、刪資料這類事，背景也一樣要先問你。"
+    },
+    {
+      "checkpoint": "找出你的長任務",
+      "body": "想一件你常常要等好幾分鐘的事，寫下：跑完你想知道哪三件事（例如過了幾個、失敗在哪、網址）。",
+      "narration": "換你想想：你常常要等的長任務是什麼？跑完你最想知道哪三件事？"
+    }
+  ]
+}

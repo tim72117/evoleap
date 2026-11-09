@@ -1,0 +1,163 @@
+{
+  "title": "只在正式環境發生的錯誤",
+  "lesson": "全環節 · 單元 14 · 14.5 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "teacher": {
+    "say": "請 AI 做一個查紀錄的小工具",
+    "line": "這一堂不是請 AI 查一次就好，而是請它做一個查正式環境紀錄的小工具：篩出錯誤、整理成清單，再比對雲端和本機的設定。以後出事，一個指令就查得到。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "付款後白畫面", "folder": "~/projects/shop", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc14-5-logs", "width": "desktop", "url": "https://console.example-cloud.com/logs?project=shop-prod" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "只在正式環境發生的錯誤",
+      "eyebrow": "全環節 · 單元 14 · 14.5 用 AI 完成",
+      "sub": "先做工具 → 用工具篩出錯誤 → 比對設定 → 修好 → 再用工具確認",
+      "chapter": "自己查的話",
+      "narration": "客人付款後看到白畫面。先看看，如果自己查會怎樣。"
+    },
+    {
+      "show": "web",
+      "narration": "打開雲端主控台的紀錄頁：最近一小時，一萬四千多行。"
+    },
+    {
+      "on": "web",
+      "fill": { "#q": "severity>=ERROR" },
+      "narration": "要先知道篩選的寫法，打進去。"
+    },
+    {
+      "on": "web",
+      "click": "#run",
+      "narration": "查詢，剩下兩百多行，全是同一種錯誤。查得到，可是每次都要記得怎麼寫、去哪裡點，還要自己比對設定。"
+    },
+    { "show": "claude", "chapter": "請 AI 做工具" },
+    {
+      "on": "claude",
+      "user": "客人付款後白畫面，本機重現不了。請寫一個小工具 scripts/prod-errors.sh：查 shop-prod 最近 N 小時的錯誤紀錄，依錯誤訊息分組、算次數、列出第一次和最後一次發生的時間。再寫 scripts/env-diff.mjs，比對雲端 Cloud Run 的環境變數名稱和 .env.example 少了什麼（只比名稱，不印出值）。做好後用它們找出原因。",
+      "narration": "請它做兩個工具：一個篩錯誤並整理，一個比對設定。特別交代：比對設定只比名稱，不印出值，因為裡面有金鑰。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/prod-errors.sh",
+      "lines": [[1, "+", "#!/bin/sh"], [2, "+", "# 用法：scripts/prod-errors.sh [小時，預設 1]"], [3, "+", "gcloud logging read \"severity>=ERROR AND resource.labels.service_name=shop\" \\"], [4, "+", "  --project=shop-prod --freshness=${1:-1}h --format=json \\"], [5, "+", "  | node scripts/group-errors.mjs   # 依訊息分組、算次數、第一次與最後一次"]],
+      "narration": "第一個工具：用 gcloud 讀正式環境的錯誤紀錄，再交給一小段程式分組整理。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/env-diff.mjs",
+      "lines": [[1, "+", "// 比對雲端與 .env.example 的環境變數「名稱」（不讀、不印出值）"], [2, "+", "const cloud = names(sh('gcloud run services describe shop --format=json'))"], [3, "+", "const local = names(read('.env.example'))"], [4, "+", "report({ 雲端少了: local.filter((n) => !cloud.includes(n)), 雲端多了: cloud.filter((n) => !local.includes(n)) })"]],
+      "narration": "第二個工具：只比對名稱。"
+    },
+    {
+      "on": "claude",
+      "ask": "sh scripts/prod-errors.sh 24",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "讀取正式環境最近 24 小時的錯誤紀錄（只讀取）",
+      "chapter": "用工具查",
+      "narration": "它要用工具查最近二十四小時。只讀取紀錄，不改動任何東西，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "sh scripts/prod-errors.sh 24",
+      "result": "2 種錯誤",
+      "out": "次數  第一次         最後一次       訊息\n 214  11/08 18:31   11/09 14:03   付款失敗：缺少設定 PAYMENT_KEY  /checkout/confirm\n   3  11/09 09:12   11/09 11:40   圖片載入逾時  /products",
+      "narration": "一萬多行，整理成兩種錯誤。付款失敗出現了兩百一十四次，第一次是昨天傍晚六點半。"
+    },
+    {
+      "on": "claude",
+      "ask": "node scripts/env-diff.mjs",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "比對雲端與 .env.example 的設定名稱（不印出值）"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/env-diff.mjs",
+      "result": "雲端少了 1 個",
+      "out": "雲端少了: PAYMENT_KEY\n雲端多了: (無)",
+      "chapter": "比對設定",
+      "narration": "比對結果：雲端少了 PAYMENT KEY。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log -S PAYMENT_KEY --format='%h %ad %s' --date=format:'%m/%d %H:%M'",
+      "result": "找到加入的那一次",
+      "out": "e81c2f4 11/08 18:20 改用新的付款服務",
+      "narration": "它再查是哪一次改動加進這個設定：昨天傍晚六點二十，改用新的付款服務。十分鐘後，第一個錯誤就出現了。"
+    },
+    {
+      "on": "claude",
+      "say": "原因找到了：昨天 18:20 改用新的付款服務，程式開始需要 `PAYMENT_KEY`。你的電腦上 `.env` 有設定，所以本機正常；**雲端沒有設定**，所以正式環境每次付款都失敗。\n\n這是付款服務的金鑰，請你自己來：\n1. 到付款服務後台複製「正式環境」的金鑰\n2. 在雲端主控台「機密」新增 `PAYMENT_KEY`，貼上\n3. 告訴我好了，我把它接到 Cloud Run 並重新部署\n\n金鑰不要貼到我們的對話裡。",
+      "narration": "原因清楚了。而且它知道金鑰要你自己處理：到付款服務後台複製、在雲端的機密設定貼上，不要貼進對話。"
+    },
+    {
+      "card": "金鑰由你自己貼進雲端的「機密」設定",
+      "eyebrow": "你自己來",
+      "sub": "AI 只需要知道它的名字 PAYMENT_KEY，不需要看到值",
+      "chapter": "你自己設定金鑰",
+      "narration": "這一步你自己來。AI 只需要知道這個設定的名字，不需要看到它的值。"
+    },
+    {
+      "on": "claude",
+      "user": "PAYMENT_KEY 已經加到雲端的機密了",
+      "chapter": "修好並確認",
+      "narration": "設定好了，告訴 AI。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run services update shop --update-secrets=PAYMENT_KEY=PAYMENT_KEY:latest --region=asia-east1",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "讓正式環境讀取機密 PAYMENT_KEY，並重新部署",
+      "narration": "它把這個機密接到正式環境，重新部署。這會更動正式網站，看清楚再允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud run services update shop …", "result": "已部署新版本", "out": "Revision shop-00042 is serving 100% of traffic" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/env-diff.mjs && sh scripts/prod-errors.sh 0.25",
+      "result": "設定一致，15 分鐘內沒有付款錯誤",
+      "out": "雲端少了: (無)\n雲端多了: (無)\n\n最近 0.25 小時沒有 ERROR 紀錄",
+      "narration": "再用同樣的兩個工具確認：設定一致了，十五分鐘內沒有付款錯誤。"
+    },
+    {
+      "on": "claude",
+      "say": "修好了 ✓ 也請你自己到正式網站走一次結帳，確認付款完成後有看到訂單頁。\n\n兩個工具留在 `scripts/`，以後正式環境出事，先跑 `scripts/prod-errors.sh` 和 `scripts/env-diff.mjs`。",
+      "narration": "最後請你自己到正式網站走一次結帳確認，付款這一步由你操作。兩個工具留在專案裡，下次出事，一個指令就能查。"
+    },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：做一個查正式紀錄的工具",
+      "body": "請 AI 寫一個查正式環境錯誤紀錄並分組的指令，再寫一個只比對設定名稱、不印出值的工具，用它們找出原因。機密的值由你自己設定。"
+    },
+    {
+      "card": "做成工具，下次一個指令\n篩錯誤 · 比設定 · 不印出機密",
+      "eyebrow": "學會",
+      "sub": "金鑰的值：你自己貼進雲端機密，不貼進對話",
+      "chapter": "學會",
+      "narration": "查正式環境的錯誤，請 AI 做成工具：篩出錯誤、比對設定，而且不印出機密。下次出事，一個指令就查得到。金鑰的值由你自己貼進雲端，不貼進對話。"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "title": "換你找重點",
+  "lesson": "兒童網頁課 · 2.2 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt9-wear",
+      "props": {
+        "title": "小花的名片",
+        "look": {
+          "h1": {
+            "size": "m",
+            "bold": false
+          },
+          "button": {
+            "bold": false
+          }
+        },
+        "tools": [
+          {
+            "part": "h1",
+            "prop": "size"
+          },
+          {
+            "part": "h1",
+            "prop": "bold"
+          },
+          {
+            "part": "p",
+            "prop": "size"
+          },
+          {
+            "part": "button",
+            "prop": "bold"
+          }
+        ],
+        "goals": [
+          {
+            "id": "big",
+            "label": "讓標題變成特大",
+            "part": "h1",
+            "set": {
+              "size": "xl"
+            }
+          },
+          {
+            "id": "bold",
+            "label": "讓按鈕的字變成粗體",
+            "part": "button",
+            "set": {
+              "bold": true
+            }
+          },
+          {
+            "id": "small",
+            "label": "讓段落的字變小",
+            "part": "p",
+            "set": {
+              "size": "s"
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！點衣櫃裡的按鈕，讓重要的字顯眼一點。右下角有三個任務。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點衣櫃，讓重要的字更顯眼",
+    "body": "完成右下角的三個任務",
+    "until": {
+      "count": "achieved",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "三個任務都完成了！標題大大的，一眼就看到小花。"
+        }
+      ]
+    }
+  }
+}

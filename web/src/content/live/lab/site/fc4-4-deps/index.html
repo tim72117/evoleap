@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>拆成工作項目</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-start="1">
+<div class="tabs">
+  <button class="tab cur" id="b1" data-go="1">太大的項目</button>
+  <button class="tab" id="b2" data-go="2">拆小之後</button>
+  <button class="tab" id="b3" data-go="3">排先後</button>
+</div>
+<div class="p1">
+  <div class="huge card">📦 做好線上預訂網站<div class="muted">做多久？做到哪算完成？從哪裡開始？</div></div>
+</div>
+<div class="p2">
+  <div class="grid">
+    <div class="it card"><b>建立專案骨架</b><span class="ck">完成條件：npm run dev 看得到首頁</span></div>
+    <div class="it card"><b>首頁列出麵包</b><span class="ck">完成條件：手機上看得到 3 種麵包和價格</span></div>
+    <div class="it card"><b>選數量與取貨時間</b><span class="ck">完成條件：不能選今天以前的日期</span></div>
+    <div class="it card"><b>送出訂單存進資料庫</b><span class="ck">完成條件：送出後拿到編號，資料庫查得到</span></div>
+    <div class="it card"><b>店家看今天的訂單</b><span class="ck">完成條件：登入後只看到今天的</span></div>
+    <div class="it card"><b>部署上線</b><span class="ck">完成條件：手機用網址打得開</span></div>
+  </div>
+  <div class="cap">小：一兩天做得完　·　可驗證：有「完成條件」</div>
+</div>
+<div class="p3">
+  <div class="dag">
+    <div class="d n1">1 骨架</div><div class="a">→</div><div class="d n2">2 首頁</div><div class="a">→</div><div class="d n3">3 選數量時間</div><div class="a">→</div><div class="d n4">4 存訂單</div><div class="a">→</div><div class="d n5">5 店家看單</div>
+  </div>
+  <div class="dep"><div class="d n6">6 部署</div><span class="muted">← 首頁做好就能先上線一次，不用等全部</span></div>
+  <div class="cap">有先後：後面的要靠前面的才做得了</div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

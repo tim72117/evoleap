@@ -1,0 +1,171 @@
+{
+  "title": "找不同",
+  "lesson": "兒童網頁課 · 4.3 試做（找）",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {
+        "page": {
+          "parts": [
+            {
+              "id": "h1",
+              "kind": "h1",
+              "text": "小兔的名片"
+            },
+            {
+              "id": "img",
+              "kind": "img",
+              "emoji": "🐰"
+            },
+            {
+              "id": "p",
+              "kind": "p",
+              "text": "小兔最喜歡吃紅蘿蔔。",
+              "color": "#2b2620"
+            },
+            {
+              "id": "btn",
+              "kind": "button",
+              "text": "摸摸小兔"
+            }
+          ]
+        },
+        "goal": {
+          "parts": [
+            {
+              "id": "h1",
+              "kind": "h1",
+              "text": "小兔的名片",
+              "color": "#e8559a"
+            },
+            {
+              "id": "img",
+              "kind": "img",
+              "emoji": "🐰",
+              "bg": "#d6f2c9"
+            },
+            {
+              "id": "p",
+              "kind": "p",
+              "text": "小兔最喜歡吃紅蘿蔔。",
+              "color": "#2b2620"
+            },
+            {
+              "id": "btn",
+              "kind": "button",
+              "text": "跟小兔說嗨"
+            }
+          ]
+        }
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "compare": true,
+      "narration": "換你當小偵探！比比左邊的目標圖，點中間網頁上不一樣的地方。找到三個就過關。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點網頁上和目標不一樣的地方",
+    "body": "找到三個就過關",
+    "spots": [
+      {
+        "target": "kid:part:h1",
+        "id": "h1",
+        "label": "h1",
+        "steps": [
+          {
+            "mark": "h1",
+            "narration": "找到了！標題的顏色不一樣。"
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這裡已經找到了，再找找別的地方。"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:img",
+        "id": "img",
+        "label": "img",
+        "steps": [
+          {
+            "mark": "img",
+            "narration": "找到了！圖片的背景顏色不一樣。"
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這裡已經找到了，再找找別的地方。"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:btn",
+        "id": "btn",
+        "label": "btn",
+        "steps": [
+          {
+            "mark": "btn",
+            "narration": "找到了！按鈕上的字不一樣。"
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這裡已經找到了，再找找別的地方。"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:p",
+        "id": "p",
+        "label": "段落",
+        "steps": [
+          {
+            "mark": "p",
+            "same": true,
+            "narration": "段落和目標一樣喔，再找找看。"
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "段落是一樣的，再找找別的地方。"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "marks",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "三個都找到了，你真是厲害的小偵探！"
+        }
+      ]
+    }
+  }
+}

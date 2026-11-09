@@ -1,0 +1,15 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>DNS 紀錄表</title></head><body>
+<div class="wrap">
+<p class="kicker">AI 整理 · dns-records.html · 用 dig 查詢於 2026/11/09</p>
+<h1>xiaosen-bakery.com 目前的 DNS 紀錄</h1>
+<table class="t">
+<tr><th>名稱</th><th>類型</th><th>值</th><th>TTL</th><th>用途（白話）</th></tr>
+<tr><td class="mono">@</td><td><b>NS</b></td><td class="mono">ns1 / ns2.registrar-b.example</td><td>86400</td><td>誰在管這本電話簿：網域商乙</td></tr>
+<tr id="park"><td class="mono">@</td><td><b>A</b></td><td class="mono">203.0.113.10</td><td>3600</td><td>網域商的「停放頁」，還不是你的網站 <span class="pill wait">之後要換掉</span></td></tr>
+<tr><td class="mono">www</td><td><b>CNAME</b></td><td class="mono">parking.registrar-b.example</td><td>3600</td><td>www 也指向停放頁 <span class="pill wait">之後要換掉</span></td></tr>
+<tr><td class="mono">@</td><td><b>MX</b></td><td class="mono">10 mx.forward.registrar-b.example</td><td>3600</td><td>網域商附贈的信件轉寄</td></tr>
+<tr><td class="mono">@</td><td><b>TXT</b></td><td class="mono">"v=spf1 include:forward.registrar-b.example ~all"</td><td>3600</td><td>允許網域商替你轉寄信（SPF）</td></tr>
+<tr class="none"><td class="mono">@</td><td><b>AAAA</b></td><td>（沒有）</td><td>—</td><td>沒有 IPv6 地址，目前不需要</td></tr>
+</table>
+<div class="note">重點：網域剛買好，網域商先放了一個「停放頁」。下一步要把 A 和 www 改成指向你的網站。</div>
+</div></body></html>

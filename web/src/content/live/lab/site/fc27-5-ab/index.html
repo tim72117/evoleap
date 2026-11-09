@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>A/B 測試</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">兩個版本的到達頁，哪個比較好？</div>
+ <div class="p p0 card"><div class="split"><div class="v">A：「栗子季開賣」</div><div class="mid">每個訪客隨機分到一邊</div><div class="v">B：「撕開聽得到聲音」</div></div><div class="dots"><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i></div><div class="muted">分流：像丟硬幣決定誰看 A、誰看 B，兩邊的人才會差不多</div></div>
+ <div class="p p1 card"><div class="res"><div>A　10 人看　<b>3</b> 人預約　<span>30%</span></div><div>B　10 人看　<b>5</b> 人預約　<span>50%</span></div></div><div class="dots"><i class="a hit"></i><i class="b hit"></i><i class="a hit"></i><i class="b hit"></i><i class="a hit"></i><i class="b hit"></i><i class="a"></i><i class="b hit"></i><i class="a"></i><i class="b hit"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i><i class="a"></i><i class="b"></i></div><div class="q">B 贏了嗎？</div></div>
+ <div class="p p2 card"><div class="res"><div>A　1,000 人　<b>60</b> 人預約　<span>6.0%</span></div><div>B　1,000 人　<b>63</b> 人預約　<span>6.3%</span></div></div>
+  <svg viewBox="0 0 900 120" class="ci"><line x1="0" y1="100" x2="900" y2="100" stroke="#c4ccd9" stroke-width="2"/><rect x="250" y="20" width="300" height="24" rx="12" fill="#9db4f5"/><circle cx="400" cy="32" r="9" fill="#2448b8"/><rect x="280" y="62" width="320" height="24" rx="12" fill="#f5c58a"/><circle cx="440" cy="74" r="9" fill="#a3620a"/></svg>
+  <div class="q">兩條範圍大部分重疊：差距可能只是運氣</div></div>
+ <div class="p p3 card"><div class="res"><div>A　3,000 人　<b>180</b> 人預約　<span>6.0%</span></div><div>B　3,000 人　<b>243</b> 人預約　<span>8.1%</span></div></div>
+  <svg viewBox="0 0 900 120" class="ci"><line x1="0" y1="100" x2="900" y2="100" stroke="#c4ccd9" stroke-width="2"/><rect x="250" y="20" width="160" height="24" rx="12" fill="#9db4f5"/><circle cx="330" cy="32" r="9" fill="#2448b8"/><rect x="520" y="62" width="170" height="24" rx="12" fill="#f5c58a"/><circle cx="605" cy="74" r="9" fill="#a3620a"/></svg>
+  <div class="q ok">兩條範圍分開了：統計上顯著，B 真的比較好</div></div>
+ <div class="stepbar"><button class="btn" id="next">再多來一些人 ▶</button><span class="cap" data-t0="先分流" data-t1="才 20 個人：差兩個人，就差了 20%" data-t2="人多了，差距變得很小" data-t3="人夠多、差距夠大，才能下結論"></span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

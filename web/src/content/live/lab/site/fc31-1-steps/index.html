@@ -1,0 +1,24 @@
+<!doctype html><html><head><title>部署前檢查</title></head><body><div class="wrap">
+<h1 class="ttl">部署前，每次都要做的五件事</h1>
+<p class="sub">左邊靠記性，右邊寫成一個腳本</p>
+<div class="cols">
+ <div class="col box" id="byhand">
+  <div class="h">每次手動做</div>
+  <div class="row" data-at="h1"><i>1</i>跑測試 <span class="mono">npm test</span></div>
+  <div class="row" data-at="h1"><i>2</i>檢查型別 <span class="mono">tsc</span></div>
+  <div class="row miss" data-at="h2"><i>3</i>確認 .env 有設好 <b class="bad">忘了！</b></div>
+  <div class="row" data-at="h1"><i>4</i>打包 <span class="mono">npm run build</span></div>
+  <div class="row" data-at="h1"><i>5</i>看包好的檔案大小</div>
+  <div class="note bad" data-at="h2">第三次就漏了一步，正式網站壞掉</div>
+ </div>
+ <div class="arrowc" data-at="s1">→</div>
+ <div class="col box" id="script">
+  <div class="h">一個腳本</div>
+  <div class="file mono" data-at="s1">scripts/predeploy.sh</div>
+  <div class="cmd mono" data-at="s2">$ npm run predeploy</div>
+  <div class="out mono" data-at="s3">✓ 測試 &nbsp;✓ 型別 &nbsp;✓ .env &nbsp;✓ 打包 &nbsp;✓ 大小</div>
+  <div class="note ok" data-at="s3">每次都一模一樣，一步都不會漏</div>
+ </div>
+</div>
+<div class="btns"><button id="b1" data-go="h1">手動</button><button id="b2" data-go="h2">第三次</button><button id="b3" data-go="s1">寫成腳本</button><button id="b4" data-go="s2">執行</button><button id="b5" data-go="s3">結果</button></div>
+</div></body></html>

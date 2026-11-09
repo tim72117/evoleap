@@ -1,0 +1,116 @@
+/* 演員 fc6-flow:流程圖解。選擇器都以 .A-fc6-flow 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(README 第 1 節)。 */
+.A-fc6-flow {
+  position: relative;
+  width: 100%; height: 100%;
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 26px;
+  color: #23302c;
+  container-type: size;
+  --fl-idle: #8a948f;
+  --fl-on: #2f6fd6;
+  --fl-ok: #2e9a5b;
+  --fl-bad: #d2453a;
+  --fl-warn: #d99a1c;
+  --fl-dim: #c4c9c6;
+}
+.A-fc6-flow *, .A-fc6-flow *::before, .A-fc6-flow *::after { box-sizing: border-box; }
+.A-fc6-flow .fl-board {
+  position: absolute; inset: 0;
+  /* 舞台比設計寬度(1800)窄時(直式),節點連字一起等比例縮小,才不會疊在一起 */
+  font-size: min(26px, 1.45cqw);
+  background:
+    radial-gradient(circle, rgba(35, 48, 44, 0.09) 1.5px, transparent 1.6px) 0 0 / 28px 28px,
+    #fbfaf6;
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.14), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+.A-fc6-flow .fl-title {
+  position: absolute; left: 1.1em; top: 0.8em;
+  font-size: 0.9em; font-weight: 700; letter-spacing: 0.04em; color: #5d6a65;
+}
+.A-fc6-flow .fl-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.A-fc6-flow .fl-line { stroke-width: 4; stroke-linecap: round; fill: none; stroke: var(--fl-idle); }
+.A-fc6-flow .fl-line[data-tone="on"] { stroke: var(--fl-on); }
+.A-fc6-flow .fl-line[data-tone="ok"] { stroke: var(--fl-ok); }
+.A-fc6-flow .fl-line[data-tone="bad"] { stroke: var(--fl-bad); }
+.A-fc6-flow .fl-line[data-tone="warn"] { stroke: var(--fl-warn); }
+.A-fc6-flow .fl-line[data-tone="dim"] { stroke: var(--fl-dim); }
+.A-fc6-flow .fl-ah { fill: var(--fl-idle); }
+.A-fc6-flow .fl-ah[data-tone="on"] { fill: var(--fl-on); }
+.A-fc6-flow .fl-ah[data-tone="ok"] { fill: var(--fl-ok); }
+.A-fc6-flow .fl-ah[data-tone="bad"] { fill: var(--fl-bad); }
+.A-fc6-flow .fl-ah[data-tone="warn"] { fill: var(--fl-warn); }
+.A-fc6-flow .fl-ah[data-tone="dim"] { fill: var(--fl-dim); }
+.A-fc6-flow .fl-x circle { fill: #fff; stroke: var(--fl-bad); stroke-width: 4; }
+.A-fc6-flow .fl-x path { stroke: var(--fl-bad); stroke-width: 5; stroke-linecap: round; }
+
+.A-fc6-flow .fl-elabels { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+/* 連線上的文字放在線的上方、高過節點:文字常比節點之間的距離長,放線上會被節點蓋住 */
+.A-fc6-flow .fl-elabel {
+  position: absolute; transform: translate(-50%, calc(-50% - 2.5em));
+  padding: 0.18em 0.6em; border-radius: 0.6em;
+  background: #fff; border: 2px solid var(--fl-idle);
+  font-size: 0.78em; font-weight: 600; color: #4a5752; white-space: nowrap;
+}
+.A-fc6-flow .fl-elabel[data-tone="on"] { border-color: var(--fl-on); color: var(--fl-on); }
+.A-fc6-flow .fl-elabel[data-tone="ok"] { border-color: var(--fl-ok); color: var(--fl-ok); }
+.A-fc6-flow .fl-elabel[data-tone="bad"] { border-color: var(--fl-bad); color: var(--fl-bad); }
+.A-fc6-flow .fl-elabel[data-tone="warn"] { border-color: var(--fl-warn); color: #9a6a06; }
+.A-fc6-flow .fl-elabel[data-tone="dim"] { border-color: var(--fl-dim); color: #9aa29e; }
+
+.A-fc6-flow .fl-node {
+  position: absolute; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.35em;
+  --tone: var(--fl-idle);
+}
+.A-fc6-flow .fl-node[data-tone="on"] { --tone: var(--fl-on); }
+.A-fc6-flow .fl-node[data-tone="ok"] { --tone: var(--fl-ok); }
+.A-fc6-flow .fl-node[data-tone="bad"] { --tone: var(--fl-bad); }
+.A-fc6-flow .fl-node[data-tone="warn"] { --tone: var(--fl-warn); }
+.A-fc6-flow .fl-node[data-tone="dim"] { --tone: var(--fl-dim); }
+.A-fc6-flow .fl-body {
+  position: relative; width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 0.4em;
+  min-height: 2.9em; padding: 0.5em 0.8em;
+  background: #fff; border: 3px solid var(--tone); border-radius: 0.55em;
+  font-weight: 700; text-align: center; line-height: 1.25;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+.A-fc6-flow .fl-node[data-tone="on"] .fl-body { background: #eef4ff; }
+.A-fc6-flow .fl-node[data-tone="ok"] .fl-body { background: #ecf8f0; }
+.A-fc6-flow .fl-node[data-tone="bad"] .fl-body { background: #fdeeec; }
+.A-fc6-flow .fl-node[data-tone="warn"] .fl-body { background: #fff7e3; }
+.A-fc6-flow .fl-node[data-tone="dim"] .fl-body { background: #f4f5f4; color: #9aa29e; }
+.A-fc6-flow .fl-node[data-shape="round"] .fl-body { border-radius: 2em; }
+.A-fc6-flow .fl-node[data-shape="db"] .fl-body { border-radius: 50% / 0.9em; padding-top: 0.9em; padding-bottom: 0.9em; }
+.A-fc6-flow .fl-node[data-shape="cloud"] .fl-body { border-radius: 2.2em 2.2em 1.4em 1.4em; border-style: solid; }
+.A-fc6-flow .fl-node[data-shape="doc"] .fl-body { border-radius: 0.3em 1.2em 0.3em 0.3em; }
+.A-fc6-flow .fl-node[data-shape="person"] .fl-body { border-radius: 2.4em 2.4em 0.6em 0.6em; }
+.A-fc6-flow .fl-icon { font-size: 1.15em; line-height: 1; }
+.A-fc6-flow .fl-sub {
+  font-size: 0.74em; font-weight: 600; color: #4f5d58; text-align: center; line-height: 1.3;
+  padding: 0.15em 0.55em; border-radius: 0.5em; background: rgba(255, 255, 255, 0.85);
+  max-width: 14em;
+}
+.A-fc6-flow .fl-node[data-tone="ok"] .fl-sub { color: var(--fl-ok); }
+.A-fc6-flow .fl-node[data-tone="bad"] .fl-sub { color: var(--fl-bad); }
+.A-fc6-flow .fl-node[data-tone="on"] .fl-sub { color: var(--fl-on); }
+.A-fc6-flow .fl-ring {
+  position: absolute; left: -10px; right: -10px; top: -10px; height: calc(2.9em + 20px);
+  border: 4px solid var(--tone); border-radius: 0.9em; opacity: 0; pointer-events: none;
+}
+.A-fc6-flow .fl-packet {
+  position: absolute; transform: translate(-50%, -50%);
+  min-width: 1.3em; min-height: 1.3em; padding: 0.2em 0.65em; border-radius: 1em;
+  background: var(--fl-on); color: #fff; font-size: 0.8em; font-weight: 700; white-space: nowrap;
+  box-shadow: 0 0 0 6px rgba(47, 111, 214, 0.18), 0 6px 14px rgba(0, 0, 0, 0.18);
+  z-index: 3;
+}
+.A-fc6-flow .fl-packet[data-tone="ok"] { background: var(--fl-ok); box-shadow: 0 0 0 6px rgba(46, 154, 91, 0.2); }
+.A-fc6-flow .fl-packet[data-tone="bad"] { background: var(--fl-bad); box-shadow: 0 0 0 6px rgba(210, 69, 58, 0.2); }
+.A-fc6-flow .fl-packet[data-tone="warn"] { background: var(--fl-warn); box-shadow: 0 0 0 6px rgba(217, 154, 28, 0.2); }
+.A-fc6-flow .fl-packet[data-empty="1"] { padding: 0; width: 1.2em; height: 1.2em; min-width: 0; }
+.A-fc6-flow .fl-nodes { position: absolute; inset: 0; z-index: 2; }
+.A-fc6-flow .fl-elabels { position: absolute; inset: 0; z-index: 1; }

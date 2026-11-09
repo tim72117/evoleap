@@ -1,0 +1,101 @@
+{
+  "title": "雲端服務的開關與上限",
+  "lesson": "全環節 · 單元 18 · 18.5 基礎知識",
+  "teacher": {
+    "say": "認識 API、配額與用量",
+    "line": "在雲端用一個服務之前，要先打開它的開關。今天看懂三件事：API 是什麼、配額是什麼上限、用量怎麼看。"
+  },
+  "cast": {
+    "con": {
+      "actor": "browser",
+      "props": { "site": "fc18-5-api", "width": "desktop", "url": "https://console.example-cloud.com/apis" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "雲端服務的開關與上限",
+      "eyebrow": "全環節 · 單元 18 · 18.5 基礎知識",
+      "sub": "雲端 API、配額與用量",
+      "chapter": "每個服務都有開關",
+      "narration": "想像一間新房子：水、電、瓦斯都要先申請開通，才用得了。雲端也是一樣。"
+    },
+    {
+      "show": "con",
+      "narration": "這是專案的 API 頁。每個雲端服務都有一個開關，新專案大部分都是關著的。"
+    },
+    {
+      "callout": "con:sel:.apis",
+      "text": "API＝程式使用這個服務的入口；開關＝這個專案能不能用",
+      "narration": "API 是程式使用一個服務的入口，gcloud 和你的網站都是透過它跟雲端說話。開關沒打開，就算你有權限也用不了，會看到「API 未啟用」的錯誤。"
+    },
+    {
+      "on": "con",
+      "click": "#t-run",
+      "narration": "要部署網站，打開 Cloud Run。"
+    },
+    { "on": "con", "click": "#t-ar", "narration": "放網站映像檔的 Artifact Registry，" },
+    { "on": "con", "click": "#t-build", "narration": "幫你打包的 Cloud Build。" },
+    {
+      "callout": "con:sel:#t-maps",
+      "text": "用不到的不要開",
+      "narration": "用不到的就不要開，例如地圖。開著本身通常不收費，但開越多，越難看清楚專案裡到底有什麼在跑。"
+    },
+    {
+      "on": "con",
+      "click": "#b1",
+      "chapter": "配額：每個服務的上限",
+      "narration": "第二件事，配額。每個服務都有使用上限，例如 Cloud Run 一個地區最多開幾台、每分鐘能操作幾次。"
+    },
+    {
+      "callout": "con:sel:.q.hot",
+      "text": "配額用滿：回錯誤，而不是無限扣錢",
+      "narration": "看這一行，快用滿了。用滿的時候，服務會回「超過配額」的錯誤，而不是無限扣錢。有些配額你可以自己調低，當作省錢的保險。"
+    },
+    {
+      "on": "con",
+      "click": "#b2",
+      "chapter": "用量：實際用了多少",
+      "narration": "第三件事，用量：實際被呼叫了幾次。週末客人多，請求也多。用量和帳單是連在一起的，用量突然暴增，帳單也會跟著漲。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "AI 執行部署指令時，出現「Cloud Run API has not been used in project … or it is disabled」。這是什麼問題？",
+      "body": "選一個。",
+      "id": "api",
+      "options": [
+        {
+          "label": "API 開關還沒打開",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "想一想",
+              "sub": "啟用 Cloud Run API 就好；請 AI 用 gcloud services enable",
+              "narration": "答對了。這是開關沒打開，請 AI 用 gcloud services enable 啟用就好。"
+            }
+          ]
+        },
+        {
+          "label": "配額用完了",
+          "steps": [
+            {
+              "card": "不是配額",
+              "eyebrow": "再想想",
+              "sub": "disabled＝沒啟用；配額用完的訊息會寫 quota exceeded",
+              "narration": "不是配額。disabled 是沒啟用的意思；配額用完的錯誤會寫 quota exceeded。"
+            }
+          ]
+        }
+      ]
+    },
+    { "hide": "con" },
+    {
+      "card": "API：服務的開關\n配額：上限\n用量：實際用了多少",
+      "eyebrow": "學會",
+      "sub": "只開需要的 API；用量暴增，帳單也會漲",
+      "chapter": "學會",
+      "narration": "API 是服務的開關，配額是上限，用量是實際用了多少。下一堂，請 AI 啟用部署需要的 API，並列出目前的用量。"
+    }
+  ]
+}

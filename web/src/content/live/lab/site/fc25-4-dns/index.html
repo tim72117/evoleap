@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>網域管理 · DNS</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>網域管理<span class="sp"></span><span class="who">komori-bakery.example</span></div>
+<div class="wrap">
+ <div class="ttl">DNS 紀錄</div>
+ <table class="t card" id="records"><tr><th>類型</th><th>名稱</th><th>內容</th><th>TTL</th></tr>
+  <tr><td>A</td><td>@</td><td class="mono">203.0.113.24</td><td>1 小時</td></tr>
+  <tr><td>CNAME</td><td>www</td><td class="mono">komori-bakery.example</td><td>1 小時</td></tr>
+ </table>
+ <div class="card add">
+  <div class="row">
+   <label class="field" style="width:150px"><span>類型</span><select id="type"><option>A</option><option>CNAME</option><option>TXT</option><option>MX</option></select></label>
+   <label class="field" style="width:140px"><span>名稱</span><input id="name" placeholder="@"></label>
+   <label class="field col"><span>內容</span><input id="value" class="mono"></label>
+  </div>
+  <button class="btn" id="save">新增紀錄</button> <span id="saved" class="pill ok gone">已儲存</span>
+ </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

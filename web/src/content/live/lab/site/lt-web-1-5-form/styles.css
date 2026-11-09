@@ -1,0 +1,74 @@
+* { box-sizing: border-box; }
+body { margin: 0; display: flex; flex-direction: column; font-family: sans-serif; background: #efe8dc; color: #34281e; }
+.page { position: relative; flex: 1; display: grid; grid-template-columns: 600px 1fr; align-items: center; gap: 28px; padding: 18px 28px; }
+
+.card { padding: 22px 30px; border-radius: 20px; background: #fff; box-shadow: 0 6px 24px rgba(60, 40, 20, 0.1); }
+.head { margin-bottom: 12px; font-size: 26px; font-weight: bold; }
+form { display: flex; flex-direction: column; gap: 10px; }
+.f { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 4px 8px; border-radius: 10px; }
+label { font-size: 19px; color: #5a4a3c; }
+label i { color: #c0392b; font-style: normal; }
+input[type='text'], input[type='tel'], select { font: 21px sans-serif; padding: 8px 12px; border: 2px solid #cdbfae; border-radius: 10px; background: #fff; color: #34281e; }
+.ck { display: flex; align-items: center; gap: 10px; font-size: 20px; color: #34281e; }
+input[type='checkbox'] { width: 24px; height: 24px; accent-color: #2f7d4f; }
+button { align-self: flex-start; margin-top: 4px; padding: 12px 40px; border: 0; border-radius: 999px; background: #2f7d4f; color: #fff; font-size: 21px; }
+.err-msg { display: none; font-size: 17px; color: #c0392b; }
+.f.err input { border-color: #c0392b; background: #fff4f2; }
+.f.err .err-msg { display: block; }
+
+/* 欄位種類的標示 */
+.page[data-tags='on'] [data-type] { outline: 3px dashed #4f6bed; outline-offset: 2px; }
+.page[data-tags='on'] [data-type]::after { content: attr(data-type); position: absolute; right: -6px; top: -14px; padding: 1px 10px; border-radius: 6px; background: #4f6bed; color: #fff; font: bold 15px/1.5 monospace; white-space: nowrap; }
+.page[data-tags='on'] button[data-type] { position: relative; }
+.page[data-tags='on'] button[data-type]::after { right: auto; left: calc(100% + 14px); top: 10px; }
+
+/* 送出成功 */
+.ok { display: none; margin-top: 12px; padding: 12px 16px; border-radius: 12px; background: #e6f5ea; color: #1f6b3a; font-size: 20px; align-items: center; gap: 10px; }
+.tick { width: 26px; height: 26px; border-radius: 50%; background: #2f7d4f; }
+.page[data-sent='yes'][data-trip='4'] .ok { display: flex; }
+
+/* 「怎麼知道這堂課的」三種欄位 */
+.extra { display: none; background: #fff8e1; }
+.page[data-extra='text'] .x-text, .page[data-extra='select'] .x-select, .page[data-extra='check'] .x-check { display: flex; }
+.page[data-extra='text'] .x-text input { border-color: #e0a800; }
+
+/* ---------- 送出之後 ---------- */
+.trip { padding: 20px 24px; border-radius: 20px; background: #fbf8f2; border: 2px dashed #d6c8b4; opacity: 0.35; }
+.page:not([data-trip='0']) .trip { opacity: 1; border-style: solid; }
+.t-title { font-size: 21px; font-weight: bold; margin-bottom: 14px; }
+.ends { display: grid; grid-template-columns: 110px 1fr 110px; align-items: center; gap: 8px; }
+.end { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 16px; text-align: center; }
+.ico { width: 80px; height: 64px; border-radius: 10px; }
+.ico-b { background: linear-gradient(#cfd8e8 0 18%, #fff 18%); border: 3px solid #7d8bab; }
+.ico-s { width: 60px; height: 80px; background: repeating-linear-gradient(#5b6578 0 16px, #7d889c 16px 20px); border-radius: 8px; }
+.road { position: relative; height: 210px; }
+.dash { position: absolute; left: 0; right: 0; top: 50%; border-top: 4px dashed #c4b6a2; }
+.env { position: absolute; top: 18px; left: 0; width: 230px; padding: 34px 12px 10px; border-radius: 10px; background: #fff3d6; border: 2px solid #d9b56a; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12); display: none; }
+.flap { position: absolute; left: 0; right: 0; top: 0; height: 30px; background: linear-gradient(to bottom right, transparent 49%, #e8c983 50%) left / 50% 100% no-repeat, linear-gradient(to bottom left, transparent 49%, #e8c983 50%) right / 50% 100% no-repeat; }
+.kv { font: 15px/1.55 monospace; }
+.kv b { color: #8a3b12; }
+.page[data-trip='1'] .env { display: block; left: 0; }
+.page[data-trip='2'] .env { display: block; left: calc(50% - 115px); }
+.page[data-trip='3'] .env { display: block; left: calc(100% - 230px); }
+.db { margin-top: 14px; border-radius: 12px; overflow: hidden; border: 2px solid #c9d2e3; background: #fff; }
+.db-h { padding: 6px 14px; background: #5b6578; color: #fff; font-size: 16px; }
+.db-row { display: grid; grid-template-columns: 1fr 1fr 60px; padding: 6px 14px; font-size: 17px; border-top: 1px solid #e3e7ef; }
+.db-row.new { display: none; background: #e6f5ea; font-weight: bold; }
+.page[data-trip='4'] .db-row.new { display: grid; }
+
+/* ---------- 互動點:缺了標籤的欄位 ---------- */
+.q-card { display: none; gap: 10px; }
+.page[data-q='label'] .form-card:not(.q-card), .page[data-q='label'] .trip { display: none; }
+.page[data-q='label'] { grid-template-columns: 720px; justify-content: center; }
+.page[data-q='label'] .q-card { display: flex; flex-direction: column; }
+.qf { padding: 8px 10px 8px 64px; outline: 3px dashed #c4b6a2; outline-offset: -2px; min-height: 60px; justify-content: center; }
+.qf::before { position: absolute; left: 12px; top: 50%; margin-top: -20px; width: 40px; height: 40px; border-radius: 50%; background: #34281e; color: #fff; font: bold 22px/40px sans-serif; text-align: center; }
+#q-a::before { content: 'A'; } #q-b::before { content: 'B'; } #q-c::before { content: 'C'; } #q-d::before { content: 'D'; }
+.why { display: none; position: absolute; right: 10px; top: -13px; padding: 1px 10px; border-radius: 6px; background: #6b7280; color: #fff; font-size: 15px; }
+.page:not([data-pick='none']) .why { display: block; }
+.page:not([data-pick='none']) #q-b { outline: 5px solid #0f9d74; background: #ecfaf4; }
+.page:not([data-pick='none']) #q-b .why { background: #0f9d74; }
+.page[data-pick='a'] #q-a, .page[data-pick='c'] #q-c, .page[data-pick='d'] #q-d { outline: 5px solid #d64545; }
+.typed { display: none; font-size: 19px; color: #5a4a3c; }
+.ghost { padding: 4px 10px; border: 2px solid #cdbfae; border-radius: 8px; font-family: monospace; }
+.page:not([data-pick='none']) .typed { display: block; }

@@ -1,0 +1,19 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#fdf6ec;color:#3a2a20}
+.tabs{display:flex;gap:10px;padding:14px 40px;background:#fff;border-bottom:1px solid #eadfcd}
+.tb{padding:8px 18px;border-radius:20px;border:2px solid #e2d3bd;font-weight:700}
+.tb.on{border-color:#8a5a35;background:#8a5a35;color:#fff}
+.pg{padding:20px 60px}
+.tpl{display:none}
+.pg[data-v="tpl"] .tpl{display:block}.pg[data-v="tpl"] .faq{display:none}
+h1{font-size:32px;margin:6px 0 14px}
+.grp{background:#fff;border-radius:16px;padding:12px 22px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.05)}
+h2{font-size:18px;color:#8a5a35;margin:4px 0}
+details{border-top:1px solid #f0e6d6;padding:10px 0;font-size:19px}
+summary{font-weight:700;list-style:none}
+summary::before{content:"＋ ";color:#8a5a35}
+details[open] summary::before{content:"－ "}
+details p{margin:8px 0 0;color:#5a4636;line-height:1.6}
+.mail{background:#fff;border-radius:16px;padding:16px 24px;box-shadow:0 4px 14px rgba(0,0,0,.05)}
+.part{position:relative;font-size:20px;line-height:1.6;margin:0 0 14px;padding:10px 14px 10px 150px;border-radius:10px;background:#fbf7f0}
+.part i{position:absolute;left:14px;top:10px;font-style:normal;font-size:15px;font-weight:800;color:#8a5a35}
+.var{margin-top:12px;font-size:17px;color:#6a5544}.var b{color:#2f6fd6}

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>小森咖啡｜課程預約</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page" data-tags="off" data-sent="no" data-trip="0" data-extra="none" data-q="form" data-pick="none">
+    <!-- 預約表單 -->
+    <div class="card form-card" id="card">
+      <div class="head">小森咖啡・手沖入門課預約</div>
+      <form id="form" novalidate>
+        <div class="f" id="f-name" data-type="&lt;input type=&quot;text&quot;&gt; 文字輸入">
+          <label for="name" id="lb-name">姓名 <i>*</i></label>
+          <input id="name" name="name" type="text" required>
+          <span class="err-msg">請填寫姓名</span>
+        </div>
+        <div class="f" id="f-phone" data-type="&lt;input type=&quot;tel&quot;&gt; 電話">
+          <label for="phone">手機 <i>*</i></label>
+          <input id="phone" name="phone" type="tel" required>
+          <span class="err-msg">這一格是必填</span>
+        </div>
+        <div class="f" id="f-slot" data-type="&lt;select&gt; 下拉選單">
+          <label for="slot">場次</label>
+          <select id="slot" name="slot">
+            <option value="sat-am">11/15（六）上午 10:00</option>
+            <option value="sat-pm">11/15（六）下午 2:00</option>
+            <option value="sun-am">11/16（日）上午 10:00</option>
+          </select>
+        </div>
+        <!-- 互動點:「怎麼知道這堂課的」換成不同種類的欄位 -->
+        <div class="f extra x-text" id="x-text"><label>怎麼知道這堂課的？</label><input type="text" value="朋有介紹吧"></div>
+        <div class="f extra x-select" id="x-select"><label>怎麼知道這堂課的？</label><select><option>朋友介紹</option><option>社群貼文</option><option>路過看到</option></select></div>
+        <div class="f extra x-check" id="x-check"><label>怎麼知道這堂課的？</label><span class="ck"><input type="checkbox"> 朋友介紹</span></div>
+        <div class="f check" id="f-kit" data-type="&lt;input type=&quot;checkbox&quot;&gt; 勾選">
+          <label class="ck" for="kit"><input id="kit" name="kit" type="checkbox"> 加購手沖壺組（+NT$ 600）</label>
+        </div>
+        <button type="submit" id="send" data-type="&lt;button type=&quot;submit&quot;&gt; 送出">送出預約</button>
+      </form>
+      <div class="ok" id="ok"><span class="tick"></span>預約成功！確認簡訊會寄到你的手機。</div>
+    </div>
+
+    <!-- 互動點:哪一個欄位缺了標籤 -->
+    <div class="card form-card q-card" id="q-card">
+      <div class="head">會員註冊</div>
+      <div class="f qf" id="q-a"><label>暱稱</label><input type="text"><span class="why">有標籤</span></div>
+      <div class="f qf" id="q-b"><input type="text" placeholder="Email"><span class="why">只有提示字，沒有標籤</span></div>
+      <div class="f qf" id="q-c"><label>生日</label><input type="text" value="1995/04/12"><span class="why">有標籤</span></div>
+      <div class="f qf check" id="q-d"><label class="ck"><input type="checkbox"> 我同意會員條款</label><span class="why">勾選框的標籤寫在旁邊</span></div>
+      <div class="typed">打字之後：<span class="ghost">ann@example.com</span>　← 這一格要填什麼？</div>
+    </div>
+
+    <!-- 右邊:送出之後,資料去了哪裡 -->
+    <div class="trip" id="trip">
+      <div class="t-title">送出之後，資料去了哪裡</div>
+      <div class="ends">
+        <div class="end" id="end-browser"><span class="ico ico-b"></span>你的瀏覽器</div>
+        <div class="road"><span class="dash"></span>
+          <div class="env" id="env"><span class="flap"></span>
+            <div class="kv" id="kv"><div>name = <b id="v-name">—</b></div><div>phone = <b id="v-phone">—</b></div><div>slot = <b id="v-slot">—</b></div><div>kit = <b id="v-kit">—</b></div></div>
+          </div>
+        </div>
+        <div class="end" id="end-server"><span class="ico ico-s"></span>小森咖啡的伺服器</div>
+      </div>
+      <div class="db" id="db">
+        <div class="db-h">預約名單</div>
+        <div class="db-row old"><span>陳大文</span><span>11/15 上午</span><span>否</span></div>
+        <div class="db-row new" id="db-new"><span id="d-name">—</span><span id="d-slot">—</span><span id="d-kit">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div hidden>
+    <button data-set="tags=on"></button>
+    <button data-set="tags=off"></button>
+    <button data-set="trip=1"></button>
+    <button data-set="trip=2"></button>
+    <button data-set="trip=3"></button>
+    <button data-set="trip=4"></button>
+    <button data-set="extra=text"></button>
+    <button data-set="extra=select"></button>
+    <button data-set="extra=check"></button>
+    <button data-set="extra=none"></button>
+    <button data-set="q=label"></button>
+    <button data-set="pick=a"></button><button data-set="pick=b"></button><button data-set="pick=c"></button><button data-set="pick=d"></button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

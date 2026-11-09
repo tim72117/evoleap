@@ -4,6 +4,13 @@ import { InteractiveScenePage } from '../interactive/InteractiveScenePage'
 import { ActorInteractionPage } from './ActorInteractionPage'
 import { AdvancedPage } from './AdvancedPage'
 import { AiTipsPage } from './AiTipsPage'
+import { AiScenariosPage } from './AiScenariosPage'
+import { FullCourseCheckPage } from './FullCourseCheckPage'
+import { FullCoursePage } from './FullCoursePage'
+import { LabTrialPage } from './LabTrialPage'
+import { LabTrialsPage } from './LabTrialsPage'
+import { LAB_TRIALS } from './labTrials'
+import { FULL_ITEMS, KIND_LABEL, fullScriptPath, fullTrialPath, type FullCourseKind } from './fullCourse'
 import { AiToolsPage } from './AiToolsPage'
 import { CoverPage } from './CoverPage'
 import { FieldsPage } from './FieldsPage'
@@ -37,7 +44,7 @@ import { VisualsPage } from './VisualsPage'
 import { MembersPage } from './MembersPage'
 
 // 依課程地圖（src/content/levels.ts 的 LEVELS）分等級：
-// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced，再接不分等級的課程 ai-tips、kids-web、web-basics；開發 visuals、portrait(直式舞台)、actor-interaction（演員互動：構想、showcase 演員展示、scene 互動教學場景、push 把演員推到主畫面、static 靜態演員）；跨等級構想 mcp、member、resources、news-feed、extensions(延伸課程)。
+// L0 tools、L1 ai-tools／life-tools（兩門並列）／l1-ideas（構想區）、L2 vibe-coding、L3 ai-agent/*、L4 advanced，再接不分等級的課程 ai-tips、kids-web、web-basics；開發 visuals、portrait(直式舞台)、actor-interaction（演員互動：構想、showcase 演員展示、scene 互動教學場景、push 把演員推到主畫面、static 靜態演員）；跨等級構想 mcp、member、resources、news-feed、extensions(延伸課程)、ai-scenarios(AI 自動化情境清單)、full-course(全環節課程清單)。
 export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio', element: <ProposalIndexPage /> },
   { path: '/studio/todo', element: <TodoPage /> },
@@ -59,6 +66,27 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/resources', element: <ResourcesPage /> },
   { path: '/studio/news-feed', element: <NewsFeedPage /> },
   { path: '/studio/extensions', element: <ExtensionsPage /> },
+  { path: '/studio/ai-scenarios', element: <AiScenariosPage /> },
+  { path: '/studio/full-course', element: <FullCoursePage /> },
+  { path: '/studio/full-course/check', element: <FullCourseCheckPage /> },
+  // 其他課程(和全環節課程不重疊的部分)的試做,清單與腳本在 labTrials.ts、content/live/lab/<課程>/
+  { path: '/studio/trials', element: <LabTrialsPage /> },
+  ...LAB_TRIALS.map((t) => ({ path: t.path, element: <LabTrialPage key={t.path} trial={t} /> })),
+  // 全環節課程清單的試做:每個環節兩堂(基礎知識、用 AI 完成),腳本在 content/live/lab/full-course/
+  ...FULL_ITEMS.flatMap((it) =>
+    (['know', 'ai'] as FullCourseKind[]).map((k) => ({
+      path: fullTrialPath(it.code, k),
+      element: (
+        <InteractiveScenePage
+          key={`full-${it.code}-${k}`}
+          script={fullScriptPath(it.code, k)}
+          pageTitle={`${it.code} ${it.lesson.title}（${KIND_LABEL[k]}）試做`}
+          interaction="static"
+          back={{ to: '/studio/full-course', label: '← 全環節課程清單' }}
+        />
+      ),
+    })),
+  ),
   { path: '/studio/actor-interaction', element: <ActorInteractionPage /> },
   { path: '/studio/actor-interaction/showcase', element: <ActorsPage /> },
   { path: '/studio/actor-interaction/scene', element: <InteractiveScenePage key="bakery" script="lab/interactive-bakery.json" pageTitle="互動教學場景" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
@@ -74,7 +102,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
     element: <InteractiveScenePage key={`web-${id}`} script={`lab/web/${id}.json`} pageTitle={`網頁運作知識 ${id} 試做`} back={{ to: '/studio/web-basics', label: '← 網頁運作知識' }} />,
   })),
   // L2 基礎的試做,腳本在 content/live/lab/vibe-coding/
-  ...(['4.1', '4.2', '4.3'] as const).map((id) => ({
+  ...(['4.1', '4.2', '4.3', '15.1', '15.2', '15.3'] as const).map((id) => ({
     path: `/studio/vibe-coding/${id.replace('.', '-')}`,
     element: <InteractiveScenePage key={`vibe-${id}`} script={`lab/vibe-coding/${id}.json`} pageTitle={`L2 基礎 ${id} 試做`} back={{ to: '/studio/vibe-coding', label: '← L2 Vibe Coding 入門' }} />,
   })),

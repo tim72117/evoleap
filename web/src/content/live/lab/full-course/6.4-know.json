@@ -1,0 +1,151 @@
+{
+  "title": "分支、Pull Request 與版本標籤",
+  "lesson": "全環節 · 單元 6 · 6.4 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天學開平行世界",
+    "line": "今天要認識三個工具：分支讓你在平行世界裡試新功能，Pull Request 讓改動合併前先被看過，標籤替一個版本取名字。"
+  },
+  "blocking": { "cast": ["git", "host"], "shot": "depth" },
+  "cast": {
+    "git": {
+      "actor": "fc2-git",
+      "props": { "commits": ["建立介紹頁", "加上作品集", "手機版修好"], "view": "graph" },
+      "place": "window",
+      "hidden": true
+    },
+    "host": {
+      "actor": "browser",
+      "props": { "site": "fc6-4-pr", "width": "desktop", "url": "https://code.example/lin/profile/pull/1" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "分支、Pull Request 與版本標籤",
+      "eyebrow": "全環節 · 單元 6 · 6.4 基礎知識",
+      "sub": "平行世界、合併前的檢查、替版本取名字",
+      "chapter": "分支：開一個平行世界",
+      "narration": "你的介紹頁已經上線了。現在想加一個聯絡表單，可是又怕做到一半，把正在用的網站弄壞。"
+    },
+    {
+      "show": "git",
+      "narration": "這條線叫 main，是主線，代表正式的版本。HEAD 標的是你現在所在的位置。"
+    },
+    {
+      "on": "git",
+      "branch": "feature/contact",
+      "narration": "開一個分支，叫 feature 斜線 contact。就像從主線岔出一個平行世界，HEAD 也跟著切過去了。"
+    },
+    { "on": "git", "create": "contact.html" },
+    { "on": "git", "add": "contact.html" },
+    { "on": "git", "commit": "新增聯絡表單", "narration": "在這個平行世界裡新增聯絡表單，" },
+    { "on": "git", "change": "styles.css" },
+    { "on": "git", "add": "styles.css" },
+    { "on": "git", "commit": "表單樣式", "narration": "再調整樣式。這兩個 commit 都只在分支上，主線完全不受影響。" },
+    {
+      "on": "git",
+      "switch": "main",
+      "narration": "做到一半，有人回報首頁有錯字。切回 main，"
+    },
+    { "on": "git", "change": "index.html" },
+    { "on": "git", "add": "index.html" },
+    {
+      "on": "git",
+      "commit": "修正首頁錯字",
+      "narration": "在主線上修好、存起來。表單還沒做完，也不會跟著被上線。這就是分支的好處：兩件事各做各的。"
+    },
+    {
+      "on": "git",
+      "switch": "feature/contact",
+      "chapter": "Pull Request：合併前先看過",
+      "narration": "表單做好了。要放回主線之前，先開一個 Pull Request，簡稱 PR。"
+    },
+    {
+      "on": "git",
+      "pr": "加上聯絡表單",
+      "narration": "Pull Request 的意思是：「我在這個分支做好了，請把它拉進 main。」它是一個讓人在合併前檢查的地方。"
+    },
+    {
+      "show": "host",
+      "narration": "在 GitHub 這類程式碼平台上，Pull Request 長這樣。"
+    },
+    {
+      "callout": "host:sel:.desc",
+      "text": "說明：做了什麼、怎麼測",
+      "narration": "上面是說明：這次做了什麼、要怎麼測試。"
+    },
+    {
+      "callout": "host:sel:.checks",
+      "text": "自動檢查：build、測試都通過",
+      "narration": "這裡是自動檢查：build 有沒有成功、測試有沒有通過。紅色的就先別合併。"
+    },
+    { "on": "host", "click": "#tab-files", "narration": "切到變更的檔案，可以一個一個看改了什麼。就算只有你一個人，自己看一遍也常常抓到問題。" },
+    { "on": "host", "click": "#tab-talk" },
+    { "on": "host", "click": "#merge", "narration": "看過、檢查都通過，按下合併。" },
+    {
+      "on": "git",
+      "switch": "main",
+      "narration": "回到線圖，切到 main，"
+    },
+    {
+      "on": "git",
+      "merge": "feature/contact",
+      "narration": "分支被合併回主線，多了一個紫色的合併點。現在 main 同時有錯字修正和聯絡表單。"
+    },
+    {
+      "on": "git",
+      "tag": "v0.1.0",
+      "chapter": "標籤：替版本取名字",
+      "narration": "最後，替這個時間點插上一個標籤：v0.1.0。"
+    },
+    {
+      "callout": "git:tag:v0.1.0",
+      "text": "標籤 = 永遠指著這個 commit 的名字",
+      "narration": "commit 的編號是一串亂碼，很難記。標籤就像書籤，替一個 commit 取一個好記的名字，而且永遠指著它。之後說「退回 v0.1.0」，大家都知道是哪一版。"
+    },
+    { "on": "host", "click": "#tab-tags", "narration": "推上去之後，在平台的標籤頁也看得到。" },
+    {
+      "card": "分支：開始做一件新的事\nPull Request：要合併回主線之前\n標籤：要發布一個版本的時候",
+      "eyebrow": "什麼時候用",
+      "sub": "版號 v0.1.0：大改.小功能.修錯",
+      "chapter": "什麼時候用哪一個",
+      "narration": "開始做一件新的事，開分支；做好了要合回主線，開 Pull Request；要發布一個版本，打標籤。版號三個數字，由左到右是大改版、加功能、修錯誤。"
+    },
+    {
+      "checkpoint": "你想試著把網站整個換成深色主題，但不確定好不好看。第一步應該？",
+      "body": "選一個。",
+      "id": "branch",
+      "options": [
+        {
+          "label": "開一個分支再改",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "在分支上試，不好看就整個丟掉，主線不受影響", "narration": "答對了。在分支上試，不好看就整條分支丟掉，主線一點都不受影響。" }
+          ]
+        },
+        {
+          "label": "直接在 main 上改",
+          "steps": [
+            { "card": "有風險", "eyebrow": "考考你", "sub": "改到一半，正式版也跟著變成一半", "narration": "直接在主線上改，改到一半的東西就混進正式版了。" },
+            { "card": "答案：開一個分支再改", "eyebrow": "考考你", "sub": "不確定的嘗試，都放在分支上", "narration": "不確定的嘗試，都先開分支。" }
+          ]
+        },
+        {
+          "label": "先打一個標籤",
+          "steps": [
+            { "card": "還太早", "eyebrow": "考考你", "sub": "標籤是要發布版本時才打", "narration": "標籤是要發布一個版本時才打的，還沒開始改，用不到。" },
+            { "card": "答案：開一個分支再改", "eyebrow": "考考你", "sub": "不確定的嘗試，都放在分支上", "narration": "不確定的嘗試，都先開分支。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "分支：平行世界\nPull Request：合併前先看過\n標籤：替版本取名字",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 開分支、建 Pull Request、合併後打出 v0.1.0",
+      "chapter": "學會",
+      "narration": "分支是平行世界，Pull Request 讓合併前先被看過，標籤替版本取名字。下一堂，我們請 AI 從頭走一遍，打出你的第一個版本 v0.1.0。"
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "title": "不用金鑰檔的部署權限",
+  "lesson": "全環節 · 單元 20 · 20.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天把舊金鑰換掉",
+    "line": "這一課請 AI 用 gcloud 設定不用金鑰的部署權限，確認部署成功之後，再把 GitHub 上的舊金鑰刪掉。順序很重要，我們一起看它怎麼做。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "換掉部署金鑰",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "auto",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "不用金鑰檔的部署權限",
+      "eyebrow": "全環節 · 單元 20 · 20.2 用 AI 完成",
+      "sub": "一次交代清楚，讓 AI 從設定做到驗證",
+      "narration": "這次是一次交代清楚，讓 AI 自己從設定一路做到驗證。"
+    },
+    {
+      "show": "claude",
+      "chapter": "交代目標與完成標準",
+      "narration": "重點是把「怎樣算完成」講明白。"
+    },
+    {
+      "on": "claude",
+      "user": "把部署權限改成 Workload Identity Federation，只信任 komori/shop 這個專案。完成標準：用新方式推標籤部署成功，而且 GitHub 上和雲端上都沒有舊的金鑰。刪除前先問我。",
+      "narration": "完成標準有兩個：新方式部署成功，以及兩邊都沒有舊金鑰。另外特別交代：刪除前先問我。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh secret list",
+      "result": "GCP_SA_KEY　更新於 3 個月前",
+      "narration": "它先查現況：GitHub 上果然存著一把雲端金鑰。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立身分池與 GitHub 提供者", "doing"],
+        ["只信任 komori/shop", "pending"],
+        ["讓部署帳號給這個專案使用", "pending"],
+        ["改工作流程", "pending"],
+        ["推標籤，確認部署成功", "pending"],
+        ["刪除舊金鑰（先問）", "pending"]
+      ],
+      "chapter": "AI 列出步驟",
+      "narration": "它列出六個步驟。注意最後一步才刪舊金鑰：新方式確定能用之前，舊的不能先拆。"
+    },
+    {
+      "callout": "claude:todos",
+      "text": "先蓋好新的門，確認打得開，才拆舊的鎖",
+      "narration": "如果先刪金鑰，新設定又有問題，你就完全沒辦法部署了。好的順序是先確認新的能用。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud iam workload-identity-pools create github-pool --location=global",
+      "result": "已建立 github-pool",
+      "chapter": "用 gcloud 設定",
+      "narration": "第一步，在雲端建立一個「身分池」，用來放外部的身分來源。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud iam workload-identity-pools providers create-oidc github --workload-identity-pool=github-pool --issuer-uri=https://token.actions.githubusercontent.com --attribute-condition=\"assertion.repository=='komori/shop'\"",
+      "result": "已建立提供者 github",
+      "narration": "接著告訴它：身分證明由 GitHub 簽發。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "attribute-condition：只有 komori/shop 能領通行證",
+      "narration": "最關鍵的是這一段條件：只有 komori shop 這個專案出示的身分才算數。少了它，任何 GitHub 專案都可能領到通行證。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud iam service-accounts add-iam-policy-binding deployer@komori-shop.iam --role=roles/iam.workloadIdentityUser --member=principalSet://…/attribute.repository/komori/shop",
+      "result": "已更新",
+      "narration": "再讓原本的部署帳號，可以被這個專案借用。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立身分池與 GitHub 提供者", "done"],
+        ["只信任 komori/shop", "done"],
+        ["讓部署帳號給這個專案使用", "done"],
+        ["改工作流程", "doing"],
+        ["推標籤，確認部署成功", "pending"],
+        ["刪除舊金鑰（先問）", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": ".github/workflows/deploy.yml",
+      "lines": [
+        [8, "+", "    permissions: { id-token: write }"],
+        [12, " ", "      - uses: google-github-actions/auth@v2"],
+        [13, "-", "          credentials_json: ${{ secrets.GCP_SA_KEY }}"],
+        [13, "+", "          workload_identity_provider: projects/…/providers/github"],
+        [14, "+", "          service_account: deployer@komori-shop.iam"]
+      ],
+      "narration": "工作流程改兩處：允許 GitHub 簽發身分證明，以及不再讀金鑰，改用剛才建立的提供者。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git tag v1.0.2 && git push origin main v1.0.2 && gh run watch",
+      "result": "✓ test ✓ deploy",
+      "out": "auth：已用 Workload Identity 取得臨時權杖",
+      "chapter": "先驗證新方式",
+      "narration": "推一個標籤驗證。部署成功，紀錄寫著：已用 Workload Identity 取得臨時權杖。新的門打得開了。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立身分池與 GitHub 提供者", "done"],
+        ["只信任 komori/shop", "done"],
+        ["讓部署帳號給這個專案使用", "done"],
+        ["改工作流程", "done"],
+        ["推標籤，確認部署成功", "done"],
+        ["刪除舊金鑰（先問）", "doing"]
+      ]
+    },
+    {
+      "on": "claude",
+      "ask": "gh secret delete GCP_SA_KEY",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "刪除 GitHub 上的舊金鑰，刪了不能復原",
+      "chapter": "拆掉舊的鎖",
+      "narration": "新方式確認能用，才來刪舊金鑰。照我們交代的，它先問。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "刪除不能復原：新方式已驗證成功，才允許",
+      "narration": "刪除不能復原。剛才已經看到新方式部署成功，所以可以放心允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gh secret delete GCP_SA_KEY", "result": "已刪除" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud iam service-accounts keys list --iam-account=deployer@komori-shop.iam --managed-by=user",
+      "result": "1 把：a3f9…（建立於 3 個月前）",
+      "narration": "只刪 GitHub 上的還不夠。那把金鑰在雲端仍然有效，萬一早就外流，別人照樣能用。所以它也去查雲端。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud iam service-accounts keys delete a3f9…",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "停用並刪除雲端上的這把金鑰"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud iam service-accounts keys delete a3f9…", "result": "已刪除" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh secret list; gcloud iam service-accounts keys list --managed-by=user; git grep -l private_key",
+      "result": "三項都是空的",
+      "chapter": "照完成標準檢查",
+      "narration": "最後照完成標準檢查：GitHub 沒有密碼欄位、雲端沒有使用者建立的金鑰、程式碼裡也找不到金鑰。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立身分池與 GitHub 提供者", "done"],
+        ["只信任 komori/shop", "done"],
+        ["讓部署帳號給這個專案使用", "done"],
+        ["改工作流程", "done"],
+        ["推標籤，確認部署成功", "done"],
+        ["刪除舊金鑰（先問）", "done"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "完成：部署改用 Workload Identity Federation，只信任 `komori/shop`。`v1.0.2` 已用新方式部署成功；GitHub 的 `GCP_SA_KEY` 和雲端上的金鑰都已刪除，程式碼裡也沒有金鑰。",
+      "narration": "它回報做了什麼、怎麼驗證，兩個完成標準都達到了。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 把你的部署權限改成 Workload Identity Federation，記得交代：只信任你的專案、先驗證新方式能部署、刪除前先問你，最後兩邊都不能有舊金鑰。",
+      "narration": "換你做做看。記得交代順序：先驗證新方式，再刪舊金鑰，刪除前先問你。"
+    },
+    {
+      "card": "GitHub 上沒有雲端金鑰",
+      "eyebrow": "這一課的成果",
+      "sub": "先蓋新門、確認能開，再拆舊鎖",
+      "narration": "這一課的成果：GitHub 上沒有雲端金鑰，部署照常。下一課，我們讓 AI 幫你管版號和更新紀錄。"
+    }
+  ]
+}

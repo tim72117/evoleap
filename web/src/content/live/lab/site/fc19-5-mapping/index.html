@@ -1,0 +1,23 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>網域對應</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · 自訂網域接 Cloud Run</p>
+<h1>app.xiaosen-bakery.com 是怎麼接上的</h1>
+<div class="tabs"><button id="b0" data-go="0">網域對應</button><button id="b1" data-go="1">先證明網域是你的</button><button id="b2" data-go="2">憑證狀態</button></div>
+<svg class="m" viewBox="0 0 1120 260" width="1120" height="260">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#475569"/></marker></defs>
+<rect x="10" y="80" width="250" height="100" rx="14" fill="#fff" stroke="#2563eb" stroke-width="2"/><text x="135" y="122" text-anchor="middle" font-size="16" class="mono">app.xiaosen-bakery.com</text><text x="135" y="152" text-anchor="middle" font-size="14" fill="#64748b">客人打的網址</text>
+<line x1="265" y1="130" x2="320" y2="130" stroke="#475569" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="330" y="70" width="260" height="120" rx="14" fill="#fffdf5" stroke="#e8dcb5" stroke-width="2"/><text x="460" y="104" text-anchor="middle" font-size="16" font-weight="700">DNS（Cloudflare）</text><text x="460" y="134" text-anchor="middle" font-size="14" class="mono">CNAME app →</text><text x="460" y="158" text-anchor="middle" font-size="14" class="mono">ghs.googlehosted.com</text>
+<line x1="595" y1="130" x2="650" y2="130" stroke="#475569" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="660" y="70" width="210" height="120" rx="14" fill="#fff" stroke="#94a3b8" stroke-width="2"/><text x="765" y="112" text-anchor="middle" font-size="16" font-weight="700">Google 的大門</text><text x="765" y="140" text-anchor="middle" font-size="14" fill="#64748b">查對應表：app → bakery</text>
+<text x="765" y="168" text-anchor="middle" font-size="14" fill="#64748b" data-only="0 1">🔒 憑證</text><text x="765" y="168" text-anchor="middle" font-size="14" fill="#13703d" data-only="2">🔒 憑證 ✓</text>
+<line x1="875" y1="130" x2="930" y2="130" stroke="#475569" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="940" y="80" width="170" height="100" rx="14" fill="#fff" stroke="#16a34a" stroke-width="2"/><text x="1025" y="122" text-anchor="middle" font-size="17" font-weight="700">Cloud Run</text><text x="1025" y="150" text-anchor="middle" font-size="14" class="mono">bakery</text>
+<g data-only="1"><rect x="330" y="200" width="260" height="46" rx="10" fill="#f5f3ff" stroke="#7c3aed"/><text x="460" y="229" text-anchor="middle" font-size="14" class="mono" fill="#5b21b6">TXT google-site-verification=…</text></g>
+</svg>
+<div class="box expl">
+<p data-only="0"><b>網域對應</b>（domain mapping）就是在 Google 那邊登記：「app.xiaosen-bakery.com 要送到 bakery 這個服務」。DNS 負責把客人帶到 Google 的大門，大門再照對應表轉給你的服務。</p>
+<p data-only="1">Google 要先確認<b>網域真的是你的</b>，才讓你登記。方法和信箱服務一樣：在 DNS 加一筆它給你的 TXT 紀錄（貼在門上的告示）。</p>
+<div data-only="2" class="states"><span class="pill wait">① 等待 DNS</span><span class="ar">▶</span><span class="pill wait">② 憑證簽發中</span><span class="ar">▶</span><span class="pill ok">③ 就緒 🔒</span><p>DNS 生效後，Google 才能替這個網域申請憑證，通常 15 分鐘到一小時。順序和之前把網域接到網站時一樣。</p></div>
+</div>
+</div></body></html>

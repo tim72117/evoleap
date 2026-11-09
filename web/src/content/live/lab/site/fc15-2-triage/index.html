@@ -1,0 +1,16 @@
+<!doctype html><html><head><title>漏洞判斷表</title></head><body>
+<div class="app">
+  <h2>npm audit 結果與 AI 的判斷</h2>
+  <table>
+    <thead><tr><th>套件</th><th>等級</th><th>在哪裡用</th><th>有用到出問題的功能？</th><th>判斷</th><th class="res">升級後</th></tr></thead>
+    <tbody>
+      <tr id="r1"><td>tiny-buffer<small>由 image-tools 帶進來</small></td><td><span class="lv high">高</span></td><td>正式網站</td><td>有：處理上傳照片</td><td class="d now">馬上升級 image-tools 4.2 → 4.3</td><td class="res">✓ 已修補</td></tr>
+      <tr id="r2"><td>upload-kit</td><td><span class="lv crit">嚴重</span></td><td>正式網站</td><td>有：上傳檔案</td><td class="d now">馬上升級 1.4 → 2.0（大版本，要跑測試）</td><td class="res">✓ 已修補，測試通過</td></tr>
+      <tr id="r3"><td>vite-plugin-x</td><td><span class="lv mod">中</span></td><td>只在開發時</td><td>不會跑在正式網站</td><td class="d later">排進下週</td><td class="res">— 保留，已記錄</td></tr>
+      <tr id="r4"><td>punycode</td><td><span class="lv low">低</span></td><td>正式網站</td><td>沒有：只在寄信時解析網址</td><td class="d later">跟著下次例行升級</td><td class="res">— 保留，已記錄</td></tr>
+    </tbody>
+  </table>
+  <div class="sum"><span class="b">升級前：嚴重 1 · 高 1 · 中 1 · 低 1</span><span class="a res">升級後：嚴重 0 · 高 0 · 中 1 · 低 1</span></div>
+  <button id="after">升級並跑完測試</button>
+</div>
+</body></html>

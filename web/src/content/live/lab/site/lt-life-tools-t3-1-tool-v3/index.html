@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>名牌列印工具</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-v="3">
+  <aside class="controls">
+    <div class="h">名牌列印工具</div>
+    <div class="hint">一行一人：<b>姓名, 單位</b>（逗號或 Tab 分隔）</div>
+    <div class="box">
+      <textarea id="list" placeholder="把名單貼在這裡"></textarea>
+      <button class="paste" data-paste="comma" aria-label="貼上文字名單"></button>
+      <button class="paste" data-paste="sheet" aria-label="貼上從試算表複製的名單"></button>
+      <button class="paste" data-paste="long" aria-label="貼上很長的名字"></button>
+      <button class="paste" data-paste="blank" aria-label="貼上夾著空行的名單"></button>
+      <button class="paste" data-paste="one" aria-label="貼上只有一個人的名單"></button>
+    </div>
+    <div class="row"><button id="clear" class="btn ghost">清空</button><span id="count" class="count">共 0 張</span></div>
+  </aside>
+  <main class="sheets" id="sheets"><div class="empty">貼上名單後，名牌會排在這裡</div></main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

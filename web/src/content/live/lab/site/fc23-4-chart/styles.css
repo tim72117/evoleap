@@ -1,0 +1,26 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#f6f7fb;color:#1f2433}
+.pg{padding:22px 40px;display:flex;flex-direction:column;gap:18px}
+.card{background:#fff;border-radius:16px;box-shadow:0 0 0 1px #e1e5ee;padding:16px 24px}
+.hd{display:flex;align-items:center;gap:16px}
+h2{margin:0;font-size:22px}
+button{margin-left:auto;font:inherit;font-size:16px;font-weight:800;padding:8px 16px;border-radius:10px;border:2px solid #4d6fd0;background:#fff;color:#4d6fd0}
+button.on{background:#4d6fd0;color:#fff}
+svg{width:100%;height:270px;display:block}
+.grid line{stroke:#d5dae5;stroke-width:2}
+.l1,.l2{fill:none;stroke-width:5;stroke-linejoin:round}
+.l1{stroke:#8f6fe0}.l2{stroke:#2e9a5b}
+.lg1,.lg2{font-size:15px;font-weight:700}.lg1{fill:#8f6fe0}.lg2{fill:#2e9a5b}
+.hol,.holt{display:none}
+.hol{fill:#fff1dc;stroke:#e8892c;stroke-width:2;stroke-dasharray:6 6}
+.holt{fill:#c96a10;font-size:17px;font-weight:800}
+.shown .hol,.shown .holt{display:inline}
+.cap{font-size:19px;margin:6px 0 0;font-weight:700}
+.bars{margin-top:12px}
+.b{display:grid;grid-template-columns:180px 1fr 140px;gap:14px;align-items:center;padding:6px 0;font-size:18px}
+.b div{height:34px;background:#eef1f6;border-radius:8px;overflow:hidden}
+.b i{display:flex;align-items:center;height:100%;padding-left:10px;box-sizing:border-box;background:#4d6fd0;color:#fff;font-style:normal;font-weight:800}
+.b.ga i{background:#e8892c}
+.b em{font-style:normal;color:#6b7385;font-size:15px}
+.why,.b.ga{visibility:hidden}
+.gap .why,.gap .b.ga{visibility:visible}
+.why{margin:8px 0 0;font-size:17px;line-height:1.7;color:#4b5266}

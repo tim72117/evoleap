@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>PATH 圖解</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap" data-s="0">
+  <h1>終端機怎麼找到指令：PATH</h1>
+  <p class="muted">PATH 是一張「要去哪些資料夾找指令」的清單。你打 <code>npm</code>，終端機就照順序一個一個資料夾找。</p>
+  <div class="stage">
+    <div class="col">
+      <div class="term">
+        <div class="tbar"><i></i><i></i><i></i><span class="tname">這個終端機視窗</span></div>
+        <div class="tline"><span class="pr">%</span> npm -v</div>
+        <div class="tline res bad">command not found: npm</div>
+        <div class="tline res ok">11.6.2</div>
+      </div>
+      <div class="memo">
+        <div class="mt">打開視窗時讀到的 PATH</div>
+        <div class="mold">舊的清單（裝 Node.js 之前）</div>
+        <div class="mnew">新的清單（重新打開後）</div>
+      </div>
+    </div>
+    <div class="col mid">
+      <div class="lt">PATH 清單，依序找</div>
+      <ol class="dirs">
+        <li id="d1"><span class="p">/opt/homebrew/bin</span><span class="r no">沒有 npm</span></li>
+        <li id="d2"><span class="p">/usr/local/bin</span><span class="r no">沒有 npm</span></li>
+        <li id="d3"><span class="p">/usr/bin</span><span class="r no">沒有 npm</span></li>
+        <li id="d4"><span class="p">/bin</span><span class="r no">沒有 npm</span></li>
+        <li id="d5" class="newdir"><span class="p">~/.nvm/versions/node/v24/bin</span><span class="r yes">找到 npm！</span></li>
+      </ol>
+    </div>
+    <div class="col">
+      <div class="lt">npm 實際裝在哪裡</div>
+      <div class="box">
+        <div class="folder">~/.nvm/versions/node/v24/bin</div>
+        <div class="files"><span>node</span><span class="hl">npm</span><span>npx</span></div>
+      </div>
+      <div class="cfg">
+        <div class="lt">設定檔 ~/.zshrc</div>
+        <div class="cline">安裝程式加了幾行：把 npm 所在的資料夾加進 PATH</div>
+        <div class="cline code">source ~/.nvm/nvm.sh</div>
+      </div>
+    </div>
+  </div>
+  <div class="steps">
+    <button id="s1">① 照清單找一遍</button>
+    <button id="s2">② 安裝程式改了設定檔</button>
+    <button id="s3">③ 關掉終端機再打開</button>
+  </div>
+</div>
+<script src="script.js"></script>
+</body></html>

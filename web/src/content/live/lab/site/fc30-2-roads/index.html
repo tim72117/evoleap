@@ -1,0 +1,29 @@
+<!doctype html><html><head><title>兩條路</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">大任務的兩條路</h1>
+  <p class="sub">任務：讓客人訂購時可以選取貨時段</p>
+  <div class="road box" id="r1">
+    <div class="lab bad">直接動手</div>
+    <div class="steps">
+      <div class="st" id="a1" data-go="a1">改了 6 個檔</div>
+      <div class="back" data-at="a1">↩ 才發現：時段只要上午、下午兩種</div>
+      <div class="st" data-at="a1" id="a2" data-go="a2">再改 4 個檔</div>
+      <div class="back" data-at="a2">↩ 又發現：不想新增資料表</div>
+      <div class="st" data-at="a2">再改一次……</div>
+    </div>
+    <div class="cnt bad" data-at="a2">回頭 2 次・改了 14 個檔</div>
+  </div>
+  <div class="road box" id="r2">
+    <div class="lab blue">先看方案</div>
+    <div class="steps">
+      <div class="st plan" id="b1" data-go="b1">1. 出方案<small>只寫，不改檔</small></div>
+      <div class="ar" data-at="b1">→</div>
+      <div class="st check" data-at="b1" id="b2" data-go="b2">2. 你看過、改方案<small>上午下午就好；不加資料表</small></div>
+      <div class="ar" data-at="b2">→</div>
+      <div class="st go" data-at="b2" id="b3" data-go="b3">3. 照方案執行<small>一次到位</small></div>
+    </div>
+    <div class="cnt ok" data-at="b3">回頭 0 次・改了 4 個檔</div>
+  </div>
+  <p class="note" data-at="b3">在「方案」上改一句話，比在「程式」上改十個檔便宜得多</p>
+</div>
+</body></html>

@@ -1,0 +1,146 @@
+{
+  "title": "讀雲端紀錄",
+  "lesson": "全環節 · 單元 21 · 21.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做一個查錯誤的指令",
+    "line": "這一課請 AI 寫一個「查最近錯誤」的指令，先用它整理出一週的錯誤摘要；之後想查哪幾天，打一行就好。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "錯誤摘要",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc21-1-summary", "url": "file:///projects/shop/reports/errors-week.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "讀雲端紀錄",
+      "eyebrow": "全環節 · 單元 21 · 21.1 用 AI 完成",
+      "sub": "先做工具：查錯誤的指令 · 再用它寫一週摘要",
+      "narration": "紀錄每天都會長出上萬行。與其每次重新查，不如先做一個工具。"
+    },
+    {
+      "show": "claude",
+      "chapter": "先做工具",
+      "narration": "我們請 AI 寫一個指令，查最近幾天的錯誤，自動合併、算次數。"
+    },
+    {
+      "on": "claude",
+      "user": "寫一個指令 scripts/errors.sh：查正式網站最近 N 天、ERROR 以上的紀錄，同樣的錯誤合併算次數，次數多的排前面。寫好後跑最近 7 天，整理成摘要放到 reports/errors-week.md。",
+      "narration": "說清楚三件事：查什麼範圍、怎麼整理、最後交出什麼。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud logging read 'severity>=ERROR' --freshness=1d --limit=2 --format=json",
+      "result": "2 筆，欄位：timestamp、severity、textPayload、httpRequest",
+      "narration": "它先抓兩筆看看，了解一筆紀錄有哪些欄位，才知道要怎麼整理。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/errors.sh",
+      "lines": [
+        [1, "+", "#!/bin/bash"],
+        [2, "+", "DAYS=${1:-7}   # 要查幾天，預設 7"],
+        [3, "+", "gcloud logging read \\"],
+        [4, "+", "  'resource.type=\"cloud_run_revision\" AND severity>=ERROR' \\"],
+        [5, "+", "  --freshness=${DAYS}d --format='value(textPayload)' |"],
+        [6, "+", "  sed -E 's/[0-9a-f]{8,}/…/g' |   # 去掉每次不同的編號"],
+        [7, "+", "  sort | uniq -c | sort -rn | head -20"]
+      ],
+      "narration": "指令寫好了。第二行的天數是參數，第四行就是上一堂看過的查詢條件，最後三行把相同的錯誤合併、算次數、排序。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "天數做成參數：同一個指令，查 1 天、7 天、30 天都行",
+      "narration": "天數做成參數，就是讓工具可以重複用：今天查一天，月底查三十天，都是同一個指令。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bash scripts/errors.sh 7",
+      "result": "3 種錯誤",
+      "out": " 212 TypeError: 無法讀取 delivery.fee\n  31 寄送訂單確認信失敗：郵件服務逾時\n   4 上傳頭像失敗：檔案超過 5MB",
+      "chapter": "用工具查一週",
+      "narration": "跑一次最近七天：三種錯誤。最多的是結帳那個，兩百一十二次。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud logging read '…delivery.fee' --freshness=7d --format='value(timestamp)' | sort | sed -n '1p;$p'",
+      "result": "第一次 11/08 19:42，最後一次 11/08 20:30",
+      "narration": "它再查每種錯誤第一次和最後一次出現的時間，摘要才看得出是一次性的，還是天天都有。"
+    },
+    {
+      "on": "claude",
+      "edit": "reports/errors-week.md",
+      "lines": [
+        [1, "+", "# 錯誤摘要：11/03–11/09"],
+        [2, "+", "共 247 筆，3 種。第 1 種占 86%。"],
+        [3, "+", "1. delivery.fee 讀不到（212）：11/08 退版後已停止"],
+        [4, "+", "2. 郵件服務逾時（31）：每天都有，建議加重試"],
+        [5, "+", "3. 頭像檔案太大（4）：建議前端先縮圖"]
+      ]
+    },
+    {
+      "show": "web",
+      "chapter": "一週的錯誤摘要",
+      "narration": "打開摘要看看。最上面一句話先講結論：三種錯誤，第一種就占了八成六。"
+    },
+    {
+      "callout": "web:section:chart",
+      "text": "一眼看出：先處理最長的那一條",
+      "narration": "長條圖讓你一眼看出輕重：先處理最長的那一條，效果最大。"
+    },
+    {
+      "callout": "web:section:detail",
+      "text": "每一種錯誤：什麼時候開始、還有沒有在發生、建議怎麼做",
+      "narration": "下面每一種都寫了什麼時候開始、還在不在發生，以及建議。郵件逾時每天都有，是下一個該處理的。"
+    },
+    {
+      "on": "claude",
+      "user": "工具很好用。再查一下，昨天一天有什麼錯誤？",
+      "chapter": "工具可以一直用",
+      "narration": "工具做好了，之後隨時能用。比如問它昨天一天的錯誤。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bash scripts/errors.sh 1",
+      "result": "1 種錯誤",
+      "out": "   5 寄送訂單確認信失敗：郵件服務逾時"
+    },
+    {
+      "on": "claude",
+      "say": "昨天只有一種錯誤：郵件服務逾時 5 次。結帳的錯誤沒有再出現，退版後已經穩定。",
+      "narration": "它直接用剛才的工具，幾秒就回答。不用每次重寫查詢。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 為你的網站寫一個查最近 N 天錯誤的指令（合併同樣的錯誤、算次數、排序），跑一次 7 天，整理成一份摘要。",
+      "narration": "換你做做看。先做出工具，再用它整理一週的錯誤摘要。"
+    },
+    {
+      "card": "一週的錯誤摘要",
+      "eyebrow": "這一課的成果",
+      "sub": "scripts/errors.sh：想查幾天就查幾天",
+      "narration": "這一課的成果：一個查錯誤的指令和一週的錯誤摘要。下一課，讓網站掛掉時，自動通知你。"
+    }
+  ]
+}

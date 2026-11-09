@@ -1,0 +1,112 @@
+{
+  "title": "用白話查資料",
+  "lesson": "全環節 · 單元 9 · 9.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天用白話問資料庫",
+    "line": "今天店長會問三個營運問題。你用白話轉給 AI，它寫查詢、用唯讀帳號執行，再匯出成檔案。你要做的，是看懂它的查詢有沒有問對。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "營運問題", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [] },
+      "place": { "x": 50, "y": 50, "w": 1380, "h": 900 },
+      "hidden": true
+    },
+    "boss": {
+      "actor": "person",
+      "props": { "name": "店長", "look": "boss" },
+      "place": { "x": 1450, "y": 260, "w": 430, "h": 520 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc9-4-csv", "url": "file:///projects/bakery/reports/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用白話查資料",
+      "eyebrow": "全環節 · 單元 9 · 9.4 用 AI 完成",
+      "sub": "白話問題 → AI 寫查詢、用唯讀帳號執行 → 匯出 CSV",
+      "chapter": "先設好唯讀",
+      "narration": "開始之前，先確定 AI 只拿得到唯讀帳號。"
+    },
+    { "show": "claude" },
+    { "show": "boss", "focus": false },
+    {
+      "on": "claude",
+      "user": "接下來我會用白話問營運問題。請用 .env 裡的 READONLY_DATABASE_URL 查詢（唯讀帳號），每題先給我看查詢、說明它在算什麼，執行後把結果存成 reports/ 底下的 CSV。",
+      "narration": "交代清楚：用唯讀帳號、先給你看查詢和說明、結果存成 CSV。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql $READONLY_DATABASE_URL -c \"DELETE FROM orders WHERE false\"",
+      "result": "被拒絕（符合預期）",
+      "out": "ERROR: permission denied for table orders",
+      "narration": "它先自己確認：用這個帳號試著刪除，被拒絕了。好，真的是唯讀。"
+    },
+    { "on": "boss", "say": "上個月賣最好的三樣是什麼？", "mood": "calm", "chapter": "問題一：賣最好的三樣" },
+    { "on": "claude", "user": "上個月賣最好的三樣商品是什麼？用數量排。" },
+    {
+      "on": "claude",
+      "say": "查詢：\n```\nSELECT p.name, SUM(i.qty) AS qty, SUM(i.qty * i.unit_price) AS revenue\nFROM order_items i JOIN orders o ON o.id = i.order_id JOIN products p ON p.id = i.product_id\nWHERE o.status IN ('paid','picked_up') AND o.pickup_at >= '2026-10-01' AND o.pickup_at < '2026-11-01'\nGROUP BY p.name ORDER BY qty DESC LIMIT 3\n```\n只算**已付款或已取貨**的 10 月訂單，取消的不算；依數量由多到少，取前三。",
+      "narration": "它先給你看查詢和白話說明：只算已付款或已取貨的十月訂單，取消的不算。這一句就是你要檢查的：條件對不對。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql $READONLY_DATABASE_URL --csv -f q1.sql > reports/top-products.csv",
+      "result": "3 列",
+      "out": "name,qty,revenue\n可頌,412,26780\n肉桂捲,288,23040\n鄉村麵包,140,16800"
+    },
+    { "on": "boss", "say": "哪些老客人很久沒來了？", "mood": "worried", "chapter": "問題二：很久沒來的客人" },
+    { "on": "claude", "user": "哪些會員很久沒下單了？" },
+    {
+      "on": "claude",
+      "say": "「很久」要怎麼算？我先用**超過 60 天沒有已付款的訂單**，而且以前至少買過 2 次。要改天數告訴我。",
+      "narration": "「很久」是模糊的說法。好的做法是：它把自己的假設講出來，讓你決定。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql $READONLY_DATABASE_URL --csv -f q2.sql > reports/inactive-members.csv",
+      "result": "3 位",
+      "out": "member,last_order,days\n王小姐,2026-08-02,99\n陳先生,2026-08-21,80\n林小姐,2026-09-03,67"
+    },
+    { "on": "boss", "say": "週末是不是比平日好賣很多？", "mood": "calm", "chapter": "問題三：週末和平日" },
+    { "on": "claude", "user": "週末和平日，平均一天賣多少？" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql $READONLY_DATABASE_URL --csv -f q3.sql > reports/weekend-vs-weekday.csv",
+      "result": "2 列",
+      "out": "day_type,days,avg_revenue\nweekend,8,4950\nweekday,22,2310",
+      "narration": "第三題它算的是「平均一天」，不是總額，因為平日天數比週末多很多，直接比總額會誤導。"
+    },
+    {
+      "on": "claude",
+      "say": "三題都存好了：\n- `reports/top-products.csv`：可頌第一（412 個）\n- `reports/inactive-members.csv`：3 位超過 60 天沒來\n- `reports/weekend-vs-weekday.csv`：週末平均一天是平日的 **2.1 倍**"
+    },
+    { "hide": "boss" },
+    { "hide": "claude" },
+    { "show": "web", "focus": false, "chapter": "看匯出的結果", "narration": "打開匯出的檔案，用試算表也能直接打開。" },
+    { "on": "web", "click": "#t2", "narration": "很久沒來的三位客人，可以寄一張回訪優惠。" },
+    { "on": "web", "click": "#t3", "narration": "週末平均一天是平日的兩倍多，週末早上可以多烤一批。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "給 AI 唯讀帳號，用白話問一個你的營運問題。看它的查詢條件和假設（例如「很久」是幾天）對不對，再請它匯出 CSV。"
+    },
+    { "hide": "web" },
+    {
+      "card": "你問白話，AI 寫查詢\n你檢查：條件和假設對不對",
+      "eyebrow": "學會",
+      "sub": "一律用唯讀帳號；模糊的詞要它把假設講出來",
+      "chapter": "學會",
+      "narration": "這一堂的重點：用白話問，AI 寫查詢、執行、匯出；你負責檢查條件和假設對不對。查詢一律用唯讀帳號。"
+    }
+  ]
+}

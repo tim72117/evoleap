@@ -1,0 +1,135 @@
+{
+  "title": "相依套件的漏洞",
+  "lesson": "全環節 · 單元 15 · 15.2 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "teacher": {
+    "say": "檢查、判斷、升級、跑測試",
+    "line": "這一堂請 AI 執行套件的漏洞檢查。它不只照單全收地升級，而是先判斷哪些要馬上處理、哪些可以晚點，升級完再跑測試，確定沒有改壞東西。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "套件漏洞", "folder": "~/projects/shop", "branch": "fix/deps", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc15-2-triage", "width": "desktop", "url": "file:///projects/shop/reports/audit.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "相依套件的漏洞",
+      "eyebrow": "全環節 · 單元 15 · 15.2 用 AI 完成",
+      "sub": "檢查 → 判斷 → 升級 → 跑測試 → 再檢查",
+      "chapter": "交代",
+      "narration": "完成的標準是：正式網站沒有高風險和嚴重的漏洞，而且測試全部通過。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "請執行 npm audit，把每個漏洞整理成表：等級、是正式網站還是只在開發時用、我們有沒有用到出問題的功能。判斷哪些要馬上升級、哪些可以晚點，先給我看判斷再動手。升級後跑 npm test 和 npm run test:e2e，最後再 audit 一次。目標：沒有高風險與嚴重。",
+      "narration": "交代清楚：整理成表、先判斷、先給你看，再動手；升級完跑兩種測試，最後再檢查一次。"
+    },
+    {
+      "on": "claude",
+      "ask": "npm audit --json",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "比對套件與公開的漏洞資料庫（只讀取）",
+      "chapter": "檢查",
+      "narration": "第一步，執行檢查。只讀取，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm audit",
+      "result": "4 個漏洞",
+      "out": "upload-kit        critical  上傳檔案時可被塞爆記憶體\ntiny-buffer   high      讀取特製圖片時會當掉（經由 image-tools）\nvite-plugin-x moderate  開發伺服器可被讀取檔案\npunycode      low       特殊網址解析錯誤\n\n4 vulnerabilities (1 low, 1 moderate, 1 high, 1 critical)",
+      "narration": "四個漏洞：嚴重、高、中、低各一個。"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "upload-kit|image-tools|punycode",
+      "result": "找出實際用到的地方",
+      "out": "src/api/upload.ts: import uploadKit from 'upload-kit'   ← 上傳照片（正式網站）\nsrc/api/upload.ts: import { resize } from 'image-tools'\n(punycode 沒有在程式裡直接使用)",
+      "chapter": "判斷",
+      "narration": "接著它去查程式碼，看這些套件實際用在哪裡。這就是上一堂說的兩個問題：是不是正式網站在用，有沒有用到出問題的功能。"
+    },
+    {
+      "on": "claude",
+      "say": "判斷如下（表格已存在 reports/audit.html）：\n- **upload-kit（嚴重）**：上傳照片在用 → 馬上升級。注意 1.4 → 2.0 是大版本，用法可能改了\n- **tiny-buffer（高）**：處理上傳照片時會用到 → 升級 image-tools 修補\n- **vite-plugin-x（中）**：只在開發時用，不在正式網站 → 排進下週\n- **punycode（低）**：沒用到出問題的功能 → 下次例行升級\n\n可以照這樣做嗎？",
+      "narration": "它一條一條判斷，也提醒 upload-kit 是大版本升級，用法可能改了，要特別小心。"
+    },
+    { "show": "web", "narration": "打開它整理的表，一眼看清楚。" },
+    {
+      "callout": "web:sel:#r2",
+      "text": "大版本升級（1.x → 2.x）最容易改壞東西：一定要跑測試",
+      "narration": "版本號第一個數字變了，叫大版本升級，代表用法可能不一樣，最容易改壞東西。所以一定要跑測試。"
+    },
+    {
+      "on": "claude",
+      "user": "可以，照這樣做",
+      "chapter": "升級並跑測試",
+      "narration": "判斷合理，同意。"
+    },
+    {
+      "on": "claude",
+      "ask": "npm install upload-kit@2 image-tools@4.3",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "升級兩個套件",
+      "narration": "升級兩個套件。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "npm install upload-kit@2 image-tools@4.3", "result": "已升級" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test",
+      "result": "1 項失敗",
+      "out": " ✗ 上傳照片：超過 10 MB 擋下\n   TypeError: upload.single is not a function\n Tests  1 failed | 45 passed (46)",
+      "narration": "跑測試，抓到一個：upload-kit 二點零的用法改了，上傳壞掉。還好有測試，不然這會直接上線。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/api/upload.ts",
+      "lines": [[4, "-", "const upload = uploadKit({ limits: { fileSize: MAX } })"], [4, "+", "const upload = uploadKit.create({ limits: { fileSize: MAX } }) // 2.0 的新寫法"]],
+      "narration": "它照新版的說明改好寫法。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test && npm run test:e2e && npm audit --omit=dev",
+      "result": "測試全過；正式網站沒有高風險與嚴重",
+      "out": " Tests  46 passed (46)\n 12 passed (e2e)\n\nfound 1 low severity vulnerability（正式網站）\n開發用套件另有 1 個 moderate，已記錄",
+      "narration": "兩種測試都通過，再檢查一次：正式網站只剩一個低風險，高風險和嚴重都沒了。"
+    },
+    { "on": "web", "click": "#after", "narration": "表格更新：嚴重和高都修補了，中和低有記錄、有計畫。" },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 正式網站：嚴重 0、高 0。測試 46 + 12 項全部通過。\n剩下的中、低風險已記在 `reports/audit.html`，下次例行升級處理。",
+      "narration": "完成。目標達成，剩下的也都有記錄。"
+    },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：檢查、判斷、升級、跑測試",
+      "body": "請 AI 執行 npm audit 並整理成表（等級、在哪裡用、有沒有用到），先給你看判斷再升級；升級後跑全部測試，最後再檢查一次。"
+    },
+    {
+      "card": "先判斷，再升級\n大版本一定跑測試\n最後再檢查一次",
+      "eyebrow": "學會",
+      "sub": "目標：正式網站沒有高風險與嚴重；其他的記下來、排計畫",
+      "chapter": "學會",
+      "narration": "處理套件漏洞：先判斷再升級，大版本一定要跑測試，最後再檢查一次。目標是正式網站沒有高風險和嚴重，其他的記下來、排進計畫。"
+    }
+  ]
+}

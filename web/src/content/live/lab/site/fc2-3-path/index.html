@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>PATH 怎麼找指令</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-pick="none">
+<div class="ttl">你打了一個指令，電腦去哪裡找？</div>
+<div class="tabs">
+  <button class="tab" id="f-node" data-pick="node">打 node</button>
+  <button class="tab" id="f-foo" data-pick="foo">打 nodee（打錯字）</button>
+  <button class="tab" id="f-new" data-pick="new">剛裝好、還沒重開</button>
+</div>
+<div class="row">
+  <div class="you card"><div class="muted">你打的</div><div class="mono big w-none">？</div><div class="mono big w-node">node</div><div class="mono big w-foo">nodee</div><div class="mono big w-new">node</div></div>
+  <div class="grow">
+    <div class="muted lbl">PATH：一張「要去翻的抽屜」清單，從上往下找</div>
+    <div class="dr d1"><span class="no">1</span><span class="mono">/opt/homebrew/bin</span><span class="hit">✓ 找到 node！</span><span class="miss">✗</span></div>
+    <div class="dr d2"><span class="no">2</span><span class="mono">/usr/local/bin</span><span class="miss">✗</span></div>
+    <div class="dr d3"><span class="no">3</span><span class="mono">/usr/bin</span><span class="miss">✗</span></div>
+    <div class="dr d4"><span class="no">4</span><span class="mono">/bin</span><span class="miss">✗</span></div>
+    <div class="res r-node ok">→ 執行 /opt/homebrew/bin/node</div>
+    <div class="res r-foo bad mono">zsh: command not found: nodee</div>
+    <div class="res r-new bad">終端機打開時就把 PATH 抄好了；後來裝的不在它手上的清單裡 → 關掉重開就好</div>
+  </div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

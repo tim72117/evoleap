@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>每個人都能用</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="doc" data-k="0" data-lang="zh">
+<section id="alt" class="sec">
+  <h2>替代文字：看不到圖的人，聽到的是什麼</h2>
+  <div class="two">
+    <figure><div class="pic"><svg viewBox="0 0 120 80"><rect width="120" height="80" fill="#fde2c8"/><circle cx="40" cy="34" r="14" fill="#c2703d"/><rect x="26" y="50" width="28" height="22" rx="6" fill="#c2703d"/><rect x="66" y="44" width="40" height="22" rx="4" fill="#f6c27a"/><circle cx="76" cy="40" r="5" fill="#e9a04f"/><circle cx="90" cy="40" r="5" fill="#e9a04f"/></svg></div>
+      <code>&lt;img src="IMG_2034.jpg"&gt;</code><button id="say-bad" type="button">用螢幕閱讀器聽</button><p class="bubble b-bad">「圖片。IMG 2034 點 jpg。」</p></figure>
+    <figure><div class="pic"><svg viewBox="0 0 120 80"><rect width="120" height="80" fill="#fde2c8"/><circle cx="40" cy="34" r="14" fill="#c2703d"/><rect x="26" y="50" width="28" height="22" rx="6" fill="#c2703d"/><rect x="66" y="44" width="40" height="22" rx="4" fill="#f6c27a"/><circle cx="76" cy="40" r="5" fill="#e9a04f"/><circle cx="90" cy="40" r="5" fill="#e9a04f"/></svg></div>
+      <code>&lt;img src="IMG_2034.jpg" <em>alt="林小安在廚房烤司康"</em>&gt;</code><button id="say-good" type="button">用螢幕閱讀器聽</button><p class="bubble b-good">「圖片：林小安在廚房烤司康。」</p></figure>
+  </div>
+</section>
+<section id="contrast" class="sec">
+  <h2>對比：字和背景的顏色要差得夠多</h2>
+  <div class="two">
+    <div class="sample"><p style="color:#b9b9b9">每週六上午十點開課</p><div class="meter"><i style="width:22%"></i></div><span class="bad">對比 2.0 : 1　不及格</span></div>
+    <div class="sample"><p style="color:#5a4636">每週六上午十點開課</p><div class="meter"><i class="g" style="width:80%"></i></div><span class="good">對比 9.1 : 1　通過（一般文字至少 4.5 : 1）</span></div>
+  </div>
+</section>
+<section id="keys" class="sec">
+  <h2>鍵盤操作：只用 Tab 鍵，也要知道自己在哪裡</h2>
+  <div class="row bad-row"><span class="lbl">沒有焦點框</span><a class="k k1">關於我</a><a class="k k2">作品</a><span class="k k3 inp">留言…</span><span class="k k4 btn">送出</span></div>
+  <div class="row good-row"><span class="lbl">有焦點框</span><a class="k k1">關於我</a><a class="k k2">作品</a><span class="k k3 inp">留言…</span><span class="k k4 btn">送出</span></div>
+  <button id="tab" class="tabkey" type="button">按一下 Tab</button>
+</section>
+<section id="i18n" class="sec">
+  <h2>語系檔：文字抽出來，換語言只換一個檔</h2>
+  <div class="i18n">
+    <div class="tpl"><b>頁面</b><code>&lt;h1&gt;{{ <em>name</em> }}&lt;/h1&gt;</code><code>&lt;p&gt;{{ <em>tagline</em> }}&lt;/p&gt;</code><code>&lt;button&gt;{{ <em>hi</em> }}&lt;/button&gt;</code></div>
+    <div class="files">
+      <div class="file f-zh"><b>locales/zh-TW.json</b><code>"name": "林小安"</code><code>"tagline": "喜歡烘焙的設計新手"</code><code>"hi": "打個招呼"</code></div>
+      <div class="file f-en"><b>locales/en.json</b><code>"name": "Lin Hsiao-an"</code><code>"tagline": "A design beginner who loves baking"</code><code>"hi": "Say hi"</code></div>
+    </div>
+    <div class="out"><b>畫面</b><div class="o-zh"><strong>林小安</strong><span>喜歡烘焙的設計新手</span><i>打個招呼</i></div><div class="o-en"><strong>Lin Hsiao-an</strong><span>A design beginner who loves baking</span><i>Say hi</i></div></div>
+  </div>
+  <button id="switch" class="tabkey" type="button">切換語言</button>
+</section>
+</div>
+</body></html>

@@ -1,0 +1,135 @@
+{
+  "title": "同一件事只放一個地方",
+  "lesson": "全環節 · 單元 7 · 7.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 找出重複",
+    "line": "今天要請 AI 掃過整個專案，找出重複的資料和畫面，挑一項收斂成單一來源，並證明改完之後只剩一個地方。"
+  },
+  "blocking": { "cast": ["claude", "code", "demo"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "收斂重複",
+        "folder": "~/projects/profile",
+        "branch": "main",
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": { "project": "profile", "files": { "src/pages/index.html": "<footer>\n  <p>電話 02-2345-6789</p>\n  <p>Email hello@lin.example</p>\n</footer>\n" } },
+      "place": "window",
+      "hidden": true
+    },
+    "demo": {
+      "actor": "browser",
+      "props": { "site": "fc7-3-copies", "width": "desktop", "url": "https://diagram.example/single-source" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 找出重複，收成單一來源",
+      "eyebrow": "全環節 · 單元 7 · 7.3 用 AI 完成",
+      "sub": "找重複 → 挑一項 → 收斂 → 用搜尋證明只剩一處 → build",
+      "chapter": "先請 AI 找",
+      "narration": "重複的東西靠人眼很難找全，這正是 AI 擅長的：把整個專案掃一遍。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "請找出專案裡重複出現的資料和畫面，例如電話、Email、價格、頁首頁尾。列出每一項出現在哪些檔案、寫法有沒有不一致。先不要改。",
+      "narration": "注意這一句：「寫法有沒有不一致」。上一堂的漏改，就是因為同一個電話有兩種寫法。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "02[- ]?2345[- ]?6789|hello@lin\\.example",
+      "result": "6 處",
+      "out": "src/pages/index.html:31     電話 02-2345-6789\nsrc/pages/about.html:44     電話 02-2345-6789\nsrc/pages/contact.html:12   電話 02 2345-6789\nsrc/pages/contact.html:58   電話 02-2345-6789\nsrc/pages/index.html:32     Email hello@lin.example\nsrc/pages/about.html:45     Email hello@lin.example",
+      "narration": "它搜尋時故意把橫線和空格寫成「可有可無」，所以連寫法不一樣的那一個也找到了。"
+    },
+    { "on": "claude", "tool": "Grep", "arg": "<footer>", "result": "3 個檔案" },
+    {
+      "on": "claude",
+      "say": "找到 3 類重複：\n1. **電話**：4 處，其中 `contact.html:12` 寫成 `02 2345-6789`（**寫法不一致**）\n2. **Email**：2 處\n3. **頁尾 HTML**：3 個頁面各有一份幾乎一樣的 `<footer>`，只差電話寫法\n\n建議先收斂 1、2：把店家資料放進 `src/site.config.js`，頁面從那裡讀。頁尾 3 可以下一步再做成共用元件。",
+      "narration": "它找到三類，還建議先做哪一項。一次只收斂一項，比較好檢查。"
+    },
+    {
+      "on": "claude",
+      "user": "好，先收斂電話和 Email。改完用搜尋證明號碼只剩設定檔一處，再跑 build。",
+      "chapter": "收斂成單一來源",
+      "narration": "同意，並且先講好怎麼證明做完：搜尋只剩一處，build 成功。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立 src/site.config.js，放電話和 Email", "doing"],
+        ["4 個頁面改成從設定檔讀", "pending"],
+        ["搜尋確認號碼只剩設定檔一處", "pending"],
+        ["跑 build", "pending"]
+      ]
+    },
+    { "on": "claude", "tool": "Write", "arg": "src/site.config.js", "result": "已建立" },
+    {
+      "show": "code",
+      "open": "src/site.config.js",
+      "narration": "新的設定檔就這幾行：店家的電話和 Email。它就是唯一的真相。"
+    },
+    {
+      "on": "code",
+      "paste": "// 店家資料：只在這裡改，所有頁面都從這裡讀\nexport const site = {\n  phone: '02-2345-6789',\n  email: 'hello@lin.example',\n}\n"
+    },
+    { "on": "code", "open": "src/pages/index.html", "narration": "原本頁面裡寫死的號碼，" },
+    {
+      "on": "claude",
+      "edit": "src/pages/index.html",
+      "lines": [[31, "-", "  <p>電話 02-2345-6789</p>"], [31, "+", "  <p>電話 <span data-site=\"phone\"></span></p>"], [32, "-", "  <p>Email hello@lin.example</p>"], [32, "+", "  <p>Email <span data-site=\"email\"></span></p>"]],
+      "narration": "改成一個空位，標著要填哪一項。頁面打開時，程式從設定檔把值填進去。"
+    },
+    { "on": "claude", "edit": "src/pages/contact.html", "lines": [[12, "-", "  電話 02 2345-6789"], [12, "+", "  電話 <span data-site=\"phone\"></span>"]] },
+    { "on": "claude", "edit": "src/scripts/site.js", "lines": [[1, "+", "import { site } from '../site.config.js'"], [2, "+", "document.querySelectorAll('[data-site]').forEach((el) => {"], [3, "+", "  el.textContent = site[el.dataset.site]"], [4, "+", "})"]] },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "02[- ]?2345[- ]?6789|hello@lin\\.example",
+      "result": "2 處，都在設定檔",
+      "out": "src/site.config.js:3   phone: '02-2345-6789',\nsrc/site.config.js:4   email: 'hello@lin.example',",
+      "chapter": "證明只剩一處",
+      "narration": "用同一個搜尋再找一次，號碼和 Email 都只剩設定檔裡的一行。這就是證據。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm run build", "result": "成功", "out": "✓ built in 398ms" },
+    {
+      "on": "claude",
+      "say": "完成：\n✓ 電話、Email 只寫在 `src/site.config.js`\n✓ 搜尋確認其他地方都沒有了（連寫法不一致的那個也改掉了）\n✓ build 成功\n\n以後換電話，只要改 `site.config.js` 一行。",
+      "narration": "以後換電話，只要改一行。"
+    },
+    {
+      "show": "demo",
+      "narration": "用圖來看就是這樣：原本四個頁面各寫一份，"
+    },
+    { "on": "demo", "click": "#single", "narration": "現在全部連到同一個設定檔。" },
+    { "on": "demo", "click": "#edit", "narration": "改一次，四個地方一起變。" },
+    { "hide": "demo" },
+    { "on": "claude", "ask": "git add -A && git commit -m \"店家電話與 Email 改成單一來源\"", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "select": 1 },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI「找出專案裡重複出現的資料和畫面，列出出現在哪些檔案、寫法有沒有不一致，先不要改」。挑一項請它收斂成單一來源，並要求「用搜尋證明只剩一處，再跑 build」。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "請 AI 找重複，也找寫法不一致\n一次只收斂一項\n用搜尋證明只剩一處",
+      "eyebrow": "學會",
+      "sub": "下一課：把功能切開，一個檔案一件事",
+      "chapter": "學會",
+      "narration": "請 AI 找出重複，連寫法不一致的也要找；一次只收斂一項；最後用搜尋證明只剩一處。下一課，我們把一個太大的檔案切開。"
+    }
+  ]
+}

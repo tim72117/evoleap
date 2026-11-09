@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>知識截止日</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">AI 的知識，停在某一天</div>
+ <svg viewBox="0 0 1200 380" class="tl">
+  <line x1="40" y1="200" x2="1160" y2="200" stroke="#c4ccd9" stroke-width="6"/>
+  <rect x="40" y="185" width="560" height="30" rx="15" fill="#9db4f5"/>
+  <text x="320" y="250" text-anchor="middle" class="m">AI 讀過的資料</text>
+  <g data-s="1"><line x1="600" y1="110" x2="600" y2="290" stroke="#d64545" stroke-width="5" stroke-dasharray="10 8"/><text x="600" y="95" text-anchor="middle" class="r">知識截止日</text></g>
+  <g data-s="2"><circle cx="760" cy="200" r="16" fill="#f0a33a"/><text x="760" y="160" text-anchor="middle">工具改版 v4</text><text x="760" y="250" text-anchor="middle" class="s">設定檔寫法變了</text></g>
+  <g data-s="3"><circle cx="920" cy="200" r="16" fill="#f0a33a"/><text x="920" y="160" text-anchor="middle">主控台改版</text><text x="920" y="250" text-anchor="middle" class="s">按鈕搬家</text></g>
+  <g data-s="4"><circle cx="1080" cy="200" r="16" fill="#f0a33a"/><text x="1080" y="160" text-anchor="middle">指令改名</text><text x="1080" y="250" text-anchor="middle" class="s">舊參數拿掉</text></g>
+  <g data-s="5"><rect x="640" y="300" width="500" height="64" rx="14" fill="#e3f6ec"/><text x="890" y="341" text-anchor="middle" class="g">解法：動手前先給它最新的文件</text></g>
+ </svg>
+ <div class="stepbar"><button class="btn" id="next">下一步 ▶</button><span class="cap" data-t0="AI 是讀了大量資料學會的" data-t1="資料只收到某一天：知識截止日" data-t2="之後工具一直在改版" data-t3="雲端主控台的畫面也會變" data-t4="AI 照舊的寫法做，就會出錯" data-t5="讀最新的官方文件、更新紀錄，再動手"></span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

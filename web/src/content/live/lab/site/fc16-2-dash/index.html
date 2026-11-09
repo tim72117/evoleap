@@ -1,0 +1,32 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>部署平台 · 新增專案</title></head><body>
+<div id="app" class="console">
+<header class="top"><span class="logo">◆ 部署平台</span><span class="crumb">帳號 xiaosen-dev ／ 新增專案</span><span class="me">學</span></header>
+<main class="wrap">
+<section data-only="0">
+<h1>建立第一個專案</h1><p class="lead">要從 Git 自動部署，先讓平台讀得到你的 GitHub 儲存庫。</p>
+<div class="box big"><p>第 1 步：連接 Git 帳號</p><button id="connect" class="primary" data-go="1">用 GitHub 連接</button><button class="ghost">直接上傳檔案</button></div>
+</section>
+<section data-only="1">
+<div class="oauth box"><p class="kicker">GitHub · 授權第三方應用程式</p><h1>「部署平台」想要存取你的帳號</h1>
+<ul><li>讀取你選擇的儲存庫內容</li><li>在儲存庫上建立部署狀態</li></ul>
+<p class="note">這一步是你的帳號授權，由你自己確認、按下。AI 不會替你按。</p>
+<button id="authorize" class="primary" data-go="2">授權</button><button class="ghost">取消</button></div>
+</section>
+<section data-only="2">
+<h1>選擇儲存庫</h1><p class="lead">平台只看得到你授權的儲存庫。</p>
+<div class="box list"><div class="repo">xiaosen-dev/notes</div><div class="repo">xiaosen-dev/practice</div><p class="empty">找不到 bakery？</p><button id="perm" class="link" data-go="3">調整 GitHub 權限 →</button></div>
+</section>
+<section data-only="3">
+<h1>選擇儲存庫</h1><p class="lead">已加入 bakery 的讀取權限。</p>
+<div class="box list"><div class="repo hl">xiaosen-dev/bakery <button id="pick" class="primary sm" data-go="4">匯入</button></div><div class="repo">xiaosen-dev/notes</div><div class="repo">xiaosen-dev/practice</div></div>
+</section>
+<section data-only="4">
+<h1>設定 bakery</h1>
+<div class="box form"><label>專案名稱<input value="bakery"></label><label>正式分支<input value="main"></label><label>建置指令<input placeholder="（純 HTML，不用填）"></label><label>輸出資料夾<input value="/"></label>
+<button id="deploy" class="primary" data-go="5">儲存並部署</button></div>
+</section>
+<section data-only="5">
+<h1>bakery</h1>
+<div class="box"><p><span class="pill ok">● 部署成功</span>　正式網址 <b class="mono">https://bakery-7ka.pages.dev</b></p><p>之後每次 push 到 main 就會自動部署；其他分支會有預覽網址。</p></div>
+</section>
+</main></div></body></html>

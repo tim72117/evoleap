@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>購物清單</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="app-root">
+<main class="wrap" id="app" data-v="2" data-saved='[{"t":"牛奶","d":true},{"t":"洗碗精","d":false},{"t":"衛生紙","d":false}]'>
+  <h1>購物清單</h1>
+  <p class="sub">想到就記，到了店裡一項項勾掉</p>
+  <section class="card">
+    <div class="add"><input id="item" type="text" placeholder="要買什麼？"><button id="add" class="btn">新增</button></div>
+    <ul id="list"></ul>
+    <div class="saved">✓ 自動存在這個瀏覽器裡</div>
+    <div id="toast" class="toast gone"></div>
+  </section>
+</main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

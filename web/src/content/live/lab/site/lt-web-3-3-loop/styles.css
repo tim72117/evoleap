@@ -1,0 +1,38 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif; color: #22303c; background: #fffdf9; }
+h1, p { margin: 0; }
+.app { display: grid; grid-template-columns: 470px 1fr; min-height: 100%; }
+.side { padding: 18px 20px; background: #1f2633; color: #e6edf3; font-size: 13px; }
+.s-title { font-size: 18px; font-weight: 800; }
+.s-title small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: #9aa7b4; }
+.data { margin-top: 12px; padding: 8px; border-radius: 12px; background: #121821; font-family: ui-monospace, Menlo, monospace; }
+.d-row { display: grid; grid-template-columns: 30px 1fr 70px 64px; gap: 6px; padding: 6px 8px; border-radius: 8px; }
+.d-row.head { color: #6f7c8c; font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif; font-size: 12px; }
+.d-row.new { background: #3a3626; }
+.d-row .zero { color: #fc8181; font-weight: 700; }
+.d-empty { padding: 10px 8px; color: #6f7c8c; }
+.ctl { display: flex; gap: 8px; margin-top: 10px; }
+.ctl button { flex: 1; padding: 8px; border: 0; border-radius: 10px; background: #f6c453; color: #1f2633; font-size: 14px; font-weight: 700; cursor: pointer; }
+.ctl button.ghost { background: #2c3546; color: #e6edf3; }
+.rule { margin-top: 14px; padding: 10px; border: 1px dashed #4a5568; border-radius: 12px; }
+.r-line { padding: 7px 8px; border-radius: 8px; line-height: 1.5; }
+.r-line.sub { margin-left: 18px; }
+.r-line b { display: inline-block; margin-right: 6px; padding: 1px 8px; border-radius: 6px; background: #2c3546; color: #f6c453; }
+.r-line.on { background: #3a3626; }
+.page { padding: 18px 24px; }
+.p-head { display: flex; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 22px; font-weight: 800; color: #7b4a2a; }
+.count { padding: 3px 12px; border-radius: 999px; background: #f3e6d6; color: #7b4a2a; font-size: 13px; font-weight: 700; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+.card { overflow: hidden; border: 1px solid #ece2d5; border-radius: 14px; background: #fff; }
+.card.new { outline: 3px solid #f6c453; outline-offset: 2px; }
+.pic { position: relative; height: 92px; }
+.nth { position: absolute; left: 8px; top: 8px; padding: 1px 8px; border-radius: 999px; background: rgba(31, 38, 51, 0.8); color: #fff; font-size: 11px; }
+.info { padding: 10px 12px; }
+.name { font-weight: 700; }
+.price { margin-top: 2px; color: #7b4a2a; font-weight: 800; }
+.buy { width: 100%; margin-top: 8px; padding: 7px; border: 0; border-radius: 8px; background: #7b4a2a; color: #fff; font-weight: 700; }
+.card.soldout .pic { filter: grayscale(1); opacity: 0.6; }
+.card.soldout .buy { background: #cbd2d9; color: #6b7684; }
+.sold { position: absolute; right: 8px; top: 8px; padding: 2px 10px; border-radius: 999px; background: #c53030; color: #fff; font-size: 12px; font-weight: 700; }
+.none { grid-column: 1 / -1; padding: 40px; border: 2px dashed #e0d5c6; border-radius: 14px; text-align: center; color: #8a7d70; font-size: 16px; }

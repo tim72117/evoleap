@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>權限模式</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-pick="ask">
+<div class="ttl">AI 要動手之前，先問誰？</div>
+<div class="ladder">
+  <div class="rung"><span class="ic">👀</span><b>讀檔</b><span class="muted">看一看，不改東西</span></div>
+  <div class="arr">→</div>
+  <div class="rung"><span class="ic">✏️</span><b>改檔</b><span class="muted">會改到你的檔案</span></div>
+  <div class="arr">→</div>
+  <div class="rung hot"><span class="ic">⚡</span><b>執行指令</b><span class="muted">可以刪檔、安裝、上網</span></div>
+  <div class="risk">出錯的代價越來越大 ▶</div>
+</div>
+<div class="tabs">
+  <button class="tab cur" id="m-ask" data-pick="ask">每次都問</button>
+  <button class="tab" id="m-accept" data-pick="accept">自動接受修改</button>
+  <button class="tab" id="m-plan" data-pick="plan">先規劃</button>
+  <button class="tab" id="m-auto" data-pick="auto">自動</button>
+</div>
+<div class="card grid">
+  <div class="g-h"></div><div class="g-h">👀 讀檔</div><div class="g-h">✏️ 改檔</div><div class="g-h">⚡ 執行指令</div>
+  <div class="m m-ask"><b>每次都問</b><br><span class="muted">新手預設</span></div><div class="m m-ask c ok">自動</div><div class="m m-ask c q">先問你</div><div class="m m-ask c q">先問你</div>
+  <div class="m m-accept"><b>自動接受修改</b><br><span class="muted">改檔不用問</span></div><div class="m m-accept c ok">自動</div><div class="m m-accept c ok">自動</div><div class="m m-accept c q">先問你</div>
+  <div class="m m-plan"><b>先規劃</b><br><span class="muted">只看不動</span></div><div class="m m-plan c ok">自動</div><div class="m m-plan c no">不做，先寫計畫</div><div class="m m-plan c no">不做</div>
+  <div class="m m-auto"><b>自動</b><br><span class="muted">熟了再用</span></div><div class="m m-auto c ok">自動</div><div class="m m-auto c ok">自動</div><div class="m m-auto c ok">大多自動<br><span class="small">危險的仍會擋</span></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

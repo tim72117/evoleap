@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>抽籤動畫</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="ttl">抽籤動畫，拆開來看</div>
+  <div class="tabs"><button class="tab" data-go="1">先決定</button><button class="tab" data-go="2">再輪換</button><button class="tab" data-go="3">停下來</button><button class="tab" data-go="4">對一對</button></div>
+  <div class="strip">
+    <div class="fr pick r1"><div class="t">按下抽籤的瞬間</div><div class="n">李欣怡</div><div class="k">程式先決定好</div></div>
+    <div class="fr r2"><div class="t">0.2 秒</div><div class="n f">陳怡君</div></div>
+    <div class="fr r2"><div class="t">0.5 秒</div><div class="n f">劉建宏</div></div>
+    <div class="fr r2"><div class="t">0.9 秒</div><div class="n f">許雅筑</div></div>
+    <div class="fr r2"><div class="t">1.4 秒</div><div class="n f">黃俊傑</div></div>
+    <div class="fr stop r3"><div class="t">2 秒 · 叮！</div><div class="n">李欣怡</div></div>
+  </div>
+  <div class="speed r2">越來越慢 ⟶</div>
+  <div class="check r4">
+    <div class="box">畫面停在 <b>李欣怡</b></div>
+    <div class="eq">＝</div>
+    <div class="box">已抽中名單新增 <b>李欣怡</b></div>
+    <div class="ok">✓ 動畫只是效果，真正抽中的人要一致</div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

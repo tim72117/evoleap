@@ -1,0 +1,111 @@
+{
+  "title": "VS Code：寫程式的工作桌",
+  "camera": "auto",
+  "teacher": {
+    "say": "認識你的工作桌",
+    "line": "今天認識 VS Code 這個編輯器。重點只有一個：它打開的是一整個資料夾，連內建的終端機，也站在這個資料夾裡。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc3-1-vscode", "url": "https://course.example/explain/editor" },
+      "place": "window",
+      "hidden": true
+    },
+    "ed": {
+      "actor": "editor",
+      "props": { "project": "hello", "files": { "style.css": "body { background: #e8f3ff; }\n", "index.html": "<!DOCTYPE html>\n<h1>Hello！</h1>\n<p>我是新手</p>\n" } },
+      "place": { "x": 260, "y": 60, "w": 1400, "h": 620 },
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/hello", "embed": true },
+      "place": { "x": 260, "y": 680, "w": 1400, "h": 300 },
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "VS Code：寫程式的工作桌",
+      "eyebrow": "全環節 · 單元 3 · 3.1 基礎知識",
+      "sub": "資料夾 · 編輯區 · 內建終端機",
+      "chapter": "三個區域",
+      "narration": "VS Code 是一個免費的程式編輯器，也就是寫程式、看程式用的軟體。它的畫面分成三塊。"
+    },
+    { "show": "web" },
+    {
+      "on": "web",
+      "click": "#z1",
+      "narration": "第一塊在左邊：檔案總管。"
+    },
+    {
+      "callout": "web:sel:#zf",
+      "text": "打開一整個資料夾 = 工作區",
+      "narration": "VS Code 打開的通常不是一個檔案，而是一整個資料夾，這叫做工作區。左邊列出資料夾裡所有的檔案。"
+    },
+    {
+      "on": "web",
+      "click": "#z2",
+      "narration": "第二塊在中間：編輯區。"
+    },
+    {
+      "callout": "web:sel:#ze",
+      "text": "點左邊的檔案，在這裡打開、修改",
+      "narration": "點左邊的檔案，就在這裡打開。可以同時開好幾個分頁，左邊的數字是行號，AI 說「第 3 行」就是看這裡。"
+    },
+    {
+      "on": "web",
+      "click": "#z3",
+      "narration": "第三塊在下面：內建終端機。"
+    },
+    {
+      "callout": "web:sel:#zt",
+      "text": "一打開就站在這個資料夾裡",
+      "narration": "這就是你學過的終端機，只是住在編輯器裡。最方便的是：它一打開，就已經站在工作區的資料夾裡了，不用再 cd。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "資料夾是今天的工作箱",
+      "sub": "編輯區是桌面　·　內建終端機是桌上的工具機",
+      "chapter": "一個比喻",
+      "narration": "打個比方：資料夾是你今天打開的工作箱，編輯區是桌面，內建終端機是放在桌上的工具機。三樣東西都對著同一個箱子。"
+    },
+    { "on": "fx", "clear": true },
+    {
+      "show": "ed",
+      "chapter": "實際看一次",
+      "narration": "實際看一次。打開 hello 資料夾，左邊是它的檔案。"
+    },
+    { "on": "ed", "open": "index.html" },
+    {
+      "on": "ed",
+      "type": "<button>聯絡我</button>\n",
+      "narration": "在編輯區加一行。"
+    },
+    { "show": "term" },
+    {
+      "on": "term",
+      "type": "pwd",
+      "out": "/Users/you/projects/hello",
+      "narration": "打開下面的內建終端機，打 pwd：它就在 hello 裡面。"
+    },
+    {
+      "on": "term",
+      "type": "ls",
+      "out": "index.html    style.css",
+      "narration": "ls 看到的檔案，和左邊的清單一樣。"
+    },
+    {
+      "checkpoint": "想一想：在 VS Code 打開 ~/projects/hello 之後，內建終端機打 pwd 會印出什麼？",
+      "body": "/Users/you/projects/hello。內建終端機一打開就站在工作區的資料夾裡，所以不用再 cd。"
+    },
+    {
+      "card": "打開資料夾，三塊都對著它",
+      "eyebrow": "3.1 重點",
+      "sub": "左：檔案　·　中：編輯　·　下：終端機",
+      "narration": "總結：VS Code 打開一個資料夾，左邊列檔案、中間編輯、下面的終端機也站在同一個資料夾裡。下一堂，請 AI 帶你裝好它。"
+    }
+  ]
+}

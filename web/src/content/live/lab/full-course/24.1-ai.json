@@ -1,0 +1,129 @@
+{
+  "title": "隱私權政策與服務條款",
+  "lesson": "全環節 · 單元 24 · 24.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天起草隱私權政策",
+    "line": "這一課請 AI 讀程式，找出網站實際收集了哪些資料，再依此起草隱私權政策和服務條款。最後的內容與法律責任，由你自己確認。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "隱私權政策",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc24-1-policy", "url": "https://shop-staging.example.app/privacy" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "隱私權政策與服務條款",
+      "eyebrow": "全環節 · 單元 24 · 24.1 用 AI 完成",
+      "sub": "AI：讀程式、列出資料、起草 · 你：逐條確認、負責",
+      "narration": "AI 最擅長的，是把整個程式讀一遍，找出所有收集資料的地方。這比你憑記憶列可靠多了。"
+    },
+    {
+      "show": "claude",
+      "chapter": "先讀程式，找出實際收集的資料",
+      "narration": "一次交代清楚：先找、再寫，不確定的要標出來。"
+    },
+    {
+      "on": "claude",
+      "user": "讀整個專案，找出網站實際收集的每一種個人資料：在哪裡收集、存在哪、交給哪些外部服務、有沒有自動刪除。先列成表給我看。然後依這張表起草隱私權政策和服務條款，放在 /privacy 和 /terms；程式裡找不到答案的地方，不要自己編，標黃讓我決定。",
+      "narration": "最後一句最重要：找不到答案的，不要自己編，標出來讓你決定。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "Grep", "arg": "<input|name=|FormData", "result": "6 個表單、14 個欄位" },
+    { "on": "claude", "tool": "Grep", "arg": "gtag|Errors.init|sendMail|cookie", "result": "GA4、錯誤追蹤、寄信服務、2 個 cookie" },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "delete|retention|expire",
+      "result": "訂單匿名化（privacy.ts）、備份 7 天；聯絡留言沒有刪除機制",
+      "narration": "它找了三種東西：表單欄位、外部服務，以及有沒有自動刪除。"
+    },
+    {
+      "on": "claude",
+      "say": "實際收集的資料（資料 → 在哪裡 → 交給誰 → 保存多久）：\n\n姓名、Email、電話 → 註冊、結帳 → 寄信服務 → 刪帳號為止\n宅配地址 → 結帳 → 物流 → 匿名化前\n聯絡表單留言 → 聯絡我們 → 無 → **沒有刪除機制**\n匿名造訪 → GA4（同意後）→ Google → 14 個月\n錯誤回報 → 錯誤追蹤 → 錯誤追蹤服務 → 90 天\n\n另外 `newsletter` 欄位在結帳頁預設是**打勾**的，建議改成預設不勾。",
+      "chapter": "AI 找到的資料",
+      "narration": "表格列出來了。它還找到兩個你可能不知道的問題：聯絡表單的留言從來沒有刪過；結帳頁的訂閱電子報，預設是打勾的。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "寫政策之前先發現的問題：留言沒有期限、訂閱預設打勾",
+      "narration": "寫政策的過程，常常會先發現網站本身的問題。預設打勾，等於沒問過客人就幫他訂閱，應該改掉。"
+    },
+    {
+      "on": "claude",
+      "user": "電子報改成預設不勾。留言保留一年，請加自動刪除。然後起草。",
+      "narration": "你先做決定：改掉預設打勾，留言保留一年。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/Checkout.tsx",
+      "lines": [[57, "-", "  <input type=\"checkbox\" name=\"newsletter\" defaultChecked />"], [57, "+", "  <input type=\"checkbox\" name=\"newsletter\" />"]]
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/Privacy.tsx",
+      "lines": [
+        [1, "+", "<h1>隱私權政策</h1>"],
+        [2, "+", "<h2>一、我們收集哪些資料</h2>  {/* 依上面的表格 */}"],
+        [3, "+", "<h2>二、會交給誰</h2>"],
+        [4, "+", "<h2>三、你的權利</h2>  {/* 15 天複製本、30 天刪除 */}"]
+      ],
+      "chapter": "起草",
+      "narration": "接著起草。隱私權政策照四個問題排，內容全部來自剛才的表格。服務條款也一起寫。"
+    },
+    { "on": "claude", "edit": "src/pages/Terms.tsx", "lines": [[1, "+", "<h1>服務條款</h1>"], [2, "+", "<h2>訂購與付款</h2><h2>取消與退款</h2><h2>責任範圍</h2>"]] },
+    { "on": "claude", "tool": "Bash", "arg": "npm run deploy:staging", "result": "已部署：/privacy、/terms" },
+    {
+      "show": "web",
+      "chapter": "你：逐條確認",
+      "narration": "打開測試環境的隱私權政策。最上面寫著草稿，標黃的是要你決定的地方。"
+    },
+    {
+      "callout": "web:section:p-collect",
+      "text": "對照：每一項都是程式裡真的有的",
+      "narration": "這張表，每一項都是程式裡真的有的。你要做的是逐條讀過，確認是不是你的做法。"
+    },
+    {
+      "callout": "web:section:p-rights",
+      "text": "標黃：聯絡信箱要你確認",
+      "narration": "例如聯絡信箱，程式裡沒有，它就沒有亂填，留給你確認。"
+    },
+    {
+      "on": "claude",
+      "say": "草稿已放在測試環境的 `/privacy` 與 `/terms`。需要你決定的有 3 處（已標黃）：聯絡信箱、留言保留期限（我先寫一年）、服務條款的退款天數。\n\n⚠ 我不是律師，這是依程式起草的草稿。發布前請你逐條確認，必要時請教專業人士。",
+      "narration": "它把要你決定的地方列出來，也清楚說明：這是草稿，它不是律師。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "自己來：最後內容與法律責任，你確認後才發布",
+      "narration": "這一步一定要你自己來。逐條讀過、決定標黃的地方，覺得沒把握的，請教專業的人。確認後，才發布到正式網站。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 讀你的專案，列出實際收集的每一種資料（在哪、交給誰、存多久），找不到的標出來，不要自己編。依此起草隱私權政策與服務條款，部署到測試環境。你自己逐條確認後才發布。",
+      "narration": "換你做做看。拿 AI 找到的清單，和你上一堂憑記憶列的比一比。最後一定要自己確認。"
+    },
+    {
+      "card": "網站上的隱私權政策與服務條款",
+      "eyebrow": "這一課的成果",
+      "sub": "依程式實際收集的資料起草 · 最後內容與責任自己確認",
+      "narration": "這一課的成果：網站上的隱私權政策和服務條款。下一課，做 Cookie 同意橫幅，確認客人拒絕後真的不送資料。"
+    }
+  ]
+}

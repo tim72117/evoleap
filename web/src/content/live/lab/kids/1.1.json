@@ -1,0 +1,257 @@
+{
+  "title": "標題和段落",
+  "lesson": "兒童網頁課 · 1.1 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt8-kid-page",
+      "props": {
+        "title": "小花的一天",
+        "items": [
+          {
+            "id": "c1",
+            "kind": "raw",
+            "text": "小花的一天",
+            "want": "h1"
+          },
+          {
+            "id": "c2",
+            "kind": "raw",
+            "text": "早上",
+            "want": "h2"
+          },
+          {
+            "id": "c3",
+            "kind": "raw",
+            "text": "小花六點就起床，跳到床上叫我起來。",
+            "want": "p"
+          },
+          {
+            "id": "c4",
+            "kind": "raw",
+            "text": "下午",
+            "want": "h2"
+          },
+          {
+            "id": "c5",
+            "kind": "raw",
+            "text": "小花在窗邊曬太陽，一睡就是兩個小時。",
+            "want": "p"
+          }
+        ],
+        "tools": [
+          "h1",
+          "h2",
+          "p"
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 80,
+          "y": 50,
+          "w": 1760,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "擠在一起的字",
+      "guide": {
+        "target": "kid:page",
+        "text": "字全部擠在一起"
+      },
+      "narration": "這是小花的網頁，寫的是小花的一天。可是，字全部擠在一起了！"
+    },
+    {
+      "wait": 400,
+      "narration": "哪一句是題目？哪裡講早上，哪裡講下午？好難看出來。"
+    },
+    {
+      "wait": 400,
+      "chapter": "三種積木",
+      "guide": {
+        "target": "kid:tools",
+        "text": "積木盒"
+      },
+      "narration": "別擔心。積木盒裡有三種積木，可以幫字排好。"
+    },
+    {
+      "pick": "h1",
+      "tap": true,
+      "narration": "先選大標題。"
+    },
+    {
+      "use": "c1",
+      "tap": true,
+      "narration": "再點「小花的一天」。它變成大標題了！大標題是整頁最重要的一句，告訴你這一頁在講什麼。"
+    },
+    {
+      "pick": "h2",
+      "tap": true,
+      "narration": "再選小標題。"
+    },
+    {
+      "use": "c2",
+      "tap": true,
+      "narration": "點「早上」。小標題把一頁分成幾個小部分，這一部分講的是早上。"
+    },
+    {
+      "pick": "p",
+      "tap": true,
+      "narration": "最後選段落。"
+    },
+    {
+      "use": "c3",
+      "tap": true,
+      "narration": "段落把一件事的話說完。小花早上做了什麼，都寫在這一段。"
+    },
+    {
+      "wait": 300,
+      "chapter": "換你選積木",
+      "narration": "換你了，一共兩題。看上面的題目，點積木盒裡的一塊積木。"
+    },
+    {
+      "checkpoint": "第 1 題：「下午」要用哪一塊積木？",
+      "body": "點積木盒裡的一塊積木。",
+      "id": "quiz-1",
+      "options": [
+        {
+          "label": "大標題",
+          "target": "kid:tool:h1",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "tool:h1",
+              "ok": false,
+              "narration": "大標題一頁只要一個，已經有「小花的一天」了。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "小標題",
+          "target": "kid:tool:h2",
+          "steps": [
+            {
+              "pick": "h2"
+            },
+            {
+              "use": "c4",
+              "narration": "答對了！「下午」是小標題，告訴你下面要講下午的事。"
+            }
+          ]
+        },
+        {
+          "label": "段落",
+          "target": "kid:tool:p",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "tool:p",
+              "ok": false,
+              "narration": "段落是把話說完的。「下午」只有兩個字，是在告訴你下面要講什麼。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "checkpoint": "第 2 題：「小花在窗邊曬太陽……」要用哪一塊積木？",
+      "body": "點積木盒裡的一塊積木。",
+      "id": "quiz-2",
+      "options": [
+        {
+          "label": "大標題",
+          "target": "kid:tool:h1",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "tool:h1",
+              "ok": false,
+              "narration": "這句話很長，是在說一件事，不是整頁的題目。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "小標題",
+          "target": "kid:tool:h2",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "tool:h2",
+              "ok": false,
+              "narration": "小標題要短短的。這句是在說一件事。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "段落",
+          "target": "kid:tool:p",
+          "steps": [
+            {
+              "pick": "p"
+            },
+            {
+              "use": "c5",
+              "narration": "答對了！這是一段話，用段落把它說完。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "labels": true,
+      "chapter": "比比看",
+      "narration": "掛上名牌看看：一個大標題、兩個小標題、兩個段落。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:side",
+        "text": "網頁的積木"
+      },
+      "narration": "右邊是網頁的積木，排得整整齊齊。現在一眼就看得懂這一頁在講什麼了。"
+    },
+    {
+      "checkpoint": "換你分分看",
+      "sub": "lab/kids/1.1-sort.json",
+      "chapter": "換你分分看"
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:window",
+        "text": "標題告訴你在講什麼，段落把話說完"
+      },
+      "narration": "大標題說整頁在講什麼，小標題把它分成幾個部分，段落把話說完。"
+    },
+    {
+      "wait": 400,
+      "narration": "今天學到三個名字：大標題、小標題、段落。"
+    }
+  ]
+}

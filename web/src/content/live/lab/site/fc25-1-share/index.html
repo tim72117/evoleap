@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>分享預覽檢查</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap">
+ <div class="ttl">分享預覽檢查</div>
+ <div class="sub">貼上網址，看社群平台抓到什麼</div>
+ <div class="bar"><div class="in mono">https://komori-bakery.example/menu</div><button class="btn" id="fetch">重新抓取</button></div>
+ <div class="row">
+  <div class="card prev" id="before">
+   <div class="lbl">抓到的卡片</div>
+   <div class="ogimg empty">沒有圖片</div>
+   <div class="ogt">komori-bakery.example</div>
+   <div class="ogd muted">（沒有描述）</div>
+  </div>
+  <div class="card prev gone" id="after">
+   <div class="lbl">抓到的卡片</div>
+   <div class="ogimg"><svg viewBox="0 0 200 120" width="100%" height="100%"><rect width="200" height="120" fill="#f7e3c4"/><ellipse cx="100" cy="72" rx="70" ry="30" fill="#c98a4b"/><ellipse cx="100" cy="64" rx="62" ry="24" fill="#e0a865"/><path d="M60 58 q10 -10 20 0 M90 54 q10 -10 20 0 M120 58 q10 -10 20 0" stroke="#a8692f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></div>
+   <div class="ogt">本週麵包菜單｜小森烘焙</div>
+   <div class="ogd">每天早上七點出爐，線上預約、到店取貨。</div>
+  </div>
+  <div class="col card">
+   <div class="lbl">抓到的標籤</div>
+   <table class="t" id="tags-before"><tr><th>標籤</th><th>狀態</th></tr>
+    <tr><td class="mono">og:title</td><td><span class="pill bad">缺少</span></td></tr>
+    <tr><td class="mono">og:description</td><td><span class="pill bad">缺少</span></td></tr>
+    <tr><td class="mono">og:image</td><td><span class="pill bad">缺少</span></td></tr>
+   </table>
+   <table class="t gone" id="tags-after"><tr><th>標籤</th><th>狀態</th></tr>
+    <tr><td class="mono">og:title</td><td><span class="pill ok">有</span></td></tr>
+    <tr><td class="mono">og:description</td><td><span class="pill ok">有</span></td></tr>
+    <tr><td class="mono">og:image</td><td><span class="pill ok">1200 × 630</span></td></tr>
+   </table>
+  </div>
+ </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

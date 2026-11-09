@@ -1,0 +1,18 @@
+<!doctype html><html><head><title>兩個偵煙器</title></head><body>
+<div class="app">
+  <div class="room">
+    <div class="det" id="dA">
+      <svg viewBox="0 0 200 200"><g class="waves"><path d="M40 100a60 60 0 0 1 0-1M30 70q-20 30 0 60M170 70q20 30 0 60M18 55q-32 45 0 90M182 55q32 45 0 90"/></g><circle cx="100" cy="100" r="58" class="shell"/><circle cx="100" cy="100" r="40" class="inner"/><circle cx="100" cy="100" r="9" class="led"/></svg>
+      <b>偵煙器 A</b><div class="st" id="sA">安安靜靜</div>
+      <button id="tA">按測試鈕</button>
+    </div>
+    <div class="smoke" id="smokeArea"><svg viewBox="0 0 200 160"><g class="puff"><circle cx="70" cy="120" r="26"/><circle cx="100" cy="95" r="32"/><circle cx="135" cy="115" r="24"/><circle cx="110" cy="55" r="22"/><circle cx="80" cy="65" r="18"/></g></svg><button id="smoke">🔥 冒煙了</button></div>
+    <div class="det" id="dB">
+      <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="58" class="shell"/><circle cx="100" cy="100" r="40" class="inner"/><circle cx="100" cy="100" r="9" class="led off"/><g class="bat"><rect x="72" y="86" width="56" height="28" rx="4" class="slot"/><text x="100" y="106" text-anchor="middle">沒有電池</text></g></svg>
+      <b>偵煙器 B</b><div class="st" id="sB">安安靜靜</div>
+      <button id="open">打開蓋子</button>
+    </div>
+  </div>
+  <div class="msg" id="msg">兩個偵煙器都「從來沒響過」。哪一個在保護你？</div>
+</div>
+</body></html>

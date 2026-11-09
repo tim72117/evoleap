@@ -1,0 +1,157 @@
+{
+  "title": "啟用 API 與配額",
+  "lesson": "全環節 · 單元 18 · 18.5 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "只開需要的開關",
+    "line": "這一堂請 AI 依接下來要做的事，判斷要開哪些 API，啟用之後再列出 API 清單和目前的用量。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "API 與用量",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "啟用 API 與配額",
+      "eyebrow": "全環節 · 單元 18 · 18.5 用 AI 完成",
+      "sub": "依需要啟用 API，列出清單與用量",
+      "chapter": "交代：要做什麼，讓 AI 判斷要開哪些",
+      "narration": "你不用自己記哪個服務對應哪個 API。告訴 AI 接下來要做什麼，讓它判斷。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "接下來我要：用 Docker 打包網站、部署到 Cloud Run、用 Cloud SQL 資料庫、把密碼放進 Secret Manager。請啟用需要的 API，用不到的不要開。最後列出已啟用的 API 和每個 API 最近 7 天的用量。",
+      "narration": "說清楚接下來的計畫，加一句：用不到的不要開。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "on": "claude",
+      "say": "依你的計畫，需要 5 個 API：\n| API | 為什麼需要 |\n|---|---|\n| `run` | 部署網站到 Cloud Run |\n| `artifactregistry` | 存放打包好的映像檔 |\n| `cloudbuild` | 在雲端幫你打包 |\n| `sqladmin` | 建立與管理 Cloud SQL |\n| `secretmanager` | 存放密碼 |\n**啟用 API 本身不收費**，要真的用服務才計費。可以隨時停用。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "每個 API 都說得出為什麼需要",
+      "narration": "每個 API 都附上理由。看不懂哪一個，就直接問它。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud services enable（5 個 API）",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud services enable run.googleapis.com \\\n  artifactregistry.googleapis.com cloudbuild.googleapis.com \\\n  sqladmin.googleapis.com secretmanager.googleapis.com",
+      "chapter": "啟用"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com sqladmin.googleapis.com secretmanager.googleapis.com",
+      "result": "完成",
+      "out": "Operation \"operations/acf.p2-…\" finished successfully."
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud services list --enabled --format='table(config.name,config.title)'",
+      "result": "完成",
+      "out": "NAME                             TITLE\nartifactregistry.googleapis.com  Artifact Registry API\nbillingbudgets.googleapis.com    Cloud Billing Budget API\ncloudbuild.googleapis.com        Cloud Build API\nlogging.googleapis.com           Cloud Logging API\nmonitoring.googleapis.com        Cloud Monitoring API\nrun.googleapis.com               Cloud Run Admin API\nsecretmanager.googleapis.com     Secret Manager API\nsqladmin.googleapis.com          Cloud SQL Admin API\n…（另有 4 個隨附的基本 API）",
+      "narration": "啟用完成，列出清單：新開的五個，加上原本就有的基本服務。"
+    },
+    {
+      "on": "claude",
+      "say": "接著查用量。gcloud 沒有一個指令能直接列出「每個 API 的用量」，我寫一個小腳本，向 Cloud Monitoring 查最近 7 天每個 API 被呼叫幾次。這只是查詢，不會花錢。",
+      "chapter": "列出用量"
+    },
+    {
+      "on": "claude",
+      "edit": "api-usage.sh",
+      "lines": [
+        [
+          1,
+          "+",
+          "#!/bin/bash"
+        ],
+        [
+          2,
+          "+",
+          "# 最近 7 天，每個 API 被呼叫幾次（查 Cloud Monitoring，只讀）"
+        ],
+        [
+          3,
+          "+",
+          "P=$(gcloud config get project); T=$(gcloud auth print-access-token)"
+        ],
+        [
+          4,
+          "+",
+          "curl -s -H \"Authorization: Bearer $T\" \\"
+        ],
+        [
+          5,
+          "+",
+          "  \"https://monitoring.googleapis.com/v3/projects/$P/timeSeries?filter=metric.type%3D%22serviceruntime.googleapis.com/api/request_count%22&interval.startTime=$(date -u -v-7d +%FT%TZ)&interval.endTime=$(date -u +%FT%TZ)\" \\"
+        ],
+        [
+          6,
+          "+",
+          "  | jq -r '[.timeSeries[] | {api: .resource.labels.service, n: ([.points[].value.int64Value|tonumber]|add)}] | group_by(.api)[] | \"\\(.[0].api)\\t\\(map(.n)|add)\"'"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bash api-usage.sh | column -t",
+      "result": "完成",
+      "out": "billingbudgets.googleapis.com     12\ncloudresourcemanager.googleapis.com  38\nserviceusage.googleapis.com       21\nrun.googleapis.com                 3\nsqladmin.googleapis.com            0\nsecretmanager.googleapis.com       0",
+      "narration": "用量出來了。這些呼叫大多是剛剛 gcloud 自己發出的查詢和設定；新開的服務還幾乎沒用。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud alpha services quota list --service=run.googleapis.com --consumer=projects/xiaosen-bakery-prod-2611 --format='table(metric,consumerQuotaLimits[0].quotaBuckets[0].effectiveLimit)' | head -4",
+      "result": "完成",
+      "out": "METRIC                                   LIMIT\nrun.googleapis.com/read_requests         …\nrun.googleapis.com/write_requests        …\nrun.googleapis.com/container_instances   （每個地區上限）",
+      "narration": "它還列出 Cloud Run 的配額：每分鐘能讀、能寫幾次，每個地區最多開幾台。我們的用量離這些上限都很遠。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- 新啟用 5 個 API：run、artifactregistry、cloudbuild、sqladmin、secretmanager\n- 最近 7 天用量都很低（最多 38 次，是我們剛剛的設定操作）\n- 配額離上限很遠\n`api-usage.sh` 留著，之後覺得帳單怪怪的，可以先跑它看哪個 API 被呼叫最多。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：啟用你需要的 API",
+      "body": "告訴 AI 你接下來要做的事，請它判斷要開哪些 API、每個說明理由，用不到的不要開。啟用後請它列出清單，並做一個查用量的小腳本。"
+    },
+    {
+      "card": "說計畫 → AI 判斷要開哪些 API\n啟用後列出清單與用量",
+      "eyebrow": "學會",
+      "sub": "啟用 API 不收費，用服務才收費；用量是帳單的線索",
+      "chapter": "學會",
+      "narration": "說清楚接下來的計畫，讓 AI 判斷要開哪些 API、說明理由；啟用後列出清單和用量。用量就是帳單的線索。到這裡，雲端的準備都做好了，下一個單元開始把後端搬上雲端。"
+    }
+  ]
+}

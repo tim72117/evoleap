@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>同一份檔案</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="top"><div class="ttl">兩個分支，改的是同一份檔案的話……</div>
+  <div class="tabs"><button class="tab" data-go="1">A 先改</button><button class="tab" data-go="2">B 再改</button><button class="tab" data-go="3">結果</button><button class="tab" data-go="4">正確做法</button></div></div>
+  <div class="row one">
+    <div class="who wa">分支 A<br><small>溫暖手作風</small></div>
+    <div class="file">
+      <div class="fn">styles.css（只有一份）</div>
+      <div class="ln l1 r1">背景：奶油色 <i>← A 寫的</i></div>
+      <div class="ln l2 r1 a2">字體：手寫感 <i>← A 寫的</i></div>
+      <div class="ln l2 r2 b2">字體：細黑體 <i>← B 蓋掉了</i></div>
+      <div class="ln l3 r2">邊框：細灰線 <i>← B 寫的</i></div>
+    </div>
+    <div class="who wb r2">分支 B<br><small>簡約風</small></div>
+  </div>
+  <div class="res r3">結果：兩種風格混在一起，<b>兩個版本都壞了</b>，也比較不出來</div>
+  <div class="row two r4">
+    <div class="who wa">分支 A</div><div class="file small"><div class="fn">A 自己的 styles.css</div><div class="ln">溫暖手作風 ✓</div></div>
+    <div class="file small"><div class="fn">B 自己的 styles.css</div><div class="ln">簡約風 ✓</div></div><div class="who wb">分支 B</div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

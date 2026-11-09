@@ -1,0 +1,93 @@
+{
+  "title": "什麼時候需要資料庫：請 AI 依專案建議",
+  "lesson": "全環節 · 單元 9 · 9.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 幫你選資料庫",
+    "line": "今天請 AI 依你的專案比較幾種資料庫，選一種並寫下理由。好的建議要先問清楚你的情況、看過你的專案，不是直接丟一個熱門答案。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "選資料庫", "folder": "~/projects/bakery", "branch": "main", "mode": "plan", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc9-1-decision", "url": "file:///projects/bakery/docs/decisions/database.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 依專案建議資料庫",
+      "eyebrow": "全環節 · 單元 9 · 9.1 用 AI 完成",
+      "sub": "先問清楚、看過專案，再比較、寫下理由",
+      "chapter": "要它先問你",
+      "narration": "選資料庫是會影響很久的決定，所以這一次，我們不讓 AI 直接動手改程式。"
+    },
+    { "show": "claude" },
+    { "callout": "claude:mode", "text": "規劃模式：只讀、只想，不改檔案", "narration": "先切到規劃模式，它只能讀和想，不會改任何檔案。" },
+    {
+      "on": "claude",
+      "user": "我的網站要開始存訂單和會員。請比較檔案、SQLite、Postgres、Firestore，建議一種並寫下理由。開始前，先問我你需要知道的事；也請自己看專案是怎麼部署的。",
+      "narration": "交代它：先問你需要知道的事，也自己去看專案怎麼部署。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "先問幾個問題：\n1. 大概一天幾筆訂單？尖峰時會不會很多人同時下單？\n2. 之後會不會有會員登入、線上付款？\n3. 需要每月統計營收嗎？\n4. 每月可以接受多少費用？",
+      "narration": "它先問四個問題：量多大、之後要做什麼、要不要統計、預算多少。"
+    },
+    {
+      "on": "claude",
+      "user": "一天大約 50 筆，週末早上會擠。之後要會員登入和線上付款，月底要看營收。每月幾百塊可以。",
+      "narration": "你用白話回答就好。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "package.json、Dockerfile、cloudbuild.yaml",
+      "result": "部署在 Cloud Run",
+      "out": "Dockerfile：node:22-slim，CMD node server.js\ncloudbuild.yaml：gcloud run deploy bakery --region asia-east1",
+      "chapter": "它自己看專案",
+      "narration": "接著它自己讀專案的設定，發現網站部署在 Cloud Run。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebSearch",
+      "arg": "Cloud Run container filesystem persistence",
+      "result": "官方文件：容器的檔案系統是暫時的",
+      "out": "Cloud Run 的檔案寫在記憶體裡，容器重新啟動或換一台就會消失；要長期保存請用資料庫或雲端儲存。",
+      "narration": "然後去查官方文件確認一件關鍵的事：Cloud Run 的容器隨時可能換掉，寫在裡面的檔案會不見。"
+    },
+    {
+      "on": "claude",
+      "say": "關鍵限制：網站在 **Cloud Run**，容器裡的檔案會消失，所以**檔案和 SQLite 都留不住資料**。\n\n建議 **Postgres（雲端代管）**：同時下單不會蓋掉、訂單和會員付款要對得上、月底統計方便，費用在你的預算內。本機開發用 Docker 跑一份測試用的 Postgres。\n\n要我把比較表和理由寫進 `docs/decisions/database.md` 嗎？",
+      "narration": "它的建議有根據：先講出你的專案特有的限制，再說為什麼選 Postgres，最後才問要不要寫成文件。"
+    },
+    { "on": "claude", "mode": "ask", "narration": "沒問題，切回一般模式，讓它寫文件。" },
+    { "on": "claude", "user": "好，寫進去。" },
+    { "on": "claude", "ask": "docs/decisions/database.md", "q": "Claude 想要建立這個檔案", "where": "~/projects/bakery", "preview": "# 小森烘焙要用哪一種資料庫\n| 需求 | 檔案 | SQLite | Postgres | Firestore |" },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "say": "已寫好 `docs/decisions/database.md`，包含比較表、建議與理由。" },
+    { "hide": "claude" },
+    { "show": "web", "focus": false, "chapter": "看它寫的決定", "narration": "打開它寫的文件。上面先寫清楚條件：放在 Cloud Run、一天 50 筆、之後要登入和付款。" },
+    { "callout": "web:sel:.cmp", "text": "每一列是你的一個需求", "narration": "比較表的每一列，都是你剛剛回答的需求，而不是一般的優缺點。" },
+    { "on": "web", "click": "#more", "narration": "最後是建議與理由。以後有人問「為什麼用 Postgres」，打開這份文件就知道。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "在規劃模式請 AI 比較資料庫：要它先問你問題、自己看專案怎麼部署，再把建議與理由寫進 docs/decisions/。"
+    },
+    { "hide": "web" },
+    {
+      "card": "先問、再看、再建議、寫下理由",
+      "eyebrow": "學會",
+      "sub": "重要的決定用規劃模式；理由要扣住你專案的限制",
+      "chapter": "學會",
+      "narration": "這一堂的重點：重要的決定先用規劃模式，讓 AI 問清楚、看過專案再建議，並把理由寫成文件。"
+    }
+  ]
+}

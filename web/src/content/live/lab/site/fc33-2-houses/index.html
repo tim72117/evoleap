@@ -1,0 +1,25 @@
+<!doctype html><html><head><title>兩棟房子</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">兩棟長得一樣的房子</h1>
+  <p class="sub">測試環境是練習用的樣品屋；正式環境是客人真的住進來的房子</p>
+  <div class="town">
+    <div class="house test" id="hTest">
+      <div class="roof"></div><div class="body"><b>測試環境</b><span>假資料：測試客人 A、B、C</span><span>弄壞了，重建就好</span></div>
+    </div>
+    <div class="house prod" id="hProd">
+      <div class="roof"></div><div class="body"><b>正式環境</b><span>真的訂單、真的客人</span><span>弄壞了，客人受影響</span></div>
+    </div>
+  </div>
+  <div class="keys">
+    <div class="key k1" id="k1" data-go="k1"><i></i>唯讀鑰匙<small>正式環境：只能看，不能改</small></div>
+    <div class="key k2" id="k2" data-go="k2"><i></i>測試鑰匙<small>測試環境：可以隨便改</small></div>
+    <div class="key k3" id="k3" data-go="k3"><i></i>正式寫入鑰匙<small>只在你手上</small></div>
+  </div>
+  <div class="ring">
+    <b>AI 的鑰匙圈：</b>
+    <span data-at="k1" class="ok">唯讀鑰匙</span>
+    <span data-at="k2" class="ok">測試鑰匙</span>
+    <span data-at="k3" class="no">正式寫入鑰匙　不給</span>
+  </div>
+</div>
+</body></html>

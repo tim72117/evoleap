@@ -1,0 +1,65 @@
+{
+  "title": "給 AI 一雙眼睛",
+  "lesson": "全環節 · 單元 28 · 28.1 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "讓 AI 自己看畫面",
+    "line": "今天來看一件常被忽略的事：AI 其實看不到你的螢幕。看不到的時候它只能猜，給它瀏覽器工具，它就能自己看結果。"
+  },
+  "cast": {
+    "phone": { "actor": "chat", "props": { "title": "電話那頭的朋友" }, "place": { "x": 680, "y": 110, "w": 560, "h": 860 }, "hidden": true },
+    "web": { "actor": "browser", "props": { "site": "fc28-1-loop", "width": "desktop", "url": "https://whiteboard.example/ai-eyes" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "給 AI 一雙眼睛",
+      "eyebrow": "全環節 · 單元 28 · 28.1 基礎知識",
+      "sub": "看不到畫面只能猜；瀏覽器工具讓它自己看",
+      "chapter": "隔著電話修電腦",
+      "narration": "你有沒有隔著電話，教長輩用手機的經驗？"
+    },
+    { "show": "phone", "on": "phone", "receive": "那個藍色的按鈕不見了啦", "from": "媽媽" },
+    { "on": "phone", "reply": "哪一個藍色的？在上面還是下面？" },
+    { "on": "phone", "receive": "就……下面那個？還是左邊？", "from": "媽媽", "narration": "你看不到她的螢幕，只能一直問、一直猜。來回十分鐘，還不一定修得好。" },
+    {
+      "callout": "phone:msg:last",
+      "text": "你描述網頁給 AI 聽，就是這個情況",
+      "narration": "你跟 AI 說「網頁怪怪的」，AI 的處境就跟你一樣：它看不到畫面。"
+    },
+    { "hide": "phone" },
+    { "show": "web", "chapter": "看不到時：只能猜", "narration": "左邊是看不到畫面的情況。你說：手機上預約按鈕怪怪的。" },
+    { "on": "web", "click": "#next", "narration": "AI 只能猜：是顏色？是被擋住？是太小？" },
+    { "on": "web", "click": "#next", "narration": "它把三個地方都改了。結果問題還在，還順便改壞了別的地方。這不是 AI 笨，是它沒有資訊。" },
+    { "on": "web", "click": "#next", "chapter": "看得到時：自己看、自己確認", "narration": "右邊，是給了 AI 瀏覽器工具的情況。瀏覽器工具，就是讓 AI 自己開網頁、點按鈕、截圖的能力。" },
+    { "on": "web", "click": "#next", "narration": "第一步，它自己打開你的網頁，把寬度調成手機。" },
+    { "on": "web", "click": "#next", "narration": "第二步，截圖。" },
+    { "on": "web", "click": "#next", "narration": "第三步，看截圖，直接看出問題：按鈕被 Cookie 提示蓋住了。" },
+    { "on": "web", "click": "#next", "narration": "第四步，修改。改完不是說「應該好了」，而是再回到第一步，再截一次圖確認。" },
+    { "callout": "web:sel:.loop", "text": "改 → 看 → 再改：AI 自己繞這個圈", "narration": "這個圈，以前要你來繞：你看、你截圖、你描述。現在 AI 可以自己繞。" },
+    { "hide": "web" },
+    {
+      "card": "常見的「眼睛」",
+      "eyebrow": "工具",
+      "sub": "瀏覽器自動化（例如 Playwright）· 瀏覽器擴充功能 · AI 工具內建的預覽視窗",
+      "chapter": "有哪些眼睛",
+      "narration": "常見的眼睛有幾種：用程式控制瀏覽器的工具，例如 Playwright；裝在你瀏覽器上的擴充功能；還有 AI 工具內建的預覽視窗。名稱不重要，重點是：AI 能不能自己看到結果。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "AI 改完畫面說「已修好」，你最該接著說什麼？",
+      "body": "選一個。",
+      "id": "verify",
+      "options": [
+        { "label": "謝謝！", "steps": [{ "card": "先別急著謝", "eyebrow": "想一想", "sub": "它可能根本沒看過畫面", "narration": "先別急著謝。它可能根本沒看過畫面，只是覺得改完了。" }] },
+        { "label": "請你開瀏覽器截圖確認", "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "讓它用眼睛確認，而不是用感覺", "narration": "答對了。讓它用眼睛確認，而不是用感覺。" }] }
+      ]
+    },
+    {
+      "card": "看不到畫面，AI 只能猜\n給它瀏覽器工具，讓它自己看\n修完要它截圖確認",
+      "eyebrow": "學會",
+      "sub": "下一堂：同一個問題，比較「口頭描述」與「讓 AI 自己看」",
+      "chapter": "學會",
+      "narration": "看不到畫面，AI 只能猜。給它瀏覽器工具，修完一定請它截圖確認。下一堂，我們用同一個問題，實際比一比。"
+    }
+  ]
+}

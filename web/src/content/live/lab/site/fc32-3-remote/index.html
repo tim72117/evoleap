@@ -1,0 +1,15 @@
+<!doctype html><html><head><title>遠端控制</title></head><body>
+<div class="app">
+ <div class="hd"><b>上架新菜單</b><span class="dot">工作中</span></div>
+ <div class="msg">已完成：加入 3 款新品、更新價格、跑過測試（42 個全部通過）</div>
+ <div class="msg">測試網站畫面已檢查：手機與桌面都正常</div>
+ <div class="ask" id="ask">
+  <div class="q">要執行這個指令嗎？</div>
+  <div class="cmd">npm run deploy:staging</div>
+  <div class="why">部署到「測試網站」，不是正式網站</div>
+  <div class="row"><button id="deny" data-go="no">拒絕</button><button id="allow" data-go="yes">允許一次</button></div>
+ </div>
+ <div class="res ok" data-at="yes">已允許 · 部署中……</div>
+ <div class="res ok" data-at="yes">完成：https://staging.bakery.example</div>
+</div>
+</body></html>

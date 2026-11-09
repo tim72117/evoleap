@@ -1,0 +1,27 @@
+/* fc8 圖解共用底稿(複製到各版本的 styles.css 開頭) */
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; color: #1f2733; background: #f6f4ef; }
+.wrap { padding: 36px 48px; box-sizing: border-box; min-height: 640px; }
+.ttl { font-size: 30px; font-weight: 700; margin: 0 0 6px; }
+.sub { font-size: 18px; color: #5b6575; margin: 0 0 22px; }
+[data-at] { opacity: .13; }
+[data-at].on { opacity: 1; }
+[data-go] { cursor: pointer; }
+.box { background: #fff; border: 2px solid #d9d4c7; border-radius: 14px; padding: 14px 18px; box-sizing: border-box; }
+.tag { display: inline-block; font-size: 14px; padding: 3px 10px; border-radius: 999px; background: #ece7db; color: #4a5260; }
+.ok { color: #1f8a4c; } .bad { color: #c2412d; } .warn { color: #b7791f; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.lane { background: #fff; border-radius: 18px; border: 2px solid #e2ddd0; padding: 18px 24px; margin-bottom: 20px; }
+.lab { font-weight: 700; font-size: 20px; margin-bottom: 12px; }
+#laneA .lab { color: #c2412d; } #laneB .lab { color: #1f6feb; }
+.track { display: flex; align-items: center; gap: 18px; min-height: 96px; background: repeating-linear-gradient(90deg, #f1eee6 0 40px, #faf8f3 40px 80px); border-radius: 12px; padding: 12px 16px; }
+.runner { width: 64px; height: 64px; border-radius: 50%; background: #1f2733; color: #fff; font-weight: 800; font-size: 22px; display: grid; place-items: center; flex: none; }
+.stop { display: flex; flex-direction: column; font-size: 20px; } .stop span { font-size: 15px; color: #5b6575; }
+.hole { margin-left: auto; font-size: 18px; background: #fdecea; border: 2px dashed #e7a197; border-radius: 10px; padding: 10px 14px; }
+.flag { background: #eef4ff; border: 2px solid #9db8f2; border-radius: 12px; padding: 10px 14px; font-size: 19px; font-weight: 700; display: flex; flex-direction: column; min-width: 190px; }
+.flag i { font-style: normal; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #1f6feb; color: #fff; font-size: 15px; margin-bottom: 4px; }
+.flag small { font-weight: 400; font-size: 14px; color: #4a5260; margin-top: 2px; }
+.flag.done { background: #e7f6ec; border-color: #6cc08b; }
+.flag.done i { background: #1f8a4c; }
+.goal { margin-left: auto; font-size: 20px; font-weight: 700; background: #fff7d6; border: 2px solid #e9c44a; border-radius: 12px; padding: 12px 16px; }
+.marks { display: flex; gap: 22px; margin-top: 10px; font-size: 17px; font-weight: 700; }
+.ghost { position: absolute; left: 4px; bottom: 4px; width: 8px; height: 8px; opacity: 0; border: 0; padding: 0; }

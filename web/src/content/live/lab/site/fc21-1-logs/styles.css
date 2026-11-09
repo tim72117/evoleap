@@ -1,0 +1,25 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#f4f6f9;color:#1d2733}
+.bar{display:flex;align-items:center;gap:12px;padding:14px 26px;background:#fff;border-bottom:1px solid #dde3ea;font-weight:700}
+.bar .lg{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#7aa7e8,#4d7fd0)}
+.bar .crumb{color:#5b6774;font-weight:600}
+.pg{padding:20px 28px}
+.q{display:flex;align-items:center;gap:14px;background:#fff;border:2px solid #c9d3df;border-radius:10px;padding:12px 16px;margin-bottom:14px}
+.ql{font-weight:800;color:#5b6774}
+.q code{font-family:Menlo,monospace;font-size:17px;color:#2f4a6d}
+.chips{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.chip{padding:6px 14px;border-radius:20px;background:#fff;border:2px solid #dde3ea;font-weight:700;font-size:15px}
+.chip.on{border-color:#2f6fd6;background:#eef4ff;color:#2f6fd6}
+.c-info{color:#3b6aa8}.c-warn{color:#a8740a}.c-err{color:#c0392b}
+.count{margin-left:auto;color:#5b6774;font-size:15px}
+.rows{background:#fff;border-radius:10px;box-shadow:0 0 0 1px #dde3ea;overflow:hidden}
+.r{display:grid;grid-template-columns:86px 100px 1fr;gap:12px;padding:9px 16px;border-bottom:1px solid #eef1f4;font-size:16px;font-family:Menlo,"PingFang TC",monospace}
+.r b{font-size:13px;padding:2px 0;border-radius:6px;text-align:center}
+.info b{background:#e8f0fb;color:#3b6aa8}.warn b{background:#fff3d6;color:#a8740a}.err b{background:#fdeeec;color:#c0392b}
+.err{background:#fffafa}
+.r time{color:#7a8794}
+.r.gone{display:none}
+.keep{margin-top:16px;background:#fff;border-radius:10px;box-shadow:0 0 0 1px #dde3ea;padding:14px 18px;display:grid;grid-template-columns:90px 1fr;gap:6px 14px;align-items:center}
+.tl{display:flex;height:30px;border-radius:8px;overflow:hidden;font-size:14px;font-weight:700}
+.seg{display:flex;align-items:center;padding:0 12px}
+.s1{flex:3;background:#dcebdf;color:#22804a}.s2{flex:2;background:repeating-linear-gradient(45deg,#eef1f4,#eef1f4 8px,#e2e6ea 8px,#e2e6ea 16px);color:#7a8794}
+.kn{grid-column:2;color:#5b6774;font-size:14px}

@@ -1,0 +1,251 @@
+{
+  "title": "建立第一支 API",
+  "lesson": "全環節 · 單元 8 · 8.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做出第一支 API",
+    "line": "今天請 AI 幫小森烘焙做出第一支 API，讓商品資料從伺服器送到網頁。重點是：它要自己用 curl 測，回應不對就自己修到對。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "fc8-2-menu",
+        "url": "http://localhost:3000/"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "商品 API",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": []
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "建立第一支 API",
+      "eyebrow": "全環節 · 單元 8 · 8.2 用 AI 完成",
+      "sub": "請 AI 建 API、自己用 curl 測，回應不對就修到對",
+      "chapter": "現在的問題",
+      "narration": "先看現在的狀況。"
+    },
+    {
+      "show": "web",
+      "focus": false,
+      "narration": "網頁已經寫好要去 /api/menu 拿商品資料，可是伺服器還沒有這支 API，所以顯示讀不到，404。"
+    },
+    {
+      "callout": "web:sel:#err",
+      "text": "前端已經在等資料，後端還沒準備好",
+      "narration": "前端已經在等資料，後端還沒準備好。這就是我們要請 AI 補上的部分。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "show": "claude",
+      "chapter": "交代清楚：怎樣算做好"
+    },
+    {
+      "on": "claude",
+      "user": "在 server.js 加一支 GET /api/menu，回傳本週商品（可頌 65、肉桂捲 80、鄉村麵包 120），資料放在 data/menu.json。完成標準：你自己用 curl 打，回應是 200、JSON 格式，而且欄位名稱要和 index.html 讀資料的寫法一致；不對就修到對，最後告訴我 curl 的結果。",
+      "narration": "交代時把「怎樣算做好」講具體：狀態碼 200、是 JSON、欄位名稱要和網頁的寫法一致。還有，自己測，不對就修。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "index.html",
+      "result": "找到讀資料的程式",
+      "out": "fetch('/api/menu').then(r => r.json())\n  .then(data => data.items.map(i => i.name + ' NT$ ' + i.price))",
+      "chapter": "AI 動手",
+      "narration": "它先讀網頁的程式，看前端要的是 items 裡面的 name 和 price。"
+    },
+    {
+      "on": "claude",
+      "edit": "data/menu.json",
+      "lines": [
+        [
+          1,
+          "+",
+          "{ \"items\": ["
+        ],
+        [
+          2,
+          "+",
+          "  { \"title\": \"可頌\", \"price\": 65 },"
+        ],
+        [
+          3,
+          "+",
+          "  { \"title\": \"肉桂捲\", \"price\": 80 },"
+        ],
+        [
+          4,
+          "+",
+          "  { \"title\": \"鄉村麵包\", \"price\": 120 }"
+        ],
+        [
+          5,
+          "+",
+          "] }"
+        ]
+      ],
+      "narration": "接著建立商品資料。"
+    },
+    {
+      "on": "claude",
+      "edit": "server.js",
+      "lines": [
+        [
+          17,
+          " ",
+          "// 商品"
+        ],
+        [
+          18,
+          "+",
+          "app.get('/api/menu', (req, res) => {"
+        ],
+        [
+          19,
+          "+",
+          "  res.json(require('./data/menu.json'))"
+        ],
+        [
+          20,
+          "+",
+          "})"
+        ]
+      ],
+      "narration": "再加上路由：收到 GET /api/menu，就把商品資料用 JSON 回傳。"
+    },
+    {
+      "on": "claude",
+      "ask": "npm start &",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "在背景啟動本機伺服器"
+    },
+    {
+      "on": "claude",
+      "choose": 1,
+      "narration": "允許它啟動本機伺服器。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -w '\\n→ %{http_code}' localhost:3000/api/menu",
+      "result": "200",
+      "out": "{\"items\":[{\"title\":\"可頌\",\"price\":65},{\"title\":\"肉桂捲\",\"price\":80},…]}\n→ 200",
+      "chapter": "自己測，發現不對",
+      "narration": "它自己用 curl 打一次。200，是 JSON。可是，看欄位名稱。"
+    },
+    {
+      "on": "claude",
+      "say": "回應是 200，但欄位寫成 `title`，網頁讀的是 `name`，畫面會顯示空白。我把資料改成 `name`。",
+      "narration": "它對照自己剛讀過的網頁程式，發現欄位寫成 title，網頁要的是 name。這種錯誤，狀態碼看不出來，只有對照才抓得到。"
+    },
+    {
+      "on": "claude",
+      "edit": "data/menu.json",
+      "lines": [
+        [
+          2,
+          "-",
+          "  { \"title\": \"可頌\", \"price\": 65 },"
+        ],
+        [
+          2,
+          "+",
+          "  { \"name\": \"可頌\", \"price\": 65 },"
+        ],
+        [
+          3,
+          "-",
+          "  { \"title\": \"肉桂捲\", \"price\": 80 },"
+        ],
+        [
+          3,
+          "+",
+          "  { \"name\": \"肉桂捲\", \"price\": 80 },"
+        ],
+        [
+          4,
+          "-",
+          "  { \"title\": \"鄉村麵包\", \"price\": 120 }"
+        ],
+        [
+          4,
+          "+",
+          "  { \"name\": \"鄉村麵包\", \"price\": 120 }"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s localhost:3000/api/menu | node -e \"const d=JSON.parse(require('fs').readFileSync(0));console.log(d.items.map(i=>i.name+' '+i.price).join('、'))\"",
+      "result": "3 筆都讀得到",
+      "out": "可頌 65、肉桂捲 80、鄉村麵包 120",
+      "narration": "修完再測一次，而且這次用跟網頁一樣的方式讀：三筆的名稱和價格都讀得到。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}' localhost:3000/api/menuu",
+      "result": "404",
+      "out": "404",
+      "narration": "它還順手打一個錯的網址，確認會回 404，而不是讓伺服器出錯。"
+    },
+    {
+      "on": "claude",
+      "say": "完成：`GET /api/menu` 回 **200**、JSON，`name`、`price` 和網頁一致，3 筆都讀得到；打錯網址回 **404**。重新整理網頁就會看到商品。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "web",
+      "focus": false,
+      "chapter": "網頁讀到資料了",
+      "narration": "回到網頁，重新整理。"
+    },
+    {
+      "on": "web",
+      "click": "#retry",
+      "narration": "商品出現了。這些資料不是寫死在網頁裡，是從你的 API 拿來的。"
+    },
+    {
+      "callout": "web:sel:#src",
+      "text": "資料來源：GET /api/menu → 200",
+      "narration": "以後要改價格，只要改資料，不用動網頁。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 為你的專案做一支 API。交代時寫清楚：回什麼狀態碼、什麼格式、欄位名稱要和前端一致，並要它自己用 curl 測到對。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "說清楚怎樣算做好\nAI 就能自己測、自己修",
+      "eyebrow": "學會",
+      "sub": "狀態碼對了不代表內容對：要對照前端讀資料的寫法",
+      "chapter": "學會",
+      "narration": "這一堂的重點：把完成標準講具體，AI 就能自己測、自己修。狀態碼 200 不代表內容對，欄位名稱也要和前端對得上。"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>兩道鎖</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-pick="one">
+<div class="tabs">
+  <button class="tab cur" id="k1" data-pick="one">只有密碼</button>
+  <button class="tab" id="k2" data-pick="two">加上雙重驗證</button>
+  <button class="tab" id="k3" data-pick="lost">手機掉了</button>
+  <button class="tab" id="k4" data-pick="vault">密碼管理器</button>
+</div>
+<div class="scene">
+  <div class="who"><div class="em">🕵️</div><b>壞人</b><div class="muted">從別的網站外洩名單<br>拿到你的密碼</div></div>
+  <div class="doors">
+    <div class="door d1">🔒<b>第一道：密碼</b><span class="st open">被打開了</span></div>
+    <div class="door d2">📱<b>第二道：手機上的驗證碼</b><span class="st stop">擋住！他沒有你的手機</span><span class="st you">你手機不見了…</span></div>
+    <div class="door d3">🧾<b>備用鑰匙：恢復碼</b><span class="st key">印出來收好，用一組開一次門</span></div>
+  </div>
+  <div class="safe"><div class="em">🏠</div><b>你的帳號</b><div class="st bad">GitHub 程式碼被刪、雲端帳單被盜刷</div><div class="st good">安全 ✓</div></div>
+</div>
+<div class="vault card">
+  <div class="vh">🔐 密碼管理器：只要記一個主密碼</div>
+  <div class="row v"><span class="mono">github.com　k7#Qp2!xLm9w</span><span class="mono">google.com　Zr4@uT8&amp;bN1e</span><span class="mono">雲端平台　 9vW!c3Ls#Xq0</span></div>
+  <div class="muted">每個網站一組不一樣的亂碼：一個外洩，其他照樣安全</div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

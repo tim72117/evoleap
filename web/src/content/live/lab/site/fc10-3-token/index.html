@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>拆開 ID Token</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap">
+  <h1>Google 回給你的 ID Token</h1>
+  <p class="muted">看起來是一長串亂碼，其實是用「.」隔開的三段。</p>
+  <div class="tok mono"><span class="h" id="th">eyJhbGciOiJSUzI1NiIsImtpZCI6IjFh…</span>.<span class="p" id="tp">eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhdWQiOiIxMjM0LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA5…</span>.<span class="s" id="ts">kQ8xV0m3pZr7Lw_2NfYcA9t…</span></div>
+  <div class="parts">
+    <button class="pt ph" id="bh"><b>① 標頭</b><span>用什麼方法簽名</span><pre class="mono">{ "alg": "RS256", "kid": "1a…" }</pre></button>
+    <button class="pt pp" id="bp"><b>② 內容</b><span>這個人是誰、給誰用的</span><pre class="mono">{
+  "iss": "https://accounts.google.com",
+  "aud": "1234.apps.googleusercontent.com",
+  "email": "an@example.com",
+  "email_verified": true,
+  "exp": 1794200000
+}</pre></button>
+    <button class="pt ps" id="bs"><b>③ 簽名</b><span>Google 蓋的章，改一個字就對不上</span><pre class="mono">用 Google 公開的金鑰驗證</pre></button>
+  </div>
+  <div class="checks card hide" id="ck">
+    <b>後端收到後要檢查：</b>
+    <span class="c">簽名是 Google 的</span><span class="c">aud 是你的用戶端 ID</span><span class="c">iss 是 Google</span><span class="c">exp 還沒過期</span>
+  </div>
+</div>
+</body></html>

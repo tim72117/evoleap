@@ -1,0 +1,11 @@
+<!doctype html><html><head><title>遠端控制怎麼運作</title></head><body><div class="wrap">
+<h1 class="ttl">離開電腦，AI 還在電腦上工作</h1>
+<p class="sub">手機只是一個遙控器：看進度、回答確認</p>
+<div class="flow">
+ <div class="dev box" id="pc"><div class="scr"><span>AI 工作中</span><span class="mono">npm test ✓</span></div><b>家裡的電腦</b><small>檔案、指令都在這裡跑</small></div>
+ <div class="wire"><span class="pk" data-at="r1">進度 →</span><span class="pk back" data-at="r3">← 允許</span></div>
+ <div class="phone box" id="ph"><div class="ps"><div class="pm" data-at="r1">已完成 3/5 項</div><div class="pm ask" data-at="r2">要部署到測試網站嗎？<span class="btnr">允許</span><span class="btnr no">拒絕</span></div></div><b>你的手機</b></div>
+</div>
+<div class="keep" data-at="r4"><b>要記得：</b>電腦要開著、不能睡著；手機上按「允許」前，一樣要看清楚它要做什麼</div>
+<div class="btns"><button id="y1" data-go="r1">回報進度</button><button id="y2" data-go="r2">要確認</button><button id="y3" data-go="r3">在手機允許</button><button id="y4" data-go="r4">注意</button></div>
+</div></body></html>

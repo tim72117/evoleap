@@ -1,0 +1,102 @@
+{
+  "title": "一個會自己點網頁的機器人",
+  "lesson": "全環節 · 單元 13 · 13.3 基礎知識",
+  "teacher": {
+    "say": "看程式怎麼像人一樣點網頁",
+    "line": "這一課看端對端測試的工具 Playwright 怎麼運作。左邊是測試程式，右邊是瀏覽器；左邊寫一行，右邊就動一下。"
+  },
+  "cast": {
+    "code": {
+      "actor": "editor",
+      "props": { "project": "shop", "files": { "checkout.spec.ts": "test('客人可以下單', async ({ page }) => {\n" } },
+      "place": { "x": 96, "y": 110, "w": 820, "h": 860 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc13-3-shop", "width": "tablet", "url": "http://localhost:3000/" },
+      "place": { "x": 940, "y": 110, "w": 884, "h": 860 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "一個會自己點網頁的機器人",
+      "eyebrow": "全環節 · 單元 13 · 13.3 基礎知識",
+      "sub": "Playwright 怎麼像人一樣操作瀏覽器",
+      "chapter": "你平常怎麼測",
+      "narration": "你平常怎麼確認結帳沒壞？打開網站、加入購物車、去結帳、填 email、送出，看到訂單完成。"
+    },
+    {
+      "card": "把你的手和眼睛，寫成程式",
+      "eyebrow": "端對端測試在做的事",
+      "sub": "Playwright 會打開真的瀏覽器，照著程式一步步點、打字、檢查",
+      "narration": "端對端測試，就是把你的手和眼睛寫成程式。Playwright 是一套工具，它打開真的瀏覽器，照著程式一步一步點、打字、檢查畫面。"
+    },
+    { "show": "code", "chapter": "一行一動作", "narration": "左邊是一個測試，名字叫「客人可以下單」。" },
+    {
+      "on": "code",
+      "type": "  await page.goto('/')\n",
+      "narration": "第一行：打開網站首頁。"
+    },
+    { "show": "web", "narration": "右邊的瀏覽器就打開了首頁。" },
+    {
+      "on": "code",
+      "type": "  await page.click('text=加入購物車')\n",
+      "narration": "第二行：點「加入購物車」。注意它是用畫面上看得到的字找按鈕，就像你用眼睛找一樣。"
+    },
+    { "on": "web", "click": "#add", "narration": "按鈕被點下去，購物車變成一。" },
+    { "on": "code", "type": "  await page.click('text=去結帳')\n" },
+    { "on": "web", "click": "#checkout", "narration": "點去結帳，進到結帳頁。" },
+    {
+      "on": "code",
+      "type": "  await page.fill('#email', 'test@example.com')\n",
+      "narration": "fill 是在欄位裡打字。測試用的是假的 email，不是真的客人資料。"
+    },
+    { "on": "web", "fill": { "#email": "test@example.com" } },
+    { "on": "code", "type": "  await page.click('text=送出訂單')\n" },
+    { "on": "web", "click": "#pay", "narration": "送出訂單。" },
+    {
+      "on": "code",
+      "type": "  await expect(page.getByText('訂單完成')).toBeVisible()\n})\n",
+      "chapter": "最重要的一行",
+      "narration": "最後一行最重要：expect，意思是檢查。檢查畫面上看得到「訂單完成」這幾個字。"
+    },
+    {
+      "callout": "web:sel:#done",
+      "text": "expect：看到「訂單完成」才算通過",
+      "narration": "前面那些都只是操作，這一行才是判斷對錯。看不到這幾個字，測試就失敗。上一課說過，沒有檢查的測試，就是沒有電池的偵煙器。"
+    },
+    {
+      "callout": "code:code",
+      "text": "用看得到的字找按鈕：網站改版、換顏色，測試也不容易壞",
+      "narration": "用看得到的字找按鈕還有個好處：網站換顏色、換排版，只要按鈕上的字沒變，測試就不會壞。"
+    },
+    { "hide": "web" },
+    { "hide": "code" },
+    {
+      "card": "失敗時，它會留下截圖和錄影",
+      "eyebrow": "Playwright 的兩個好幫手",
+      "sub": "可以同時在 Chrome、Safari、Firefox 跑；也可以不開視窗，在背景跑",
+      "chapter": "失敗時留下證據",
+      "narration": "Playwright 還有兩個好幫手：失敗的那一刻會自動截圖、錄影，你和 AI 都能看到它卡在哪裡。它也能同時在好幾種瀏覽器跑，甚至不開視窗，在背景安靜地跑完。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "一個測試只有「打開首頁、點加入購物車、點去結帳」三行，沒有 expect。它有用嗎？",
+      "body": "想一想，再按繼續。",
+      "id": "expect",
+      "options": [
+        { "label": "用處很小：缺了檢查", "steps": [{ "card": "沒錯", "eyebrow": "想一想", "sub": "按鈕不見會失敗，但結帳頁空白、金額算錯都會通過", "narration": "沒錯。按鈕找不到時它會失敗，可是結帳頁一片空白、金額算錯，它都會通過。要加上 expect 檢查結果。" }] },
+        { "label": "有用：跑得完就代表沒壞", "steps": [{ "card": "跑得完不代表對", "eyebrow": "想一想", "sub": "結帳頁空白、金額算錯，它都照樣跑完", "narration": "跑得完不代表對。結帳頁空白、金額算錯，這三行照樣跑完。一定要用 expect 檢查結果。" }] }
+      ]
+    },
+    {
+      "card": "一行一個動作\nexpect 才是檢查\n失敗會留下截圖",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 寫全站測試，失敗時自己讀截圖修好",
+      "chapter": "學會",
+      "narration": "記住：測試一行就是一個動作，expect 才是真正的檢查，失敗的時候會留下截圖。下一堂，我們請 AI 寫全站的測試，失敗了讓它自己讀截圖修好。"
+    }
+  ]
+}

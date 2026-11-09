@@ -1,0 +1,99 @@
+{
+  "title": "換你玩小遊戲",
+  "lesson": "兒童網頁課 · 4.5 試做（玩）",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {
+        "page": {
+          "parts": [
+            {
+              "id": "s1",
+              "kind": "h1",
+              "text": "我是小安",
+              "size": "xl",
+              "color": "#e8559a"
+            },
+            {
+              "id": "s2",
+              "kind": "img",
+              "emoji": "👧",
+              "bg": "#ffe3b3"
+            },
+            {
+              "id": "s3",
+              "kind": "p",
+              "text": "我九歲，最喜歡畫畫和吃水果。"
+            },
+            {
+              "id": "s4",
+              "kind": "game",
+              "text": "猜猜我最喜歡哪一種水果？",
+              "button": "換一個",
+              "results": [
+                "🍎",
+                "🍌",
+                "🍓",
+                "🍉"
+              ]
+            }
+          ]
+        }
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:part:s4",
+        "text": "小遊戲"
+      },
+      "narration": "換你玩了！按小遊戲的按鈕，看看小安最喜歡的水果有哪些。按三次就過關。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "按小遊戲的按鈕",
+    "body": "按三次就過關",
+    "spots": [
+      {
+        "target": "kid:part:s4",
+        "id": "s4",
+        "label": "小遊戲的按鈕",
+        "steps": [
+          {
+            "press": "s4",
+            "narration": "換了一種水果！"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "pressed",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "你的網站不只會看，還會玩！"
+        }
+      ]
+    }
+  }
+}

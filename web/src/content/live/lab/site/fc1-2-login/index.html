@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>登入 · 選擇方案</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-start="1">
+<div class="wrap">
+  <div class="p1">
+    <div class="card box">
+      <div class="logo">◆</div>
+      <div class="ttl">登入以繼續</div>
+      <div class="sub">終端機裡的 Claude Code 要連上你的帳號</div>
+      <div class="field">電子郵件 <span class="fake">you@example.com</span></div>
+      <button class="btn wide" id="login" data-go="2">用這個帳號登入</button>
+      <div class="muted small">密碼、驗證碼都在這個頁面由你自己輸入</div>
+    </div>
+  </div>
+  <div class="p2">
+    <div class="ttl c">選擇方案</div>
+    <div class="row plans">
+      <div class="card plan" id="plan-pro"><b>Pro</b><div class="muted">個人學習、這門課夠用</div><div class="price">每月</div></div>
+      <div class="card plan"><b>Max</b><div class="muted">用量更大</div><div class="price">每月</div></div>
+    </div>
+    <div class="pay card">💳 付款資料：<b>由你自己填寫</b>，AI 不會碰這一頁</div>
+    <button class="btn wide" id="paid" data-go="3">完成付款（你自己按）</button>
+  </div>
+  <div class="p3">
+    <div class="card box ok">
+      <div class="big">✓</div>
+      <div class="ttl">登入成功</div>
+      <div class="sub">可以關掉這個分頁，回到終端機</div>
+    </div>
+  </div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

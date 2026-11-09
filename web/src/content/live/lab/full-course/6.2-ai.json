@@ -1,0 +1,149 @@
+{
+  "title": "請 AI 檢查 .gitignore",
+  "lesson": "全環節 · 單元 6 · 6.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 抓漏網之魚",
+    "line": "今天要請 AI 檢查你專案的 .gitignore，用 git status 確認沒有漏掉該擋的檔案，最後留下一份附註解的 .gitignore 和檢查清單。"
+  },
+  "blocking": { "cast": ["claude", "git", "code"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "檢查 .gitignore",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "git": {
+      "actor": "fc2-git",
+      "props": {
+        "commits": ["建立專案", "加上會員登入"],
+        "work": { "src/login.js": "M", ".env": "U", "data/app.db": "U", "dist/index.js": "U", ".DS_Store": "U" },
+        "ignore": ["node_modules/"],
+        "view": "areas"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": { "project": "shop", "files": { ".gitignore": "" } },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 檢查 .gitignore",
+      "eyebrow": "全環節 · 單元 6 · 6.2 用 AI 完成",
+      "sub": "檢查 → 補齊並加上註解 → 用 git status 確認 → 留下檢查清單",
+      "chapter": "現在的狀況",
+      "narration": "這是一個做了會員登入的專案，準備要 commit 了。"
+    },
+    {
+      "show": "git",
+      "narration": "工作區裡除了改過的 login.js，還有 .env、資料庫檔、dist 裡的檔案，和一個 .DS_Store。目前 .gitignore 只擋了 node_modules。"
+    },
+    {
+      "callout": "git:work",
+      "text": "現在 git add . 的話，這些全都會進去",
+      "narration": "如果現在 git add 點，這些全都會被存進去。"
+    },
+    { "show": "claude", "chapter": "交代檢查什麼" },
+    {
+      "on": "claude",
+      "user": "commit 之前，請檢查這個專案的 .gitignore：\n1. 用 git status 看有沒有不該進版控的檔案（密碼金鑰、資料庫、build 產物、套件、系統產生的檔案）\n2. 補齊 .gitignore，每一段加上中文註解說明為什麼\n3. 改完再跑 git status 確認只剩該存的檔案\n4. 查一下 .env 以前有沒有被 commit 過\n最後給我一份檢查清單。",
+      "narration": "四件事：找、補、確認、查歷史。最後要一份清單，以後每個專案都能照著檢查。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    { "on": "claude", "tool": "Read", "arg": ".gitignore", "result": "1 行", "out": "node_modules/" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git status --short",
+      "result": "5 個檔案",
+      "out": " M src/login.js\n?? .DS_Store\n?? .env\n?? data/app.db\n?? dist/index.js",
+      "chapter": "AI 找到漏網之魚"
+    },
+    {
+      "on": "claude",
+      "say": "找到 4 個不該進版控的檔案：\n- `.env`：有 `STRIPE_SECRET_KEY` 這類金鑰（**最危險**）\n- `data/app.db`：本機的資料庫\n- `dist/index.js`：build 產生的\n- `.DS_Store`：macOS 自動產生的資料夾設定\n\n只有 `src/login.js` 是該 commit 的。我來補 .gitignore。",
+      "narration": "它一個一個說明為什麼不該存。.DS_Store 是你的 Mac 自己產生的小檔案，上一堂沒提到，AI 也幫你抓到了。"
+    },
+    {
+      "show": "code",
+      "open": ".gitignore",
+      "chapter": "補齊並加上註解",
+      "narration": "它重寫 .gitignore。注意看，每一段上面都有一行說明。"
+    },
+    {
+      "on": "code",
+      "paste": "# 套件：npm install 會依 package.json 裝回來\nnode_modules/\n\n# 密碼與金鑰：絕對不能進版控（範本請放 .env.example）\n.env\n.env.*\n!.env.example\n\n# 資料庫：本機資料，可能有個資\ndata/*.db\n\n# build 產物：npm run build 會重新產生\ndist/\n\n# 系統自動產生的檔案\n.DS_Store\n",
+      "narration": "井字號開頭的是註解，給人看的，Git 會略過。驚嘆號那一行意思是「例外」：.env 開頭的都擋，但 .env.example 這個範本要留著。"
+    },
+    { "on": "git", "ignore": ".env", "narration": "存檔之後，Git 立刻不再理 .env，" },
+    { "on": "git", "ignore": "data/" },
+    { "on": "git", "ignore": "dist/" },
+    { "on": "git", "ignore": ".DS_Store", "narration": "其他幾個也一個一個移到忽略那一格。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git status --short",
+      "result": "2 個檔案",
+      "out": " M .gitignore\n M src/login.js",
+      "chapter": "用 git status 確認",
+      "narration": "再跑一次 git status，只剩 .gitignore 和 login.js，這兩個是該存的。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git check-ignore -v .env data/app.db dist/index.js .DS_Store",
+      "result": "4 個都被擋住",
+      "out": ".gitignore:5:.env\t.env\n.gitignore:10:data/*.db\tdata/app.db\n.gitignore:13:dist/\tdist/index.js\n.gitignore:16:.DS_Store\t.DS_Store",
+      "narration": "它還用 check-ignore 逐一確認，每個檔案是被 .gitignore 的第幾行擋住的。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log --all --oneline -- .env",
+      "result": "沒有紀錄",
+      "out": "",
+      "narration": "最後查歷史：.env 以前有沒有被 commit 過？結果是空的，代表從來沒進去過，金鑰是安全的。"
+    },
+    {
+      "on": "claude",
+      "say": "檢查完成：\n✓ `.gitignore` 補齊 5 類，每一類都有註解\n✓ `git status` 只剩 `.gitignore`、`src/login.js`\n✓ `.env` 從來沒有被 commit 過\n\n**以後 commit 前的檢查清單**\n1. 跑 `git status`，看有沒有 .env、.db、dist、node_modules\n2. 新增了金鑰，先確認 .env 在 .gitignore 裡\n3. 不確定的檔案，先問「這個檔案是產生出來的，還是我寫的？」\n4. 萬一金鑰被 commit 過：從版控移除，並到服務後台換新金鑰",
+      "chapter": "留下檢查清單",
+      "narration": "最後它整理出一份檢查清單。第四條很重要：萬一金鑰曾經被存進去，除了移除，一定要到後台換新的。"
+    },
+    {
+      "on": "claude",
+      "ask": "git add .gitignore src/login.js && git commit -m \"補齊 .gitignore 並加上註解\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "只 add 這兩個檔案，不用 add .",
+      "narration": "要 commit 了。它沒有用 add 點，而是點名兩個檔案，更保險。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "git", "add": "." },
+    { "on": "git", "commit": "補齊 .gitignore 並加上註解", "narration": "存好了。.env、資料庫和 dist 都安全地留在你的電腦上。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "在你的專案裡對 AI 說：「commit 之前，請用 git status 檢查有沒有不該進版控的檔案，補齊 .gitignore 並加上中文註解，改完再跑 git status 確認，並查 .env 以前有沒有被 commit 過。最後給我一份檢查清單。」把清單存下來。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "commit 前先看 git status\n.gitignore 加上註解\n金鑰被存過：移除＋換新",
+      "eyebrow": "學會",
+      "sub": "add 時點名檔案，比 add . 保險",
+      "chapter": "學會",
+      "narration": "commit 前先看 git status，.gitignore 每一段加上註解，萬一金鑰被存過，要移除還要換新。下一課，我們來學改壞了怎麼救回來。"
+    }
+  ]
+}

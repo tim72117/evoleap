@@ -1,0 +1,139 @@
+{
+  "title": "同一個網頁，三種螢幕",
+  "lesson": "全環節 · 單元 5 · 5.4 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天讓網頁在手機上也好看",
+    "line": "今天要來看，為什麼在電腦上好好的網頁，拿到手機上就跑版；還有 viewport、斷點、觸控這三個詞，各在解決什麼問題。"
+  },
+  "blocking": { "cast": ["page", "diag"], "shot": "depth" },
+  "cast": {
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc5-4-v1", "width": "desktop", "url": "https://lin.example/" },
+      "place": "window",
+      "hidden": true
+    },
+    "diag": {
+      "actor": "browser",
+      "props": { "site": "fc5-4-screens", "width": "desktop", "url": "https://diagram.example/screens" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "同一個網頁，三種螢幕",
+      "eyebrow": "全環節 · 單元 5 · 5.4 基礎知識",
+      "sub": "viewport、斷點與觸控",
+      "chapter": "電腦上好好的，手機上壞掉",
+      "narration": "先看一個很常見的狀況。"
+    },
+    {
+      "show": "page",
+      "narration": "這是林小安的介紹頁，在電腦上看，一切正常。"
+    },
+    {
+      "on": "page",
+      "width": "phone",
+      "narration": "把視窗縮成手機的寬度。"
+    },
+    {
+      "callout": "page:viewport",
+      "text": "右邊被切掉，要左右滑才看得到",
+      "narration": "右邊整個被切掉了，三張興趣卡片也擠不下。這就叫跑版：版面跑掉了。原因是這個網頁把寬度寫死成 1000 像素，可是手機只有大約 390 像素寬。"
+    },
+    {
+      "on": "page",
+      "scroll": "likes",
+      "narration": "往下看，興趣卡片也是一樣，只看得到一半。"
+    },
+    {
+      "show": "diag",
+      "chapter": "viewport：照手機的寬度排",
+      "narration": "要讓網頁在手機上好看，第一件事是 viewport。viewport 是瀏覽器裡「顯示網頁的那一塊」。"
+    },
+    {
+      "callout": "diag:section:viewport",
+      "text": "沒設定：手機假裝自己 980 寬，整頁縮小",
+      "narration": "如果沒有設定，手機會假裝自己有 980 像素寬，把整頁縮小塞進去，字就小到看不清楚。加上這一行 meta viewport，手機才會用自己真正的寬度來排版。AI 做網頁時通常會自動加，但你要知道它是做什麼的。"
+    },
+    {
+      "on": "diag",
+      "scroll": "breakpoints",
+      "chapter": "斷點：寬度到哪裡換一種排法",
+      "narration": "第二個詞是斷點。"
+    },
+    {
+      "callout": "diag:sel:.ruler",
+      "text": "斷點 = 換排法的那條線，例如 600、900",
+      "narration": "斷點就是「寬度到這裡，換一種排法」的那條線。常見的分法是：600 以下算手機、600 到 900 算平板、900 以上算桌機。"
+    },
+    {
+      "on": "diag",
+      "click": "#bp-phone",
+      "narration": "手機寬度，卡片排成一欄。"
+    },
+    {
+      "on": "diag",
+      "click": "#bp-tablet",
+      "narration": "平板，排成兩欄。"
+    },
+    {
+      "on": "diag",
+      "click": "#bp-desktop",
+      "narration": "桌機，排成三欄。右邊的程式碼就是 CSS 的寫法：@media 加上寬度條件，條件成立才套用裡面的樣式。"
+    },
+    {
+      "on": "page",
+      "site": "fc5-4-v3",
+      "narration": "回到介紹頁，換成加好斷點的版本。現在是手機寬度。"
+    },
+    { "on": "page", "scroll": "likes", "narration": "卡片排成一欄，全部看得到。" },
+    { "on": "page", "width": "tablet", "narration": "拉寬成平板，變成兩欄。" },
+    { "on": "page", "width": "desktop", "narration": "再拉寬成桌機，三欄。同一份網頁，依寬度自動換排法，這就叫響應式。" },
+    {
+      "on": "diag",
+      "scroll": "touch",
+      "chapter": "觸控：手指比滑鼠粗",
+      "narration": "最後一個差別是觸控。"
+    },
+    {
+      "callout": "diag:section:touch",
+      "text": "手指約 44 × 44 像素，也沒有「滑過」這件事",
+      "narration": "滑鼠的游標很尖，再小的字都點得到；手指的指尖大約 44 像素，一次可能蓋住兩個連結。還有，手機沒有「滑鼠移過去」這件事，所以只在滑過時才出現的說明，手機上看不到。按鈕要夠大、彼此留空隙。"
+    },
+    {
+      "checkpoint": "手機上，導覽列的三個連結常常點錯。最可能是哪裡出問題？",
+      "body": "選一個。",
+      "id": "touch",
+      "options": [
+        {
+          "label": "連結太小、靠太近",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "按得到的東西至少 44 像素高，彼此留空隙", "narration": "答對了。手指比游標粗，按得到的東西至少 44 像素高，彼此要留空隙。" }
+          ]
+        },
+        {
+          "label": "少了 viewport 設定",
+          "steps": [
+            { "card": "有可能，但不是主因", "eyebrow": "考考你", "sub": "沒設定 viewport 會整頁縮小；點錯主要是連結太小、太近", "narration": "沒有 viewport，整頁會縮小，確實更難點。但點錯的主因，通常是連結太小又靠太近。" }
+          ]
+        },
+        {
+          "label": "斷點設太多",
+          "steps": [
+            { "card": "再想想", "eyebrow": "考考你", "sub": "斷點多少和點不點得準沒有關係", "narration": "斷點多少和點不點得準沒有關係。問題在連結太小、太近，手指一按就蓋住兩個。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "viewport：照手機真正的寬度排\n斷點：寬度到哪裡換排法\n觸控：按鈕夠大、不靠滑過",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 用三種尺寸截圖，自己找出跑版並修好",
+      "chapter": "學會",
+      "narration": "viewport 讓手機照自己的寬度排，斷點決定寬度到哪裡換排法，觸控要讓按鈕夠大。下一堂，我們請 AI 用手機、平板、桌機三種尺寸截圖，自己找出跑版的地方。"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>結構化資料測試工具</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>結構化資料測試工具<span class="sp"></span><span class="who">示意畫面</span></div>
+<div class="wrap">
+ <div class="bar"><input id="url" class="in mono" placeholder="貼上要測試的網址"><button class="btn" id="run">測試網址</button></div>
+ <div id="idle" class="card muted">貼上網址後按「測試網址」。</div>
+ <div id="res" class="gone">
+ <div class="sum"><div class="card">偵測到 <span class="pill">產品</span> 1 項</div><div class="card" id="errs"><span class="pill ok">沒有錯誤</span> <span class="pill ok">沒有警告</span></div></div>
+ <div class="card">
+  <div class="issue" id="ok1"><span class="pill ok">有效</span><div><b>產品：奶油可頌</b><div class="muted">可以顯示評分、價格與庫存</div></div></div>
+ </div></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

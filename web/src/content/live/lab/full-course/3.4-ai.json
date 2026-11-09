@@ -1,0 +1,166 @@
+{
+  "title": "讓 AI 連上瀏覽器開發者工具",
+  "camera": "auto",
+  "teacher": {
+    "say": "只說症狀，讓它自己修",
+    "line": "這一堂請 AI 加上瀏覽器開發者工具的 MCP。接著你只描述症狀：按鈕沒反應。讓它自己打開頁面、找錯誤、修好，最後截圖給你看。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "加入 MCP", "folder": "~/projects/shop", "branch": null, "mode": "ask", "sessions": [] },
+      "place": { "x": 30, "y": 40, "w": 1000, "h": 1000 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc3-4-broken", "url": "http://localhost:5173/" },
+      "place": { "x": 1060, "y": 170, "w": 830, "h": 700 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "只說症狀，讓 AI 自己修",
+      "eyebrow": "全環節 · 單元 3 · 3.4 用 AI 完成",
+      "sub": "加上 MCP → 描述症狀 → 它自己找、自己修、自己驗證",
+      "chapter": "加上 MCP",
+      "narration": "先替 AI 插上轉接頭。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我加入瀏覽器開發者工具的 MCP（chrome-devtools），只裝在這個專案。"
+    },
+    {
+      "on": "claude",
+      "ask": "claude mcp add chrome-devtools -- npx chrome-devtools-mcp@latest",
+      "where": "~/projects/shop",
+      "narration": "它要執行一個指令：替這個專案加入叫 chrome-devtools 的 MCP 連接器，用 npx 執行官方的套件。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "claude mcp add chrome-devtools -- npx chrome-devtools-mcp@latest",
+      "out": "Added stdio MCP server chrome-devtools with command: npx chrome-devtools-mcp@latest to local config"
+    },
+    {
+      "on": "claude",
+      "say": "加好了。MCP 要在**新的對話**才會載入，請開一個新對話。"
+    },
+    {
+      "on": "claude",
+      "newSession": "按鈕沒反應",
+      "chapter": "只描述症狀",
+      "narration": "開一個新對話。"
+    },
+    {
+      "on": "claude",
+      "user": "我的預約頁 http://localhost:5173 的「預約」按鈕按了沒反應。請你自己打開頁面找原因、修好，最後截圖給我看。",
+      "narration": "注意，我們沒有說錯在哪個檔案，也沒有貼任何錯誤，只描述你看到的症狀，還有怎樣算完成：修好、截圖。"
+    },
+    {
+      "on": "claude",
+      "tool": "navigate_page",
+      "arg": "http://localhost:5173",
+      "result": "已打開",
+      "chapter": "它自己找",
+      "narration": "它透過 MCP 打開頁面。"
+    },
+    {
+      "show": "web",
+      "narration": "右邊是它操作的那個瀏覽器視窗，上方標著正由自動化工具控制。"
+    },
+    {
+      "on": "claude",
+      "tool": "click",
+      "arg": "「預約」按鈕",
+      "result": "沒有變化",
+      "narration": "它自己點了一下預約。"
+    },
+    {
+      "on": "web",
+      "click": "#book",
+      "narration": "真的沒反應。"
+    },
+    {
+      "on": "claude",
+      "tool": "list_console_messages",
+      "result": "1 個錯誤",
+      "out": "Uncaught TypeError: Cannot read properties of null (reading 'addEventListener')\n    at main.js:2:5",
+      "narration": "接著它自己去讀 Console，找到那行紅字。上一堂是你複製給它，這次它自己看。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "src/main.js",
+      "result": "6 行"
+    },
+    {
+      "on": "claude",
+      "say": "找到原因：`main.js` 第 2 行用 `getElementById('bookBtn')` 找按鈕，但網頁上按鈕的 id 是 `book`，找不到就是 null，所以點擊的反應沒裝上。",
+      "narration": "它讀了程式，對照錯誤訊息，說出原因：id 對不起來。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/main.js",
+      "lines": [[2, "-", "const btn = document.getElementById('bookBtn');"], [2, "+", "const btn = document.getElementById('book');"]],
+      "chapter": "修好並驗證",
+      "narration": "改一行。"
+    },
+    {
+      "on": "claude",
+      "tool": "navigate_page",
+      "arg": "重新整理",
+      "result": "已重新載入"
+    },
+    {
+      "on": "web",
+      "site": "fc3-4-fixed",
+      "narration": "重新整理頁面。"
+    },
+    {
+      "on": "claude",
+      "tool": "click",
+      "arg": "「預約」按鈕",
+      "result": "出現成功訊息"
+    },
+    {
+      "on": "web",
+      "click": "#book",
+      "narration": "再點一次預約。這次出現了成功訊息。"
+    },
+    {
+      "on": "claude",
+      "tool": "list_console_messages",
+      "result": "沒有錯誤",
+      "narration": "它還回頭確認 Console 已經沒有錯誤。"
+    },
+    {
+      "on": "claude",
+      "tool": "take_screenshot",
+      "result": "已截圖",
+      "narration": "最後截圖。"
+    },
+    {
+      "on": "claude",
+      "say": "修好了 ✓\n- 原因：`main.js` 找的 id（bookBtn）和按鈕的 id（book）不一樣\n- 修改：`src/main.js` 第 2 行\n- 驗證：重新整理後點「預約」，出現「已送出預約」，Console 沒有錯誤\n（截圖如上）"
+    },
+    {
+      "callout": "web:sel:#result",
+      "text": "AI 自己修好「按鈕沒反應」✓",
+      "narration": "從找錯誤、修改、到驗證，你一行程式都沒看。你只做了兩件事：說清楚症狀，和說清楚怎樣算完成。"
+    },
+    {
+      "checkpoint": "換你：加上 MCP，只描述症狀",
+      "body": "請 AI 加入 chrome-devtools 的 MCP，開新對話。用課程練習頁（或你自己的網頁），只描述你看到的症狀和完成標準：「某某按鈕按了沒反應，請自己打開頁面找原因、修好，最後截圖給我看。」看它有沒有自己點、自己讀 Console、自己驗證。"
+    },
+    {
+      "card": "AI 自己修好「按鈕沒反應」✓",
+      "eyebrow": "3.4 完成",
+      "sub": "下一堂：帳號安全",
+      "narration": "AI 現在有眼睛了。下一堂，在註冊更多帳號之前，先把帳號安全做好。"
+    }
+  ]
+}

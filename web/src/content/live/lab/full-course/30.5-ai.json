@@ -1,0 +1,153 @@
+{
+  "title": "專案規則與記憶",
+  "lesson": "全環節 · 單元 30 · 30.5 用 AI 完成",
+  "teacher": {
+    "say": "今天把規則寫進專案",
+    "line": "這一課，我們請 AI 把你糾正過兩次的事寫進專案規則，然後開新對話，觀察它有沒有照做；沒照做，就改規則的寫法，再試一次。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "整理規則", "folder": "~/projects/bakery", "branch": "main", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "專案規則與記憶",
+      "eyebrow": "全環節 · 單元 30 · 30.5 用 AI 完成",
+      "sub": "寫進規則 → 開新對話觀察 → 修改寫法",
+      "chapter": "第一輪：寫下規則",
+      "narration": "我們分三輪：先寫規則，再開新對話觀察，最後依觀察修改寫法。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "這陣子我糾正過你好幾次：要用繁體中文、改完要測試、結帳頁要先問我。把這些寫進 CLAUDE.md，越短越好",
+      "narration": "把糾正過的事告訴它，請它寫進 CLAUDE.md，而且越短越好。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "CLAUDE.md",
+      "result": "檔案不存在，將新增"
+    },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [
+        [1, "+", "# 專案規則"],
+        [2, "+", "- 回覆一律用繁體中文"],
+        [3, "+", "- 改完要測試"],
+        [4, "+", "- checkout.html（結帳頁）要先問過才能改"],
+        [5, "+", "- 本專案使用 HTML、CSS 與 JavaScript"],
+        [6, "+", "- 檔案：index.html、checkout.html、products.css…"]
+      ],
+      "narration": "它寫了六行。看一下，有沒有不用寫的？"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "第 5、6 行：AI 自己看得到，不用寫",
+      "narration": "第五、六行，用什麼語言、有哪些檔案，AI 自己就看得到，寫了只會過期。"
+    },
+    { "on": "claude", "user": "第 5、6 行刪掉，AI 自己看得到的不用寫" },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [[5, "-", "- 本專案使用 HTML、CSS 與 JavaScript"], [6, "-", "- 檔案：index.html、checkout.html、products.css…"]],
+      "narration": "剩下三條，每一條都是它自己猜不到的。"
+    },
+    {
+      "on": "claude",
+      "newSession": "改商品卡片",
+      "chapter": "第二輪：開新對話觀察",
+      "narration": "第二輪，開一個新對話。這個新對話不知道剛才聊過什麼，只有 CLAUDE.md。"
+    },
+    {
+      "on": "claude",
+      "user": "商品卡片的圓角改大一點，結帳頁的按鈕也一起改",
+      "narration": "故意給它一個會碰到規則的任務：順便改結帳頁。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "edit": "products.css",
+      "lines": [[8, "-", "  border-radius: 6px;"], [8, "+", "  border-radius: 14px;"]]
+    },
+    {
+      "on": "claude",
+      "say": "商品卡片的圓角改成 14px 了。\n\n依照專案規則，**結帳頁要先問過你**：要把 `checkout.html` 的按鈕也改成 14px 圓角嗎？",
+      "narration": "觀察結果：用繁體中文，有。結帳頁先問，也有。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "繁中 ✓　結帳頁先問 ✓　跑測試 ？",
+      "narration": "可是第三條，改完要測試，它沒做。它改完就回報了。"
+    },
+    {
+      "on": "claude",
+      "user": "結帳頁先不用。你有照規則測試嗎？",
+      "narration": "問它為什麼沒測試。"
+    },
+    {
+      "on": "claude",
+      "say": "我只改了 CSS，以為「測試」指的是看一下畫面，所以沒有執行測試。規則寫的「改完要測試」不夠明確。",
+      "narration": "它說得很老實：「改完要測試」太模糊，它以為看一眼就算。"
+    },
+    {
+      "on": "claude",
+      "user": "把那條改成具體的指令：改完執行 npm test，全部通過才回報完成",
+      "chapter": "第三輪：改寫法再試",
+      "narration": "第三輪，把規則改成具體、可以檢查的寫法：要跑哪個指令、怎樣才能回報。"
+    },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [[3, "-", "- 改完要測試"], [3, "+", "- 改完執行 `npm test`，全部通過才回報完成"]]
+    },
+    {
+      "on": "claude",
+      "newSession": "改頁尾",
+      "narration": "再開一個新對話驗證。"
+    },
+    { "on": "claude", "user": "頁尾的字改小一點" },
+    {
+      "on": "claude",
+      "edit": "styles.css",
+      "lines": [[41, "-", "footer { font-size: 16px; }"], [41, "+", "footer { font-size: 14px; }"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test",
+      "result": "12 項全部通過",
+      "out": "Tests  12 passed (12)",
+      "narration": "這次它改完，自己就跑了測試。"
+    },
+    {
+      "on": "claude",
+      "say": "頁尾字級改成 14px，`npm test` 12 項全部通過。",
+      "narration": "三條規則都照做了。"
+    },
+    {
+      "card": "規則沒被照做，先改寫法",
+      "eyebrow": "觀察到的事",
+      "sub": "模糊的規則（要測試）→ 具體的規則（執行 npm test，通過才回報）",
+      "narration": "記住這個循環：寫進去、開新對話觀察、沒照做就改成更具體的寫法。通常問題不在 AI，在規則寫得不夠清楚。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "挑一件你糾正過 AI 兩次的事，請它寫進 CLAUDE.md；開新對話給一個會碰到這條規則的任務，觀察它有沒有照做。",
+      "narration": "換你試試：挑一件你糾正過兩次的事寫進規則，開新對話測測看。"
+    },
+    {
+      "card": "更新過的專案規則",
+      "eyebrow": "這一課的成果",
+      "sub": "三條短短的規則，每一條都驗證過",
+      "narration": "這一課的成果，是一份短短的、每一條都驗證過的專案規則。"
+    }
+  ]
+}

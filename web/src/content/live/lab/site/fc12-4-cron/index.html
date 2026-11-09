@@ -1,0 +1,24 @@
+<!doctype html><html><head><title>cron 的五個格子</title></head><body>
+<div class="app">
+  <div class="slots" id="slots">
+    <div class="slot"><div class="v" id="v0">0</div><b>分</b><small>0–59</small></div>
+    <div class="slot"><div class="v" id="v1">9</div><b>時</b><small>0–23</small></div>
+    <div class="slot"><div class="v" id="v2">*</div><b>日</b><small>1–31</small></div>
+    <div class="slot"><div class="v" id="v3">*</div><b>月</b><small>1–12</small></div>
+    <div class="slot"><div class="v" id="v4">*</div><b>星期</b><small>0–6，0 是週日</small></div>
+  </div>
+  <div class="say" id="say">每天 9:00</div>
+  <div class="week" id="week">
+    <div class="hours" id="hours"></div>
+    <div class="rows" id="rows"></div>
+  </div>
+  <div class="tz" id="tz">雲端排程預設常用 <b>UTC</b>（世界標準時間），比台灣慢 8 小時：UTC 01:00 = 台灣 09:00。設定時寫明 <code>Asia/Taipei</code> 最保險。</div>
+  <div class="chips">
+    <button id="e1" data-c="0 9 * * *" data-t="每天 9:00">0 9 * * *</button>
+    <button id="e2" data-c="0 9 * * 1" data-t="每週一 9:00">0 9 * * 1</button>
+    <button id="e3" data-c="*/15 * * * *" data-t="每 15 分鐘一次（每小時 4 次）">*/15 * * * *</button>
+    <button id="e4" data-c="30 2 * * *" data-t="每天凌晨 2:30">30 2 * * *</button>
+    <button id="e5" data-c="0 1 * * *" data-t="每天 UTC 01:00 ＝ 台灣 09:00" data-tz="1">時區陷阱</button>
+  </div>
+</div>
+</body></html>

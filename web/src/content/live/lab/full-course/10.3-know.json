@@ -1,0 +1,121 @@
+{
+  "title": "請 Google 幫你認人：OAuth 與 ID Token",
+  "lesson": "全環節 · 單元 10 · 10.3 基礎知識",
+  "teacher": {
+    "say": "今天看「用 Google 登入」",
+    "line": "今天我們看「用 Google 帳號登入」背後發生了什麼：用戶端 ID 是什麼、為什麼要設定允許的網址，還有 Google 交回來的 ID Token 怎麼檢查。"
+  },
+  "cast": {
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "用 Google 帳號登入",
+        "log": "發生的順序",
+        "nodes": {
+          "browser": { "label": "瀏覽器", "sub": "小森烘焙的網頁", "icon": "browser", "x": 14, "y": 50 },
+          "google": { "label": "Google", "sub": "負責認人", "icon": "google", "x": 50, "y": 18 },
+          "server": { "label": "你的伺服器", "icon": "server", "x": 50, "y": 82 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc10-3-token", "url": "https://learn.example/id-token" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 Google 幫你認人",
+      "eyebrow": "全環節 · 單元 10 · 10.3 基礎知識",
+      "sub": "OAuth 用戶端 ID、允許的網址與 ID Token",
+      "chapter": "誰在認人",
+      "narration": "用 Google 帳號登入，客人不用再記一組密碼，你的網站也不用保管密碼。因為認人這件事，交給了 Google。"
+    },
+    { "show": "flow" },
+    {
+      "send": ["browser", "google"],
+      "label": "我是小森烘焙（用戶端 ID 1234）",
+      "note": "按下「使用 Google 帳號登入」",
+      "narration": "客人按下 Google 登入。瀏覽器先跟 Google 自我介紹：我是小森烘焙，這是我的用戶端 ID。用戶端 ID 是你事先在 Google 那邊登記拿到的編號。"
+    },
+    {
+      "pulse": "google",
+      "text": "這個網址在允許清單裡嗎？",
+      "tone": "warn",
+      "narration": "Google 先檢查：這個請求是不是從你登記過的網址來的？這份清單叫允許的網址。"
+    },
+    {
+      "pulse": "google",
+      "text": "客人在 Google 的頁面輸入密碼",
+      "tone": "ok",
+      "narration": "確認後，客人在 Google 自己的頁面上登入、同意分享 email 和名字。密碼只在 Google 那裡，你的網站碰不到。"
+    },
+    {
+      "send": ["google", "browser"],
+      "label": "ID Token",
+      "tone": "key",
+      "note": "Google 簽名的「身分證明」",
+      "narration": "Google 交回一張 ID Token：上面寫著這個人是誰，還蓋了 Google 的章。"
+    },
+    { "send": ["browser", "server"], "label": "ID Token", "tone": "key", "note": "交給伺服器檢查", "narration": "瀏覽器把它交給你的伺服器。" },
+    {
+      "pulse": "server",
+      "text": "檢查章、給誰的、過期沒",
+      "tone": "warn",
+      "narration": "伺服器不能看了就信，要檢查三件事：章是不是 Google 的、這張是不是開給你的網站、有沒有過期。"
+    },
+    { "pulse": "server", "text": "通過 → 發號碼牌（session）", "tone": "ok", "note": "之後跟一般登入一樣", "narration": "通過之後，就跟上一堂一樣：發一張號碼牌，放進 cookie。" },
+    { "send": ["server", "browser"], "label": "Set-Cookie: sid=…", "tone": "ok" },
+    { "callout": "flow:log", "text": "認人交給 Google，檢查和發號碼牌是你的伺服器", "narration": "看右邊的順序：認人交給 Google，檢查 ID Token、發號碼牌，還是你的伺服器負責。" },
+    { "hide": "flow" },
+    {
+      "show": "web",
+      "chapter": "拆開 ID Token",
+      "narration": "我們把那張 ID Token 拆開來看。它是用點隔開的三段。"
+    },
+    { "click": "#bh", "narration": "第一段是標頭，寫著用什麼方法簽名。" },
+    { "click": "#bp", "narration": "第二段是內容：iss 是誰發的，aud 是開給誰，email 是這個人，exp 是什麼時候過期。" },
+    { "click": "#bs", "narration": "第三段是簽名，也就是 Google 的章。內容改一個字，章就對不上。" },
+    { "callout": "web:sel:#ck", "text": "aud 一定要是你的用戶端 ID", "narration": "aud 特別重要：別的網站拿到的 ID Token 不能拿來登入你的網站，所以一定要檢查 aud 是你的用戶端 ID。這些檢查，用 Google 提供的套件一行就能做。" },
+    { "hide": "web" },
+    {
+      "show": "flow",
+      "focus": false,
+      "chapter": "允許的網址",
+      "narration": "最後，允許的網址在防什麼？"
+    },
+    { "tidy": true },
+    { "spawn": "fake", "label": "假冒的網站", "sub": "偷用你的用戶端 ID", "icon": "globe", "x": 14, "y": 85, "tone": "bad" },
+    { "send": ["fake", "google"], "label": "我是小森烘焙（1234）", "tone": "bad", "narration": "用戶端 ID 本來就是公開的，誰都能拿去冒用。" },
+    { "pulse": "google", "text": "網址不在允許清單：拒絕", "tone": "bad", "narration": "可是假網站的網址不在你的允許清單裡，Google 直接拒絕。所以這份清單要寫對：正式網址、還有本機測試用的網址。" },
+    { "vanish": "fake" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "AI 請你把 Google 給的「用戶端 ID」貼給它。可以嗎？",
+      "body": "選一個。",
+      "id": "clientid",
+      "options": [
+        {
+          "label": "不行，那是機密",
+          "steps": [{ "card": "用戶端 ID 本來就公開", "eyebrow": "再想想", "sub": "它會出現在網頁上；真正要保密的是「用戶端密碼」和你的帳號密碼", "narration": "用戶端 ID 本來就會出現在網頁上，可以給。要保密的是用戶端密碼，還有你自己的帳號密碼。" }]
+        },
+        {
+          "label": "可以，它本來就公開",
+          "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "要保密的是用戶端密碼與你的帳號密碼", "narration": "答對了。用戶端 ID 本來就公開，可以給 AI。用戶端密碼和你的帳號密碼，才不能給。" }]
+        }
+      ]
+    },
+    { "hide": "flow" },
+    {
+      "card": "Google 認人，你的伺服器檢查 ID Token",
+      "eyebrow": "學會",
+      "sub": "用戶端 ID：公開的登記編號　允許的網址：擋假網站　ID Token：檢查章、aud、過期",
+      "chapter": "學會",
+      "narration": "今天的重點：認人交給 Google；你登記用戶端 ID 和允許的網址；伺服器收到 ID Token 要檢查章、aud 和過期時間。下一堂，Google 的設定頁由你照 AI 的步驟操作，後端檢查交給 AI。"
+    }
+  ]
+}

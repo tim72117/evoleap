@@ -1,0 +1,113 @@
+{
+  "title": "設計資料表",
+  "lesson": "全環節 · 單元 9 · 9.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天和 AI 一起設計資料表",
+    "line": "今天請 AI 設計小森烘焙的資料表、畫出關聯圖。第一版通常會漏東西，你看過後指出來，它再補，來回幾次就完整了。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "資料表設計", "folder": "~/projects/bakery", "branch": "db-schema", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "erd": {
+      "actor": "fc3-table",
+      "props": { "title": "docs/schema.md 的關聯圖（每張表放兩列範例）", "tables": [] },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "設計資料表",
+      "eyebrow": "全環節 · 單元 9 · 9.2 用 AI 完成",
+      "sub": "AI 出第一版 → 你補需求 → 它改，來回到完整",
+      "chapter": "第一版",
+      "narration": "這一堂是來回修改：AI 先出一版，你用店裡實際的情況去檢查，它再改。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫小森烘焙設計資料表：會員、商品、訂單。每張表要有主鍵，畫出關聯圖放在 docs/schema.md，每張表放兩列範例資料讓我好懂。先不要建表，給我看過再說。",
+      "narration": "先說「先給我看」，不要讓它直接建表。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    { "on": "claude", "say": "第一版：`members`、`products`、`orders` 三張表，訂單用 `member_id` 連到會員、`product_id` 連到商品。關聯圖已寫在 `docs/schema.md`。" },
+    { "hide": "claude" },
+    { "show": "erd", "focus": false },
+    { "on": "erd", "create": "members", "label": "會員", "key": "id", "cols": ["id", "name", "email"], "rows": [[1, "王小姐", "wang@example.com"], [2, "陳先生", "chen@example.com"]] },
+    { "on": "erd", "create": "products", "label": "商品", "key": "id", "cols": ["id", "name", "price"], "rows": [[1, "可頌", 65], [2, "肉桂捲", 80]] },
+    { "on": "erd", "create": "orders", "label": "訂單", "key": "id", "cols": ["id", "member_id", "product_id", "qty"], "rows": [[1, 1, 1, 2], [2, 2, 2, 1]] },
+    { "on": "erd", "relate": ["orders.member_id", "members.id"] },
+    { "on": "erd", "relate": ["orders.product_id", "products.id"], "narration": "三張表、兩條關聯。看起來很整齊。這時候，用店裡真實的一天來檢查它。" },
+    {
+      "callout": "erd:table:orders",
+      "text": "一筆訂單只能放一種商品？",
+      "chapter": "第一輪：你指出問題",
+      "narration": "王小姐一次買了兩個可頌和一個肉桂捲。照這個設計，一筆訂單只有一個 product_id，只能放一種商品。"
+    },
+    { "hide": "erd" },
+    { "show": "claude" },
+    { "on": "claude", "user": "客人常常一筆訂單買好幾樣，現在的設計放不下。", "narration": "直接把實際的情況告訴它。" },
+    { "on": "claude", "say": "對，訂單和商品是「一筆訂單有很多品項」的關係。我把品項拆成 `order_items`：每列記一個商品、數量和當時的單價（之後漲價，舊訂單金額不會跟著變）。", "narration": "它把品項拆成另一張表，還多想了一步：記下當時的單價，之後漲價，舊訂單的金額不會變。" },
+    { "hide": "claude" },
+    { "show": "erd", "focus": false },
+    { "on": "erd", "dropcol": "orders", "col": "product_id" },
+    { "on": "erd", "dropcol": "orders", "col": "qty" },
+    { "on": "erd", "create": "order_items", "label": "訂單品項", "key": "id", "cols": ["id", "order_id", "product_id", "qty", "unit_price"], "rows": [[1, 1, 1, 2, 65], [2, 1, 2, 1, 80]] },
+    { "on": "erd", "relate": ["order_items.order_id", "orders.id"] },
+    { "on": "erd", "relate": ["order_items.product_id", "products.id"], "narration": "現在第 1 筆訂單有兩個品項：兩個可頌、一個肉桂捲。" },
+    { "callout": "erd:table:orders", "text": "什麼時候來拿？付錢了沒？", "chapter": "第二輪：再補", "narration": "再用真實的一天檢查：客人是預約取貨的，訂單要記什麼時候來拿；還有，付錢了沒有？" },
+    { "hide": "erd" },
+    { "show": "claude" },
+    { "on": "claude", "user": "還要記取貨日期和時段，以及訂單狀態：待付款、已付款、已取貨、已取消。" },
+    { "on": "claude", "say": "加上 `pickup_at`（取貨時間）和 `status`。狀態只允許那四種值，資料庫會擋掉打錯的字。" },
+    { "hide": "claude" },
+    { "show": "erd", "focus": false },
+    { "on": "erd", "addcol": "orders", "col": "pickup_at", "fill": ["11/10 09:00", "11/10 15:00"] },
+    { "on": "erd", "addcol": "orders", "col": "status", "fill": ["paid", "pending"], "narration": "這一版，店裡一天會發生的事都放得進去了。" },
+    { "hide": "erd" },
+    { "show": "claude", "chapter": "建表並驗證" },
+    { "on": "claude", "user": "可以了，寫建表程式，在本機的測試資料庫建好，並放一筆兩個品項的訂單試試看。" },
+    {
+      "on": "claude",
+      "edit": "db/schema.sql",
+      "lines": [
+        [1, "+", "CREATE TABLE members (id SERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL);"],
+        [2, "+", "CREATE TABLE products (id SERIAL PRIMARY KEY, name TEXT NOT NULL, price INT NOT NULL);"],
+        [3, "+", "CREATE TABLE orders (id SERIAL PRIMARY KEY, member_id INT REFERENCES members(id),"],
+        [4, "+", "  pickup_at TIMESTAMPTZ, status TEXT CHECK (status IN ('pending','paid','picked_up','canceled')));"],
+        [5, "+", "CREATE TABLE order_items (id SERIAL PRIMARY KEY, order_id INT REFERENCES orders(id),"],
+        [6, "+", "  product_id INT REFERENCES products(id), qty INT CHECK (qty > 0), unit_price INT NOT NULL);"]
+      ],
+      "narration": "建表程式裡，REFERENCES 就是關聯；CHECK 讓資料庫擋掉不合理的值，例如數量是零。"
+    },
+    { "on": "claude", "ask": "psql $DATABASE_URL -f db/schema.sql", "q": "Claude 想要執行這個指令", "where": "~/projects/bakery", "note": "在本機的測試資料庫建表" },
+    { "on": "claude", "choose": 1, "narration": "確認是本機的測試資料庫，允許。" },
+    { "on": "claude", "tool": "Bash", "arg": "psql $DATABASE_URL -f db/schema.sql && psql $DATABASE_URL -c '\\dt'", "result": "4 張表", "out": "CREATE TABLE ×4\n members | orders | order_items | products" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql $DATABASE_URL -f db/sample.sql   # 一筆訂單兩個品項,再故意放一個 qty = 0",
+      "result": "範例成功，錯誤的被擋下",
+      "out": "INSERT 訂單 #1：可頌×2、肉桂捲×1　合計 210\nERROR: new row violates check constraint \"order_items_qty_check\"",
+      "narration": "它放一筆兩個品項的訂單，算出合計 210；又故意放一個數量是零的品項，確認資料庫會擋下來。"
+    },
+    { "on": "claude", "say": "建好了：4 張表，關聯和檢查都生效。`docs/schema.md` 的關聯圖已更新成最終版。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 設計你專案的資料表並附範例資料。拿你實際的一天去檢查：哪件事放不進去？告訴它，再看它怎麼改。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "用真實的一天檢查設計",
+      "eyebrow": "學會",
+      "sub": "第一版一定會漏：放不進去的事告訴 AI，它就會改",
+      "chapter": "學會",
+      "narration": "這一堂的重點：AI 的第一版很整齊，但不一定裝得下你的真實情況。用店裡實際的一天去檢查，放不進去的就告訴它，來回幾次就完整了。"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "title": "「請刪掉我的資料」該怎麼做？",
+  "lesson": "全環節 · 單元 22 · 22.4 基礎知識",
+  "teacher": {
+    "say": "今天聊個資的匯出與刪除",
+    "line": "總有一天，會有客人來信要你給他一份他的資料，或請你刪掉。這一課來看個資法對這件事的要求，以及一個人的資料，其實散在多少地方。"
+  },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "小森烘焙 客服信箱" },
+      "place": { "x": 680, "y": 110, "w": 560, "h": 860 },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "王小美的資料在哪裡？",
+        "nodes": [
+          { "id": "amy", "label": "王小美", "sub": "amy@example.com", "icon": "🙋", "shape": "person", "x": 50, "y": 50, "w": 9 },
+          { "id": "members", "label": "會員資料", "sub": "姓名、Email、電話", "icon": "🗄", "shape": "db", "x": 16, "y": 20, "w": 10, "hidden": true },
+          { "id": "orders", "label": "訂單", "sub": "地址、買了什麼", "icon": "🧾", "shape": "db", "x": 16, "y": 80, "w": 10, "hidden": true },
+          { "id": "news", "label": "電子報名單", "sub": "放在寄信服務", "icon": "✉", "x": 50, "y": 13, "w": 10, "hidden": true },
+          { "id": "track", "label": "錯誤追蹤、紀錄", "sub": "使用者 ID", "icon": "📜", "x": 84, "y": 20, "w": 10, "hidden": true },
+          { "id": "ga", "label": "流量分析", "sub": "匿名的訪客 ID", "icon": "📈", "x": 84, "y": 80, "w": 10, "hidden": true },
+          { "id": "bk", "label": "備份", "sub": "上面全部的副本", "icon": "💾", "x": 50, "y": 87, "w": 10, "hidden": true }
+        ],
+        "edges": [
+          { "from": "amy", "to": "members", "hidden": true },
+          { "from": "amy", "to": "orders", "hidden": true },
+          { "from": "amy", "to": "news", "hidden": true },
+          { "from": "amy", "to": "track", "hidden": true },
+          { "from": "amy", "to": "ga", "hidden": true },
+          { "from": "amy", "to": "bk", "hidden": true }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "show": "phone",
+      "chapter": "一封來信",
+      "narration": "某天客服信箱收到兩封信。"
+    },
+    { "on": "phone", "receive": "您好，我想知道你們存了我哪些資料，可以給我一份嗎？", "from": "陳先生" },
+    {
+      "on": "phone",
+      "receive": "我不會再用了，請把我的帳號和所有資料刪掉，謝謝。",
+      "from": "王小美",
+      "narration": "一封要一份自己的資料，一封要刪除。這不是客氣的請求，是法律給他們的權利。"
+    },
+    { "hide": "phone" },
+    {
+      "card": "「請刪掉我的資料」該怎麼做？",
+      "eyebrow": "全環節 · 單元 22 · 22.4 基礎知識",
+      "sub": "個資法對匯出與刪除的要求",
+      "narration": "先看法律怎麼說，再看實際要做什麼。"
+    },
+    {
+      "card": "當事人可以要求你……",
+      "eyebrow": "個人資料保護法 第 3 條",
+      "sub": "① 查詢、閱覽　② 給一份複製本　③ 補充、更正　④ 停止蒐集、處理、利用　⑤ 刪除",
+      "chapter": "法律的要求",
+      "narration": "台灣的個人資料保護法說，當事人可以要求你：讓他查詢、閱覽；給他一份複製本；補充或更正；停止使用；以及刪除。陳先生要的是第二項，王小美要的是第五項。"
+    },
+    {
+      "card": "而且不能拖",
+      "eyebrow": "處理期限",
+      "sub": "查詢、閱覽、複製本：15 天內 · 更正、停止使用、刪除：30 天內（可延長一次，要書面告知原因）",
+      "narration": "而且有期限：查詢和複製本要在十五天內，刪除要在三十天內。真的來不及可以延長一次，但要寫明原因告訴對方。法條細節之後要自己確認，或請教專業的人。"
+    },
+    {
+      "show": "flow",
+      "chapter": "一個人的資料散在哪裡",
+      "narration": "真正難的是：一個人的資料，散在很多地方。"
+    },
+    { "appear": ["members", "amy>members", "orders", "amy>orders"], "narration": "資料庫裡有會員資料和訂單；" },
+    { "appear": ["news", "amy>news"], "narration": "寄電子報的服務裡，有她的 Email；" },
+    { "appear": ["track", "amy>track", "ga", "amy>ga"], "narration": "錯誤追蹤和紀錄裡有她的使用者編號，流量分析裡有匿名的訪客編號；" },
+    { "appear": ["bk", "amy>bk"], "narration": "還有備份，是上面全部的副本。" },
+    {
+      "callout": "flow:node:amy",
+      "text": "先要有一張「資料在哪裡」的地圖",
+      "narration": "所以第一件事，是要有一張地圖：一個人的資料在哪幾個地方。少一個，就刪不乾淨。"
+    },
+    {
+      "send": "amy>members",
+      "label": "匯出",
+      "tone": "on",
+      "chapter": "匯出：整理成一份",
+      "narration": "匯出比較簡單：把每個地方屬於他的資料拿出來，整理成一份看得懂的檔案給他。"
+    },
+    {
+      "light": "members",
+      "tone": "ok",
+      "sub": "刪除 ✓",
+      "chapter": "刪除：每個地方不一樣",
+      "narration": "刪除要一個地方一個地方處理。會員資料，刪除。"
+    },
+    { "light": "news", "tone": "ok", "sub": "退訂並刪除 ✓", "narration": "電子報名單，退訂並刪除。" },
+    { "light": "track", "tone": "ok", "sub": "依 ID 刪除 ✓" },
+    {
+      "light": "orders",
+      "tone": "warn",
+      "sub": "稅法要留 → 改成匿名",
+      "narration": "訂單比較特別。報稅需要留著交易紀錄，不能整筆刪掉。做法是把姓名、電話、地址拿掉，只留金額和日期，讓它認不出是誰。"
+    },
+    {
+      "light": "bk",
+      "tone": "warn",
+      "sub": "到期自動消失",
+      "narration": "備份很難一筆一筆刪，通常等它保留期限到了自然消失，並且在還原時記得再刪一次。"
+    },
+    {
+      "light": "ga",
+      "tone": "dim",
+      "sub": "本來就是匿名",
+      "narration": "流量分析本來就是匿名的，認不出是誰。"
+    },
+    {
+      "callout": "flow:node:orders",
+      "text": "刪不掉的要說明：保留什麼、為什麼、多久",
+      "narration": "最後回信時，也要說清楚：哪些刪了，哪些因為法律要保留、保留什麼、多久。"
+    },
+    { "hide": "flow" },
+    {
+      "shimmer": "先有地圖，再一個一個處理",
+      "sub": "匯出：整理成一份 · 刪除：刪、匿名、等到期 · 回信說明清楚",
+      "chapter": "重點整理",
+      "narration": "重點：先有一張資料地圖，再一個地方一個地方處理，最後回信說明清楚。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "畫你的地圖",
+      "body": "列出你的網站裡，一位會員的資料會出現在哪些地方：資料庫的哪些表、哪些外部服務、紀錄、備份。下一堂交給 AI 做工具。",
+      "narration": "換你畫地圖：你的網站裡，一位會員的資料會出現在哪些地方？下一堂，請 AI 照這張地圖做匯出與刪除的工具。"
+    }
+  ]
+}

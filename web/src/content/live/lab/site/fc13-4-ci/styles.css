@@ -1,0 +1,35 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#eef1f4;display:flex;align-items:center;justify-content:center}
+.app{width:1180px;padding:20px 0}
+.flow{display:grid;grid-template-columns:1fr .6fr 1fr .6fr 1.3fr;align-items:center;background:#fff;border-radius:20px;padding:20px 24px;box-shadow:0 4px 18px rgba(0,0,0,.05)}
+.node{text-align:center;opacity:.5;border:3px solid transparent;border-radius:16px;padding:10px}
+.node svg{width:100px;height:76px}.node b{display:block;font-size:22px}.node small{font-size:15px;color:#6b7478}
+.scr{fill:#e3eefc;stroke:#4a6fa5;stroke-width:3}.base{fill:#4a6fa5}.cloud{fill:#eef0f3;stroke:#555;stroke-width:3}
+.bb{fill:#5b6fd6}.ey{fill:#fff}.an{stroke:#5b6fd6;stroke-width:4}
+.link{text-align:center;position:relative;height:40px;opacity:.3}
+.link::before{content:"";position:absolute;left:6px;right:6px;top:50%;border-top:4px dashed #9aa6b2}
+.link span{position:relative;background:#fff;padding:0 6px;font-family:ui-monospace,Menlo,monospace;font-size:15px;color:#4a5a60}
+.jobs{list-style:none;text-align:left;margin:10px auto 0;width:200px;font-size:16px}
+.jobs li{padding:4px 8px;border-radius:6px;color:#8a9296}
+.jobs li::before{content:"○ "}
+.commits{margin-top:16px;background:#fff;border-radius:16px;padding:12px 18px;box-shadow:0 4px 18px rgba(0,0,0,.05)}
+.ch{font-size:15px;color:#6b7478;margin-bottom:4px}
+.c{display:flex;align-items:center;gap:12px;padding:10px 4px;border-top:1px solid #f0f0f0;font-size:19px}
+.c small{color:#8a9296;font-size:14px}.c em{margin-left:auto;font-style:normal;font-size:15px;border-radius:999px;padding:2px 12px}
+.m{width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;color:#fff;background:#2f9e6a;font-size:15px}
+.m.pend{background:#d9a21b}
+.okt{background:#e6f4ec;color:#1e7a4a}
+.merge{display:none;align-items:center;gap:14px;margin-top:8px;border:2px solid #f0c7c3;background:#fdf3f2;border-radius:12px;padding:10px 14px;font-size:18px}
+.chk{color:#c0392b}.mb{margin-left:auto;font:inherit;font-size:16px;border:0;border-radius:8px;padding:6px 18px;background:#c9ced3;color:#fff}
+.chips{display:flex;gap:14px;margin-top:16px;justify-content:center}
+.chips button{font:inherit;font-size:19px;border:2px solid #c3cbd3;background:#fff;border-radius:999px;padding:8px 22px;color:#1f2a2e}
+.s1 #b1,.s2 #b2,.s3 #b3,.s4 #b4{background:#1f3b44;color:#fff;border-color:#1f3b44}
+.s1 #nPc,.s1 #nHub,.s1 .l1{opacity:1}
+.s2 .node,.s2 .link,.s3 .node,.s3 .link,.s4 .node,.s4 .link{opacity:1}
+.s2 #nBot{border-color:#5b6fd6}
+.s2 #j1,.s2 #j2,.s3 .jobs li,.s4 #j1,.s4 #j2{color:#1e7a4a}.s2 #j1::before,.s2 #j2::before,.s3 .jobs li::before,.s4 #j1::before,.s4 #j2::before{content:"✓ "}
+.s2 #j3{color:#b7791f;font-weight:700}.s2 #j3::before{content:"⏳ "}
+.s3 .c1 .m{background:#2f9e6a}.s3 .c1 .m::after{content:""}.s3 .c1 .stat{background:#e6f4ec;color:#1e7a4a}.s3 .c1 .stat::after{content:"✓ 全部測試通過"}
+.s3 .c1 .m{font-size:0}.s3 .c1 .m::before{content:"✓";font-size:15px}
+.s4 #j3{color:#c0392b;font-weight:700}.s4 #j3::before{content:"✗ "}.s4 #nBot{border-color:#d6453d}
+.s4 .merge{display:flex}.s4 .chk::after{content:"✗ 1 項檢查失敗：VIP 打九折 · 修好之前不能合併"}

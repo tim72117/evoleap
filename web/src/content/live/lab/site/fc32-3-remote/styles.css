@@ -1,0 +1,28 @@
+/* fc8 圖解共用底稿(複製到各版本的 styles.css 開頭) */
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; color: #1f2733; background: #f6f4ef; }
+.wrap { padding: 36px 48px; box-sizing: border-box; min-height: 640px; }
+.ttl { font-size: 30px; font-weight: 700; margin: 0 0 6px; }
+.sub { font-size: 18px; color: #5b6575; margin: 0 0 22px; }
+[data-at] { opacity: .13; }
+[data-at].on { opacity: 1; }
+[data-go] { cursor: pointer; }
+.box { background: #fff; border: 2px solid #d9d4c7; border-radius: 14px; padding: 14px 18px; box-sizing: border-box; }
+.tag { display: inline-block; font-size: 14px; padding: 3px 10px; border-radius: 999px; background: #ece7db; color: #4a5260; }
+.ok { color: #1f8a4c; } .bad { color: #c2412d; } .warn { color: #b7791f; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+body { background: #f6f4ef; }
+.app { padding: 18px; font-size: 17px; }
+.hd { display: flex; justify-content: space-between; align-items: center; font-size: 19px; margin-bottom: 14px; }
+.dot { font-size: 14px; background: #eef4ff; color: #1f6feb; border-radius: 999px; padding: 3px 10px; }
+.msg { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 10px; line-height: 1.5; }
+.ask { background: #fff; border: 2px solid #b7791f; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.ask.done, .ask:has(.done) { border-color: #6cc08b; }
+.q { font-weight: 700; margin-bottom: 8px; }
+.cmd { font-family: Menlo, monospace; background: #1f2733; color: #e6edf3; border-radius: 8px; padding: 10px; font-size: 15px; }
+.why { font-size: 15px; color: #5b6575; margin: 8px 0 12px; }
+.row { display: flex; gap: 10px; }
+.row button { flex: 1; font: inherit; padding: 12px; border-radius: 10px; border: 1px solid #cfc8b8; background: #fff; }
+#allow { background: #1f6feb; color: #fff; border-color: #1f6feb; }
+#allow.done { background: #1f8a4c; border-color: #1f8a4c; }
+.res { background: #e7f6ec; border-radius: 12px; padding: 12px; margin-bottom: 10px; font-weight: 700; }
+.res[data-at]:not(.on) { display: none; }

@@ -1,0 +1,42 @@
+* { box-sizing: border-box; }
+#app { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif; color: #2b2a27; background: #f7f3ea; min-height: 100%; padding: 26px 40px 32px; font-size: 21px; line-height: 1.45; }
+.ttl { font-size: 32px; font-weight: 800; margin: 0; }
+.head { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; flex-wrap: wrap; }
+.tools { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { border: 2px solid #c9bfae; background: #fff; color: #5b4a36; border-radius: 999px; padding: 6px 18px; font: inherit; font-size: 18px; font-weight: 700; cursor: pointer; }
+.btn.done { background: #5b4a36; color: #fff; border-color: #5b4a36; }
+.card { background: #fff; border-radius: 16px; box-shadow: 0 2px 10px rgba(60,40,10,.08); padding: 16px 20px; }
+.muted { color: #7a7266; }
+.tag { display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 15px; font-weight: 700; background: #ece6da; color: #6b5c48; white-space: nowrap; }
+.tag.g { background: #e1f3e8; color: #1d7a4c; } .tag.r { background: #fbe4e1; color: #b9382c; } .tag.y { background: #fcf0d4; color: #9a6a0a; } .tag.b { background: #e3ecfb; color: #2c5fb8; }
+.row { display: flex; gap: 20px; }
+.grow { flex: 1; min-width: 0; }
+.hide { display: none !important; }
+.legend { display: flex; gap: 6px; }
+.lbl { margin-bottom: 8px; }
+.li, .nl { position: relative; font-size: 20px; padding: 7px 12px; margin: 6px 0; border-radius: 10px; background: #faf8f3; border: 2px solid transparent; }
+.nl { cursor: pointer; background: #fffbe8; }
+.li.tbd { color: #9a6a0a; }
+.why { display: none; margin-left: 8px; font-size: 14px; font-weight: 700; padding: 1px 8px; border-radius: 999px; vertical-align: 2px; }
+.nl.peek .why, #app.s-new .nl[data-k="new"] .why, #app.s-diff .nl[data-k="diff"] .why, #app.s-diff .nl[data-k="more"] .why, #app.s-diff .nl[data-k="open"] .why { display: inline-block; }
+.nl[data-k="new"] .why { background: #e1f3e8; color: #1d7a4c; }
+.nl[data-k="diff"] .why { background: #fbe4e1; color: #b9382c; }
+.nl[data-k="more"] .why { background: #fcf0d4; color: #9a6a0a; }
+.nl[data-k="open"] .why { background: #ece6da; color: #6b5c48; }
+.nl[data-k="new"] .why::after { content: "＋ 新增"; }
+.nl[data-k="diff"] .why::after { content: "≠ 和第 1 版不一樣"; }
+.nl[data-k="more"] .why::after { content: "更具體"; }
+.nl[data-k="open"] .why::after { content: "？ 還沒決定"; }
+.nl.peek[data-k="new"], #app.s-new .nl[data-k="new"] { border-color: #6cc393; background: #f0faf4; }
+.nl.peek[data-k="diff"], #app.s-diff .nl[data-k="diff"], #app.s-diff .li[data-k="diff"] { border-color: #e2776a; background: #fdf1ef; }
+.nl.peek[data-k="more"], #app.s-diff .nl[data-k="more"], #app.s-diff .li[data-k="more"] { border-color: #e6b44f; background: #fffaf0; }
+.nl.peek[data-k="open"], #app.s-diff .nl[data-k="open"] { border-style: dashed; border-color: #b9ab95; }
+.v2 { display: none; }
+#app.s-merge .cmp { display: none; }
+#app.s-merge .v2 { display: block; }
+.v2g { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+.vi { font-size: 19px; padding: 6px 10px; border-radius: 10px; background: #faf8f3; }
+.vi > .tag:first-child { margin-right: 8px; min-width: 46px; text-align: center; }
+.vi.hot { background: #fdf1ef; }
+.vi.open { background: #fffaf0; }
+.foot { margin-top: 10px; font-size: 17px; }

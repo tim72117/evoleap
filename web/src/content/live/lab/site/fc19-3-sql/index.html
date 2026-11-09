@@ -1,0 +1,30 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>託管資料庫 Cloud SQL</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · 託管資料庫</p>
+<h1>資料庫交給雲端保管</h1>
+<div class="tabs"><button id="b0" data-go="0">誰來做雜事</button><button id="b1" data-go="1">怎麼連線</button><button id="b2" data-go="2">自動備份</button><button id="b3" data-go="3">一直開著</button></div>
+<div data-only="0">
+<table class="cmp"><tr><th>雜事</th><th>自己在主機上裝資料庫</th><th>託管（Cloud SQL）</th></tr>
+<tr><td>安裝、升級版本</td><td class="me">你</td><td class="them">雲端</td></tr>
+<tr><td>安全性更新</td><td class="me">你</td><td class="them">雲端</td></tr>
+<tr><td>每天備份</td><td class="me">你（常常忘記）</td><td class="them">雲端，自動</td></tr>
+<tr><td>主機壞了</td><td class="me">你半夜修</td><td class="them">雲端換一台</td></tr>
+<tr><td>設計資料表、寫查詢</td><td class="me">你</td><td class="me">你</td></tr>
+</table>
+<p class="note">託管＝把「顧資料庫」的雜事交給雲端。你只管資料本身。</p></div>
+<div data-only="1" class="conn">
+<svg viewBox="0 0 1100 320" width="1100" height="320">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#16a34a"/></marker></defs>
+<rect x="30" y="100" width="260" height="120" rx="16" fill="#fff" stroke="#2563eb" stroke-width="2"/><text x="160" y="150" text-anchor="middle" font-size="20" font-weight="700">Cloud Run</text><text x="160" y="180" text-anchor="middle" font-size="15" fill="#64748b">你的網站</text>
+<rect x="420" y="120" width="260" height="80" rx="40" fill="#dcf5e6" stroke="#16a34a" stroke-width="2"/><text x="550" y="156" text-anchor="middle" font-size="17" font-weight="700" fill="#13703d">🔒 Cloud SQL 連線器</text><text x="550" y="180" text-anchor="middle" font-size="13" fill="#13703d">內建的加密通道</text>
+<rect x="810" y="100" width="260" height="120" rx="16" fill="#fff" stroke="#0d9488" stroke-width="2"/><text x="940" y="150" text-anchor="middle" font-size="20" font-weight="700">🗄 Cloud SQL</text><text x="940" y="180" text-anchor="middle" font-size="15" fill="#64748b">PostgreSQL</text>
+<line x1="295" y1="160" x2="412" y2="160" stroke="#16a34a" stroke-width="4" marker-end="url(#ah)"/><line x1="686" y1="160" x2="802" y2="160" stroke="#16a34a" stroke-width="4" marker-end="url(#ah)"/>
+<text x="550" y="270" text-anchor="middle" font-size="16" fill="#a32020">✗ 不要把資料庫直接開放給整個網路</text></svg>
+<p class="box">網站連資料庫，要知道<b>地址、帳號、密碼</b>。Cloud Run 有內建的<b>連線器</b>，走加密通道、不用開放公開 IP，最安全也最省事。</p></div>
+<div data-only="2" class="bk">
+<div class="days"><div>11/3</div><div>11/4</div><div>11/5</div><div>11/6</div><div class="sel">11/7</div><div class="bad">11/8 💥</div><div>11/9</div></div>
+<p class="box">Cloud SQL 每天自動備份，保留 7 天。11/8 不小心刪掉了訂單？<b>還原到 11/7 的備份</b>就回來了。（還原會蓋掉之後的資料，要小心選時間點。）</p></div>
+<div data-only="3" class="on">
+<div class="pair"><div class="box"><b>Cloud Run</b><p>沒人用 → 關掉 → 幾乎不收費</p></div><div class="box hot"><b>Cloud SQL</b><p>沒人用 → <b>還是開著</b> → 照樣按小時收費</p></div></div>
+<p class="note">資料庫一直開著。練習用的資料庫用完要刪掉，正式的選最小規格開始。</p></div>
+</div></body></html>

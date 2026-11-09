@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>照片資訊</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main class="info">
+  <div class="tabs">
+    <button class="tab on" id="tab-before">原始照片　photo-01.jpg</button>
+    <button class="tab" id="tab-after">縮小後　photo-01-small.jpg</button>
+    <button class="tab" id="tab-portrait">縮小後（直式）　photo-04-small.jpg</button>
+  </div>
+  <div class="grid">
+    <div class="thumb" id="thumb">
+      <svg viewBox="0 0 400 300" class="land" id="pic-land"><rect width="400" height="300" fill="#bfe0f2"/><circle cx="320" cy="70" r="34" fill="#ffd36b"/><path d="M0 230l90-90 70 60 80-100 160 130v100H0z" fill="#6aa86f"/><path d="M0 260h400v40H0z" fill="#4c8a52"/><g fill="#e98a6b"><circle cx="150" cy="235" r="14"/><circle cx="190" cy="232" r="14"/><circle cx="230" cy="236" r="14"/></g></svg>
+      <svg viewBox="0 0 300 400" class="port gone" id="pic-port"><rect width="300" height="400" fill="#f4e3c8"/><path d="M60 400V160h180v240z" fill="#c98b5a"/><path d="M40 170l110-90 110 90z" fill="#9b5f3c"/><rect x="120" y="270" width="60" height="130" fill="#6b4226"/><circle cx="240" cy="70" r="26" fill="#ffd36b"/></svg>
+      <div class="cap" id="cap">4032 × 3024</div>
+    </div>
+    <dl class="rows">
+      <div class="r" data-row="size"><dt>檔案大小</dt><dd><span class="v" id="v-size">4.8 MB</span><span class="q">？</span></dd></div>
+      <div class="r" data-row="dim"><dt>尺寸</dt><dd><span class="v" id="v-dim">4032 × 3024</span><span class="q">？</span></dd></div>
+      <div class="r" data-row="camera"><dt>相機型號</dt><dd><span class="v" id="v-camera">範例手機 X12</span><span class="q">？</span></dd></div>
+      <div class="r" data-row="time"><dt>拍攝時間</dt><dd><span class="v" id="v-time">2026/11/07 15:42</span><span class="q">？</span></dd></div>
+      <div class="r gps" data-row="gps"><dt>拍攝位置（GPS）</dt><dd><span class="v" id="v-gps">緯度 25.0418　經度 121.5089</span><span class="q">？</span>
+        <svg viewBox="0 0 240 120" class="map v" id="map"><rect width="240" height="120" rx="10" fill="#eef1e8"/><path d="M0 40h240M0 88h240M70 0v120M170 0v120" stroke="#fff" stroke-width="10"/><path d="M120 22c-14 0-24 10-24 23 0 18 24 42 24 42s24-24 24-42c0-13-10-23-24-23z" fill="#c2412d"/><circle cx="120" cy="45" r="8" fill="#fff"/></svg></dd></div>
+    </dl>
+  </div>
+  <div class="note gone" id="note">這些資訊都藏在照片檔案裡，直接分享原檔，會一起送出去</div>
+  <button id="all" class="gone" aria-hidden="true">全部打開</button>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

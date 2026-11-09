@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>reports/2026-10.html</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="doc">
+  <span class="file mono">reports/2026-10-reconcile.html</span>
+  <h1>10 月對帳報表</h1>
+  <div class="kpis">
+    <div class="card k"><span>網站訂單（已付款）</span><b>312 筆</b><em>NT$ 48,260</em></div>
+    <div class="card k"><span>金流撥款</span><b>310 筆</b><em>NT$ 46,710</em><small>已扣手續費 NT$ 1,250</small></div>
+    <div class="card k"><span>電子發票</span><b>311 張</b><em>NT$ 48,100</em></div>
+    <div class="card k st" id="st"><span>結果</span><b>2 筆對不上</b><em>其餘 310 筆一致</em></div>
+  </div>
+  <h2>對不上的項目</h2>
+  <div class="card"><table>
+    <tr><th>訂單</th><th>網站</th><th>金流</th><th>發票</th><th>可能原因</th></tr>
+    <tr id="d1"><td class="mono">#1188</td><td>NT$ 160 已付款</td><td>已退款</td><td>已開立，未作廢</td><td>退款後忘了作廢發票</td></tr>
+    <tr id="d2"><td class="mono">#1203</td><td>NT$ 80 已付款</td><td>沒有這筆</td><td>沒有</td><td>付款 webhook 沒收到，要人工確認</td></tr>
+  </table></div>
+  <p class="muted">產生方式：<span class="mono">node scripts/reconcile.js --month 2026-10</span>（讀資料庫、金流撥款報表 CSV、發票平台匯出）</p>
+</div>
+</body></html>

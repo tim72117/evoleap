@@ -1,0 +1,97 @@
+{
+  "title": "指令工具的 App Store",
+  "camera": "auto",
+  "teacher": {
+    "say": "一行指令裝好工具",
+    "line": "開發要裝很多小工具。今天認識套件管理器：Mac 的 Homebrew、Windows 的 winget，一行指令就能安裝、更新、移除。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc2-4-brew", "url": "https://course.example/explain/package-manager" },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~" },
+      "place": { "x": 260, "y": 140, "w": 1400, "h": 760 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "指令工具的 App Store",
+      "eyebrow": "全環節 · 單元 2 · 2.4 基礎知識",
+      "sub": "Homebrew（Mac）· winget（Windows）",
+      "chapter": "以前怎麼裝",
+      "narration": "手機上裝 App，你會去 App Store 按一下。電腦上的指令工具，也有這樣的商店。先看沒有它的時候有多麻煩。"
+    },
+    {
+      "show": "web",
+      "narration": "以前裝一個工具：找官網、下載、解壓縮、搬到某個資料夾，還要自己設定 PATH，讓終端機找得到它。"
+    },
+    {
+      "callout": "web:sel:.warn",
+      "text": "更新時，全部再來一次",
+      "narration": "最麻煩的是更新：新版出來了，整套再做一遍。工具一多，你根本記不得哪個裝在哪裡。"
+    },
+    {
+      "on": "web",
+      "click": "#g2",
+      "chapter": "套件管理器",
+      "narration": "套件管理器就是指令工具的 App Store。"
+    },
+    {
+      "callout": "web:sel:.store",
+      "text": "下載、放好、記錄：一行全包",
+      "narration": "Mac 用 Homebrew，指令是 brew；Windows 用 winget，系統通常已經內建。一行指令，它會自己下載、放到 PATH 找得到的地方，還會記住你裝過什麼。"
+    },
+    { "hide": "web" },
+    {
+      "show": "term",
+      "chapter": "實際裝一個",
+      "narration": "實際裝一個小工具試試：tree，它能把資料夾畫成一棵樹。"
+    },
+    {
+      "on": "term",
+      "type": "brew install tree",
+      "out": "==> Downloading https://ghcr.io/v2/homebrew/core/tree/blobs/sha256:…\n==> Pouring tree--2.2.1.arm64_sequoia.bottle.tar.gz\n🍺  /opt/homebrew/Cellar/tree/2.2.1: 8 files, 176.4KB",
+      "narration": "brew install tree。它下載、安裝，最後一行告訴你裝在哪裡、裝了哪個版本。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "啤酒杯 = 裝好了",
+      "narration": "看到這個啤酒杯，就代表裝好了。"
+    },
+    {
+      "on": "term",
+      "type": "tree projects",
+      "out": "projects\n├── hello\n│   └── hello.html\n└── my-site\n\n3 directories, 1 file",
+      "narration": "馬上就能用。tree projects，把 projects 畫成一棵樹。"
+    },
+    { "hide": "term" },
+    {
+      "show": "web",
+      "on": "web",
+      "click": "#g3",
+      "chapter": "常用四招",
+      "narration": "套件管理器常用的就四招。"
+    },
+    {
+      "callout": "web:sel:.t",
+      "text": "install · upgrade · uninstall · list",
+      "narration": "安裝 install、更新 upgrade、移除 uninstall、列出裝了哪些 list。兩邊的寫法很像，Windows 的名稱要寫完整，例如 Git.Git。"
+    },
+    {
+      "checkpoint": "想一想：你想把 Mac 上的 git 換成最新版，要打什麼？",
+      "body": "brew upgrade git。如果你從沒用 Homebrew 裝過 git，要先 brew install git；用 brew list 可以看自己裝過哪些。"
+    },
+    {
+      "card": "一行裝好，一行更新，一行移除",
+      "eyebrow": "2.4 重點",
+      "sub": "Mac：brew　·　Windows：winget",
+      "narration": "總結：套件管理器讓你一行裝好、一行更新、一行移除。Mac 用 brew，Windows 用 winget。下一堂，請 AI 用它幫你裝好這門課需要的工具。"
+    }
+  ]
+}

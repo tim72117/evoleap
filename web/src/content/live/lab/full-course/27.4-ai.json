@@ -1,0 +1,194 @@
+{
+  "title": "投放廣告",
+  "lesson": "全環節 · 單元 27 · 27.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "投一個小小的測試廣告",
+    "line": "今天投一個小預算的測試廣告。AI 幫你寫受眾、文案和預算建議，也幫你分析報表；廣告後台由你操作，付款和最後的送出，一定是你自己按。"
+  },
+  "blocking": {
+    "cast": [
+      "claude",
+      "ads"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "栗子季測試廣告",
+        "folder": "~/projects/komori-bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "ads": {
+      "actor": "browser",
+      "props": {
+        "site": "fc27-4-ads",
+        "width": "desktop",
+        "url": "https://ads.example/campaigns/new"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "投放廣告",
+      "eyebrow": "全環節 · 單元 27 · 27.4 用 AI 完成",
+      "sub": "AI 寫建議 → 你在後台設定、付款、送出 → 報表交給 AI",
+      "chapter": "請 AI 寫建議，先確認轉換追蹤",
+      "narration": "第一次投廣告，目標不是賺錢，而是用一點點錢學到：哪一種說法，最能讓人來預約。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "我想投一個測試廣告，宣傳栗子季可頌，讓台中的人來預約。預算總共 NT$1,500。幫我寫：受眾、兩個不同說法的廣告文案（做比較用）、每天預算和天數。另外幫我確認網站的預約完成頁有沒有裝轉換追蹤。",
+      "narration": "把目標、地區、總預算說清楚，還請它確認轉換追蹤有沒有裝好。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s localhost:4321/reserve/done | grep -c 'ads-conversion'",
+      "result": "完成",
+      "out": "0",
+      "narration": "它先檢查預約完成頁。結果是零：沒有裝轉換追蹤。這樣廣告跑完，你不會知道換到幾筆預約。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/reserve/done.astro",
+      "lines": [
+        [
+          3,
+          "+",
+          "<script src=\"https://ads.example/ads-conversion.js\"></script>"
+        ],
+        [
+          4,
+          "+",
+          "<script>adsConversion('reserve_done', { value: order.total, currency: 'TWD' })</script>"
+        ]
+      ],
+      "narration": "它在預約完成頁補上一行。有人預約成功，就通知廣告平台。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s localhost:4321/reserve/done | grep -c 'ads-conversion'",
+      "result": "完成",
+      "out": "1"
+    },
+    {
+      "on": "claude",
+      "say": "轉換追蹤已補上並確認。建議：\n- **受眾**：台中市、25–45 歲、興趣「甜點、咖啡廳、烘焙」\n- **文案 A**：栗子季開賣\n- **文案 B**：撕開聽得到聲音的可頌\n- **預算**：每天 NT$500，跑 3 天，兩個廣告平分\n\n廣告後台和付款我沒辦法替你操作，請照這個設定。",
+      "narration": "受眾、兩個文案、預算都列好了。兩個文案用來比較，看哪種說法比較有效。"
+    },
+    {
+      "show": "ads",
+      "chapter": "你在後台設定",
+      "narration": "打開廣告後台，照著 AI 的建議填。"
+    },
+    {
+      "on": "ads",
+      "fill": {
+        "#geo": "台中市",
+        "#age": "25–45",
+        "#interest": "甜點、咖啡廳、烘焙"
+      }
+    },
+    {
+      "on": "ads",
+      "fill": {
+        "#budget": "500",
+        "#days": "3 天",
+        "#headline": "栗子季開賣",
+        "#conv": "reserve"
+      },
+      "narration": "預算、天數、標題，轉換追蹤選剛才 AI 裝好的預約完成。另一個文案 B，也照樣建一則。"
+    },
+    {
+      "card": "付款與送出：你自己來",
+      "eyebrow": "只有你能做",
+      "sub": "付款資料只在廣告平台的頁面上自己輸入；送出鍵也由你按",
+      "chapter": "付款與送出",
+      "narration": "接下來兩件事，只有你能做。付款資料，只在廣告平台的頁面上自己輸入，不要交給任何人，也不要貼給 AI。最後的送出，也是你看過所有設定後自己按。"
+    },
+    {
+      "on": "ads",
+      "click": "#addpay",
+      "narration": "你自己新增付款方式。"
+    },
+    {
+      "callout": "ads:sel:.side3",
+      "text": "送出前最後看一次：地區、預算、天數",
+      "narration": "送出前，最後再看一次地區、每日預算和天數。"
+    },
+    {
+      "on": "ads",
+      "click": "#submit",
+      "narration": "確認無誤，你按下送出。廣告進入審核。"
+    },
+    {
+      "card": "三天後",
+      "eyebrow": "廣告跑完了",
+      "sub": "在後台的成效報表截圖，交給 AI 分析",
+      "chapter": "三天後：報表交給 AI",
+      "narration": "三天後，廣告跑完了。"
+    },
+    {
+      "on": "ads",
+      "click": "#t-rep",
+      "narration": "打開成效報表。"
+    },
+    {
+      "on": "claude",
+      "user": "［截圖］三天的成效報表。哪個比較好？下一步怎麼做？"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "say": "| | A 栗子季開賣 | B 撕開聽得到聲音 |\n|---|---|---|\n| 點擊率 | 1.0% | **2.3%** |\n| 每筆預約 | NT$750 | **NT$150** |\n\nB 明顯比較好：描述「感覺」的說法比單純宣布開賣更吸引人。不過總共只有 6 筆預約，數字還很小，建議再跑一輪確認。",
+      "narration": "AI 整理出比較表：B 的點擊率是兩倍多，每筆預約的花費只有五分之一。它也提醒你，只有六筆，數字還太小。"
+    },
+    {
+      "on": "claude",
+      "user": "那第二輪怎麼調？",
+      "chapter": "第二輪"
+    },
+    {
+      "on": "claude",
+      "say": "第二輪建議：\n1. 停掉 A\n2. B 保留，再加一個同樣描述感覺的 C：「4 度的奶油，27 層的咔滋」\n3. 一樣每天 NT$500、3 天，B、C 平分\n跑完再給我報表，我們看 B 的成績是不是穩定。",
+      "narration": "第二輪：停掉輸的那個，再加一個同類型的新說法來比較。設定一樣由你在後台操作、由你送出。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 為你的產品寫受眾、兩個文案與小預算建議，並請它確認轉換追蹤。在廣告後台自己設定、自己付款、自己送出。跑完後把報表截圖交給 AI 分析，決定第二輪怎麼調。"
+    },
+    {
+      "card": "先確認轉換追蹤\n兩個說法一起比\n付款和送出自己來\n報表交給 AI，一輪一輪調",
+      "eyebrow": "學會",
+      "sub": "數字很小時，多跑一輪再下結論",
+      "chapter": "學會",
+      "narration": "先確認轉換追蹤，兩個說法一起比，付款和送出自己來，報表交給 AI 一輪一輪調。數字還小的時候，多跑一輪再下結論。"
+    }
+  ]
+}

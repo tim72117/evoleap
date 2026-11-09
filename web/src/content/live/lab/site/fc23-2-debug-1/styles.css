@@ -1,0 +1,18 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#f3f5f9;color:#1f2433}
+.bar{display:flex;align-items:center;gap:12px;padding:12px 26px;background:#fff;border-bottom:1px solid #e1e5ee;font-weight:700}
+.bar .lg{width:30px;height:30px;border-radius:8px;background:#fff1dc;display:grid;place-items:center}
+.bar .crumb{color:#6b7385;font-weight:600}
+.pg{padding:24px 36px;display:grid;grid-template-columns:1fr 380px;gap:24px}
+h1{margin:0 0 12px;font-size:24px;grid-column:1/3}
+.ev{display:flex;align-items:center;gap:14px;background:#fff;border-radius:12px;box-shadow:0 0 0 1px #e1e5ee;padding:12px 16px;margin-bottom:10px;font-size:18px}
+.ev time{color:#6b7385;font-size:14px;width:70px}
+.ev code{font-family:Menlo,monospace;font-weight:800;color:#2f4fa8}
+.ev span{color:#4b5266;font-size:15px}
+.ev.dup{box-shadow:0 0 0 3px #d2453a;background:#fff7f6}
+.ev.dup code{color:#c0392b}
+.ev.miss{box-shadow:0 0 0 3px #d99a1c;background:#fffaf0;border:2px dashed #d99a1c;color:#9a6a06}
+.ev.ok{box-shadow:0 0 0 2px #2e9a5b}
+.side{background:#fff;border-radius:14px;box-shadow:0 0 0 1px #e1e5ee;padding:16px 20px;align-self:start}
+.side h3{margin:0 0 10px;font-size:16px;color:#6b7385}
+.chk{display:flex;justify-content:space-between;padding:7px 0;font-size:17px;border-bottom:1px solid #eef1f6}
+.chk b.ok{color:#22804a}.chk b.bad{color:#c0392b}.chk b.warn{color:#9a6a06}

@@ -1,0 +1,136 @@
+{
+  "title": "用測試模式串接結帳",
+  "lesson": "全環節 · 單元 11 · 11.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天完成第一筆測試付款",
+    "line": "今天完成第一筆測試付款。商家帳號要填你的身分和銀行資料，由你照 AI 的步驟自己申請；串接和測試付款交給 AI，全程只用測試模式。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "結帳串接", "folder": "~/projects/bakery", "branch": "checkout", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "merchant": {
+      "actor": "browser",
+      "props": { "site": "fc11-2-merchant", "url": "https://dashboard.pay.example/onboarding" },
+      "place": "window",
+      "hidden": true
+    },
+    "dash": {
+      "actor": "browser",
+      "props": { "site": "fc11-2-dash", "url": "https://dashboard.pay.example/developers" },
+      "place": "window",
+      "hidden": true
+    },
+    "env": {
+      "actor": "editor",
+      "props": { "project": "bakery", "files": { ".env": "WEATHER_API_KEY=wx_live_••••3f9a\n" } },
+      "place": "window",
+      "hidden": true
+    },
+    "shop": {
+      "actor": "browser",
+      "props": { "site": "fc11-2-checkout", "url": "http://localhost:5173/checkout" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用測試模式串接結帳",
+      "eyebrow": "全環節 · 單元 11 · 11.2 用 AI 完成",
+      "sub": "申請商家帳號你自己來；串接與測試付款交給 AI",
+      "chapter": "AI 寫申請步驟",
+      "narration": "這一堂有一條清楚的界線：填身分、填銀行帳號、按下送出，都是你自己做。AI 負責寫步驟、寫程式、測試。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我要用 docs/payments-plan.md 選的金流服務做結帳。商家帳號要填我的身分和銀行資料，請寫申請步驟給我，我自己填。拿到測試金鑰後我會放進 .env。串接用測試模式，完成標準：用測試卡號付一筆成功、一筆被拒絕，資料庫裡的訂單狀態要對。",
+      "narration": "完成標準：一筆成功、一筆被拒絕，訂單狀態都要對。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "申請步驟（請你自己操作）：\n1. 到金流後台按 **開通商家帳號**\n2. 商店資料：名稱 `小森烘焙`、網址、類別選 **食品・烘焙**\n3. 身分驗證、收款帳戶：**這兩頁請你自己填**，我不需要也不要看到這些資料\n4. 確認後**由你按送出審核**\n5. 審核期間就能用測試模式：到 **開發者 · 金鑰**，把 `pk_test…` 和 `sk_test…` 貼進 `.env` 的 `PAY_PUBLIC_KEY`、`PAY_SECRET_KEY`",
+      "narration": "它的步驟裡特別寫明：身分和帳戶那兩頁，它不需要、也不要看到；送出由你按。"
+    },
+    { "hide": "claude" },
+    { "show": "merchant", "focus": false, "chapter": "你申請商家帳號", "narration": "打開金流後台，開通商家帳號。" },
+    { "on": "merchant", "fill": { "#shop": "小森烘焙", "#site": "https://bakery.example", "#what": "food" }, "narration": "先填商店資料。" },
+    { "on": "merchant", "click": "#n1" },
+    { "callout": "merchant:sel:#f2", "text": "身分驗證：你自己填，不截圖給 AI", "narration": "身分驗證這一頁，你自己填，也不要截圖給 AI。" },
+    { "on": "merchant", "click": "#n2" },
+    { "callout": "merchant:sel:#f3", "text": "收款帳戶：你自己填", "narration": "收款帳戶也一樣。" },
+    { "on": "merchant", "click": "#n3" },
+    { "on": "merchant", "click": "#n4", "narration": "確認後，由你自己按下送出審核。" },
+    { "callout": "merchant:sel:#f5", "text": "審核中，但測試模式已經可以用", "narration": "審核要幾天，但測試模式已經可以開始用了。" },
+    { "hide": "merchant" },
+    { "show": "dash", "focus": false, "narration": "到開發者頁，確認右上角是測試模式，複製兩把測試金鑰。" },
+    { "callout": "dash:sel:.keys", "text": "複製 test 開頭的兩把金鑰" },
+    { "hide": "dash" },
+    { "show": "env", "focus": false, "narration": "貼進專案的 .env。" },
+    { "on": "env", "paste": "PAY_PUBLIC_KEY=pk_test_51Nx…a8Qd\nPAY_SECRET_KEY=sk_test_••••••••7Rk2\n" },
+    { "hide": "env" },
+    { "show": "claude", "chapter": "AI 串接" },
+    { "on": "claude", "user": "商家帳號送出審核了，測試金鑰也放進 .env。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "grep -c '^PAY_SECRET_KEY=sk_test_' .env; grep -c '^PAY_PUBLIC_KEY=pk_test_' .env",
+      "result": "兩把都是測試金鑰",
+      "out": "1\n1",
+      "narration": "它先確認兩把都是 test 開頭的測試金鑰，一樣不印出值。萬一你貼成正式金鑰，它會先停下來。"
+    },
+    {
+      "on": "claude",
+      "edit": "routes/checkout.js",
+      "lines": [
+        [1, "+", "router.post('/api/checkout', requireLogin, async (req, res) => {"],
+        [2, "+", "  const order = await createOrder(req.session.userId, req.body.items)  // 金額由伺服器算,不信任網頁送來的"],
+        [3, "+", "  const intent = await pay.payments.create({ amount: order.total, currency: 'twd', metadata: { orderId: order.id } })"],
+        [4, "+", "  res.json({ clientSecret: intent.client_secret })"],
+        [5, "+", "})"]
+      ],
+      "narration": "它寫結帳：金額由伺服器依商品重新計算，不相信網頁送來的數字；卡號只在金流服務的欄位裡輸入，不經過你的伺服器。"
+    },
+    {
+      "on": "claude",
+      "edit": "e2e/checkout.spec.ts",
+      "lines": [
+        [1, "+", "test('測試卡 4242… 付款成功，訂單變 paid', …)"],
+        [2, "+", "test('測試卡 4000…0002 被拒絕，顯示說明，訂單維持 pending', …)"]
+      ],
+      "chapter": "AI 自己付一筆",
+      "narration": "接著寫測試，用金流服務公布的測試卡號，自動走一次結帳。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright test e2e/checkout.spec.ts && psql $DATABASE_URL -c 'SELECT id, total, status FROM orders ORDER BY id DESC LIMIT 2'",
+      "result": "2 / 2 通過",
+      "out": "✓ 測試卡 4242… 付款成功，訂單變 paid\n✓ 測試卡 4000…0002 被拒絕，顯示說明，訂單維持 pending\n  id  | total | status\n 1043 |    65 | pending\n 1042 |    65 | paid",
+      "narration": "兩個測試都通過，資料庫裡一筆已付款、一筆維持待付款，跟預期一樣。"
+    },
+    { "on": "claude", "say": "完成：測試模式下付款成功一筆（#1042 → `paid`）、被拒絕一筆（#1043 維持 `pending`）。正式金鑰要等審核通過，由你在正式模式後台複製。" },
+    { "hide": "claude" },
+    { "show": "shop", "focus": false, "chapter": "你也親手試一次", "narration": "你也可以親手試一次。" },
+    { "on": "shop", "fill": { "#card": "4242 4242 4242 4242", "#exp": "12 / 30", "#cvc": "123" } },
+    { "on": "shop", "click": "#pay", "narration": "測試模式完成一筆付款。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 寫商家帳號的申請步驟，身分和帳戶資料由你自己填、自己送出；拿到測試金鑰後，請 AI 串接並用測試卡號測成功與被拒絕兩種情況。"
+    },
+    { "hide": "shop" },
+    {
+      "card": "身分、帳戶、送出：你自己來\n串接與測試：交給 AI",
+      "eyebrow": "學會",
+      "sub": "確認是 test 金鑰再開始；金額由伺服器算；成功與被拒絕都要測",
+      "chapter": "學會",
+      "narration": "這一堂的重點：填身分、填帳戶、按送出，都由你自己做；AI 確認是測試金鑰之後才串接，並用測試卡號把成功和被拒絕都測過。"
+    }
+  ]
+}

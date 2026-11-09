@@ -1,0 +1,241 @@
+{
+  "title": "幫資料表動手術：migration 與複本",
+  "lesson": "全環節 · 單元 9 · 9.3 基礎知識",
+  "teacher": {
+    "say": "今天學改資料表不掉資料",
+    "line": "今天我們看資料表上線之後，要改欄位該怎麼做才不會掉資料：先看一個錯誤示範，再看正確的做法，migration 和複本。"
+  },
+  "cast": {
+    "db": {
+      "actor": "fc3-table",
+      "props": {
+        "title": "正式資料庫",
+        "tables": [
+          {
+            "name": "members",
+            "label": "會員（已經有真的資料）",
+            "key": "id",
+            "cols": [
+              "id",
+              "name",
+              "email"
+            ],
+            "rows": [
+              [
+                1,
+                "王小姐",
+                "wang@example.com"
+              ],
+              [
+                2,
+                "陳先生",
+                "chen@example.com"
+              ],
+              [
+                3,
+                "林小姐",
+                "lin@example.com"
+              ]
+            ]
+          }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "bakery": {
+            "migrations": {
+              "001_create_members.sql": ""
+            },
+            "server.js": ""
+          }
+        },
+        "open": "bakery/migrations",
+        "title": "migrations"
+      },
+      "place": "right",
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "card": "幫資料表動手術",
+      "eyebrow": "全環節 · 單元 9 · 9.3 基礎知識",
+      "sub": "migration 是什麼，為什麼先在複本上跑",
+      "chapter": "錯誤示範",
+      "narration": "網站上線一陣子，你想把會員的 name 欄位，改叫 nickname，因為大家填的多半是暱稱。"
+    },
+    {
+      "show": "db",
+      "narration": "這是正式資料庫，裡面已經有三位真的會員。"
+    },
+    {
+      "dropcol": "members",
+      "col": "name",
+      "narration": "最直覺的做法：把舊欄位刪掉，"
+    },
+    {
+      "addcol": "members",
+      "col": "nickname",
+      "fill": "",
+      "narration": "再加一個新欄位。"
+    },
+    {
+      "stamp": "members",
+      "text": "三個名字全不見了",
+      "tone": "bad",
+      "narration": "欄位名稱對了，可是原本的名字全都不見了。刪欄位就是連同裡面的資料一起刪掉，而且這是正式資料庫，沒有後悔藥。"
+    },
+    {
+      "flash": true,
+      "chapter": "倒帶，換個做法"
+    },
+    {
+      "discard": "members",
+      "ms": 300
+    },
+    {
+      "create": "members",
+      "label": "會員（已經有真的資料）",
+      "key": "id",
+      "cols": [
+        "id",
+        "name",
+        "email"
+      ],
+      "rows": [
+        [
+          1,
+          "王小姐",
+          "wang@example.com"
+        ],
+        [
+          2,
+          "陳先生",
+          "chen@example.com"
+        ],
+        [
+          3,
+          "林小姐",
+          "lin@example.com"
+        ]
+      ],
+      "ms": 300,
+      "on": "db"
+    },
+    {
+      "reveal": true,
+      "narration": "倒帶。正確的做法有兩個重點：第一，把修改寫成一份可以重複執行的步驟；第二，先在複本上跑。"
+    },
+    {
+      "hide": "db"
+    },
+    {
+      "show": "files",
+      "chapter": "migration：寫下來的修改步驟",
+      "narration": "第一個重點。資料表的每一次修改，都寫成一個檔案，依序編號，放在 migrations 資料夾。這種檔案就叫 migration，中文常說搬移或遷移。"
+    },
+    {
+      "on": "files",
+      "create": "002_rename_name_to_nickname.sql",
+      "narration": "這次的修改是第二號：把 name 改名成 nickname。用的是「改名」，不是刪掉再新增，資料會留著。"
+    },
+    {
+      "callout": "files:file:002_rename_name_to_nickname.sql",
+      "text": "依序編號，資料庫會記住跑到第幾號",
+      "narration": "資料庫會記住已經跑到第幾號。換一台電腦、或部署到正式環境，照順序跑一遍，就會得到一模一樣的結構。"
+    },
+    {
+      "hide": "files"
+    },
+    {
+      "show": "db",
+      "chapter": "先在複本上跑",
+      "narration": "第二個重點：先在複本上跑。"
+    },
+    {
+      "clone": "members",
+      "as": "members_copy",
+      "label": "複本：從正式資料複製一份",
+      "narration": "先把正式資料複製一份。在複本上怎麼試，都不會碰到客人的資料。"
+    },
+    {
+      "rename": "members_copy",
+      "from": "name",
+      "to": "nickname",
+      "narration": "在複本上執行 migration：name 改名成 nickname。",
+      "on": "db"
+    },
+    {
+      "stamp": "members_copy",
+      "text": "3 筆，名字都在 ✓",
+      "tone": "ok",
+      "narration": "然後檢查：筆數一樣是 3 筆，每個名字都還在。確認沒問題，才輪到正式資料庫。"
+    },
+    {
+      "rename": "members",
+      "from": "name",
+      "to": "nickname",
+      "narration": "對正式資料庫執行同一份 migration。",
+      "on": "db"
+    },
+    {
+      "stamp": "members",
+      "text": "3 筆，完整 ✓",
+      "tone": "ok"
+    },
+    {
+      "discard": "members_copy",
+      "narration": "複本用完就可以刪掉。記得，跑正式資料庫之前，還要先備份一份，萬一出事可以還原。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "AI 說：「我直接在正式資料庫跑 migration，應該沒問題。」你該怎麼回？",
+      "body": "選一個。",
+      "id": "copyfirst",
+      "options": [
+        {
+          "label": "好，你比較懂",
+          "steps": [
+            {
+              "card": "「應該」不夠",
+              "eyebrow": "再想想",
+              "sub": "先備份、先在複本跑、檢查筆數與內容，再上正式",
+              "narration": "「應該沒問題」不夠。請它先備份、在複本上跑、檢查筆數和內容，再上正式資料庫。"
+            }
+          ]
+        },
+        {
+          "label": "先備份，在複本上跑並檢查",
+          "steps": [
+            {
+              "card": "答對了",
+              "eyebrow": "想一想",
+              "sub": "下一堂請 AI 寫一個檢查工具，自動比對筆數與內容",
+              "narration": "答對了。下一堂，我們請 AI 寫一個檢查工具，自動比對搬移前後的筆數和內容。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "hide": "db"
+    },
+    {
+      "card": "寫成 migration → 先在複本跑 → 檢查 → 備份後上正式",
+      "eyebrow": "學會",
+      "sub": "改名不是「刪掉再新增」；刪欄位會連資料一起刪",
+      "chapter": "學會",
+      "narration": "今天的重點：資料表的修改寫成依序編號的 migration；先在複本上跑、檢查筆數和內容，備份之後才上正式資料庫。"
+    }
+  ]
+}

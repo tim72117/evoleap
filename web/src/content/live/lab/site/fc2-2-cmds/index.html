@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>四個指令</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+<div class="ttl">先學四個指令</div>
+<div class="grid">
+  <div class="card k"><div class="mono c">pwd</div><div><b>我在哪？</b><br><span class="muted">print working directory，印出目前的資料夾</span></div></div>
+  <div class="card k"><div class="mono c">ls</div><div><b>這裡有什麼？</b><br><span class="muted">list，列出資料夾裡的東西（Windows 也能用）</span></div></div>
+  <div class="card k"><div class="mono c">cd 名稱</div><div><b>走進去</b><br><span class="muted">change directory；<span class="mono">cd ..</span> 退回上一層</span></div></div>
+  <div class="card k"><div class="mono c">mkdir 名稱</div><div><b>新增資料夾</b><br><span class="muted">make directory</span></div></div>
+</div>
+<div class="card read">
+  <div class="h">怎麼讀終端機的一行</div>
+  <div class="mono line"><span class="p1x">you@mac</span> <span class="p2x">projects</span> <span class="p3x">%</span> <span class="p4x">ls -la</span></div>
+  <div class="legend"><span class="p1x">誰</span>　<span class="p2x">在哪個資料夾</span>　<span class="p3x">等你打字的記號</span>　<span class="p4x">你打的指令</span></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

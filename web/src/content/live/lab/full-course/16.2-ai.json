@@ -1,0 +1,189 @@
+{
+  "title": "其他平台：Cloudflare Pages、Vercel、Netlify",
+  "lesson": "全環節 · 單元 16 · 16.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "連一次帳號，之後交給 AI",
+    "line": "這一堂把網站也放上 Cloudflare Pages。第一次連帳號，AI 碰不到網頁，你照它寫的步驟做；連好之後，部署就交給 AI 用命令列完成。"
+  },
+  "blocking": { "cast": ["claude", "dash", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "第二個平台",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "dash": {
+      "actor": "browser",
+      "props": { "site": "fc16-2-dash", "width": "desktop", "url": "https://dash.deploy.example/new" },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "https://new-menu.bakery-7ka.pages.dev" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "其他平台：Cloudflare Pages",
+      "eyebrow": "全環節 · 單元 16 · 16.2 用 AI 完成",
+      "sub": "第一次連帳號：AI 寫步驟、你照做；之後：AI 用命令列部署",
+      "chapter": "AI 寫步驟，你照做",
+      "narration": "有些事 AI 碰不到，例如在平台的網頁上登入、授權。這時候換個分工：AI 寫步驟，你照做，再把畫面截圖回報給它。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我想把 bakery 也放上 Cloudflare Pages。第一次連 GitHub 帳號要在網頁上做，請給我一步一步的操作，每一步寫我應該看到什麼畫面。連好之後，改用命令列由你部署。",
+      "narration": "請它寫步驟時，加一句：每一步寫你應該看到什麼畫面。這樣你做到一半，就知道自己有沒有走對。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "todos": [
+        ["登入平台 → 新增專案，會看到「連接 Git 帳號」", "pending"],
+        ["按「用 GitHub 連接」→ 跳到 GitHub 授權頁，確認後按「授權」", "pending"],
+        ["選擇儲存庫：找到 xiaosen-dev/bakery，按「匯入」", "pending"],
+        ["設定：正式分支 main、輸出資料夾 /，按「儲存並部署」", "pending"],
+        ["看到「部署成功」和網址，截圖給我", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "照這五步做。授權那一步是你的帳號權限，請你自己確認再按。每做完一步有不一樣的畫面，就截圖給我。"
+    },
+    {
+      "callout": "claude:todos",
+      "text": "每一步都寫了「會看到什麼」",
+      "narration": "這份清單就是你的地圖。"
+    },
+    {
+      "show": "dash",
+      "narration": "打開平台的網頁，照第一步，新增專案，看到連接 Git 帳號。"
+    },
+    { "on": "dash", "click": "#connect", "narration": "第二步，按用 GitHub 連接。" },
+    {
+      "callout": "dash:sel:.oauth",
+      "text": "授權是你的帳號：你自己看清楚、自己按",
+      "narration": "跳到 GitHub 的授權頁。這是在把你帳號的權限交給平台，一定是你自己看清楚、自己按。AI 不會替你按。"
+    },
+    { "on": "dash", "click": "#authorize", "narration": "看過權限，按授權。" },
+    {
+      "callout": "dash:sel:.list",
+      "text": "咦？清單裡沒有 bakery",
+      "narration": "第三步卡住了：清單裡只有 notes 和 practice，沒有 bakery。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）選擇儲存庫的畫面只有 notes 和 practice，找不到 bakery。",
+      "chapter": "卡住了：截圖問 AI",
+      "narration": "不用自己猜，截圖丟給 AI。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "say": "這是授權時只開放了部分儲存庫。按清單下方的「調整 GitHub 權限」，把 **bakery** 勾進去，回來清單就會出現。"
+    },
+    { "on": "dash", "click": "#perm", "narration": "照它說的，調整權限，把 bakery 加進去。" },
+    { "on": "dash", "click": "#pick", "narration": "bakery 出現了，按匯入。" },
+    {
+      "on": "dash",
+      "click": "#deploy",
+      "narration": "第四步，分支是 main、輸出資料夾是根目錄，儲存並部署。"
+    },
+    {
+      "callout": "dash:sel:.pill",
+      "text": "部署成功，拿到正式網址",
+      "narration": "第五步，部署成功。截圖給 AI。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）部署成功，網址是 https://bakery-7ka.pages.dev",
+      "narration": "回報時把畫面上的網址也一起給它。"
+    },
+    {
+      "on": "claude",
+      "say": "第一次連線完成 ✓ 之後 push 到 main 就會自動部署。"
+    },
+    {
+      "on": "claude",
+      "user": "接下來用 wrangler 幫我部署 new-menu 分支，做一個預覽網址給店長看。完成標準：正式網址和預覽網址都回 200。",
+      "chapter": "之後交給 AI 用命令列",
+      "narration": "帳號連好了，換 AI 上場。wrangler 是 Cloudflare 的命令列工具。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx wrangler whoami",
+      "result": "完成",
+      "out": "You are not authenticated. Please run `wrangler login`.",
+      "narration": "它先檢查登入了沒。還沒有。"
+    },
+    {
+      "on": "claude",
+      "say": "命令列工具要另外登入一次。我執行 `wrangler login` 後會打開瀏覽器的授權頁，請你確認是自己的帳號再按允許。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx wrangler login",
+      "result": "完成",
+      "out": "Opening a link in your default browser…\nSuccessfully logged in.",
+      "narration": "瀏覽器跳出授權頁，一樣由你按允許。之後 AI 就不用再請你登入。"
+    },
+    {
+      "on": "claude",
+      "ask": "npx wrangler pages deploy . --project-name bakery --branch new-menu",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "npx wrangler pages deploy . --project-name bakery --branch new-menu"
+    },
+    { "on": "claude", "choose": 1, "narration": "部署的是 new-menu 分支，不會動到正式網站。允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx wrangler pages deploy . --project-name bakery --branch new-menu",
+      "result": "完成",
+      "out": "Uploading 6 files…\n✨ Deployment complete!\nhttps://new-menu.bakery-7ka.pages.dev"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for u in https://bakery-7ka.pages.dev https://new-menu.bakery-7ka.pages.dev; do curl -s -o /dev/null -w \"%{http_code} $u\\n\" $u; done",
+      "result": "完成",
+      "out": "200 https://bakery-7ka.pages.dev\n200 https://new-menu.bakery-7ka.pages.dev",
+      "narration": "最後照標準驗證：兩個網址都回 200。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n正式網址：`https://bakery-7ka.pages.dev`（200）\n預覽網址：`https://new-menu.bakery-7ka.pages.dev`（200）\n預覽網址可以直接傳給店長，正式網站不受影響。"
+    },
+    { "show": "web", "narration": "打開預覽網址看看，這個網址就能傳給店長。" },
+    { "on": "web", "scroll": "products", "pause": 600 },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把網站放上第二個平台",
+      "body": "請 AI 寫出連帳號的步驟（每一步寫會看到什麼畫面），照著做，卡住就截圖問它。連好之後，請它用命令列部署一個預覽網址，並確認回 200。"
+    },
+    { "hide": "web" },
+    {
+      "card": "網頁上的事：AI 寫步驟、你照做回報\n命令列的事：交給 AI",
+      "eyebrow": "學會",
+      "sub": "授權、登入由你按；部署、驗證由 AI 做",
+      "chapter": "學會",
+      "narration": "AI 碰不到的網頁，請它寫步驟，你照做、截圖回報；授權和登入由你自己按。連好之後，部署和驗證都交給 AI。"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>分帳計算機</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main class="wrap" id="app" data-v="4">
+  <h1>分帳計算機</h1>
+  <p class="sub">輸入金額和人數，馬上知道每人付多少</p>
+  <section class="card">
+    <label class="f">總金額（元）<input id="amount" type="number" inputmode="decimal" placeholder="例如 2350"></label>
+    <label class="f">人數<input id="people" type="number" inputmode="numeric" placeholder="例如 4"></label>
+    <label class="check"><input id="fee" type="checkbox"> 加收 10% 服務費</label>
+    <div class="result" id="result">
+      <div class="k">每人應付<span class="tag" id="fee-tag">未含服務費</span></div>
+      <div class="big" id="each">—</div>
+      <div class="line" id="extra">多收 — 元</div>
+    </div>
+    <div class="msg gone" id="msg" role="alert"></div>
+  </section>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

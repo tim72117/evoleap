@@ -1,0 +1,141 @@
+{
+  "title": "搬家前先拍照：整理專案的順序",
+  "lesson": "全環節 · 單元 7 · 7.2 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天學安全地搬檔案",
+    "line": "今天要來看整理專案的安全順序：先看方案、再存檔點、然後搬檔，最後用 build 把漏改的地方找出來。就像搬家一樣。"
+  },
+  "blocking": { "cast": ["plan", "git", "code"], "shot": "depth" },
+  "cast": {
+    "plan": {
+      "actor": "browser",
+      "props": { "site": "fc7-2-plan", "width": "desktop", "url": "https://diagram.example/move-plan" },
+      "place": "window",
+      "hidden": true
+    },
+    "git": {
+      "actor": "fc2-git",
+      "props": { "commits": ["建立介紹頁", "加上聯絡表單", "補齊 .gitignore"], "work": { "README.md": "M" } },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": {
+        "project": "profile",
+        "files": { "src/scripts/hello.js": "import { formatDate } from './utils.js'\n\nconst msg = document.getElementById('msg')\nmsg.textContent = '今天是 ' + formatDate(new Date())\n" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "搬家前先拍照",
+      "eyebrow": "全環節 · 單元 7 · 7.2 基礎知識",
+      "sub": "先看方案、存檔點、搬檔、build 檢查",
+      "chapter": "先看方案",
+      "narration": "整理專案就像搬家。東西搬到新位置之後，所有寫著舊地址的地方都要跟著改，不然信就寄不到了。"
+    },
+    {
+      "show": "plan",
+      "narration": "搬之前，先請 AI 列一份搬家清單。"
+    },
+    { "on": "plan", "click": "#next", "narration": "第一步，看方案。" },
+    {
+      "callout": "plan:sel:table",
+      "text": "每一列：從哪裡、搬到哪裡、哪些地方要跟著改",
+      "narration": "好的方案每一列有三樣東西：現在在哪裡、要搬到哪裡，還有哪些地方寫著舊地址、要跟著改。最後一欄最重要，也最容易被忘記。"
+    },
+    {
+      "callout": "plan:sel:.del",
+      "text": "要刪的東西，特別看清楚",
+      "narration": "要刪除的，特別看清楚：真的是沒用的舊副本嗎？看懂了、同意了，才進下一步。"
+    },
+    {
+      "on": "plan",
+      "click": "#next",
+      "chapter": "存檔點",
+      "narration": "第二步，存檔點。"
+    },
+    {
+      "show": "git",
+      "narration": "搬檔會一次動到很多檔案。動手之前，先把目前的狀態存成一個 commit。"
+    },
+    { "on": "git", "add": "README.md" },
+    {
+      "on": "git",
+      "commit": "搬檔前的存檔點",
+      "narration": "這就是搬家前先拍照。等一下不管搬得多亂，都能回到這一刻。"
+    },
+    {
+      "callout": "git:commit:last",
+      "text": "搬壞了？回到這裡就好",
+      "narration": "有了這個存檔點，你才敢放手讓 AI 一次搬很多檔案。"
+    },
+    {
+      "on": "plan",
+      "click": "#next",
+      "chapter": "搬檔",
+      "narration": "第三步，照清單搬。左邊的舊位置劃掉，右邊的新位置亮起來。"
+    },
+    {
+      "show": "code",
+      "chapter": "最容易漏的：路徑",
+      "narration": "搬完最常出的問題在這裡。hello.js 第一行寫著：從同一層的 utils.js 拿 formatDate 這個工具。"
+    },
+    {
+      "callout": "code:code",
+      "text": "./utils.js 是舊地址，檔案已經搬到 ./utils/format.js",
+      "narration": "可是 utils.js 已經搬到 utils 資料夾裡、改名叫 format.js 了。這一行還寫著舊地址，網頁一打開就會出錯。這種寫著別的檔案在哪裡的字，叫做路徑。"
+    },
+    {
+      "on": "plan",
+      "click": "#next",
+      "chapter": "build 檢查",
+      "narration": "第四步，用 build 檢查。build 是把專案打包成可以上線的版本，過程中會把每一個路徑都走一遍。"
+    },
+    {
+      "diff": "src/scripts/hello.js",
+      "lines": [["-", "import { formatDate } from './utils.js'"], ["+", "import { formatDate } from './utils/format.js'"], [" ", ""], [" ", "const msg = document.getElementById('msg')"]],
+      "narration": "只要有一個路徑找不到檔案，build 就會失敗，並告訴你是哪一個檔案的哪一行。照著改，再 build 一次，直到成功。人一個一個找會漏，build 不會。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "AI 搬完檔案後 build 失敗，出現十幾個錯誤。你覺得最好的下一步是？",
+      "body": "選一個。",
+      "id": "after-move",
+      "options": [
+        {
+          "label": "把錯誤貼給 AI，請它照著修，修完再 build，直到成功",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "build 的錯誤就是漏改清單", "narration": "答對了。build 的錯誤就是一份漏改清單，照著修、再 build，直到成功。" }
+          ]
+        },
+        {
+          "label": "放棄，把檔案一個一個手動搬回去",
+          "steps": [
+            { "card": "不用這麼辛苦", "eyebrow": "考考你", "sub": "真的要放棄，回到存檔點只要一個指令", "narration": "不用手動搬。真的要放棄，回到存檔點只要一個指令。但多半只要照錯誤修就好。" },
+            { "card": "答案：照錯誤修，再 build", "eyebrow": "考考你", "sub": "build 的錯誤就是漏改清單", "narration": "最好的做法是把錯誤交給 AI，照著修、再 build。" }
+          ]
+        },
+        {
+          "label": "先不管，直接 commit 推上去",
+          "steps": [
+            { "card": "不行！", "eyebrow": "考考你", "sub": "build 失敗的版本，上線就是壞的", "narration": "build 失敗代表網站是壞的，推上去就壞給所有人看。" },
+            { "card": "答案：照錯誤修，再 build", "eyebrow": "考考你", "sub": "build 的錯誤就是漏改清單", "narration": "應該把錯誤交給 AI，照著修、再 build，直到成功。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "1 先看方案\n2 存檔點\n3 搬檔\n4 build 到成功為止",
+      "eyebrow": "學會",
+      "sub": "方案要列出「哪些地方要跟著改」",
+      "chapter": "學會",
+      "narration": "先看方案，再存檔點，然後搬檔，最後 build 到成功為止。下一堂，我們請 AI 照這個順序，真的把專案整理一次。"
+    }
+  ]
+}

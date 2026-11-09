@@ -1,0 +1,108 @@
+{
+  "title": "版號的三個數字",
+  "lesson": "全環節 · 單元 20 · 20.3 基礎知識",
+  "teacher": {
+    "say": "今天看懂版號",
+    "line": "上一課我們推了 v1.0.0、v1.0.1 這些標籤。這一課來看懂版號的三個數字，還有一份叫 CHANGELOG 的更新紀錄。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc20-3-semver", "url": "https://learn.example/semver" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "stream": "1.4.2 → 1.4.3：幾乎不用擔心。\n1.4.2 → 2.0.0：先看清楚改了什麼，可能有東西不能用了。",
+      "prompt": "1.4.2 換成 1.4.3，和換成 2.0.0，差在哪？",
+      "chapter": "先猜一猜",
+      "narration": "先問你一個問題：一個套件從 1.4.2 更新到 1.4.3，和更新到 2.0.0，你覺得差在哪？"
+    },
+    { "clear": true },
+    {
+      "card": "版號的三個數字",
+      "eyebrow": "全環節 · 單元 20 · 20.3 基礎知識",
+      "sub": "語意化版號：看數字就知道改了多大",
+      "narration": "答案藏在一套大家共同遵守的規則裡，叫語意化版號：看哪個數字變了，就知道這次改了多大。"
+    },
+    {
+      "show": "web",
+      "chapter": "三個數字各自的意思",
+      "narration": "版號有三個數字，用點隔開。從右邊看起。"
+    },
+    {
+      "callout": "web:section:patch",
+      "text": "修訂號：修好錯誤，用法完全不變",
+      "narration": "最右邊是修訂號：只是修好錯誤，用法完全不變。"
+    },
+    {
+      "callout": "web:section:minor",
+      "text": "次版號：加了新功能，舊的照樣能用",
+      "narration": "中間是次版號：加了新功能，但原本的東西照樣能用。"
+    },
+    {
+      "callout": "web:section:major",
+      "text": "主版號：有不相容的改變",
+      "narration": "最左邊是主版號：有不相容的改變，原本能用的東西，可能不能用了。"
+    },
+    {
+      "on": "web",
+      "click": "#b-patch",
+      "chapter": "實際跳一次版號",
+      "narration": "我們來發幾次版。這次修好結帳金額算錯，用法沒變，修訂號加一：1.4.3。"
+    },
+    {
+      "callout": "web:sel:#entries",
+      "text": "每發一版，CHANGELOG 最上面多一筆",
+      "narration": "右邊是 CHANGELOG，更新紀錄。每發一版就在最上面寫一筆：這版改了什麼。"
+    },
+    {
+      "on": "web",
+      "click": "#b-minor",
+      "narration": "下一版加了宅配選項，是新功能，次版號加一。注意，右邊的修訂號歸零：1.5.0。"
+    },
+    {
+      "callout": "web:section:patch",
+      "text": "左邊的數字一跳，右邊全部歸零",
+      "narration": "規則是：左邊的數字一跳，它右邊的全部歸零。"
+    },
+    {
+      "on": "web",
+      "click": "#b-major",
+      "chapter": "破壞性變更",
+      "narration": "再下一版，訂單網址改了格式，客人收藏的舊連結會失效。"
+    },
+    {
+      "callout": "web:section:major",
+      "text": "破壞性變更 → 主版號 +1：2.0.0",
+      "narration": "這種會讓原本的東西壞掉的改變，叫破壞性變更。一定要跳主版號：2.0.0。"
+    },
+    {
+      "callout": "web:sel:#entries",
+      "text": "破壞性變更要寫清楚：改了什麼、要怎麼配合",
+      "narration": "CHANGELOG 裡也要特別標出來，寫清楚改了什麼、用的人要怎麼配合。看到主版號跳，大家就知道要先讀這一段。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "看版號，就知道要多小心",
+      "sub": "修訂號：放心 · 次版號：多了東西 · 主版號：先讀 CHANGELOG",
+      "chapter": "重點整理",
+      "narration": "所以看版號，就知道更新要多小心。這也是為什麼發版時，版號和 CHANGELOG 要一起寫對。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "考考你",
+      "body": "現在是 2.0.0。這次改了：首頁的錯字、新增一個「常見問題」頁。下一版應該是幾號？",
+      "narration": "考考你：現在是 2.0.0，這次修了錯字，又新增一個常見問題頁。下一版應該是幾號？"
+    },
+    {
+      "card": "答案：2.1.0",
+      "eyebrow": "取最大的那一種改變",
+      "sub": "有新功能就跳次版號，修訂號歸零；錯字一起寫進這一版的 CHANGELOG",
+      "narration": "答案是 2.1.0。一次有好幾種改變時，看最大的那一種：有新功能，就跳次版號，修訂號歸零。下一堂，我們把這套判斷寫成 AI 的技能。"
+    }
+  ]
+}

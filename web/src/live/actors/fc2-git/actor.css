@@ -7,6 +7,7 @@
   font-size: 24px;
   line-height: 1.35;
   color: #1f2933;
+  container-type: size;
 }
 .A-fc2-git *, .A-fc2-git *::before, .A-fc2-git *::after { box-sizing: border-box; }
 .A-fc2-git .gt-frame {
@@ -58,8 +59,8 @@
 .A-fc2-git .gt-rc.k-revert code { color: #b45309; }
 
 /* ---------- 線圖 ---------- */
-.A-fc2-git .gt-graph { flex: 1 1 54%; min-height: 0; display: flex; flex-direction: column; background: #fff; border: 1px solid #dde3ea; border-radius: 0.6em; }
-.A-fc2-git .gt-frame[data-view="graph"] .gt-graph { flex-basis: 100%; }
+.A-fc2-git .gt-graph { font-size: min(24px, 1.5cqw); flex: 1 1 54%; min-height: 0; display: flex; flex-direction: column; background: #fff; border: 1px solid #dde3ea; border-radius: 0.6em; }
+.A-fc2-git .gt-frame[data-view="graph"] .gt-graph { flex-basis: 100%; font-size: min(34px, 2.1cqw); } /* 只看線圖時整個畫面都給線圖,字跟著放大 */
 .A-fc2-git .gt-lanes { position: relative; flex: 1 1 auto; min-height: 0; }
 .A-fc2-git .gt-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .A-fc2-git .gt-ln { fill: none; stroke: #64748b; stroke-width: 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }

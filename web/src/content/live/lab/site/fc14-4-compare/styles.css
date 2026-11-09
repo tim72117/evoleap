@@ -1,0 +1,16 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#eef0f3;display:flex;align-items:center;justify-content:center}
+.app{width:1100px;padding:20px 0;text-align:center}
+h2{font-size:28px;margin-bottom:18px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.col{background:#fff;border-radius:18px;padding:20px 28px;box-shadow:0 4px 16px rgba(0,0,0,.05);border:3px solid transparent}
+.after{visibility:hidden;border-color:#2f9e6a}
+.app.on .after{visibility:visible}
+.tag{font-size:20px;font-weight:700;color:#6b7478}
+.ring{position:relative;width:160px;margin:8px auto}.ring svg{width:160px}
+.ring span{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);font-size:46px;font-weight:700}
+.bg{fill:none;stroke:#eef0f3;stroke-width:12}.fg{fill:none;stroke-width:12;stroke-linecap:round;transform:rotate(-90deg);transform-origin:60px 60px}
+.before .fg{stroke:#d6453d}.before .ring span{color:#d6453d}.after .fg{stroke:#2f9e6a}.after .ring span{color:#2f9e6a}
+dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;text-align:left;font-size:19px;margin-top:10px}
+dt{color:#6b7478}dd{font-weight:700}
+button{font:inherit;font-size:18px;margin-top:18px;border:2px solid #c3cbd3;background:#fff;border-radius:999px;padding:8px 22px}

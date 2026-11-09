@@ -1,0 +1,137 @@
+{
+  "title": "來回修正的技巧",
+  "lesson": "全環節 · 單元 30 · 30.3 用 AI 完成",
+  "teacher": {
+    "say": "今天三輪修到位",
+    "line": "手機版的商品卡有三個問題。這一堂一輪只修一件，每輪都附上截圖或錯誤原文，看能不能三輪內修到位。"
+  },
+  "camera": "auto",
+  "blocking": { "cast": ["web", "claude"], "shot": "depth" },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc30-3-r0", "width": "phone", "url": "http://localhost:5173/products" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "商品卡", "folder": "~/projects/bakery", "branch": "fix-cards", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "來回修正的技巧",
+      "eyebrow": "全環節 · 單元 30 · 30.3 用 AI 完成",
+      "sub": "一輪一件、附上證據、說出期待",
+      "chapter": "先找出問題",
+      "narration": "先用手機寬度看商品頁，把問題一個個找出來。"
+    },
+    { "show": "web" },
+    { "callout": "web:sel:.price", "text": "問題一：價格換行", "narration": "第一，價格擠成兩行。" },
+    { "callout": "web:sel:#buy1", "text": "問題二：兩個按鈕高低不一", "narration": "第二，兩張卡片的按鈕，一高一低。" },
+    { "on": "web", "click": "#buy1", "narration": "第三，按加入購物車，跳出一段紅色的錯誤。" },
+    {
+      "callout": "web:section:err",
+      "text": "問題三：錯誤訊息（先別關掉，複製下來）",
+      "narration": "先別急著關掉，這段錯誤原文等一下要用。"
+    },
+    {
+      "show": "claude",
+      "chapter": "第一輪：價格換行",
+      "narration": "三個問題，我們一輪只講一件。從最簡單的開始。"
+    },
+    {
+      "on": "claude",
+      "user": "[截圖 phone-1.png]\n手機寬度 390 時，商品卡的價格「NT$ 680 元」換成兩行。\n希望：價格在同一行。這一輪只修這個，其他不要動。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "截圖＋一件事＋期待＋範圍",
+      "narration": "截圖、哪一件事、期待的結果，再加一句範圍：其他不要動。"
+    },
+    { "on": "claude", "tool": "Grep", "arg": ".price", "result": "style.css:52" },
+    {
+      "on": "claude",
+      "ask": "style.css",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/bakery",
+      "preview": ".price {\n-  width: 64px;\n+  white-space: nowrap;\n}"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "edit": "style.css", "lines": [[52, " ", ".price {"], [53, "-", "  width: 64px;"], [53, "+", "  white-space: nowrap;"], [54, " ", "}"]] },
+    {
+      "on": "claude",
+      "say": "原因是 `.price` 被設成固定寬度 64px。改成不換行，只動了這一行。",
+      "narration": "它一下就找到：價格被設了一個太窄的固定寬度。"
+    },
+    { "show": "web", "site": "fc30-3-r1", "narration": "重新整理看看，價格在同一行了。第一輪完成。" },
+    {
+      "on": "claude",
+      "user": "[截圖 phone-2.png]\n價格好了。下一件：兩張卡片的「加入購物車」按鈕一高一低。\n希望：按鈕都貼齊卡片底部、高度一致。",
+      "chapter": "第二輪：按鈕對齊",
+      "narration": "第二輪，一樣是截圖、一件事、期待的結果。"
+    },
+    {
+      "on": "claude",
+      "ask": "style.css",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/bakery",
+      "preview": ".desc {\n+  flex: 1;\n}"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "edit": "style.css", "lines": [[44, " ", ".desc {"], [45, "+", "  flex: 1; /* 說明撐開剩下的空間，按鈕就會貼底 */"], [46, " ", "}"]] },
+    {
+      "on": "claude",
+      "say": "卡片是直向排列，說明文字長短不同，按鈕就跟著上下跑。讓說明撐滿剩下的空間，按鈕就會貼齊底部。",
+      "narration": "它還解釋了原因：說明文字長短不同，按鈕就跟著跑。"
+    },
+    { "show": "web", "site": "fc30-3-r2", "narration": "兩個按鈕對齊了。" },
+    { "on": "web", "click": "#buy2", "narration": "最後一件：按下去還是錯誤。" },
+    {
+      "on": "claude",
+      "user": "按「加入購物車」後畫面出現這段錯誤（原文）：\nUncaught TypeError: cart.add is not a function\n    at buy.js:14\n希望：按下後出現「已加入購物車」。",
+      "chapter": "第三輪：錯誤原文",
+      "narration": "第三輪，我們貼上錯誤的原文，一個字都不改，再說出期待。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "src/buy.js", "result": "22 行" },
+    { "on": "claude", "tool": "Read", "arg": "src/cart.js", "result": "40 行" },
+    {
+      "on": "claude",
+      "say": "錯誤指向 `buy.js:14`：它呼叫 `cart.add`，可是 `cart.js` 裡的函式叫 `addItem`。改成呼叫 `cart.addItem`。",
+      "narration": "有了檔名和行號，它直接打開那兩個檔，找到原因：函式名稱對不上。"
+    },
+    {
+      "on": "claude",
+      "ask": "src/buy.js",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "-  cart.add(item)\n+  cart.addItem(item)"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "edit": "src/buy.js", "lines": [[14, "-", "  cart.add(item)"], [14, "+", "  cart.addItem(item)"]] },
+    { "show": "web", "site": "fc30-3-r3" },
+    { "on": "web", "click": "#buy1", "narration": "再按一次，出現「已加入購物車」。三個問題，三輪修完。" },
+    {
+      "on": "claude",
+      "user": "三個都好了。把我這三輪的寫法整理成 docs/feedback.md，以後我照著寫",
+      "chapter": "整理成清單",
+      "foreground": "claude"
+    },
+    { "on": "claude", "tool": "Write", "arg": "docs/feedback.md", "result": "11 行" },
+    {
+      "diff": "docs/feedback.md：修正指令的寫法",
+      "lines": [["+", "1. 一輪只講一件事，加一句「其他不要動」"], ["+", "2. 畫面問題：附截圖，寫出寬度（例如 390）"], ["+", "3. 錯誤：整段原文貼上，不要翻譯或摘要"], ["+", "4. 說期待：「希望……」＋看得到的結果"], ["+", "5. 同一件事三輪沒好：請它停下來整理"]],
+      "narration": "這份清單就是今天的成果。下次要 AI 修東西，照著寫就好。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "換你試試",
+      "body": "打開你網站的手機寬度，找出兩、三個小問題。照 docs/feedback.md，一輪只講一件，附上截圖或錯誤原文，數數看幾輪修完。",
+      "narration": "換你試試。找出兩三個小問題，一輪只修一件，附上證據，數數看幾輪修完。"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+<!doctype html><html><head><title>作者的眼睛、審查者的眼睛</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">同一段改動，兩雙眼睛</h1>
+  <p class="sub">改動：結帳時可以輸入優惠碼，打九折</p>
+  <div class="two">
+    <div class="eye box" id="author" data-go="a">
+      <div class="head"><span class="face a">寫</span><b>寫程式的 AI</b></div>
+      <div class="mind" data-at="a">
+        <p>腦中記得：「我想做的是九折」</p>
+        <p>腦中記得：「我測過一次，可以用」</p>
+        <p class="bad">所以看程式時，看到的是「它想寫的」，不是「它真的寫的」</p>
+      </div>
+    </div>
+    <div class="eye box" id="reviewer" data-go="r">
+      <div class="head"><span class="face r">審</span><b>沒看過實作的 AI</b></div>
+      <div class="mind" data-at="r">
+        <p>手上只有：這份 diff</p>
+        <p>不知道「本來想怎樣」，只能看「寫了什麼」</p>
+        <p class="ok">所以會問：優惠碼可以重複用嗎？金額會變負的嗎？</p>
+      </div>
+    </div>
+  </div>
+  <div class="diff box mono" data-at="r">
+    <div>+ if (code === 'FALL10') total = total * 0.9</div>
+    <div class="hit" data-at="h1">+ // 沒有記錄這個碼用過了 → 可以一直用</div>
+    <div class="hit" data-at="h1">+ total = total - coupon.amount　// 金額可能變負數</div>
+  </div>
+  <button class="pin" id="hits" data-go="h1">審查者圈出的地方</button>
+</div>
+</body></html>

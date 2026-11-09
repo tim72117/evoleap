@@ -1,0 +1,110 @@
+{
+  "title": "電子報與訂閱表單",
+  "lesson": "全環節 · 單元 27 · 27.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "串好電子報，測一整圈",
+    "line": "今天請 AI 把網站的訂閱表單接上電子報服務，而且讓它自己把訂閱、確認、退訂整圈測一遍，確定每一步都對。"
+  },
+  "blocking": { "cast": ["claude", "site"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "串接電子報", "folder": "~/projects/komori-bakery", "branch": null, "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "site": { "actor": "browser", "props": { "site": "fc27-1-form", "width": "desktop", "url": "http://localhost:4321/newsletter" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "電子報與訂閱表單",
+      "eyebrow": "全環節 · 單元 27 · 27.1 用 AI 完成",
+      "sub": "交代清楚四件事，讓 AI 自己測一整圈",
+      "chapter": "你先準備好金鑰",
+      "narration": "寄電子報要用專門的服務，它會幫你管名單、寄確認信、處理退訂。"
+    },
+    {
+      "card": "註冊電子報服務，把 API 金鑰存進 .env",
+      "eyebrow": "你自己來",
+      "sub": "金鑰像密碼：自己貼進檔案，不要貼到對話裡",
+      "narration": "先自己註冊一個電子報服務，在它的後台建立 API 金鑰。金鑰是讓程式使用服務的密碼，請自己把它貼進專案的 .env 檔，不要貼到和 AI 的對話裡。"
+    },
+    { "show": "claude", "chapter": "一次交代清楚" },
+    {
+      "on": "claude",
+      "user": "我用的電子報服務是 MailBox，金鑰已經放在 .env 的 MAILBOX_KEY。幫我把網站的訂閱表單接上去：1. 要雙重確認；2. 每封信都有退訂連結，一鍵生效；3. 用服務的測試模式，自己把「訂閱 → 收確認信 → 點確認 → 退訂」整圈測一遍，每一步印出名單狀態給我看。",
+      "narration": "說清楚三件事，還有怎樣算完成：整圈測一遍，每一步都印出名單狀態。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "WebFetch", "arg": "https://docs.mailbox.example/api/subscribers", "result": "已讀取", "narration": "它先去讀這個服務的官方文件，看要怎麼呼叫。" },
+    {
+      "on": "claude",
+      "edit": "src/pages/api/subscribe.js",
+      "lines": [
+        [1, "+", "export async function POST({ request }) {"],
+        [2, "+", "  const { email } = await request.formData()"],
+        [3, "+", "  await mailbox.subscribers.create({ email, doubleOptIn: true, list: 'news' })"],
+        [4, "+", "  return json({ ok: true, next: 'check-inbox' })"],
+        [5, "+", "}"]
+      ],
+      "narration": "訂閱的程式只有幾行，關鍵是 doubleOptIn，打開雙重確認。金鑰從 .env 讀，不會寫進程式碼。"
+    },
+    {
+      "on": "claude",
+      "ask": "node scripts/test-newsletter.mjs --sandbox",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/komori-bakery",
+      "note": "用電子報服務的測試模式跑一整圈，不會寄給真的人",
+      "chapter": "AI 測一整圈",
+      "narration": "它寫好測試，要用測試模式跑。測試模式的信只會進服務提供的測試信箱，不會寄給真的人。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/test-newsletter.mjs --sandbox",
+      "result": "1 步失敗",
+      "out": "1. 訂閱 test@sandbox     → 待確認 ✓\n2. 收到確認信             → ✓（主旨：請確認訂閱）\n3. 點確認連結             → 已確認 ✓\n4. 電子報有退訂連結        → ✗ 找不到",
+      "narration": "前三步都對，第四步失敗：信裡找不到退訂連結。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "emails/layout.html", "result": "38 行", "narration": "它打開信件的版型，發現頁尾沒有放退訂連結。" },
+    {
+      "on": "claude",
+      "edit": "emails/layout.html",
+      "lines": [
+        [34, " ", "<footer>"],
+        [35, "+", "  不想再收到？<a href=\"{{unsubscribe_url}}\">一鍵退訂</a>"],
+        [36, " ", "</footer>"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/test-newsletter.mjs --sandbox",
+      "result": "全部通過",
+      "out": "1. 訂閱 test@sandbox     → 待確認 ✓\n2. 收到確認信             → ✓\n3. 點確認連結             → 已確認 ✓\n4. 電子報有退訂連結        → ✓\n5. 點退訂                 → 已退訂 ✓（不需登入）\n6. 退訂後再寄一封          → 沒有寄出 ✓",
+      "narration": "補上後再跑一次。這次還多測了兩步：退訂不用登入，而且退訂後真的不會再寄。"
+    },
+    {
+      "on": "claude",
+      "say": "整圈都通過了。名單狀態會從「待確認 → 已確認 → 已退訂」。你可以在網站上用自己的信箱實際試一次。",
+      "chapter": "你用自己的信箱試一次"
+    },
+    { "show": "site", "narration": "最後用自己的信箱，在網站上真的訂閱一次。" },
+    { "on": "site", "fill": { "#email": "me@example.com" } },
+    { "on": "site", "click": "#go" },
+    { "callout": "site:sel:#msg", "text": "先到信箱點確認，才算訂閱成功", "narration": "網站請你先去收信。到信箱點確認連結，再看看電子報最下面，有沒有退訂連結。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "自己註冊電子報服務、把金鑰存進 .env。請 AI 串接表單，開雙重確認、每封加退訂連結，並用測試模式把訂閱到退訂整圈測一遍。最後用自己的信箱實際試一次。"
+    },
+    {
+      "card": "金鑰自己放進 .env\n雙重確認＋一鍵退訂\n讓 AI 用測試模式整圈測一遍",
+      "eyebrow": "學會",
+      "sub": "怎樣算完成，寫進指令裡",
+      "chapter": "學會",
+      "narration": "金鑰自己放好，打開雙重確認和一鍵退訂，再讓 AI 用測試模式整圈測一遍。怎樣算完成，寫進指令裡。"
+    }
+  ]
+}

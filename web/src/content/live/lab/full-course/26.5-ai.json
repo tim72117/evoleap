@@ -1,0 +1,87 @@
+{
+  "title": "曝光平台與商家資訊",
+  "lesson": "全環節 · 單元 26 · 26.5 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "AI 寫介紹，你來上架",
+    "line": "今天在一個平台上架你的商家資訊。介紹文字請 AI 準備好，上架的頁面由你照步驟操作，遇到問題就截圖回報。"
+  },
+  "blocking": { "cast": ["claude", "form"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "商家資訊上架", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "form": { "actor": "browser", "props": { "site": "fc26-5-listing", "width": "desktop", "url": "https://business-listing.example/new" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "曝光平台與商家資訊",
+      "eyebrow": "全環節 · 單元 26 · 26.5 用 AI 完成",
+      "sub": "AI 準備文字 → 你照步驟上架 → 截圖回報",
+      "chapter": "請 AI 準備各種長度的介紹",
+      "narration": "每個平台要的介紹長度都不一樣，有的只要一句話，有的可以寫七百五十字。先請 AI 一次準備好。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我準備小森烘焙的介紹文字，給地圖商家資訊、評論網站、地方社團用：一句話版 30 字內、短版 150 字內、長版 750 字內。資料從網站的關於我們和菜單讀，營業時間、地址照網站寫，不要編。存成 listing.md。",
+      "narration": "說清楚要哪幾種長度，還有一句很重要的話：資料照網站寫，不要編。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "src/pages/about.html", "result": "64 行" },
+    { "on": "claude", "tool": "Read", "arg": "src/data/menu.json", "result": "18 項" },
+    { "on": "claude", "tool": "Write", "arg": "listing.md", "result": "已建立" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/count.mjs listing.md",
+      "result": "完成",
+      "out": "一句話版   26 字 ✓（上限 30）\n短版      138 字 ✓（上限 150）\n長版      702 字 ✓（上限 750）",
+      "narration": "它還自己數了字數，三個版本都在上限內。"
+    },
+    {
+      "on": "claude",
+      "say": "`listing.md` 準備好了。商家資訊平台的頁面我沒辦法操作，請照這樣做：\n1. 登入平台，按「新增商家」\n2. 商家名稱：小森烘焙\n3. 類別：麵包店\n4. 簡介：貼上**短版**\n5. 按送出，把結果截圖給我",
+      "chapter": "你照步驟上架",
+      "narration": "上架的頁面要登入你的帳號，AI 碰不到。它把步驟一條一條寫給你。"
+    },
+    { "show": "form", "narration": "打開平台的新增商家頁，照步驟填。" },
+    { "on": "form", "fill": { "#name": "小森烘焙", "#cat": "麵包店", "#desc": "手作可頌與鄉村麵包，每天早上七點出爐。官網 komori-bakery.example" }, "narration": "名稱、類別，再貼上短版簡介。右邊會同步預覽。" },
+    { "on": "form", "click": "#send" },
+    { "callout": "form:sel:#err", "text": "平台的規定：簡介不能有網址", "narration": "送出失敗：這個平台規定，簡介裡不能有網址或電話。" },
+    { "on": "claude", "user": "［截圖］送出失敗：「簡介不可包含網址或電話號碼，請移除後再送出。」", "chapter": "截圖回報，AI 判斷下一步" },
+    {
+      "on": "claude",
+      "say": "原來這個平台的簡介不能放網址，網址另外有欄位。我把三個版本的網址都拿掉、改存成 `listing-no-url.md`。短版改成：\n「手作可頌與鄉村麵包，每天早上七點出爐，可預約取貨。」\n網址請填在平台的「網站」欄位。",
+      "narration": "AI 讀懂錯誤，改好文字，還告訴你網址該放在哪一欄。它也把其他版本一起改了，下一個平台就不會再踩同一個雷。"
+    },
+    { "on": "form", "fill": { "#desc": "手作可頌與鄉村麵包，每天早上七點出爐，可預約取貨。" }, "narration": "換上新的簡介。" },
+    { "on": "form", "click": "#send" },
+    { "callout": "form:sel:#ok", "text": "送出成功，等驗證明信片", "narration": "這次送出成功。平台會寄一張有驗證碼的明信片到店裡。" },
+    {
+      "card": "收明信片、輸入驗證碼",
+      "eyebrow": "你自己來",
+      "sub": "驗證碼寄到店家地址，由你本人輸入",
+      "narration": "收明信片、輸入驗證碼，都是你本人的事。這個步驟證明你真的是這家店的主人。"
+    },
+    { "on": "claude", "user": "送出成功了，要等明信片。這段時間我還要準備什麼？" },
+    {
+      "on": "claude",
+      "say": "趁等待時可以先準備：\n- 照片：店面外觀、店內、3 款招牌商品，橫式 4:3 以上\n- 營業時間：含公休日與國定假日\n- 驗證通過後，回覆前 10 則評論\n我把這些寫進 `listing.md` 最後的待辦了。",
+      "narration": "它列出等待時可以準備的事，寫進同一份檔案。以後上架別的平台，這份檔案就能直接用。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "選一個最適合你的曝光平台。請 AI 從你的網站讀資料，準備三種長度的介紹並數字數。照步驟上架，遇到錯誤就截圖貼給 AI，請它判斷怎麼改。"
+    },
+    {
+      "card": "AI 從網站讀資料，不要編\n上架頁面你來操作\n錯誤截圖給 AI，它改好再填",
+      "eyebrow": "學會",
+      "sub": "驗證碼、帳號登入由你本人處理",
+      "chapter": "學會",
+      "narration": "請 AI 從網站讀資料準備文字，不要編。上架你來操作，錯誤截圖交給 AI 判斷。驗證和登入，由你本人處理。"
+    }
+  ]
+}

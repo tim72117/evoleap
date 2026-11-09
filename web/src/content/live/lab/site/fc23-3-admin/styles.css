@@ -1,0 +1,18 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#f4f5f8;color:#1f2433}
+.bar{display:flex;align-items:center;gap:16px;padding:14px 28px;background:#1f2433;color:#fff}
+.role{background:#3a4260;padding:4px 12px;border-radius:20px;font-size:14px}
+.rng{margin-left:auto;font-size:15px;color:#b9c0d4}
+.pg{padding:20px 28px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.k{background:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 0 0 1px #e3e6ee}
+.k span{color:#6b7385;font-size:15px}.k b{display:block;font-size:30px;margin:2px 0}
+.k em{font-style:normal;font-weight:700}.up{color:#22804a}.dn{color:#c0392b}
+.row2{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:14px}
+.card{background:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 0 0 1px #e3e6ee}
+.card h3{margin:0 0 8px;font-size:15px;color:#6b7385}
+svg{width:100%;height:160px}
+.f{display:grid;grid-template-columns:100px 1fr 60px;gap:10px;align-items:center;padding:5px 0;font-size:16px}
+.f div{height:20px;background:#eef1f6;border-radius:6px;overflow:hidden}.f i{display:block;height:100%;background:#4d6fd0}
+.f.hot i{background:#c0392b}.f b{text-align:right;font-family:Menlo,monospace;font-size:15px}
+table{width:100%;font-size:17px;border-collapse:collapse}td{padding:6px 0;border-bottom:1px solid #eef1f6}td+td{text-align:right;font-weight:700}
+.todo{box-shadow:0 0 0 2px #f1c76b;background:#fffaf0}.todo ul{margin:0;padding-left:20px;font-size:17px;line-height:1.8}

@@ -1,0 +1,26 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#efeee9;display:flex;align-items:center;justify-content:center}
+.app{width:1200px;padding:14px 0;display:grid;grid-template-columns:1fr 1.2fr;gap:16px}
+.card{background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 4px 16px rgba(0,0,0,.05);opacity:.35;border:3px solid transparent}
+h3{font-size:20px;margin-bottom:10px}
+.ev{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-top:1px dashed #e3ded2;font-size:18px}.ev b{width:60px;color:#6b7478;flex:none}
+code{font-family:ui-monospace,Menlo,monospace;font-size:15px;background:#fdeceb;color:#b4382f;border-radius:5px;padding:1px 5px}
+.bill{color:#d6453d;font-weight:700;font-size:24px}
+.photos{display:flex;gap:12px}
+.ph{flex:1;background:#fbfaf6;border:3px solid #e3ded2;border-radius:10px;padding:10px;font-size:18px;height:100px;position:relative;box-shadow:2px 3px 0 #e8e4d8}
+.ph small{display:block;color:#8a9296;font-size:13px}.ph em{display:none;font-style:normal;color:#b4382f;font-size:14px;font-weight:700;margin-top:4px}
+.note{font-size:17px;margin-top:10px;color:#1f3b44;visibility:hidden}
+.copies{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;visibility:hidden}.copies span{background:#fff4e2;border:2px solid #f0c27a;border-radius:999px;padding:3px 12px;font-size:15px}
+.fix{grid-column:1 / span 2;display:flex;gap:20px;align-items:center;font-size:19px;line-height:1.6}
+.fix svg{width:120px;flex:none}.lock{fill:#2f7d6d}.shackle{fill:none;stroke:#2f7d6d;stroke-width:8}.hole{fill:#fff}
+.dead{display:none;margin-top:4px;color:#b4382f;font-weight:700}
+.chips{grid-column:1 / span 2;display:flex;gap:14px;justify-content:center}
+.chips button{font:inherit;font-size:19px;border:2px solid #c9c1ad;background:#fff;border-radius:999px;padding:8px 22px;color:#1f2a2e}
+.s1 #b1,.s2 #b2,.s3 #b3,.s4 #b4{background:#1f3b44;color:#fff;border-color:#1f3b44}
+.s0 .card{opacity:1}
+.s1 #tl{opacity:1;border-color:#d6453d}
+.s2 #tl,.s3 #tl,.s4 #tl,.s4 #hist{opacity:1}
+.s2 #hist,.s3 #hist{opacity:1;border-color:#e08a1e}
+.s2 .ph em,.s3 .ph em,.s4 .ph em{display:block}.s2 #pk,.s3 #pk,.s4 #pk{border-color:#d6453d}
+.s2 .n2,.s3 .n2,.s4 .n2,.s3 .n3,.s4 .n3,.s3 .copies,.s4 .copies{visibility:visible}
+.s4 #fix{opacity:1;border-color:#2f9e6a}.s4 .dead{display:block}

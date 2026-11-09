@@ -1,0 +1,182 @@
+{
+  "title": "部署到 GitHub Pages",
+  "lesson": "全環節 · 單元 16 · 16.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "一句話，網站上線",
+    "line": "這一堂，你只要交代清楚要做什麼、怎樣算完成，AI 會用 gh 把 GitHub Pages 打開，還會自己確認網址打得開。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "網站上線",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "https://xiaosen-dev.github.io/bakery/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "部署到 GitHub Pages",
+      "eyebrow": "全環節 · 單元 16 · 16.1 用 AI 完成",
+      "sub": "交代清楚「怎樣算完成」，讓 AI 做完還自己驗證",
+      "chapter": "交代清楚：怎樣算完成",
+      "narration": "這次的任務只有一件：把 bakery 網站放上 GitHub Pages。關鍵是，你要先說清楚，怎樣才算完成。"
+    },
+    { "show": "claude", "narration": "在 bakery 專案的資料夾打開 Claude。" },
+    {
+      "on": "claude",
+      "user": "幫我用 gh 替 bakery 儲存庫開啟 GitHub Pages（main 分支、根目錄）。完成的標準：用 curl 打開公開網址會回 200，而且頁面裡看得到「小森烘焙」。",
+      "narration": "前半句是要做什麼，後半句是完成的標準：回應碼 200，而且內容是對的。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "「完成的標準」讓 AI 知道做到哪裡才能停",
+      "narration": "回應碼是伺服器的回覆代號，200 代表「好，網頁在這裡」。有了這個標準，AI 不會開完設定就說好了，而是會去確認。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git status --short && git push",
+      "result": "完成",
+      "out": "Everything up-to-date",
+      "narration": "它先確認檔案都已經 push 上去。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh repo view --json name,visibility",
+      "result": "完成",
+      "out": "{ \"name\": \"bakery\", \"visibility\": \"PUBLIC\" }",
+      "narration": "再確認儲存庫是公開的。免費帳號的 Pages，要公開的儲存庫才能用。"
+    },
+    {
+      "on": "claude",
+      "say": "儲存庫是公開的，可以用免費的 Pages。接下來我要呼叫 GitHub 的 API 開啟 Pages，開了之後網站就會對外公開。"
+    },
+    {
+      "on": "claude",
+      "ask": "gh api -X POST repos/xiaosen-dev/bakery/pages",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gh api -X POST repos/xiaosen-dev/bakery/pages \\\n  -f 'source[branch]=main' -f 'source[path]=/'",
+      "narration": "這個指令會改 GitHub 上的設定，所以它先問你。API 就是讓程式直接操作服務的入口，不用你去網頁上點。"
+    },
+    { "on": "claude", "choose": 1, "narration": "設定的是 main 分支、根目錄，沒問題，允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh api -X POST repos/xiaosen-dev/bakery/pages -f 'source[branch]=main' -f 'source[path]=/'",
+      "result": "完成",
+      "out": "\"html_url\": \"https://xiaosen-dev.github.io/bakery/\"\n\"status\": null"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh api repos/xiaosen-dev/bakery/pages --jq .status",
+      "result": "完成",
+      "out": "building",
+      "narration": "Pages 開好了，正在建置。它不急著說完成，而是等一下再查一次。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "sleep 40; gh api repos/xiaosen-dev/bakery/pages --jq .status",
+      "result": "完成",
+      "out": "built"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}\\n' https://xiaosen-dev.github.io/bakery/",
+      "result": "完成",
+      "out": "200",
+      "chapter": "AI 自己驗證",
+      "narration": "建置完成，接著照你給的標準驗證：先看回應碼，200。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s https://xiaosen-dev.github.io/bakery/ | grep -o '<title>[^<]*'",
+      "result": "完成",
+      "out": "<title>小森烘焙｜預約取貨",
+      "narration": "再看內容，標題裡有小森烘焙。兩個標準都達到了。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ GitHub Pages 已開啟。\n公開網址：`https://xiaosen-dev.github.io/bakery/`\n驗證：回應 **200**，頁面標題是「小森烘焙｜預約取貨」。之後 push 到 main，約一分鐘會自動更新。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "回報裡有網址，也有驗證的證據",
+      "narration": "好的回報，除了說做完了，還附上它怎麼確認的。"
+    },
+    {
+      "show": "web",
+      "narration": "你自己打開網址看看。這就是可以分享給任何人的公開網址。"
+    },
+    { "on": "web", "scroll": "products", "pause": 600 },
+    { "on": "web", "scroll": "top" },
+    {
+      "on": "claude",
+      "user": "營業時間改成週二到週日，push 之後確認公開網址上已經是新的。",
+      "chapter": "改一次，看它自動更新",
+      "narration": "再試一次「push 就更新」。這次的完成標準一樣寫清楚：公開網址上已經是新的。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [
+        [74, "-", "      <p>營業時間：週三到週日 8:00–18:00</p>"],
+        [74, "+", "      <p>營業時間：週二到週日 8:00–18:00</p>"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git commit -am \"營業時間改成週二到週日\" && git push",
+      "result": "完成",
+      "out": "main -> main"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "sleep 60; curl -s https://xiaosen-dev.github.io/bakery/ | grep -o '週二到週日'",
+      "result": "完成",
+      "out": "週二到週日",
+      "narration": "它等了一分鐘，再去公開網址抓內容，確認新字已經在上面。"
+    },
+    {
+      "on": "claude",
+      "say": "已 push，公開網址上的營業時間已經是「週二到週日」✓"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：請 AI 開啟你的 GitHub Pages",
+      "body": "在你的專案裡，用一句話交代 AI 開啟 Pages，並寫上完成的標準（例如：curl 回 200、頁面看得到店名）。看它回報的網址，自己用手機打開一次。"
+    },
+    { "hide": "web" },
+    {
+      "card": "做什麼 ＋ 怎樣算完成",
+      "eyebrow": "學會",
+      "sub": "AI 開 Pages、等建置、用 curl 驗證；你拿到可以分享的公開網址",
+      "chapter": "學會",
+      "narration": "交代任務時，記得同時說「怎樣算完成」。AI 就會做完再自己驗證，你拿到的是確定打得開的公開網址。"
+    }
+  ]
+}

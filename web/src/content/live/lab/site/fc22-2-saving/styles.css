@@ -1,0 +1,14 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#fff;color:#1f2328}
+.doc{max-width:1000px;margin:0 auto;padding:34px 48px}
+.eb{font-family:Menlo,monospace;color:#7a8794;font-size:15px}
+h1{font-size:34px;margin:8px 0 6px}
+.lead{font-size:20px;color:#3a4550}
+.chart{background:#f7f8fa;border-radius:14px;padding:18px 24px;margin:16px 0}
+.row{display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center;padding:7px 0;font-size:18px}
+.bars{display:flex;flex-direction:column;gap:4px}
+.b{height:22px;border-radius:6px;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;padding-left:8px;box-sizing:border-box;font-family:Menlo,monospace}
+.b.now{background:#8a94a3}.b.next{background:#2e9a5b}
+.lg{margin-top:10px;color:#5b6774;font-size:15px}
+.lg i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:4px}
+.lg i.now{background:#8a94a3}.lg i.next{background:#2e9a5b}
+.act{background:#ecf8f0;border-radius:14px;padding:16px 20px;font-size:18px;line-height:1.7}

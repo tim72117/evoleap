@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>看得到才改得對</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="row">
+  <div class="card col blind">
+   <div class="ttl s">看不到畫面時</div>
+   <div class="say">你：「手機上預約按鈕怪怪的」</div>
+   <div class="g" data-s="1">AI 猜：可能是顏色？</div>
+   <div class="g" data-s="1">AI 猜：可能是被擋住？</div>
+   <div class="g" data-s="1">AI 猜：可能是太小？</div>
+   <div class="res bad" data-s="2">改了三個地方，問題還在，還多改壞一個</div>
+  </div>
+  <div class="card col eye" data-s="3">
+   <div class="ttl s">讓 AI 自己看</div>
+   <svg viewBox="0 0 420 330" class="loop">
+    <circle cx="210" cy="165" r="120" fill="none" stroke="#c4ccd9" stroke-width="6" stroke-dasharray="12 10"/>
+    <g data-k="4"><rect x="150" y="10" width="120" height="56" rx="14" fill="#e8efff"/><text x="210" y="46" text-anchor="middle">① 打開網頁</text></g>
+    <g data-k="5"><rect x="300" y="138" width="120" height="56" rx="14" fill="#fff4dc"/><text x="360" y="174" text-anchor="middle">② 截圖</text></g>
+    <g data-k="6"><rect x="150" y="266" width="120" height="56" rx="14" fill="#e3f6ec"/><text x="210" y="302" text-anchor="middle">③ 看出問題</text></g>
+    <g data-k="7"><rect x="0" y="138" width="120" height="56" rx="14" fill="#fde8e8"/><text x="60" y="174" text-anchor="middle">④ 修改</text></g>
+    <text x="210" y="160" text-anchor="middle" class="c1">改完</text><text x="210" y="190" text-anchor="middle" class="c1">再看一次</text>
+   </svg>
+  </div>
+ </div>
+ <div class="stepbar"><button class="btn" id="next">下一步 ▶</button><span class="cap" data-t0="AI 只聽你的描述" data-t1="描述不清楚，它只能一個一個猜" data-t2="猜錯就亂改" data-t3="給它瀏覽器工具：它能自己打開網頁" data-t4="打開你的網頁，調到手機寬度" data-t5="自己截圖" data-t6="從截圖看出：是什麼蓋住了按鈕" data-t7="修好後，再截一次確認"></span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+{
+  "title": "環境變數與設定",
+  "lesson": "全環節 · 單元 8 · 8.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天把寫死的金鑰搬家",
+    "line": "今天請 AI 把專案裡寫死的金鑰和網址，全部搬進 .env，再寫一份 .env.example。最後要它自己再搜一遍，證明程式裡一個都不剩。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "設定搬進 .env", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": { "tree": { "bakery": { "server.js": "", "public": { "app.js": "" }, "package.json": "", ".gitignore": "" } }, "open": "bakery" },
+      "place": "right",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "環境變數與設定",
+      "eyebrow": "全環節 · 單元 8 · 8.4 用 AI 完成",
+      "sub": "搜出來 → 搬進 .env → 再搜一次證明乾淨",
+      "chapter": "交代",
+      "narration": "這一堂的流程像大掃除：先全部找出來，再一個個搬家，最後再檢查一遍。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "把程式裡寫死的金鑰、密碼、網址都搬進 .env，程式改成讀環境變數，另外寫 .env.example（只有名稱沒有值），並確認 .env 不會被 git 上傳。完成標準：最後再搜一次，程式裡找不到任何金鑰；網站照常能跑。不要把金鑰的值印出來。",
+      "narration": "完成標準一樣講具體：再搜一次找不到、網站照常能跑。也提醒它不要把金鑰印出來。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "(api[_-]?key|secret|password|postgres://|https?://localhost)",
+      "result": "4 處",
+      "out": "server.js:3    const KEY = 'wx_live_9f…（已遮住）'\nserver.js:4    const DB = 'postgres://admin:…@db.example/bakery'\nserver.js:9    const PAY_SECRET = 'sk_test_…（已遮住）'\npublic/app.js:1 const API = 'http://localhost:3000'",
+      "chapter": "全部找出來",
+      "narration": "它先搜尋常見的金鑰、密碼、網址寫法，找到四處。印出來的值都先遮住。"
+    },
+    {
+      "on": "claude",
+      "todos": [["server.js：天氣金鑰、資料庫網址、金流密鑰改讀環境變數", "doing"], ["public/app.js：API 網址依環境切換", "pending"], ["寫 .env、.env.example，.gitignore 加上 .env", "pending"], ["再搜一次、啟動網站確認", "pending"]],
+      "narration": "列成待辦，一項一項來。"
+    },
+    { "hide": "claude" },
+    {
+      "diff": "server.js",
+      "lines": [
+        [" ", "// 設定"],
+        ["-", "const KEY = 'wx_live_9f…'"],
+        ["-", "const DB = 'postgres://admin:…@db.example/bakery'"],
+        ["-", "const PAY_SECRET = 'sk_test_…'"],
+        ["+", "const KEY = process.env.WEATHER_API_KEY"],
+        ["+", "const DB = process.env.DATABASE_URL"],
+        ["+", "const PAY_SECRET = process.env.PAYMENT_SECRET_KEY"]
+      ],
+      "chapter": "一個個搬家",
+      "narration": "server.js 裡的三個值，換成讀環境變數。紅色的寫死值拿掉，綠色的改成只寫名稱。"
+    },
+    { "clear": true },
+    {
+      "diff": "public/app.js",
+      "lines": [
+        ["-", "const API = 'http://localhost:3000'"],
+        ["+", "const API = import.meta.env.VITE_API_URL ?? ''"]
+      ],
+      "narration": "網頁裡的 API 網址也一樣，本機和正式網站各自設定。網頁的設定最後會出現在瀏覽器，所以這裡只放網址，不放任何金鑰。"
+    },
+    { "clear": true },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "todos": [["server.js：天氣金鑰、資料庫網址、金流密鑰改讀環境變數", "done"], ["public/app.js：API 網址依環境切換", "done"], ["寫 .env、.env.example，.gitignore 加上 .env", "doing"], ["再搜一次、啟動網站確認", "pending"]]
+    },
+    {
+      "on": "claude",
+      "edit": ".env.example",
+      "lines": [
+        [1, "+", "# 複製成 .env 再填值；正式環境的值設定在雲端"],
+        [2, "+", "WEATHER_API_KEY="],
+        [3, "+", "DATABASE_URL="],
+        [4, "+", "PAYMENT_SECRET_KEY="],
+        [5, "+", "VITE_API_URL="]
+      ],
+      "narration": ".env.example 只有名稱，加一行說明怎麼用。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/move-secrets.js   # 把原本寫死的值搬進 .env,不印出",
+      "result": "已寫入 .env（4 項）",
+      "out": "WEATHER_API_KEY   ✓ 有值\nDATABASE_URL      ✓ 有值\nPAYMENT_SECRET_KEY ✓ 有值\nVITE_API_URL      ✓ 有值",
+      "narration": "真正的值搬進 .env，它只回報每一項有沒有值。"
+    },
+    { "on": "claude", "edit": ".gitignore", "lines": [[1, " ", "node_modules"], [2, "+", ".env"]], "narration": ".gitignore 加上 .env。" },
+    { "show": "files", "create": ".env", "focus": false, "narration": "資料夾裡多了 .env 和 .env.example。" },
+    { "on": "files", "create": ".env.example" },
+    { "hide": "files" },
+    {
+      "on": "claude",
+      "todos": [["server.js：天氣金鑰、資料庫網址、金流密鑰改讀環境變數", "done"], ["public/app.js：API 網址依環境切換", "done"], ["寫 .env、.env.example，.gitignore 加上 .env", "done"], ["再搜一次、啟動網站確認", "doing"]],
+      "chapter": "再檢查一遍"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "(api[_-]?key|secret|password|postgres://|https?://localhost)  --glob '!.env'",
+      "result": "0 處",
+      "out": "（沒有符合的結果）",
+      "narration": "再搜一次，排除 .env 本身：程式裡一個都不剩。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "git check-ignore .env && git status --short", "result": ".env 被忽略", "out": ".env\n M .gitignore\n M public/app.js\n M server.js\n?? .env.example", "narration": "確認 git 會忽略 .env：變更清單裡沒有它，只有 .env.example。" },
+    { "on": "claude", "tool": "Bash", "arg": "npm start & sleep 2; curl -s -o /dev/null -w '%{http_code}' localhost:3000/api/menu", "result": "200", "out": "200", "narration": "網站照常能跑。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log -p -S 'wx_live_' --oneline | head -3",
+      "result": "舊紀錄裡有",
+      "out": "a91c2e0 加上天氣推薦",
+      "narration": "最後它多查一件事：以前的版本紀錄裡，有沒有出現過這把金鑰。結果有。"
+    },
+    {
+      "on": "claude",
+      "say": "完成：程式裡已沒有寫死的金鑰，網站照常回 **200**。\n\n不過 `a91c2e0` 這個舊版本曾經包含天氣金鑰，如果專案推上過 GitHub，請**到天氣平台作廢這把金鑰、重新建立**，再把新的貼進 `.env`（這一步要你自己操作）。",
+      "narration": "它提醒你：舊版本推上去過的話，金鑰可能已經外流，要去作廢、換一把新的。這一步要你自己到後台操作。"
+    },
+    { "callout": "claude:say", "text": "金鑰外流過：作廢重發，比刪紀錄更可靠", "narration": "金鑰一旦外流過，最可靠的做法是作廢重發，不是想辦法把紀錄刪乾淨。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 搜出你專案裡寫死的金鑰與網址，搬進 .env、寫 .env.example。記得最後要它「再搜一次」和「查舊版本紀錄」。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "找出來 → 搬家 → 再搜一次",
+      "eyebrow": "學會",
+      "sub": "程式裡只寫名稱；.env 不上傳；外流過的金鑰要作廢重發",
+      "chapter": "學會",
+      "narration": "這一堂的重點：請 AI 先全部找出來，搬進 .env，再搜一次證明乾淨。外流過的金鑰，記得自己去作廢重發。"
+    }
+  ]
+}

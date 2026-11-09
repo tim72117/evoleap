@@ -1,0 +1,194 @@
+{
+  "title": "自訂網域接 Cloud Run",
+  "lesson": "全環節 · 單元 19 · 19.5 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "最後一步：換上自己的網域",
+    "line": "這一堂把 app.xiaosen-bakery.com 接到 Cloud Run。驗證網域和填 DNS 紀錄由你在網頁上做；設定網域對應、給你要填的值、最後確認憑證生效，交給 AI。"
+  },
+  "blocking": { "cast": ["claude", "vf", "dns", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "自訂網域",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "vf": {
+      "actor": "browser",
+      "props": { "site": "fc19-5-verify", "width": "desktop", "url": "https://verify.example-cloud.com/domain?d=xiaosen-bakery.com" },
+      "place": "window",
+      "hidden": true
+    },
+    "dns": {
+      "actor": "browser",
+      "props": { "site": "fc19-5-dns-panel", "width": "desktop", "url": "https://dash.dns-host.example/xiaosen-bakery.com/dns" },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "https://app.xiaosen-bakery.com" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "自訂網域接 Cloud Run",
+      "eyebrow": "全環節 · 單元 19 · 19.5 用 AI 完成",
+      "sub": "你：驗證網域、填 DNS；AI：網域對應、給值、驗證憑證",
+      "chapter": "交代分工",
+      "narration": "這是整個上線階段的最後一步。分工和之前一樣：網頁上的事你做，指令和驗證交給 AI。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "把 app.xiaosen-bakery.com 接到 Cloud Run 的 bakery 服務。DNS 在 Cloudflare，上次搬家用的 API 權杖用完就刪了，所以紀錄我自己填。請設定網域對應、告訴我要填哪些紀錄；我填完後，請你一直檢查到 HTTPS 憑證生效。",
+      "narration": "上次搬 DNS 用的權杖，用完就刪掉了，這是好習慣。所以這次的紀錄由你在 Cloudflare 的網頁上填。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud domains list-user-verified",
+      "result": "完成",
+      "out": "Listed 0 items.",
+      "chapter": "第一關：驗證網域是你的",
+      "narration": "它先查：Google 還不知道這個網域是你的。要先驗證。"
+    },
+    {
+      "on": "claude",
+      "say": "要先證明網域是你的。我執行 `gcloud domains verify xiaosen-bakery.com`，會打開驗證頁（不花錢）：\n1. 在驗證頁按「複製」，拿到一筆 TXT 的值\n2. 到 Cloudflare 的 DNS 頁新增：類型 **TXT**、名稱 **@**、值貼上\n3. 儲存後跟我說，我確認查得到了，你再回驗證頁按「驗證」"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud domains verify xiaosen-bakery.com",
+      "result": "完成",
+      "out": "Opening verification page in your browser…"
+    },
+    { "show": "vf", "narration": "驗證頁打開了。按複製，把那串值拿下來。" },
+    { "on": "vf", "click": "#copy" },
+    { "show": "dns", "narration": "到 Cloudflare 的 DNS 頁，新增一筆 TXT。" },
+    {
+      "on": "dns",
+      "fill": { "#type": "TXT", "#name": "@", "#value": "google-site-verification=Qk7rB2xW9pLmN4vT1sY6", "#ttl": "300" }
+    },
+    { "on": "dns", "click": "#add" },
+    { "on": "dns", "click": "#save" },
+    { "on": "claude", "user": "TXT 加好、也儲存了。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +short TXT xiaosen-bakery.com @1.1.1.1 | grep google-site",
+      "result": "完成",
+      "out": "\"google-site-verification=Qk7rB2xW9pLmN4vT1sY6\"",
+      "narration": "AI 從外面查，TXT 已經查得到了。"
+    },
+    { "on": "claude", "say": "查得到了 ✓ 請回驗證頁按「驗證」。" },
+    { "on": "vf", "click": "#verify", "narration": "回驗證頁，按驗證。成功。" },
+    {
+      "on": "claude",
+      "user": "（附上截圖）驗證成功了。",
+      "chapter": "第二關：網域對應"
+    },
+    {
+      "on": "claude",
+      "say": "**下一個指令：** 建立網域對應 `app.xiaosen-bakery.com → bakery`\n- 花錢嗎：不會，對應和憑證都免費\n- 完成後它會告訴我們要填哪一筆 DNS 紀錄"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud beta run domain-mappings create",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud beta run domain-mappings create \\\n  --service bakery --domain app.xiaosen-bakery.com \\\n  --region asia-east1"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud beta run domain-mappings create --service bakery --domain app.xiaosen-bakery.com --region asia-east1",
+      "result": "完成",
+      "out": "Creating……done.\nPlease add the following entries and then visit https://support.google.com/a/answer/7378726\nNAME  RECORD TYPE  CONTENTS\napp   CNAME        ghs.googlehosted.com."
+    },
+    {
+      "on": "claude",
+      "say": "請在 Cloudflare 新增一筆：\n- 類型 **CNAME**、名稱 **app**、值 **ghs.googlehosted.com**\n- 如果有「代理」的開關，請選「**只用 DNS**」，不然 Google 發不了憑證\n其他紀錄都不要動。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "連「代理開關要關」這種坑都先提醒",
+      "narration": "AI 連一個常見的坑都先提醒了：Cloudflare 有個代理功能，開著的話 Google 看不到你的網域，憑證就發不下來。"
+    },
+    { "show": "dns", "narration": "回到 DNS 頁，新增 app 的別名。" },
+    {
+      "on": "dns",
+      "fill": { "#type": "CNAME", "#name": "app", "#value": "ghs.googlehosted.com", "#ttl": "300" }
+    },
+    { "on": "dns", "click": "#add" },
+    { "on": "dns", "click": "#save" },
+    {
+      "on": "claude",
+      "user": "（附上截圖）CNAME 加好了，代理是「只用 DNS」。",
+      "chapter": "第三關：等到憑證生效"
+    },
+    {
+      "on": "claude",
+      "edit": "check-mapping.sh",
+      "lines": [
+        [1, "+", "#!/bin/bash"],
+        [2, "+", "# 每分鐘查一次：網域對應的憑證狀態 + HTTPS 能不能開"],
+        [3, "+", "D=app.xiaosen-bakery.com; i=0"],
+        [4, "+", "while true; do i=$((i+1))"],
+        [5, "+", "  st=$(gcloud beta run domain-mappings describe --domain $D --region asia-east1 --format='value(status.conditions[0].reason)')"],
+        [6, "+", "  code=$(curl -s -o /dev/null -w '%{http_code}' https://$D)"],
+        [7, "+", "  echo \"[$i] 憑證：${st:-Ready}  HTTPS：$code\"; [ \"$code\" = 200 ] && break; sleep 60"],
+        [8, "+", "done"]
+      ],
+      "narration": "接下來要等，AI 照之前的做法，寫一個檢查腳本：每分鐘看一次憑證狀態，HTTPS 打得開才停。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bash check-mapping.sh",
+      "result": "完成",
+      "out": "[1] 憑證：CertificatePending  HTTPS：000\n[2] 憑證：CertificatePending  HTTPS：000\n[11] 憑證：CertificatePending  HTTPS：000\n[16] 憑證：Ready  HTTPS：200",
+      "narration": "前十幾分鐘，憑證都在簽發中；第十六分鐘，狀態變成就緒，HTTPS 也打得開了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -svI https://app.xiaosen-bakery.com 2>&1 | grep -E 'subject:|expire date|HTTP/' ; curl -s -X POST -o /dev/null -w 'order %{http_code}\\n' -d 'item=測試&qty=1' https://app.xiaosen-bakery.com/api/orders",
+      "result": "完成",
+      "out": "*  subject: CN=app.xiaosen-bakery.com\n*  expire date: Feb  7 09:12:44 2027 GMT\n< HTTP/2 200\norder 201",
+      "narration": "最後再細看憑證：是發給 app 點 xiaosen-bakery 點 com 的，到期前 Google 會自動換新。送一筆測試訂單，也成功。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- `https://app.xiaosen-bakery.com` → Cloud Run `bakery`（200）\n- 憑證已生效，到期前自動換新\n- 訂單 API 正常（201）\n請不要刪掉驗證用的 TXT 和 app 的 CNAME。"
+    },
+    { "show": "web", "narration": "打開你的網址。鎖頭在，網址是你自己的。" },
+    { "on": "web", "scroll": "products", "pause": 600 },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：幫 Cloud Run 換上自己的網域",
+      "body": "請 AI 設定網域對應並給出要填的紀錄。驗證網域、在 DNS 後台填紀錄由你自己做，每步截圖回報；最後請它寫檢查腳本，等到憑證生效、HTTPS 打得開為止。"
+    },
+    { "hide": "web" },
+    {
+      "card": "你：驗證網域、填 DNS\nAI：網域對應、給值、等到憑證生效",
+      "eyebrow": "學會",
+      "sub": "靜態網站、網域、雲端後端，全部用自己的網域上線了",
+      "chapter": "學會",
+      "narration": "驗證網域和填 DNS 由你做；網域對應、給值、等憑證生效交給 AI。到這裡，你的靜態網站、網域、信箱和雲端後端，全部用自己的網域上線了。"
+    }
+  ]
+}

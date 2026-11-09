@@ -1,0 +1,16 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#fff;color:#1f2328}
+.doc{max-width:980px;margin:0 auto;padding:36px 48px}
+.eb{font-family:Menlo,monospace;color:#7a8794;font-size:15px}
+h1{font-size:34px;margin:8px 0 6px}
+.lead{font-size:20px;color:#3a4550}
+.chart{background:#f7f8fa;border-radius:14px;padding:20px 24px;margin:18px 0 26px}
+.row{display:grid;grid-template-columns:300px 1fr 60px;gap:16px;align-items:center;padding:8px 0;font-size:18px}
+.bar{height:26px;background:#e6e9ee;border-radius:13px;overflow:hidden}
+.fill{height:100%;border-radius:13px}
+.f1{background:#d2453a}.f2{background:#d99a1c}.f3{background:#8a948f}
+.row b{text-align:right;font-family:Menlo,monospace}
+h2{font-size:24px}
+table{width:100%;border-collapse:collapse;font-size:17px}
+th,td{padding:10px 12px;border-bottom:1px solid #e6e9ee;text-align:left}
+th{color:#5b6774;font-size:14px}
+.src{color:#7a8794;font-size:14px;margin-top:20px}

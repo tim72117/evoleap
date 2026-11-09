@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>每一項都有來源嗎</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="head">
+    <div class="ttl">每一項都有來源嗎？</div>
+    <div class="tools">
+      <button class="btn" id="link">連到需求</button>
+      <button class="btn" id="orphan">找沒有來源的</button>
+      <button class="btn" id="gap">找沒被涵蓋的</button>
+    </div>
+  </div>
+  <div class="map" style="height:492px">
+    <div class="side"><div class="sh"><span class="tag b">一定要有的需求</span></div><div class="rq" id="R1"><span class="id">R1</span>客人看到本週可預訂的品項<span class="flag">沒有工作項目涵蓋</span></div><div class="rq" id="R2"><span class="id">R2</span>選日期與時段（每時段最多 15 筆）<span class="flag">沒有工作項目涵蓋</span></div><div class="rq" id="R3"><span class="id">R3</span>生日蛋糕上限，後台可以改<span class="flag">沒有工作項目涵蓋</span></div><div class="rq" id="R4"><span class="id">R4</span>簡訊確認＋取貨前一天提醒<span class="flag">沒有工作項目涵蓋</span></div><div class="rq" id="R5"><span class="id">R5</span>店員用平板看、列印今日清單<span class="flag">沒有工作項目涵蓋</span></div><div class="rq" id="R6"><span class="id">R6</span>取貨前一天中午前可以取消<span class="flag">沒有工作項目涵蓋</span></div><div class="rq" id="R7"><span class="id">R7</span>沒來取貨：第二次停用線上預訂<span class="flag">沒有工作項目涵蓋</span></div></div>
+    <svg class="lines" viewBox="0 0 200 492" width="200" height="492" preserveAspectRatio="none"><path class="ln" data-w="W1" data-r="R1" d="M0 68 C 90 68, 110 68, 200 68"/><path class="ln" data-w="W2" data-r="R2" d="M0 124 C 90 124, 110 124, 200 124"/><path class="ln" data-w="W3" data-r="R3" d="M0 180 C 90 180, 110 180, 200 180"/><path class="ln" data-w="W4" data-r="R4" d="M0 236 C 90 236, 110 236, 200 236"/><path class="ln" data-w="W5" data-r="R4" d="M0 236 C 90 236, 110 292, 200 292"/><path class="ln" data-w="W6" data-r="R5" d="M0 292 C 90 292, 110 348, 200 348"/><path class="ln" data-w="W8" data-r="R7" d="M0 404 C 90 404, 110 460, 200 460"/></svg>
+    <div class="side"><div class="sh"><span class="tag g">工作項目</span></div><button class="wi" id="W1" data-src="R1"><span class="id">W1</span>商品清單頁<span class="flag">沒有來源</span><span class="from">← R1</span></button><button class="wi" id="W2" data-src="R2"><span class="id">W2</span>日期與時段選擇<span class="flag">沒有來源</span><span class="from">← R2</span></button><button class="wi" id="W3" data-src="R3"><span class="id">W3</span>蛋糕上限設定<span class="flag">沒有來源</span><span class="from">← R3</span></button><button class="wi" id="W4" data-src="R4"><span class="id">W4</span>訂單確認簡訊<span class="flag">沒有來源</span><span class="from">← R4</span></button><button class="wi" id="W5" data-src="R4"><span class="id">W5</span>取貨前一天提醒簡訊<span class="flag">沒有來源</span><span class="from">← R4</span></button><button class="wi" id="W6" data-src="R5"><span class="id">W6</span>今日取貨清單（平板、列印）<span class="flag">沒有來源</span><span class="from">← R5</span></button><button class="wi" id="W7" data-src=""><span class="id">W7</span>會員登入與註冊<span class="flag">沒有來源</span><span class="from">← ？</span></button><button class="wi" id="W8" data-src="R7"><span class="id">W8</span>沒來取貨紀錄<span class="flag">沒有來源</span><span class="from">← R7</span></button></div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

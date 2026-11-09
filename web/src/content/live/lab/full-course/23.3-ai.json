@@ -1,0 +1,165 @@
+{
+  "title": "後台報表",
+  "lesson": "全環節 · 單元 23 · 23.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做管理員後台",
+    "line": "這一課請 AI 先做一個計算報表數字的模組，用測試確認算對；再做出只有管理員看得到的後台頁，用三種帳號測試權限。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "後台報表",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc23-3-admin", "url": "https://shop-staging.example.app/admin" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "後台報表",
+      "eyebrow": "全環節 · 單元 23 · 23.3 用 AI 完成",
+      "sub": "先做工具：算數字的模組 + 測試 · 再做頁面 · 三種帳號測權限",
+      "narration": "報表的數字算錯，比沒有報表還糟。所以先做一個算數字的工具，用測試確認它算對，頁面再拿它來用。"
+    },
+    {
+      "show": "claude",
+      "chapter": "交代內容與權限",
+      "narration": "把上一堂整理的內容和權限要求，一起交代。"
+    },
+    {
+      "on": "claude",
+      "user": "做一個只有管理員看得到的後台 /admin：最近 7 天的營收、訂單、客單價、轉換率（和前 7 天比），每日訂單、漏斗、熱賣商品、需要處理的事。先做一個算這些數字的模組並寫測試；權限在伺服器檢查，用沒登入、一般會員、管理員三種帳號測試，資料的網址也要擋。",
+      "narration": "最後一句很重要：不只頁面，連拿資料的網址也要擋。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "todos": [
+        ["算數字的模組 metrics.ts", "doing"],
+        ["用測試資料確認算對", "pending"],
+        ["伺服器的管理員檢查", "pending"],
+        ["後台頁面", "pending"],
+        ["三種帳號測試權限", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": "src/server/metrics.ts",
+      "lines": [
+        [1, "+", "export async function weeklyMetrics(db, today) {"],
+        [2, "+", "  const now = await ordersBetween(db, daysAgo(today, 7), today)"],
+        [3, "+", "  const before = await ordersBetween(db, daysAgo(today, 14), daysAgo(today, 7))"],
+        [4, "+", "  return { revenue: compare(sum(now), sum(before)), orders: …, avg: …, conversion: … }"],
+        [5, "+", "}"]
+      ],
+      "chapter": "做工具：算數字的模組",
+      "narration": "先寫計算的模組：抓這七天和前七天的訂單，算出四個數字和變化。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/server/metrics.test.ts",
+      "lines": [
+        [1, "+", "// 測試資料：這週 3 筆（580、420、1,000，其中 420 已退款），上週 2 筆"],
+        [2, "+", "expect(m.revenue.value).toBe(1580)   // 退款不算營收"],
+        [3, "+", "expect(m.orders.value).toBe(2)"],
+        [4, "+", "expect(m.avg.value).toBe(790)"]
+      ],
+      "narration": "再寫測試：準備一份算得出答案的測試資料，裡面故意放一筆退款的訂單，看它有沒有算錯。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx vitest run src/server/metrics.test.ts",
+      "result": "✕ 1 項失敗",
+      "out": "revenue：預期 1580，實際 2000（退款的訂單也算進去了）",
+      "narration": "測試失敗了：退款的訂單也被算進營收。這正是測試的用處，在上線前抓到。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/server/metrics.ts",
+      "lines": [
+        [2, "-", "  const now = await ordersBetween(db, daysAgo(today, 7), today)"],
+        [2, "+", "  const now = await ordersBetween(db, daysAgo(today, 7), today, { status: 'paid' })  // 排除退款、未付款"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx vitest run src/server/metrics.test.ts",
+      "result": "✓ 6 項通過",
+      "narration": "只算已付款的訂單，測試全部通過。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/server/admin.ts",
+      "lines": [
+        [1, "+", "function requireAdmin(req, res, next) {"],
+        [2, "+", "  if (!req.user) return res.redirect('/login')"],
+        [3, "+", "  if (req.user.role !== 'admin') return res.status(403).send('沒有權限')"],
+        [4, "+", "  next()"],
+        [5, "+", "}"],
+        [6, "+", "app.use(['/admin', '/api/admin'], requireAdmin)   // 頁面和資料都擋"]
+      ],
+      "chapter": "伺服器的門",
+      "narration": "接著是伺服器的門：沒登入的轉去登入，不是管理員的回 403。第六行，頁面和資料的網址都套上這道門。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run deploy:staging && node scripts/check-admin.mjs",
+      "result": "6 項都符合",
+      "out": "沒登入    /admin → 302 轉到 /login ✓    /api/admin/metrics → 302 ✓\n一般會員  /admin → 403 ✓              /api/admin/metrics → 403 ✓\n管理員    /admin → 200 ✓              /api/admin/metrics → 200 ✓",
+      "chapter": "三種帳號測試",
+      "narration": "用三種測試帳號，各打一次頁面和資料的網址。六種情況都符合：沒登入轉去登入，一般會員被擋，管理員才看得到。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "連資料的網址都測了：一般會員拿不到訂單資料",
+      "narration": "特別看資料的網址：一般會員直接呼叫，也拿不到。門真的裝在伺服器上了。"
+    },
+    {
+      "show": "web",
+      "chapter": "後台報表",
+      "narration": "用管理員帳號打開後台。"
+    },
+    {
+      "callout": "web:section:kpis",
+      "text": "四個數字來自測試過的 metrics.ts",
+      "narration": "最上面四個數字，就是剛才測試過的模組算的，可以放心。"
+    },
+    {
+      "callout": "web:section:todo",
+      "text": "需要處理：今天要動手的事",
+      "narration": "最下面是需要處理的事。每天打開，先看這一格。"
+    },
+    {
+      "on": "claude",
+      "say": "後台 `/admin` 已部署到測試環境。數字由 `metrics.ts` 計算（6 項測試通過，退款不計入營收）；權限在伺服器檢查，三種帳號的頁面與資料網址都測過。要部署到正式網站嗎？",
+      "narration": "它回報：數字怎麼來、測過什麼、權限怎麼擋。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 先做一個算報表數字的模組，用一份算得出答案的測試資料（含退款這類例外）寫測試；再做管理員後台，權限在伺服器檢查，用沒登入、一般會員、管理員三種帳號測試頁面和資料網址。",
+      "narration": "換你做做看。先測數字，再測權限，兩樣都通過才上線。"
+    },
+    {
+      "card": "後台報表",
+      "eyebrow": "這一課的成果",
+      "sub": "測試過的數字 · 伺服器把關的權限",
+      "narration": "這一課的成果：一個數字可信、只有管理員看得到的後台。下一課，直接用白話問 AI 你的數據。"
+    }
+  ]
+}

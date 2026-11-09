@@ -1,0 +1,244 @@
+{
+  "title": "檢查和修正",
+  "lesson": "兒童網頁課 · 4.3 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {
+        "goal": {
+          "parts": [
+            {
+              "id": "h1",
+              "kind": "h1",
+              "text": "小兔的名片",
+              "color": "#e8559a"
+            },
+            {
+              "id": "img",
+              "kind": "img",
+              "emoji": "🐰",
+              "bg": "#d6f2c9"
+            },
+            {
+              "id": "p",
+              "kind": "p",
+              "text": "小兔最喜歡吃紅蘿蔔。",
+              "color": "#2b2620"
+            },
+            {
+              "id": "btn",
+              "kind": "button",
+              "text": "跟小兔說嗨"
+            }
+          ]
+        }
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "做出來了",
+      "guide": {
+        "target": "kid:paper",
+        "text": "小美想要的樣子"
+      },
+      "narration": "小美畫好了她想要的名片，就是左邊的目標圖。"
+    },
+    {
+      "send": "做小兔的名片：要有[[標題]]、兔子[[圖片]]、一段[[段落]]介紹，還有一個[[按鈕]]。",
+      "narration": "她跟小幫手說：做小兔的名片，要有標題、兔子圖片、一段介紹和一個按鈕。"
+    },
+    {
+      "make": [
+        {
+          "add": {
+            "id": "h1",
+            "kind": "h1",
+            "text": "小兔的名片"
+          }
+        },
+        {
+          "add": {
+            "id": "img",
+            "kind": "img",
+            "emoji": "🐰"
+          }
+        },
+        {
+          "add": {
+            "id": "p",
+            "kind": "p",
+            "text": "小兔最喜歡吃紅蘿蔔。",
+            "color": "#2b2620"
+          }
+        },
+        {
+          "add": {
+            "id": "btn",
+            "kind": "button",
+            "text": "摸摸小兔"
+          }
+        }
+      ],
+      "reply": "做好了！",
+      "narration": "小幫手做好了。可是，和目標圖一樣嗎？"
+    },
+    {
+      "compare": true,
+      "chapter": "檢查",
+      "narration": "做出來要檢查。一格一格比比看：打勾的一樣，打叉的不一樣。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:paper",
+        "text": "有三個叉叉"
+      },
+      "narration": "有三個叉叉。到底是哪裡不一樣呢？"
+    },
+    {
+      "checkpoint": "找不同",
+      "sub": "lab/kids/4.3-find.json",
+      "chapter": "找不同"
+    },
+    {
+      "mark": "h1",
+      "chapter": "哪一句沒說清楚",
+      "narration": "為什麼會不一樣？我們回去看小美說的話。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:chat",
+        "text": "只說了要有標題"
+      },
+      "narration": "小美只說要有標題，沒說標題是什麼顏色。小幫手不知道，就用了黑色。"
+    },
+    {
+      "wait": 400,
+      "narration": "圖片的背景、按鈕上的字，她也沒說。沒說的地方，小幫手只好自己決定。"
+    },
+    {
+      "mark": false
+    },
+    {
+      "send": "[[全部]]改一改，改成我想要的",
+      "chapter": "一次改一件事",
+      "narration": "那這樣說呢：全部改一改，改成我想要的。"
+    },
+    {
+      "reply": "要改哪裡？改成什麼呢？我不知道你想要的樣子耶。",
+      "mood": "puzzled",
+      "narration": "小幫手又不知道了。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:tray",
+        "text": "一次改一件事"
+      },
+      "narration": "好方法是：一次只改一件事，說清楚改哪裡、改成什麼。改完馬上檢查，再改下一件。"
+    },
+    {
+      "checkpoint": "換你修正",
+      "sub": "lab/kids/4.3-fix.json",
+      "chapter": "換你修正"
+    },
+    {
+      "deal": [
+        {
+          "id": "q1",
+          "text": "再說一次[[一模一樣]]的話"
+        },
+        {
+          "id": "q2",
+          "text": "先[[比一比]]，找出哪裡不一樣"
+        },
+        {
+          "id": "q3",
+          "text": "[[全部]]重新做"
+        }
+      ],
+      "chapter": "找找看",
+      "narration": "最後來想一想。"
+    },
+    {
+      "checkpoint": "做出來和想要的不一樣，第一步要做什麼？",
+      "body": "點下面的卡片回答。",
+      "id": "q-first",
+      "options": [
+        {
+          "label": "先比一比，找出哪裡不一樣",
+          "target": "kid:card:q2",
+          "steps": [
+            {
+              "check": "card:q2",
+              "answer": "card:q2",
+              "narration": "答對了！先檢查，找到不一樣的地方，才知道要改哪一句。"
+            }
+          ]
+        },
+        {
+          "label": "再說一次一模一樣的話",
+          "target": "kid:card:q1",
+          "steps": [
+            {
+              "check": "card:q1",
+              "answer": "card:q2",
+              "narration": "說一樣的話，小幫手還是會做出一樣的東西喔。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "全部重新做",
+          "target": "kid:card:q3",
+          "steps": [
+            {
+              "check": "card:q3",
+              "answer": "card:q2",
+              "narration": "不用全部重來！只要改不一樣的地方就好。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:window",
+        "text": "檢查・修正"
+      },
+      "narration": "做出來要檢查。不一樣的時候，找出哪一句沒說清楚，一次改一件事，再試一次。"
+    }
+  ]
+}

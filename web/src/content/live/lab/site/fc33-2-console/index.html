@@ -1,0 +1,19 @@
+<!doctype html><html><head><title>資料庫使用者 · 示意雲端主控台</title></head><body>
+<div class="app">
+  <aside class="side"><div class="logo">示意雲端</div><div class="nav">總覽</div><div class="nav">資料庫</div><div class="nav cur">使用者與權限</div><div class="nav">備份</div><div class="nav">帳單</div></aside>
+  <main class="main">
+    <div class="crumb">資料庫 › bakery-db <span class="env">正式環境</span> › 使用者與權限</div>
+    <h1 class="h">使用者與權限</h1>
+    <table class="tbl" id="list"><thead><tr><th>使用者</th><th>權限</th><th>建立者</th></tr></thead>
+      <tbody><tr><td>owner</td><td><span class="rw">讀寫（擁有者）</span></td><td>你</td></tr></tbody></table>
+    <form class="form" id="form">
+      <div class="ft">新增使用者</div>
+      <label>使用者名稱<input id="user" type="text" placeholder="例如 ai_reader"></label>
+      <label>權限<select id="role"><option value="">請選擇</option><option value="ro">唯讀（只能查詢）</option><option value="rw">讀寫</option></select></label>
+      <label>密碼<input id="pw" type="password" placeholder="至少 16 個字元"></label>
+      <button type="button" id="create">建立使用者</button>
+    </form>
+    <div class="done" id="ok">已建立使用者。連線字串（密碼不會再顯示）：<span class="mono" id="conn"></span></div>
+  </main>
+</div>
+</body></html>

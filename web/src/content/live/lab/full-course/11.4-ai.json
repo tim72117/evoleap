@@ -1,0 +1,139 @@
+{
+  "title": "發票、退款與帳務",
+  "lesson": "全環節 · 單元 11 · 11.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做一個自動對帳工具",
+    "line": "今天請 AI 串接電子發票：付款後自動開、退款時自動作廢。再請它做一個每月對帳的工具，以後月底只要跑一個指令。稅務與發票的規定，則由你先跟專業的人確認。"
+  },
+  "cast": {
+    "acct": {
+      "actor": "person",
+      "props": { "name": "記帳士", "look": "customer" },
+      "place": "center",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "發票與對帳", "folder": "~/projects/bakery", "branch": "invoice", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc11-4-report", "url": "file:///projects/bakery/reports/2026-10-reconcile.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "發票、退款與帳務",
+      "eyebrow": "全環節 · 單元 11 · 11.4 用 AI 完成",
+      "sub": "你確認規定 → AI 串接發票 → AI 做對帳工具 → 用工具找出問題",
+      "chapter": "先確認規定（你自己來）",
+      "narration": "動手之前，有一件事 AI 不能替你決定：你的發票該怎麼開。這要你自己問專業的人。"
+    },
+    { "show": "acct" },
+    { "on": "acct", "say": "依你的營業登記，付款後要開電子發票；全額退款作廢，部分退款開折讓。", "mood": "calm", "narration": "你問了記帳士，拿到適用於你的規定。這裡只是舉例，每個人的情況不一樣。" },
+    { "hide": "acct" },
+    { "show": "claude", "chapter": "AI 串接發票" },
+    {
+      "on": "claude",
+      "user": "我確認過規定了：付款成功就開電子發票；全額退款作廢；部分退款開折讓。請串接發票平台（先用它的測試環境）。另外做一個每月對帳工具：讀資料庫的訂單、金流撥款報表 CSV、發票平台的匯出，三邊逐筆比對，輸出報表，列出對不上的項目和可能原因。",
+      "narration": "把確認過的規定告訴 AI，並交代兩件事：串接發票，和做一個對帳工具。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "WebFetch", "arg": "https://invoice.example/docs/api", "result": "讀完開立、作廢、折讓三支 API" },
+    {
+      "on": "claude",
+      "edit": "services/invoice.js",
+      "lines": [
+        [1, "+", "export async function onPaid(order) { return inv.issue({ orderId: order.id, amount: order.total, buyerEmail: order.email }) }"],
+        [2, "+", "export async function onRefund(order, amount) {"],
+        [3, "+", "  return amount === order.total ? inv.void(order.invoiceNo) : inv.allowance(order.invoiceNo, amount)"],
+        [4, "+", "}"]
+      ],
+      "narration": "付款成功開發票；退款時依你給的規定：全額作廢，部分開折讓。這個規則是你決定的，它照著寫。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "INVOICE_ENV=test npm test -- tests/invoice.test.js",
+      "result": "3 / 3 通過（發票平台測試環境）",
+      "out": "✓ 付款 NT$ 65 → 開立 AB-10000042，寄到買方信箱\n✓ 全額退款 → 作廢 AB-10000042\n✓ 退 NT$ 30 → 開折讓單，金額 30",
+      "narration": "在發票平台的測試環境測三種情況：開立、作廢、折讓。你的測試信箱也會收到發票通知。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/reconcile.js",
+      "lines": [
+        [1, "+", "// node scripts/reconcile.js --month 2026-10"],
+        [2, "+", "const orders = await paidOrders(month), payouts = readCsv(`payouts-${month}.csv`), invoices = readCsv(`invoices-${month}.csv`)"],
+        [3, "+", "for (const o of orders) {"],
+        [4, "+", "  const p = payouts.get(o.id), i = invoices.get(o.id)"],
+        [5, "+", "  if (o.status === 'refunded' && i?.state !== '作廢') issue(o, '退款後忘了作廢發票')"],
+        [6, "+", "  else if (!p) issue(o, '付款 webhook 沒收到，要人工確認')"],
+        [7, "+", "  else if (p.amount + p.fee !== o.total) issue(o, '撥款加手續費不等於訂單金額')"],
+        [8, "+", "}"],
+        [9, "+", "writeReport(month, summary, issues)  // reports/<月份>-reconcile.html"]
+      ],
+      "chapter": "AI 做對帳工具",
+      "narration": "對帳工具把上一堂的規則寫成程式：手續費是正常差異；退款沒作廢、找不到撥款，就列出來。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- tests/reconcile.test.js",
+      "result": "工具自己的測試通過",
+      "out": "✓ 手續費差異不算問題\n✓ 退款未作廢會被抓到\n✓ 找不到撥款會被抓到\n✓ 三邊都對的月份輸出「全部一致」",
+      "narration": "工具本身也要先驗證：它用幾筆答案已知的假資料，確認工具該抓的抓得到、不該報的不會亂報。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/reconcile.js --month 2026-10",
+      "result": "2 筆對不上",
+      "out": "訂單 312 筆 / 撥款 310 筆 / 發票 311 張\n✗ #1188 退款後忘了作廢發票\n✗ #1203 付款 webhook 沒收到，要人工確認\n報表：reports/2026-10-reconcile.html",
+      "chapter": "用工具找出問題",
+      "narration": "對十月跑一次：兩筆對不上。"
+    },
+    { "hide": "claude" },
+    { "show": "web", "focus": false, "narration": "打開報表。上面是三本帳的總數，下面是對不上的項目。" },
+    { "on": "web", "click": "#d1", "narration": "1188 是串接之前的退款，當時忘了作廢發票。" },
+    { "on": "web", "click": "#d2", "narration": "1203 網站說已付款，金流卻沒有這筆。這要你到金流後台查。" },
+    { "hide": "web" },
+    { "show": "claude", "chapter": "處理，再跑一次" },
+    { "on": "claude", "user": "1203 我查了金流後台，付款其實失敗，把訂單改回待付款。1188 的發票請作廢。" },
+    {
+      "on": "claude",
+      "ask": "node scripts/invoice-void.js AB-10001188",
+      "q": "Claude 想要對正式的發票平台執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "作廢訂單 #1188 的電子發票（正式環境，無法復原）",
+      "narration": "作廢正式的發票無法復原，所以它停下來問你。確認是 1188 這張，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/reconcile.js --month 2026-10",
+      "result": "全部一致",
+      "out": "訂單 311 筆 / 撥款 310 筆（另 1 筆已退款）/ 發票 310 張（另 1 張已作廢）\n✓ 全部對得上：差額 NT$ 1,250 皆為手續費",
+      "narration": "再跑一次：全部對得上，差額都是手續費，說得出原因。這就是店長那個問題的答案。"
+    },
+    { "on": "claude", "say": "10 月對帳完成，全部一致。之後每月 1 號跑 `node scripts/reconcile.js --month <上個月>` 即可；要的話我可以設成每月自動跑、寄報表給你。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "先跟記帳士確認你的發票規定，告訴 AI；請它串接發票（先用測試環境），再做一個三邊比對的對帳工具，並用答案已知的假資料驗證工具。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "規定你確認，AI 照著做\n對帳交給工具，每月跑一次",
+      "eyebrow": "學會",
+      "sub": "工具本身也要先驗證；作廢正式發票這種無法復原的事，要你允許",
+      "chapter": "學會",
+      "narration": "這一堂的重點：稅務規定由你跟專業的人確認，AI 照著串接；對帳寫成工具，工具本身也先用假資料驗證。作廢正式發票這種無法復原的動作，一定要你允許。"
+    }
+  ]
+}

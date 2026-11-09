@@ -1,0 +1,138 @@
+{
+  "title": "DNS 紀錄入門",
+  "lesson": "全環節 · 單元 17 · 17.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "讀出你網域的電話簿",
+    "line": "這一堂請 AI 用 dig 把你網域現在的 DNS 紀錄全部讀出來，並且用白話說明每一筆在做什麼，整理成一張表。"
+  },
+  "blocking": { "cast": ["claude", "table"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "DNS 紀錄",
+        "folder": "~/Documents/practice/bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "table": {
+      "actor": "browser",
+      "props": { "site": "fc17-3-table", "width": "desktop", "url": "file:///Documents/practice/bakery/dns-records.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "DNS 紀錄入門",
+      "eyebrow": "全環節 · 單元 17 · 17.3 用 AI 完成",
+      "sub": "dig：從外面查電話簿裡寫了什麼",
+      "chapter": "交代任務",
+      "narration": "網域剛買好，它的電話簿裡已經有東西了嗎？請 AI 查查看。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "用 dig 查 xiaosen-bakery.com 目前所有的 DNS 紀錄（A、AAAA、CNAME、MX、TXT、NS，www 也要查），每一筆用白話說明用途，整理成 dns-records.html。",
+      "narration": "dig 是查 DNS 的指令，任何人都能從外面查，不用登入網域商。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +noall +answer xiaosen-bakery.com NS",
+      "result": "完成",
+      "out": "xiaosen-bakery.com. 86400 IN NS ns1.registrar-b.example.\nxiaosen-bakery.com. 86400 IN NS ns2.registrar-b.example.",
+      "chapter": "一種一種查",
+      "narration": "第一個查 NS，看是誰在管這本電話簿：網域商乙。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +noall +answer xiaosen-bakery.com A; dig +noall +answer xiaosen-bakery.com AAAA",
+      "result": "完成",
+      "out": "xiaosen-bakery.com. 3600 IN A 203.0.113.10",
+      "narration": "A 紀錄有一筆，AAAA 沒有。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +noall +answer www.xiaosen-bakery.com",
+      "result": "完成",
+      "out": "www.xiaosen-bakery.com. 3600 IN CNAME parking.registrar-b.example.\nparking.registrar-b.example. 300 IN A 203.0.113.10"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "每一行：名稱、TTL、類型、值",
+      "narration": "看懂輸出很簡單：每一行依序是名稱、TTL、類型和值。www 是一個別名，指向 parking，再查到同一個 IP。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +noall +answer xiaosen-bakery.com MX; dig +noall +answer xiaosen-bakery.com TXT",
+      "result": "完成",
+      "out": "xiaosen-bakery.com. 3600 IN MX 10 mx.forward.registrar-b.example.\nxiaosen-bakery.com. 3600 IN TXT \"v=spf1 include:forward.registrar-b.example ~all\""
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s http://xiaosen-bakery.com | grep -o '<title>[^<]*'",
+      "result": "完成",
+      "out": "<title>此網域由網域商乙代管",
+      "narration": "它還多做了一步：打開那個 IP 上的網頁看看。標題寫著「此網域由網域商乙代管」。"
+    },
+    {
+      "on": "claude",
+      "say": "查完了。重點：網域剛買好，網域商先放了一個**停放頁**（203.0.113.10），A 和 www 都指向它，還不是你的網站。\nMX 和 TXT 是網域商附贈的信件轉寄。我把每一筆的用途整理成表。"
+    },
+    {
+      "on": "claude",
+      "ask": "dns-records.html",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/bakery",
+      "preview": "<h1>xiaosen-bakery.com 目前的 DNS 紀錄</h1>\n<table>\n  <tr><th>名稱</th><th>類型</th><th>值</th><th>TTL</th><th>用途</th></tr>…"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "dns-records.html", "result": "已建立" },
+    {
+      "show": "table",
+      "chapter": "你的 DNS 紀錄表",
+      "narration": "這就是你網域的紀錄表。最右邊一欄，是 AI 用白話寫的用途。"
+    },
+    {
+      "callout": "table:sel:#park",
+      "text": "停放頁：下一堂要換成你的網站",
+      "narration": "黃色標籤這兩行，就是下一堂要動的地方：把 A 和 www，改成指向你的網站。"
+    },
+    {
+      "on": "claude",
+      "user": "TTL 是 3600，如果我現在改 A 紀錄，最慢多久所有人都看得到？",
+      "chapter": "看不懂就問",
+      "narration": "表格裡看不懂的地方，直接問。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "say": "最慢大約 **1 小時**：查過的人會記住舊答案 3600 秒。想更快，可以先把 TTL 改成 300（5 分鐘），等一小時後再改 A 紀錄。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：讀出你網域的電話簿",
+      "body": "請 AI 用 dig 查你網域的 A、AAAA、CNAME、MX、TXT、NS，www 也要查，整理成一張有「白話用途」的紀錄表。看不懂的那一行，直接問它。"
+    },
+    { "hide": "table" },
+    {
+      "card": "dig：從外面讀電話簿\n每一行：名稱、TTL、類型、值",
+      "eyebrow": "學會",
+      "sub": "剛買的網域通常指向網域商的停放頁",
+      "chapter": "學會",
+      "narration": "dig 讓你從外面讀出網域的電話簿；AI 讀完還能用白話解釋每一筆。下一堂，就把停放頁換成你的網站。"
+    }
+  ]
+}

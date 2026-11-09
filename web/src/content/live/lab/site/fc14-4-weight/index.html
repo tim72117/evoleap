@@ -1,0 +1,35 @@
+<!doctype html><html><head><title>網頁有多重</title></head><body>
+<div class="app s0">
+  <div class="grid">
+    <div class="card score" id="score">
+      <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" class="bg"/><circle cx="60" cy="60" r="50" class="fg" stroke-dasharray="120 314"/></svg>
+      <div class="num">38</div><b>效能分數</b><small>Lighthouse 滿分 100</small>
+      <div class="lcp">最大的內容出現：<b>6.2 秒</b></div>
+    </div>
+    <div class="card files" id="files">
+      <h3>這一頁要下載的東西（共 6.1 MB）</h3>
+      <div class="f" id="fHero"><span>hero.jpg　首頁大圖</span><i style="width:78%"></i><em>4.8 MB</em></div>
+      <div class="f"><span>fonts（三種字型）</span><i style="width:10%"></i><em>620 KB</em></div>
+      <div class="f"><span>app.js</span><i style="width:6%"></i><em>380 KB</em></div>
+      <div class="f"><span>商品圖 × 12</span><i style="width:4%"></i><em>240 KB</em></div>
+      <div class="f"><span>styles.css</span><i style="width:1%"></i><em>40 KB</em></div>
+    </div>
+  </div>
+  <div class="card road" id="road">
+    <h3>手機網路下，畫面怎麼一塊塊出現（4G）</h3>
+    <div class="tl"><span class="t" style="left:0">0 秒</span><span class="t" style="left:25%">1.5</span><span class="t" style="left:50%">3</span><span class="t" style="left:75%">4.5</span><span class="t" style="left:100%">6 秒</span></div>
+    <div class="bars">
+      <div class="b"><span>HTML</span><i style="left:0;width:3%"></i></div>
+      <div class="b"><span>CSS、字型</span><i style="left:3%;width:14%"></i></div>
+      <div class="b"><span>app.js</span><i style="left:3%;width:10%"></i></div>
+      <div class="b hero"><span>hero.jpg</span><i style="left:6%;width:94%"></i></div>
+    </div>
+    <div class="phones"><div class="ph p1">空白</div><div class="ph p2">有字，沒圖</div><div class="ph p3">還在等大圖…</div><div class="ph p4">終於完整</div></div>
+  </div>
+  <div class="chips">
+    <button id="b1" data-s="1">① 分數</button>
+    <button id="b2" data-s="2">② 檔案大小</button>
+    <button id="b3" data-s="3">③ 載入過程</button>
+  </div>
+</div>
+</body></html>

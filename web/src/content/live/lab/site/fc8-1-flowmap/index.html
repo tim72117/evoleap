@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>request-flow.md</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="doc">
+  <div class="head"><span class="file mono">docs/request-flow.md</span><span class="tag ok">已用 curl 驗證</span></div>
+  <h1>小森烘焙：請求流程圖</h1>
+  <p class="muted">每一列是一次請求：誰發出、送到哪裡、回來什麼。</p>
+  <div class="seq">
+    <div class="life l1"><b>瀏覽器</b><span>前端</span></div>
+    <div class="life l2"><b>伺服器</b><span>後端 server.js</span></div>
+    <div class="life l3"><b>資料庫</b><span>orders.db</span></div>
+    <div class="msgs">
+      <div class="m" id="m1"><div class="ar r a12">GET /</div><div class="ar l a21 ok">200 首頁 HTML</div></div>
+      <div class="m" id="m2"><div class="ar r a12">GET /api/menu</div><div class="ar r a23 db">SELECT 商品</div><div class="ar l a21 ok">200 商品清單 JSON</div></div>
+      <div class="m" id="m3"><div class="ar r a12">POST /api/orders</div><div class="ar r a23 db">INSERT 訂單</div><div class="ar l a21 ok">201 已建立</div></div>
+      <div class="m" id="m4"><div class="ar r a12">GET /api/orders/me</div><div class="ar l a21 bad">401 沒登入</div></div>
+    </div>
+  </div>
+</div>
+</body></html>

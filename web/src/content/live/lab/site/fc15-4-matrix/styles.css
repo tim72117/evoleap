@@ -1,0 +1,16 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#eef0ec;display:flex;align-items:center;justify-content:center}
+.app{width:1200px;padding:16px 0;display:grid;grid-template-columns:.85fr 1.3fr;gap:18px}
+.list,.mx{background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 4px 16px rgba(0,0,0,.05)}
+h3{font-size:21px;margin-bottom:10px}
+ul{list-style:none}li{font-size:17px;padding:9px 4px;border-top:1px dashed #e3ded2}li::before{content:"☐ ";color:#8a9296}
+li.done::before{content:"☑ ";color:#2f7d6d}
+.grid{display:grid;grid-template-columns:60px repeat(3,1fr);gap:6px}
+.cell{height:104px;border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;justify-content:center}
+.ylab,.xlab{font-size:15px;color:#6b7478;display:flex;align-items:center;justify-content:center;text-align:center}
+.m1{background:#eef1f3}.m2{background:#fbf1cf}.m3{background:#fbdcc0}.m4{background:#f6c4bf}
+.chip{background:#fff;border-radius:8px;padding:5px 8px;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.legend{display:flex;gap:8px;margin-top:10px;font-size:14px}.legend span{border-radius:999px;padding:3px 10px}
+.chips{grid-column:1 / span 2;display:flex;gap:14px;justify-content:center}
+.chips button{font:inherit;font-size:19px;border:2px solid #c3cbc8;background:#fff;border-radius:999px;padding:8px 22px;color:#1f2a2e}
+.chips button.used{background:#1f3b44;color:#fff;border-color:#1f3b44}

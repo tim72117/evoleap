@@ -1,0 +1,169 @@
+{
+  "title": "機密放進 Secret Manager",
+  "lesson": "全環節 · 單元 19 · 19.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "把密碼都收進保險箱",
+    "line": "這一堂請 AI 把網站用到的密碼和金鑰搬進 Secret Manager，讓 Cloud Run 從保險箱讀；再徹底檢查版控裡有沒有殘留，有的話就換新。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "搬機密",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "me": {
+      "actor": "person",
+      "props": { "name": "你", "look": "customer" },
+      "place": { "x": 560, "y": 380, "w": 800, "h": 320 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "機密放進 Secret Manager",
+      "eyebrow": "全環節 · 單元 19 · 19.4 用 AI 完成",
+      "sub": "先找出所有機密 → 搬進保險箱 → 確認版控沒有殘留",
+      "chapter": "先找：機密都在哪",
+      "narration": "搬之前，要先知道機密都藏在哪裡。這件事交給 AI 地毯式搜尋。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "把網站用到的機密都搬進 Secret Manager，Cloud Run 改從那裡讀，環境變數裡不要再有明碼。也檢查程式碼和 git 歷史有沒有殘留的密碼或金鑰；有的話告訴我要換哪些。輸出裡請把機密遮起來。",
+      "narration": "最後一句很重要：輸出裡把機密遮起來，畫面上不要出現真正的值。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git grep -n -I -E \"(password|secret|api[_-]?key|_live_)\" -- . ':!*.md' | sed -E 's/(_live_|: ?.)[A-Za-z0-9]{4,}/\\1****/g'",
+      "result": "完成",
+      "out": "config.js:3:export const PAYMENT_KEY = 'pay_live_****'\ndb.js:6:  password: process.env.DB_PASSWORD,",
+      "narration": "第一步，搜尋目前的程式碼。db.js 讀環境變數，沒問題；可是 config.js 裡，金流金鑰直接寫死了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log --all --oneline -S 'pay_live_' ; git log --all --oneline -- .env",
+      "result": "完成",
+      "out": "7c41e2a 串接金流\nb93d0f1 移除 .env\na1b2c3d 初始化專案",
+      "narration": "第二步，翻 git 的歷史：金流金鑰在「串接金流」那次就被 commit 了；.env 也曾經在第一次 commit 時被加進去，後來才移除。"
+    },
+    {
+      "on": "claude",
+      "say": "檢查結果：\n1. **金流金鑰**寫死在 `config.js`，而且已經 push 過 → **一定要換新**（只有你能到金流後台重新產生）\n2. **.env** 曾在 `a1b2c3d` 被 commit，裡面是**本機**資料庫的密碼 → 本機密碼也建議換\n3. 雲端資料庫密碼是上一堂新產生的，從沒進過 git → 安全\n我先把現有的機密搬進保險箱，再處理換新。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "刪掉沒用：push 過的就要換新",
+      "narration": "就像上一堂說的，push 過的機密，從程式碼刪掉也沒用，歷史裡還在，要換新。AI 把要換的、安全的，分得清清楚楚。"
+    },
+    {
+      "on": "claude",
+      "say": "**下一步：** 建立兩個機密 `db-password`、`payment-key`，值從 `.env` 用管線送進去，不會出現在畫面或指令紀錄。\n- 花錢嗎：每個機密每月幾元台幣，讀取幾乎免費",
+      "chapter": "搬進保險箱"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud secrets create（2 個）",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "grep CLOUD_DB_PASSWORD .env | cut -d= -f2- | tr -d '\\n' \\\n  | gcloud secrets create db-password --data-file=-\ngrep PAYMENT_KEY .env | cut -d= -f2- | tr -d '\\n' \\\n  | gcloud secrets create payment-key --data-file=-"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for s in db-password:CLOUD_DB_PASSWORD payment-key:PAYMENT_KEY; do grep ${s#*:} .env | cut -d= -f2- | tr -d '\\n' | gcloud secrets create ${s%%:*} --data-file=- ; done",
+      "result": "完成",
+      "out": "Created version [1] of the secret [db-password].\nCreated version [1] of the secret [payment-key]."
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud iam service-accounts create bakery-run --display-name=\"網站執行用\" && for r in secretmanager.secretAccessor cloudsql.client; do gcloud projects add-iam-policy-binding xiaosen-bakery-prod-2611 --member=serviceAccount:bakery-run@xiaosen-bakery-prod-2611.iam.gserviceaccount.com --role=roles/$r --condition=None -q >/dev/null && echo \"✓ $r\"; done",
+      "result": "完成",
+      "out": "Created service account [bakery-run].\n✓ secretmanager.secretAccessor\n✓ cloudsql.client",
+      "narration": "再建一個網站執行用的服務帳號，只給兩把鑰匙：讀機密、連資料庫。"
+    },
+    {
+      "on": "claude",
+      "edit": "config.js",
+      "lines": [
+        [3, "-", "export const PAYMENT_KEY = 'pay_live_****'"],
+        [3, "+", "export const PAYMENT_KEY = process.env.PAYMENT_KEY"]
+      ],
+      "narration": "程式碼裡寫死的金鑰，改成執行時從環境讀。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run deploy bakery（改讀 Secret Manager）",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "（重新打包上傳 web:v2 後）\ngcloud run deploy bakery --image …/bakery/web:v2 --region asia-east1 \\\n  --service-account bakery-run@…iam.gserviceaccount.com \\\n  --remove-env-vars DB_PASSWORD \\\n  --set-secrets DB_PASSWORD=db-password:latest,PAYMENT_KEY=payment-key:latest"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker build --platform linux/amd64 -t asia-east1-docker.pkg.dev/xiaosen-bakery-prod-2611/bakery/web:v2 . && docker push asia-east1-docker.pkg.dev/xiaosen-bakery-prod-2611/bakery/web:v2 && gcloud run deploy bakery --image asia-east1-docker.pkg.dev/xiaosen-bakery-prod-2611/bakery/web:v2 --region asia-east1 --service-account bakery-run@xiaosen-bakery-prod-2611.iam.gserviceaccount.com --remove-env-vars DB_PASSWORD --set-secrets DB_PASSWORD=db-password:latest,PAYMENT_KEY=payment-key:latest",
+      "result": "完成",
+      "out": "v2: digest: sha256:9e07…\n✓ Deploying… Done.\nService URL: https://bakery-5qx3k2-de.a.run.app"
+    },
+    {
+      "on": "claude",
+      "say": "已經改從保險箱讀了。接下來要換掉外洩的金流金鑰，這一步我做不到：請你登入**金流後台 → 開發者設定 → 重新產生金鑰**，把新的金鑰**自己存進 `.env` 的 PAYMENT_KEY**，跟我說一聲就好，不要貼給我。",
+      "chapter": "換掉外洩的金鑰"
+    },
+    { "show": "me" },
+    {
+      "on": "me",
+      "say": "我在金流後台重新產生了金鑰，自己貼進 .env 了。",
+      "mood": "calm",
+      "narration": "金流後台是你的帳號，重新產生金鑰、存進 .env，都由你自己做。不把金鑰貼進對話。"
+    },
+    { "hide": "me" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "grep PAYMENT_KEY .env | cut -d= -f2- | tr -d '\\n' | gcloud secrets versions add payment-key --data-file=- && gcloud secrets versions disable 1 --secret=payment-key && gcloud run services update bakery --region asia-east1 --update-secrets PAYMENT_KEY=payment-key:latest >/dev/null && gcloud secrets versions list payment-key --format='table(name,state)'",
+      "result": "完成",
+      "out": "Created version [2] of the secret [payment-key].\nNAME  STATE\n2     ENABLED\n1     DISABLED",
+      "narration": "AI 把新金鑰存成第二版，停用第一版，再讓網站重新讀最新版。換密碼，就是存一個新版本。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services describe bakery --region asia-east1 --format='yaml(spec.template.spec.containers[0].env)' | grep -E 'name|secretKeyRef|value:' ; git grep -c -E '_live_' ; curl -s -X POST -o /dev/null -w '%{http_code}\\n' -d 'item=測試&qty=1' https://bakery-5qx3k2-de.a.run.app/api/orders",
+      "result": "完成",
+      "out": "- name: DB_PASSWORD\n  valueFrom: { secretKeyRef: { name: db-password, key: latest } }\n- name: PAYMENT_KEY\n  valueFrom: { secretKeyRef: { name: payment-key, key: latest } }\n（git grep：沒有找到）\n201",
+      "chapter": "最後驗證",
+      "narration": "最後三項驗證：網站的設定裡只剩「去保險箱拿」，沒有明碼；程式碼裡搜不到金鑰；送一筆測試訂單，二〇一，網站正常。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- `db-password`、`payment-key` 都在 Secret Manager，Cloud Run 環境變數沒有明碼\n- 只有 `bakery-run` 讀得到機密\n- 外洩的金流金鑰已換成第 2 版，第 1 版停用\n- 目前程式碼搜不到機密；git 歷史裡的舊值都已失效\n建議：本機資料庫的密碼也換一組。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把機密收進保險箱",
+      "body": "請 AI 搜尋程式碼和 git 歷史裡的機密（輸出要遮起來），把機密搬進 Secret Manager、讓網站從那裡讀。push 過的金鑰由你到服務後台重新產生、自己存進 .env，再請 AI 存成新版本。"
+    },
+    {
+      "card": "先找、再搬、再驗\npush 過的機密：你換新，AI 存新版本",
+      "eyebrow": "學會",
+      "sub": "機密不貼進對話；輸出要遮起來",
+      "chapter": "學會",
+      "narration": "先讓 AI 找出所有機密，再搬進保險箱，最後驗證沒有殘留。push 過的機密由你到服務後台換新、自己存好，AI 存成新版本。現在所有機密都在 Secret Manager 裡了。"
+    }
+  ]
+}

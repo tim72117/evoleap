@@ -1,0 +1,357 @@
+{
+  "title": "讓 AI 起草，人核准後才發",
+  "lesson": "基礎 · 單元 15 · 15.3 試做",
+  "teacher": {
+    "say": "今天讓 AI 幫你寫貼文",
+    "line": "今天請 AI 從更新紀錄幫你起草貼文。它寫、你看過核准、程式才發，發文前一定有人看過。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "貼文草稿",
+        "folder": "~/projects/my-site",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": {
+        "project": "my-site",
+        "files": {
+          "posts/drafts/2026-11-10-v0.25.0.md": "新課上架：手作司康，一次學會三種口味 🎉\n從揉麵到出爐，跟著影片一步步做，第一次做也不會失敗。\n👉 https://xiaoan-bakery.example/scone?utm_source=facebook&utm_medium=social\n#手作點心 #司康 #線上課程\n"
+        }
+      },
+      "place": {
+        "x": 240,
+        "y": 140,
+        "w": 1440,
+        "h": 600
+      },
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "posts": {
+            "RULES.md": "",
+            "drafts": {
+              "2026-11-10-v0.25.0.md": ""
+            },
+            "approved": {},
+            "posted": {}
+          }
+        },
+        "open": "posts"
+      },
+      "place": "center",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "讓 AI 起草，人核准後才發",
+      "eyebrow": "基礎 · 單元 15 · 15.3",
+      "sub": "AI 寫草稿、你看過並核准、程式只發核准過的",
+      "chapter": "三個角色",
+      "narration": "上一課我們自己寫好內容再發。這一課把寫稿也交給 AI：AI 起草，你看過、核准，程式只發核准過的貼文。"
+    },
+    {
+      "card": "AI 起草\n你核准\n程式發布",
+      "eyebrow": "分工",
+      "sub": "發出去之前，一定有人看過",
+      "narration": "三個角色分清楚。最重要的是中間這一步：貼文發出去之前，一定要有人看過。"
+    },
+    {
+      "show": "claude",
+      "chapter": "把規則寫下來",
+      "narration": "先把發文規則寫成檔案，AI 每次起草都照著做，不用每次重講。"
+    },
+    {
+      "on": "claude",
+      "user": "寫一份 posts/RULES.md：語氣親切、150 字內、最多 3 個 hashtag、連結加上 utm_source=facebook，不寫沒有根據的數字",
+      "narration": "規則越具體越好：語氣、長度、hashtag，連結要加上 UTM，讓 GA4 分得出是粉專帶來的流量；還有，不寫沒有根據的數字。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "ask": "posts/RULES.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/my-site",
+      "preview": "# 發文規則\n- 語氣親切，像跟熟客說話\n- 150 字內，最多 3 個 hashtag\n- 連結加上 ?utm_source=facebook&utm_medium=social\n- 不寫沒有根據的數字（人數、銷量、折扣）",
+      "narration": "內容就是我們剛剛說的，整理成清單。允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "posts/RULES.md",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "user": "寫 draft.js：讀 CHANGELOG 最新的一版，照 RULES.md 起草一篇貼文，存到 posts/drafts/，不要發文",
+      "chapter": "AI 起草",
+      "narration": "接著請它寫起草的腳本。注意最後一句：只存成草稿，不要發文。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "ask": "draft.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/my-site",
+      "preview": "const rules = readFileSync('posts/RULES.md', 'utf8')\nconst latest = readFileSync('CHANGELOG.md', 'utf8').split('\\n## ')[1]\nconst text = await askAI(`照規則起草粉專貼文：\\n${rules}\\n\\n更新內容：\\n${latest}`)\nwriteFileSync(`posts/drafts/${today()}-${version}.md`, text)",
+      "narration": "它要建立 draft.js：讀規則和最新一版的更新紀錄，請 AI 起草，存成草稿檔。裡面沒有發文的程式。允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "draft.js",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "npm run draft",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "讀 CHANGELOG，起草一篇貼文存到 posts/drafts/，不會發文",
+      "narration": "執行起草。它只會寫檔案，不會發文。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run draft",
+      "result": "完成",
+      "out": "已起草：posts/drafts/2026-11-10-v0.25.0.md",
+      "narration": "草稿存好了。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "code",
+      "chapter": "你來核准",
+      "narration": "打開草稿看看。"
+    },
+    {
+      "callout": "code:code",
+      "text": "核對：內容對不對？連結點得開嗎？有沒有沒根據的話？",
+      "narration": "看三件事：內容和 CHANGELOG 對得上嗎？連結點得開、有沒有帶 UTM？有沒有誇大或沒有根據的話？這篇都沒問題。"
+    },
+    {
+      "on": "code",
+      "type": "這週末前報名，送你一份司康配方 PDF！\n",
+      "narration": "想補一句，就直接改。草稿是給你改的，不是照單全收。"
+    },
+    {
+      "hide": "code"
+    },
+    {
+      "show": "finder",
+      "narration": "核准的方法很簡單：把草稿從 drafts 移到 approved。",
+      "open": "drafts"
+    },
+    {
+      "on": "finder",
+      "rename": [
+        "2026-11-10-v0.25.0.md",
+        "../approved/2026-11-10-v0.25.0.md"
+      ],
+      "narration": "移過去，就代表「我看過了，可以發」。"
+    },
+    {
+      "on": "finder",
+      "open": "../approved"
+    },
+    {
+      "callout": "finder:item:2026-11-10-v0.25.0.md",
+      "text": "approved 裡的草稿 = 你看過、同意發出的",
+      "narration": "程式只認 approved 這個資料夾。沒移過去的草稿，永遠不會被發出去。"
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "show": "claude",
+      "chapter": "只發核准過的",
+      "narration": "最後請它寫發文的腳本。"
+    },
+    {
+      "on": "claude",
+      "user": "寫 publish-approved.js：只發 posts/approved/ 裡的草稿，發出後移到 posts/posted/，並在檔案裡記下貼文連結"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "ask": "publish-approved.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/my-site",
+      "preview": "for (const file of readdirSync('posts/approved')) {\n  const { id } = await publish(readFileSync(`posts/approved/${file}`, 'utf8'))\n  appendFileSync(`posts/approved/${file}`, `\\n貼文：https://facebook.com/${id}\\n`)\n  renameSync(`posts/approved/${file}`, `posts/posted/${file}`)\n}",
+      "narration": "看重點：只讀 approved 資料夾；發出後在檔案記下貼文連結，再移到 posted。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "發過的移走：下次執行就不會重複發",
+      "narration": "發過的就移走，approved 變空，下次再執行也不會重複發同一篇。允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "publish-approved.js",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "npm run publish:approved",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "發出 posts/approved/ 裡的草稿，發出後所有人都看得到",
+      "narration": "執行。這一步會正式發文。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run publish:approved",
+      "result": "完成",
+      "out": "發出 1 篇：2026-11-10-v0.25.0.md\n貼文：https://facebook.com/1048_2231\n已移到 posts/posted/",
+      "narration": "發出一篇，連結記下來，檔案移到 posted。"
+    },
+    {
+      "on": "claude",
+      "ask": "npm run publish:approved",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "再執行一次，確認不會重複發文",
+      "narration": "故意再執行一次。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run publish:approved",
+      "result": "完成",
+      "out": "posts/approved/ 沒有草稿，這次不發文",
+      "narration": "approved 是空的，什麼都沒發。不會重複發文。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "finder",
+      "rename": [
+        "2026-11-10-v0.25.0.md",
+        "../posted/2026-11-10-v0.25.0.md"
+      ]
+    },
+    {
+      "on": "finder",
+      "open": "../posted",
+      "narration": "資料夾裡也看得到：發過的貼文都在 posted，每一篇都記著貼文連結，就是你的發文紀錄。"
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "AI 起草的貼文寫著「已經有 500 人報名！」，但你不確定這個數字。你會怎麼做？",
+      "body": "選一個。",
+      "id": "approve",
+      "options": [
+        {
+          "label": "照發，AI 應該查過了",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "AI 可能自己編出數字；發出去就是你的粉專說的",
+              "narration": "AI 有時會自己編出看起來合理的數字。發出去之後，就是你的粉專說的話。"
+            },
+            {
+              "card": "答案：先改掉這句，再移到 approved",
+              "eyebrow": "判斷看看",
+              "sub": "核准前確認每一句都有根據",
+              "narration": "核准之前，把沒有根據的句子改掉或刪掉，再移到 approved。"
+            }
+          ]
+        },
+        {
+          "label": "先改掉這句，再移到 approved",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "核准前確認每一句都有根據；也可以把這條寫進規則",
+              "narration": "答對了。沒有根據的句子先改掉，再核准。也可以把它補進 RULES 點 md，下次 AI 起草就會避開。"
+            }
+          ]
+        },
+        {
+          "label": "讓程式先發，有錯再刪",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "發出去就有人看到、分享，刪掉也收不回來",
+              "narration": "貼文一發出去，就可能被看到、被分享，刪掉也收不回來。"
+            },
+            {
+              "card": "答案：先改掉這句，再移到 approved",
+              "eyebrow": "判斷看看",
+              "sub": "核准前確認每一句都有根據",
+              "narration": "核准之前，把沒有根據的句子改掉或刪掉，再移到 approved。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "規則寫成檔案\n草稿一定有人看過\n只發核准的，發過就移走",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：發文規則、草稿、核准、UTM、發文紀錄",
+      "chapter": "學會",
+      "narration": "把發文規則寫成檔案，AI 每次照著起草；草稿一定有人看過、改過，移到 approved 才算核准；程式只發核准的，發過就移走，不會重複發。下一課，我們讓它每天自動跑，出問題會通知你。"
+    }
+  ]
+}

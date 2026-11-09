@@ -1,0 +1,133 @@
+{
+  "title": "指令從哪來：PATH 與環境變數",
+  "camera": "auto",
+  "teacher": {
+    "say": "請 AI 幫你查 PATH",
+    "line": "這一堂請 AI 檢查你的 PATH、找出常用指令放在哪裡，再用白話解釋，為什麼裝了新工具要重開終端機才生效。最後你自己用 which 找一次。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "檢查 PATH", "folder": "~/projects", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~" },
+      "place": { "x": 300, "y": 200, "w": 1320, "h": 620 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 幫你查 PATH",
+      "eyebrow": "全環節 · 單元 2 · 2.3 用 AI 完成",
+      "sub": "檢查 · 找位置 · 解釋原因",
+      "chapter": "交代任務",
+      "narration": "PATH 平常看不到，出問題時又很難懂，正好交給 AI 幫你查清楚、講明白。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我檢查 PATH：列出裡面有哪些資料夾、找出 node 和 git 在哪裡，再用白話解釋為什麼裝完新工具要重開終端機才生效。結果寫進 PATH-NOTES.md。"
+    },
+    {
+      "on": "claude",
+      "todos": [["列出 PATH", "doing"], ["找 node、git 的位置", "pending"], ["查 PATH 是誰設定的", "pending"], ["寫 PATH-NOTES.md", "pending"]]
+    },
+    {
+      "on": "claude",
+      "ask": "echo $PATH | tr ':' '\\n'",
+      "where": "~/projects",
+      "narration": "第一個指令：把 PATH 印出來，再把冒號換成換行，一行一個資料夾，比較好讀。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "echo 只是印出來，不會改東西",
+      "narration": "echo 只是印出來，tr 只是換字，都不會改東西。允許。"
+    },
+    { "on": "claude", "choose": 2, "hover": [1], "narration": "這次選一律允許，之後同樣的查詢指令就不用一直問。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "echo $PATH | tr ':' '\\n'",
+      "out": "/opt/homebrew/bin\n/usr/local/bin\n/usr/bin\n/bin\n/usr/sbin\n/sbin",
+      "chapter": "找指令在哪裡"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "which node git",
+      "out": "/opt/homebrew/bin/node\n/usr/bin/git",
+      "narration": "接著用 which 找 node 和 git。node 在第一個資料夾，git 在第三個，是 macOS 內建的。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "which -a python3",
+      "out": "/opt/homebrew/bin/python3\n/usr/bin/python3",
+      "narration": "它還多查了一個例子：python3 有兩個。which -a 列出全部。"
+    },
+    {
+      "on": "claude",
+      "say": "`python3` 在你的電腦上有兩個。打 `python3` 時會用**前面那個** `/opt/homebrew/bin/python3`，因為 PATH 從上往下找，先找到先用。",
+      "narration": "同名的指令有好幾個時，排在 PATH 前面的那個會被用到。很多「明明裝了新版、卻跑出舊版」的問題，就是這個原因。"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "PATH|brew shellenv  ~/.zprofile ~/.zshrc",
+      "result": "~/.zprofile 第 1 行",
+      "out": "~/.zprofile:1: eval \"$(/opt/homebrew/bin/brew shellenv)\"",
+      "chapter": "PATH 是誰設定的",
+      "narration": "最後找 PATH 是在哪裡設定的。在 .zprofile 這個設定檔的第一行。"
+    },
+    {
+      "on": "claude",
+      "say": "**為什麼要重開終端機？**\n終端機打開時，會讀一次 `~/.zprofile` 這類設定檔，算出 PATH，之後就一直用這份。安裝程式改了設定檔，已經開著的終端機不會知道，所以要重開（或打 `source ~/.zprofile` 重新讀）。",
+      "narration": "它的解釋：終端機打開時讀一次設定檔，之後就一直用那一份。改了設定檔，要重開才會重新讀。"
+    },
+    {
+      "on": "claude",
+      "edit": "PATH-NOTES.md",
+      "lines": [[1, "+", "# 我的 PATH"], [2, "+", "1. /opt/homebrew/bin（Homebrew 裝的工具，例如 node）"], [3, "+", "2. /usr/local/bin"], [4, "+", "3. /usr/bin（系統內建，例如 git）"], [5, "+", ""], [6, "+", "- 由 ~/.zprofile 第 1 行設定"], [7, "+", "- 同名指令：排前面的先用（python3 有兩個）"], [8, "+", "- 改了設定要重開終端機，或 source ~/.zprofile"], [9, "+", "- Windows：用 where node 查位置"]]
+    },
+    {
+      "on": "claude",
+      "todos": [["列出 PATH", "done"], ["找 node、git 的位置", "done"], ["查 PATH 是誰設定的", "done"], ["寫 PATH-NOTES.md", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 寫在 `PATH-NOTES.md`。換你在自己的終端機試一次：`which git`。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "term",
+      "chapter": "換你找一次",
+      "narration": "最後，自己在終端機找一次。"
+    },
+    {
+      "on": "term",
+      "type": "which git",
+      "out": "/usr/bin/git",
+      "tone": "ok",
+      "narration": "which git，印出 /usr/bin/git，和 AI 查到的一樣。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "用 which 找到一個指令 ✓",
+      "narration": "你自己找到了。用 Windows 的話，同樣的事打 where git。"
+    },
+    {
+      "checkpoint": "換你：請 AI 檢查 PATH，再自己用 which 找一次",
+      "body": "請 AI 列出 PATH、找出 node 和 git 的位置、解釋為什麼要重開終端機，寫進 PATH-NOTES.md。然後自己打 which git（Windows 打 where git），對照它查到的位置。"
+    },
+    {
+      "card": "用 where／which 找到一個指令 ✓",
+      "eyebrow": "2.3 完成",
+      "sub": "下一堂：用一行指令裝好工具",
+      "narration": "你知道指令從哪裡來了。下一堂，學用一行指令裝好工具。"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>小森陶器</title></head>
+<body>
+<div class="app" id="app">
+  <div class="page" id="page">
+    <header class="top"><div class="brand">小森陶器</div><div class="cart">購物車 <b id="count">0</b></div></header>
+    <div class="product" id="product">
+      <div class="pic"><span class="cup"></span></div>
+      <div class="pinfo">
+        <h1>手作陶杯</h1>
+        <p class="desc">每一個都是手拉坯，釉色略有不同。</p>
+        <p class="price">NT$ 680</p>
+        <div class="row-btn"><button id="add">加入購物車</button><span class="ear" id="add-ear">監聽 click</span></div>
+      </div>
+    </div>
+    <form class="news" id="news">
+      <div class="news-title">訂閱新品通知 <span class="ear" id="form-ear">監聽 submit</span></div>
+      <div class="field"><input id="email" type="email" placeholder="你的 Email" autocomplete="off"><span class="ear" id="email-ear">監聽 input</span></div>
+      <p class="hint" id="hint"></p>
+      <button id="sub" type="submit">訂閱</button>
+      <p class="done" id="done" hidden>訂閱成功，新品上架會通知你。</p>
+    </form>
+  </div>
+  <aside class="back" id="back">
+    <div class="back-title">事件紀錄 <small>幕後：瀏覽器發出的每一個事件</small></div>
+    <div class="chips" id="chips">
+      <span class="chip chip-click" data-type="click"><b>click</b>點擊</span>
+      <span class="chip chip-input" data-type="input"><b>input</b>輸入</span>
+      <span class="chip chip-scroll" data-type="scroll"><b>scroll</b>捲動</span>
+      <span class="chip chip-submit" data-type="submit"><b>submit</b>送出</span>
+    </div>
+    <div class="log-head"><span>事件</span><span>發生在</span><span>誰在聽</span><span>做了什麼</span></div>
+    <div class="log" id="log"><p class="empty" id="empty">還沒有事件發生</p></div>
+    <div class="flow" id="flow">
+      <span class="fbox">你做了一件事</span><span class="farr">→</span>
+      <span class="fbox">事件</span><span class="farr">→</span>
+      <span class="fbox">監聽的函式</span><span class="farr">→</span>
+      <span class="fbox">畫面改變</span>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

@@ -245,6 +245,13 @@
             "summary": "使用 Elements 檢視網頁結構、Console 看錯誤訊息與執行 JavaScript、Network 看請求。",
             "status": "planned",
             "minutes": 25
+          },
+          {
+            "id": "6.4",
+            "title": "讓 AI 連上瀏覽器開發者工具",
+            "summary": "認識 MCP（讓 AI 程式助手使用外部工具的連接方式），請助手依官方說明加入瀏覽器開發者工具的 MCP（例如 Chrome DevTools MCP），讓它自己打開網頁、讀 Console 的錯誤、看 Network 請求並截圖檢查畫面；知道它操作的是另一個瀏覽器視窗，每個動作仍要確認，不讓它登入自己的帳號。",
+            "status": "planned",
+            "minutes": 25
           }
         ]
       },
@@ -509,6 +516,41 @@
             "id": "14.4",
             "title": "小步修改，把規則寫給 AI",
             "summary": "建立修改流程：一次只做一件事、先看方案再動手、看 diff 確認沒有多改、跑測試後才 commit；把專案的結構與慣例寫進給 AI 看的專案說明，讓 AI 每次都依同樣的方式修改，並用一個新功能走完整個流程。",
+            "status": "planned",
+            "minutes": 30
+          }
+        ]
+      },
+      {
+        "id": "15",
+        "title": "串接 Facebook App 自動發文",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "15.1",
+            "title": "建立 Meta 開發者 App，取得粉專權杖",
+            "summary": "分清楚 App、使用者權杖與粉專權杖各是什麼；在 Meta 開發者網站建立 App、加上發文需要的權限（例如 pages_manage_posts），換出粉專權杖；請 AI 把權杖放進 .env、確認 .gitignore 擋住它，並寫一支只讀不寫的腳本確認權杖有效。權杖是密碼等級的機密，不貼進和 AI 的對話。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "15.2",
+            "title": "第一次用程式發文",
+            "summary": "請 AI 寫發文腳本，先發一篇排程或不公開的測試貼文確認串接成功，再依序發純文字、附連結、附圖片的貼文；看懂權限不足、權杖過期、參數錯誤的錯誤訊息，把訊息交給 AI 判斷，而不是叫它一直重試。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "15.3",
+            "title": "讓 AI 起草，人核准後才發",
+            "summary": "請 AI 從 CHANGELOG 或新上架的課產生貼文草稿，語氣、長度、hashtag 與連結的 UTM 寫成一份規則檔讓它遵守；草稿存成檔案，人修改後標記「已核准」，腳本只發已核准的草稿，發出後記下貼文連結，避免重複發。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "15.4",
+            "title": "排程自動發文，失敗會通知",
+            "summary": "請 AI 把權杖放進 GitHub Secrets，用 GitHub Actions 的排程（cron）定時發出已核准的草稿；發文失敗或權杖快過期時寄信通知；讀回貼文的按讚與觸及，和 GA4 從粉專帶來的流量對照。",
             "status": "planned",
             "minutes": 30
           }

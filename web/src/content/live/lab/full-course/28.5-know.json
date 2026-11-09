@@ -1,0 +1,62 @@
+{
+  "title": "AI 的知識停在哪一天",
+  "lesson": "全環節 · 單元 28 · 28.5 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "AI 的知識會過期",
+    "line": "今天看一個常讓人困惑的錯誤：AI 照著做，卻出現「沒有這個選項」。原因是 AI 的知識停在某一天，而工具一直在改版。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "設定樣式工具", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc28-5-cutoff", "width": "desktop", "url": "https://whiteboard.example/knowledge-cutoff" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "AI 的知識停在哪一天",
+      "eyebrow": "全環節 · 單元 28 · 28.5 基礎知識",
+      "sub": "知識截止日、改版與最新文件",
+      "chapter": "一個奇怪的錯誤",
+      "narration": "先看一個你很可能會遇到的錯誤。"
+    },
+    { "show": "claude", "narration": "你請 AI 幫網站裝一個樣式工具。" },
+    { "on": "claude", "user": "幫我裝 Tailwind CSS" },
+    { "on": "claude", "tool": "Bash", "arg": "npx tailwindcss init -p", "result": "失敗", "out": "npm error could not determine executable to run", "narration": "它很有自信地執行了一行指令，結果失敗了。" },
+    { "on": "claude", "say": "看起來安裝有問題，我再試一次……", "narration": "它以為是安裝出了問題，想再試一次。其實不是。" },
+    {
+      "callout": "claude:tool",
+      "text": "這行指令是舊版的做法，新版已經拿掉了",
+      "narration": "真正的原因是：這是舊版的做法。新版改了安裝方式，這個指令已經不存在。AI 學到的，是改版之前的資料。"
+    },
+    { "show": "web", "chapter": "知識截止日", "narration": "畫成一條時間線來看。" },
+    { "on": "web", "click": "#next", "narration": "AI 是讀了大量資料學會的。但資料只收到某一天，這一天叫知識截止日。之後發生的事，它不知道。" },
+    { "on": "web", "click": "#next", "narration": "而工具一直在改版。新版本出來，設定檔的寫法變了。" },
+    { "on": "web", "click": "#next", "narration": "雲端主控台也會改版，按鈕搬了家。AI 叫你點左邊的某個選單，結果找不到。" },
+    { "on": "web", "click": "#next", "narration": "指令改名，舊的參數被拿掉。AI 照舊的寫法做，就會出錯。" },
+    { "on": "web", "click": "#next", "chapter": "解法", "narration": "解法很簡單：動手之前，先給它最新的資料。" },
+    {
+      "card": "官方文件的安裝頁\n更新紀錄（CHANGELOG、Release notes）\n升級指南（從舊版改到新版）",
+      "eyebrow": "給它讀什麼",
+      "sub": "請 AI 先讀，再說它打算怎麼做",
+      "narration": "給它讀三種東西：官方文件的安裝頁、更新紀錄，還有升級指南。請它先讀完，說出它打算怎麼做，再動手。"
+    },
+    {
+      "card": "看到這些訊號就要懷疑",
+      "eyebrow": "提醒",
+      "sub": "unknown option、deprecated、command not found、找不到某個按鈕",
+      "narration": "出現這幾種訊號時，就要懷疑是版本問題：不認得的選項、已淘汰、找不到指令，或主控台找不到 AI 說的按鈕。"
+    },
+    {
+      "card": "AI 有知識截止日\n工具、主控台一直在改\n動手前先給它最新的文件和更新紀錄",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 先讀官方最新文件再動手，比較前後的差別",
+      "chapter": "學會",
+      "narration": "AI 有知識截止日，工具和主控台一直在改。動手前，先給它最新的文件和更新紀錄。下一堂，我們比較讀之前和讀之後的做法。"
+    }
+  ]
+}

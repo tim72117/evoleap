@@ -1,0 +1,51 @@
+/* 全環節課程第 3 組示意網頁的共用樣式(每個版本各複製一份) */
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; color: #1f2937; background: #f6f7f9; font-size: 17px; line-height: 1.55; }
+.top { display: flex; align-items: center; gap: 16px; height: 58px; padding: 0 26px; background: #ffffff; border-bottom: 1px solid #e5e7eb; }
+.top .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
+.top .logo i { width: 30px; height: 30px; border-radius: 9px; background: var(--brand, #4f46e5); display: inline-block; }
+.top .sp { flex: 1; }
+.top .who { font-size: 14px; color: #6b7280; }
+.app { display: flex; }
+.side { width: 220px; flex: none; padding: 20px 12px; background: #ffffff; border-right: 1px solid #e5e7eb; }
+.side a { display: block; padding: 9px 14px; border-radius: 9px; color: #374151; text-decoration: none; font-size: 15px; }
+.side a.on { background: #eef2ff; color: #3730a3; font-weight: 700; }
+.main { flex: 1; padding: 26px 34px; }
+h1, [data-h1] { font-size: 28px; margin: 0 0 6px; font-weight: 800; }
+h2 { font-size: 20px; margin: 0 0 10px; }
+.muted { color: #6b7280; font-size: 15px; }
+.card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+.row { display: flex; gap: 18px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; border: 0; background: var(--brand, #4f46e5); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.btn.ghost { background: #fff; color: #374151; border: 1px solid #d1d5db; }
+.btn.small { padding: 6px 12px; font-size: 14px; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; background: #eef2ff; color: #3730a3; }
+.tag.ok { background: #dcfce7; color: #166534; }
+.tag.bad { background: #fee2e2; color: #991b1b; }
+.tag.warn { background: #fef3c7; color: #92400e; }
+.mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+label { display: block; font-size: 14px; font-weight: 700; color: #374151; margin: 12px 0 4px; }
+input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 9px; font: inherit; background: #fff; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #e5e7eb; }
+th { background: #f9fafb; color: #4b5563; font-size: 14px; }
+.hide { display: none !important; }
+.note { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 12px 16px; font-size: 15px; }
+.wrap { padding: 28px 40px; }
+.row2 { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; margin-top: 16px; }
+.js { margin: 0; padding: 22px 26px; background: #0f172a; color: #cbd5e1; border-radius: 16px; font-size: 21px; line-height: 1.6; }
+.js span { border-radius: 6px; }
+.k { color: #93c5fd; } .v { color: #fcd34d; }
+.hl-obj .ob, .hl-obj .ob2 { background: rgba(244, 114, 182, 0.35); }
+.hl-key .k { background: rgba(59, 130, 246, 0.45); color: #fff; }
+.hl-val .v { background: rgba(250, 204, 21, 0.45); color: #fff; }
+.hl-arr .ar { background: rgba(34, 197, 94, 0.3); }
+.btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btns .btn { justify-content: center; font-size: 17px; }
+.btns .btn.on { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+.exp { margin-top: 16px; font-size: 19px; min-height: 160px; }
+.exp b { display: block; font-size: 22px; margin-bottom: 6px; }

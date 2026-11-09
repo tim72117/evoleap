@@ -1,0 +1,15 @@
+<!doctype html><html><head><title>前景與背景</title></head><body><div class="wrap">
+<h1 class="ttl">同樣 20 分鐘，你在做什麼？</h1>
+<p class="sub">完整測試加部署，大約要跑 20 分鐘</p>
+<div class="tl box" id="fg">
+ <div class="lab">放在前景跑</div>
+ <div class="bar"><div class="seg wait" data-at="t1">盯著畫面等……（什麼都不能做）</div><div class="seg end" data-at="t1">看結果</div></div>
+</div>
+<div class="tl box" id="bgr">
+ <div class="lab">放在背景跑</div>
+ <div class="bar"><div class="seg run" data-at="t2">背景：測試 → 部署</div><div class="seg ping" data-at="t3">通知：完成</div></div>
+ <div class="bar me"><div class="seg mine" data-at="t2">你：繼續寫文案、回客人訊息、改另一個小地方</div></div>
+</div>
+<div class="tip" data-at="t4">背景任務要說好：跑完回報什麼（過了幾個、失敗在哪、網址）</div>
+<div class="btns"><button id="x1" data-go="t1">前景</button><button id="x2" data-go="t2">背景</button><button id="x3" data-go="t3">通知</button><button id="x4" data-go="t4">回報</button></div>
+</div></body></html>

@@ -1,0 +1,27 @@
+/* fc8 圖解共用底稿(複製到各版本的 styles.css 開頭) */
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; color: #1f2733; background: #f6f4ef; }
+.wrap { padding: 36px 48px; box-sizing: border-box; min-height: 640px; }
+.ttl { font-size: 30px; font-weight: 700; margin: 0 0 6px; }
+.sub { font-size: 18px; color: #5b6575; margin: 0 0 22px; }
+[data-at] { opacity: .13; }
+[data-at].on { opacity: 1; }
+[data-go] { cursor: pointer; }
+.box { background: #fff; border: 2px solid #d9d4c7; border-radius: 14px; padding: 14px 18px; box-sizing: border-box; }
+.tag { display: inline-block; font-size: 14px; padding: 3px 10px; border-radius: 999px; background: #ece7db; color: #4a5260; }
+.ok { color: #1f8a4c; } .bad { color: #c2412d; } .warn { color: #b7791f; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.cols { display: flex; gap: 20px; align-items: stretch; }
+.col { flex: 1; min-height: 420px; }
+.h { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+.row { display: flex; align-items: center; gap: 10px; font-size: 19px; padding: 9px 0; border-bottom: 1px dashed #e2ddd0; }
+.row i { font-style: normal; width: 28px; height: 28px; border-radius: 50%; background: #ece7db; display: grid; place-items: center; font-size: 15px; }
+.row .mono { color: #5b6575; font-size: 15px; }
+.miss.on { background: #fdecea; }
+.note { margin-top: 16px; font-size: 18px; font-weight: 700; }
+.arrowc { font-size: 54px; align-self: center; color: #1f6feb; }
+.file { background: #eef4ff; border: 2px solid #9db8f2; border-radius: 10px; padding: 12px; font-size: 19px; margin-bottom: 14px; }
+.cmd { background: #1f2733; color: #e6edf3; border-radius: 10px; padding: 14px; font-size: 19px; }
+.out { background: #1f2733; color: #7ee2a0; border-radius: 0 0 10px 10px; padding: 0 14px 16px; font-size: 17px; margin-top: -6px; }
+.btns { display: flex; gap: 8px; margin-top: 14px; }
+.btns button { font: inherit; font-size: 15px; padding: 6px 14px; border-radius: 8px; border: 1px solid #cfc8b8; background: #fff; }
+.btns button.done { background: #1f2733; color: #fff; }

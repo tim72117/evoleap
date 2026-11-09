@@ -1,0 +1,686 @@
+{
+  "title": "分帳計算機：聚餐、旅遊不用再按計算機",
+  "lesson": "生活小工具 · T1.1 試做",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做一個分帳計算機",
+    "line": "今天要來做一個分帳計算機。聚餐結帳的時候，輸入金額和人數，馬上知道每個人要付多少。"
+  },
+  "blocking": {
+    "cast": [
+      "claude",
+      "tool"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "a": {
+      "actor": "person",
+      "props": {
+        "name": "同事甲"
+      },
+      "place": {
+        "x": 40,
+        "y": 150,
+        "w": 440,
+        "h": 700
+      },
+      "hidden": true
+    },
+    "b": {
+      "actor": "person",
+      "props": {
+        "name": "同事乙"
+      },
+      "place": {
+        "x": 500,
+        "y": 150,
+        "w": 440,
+        "h": 700
+      },
+      "hidden": true
+    },
+    "c": {
+      "actor": "person",
+      "props": {
+        "name": "同事丙"
+      },
+      "place": {
+        "x": 960,
+        "y": 150,
+        "w": 440,
+        "h": 700
+      },
+      "hidden": true
+    },
+    "clerk": {
+      "actor": "person",
+      "props": {
+        "name": "店員",
+        "look": "staff"
+      },
+      "place": {
+        "x": 1420,
+        "y": 150,
+        "w": 440,
+        "h": 700
+      },
+      "hidden": true
+    },
+    "board": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-life-tools-T1-1-ipo",
+        "width": "desktop",
+        "url": "講義 · 輸入 → 處理 → 輸出"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "分帳計算機",
+        "folder": "~/Documents/practice/split-bill",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "tool": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-life-tools-T1-1-split-v1",
+        "width": "desktop",
+        "url": "file:///Documents/practice/split-bill/index.html"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "practice": {
+            "hello.txt": "",
+            "bakery": {}
+          }
+        },
+        "open": "practice"
+      },
+      "place": {
+        "x": 1100,
+        "y": 380,
+        "w": 760,
+        "h": 520
+      },
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "card": "分帳計算機",
+      "eyebrow": "生活小工具 · T1.1",
+      "sub": "聚餐、旅遊不用再按計算機",
+      "chapter": "結帳時的三個答案",
+      "narration": "先來看一個你可能很熟的場面。"
+    },
+    {
+      "show": "a",
+      "narration": "同事四個人聚餐，帳單兩千三百五十元。"
+    },
+    {
+      "show": "b"
+    },
+    {
+      "show": "c"
+    },
+    {
+      "on": "a",
+      "say": "2350 除以 4……587.5！",
+      "mood": "calm",
+      "narration": "同事甲拿出手機計算機，按兩千三百五除以四。"
+    },
+    {
+      "on": "b",
+      "say": "等等，還有一成服務費！",
+      "mood": "worried",
+      "narration": "同事乙喊：還有一成服務費。只好重按。"
+    },
+    {
+      "on": "a",
+      "say": "重按……646.25",
+      "mood": "tired"
+    },
+    {
+      "on": "c",
+      "say": "那 .25 怎麼辦？",
+      "mood": "worried",
+      "narration": "算出六百四十六點二五，大家看著那個點二五：零頭怎麼辦？"
+    },
+    {
+      "show": "clerk"
+    },
+    {
+      "on": "clerk",
+      "say": "請問……好了嗎？",
+      "mood": "calm",
+      "narration": "三支手機、三個不同的答案，店員拿著帳單，還站在桌邊等。"
+    },
+    {
+      "hide": "a"
+    },
+    {
+      "hide": "b"
+    },
+    {
+      "hide": "c"
+    },
+    {
+      "hide": "clerk"
+    },
+    {
+      "card": "做一個打開就能算的分帳計算機",
+      "eyebrow": "這一課的任務",
+      "sub": "輸入金額、人數和服務費，馬上知道每人付多少",
+      "narration": "這一課，我們做一個分帳計算機。輸入金額、人數和服務費，馬上知道每人付多少，零頭也有規則。"
+    },
+    {
+      "show": "board",
+      "chapter": "需求拆成三件事",
+      "narration": "動手之前，先學一個說需求的方法。每個小工具，其實都是三件事。"
+    },
+    {
+      "on": "board",
+      "click": "[data-x=in]",
+      "narration": "第一件是輸入：要使用者填什麼。分帳計算機要填總金額和人數。"
+    },
+    {
+      "on": "board",
+      "click": "[data-x=proc]",
+      "narration": "第二件是處理：拿到這些數字之後，怎麼算。這裡就是總金額除以人數。"
+    },
+    {
+      "on": "board",
+      "click": "[data-x=out]",
+      "narration": "第三件是輸出：要顯示什麼。每人應付多少，而且一邊打字一邊更新。"
+    },
+    {
+      "callout": "board:sel:#foot",
+      "text": "輸入 → 處理 → 輸出，照這三行寫提示詞",
+      "narration": "把這三行寫進提示詞，AI 就很清楚你要的是什麼，不用猜。"
+    },
+    {
+      "hide": "board"
+    },
+    {
+      "show": "finder",
+      "chapter": "建立專案、產生第一版",
+      "lessonStep": 1,
+      "narration": "先在起步課程的 practice 資料夾裡，建一個新資料夾。"
+    },
+    {
+      "on": "finder",
+      "mkdir": "split-bill",
+      "narration": "名稱叫 split-bill，用英文、不要有空白。這門課每個工具一個專案資料夾。"
+    },
+    {
+      "on": "finder",
+      "open": "split-bill",
+      "narration": "裡面現在是空的。"
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "show": "claude",
+      "narration": "上一個專案的工具先關掉，再從 split-bill 這個資料夾開啟。工具開在哪裡，那裡就是它的工作目錄。"
+    },
+    {
+      "on": "claude",
+      "user": "做一個分帳計算機，用 index.html、styles.css、script.js。輸入：總金額、人數；處理：總金額除以人數；輸出：每人應付，輸入時立刻更新。",
+      "lessonStep": 2,
+      "narration": "提示詞就照剛才的三件事說：輸入、處理、輸出，再說好只用三個檔案。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1600
+    },
+    {
+      "on": "claude",
+      "say": "好的，我會用 `index.html`、`styles.css`、`script.js` 做一個分帳計算機：填總金額和人數，每人應付會即時算出來。"
+    },
+    {
+      "on": "claude",
+      "ask": "index.html",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/split-bill",
+      "preview": "<label>總金額（元）<input id=\"amount\" type=\"number\"></label>\n<label>人數<input id=\"people\" type=\"number\"></label>\n<div id=\"each\">—</div>"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "只允許這三個檔案",
+      "narration": "如果它想安裝套件、用外部網址，或建立其他檔案，先拒絕，提醒它只用這三個檔案。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "index.html",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "styles.css",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/split-bill",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "styles.css",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "script.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/split-bill",
+      "preview": "amount.addEventListener('input', update);\npeople.addEventListener('input', update);\nfunction update() {\n  each.textContent = amount.value / people.value + ' 元';\n}"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "處理：總金額 ÷ 人數",
+      "narration": "script.js 就是「處理」那一格，看得出來它把金額除以人數。看不懂程式也沒關係，對得上需求就好。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "script.js",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "say": "完成了。在 Finder 雙擊 `index.html` 就能用瀏覽器打開。"
+    },
+    {
+      "show": "tool",
+      "chapter": "雙擊打開，簡單試算",
+      "lessonStep": 3,
+      "narration": "雙擊 index.html，用瀏覽器打開。外觀是 AI 決定的，每個人的版本都不一樣，我們只看功能對不對。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#amount": "1000",
+        "#people": "4"
+      },
+      "narration": "先用一組好算的數字：一千元、四個人。"
+    },
+    {
+      "callout": "tool:sel:#each",
+      "text": "1000 ÷ 4 = 250，對",
+      "narration": "馬上顯示每人兩百五十元，不用按按鈕。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#people": "5"
+      },
+      "narration": "人數改成五，結果也跟著變成兩百元。輸入的時候立刻更新，這就是我們要的。"
+    },
+    {
+      "on": "claude",
+      "user": "加一個「加收 10% 服務費」的勾選，勾選時總金額先加一成再分",
+      "chapter": "加上服務費",
+      "lessonStep": 4,
+      "narration": "基本的能用了，接著加服務費。一次只加一個功能。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "edit": "script.js",
+      "lines": [
+        [
+          4,
+          "-",
+          "  var total = a;"
+        ],
+        [
+          4,
+          "+",
+          "  var total = fee.checked ? a * 1.1 : a;"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "已加上「加收 10% 服務費」的勾選，勾選時先把總金額加一成再分。"
+    },
+    {
+      "on": "tool",
+      "site": "lt-life-tools-T1-1-split-v2",
+      "narration": "重新整理網頁，多了一個勾選。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#amount": "1000",
+        "#people": "4"
+      }
+    },
+    {
+      "on": "tool",
+      "click": "#fee",
+      "narration": "一千元、四個人，勾選服務費。"
+    },
+    {
+      "callout": "tool:sel:#result",
+      "text": "1100 ÷ 4 = 275，標籤寫著含服務費",
+      "narration": "變成每人兩百七十五元，上面也標著含服務費，一眼就看得出來。"
+    },
+    {
+      "on": "tool",
+      "click": "#fee",
+      "narration": "取消勾選，回到兩百五十元。確認好了，再進下一步。"
+    },
+    {
+      "on": "claude",
+      "user": "每人應付無條件進位到整數，另外顯示總共多收幾元，多收的歸先付帳的人",
+      "chapter": "零頭的規則",
+      "lessonStep": 5,
+      "narration": "再來是零頭。零頭怎麼分，是規則，不是數學題，要你自己決定。這裡選無條件進位，多收的歸先付帳的人。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "edit": "script.js",
+      "lines": [
+        [
+          9,
+          "-",
+          "  each.textContent = total / n + ' 元';"
+        ],
+        [
+          9,
+          "+",
+          "  var per = Math.ceil(total / n);"
+        ],
+        [
+          10,
+          "+",
+          "  each.textContent = per + ' 元';"
+        ],
+        [
+          11,
+          "+",
+          "  extra.textContent = '多收 ' + (per * n - total) + ' 元';"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "每人應付改成無條件進位到整數，下方另外顯示多收的零頭。"
+    },
+    {
+      "on": "tool",
+      "site": "lt-life-tools-T1-1-split-v3"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#amount": "1000",
+        "#people": "3"
+      },
+      "narration": "試試一千元、三個人。"
+    },
+    {
+      "callout": "tool:sel:#result",
+      "text": "每人 334 元，多收 2 元",
+      "narration": "三百三十三點多，進位成三百三十四元，三個人共收一千零二，多收兩元。"
+    },
+    {
+      "checkpoint": "猜猜看：2,350 元、4 人、加 10% 服務費、無條件進位，每人要付多少？",
+      "body": "先在心裡算一下，再選一個。",
+      "id": "guess",
+      "stage": {
+        "focus": "tool:viewport"
+      },
+      "options": [
+        {
+          "label": "588 元",
+          "steps": [
+            {
+              "card": "588 元：忘了服務費",
+              "eyebrow": "再想想",
+              "sub": "2350 ÷ 4 = 587.5，進位是 588，但還沒加一成",
+              "narration": "五百八十八，是兩千三百五除以四再進位，忘了先加服務費。"
+            }
+          ]
+        },
+        {
+          "label": "646 元",
+          "steps": [
+            {
+              "card": "646 元：進位的方向反了",
+              "eyebrow": "再想想",
+              "sub": "646.25 無條件進位是 647，646 是捨去",
+              "narration": "六百四十六，是把零頭捨去了。我們說好的規則是無條件進位。"
+            }
+          ]
+        },
+        {
+          "label": "647 元",
+          "steps": [
+            {
+              "card": "647 元：答對了",
+              "eyebrow": "選選看",
+              "sub": "先加服務費，再除以人數，最後進位",
+              "narration": "對，六百四十七元。不過別急著相信，我們一起從頭算一次。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": []
+      }
+    },
+    {
+      "hide": "tool"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "board",
+      "on": "board",
+      "site": "lt-life-tools-T1-1-check",
+      "chapter": "自己驗算",
+      "lessonStep": 6,
+      "narration": "AI 說已經算對了，不算數。一定要自己用一組數字，從頭算一次。"
+    },
+    {
+      "on": "board",
+      "click": "#next",
+      "narration": "兩千三百五乘以一點一，是兩千五百八十五。"
+    },
+    {
+      "on": "board",
+      "click": "#next",
+      "narration": "除以四，六百四十六點二五。"
+    },
+    {
+      "on": "board",
+      "click": "#next",
+      "narration": "無條件進位，每人六百四十七元。"
+    },
+    {
+      "on": "board",
+      "click": "#next",
+      "narration": "四個人共收兩千五百八十八。"
+    },
+    {
+      "on": "board",
+      "click": "#next",
+      "narration": "減掉兩千五百八十五，多收三元。"
+    },
+    {
+      "hide": "board"
+    },
+    {
+      "show": "tool",
+      "narration": "換工具來算同一組數字。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#amount": "2350",
+        "#people": "4"
+      }
+    },
+    {
+      "on": "tool",
+      "click": "#fee"
+    },
+    {
+      "callout": "tool:sel:#result",
+      "text": "647 元、多收 3 元，和手算一樣",
+      "narration": "每人六百四十七、多收三元，和手算的一樣。算出來不一樣的話，把你的算式和工具顯示的數字一起告訴 AI，請它找出哪裡不同。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#people": "0"
+      },
+      "chapter": "刻意輸入錯誤的數字",
+      "lessonStep": 7,
+      "narration": "最後，自己當一次搗蛋的使用者。人數故意填零。"
+    },
+    {
+      "callout": "tool:sel:#each",
+      "text": "人數 0 → Infinity",
+      "narration": "出現 Infinity，無限大。真的有人手滑打錯，看到這個只會一頭霧水。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "人數填 0 時畫面顯示 Infinity，改成提示「人數至少 1 人」",
+      "narration": "描述問題有個句型：在什麼情況、看到什麼、希望變成什麼。一次只說一個問題。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "已加上檢查：人數小於 1 時不計算，改成顯示「人數至少 1 人」。我也一併處理了空白、負數和小數人數的提示。"
+    },
+    {
+      "on": "tool",
+      "site": "lt-life-tools-T1-1-split-v4"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#amount": "2350",
+        "#people": "0"
+      },
+      "narration": "再試一次人數零。"
+    },
+    {
+      "callout": "tool:sel:#msg",
+      "text": "清楚的提示，不再是 Infinity",
+      "narration": "這次出現清楚的提示：人數至少一人。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#people": "2.5"
+      },
+      "narration": "人數二點五呢？提示人數要是整數。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#amount": "",
+        "#people": "4"
+      },
+      "narration": "金額空白，提示請輸入總金額。"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#amount": "99999999"
+      },
+      "narration": "很大的金額也算得出來。"
+    },
+    {
+      "on": "tool",
+      "click": "#fee"
+    },
+    {
+      "on": "tool",
+      "fill": {
+        "#amount": "2350"
+      },
+      "narration": "修好之後，回到那組驗算的數字再算一次，確認原本的計算沒有被改壞。還是六百四十七、多收三元。"
+    },
+    {
+      "checkpoint": "換你做做看",
+      "body": "照著步驟做出自己的分帳計算機，用 2,350 元、4 人、加 10% 服務費驗算：每人 647 元、多收 3 元。再逐一試空白、0、負數、2.5 人、很大的金額。"
+    },
+    {
+      "hide": "tool"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "on": "fx",
+      "shimmer": "輸入 → 處理 → 輸出",
+      "sub": "一次加一個功能，自己驗算、自己測試"
+    },
+    {
+      "on": "fx",
+      "clear": true,
+      "narration": "回顧一下：需求拆成輸入、處理、輸出；一次加一個功能；AI 說對不算數，自己驗算、自己測試。下一課，讓工具記住資料。"
+    },
+    {
+      "card": "下一課：會記住的購物清單",
+      "eyebrow": "下一課",
+      "sub": "關掉再打開，記過的東西都還在",
+      "narration": "下次聚餐，打開它，一分鐘結完帳。"
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "title": "每次修改都自動跑",
+  "lesson": "全環節 · 單元 13 · 13.4 用 AI 完成",
+  "camera": "auto",
+  "blocking": {
+    "cast": [
+      "claude",
+      "repo"
+    ],
+    "shot": "depth"
+  },
+  "teacher": {
+    "say": "讓 GitHub 每次都幫你跑測試",
+    "line": "這一堂請 AI 設定 GitHub Actions，每次 push 都自動跑測試。第一次多半會失敗，這時讓 AI 用 gh 指令自己讀失敗紀錄，修好再推一次。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "設定 CI",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": []
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "repo": {
+      "actor": "browser",
+      "props": {
+        "site": "fc13-4-repo1",
+        "width": "desktop",
+        "url": "https://github.com/you/shop/commits/main"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "每次修改都自動跑",
+      "eyebrow": "全環節 · 單元 13 · 13.4 用 AI 完成",
+      "sub": "寫設定檔 → push → 看結果 → 失敗就讀紀錄修好",
+      "chapter": "交代",
+      "narration": "完成的標準很簡單：GitHub 上最新一次提交，旁邊是綠色的勾。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "幫我設定 GitHub Actions：每次 push 和開合併請求時，都跑 npm test 和 npm run test:e2e。設定好後推上去，用 gh 看執行結果；失敗的話用 gh 讀失敗的紀錄、找原因修好，直到出現綠勾。",
+      "narration": "說清楚什麼時候跑、跑哪些指令，還有：失敗要自己用 gh 讀紀錄修好。gh 是 GitHub 的命令列工具，AI 用它就能看到 GitHub 上的結果。"
+    },
+    {
+      "on": "claude",
+      "ask": ".github/workflows/test.yml",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/shop",
+      "preview": "on: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 24 }\n      - run: npm ci\n      - run: npx playwright install --with-deps\n      - run: npm test\n      - run: npm run test:e2e",
+      "chapter": "AI 寫設定檔",
+      "narration": "它寫好設定檔：push 或開合併請求時，在一台全新的電腦上，下載程式碼、裝 Node、裝套件、跑兩種測試。跟上一堂畫的流程一模一樣，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": ".github/workflows/test.yml",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "git add .github && git commit -m \"加上 CI：每次 push 自動跑測試\" && git push",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "提交並推上 GitHub",
+      "narration": "接著要推上 GitHub。push 會把程式送出去，所以它先問你。訊息寫得清楚，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git push",
+      "result": "已推送",
+      "out": "main -> main (a41f9c2)"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh run watch --exit-status",
+      "result": "失敗",
+      "out": "✗ test / 跑測試  1m12s\nRun failed",
+      "chapter": "第一次：失敗",
+      "narration": "它用 gh 等結果出來。第一次，失敗了。"
+    },
+    {
+      "show": "repo",
+      "narration": "GitHub 上，最新一筆旁邊是紅色的叉。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh run view --log-failed",
+      "result": "找到失敗原因",
+      "out": "npm test\n  ✗ 重設密碼信寄出\n    Error: 沒有設定 SITE_URL，信裡的連結會是錯的\n      at src/auth/links.ts:3",
+      "chapter": "讀失敗紀錄",
+      "narration": "它用 gh 讀失敗的紀錄。原因是：CI 那台全新的電腦上，沒有設定網站網址。在你的電腦上能過，是因為你的電腦剛好設定過。"
+    },
+    {
+      "callout": "repo:sel:#why",
+      "text": "全新的電腦才抓得到：「我的電腦有設定，CI 的沒有」",
+      "narration": "這正是 CI 用全新電腦的價值：你電腦上的設定，在這裡不算數。"
+    },
+    {
+      "on": "claude",
+      "say": "失敗原因：測試需要 `SITE_URL`，你的電腦有設定，CI 的電腦沒有。測試環境用 `http://localhost:3000` 就好（這不是機密），我把它加到設定檔的 `env`。",
+      "narration": "它說明原因和打算怎麼修：測試用的網址不是機密，直接寫進設定檔就好。如果是密碼、金鑰這類機密，就要放進 GitHub 的機密設定，那一步要你自己來。"
+    },
+    {
+      "on": "claude",
+      "edit": ".github/workflows/test.yml",
+      "lines": [
+        [
+          4,
+          " ",
+          "    runs-on: ubuntu-latest"
+        ],
+        [
+          5,
+          "+",
+          "    env:"
+        ],
+        [
+          6,
+          "+",
+          "      SITE_URL: http://localhost:3000"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "ask": "git commit -am \"CI：測試環境加上 SITE_URL\" && git push",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "提交修正並推上 GitHub"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git push && gh run watch --exit-status",
+      "result": "通過",
+      "out": "✓ test / 跑測試  1m48s\n  單元測試 46 passed\n  端對端測試 12 passed",
+      "chapter": "第二次：綠勾",
+      "narration": "再推一次。這次，兩種測試都通過了。"
+    },
+    {
+      "on": "repo",
+      "site": "fc13-4-repo2",
+      "narration": "GitHub 上，最新一筆變成綠色的勾。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 最新一次提交 `c03d7aa` 通過 CI。之後每次 push 或開合併請求，GitHub 都會自動跑測試並標上 ✓ 或 ✗。\n\n建議：在 GitHub 的分支設定開啟「通過檢查才能合併」。這是帳號設定，請你自己到設定頁開啟。",
+      "narration": "它回報完成，也建議開啟「通過才能合併」。那是 GitHub 帳號裡的設定，由你自己去開。"
+    },
+    {
+      "hide": "repo"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：讓每次 push 都有測試標記",
+      "body": "請 AI 設定 GitHub Actions 並推上去，用 gh 看結果；失敗就讓它用 gh run view --log-failed 讀紀錄修好，直到最新一筆是綠勾。"
+    },
+    {
+      "card": "設定一次，每次都自動\n失敗了：gh 讀紀錄 → 修 → 再推",
+      "eyebrow": "學會",
+      "sub": "機密不寫進設定檔，放進 GitHub 的機密設定",
+      "chapter": "學會",
+      "narration": "CI 設定一次，以後每次都自動。失敗了，讓 AI 用 gh 讀紀錄、修好、再推。記得，機密不要寫進設定檔。"
+    }
+  ]
+}

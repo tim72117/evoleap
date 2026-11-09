@@ -1,0 +1,121 @@
+{
+  "title": "選技術與服務",
+  "camera": "auto",
+  "teacher": {
+    "say": "比較方案，寫成紀錄",
+    "line": "這一堂請 AI 照需求清單比較兩三種做法，查官方價目表估每個月的費用，最後寫成一份技術選擇紀錄。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "技術選擇", "folder": "~/projects/bakery-order", "branch": null, "mode": "accept", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc4-3-adr", "url": "file:///projects/bakery-order/docs/decisions/0001-tech-choice.md" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "比較方案，寫成紀錄",
+      "eyebrow": "全環節 · 單元 4 · 4.3 用 AI 完成",
+      "sub": "依需求比較 · 查價目表估費用 · 寫下為什麼",
+      "chapter": "交代清楚",
+      "narration": "這一次交代清楚三件事：比較的依據、費用從哪裡查，還有要交出什麼。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "依 docs/REQUIREMENTS.md 比較 2–3 種做法，估每月費用（每天約 50 張訂單）。價格要查官方價目表，查不到的寫「待確認」。寫成 docs/decisions/0001-tech-choice.md，包含：背景、方案比較、決定、何時重新考慮。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "查官方價目表；查不到寫「待確認」",
+      "narration": "特別注意這一句：價格要查官方價目表，查不到就寫待確認。AI 記得的價格可能是舊的，不能憑印象寫。"
+    },
+    {
+      "on": "claude",
+      "todos": [["讀需求清單", "doing"], ["列出 2–3 種做法", "pending"], ["查官方價目表", "pending"], ["寫技術選擇紀錄", "pending"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "docs/REQUIREMENTS.md",
+      "result": "10 行",
+      "narration": "先讀需求。重點是：要存訂單、店長要登入，所以需要後端和資料庫；預算每月三百元。"
+    },
+    {
+      "on": "claude",
+      "todos": [["讀需求清單", "done"], ["列出 2–3 種做法", "done"], ["查官方價目表", "doing"], ["寫技術選擇紀錄", "pending"]],
+      "chapter": "查價目表"
+    },
+    {
+      "on": "claude",
+      "tool": "WebSearch",
+      "arg": "Cloud Run pricing free tier",
+      "result": "找到官方價目頁",
+      "narration": "它上網搜尋官方的價目表，"
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "https://cloud.google.com/run/pricing",
+      "result": "每月有免費額度",
+      "narration": "打開來讀。後端的雲端平台每個月有免費額度，小店的量大多用不完。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "資料庫服務的價目頁",
+      "result": "有免費方案，超過依用量",
+      "narration": "資料庫也查一次。"
+    },
+    {
+      "on": "claude",
+      "todos": [["讀需求清單", "done"], ["列出 2–3 種做法", "done"], ["查官方價目表", "done"], ["寫技術選擇紀錄", "doing"]],
+      "chapter": "寫成紀錄"
+    },
+    {
+      "on": "claude",
+      "edit": "docs/decisions/0001-tech-choice.md",
+      "lines": [[1, "+", "# 技術選擇紀錄 #1：線上預訂要用什麼"], [2, "+", "背景：要存訂單、店長登入 → 需要後端與資料庫；預算 300 元/月"], [3, "+", "| 方案 | 做得到？ | 每月估計 | 難度 |"], [4, "+", "| A 靜態網站＋表單服務 | △ | 0 | 低 |"], [5, "+", "| B 靜態前端＋Cloud Run＋小型資料庫 | ✓ | 0–150 | 中 |"], [6, "+", "| C 租虛擬主機自己管 | ✓ | 150–300＋維護 | 高 |"], [7, "+", "決定：B（做得到全部需求、量小幾乎免費、不用顧主機）"], [8, "+", "何時重新考慮：每天超過 1,000 張訂單，或要收線上付款"]]
+    },
+    {
+      "on": "claude",
+      "todos": [["讀需求清單", "done"], ["列出 2–3 種做法", "done"], ["查官方價目表", "done"], ["寫技術選擇紀錄", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ `docs/decisions/0001-tech-choice.md`\n- 比較 3 種做法，建議 **B**\n- 費用依官方價目表估算（查詢日期已寫在文件裡）\n- 寫了「何時重新考慮」"
+    },
+    { "hide": "claude" },
+    {
+      "show": "web",
+      "narration": "打開這份紀錄。"
+    },
+    {
+      "callout": "web:sel:table",
+      "text": "依需求比較：做得到？多少錢？多難？",
+      "narration": "每個方案都對著需求看：做不做得到、每月多少錢、難不難。"
+    },
+    {
+      "callout": "web:sel:.dec",
+      "text": "決定 ＋ 理由 ＋ 何時重新考慮",
+      "narration": "最後一段最重要：決定了什麼、為什麼，還有什麼情況要重新考慮。半年後你忘了當初為什麼這樣選，打開這份就知道。"
+    },
+    {
+      "checkpoint": "換你：請 AI 寫技術選擇紀錄",
+      "body": "請 AI 依你的需求清單比較 2–3 種做法、估每月費用，交代它查官方價目表，查不到寫「待確認」。寫成 docs/decisions/0001-tech-choice.md，包含背景、比較、決定、何時重新考慮。看它的理由是不是都對得到你的需求。"
+    },
+    {
+      "card": "技術選擇紀錄 ✓",
+      "eyebrow": "4.3 完成",
+      "sub": "下一堂：拆成工作項目",
+      "narration": "技術選好了，也留下了紀錄。下一堂，把要做的事拆成一項一項。"
+    }
+  ]
+}

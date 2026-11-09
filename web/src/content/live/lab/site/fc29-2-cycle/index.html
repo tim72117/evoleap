@@ -1,0 +1,21 @@
+<!doctype html><html><head><title>紅燈 → 綠燈</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">先寫測試再改：紅燈 → 改程式 → 綠燈</h1>
+  <p class="sub">任務：滿 1000 元免運費（現在還是收 60 元）</p>
+  <div class="cycle">
+    <div class="node red" id="n1" data-go="s1"><span class="lamp"></span><b>1. 寫測試</b><small class="mono">買 1200 元 → 運費應該 0</small></div>
+    <div class="arr" data-at="s1">→</div>
+    <div class="node red2" id="n2" data-at="s1" data-go="s2"><span class="lamp"></span><b>2. 跑：紅燈</b><small>失敗：拿到 60，不是 0</small></div>
+    <div class="arr" data-at="s2">→</div>
+    <div class="node fix" id="n3" data-at="s2" data-go="s3"><span class="lamp"></span><b>3. 改程式</b><small class="mono">if (total ≥ 1000) 運費 = 0</small></div>
+    <div class="arr" data-at="s3">→</div>
+    <div class="node green" id="n4" data-at="s3" data-go="s4"><span class="lamp"></span><b>4. 再跑：綠燈</b><small>通過，而且舊測試也都綠</small></div>
+  </div>
+  <div class="why" data-at="s4">
+    <div class="box"><b>紅燈證明</b>：測試真的抓得到這個問題</div>
+    <div class="box"><b>綠燈證明</b>：問題真的被修好了</div>
+    <div class="box"><b>以後</b>：誰改壞了，它會再亮紅燈</div>
+  </div>
+  <div class="fake box" id="fake" data-go="f1"><b>如果一開始就是綠燈？</b><span data-at="f1">就像沒裝電池的煙霧偵測器：永遠安靜，不代表沒有火。這個測試可能什麼都沒檢查到。</span></div>
+</div>
+</body></html>

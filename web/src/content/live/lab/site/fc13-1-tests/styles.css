@@ -1,0 +1,30 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#f1efe9;display:flex;align-items:center;justify-content:center}
+.app{width:1200px;padding:22px 0}
+.grid{display:grid;grid-template-columns:1fr 1.15fr;gap:20px}
+.pane{background:#fff;border-radius:18px;padding:18px 20px;box-shadow:0 4px 18px rgba(0,0,0,.05);position:relative;min-height:390px;border:3px solid transparent}
+h3{font-size:22px;margin-bottom:16px}
+.parts{display:flex;flex-direction:column;gap:12px}
+.part{position:relative;border:2px solid #e3ded2;border-radius:12px;padding:10px 14px;background:#fbfaf6}
+.part b{display:block;font-size:19px}.part code{font-family:ui-monospace,Menlo,monospace;font-size:15px;color:#4a5a60}
+.part i{position:absolute;right:12px;top:14px;width:34px;height:34px;border-radius:50%;font-style:normal;color:#fff;text-align:center;line-height:34px;font-size:20px;display:none}
+.meta{position:absolute;left:20px;right:20px;bottom:16px;font-size:16px;color:#6b7478;border-top:1px dashed #ddd;padding-top:10px}
+.path{display:flex;align-items:center;gap:8px;margin-top:40px}
+.scr{flex:1;height:110px;border:2px solid #d5dbe0;border-radius:12px;background:#f6f8fa;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:17px;position:relative}
+.scr::before{content:"";position:absolute;left:10px;right:10px;top:10px;height:12px;border-radius:4px;background:#dde3e8}
+.arr{color:#a0aab0;font-size:22px}
+.bot{position:absolute;width:64px;left:35px;top:44px}
+.bot rect{fill:#5b6fd6}.bot .eye{fill:#fff}.bot .ant{stroke:#5b6fd6;stroke-width:3}.bot circle:last-child{fill:#e08a1e}
+.ripple{margin-top:16px;background:#1f3b44;color:#f1f5f4;border-radius:14px;padding:14px 20px;font-size:20px;text-align:center;visibility:hidden}
+.chips{display:flex;gap:14px;margin-top:16px;justify-content:center}
+.chips button{font:inherit;font-size:19px;border:2px solid #c9c1ad;background:#fff;border-radius:999px;padding:8px 22px;color:#1f2a2e}
+.s1 #b1,.s2 #b2,.s3 #b3{background:#1f3b44;color:#fff;border-color:#1f3b44}
+.s1 .ripple,.s2 .ripple,.s3 .ripple{visibility:visible}
+.s1 #pDiscount,.s2 #pDiscount,.s3 #pDiscount{border-color:#e08a1e;background:#fff6e6}
+.s1 #sCart,.s1 #sPay,.s3 #sPay{border-color:#d6453d;background:#fdeceb}
+.s2 #unit{border-color:#5b6fd6}.s3 #e2e{border-color:#5b6fd6}
+.s2 .part i{display:block;background:#2f9e6a}.s2 .part i::after{content:"✓"}
+.s2 #pDiscount i{background:#d6453d}.s2 #pDiscount i::after{content:"✗"}
+.s3 #sHome,.s3 #sItem,.s3 #sCart{border-color:#2f9e6a;background:#eaf7f0}
+.s3 .bot{left:427px}
+.s3 #sPay::after{content:"✗ 按鈕按不下去";position:absolute;bottom:-30px;left:-20px;right:-20px;text-align:center;color:#d6453d;font-weight:700;font-size:15px}

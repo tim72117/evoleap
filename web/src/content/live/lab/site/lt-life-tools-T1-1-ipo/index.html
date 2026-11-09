@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>講義：輸入 → 處理 → 輸出</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main class="board">
+  <h1>每個小工具，都是三件事</h1>
+  <p class="lead">點一下每一格，看看分帳計算機要寫什麼</p>
+  <div class="row">
+    <button class="box in" data-x="in">
+      <svg viewBox="0 0 80 80" class="ico"><rect x="10" y="22" width="60" height="36" rx="8" fill="none" stroke="currentColor" stroke-width="5"/><path d="M22 40h20" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M48 30v20" stroke="currentColor" stroke-width="4"/></svg>
+      <b>輸入</b><span class="q">要使用者填什麼？</span>
+      <span class="a">總金額、人數</span>
+    </button>
+    <svg class="arrow" viewBox="0 0 60 40"><path d="M4 20h44M36 8l14 12-14 12" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <button class="box proc" data-x="proc">
+      <svg viewBox="0 0 80 80" class="ico"><circle cx="40" cy="40" r="14" fill="none" stroke="currentColor" stroke-width="5"/><path d="M40 12v10M40 58v10M12 40h10M58 40h10M20 20l7 7M53 53l7 7M60 20l-7 7M27 53l-7 7" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg>
+      <b>處理</b><span class="q">怎麼算？</span>
+      <span class="a">總金額 ÷ 人數</span>
+    </button>
+    <svg class="arrow" viewBox="0 0 60 40"><path d="M4 20h44M36 8l14 12-14 12" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <button class="box out" data-x="out">
+      <svg viewBox="0 0 80 80" class="ico"><rect x="14" y="12" width="52" height="56" rx="8" fill="none" stroke="currentColor" stroke-width="5"/><path d="M26 30h28M26 42h28M26 54h16" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg>
+      <b>輸出</b><span class="q">要顯示什麼？</span>
+      <span class="a">每人應付，輸入時立刻更新</span>
+    </button>
+  </div>
+  <p class="foot" id="foot">把這三行寫進提示詞，AI 就知道要做什麼</p>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

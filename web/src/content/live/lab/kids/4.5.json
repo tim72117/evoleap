@@ -1,0 +1,256 @@
+{
+  "title": "作品：我的小網站",
+  "lesson": "兒童網頁課 · 4.5 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {
+        "paper": "sketch",
+        "sketch": [
+          {
+            "id": "s1",
+            "kind": "h1",
+            "label": "標題：我是小安"
+          },
+          {
+            "id": "s2",
+            "kind": "img",
+            "label": "我的照片"
+          },
+          {
+            "id": "s3",
+            "kind": "p",
+            "label": "介紹：我九歲，喜歡畫畫"
+          },
+          {
+            "id": "s4",
+            "kind": "game",
+            "label": "小遊戲：猜我最喜歡的水果"
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "我的小網站",
+      "guide": {
+        "target": "kid:paper",
+        "text": "小安的草圖"
+      },
+      "narration": "這是單元的最後一課！小安要做自己的小網站：一頁自我介紹，加上一個小遊戲。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:paper",
+        "text": "先畫好草圖"
+      },
+      "narration": "她已經先畫好草圖了。標題、照片、介紹，最下面是一個猜水果的小遊戲。"
+    },
+    {
+      "checkpoint": "一句一句做",
+      "sub": "lab/kids/4.5-build.json",
+      "chapter": "一句一句做"
+    },
+    {
+      "make": [
+        {
+          "add": {
+            "id": "s1",
+            "kind": "h1",
+            "text": "我是小安"
+          },
+          "after": []
+        },
+        {
+          "add": {
+            "id": "s2",
+            "kind": "img",
+            "emoji": "👧",
+            "bg": "#ffe3b3"
+          },
+          "after": [
+            "s1"
+          ]
+        },
+        {
+          "add": {
+            "id": "s3",
+            "kind": "p",
+            "text": "我九歲，最喜歡畫畫和吃水果。"
+          },
+          "after": [
+            "s2",
+            "s1"
+          ]
+        },
+        {
+          "add": {
+            "id": "s4",
+            "kind": "game",
+            "text": "猜猜我最喜歡哪一種水果？",
+            "button": "換一個",
+            "results": [
+              "🍎",
+              "🍌",
+              "🍓",
+              "🍉"
+            ]
+          },
+          "after": [
+            "s3",
+            "s2",
+            "s1"
+          ]
+        }
+      ],
+      "reply": "網站做好了！",
+      "chapter": "檢查和修正",
+      "narration": "網站做好了！我們和草圖比一比。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:part:s1",
+        "text": "標題好小"
+      },
+      "narration": "標題、照片、介紹、小遊戲，都有了。可是標題好小，小安想要大一點、粉紅色的。"
+    },
+    {
+      "send": "把[[標題]]改成大大的粉紅色字",
+      "narration": "一次改一件事：把標題改成大大的粉紅色字。"
+    },
+    {
+      "make": [
+        {
+          "set": "s1",
+          "size": "xl",
+          "color": "#e8559a"
+        }
+      ],
+      "reply": "好！標題變得又大又粉紅了。",
+      "narration": "改好了，再檢查一次。這次就是小安想要的樣子！"
+    },
+    {
+      "press": "s4",
+      "tap": true,
+      "chapter": "玩玩看",
+      "narration": "按一下小遊戲的按鈕，看看會怎樣。"
+    },
+    {
+      "checkpoint": "換你玩小遊戲",
+      "sub": "lab/kids/4.5-play.json",
+      "chapter": "換你玩小遊戲"
+    },
+    {
+      "cheer": true,
+      "chapter": "展示給家人看",
+      "narration": "完成了！你的小網站做好了！"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "展示給家人看"
+      },
+      "narration": "叫家人來看看吧！指著網站，說說每一塊叫什麼名字：標題、圖片、段落、按鈕。"
+    },
+    {
+      "deal": [
+        {
+          "id": "q1",
+          "text": "[[生氣]]，不玩了"
+        },
+        {
+          "id": "q2",
+          "text": "[[一直說]]同一句話"
+        },
+        {
+          "id": "q3",
+          "text": "找出哪一句[[沒說清楚]]，改清楚再說"
+        }
+      ],
+      "chapter": "找找看",
+      "narration": "最後一題。"
+    },
+    {
+      "checkpoint": "小幫手做錯的時候，要怎麼辦？",
+      "body": "點下面的卡片回答。",
+      "id": "q-oops",
+      "options": [
+        {
+          "label": "找出哪一句沒說清楚，改清楚再說",
+          "target": "kid:card:q3",
+          "steps": [
+            {
+              "check": "card:q3",
+              "answer": "card:q3",
+              "narration": "答對了！檢查、找出沒說清楚的地方、一次改一件事。"
+            }
+          ]
+        },
+        {
+          "label": "生氣，不玩了",
+          "target": "kid:card:q1",
+          "steps": [
+            {
+              "check": "card:q1",
+              "answer": "card:q3",
+              "narration": "做錯沒關係！小幫手只是聽不懂。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "一直說同一句話",
+          "target": "kid:card:q2",
+          "steps": [
+            {
+              "check": "card:q2",
+              "answer": "card:q3",
+              "narration": "說一樣的話，小幫手還是會做錯喔。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:window",
+        "text": "我會說清楚"
+      },
+      "narration": "你學會把想法說清楚，請 AI 做成網站了。卡住的時候，回去看看前面的課：叫對名字、說清楚、做完檢查。"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>UTM 網址產生器</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>UTM 網址產生器<span class="sp"></span><span class="who">tools/utm</span></div>
+<div class="wrap row">
+ <div class="card ctl">
+  <label class="field"><span>要連到的網址</span><input id="base" class="mono" value="https://komori-bakery.example/reserve"></label>
+  <label class="field"><span>來源 source</span><select id="src"><option value="">選一個</option><option>line</option><option>ig</option><option>newsletter</option><option>threads</option></select></label>
+  <label class="field"><span>管道 medium（依來源自動填）</span><input id="med" class="mono" readonly></label>
+  <label class="field"><span>活動 campaign</span><input id="cmp" class="mono"></label>
+ </div>
+ <div class="col">
+  <div class="card out"><div class="muted">產生的網址</div><div id="out" class="mono">—</div><button class="btn" id="copy">複製</button> <span id="copied" class="pill ok gone">已複製</span></div>
+  <div class="card rules"><b>工具幫你守的規則</b><div>✓ 全部小寫、空白換成 -</div><div>✓ medium 依來源固定，不會一下 social 一下 Social</div><div>✓ 每產生一個就記進 links.csv</div></div>
+ </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

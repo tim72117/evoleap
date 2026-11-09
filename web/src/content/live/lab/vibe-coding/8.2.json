@@ -1,0 +1,275 @@
+{
+  "title": "向 AI 與社群求助的方法",
+  "lesson": "基礎 · 單元 8 · 8.2 試做",
+  "teacher": {
+    "say": "今天練習怎麼求助",
+    "line": "遇到解不開的錯誤，找人幫忙很正常。今天練習把問題描述清楚：附上環境、指令和完整的錯誤訊息，再請 AI 判斷，最後自己查證它的建議。"
+  },
+  "cast": {
+    "group": {
+      "actor": "chat",
+      "props": { "title": "程式新手互助社群" },
+      "place": { "x": 640, "y": 90, "w": 640, "h": 880 },
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/hello" },
+      "place": "window",
+      "hidden": true
+    },
+    "form": {
+      "actor": "browser",
+      "props": { "site": "lt-vibe-coding-8-2-ask", "width": "desktop", "url": "https://learn.example/practice/ask-for-help" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "安裝 serve 失敗",
+        "folder": "~/projects/hello",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "show": "group",
+      "chapter": "這樣問，沒人幫得上",
+      "narration": "小安裝工具卡住了，跑到新手社群發問。"
+    },
+    {
+      "on": "group",
+      "reply": "npm 裝不起來，怎麼辦？？",
+      "narration": "他只寫了一句：npm 裝不起來，怎麼辦。"
+    },
+    {
+      "on": "group",
+      "receive": "你是 Mac 還是 Windows？打了什麼指令？",
+      "from": "熱心的阿哲",
+      "narration": "很快有人回了，但不是答案，是問題：你用什麼電腦？打了什麼指令？"
+    },
+    {
+      "on": "group",
+      "receive": "錯誤訊息整段貼上來看看，截圖太糊了 😅",
+      "from": "Mia",
+      "narration": "另一個人說：把錯誤訊息整段貼上來。光說裝不起來，誰都沒辦法判斷。"
+    },
+    {
+      "hide": "group"
+    },
+    {
+      "card": "別人幫得上忙的求助，有這幾樣",
+      "eyebrow": "基礎 · 單元 8 · 8.2",
+      "sub": "環境（作業系統、版本）· 執行的指令 · 完整的錯誤訊息 · 已經試過什麼 · 想做到什麼",
+      "narration": "一則好的求助，要讓沒看過你電腦的人也能想像發生什麼事：你的環境、打了什麼指令、完整的錯誤訊息、已經試過什麼，還有你想做到什麼。"
+    },
+    {
+      "show": "term",
+      "chapter": "先收集資料",
+      "narration": "回到終端機，把這些資料一樣一樣收集起來。先重現一次錯誤。"
+    },
+    {
+      "on": "term",
+      "type": "npm install -g serve",
+      "out": "npm error code EACCES\nnpm error syscall mkdir\nnpm error path /usr/local/lib/node_modules/serve\nnpm error errno -13\nnpm error Error: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/serve'\nnpm error A complete log of this run can be found in: /Users/you/.npm/_logs/2026-11-09-debug-0.log",
+      "tone": "err"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "從第一行選到最後一行，整段複製成文字",
+      "narration": "錯誤訊息要完整複製：從第一行選到最後一行。不要只抄最後一句，也不要截圖；文字別人才能搜尋、AI 才能完整讀到。"
+    },
+    {
+      "on": "term",
+      "type": "sw_vers -productVersion",
+      "out": "15.1",
+      "narration": "環境也要寫清楚。Mac 打 sw_vers dash productVersion，可以看到 macOS 的版本。"
+    },
+    {
+      "on": "term",
+      "type": "node -v",
+      "out": "v24.11.1",
+      "narration": "再查 Node.js 的版本。Windows 的話，在設定的「系統資訊」裡就看得到。"
+    },
+    {
+      "hide": "term"
+    },
+    {
+      "show": "form",
+      "chapter": "組成一則求助",
+      "narration": "把收集到的資料，照這個格式填進去。右邊會組成一則要貼出去的求助。"
+    },
+    {
+      "on": "form",
+      "fill": {
+        "#os": "macOS 15（Apple 晶片），Node.js v24.11.1",
+        "#cmd": "npm install -g serve"
+      },
+      "narration": "環境和指令先填好。"
+    },
+    {
+      "on": "form",
+      "fill": {
+        "#err": "npm error code EACCES … permission denied, mkdir '/usr/local/lib/node_modules/serve'"
+      },
+      "narration": "錯誤訊息貼完整的那一段。這裡為了畫面，中間先省略。"
+    },
+    {
+      "on": "form",
+      "fill": {
+        "#tried": "重開終端機、重新安裝 Node.js",
+        "#goal": "想全域安裝 serve 預覽網站"
+      },
+      "narration": "最後寫上已經試過什麼、想做到什麼。這樣別人不會再叫你重開一次，也可能直接告訴你更好的做法。"
+    },
+    {
+      "callout": "form:sel:.preview",
+      "text": "沒看過你電腦的人，也能想像發生什麼事",
+      "narration": "五樣都齊了。讀到這則求助的人，不用再回頭問你問題。"
+    },
+    {
+      "callout": "form:sel:.note",
+      "text": "錯誤訊息裡偶爾會帶著密碼、金鑰：貼出去前先遮掉",
+      "narration": "貼出去之前再看一眼：錯誤訊息或設定檔裡，偶爾會帶著密碼、金鑰或權杖，這些一律遮掉。"
+    },
+    {
+      "hide": "form"
+    },
+    {
+      "show": "claude",
+      "chapter": "請 AI 判斷",
+      "narration": "同一則求助，先拿去問 AI 程式助手。"
+    },
+    {
+      "on": "claude",
+      "user": "我在 macOS 15、Node.js v24.11.1 執行 npm install -g serve，出現 EACCES: permission denied, mkdir '/usr/local/lib/node_modules/serve'（完整訊息如下）。試過重開終端機、重裝 Node.js。我想全域安裝 serve 預覽網站。先告訴我原因和做法，不要直接執行",
+      "narration": "貼上剛才的求助，最後加一句：先說原因和做法，不要直接執行。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "這是**權限錯誤**：npm 想把 serve 裝進系統資料夾 `/usr/local/lib`，你的帳號沒有寫入權限。\n\n不建議加 `sudo`。有兩個做法：\n1. 用 **nvm** 重新安裝 Node.js，全域套件會裝在你的家目錄\n2. 不全域安裝，改用 `npx serve`，需要時才下載執行",
+      "narration": "它判斷是權限錯誤，原因說得很清楚，也提醒不要用 sudo，給了兩個做法。"
+    },
+    {
+      "card": "AI 的建議，自己再查證一次",
+      "eyebrow": "自己查證",
+      "sub": "這個指令會改到什麼？· 怎麼還原？· 官方文件或可信的來源也這樣說嗎？",
+      "chapter": "自己查證",
+      "narration": "AI 也會說錯，尤其是牽涉到 sudo、刪除檔案、改系統設定的建議。動手前問自己三件事：這會改到什麼？要怎麼還原？官方文件也這樣說嗎？"
+    },
+    {
+      "on": "claude",
+      "user": "第 2 個做法會改到我電腦的哪些地方？官方文件有提到嗎？"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "say": "`npx serve` 不會改任何設定：它把 serve 下載到 npm 的快取，執行完就結束，不需要管理員權限。\n\nnpm 官方文件有一篇 **Resolving EACCES permissions errors when installing packages globally**，建議的就是改用 nvm 這類版本管理工具，你可以對照看看。",
+      "narration": "它說明不會改到設定，也指出官方文件裡對應的那一篇。你可以自己打開官方文件，確認說法一致，再決定用哪一個做法。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "group",
+      "chapter": "回到社群",
+      "narration": "如果 AI 也解決不了，就把同一則求助貼到社群。這次小安重新發問。"
+    },
+    {
+      "on": "group",
+      "reply": "環境：macOS 15，Node.js v24.11.1\n指令：npm install -g serve\n錯誤：EACCES: permission denied, mkdir '/usr/local/lib/node_modules/serve'（完整訊息附在下面）\n試過：重開終端機、重裝 Node.js"
+    },
+    {
+      "on": "group",
+      "receive": "這是全域安裝的權限問題，npm 官方文件有一篇專門講。我是改用 nvm 解決的 👍",
+      "from": "熱心的阿哲",
+      "narration": "資料齊全，馬上就有人給出具體的方向。最後解決了，也記得回來說一聲用了什麼方法，下一個遇到的人就找得到答案。"
+    },
+    {
+      "hide": "group"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "下面哪一則求助，最容易得到有用的回答？",
+      "body": "選一個。",
+      "id": "best",
+      "options": [
+        {
+          "label": "「npm 壞了，急！！拜託幫幫我」",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "沒有環境、指令和錯誤訊息，別人只能先回頭問你",
+              "narration": "這一則只有情緒，沒有資料。別人只能先回頭問你，一來一往就浪費了好幾個小時。"
+            },
+            {
+              "card": "答案：環境、指令、完整錯誤都附上的那一則",
+              "eyebrow": "判斷看看",
+              "sub": "讓沒看過你電腦的人也能想像發生什麼事",
+              "narration": "最容易得到回答的，是環境、指令和完整錯誤訊息都附上的那一則。"
+            }
+          ]
+        },
+        {
+          "label": "附上 macOS 15、npm install -g serve 和完整的錯誤訊息",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "環境、指令、完整錯誤都有，看的人可以直接判斷",
+              "narration": "答對了。環境、指令和完整的錯誤訊息都有，看的人不用再問，可以直接判斷。"
+            }
+          ]
+        },
+        {
+          "label": "一張拍螢幕的照片，只寫「如題」",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "照片看不清、不能複製搜尋，也沒說打了什麼指令",
+              "narration": "拍螢幕的照片常常看不清楚，也不能複製、搜尋。錯誤訊息要貼文字，再補上環境和指令。"
+            },
+            {
+              "card": "答案：環境、指令、完整錯誤都附上的那一則",
+              "eyebrow": "判斷看看",
+              "sub": "讓沒看過你電腦的人也能想像發生什麼事",
+              "narration": "最容易得到回答的，是環境、指令和完整錯誤訊息都附上的那一則。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "動手做：寫一則求助描述",
+      "eyebrow": "練習",
+      "sub": "挑一個你遇過的錯誤（或上一課故意製造的那個），寫出環境、指令、完整錯誤、試過什麼、想做到什麼",
+      "chapter": "動手做",
+      "narration": "換你試試看。挑一個你遇過的錯誤，或上一課故意製造的那個，照這五樣寫成一則求助描述，再拿去問 AI，查證它的建議。"
+    },
+    {
+      "card": "附上環境、指令、完整錯誤\n錯誤貼文字，不截圖\nAI 的建議，自己查證",
+      "eyebrow": "學會",
+      "sub": "貼出去前，遮掉密碼、金鑰與權杖",
+      "chapter": "學會",
+      "narration": "求助時附上環境、指令和完整的錯誤訊息，錯誤貼文字不截圖；AI 給的建議，動手前自己查證；貼出去之前，遮掉密碼和金鑰。下一課，我們把整個開發環境從頭檢查一遍。"
+    }
+  ]
+}

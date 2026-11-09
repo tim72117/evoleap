@@ -1,0 +1,198 @@
+{
+  "title": "盒子：邊框和留白",
+  "lesson": "兒童網頁課 · 2.3 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt9-wear",
+      "props": {
+        "title": "小花的名片",
+        "look": {
+          "card": {
+            "pad": 1
+          },
+          "h1": {
+            "pad": 0
+          },
+          "img": {
+            "border": 0,
+            "pad": 0
+          },
+          "p": {
+            "pad": 0
+          },
+          "button": {
+            "border": 0,
+            "pad": 0
+          }
+        },
+        "tools": [
+          {
+            "part": "button",
+            "prop": "border"
+          },
+          {
+            "part": "button",
+            "prop": "pad"
+          },
+          {
+            "part": "button",
+            "prop": "margin"
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "擠成一團",
+      "guide": {
+        "target": "kid:page",
+        "text": "好擠"
+      },
+      "narration": "這張名片好擠！字貼著字，按鈕也不像按鈕。"
+    },
+    {
+      "boxes": true,
+      "chapter": "盒子眼鏡",
+      "guide": {
+        "target": "kid:page",
+        "text": "盒子眼鏡"
+      },
+      "narration": "戴上盒子眼鏡看看。原來網頁上的每一塊，都像一個盒子。"
+    },
+    {
+      "pick": "button",
+      "tap": true,
+      "narration": "我們來幫按鈕這個盒子整理一下。"
+    },
+    {
+      "wear": "button",
+      "border": 3,
+      "tap": true,
+      "chapter": "邊框",
+      "guide": {
+        "target": "kid:row:button:border",
+        "text": "邊框"
+      },
+      "narration": "先加上邊框。邊框就是盒子外面那一圈框框。"
+    },
+    {
+      "wear": "button",
+      "pad": 2,
+      "tap": true,
+      "chapter": "裡面留白",
+      "guide": {
+        "target": "kid:row:button:pad",
+        "text": "裡面留白"
+      },
+      "narration": "再加上裡面留白。綠色的地方就是裡面留白：字和邊框之間空出來的地方。盒子變大了。"
+    },
+    {
+      "wear": "button",
+      "margin": 2,
+      "tap": true,
+      "chapter": "外面留白",
+      "guide": {
+        "target": "kid:row:button:margin",
+        "text": "外面留白"
+      },
+      "narration": "最後是外面留白。橘色的地方就是外面留白：盒子和旁邊的東西之間空出來的地方。按鈕和段落分開了。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:part:button",
+        "text": "裡面・外面"
+      },
+      "narration": "裡面留白在框框裡面，外面留白在框框外面。說的時候，要說清楚是哪一個。"
+    },
+    {
+      "wear": "button",
+      "pad": 0,
+      "narration": "現在把裡面留白拿掉，字又貼著邊框了。"
+    },
+    {
+      "checkpoint": "想讓按鈕的字不要貼著邊框，要調哪一個？",
+      "body": "點下面的答案。",
+      "id": "quiz-1",
+      "chapter": "想一想",
+      "options": [
+        {
+          "label": "裡面留白",
+          "steps": [
+            {
+              "wear": "button",
+              "pad": 2,
+              "narration": "答對了！裡面留白讓字和邊框分開，按鈕看起來好按多了。"
+            }
+          ]
+        },
+        {
+          "label": "外面留白",
+          "steps": [
+            {
+              "wear": "button",
+              "margin": 3,
+              "narration": "外面留白讓整個盒子和別人分開，可是字還是貼著邊框喔。再想一想！"
+            },
+            {
+              "wear": "button",
+              "margin": 2,
+              "ms": 600
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "邊框",
+          "steps": [
+            {
+              "wear": "button",
+              "border": 1,
+              "narration": "邊框只是那一圈框框，字還是貼著喔。再想一想！"
+            },
+            {
+              "wear": "button",
+              "border": 3,
+              "ms": 600
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "checkpoint": "換你調調看",
+      "sub": "lab/kids/2.3-box.json",
+      "chapter": "換你調調看"
+    },
+    {
+      "pick": false,
+      "ms": 300
+    },
+    {
+      "boxes": false,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:page",
+        "text": "盒子・邊框・裡面留白・外面留白"
+      },
+      "narration": "每一塊都是一個盒子：外面有邊框，裡面留白讓字不擠，外面留白讓盒子和盒子分開。"
+    }
+  ]
+}

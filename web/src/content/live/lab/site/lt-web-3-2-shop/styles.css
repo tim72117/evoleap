@@ -1,0 +1,38 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif; color: #2b2622; background: #fffdf9; }
+h1, p { margin: 0; }
+a { color: inherit; }
+.app { display: grid; grid-template-columns: 1fr; min-height: 100%; }
+.page { background: #fffdf9; }
+.top { position: relative; display: flex; align-items: center; gap: 14px; padding: 12px 24px; border-bottom: 1px solid #eee3d6; background: #fff; }
+.menu { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 42px; height: 38px; padding: 0 10px; border: 1px solid #e3d6c7; border-radius: 10px; background: #fff; cursor: pointer; }
+.menu i { display: block; height: 2px; border-radius: 2px; background: #2b2622; }
+.menu.on { background: #f3e6d6; }
+.brand { font-size: 20px; font-weight: 800; color: #7b4a2a; }
+.right { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+.login { padding: 7px 14px; border: 1px solid #7b4a2a; border-radius: 999px; background: #fff; color: #7b4a2a; font-size: 14px; font-weight: 700; cursor: pointer; }
+.login.in { border-color: #2f855a; background: #e6f4ea; color: #276749; }
+.cart { font-size: 15px; }
+.cart b { display: inline-block; min-width: 26px; padding: 2px 8px; border-radius: 999px; background: #7b4a2a; color: #fff; text-align: center; }
+.drawer { position: absolute; left: 0; top: 100%; z-index: 3; display: flex; flex-direction: column; width: 220px; background: #fff; border: 1px solid #eee3d6; box-shadow: 0 10px 20px rgba(60, 40, 20, 0.14); }
+.drawer[hidden] { display: none; }
+.drawer a { padding: 12px 18px; border-bottom: 1px solid #f3ece3; font-size: 15px; }
+.product { display: flex; gap: 22px; padding: 26px 24px; }
+.pic { flex: none; width: 200px; height: 180px; display: flex; align-items: center; justify-content: center; border-radius: 16px; background: linear-gradient(160deg, #efe1cf, #d9c1a4); }
+.cup { width: 80px; height: 86px; border-radius: 6px 6px 30px 30px; background: linear-gradient(180deg, #5f8a8b 0 30%, #c9a27e 30%); }
+h1 { font-size: 28px; font-weight: 800; }
+.desc { margin-top: 8px; color: #6d625a; font-size: 15px; }
+.price { margin-top: 10px; font-size: 22px; font-weight: 800; color: #7b4a2a; }
+.add { margin-top: 14px; padding: 11px 24px; border: 0; border-radius: 10px; background: #7b4a2a; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
+.panel { padding: 18px; background: #1f2633; color: #e6edf3; font-size: 14px; }
+.p-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+.p-title small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: #9aa7b4; }
+.st { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: #2c3546; border: 2px solid transparent; }
+.st.changed { border-color: #f6c453; background: #3a3626; }
+.box { padding: 3px 8px; border-radius: 6px; background: #121821; font-family: ui-monospace, Menlo, monospace; color: #8cc0ff; font-size: 13px; }
+.lab { color: #9aa7b4; font-size: 12px; }
+.eq { margin-left: auto; color: #6f7c8c; }
+.v { min-width: 34px; padding: 3px 10px; border-radius: 8px; background: #121821; color: #f6c453; text-align: center; font-size: 16px; }
+.arrow { margin-top: 16px; padding: 10px; border: 1px dashed #4a5568; border-radius: 12px; text-align: center; color: #f6c453; font-weight: 700; }
+.renders { margin-top: 10px; text-align: center; color: #9aa7b4; }
+.renders b { color: #e6edf3; }

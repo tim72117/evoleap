@@ -1,0 +1,120 @@
+{
+  "title": "點五下，還是打一行？",
+  "lesson": "全環節 · 單元 18 · 18.3 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "讓 AI 碰得到雲端",
+    "line": "操作雲端有兩種方式：在主控台的網頁上點，或是在命令列打指令。今天比一比兩者的差別，你就知道為什麼要讓 AI 用命令列。"
+  },
+  "blocking": { "cast": ["con", "claude"], "shot": "depth" },
+  "cast": {
+    "con": {
+      "actor": "browser",
+      "props": { "site": "fc18-3-console", "width": "desktop", "url": "https://console.example-cloud.com/home" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "查設定",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "點五下，還是打一行？",
+      "eyebrow": "全環節 · 單元 18 · 18.3 基礎知識",
+      "sub": "主控台與命令列（CLI）的差別",
+      "chapter": "方法一：主控台",
+      "narration": "同一件小事，用兩種方法做：查網站服務設定了哪些環境變數。"
+    },
+    {
+      "show": "con",
+      "narration": "方法一，主控台，就是雲端的網頁介面。登入後是首頁，一大堆卡片。"
+    },
+    { "on": "con", "click": "#menu", "narration": "先打開左上角的選單。" },
+    { "on": "con", "click": "#m-run", "narration": "在一長串服務裡，找到 Cloud Run。" },
+    { "on": "con", "click": "#svc", "narration": "點進 bakery 這個服務。" },
+    { "on": "con", "click": "#tab-env", "narration": "再切到「變數與密鑰」分頁，終於看到了。" },
+    {
+      "callout": "con:sel:.t",
+      "text": "找了四層才看到；換個介面改版，位置又變了",
+      "narration": "點了四層才找到。主控台適合人用眼睛看，但它是給人點的，AI 碰不到；而且介面一改版，按鈕位置就變了。"
+    },
+    {
+      "show": "claude",
+      "chapter": "方法二：命令列",
+      "narration": "方法二，命令列，英文叫 CLI。Google Cloud 的命令列工具叫 gcloud。"
+    },
+    {
+      "on": "claude",
+      "user": "bakery 服務設定了哪些環境變數？"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services describe bakery --region asia-east1 --format='value(spec.template.spec.containers[0].env)'",
+      "result": "完成",
+      "out": "NODE_ENV=production\nSHOP_NAME=小森烘焙",
+      "narration": "AI 打了一行指令，結果一樣。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "一行文字：AI 打得出來、讀得懂、還留下紀錄",
+      "narration": "命令列是文字，所以 AI 打得出來、讀得懂結果，你也能看到它到底做了什麼。這就是讓 AI 碰得到雲端的方法。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "主控台：給人看，好瀏覽\n命令列：給 AI 做，好重複、有紀錄",
+      "eyebrow": "比一比",
+      "sub": "兩個都會用到：主控台看全貌，命令列交給 AI 動手",
+      "chapter": "比一比",
+      "narration": "主控台好瀏覽，適合你自己看全貌；命令列好重複、有紀錄，適合交給 AI 動手。兩個都會用到。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "AI 用 gcloud 之前，有一件事一定要你自己做。是哪一件？",
+      "body": "選一個。",
+      "id": "login",
+      "options": [
+        {
+          "label": "登入時在瀏覽器按授權",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "想一想",
+              "sub": "gcloud 第一次登入會打開瀏覽器，由你確認帳號、按允許",
+              "narration": "答對了。gcloud 第一次登入會打開瀏覽器，由你確認是自己的帳號再按允許。之後 AI 才能用你的身分操作。"
+            }
+          ]
+        },
+        {
+          "label": "把每個指令先抄一遍",
+          "steps": [
+            {
+              "card": "不用抄",
+              "eyebrow": "再想想",
+              "sub": "你要做的是看懂它要做什麼再允許；登入授權才一定要你自己來",
+              "narration": "不用抄。你要做的是看懂它要做什麼再允許。真正一定要你自己來的，是登入時在瀏覽器按授權。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "CLI 讓 AI 碰得到雲端\n登入授權由你按",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：主控台、命令列（CLI）、gcloud",
+      "chapter": "學會",
+      "narration": "命令列讓 AI 碰得到雲端，登入授權由你自己按。下一堂安裝 gcloud，並請 AI 每個指令先說會做什麼、會不會花錢，再執行。"
+    }
+  ]
+}

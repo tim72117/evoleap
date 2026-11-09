@@ -1,0 +1,24 @@
+/* fc8 圖解共用底稿(複製到各版本的 styles.css 開頭) */
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; color: #1f2733; background: #f6f4ef; }
+.wrap { padding: 36px 48px; box-sizing: border-box; min-height: 640px; }
+.ttl { font-size: 30px; font-weight: 700; margin: 0 0 6px; }
+.sub { font-size: 18px; color: #5b6575; margin: 0 0 22px; }
+[data-at] { opacity: .13; }
+[data-at].on { opacity: 1; }
+[data-go] { cursor: pointer; }
+.box { background: #fff; border: 2px solid #d9d4c7; border-radius: 14px; padding: 14px 18px; box-sizing: border-box; }
+.tag { display: inline-block; font-size: 14px; padding: 3px 10px; border-radius: 999px; background: #ece7db; color: #4a5260; }
+.ok { color: #1f8a4c; } .bad { color: #c2412d; } .warn { color: #b7791f; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.top { padding: 16px 20px; background: #6b4a2f; color: #fff7ea; font-size: 22px; }
+.list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+.card { background: #fff; border: 2px solid #e2ddd0; border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.pic { height: 110px; border-radius: 10px; } .pic.a { background: linear-gradient(135deg,#d9b48f,#a8774f); } .pic.b { background: linear-gradient(135deg,#f0d9a8,#d1a35c); }
+.name { font-weight: 800; font-size: 17px; }
+.desc { margin: 0; font-size: 14px; color: #5b6575; }
+.price { font-weight: 800; color: #c2702d; font-size: 17px; }
+.buy { font: inherit; font-size: 15px; font-weight: 700; padding: 8px; border: 0; border-radius: 10px; background: #c2702d; color: #fff; }
+.toast, .err { display: none; position: absolute; left: 16px; right: 16px; bottom: 16px; padding: 14px; border-radius: 12px; font-size: 15px; }
+.toast { background: #1f8a4c; color: #fff; font-weight: 700; } .err { background: #2a0f0f; color: #ff9b8a; border: 2px solid #e04f3a; }
+.toast.on, .err.on { display: block; }
+.desc { flex: 1; }

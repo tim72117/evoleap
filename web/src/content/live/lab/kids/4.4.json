@@ -1,0 +1,236 @@
+{
+  "title": "先畫草圖，拆成幾句話",
+  "lesson": "兒童網頁課 · 4.4 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {
+        "paper": "sketch"
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "先畫草圖",
+      "guide": {
+        "target": "kid:paper",
+        "text": "一張紙"
+      },
+      "narration": "蓋房子之前，要先畫設計圖。做網站也一樣，先在紙上畫一個草圖。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:paper",
+        "text": "草圖"
+      },
+      "narration": "草圖就是很快畫出來的樣子，不用畫得很漂亮，看得出哪裡放什麼就好。"
+    },
+    {
+      "draw": {
+        "id": "d1",
+        "kind": "h1",
+        "label": "標題：恐龍小站",
+        "say": "最上面放大大的[[標題]]「恐龍小站」",
+        "part": {
+          "id": "d1",
+          "kind": "h1",
+          "text": "恐龍小站",
+          "size": "xl",
+          "color": "#2f7d43"
+        }
+      },
+      "narration": "小明想做恐龍網站。最上面，畫一個標題。"
+    },
+    {
+      "draw": {
+        "id": "d2",
+        "kind": "img",
+        "label": "暴龍的圖片",
+        "say": "標題下面放一張暴龍[[圖片]]，背景淺綠色",
+        "part": {
+          "id": "d2",
+          "kind": "img",
+          "emoji": "🦖",
+          "bg": "#d6f2c9"
+        }
+      },
+      "narration": "標題下面，畫一張暴龍的圖片。"
+    },
+    {
+      "draw": {
+        "id": "d3",
+        "kind": "ul",
+        "label": "清單：我喜歡的恐龍",
+        "say": "接著放一個[[清單]]：暴龍、三角龍、雷龍",
+        "part": {
+          "id": "d3",
+          "kind": "ul",
+          "items": [
+            "暴龍",
+            "三角龍",
+            "雷龍"
+          ]
+        }
+      },
+      "narration": "接著是一個清單，寫他喜歡的恐龍。"
+    },
+    {
+      "draw": {
+        "id": "d4",
+        "kind": "button",
+        "label": "按鈕：再看一隻",
+        "say": "最下面放一個[[按鈕]]，寫「再看一隻」",
+        "part": {
+          "id": "d4",
+          "kind": "button",
+          "text": "再看一隻"
+        }
+      },
+      "narration": "最下面，畫一個按鈕。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:paper",
+        "text": "由上往下"
+      },
+      "narration": "草圖畫好了！從上到下，一眼就看得出網站長什麼樣子。"
+    },
+    {
+      "split": true,
+      "chapter": "拆成幾句話",
+      "narration": "現在把草圖拆開：一格，說一句話。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:tray",
+        "text": "一格一句"
+      },
+      "narration": "四格，就變成四句話。一句一句說，小幫手比較不會漏掉。"
+    },
+    {
+      "ask": "d1",
+      "tap": true,
+      "chapter": "一步一步做",
+      "narration": "第一句：最上面放標題。"
+    },
+    {
+      "ask": "d2",
+      "tap": true,
+      "narration": "第二句：放暴龍的圖片。"
+    },
+    {
+      "ask": "d3",
+      "tap": true,
+      "narration": "第三句：放清單。"
+    },
+    {
+      "ask": "d4",
+      "tap": true,
+      "narration": "第四句：放按鈕。做好了，和草圖一模一樣！"
+    },
+    {
+      "deal": [
+        {
+          "id": "q1",
+          "text": "直接說：[[加東西]]"
+        },
+        {
+          "id": "q2",
+          "text": "先在草圖上[[多畫一格]]段落"
+        },
+        {
+          "id": "q3",
+          "text": "[[全部擦掉]]重畫"
+        }
+      ],
+      "chapter": "找找看",
+      "narration": "小明還想加一段恐龍小知識。"
+    },
+    {
+      "checkpoint": "想加一個新的部分，先做什麼比較好？",
+      "body": "點下面的卡片回答。",
+      "id": "q-add",
+      "options": [
+        {
+          "label": "先在草圖上多畫一格段落",
+          "target": "kid:card:q2",
+          "steps": [
+            {
+              "check": "card:q2",
+              "answer": "card:q2",
+              "narration": "答對了！先畫在草圖上，想好放在哪裡，再說成一句話。"
+            }
+          ]
+        },
+        {
+          "label": "直接說：加東西",
+          "target": "kid:card:q1",
+          "steps": [
+            {
+              "check": "card:q1",
+              "answer": "card:q2",
+              "narration": "加什麼東西、加在哪裡呢？小幫手會猜不到。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "全部擦掉重畫",
+          "target": "kid:card:q3",
+          "steps": [
+            {
+              "check": "card:q3",
+              "answer": "card:q2",
+              "narration": "不用全部擦掉！多畫一格就好。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "checkpoint": "換你畫草圖",
+      "sub": "lab/kids/4.4-sketch.json",
+      "chapter": "換你畫草圖"
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:paper",
+        "text": "草圖・一步一步"
+      },
+      "narration": "大大的目標，先畫成草圖，再拆成幾句小小的話，一步一步請小幫手做。"
+    }
+  ]
+}

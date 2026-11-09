@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>照片批次縮小</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main class="rs" id="app" data-v="3">
+  <aside class="panel">
+    <h1>照片批次縮小</h1>
+    <p class="sub">照片只在這個瀏覽器裡處理，不會上傳</p>
+    <button id="pick" class="btn">選擇照片（可多選）</button>
+    <div id="picked" class="picked"></div>
+    <label class="f">最長邊（px）<input id="edge" type="number" value="1600"></label>
+    <label class="f">品質<select id="quality"><option value="high">高</option><option value="mid" selected>中</option><option value="low">低</option></select></label>
+    <button id="go" class="btn">縮小並下載</button>
+  </aside>
+  <section class="results"><h2>結果</h2><div id="out"></div></section>
+</main>
+<div class="modal gone" id="modal">
+  <div class="sheet">
+    <h2>選擇照片（下載 / 範例照片）</h2>
+    <button class="file" data-set="photos">🖼 photo-01.jpg … photo-10.jpg <small>10 張</small></button>
+    <button class="file" data-set="mixed">🗂 photo-01、photo-04、photo-big.jpg、notes.txt、IMG_0042.HEIC <small>5 個</small></button>
+    <div class="row"><button class="btn ghost" id="pick-cancel">取消</button></div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

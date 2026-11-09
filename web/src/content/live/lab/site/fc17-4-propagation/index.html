@@ -1,0 +1,48 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>DNS 生效與憑證</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · 為什麼不是馬上好</p>
+<h1>改了 DNS 之後</h1>
+<div class="tabs"><button id="b0" data-go="0">剛改完</button><button id="b1" data-go="1">10 分鐘後</button><button id="b2" data-go="2">40 分鐘後</button><button id="b3" data-go="3">1 小時後</button><button id="b4" data-go="4">憑證怎麼發</button></div>
+<div data-only="0 1 2 3" class="prop">
+<div class="ns"><div class="rn">電話簿本人（網域商的 DNS）</div><div class="rv new"><b>新：185.199.108.153</b><small>你一按儲存就改好了</small></div></div>
+<div class="arrows">⬇ 各地的查詢站，各自記著上次的答案（TTL 3600 秒）⬇</div>
+<div class="rss">
+<div class="rs"><div class="rn">你家的網路</div>
+<div class="rv old" data-only="0"><b>舊：203.0.113.10</b><small>還記得舊答案 · 剩 50 分</small></div>
+<div class="rv new" data-only="1"><b>新：185.199.108.153</b><small>記憶過期，重新問到新的</small></div>
+<div class="rv new" data-only="2"><b>新：185.199.108.153</b><small>新</small></div>
+<div class="rv new" data-only="3"><b>新：185.199.108.153</b><small>新</small></div>
+</div>
+<div class="rs"><div class="rn">手機行動網路</div>
+<div class="rv old" data-only="0"><b>舊：203.0.113.10</b><small>還記得舊答案 · 剩 20 分</small></div>
+<div class="rv old" data-only="1"><b>舊：203.0.113.10</b><small>剩 10 分</small></div>
+<div class="rv new" data-only="2"><b>新：185.199.108.153</b><small>重新問到新的</small></div>
+<div class="rv new" data-only="3"><b>新：185.199.108.153</b><small>新</small></div>
+</div>
+<div class="rs"><div class="rn">公司的網路</div>
+<div class="rv old" data-only="0"><b>舊：203.0.113.10</b><small>還記得舊答案 · 剩 58 分</small></div>
+<div class="rv old" data-only="1"><b>舊：203.0.113.10</b><small>剩 48 分</small></div>
+<div class="rv old" data-only="2"><b>舊：203.0.113.10</b><small>剩 18 分</small></div>
+<div class="rv new" data-only="3"><b>新：185.199.108.153</b><small>重新問到新的</small></div>
+</div>
+<div class="rs"><div class="rn">國外朋友</div>
+<div class="rv old" data-only="0"><b>舊：203.0.113.10</b><small>從沒問過</small></div>
+<div class="rv new" data-only="1"><b>新：185.199.108.153</b><small>第一次問，直接拿到新的</small></div>
+<div class="rv new" data-only="2"><b>新：185.199.108.153</b><small>新</small></div>
+<div class="rv new" data-only="3"><b>新：185.199.108.153</b><small>新</small></div>
+</div>
+</div>
+<p class="note" id="n0" data-only="0">你在網域商按下儲存，電話簿本人立刻改好。但各地的查詢站還記著舊答案，要等記憶過期才會重新問。</p>
+<p class="note" id="n1" data-only="1">有的地方已經看到新網站，有的還是舊的。<b>同一時間，你和朋友看到的可能不一樣</b>，這很正常。</p>
+<p class="note" id="n2" data-only="2">越來越多地方換成新的。這段等待叫「DNS 生效時間」，最久大約一個 TTL。</p>
+<p class="note" id="n3" data-only="3">一個 TTL 過後，各地都拿到新答案了。</p>
+</div>
+<div data-only="4" class="cert">
+<div class="steps3">
+<div class="c" data-at="4"><span class="n">1</span><b>平台申請憑證</b><p>網站平台向發證機構說：「請發一張 xiaosen-bakery.com 的憑證。」</p></div>
+<div class="c" data-at="4"><span class="n">2</span><b>發證機構驗證</b><p>機構去查 DNS：這個網域真的指向這個平台嗎？<br><b>DNS 還沒生效 → 驗不過，稍後再試</b></p></div>
+<div class="c" data-at="4"><span class="n">3</span><b>發下憑證 🔒</b><p>驗過了就發憑證，平台裝好，網址出現鎖頭。通常幾分鐘到一小時。</p></div>
+</div>
+<p class="note">所以順序一定是：<b>先等 DNS 生效，憑證才發得下來</b>。剛接好時打開看到「不安全」的警告，多半是憑證還在路上。</p>
+</div>
+</div></body></html>

@@ -1,0 +1,155 @@
+{
+  "title": "不放鑰匙也能開門",
+  "lesson": "全環節 · 單元 20 · 20.2 基礎知識",
+  "teacher": {
+    "say": "今天換掉部署用的金鑰",
+    "line": "上一課的部署，要讓 GitHub 有權限動你的雲端。這一課來看一種不用存金鑰的做法，叫 Workload Identity Federation。名字很長，概念很簡單。"
+  },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "通知" },
+      "place": { "x": 680, "y": 110, "w": 560, "h": 860 },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "GitHub 怎麼取得部署權限",
+        "nodes": [
+          { "id": "gh", "label": "GitHub Actions", "icon": "⚙", "x": 14, "y": 48, "w": 10 },
+          { "id": "key", "label": "金鑰檔 key.json", "sub": "存在 GitHub 的密碼欄位", "icon": "🔑", "shape": "doc", "x": 46, "y": 22, "w": 11 },
+          { "id": "thief", "label": "不知道是誰", "icon": "?", "shape": "person", "x": 46, "y": 80, "w": 9, "hidden": true },
+          { "id": "sts", "label": "Google 驗證站", "icon": "🛂", "x": 50, "y": 24, "w": 10, "hidden": true },
+          { "id": "gcp", "label": "Google Cloud", "icon": "☁", "shape": "cloud", "x": 86, "y": 48, "w": 10 }
+        ],
+        "edges": [
+          { "from": "key", "to": "gh", "label": "每次部署拿出來用" },
+          { "from": "key", "to": "gcp", "label": "永久有效" },
+          { "from": "key", "to": "thief", "label": "被複製一份", "hidden": true },
+          { "from": "thief", "to": "gcp", "hidden": true },
+          { "from": "gh", "to": "sts", "hidden": true },
+          { "from": "sts", "to": "gcp", "label": "只信任 komori/shop", "hidden": true },
+          { "from": "gh", "to": "gcp", "hidden": true }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "show": "phone",
+      "chapter": "一封嚇人的通知",
+      "narration": "想像某天早上，你收到這樣一則通知。"
+    },
+    {
+      "on": "phone",
+      "receive": "⚠ 我們在一個公開的程式碼庫裡，發現了你專案的雲端金鑰 key.json。請立刻停用這把金鑰。",
+      "from": "安全通知"
+    },
+    {
+      "on": "phone",
+      "receive": "這段期間，有人用這把金鑰開了 40 台主機。",
+      "from": "雲端帳單",
+      "narration": "金鑰外流，別人就能用你的身分花你的錢。這種事真的常發生，而且往往是一個不小心把檔案推上去。"
+    },
+    { "hide": "phone" },
+    {
+      "card": "不放鑰匙也能開門",
+      "eyebrow": "全環節 · 單元 20 · 20.2 基礎知識",
+      "sub": "Workload Identity Federation：不存金鑰也能部署",
+      "narration": "這一課要講的做法，就是讓 GitHub 根本不需要存金鑰。"
+    },
+    {
+      "show": "flow",
+      "chapter": "舊做法：把金鑰存在 GitHub",
+      "narration": "先看舊做法。雲端給你一個金鑰檔，你把它存在 GitHub 的密碼欄位。每次部署，GitHub 拿出來用。"
+    },
+    {
+      "send": "key>gh",
+      "label": "key.json",
+      "narration": "金鑰就像家門鑰匙：誰拿到，誰就能開門。"
+    },
+    {
+      "send": "key>gcp",
+      "label": "登入",
+      "narration": "而且它永久有效，不會自己過期。"
+    },
+    {
+      "appear": ["thief", "key>thief", "thief>gcp"],
+      "narration": "問題是，鑰匙可能被複製。從紀錄、從誤推的檔案、從離職同事的電腦……"
+    },
+    { "send": "thief>gcp", "label": "也能登入", "tone": "bad" },
+    {
+      "light": "key",
+      "tone": "bad",
+      "sub": "外流了，也沒人知道",
+      "narration": "被複製了，你也不會知道。這就是存金鑰最大的風險。"
+    },
+    {
+      "fade": ["key", "thief"],
+      "chapter": "新做法：每次出示身分，領臨時通行證",
+      "narration": "新做法，把鑰匙整個拿掉。"
+    },
+    {
+      "appear": ["sts", "gh>sts", "sts>gcp"],
+      "narration": "換成一個驗證站。你事先在雲端設定好：只信任 GitHub 上 komori shop 這個專案。"
+    },
+    {
+      "send": "gh>sts",
+      "label": "身分證明：我是 komori/shop",
+      "narration": "部署時，GitHub 出示一張自己簽發的身分證明，上面寫著「我是 komori shop 的部署工作」。"
+    },
+    {
+      "light": "sts",
+      "tone": "ok",
+      "sub": "和設定的專案相符 ✓",
+      "narration": "驗證站核對：是我們信任的那個專案，沒錯。"
+    },
+    {
+      "send": "sts>gh",
+      "label": "臨時通行證 · 1 小時",
+      "tone": "ok",
+      "narration": "就發給它一張臨時通行證，一小時後自動失效。"
+    },
+    { "appear": "gh>gcp" },
+    {
+      "send": "gh>gcp",
+      "label": "用通行證部署",
+      "tone": "ok",
+      "narration": "GitHub 拿著通行證去部署。整個過程，沒有任何金鑰檔被存下來。"
+    },
+    {
+      "callout": "flow:node:sts",
+      "text": "像飯店房卡：每次到櫃檯驗明身分，房卡退房就失效",
+      "narration": "這就像飯店的房卡。你在櫃檯驗明身分才拿得到，退房就失效。就算掉了，別人拿到也很快沒用。"
+    },
+    { "hide": "flow" },
+    {
+      "card": "名字拆開來看",
+      "eyebrow": "Workload Identity Federation",
+      "sub": "Workload：在跑的程式（GitHub Actions）· Identity：身分 · Federation：互相信任的聯盟",
+      "chapter": "名字的意思",
+      "narration": "名字拆開來：Workload 是在跑的程式，這裡就是 GitHub Actions；Identity 是身分；Federation 是兩邊互相信任。合起來就是：讓 GitHub 用自己的身分，換到雲端的權限。"
+    },
+    {
+      "shimmer": "沒有金鑰，就沒有金鑰外流",
+      "sub": "只信任指定的專案 · 通行證會自己過期",
+      "narration": "重點只有一句：沒有金鑰，就沒有金鑰外流。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "想一想",
+      "body": "如果有人把你的專案程式碼整份複製到他自己的 GitHub，他推送標籤，能用新做法部署到你的雲端嗎？為什麼？",
+      "narration": "想一想：如果有人把你的程式碼複製到他自己的 GitHub，他能部署到你的雲端嗎？"
+    },
+    {
+      "card": "不行",
+      "eyebrow": "答案",
+      "sub": "驗證站只信任 komori/shop 這個專案；別人的專案出示的身分對不上，領不到通行證",
+      "narration": "不行。驗證站只信任你指定的那個專案，別人的專案身分對不上，領不到通行證。下一堂，我們請 AI 把它設定好，再把 GitHub 上的舊金鑰刪掉。"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#222;background:#f4f5f7}
+.top{padding:16px 30px;background:#fff;border-bottom:1px solid #e3e5e8;display:flex;gap:18px;align-items:center;font-size:18px}
+.top b{font-size:21px}.pass{color:#1e8e3e;font-weight:700}.fail{color:#d93025;font-weight:700}
+.main{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:22px 30px}
+.list{background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.t{display:flex;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid #f0f0f0;font-size:17px;width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font-family:inherit;text-align:left;color:#222}
+.t:first-child{border-top:0}.t small{margin-left:auto;color:#888;font-family:ui-monospace,Menlo,monospace;font-size:14px}
+.t.sel{background:#fdecea}
+.shot{background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);padding:16px;font-size:16px;color:#666}
+.shot .err{font-family:ui-monospace,Menlo,monospace;font-size:14px;color:#d93025;background:#fdecea;border-radius:8px;padding:10px;margin:10px 0;white-space:pre-wrap}
+.phone{width:250px;height:380px;margin:10px auto 0;border:8px solid #222;border-radius:28px;overflow:hidden;position:relative;background:#faf7f2}
+.phone .ph{height:22px;background:#fff;border-bottom:1px solid #eee;font-size:11px;padding:3px 10px}
+.phone .im{margin:10px;height:120px;border-radius:10px;background:linear-gradient(135deg,#d68ab0,#a24d78)}
+.phone .nm{margin:0 10px;font-size:14px;color:#333}.phone .bt{margin:8px 10px;background:#2f7d6d;color:#fff;border-radius:8px;padding:8px;text-align:center;font-size:13px}
+.phone .ck{position:absolute;left:0;right:0;bottom:0;background:#1f2a2e;color:#fff;font-size:12px;padding:14px 12px 120px;line-height:1.5}
+.phone .ck span{display:inline-block;background:#fff;color:#222;border-radius:6px;padding:3px 10px;margin-top:6px}
+.hint{display:none}.sel-on .hint{display:block}.empty{color:#aaa;text-align:center;padding:120px 0}.sel-on .empty{display:none}

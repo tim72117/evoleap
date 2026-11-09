@@ -1,0 +1,117 @@
+{
+  "title": "跟資料庫說話：SQL 查詢與唯讀權限",
+  "lesson": "全環節 · 單元 9 · 9.4 基礎知識",
+  "teacher": {
+    "say": "今天看懂 SQL 查詢",
+    "line": "今天我們看資料庫查詢的基本樣子，叫 SQL。你不用背，只要看得懂 AI 寫的查詢在問什麼；還有，為什麼查詢要用「只能讀、不能改」的帳號。"
+  },
+  "cast": {
+    "boss": {
+      "actor": "person",
+      "props": { "name": "店長", "look": "boss" },
+      "place": "center",
+      "hidden": true
+    },
+    "db": {
+      "actor": "fc3-table",
+      "props": {
+        "title": "orders 訂單表",
+        "tables": [
+          {
+            "name": "orders",
+            "label": "11 月的訂單",
+            "key": "id",
+            "cols": ["id", "member", "item", "total", "status", "date"],
+            "rows": [
+              [1, "王小姐", "可頌×2", 130, "paid", "11/01"],
+              [2, "陳先生", "肉桂捲×1", 80, "canceled", "11/01"],
+              [3, "林小姐", "鄉村麵包×2", 240, "paid", "11/02"],
+              [4, "王小姐", "可頌×3", 195, "paid", "11/03"],
+              [5, "張先生", "肉桂捲×4", 320, "pending", "11/03"],
+              [6, "陳先生", "可頌×1", 65, "paid", "11/04"]
+            ]
+          }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "跟資料庫說話",
+      "eyebrow": "全環節 · 單元 9 · 9.4 基礎知識",
+      "sub": "SQL 查詢的基本樣子，以及只能讀的權限",
+      "chapter": "一個營運問題",
+      "narration": "資料存進資料庫之後，最常做的事是：問它問題。"
+    },
+    { "show": "boss" },
+    { "on": "boss", "say": "這個月到現在，真的收到錢的訂單有幾筆？一共多少？", "mood": "busy", "narration": "店長想知道，這個月真的收到錢的訂單有幾筆、一共多少。要問資料庫，就要用它聽得懂的話：SQL。" },
+    { "hide": "boss" },
+    { "show": "db", "chapter": "SQL 的三個部分" },
+    {
+      "where": "orders",
+      "rows": [1, 2, 3, 4, 5, 6],
+      "sql": "SELECT * FROM orders",
+      "narration": "最基本的一句：SELECT 是「我要看」，星號是「全部欄位」，FROM orders 是「從訂單表」。整句就是：把訂單表全部給我看。"
+    },
+    {
+      "where": "orders",
+      "rows": [1, 3, 4, 6],
+      "sql": "SELECT * FROM orders\nWHERE status = 'paid'",
+      "narration": "加上 WHERE，就是加條件：只要狀態是 paid，也就是已付款的。取消的、還沒付的，都被濾掉了。"
+    },
+    {
+      "where": "orders",
+      "rows": [1, 3, 4, 6],
+      "cols": ["member", "total"],
+      "sql": "SELECT member, total FROM orders\nWHERE status = 'paid'",
+      "narration": "SELECT 後面也可以只寫想看的欄位：誰買的、多少錢。"
+    },
+    {
+      "where": "orders",
+      "rows": [1, 3, 4, 6],
+      "cols": ["total"],
+      "sql": "SELECT COUNT(*), SUM(total) FROM orders\nWHERE status = 'paid'",
+      "chapter": "幫你算",
+      "narration": "最後，請資料庫直接幫你算：COUNT 是數幾筆，SUM 是加總。"
+    },
+    { "stamp": "orders", "text": "4 筆，NT$ 630", "tone": "ok", "narration": "4 筆，一共 630 元。店長的問題回答完了。" },
+    { "callout": "db:sql", "text": "SELECT 看什麼　FROM 哪張表　WHERE 什麼條件", "narration": "看懂這三個部分，AI 寫的大部分查詢，你都能讀懂它在問什麼。" },
+    { "stamp": "orders", "text": "" },
+    {
+      "where": "orders",
+      "rows": [],
+      "sql": "DELETE FROM orders   -- 一句話刪光所有訂單",
+      "chapter": "只能讀的帳號",
+      "narration": "不過，SQL 不只會問，也會改、會刪。像這一句，一按下去，所有訂單就沒了。"
+    },
+    { "stamp": "orders", "text": "權限不足：這是唯讀帳號", "tone": "bad", "narration": "所以查資料的時候，用一個只能讀、不能改的帳號，叫唯讀帳號。就算查詢寫錯，或 AI 會錯意，資料庫也會直接拒絕。" },
+    { "callout": "db:stamp:orders", "text": "查資料：用唯讀帳號，寫錯也不會改到資料", "narration": "請 AI 幫你查資料時，只給它唯讀帳號。這是最便宜、最有效的保險。" },
+    { "where": false },
+    {
+      "chapter": "讀讀看",
+      "checkpoint": "AI 寫了：SELECT member FROM orders WHERE status = 'pending'。它在問什麼？",
+      "body": "選一個。",
+      "id": "readsql",
+      "options": [
+        {
+          "label": "已付款的客人",
+          "steps": [{ "card": "pending 是還沒付款", "eyebrow": "再想想", "sub": "paid 才是已付款；pending 是待付款", "narration": "pending 是待付款，paid 才是已付款。" }]
+        },
+        {
+          "label": "還沒付款的是哪些客人",
+          "steps": [{ "card": "答對了", "eyebrow": "讀讀看", "sub": "SELECT member：看客人　WHERE status = 'pending'：還沒付款", "narration": "答對了。看客人欄位，條件是還沒付款。表裡就是張先生。" }]
+        }
+      ]
+    },
+    { "hide": "db" },
+    {
+      "card": "SELECT 看什麼\nFROM 哪張表\nWHERE 什麼條件",
+      "eyebrow": "學會",
+      "sub": "COUNT 數筆數、SUM 加總　查資料一律用唯讀帳號",
+      "chapter": "學會",
+      "narration": "今天的重點：SQL 查詢由「看什麼、從哪張表、什麼條件」組成，還能幫你數和加總。查資料一律用唯讀帳號。下一堂，你用白話問營運問題，AI 寫查詢、執行，再匯出成檔案。"
+    }
+  ]
+}

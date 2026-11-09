@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>講義：圖片去了哪裡</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main class="board">
+  <h1>證件圖片，交給誰處理？</h1>
+  <p class="lead" id="lead">點一條路，看看圖片會跑到哪裡</p>
+  <div class="map">
+    <div class="pc">
+      <div class="pc-name">你的電腦</div>
+      <div class="src">🖼 虛構證件範例.png<small>放在「下載」，不放進專案</small></div>
+      <div class="local" id="local-box"><b>瀏覽器裡的浮水印工具</b><span>畫面在這台電腦上算出來</span><span class="out">⬇ 虛構證件範例-watermark.png</span></div>
+    </div>
+    <div class="cloud" id="cloud-box"><svg viewBox="0 0 160 96"><path d="M40 84h82a28 28 0 0 0 0-56 38 38 0 0 0-70-8A30 30 0 0 0 40 84z" fill="#fff" stroke="#9aa6b8" stroke-width="5"/></svg><b>AI 服務</b><span>在網路的另一端</span></div>
+  </div>
+  <div class="paths">
+    <button class="path ai" data-p="ai"><b>A　把圖片拖進 AI 對話框、請 AI 打開看</b><span class="res">檔案內容會送到 AI 服務</span></button>
+    <button class="path local" data-p="local"><b>B　在網頁上按「選擇圖片」</b><span class="res">圖片只在你的瀏覽器裡，下載的是新檔</span></button>
+  </div>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

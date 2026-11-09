@@ -1,0 +1,94 @@
+{
+  "title": "分享圖與社群貼文",
+  "lesson": "全環節 · 單元 26 · 26.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "先做工具，再做貼文",
+    "line": "今天不請 AI 一張一張做圖，而是先請它做一個小工具。以後每則消息打一次字，就能輸出各平台的圖和文案。"
+  },
+  "blocking": { "cast": ["claude", "web", "files"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "分享圖產生器", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc26-2-maker", "width": "desktop", "url": "http://localhost:5173/tools/share-maker" }, "place": "window", "hidden": true },
+    "files": {
+      "actor": "finder",
+      "props": { "tree": { "komori-bakery": { "tools": { "share-maker": { "index.html": "", "export.mjs": "" } }, "out": {} } }, "open": "komori-bakery/out" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "分享圖與社群貼文",
+      "eyebrow": "全環節 · 單元 26 · 26.2 用 AI 完成",
+      "sub": "先請 AI 做工具，再用工具完成",
+      "chapter": "為什麼先做工具",
+      "narration": "如果每次都請 AI 做四張圖，每次結果都會有點不一樣，字的位置、顏色也會跑掉。先做一個工具，之後就是固定的樣子，又快又一致。"
+    },
+    { "show": "claude", "chapter": "請 AI 做工具" },
+    {
+      "on": "claude",
+      "user": "幫我做一個分享圖產生器，放在 tools/share-maker：輸入標題和副標，就能預覽 4:5、9:16、1.91:1、1:1 四種尺寸，按一個鈕輸出成 PNG 到 out/。9:16 的字要放在中間的安全範圍。用我們網站的字型和顏色。",
+      "narration": "說清楚要輸入什麼、輸出哪四種尺寸、存到哪裡，還有上一堂學到的：九比十六的字要放在安全範圍。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "todos": [
+        ["做預覽頁 index.html：四種尺寸同時顯示", "doing"],
+        ["做輸出程式 export.mjs：用瀏覽器截出 PNG", "pending"],
+        ["用一則範例消息試跑，確認四張尺寸正確", "pending"]
+      ]
+    },
+    { "on": "claude", "tool": "Write", "arg": "tools/share-maker/index.html", "result": "已建立" },
+    { "on": "claude", "tool": "Write", "arg": "tools/share-maker/export.mjs", "result": "已建立", "narration": "它寫了預覽頁，還有一支輸出程式，會用瀏覽器把四種尺寸各截成一張圖。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node tools/share-maker/export.mjs --title 測試 && identify out/*.png",
+      "result": "4 張",
+      "out": "out/post-4x5.png       1080x1350\nout/story-9x16.png     1080x1920\nout/link-1200x630.png  1200x630\nout/square-1x1.png     1080x1080",
+      "narration": "做好後它自己試跑一次，再用指令量出每張圖的尺寸，四張都對。"
+    },
+    {
+      "on": "claude",
+      "say": "工具做好了。執行 `npm run share` 就會打開它：輸入標題、副標，按「輸出 4 張圖」。",
+      "chapter": "用工具做這次的圖"
+    },
+    { "show": "web", "narration": "打開工具。現在只有範例的字。" },
+    { "on": "web", "fill": { "#title": "秋季栗子可頌開賣", "#sub": "週六起 · 每天限量 40 個" }, "narration": "輸入這次的消息：秋季栗子可頌開賣，副標是週六起、每天限量。四種尺寸同時更新。" },
+    { "callout": "web:sel:#grid", "text": "一次輸入，四種尺寸同時預覽", "narration": "打一次字，四種尺寸同時看到。" },
+    { "on": "web", "fill": { "#theme": "dark" }, "narration": "想換深色看看，也是一下就好。" },
+    { "on": "web", "click": "#export", "narration": "滿意了，按輸出。" },
+    { "show": "files", "create": "post-4x5.png", "narration": "out 資料夾裡，圖一張一張出現。" },
+    { "on": "files", "create": "story-9x16.png" },
+    { "on": "files", "create": "link-1200x630.png" },
+    { "on": "files", "create": "square-1x1.png" },
+    {
+      "on": "claude",
+      "user": "圖好了。同一則消息，幫我寫四個平台的貼文文字：圖片社群、限時動態、文字社群、LINE 群組。語氣各自不同，附建議發文時間。",
+      "chapter": "文字也一次產生"
+    },
+    {
+      "on": "claude",
+      "say": "**圖片社群**（午休 12:00）\n栗子季來了🌰 週六開賣，每天 40 個。#台中麵包 #可頌\n\n**限時動態**（早上 8:00）\n今天開賣！點貼紙預約 ›\n\n**文字社群**（晚上 9:00）\n今年的栗子特別甜，我們試了 11 次比例，才找到不會讓可頌變軟的做法……\n\n**LINE 群組**（週五晚上）\n各位老朋友，栗子可頌週六開賣，想留的直接回我數量喔！",
+      "narration": "四段文字，語氣各不同，還附了建議時間。這些是起點，你看過、改成自己的話再發。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 為你的品牌做一個分享圖產生器，說清楚四種尺寸與安全範圍，並請它自己試跑、量尺寸。用它做一則消息的四張圖，再請它寫四個平台的文字。"
+    },
+    {
+      "card": "重複的事，先請 AI 做成工具\n工具做好要試跑、量尺寸\n圖和文字都依平台輸出",
+      "eyebrow": "學會",
+      "sub": "以後每則消息：打一次字，按一次鈕",
+      "chapter": "學會",
+      "narration": "會一直重複的事，先請 AI 做成工具，而且讓它自己試跑、量尺寸。以後每則消息，打一次字、按一次鈕就好。"
+    }
+  ]
+}

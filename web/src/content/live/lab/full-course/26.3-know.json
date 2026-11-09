@@ -1,0 +1,63 @@
+{
+  "title": "讓程式發文之前，先讓人看一眼",
+  "lesson": "全環節 · 單元 26 · 26.3 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "程式發文，人來把關",
+    "line": "今天看程式怎麼替你在粉絲專頁發文：API、權杖和平台審核是什麼，還有為什麼發出去之前，一定要有人看過。"
+  },
+  "cast": {
+    "phone": { "actor": "chat", "props": { "title": "小森烘焙 · 粉專訊息" }, "place": { "x": 220, "y": 110, "w": 560, "h": 860 }, "hidden": true },
+    "boss": { "actor": "person", "props": { "name": "老闆", "look": "boss" }, "place": { "x": 960, "y": 300, "w": 700 }, "hidden": true },
+    "web": { "actor": "browser", "props": { "site": "fc26-3-flow", "width": "desktop", "url": "https://whiteboard.example/auto-post" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "讓程式發文之前，先讓人看一眼",
+      "eyebrow": "全環節 · 單元 26 · 26.3 基礎知識",
+      "sub": "發文 API、權杖、審核，與人工核准",
+      "chapter": "一則自動發出去的錯誤",
+      "narration": "先看一個真的會發生的事故。"
+    },
+    { "show": "phone", "narration": "早上七點，粉專訊息突然湧進來。" },
+    { "on": "phone", "receive": "貼文說可頌一個 6 元是真的嗎？我要 20 個！", "from": "粉絲 A" },
+    { "on": "phone", "receive": "6 元？？我也要訂 30 個", "from": "粉絲 B" },
+    { "show": "boss", "on": "boss", "say": "我們寫了一支程式自動發文，它把 65 寫成 6，半夜就發出去了……", "mood": "worried", "narration": "原來是自動發文的程式，把 65 元寫成 6 元，半夜直接發出去，沒有人看過。" },
+    { "hide": "phone" },
+    { "hide": "boss" },
+    {
+      "card": "API",
+      "eyebrow": "先懂一個詞",
+      "sub": "平台開給程式用的窗口：程式不用點網頁，直接送請求",
+      "chapter": "程式怎麼發文",
+      "narration": "程式能發文，靠的是 API。API 是平台開給程式用的窗口，程式不用打開網頁點按鈕，直接送一個請求，就能發出貼文。"
+    },
+    { "show": "web", "narration": "整條流程，我們一站一站看。" },
+    { "on": "web", "click": "#next", "narration": "起點是一則值得發的消息，例如網站的更新紀錄 CHANGELOG，或一堂新課。" },
+    { "on": "web", "click": "#next", "narration": "AI 把它寫成貼文草稿。" },
+    { "on": "web", "click": "#next", "narration": "接著是最重要的一站：人核准。草稿先給你看，你按下核准，才會往下走。剛才的事故，就是少了這一站。" },
+    { "callout": "web:sel:.box.hum", "text": "AI 會寫錯數字、日期、語氣；發出去就收不回來", "narration": "AI 會寫錯數字、日期，也可能語氣不對。貼文一發出去，就被很多人看到，收不回來。" },
+    { "on": "web", "click": "#next", "narration": "核准後，程式帶著權杖呼叫 API，貼文就出現在粉專上。" },
+    { "on": "web", "click": "#next", "chapter": "權杖與審核", "narration": "權杖，英文叫 token，是程式的通行證。它記著：這是誰、能做什麼、到什麼時候。" },
+    { "callout": "web:sel:.key", "text": "權杖像大樓磁卡：只開該開的門、會過期、不能外流", "narration": "它像大樓的磁卡，只開得了該開的門，時間到會過期。權杖等於你的帳號權限，不能貼到對話裡，也不能放進公開的程式碼。" },
+    { "on": "web", "click": "#next", "narration": "最後，要拿到發文權限，平台通常會審核你的應用程式：用途、隱私權政策，有時還要示範影片。" },
+    { "hide": "web" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "AI 起草的貼文，下面哪一件事一定要人來做？",
+      "body": "選一個。",
+      "id": "human",
+      "options": [
+        { "label": "把草稿排版成段落", "steps": [{ "card": "這個可以交給 AI", "eyebrow": "想一想", "sub": "排版、改錯字都能交給 AI；一定要人做的是發出去前的核准", "narration": "排版可以交給 AI。一定要人做的，是發出去之前的核准。" }] },
+        { "label": "發出去之前的核准", "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "日期、價格、語氣，發之前由人確認", "narration": "答對了。日期、價格和語氣，發之前由人確認。" }] }
+      ]
+    },
+    {
+      "card": "API：給程式用的窗口\n權杖：程式的通行證，不能外流\n審核：申請發文權限要先過關\n發文前一定有人核准",
+      "eyebrow": "學會",
+      "sub": "下一堂：做出「AI 起草、人核准、程式發布」的流程",
+      "chapter": "學會",
+      "narration": "API 是給程式用的窗口，權杖是通行證，申請權限要過審核。最重要的是：發文前一定有人核准。下一堂，我們就做出這條流程。"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "title": "一封請求、一封回應：JSON 與路由",
+  "lesson": "全環節 · 單元 8 · 8.2 基礎知識",
+  "teacher": {
+    "say": "今天拆開一封請求",
+    "line": "今天我們把一封請求和一封回應拆開來看：裡面寫了什麼、資料為什麼長得像一堆大括號，還有伺服器怎麼知道要交給誰處理。"
+  },
+  "cast": {
+    "code": {
+      "actor": "editor",
+      "props": { "project": "bakery", "files": {} },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc8-2-json", "url": "https://learn.example/json" },
+      "place": "window",
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "伺服器裡的「路由」：看網址分給誰",
+        "nodes": {
+          "browser": { "label": "瀏覽器", "icon": "browser", "x": 12, "y": 50 },
+          "router": { "label": "路由", "sub": "看方法＋網址分派", "icon": "gear", "x": 40, "y": 50 },
+          "menu": { "label": "列出商品", "sub": "GET /api/menu", "icon": "file", "x": 76, "y": 18 },
+          "order": { "label": "建立訂單", "sub": "POST /api/orders", "icon": "receipt", "x": 76, "y": 50 }
+        },
+        "links": [["browser", "router"], ["router", "menu"], ["router", "order"]]
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "一封請求、一封回應",
+      "eyebrow": "全環節 · 單元 8 · 8.2 基礎知識",
+      "sub": "JSON、路由、請求與回應",
+      "chapter": "請求長什麼樣",
+      "narration": "上一堂我們看到瀏覽器和伺服器在傳訊息。這一堂把訊息打開，看裡面到底寫了什麼。"
+    },
+    { "show": "code", "open": "request.txt", "narration": "這是瀏覽器送出的一封請求，原本長這樣。" },
+    { "on": "code", "type": "POST /api/orders HTTP/1.1\nHost: bakery.example\nContent-Type: application/json\n\n", "narration": "第一行是方法和網址：要新增一筆訂單。下面幾行是信封上的註記，叫標頭，例如「內容是 JSON 格式」。" },
+    { "on": "code", "type": "{ \"item\": \"可頌\", \"qty\": 2 }\n", "narration": "空一行之後是信的內容：要訂兩個可頌。" },
+    { "on": "code", "open": "response.txt", "narration": "伺服器回的信也是一樣的結構。" },
+    { "on": "code", "type": "HTTP/1.1 201 Created\nContent-Type: application/json\n\n{ \"id\": 42, \"status\": \"new\" }\n", "narration": "第一行是狀態碼 201，建立成功；內容告訴你訂單編號是 42。" },
+    { "callout": "code:code", "text": "請求：方法＋網址＋內容　回應：狀態碼＋內容", "narration": "記住這個結構：請求是方法、網址和內容；回應是狀態碼和內容。" },
+    { "hide": "code" },
+    {
+      "show": "web",
+      "chapter": "JSON：資料的寫法",
+      "narration": "那些大括號叫 JSON，是前端和後端傳資料最常用的寫法。我們拆開一份來看。"
+    },
+    { "on": "web", "click": "#bObj", "narration": "大括號包起來的一包資料，叫物件。" },
+    { "on": "web", "click": "#bKey", "narration": "雙引號裡的名字叫鍵，像表格的欄位名稱。前端就是靠它找資料，拼錯一個字就拿不到。" },
+    { "on": "web", "click": "#bVal", "narration": "冒號後面是值。文字要加引號，數字和 true、false 不用。" },
+    { "on": "web", "click": "#bArr", "narration": "中括號是陣列，用來放一串東西，例如好幾個商品。" },
+    { "hide": "web" },
+    {
+      "show": "flow",
+      "chapter": "路由：交給誰處理",
+      "narration": "最後，伺服器收到請求，怎麼知道要做什麼？它看方法和網址，查一張對照表，這張表叫路由。"
+    },
+    { "on": "flow", "send": ["browser", "router"], "label": "GET /api/menu" },
+    { "on": "flow", "send": ["router", "menu"], "label": "交給你", "tone": "data", "narration": "GET /api/menu，交給「列出商品」這段程式。" },
+    { "on": "flow", "send": ["menu", "browser"], "label": "200 [商品…]", "tone": "ok" },
+    { "on": "flow", "tidy": true },
+    { "on": "flow", "send": ["browser", "router"], "label": "POST /api/orders" },
+    { "on": "flow", "send": ["router", "order"], "label": "交給你", "tone": "data", "narration": "POST /api/orders，交給「建立訂單」。同一個伺服器，不同的網址做不同的事。" },
+    { "on": "flow", "send": ["order", "browser"], "label": "201 { id: 42 }", "tone": "ok" },
+    { "on": "flow", "tidy": true },
+    { "on": "flow", "send": ["browser", "router"], "label": "GET /api/menuu", "tone": "warn", "narration": "那如果網址多打了一個字母呢？" },
+    { "on": "flow", "pulse": "router", "text": "對照表裡沒有這一條", "tone": "bad" },
+    { "on": "flow", "send": ["router", "browser"], "label": "404 Not Found", "tone": "bad", "narration": "對照表裡找不到，伺服器就回 404。前端顯示「讀不到資料」，很多時候就是網址或鍵名差一個字。" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "前端要讀商品名稱，寫成 item.title，可是伺服器回的 JSON 是 { \"name\": \"可頌\" }。畫面會怎樣？",
+      "body": "選一個。",
+      "id": "jsonkey",
+      "options": [
+        {
+          "label": "正常顯示可頌",
+          "steps": [{ "card": "會是空白", "eyebrow": "再想想", "sub": "鍵名要一字不差：title 和 name 是兩個不同的名字", "narration": "會是空白。前端找的是 title，可是資料裡只有 name，鍵名要一字不差。" }]
+        },
+        {
+          "label": "名稱是空白",
+          "steps": [{ "card": "答對了：鍵名要一字不差", "eyebrow": "想一想", "sub": "請 AI 用 curl 看實際回應，就知道鍵名是什麼", "narration": "答對了。鍵名要一字不差。下一堂，我們會請 AI 用 curl 看實際的回應，就不會猜錯。" }]
+        }
+      ]
+    },
+    { "hide": "flow" },
+    {
+      "card": "請求：方法＋網址＋內容\n回應：狀態碼＋內容",
+      "eyebrow": "學會",
+      "sub": "JSON 用鍵和值寫資料；路由看方法和網址，交給對的程式處理",
+      "chapter": "學會",
+      "narration": "今天的重點：請求有方法、網址和內容，回應有狀態碼和內容；內容常用 JSON，靠鍵名找資料；伺服器用路由決定交給誰。下一堂，請 AI 建一支自己的 API，而且自己測到對。"
+    }
+  ]
+}

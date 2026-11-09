@@ -1,0 +1,22 @@
+<!doctype html><html><head><title>紀錄 · 雲端主控台</title></head><body>
+<div class="top"><span class="logo">☁ 雲端主控台</span><span>專案：shop-prod ▾</span></div>
+<div class="main">
+  <div class="side"><div>Cloud Run</div><div>排程工作</div><div class="cur">紀錄</div><div>機密</div></div>
+  <div class="body">
+    <h2>紀錄瀏覽</h2>
+    <form class="q" id="qf"><input id="q" placeholder="篩選條件，例如 severity>=ERROR"><select id="range"><option value="1h">最近 1 小時</option><option value="24h">最近 24 小時</option></select><button id="run" type="submit">查詢</button></form>
+    <div class="count" id="count">顯示 14,382 行</div>
+    <div class="logs" id="logs">
+      <div class="l info"><span>14:02:10</span><b>INFO</b>GET /products/soap 200</div>
+      <div class="l info"><span>14:02:10</span><b>INFO</b>GET /cart 200</div>
+      <div class="l err"><span>14:02:11</span><b>ERROR</b>付款失敗：缺少設定 PAYMENT_KEY　/checkout/confirm</div>
+      <div class="l info"><span>14:02:11</span><b>INFO</b>GET /static/app.js 200</div>
+      <div class="l info"><span>14:02:12</span><b>INFO</b>POST /api/cart 200</div>
+      <div class="l warn"><span>14:02:13</span><b>WARN</b>圖片載入較慢：hero.webp 1.2s</div>
+      <div class="l info"><span>14:02:14</span><b>INFO</b>GET / 200</div>
+      <div class="l err"><span>14:03:40</span><b>ERROR</b>付款失敗：缺少設定 PAYMENT_KEY　/checkout/confirm</div>
+      <div class="l info"><span>14:03:41</span><b>INFO</b>GET /products 200</div>
+    </div>
+  </div>
+</div>
+</body></html>

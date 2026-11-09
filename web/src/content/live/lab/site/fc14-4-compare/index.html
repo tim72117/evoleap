@@ -1,0 +1,18 @@
+<!doctype html><html><head><title>效能比較</title></head><body>
+<div class="app">
+  <h2>首頁效能：改善前 vs 改善後（手機、4G）</h2>
+  <div class="cols">
+    <div class="col before" id="before">
+      <div class="tag">改善前</div>
+      <div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" class="bg"/><circle cx="60" cy="60" r="50" class="fg" stroke-dasharray="120 314"/></svg><span>38</span></div>
+      <dl><dt>最大內容出現</dt><dd>6.2 秒</dd><dt>整頁大小</dt><dd>6.1 MB</dd><dt>首頁大圖</dt><dd>4.8 MB（jpg）</dd><dt>字型</dt><dd>3 種，620 KB</dd></dl>
+    </div>
+    <div class="col after" id="after">
+      <div class="tag">改善後</div>
+      <div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" class="bg"/><circle cx="60" cy="60" r="50" class="fg" stroke-dasharray="295 314"/></svg><span>94</span></div>
+      <dl><dt>最大內容出現</dt><dd>1.6 秒</dd><dt>整頁大小</dt><dd>0.9 MB</dd><dt>首頁大圖</dt><dd>180 KB（webp）</dd><dt>字型</dt><dd>1 種，只含用到的字，90 KB</dd></dl>
+    </div>
+  </div>
+  <button id="show">顯示改善後</button>
+</div>
+</body></html>

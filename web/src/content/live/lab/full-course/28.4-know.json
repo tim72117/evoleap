@@ -1,0 +1,55 @@
+{
+  "title": "AI 碰不到的地方",
+  "lesson": "全環節 · 單元 28 · 28.4 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "有些事只能你來",
+    "line": "今天來分一分：哪些事 AI 可以自己做，哪些事只能你來。還有碰不到的時候，怎麼和 AI 一起把它做完。"
+  },
+  "cast": {
+    "web": { "actor": "browser", "props": { "site": "fc28-4-reach", "width": "desktop", "url": "https://whiteboard.example/reach" }, "place": "window", "hidden": true },
+    "phone": { "actor": "chat", "props": { "title": "和 AI 的對話" }, "place": { "x": 680, "y": 110, "w": 560, "h": 860 }, "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "AI 碰不到的地方",
+      "eyebrow": "全環節 · 單元 28 · 28.4 基礎知識",
+      "sub": "付款、身分驗證與沒有 API 的後台",
+      "chapter": "分一分",
+      "narration": "前面幾堂，我們讓 AI 碰到越來越多東西：瀏覽器、CLI、MCP。但有些地方，它碰不到，也不該碰。"
+    },
+    { "show": "web", "narration": "左邊是 AI 可以自己做的，右邊是只有你能做的。一張一張放進去。" },
+    { "on": "web", "click": "#next", "narration": "改程式、跑測試：AI 自己來。" },
+    { "on": "web", "click": "#next", "narration": "部署：有 CLI，AI 可以。" },
+    { "on": "web", "click": "#next", "narration": "查 DNS 有沒有生效：用 dig，AI 可以。" },
+    { "on": "web", "click": "#next", "narration": "輸入付款資料：只有你。這是你的錢，任何人都不該替你填，包括 AI。" },
+    { "on": "web", "click": "#next", "narration": "手機簡訊驗證碼、兩步驟驗證：只有你。這些設計本來就是要確認「是你本人」。" },
+    { "on": "web", "click": "#next", "narration": "有些後台只有網頁，沒有 API，也沒有 CLI。例如有些金流的設定頁。AI 碰不到，只能你點。" },
+    { "callout": "web:sel:.z2", "text": "要本人的，或沒有 API 的，都由你來", "narration": "右邊這些有兩種原因：一種是要你本人，一種是根本沒有給程式用的窗口。" },
+    { "on": "web", "click": "#next", "chapter": "碰不到時怎麼合作", "narration": "碰不到，不代表 AI 幫不上忙。做法是：AI 寫步驟，你做一步，截圖回報，它判斷下一步。" },
+    { "hide": "web" },
+    { "show": "phone", "narration": "像這樣。" },
+    { "on": "phone", "receive": "第 3 步：在「環境」選「正式」，再按「新增端點」。做完截圖給我。", "from": "AI" },
+    { "on": "phone", "reply": "［截圖］畫面右上角寫「測試模式」" },
+    { "on": "phone", "receive": "你還在測試模式。先點上方的「正式」切過去，右上角會變成綠色的「正式模式」，再繼續。", "from": "AI", "narration": "AI 看截圖，發現你還在測試模式，告訴你怎麼切。你是它的手，它是你的眼睛和腦袋。" },
+    {
+      "callout": "phone:msg:last",
+      "text": "截圖比描述清楚：AI 能看出你沒注意到的地方",
+      "narration": "截圖比用文字描述清楚得多，AI 常常能看出你沒注意到的小地方。"
+    },
+    { "hide": "phone" },
+    {
+      "card": "截圖前先遮住",
+      "eyebrow": "要注意",
+      "sub": "卡號、密碼、驗證碼、完整的金鑰：遮住再傳",
+      "narration": "要注意，截圖前先看一下：卡號、密碼、驗證碼、完整的金鑰，先遮住再傳。"
+    },
+    {
+      "card": "AI 碰得到：有 CLI、API、MCP\n只有你：付款、身分驗證、沒有 API 的後台\n合作：AI 寫步驟 → 你做 → 截圖回報",
+      "eyebrow": "學會",
+      "sub": "下一堂：照 AI 的步驟設定一個後台，留下一份可以重複用的操作步驟",
+      "chapter": "學會",
+      "narration": "有 CLI、API、MCP 的，AI 碰得到。付款、身分驗證、沒有 API 的後台，只有你。碰不到時，AI 寫步驟、你做、截圖回報。下一堂，我們實際做一次。"
+    }
+  ]
+}

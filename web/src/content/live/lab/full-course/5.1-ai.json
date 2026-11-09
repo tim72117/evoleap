@@ -1,0 +1,150 @@
+{
+  "title": "用 AI 做出個人介紹頁",
+  "lesson": "全環節 · 單元 5 · 5.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做出你的介紹頁",
+    "line": "今天要來用一段話，請 AI 做出你自己的個人介紹頁。重點是先說清楚「怎樣才算做完」，讓它做完自己檢查。"
+  },
+  "blocking": { "cast": ["claude", "page"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "個人介紹頁",
+        "folder": "~/projects/profile",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc5-1-full", "width": "desktop", "url": "file:///projects/profile/index.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用 AI 做出個人介紹頁",
+      "eyebrow": "全環節 · 單元 5 · 5.1 用 AI 完成",
+      "sub": "說清楚要什麼、怎樣算完成，讓 AI 做完自己檢查",
+      "chapter": "先寫下怎樣算完成",
+      "narration": "這次你只要負責兩件事：說清楚要什麼，還有怎樣才算做完。寫程式、打開來檢查，交給 AI。"
+    },
+    {
+      "card": "完成標準\n① 看得到名字和一句簡介\n② 有「關於我」和三個興趣\n③ 按鈕按下去會出現一句話",
+      "eyebrow": "動手之前",
+      "sub": "寫得出來、看得到、按得到，才算標準",
+      "narration": "動手之前，先寫下完成標準。每一條都要是看得到、按得到的，例如「按鈕按下去會出現一句話」。這樣 AI 做完，才有東西可以對。"
+    },
+    {
+      "show": "claude",
+      "chapter": "一段話交代清楚",
+      "narration": "打開 AI 程式助手，工作資料夾是一個空的 profile 資料夾。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我做一個個人介紹頁。我叫林小安，是喜歡烘焙的設計新手。要有「關於我」、三個興趣，還有一個「打個招呼」按鈕，按下去出現一句謝謝。只用 index.html、styles.css、script.js 三個檔案，風格溫暖。\n完成標準：用瀏覽器打開看得到名字和簡介、有三個興趣、按鈕按了會出現那句話。做完請你自己打開檢查，再告訴我結果。",
+      "narration": "一段話裡有四件事：我是誰、頁面要有什麼、只能用哪些檔案、還有完成標準，最後請它自己檢查。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1400 },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立 index.html：名字、簡介、關於我、三個興趣、按鈕", "doing"],
+        ["建立 styles.css：暖色系、興趣卡片並排", "pending"],
+        ["建立 script.js：按鈕按下去顯示謝謝", "pending"],
+        ["打開頁面，照完成標準逐條檢查", "pending"]
+      ],
+      "narration": "它先列出待辦清單。最後一項就是照你的完成標準檢查，代表它聽懂了。"
+    },
+    {
+      "on": "claude",
+      "ask": "index.html",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/profile",
+      "preview": "<header class=\"hero\">\n  <h1>林小安</h1>\n  <p class=\"tagline\">喜歡烘焙的設計新手</p>\n</header>",
+      "chapter": "AI 動手做"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "看檔名和位置：在 profile 資料夾裡建立 index.html",
+      "narration": "建立檔案前它會先問。檔名對、位置也在 profile 資料夾裡，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "index.html", "result": "已建立 42 行" },
+    { "on": "claude", "ask": "styles.css", "q": "Claude 想要建立這個檔案", "where": "~/projects/profile", "preview": ".hero {\n  background: linear-gradient(160deg, #ffe8cc, #fdd9c4);\n  border-radius: 24px;\n}" },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "styles.css", "result": "已建立 38 行" },
+    { "on": "claude", "ask": "script.js", "q": "Claude 想要建立這個檔案", "where": "~/projects/profile", "preview": "btn.addEventListener('click', () => {\n  msg.textContent = '嗨！謝謝你來看我的頁面'\n})" },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "script.js", "result": "已建立 9 行", "narration": "三個檔案都建好了。這時候還不算完成，因為還沒有人打開來看過。" },
+    {
+      "on": "claude",
+      "todos": [
+        ["建立 index.html：名字、簡介、關於我、三個興趣、按鈕", "done"],
+        ["建立 styles.css：暖色系、興趣卡片並排", "done"],
+        ["建立 script.js：按鈕按下去顯示謝謝", "done"],
+        ["打開頁面，照完成標準逐條檢查", "doing"]
+      ]
+    },
+    {
+      "on": "claude",
+      "ask": "npx playwright screenshot --full-page index.html check.png",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "暫時下載截圖工具，替頁面拍一張完整的照片，存成 check.png",
+      "chapter": "AI 自己檢查",
+      "narration": "它想用一個截圖工具，替整頁拍一張照片，自己看看長什麼樣子。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "npx playwright screenshot --full-page index.html check.png", "result": "完成", "out": "Capturing screenshot into check.png" },
+    { "on": "claude", "tool": "Read", "arg": "check.png", "result": "看到名字、簡介、三張興趣卡片", "narration": "它把照片讀進來看：名字、簡介、三張興趣卡片都在。" },
+    {
+      "on": "claude",
+      "ask": "node check-button.mjs",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "打開頁面、按下「打個招呼」，看那行字有沒有變"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node check-button.mjs",
+      "result": "完成",
+      "out": "按下「打個招呼」之前：按一下按鈕，跟我說嗨\n按下之後：嗨！謝謝你來看我的頁面。已經有 1 個人跟我打招呼\n✓ 文字有變",
+      "narration": "接著它寫了一個小檢查，真的去按按鈕，比較按之前和按之後的字。字有變，第三條也過了。"
+    },
+    {
+      "on": "claude",
+      "say": "做好了，照你的完成標準檢查過：\n✓ 看得到名字「林小安」和簡介\n✓ 有「關於我」和三個興趣（烘焙、散步、做網站）\n✓ 按下「打個招呼」會出現謝謝的話\n\n`check.png` 和 `check-button.mjs` 是我檢查用的，不需要可以刪掉。",
+      "narration": "它的回報是一條一條對著你的標準講的，而不是只說一句「做好了」。"
+    },
+    { "on": "claude", "user": "打開給我看", "chapter": "你自己再看一次" },
+    { "on": "claude", "ask": "open index.html", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "note": "用預設瀏覽器打開 index.html" },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "open index.html", "result": "完成" },
+    { "show": "page", "narration": "最後你自己看一次。名字、簡介都在。" },
+    { "on": "page", "scroll": "likes", "narration": "三個興趣並排。" },
+    { "on": "page", "scroll": "hello" },
+    { "on": "page", "click": "#hi", "narration": "按下按鈕，謝謝的話出現了。三條標準都過了，這才叫做完。" },
+    { "hide": "page" },
+    {
+      "checkpoint": "換你試試",
+      "body": "把上面那段話裡的名字、簡介、興趣換成你自己的，加上三條完成標準，最後寫「做完請你自己打開檢查，再告訴我結果」。送出後，對照它的回報，再自己打開頁面按一次按鈕。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "說清楚要什麼\n寫下怎樣算完成\n讓 AI 自己檢查、你再看一次",
+      "eyebrow": "學會",
+      "sub": "完成標準要看得到、按得到",
+      "chapter": "學會",
+      "narration": "說清楚要什麼，寫下怎樣算完成，請 AI 做完自己檢查，最後你再親眼看一次。下一課，我們來讀懂它寫出來的程式碼。"
+    }
+  ]
+}

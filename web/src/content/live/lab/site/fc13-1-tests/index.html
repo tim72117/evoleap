@@ -1,0 +1,33 @@
+<!doctype html><html><head><title>兩種測試</title></head><body>
+<div class="app s0">
+  <div class="grid">
+    <div class="pane unit" id="unit">
+      <h3>單元測試：一個零件一個零件檢查</h3>
+      <div class="parts">
+        <div class="part" id="pDiscount"><b>計算折扣</b><code>discount(1000, 'VIP') → 900</code><i></i></div>
+        <div class="part" id="pShip"><b>計算運費</b><code>shipping(900) → 0</code><i></i></div>
+        <div class="part" id="pEmail"><b>檢查 email</b><code>isEmail('a@b.tw') → true</code><i></i></div>
+      </div>
+      <div class="meta">快：幾秒跑完幾百個　·　出錯時直接指出是哪個零件</div>
+    </div>
+    <div class="pane e2e" id="e2e">
+      <h3>端對端測試：像客人一樣走完整條路</h3>
+      <div class="path">
+        <div class="scr" id="sHome">首頁</div><span class="arr">→</span>
+        <div class="scr" id="sItem">商品</div><span class="arr">→</span>
+        <div class="scr" id="sCart">購物車</div><span class="arr">→</span>
+        <div class="scr" id="sPay">結帳</div><span class="arr">→</span>
+        <div class="scr" id="sDone">完成</div>
+      </div>
+      <svg class="bot" viewBox="0 0 60 60"><rect x="12" y="16" width="36" height="30" rx="8"/><circle cx="24" cy="30" r="4" class="eye"/><circle cx="36" cy="30" r="4" class="eye"/><path d="M30 16V8" class="ant"/><circle cx="30" cy="7" r="3"/></svg>
+      <div class="meta">慢：開真的瀏覽器一步步點　·　抓得到「零件都好，接起來卻壞了」</div>
+    </div>
+  </div>
+  <div class="ripple" id="ripple">AI 只改了「計算折扣」→ 購物車的金額、結帳按鈕都用到它 → 結帳壞了</div>
+  <div class="chips">
+    <button id="b1" data-s="1">① 改 A 壞 B</button>
+    <button id="b2" data-s="2">② 單元測試</button>
+    <button id="b3" data-s="3">③ 端對端測試</button>
+  </div>
+</div>
+</body></html>

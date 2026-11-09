@@ -1,0 +1,42 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>網域商乙</title></head><body>
+<div id="app" class="reg">
+<header class="top"><span class="logo">◎ 網域商乙</span><nav>搜尋網域　我的網域　說明</nav><span class="me">登入中：你</span></header>
+<main class="wrap">
+<section data-only="0" class="hero">
+<h1>找一個屬於你的名字</h1>
+<div class="search"><input id="q" placeholder="輸入想要的網域"><button id="search" class="primary" data-go="1">搜尋</button></div>
+</section>
+<section data-only="1">
+<h1>搜尋結果</h1>
+<div class="box res"><span class="mono dn">xiaosen-bakery.com</span><span class="pill ok">可以註冊</span><span class="pr">NT$350／年<small>續約 NT$350</small></span><button id="add" class="primary" data-go="2">加入購物車</button></div>
+<div class="box res dim"><span class="mono dn">xiaosen-bakery.shop</span><span class="pill ok">可以註冊</span><span class="pr">NT$60 首年<small>續約 NT$1,200</small></span><button class="ghost">加入</button></div>
+</section>
+<section data-only="2" class="checkout">
+<h1>結帳</h1>
+<div class="cols">
+<div>
+<div class="box"><b>xiaosen-bakery.com</b>　<select id="years"><option>1 年</option><option>2 年</option></select>
+<label class="ck"><input type="checkbox" id="ck-renew"> 自動續約</label>
+<label class="ck"><input type="checkbox" id="ck-lock" checked> 轉移鎖定</label>
+<label class="ck"><input type="checkbox" id="ck-priv"> WHOIS 隱私保護（免費）</label></div>
+<div class="box you" id="reginfo"><b>註冊人資料</b><span class="tag">由你自己填寫</span><div class="blur">姓名 ▢▢▢　電話 ▢▢▢▢▢▢▢▢　地址 ▢▢▢▢▢▢▢▢▢▢</div></div>
+<div class="box you" id="payinfo"><b>付款資料</b><span class="tag">由你自己輸入</span><div class="blur">卡號 ▢▢▢▢ ▢▢▢▢ ▢▢▢▢ ▢▢▢▢　到期 ▢▢/▢▢</div></div>
+</div>
+<div class="box sum"><p>小計 NT$350</p><p class="tot">總計 NT$350</p><button id="pay" class="primary" data-go="3">確認付款</button></div>
+</div>
+</section>
+<section data-only="3">
+<div class="box done"><h1>✓ 訂單完成</h1><p>xiaosen-bakery.com 已經是你的了。</p><p class="note">我們寄了一封驗證信到你的信箱。<b>15 天內沒點驗證連結，網域會被暫停。</b></p><button id="manage" class="primary" data-go="4">前往網域管理</button></div>
+</section>
+<section data-only="4">
+<h1>xiaosen-bakery.com</h1>
+<div class="box mg">
+<div class="line"><span>到期日</span><b>2027/11/09</b></div>
+<div class="line"><span>自動續約</span><span class="sw on" id="p-renew" data-toggle><i></i></span></div>
+<div class="line"><span>轉移鎖定</span><span class="sw on" id="p-lock" data-toggle><i></i></span></div>
+<div class="line"><span>WHOIS 隱私保護</span><span class="sw" id="p-priv" data-toggle><i></i></span></div>
+<div class="line"><span>註冊人 Email</span><span id="mail" data-toggle class="mailst"><span class="pill wait n">未驗證</span><span class="pill ok y">已驗證</span></span></div>
+<div class="line"><span>DNS</span><span>網域商乙預設 DNS</span></div>
+</div>
+</section>
+</main></div></body></html>

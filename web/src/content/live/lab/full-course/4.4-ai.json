@@ -1,0 +1,111 @@
+{
+  "title": "拆成工作項目",
+  "camera": "auto",
+  "teacher": {
+    "say": "拆好，直接建到 GitHub",
+    "line": "這一堂請 AI 把需求清單拆成工作項目，每一項寫上完成條件、排好先後，再用 gh 指令直接建成 GitHub 上的 Issues。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "拆工作項目", "folder": "~/projects/bakery-order", "branch": "main", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc4-4-issues", "url": "https://github.com/xiaoan/bakery-order/issues" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "拆好，直接建到 GitHub",
+      "eyebrow": "全環節 · 單元 4 · 4.4 用 AI 完成",
+      "sub": "Issues：GitHub 上的待辦清單",
+      "chapter": "交代任務",
+      "narration": "GitHub 上的每個 repository 都有一份待辦清單，叫做 Issues。AI 可以用 gh 指令直接幫你建。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "把 docs/REQUIREMENTS.md 拆成工作項目：每項一兩天做得完、寫上完成條件、排好先後。先給我看清單，我說可以再用 gh 建成 GitHub Issues，最後用 gh issue list 確認。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "先給我看，我說可以再建",
+      "narration": "這裡加了一個檢查點：先給你看清單，你說可以才動手建。因為建 Issues 會改到 GitHub 上的東西。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "docs/REQUIREMENTS.md", "result": "10 行" },
+    { "on": "claude", "tool": "Read", "arg": "docs/decisions/0001-tech-choice.md", "result": "8 行", "narration": "它讀了需求清單，也讀了上一堂的技術選擇紀錄，才知道要用哪些服務。" },
+    {
+      "on": "claude",
+      "say": "拆成 6 項，依順序：\n1. **建立專案骨架**：`npm run dev` 看得到首頁\n2. **首頁列出麵包**：手機上看得到 3 種麵包和價格（等 #1）\n3. **選數量與取貨時間**：不能選今天以前的日期（等 #2）\n4. **送出訂單存進資料庫**：送出後拿到編號、資料庫查得到（等 #3）\n5. **店長看今天的訂單**：登入後只看到今天的（等 #4）\n6. **部署上線**：手機用網址打得開（#2 之後就能做）\n\n可以的話我就建成 Issues。",
+      "chapter": "先看清單",
+      "narration": "六個項目，每一項都有完成條件，也標了要等哪一項。第六項部署，首頁做好就能先做。"
+    },
+    {
+      "on": "claude",
+      "user": "可以，建吧。"
+    },
+    {
+      "on": "claude",
+      "ask": "gh issue create --title \"建立專案骨架\" --body \"完成條件：npm run dev 看得到首頁\" --milestone \"v1 上線\"",
+      "where": "~/projects/bakery-order",
+      "chapter": "用 gh 建 Issues",
+      "narration": "它要執行 gh issue create，建第一個 Issue：標題、完成條件、里程碑都帶上了。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "gh issue create：在 GitHub 建一個 Issue",
+      "narration": "看懂了：這是在 GitHub 上建一筆待辦。後面五個都是同一種指令，這次可以選一律允許。"
+    },
+    { "on": "claude", "choose": 2, "hover": [1] },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh issue create（6 個，依順序）",
+      "result": "建立 6 個",
+      "out": "https://github.com/xiaoan/bakery-order/issues/1\nhttps://github.com/xiaoan/bakery-order/issues/2\nhttps://github.com/xiaoan/bakery-order/issues/3\nhttps://github.com/xiaoan/bakery-order/issues/4\nhttps://github.com/xiaoan/bakery-order/issues/5\nhttps://github.com/xiaoan/bakery-order/issues/6",
+      "narration": "依順序建好六個，編號一到六。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh issue list",
+      "out": "#6  部署上線              v1 上線\n#5  店長看今天的訂單      v1 上線\n#4  送出訂單存進資料庫    v1 上線\n#3  選數量與取貨時間      v1 上線\n#2  首頁列出麵包          v1 上線\n#1  建立專案骨架          v1 上線",
+      "chapter": "自己確認",
+      "narration": "最後照你說的，用 gh issue list 確認：六個都在。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ GitHub 上建好 6 個 Issues，都在里程碑「v1 上線」。每個 Issue 的內文寫了完成條件和要等哪一項。從 **#1** 開始做。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "web",
+      "narration": "到 GitHub 上看看。"
+    },
+    {
+      "callout": "web:sel:.list",
+      "text": "GitHub 上排好順序的工作清單 ✓",
+      "narration": "六個 Issues 排得整整齊齊，標著順序和要等誰。"
+    },
+    {
+      "callout": "web:sel:#i1",
+      "text": "下一步：從 #1 開始",
+      "narration": "接下來的單元，就是一項一項交給 AI：做完一項，照完成條件驗證，關掉一個 Issue，再做下一項。"
+    },
+    {
+      "checkpoint": "換你：拆項目，建成 GitHub Issues",
+      "body": "請 AI 把你的需求清單拆成工作項目：每項一兩天做得完、寫完成條件、排先後。先看過清單再請它用 gh issue create 建成 Issues，最後用 gh issue list 確認，並到 GitHub 網頁上看一次。"
+    },
+    {
+      "card": "GitHub 上排好順序的工作清單 ✓",
+      "eyebrow": "4.4 完成",
+      "sub": "單元 4 完成：從想法到規格",
+      "narration": "需求、草圖、技術、工作清單都有了。從想法到規格，這個單元完成了。"
+    }
+  ]
+}

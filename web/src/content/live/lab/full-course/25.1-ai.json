@@ -1,0 +1,144 @@
+{
+  "title": "每一頁的標題、描述與分享預覽",
+  "lesson": "全環節 · 單元 25 · 25.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 補齊全站",
+    "line": "今天請 AI 把全站每一頁的標題、描述和分享圖一次補齊，而且讓它自己用指令一頁一頁檢查，不是說改好了就算。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "補齊每頁的 meta", "folder": "~/projects/komori-bakery", "branch": null, "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc25-1-share", "width": "desktop", "url": "https://share-check.example/" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "每一頁的標題、描述與分享預覽",
+      "eyebrow": "全環節 · 單元 25 · 25.1 用 AI 完成",
+      "sub": "一次交代清楚，讓 AI 自己做、自己驗證",
+      "chapter": "先把「怎樣算完成」講清楚",
+      "narration": "這一堂只下一次指令。重點是把怎樣算完成講清楚，讓 AI 自己做完、自己檢查。"
+    },
+    {
+      "card": "怎樣算完成？\n每頁 title 都不同\n每頁有 description 與 canonical\n每頁有 og:title、og:description、og:image",
+      "eyebrow": "交代之前先想好",
+      "sub": "而且要用 curl 實際抓每一頁來確認",
+      "narration": "動手前先想好驗收標準：每一頁的標題都不同，都有描述和正本網址，也都有分享卡片要的三個 og 標籤。最後要用 curl 實際抓每一頁來確認。curl 是一個在終端機裡抓網頁的指令。"
+    },
+    { "show": "claude", "narration": "打開 AI 程式助手，工作資料夾是網站的專案。" },
+    {
+      "on": "claude",
+      "user": "幫全站每一頁補上 title、description、canonical 和 og:title、og:description、og:image。title 格式是「這頁的內容｜小森烘焙」，每頁都不能重複。分享圖做一張 1200×630 的共用圖。做完在本機啟動網站，用 curl 抓每一頁，列表給我看每頁有沒有這六個標籤。",
+      "narration": "把要做什麼、格式、驗收方法，一次寫進去。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    { "on": "claude", "tool": "Glob", "arg": "src/pages/**/*.html", "result": "5 個檔案", "out": "index.html\nmenu.html\nreserve.html\nabout.html\nfaq.html", "narration": "它先找出網站有哪些頁面，一共五頁。" },
+    {
+      "on": "claude",
+      "todos": [
+        ["寫一個共用的 head 片段，每頁帶自己的標題與描述", "doing"],
+        ["五頁各寫標題與描述", "pending"],
+        ["做 1200×630 的分享圖 og.png", "pending"],
+        ["啟動網站，用 curl 檢查五頁", "pending"]
+      ],
+      "narration": "它列出待辦：先做一個共用的 head 片段，讓每一頁只要填自己的標題和描述，再做分享圖，最後檢查。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/layout/head.html",
+      "lines": [
+        [1, "+", "<title>{{title}}｜小森烘焙</title>"],
+        [2, "+", "<meta name=\"description\" content=\"{{description}}\">"],
+        [3, "+", "<link rel=\"canonical\" href=\"https://komori-bakery.example{{path}}\">"],
+        [4, "+", "<meta property=\"og:title\" content=\"{{title}}｜小森烘焙\">"],
+        [5, "+", "<meta property=\"og:description\" content=\"{{description}}\">"],
+        [6, "+", "<meta property=\"og:image\" content=\"https://komori-bakery.example/og.png\">"]
+      ],
+      "narration": "共用的片段長這樣。雙大括號的地方，每一頁會換成自己的內容。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/menu.html",
+      "lines": [
+        [1, "-", "<title>Home</title>"],
+        [1, "+", "{{> head title=\"本週麵包菜單\" description=\"每天早上七點出爐，線上預約、到店取貨。\" path=\"/menu\"}}"]
+      ],
+      "narration": "每一頁換上自己的標題和描述。原本寫死的 Home 拿掉了。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["寫一個共用的 head 片段，每頁帶自己的標題與描述", "done"],
+        ["五頁各寫標題與描述", "done"],
+        ["做 1200×630 的分享圖 og.png", "done"],
+        ["啟動網站，用 curl 檢查五頁", "doing"]
+      ]
+    },
+    {
+      "on": "claude",
+      "ask": "for p in / /menu /reserve /about /faq; do curl -s localhost:4321$p | grep -cE '<title>|name=\"description\"|rel=\"canonical\"|og:title|og:description|og:image'; done",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/komori-bakery",
+      "note": "逐頁抓本機網站，數每頁有幾個需要的標籤",
+      "chapter": "AI 自己用 curl 驗證",
+      "narration": "接著它要執行檢查。這行指令會把五頁一頁一頁抓下來，數一數需要的標籤有幾個。只是讀取，可以允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl 逐頁檢查",
+      "result": "1 頁不齊",
+      "out": "/         6/6\n/menu     6/6\n/reserve  6/6\n/about    6/6\n/faq      3/6  ← 缺 canonical、og:*",
+      "narration": "結果有一頁不齊：常見問題那頁只有三個。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "src/pages/faq.html", "result": "42 行", "narration": "它沒有停下來問你，而是自己打開那一頁看原因：這頁是之前另外複製的，沒有用共用片段。" },
+    {
+      "on": "claude",
+      "edit": "src/pages/faq.html",
+      "lines": [
+        [1, "-", "<title>常見問題</title>"],
+        [2, "-", "<meta name=\"description\" content=\"…\">"],
+        [1, "+", "{{> head title=\"常見問題\" description=\"預約、取貨、過敏原與保存方式。\" path=\"/faq\"}}"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl 逐頁檢查（再一次）",
+      "result": "全部通過",
+      "out": "/         6/6\n/menu     6/6\n/reserve  6/6\n/about    6/6\n/faq      6/6\n標題重複：無",
+      "narration": "改完再檢查一次，五頁都是六個，標題也沒有重複。"
+    },
+    {
+      "on": "claude",
+      "say": "全站五頁都補齊了：\n- 每頁都有 title、description、canonical 和三個 og 標籤\n- 標題格式「內容｜小森烘焙」，沒有重複\n- 分享圖 `public/og.png`，1200×630\n\n上線後可以用分享預覽工具貼網址，確認社群平台抓到新卡片。",
+      "narration": "它回報做了什麼、怎麼驗證的，還提醒你上線後再看一次分享預覽。"
+    },
+    {
+      "show": "web",
+      "chapter": "上線後看分享預覽",
+      "narration": "網站上線後，打開分享預覽工具，貼上菜單頁的網址。現在看到的，是平台之前存下來的舊卡片。"
+    },
+    { "callout": "web:sel:#tags-before", "text": "社群平台會把卡片存起來，改完不一定馬上更新", "narration": "社群平台會把抓到的卡片先存起來，所以改完不一定馬上更新。" },
+    { "on": "web", "click": "#fetch", "narration": "按重新抓取，請它再抓一次。" },
+    { "callout": "web:sel:#after", "text": "標題、說明、圖片都出現了", "narration": "標題、說明、圖片都出來了。這才算真的完成。" },
+    { "hide": "web" },
+    {
+      "checkpoint": "換你試試",
+      "body": "對你的網站送出同樣的指令：補齊六個標籤、指定標題格式、做分享圖，最後用 curl 逐頁列表。看 AI 有沒有發現哪一頁不齊並自己修好。"
+    },
+    {
+      "card": "先講好怎樣算完成\n讓 AI 用 curl 逐頁檢查\n上線後再看一次分享預覽",
+      "eyebrow": "學會",
+      "sub": "驗收標準寫進指令，AI 就會照著檢查",
+      "chapter": "學會",
+      "narration": "把驗收標準寫進指令，AI 就會自己照著檢查，發現漏掉的頁面也會自己補。上線後，再用分享預覽確認一次。"
+    }
+  ]
+}

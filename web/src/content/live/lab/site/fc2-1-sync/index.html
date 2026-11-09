@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>雲端同步資料夾</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-start="1">
+<div class="ttl">為什麼專案不要放在雲端同步資料夾？</div>
+<div class="sub">例如 iCloud 的「桌面與文件」、OneDrive、Dropbox</div>
+<div class="row">
+  <div class="card grow">
+    <div class="h">📁 ~/Documents/bakery <span class="tag y">同步中…</span></div>
+    <div class="mono list">node_modules/ <span class="up">⬆ 上傳中 12,483 / 40,211 個檔案</span><br>index.html<br><span class="r2 dup">index 2.html <span class="tag r">衝突副本</span></span><br><span class="r2 dup">package-lock 2.json <span class="tag r">衝突副本</span></span><br><span class="r3 gone">.git/ <span class="tag r">部分檔案只在雲端</span></span></div>
+  </div>
+  <div class="card side">
+    <div class="h">會發生什麼</div>
+    <div>① 幾萬個小檔一直上傳，電腦變慢</div>
+    <div class="r2">② 兩台電腦同時改，冒出「2」副本</div>
+    <div class="r3">③ 檔案被搬到雲端，程式找不到</div>
+    <div class="r4 fix">✅ 放在 <span class="mono">~/projects</span>，備份交給 Git 與 GitHub</div>
+  </div>
+</div>
+<div class="nav"><button class="btn ghost" id="n2" data-go="2">下一個問題</button><button class="btn ghost" id="n3" data-go="3">再下一個</button><button class="btn" id="n4" data-go="4">怎麼辦？</button></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

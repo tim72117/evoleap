@@ -1,0 +1,196 @@
+{
+  "title": "換你畫草圖",
+  "lesson": "兒童網頁課 · 4.4 試做（畫）",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {
+        "paper": "sketch",
+        "templates": [
+          {
+            "id": "pet",
+            "name": "寵物名片",
+            "emoji": "🐶",
+            "boxes": [
+              {
+                "id": "t1",
+                "kind": "h1",
+                "label": "標題：我的寵物"
+              },
+              {
+                "id": "t2",
+                "kind": "img",
+                "label": "寵物的照片"
+              },
+              {
+                "id": "t3",
+                "kind": "p",
+                "label": "一段介紹"
+              }
+            ]
+          },
+          {
+            "id": "fav",
+            "name": "我的最愛",
+            "emoji": "⭐",
+            "boxes": [
+              {
+                "id": "t1",
+                "kind": "h1",
+                "label": "標題：我最喜歡的東西"
+              },
+              {
+                "id": "t2",
+                "kind": "ul",
+                "label": "清單：喜歡的東西"
+              },
+              {
+                "id": "t3",
+                "kind": "img",
+                "label": "一張圖片"
+              }
+            ]
+          },
+          {
+            "id": "empty",
+            "name": "空白的紙",
+            "emoji": "📄",
+            "boxes": []
+          }
+        ],
+        "palette": true
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:paper",
+        "text": "你的草圖"
+      },
+      "narration": "換你畫草圖了！可以先選一個範本，也可以從空白的紙開始。再用畫筆一格一格畫，畫滿四格就過關。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "選範本或空白的紙，再用畫筆畫",
+    "body": "草圖畫滿四格就過關",
+    "spots": [
+      {
+        "target": "kid:tpl:pet",
+        "id": "pet",
+        "label": "範本：寵物名片",
+        "steps": [
+          {
+            "sketch": "pet",
+            "narration": "選了寵物名片！再用上面的畫筆，多畫一格你想要的。"
+          }
+        ]
+      },
+      {
+        "target": "kid:tpl:fav",
+        "id": "fav",
+        "label": "範本：我的最愛",
+        "steps": [
+          {
+            "sketch": "fav",
+            "narration": "選了我的最愛！再用上面的畫筆，多畫一格你想要的。"
+          }
+        ]
+      },
+      {
+        "target": "kid:tpl:empty",
+        "id": "empty",
+        "label": "空白的紙",
+        "steps": [
+          {
+            "sketch": "empty",
+            "narration": "一張空白的紙！點上面的畫筆，一格一格畫。"
+          }
+        ]
+      },
+      {
+        "target": "kid:tool:h1",
+        "id": "pen-h1",
+        "label": "畫筆：標題",
+        "steps": [
+          {
+            "draw": "h1",
+            "narration": "畫了一格標題。"
+          }
+        ]
+      },
+      {
+        "target": "kid:tool:img",
+        "id": "pen-img",
+        "label": "畫筆：圖片",
+        "steps": [
+          {
+            "draw": "img",
+            "narration": "畫了一格圖片。"
+          }
+        ]
+      },
+      {
+        "target": "kid:tool:p",
+        "id": "pen-p",
+        "label": "畫筆：段落",
+        "steps": [
+          {
+            "draw": "p",
+            "narration": "畫了一格段落。"
+          }
+        ]
+      },
+      {
+        "target": "kid:tool:ul",
+        "id": "pen-ul",
+        "label": "畫筆：清單",
+        "steps": [
+          {
+            "draw": "ul",
+            "narration": "畫了一格清單。"
+          }
+        ]
+      },
+      {
+        "target": "kid:tool:button",
+        "id": "pen-button",
+        "label": "畫筆：按鈕",
+        "steps": [
+          {
+            "draw": "button",
+            "narration": "畫了一格按鈕。"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "sketch",
+      "atLeast": 4
+    },
+    "done": {
+      "steps": [
+        {
+          "split": true,
+          "narration": "畫好了！每一格都變成一句話。下一課，就照著草圖做出你的網站。"
+        }
+      ]
+    }
+  }
+}

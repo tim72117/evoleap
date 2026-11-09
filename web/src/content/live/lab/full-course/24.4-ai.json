@@ -1,0 +1,158 @@
+{
+  "title": "意見回饋",
+  "lesson": "全環節 · 單元 24 · 24.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做回饋表單和整理",
+    "line": "這一課請 AI 做一個意見回饋表單，再做一個每週自動整理的任務：把回饋分類、合併，變成待辦。最後實際送一則測試回饋，看它有沒有被整理進去。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "意見回饋",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc24-4-form", "url": "https://shop-staging.example.app/cakes/strawberry", "width": "desktop" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "意見回饋",
+      "eyebrow": "全環節 · 單元 24 · 24.4 用 AI 完成",
+      "sub": "回饋表單 → 每週自動分類成待辦 → 送一則測試回饋驗證",
+      "narration": "一次交代清楚：表單、整理的方式、多久整理一次，以及怎樣算完成。"
+    },
+    {
+      "show": "claude",
+      "chapter": "交代",
+      "narration": "打開 Claude。"
+    },
+    {
+      "on": "claude",
+      "user": "做一個意見回饋表單：每頁右下角一個按鈕，只問「哪裡可以更好？」，Email 選填，自動記下頁面和裝置，存進資料庫。再做一個每週一早上的任務：把上週的回饋分成錯誤、功能請求、內容、稱讚，相同的合併並計次，依影響排序，在 GitHub 開成 issue（同一個問題已有 issue 就加註次數，不重開）。完成標準：送一則測試回饋，手動跑一次任務，看到對應的 issue。",
+      "narration": "表單長怎樣、存在哪、怎麼分類、怎麼避免重複開，以及完成標準：一則測試回饋變成一個 issue。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "todos": [
+        ["回饋表單與 feedback 資料表", "doing"],
+        ["每週整理任務 triage-feedback", "pending"],
+        ["送測試回饋 → 手動跑任務 → 看 issue", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": "src/components/FeedbackButton.tsx",
+      "lines": [
+        [1, "+", "// 每頁右下角；只有一題 + 選填 Email"],
+        [2, "+", "const meta = { page: location.pathname, device: deviceOf(navigator.userAgent) }"],
+        [3, "+", "await fetch('/api/feedback', { method: 'POST', body: JSON.stringify({ text, email, ...meta }) })"]
+      ],
+      "chapter": "做表單",
+      "narration": "表單會自動帶上頁面和裝置，客人不用自己說他在哪一頁、用什麼手機。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/triage-feedback.ts",
+      "lines": [
+        [1, "+", "const items = await feedbackSince(lastMonday())"],
+        [2, "+", "const groups = await classifyAndMerge(items)   // 分類 + 合併相同問題（請 AI 判斷）"],
+        [3, "+", "for (const g of rankByImpact(groups)) {         // 影響下單的錯誤排最前面"],
+        [4, "+", "  const old = await findIssue(g.key)"],
+        [5, "+", "  old ? addComment(old, `本週又有 ${g.count} 則`) : createIssue(g)"],
+        [6, "+", "}"]
+      ],
+      "chapter": "做每週整理的任務",
+      "narration": "整理任務：讀上週的回饋，分類合併，依影響排序。第五行：同一個問題已經有 issue，就加註次數，不會每週重開一個。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run jobs deploy triage-feedback --source . && gcloud scheduler jobs create http triage-feedback --schedule=\"0 9 * * 1\" --time-zone=\"Asia/Taipei\" …",
+      "result": "已部署；每週一 09:00（台北時間）執行",
+      "narration": "部署好，排程每週一早上九點。上一個單元學過的，時區記得寫。"
+    },
+    {
+      "show": "web",
+      "chapter": "送一則測試回饋",
+      "narration": "開始驗證。打開測試環境的商品頁，右下角有回饋按鈕。"
+    },
+    { "on": "web", "click": "#fb-open" },
+    {
+      "on": "web",
+      "fill": { "#fb-text": "（測試）手機上結帳按鈕被鍵盤擋住，按不到" },
+      "narration": "填一則測試回饋。Email 選填，不填也可以送。"
+    },
+    {
+      "callout": "web:sel:.auto",
+      "text": "自動帶上：哪一頁、什麼裝置",
+      "narration": "下面寫著會一起送出的資訊：哪一頁、什麼裝置。"
+    },
+    { "on": "web", "click": "#fb-send", "narration": "送出。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql $STAGING_URL -c \"select text, page, device from feedback order by id desc limit 1\"",
+      "result": "（測試）手機上結帳按鈕被鍵盤擋住… · /cakes/strawberry · iPhone",
+      "chapter": "手動跑一次整理",
+      "narration": "AI 先確認資料庫收到了，頁面和裝置都有記到。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run jobs execute triage-feedback --wait",
+      "result": "上週回饋 13 則 → 6 個問題",
+      "out": "🐞 錯誤：手機結帳按鈕被擋住（3 則，含測試）→ 新增 issue #61\n📝 內容：商品頁沒有寫尺寸（2 則）→ 新增 issue #62\n✨ 功能：LINE Pay（4 則）→ issue #48 已存在，加註「本週又有 4 則」\n💛 稱讚 4 則 → 不開 issue，寫進摘要"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh issue view 61",
+      "result": "🐞 手機結帳按鈕被鍵盤擋住（本週 3 則）",
+      "out": "影響：可能無法下單 → 優先\n頁面：/cart、/cakes/strawberry · 裝置：iPhone ×3\n原文：…（測試）手機上結帳按鈕被鍵盤擋住，按不到",
+      "narration": "測試回饋被整理進第六十一號 issue，和另外兩則同樣的問題合併，標成優先，因為它會影響下單。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "合併 + 計次 + 影響 + 原文：打開 issue 就知道要做什麼",
+      "narration": "一個好的待辦，打開就知道：是什麼問題、幾個人遇到、影響多大、在哪一頁，還有客人的原話。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["回饋表單與 feedback 資料表", "done"],
+        ["每週整理任務 triage-feedback", "done"],
+        ["送測試回饋 → 手動跑任務 → 看 issue", "done"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "完成：回饋表單已上線測試環境；每週一 09:00 自動整理成 GitHub issue。測試回饋已出現在 #61（與另外 2 則合併、標為優先）。要我刪掉這則測試回饋，再部署到正式網站嗎？",
+      "narration": "它回報完成，也記得問：測試資料要不要清掉。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 做一個只問一題的回饋表單（自動記下頁面與裝置），再做每週自動分類、合併、排序成待辦的任務。送一則測試回饋，手動跑一次任務，確認它出現在待辦裡。",
+      "narration": "換你做做看。最後一定要送一則測試回饋，親眼看它變成待辦。"
+    },
+    {
+      "card": "回饋表單與整理過的待辦",
+      "eyebrow": "這一課的成果",
+      "sub": "客人說的話，每週自動變成排好順序的待辦",
+      "narration": "這一課的成果：回饋表單，和每週自動整理好的待辦。到這裡，你的網站不只上線了，也能長期好好經營下去。"
+    }
+  ]
+}

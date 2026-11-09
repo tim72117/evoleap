@@ -1,0 +1,121 @@
+{
+  "title": "終端機入門（Windows 與 macOS）",
+  "camera": "auto",
+  "teacher": {
+    "say": "你打指令，AI 當翻譯",
+    "line": "這一堂換你自己打指令。看不懂的輸出、冒出來的錯誤，就整段貼給 AI，請它一行一行解釋。目標是只用指令，建立並進入一個資料夾。"
+  },
+  "cast": {
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~" },
+      "place": { "x": 30, "y": 70, "w": 900, "h": 940 },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "幫我看懂終端機", "folder": "~", "branch": null, "mode": "ask", "sessions": [] },
+      "place": { "x": 960, "y": 40, "w": 930, "h": 1000 },
+      "parts": { "sidebar": false },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "你打指令，AI 當翻譯",
+      "eyebrow": "全環節 · 單元 2 · 2.2 用 AI 完成",
+      "sub": "看不懂 → 整段貼上 → 請它逐行解釋",
+      "chapter": "第一輪：看不懂的輸出",
+      "narration": "這一堂，終端機在左邊，由你自己打；AI 在右邊，專門幫你看懂。"
+    },
+    { "show": "term" },
+    {
+      "on": "term",
+      "type": "ls -la",
+      "out": "total 16\ndrwxr-x---+ 18 you  staff   576 11  9 10:02 .\ndrwxr-xr-x   5 root admin   160 10 30 09:11 ..\n-rw-r--r--@  1 you  staff  6148 11  8 21:40 .DS_Store\n-rw-------   1 you  staff  1024 11  9 09:58 .zsh_history\ndrwx------+  4 you  staff   128 11  2 14:20 Desktop\ndrwxr-xr-x   4 you  staff   128 11  9 10:02 projects",
+      "narration": "我們在 ls 後面加上 -la，結果跑出一大堆看不懂的東西。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "看不懂？整段選起來複製",
+      "narration": "看不懂沒關係。把整段選起來，複製。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我打了 ls -la，結果是這樣（貼上輸出）。這些是什麼意思？請一行一行用白話解釋。",
+      "narration": "貼給 AI，請它一行一行解釋。"
+    },
+    {
+      "on": "claude",
+      "say": "我們挑一行看：`drwxr-xr-x  you  staff  128  11 9  projects`\n- 開頭 **d**：這是資料夾（d = directory）；開頭是 **-** 就是檔案\n- **rwx…**：誰可以讀、寫、執行，先不用管\n- **you**：擁有者是你\n- **11 9**：最後修改的日期\n- 最後是**名字**\n\n另外，**.** 是「目前這個資料夾」、**..** 是上一層；**.DS_Store**、**.zsh_history** 是點開頭的隱藏檔。`-a` 讓隱藏檔也顯示，`-l` 讓每一項都列出詳細資料。",
+      "narration": "它挑一行來拆解：開頭的 d 代表資料夾，接著是權限、擁有者、日期，最後是名字。還告訴你，-a 讓隱藏檔也顯示出來，-l 是列出詳細資料。"
+    },
+    {
+      "on": "term",
+      "type": "cd project",
+      "out": "cd: no such file or directory: project",
+      "tone": "err",
+      "chapter": "第二輪：錯誤訊息",
+      "narration": "第二輪。你想進 projects，卻打了 cd project。"
+    },
+    {
+      "on": "claude",
+      "user": "我打 cd project，出現 no such file or directory: project，為什麼？",
+      "narration": "把錯誤貼過去。"
+    },
+    {
+      "on": "claude",
+      "say": "意思是：這裡找不到叫 **project** 的東西。剛剛的列表裡，名字是 **projects**（多一個 s）。\n先打 `ls` 確認名字，再 `cd projects`。小技巧：打幾個字後按 **Tab**，終端機會幫你補完名字。",
+      "narration": "原來少打了一個 s。它還教你一招：打幾個字之後按 Tab，終端機會幫你把名字補完，就不會打錯了。"
+    },
+    { "on": "term", "type": "ls", "out": "Desktop    Documents    Downloads    projects" },
+    { "on": "term", "type": "cd projects", "narration": "這次對了。" },
+    {
+      "on": "term",
+      "type": "mkdir my site",
+      "chapter": "第三輪：奇怪的結果",
+      "narration": "第三輪。你想建立一個叫 my site 的資料夾。"
+    },
+    {
+      "on": "term",
+      "type": "ls",
+      "out": "hello    my    site",
+      "narration": "咦？怎麼變成兩個資料夾，my 和 site？"
+    },
+    {
+      "on": "claude",
+      "user": "我打 mkdir my site，ls 之後變成 my 和 site 兩個資料夾？"
+    },
+    {
+      "on": "claude",
+      "say": "終端機用**空白**分開不同的東西，所以 `mkdir my site` 等於「建立 my，再建立 site」。\n1. 先刪掉兩個空資料夾：`rmdir my site`\n2. 名字改用連字號：`mkdir my-site`\n\n專案名稱建議用小寫英文加連字號，之後最不會出問題。",
+      "narration": "原來空白在終端機裡是分隔符號。它給了兩步：先把兩個空資料夾刪掉，再用連字號重建。"
+    },
+    { "on": "term", "type": "rmdir my site", "narration": "照著做。rmdir 只能刪空的資料夾，比較安全。" },
+    { "on": "term", "type": "mkdir my-site" },
+    { "on": "term", "type": "cd my-site" },
+    {
+      "on": "term",
+      "type": "pwd",
+      "out": "/Users/you/projects/my-site",
+      "tone": "ok",
+      "narration": "最後 pwd 確認：你已經在 my-site 裡面了。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "只用指令，建立並進入資料夾 ✓",
+      "narration": "整個過程，你沒有點任何一下滑鼠。"
+    },
+    {
+      "checkpoint": "換你：自己打，看不懂就貼給 AI",
+      "body": "在終端機用 cd 走到 projects，用 mkdir 建一個資料夾（名字用小寫加連字號），cd 進去，再用 pwd 確認。遇到看不懂的輸出或錯誤，整段貼給 AI，請它逐行解釋。Windows 用 PowerShell，指令一樣。"
+    },
+    {
+      "card": "只用指令建立並進入資料夾 ✓",
+      "eyebrow": "2.2 完成",
+      "sub": "下一堂：指令是從哪裡來的？",
+      "narration": "你已經能只用指令走來走去了。下一堂，我們來看這些指令是從哪裡來的。"
+    }
+  ]
+}

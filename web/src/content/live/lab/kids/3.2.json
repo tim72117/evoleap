@@ -1,0 +1,265 @@
+{
+  "title": "出現和藏起來",
+  "lesson": "兒童網頁課 · 3.2 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "猜謎小卡",
+        "emoji": "🃏",
+        "note": "什麼動物的脖子最長？",
+        "things": [
+          {
+            "id": "answer",
+            "name": "答案",
+            "text": "長頸鹿 🦒",
+            "shown": true
+          }
+        ],
+        "buttons": [
+          {
+            "id": "look",
+            "text": "看答案"
+          },
+          {
+            "id": "cover",
+            "text": "藏答案"
+          }
+        ],
+        "rules": [
+          {
+            "id": "look",
+            "when": "look",
+            "do": []
+          },
+          {
+            "id": "cover",
+            "when": "cover",
+            "do": []
+          }
+        ],
+        "drawer": [
+          {
+            "id": "show",
+            "do": {
+              "show": "answer"
+            }
+          },
+          {
+            "id": "hide",
+            "do": {
+              "hide": "answer"
+            }
+          },
+          {
+            "id": "flip",
+            "do": {
+              "toggle": "answer"
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:note",
+        "text": "謎語"
+      },
+      "chapter": "答案被看光了",
+      "narration": "這是一張猜謎小卡：什麼動物的脖子最長？"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:thing:answer",
+        "text": "答案被看光了"
+      },
+      "narration": "哎呀！答案就寫在下面，還沒猜就被看光了，一點都不好玩。"
+    },
+    {
+      "wait": 400,
+      "narration": "我們想要：答案先藏起來，想看的時候再讓它出現。網頁上的東西，可以出現，也可以藏起來。"
+    },
+    {
+      "checkpoint": "「藏答案」的格子，要放哪一塊積木？",
+      "body": "點積木盒裡的積木回答。",
+      "id": "quiz-1",
+      "stage": {
+        "focus": "kid:drawer"
+      },
+      "options": [
+        {
+          "label": "顯示答案",
+          "target": "kid:block:show",
+          "retry": true,
+          "steps": [
+            {
+              "snap": "show",
+              "into": "cover",
+              "narration": "放進去了，按按看藏答案。"
+            },
+            {
+              "press": "cover",
+              "narration": "答案本來就看得到，再顯示一次，還是看得到。再試一次！"
+            }
+          ]
+        },
+        {
+          "label": "隱藏答案",
+          "target": "kid:block:hide",
+          "steps": [
+            {
+              "snap": "hide",
+              "into": "cover",
+              "narration": "答對了！放進藏答案的格子。"
+            },
+            {
+              "press": "cover",
+              "narration": "按一下藏答案，答案藏起來了！"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:thing:answer",
+        "text": "隱藏：還在，只是看不到"
+      },
+      "chapter": "顯示和隱藏",
+      "narration": "藏起來的答案還在網頁上，只是現在看不到。這叫做隱藏。"
+    },
+    {
+      "snap": "show",
+      "into": "look",
+      "tap": true,
+      "narration": "看答案的格子，放「顯示答案」。"
+    },
+    {
+      "press": "look",
+      "tap": true,
+      "narration": "按看答案，答案出現了！這叫做顯示。"
+    },
+    {
+      "press": "cover",
+      "tap": true,
+      "narration": "按藏答案，又藏起來。"
+    },
+    {
+      "press": "look",
+      "tap": true,
+      "narration": "再按看答案，又出現。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:button:look",
+        "text": "一個按鈕就好？"
+      },
+      "chapter": "一個按鈕就好",
+      "narration": "可是要兩個按鈕，有點麻煩。能不能只按看答案，按一下出現、再按一下藏起來？"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:block:flip",
+        "text": "顯示⇄隱藏"
+      },
+      "narration": "積木盒裡有一塊「顯示⇄隱藏」。它會看一看：藏著就顯示，看得到就藏起來。"
+    },
+    {
+      "snap": "flip",
+      "into": "look",
+      "tap": true,
+      "narration": "把它放進看答案的格子。"
+    },
+    {
+      "press": "look",
+      "tap": true,
+      "narration": "按一下，答案藏起來。"
+    },
+    {
+      "press": "look",
+      "tap": true,
+      "narration": "再按一下，答案出現！一個按鈕就搞定了。"
+    },
+    {
+      "checkpoint": "換你做小卡",
+      "sub": "lab/kids/3.2-card.json",
+      "chapter": "換你做小卡"
+    },
+    {
+      "wait": 400,
+      "chapter": "想一想",
+      "narration": "最後一題。看上面的題目，點一塊積木回答。"
+    },
+    {
+      "checkpoint": "要讓藏起來的東西出現，用哪一塊積木？",
+      "body": "點積木盒裡的積木回答。",
+      "id": "quiz-2",
+      "stage": {
+        "focus": "kid:drawer"
+      },
+      "options": [
+        {
+          "label": "顯示答案",
+          "target": "kid:block:show",
+          "steps": [
+            {
+              "check": "block:show",
+              "answer": "block:show",
+              "narration": "答對了！顯示，就是讓東西出現。"
+            }
+          ]
+        },
+        {
+          "label": "隱藏答案",
+          "target": "kid:block:hide",
+          "retry": true,
+          "steps": [
+            {
+              "check": "block:hide",
+              "answer": "block:show",
+              "narration": "隱藏是讓東西藏起來喔。再試一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "顯示和隱藏"
+      },
+      "chapter": "學會",
+      "narration": "今天學到兩個名詞：顯示，是讓東西出現；隱藏，是讓東西藏起來。網頁上的東西，都可以出現，也可以藏起來！"
+    }
+  ]
+}

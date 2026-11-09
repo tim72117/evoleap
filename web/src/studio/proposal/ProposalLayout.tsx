@@ -38,6 +38,9 @@ const IDEAS: Tab[] = [
   { to: '/studio/resources', label: '資源系統' },
   { to: '/studio/news-feed', label: '科技新知動態牆' },
   { to: '/studio/extensions', label: '延伸課程' },
+  { to: '/studio/ai-scenarios', label: 'AI 自動化情境' },
+  { to: '/studio/full-course', label: '全環節課程清單' },
+  { to: '/studio/trials', label: '課程試做清單' },
   { to: '/studio/ops-course', label: '從上線到維運' },
 ]
 

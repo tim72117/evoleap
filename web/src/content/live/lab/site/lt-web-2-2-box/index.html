@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>盒模型</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page" data-pad="0" data-bor="0" data-mar="0" data-layer="all" data-show="off">
+    <!-- 左邊:兩張商品卡 -->
+    <div class="shelf" id="shelf">
+      <div class="row" id="row">
+        <div class="card" id="card1"><div class="inner"><div class="pic p1"></div><b>柴燒馬克杯</b><span>NT$ 680</span></div></div>
+        <div class="card" id="card2"><div class="inner"><div class="pic p2"></div><b>粗陶小盤</b><span>NT$ 420</span></div></div>
+      </div>
+      <div class="size" id="size">盒子寬度 = 內容 200 + 內距 <i class="v-pad"></i>×2 + 邊框 <i class="v-bor"></i>×2 = <b class="v-total"></b></div>
+    </div>
+
+    <!-- 右邊:盒模型圖 -->
+    <div class="side">
+      <div class="model" id="model">
+        <div class="ly l-margin" id="l-margin"><span class="lb">外距 margin <i class="v-mar"></i></span>
+          <div class="ly l-border" id="l-border"><span class="lb">邊框 border <i class="v-bor"></i></span>
+            <div class="ly l-padding" id="l-padding"><span class="lb">內距 padding <i class="v-pad"></i></span>
+              <div class="ly l-content" id="l-content">內容 content</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ctrl" id="ctrl">
+        <div class="cr"><span>內距</span><button id="pad-down" data-inc="pad-1">−</button><button id="pad-up" data-inc="pad+1">＋</button></div>
+        <div class="cr"><span>邊框</span><button id="bor-down" data-inc="bor-1">−</button><button id="bor-up" data-inc="bor+1">＋</button></div>
+        <div class="cr"><span>外距</span><button id="mar-down" data-inc="mar-1">−</button><button id="mar-up" data-inc="mar+1">＋</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div hidden>
+    <button data-set="layer=content show=on"></button>
+    <button data-set="layer=padding"></button>
+    <button data-set="layer=border"></button>
+    <button data-set="layer=margin"></button>
+    <button data-set="layer=all"></button>
+    <button data-set="pad=0 bor=0 mar=0"></button>
+    <button data-set="pad=0 bor=0 mar=0 show=on layer=all"></button>
+    <button data-set="pad=2 bor=0 mar=0"></button>
+    <button data-set="pad=0 bor=1 mar=0"></button>
+    <button data-set="pad=0 bor=0 mar=2"></button>
+    <button data-set="pad=2 bor=0 mar=2"></button>
+    <button data-set="show=off"></button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

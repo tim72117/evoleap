@@ -1,0 +1,164 @@
+{
+  "title": "網站掛了，誰會先知道？",
+  "lesson": "全環節 · 單元 21 · 21.2 基礎知識",
+  "teacher": {
+    "say": "今天讓網站會喊救命",
+    "line": "這一課要聊健康檢查、告警和通知管道：怎麼讓網站一掛掉，你幾分鐘內就知道，而不是等客人來抱怨。"
+  },
+  "cast": {
+    "boss": {
+      "actor": "person",
+      "props": { "name": "老闆", "look": "boss" },
+      "place": { "x": 560, "y": 360, "w": 800, "h": 340 },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "健康檢查與告警",
+        "nodes": [
+          { "id": "c1", "label": "檢查點・台灣", "icon": "📍", "x": 12, "y": 22, "w": 9 },
+          { "id": "c2", "label": "檢查點・東京", "icon": "📍", "x": 12, "y": 50, "w": 9 },
+          { "id": "c3", "label": "檢查點・美國", "icon": "📍", "x": 12, "y": 78, "w": 9 },
+          { "id": "site", "label": "你的網站", "sub": "/health", "icon": "🌐", "x": 42, "y": 50, "w": 9 },
+          { "id": "alert", "label": "告警規則", "sub": "連續 2 次失敗就通知", "icon": "🚨", "x": 66, "y": 50, "w": 10, "hidden": true },
+          { "id": "mail", "label": "Email", "icon": "✉", "x": 89, "y": 30, "w": 8, "hidden": true },
+          { "id": "phone", "label": "手機推播", "icon": "📱", "x": 89, "y": 70, "w": 8, "hidden": true }
+        ],
+        "edges": [
+          { "from": "c1", "to": "site", "label": "每分鐘" },
+          { "from": "c2", "to": "site", "label": "每分鐘" },
+          { "from": "c3", "to": "site", "label": "每分鐘" },
+          { "from": "site", "to": "alert", "hidden": true },
+          { "from": "alert", "to": "mail", "hidden": true },
+          { "from": "alert", "to": "phone", "hidden": true }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "show": "boss",
+      "chapter": "早上才發現",
+      "narration": "小森烘焙的老闆，早上打開店門，"
+    },
+    {
+      "on": "boss",
+      "say": "網站從半夜兩點就打不開？我現在才知道！",
+      "mood": "worried",
+      "narration": "才發現網站從半夜兩點就打不開了。這段時間，想下單的客人全都走掉了。"
+    },
+    {
+      "on": "boss",
+      "say": "總不能叫我整晚盯著網站吧……",
+      "mood": "tired",
+      "narration": "人不可能整晚盯著網站。這件事，要交給機器。"
+    },
+    { "hide": "boss" },
+    {
+      "card": "網站掛了，誰會先知道？",
+      "eyebrow": "全環節 · 單元 21 · 21.2 基礎知識",
+      "sub": "健康檢查 · 告警 · 通知管道",
+      "narration": "答案是：讓雲端幫你看。分成三個部分：健康檢查、告警、通知管道。"
+    },
+    {
+      "show": "flow",
+      "chapter": "健康檢查：定時敲敲門",
+      "narration": "第一個是健康檢查。雲端在世界各地有檢查點，每分鐘來敲一次門。"
+    },
+    { "send": "c1>site", "label": "你還好嗎？" },
+    {
+      "send": "site>c1",
+      "label": "200 OK",
+      "tone": "ok",
+      "narration": "敲的是網站上一個特別的網址，叫 health。網站回答 200，代表「我很好」。"
+    },
+    {
+      "callout": "flow:node:site",
+      "text": "/health：專門給檢查用的網址，順便確認資料庫連得上",
+      "narration": "這個網址最好順便檢查重要的東西，例如資料庫連不連得上。這樣「網站開著但資料庫壞了」也抓得到。"
+    },
+    { "send": "c2>site", "label": "你還好嗎？" },
+    { "send": "site>c2", "label": "200 OK", "tone": "ok", "narration": "三個地方輪流敲，一切正常。" },
+    {
+      "light": "site",
+      "tone": "bad",
+      "sub": "半夜 2:00 沒有回應",
+      "chapter": "出事了",
+      "narration": "半夜兩點，網站掛了。"
+    },
+    { "cut": "c2>site" },
+    {
+      "send": "c2>site",
+      "label": "你還好嗎？",
+      "narration": "東京的檢查點敲門，沒有回應。"
+    },
+    { "light": "c2", "tone": "bad", "sub": "逾時 ✕" },
+    { "light": "c1", "tone": "bad", "sub": "逾時 ✕" },
+    {
+      "light": "c3",
+      "tone": "bad",
+      "sub": "逾時 ✕",
+      "narration": "台灣、美國也一樣。為什麼要好幾個地方？因為只有一個地方失敗，可能只是那邊的網路不穩；好幾個地方都失敗，才是網站真的掛了。"
+    },
+    {
+      "appear": ["alert", "site>alert"],
+      "chapter": "告警：什麼時候該叫你",
+      "narration": "第二個是告警規則，決定什麼情況要叫你。"
+    },
+    {
+      "send": "site>alert",
+      "label": "連續 2 次失敗",
+      "tone": "bad",
+      "narration": "我們設定連續兩次失敗才通知。只失敗一次就叫，你會被吵到不想看，像放羊的孩子。"
+    },
+    { "light": "alert", "tone": "bad", "sub": "觸發！" },
+    {
+      "appear": ["mail", "alert>mail", "phone", "alert>phone"],
+      "chapter": "通知管道：送到你看得到的地方",
+      "narration": "第三個是通知管道：告警要送到哪裡。"
+    },
+    { "send": "alert>mail", "label": "網站無回應", "tone": "bad" },
+    {
+      "send": "alert>phone",
+      "label": "網站無回應",
+      "tone": "bad",
+      "narration": "Email、手機推播，選你真的會看到的地方。半夜的大問題，手機推播比較叫得醒你。"
+    },
+    { "mend": "c2>site" },
+    {
+      "light": "site",
+      "tone": "ok",
+      "sub": "/health 恢復",
+      "narration": "網站修好之後，"
+    },
+    {
+      "send": "alert>phone",
+      "label": "已恢復 ✓",
+      "tone": "ok",
+      "narration": "也會再通知一次「已恢復」，你就知道可以回去睡了。"
+    },
+    { "hide": "flow" },
+    {
+      "shimmer": "敲門 → 判斷 → 叫你",
+      "sub": "健康檢查每分鐘敲門 · 告警決定何時叫 · 通知送到你看得到的地方",
+      "chapter": "重點整理",
+      "narration": "整理一下：健康檢查負責敲門，告警決定什麼時候叫你，通知管道把消息送到你看得到的地方。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "想一想",
+      "body": "如果告警設成「失敗一次就通知」，而且只從一個地方檢查，會發生什麼事？",
+      "narration": "想一想：如果只從一個地方檢查，而且失敗一次就通知，會怎樣？"
+    },
+    {
+      "card": "很容易誤報",
+      "eyebrow": "答案",
+      "sub": "那個檢查點自己的網路抖一下也會通知；誤報多了，真的出事你也不想看",
+      "narration": "會很容易誤報。檢查點自己的網路抖一下，你就收到通知。誤報多了，真的出事時你反而不想看。下一堂，請 AI 設定好，再故意把服務停掉測試。"
+    }
+  ]
+}

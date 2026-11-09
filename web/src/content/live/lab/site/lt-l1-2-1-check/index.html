@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>收到回覆，逐條對照</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="head">
+    <div class="ttl">收到回覆，逐條對照</div>
+    <div class="tools">
+      <button class="btn" id="apply">依回覆更新</button>
+      <button class="btn" id="fix">改回老闆的意思</button>
+    </div>
+  </div>
+  <div class="chips">
+    <div class="chip"><span class="st"></span><b>沒來取貨怎麼辦</b><span class="ans">保留到打烊；第二次沒來停用線上預訂</span></div>
+    <div class="chip"><span class="st"></span><b>通知方式</b><span class="ans">簡訊</span></div>
+    <div class="chip"><span class="st"></span><b>每個時段幾筆</b><span class="ans">最多 15 筆</span></div>
+    <div class="chip"><span class="st"></span><b>蛋糕上限誰調整</b><span class="ans">後台自己改</span></div>
+    <div class="chip"><span class="st"></span><b>要看哪些數字</b><span class="ans">每天、每週訂單數</span></div>
+  </div>
+  <div class="row cmp">
+    <div class="card reply">
+      <div class="lbl"><span class="tag">老闆的回覆</span></div>
+      <div class="rl" id="b1">1. 客人沒來取貨：保留到當天打烊，之後取消；<b>第二次沒來</b>就不能再線上預訂</div>
+      <div class="rl" id="b2">2. 通知用簡訊</div>
+      <div class="rl" id="b3">3. 一個時段最多 15 筆訂單</div>
+      <div class="rl" id="b4">4. 生日蛋糕上限要能在後台自己改</div>
+      <div class="rl" id="b5">5. 要能看到每天、每週的訂單數量</div>
+    </div>
+    <div class="card grow v3">
+      <div class="lbl"><span class="tag g">AI 更新的需求清單第 3 版</span> <span class="muted">點一條，對照原文</span></div>
+      <div class="empty muted">還沒更新</div>
+      <button class="vr bad" id="r1" data-ref="b1"><span class="mk"></span>沒來取貨：保留到當天打烊後取消；<span class="w">沒來一次</span><span class="c">第二次沒來</span>就不能再線上預訂<span class="note">回覆說的是「第二次」</span></button>
+      <button class="vr" id="r2" data-ref="b2"><span class="mk"></span>確認與提醒都用簡訊通知</button>
+      <button class="vr" id="r3" data-ref="b3"><span class="mk"></span>每個時段最多 15 筆，滿了不能選</button>
+      <button class="vr" id="r4" data-ref="b4"><span class="mk"></span>生日蛋糕每日上限可在後台調整</button>
+      <button class="vr" id="r5" data-ref="b5"><span class="mk"></span>後台顯示每天、每週的訂單數量</button>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+{
+  "title": "網站的日記：雲端紀錄",
+  "lesson": "全環節 · 單元 21 · 21.1 基礎知識",
+  "teacher": {
+    "say": "今天學讀紀錄",
+    "line": "網站上線以後，每一個請求、每一個錯誤，都會寫進紀錄。這一課來看紀錄長什麼樣子、怎麼分等級、怎麼查，還有它能留多久。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc21-1-logs", "url": "https://console.example-cloud.com/logs/query" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "網站的日記：雲端紀錄",
+      "eyebrow": "全環節 · 單元 21 · 21.1 基礎知識",
+      "sub": "紀錄等級 · 查詢語法 · 保留期限",
+      "narration": "你的網站一直在寫日記，只是你平常看不到。"
+    },
+    {
+      "show": "web",
+      "chapter": "一行紀錄寫了什麼",
+      "narration": "這是雲端主控台的紀錄查詢頁。每一行都是網站寫下的一筆事情：幾點幾分、發生什麼事。"
+    },
+    {
+      "callout": "web:sel:.r",
+      "text": "時間 + 等級 + 發生什麼事：有人打開首頁，回應 200，花 38 毫秒",
+      "narration": "看第一行：晚上八點十四分，有人打開首頁，網站回應 200，代表成功，花了三十八毫秒。"
+    },
+    {
+      "callout": "web:sel:#chips",
+      "text": "等級：INFO 資訊 · WARNING 警告 · ERROR 錯誤",
+      "chapter": "紀錄等級",
+      "narration": "每一行最前面有個等級。INFO 是一般資訊，正常運作都會留下；WARNING 是警告，還能用但值得注意；ERROR 是錯誤，有東西失敗了。"
+    },
+    {
+      "callout": "web:sel:.warn",
+      "text": "WARNING：圖片太大，載入變慢，但頁面還能用",
+      "narration": "比如這筆警告：圖片太大，載入比較慢。頁面還能用，但值得處理。"
+    },
+    {
+      "callout": "web:section:e1",
+      "text": "ERROR：結帳失敗了",
+      "narration": "這筆是錯誤：結帳失敗。真的出問題時，你要找的就是這種。"
+    },
+    {
+      "on": "web",
+      "click": "#f-error",
+      "chapter": "查詢：只看想看的",
+      "narration": "紀錄一天可能有上萬行，一行行看不完。所以要查詢。先只看錯誤等級。"
+    },
+    {
+      "callout": "web:section:query",
+      "text": "severity>=ERROR：等級是錯誤或更嚴重",
+      "narration": "上面的查詢多了一行：severity 大於等於 ERROR，意思是只要錯誤或更嚴重的。按按鈕和打這行字，效果一樣。"
+    },
+    {
+      "on": "web",
+      "click": "#f-path",
+      "narration": "再加一個條件：只看結帳這個網址。"
+    },
+    {
+      "callout": "web:section:rows",
+      "text": "三筆都是同一個錯：delivery.fee 讀不到",
+      "narration": "剩下三筆，而且是同一個錯誤，一直重複。這樣原因就很清楚了。查詢就是一層層加條件，把範圍縮小。"
+    },
+    {
+      "callout": "web:section:query",
+      "text": "條件用 AND 串起來：越多條件，範圍越小",
+      "narration": "這些查詢語法不用背。下一堂你會看到，請 AI 寫查詢，它很擅長。你只要看得懂它在找什麼。"
+    },
+    {
+      "scroll": "keep",
+      "chapter": "保留期限",
+      "narration": "最後一件事：紀錄不會永遠留著。"
+    },
+    {
+      "callout": "web:section:keep",
+      "text": "預設保留 30 天，之後自動刪除",
+      "narration": "預設大約保留三十天，過了就自動刪掉。如果你想看一個月前的事，要事先設定留更久，留越久也越花錢。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "等級分輕重，查詢縮範圍",
+      "sub": "INFO 平常 · WARNING 注意 · ERROR 出事；紀錄約留 30 天",
+      "chapter": "重點整理",
+      "narration": "整理一下：等級分輕重，查詢用條件縮小範圍，紀錄大約只留三十天。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "考考你",
+      "body": "客人說「昨天下午三點，加入購物車沒反應」。你會用哪些條件查紀錄？試著用白話列出來。",
+      "narration": "考考你：客人說昨天下午三點，加入購物車沒反應。你會用哪些條件去查？"
+    },
+    {
+      "card": "時間 + 等級 + 網址",
+      "eyebrow": "參考答案",
+      "sub": "昨天 14:30–15:30 · 等級 ≥ WARNING · 網址含 /api/cart",
+      "narration": "參考答案：時間範圍抓昨天兩點半到三點半、等級至少是警告、網址是購物車那一支。下一堂，請 AI 把這種查詢寫成一個隨時能用的指令。"
+    }
+  ]
+}

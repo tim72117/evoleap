@@ -1,0 +1,148 @@
+{
+  "title": "換你改改看",
+  "lesson": "兒童網頁課 · 3.3 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "小兔數數機",
+        "emoji": "🐰",
+        "buttons": [
+          {
+            "id": "go",
+            "text": "按一下"
+          }
+        ],
+        "box": {
+          "name": "數到幾",
+          "value": 10
+        },
+        "rules": [
+          {
+            "id": "count",
+            "when": "go",
+            "do": [
+              {
+                "add": -1
+              }
+            ]
+          }
+        ],
+        "drawer": [
+          {
+            "id": "plus1",
+            "do": {
+              "add": 1
+            }
+          },
+          {
+            "id": "plus2",
+            "do": {
+              "add": 2
+            }
+          },
+          {
+            "id": "minus1",
+            "do": {
+              "add": -1
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 40,
+          "y": 30,
+          "w": 1840,
+          "h": 900
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你改改看！盒子從 10 開始，現在每按一下減 1。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:drawer",
+        "text": "換一塊積木"
+      },
+      "narration": "積木盒裡有加 1、加 2、減 1。換一塊放進格子，再按按一下，看數字怎麼變。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "換積木，再按「按一下」",
+    "body": "按 6 次按鈕，集滿 6 顆星星",
+    "spots": [
+      {
+        "target": "kid:block:plus1",
+        "id": "block:plus1",
+        "label": "加 1 的積木",
+        "steps": [
+          {
+            "snap": "plus1",
+            "into": "count",
+            "narration": "換成加 1 了。按按看！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:plus2",
+        "id": "block:plus2",
+        "label": "加 2 的積木",
+        "steps": [
+          {
+            "snap": "plus2",
+            "into": "count",
+            "narration": "換成加 2 了。按按看！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:minus1",
+        "id": "block:minus1",
+        "label": "減 1 的積木",
+        "steps": [
+          {
+            "snap": "minus1",
+            "into": "count",
+            "narration": "換成減 1 了。按按看！"
+          }
+        ]
+      },
+      {
+        "target": "kid:button:go",
+        "id": "button:go",
+        "label": "按一下按鈕",
+        "steps": [
+          {
+            "press": "go",
+            "narration": "看看盒子裡的數字！"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "presses",
+      "atLeast": 6
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 400,
+          "narration": "你會讓盒子加，也會讓它減了！盒子裡的數字，照魔法積木說的變。"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,408 @@
+{
+  "title": "請 AI 提出整理方案並搬檔",
+  "lesson": "全環節 · 單元 7 · 7.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天真的整理專案",
+    "line": "今天要請 AI 先提出整理方案，你確認後再存檔點、搬檔，最後用 build 找出漏改的地方，沒過就繼續修，直到 build 成功。"
+  },
+  "blocking": {
+    "cast": [
+      "claude",
+      "files"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "整理專案",
+        "folder": "~/projects/profile",
+        "branch": "main",
+        "mode": "plan",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "profile": {
+            "index.html": "",
+            "contact.html": "",
+            "final2-改.html": "",
+            "styles.css": "",
+            "style-old.css": "",
+            "main.js": "",
+            "utils.js": "",
+            "a11y-check.mjs": "",
+            "check-button.mjs": "",
+            "新增資料夾": {
+              "index copy.html": "",
+              "a.html": ""
+            },
+            "README.md": "",
+            "package.json": ""
+          }
+        },
+        "open": "profile"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 提出整理方案並搬檔",
+      "eyebrow": "全環節 · 單元 7 · 7.2 用 AI 完成",
+      "sub": "方案 → 你確認 → 存檔點 → 搬 → build → 沒過就再修",
+      "chapter": "第一輪：先看方案",
+      "narration": "上一課 AI 已經幫我們標出放錯位置的檔案。這一課真的動手整理。"
+    },
+    {
+      "show": "files",
+      "narration": "這是整理前的樣子。"
+    },
+    {
+      "show": "claude",
+      "narration": "一樣先在計畫模式，只讓它提方案。"
+    },
+    {
+      "on": "claude",
+      "user": "請提出整理方案：頁面放 src/pages、樣式放 src/styles、程式放 src/scripts、檢查腳本放 tools。用表格列出每個檔案從哪裡搬到哪裡、哪些地方要跟著改；要刪的檔案說明為什麼。",
+      "narration": "給它分類的原則，並要求表格裡有「哪些地方要跟著改」。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "href=|src=|import ",
+      "result": "找到 14 處路徑",
+      "narration": "它先搜尋所有寫著路徑的地方：連結、樣式、程式的引用。"
+    },
+    {
+      "on": "claude",
+      "say": "**整理方案**\n| 現在 | 搬到 | 要跟著改 |\n| index.html | src/pages/index.html | — |\n| final2-改.html | src/pages/about.html | index.html 的連結 |\n| contact.html | src/pages/contact.html | index.html 的連結 |\n| styles.css | src/styles/base.css | 3 個頁面的 `<link>` |\n| main.js | src/scripts/hello.js | about.html 的 `<script>` |\n| utils.js | src/scripts/utils/format.js | hello.js 的 import |\n| *.mjs | tools/ | package.json 的指令 |\n\n**刪除**：`style-old.css`（沒有任何地方引用）、`新增資料夾/`（和 index.html 內容相同的舊副本）",
+      "narration": "方案出來了，每一列都有「要跟著改」。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "看：新名字你看得懂嗎？要刪的真的不要了嗎？",
+      "narration": "你要確認兩件事：新的名字你看得懂嗎？要刪的，真的不要了嗎？新增資料夾裡如果有你想留的東西，現在就要說。"
+    },
+    {
+      "on": "claude",
+      "user": "可以。先 commit 一個存檔點，再照方案搬。搬完跑 npm run build，有錯就修，修到 build 成功為止，每一輪告訴我修了什麼。",
+      "chapter": "第二輪：存檔點、搬檔",
+      "narration": "同意了，而且一次交代完整個順序：存檔點、搬、build、修到成功。"
+    },
+    {
+      "on": "claude",
+      "mode": "accept"
+    },
+    {
+      "on": "claude",
+      "ask": "git add -A && git commit -m \"整理前的存檔點\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "搬檔前先存一個 commit"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git add -A && git commit -m \"整理前的存檔點\"",
+      "result": "完成",
+      "out": "[main 3d7a0c4] 整理前的存檔點"
+    },
+    {
+      "on": "claude",
+      "ask": "mkdir -p src/pages src/styles src/scripts/utils tools && git mv … （共 9 個檔案）",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "建立新資料夾，用 git mv 照方案搬移 9 個檔案",
+      "narration": "它用 git mv 搬檔，Git 會記得這是「搬家」，不是刪掉再新增。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "files",
+      "mkdir": "src"
+    },
+    {
+      "on": "files",
+      "mkdir": "tools"
+    },
+    {
+      "on": "files",
+      "open": "src"
+    },
+    {
+      "on": "files",
+      "mkdir": "pages"
+    },
+    {
+      "on": "files",
+      "mkdir": "styles"
+    },
+    {
+      "on": "files",
+      "mkdir": "scripts"
+    },
+    {
+      "on": "files",
+      "open": ".."
+    },
+    {
+      "on": "files",
+      "rename": [
+        "final2-改.html",
+        "src/pages/about.html"
+      ],
+      "narration": "final2 改，搬到 src/pages，改名叫 about.html。"
+    },
+    {
+      "on": "files",
+      "rename": [
+        "index.html",
+        "src/pages/index.html"
+      ]
+    },
+    {
+      "on": "files",
+      "rename": [
+        "contact.html",
+        "src/pages/contact.html"
+      ]
+    },
+    {
+      "on": "files",
+      "rename": [
+        "main.js",
+        "src/scripts/hello.js"
+      ],
+      "narration": "main.js 變成 hello.js，一看就知道是打招呼的程式。"
+    },
+    {
+      "on": "files",
+      "rename": [
+        "utils.js",
+        "src/scripts/format.js"
+      ]
+    },
+    {
+      "on": "files",
+      "rename": [
+        "styles.css",
+        "src/styles/base.css"
+      ]
+    },
+    {
+      "on": "files",
+      "rename": [
+        "a11y-check.mjs",
+        "tools/a11y-check.mjs"
+      ]
+    },
+    {
+      "on": "files",
+      "rename": [
+        "check-button.mjs",
+        "tools/check-button.mjs"
+      ]
+    },
+    {
+      "on": "files",
+      "delete": "style-old.css"
+    },
+    {
+      "on": "files",
+      "delete": "新增資料夾",
+      "narration": "舊副本刪掉。最上層清爽多了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git mv … && git rm -r style-old.css 新增資料夾",
+      "result": "完成"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/index.html",
+      "lines": [
+        [
+          5,
+          "-",
+          "  <link rel=\"stylesheet\" href=\"styles.css\">"
+        ],
+        [
+          5,
+          "+",
+          "  <link rel=\"stylesheet\" href=\"../styles/base.css\">"
+        ],
+        [
+          12,
+          "-",
+          "  <a href=\"final2-改.html\">關於我</a>"
+        ],
+        [
+          12,
+          "+",
+          "  <a href=\"about.html\">關於我</a>"
+        ]
+      ],
+      "narration": "照方案的最後一欄，改掉寫著舊地址的地方。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run build",
+      "result": "失敗",
+      "out": "✗ Build failed with 2 errors:\nsrc/scripts/hello.js:1  Could not resolve \"./utils.js\"\nsrc/pages/about.html:6  Could not resolve \"../styles.css\"",
+      "chapter": "第三輪：build 失敗，繼續修",
+      "narration": "第一次 build，失敗。兩個地方還寫著舊地址：hello.js 的 import，還有 about.html 的樣式。方案裡有列，但它漏改了。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/scripts/hello.js",
+      "lines": [
+        [
+          1,
+          "-",
+          "import { formatDate } from './utils.js'"
+        ],
+        [
+          1,
+          "+",
+          "import { formatDate } from './utils/format.js'"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/about.html",
+      "lines": [
+        [
+          6,
+          "-",
+          "  <link rel=\"stylesheet\" href=\"../styles.css\">"
+        ],
+        [
+          6,
+          "+",
+          "  <link rel=\"stylesheet\" href=\"../styles/base.css\">"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run build",
+      "result": "失敗",
+      "out": "✗ Build failed with 1 error:\nsrc/pages/about.html:31  Could not resolve \"main.js\"",
+      "narration": "第二次，剩一個：about.html 最下面還在找 main.js。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/about.html",
+      "lines": [
+        [
+          31,
+          "-",
+          "  <script src=\"main.js\"></script>"
+        ],
+        [
+          31,
+          "+",
+          "  <script type=\"module\" src=\"../scripts/hello.js\"></script>"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run build",
+      "result": "成功",
+      "out": "✓ built in 412ms\ndist/index.html  dist/about.html  dist/contact.html",
+      "chapter": "第四輪：build 成功",
+      "narration": "第三次，build 成功。"
+    },
+    {
+      "on": "claude",
+      "say": "整理完成，build 成功。\n- 第 1 輪：搬 9 個檔案、刪 2 個舊副本，改了 index.html 的路徑\n- 第 2 輪：補改 hello.js 的 import、about.html 的樣式路徑\n- 第 3 輪：補改 about.html 的 script\n\n要我 commit「整理專案結構」嗎？也建議把 README 的「專案結構」一起更新。",
+      "narration": "它列出每一輪修了什麼，還提醒 README 裡的地圖也要跟著更新。"
+    },
+    {
+      "on": "claude",
+      "user": "好，一起更新後 commit。"
+    },
+    {
+      "on": "claude",
+      "edit": "README.md",
+      "lines": [
+        [
+          10,
+          "-",
+          "| index.html、contact.html | 首頁、聯絡表單頁 |"
+        ],
+        [
+          10,
+          "+",
+          "| src/pages/ | 所有頁面 |"
+        ],
+        [
+          11,
+          "+",
+          "| src/styles/、src/scripts/ | 樣式、程式 |"
+        ],
+        [
+          12,
+          "+",
+          "| tools/ | 檢查用的腳本 |"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "ask": "git add -A && git commit -m \"整理專案結構\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "select": 1
+    },
+    {
+      "show": "files",
+      "narration": "整理後，最上層只剩 src、tools、README 和 package.json。"
+    },
+    {
+      "on": "files",
+      "open": "src",
+      "narration": "打開 src，頁面、樣式、程式各有各的地方。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "1. 在計畫模式請 AI 提整理方案，要有「從哪裡搬到哪裡、哪些地方要跟著改、要刪的原因」。2. 確認後請它：先 commit 存檔點、照方案搬、跑 build，有錯就修到成功，每一輪告訴你修了什麼。3. 打開網頁點點看連結。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "方案看過才搬\n搬之前先存檔點\nbuild 失敗就照錯誤修，直到成功",
+      "eyebrow": "學會",
+      "sub": "方案有列，AI 也可能漏改；build 會抓出來",
+      "chapter": "學會",
+      "narration": "方案看過才搬，搬之前先存檔點，build 失敗就照錯誤修，直到成功。就算方案寫得很清楚，AI 也可能漏改，build 會幫你抓出來。"
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "title": "換你拼句子",
+  "lesson": "兒童網頁課 · 4.2 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {
+        "goal": {
+          "bg": "#fff0f5",
+          "parts": [
+            {
+              "id": "h1",
+              "kind": "h1",
+              "text": "小花的名片",
+              "size": "xl"
+            },
+            {
+              "id": "img",
+              "kind": "img",
+              "emoji": "🐱"
+            },
+            {
+              "id": "ul",
+              "kind": "ul",
+              "items": [
+                "睡午覺",
+                "小魚乾",
+                "紙箱"
+              ]
+            }
+          ]
+        },
+        "cards": [
+          {
+            "id": "w2",
+            "tag": "要什麼",
+            "text": "放一張貓咪[[圖片]]",
+            "ops": [
+              {
+                "add": {
+                  "id": "img",
+                  "kind": "img",
+                  "emoji": "🐱"
+                }
+              }
+            ],
+            "reply": "好，放了一張貓咪圖片。"
+          },
+          {
+            "id": "o1",
+            "tag": "在哪裡",
+            "text": "[[標題]]在最上面，[[清單]]在最下面",
+            "ops": [
+              {
+                "move": "h1",
+                "after": null
+              },
+              {
+                "move": "ul"
+              }
+            ],
+            "reply": "好，我把順序排好了。"
+          },
+          {
+            "id": "w1",
+            "tag": "要什麼",
+            "text": "放一個[[標題]]：小花的名片",
+            "ops": [
+              {
+                "add": {
+                  "id": "h1",
+                  "kind": "h1",
+                  "text": "小花的名片"
+                }
+              }
+            ],
+            "reply": "好，放了一個標題。"
+          },
+          {
+            "id": "x1",
+            "text": "做得[[可愛]]一點",
+            "reply": "可愛是什麼樣子呢？說說看要什麼顏色、什麼大小吧！",
+            "mood": "puzzled"
+          },
+          {
+            "id": "l1",
+            "tag": "長什麼樣",
+            "text": "背景是[[淺粉紅色]]",
+            "ops": [
+              {
+                "set": "page",
+                "bg": "#fff0f5"
+              }
+            ],
+            "reply": "好，背景變成淺粉紅色了。"
+          },
+          {
+            "id": "w3",
+            "tag": "要什麼",
+            "text": "放一個[[清單]]：睡午覺、小魚乾、紙箱",
+            "ops": [
+              {
+                "add": {
+                  "id": "ul",
+                  "kind": "ul",
+                  "items": [
+                    "睡午覺",
+                    "小魚乾",
+                    "紙箱"
+                  ]
+                }
+              }
+            ],
+            "reply": "好，放了一個清單。"
+          },
+          {
+            "id": "l2",
+            "tag": "長什麼樣",
+            "text": "[[標題]]用大大的字",
+            "ops": [
+              {
+                "set": "h1",
+                "size": "xl"
+              }
+            ],
+            "reply": "好，標題變大了。"
+          }
+        ],
+        "compose": true
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "compare": true,
+      "narration": "換你了！左邊是小花的名片，要做得一模一樣。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:compose",
+        "text": "你要說的話"
+      },
+      "narration": "點卡片，把要說的話拼起來，再按送出。可以一次選好幾張喔。左邊全部打勾就過關。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點卡片拼句子，再按送出",
+    "body": "目標圖全部打勾就過關",
+    "spots": [
+      {
+        "target": "kid:card:w2",
+        "id": "w2",
+        "label": "放一張貓咪圖片",
+        "steps": [
+          {
+            "pick": "w2"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:o1",
+        "id": "o1",
+        "label": "標題在最上面，清單在最下面",
+        "steps": [
+          {
+            "pick": "o1"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:w1",
+        "id": "w1",
+        "label": "放一個標題：小花的名片",
+        "steps": [
+          {
+            "pick": "w1"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:x1",
+        "id": "x1",
+        "label": "做得可愛一點",
+        "steps": [
+          {
+            "pick": "x1"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:l1",
+        "id": "l1",
+        "label": "背景是淺粉紅色",
+        "steps": [
+          {
+            "pick": "l1"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:w3",
+        "id": "w3",
+        "label": "放一個清單：睡午覺、小魚乾、紙箱",
+        "steps": [
+          {
+            "pick": "w3"
+          }
+        ]
+      },
+      {
+        "target": "kid:card:l2",
+        "id": "l2",
+        "label": "標題用大大的字",
+        "steps": [
+          {
+            "pick": "l2"
+          }
+        ]
+      },
+      {
+        "target": "kid:send",
+        "id": "send",
+        "label": "送出",
+        "steps": [
+          {
+            "send": true,
+            "narration": "送出了！看看小幫手做得怎麼樣。"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "ok",
+      "atLeast": 4
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "全部打勾了！說清楚，小幫手就做得出來。"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+/* fc8 圖解共用底稿(複製到各版本的 styles.css 開頭) */
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; color: #1f2733; background: #f6f4ef; }
+.wrap { padding: 36px 48px; box-sizing: border-box; min-height: 640px; }
+.ttl { font-size: 30px; font-weight: 700; margin: 0 0 6px; }
+.sub { font-size: 18px; color: #5b6575; margin: 0 0 22px; }
+[data-at] { opacity: .13; }
+[data-at].on { opacity: 1; }
+[data-go] { cursor: pointer; }
+.box { background: #fff; border: 2px solid #d9d4c7; border-radius: 14px; padding: 14px 18px; box-sizing: border-box; }
+.tag { display: inline-block; font-size: 14px; padding: 3px 10px; border-radius: 999px; background: #ece7db; color: #4a5260; }
+.ok { color: #1f8a4c; } .bad { color: #c2412d; } .warn { color: #b7791f; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.cols { display: flex; gap: 22px; }
+.card { flex: 1; min-height: 300px; }
+.card .h { font-size: 21px; font-weight: 800; margin-bottom: 16px; }
+.ln { font-size: 18px; padding: 10px 0; border-bottom: 1px dashed #e2ddd0; line-height: 1.5; }
+.code { background: #1f2733; border-color: #1f2733; color: #e6edf3; }
+.code .ln { border-color: #3a4454; font-size: 16px; }
+.trig { margin-top: 22px; font-size: 21px; font-weight: 700; background: #eef4ff; border: 2px solid #9db8f2; border-radius: 12px; padding: 14px 18px; }
+.say { background: #fff; border-radius: 999px; padding: 4px 14px; border: 2px solid #1f6feb; }
+.btns { display: flex; gap: 8px; margin-top: 14px; }
+.btns button { font: inherit; font-size: 15px; padding: 6px 14px; border-radius: 8px; border: 1px solid #cfc8b8; background: #fff; }
+.btns button.done { background: #1f2733; color: #fff; }

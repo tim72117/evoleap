@@ -1,0 +1,137 @@
+{
+  "title": "第一次和 AI 一起改程式",
+  "camera": "auto",
+  "teacher": {
+    "say": "做一頁，再改兩輪",
+    "line": "這一堂請 AI 做一個 hello 網頁。你打開來看，看到哪裡不喜歡就說，來回改兩輪。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "hello 頁", "folder": "~/projects/hello", "branch": null, "mode": "ask", "sessions": [] },
+      "place": { "x": 30, "y": 40, "w": 940, "h": 1000 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc1-4-hello-v1", "url": "file:///projects/hello/hello.html" },
+      "place": { "x": 1000, "y": 150, "w": 890, "h": 760 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "做一頁，打開看，再改",
+      "eyebrow": "全環節 · 單元 1 · 1.4 用 AI 完成",
+      "sub": "來回修正：看結果 → 指出問題 → 再改",
+      "chapter": "先做出第一版",
+      "narration": "和 AI 一起改程式，不是一次講完就好，而是來回幾次：看結果、指出問題、再改。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "在這個資料夾建立 hello.html：一個標題「Hello！」、一句自我介紹、一顆「聯絡我」按鈕。做好告訴我怎麼打開。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "ask": "hello.html",
+      "q": "允許 Claude 建立這個檔案？",
+      "where": "~/projects/hello",
+      "narration": "要建立新檔案，它先問你。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "edit": "hello.html",
+      "lines": [[1, "+", "<!DOCTYPE html>"], [2, "+", "<html lang=\"zh-Hant\">"], [3, "+", "<link rel=\"stylesheet\" href=\"style.css\">"], [4, "+", "<h1>Hello！</h1>"], [5, "+", "<p>我是新手，正在學做網站。</p>"], [6, "+", "<button>聯絡我</button>"]],
+      "narration": "全部都是綠色，因為是新檔案，每一行都是新加的。"
+    },
+    {
+      "on": "claude",
+      "say": "建好了。在 Finder 點兩下 `hello.html`，或在終端機打 `open hello.html` 就能看到。"
+    },
+    {
+      "show": "web",
+      "narration": "打開來看看。"
+    },
+    {
+      "callout": "web:viewport",
+      "text": "看過才知道要改什麼",
+      "chapter": "第一輪：標題和背景",
+      "narration": "做出來了，但有點單調。打開看過，你才知道想改哪裡。"
+    },
+    {
+      "on": "claude",
+      "user": "標題改成「Hello！我是小安」，背景換成淺藍色。",
+      "narration": "具體說出要改什麼：標題的字、背景的顏色。"
+    },
+    {
+      "on": "claude",
+      "edit": "hello.html",
+      "lines": [[4, "-", "<h1>Hello！</h1>"], [4, "+", "<h1>Hello！我是小安</h1>"]]
+    },
+    {
+      "on": "claude",
+      "edit": "style.css",
+      "lines": [[1, "-", "body { background: #ffffff; }"], [1, "+", "body { background: #e8f3ff; }"]],
+      "narration": "它改了兩個檔案：hello.html 的第 4 行，和 style.css 的第 1 行。"
+    },
+    {
+      "on": "claude",
+      "say": "改好了：標題在 `hello.html` 第 4 行，背景色在 `style.css` 第 1 行。重新整理就看得到。"
+    },
+    {
+      "on": "web",
+      "site": "fc1-4-hello-v2",
+      "narration": "重新整理。標題和背景都換了。"
+    },
+    {
+      "callout": "web:sel:#contact",
+      "text": "新問題：按鈕好小",
+      "chapter": "第二輪：按鈕",
+      "narration": "看了新版本，又發現一個問題：按鈕好小，手機上很難按。"
+    },
+    {
+      "on": "claude",
+      "user": "按鈕太小了，手機上很難按。放大一點，做成圓角。"
+    },
+    {
+      "on": "claude",
+      "edit": "style.css",
+      "lines": [[3, "-", "button { font-size: 16px; padding: 8px 16px; border-radius: 8px; }"], [3, "+", "button { font-size: 22px; padding: 16px 40px; border-radius: 999px; }"]]
+    },
+    {
+      "on": "claude",
+      "say": "按鈕的字放大到 22px、四周留白加大，改成圓角。只改了 `style.css` 第 3 行。"
+    },
+    {
+      "on": "web",
+      "site": "fc1-4-hello-v3",
+      "narration": "再重新整理。"
+    },
+    {
+      "callout": "web:sel:#contact",
+      "text": "只動了按鈕，其他都沒變",
+      "narration": "按鈕變大了，其他地方都沒變。這正是修改卡上說的：只改了一行。"
+    },
+    {
+      "on": "claude",
+      "user": "可以了，謝謝！"
+    },
+    {
+      "on": "claude",
+      "say": "不客氣！這次一共改了兩輪：①標題與背景　②按鈕。"
+    },
+    {
+      "checkpoint": "換你：做一頁，再改一處",
+      "body": "請 AI 建立 hello.html，打開來看。挑一個你不喜歡的地方（字、顏色、大小都可以），具體說出要改成什麼。看修改卡確認它改了哪一行，再重新整理看結果。"
+    },
+    {
+      "card": "改過一次的 hello.html ✓",
+      "eyebrow": "1.4 完成",
+      "sub": "下一堂：寫一份給 AI 看的專案說明",
+      "narration": "你已經會和 AI 來回改程式了。下一堂，我們寫一份給 AI 看的專案說明。"
+    }
+  ]
+}

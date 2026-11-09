@@ -1,0 +1,256 @@
+{
+  "title": "會記數字的盒子",
+  "lesson": "兒童網頁課 · 3.3 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "小兔數數機",
+        "emoji": "🐰",
+        "buttons": [
+          {
+            "id": "go",
+            "text": "按一下"
+          }
+        ],
+        "box": {
+          "name": "數到幾",
+          "value": 0
+        },
+        "rules": [
+          {
+            "id": "count",
+            "when": "go",
+            "do": [
+              {
+                "add": 1
+              }
+            ]
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "小兔數數機"
+      },
+      "chapter": "記住數字",
+      "narration": "跳繩的時候，你會一邊跳一邊數：1、2、3。數到哪裡，要記在腦袋裡，不然就忘了。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:box",
+        "text": "記數字的盒子"
+      },
+      "narration": "網頁也要記住數字。它用的是一個盒子，盒子裡放著一個數字，現在是 0。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:boxname",
+        "text": "盒子的名字"
+      },
+      "narration": "盒子上貼著名字：數到幾。有了名字，才知道這個盒子記的是什麼。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:rule:count",
+        "text": "點了按一下 ➜ 就加 1"
+      },
+      "narration": "魔法積木說好：點了按一下，就把盒子「數到幾」加 1。"
+    },
+    {
+      "press": "go",
+      "tap": true,
+      "narration": "按一下，0 加 1，變成 1。"
+    },
+    {
+      "press": "go",
+      "narration": "再按一下，變成 2。"
+    },
+    {
+      "press": "go",
+      "narration": "再一下，3！盒子一直記得現在數到幾。一個一個數，叫做計數。"
+    },
+    {
+      "checkpoint": "換你數數看",
+      "sub": "lab/kids/3.3-count.json",
+      "chapter": "換你數數看"
+    },
+    {
+      "wait": 400,
+      "chapter": "改成加 2",
+      "narration": "如果想要一次數 2 下呢？"
+    },
+    {
+      "checkpoint": "想要一次加 2，要改哪裡？",
+      "body": "點畫面回答。",
+      "id": "quiz-1",
+      "stage": {
+        "focus": "kid:window"
+      },
+      "options": [
+        {
+          "label": "盒子的名字",
+          "target": "kid:boxname",
+          "retry": true,
+          "steps": [
+            {
+              "check": "boxname",
+              "answer": "do:count",
+              "narration": "這是盒子的名字。改了名字，還是一次加 1 喔。再試一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "按一下按鈕",
+          "target": "kid:button:go",
+          "retry": true,
+          "steps": [
+            {
+              "check": "button:go",
+              "answer": "do:count",
+              "narration": "按鈕只說好什麼時候。要加多少，寫在魔法積木裡。再試一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "加 1 的積木",
+          "target": "kid:do:count",
+          "steps": [
+            {
+              "check": "do:count",
+              "answer": "do:count",
+              "narration": "答對了！要改的是魔法積木上的數字。"
+            },
+            {
+              "edit": "count",
+              "add": 2,
+              "narration": "把加 1 改成加 2。"
+            },
+            {
+              "press": "go",
+              "tap": true,
+              "narration": "按一下，一次加 2！"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "chapter": "倒數",
+      "narration": "那倒數呢？像火箭發射一樣：10、9、8，一直數到 0。"
+    },
+    {
+      "fill": 10,
+      "tap": true,
+      "narration": "先把盒子裡的數字換成 10。"
+    },
+    {
+      "edit": "count",
+      "add": -1,
+      "tap": true,
+      "narration": "再把加 2 改成減 1。"
+    },
+    {
+      "press": "go",
+      "tap": true,
+      "narration": "按一下，10 變 9。"
+    },
+    {
+      "press": "go",
+      "narration": "再一下，9 變 8。盒子裡的數字也可以變小。"
+    },
+    {
+      "checkpoint": "換你改改看",
+      "sub": "lab/kids/3.3-change.json",
+      "chapter": "換你改改看"
+    },
+    {
+      "wait": 400,
+      "chapter": "想一想",
+      "narration": "最後一題。看上面的題目，點下面的按鈕回答。"
+    },
+    {
+      "checkpoint": "盒子上貼的「數到幾」是什麼？",
+      "body": "選一個答案。",
+      "id": "quiz-2",
+      "stage": {
+        "focus": "kid:box"
+      },
+      "options": [
+        {
+          "label": "盒子的名字",
+          "steps": [
+            {
+              "check": "boxname",
+              "answer": "boxname",
+              "narration": "答對了！「數到幾」是盒子的名字，告訴我們盒子記的是什麼。"
+            }
+          ]
+        },
+        {
+          "label": "盒子裡的數字",
+          "retry": true,
+          "steps": [
+            {
+              "check": "num",
+              "answer": "boxname",
+              "narration": "盒子裡的數字會一直變，「數到幾」是貼在盒子上的。再試一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:box",
+        "text": "貼著名字的盒子"
+      },
+      "chapter": "學會",
+      "narration": "今天學到三個名詞：數字、計數，和盒子的名字。網頁用貼著名字的盒子，記住數字！"
+    }
+  ]
+}

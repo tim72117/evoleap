@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>路徑地圖</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-pick="none">
+<div class="ttl">檔案的「地址」</div>
+<div class="tabs">
+  <button class="tab" id="abs" data-pick="abs">絕對路徑</button>
+  <button class="tab" id="rel" data-pick="rel">相對路徑</button>
+  <button class="tab" id="up" data-pick="up">../ 往上一層</button>
+  <button class="tab" id="hid" data-pick="hid">隱藏檔</button>
+</div>
+<div class="row">
+  <div class="tree card grow mono">
+    <div class="n n-root">💽 / <span class="muted">（最上層）</span></div>
+    <div class="n n-users i1">📁 Users</div>
+    <div class="n n-you i2">📁 you <span class="muted">（家目錄 ~）</span></div>
+    <div class="n n-desk i3">📁 Desktop</div>
+    <div class="n n-proj i3">📁 projects</div>
+    <div class="n n-hello i4">📁 hello <span class="here">📍 你在這裡</span></div>
+    <div class="n n-git i5 hidden">📁 .git</div>
+    <div class="n n-env i5 hidden">📄 .env</div>
+    <div class="n n-index i5">📄 index.html</div>
+    <div class="n n-img i5">📁 images</div>
+    <div class="n n-logo i6">🖼 logo.png</div>
+    <div class="n n-shop i4">📁 shop</div>
+    <div class="n n-shopidx i5">📄 index.html</div>
+  </div>
+  <div class="side">
+    <div class="card say s-none">選上面的按鈕，看路徑怎麼走</div>
+    <div class="card say s-abs"><b>絕對路徑</b>：從最上層開始的完整地址<div class="path mono">/Users/you/projects/hello/images/logo.png</div><span class="muted">在哪裡打都一樣</span></div>
+    <div class="card say s-rel"><b>相對路徑</b>：從「你在這裡」出發<div class="path mono">images/logo.png</div><span class="muted">換個地方站，意思就變了</span></div>
+    <div class="card say s-up"><b>..</b> 代表上一層<div class="path mono">../shop/index.html</div><span class="muted">從 hello 往上到 projects，再進 shop</span></div>
+    <div class="card say s-hid"><b>隱藏檔</b>：名字用 <span class="mono">.</span> 開頭<div class="path mono">.git　.env</div><span class="muted">平常看不到，Mac 按 ⌘⇧. 顯示；裡面常是設定或密鑰</span></div>
+  </div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

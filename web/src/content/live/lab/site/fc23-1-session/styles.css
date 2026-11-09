@@ -1,0 +1,30 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#f6f7fb;color:#1f2433}
+.pg{padding:30px 44px}
+.hd{display:flex;align-items:center;gap:20px}
+h1{margin:0;font-size:28px}
+#next{margin-left:auto;font:inherit;font-size:18px;font-weight:800;padding:10px 22px;border-radius:12px;border:none;background:#4d6fd0;color:#fff}
+.cnt{display:flex;gap:16px;margin:20px 0}
+.c{background:#fff;border-radius:14px;padding:12px 22px;box-shadow:0 0 0 1px #e1e5ee;min-width:150px}
+.c span{display:block;color:#6b7385;font-size:15px}
+.c b{font-size:40px}
+.track{position:relative;height:330px;background:#fff;border-radius:16px;box-shadow:0 0 0 1px #e1e5ee}
+.ev{position:absolute;top:120px;width:170px;background:#eef2fc;border:3px solid #4d6fd0;border-radius:12px;padding:10px 12px;display:none}
+.ev time{display:block;color:#6b7385;font-size:14px}
+.ev b{display:block;font-family:Menlo,monospace;color:#2f4fa8;font-size:17px}
+.ev i{font-style:normal;font-size:15px}
+.e1{left:3%}.e2{left:17%}.e3{left:31%}.e4{left:45%}.e6{left:80%}
+.e4{background:#fff6e5;border-color:#d99a1c}.e4 b{color:#9a6a06}
+.gap{position:absolute;left:62%;top:150px;font-size:18px;color:#6b7385;display:none}
+.ss{position:absolute;top:56px;height:230px;border:3px dashed #8a9ad0;border-radius:18px;display:none}
+.ss span{position:absolute;top:-16px;left:16px;background:#fff;padding:0 8px;font-weight:800;color:#4d6fd0}
+.ss1{left:1.5%;width:58%}.ss2{left:78.5%;width:20%}
+.pg[data-s="1"] .e1,.pg[data-s="2"] .e1,.pg[data-s="2"] .e2,.pg[data-s="3"] .e1,.pg[data-s="3"] .e2,.pg[data-s="3"] .e3{display:block}
+.pg[data-s="4"] .e1,.pg[data-s="4"] .e2,.pg[data-s="4"] .e3,.pg[data-s="4"] .e4{display:block}
+.pg[data-s="5"] .ev,.pg[data-s="6"] .ev{display:block}
+.pg[data-s="5"] .e6{display:none}
+.pg[data-s="5"] .gap,.pg[data-s="6"] .gap{display:block}
+.pg[data-s="1"] .ss1,.pg[data-s="2"] .ss1,.pg[data-s="3"] .ss1,.pg[data-s="4"] .ss1,.pg[data-s="5"] .ss1,.pg[data-s="6"] .ss1,.pg[data-s="6"] .ss2{display:block}
+.rt{margin-top:18px;display:none;align-items:center;gap:14px;background:#fff;border-radius:14px;box-shadow:0 0 0 2px #2e9a5b;padding:14px 20px;font-size:19px}
+.pg[data-s="6"] .rt{display:flex}
+.dotlive{width:14px;height:14px;border-radius:50%;background:#2e9a5b;box-shadow:0 0 0 6px rgba(46,154,91,.2)}
+.rt em{font-style:normal;font-weight:800;color:#22804a}

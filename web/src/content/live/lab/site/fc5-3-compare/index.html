@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>截圖比對報告</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="rep" data-r="1">
+  <header class="top"><b>截圖比對報告</b><span>design.png ↔ 目前畫面</span>
+    <nav class="rounds"><button id="r1" type="button">第 1 輪</button><button id="r2" type="button">第 2 輪</button><button id="r3" type="button">第 3 輪</button></nav>
+  </header>
+  <div class="cols">
+    <figure><figcaption>設計稿</figcaption><div class="shot design"><div class="m-av"></div><div class="m-nm"></div><div class="m-ti"></div><div class="m-tg"></div><div class="m-bt"></div><div class="m-bt2"></div></div></figure>
+    <figure><figcaption>AI 做出來的</figcaption><div class="shot build"><div class="m-av"></div><div class="m-nm"></div><div class="m-ti"></div><div class="m-tg"></div><div class="m-bt"></div><div class="m-bt2"></div>
+      <div class="diff d1"></div><div class="diff d2"></div><div class="diff d3"></div></div></figure>
+  </div>
+  <div class="sum">
+    <div class="score"><span>差異</span><b class="s1">18.4%</b><b class="s2">5.1%</b><b class="s3">0.9%</b></div>
+    <ul class="list l1"><li>頭像太小：72px，設計稿是 120px</li><li>名字字級太大：48px，設計稿是 36px</li><li>按鈕上下排，設計稿是左右並排</li></ul>
+    <ul class="list l2"><li>頭像和文字的間距 20px，設計稿是 32px</li><li>標籤沒有底色</li></ul>
+    <ul class="list l3"><li class="ok">只剩陰影深淺的小差異，可以接受</li></ul>
+  </div>
+</div>
+</body></html>

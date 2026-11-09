@@ -1,0 +1,134 @@
+{
+  "title": "AI 說「好了」，是真的好了嗎？",
+  "lesson": "全環節 · 單元 29 · 29.1 基礎知識",
+  "teacher": {
+    "say": "今天聊「怎樣算完成」",
+    "line": "這一課只講一件事：交代任務時，先說好怎樣算完成。這句話會決定 AI 什麼時候停下來。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "修送出按鈕", "folder": "~/projects/bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc29-1-finish", "url": "https://notes.example/finish-line" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "AI 說「好了」，是真的好了嗎？",
+      "eyebrow": "全環節 · 單元 29 · 29.1 基礎知識",
+      "sub": "先說好怎樣算完成",
+      "chapter": "一句「改好了」",
+      "narration": "先看一個很常見的場面。"
+    },
+    {
+      "show": "claude",
+      "narration": "你請 AI 把訂購表單的送出按鈕修好。"
+    },
+    { "on": "claude", "user": "訂購表單的送出按鈕壞了，幫我修好" },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "edit": "order.js",
+      "lines": [[12, "-", "btn.addEventListner('click', send)"], [12, "+", "btn.addEventListener('click', send)"]],
+      "narration": "它找到一個拼錯的字，改掉了。"
+    },
+    {
+      "on": "claude",
+      "say": "改好了！`addEventListener` 原本拼錯，現在按鈕應該可以送出了。",
+      "narration": "然後說：改好了。注意它用的字：「應該」可以送出了。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "「應該」＝它沒有真的試過",
+      "narration": "它沒有真的按按看。你打開網頁一按，還是沒反應，因為表單還有第二個問題。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "web",
+      "chapter": "AI 停在哪裡",
+      "narration": "我們把這件事畫成一條跑道。上面那條，是沒有說怎樣算完成。"
+    },
+    {
+      "on": "web",
+      "click": "#bot",
+      "narration": "AI 開始跑，跑到它覺得差不多的地方，"
+    },
+    {
+      "on": "web",
+      "click": "#said",
+      "narration": "就停下來說「改好了」。可是前面還有一個坑，它根本沒走到。"
+    },
+    {
+      "callout": "web:section:laneA",
+      "text": "沒有終點線：AI 只能憑感覺停",
+      "narration": "這不是 AI 偷懶。是你沒畫終點線，它只能自己猜，什麼時候可以停。"
+    },
+    {
+      "on": "web",
+      "click": "#f1",
+      "chapter": "畫出終點線",
+      "narration": "下面這條，我們先畫好終點線。第一種：測試通過。測試是一段會自己檢查程式對不對的程式，跑完會告訴你過了沒有。"
+    },
+    {
+      "on": "web",
+      "click": "#f2",
+      "narration": "第二種：截圖一致。請 AI 打開網頁、拍一張畫面，和你要的樣子比一比。"
+    },
+    {
+      "on": "web",
+      "click": "#f3",
+      "narration": "第三種：網址回 200。用 curl 這個指令去敲網站的門，回 200 就是「門開了、東西在」。"
+    },
+    {
+      "callout": "web:section:laneB",
+      "text": "完成條件＝AI 自己就能檢查的事",
+      "narration": "這三種有一個共同點：AI 自己就能檢查，不用等你去看。三個都過，它才回報完成。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "好的完成條件",
+      "sub": "看得到 · 量得到 · AI 自己能檢查",
+      "chapter": "什麼是好的完成條件",
+      "narration": "所以好的完成條件，要看得到、量得到，最好 AI 自己就能檢查。"
+    },
+    {
+      "diff": "我的任務說明",
+      "lines": [["-", "把送出按鈕修好"], ["+", "把送出按鈕修好。"], ["+", "完成條件：npm test 全部通過，"], ["+", "而且用瀏覽器實際按一次，看到「已送出」"]],
+      "narration": "改寫一下你的任務：原本只有一句「修好」；後面加上完成條件：測試全部通過，而且實際按一次，看到「已送出」。"
+    },
+    {
+      "arrow": { "from": [1480, 860], "to": [1180, 640] },
+      "label": "AI 知道何時停",
+      "narration": "只多一句話，AI 就知道要做到哪裡才停，也知道怎麼證明給你看。"
+    },
+    { "clear": true },
+    {
+      "card": "「好看一點」不是完成條件",
+      "eyebrow": "要避開的寫法",
+      "sub": "改成：標題字變大到 32px，手機寬度不換行",
+      "narration": "要小心「好看一點」「快一點」這種話，AI 沒辦法檢查。改成具體的：標題字變大到 32 像素，手機寬度不換行。"
+    },
+    {
+      "checkpoint": "換你寫寫看",
+      "body": "替「在首頁加一個聯絡表單」寫一句完成條件：要讓 AI 自己能檢查，例如要跑什麼、要看到什麼。",
+      "narration": "換你試試。替「在首頁加一個聯絡表單」寫一句完成條件，想想 AI 要跑什麼、要看到什麼，才算做完。"
+    },
+    {
+      "card": "下一堂：帶著完成條件交代任務",
+      "eyebrow": "29.1 用 AI 完成",
+      "sub": "讓 AI 自己驗證，才回報完成",
+      "narration": "下一堂，我們真的帶著完成條件交代一個任務，看 AI 怎麼自己驗證完才回報。"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "title": "借別人的服務：API 金鑰、用量與出錯",
+  "lesson": "全環節 · 單元 8 · 8.3 基礎知識",
+  "teacher": {
+    "say": "今天借用別人的服務",
+    "line": "今天我們看怎麼借用別人做好的服務，例如天氣、地圖、寄信。借用要帶一把金鑰，用量有上限，對方也可能出錯，這三件事都要先想好。"
+  },
+  "cast": {
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "你的網站向天氣服務要資料",
+        "nodes": {
+          "browser": { "label": "瀏覽器", "icon": "browser", "x": 12, "y": 55 },
+          "server": { "label": "你的伺服器", "icon": "server", "x": 42, "y": 55 },
+          "wx": { "label": "天氣服務", "sub": "別人的 API", "icon": "cloud", "x": 80, "y": 55 }
+        },
+        "links": [["browser", "server"], ["server", "wx"]]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "portal": {
+      "actor": "browser",
+      "props": { "site": "fc8-3-keyportal", "url": "https://api.weather.example/dashboard/keys" },
+      "place": "window",
+      "hidden": true
+    },
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc8-3-weather", "url": "http://localhost:3000/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "借別人的服務",
+      "eyebrow": "全環節 · 單元 8 · 8.3 基礎知識",
+      "sub": "API 金鑰、用量限制與錯誤處理",
+      "chapter": "金鑰：證明是你",
+      "narration": "小森烘焙想在首頁依天氣推薦麵包。天氣資料不用自己蒐集，向天氣服務借就好。"
+    },
+    { "show": "flow" },
+    { "send": ["server", "wx"], "label": "GET /forecast?city=台北", "narration": "你的伺服器向天氣服務要台北的天氣。" },
+    { "pulse": "wx", "text": "你是誰？", "tone": "warn" },
+    { "send": ["wx", "server"], "label": "401 沒有金鑰", "tone": "bad", "narration": "被拒絕了，401。對方不知道你是誰，也不知道該算誰的用量。" },
+    { "tidy": true },
+    {
+      "spawn": "key",
+      "label": "API 金鑰",
+      "sub": "一長串只有你有的密碼",
+      "icon": "key",
+      "x": 42,
+      "y": 18,
+      "tone": "key",
+      "narration": "所以要先去天氣服務的網站申請一把 API 金鑰。它像門禁卡，證明這個請求是你的。"
+    },
+    { "send": ["key", "server"], "label": "從 .env 讀出", "tone": "key", "keep": false },
+    { "send": ["server", "wx"], "label": "GET /forecast＋金鑰", "tone": "key", "narration": "伺服器把金鑰附在請求上。" },
+    { "pulse": "wx", "text": "認得，記一次用量", "tone": "ok" },
+    { "send": ["wx", "server"], "label": "200 晴 28°C", "tone": "ok", "narration": "這次成功了，而且對方幫你記了一次用量。" },
+    { "send": ["server", "browser"], "label": "推薦冰鎮檸檬塔", "tone": "ok" },
+    {
+      "callout": "flow:node:server",
+      "text": "金鑰只放伺服器，不放進網頁",
+      "narration": "注意，金鑰只放在伺服器。網頁的程式碼誰都看得到，放在網頁裡，等於把門禁卡貼在門口。"
+    },
+    { "tidy": true },
+    { "pulse": "wx", "tone": "none" },
+    { "wire": ["browser", "wx"], "dashed": true, "narration": "如果偷懶，讓瀏覽器直接帶著金鑰去要呢？" },
+    { "send": ["browser", "wx"], "label": "金鑰被看光", "tone": "bad" },
+    {
+      "spawn": "thief",
+      "label": "陌生人",
+      "sub": "複製你的金鑰",
+      "icon": "user",
+      "x": 62,
+      "y": 85,
+      "tone": "bad",
+      "narration": "任何人打開開發者工具就能複製你的金鑰，拿去用你的額度，帳單算你的。"
+    },
+    { "send": ["thief", "wx"], "label": "用你的額度", "tone": "bad" },
+    { "vanish": "thief" },
+    { "wire": ["browser", "wx"], "cut": true, "narration": "所以這條路剪掉。一律由伺服器代為請求。" },
+    { "hide": "flow" },
+    {
+      "show": "portal",
+      "chapter": "用量限制",
+      "narration": "第二件事：用量限制。打開服務的後台，方案會寫清楚一天、一分鐘可以呼叫幾次。"
+    },
+    { "callout": "portal:sel:.plan", "text": "免費方案：每天 1,000 次、每分鐘 60 次", "narration": "這個免費方案每天一千次、每分鐘六十次。超過了，對方會回 429，意思是「太多次了，等一下再來」。" },
+    { "hide": "portal" },
+    { "show": "flow", "narration": "如果每個客人打開首頁，你都去問一次天氣，人一多就會超過。" },
+    { "spawn": "cache", "label": "暫存", "sub": "天氣 30 分鐘問一次", "icon": "file", "x": 42, "y": 88, "link": "server", "tone": "data", "narration": "常見做法是暫存：問到的天氣先記 30 分鐘，這段時間的客人直接用記下來的答案。" },
+    { "send": ["browser", "server"], "label": "第 200 位客人", "narration": "第兩百位客人來了。" },
+    { "send": ["server", "cache"], "label": "還有效嗎？", "tone": "data" },
+    { "send": ["cache", "server"], "label": "有，晴 28°C", "tone": "data", "narration": "暫存還有效，不用再問天氣服務，用量一次都沒多花。" },
+    { "hide": "flow" },
+    {
+      "show": "page",
+      "chapter": "對方出錯時",
+      "narration": "第三件事：對方也會出錯，或者暫時連不上。這時候你的網站不能跟著壞掉。"
+    },
+    { "on": "page", "click": "#down", "narration": "模擬天氣服務沒回應。好的處理方式是：顯示一句好懂的說明，其他功能照常。" },
+    { "callout": "page:sel:#fb", "text": "第三方出錯：顯示備案，不讓整頁壞掉", "narration": "訂購不受影響，推薦換成固定的招牌商品。這叫錯誤處理，請 AI 串接時一定要它做到。" },
+    { "on": "page", "click": "#up" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你想在網頁上顯示地圖，教學文章說「把 API 金鑰貼進網頁的 script 裡」。該怎麼辦？",
+      "body": "選一個。",
+      "id": "keyplace",
+      "options": [
+        {
+          "label": "照做，最快",
+          "steps": [{ "card": "網頁裡的金鑰誰都看得到", "eyebrow": "再想想", "sub": "有些服務提供可以公開的金鑰，但一定要在後台限制網域；不確定就放伺服器", "narration": "網頁裡的東西誰都看得到。有些服務的金鑰設計成可以公開，但一定要在後台限制只有你的網域能用。不確定時，就放伺服器。" }]
+        },
+        {
+          "label": "先查文件：可不可以公開、怎麼限制",
+          "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "看官方文件：可以公開的金鑰要限制網域；不能公開的只放伺服器", "narration": "答對了。先查官方文件：可以公開的金鑰，要在後台限制網域；不能公開的，只放在伺服器。" }]
+        }
+      ]
+    },
+    { "hide": "page" },
+    {
+      "card": "金鑰：只放伺服器\n用量：看方案、做暫存\n出錯：準備備案",
+      "eyebrow": "學會",
+      "sub": "401 沒帶或帶錯金鑰　429 太多次了",
+      "chapter": "學會",
+      "narration": "今天的重點：金鑰證明是你，只放在伺服器；用量有上限，用暫存省下來；對方出錯時，你的網站要有備案。下一堂，請 AI 讀官方文件來串接，申請金鑰那一步由你自己來。"
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "title": "盒模型",
+  "lesson": "網頁怎麼運作 · 單元 2 · 2.2",
+  "teacher": {
+    "say": "今天認識盒模型",
+    "line": "今天要把一張商品卡拆開來看，看每個元素外面那幾層看不見的盒子。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-web-2-2-box",
+        "url": "https://shop.example/"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "盒模型",
+      "eyebrow": "網頁怎麼運作 · 單元 2 · 2.2",
+      "chapter": "擠在一起的卡片",
+      "narration": "網頁看起來太擠、太鬆，常常不是顏色或字體的問題，而是盒子的問題。這一課來看，網頁上每個元素都是一個盒子。"
+    },
+    {
+      "show": "web",
+      "narration": "這兩張商品卡黏在一起，卡片裡的文字和圖片也貼著框線。看起來就是擠。要改哪裡？先來拆開一張卡片看看。"
+    },
+    {
+      "click": "[data-set='layer=content show=on']",
+      "chapter": "每個元素都是一個盒子",
+      "narration": "瀏覽器把每一個元素都當成一個盒子。最裡面是內容：文字和圖片本身佔的空間，這裡塗成藍色。"
+    },
+    {
+      "click": "[data-set='layer=padding']",
+      "narration": "內容外面的一圈是內距，英文叫 padding。它像包裹裡的泡泡紙，在盒子裡面，把內容和框隔開。現在是綠色這一圈，很薄。"
+    },
+    {
+      "click": "[data-set='layer=border']",
+      "narration": "再外面是邊框，border，就是看得到的那條框線，像紙箱本身。"
+    },
+    {
+      "click": "[data-set='layer=margin']",
+      "narration": "最外面是外距，margin，是這個盒子和旁邊盒子之間留的空隙。它在框的外面，而且是透明的。現在外距是 0，所以兩張卡片黏在一起。"
+    },
+    {
+      "click": "[data-set='layer=all']"
+    },
+    {
+      "callout": "web:section:model",
+      "text": "由內到外：內容、內距、邊框、外距",
+      "narration": "由內到外，一共四層：內容、內距、邊框、外距。這就是盒模型。開發者工具裡，也看得到一模一樣的圖。"
+    },
+    {
+      "click": "#pad-up",
+      "chapter": "調整每一層的厚度",
+      "narration": "來調調看。先把內距加大。"
+    },
+    {
+      "click": "#pad-up",
+      "narration": "再加大一點。文字和圖片離框線遠了，看起來舒服多了。"
+    },
+    {
+      "callout": "web:section:size",
+      "text": "內距在框裡面：盒子跟著變大",
+      "narration": "注意，盒子本身也跟著變大。內距在框的裡面，算在盒子的大小裡。"
+    },
+    {
+      "click": "#bor-up",
+      "narration": "把邊框加粗。框線變粗，盒子又大了一點。"
+    },
+    {
+      "click": "#mar-up",
+      "narration": "最後加外距。"
+    },
+    {
+      "click": "#mar-up",
+      "narration": "盒子本身的大小沒變，可是它和隔壁之間空出了距離，兩張卡片終於分開了。"
+    },
+    {
+      "callout": "web:section:row",
+      "text": "外距在框外面：推開旁邊的盒子",
+      "narration": "外距不算在盒子裡，它負責把旁邊的盒子推開。"
+    },
+    {
+      "click": "[data-set='pad=0 bor=0 mar=0 show=on layer=all']",
+      "chapter": "換你判斷",
+      "narration": "換你判斷。卡片先回到一開始擠在一起的樣子。"
+    },
+    {
+      "checkpoint": "兩張卡片黏在一起，想讓它們分開一點，要調哪一層？",
+      "body": "選一個，看看卡片怎麼變。",
+      "id": "apart",
+      "stage": {
+        "focus": "web:section:shelf"
+      },
+      "options": [
+        {
+          "label": "內距 padding",
+          "steps": [
+            {
+              "click": "[data-set='pad=2 bor=0 mar=0']",
+              "narration": "內距變大，卡片裡面寬鬆了，但兩張卡片還是黏在一起。"
+            },
+            {
+              "click": "[data-set='pad=0 bor=0 mar=2']",
+              "narration": "要讓兩張卡片分開，調的是外距：它在邊框外面，是盒子和盒子之間的空隙。"
+            }
+          ]
+        },
+        {
+          "label": "邊框 border",
+          "steps": [
+            {
+              "click": "[data-set='pad=0 bor=1 mar=0']",
+              "narration": "邊框變粗，卡片更顯眼，但還是黏在一起，反而更擠。"
+            },
+            {
+              "click": "[data-set='pad=0 bor=0 mar=2']",
+              "narration": "要讓兩張卡片分開，調的是外距：它在邊框外面，是盒子和盒子之間的空隙。"
+            }
+          ]
+        },
+        {
+          "label": "外距 margin",
+          "steps": [
+            {
+              "click": "[data-set='pad=0 bor=0 mar=2']",
+              "narration": "對。要讓兩張卡片分開，調的是外距：它在邊框外面，是盒子和盒子之間的空隙。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "click": "[data-set='pad=0 bor=0 mar=2']",
+            "narration": "要讓兩張卡片分開，調的是外距：它在邊框外面，是盒子和盒子之間的空隙。"
+          }
+        ]
+      }
+    },
+    {
+      "wait": 300,
+      "narration": "卡片分開了，可是裡面的文字和圖片，還是貼著框線。"
+    },
+    {
+      "checkpoint": "卡片裡的文字貼著框線，要調哪一層？",
+      "body": "選一個。",
+      "id": "inside",
+      "stage": {
+        "focus": "web:section:shelf"
+      },
+      "options": [
+        {
+          "label": "內距 padding",
+          "steps": [
+            {
+              "click": "[data-set='pad=2 bor=0 mar=2']",
+              "narration": "對。文字貼著框線，要調的是內距：它在邊框裡面，把內容和框隔開。"
+            }
+          ]
+        },
+        {
+          "label": "外距 margin",
+          "steps": [
+            {
+              "click": "[data-set='pad=0 bor=0 mar=2']",
+              "narration": "外距在框外面，加再多，框裡的文字還是貼著框線。"
+            },
+            {
+              "click": "[data-set='pad=2 bor=0 mar=2']",
+              "narration": "文字貼著框線，要調的是內距：它在邊框裡面，把內容和框隔開。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "click": "[data-set='pad=2 bor=0 mar=2']",
+            "narration": "文字貼著框線，要調的是內距：它在邊框裡面，把內容和框隔開。"
+          }
+        ]
+      }
+    },
+    {
+      "click": "[data-set='pad=2 bor=0 mar=2']"
+    },
+    {
+      "click": "[data-set='show=off']",
+      "narration": "把顏色拿掉，回到真正的樣子。卡片分開了，裡面也寬鬆了。同樣的內容，只改了盒子的兩層。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "商品卡之間的外距加大\n卡片裡的內距也加大，文字不要貼著邊框",
+      "eyebrow": "跟 AI 這樣說",
+      "sub": "說出是哪一層，AI 就不會改錯地方",
+      "chapter": "用對名詞說需求",
+      "narration": "下次覺得畫面太擠，不用只說「排好看一點」。可以說：商品卡之間的外距加大，卡片裡的內距也加大，文字不要貼著邊框。"
+    },
+    {
+      "card": "每個元素都是盒子\n大小由內容、內距、邊框、外距決定",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：盒模型・內距 padding・邊框 border・外距 margin",
+      "chapter": "學會",
+      "narration": "每個元素都是一個盒子：內容在最裡面，外面是內距，再來是邊框，最外面是外距。內距和邊框讓盒子變大，外距負責推開旁邊的盒子。"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "title": "密碼的保險箱",
+  "lesson": "全環節 · 單元 19 · 19.4 基礎知識",
+  "teacher": {
+    "say": "密碼要放對地方",
+    "line": "網站要用的資料庫密碼、金流金鑰，放錯地方就可能外洩。今天先找找看哪裡有問題，再認識雲端的保險箱 Secret Manager，以及它的版本。"
+  },
+  "cast": {
+    "code": {
+      "actor": "editor",
+      "props": {
+        "project": "bakery",
+        "files": {
+          "db.js": "import pg from 'pg'\n\nexport const db = new pg.Pool({\n  host: process.env.DB_HOST,\n  user: 'bakery',\n"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "map": {
+      "actor": "browser",
+      "props": { "site": "fc19-4-secret", "width": "desktop", "url": "https://learn.example/diagram/secret-manager" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "密碼的保險箱",
+      "eyebrow": "全環節 · 單元 19 · 19.4 基礎知識",
+      "sub": "機密管理服務與版本",
+      "chapter": "找找看",
+      "narration": "先來找找看，這段程式哪裡有問題。"
+    },
+    {
+      "show": "code",
+      "narration": "這是網站連資料庫的程式。我們繼續往下寫。"
+    },
+    {
+      "on": "code",
+      "type": "  password: 'Xs8#bakery2026!',\n  database: 'bakery',\n})\n"
+    },
+    {
+      "checkpoint": "這段程式 push 到 GitHub 之前，哪一行最危險？",
+      "body": "選一個。",
+      "id": "find",
+      "options": [
+        {
+          "label": "password 那一行",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "找找看",
+              "sub": "密碼直接寫在程式碼裡，push 上去就等於公開",
+              "narration": "答對了。密碼直接寫在程式碼裡，push 上去，看得到儲存庫的人都拿得到。"
+            }
+          ]
+        },
+        {
+          "label": "user 那一行",
+          "steps": [
+            {
+              "card": "帳號名稱還好",
+              "eyebrow": "再想想",
+              "sub": "真正危險的是密碼：被拿到就能進資料庫",
+              "narration": "帳號名稱被看到還好。真正危險的是密碼那一行，被拿到就能進你的資料庫。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "callout": "code:code",
+      "text": "password：密碼直接寫在程式碼裡",
+      "narration": "這種被別人拿到就糟了的東西，叫做機密：密碼、API 金鑰、權杖都是。"
+    },
+    { "hide": "code" },
+    {
+      "show": "map",
+      "chapter": "三個放錯的地方",
+      "narration": "機密常被放在這三個地方，都不好。寫在程式碼裡，push 就公開。"
+    },
+    {
+      "callout": "map:sel:.wrong .w:nth-child(2)",
+      "text": "刪掉也沒用：舊 commit 裡還在",
+      "narration": "更麻煩的是，就算你之後刪掉，git 的歷史紀錄裡還在。所以一旦 push 過，就要當作已經外洩，馬上換一組新密碼。"
+    },
+    {
+      "on": "map",
+      "click": "#b1",
+      "chapter": "保險箱",
+      "narration": "正確的地方是 Secret Manager，雲端的保險箱。每個機密一格，加密存放；網站執行時才去拿，程式碼和 git 裡都不會有。"
+    },
+    {
+      "on": "map",
+      "click": "#b2",
+      "chapter": "版本",
+      "narration": "每次換密碼，就存一個新版本：v1、v2、v3。網站讀的是最新版，舊的可以停用。換密碼不用改程式，也不用重寫部署設定。"
+    },
+    {
+      "on": "map",
+      "click": "#b3",
+      "chapter": "誰能打開",
+      "narration": "誰能打開保險箱，也用上一個單元學的 IAM 來管。"
+    },
+    {
+      "callout": "map:sel:.who",
+      "text": "只有網站的服務帳號能讀，連 deployer 都不行",
+      "narration": "只有網站執行時用的服務帳號，拿到讀取的鑰匙。負責部署的機器人不需要看密碼，所以不給。這就是最小權限。"
+    },
+    { "hide": "map" },
+    {
+      "card": "機密放保險箱，不放程式碼和 git\n換密碼＝存新版本",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：機密、Secret Manager、版本、latest；push 過的密碼要換掉",
+      "chapter": "學會",
+      "narration": "機密放進 Secret Manager，不放在程式碼和 git 裡；換密碼就存一個新版本，push 過的密碼一定要換掉。下一堂，請 AI 把機密搬進去，並確認版控裡沒有殘留。"
+    }
+  ]
+}

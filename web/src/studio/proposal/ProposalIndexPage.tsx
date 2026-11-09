@@ -580,6 +580,40 @@ export function ProposalIndexPage() {
         </div>
       </section>
 
+      <section className={ui.card}>
+        <div className={ui['card-head']}>
+          <div className={ui['head-left']}>
+            <div>
+              <h3>全環節課程清單</h3>
+              <div className={ui.meta}>適用：待選主題</div>
+            </div>
+          </div>
+          <div className={ui.chips}>
+            <span className={`${ui.chip} ${ui.out}`}>構想 · 待選主題</span>
+          </div>
+        </div>
+        <div className={ui['card-body']}>
+          <p className={ui['kv-lead']}>做出一個網站服務的每個環節都列成課，交給 AI 程式助手處理：</p>
+          <ul className={ui['plain-list']}>
+            <li>從準備、規劃、開發、測試、上線（網域、DNS、GCP）、營運到行銷，以 L2 為底再補完整</li>
+            <li>每個環節兩堂課：基礎知識與用 AI 完成（一次完成、來回修正、自建工具或 AI 碰不到時的操作步驟）</li>
+            <li>最後一段「讓 AI 順利工作」：讓 AI 看得到、自己檢查、自己做工具</li>
+            <li>另有依情境整理的 AI 自動化情境清單</li>
+            <li>待決定：要組成哪幾個主題、放在哪個等級</li>
+          </ul>
+        </div>
+        <div className={ui['card-foot']}>
+          <div className={ui.links}>
+            <Link className={ui.btn} to="/studio/full-course">
+              全環節課程清單
+            </Link>
+            <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/ai-scenarios">
+              情境清單
+            </Link>
+          </div>
+        </div>
+      </section>
+
 
 
 

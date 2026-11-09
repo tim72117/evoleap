@@ -1,0 +1,26 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; background: #eef1f5; color: #1f2933; }
+.canvas { padding: 60px 0; display: flex; justify-content: center; }
+.pc { position: relative; width: 760px; display: flex; gap: 32px; padding: 40px; background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(15, 23, 42, .08); }
+.pc .av { flex: none; width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(140deg, #f6a96b, #d9734e); color: #fff; font-size: 52px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.pc .tx { display: flex; flex-direction: column; gap: 8px; }
+.pc .nm { font-size: 36px; font-weight: 800; line-height: 1.2; }
+.pc .ti { font-size: 18px; color: #6b7785; }
+.pc .tags { display: flex; gap: 8px; margin-top: 8px; }
+.pc .tags span { padding: 4px 12px; border-radius: 999px; background: #fff1e6; color: #b45309; font-size: 14px; font-weight: 600; }
+.pc .acts { display: flex; gap: 12px; margin-top: 16px; }
+.pc .b1, .pc .b2 { font: inherit; font-size: 16px; font-weight: 700; padding: 12px 24px; border-radius: 12px; }
+.pc .b1 { background: #d9734e; color: #fff; border: 0; }
+.pc .b2 { background: #fff; color: #d9734e; border: 2px solid #d9734e; }
+.holder { position: relative; }
+.ann { display: none; position: absolute; padding: 3px 10px; border-radius: 6px; background: #e11d48; color: #fff; font-size: 14px; font-weight: 700; white-space: nowrap; }
+.canvas[data-spec="1"] .ann { display: block; }
+.canvas[data-spec="1"] .pc { outline: 2px dashed #e11d48; outline-offset: 0; }
+.a-pad { left: -8px; top: 52px; transform: translateX(-100%); }
+.a-gap { left: 166px; top: -16px; }
+.a-av { left: 40px; top: 172px; }
+.a-nm { left: 470px; top: 46px; }
+.a-ti { left: 520px; top: 98px; }
+.a-btn { left: 192px; top: 300px; }
+.a-w { left: 50%; bottom: -36px; transform: translateX(-50%); }
+.spec { position: absolute; top: 16px; right: 16px; font: inherit; font-size: 15px; font-weight: 700; padding: 8px 16px; border-radius: 10px; border: 2px solid #e11d48; background: #fff; color: #e11d48; }

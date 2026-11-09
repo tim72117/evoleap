@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>改壞了怎麼救</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="map" data-path="">
+  <div class="q q0">改壞了！這個錯誤<b>已經 commit 了嗎？</b></div>
+  <div class="split">
+    <div class="col">
+      <button id="no" class="ans a-no" type="button">還沒 commit</button>
+      <div class="res r-restore"><b>git restore</b><span>把檔案變回上次 commit 的樣子</span><small>只動還沒存的修改；紀錄完全不變</small></div>
+    </div>
+    <div class="col">
+      <button id="yes" class="ans a-yes" type="button">已經 commit</button>
+      <div class="q q1">別人已經拿到了嗎？<small>（推上 GitHub、合併、上線）</small></div>
+      <div class="split2">
+        <div class="col">
+          <button id="shared" class="ans a-shared" type="button">已經推上去</button>
+          <div class="res r-revert"><b>git revert</b><span>新增一個「反向」的 commit 抵銷它</span><small>舊紀錄還在，大家的紀錄都對得上（最安全）</small></div>
+        </div>
+        <div class="col">
+          <button id="local" class="ans a-local" type="button">只在自己電腦</button>
+          <div class="res r-reset warn"><b>git reset</b><span>把那個 commit 從紀錄裡拿掉</span><small>會<em>改寫紀錄</em>；推上去之後就不要用</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

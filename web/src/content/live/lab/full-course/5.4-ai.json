@@ -1,0 +1,136 @@
+{
+  "title": "手機版與響應式",
+  "lesson": "全環節 · 單元 5 · 5.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天讓 AI 自己抓跑版",
+    "line": "今天要請 AI 用手機、平板、桌機三種尺寸替你的網頁拍照，自己找出跑版的地方修好，再拍一次確認，直到三種尺寸都沒問題。"
+  },
+  "blocking": { "cast": ["claude", "page"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "三種尺寸都不跑版",
+        "folder": "~/projects/profile",
+        "branch": null,
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc5-4-v1", "width": "desktop", "url": "file:///projects/profile/index.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "手機版與響應式",
+      "eyebrow": "全環節 · 單元 5 · 5.4 用 AI 完成",
+      "sub": "三種尺寸截圖 → 找跑版 → 修 → 再截一次",
+      "chapter": "交代怎麼檢查",
+      "narration": "這一課，AI 要一輪一輪地拍照、找問題、修，直到三種尺寸都過關。"
+    },
+    { "show": "claude", "narration": "還是同一個介紹頁。這次我們不先自己找問題，交給 AI 去找。" },
+    {
+      "on": "claude",
+      "user": "請用手機（390）、平板（768）、桌機（1280）三種寬度替 index.html 截圖，自己看每一張有沒有跑版：內容被切掉、要左右滑、字太小、按鈕小到不好按。找到就修，修完三種再截一次，直到都沒問題。每一輪告訴我找到什麼、改了什麼。",
+      "narration": "把「跑版」講具體：被切掉、要左右滑、字太小、按鈕太小。也交代修完要重新截圖，三種都沒問題才算完成。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "todos": [
+        ["寫截圖小工具：一次拍三種寬度", "doing"],
+        ["看三張截圖，列出跑版的地方", "pending"],
+        ["修正，再拍一輪", "pending"],
+        ["三種寬度都沒問題才結束", "pending"]
+      ]
+    },
+    { "on": "claude", "tool": "Write", "arg": "shots.mjs", "result": "已建立", "narration": "它先寫了一個小工具，一次拍三種寬度，之後每一輪都能重複用。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node shots.mjs",
+      "result": "完成",
+      "out": "shot-phone.png    390 寬\nshot-tablet.png   768 寬\nshot-desktop.png  1280 寬",
+      "chapter": "第一輪：手機被切掉"
+    },
+    { "on": "claude", "tool": "Read", "arg": "shot-phone.png", "result": "內容 1000 寬，右邊被切掉" },
+    { "on": "claude", "tool": "Read", "arg": "shot-tablet.png", "result": "右邊也被切掉" },
+    { "on": "claude", "tool": "Read", "arg": "shot-desktop.png", "result": "正常" },
+    {
+      "on": "claude",
+      "say": "第一輪找到：\n1. 手機和平板：`.page` 寬度寫死 1000 像素，右邊被切掉，要左右滑\n2. 手機：導覽連結字 12 像素、彼此只隔 10 像素，手指不好按\n3. 手機：三張興趣卡片沒有換排法",
+      "narration": "它看完三張照片，列出三個問題。我們自己也確認一下。"
+    },
+    { "show": "page", "width": "phone", "narration": "手機寬度，確實右邊被切掉了。" },
+    { "callout": "page:viewport", "text": "AI 找到的問題 1：寬度寫死 1000", "narration": "和它說的一樣。" },
+    {
+      "on": "claude",
+      "edit": "styles.css",
+      "lines": [[3, "-", ".page { width: 1000px; margin: 0 auto; }"], [3, "+", ".page { max-width: 880px; margin: 0 auto; }"], [11, "-", ".nav a { padding: 3px 8px; font-size: 12px; }"], [11, "+", ".nav a { padding: 8px 16px; font-size: 15px; }"], [30, "+", "@media (max-width: 600px) {"], [31, "+", "  .cards { grid-template-columns: 1fr; }"], [32, "+", "  .nav a { padding: 12px 18px; }"], [33, "+", "}"]],
+      "narration": "它把寫死的 1000 改成「最寬 880」，導覽連結放大，手機寬度時卡片改成一欄。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node shots.mjs",
+      "result": "完成",
+      "out": "shot-phone.png    390 寬\nshot-tablet.png   768 寬\nshot-desktop.png  1280 寬",
+      "chapter": "第二輪：平板擠在一起"
+    },
+    { "on": "claude", "tool": "Read", "arg": "shot-phone.png", "result": "正常" },
+    { "on": "claude", "tool": "Read", "arg": "shot-tablet.png", "result": "卡片超出右邊 46 像素" },
+    {
+      "on": "claude",
+      "say": "第二輪：手機沒問題了。\n平板還有一個：三張卡片每張最少 250 像素，768 寬放不下，最右邊那張超出 46 像素。",
+      "narration": "手機修好了，可是平板冒出新問題。這就是為什麼三種尺寸都要拍：只修手機，平板不一定沒事。"
+    },
+    { "show": "page", "site": "fc5-4-v2" },
+    { "on": "page", "width": "tablet" },
+    { "on": "page", "scroll": "likes", "narration": "平板寬度，第三張卡片擠出去了。" },
+    {
+      "on": "claude",
+      "edit": "styles.css",
+      "lines": [[34, "+", "@media (min-width: 601px) and (max-width: 900px) {"], [35, "+", "  .cards { grid-template-columns: repeat(2, 1fr); }"], [36, "+", "}"]],
+      "narration": "它在 600 到 900 之間加一個斷點，平板改成兩欄。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node shots.mjs",
+      "result": "完成",
+      "out": "shot-phone.png    390 寬\nshot-tablet.png   768 寬\nshot-desktop.png  1280 寬",
+      "chapter": "第三輪：三種都過關"
+    },
+    { "on": "claude", "tool": "Read", "arg": "shot-tablet.png", "result": "正常，兩欄" },
+    {
+      "on": "claude",
+      "say": "第三輪：三種寬度都沒有被切掉、不用左右滑、字和按鈕大小正常。\n| 寬度 | 興趣卡片 | 結果 |\n| 手機 390 | 一欄 | ✓ |\n| 平板 768 | 兩欄 | ✓ |\n| 桌機 1280 | 三欄 | ✓ |",
+      "narration": "第三輪，三種都過了，它才說完成。"
+    },
+    { "show": "page", "site": "fc5-4-v3", "narration": "我們自己再拉一次寬度確認。" },
+    { "on": "page", "width": "phone" },
+    { "on": "page", "scroll": "likes", "narration": "手機，一欄。" },
+    { "on": "page", "width": "tablet", "narration": "平板，兩欄。" },
+    { "on": "page", "width": "desktop", "narration": "桌機，三欄。" },
+    { "hide": "page" },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 用手機、平板、桌機三種寬度替你的頁面截圖，自己找出跑版並修正，修完三種都再截一次。最後用你自己的手機真的打開一次，用手指點點看導覽和按鈕。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "三種尺寸都要拍\n修完再拍一次\n最後用真的手機點點看",
+      "eyebrow": "學會",
+      "sub": "修好手機，不代表平板沒事",
+      "chapter": "學會",
+      "narration": "三種尺寸都要拍，修完要再拍一次，因為修好手機，不代表平板沒事。最後用你自己的手機點點看。下一課，我們讓網頁每個人都能用，還能切換語言。"
+    }
+  ]
+}

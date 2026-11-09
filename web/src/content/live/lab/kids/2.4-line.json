@@ -1,0 +1,114 @@
+{
+  "title": "過關遊戲",
+  "lesson": "兒童網頁課 · 2.4 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt9-wear",
+      "props": {
+        "title": "寵物朋友",
+        "parts": [
+          {
+            "id": "h1",
+            "text": "我的寵物朋友"
+          },
+          {
+            "id": "cards"
+          }
+        ],
+        "look": {
+          "card": {
+            "pad": 1
+          },
+          "h1": {
+            "size": "m"
+          }
+        },
+        "tools": [
+          {
+            "part": "cards",
+            "prop": "dir"
+          },
+          {
+            "part": "cards",
+            "prop": "align"
+          }
+        ],
+        "ordered": true,
+        "goals": [
+          {
+            "id": "l1",
+            "label": "讓三張卡片並排",
+            "part": "cards",
+            "set": {
+              "dir": "row"
+            }
+          },
+          {
+            "id": "l2",
+            "label": "上下排，站在正中間",
+            "part": "cards",
+            "set": {
+              "dir": "column",
+              "align": "center"
+            }
+          },
+          {
+            "id": "l3",
+            "label": "並排，站到最右邊",
+            "part": "cards",
+            "set": {
+              "dir": "row",
+              "align": "end"
+            }
+          },
+          {
+            "id": "l4",
+            "label": "並排，站在正中間",
+            "part": "cards",
+            "set": {
+              "dir": "row",
+              "align": "center"
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "過關遊戲開始！看右下角的目標小圖，點衣櫃把卡片排成一樣的樣子。一共四關，一關比一關難。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "把卡片排成右下角目標小圖的樣子",
+    "body": "一共四關，有的關要按兩個按鈕",
+    "until": {
+      "count": "achieved",
+      "atLeast": 4
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "四關全部過關！你會用排法和對齊，讓卡片站到想要的地方了。"
+        }
+      ]
+    }
+  }
+}

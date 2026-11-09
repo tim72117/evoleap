@@ -1,0 +1,167 @@
+{
+  "title": "換你換一句話",
+  "lesson": "兒童網頁課 · 3.1 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "小狗的家",
+        "emoji": "🐶",
+        "note": "小狗旺旺最喜歡交朋友。",
+        "buttons": [
+          {
+            "id": "hi",
+            "text": "打招呼"
+          },
+          {
+            "id": "bye",
+            "text": "說再見"
+          }
+        ],
+        "rules": [
+          {
+            "id": "hi",
+            "when": "hi",
+            "do": [
+              {
+                "say": "你好！"
+              }
+            ]
+          }
+        ],
+        "drawer": [
+          {
+            "id": "woof",
+            "do": {
+              "say": "汪汪！"
+            }
+          },
+          {
+            "id": "morning",
+            "do": {
+              "say": "早安！"
+            }
+          },
+          {
+            "id": "friend",
+            "do": {
+              "say": "我們當朋友吧！"
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 40,
+          "y": 30,
+          "w": 1840,
+          "h": 900
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！積木盒裡有三句新的話。"
+    },
+    {
+      "snap": "woof",
+      "into": "hi",
+      "tap": true,
+      "narration": "先看我做一次：點一塊積木，它就會放進格子裡。"
+    },
+    {
+      "press": "hi",
+      "tap": true,
+      "narration": "再按打招呼，網頁就換一句話說了。"
+    },
+    {
+      "wait": 400,
+      "narration": "閃閃發亮的地方都可以點。讓網頁說三句不一樣的話吧！"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "換一塊積木，再按「打招呼」",
+    "body": "讓網頁說三句不一樣的話，集滿 3 顆星星",
+    "spots": [
+      {
+        "target": "kid:block:woof",
+        "id": "block:woof",
+        "label": "說「汪汪！」的積木",
+        "steps": [
+          {
+            "snap": "woof",
+            "into": "hi",
+            "narration": "放好了！按打招呼聽聽看。"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:morning",
+        "id": "block:morning",
+        "label": "說「早安！」的積木",
+        "steps": [
+          {
+            "snap": "morning",
+            "into": "hi",
+            "narration": "放好了！按打招呼聽聽看。"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:friend",
+        "id": "block:friend",
+        "label": "說「我們當朋友吧！」的積木",
+        "steps": [
+          {
+            "snap": "friend",
+            "into": "hi",
+            "narration": "放好了！按打招呼聽聽看。"
+          }
+        ]
+      },
+      {
+        "target": "kid:button:hi",
+        "id": "button:hi",
+        "label": "打招呼按鈕",
+        "steps": [
+          {
+            "press": "hi",
+            "narration": "網頁照著格子裡的積木說話了！"
+          }
+        ]
+      },
+      {
+        "target": "kid:button:bye",
+        "id": "button:bye",
+        "label": "說再見按鈕",
+        "steps": [
+          {
+            "press": "bye",
+            "narration": "說再見還沒有魔法積木，所以沒反應喔。"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "said",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 400,
+          "narration": "你讓網頁說了好幾句話！換掉發生的事，網頁就做新的事。你好棒！"
+        }
+      ]
+    }
+  }
+}

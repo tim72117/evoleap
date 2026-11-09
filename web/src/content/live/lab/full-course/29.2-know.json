@@ -1,0 +1,114 @@
+{
+  "title": "先亮紅燈，再修到綠燈",
+  "lesson": "全環節 · 單元 29 · 29.2 基礎知識",
+  "teacher": {
+    "say": "今天認識「先寫測試」",
+    "line": "這一課要認識一個很老、但跟 AI 特別合的做法：先寫測試，再改程式。我們從一則客人的訊息開始。"
+  },
+  "camera": "auto",
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "小森烘焙" },
+      "place": { "x": 680, "y": 110, "w": 560, "h": 860 },
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": { "project": "bakery", "files": { "shipping.js": "export function shipping(total) {\n  return 60\n}\n" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc29-2-cycle", "url": "https://notes.example/red-green" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "先亮紅燈，再修到綠燈",
+      "eyebrow": "全環節 · 單元 29 · 29.2 基礎知識",
+      "sub": "先寫測試再改",
+      "chapter": "客人的訊息",
+      "narration": "網站上線幾天後，你收到一則訊息。"
+    },
+    { "show": "phone" },
+    { "on": "phone", "receive": "我買了 1200 元，網站寫滿 1000 免運，怎麼還收我 60？", "from": "客人" },
+    {
+      "on": "phone",
+      "reply": "不好意思！我馬上請人修",
+      "narration": "你請 AI 修好。可是修完以後，你要怎麼確定真的修好了？而且下次別人改程式，會不會又壞掉？"
+    },
+    { "hide": "phone" },
+    {
+      "show": "code",
+      "chapter": "測試長什麼樣子",
+      "narration": "先看看運費的程式。不管買多少，都回 60，問題就在這裡。"
+    },
+    {
+      "on": "code",
+      "open": "shipping.test.js",
+      "narration": "我們開一個新檔案，寫一個測試。測試，就是一段幫你檢查程式的程式。"
+    },
+    {
+      "on": "code",
+      "type": "test('滿 1000 免運', () => {\n  expect(shipping(1200)).toBe(0)\n})\n",
+      "narration": "讀起來像一句話：買 1200 元，運費應該是 0。"
+    },
+    {
+      "callout": "code:code",
+      "text": "測試＝「輸入什麼，應該得到什麼」",
+      "narration": "你不用會寫，只要看得懂這句：輸入什麼，應該得到什麼。寫測試這件事，交給 AI。"
+    },
+    { "hide": "code" },
+    {
+      "show": "web",
+      "chapter": "紅燈、改、綠燈",
+      "narration": "重點在順序。我們一格一格看。"
+    },
+    { "on": "web", "click": "#n1", "narration": "第一格：先寫測試，還不改程式。" },
+    {
+      "on": "web",
+      "click": "#n2",
+      "narration": "第二格：跑測試，它應該失敗，亮紅燈。拿到 60，不是 0。這個紅燈是好消息：證明測試真的抓得到問題。"
+    },
+    { "on": "web", "click": "#n3", "narration": "第三格：才去改程式，滿 1000 運費就是 0。" },
+    {
+      "on": "web",
+      "click": "#n4",
+      "narration": "第四格：再跑一次，變綠燈。連以前的測試也一起跑，全部都綠，代表沒改壞別的地方。"
+    },
+    {
+      "callout": "web:sel:.why",
+      "text": "紅燈抓得到、綠燈修好了、以後會守著",
+      "narration": "紅燈證明測試有用，綠燈證明修好了。而且這個測試會一直留著，以後誰改壞了，它就再亮紅燈。"
+    },
+    {
+      "on": "web",
+      "click": "#fake",
+      "chapter": "為什麼一定要先紅",
+      "narration": "那如果一開始就是綠燈呢？就像沒裝電池的煙霧偵測器，永遠很安靜，不代表沒有火。"
+    },
+    { "hide": "web" },
+    {
+      "stream": "AI 改錯的時候，你常常看不出來；\n但測試看得出來。\n先亮紅燈，等於先架好一個警報器，\nAI 一改錯，警報馬上響。",
+      "prompt": "為什麼這招跟 AI 特別合？",
+      "narration": "為什麼這招跟 AI 特別合？因為 AI 改錯的時候，你常常看不出來，但測試看得出來。先架好警報器，AI 一改錯，馬上就響。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "猜猜看",
+      "body": "AI 寫好測試，第一次跑就全部通過，還沒改任何程式。這代表什麼？你會怎麼跟 AI 說？",
+      "narration": "想想看：AI 寫好測試，第一次跑就通過了，可是它還沒改任何程式。這代表什麼？"
+    },
+    {
+      "card": "先紅才算數",
+      "eyebrow": "答案",
+      "sub": "測試可能沒測到問題：請 AI 先確認它會失敗，再開始改",
+      "narration": "這代表測試可能根本沒測到問題。請 AI 先改到它會失敗，再開始修。下一堂，我們就請 AI 照這個順序修好運費。"
+    }
+  ]
+}

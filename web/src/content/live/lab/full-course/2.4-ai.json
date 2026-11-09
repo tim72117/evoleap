@@ -1,0 +1,156 @@
+{
+  "title": "套件管理器：一行指令裝好工具",
+  "camera": "auto",
+  "teacher": {
+    "say": "每個指令先說明再執行",
+    "line": "這一堂請 AI 用套件管理器幫你裝好 git、gh 和 tree。規則是：每個指令先用一句話說明，再執行；要電腦密碼的步驟，你自己來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "安裝開發工具", "folder": "~/projects", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~", "title": "你自己的終端機" },
+      "place": { "x": 200, "y": 140, "w": 1520, "h": 760 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 裝工具：先說明，再執行",
+      "eyebrow": "全環節 · 單元 2 · 2.4 用 AI 完成",
+      "sub": "git · gh · tree，最後交出工具清單",
+      "chapter": "交代規則",
+      "narration": "AI 會執行很多指令。這次我們加一條規則：每個指令先說明在做什麼，你看懂了再允許。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我用套件管理器安裝 git、gh、tree。每個指令執行前，先用一句話說明它在做什麼。需要電腦密碼的步驟告訴我，我自己來。最後把已安裝的工具和版本寫成 TOOLS.md。"
+    },
+    {
+      "on": "claude",
+      "say": "**說明**：先查這台電腦有沒有 Homebrew（Mac 的套件管理器）。這個指令只是查版本，不會改東西。",
+      "narration": "第一個指令之前，它先說明：只是查一下有沒有 Homebrew。"
+    },
+    { "on": "claude", "ask": "brew --version", "where": "~/projects", "select": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "brew --version",
+      "result": "還沒安裝",
+      "out": "zsh: command not found: brew"
+    },
+    {
+      "on": "claude",
+      "say": "還沒有 Homebrew。安裝它需要電腦密碼，所以請你在**自己的終端機**貼上官方網站的這一行：\n`/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"`\n**說明**：下載 Homebrew 官方的安裝程式並執行。途中會問你密碼、按 Enter 確認。",
+      "chapter": "要密碼的那一步",
+      "narration": "還沒有 Homebrew。安裝它要輸入電腦密碼，所以 AI 把官方的指令交給你，並說明它會做什麼。"
+    },
+    { "hide": "claude" },
+    { "show": "term" },
+    {
+      "on": "term",
+      "type": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"",
+      "cps": 30,
+      "out": "==> Checking for `sudo` access (which may request your password)..."
+    },
+    {
+      "on": "term",
+      "secret": "Password:",
+      "narration": "密碼你自己輸入，畫面上不會顯示。"
+    },
+    {
+      "on": "term",
+      "print": "==> Installation successful!\n==> Next steps:\n- Run these commands in your terminal to add Homebrew to your PATH:\n    echo 'eval \"$(/opt/homebrew/bin/brew shellenv)\"' >> ~/.zprofile",
+      "narration": "裝好了。最後它說：還要把 Homebrew 加進 PATH。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "下一步：把 brew 加進 PATH",
+      "narration": "這一步不需要密碼，可以交回給 AI。把這段畫面複製給它。"
+    },
+    { "hide": "term" },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "裝好了，它最後說要把 Homebrew 加到 PATH（貼上訊息）。"
+    },
+    {
+      "on": "claude",
+      "say": "**說明**：在 `~/.zprofile` 最後加一行設定，讓之後打開的終端機都找得到 brew；再讀一次設定、確認版本。",
+      "chapter": "一個一個裝"
+    },
+    {
+      "on": "claude",
+      "ask": "echo 'eval \"$(/opt/homebrew/bin/brew shellenv)\"' >> ~/.zprofile && eval \"$(/opt/homebrew/bin/brew shellenv)\" && brew --version",
+      "where": "~",
+      "narration": "注意兩個大於符號：意思是加在檔案最後面，不會蓋掉原本的內容。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "brew --version",
+      "out": "Homebrew 4.6.20"
+    },
+    {
+      "on": "claude",
+      "say": "**說明**：用 brew 一次安裝三個工具：git（版本控制）、gh（在終端機操作 GitHub）、tree（把資料夾畫成樹）。"
+    },
+    { "on": "claude", "ask": "brew install git gh tree", "where": "~/projects" },
+    {
+      "callout": "claude:ask",
+      "text": "先看說明，看懂了再允許",
+      "narration": "說明在上面，指令在這裡，兩邊對得起來，就可以允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "brew install git gh tree",
+      "out": "==> Pouring git--2.51.2.arm64_sequoia.bottle.tar.gz\n🍺  /opt/homebrew/Cellar/git/2.51.2\n==> Pouring gh--2.82.1.arm64_sequoia.bottle.tar.gz\n🍺  /opt/homebrew/Cellar/gh/2.82.1\n==> Pouring tree--2.2.1.arm64_sequoia.bottle.tar.gz\n🍺  /opt/homebrew/Cellar/tree/2.2.1"
+    },
+    {
+      "on": "claude",
+      "say": "**說明**：列出 brew 裝過的工具和版本，用來寫清單。",
+      "chapter": "交出清單"
+    },
+    {
+      "on": "claude",
+      "ask": "brew list --versions",
+      "where": "~/projects",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "brew list --versions",
+      "out": "gh 2.82.1\ngit 2.51.2\ntree 2.2.1"
+    },
+    {
+      "on": "claude",
+      "edit": "TOOLS.md",
+      "lines": [[1, "+", "# 已安裝的工具"], [2, "+", "| 工具 | 版本 | 用途 |"], [3, "+", "|---|---|---|"], [4, "+", "| Homebrew | 4.6.20 | Mac 的套件管理器 |"], [5, "+", "| git | 2.51.2 | 版本控制 |"], [6, "+", "| gh | 2.82.1 | 在終端機操作 GitHub |"], [7, "+", "| tree | 2.2.1 | 把資料夾畫成樹 |"], [8, "+", ""], [9, "+", "更新全部：brew upgrade"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 三個工具都裝好了，清單在 `TOOLS.md`。要更新時打 `brew upgrade`。",
+      "narration": "完成了。每個指令你都看過說明，要密碼的那一步是你自己輸入的。"
+    },
+    {
+      "checkpoint": "換你：請 AI 用套件管理器裝工具",
+      "body": "說清楚要裝哪些工具、每個指令先說明再執行、要密碼的步驟你自己來、最後交出 TOOLS.md。Windows 請它用 winget，例如 winget install Git.Git、winget install GitHub.cli。"
+    },
+    {
+      "card": "已安裝工具的清單 ✓",
+      "eyebrow": "2.4 完成",
+      "sub": "單元 2 完成：你的電腦準備好了",
+      "narration": "工具清單有了，單元二完成。下一個單元，我們準備編輯器、Git 和各種帳號。"
+    }
+  ]
+}

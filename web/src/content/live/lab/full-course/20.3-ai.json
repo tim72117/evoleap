@@ -1,0 +1,160 @@
+{
+  "title": "CHANGELOG 與版號",
+  "lesson": "全環節 · 單元 20 · 20.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做一個發版技能",
+    "line": "發版每次都是同樣幾步：看改了什麼、決定版號、寫 CHANGELOG、打標籤。這一課先請 AI 把這套流程寫成技能，之後你只要說「發版」。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "寫發版技能",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": {
+        "tree": { "shop": { ".claude": { "skills": { "release": {} } }, "src": {}, "CHANGELOG.md": "", "package.json": "" } },
+        "open": "shop/.claude/skills/release"
+      },
+      "place": "right",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "CHANGELOG 與版號",
+      "eyebrow": "全環節 · 單元 20 · 20.3 用 AI 完成",
+      "sub": "先做工具：一個發版技能 · 再用它發一次版",
+      "narration": "這次分兩段：先請 AI 做一個工具，也就是技能；再用這個技能真的發一次版。"
+    },
+    {
+      "show": "claude",
+      "chapter": "第一段：把流程寫成技能",
+      "narration": "技能，是一份寫給 AI 的步驟說明。你說到某個關鍵字，它就翻出來照做。"
+    },
+    {
+      "on": "claude",
+      "user": "把我們的發版流程寫成技能。我說「發版」時：讀上一個標籤到現在的差異、依語意化版號決定新版號、寫 CHANGELOG、先問我確認，才打標籤推送。",
+      "narration": "我們把發版的每一步，和「打標籤前要先問我」這個規矩，一起說清楚。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "Bash", "arg": "git tag --sort=-v:refname | head -3", "result": "v1.0.2 v1.0.1 v1.0.0" },
+    { "on": "claude", "tool": "Read", "arg": "CHANGELOG.md", "result": "分成 新增／修正／破壞性變更", "narration": "它先看現有的標籤和 CHANGELOG 的寫法，讓技能照你專案原本的格式。" },
+    {
+      "on": "claude",
+      "edit": ".claude/skills/release/SKILL.md",
+      "lines": [
+        [1, "+", "description: 使用者說「發版」時使用"],
+        [2, "+", "1. 找最新的標籤，列出之後的每個 commit"],
+        [3, "+", "2. 分類：新增／修正／破壞性變更"],
+        [4, "+", "3. 有破壞性變更→主版號；有新增→次版號；只有修正→修訂號"],
+        [5, "+", "4. 在 CHANGELOG.md 最上面寫這一版"],
+        [6, "+", "5. 給使用者看版號與 CHANGELOG，等確認"],
+        [7, "+", "6. 確認後才 git tag 並推送，看部署結果"]
+      ],
+      "narration": "技能寫好了。每一步都寫得很具體：怎麼分類、怎麼決定版號、哪一步要停下來等你。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "第 5 步：先給你看、等你確認。這是你的關卡",
+      "narration": "第五步是你的關卡。版號決定了，CHANGELOG 寫好了，但要你看過說好，它才打標籤。"
+    },
+    {
+      "show": "files",
+      "create": "SKILL.md",
+      "narration": "技能就是專案裡的一個檔案，放在點 claude 的 skills 資料夾裡，跟著專案一起保存。"
+    },
+    { "hide": "files" },
+    {
+      "on": "claude",
+      "newSession": "發版",
+      "chapter": "第二段：說「發版」",
+      "narration": "接著開一個全新的對話。新的對話不記得剛才聊過什麼，正好用來確認：技能自己就能讓它知道怎麼做。"
+    },
+    {
+      "on": "claude",
+      "user": "發版",
+      "narration": "只說兩個字：發版。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": ".claude/skills/release/SKILL.md",
+      "result": "照發版技能的 6 個步驟",
+      "narration": "它找到發版技能，照著做。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log v1.0.2..HEAD --oneline",
+      "result": "4 個 commit",
+      "out": "a1c 新增宅配選項\n9be 修正結帳金額小數點\n77d 修正手機版選單\n3f0 更新相依套件"
+    },
+    {
+      "on": "claude",
+      "say": "上次發版 `v1.0.2` 之後有 4 個改變：\n\n**新增**：宅配選項\n**修正**：結帳金額小數點、手機版選單\n**破壞性變更**：沒有\n\n有新功能、沒有破壞性變更，所以新版號是 **v1.1.0**。",
+      "narration": "它分好類：一個新功能、兩個修正，沒有破壞性變更。所以跳次版號，是 v1.1.0。"
+    },
+    {
+      "on": "claude",
+      "edit": "CHANGELOG.md",
+      "lines": [
+        [1, "+", "## 1.1.0（2026-11-09）"],
+        [2, "+", "### 新增"],
+        [3, "+", "- 結帳可以選宅配"],
+        [4, "+", "### 修正"],
+        [5, "+", "- 結帳金額的小數點"],
+        [6, "+", "- 手機版選單點不開"],
+        [7, " ", "## 1.0.2（2026-11-02）"]
+      ],
+      "narration": "CHANGELOG 寫在最上面，用客人看得懂的話，不是照抄 commit。"
+    },
+    {
+      "on": "claude",
+      "ask": "git commit -am \"release: v1.1.0\" && git tag v1.1.0 && git push origin main v1.1.0",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "版號 v1.1.0 與 CHANGELOG 確認後，打標籤並推送（會觸發部署）",
+      "chapter": "你確認，它才打標籤",
+      "narration": "照技能的第五步，它停下來等你。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "檢查：版號對嗎？CHANGELOG 有沒有漏、有沒有寫錯？",
+      "narration": "看兩件事：版號對不對，CHANGELOG 有沒有漏、有沒有寫錯。都沒問題，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh run watch",
+      "result": "✓ test ✓ deploy",
+      "narration": "推送後它也照技能最後一步，看部署結果。"
+    },
+    {
+      "on": "claude",
+      "say": "已發布 **v1.1.0**：CHANGELOG 已更新，標籤已推送，部署成功。",
+      "narration": "完成。以後每次發版，都是同一套步驟，不會這次記得寫 CHANGELOG、下次忘了。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 把你的發版流程寫成技能，記得寫上「打標籤前先給我看、等我確認」。開一個新的對話說「發版」，看它是不是照步驟做。",
+      "narration": "換你做做看。寫好技能後，記得開新對話測試，確認它真的照步驟走。"
+    },
+    {
+      "card": "一個固定流程的發版技能",
+      "eyebrow": "這一課的成果",
+      "sub": "說「發版」：讀差異 → 決定版號 → 寫 CHANGELOG → 你確認 → 打標籤",
+      "narration": "這一課的成果是一個發版技能。下一課，我們來演練萬一新版上線後出問題，怎麼快速退回上一版。"
+    }
+  ]
+}

@@ -1,0 +1,236 @@
+{
+  "title": "sitemap、robots.txt 與 404",
+  "lesson": "全環節 · 單元 25 · 25.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "做好，還要不會壞",
+    "line": "今天請 AI 產生 sitemap、robots.txt 和 404 頁，再請它寫測試。這樣以後誰改了網站，壞掉的那一刻就會被抓出來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "sitemap 與 404",
+        "folder": "~/projects/komori-bakery",
+        "branch": null,
+        "mode": "accept",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "card": "sitemap、robots.txt 與 404",
+      "eyebrow": "全環節 · 單元 25 · 25.2 用 AI 完成",
+      "sub": "產生檔案，再寫測試鎖住",
+      "chapter": "先想一個三個月後的場面",
+      "narration": "先想像三個月後：你請 AI 加了一個新功能，順手把 404 頁改成自動跳回首頁。畫面看起來沒問題，搜尋引擎卻開始把一堆不存在的網址收進去。"
+    },
+    {
+      "card": "測試 = 一份自動跑的檢查清單",
+      "eyebrow": "所以這次多做一件事",
+      "sub": "每次改完網站跑一次，壞了馬上知道",
+      "narration": "所以這一次，除了產生檔案，還要請 AI 寫測試。測試就是一份會自己跑的檢查清單，每次改完網站跑一次，壞掉了馬上知道。"
+    },
+    {
+      "show": "claude",
+      "chapter": "一次交代清楚"
+    },
+    {
+      "on": "claude",
+      "user": "幫網站加上：1. robots.txt，擋住 /admin，並指向 sitemap；2. sitemap.xml，從頁面清單自動產生，新增頁面不用手動改；3. /cart 加 noindex；4. 找不到的網址顯示 404 頁，而且狀態碼要真的是 404。再寫測試檢查這四件事，跑給我看。",
+      "narration": "一次說清楚四件事，最後一句最重要：寫測試，跑給我看。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "edit": "public/robots.txt",
+      "lines": [
+        [
+          1,
+          "+",
+          "User-agent: *"
+        ],
+        [
+          2,
+          "+",
+          "Disallow: /admin"
+        ],
+        [
+          3,
+          "+",
+          "Sitemap: https://komori-bakery.example/sitemap.xml"
+        ]
+      ],
+      "narration": "robots.txt 只有三行：對所有機器人，不要進 admin，網站地圖在這裡。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/sitemap.mjs",
+      "lines": [
+        [
+          1,
+          "+",
+          "import { pages } from '../src/pages.js'"
+        ],
+        [
+          2,
+          "+",
+          "const urls = pages.filter((p) => !p.noindex)"
+        ],
+        [
+          3,
+          "+",
+          "  .map((p) => `<url><loc>https://komori-bakery.example${p.path}</loc></url>`)"
+        ],
+        [
+          4,
+          "+",
+          "writeFile('dist/sitemap.xml', wrap(urls))"
+        ]
+      ],
+      "narration": "sitemap 不是手寫的，而是從頁面清單自動產生，還會跳過寫了 noindex 的頁面。以後加新頁，不用記得改它。"
+    },
+    {
+      "on": "claude",
+      "edit": "server.js",
+      "lines": [
+        [
+          30,
+          " ",
+          "app.use((req, res) => {"
+        ],
+        [
+          31,
+          "-",
+          "  res.sendFile('404.html')"
+        ],
+        [
+          31,
+          "+",
+          "  res.status(404).sendFile('404.html')"
+        ],
+        [
+          32,
+          " ",
+          "})"
+        ]
+      ],
+      "narration": "這一行最關鍵。原本雖然顯示 404 頁，狀態碼卻是 200，就是上一堂說的假的 404。它把狀態碼改成真的 404。"
+    },
+    {
+      "on": "claude",
+      "edit": "tests/seo.test.js",
+      "lines": [
+        [
+          1,
+          "+",
+          "test('不存在的網址回 404', async () => expect((await get('/nope')).status).toBe(404))"
+        ],
+        [
+          2,
+          "+",
+          "test('sitemap 的每一頁都回 200', async () => { for (const u of await sitemapUrls()) expect((await get(u)).status).toBe(200) })"
+        ],
+        [
+          3,
+          "+",
+          "test('/cart 有 noindex，且不在 sitemap', …)"
+        ],
+        [
+          4,
+          "+",
+          "test('robots.txt 擋住 /admin 並指向 sitemap', …)"
+        ]
+      ],
+      "chapter": "測試長什麼樣",
+      "narration": "這是它寫的測試，每一行就是一句檢查：不存在的網址要回 404，sitemap 裡每一頁都要找得到，購物車要有 noindex，robots 要擋住後台。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- seo",
+      "result": "4 通過",
+      "out": "✓ 不存在的網址回 404\n✓ sitemap 的每一頁都回 200（4 頁）\n✓ /cart 有 noindex，且不在 sitemap\n✓ robots.txt 擋住 /admin 並指向 sitemap\n\nTests  4 passed",
+      "narration": "跑一次，四個都通過。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -sI localhost:4321/nope | head -1",
+      "result": "完成",
+      "out": "HTTP/1.1 404 Not Found",
+      "narration": "它還用 curl 親自要一個不存在的網址，第一行就寫著 404 Not Found。"
+    },
+    {
+      "on": "claude",
+      "say": "四件事都完成，測試 4 個通過。以後每次改網站，執行 `npm test` 就會重新檢查。",
+      "chapter": "三個月後：測試抓到了"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "whip": "left",
+      "narration": "時間快轉到三個月後。"
+    },
+    {
+      "reveal": true
+    },
+    {
+      "show": "claude",
+      "narration": "你請 AI 把 404 頁改成自動跳回首頁，覺得對訪客比較友善。"
+    },
+    {
+      "on": "claude",
+      "newSession": "找不到頁面改跳首頁"
+    },
+    {
+      "on": "claude",
+      "user": "找不到的網址直接跳回首頁就好"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- seo",
+      "result": "1 失敗",
+      "out": "✗ 不存在的網址回 404\n  Expected: 404\n  Received: 302（轉址到 /）\n\nTests  1 failed, 3 passed",
+      "narration": "改完一跑測試，第一條紅了。不存在的網址變成跳轉，不再是 404。"
+    },
+    {
+      "on": "claude",
+      "say": "這樣改會讓搜尋引擎以為舊網址都還在，把首頁重複收錄很多次。建議保留 404 狀態碼，在 404 頁上放「回首頁」和熱門商品的連結，訪客一樣很方便。要照這樣改嗎？",
+      "narration": "AI 看到測試失敗，說明了為什麼不該這樣改，並提出一個兩全的做法。這就是測試的價值：它記得當初為什麼這樣做。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 為你的網站產生 robots.txt、sitemap.xml、404 頁，並寫測試跑給你看。再試著請它把 404 改成跳回首頁，看測試會不會攔下來。"
+    },
+    {
+      "card": "sitemap 從頁面清單自動產生\n404 頁的狀態碼要是真的 404\n寫成測試，之後改壞會被抓到",
+      "eyebrow": "學會",
+      "sub": "做完不只看畫面，要看狀態碼",
+      "chapter": "學會",
+      "narration": "sitemap 自動產生，404 要回真的 404，最後寫成測試。做完不只看畫面，還要看狀態碼。"
+    }
+  ]
+}

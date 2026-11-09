@@ -1,0 +1,147 @@
+{
+  "title": "改壞了怎麼救：還原與撤銷",
+  "lesson": "全環節 · 單元 6 · 6.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天故意改壞再救回來",
+    "line": "今天要故意把網頁改壞兩次：一次還沒 commit，一次已經推上去了。每次都先請 AI 說明影響範圍，再請它救回來。"
+  },
+  "blocking": { "cast": ["claude", "git", "page"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "救回來",
+        "folder": "~/projects/profile",
+        "branch": "main",
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "git": {
+      "actor": "fc2-git",
+      "props": { "commits": ["建立介紹頁", "加上作品集區塊", "打招呼按鈕顯示次數"] },
+      "place": "window",
+      "hidden": true
+    },
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc5-1-full", "width": "desktop", "url": "file:///projects/profile/index.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "改壞了怎麼救",
+      "eyebrow": "全環節 · 單元 6 · 6.3 用 AI 完成",
+      "sub": "故意改壞 → 請 AI 先說明影響範圍 → 確認後再救",
+      "chapter": "第一次：還沒 commit 就改壞",
+      "narration": "在練習用的專案裡故意改壞，比真的出事時才第一次學好得多。"
+    },
+    { "show": "page", "narration": "這是現在正常的介紹頁。" },
+    {
+      "on": "git",
+      "change": "styles.css",
+      "narration": "我們打開 styles.css，把裡面一大段刪掉、存檔。這個修改還沒 commit。"
+    },
+    { "show": "page", "site": "fc5-1-raw", "narration": "重新整理，樣式全沒了，只剩黑白的字。" },
+    {
+      "show": "claude",
+      "narration": "先不要自己亂救。把狀況告訴 AI，而且先不要讓它動手。"
+    },
+    {
+      "on": "claude",
+      "user": "我把 styles.css 改壞了，網頁變成沒有樣式。先不要動手，告訴我：改了哪些地方、影響範圍、你打算怎麼救、救了會不會丟掉什麼。",
+      "narration": "四個問題：改了什麼、影響多大、怎麼救、救了會丟掉什麼。最後一個最容易被忘記。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    { "on": "claude", "tool": "Bash", "arg": "git status --short", "result": "1 個檔案", "out": " M styles.css" },
+    { "on": "claude", "tool": "Bash", "arg": "git diff --stat", "result": "刪了 58 行", "out": " styles.css | 58 ---------------------------\n 1 file changed, 58 deletions(-)" },
+    {
+      "on": "claude",
+      "say": "**改了什麼**：`styles.css` 刪了 58 行，幾乎是全部的樣式。\n**影響範圍**：只有這個檔案；其他檔案和 commit 紀錄都沒動。\n**打算怎麼救**：`git restore styles.css`，變回最後一次 commit 的樣子。\n**會丟掉什麼**：這個檔案在上次 commit 之後的所有修改。你在刪之前沒有其他想留的修改吧？",
+      "chapter": "AI 先說明影響範圍",
+      "narration": "它說清楚了：只有一個檔案受影響，用 restore 救，代價是這個檔案上次 commit 之後的修改都會丟掉。還反問你有沒有想留的東西。"
+    },
+    { "on": "claude", "user": "沒有，救回來。" },
+    {
+      "on": "claude",
+      "ask": "git restore styles.css",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "把 styles.css 變回最後一次 commit 的樣子"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "git", "restore": "styles.css", "narration": "styles.css 從工作區消失，回到上次存檔的樣子。" },
+    { "on": "claude", "tool": "Bash", "arg": "git restore styles.css && git status --short", "result": "沒有變更", "out": "" },
+    { "show": "page", "site": "fc5-1-full", "narration": "重新整理，樣式回來了。第一次救援成功。" },
+    {
+      "on": "git",
+      "change": "script.js",
+      "chapter": "第二次：已經推上去才發現",
+      "narration": "第二次難一點。你請 AI 整理 script.js，"
+    },
+    { "on": "git", "add": "script.js" },
+    { "on": "git", "commit": "整理 script.js", "narration": "commit，而且已經推上 GitHub 了。" },
+    { "show": "page", "site": "fc5-1-styled" },
+    { "on": "page", "scroll": "hello" },
+    { "on": "page", "click": "#hi", "narration": "隔天才發現，打招呼的按鈕按了沒反應。" },
+    {
+      "on": "claude",
+      "user": "打招呼按鈕壞了。最近一個 commit「整理 script.js」已經推上 GitHub。先說明那個 commit 改了什麼、影響範圍，還有你打算怎麼救。不要用會改寫紀錄的方法。",
+      "narration": "這次多交代一句：已經推上去了，不要用會改寫紀錄的方法。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git show --stat HEAD",
+      "result": "1 個檔案",
+      "out": "commit 5e81d3a  整理 script.js\n script.js | 12 ++----------\n 1 file changed, 2 insertions(+), 10 deletions(-)"
+    },
+    {
+      "on": "claude",
+      "say": "**那個 commit 改了什麼**：`script.js` 刪了 10 行，其中包含 `btn.addEventListener('click', …)`，所以按鈕不會反應了。\n**影響範圍**：只有 `script.js`；之前的 commit 沒受影響。\n**打算怎麼救**：`git revert HEAD`，新增一個反向的 commit 把那 10 行加回來，再推上去。紀錄只會往後加，不會改寫。",
+      "chapter": "已經推上去：用 revert",
+      "narration": "它找到原因：整理的時候把「等按鈕被按」那段刪掉了。因為已經推上去，它選 revert，新增一個反向 commit，不改寫紀錄。"
+    },
+    { "on": "claude", "user": "好，用 revert。" },
+    {
+      "on": "claude",
+      "ask": "git revert --no-edit HEAD",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "新增一個 commit，抵銷「整理 script.js」"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "git", "revert": "整理 script.js", "narration": "紀錄多了一個還原的 commit，原本那個還在。" },
+    { "on": "claude", "tool": "Bash", "arg": "git revert --no-edit HEAD", "result": "完成", "out": "[main 9c04b7e] Revert \"整理 script.js\"\n 1 file changed, 10 insertions(+), 2 deletions(-)" },
+    { "on": "claude", "ask": "git push", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "note": "把還原的 commit 推上 GitHub", "select": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "git push", "result": "完成", "out": "To github.com:lin/profile.git\n   5e81d3a..9c04b7e  main -> main" },
+    { "show": "page", "site": "fc5-1-full" },
+    { "on": "page", "scroll": "hello" },
+    { "on": "page", "click": "#hi", "narration": "按鈕又會動了。第二次救援也成功。" },
+    {
+      "on": "claude",
+      "say": "兩次都救回來了：\n1. 還沒 commit 的 `styles.css` → `git restore`\n2. 已經推上去的「整理 script.js」→ `git revert`，紀錄沒有被改寫",
+      "chapter": "回顧",
+      "narration": "回顧一下：還沒 commit 用 restore，已經推上去用 revert。"
+    },
+    { "show": "git", "narration": "紀錄上看得一清二楚：整理、然後還原，什麼都沒消失。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "在練習用的專案裡：1. 改壞一個檔案但不要 commit，請 AI「先說明改了什麼、影響範圍、打算怎麼救、會丟掉什麼」，再請它救回來。2. 改壞後 commit，請 AI 說明那個 commit 的影響，用不改寫紀錄的方法救回來。各救回一次後按「完成了，繼續」。"
+    },
+    {
+      "card": "先請 AI 說明，再讓它救\n問清楚「會丟掉什麼」\n推上去的用 revert",
+      "eyebrow": "學會",
+      "sub": "不要讓 AI 用 reset --hard 或 push --force，除非你很清楚後果",
+      "chapter": "學會",
+      "narration": "出事時先請 AI 說明影響範圍，問清楚會丟掉什麼，再讓它動手；已經推上去的，用 revert。下一課，我們學分支和 Pull Request。"
+    }
+  ]
+}

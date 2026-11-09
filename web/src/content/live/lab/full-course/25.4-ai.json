@@ -1,0 +1,217 @@
+{
+  "title": "Google Search Console",
+  "lesson": "全環節 · 單元 25 · 25.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "驗證網站，再讀報表",
+    "line": "今天把網站加進搜尋主控台。網域商和主控台的網頁由你操作，AI 負責給你要填的內容、用指令確認生效，最後幫你讀懂報表。"
+  },
+  "blocking": {
+    "cast": [
+      "claude",
+      "dns",
+      "gsc"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "搜尋主控台驗證",
+        "folder": "~/projects/komori-bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "dns": {
+      "actor": "browser",
+      "props": {
+        "site": "fc25-4-dns",
+        "width": "desktop",
+        "url": "https://registrar.example/domains/komori-bakery.example/dns"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "gsc": {
+      "actor": "browser",
+      "props": {
+        "site": "fc25-4-console",
+        "width": "desktop",
+        "url": "https://search-console.example/"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "Google Search Console",
+      "eyebrow": "全環節 · 單元 25 · 25.4 用 AI 完成",
+      "sub": "你操作網頁，AI 給內容、驗證生效、解讀報表",
+      "chapter": "拿到驗證碼",
+      "narration": "這一堂有兩段：先驗證網站，幾天後再讀報表。"
+    },
+    {
+      "card": "主控台選「網域」驗證，複製它給的 TXT 紀錄",
+      "eyebrow": "你自己來",
+      "sub": "登入帳號、新增資源都在主控台的網頁上做",
+      "narration": "登入主控台、新增網站，是你自己在網頁上做的。選網域驗證，它會給你一串驗證碼。把它貼給 AI，請它告訴你怎麼填。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "搜尋主控台給我這串驗證碼：site-verification=k7Qm2xR9aLw4。我的網域在 registrar.example，請告訴我 DNS 要怎麼填，填好後幫我確認有沒有生效。",
+      "narration": "把驗證碼和網域商告訴它。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "say": "請在網域商的 DNS 設定新增一筆紀錄：\n- 類型：`TXT`\n- 名稱：`@`（代表網域本身）\n- 內容：`site-verification=k7Qm2xR9aLw4`\n\n儲存後跟我說，我用 `dig` 查有沒有生效。原本的 A、CNAME 紀錄不要動。",
+      "narration": "它給出三個欄位要填什麼，還提醒你不要動到原本的紀錄。"
+    },
+    {
+      "show": "dns",
+      "chapter": "你去網域商填 TXT",
+      "narration": "到網域商的 DNS 設定頁。上面是原本的紀錄，下面新增一筆。"
+    },
+    {
+      "on": "dns",
+      "fill": {
+        "#type": "TXT",
+        "#name": "@",
+        "#value": "site-verification=k7Qm2xR9aLw4"
+      },
+      "narration": "類型選 TXT，名稱填小老鼠，內容貼上驗證碼。"
+    },
+    {
+      "on": "dns",
+      "click": "#save"
+    },
+    {
+      "callout": "dns:sel:#new",
+      "text": "新紀錄加好了",
+      "narration": "新紀錄加好了。回去告訴 AI。"
+    },
+    {
+      "on": "claude",
+      "user": "填好了",
+      "chapter": "AI 用 dig 確認生效"
+    },
+    {
+      "on": "claude",
+      "ask": "dig +short TXT komori-bakery.example",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/komori-bakery",
+      "note": "查詢網域的 TXT 紀錄，只讀取",
+      "narration": "AI 要用 dig 查。dig 是查 DNS 的指令，只讀取，不會改任何東西。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +short TXT komori-bakery.example",
+      "result": "沒有結果",
+      "out": "",
+      "narration": "第一次查，什麼都沒有。"
+    },
+    {
+      "on": "claude",
+      "say": "還查不到。DNS 的變更要一段時間才會傳到各地，通常幾分鐘，最久可能一兩天。我等 2 分鐘再查一次。",
+      "narration": "AI 沒有慌。它知道 DNS 改完要一段時間才會生效，這叫傳播。它等一下再查。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "sleep 120 && dig +short TXT komori-bakery.example",
+      "result": "完成",
+      "out": "\"site-verification=k7Qm2xR9aLw4\"",
+      "narration": "兩分鐘後再查，驗證碼出現了。"
+    },
+    {
+      "on": "claude",
+      "say": "生效了，查得到你的驗證碼。現在可以回主控台按「驗證」。"
+    },
+    {
+      "show": "gsc",
+      "narration": "回到主控台，按驗證。"
+    },
+    {
+      "on": "gsc",
+      "click": "#verify"
+    },
+    {
+      "callout": "gsc:sel:#vok",
+      "text": "已驗證擁有權",
+      "narration": "驗證成功。"
+    },
+    {
+      "on": "claude",
+      "user": "主控台顯示已驗證。順便問，sitemap 要怎麼交給它？"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -sI https://komori-bakery.example/sitemap.xml | head -1",
+      "result": "完成",
+      "out": "HTTP/2 200"
+    },
+    {
+      "on": "claude",
+      "say": "在主控台左邊的「Sitemap」貼上 `https://komori-bakery.example/sitemap.xml` 送出即可。上一堂產生的檔案我剛用 curl 確認過，回應 200。",
+      "narration": "它還提醒你把上一堂做好的 sitemap 交給主控台。"
+    },
+    {
+      "hide": "gsc"
+    },
+    {
+      "card": "兩週後",
+      "eyebrow": "報表有資料了",
+      "sub": "在主控台下載搜尋成效報表（CSV），交給 AI",
+      "chapter": "兩週後：請 AI 解讀報表",
+      "narration": "兩週後，報表有資料了。從主控台下載搜尋成效的報表，是一個 CSV 檔，也就是可以用試算表打開的表格。放進專案資料夾，交給 AI。"
+    },
+    {
+      "on": "claude",
+      "user": "我把搜尋成效報表放在 reports/queries.csv，幫我看看哪裡最值得先改，用白話說。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "reports/queries.csv",
+      "result": "48 列"
+    },
+    {
+      "on": "claude",
+      "say": "重點三個：\n1. **「可頌 推薦」** 曝光 820、點擊 9，點閱率 1.1%，排名第 4。排名不差但沒人點，先改可頌頁的標題和描述。\n2. **「小森烘焙」** 點閱率 38%，找你名字的人都會點，不用動。\n3. **「台中 麵包店」** 排名 23，還在第三頁，可以寫一篇介紹店面的文章（下一單元會做）。",
+      "narration": "AI 把四十多列的表格，整理成三件事：哪一個最值得先改、哪一個不用動、哪一個是之後的機會。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "把你的網站加進搜尋主控台：請 AI 給你 TXT 紀錄、到網域商填好、請 AI 用 dig 確認生效再按驗證。有報表後，下載 CSV 請 AI 解讀。"
+    },
+    {
+      "card": "驗證碼與 DNS 你來填\nAI 用 dig 確認生效\n報表下載後交給 AI 解讀",
+      "eyebrow": "學會",
+      "sub": "DNS 生效要時間，查不到先等一下再查",
+      "chapter": "學會",
+      "narration": "網頁上的操作你來做，AI 給內容、用 dig 確認生效。DNS 生效要時間，查不到先別急。報表下載下來，交給 AI 變成待辦。"
+    }
+  ]
+}

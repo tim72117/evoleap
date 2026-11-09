@@ -1,0 +1,151 @@
+{
+  "title": "給 AI 最小權限",
+  "lesson": "全環節 · 單元 33 · 33.2 用 AI 完成",
+  "teacher": {
+    "say": "今天做唯讀帳號和測試環境",
+    "line": "這一課，AI 幫你建好測試資料庫，再寫出步驟，讓你自己在雲端主控台建立唯讀帳號。密碼你自己設，AI 不碰。最後它驗證：讀得到、改不了。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "最小權限", "folder": "~/projects/bakery", "branch": "main", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "console": {
+      "actor": "browser",
+      "props": { "site": "fc33-2-console", "url": "https://console.example-cloud.com/db/bakery-db/users" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "給 AI 最小權限",
+      "eyebrow": "全環節 · 單元 33 · 33.2 用 AI 完成",
+      "sub": "測試環境 AI 做；唯讀帳號你在主控台建；最後 AI 驗證",
+      "chapter": "交代任務",
+      "narration": "這次的工作分三段：AI 能做的它做，主控台和密碼你來，最後 AI 驗證。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我想讓你日常開發碰不到正式資料庫的寫入權限。請建一個本機的測試資料庫，再告訴我怎麼建正式資料庫的唯讀帳號。完成條件：唯讀帳號查得到訂單、改不了；測試資料庫上 npm test 通過",
+      "narration": "說清楚目標和完成條件：唯讀帳號查得到、改不了，測試資料庫上測試要通過。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker compose up -d db-test && npm run db:seed -- --env test",
+      "result": "測試資料庫已啟動，放入 30 筆假訂單",
+      "chapter": "AI 做：測試環境",
+      "narration": "測試資料庫它可以自己做：在你電腦上開一個資料庫，放進三十筆假訂單。"
+    },
+    {
+      "on": "claude",
+      "edit": ".env.development",
+      "lines": [[1, "+", "TEST_DATABASE_URL=postgres://dev:dev@localhost:5433/bakery_test"], [2, "+", "DATABASE_URL=postgres://ai_reader:<請你填>@db.example-cloud.com/bakery"]],
+      "narration": "設定檔先寫好位置。唯讀帳號的密碼那一格，它寫的是「請你填」。"
+    },
+    {
+      "on": "claude",
+      "say": "唯讀帳號要在雲端主控台建立，而且要設密碼，這部分請你自己來：\n1. 打開 **資料庫 › bakery-db › 使用者與權限**\n2. 使用者名稱填 `ai_reader`\n3. 權限選 **唯讀（只能查詢）**\n4. 密碼自己設，存進你的密碼管理工具，不要貼給我\n5. 按「建立使用者」，截圖給我看",
+      "chapter": "你做：主控台建帳號",
+      "narration": "唯讀帳號要在雲端主控台建，還要設密碼，它碰不到也不該碰。所以它寫出五個步驟，交給你。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "密碼不要貼進和 AI 的對話",
+      "narration": "注意第四步：密碼自己設，存進密碼管理工具，不要貼給它。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "console",
+      "narration": "打開主控台的使用者頁。上方標著：正式環境。現在只有一個擁有者帳號。"
+    },
+    { "on": "console", "fill": { "#user": "ai_reader" }, "narration": "照步驟，名稱填 ai_reader。" },
+    { "on": "console", "fill": { "#role": "ro" }, "narration": "權限選唯讀。這一格最重要，選錯了就白做了。" },
+    {
+      "callout": "console:sel:#pw",
+      "text": "你自己輸入，AI 不經手",
+      "narration": "密碼這一格，你自己輸入。"
+    },
+    { "on": "console", "fill": { "#pw": "••••••••••••••••" } },
+    { "on": "console", "click": "#create", "narration": "按下建立使用者。" },
+    {
+      "callout": "console:section:ok",
+      "text": "權限：唯讀 ✓　密碼只顯示 ****",
+      "narration": "清單多了 ai_reader，權限是唯讀。截下這個畫面，回報給 AI。"
+    },
+    { "hide": "console" },
+    {
+      "show": "claude",
+      "chapter": "AI 驗證：讀得到、改不了"
+    },
+    {
+      "on": "claude",
+      "user": "建好了，截圖上 ai_reader 是唯讀。密碼我自己填進 .env.development 了",
+      "narration": "回報結果，密碼你已經自己填進設定檔。"
+    },
+    {
+      "on": "claude",
+      "ask": "psql \"$DATABASE_URL\" -c \"select count(*) from orders\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "用 ai_reader 查詢正式資料庫的訂單數量（只讀）",
+      "narration": "上一課設定過：連資料庫要先問。看清楚，用的是 ai_reader，只是查數量。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql \"$DATABASE_URL\" -c \"select count(*) from orders\"",
+      "result": "128",
+      "out": " count\n-------\n   128",
+      "narration": "查得到，一百二十八筆訂單。"
+    },
+    {
+      "on": "claude",
+      "ask": "psql \"$DATABASE_URL\" -c \"update orders set note='test' where id=1\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "驗證唯讀：用 ai_reader 試著修改一筆，預期會被資料庫拒絕",
+      "narration": "接著驗證改不了：它想用唯讀帳號試著改一筆。這個帳號本來就改不了，所以安全；但還是先確認，帳號是 ai_reader。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql \"$DATABASE_URL\" -c \"update orders set note='test' where id=1\"",
+      "result": "被拒絕：沒有寫入權限",
+      "out": "ERROR:  permission denied for table orders",
+      "narration": "被資料庫拒絕了：沒有寫入權限。這正是我們要的。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "DATABASE_URL=$TEST_DATABASE_URL npm test",
+      "result": "18 項全部通過",
+      "out": "Tests  18 passed (18)",
+      "narration": "最後在測試資料庫上跑測試，全部通過。"
+    },
+    {
+      "on": "claude",
+      "say": "三個完成條件都達成：\n- `ai_reader` 查得到訂單（128 筆）\n- `ai_reader` 修改被拒絕（permission denied）\n- 測試資料庫上 `npm test` 18 項通過\n\n之後日常開發我只用 `.env.development`；正式環境的擁有者帳號不在專案裡。",
+      "narration": "三個完成條件都達成。從今天起，AI 平常碰不到正式環境的寫入權限。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 幫你建本機測試資料庫，並寫出建立唯讀帳號的步驟；你自己在主控台建帳號、設密碼，回報後請 AI 驗證「讀得到、改不了」。",
+      "narration": "換你試試：測試環境請 AI 做，唯讀帳號你自己建，最後請 AI 驗證讀得到、改不了。"
+    },
+    {
+      "card": "AI 平常碰不到正式環境的寫入權限",
+      "eyebrow": "這一課的成果",
+      "sub": "測試環境 ＋ 唯讀帳號，密碼始終只在你手上",
+      "narration": "這一課的成果：測試環境加唯讀帳號，而密碼，始終只在你手上。"
+    }
+  ]
+}

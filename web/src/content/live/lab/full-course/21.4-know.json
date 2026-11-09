@@ -1,0 +1,147 @@
+{
+  "title": "每天早上，一封剛剛好的信",
+  "lesson": "全環節 · 單元 21 · 21.4 基礎知識",
+  "teacher": {
+    "say": "今天設計每日摘要",
+    "line": "網站的狀況分散在好幾個地方：紀錄、流量、訂單、客服信。這一課來看排程任務是什麼，還有每天的營運摘要，該放什麼、不該放什麼。"
+  },
+  "cast": {
+    "desk": {
+      "actor": "notes",
+      "props": { "label": "每天早上要看的" },
+      "place": { "x": 460, "y": 120, "w": 1000, "h": 800 },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "排程任務：每天 08:00",
+        "nodes": [
+          { "id": "clock", "label": "排程器", "sub": "每天 08:00", "icon": "⏰", "x": 10, "y": 50, "w": 8 },
+          { "id": "job", "label": "摘要任務", "icon": "⚙", "x": 33, "y": 50, "w": 8 },
+          { "id": "logs", "label": "雲端紀錄", "icon": "📜", "x": 57, "y": 18, "w": 8.5, "hidden": true },
+          { "id": "ga", "label": "流量數據", "icon": "📈", "x": 57, "y": 50, "w": 8.5, "hidden": true },
+          { "id": "db", "label": "訂單資料庫", "icon": "🗄", "shape": "db", "x": 57, "y": 82, "w": 8.5, "hidden": true },
+          { "id": "mail", "label": "你的信箱", "icon": "✉", "x": 88, "y": 50, "w": 8, "hidden": true }
+        ],
+        "edges": [
+          { "from": "clock", "to": "job", "label": "時間到" },
+          { "from": "job", "to": "logs", "hidden": true },
+          { "from": "job", "to": "ga", "hidden": true },
+          { "from": "job", "to": "db", "hidden": true },
+          { "from": "job", "to": "mail", "hidden": true }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc21-4-digest", "url": "https://mail.example/inbox/daily-digest" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "show": "desk",
+      "chapter": "每天早上的例行公事",
+      "narration": "網站上線後，你每天早上大概要看這些東西。"
+    },
+    { "on": "desk", "jot": "開主控台看錯誤" },
+    { "on": "desk", "jot": "開 GA 看昨天流量" },
+    { "on": "desk", "jot": "開後台數訂單" },
+    {
+      "on": "desk",
+      "jot": "翻客服信",
+      "narration": "四個地方，各開一次。每天十幾分鐘。"
+    },
+    {
+      "on": "desk",
+      "lose": "錯誤",
+      "narration": "忙的那天，總有一個會跳過。偏偏那天就是有錯誤的那天。"
+    },
+    { "hide": "desk" },
+    {
+      "card": "每天早上，一封剛剛好的信",
+      "eyebrow": "全環節 · 單元 21 · 21.4 基礎知識",
+      "sub": "排程任務 · 摘要該放什麼",
+      "narration": "如果這四件事，每天早上有人自動幫你看完，整理成一封信寄給你呢？"
+    },
+    {
+      "show": "flow",
+      "chapter": "排程任務",
+      "narration": "這就是排程任務：在固定的時間，自動執行一件事。"
+    },
+    {
+      "send": "clock>job",
+      "label": "08:00",
+      "narration": "排程器像鬧鐘。每天早上八點一到，就叫醒摘要任務。"
+    },
+    {
+      "appear": ["logs", "job>logs", "ga", "job>ga", "db", "job>db"],
+      "narration": "摘要任務去三個地方拿資料："
+    },
+    { "send": "logs>job", "label": "錯誤 6 筆" },
+    { "send": "ga>job", "label": "訪客 1,204" },
+    { "send": "db>job", "label": "訂單 37", "narration": "錯誤、流量、訂單，整理好，" },
+    { "appear": ["mail", "job>mail"] },
+    {
+      "send": "job>mail",
+      "label": "每日摘要",
+      "tone": "ok",
+      "narration": "寄到你的信箱。你一杯咖啡的時間，就知道昨天網站好不好。"
+    },
+    { "hide": "flow" },
+    {
+      "card": "0 8 * * *",
+      "eyebrow": "排程的寫法",
+      "sub": "分 · 時 · 日 · 月 · 星期 —— 「每天 8 點 0 分」；* 代表「每一個」",
+      "narration": "排程時間常寫成這種五格的格式：分、時、日、月、星期。零、八、後面三個星號，意思是每天八點零分。這串不用背，跟 AI 說「每天早上八點」就好。"
+    },
+    {
+      "show": "web",
+      "chapter": "摘要該放什麼",
+      "narration": "重點是信裡要放什麼。先看版本 A。"
+    },
+    {
+      "callout": "web:section:badv",
+      "text": "所有數字都在，但你看不出「昨天好不好」",
+      "narration": "所有數字都在，可是一大串，你看完還是不知道：昨天到底好不好？有沒有事要做？"
+    },
+    {
+      "on": "web",
+      "click": "#t-good",
+      "narration": "再看版本 B。"
+    },
+    {
+      "callout": "web:section:sum",
+      "text": "① 第一句就是結論",
+      "narration": "第一句就是結論：昨天一切正常，有一件事要你處理。只讀這一句也夠了。"
+    },
+    {
+      "callout": "web:section:kpis",
+      "text": "② 少數幾個重要數字，而且和上週比",
+      "narration": "第二，只放幾個重要的數字，而且和上週同一天比。數字單獨看沒意義，有比較才知道是變好還是變壞。"
+    },
+    {
+      "callout": "web:section:todo",
+      "text": "③ 需要你處理的事，附上連結",
+      "narration": "第三，需要你處理的事，附上連結，點了就能去看。沒事要處理的那天，這一段就寫「沒有」。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "結論 · 比較 · 待辦",
+      "sub": "讀第一句就知道好不好；數字要有比較；只列需要你動手的事",
+      "chapter": "重點整理",
+      "narration": "好的摘要三件事：先講結論、數字有比較、列出待辦。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "設計你的摘要",
+      "body": "想想你的網站：每天早上最想知道的 3 個數字是什麼？要和什麼比較？什麼情況算「需要你處理」？寫下來，下一堂交給 AI。",
+      "narration": "換你設計：你每天最想知道的三個數字是什麼？什麼情況算需要你處理？寫下來，下一堂就交給 AI。"
+    }
+  ]
+}

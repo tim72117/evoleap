@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>MCP：AI 的轉接頭</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+<div class="ttl">MCP：讓 AI 接上外部工具的「轉接頭」</div>
+<div class="sub">AI 本來只會讀寫檔案、跑指令；接上之後，能操作瀏覽器</div>
+<div class="map">
+  <div class="node ai">🤖<b>AI 程式助手</b></div>
+  <div class="wire w1 r1"><span class="r2 msg">「打開 localhost:5173」→</span><span class="r3 msg back">← 「Console 有 1 個錯誤」＋截圖</span></div>
+  <div class="node plug">🔌<b>MCP 連接器</b><span class="muted">chrome-devtools</span><span class="off">還沒插上</span></div>
+  <div class="wire w2 r1"></div>
+  <div class="node win">🧪<b>另一個瀏覽器視窗</b><span class="muted">AI 專用、乾淨的</span></div>
+</div>
+<div class="mine card">🙋 你平常用的瀏覽器（登入了信箱、銀行）<b>不在這條線上</b>，AI 碰不到</div>
+<div class="nav">
+  <button class="btn ghost" id="g1" data-go="1">插上連接器</button>
+  <button class="btn ghost" id="g2" data-go="2">AI 下指令</button>
+  <button class="btn" id="g3" data-go="3">回報結果</button>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

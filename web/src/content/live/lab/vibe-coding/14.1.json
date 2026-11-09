@@ -1,0 +1,293 @@
+{
+  "title": "為什麼改一處會壞別處：先看影響範圍",
+  "lesson": "基礎 · 單元 14 · 14.1 試做",
+  "teacher": {
+    "say": "今天先看影響範圍",
+    "line": "你一定遇過：只想改一個小地方，結果別的地方跟著壞了。今天先看懂最常見的兩個原因，再練習動手之前，請 AI 列出這次修改會影響哪些地方。"
+  },
+  "cast": {
+    "an": {
+      "actor": "person",
+      "props": { "name": "小安", "look": "customer" },
+      "place": { "x": 560, "y": 360, "w": 800, "h": 340 },
+      "hidden": true
+    },
+    "site": {
+      "actor": "browser",
+      "props": { "site": "lt-vibe-coding-14-1-email", "width": "desktop", "url": "http://localhost:8000/" },
+      "place": "window",
+      "hidden": true
+    },
+    "map": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "一個檔案管了太多事",
+        "nodes": [
+          { "id": "chg", "label": "要改：文章日期", "sub": "11/09 → 11 月 9 日", "icon": "✎", "x": 11, "y": 50, "w": 9, "shape": "round", "hidden": true },
+          { "id": "main", "label": "main.js", "sub": "420 行", "icon": "📄", "x": 42, "y": 50, "w": 9 },
+          { "id": "nav", "label": "導覽列", "x": 80, "y": 12, "w": 9 },
+          { "id": "work", "label": "作品列表", "sub": "依日期排序", "x": 80, "y": 31, "w": 9 },
+          { "id": "post", "label": "文章日期", "x": 80, "y": 50, "w": 9 },
+          { "id": "form", "label": "聯絡表單", "x": 80, "y": 69, "w": 9 },
+          { "id": "dark", "label": "深色模式", "x": 80, "y": 88, "w": 9 }
+        ],
+        "edges": [
+          { "from": "chg", "to": "main", "hidden": true },
+          { "from": "main", "to": "nav" },
+          { "from": "main", "to": "work", "label": "formatDate()" },
+          { "from": "main", "to": "post", "label": "formatDate()" },
+          { "from": "main", "to": "form" },
+          { "from": "main", "to": "dark" }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "改聯絡 email",
+        "folder": "~/projects/my-site",
+        "branch": "main",
+        "mode": "plan",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "show": "an",
+      "chapter": "只是改個 email",
+      "narration": "小安換了新的 email，想把網站上的聯絡方式改掉。"
+    },
+    {
+      "on": "an",
+      "say": "首頁頁尾改好了，搞定！",
+      "mood": "happy",
+      "narration": "他打開首頁，改了頁尾那一行，覺得搞定了。"
+    },
+    {
+      "on": "an",
+      "say": "一個禮拜後，朋友說：寄到你網站上的信都被退回耶……",
+      "mood": "worried",
+      "narration": "一個禮拜後，朋友跟他說：照網站上的地址寄信，都被退回了。"
+    },
+    {
+      "hide": "an"
+    },
+    {
+      "show": "site",
+      "chapter": "原因一：同一件事寫在很多地方",
+      "narration": "我們打開他的網站看看。同一個 email，其實出現在三頁。"
+    },
+    {
+      "on": "site",
+      "click": "#edit",
+      "narration": "他只改了首頁的頁尾。"
+    },
+    {
+      "on": "site",
+      "click": "#check",
+      "narration": "聯絡頁和關於我，都還是舊的地址。聯絡頁的寄信按鈕裡還藏著一個，畫面上看不到，最容易漏。"
+    },
+    {
+      "callout": "site:sel:#pg-contact",
+      "text": "同一件事寫在很多地方：改了一處，其他地方不會跟著變",
+      "narration": "這是第一個原因：同一件事寫在很多地方。改了一處，其他地方不會自己跟著變，只能一個一個記得去改。"
+    },
+    {
+      "callout": "site:sel:.jobs span:nth-child(4)",
+      "text": "連 main.js 的表單訊息裡也有一份",
+      "narration": "更麻煩的是，程式裡也有一份：main.js 的聯絡表單，送出成功時會顯示「已寄到」舊的地址。"
+    },
+    {
+      "hide": "site"
+    },
+    {
+      "show": "map",
+      "chapter": "原因二：一個檔案負責太多事",
+      "narration": "說到 main.js。這個檔案有四百二十行，導覽列、作品列表、文章日期、聯絡表單、深色模式，全部都在裡面。"
+    },
+    {
+      "on": "map",
+      "appear": ["chg", "chg>main"],
+      "narration": "有一天，小安想把文章的日期，從斜線寫法改成幾月幾日。"
+    },
+    {
+      "on": "map",
+      "send": "chg>main",
+      "label": "改 formatDate",
+      "tone": "on",
+      "narration": "他請 AI 改。AI 找到 main.js 裡負責排日期的 formatDate，把它改了。"
+    },
+    {
+      "on": "map",
+      "light": "post",
+      "tone": "ok",
+      "sub": "11 月 9 日 ✓",
+      "narration": "文章日期變成他要的樣子。"
+    },
+    {
+      "on": "map",
+      "light": "work",
+      "tone": "bad",
+      "sub": "日期變了、排序亂掉",
+      "narration": "可是作品列表也用同一個 formatDate 排序。日期格式一變，排序就亂掉了。"
+    },
+    {
+      "on": "map",
+      "light": "main",
+      "tone": "warn",
+      "sub": "formatDate 兩邊共用",
+      "narration": "這是第二個原因：一個檔案負責太多事。功能之間共用了什麼，從外面看不出來，改其中一個，另一個就跟著受影響。"
+    },
+    {
+      "card": "改之前，先問：這次會影響哪些地方？",
+      "eyebrow": "先看影響範圍",
+      "sub": "請 AI 只分析、不改程式：列出會動到的檔案、會受影響的功能、容易漏的地方",
+      "chapter": "先看影響範圍",
+      "narration": "這兩個問題，接下來幾課會一個一個解決。今天先學一個馬上用得到的習慣：動手之前，先請 AI 列出這次修改的影響範圍，只看分析，不改程式。"
+    },
+    {
+      "hide": "map"
+    },
+    {
+      "show": "claude",
+      "narration": "打開 AI 程式助手。注意輸入框下方的權限模式，我們切到規劃模式：它只能讀檔案、提方案，不能改任何東西。"
+    },
+    {
+      "callout": "claude:mode",
+      "text": "規劃模式：只讀、只分析，不會改檔案",
+      "narration": "規劃模式就是只讀、只分析。就算提示詞寫得不夠清楚，它也不會動手改。"
+    },
+    {
+      "on": "claude",
+      "user": "我想把網站的聯絡 email 從 an.lin@mail.com 改成 hello@an.dev。先不要改程式。列出這次修改會影響哪些檔案、哪些功能，還有哪些地方容易漏掉",
+      "narration": "提示詞說三件事：要改什麼、先不要改程式、列出影響的檔案、功能，和容易漏的地方。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "an.lin@mail.com",
+      "result": "4 個檔案、5 處",
+      "out": "index.html:52    聯絡我：an.lin@mail.com\ncontact.html:20  Email：an.lin@mail.com\ncontact.html:23  <a href=\"mailto:an.lin@mail.com\">寄信給我</a>\nabout.html:31    寫信到 an.lin@mail.com\nmain.js:288      showDone(`已寄到 an.lin@mail.com`)",
+      "narration": "它先搜尋整個專案，找到四個檔案、五處。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "main.js",
+      "result": "420 行",
+      "narration": "再讀 main.js，確認表單那一段還牽涉到什麼。"
+    },
+    {
+      "on": "claude",
+      "say": "**影響範圍**（還沒改任何檔案）\n\n會動到的檔案：\n1. `index.html` 頁尾\n2. `contact.html` 兩處：畫面文字與 `mailto:` 連結\n3. `about.html` 合作說明\n4. `main.js` 聯絡表單送出成功的訊息\n\n會受影響的功能：聯絡頁的寄信按鈕、聯絡表單\n\n容易漏的地方：\n- `mailto:` 連結在畫面上看不到\n- `main.js` 的訊息只有送出表單才會出現\n- 搜尋不到的：分享圖片裡如果寫了 email，要另外改",
+      "narration": "它列出一份影響範圍：會動到四個檔案、兩個功能，還特別標出容易漏的地方。看不到的 mailto 連結、只有送出表單才出現的訊息，還有搜尋不到、寫在圖片裡的文字。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "這就是修改前的影響範圍清單",
+      "narration": "這就是修改前的影響範圍清單。先看懂、確認沒有漏，再切回一般模式請它動手；改完照這份清單逐項檢查。"
+    },
+    {
+      "on": "claude",
+      "user": "整個專案裡，哪些地方最容易「改一處壞別處」？依風險排序，一樣先不要改",
+      "chapter": "找出牽一髮動全身的地方",
+      "narration": "趁它已經讀過專案，再多問一句：整個專案裡，哪裡最容易改一處壞別處？"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "say": "依風險排序：\n1. **main.js**：420 行管 5 個功能，`formatDate` 同時被作品列表和文章用到\n2. **email、網站名稱**：分別寫在 4、6 個地方\n3. **導覽列**：每一頁各複製了一份，改選單要改 3 個檔案",
+      "narration": "它排出三個高風險的地方：一個管太多事的 main.js、寫在很多地方的 email 和網站名稱、每頁各複製一份的導覽列。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "記下來：接下來幾課，就從這份清單一個一個整理",
+      "narration": "把這份清單記下來。接下來幾課，我們就從這裡開始，把重複的收成一份，把太大的檔案拆開。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "要把網站名稱從「小安的網站」改成「An Studio」，哪一句提示詞最適合當第一句？",
+      "body": "選一個。",
+      "id": "prompt",
+      "options": [
+        {
+          "label": "「把網站名稱改成 An Studio」",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "它會直接動手，你不知道它改了哪些、漏了哪些",
+              "narration": "這樣它會直接動手。你不知道它改了哪些、漏了哪些，只能等出問題才發現。"
+            },
+            {
+              "card": "答案：先列影響範圍，不改程式",
+              "eyebrow": "判斷看看",
+              "sub": "先看清楚範圍，再動手，改完照清單檢查",
+              "narration": "第一句先請它列出影響範圍、不改程式。看清楚了再動手，改完照清單檢查。"
+            }
+          ]
+        },
+        {
+          "label": "「先不要改程式，列出改網站名稱會影響哪些檔案與功能」",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "先看清楚範圍，再動手，改完照清單檢查",
+              "narration": "答對了。先請它列出影響範圍、不改程式。看清楚了再動手，改完照這份清單檢查。"
+            }
+          ]
+        },
+        {
+          "label": "「改完再告訴我你改了哪裡」",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "改完才知道，就沒機會在動手前發現它漏了什麼",
+              "narration": "改完才告訴你，就沒機會在動手之前，發現它漏了什麼、多改了什麼。"
+            },
+            {
+              "card": "答案：先列影響範圍，不改程式",
+              "eyebrow": "判斷看看",
+              "sub": "先看清楚範圍，再動手，改完照清單檢查",
+              "narration": "第一句先請它列出影響範圍、不改程式。看清楚了再動手，改完照清單檢查。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "動手做：寫一份影響範圍清單",
+      "eyebrow": "練習",
+      "sub": "挑一個你想做的小修改，用規劃模式請 AI 列出影響範圍；再請它找出專案裡最容易牽一髮動全身的三個地方",
+      "chapter": "動手做",
+      "narration": "換你試試看。挑一個你想做的小修改，切到規劃模式，請 AI 列出影響範圍。再請它找出你的專案裡，最容易牽一髮動全身的三個地方，記下來。"
+    },
+    {
+      "card": "同一件事寫在很多地方\n一個檔案負責太多事\n動手前，先看影響範圍",
+      "eyebrow": "學會",
+      "sub": "只看分析、不改程式：用規劃模式，或在提示詞寫「先不要改」",
+      "chapter": "學會",
+      "narration": "改一處壞別處，最常見的原因有兩個：同一件事寫在很多地方，和一個檔案負責太多事。動手之前，先請 AI 列出影響範圍，只看分析、不改程式。下一課，我們把重複的東西收成一個地方。"
+    }
+  ]
+}

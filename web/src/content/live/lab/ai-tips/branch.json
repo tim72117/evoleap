@@ -1,0 +1,85 @@
+{
+  "title": "分岔：同時試好幾種想法",
+  "lesson": "AI 工具技巧 · 試做",
+  "teacher": { "say": "今天同時試兩種風格", "line": "今天要來學分岔：拿不定主意的時候，從同一段對話分出兩條路，各做一版，並排比較再決定。" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "小森烘焙首頁", "folder": "~/Documents/practice/bakery", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "board": { "actor": "browser", "props": { "site": "lt-ai-tips-branch-map", "url": "示意圖" }, "place": "window", "hidden": true },
+    "webA": { "actor": "browser", "props": { "site": "lt-ai-tips-branch-warm", "url": "bakery · 分支 try-warm" }, "place": { "x": 40, "y": 150, "w": 900, "h": 640 }, "hidden": true },
+    "webB": { "actor": "browser", "props": { "site": "lt-ai-tips-branch-simple", "url": "bakery · 分支 try-simple" }, "place": { "x": 980, "y": 150, "w": 900, "h": 640 }, "hidden": true }
+  },
+  "steps": [
+    { "card": "溫暖手作風，還是簡約風？", "eyebrow": "AI 工具技巧 · 分岔", "sub": "拿不定主意的時候，不必改完一版再還原", "chapter": "拿不定主意", "narration": "小森烘焙的首頁做好了，風格卻拿不定主意：溫暖手作風，還是簡約風？" },
+    { "show": "claude" },
+    { "on": "claude", "user": "首頁的內容都定了。風格我還在猶豫：溫暖手作風，還是簡約風？", "narration": "你在對話裡問 AI。" },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    { "on": "claude", "say": "兩種都適合烘焙店。要不要我先改成其中一種，你看了再決定？" },
+    { "card": "改 A → 看 → 還原 → 改 B → 憑記憶比較", "eyebrow": "以前的做法", "sub": "來回還原很麻煩，兩版也沒辦法放在一起看", "narration": "以前的做法是：先改成 A，看一看，再還原，改成 B，最後憑記憶比較。還原很麻煩，兩版也沒辦法放在一起看。" },
+
+    { "hide": "claude", "chapter": "分岔是什麼" },
+    { "show": "board", "narration": "換個做法：分岔。" },
+    { "on": "board", "click": "[data-go=\"1\"]", "narration": "起點，是目前這段對話：網站做好了，前面講好的事 AI 都知道。" },
+    { "on": "board", "click": "[data-go=\"2\"]", "narration": "從這個起點分出兩條路，每一條都帶著起點的對話，不用重新說明背景。一條試溫暖手作風，一條試簡約風。有的工具把這個功能叫 Fork，有的叫分支。" },
+    { "hide": "board" },
+    { "show": "claude" },
+    { "on": "claude", "menu": "小森烘焙首頁", "focus": { "target": "claude:sessions", "zoom": 1.35 }, "narration": "在這段對話的選單裡，選 Fork。" },
+    { "on": "claude", "fork": "試試溫暖手作風", "branch": "try-warm", "focus": false },
+    { "callout": "claude:head", "text": "新的對話，帶著起點到目前為止的內容", "narration": "多了一段新的對話，起點的內容都帶過來了。" },
+
+    { "hide": "claude", "chapter": "每條路要有自己的一份檔案" },
+    {
+      "checkpoint": "兩個分支都改同一份 styles.css，你猜會怎樣？", "body": "選一個，接著看示意。", "id": "clash",
+      "options": [
+        { "label": "各改各的，沒事", "steps": [{ "card": "會互相蓋掉", "eyebrow": "再想想", "sub": "對話分開了，檔案不一定分開", "narration": "會互相蓋掉。對話分開了，檔案不一定跟著分開。" }] },
+        { "label": "後改的蓋掉先改的", "steps": [{ "card": "沒錯，會互相蓋掉", "eyebrow": "猜對了", "sub": "對話分開了，檔案不一定分開", "narration": "沒錯。對話分開了，檔案不一定跟著分開。" }] }
+      ]
+    },
+    { "show": "board", "site": "lt-ai-tips-branch-clash" },
+    { "on": "board", "click": "[data-go=\"1\"]", "narration": "分支 A 先改 styles.css：背景改成奶油色，字體換成手寫感。" },
+    { "on": "board", "click": "[data-go=\"2\"]", "narration": "分支 B 也改同一份 styles.css：字體換成細黑體，把 A 寫的蓋掉了。" },
+    { "on": "board", "click": "[data-go=\"3\"]", "narration": "結果兩種風格混在一起，兩個版本都壞了，也比較不出來。" },
+    { "on": "board", "click": "[data-go=\"4\"]", "narration": "正確的做法：每個分支各有一份自己的專案檔案，這叫工作副本，有的工具叫 worktree。各改各的，互不影響。" },
+    { "on": "board", "site": "lt-ai-tips-branch-map" },
+    { "on": "board", "click": "[data-go=\"3\"]", "narration": "所以開分支的時候，要確認每一條路都有自己的一份檔案，再讓它動手。" },
+    { "hide": "board" },
+    { "show": "claude" },
+    { "callout": "claude:head", "text": "這個分支有自己的一份檔案（try-warm）", "narration": "這個分支上方標著 try-warm，表示它有自己的一份檔案。不確定的時候，先問 AI：「你現在改的檔案，會不會影響原本的？」" },
+
+    { "on": "claude", "user": "把首頁改成溫暖手作風：奶油色背景、手寫感的字、圓潤的卡片", "chapter": "兩條路各做一版", "narration": "在分支 A，請它改成溫暖手作風。" },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "edit": "styles.css", "lines": [[3, "-", "  background: #ffffff;"], [4, "+", "  background: #fbf3e6;"], [8, "+", "  font-family: \"Songti TC\", serif;"], [20, "+", "  border-radius: 18px;"]] },
+    { "on": "claude", "say": "已改成溫暖手作風：奶油色背景、手寫感的字、圓潤的卡片。" },
+    { "on": "claude", "session": "小森烘焙首頁", "narration": "回到起點那段對話，再分一條。" },
+    { "on": "claude", "menu": "小森烘焙首頁", "focus": { "target": "claude:sessions", "zoom": 1.35 } },
+    { "on": "claude", "fork": "試試簡約風", "branch": "try-simple", "focus": false },
+    { "on": "claude", "user": "把首頁改成簡約風：白底、細黑體、大量留白", "narration": "分支 B，改成簡約風。兩條路可以同時進行，不用等另一邊做完。" },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "edit": "styles.css", "lines": [[8, "+", "  font-family: -apple-system, sans-serif;"], [9, "+", "  font-weight: 300;"], [20, "+", "  letter-spacing: .2em;"]] },
+    { "on": "claude", "say": "已改成簡約風：白底、細黑體、加大留白。" },
+    { "callout": "claude:sessions", "text": "起點和兩個分支都在左邊", "focus": { "target": "claude:sessions", "zoom": 1.5 }, "narration": "左邊看得到起點，和從它分出去的兩個分支。" },
+    { "hide": "claude", "focus": false },
+
+    { "show": "webA", "chapter": "並排比較，再決定", "narration": "兩版都打開，放在一起看。" },
+    { "show": "webB" },
+    { "callout": "webA:sel:.hero", "text": "溫暖手作風", "narration": "左邊是溫暖手作風，有手作的親切感。" },
+    { "callout": "webB:sel:.hero", "text": "簡約風", "narration": "右邊是簡約風，乾淨、俐落。並排一看，比憑記憶比較清楚多了。" },
+    {
+      "checkpoint": "你會留哪一版？", "body": "沒有標準答案，選你喜歡的。", "id": "pick",
+      "options": [
+        { "label": "溫暖手作風", "steps": [{ "card": "留下分支 A", "eyebrow": "你選了溫暖手作風", "sub": "回到 A 那段對話接著做；B 可以收起來", "narration": "那就回到分支 A 那段對話接著做。分支 B 不用了，可以收起來。" }] },
+        { "label": "簡約風", "steps": [{ "card": "留下分支 B", "eyebrow": "你選了簡約風", "sub": "回到 B 那段對話接著做；A 可以收起來", "narration": "那就回到分支 B 那段對話接著做。分支 A 不用了，可以收起來。" }] }
+      ]
+    },
+    { "hide": "webB" },
+    { "hide": "webA" },
+    { "show": "board" },
+    { "on": "board", "click": "[data-go=\"4\"]", "narration": "選定一條，就在那一條接著做；其他分支收起來。要不要把選中的那一版變成正式的網站，工具會問你，看清楚再確認。" },
+    { "hide": "board" },
+    { "card": "同一個起點 · 分出幾條路 · 每條各有一份檔案 · 並排比較再選", "eyebrow": "學會", "sub": "對話分開了，檔案不一定分開：動手改之前先確認", "chapter": "學會", "narration": "拿不定主意的時候，從同一個起點分出幾條路，各做一版，並排比較再選。記得：對話分開了，檔案不一定分開，每條路都要有自己的一份檔案。之後學 Git 的分支時，你會看到同樣的想法。" }
+  ]
+}

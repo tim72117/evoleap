@@ -1,0 +1,134 @@
+{
+  "title": "檔案、資料夾與路徑",
+  "camera": "auto",
+  "teacher": {
+    "say": "請 AI 幫你做一次健康檢查",
+    "line": "這一堂請 AI 列出你的 projects 的絕對路徑和相對路徑，順便檢查你的專案有沒有放錯地方，最後寫成一份說明給你。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "路徑檢查", "folder": "~/projects", "branch": null, "mode": "ask", "sessions": [] },
+      "place": { "x": 30, "y": 40, "w": 1180, "h": 1000 },
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": { "you": { "Desktop": {}, "Documents": { "shop-old": { "index.html": "", "package.json": "" }, "報告.docx": "" }, "projects": { "hello": { "hello.html": "" }, "bakery": {} } } },
+        "open": "you"
+      },
+      "place": { "x": 1240, "y": 240, "w": 650 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 做一次路徑健康檢查",
+      "eyebrow": "全環節 · 單元 2 · 2.1 用 AI 完成",
+      "sub": "列出路徑 · 檢查位置 · 寫成說明",
+      "chapter": "交代任務",
+      "narration": "這次的任務，一次交代清楚：要列哪些路徑、要檢查什麼、最後要交出什麼。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "1. 列出 ~/projects 的絕對路徑，和從 projects 到 hello/hello.html 的相對路徑\n2. 檢查我電腦上的專案有沒有放在 iCloud、OneDrive 這類同步資料夾\n3. 寫成 PATHS.md，用白話說明"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "ask": "pwd && ls -la",
+      "where": "~/projects",
+      "select": 1,
+      "chapter": "列出路徑",
+      "narration": "第一個指令只是查看，允許。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "pwd && ls -la",
+      "out": "/Users/you/projects\ndrwxr-xr-x  hello\ndrwxr-xr-x  bakery\n-rw-r--r--  .DS_Store",
+      "narration": "pwd 印出絕對路徑：斜線 Users、you、projects。ls 加上 -la，連點開頭的隱藏檔也列出來了。"
+    },
+    {
+      "on": "claude",
+      "say": "- 絕對路徑：`/Users/you/projects`\n- 從 projects 出發的相對路徑：`hello/hello.html`\n- 它的絕對路徑：`/Users/you/projects/hello/hello.html`"
+    },
+    {
+      "on": "claude",
+      "ask": "find ~/Desktop ~/Documents -maxdepth 3 -name package.json",
+      "where": "~",
+      "select": 1,
+      "chapter": "檢查專案位置",
+      "narration": "接著找專案。有 package.json 的資料夾，通常就是一個專案。它到桌面和文件裡找。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "find ~/Desktop ~/Documents -maxdepth 3 -name package.json",
+      "out": "/Users/you/Documents/shop-old/package.json",
+      "narration": "找到一個：文件資料夾裡的 shop-old。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "ls ~/Library/Mobile\\ Documents/com~apple~CloudDocs",
+      "out": "Desktop    Documents",
+      "narration": "再看 iCloud 雲碟裡有沒有「桌面」和「文件」。有，代表這兩個資料夾正在同步到 iCloud。"
+    },
+    {
+      "on": "claude",
+      "say": "發現一個問題：`shop-old` 在 `~/Documents` 裡，而你的「文件」資料夾正在同步到 iCloud。專案放在同步資料夾，容易變慢、出現衝突副本。\n\n建議搬到 `~/projects/shop-old`。要我幫你搬嗎？",
+      "narration": "它說明問題和原因，提出建議，但是先問你要不要搬，因為搬檔案會動到你的東西。"
+    },
+    {
+      "show": "finder",
+      "on": "finder",
+      "open": "Documents",
+      "narration": "在 Finder 看一下，shop-old 就在文件裡。"
+    },
+    { "on": "claude", "user": "好，幫我搬到 ~/projects。" },
+    {
+      "on": "claude",
+      "ask": "mv ~/Documents/shop-old ~/projects/shop-old",
+      "where": "~",
+      "narration": "mv 是移動。從文件，搬到 projects。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "finder",
+      "rename": ["shop-old", "../projects/shop-old"],
+      "narration": "搬過去了。"
+    },
+    { "on": "finder", "open": "../projects" },
+    {
+      "on": "claude",
+      "ask": "PATHS.md",
+      "q": "允許 Claude 建立這個檔案？",
+      "where": "~/projects",
+      "select": 1,
+      "chapter": "寫成說明"
+    },
+    {
+      "on": "claude",
+      "edit": "PATHS.md",
+      "lines": [[1, "+", "# 我的專案路徑"], [2, "+", "- projects 的絕對路徑：/Users/you/projects"], [3, "+", "- 在 projects 裡，hello 頁的相對路徑：hello/hello.html"], [4, "+", ""], [5, "+", "## 檢查結果"], [6, "+", "- shop-old 原本在「文件」（會同步到 iCloud），已搬到 ~/projects"], [7, "+", "- 以後新專案一律放 ~/projects"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 路徑說明寫在 `~/projects/PATHS.md`，shop-old 已經搬到 projects。",
+      "narration": "有路徑說明、有檢查結果、問題也處理好了。"
+    },
+    {
+      "checkpoint": "換你：請 AI 做路徑健康檢查",
+      "body": "請它列出你 projects 的絕對路徑和一個檔案的相對路徑，找出放在同步資料夾裡的專案，寫成 PATHS.md。要搬檔案時，看清楚 mv 的「從哪裡」和「到哪裡」再允許。"
+    },
+    {
+      "card": "自己專案的路徑說明 ✓",
+      "eyebrow": "2.1 完成",
+      "sub": "下一堂：自己在終端機打指令",
+      "narration": "你有一份自己專案的路徑說明了。下一堂，換你自己在終端機打指令。"
+    }
+  ]
+}

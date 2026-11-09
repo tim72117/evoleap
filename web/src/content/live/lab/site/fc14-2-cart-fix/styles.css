@@ -1,0 +1,9 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#2a2a2a;background:#faf7f2}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 40px;background:#fff;border-bottom:1px solid #eee;font-size:22px}
+.cart{font-size:20px}.cart em{font-style:normal;background:#c56a2b;color:#fff;border-radius:999px;padding:0 12px;font-size:20px;margin-left:4px}
+main{display:grid;grid-template-columns:1fr 1fr;gap:40px;padding:40px}
+.img{height:380px;border-radius:16px;background:linear-gradient(135deg,#b08fd6,#6d4fa2);display:flex;align-items:center;justify-content:center}.img svg{width:60%}
+h3{font-size:30px}.price{font-size:26px;color:#c56a2b;margin:10px 0}p{font-size:19px;color:#555}
+button{font:inherit;font-size:22px;border:0;background:#2f7d6d;color:#fff;border-radius:12px;padding:14px 28px;margin-top:24px}
+.toast{margin-top:14px;color:#2f7d6d;min-height:28px}

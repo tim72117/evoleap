@@ -1,0 +1,424 @@
+// 全環節課程清單：做出一個網站服務從準備、規劃、開發、測試、上線、營運到行銷，每個環節都交給 AI 程式助手完成。
+// 以 L2「Vibe Coding 入門」（content/l2Outline.ts）為底，再補上 DNS、GCP、金流、監控、行銷等完整環節；和現有課程重疊沒關係。
+// 每個環節都是兩堂課：一堂基礎知識（know），一堂用 AI 完成這個項目（ai）；完成的方式不固定，見 Mode。
+// 最後一個階段「讓 AI 順利工作」接續 AI 自動化情境清單（aiScenarios.ts）。這是選題用的大清單，還沒排進任何課程。頁面在 FullCoursePage.tsx。
+
+/**
+ * 用 AI 完成的方式：
+ * once 交代清楚後一次做完；rounds 要來回幾次（看結果、指出問題、再改）；
+ * tool 先請 AI 做一個小工具或腳本來協助；manual AI 碰不到的頁面（網域商、雲端主控台、付款），請 AI 寫操作步驟、你照做並回報。
+ */
+export type Mode = 'once' | 'rounds' | 'tool' | 'manual'
+
+export const MODE_LABEL: Record<Mode, string> = {
+  once: '一次完成',
+  rounds: '來回修正',
+  tool: '自建工具',
+  manual: '操作步驟',
+}
+
+export type FullLesson = {
+  title: string
+  /** 基礎知識課：要先懂的概念 */
+  know: string
+  /** 用 AI 完成課：怎麼讓 AI 做完這個項目 */
+  ai: string
+  mode: Mode[]
+  /** 做完時手上會有什麼 */
+  result: string
+  /** 一定要自己來的部分（付款、密碼、身分驗證、法律責任等） */
+  human?: string
+  /** 對應 L2 現有的課號（例如 '4.1'） */
+  from?: string
+}
+
+export type FullUnit = {
+  title: string
+  lessons: FullLesson[]
+}
+
+export type FullStage = {
+  id: string
+  title: string
+  units: FullUnit[]
+}
+
+export const FULL_STAGES: FullStage[] = [
+  {
+    id: 'prepare',
+    title: '準備',
+    units: [
+      {
+        title: 'AI 程式助手：安裝與第一次使用',
+        lessons: [
+          { title: 'AI 程式助手的三種形式', from: '4.1', know: '聊天視窗、編輯器內建、終端機代理各自能碰到什麼（只能看你貼的、看得到編輯器、能讀寫檔案與執行指令）。', ai: '把自己的需求與帳號狀況告訴 AI，請它比較並建議主力工具。', mode: ['once'], result: '選定課程主力工具。' },
+          { title: '安裝、登入與權限', from: '4.2', know: '助手讀檔、改檔、執行指令前為什麼要確認，權限模式各代表什麼。', ai: '照官方說明安裝；裝好後請它建立 projects 工作區，體驗一次權限確認。', mode: ['manual', 'once'], result: 'projects 工作區與一次權限確認。', human: '登入帳號、選擇付費方案。' },
+          { title: '請 AI 程式助手安裝 Node.js', from: '4.3', know: 'Node.js 與 npm 各負責什麼，LTS 版本是什麼。', ai: '請 AI 依作業系統安裝並自己用 node -v、npm -v 驗證，失敗就讀錯誤再試。', mode: ['once'], result: 'node hello.js 印出輸出。', human: '需要電腦密碼的步驟。' },
+          { title: '第一次和 AI 一起改程式', from: '4.4', know: '怎麼看 AI 改了哪些檔案、哪幾行，接受或要求修改。', ai: '請 AI 建立 hello.html，打開看過後再要求改一處，練習來回修正。', mode: ['rounds'], result: '改過一次的 hello.html。' },
+          { title: '寫給 AI 看的專案說明', know: '專案說明檔（例如 CLAUDE.md、AGENTS.md）每次對話都會被讀，適合寫慣例與禁止事項。', ai: '請 AI 讀過專案後起草說明檔，再開新對話測試它有沒有照做。', mode: ['once', 'rounds'], result: '新的對話也照專案規則做。' },
+        ],
+      },
+      {
+        title: '開發者的電腦基本功',
+        lessons: [
+          { title: '檔案、資料夾與路徑', from: '5.1', know: '絕對路徑與相對路徑、隱藏檔、為什麼專案不放雲端同步資料夾。', ai: '請 AI 列出 projects 的絕對路徑與相對路徑，並檢查專案位置有沒有問題。', mode: ['once'], result: '自己專案的路徑說明。' },
+          { title: '終端機入門（Windows 與 macOS）', from: '5.2', know: 'pwd、ls、cd、mkdir 在做什麼，怎麼讀輸出。', ai: '自己打指令，看不懂的輸出貼給 AI 逐行解釋。', mode: ['rounds'], result: '只用指令建立並進入資料夾。' },
+          { title: '指令從哪來：PATH 與環境變數', from: '5.3', know: '系統怎麼在 PATH 裡找程式，「找不到指令」最常見的原因。', ai: '請 AI 檢查 PATH、找出指令的位置，並解釋為什麼重開終端機才生效。', mode: ['once'], result: '用 where／which 找到一個指令。' },
+          { title: '套件管理器：一行指令裝好工具', know: 'Homebrew、winget 這類套件管理器如何安裝、更新、移除工具。', ai: '請 AI 用套件管理器安裝工具，每個指令先說明再執行。', mode: ['once'], result: '已安裝工具的清單。', human: '需要電腦密碼的步驟。' },
+        ],
+      },
+      {
+        title: '開發環境與帳號準備',
+        lessons: [
+          { title: 'VS Code：編輯器與內建終端機', from: '6.1', know: '編輯器、資料夾工作區與內建終端機的關係。', ai: '請 AI 列出安裝步驟與建議擴充套件，安裝畫面自己照步驟操作。', mode: ['manual'], result: '在 VS Code 開啟 hello 資料夾。' },
+          { title: 'Git 與 GitHub：程式的存檔點', from: '6.2', know: 'commit 與 push 的差別，本機與 GitHub 上的 repository。', ai: '請 AI 設定 Git、建立 repository 並 push；改壞後請它退回上一版。', mode: ['once'], result: 'push 成功並退回一次版本。', human: '註冊 GitHub 帳號、登入授權。' },
+          { title: '瀏覽器開發者工具入門', from: '6.3', know: 'Elements、Console、Network 各看什麼。', ai: '自己操作開發者工具，把看到的錯誤貼給 AI 解釋。', mode: ['rounds'], result: '用 Console 改掉標題並找到一則錯誤。' },
+          { title: '讓 AI 連上瀏覽器開發者工具', from: '6.4', know: 'MCP 是讓 AI 使用外部工具的連接方式；AI 操作的是另一個瀏覽器視窗。', ai: '請 AI 加入瀏覽器開發者工具的 MCP，只描述症狀，讓它自己打開頁面、找錯誤、修好並截圖。', mode: ['once'], result: 'AI 自己修好「按鈕沒反應」。' },
+          { title: '帳號安全：雙重驗證與密碼管理', know: '雙重驗證、恢復碼、密碼管理器，以及帳號被盜的代價。', ai: '請 AI 依你會用到的帳號產生設定清單，每個平台的操作步驟自己照做。', mode: ['manual'], result: '主要帳號都開了雙重驗證。', human: '開雙重驗證、保管恢復碼與密碼，全部自己來。' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'plan',
+    title: '規劃',
+    units: [
+      {
+        title: '從想法到規格',
+        lessons: [
+          { title: '把想法寫成需求清單', know: '功能需求、限制與「這一版不做」為什麼要先寫清楚。', ai: '請 AI 反問澄清的問題，回答幾輪後整理成需求清單。', mode: ['rounds'], result: '確認過的需求清單。' },
+          { title: '畫面草圖與使用流程', know: '線框圖與使用流程，草圖階段不管顏色與細節。', ai: '請 AI 做出可以點的 HTML 草圖，點過後再指出要改的地方。', mode: ['rounds'], result: '主要畫面的草圖與流程。' },
+          { title: '選技術與服務', know: '靜態網站與有後端的差別、雲端平台與資料庫怎麼比較、費用怎麼估。', ai: '請 AI 依需求比較方案並估每月費用，寫成技術選擇紀錄。', mode: ['once'], result: '技術選擇紀錄。' },
+          { title: '拆成工作項目', know: '好的工作項目要小、可以驗證、有先後。', ai: '請 AI 拆項目並用 gh 指令建成 GitHub Issues。', mode: ['once'], result: 'GitHub 上排好順序的工作清單。' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'build',
+    title: '開發',
+    units: [
+      {
+        title: '做出畫面',
+        lessons: [
+          { title: '用 AI 做出個人介紹頁', from: '7.1', know: 'HTML、CSS、JavaScript 各負責什麼。', ai: '用自然語言描述頁面，請 AI 做出來並在瀏覽器預覽。', mode: ['once'], result: '有名字、簡介與互動按鈕的頁面。' },
+          { title: '讀懂 AI 產生的程式碼', from: '7.2', know: 'HTML 結構、CSS 選擇器與事件處理的基本樣子。', ai: '請 AI 逐段解釋，自己改一處，再請 AI 加一個區塊。', mode: ['rounds'], result: '自己改過、AI 加過區塊的頁面。' },
+          { title: '照截圖或設計稿做畫面', know: '版面、間距、字級怎麼描述，為什麼截圖比文字描述準。', ai: '給 AI 設計稿截圖，請它做出畫面後自己截圖比對，修到接近為止。', mode: ['rounds'], result: '和設計稿差異很小的頁面。' },
+          { title: '手機版與響應式', know: 'viewport、斷點與觸控操作的差異。', ai: '請 AI 用手機、平板、桌機尺寸逐一截圖，自己找出跑版並修正。', mode: ['rounds'], result: '三種尺寸都不跑版。' },
+          { title: '無障礙與多國語系', know: '替代文字、對比、鍵盤操作；語系檔怎麼運作。', ai: '請 AI 先寫一個掃描腳本找出問題，再逐項修正並抽出語系檔。', mode: ['tool', 'once'], result: '檢查沒有重大問題，可以切換語言。' },
+        ],
+      },
+      {
+        title: '用 Git 管理版本',
+        lessons: [
+          { title: '先看再存：status、diff 與 commit 訊息', from: '9.1', know: '工作區、暫存與 commit；一個 commit 只放一件事。', ai: '每次改完請 AI 先列出變更，再依變更寫 commit 訊息。', mode: ['once'], result: '3 個以上訊息清楚的 commit。' },
+          { title: '哪些檔案絕不能 commit：.gitignore', from: '9.2', know: '.env、資料庫、build 產物、node_modules 為什麼不能進版控。', ai: '請 AI 檢查 .gitignore 並用 git status 確認沒有漏網的檔案。', mode: ['once'], result: '附註解的 .gitignore 與檢查清單。' },
+          { title: '改壞了怎麼救：還原與撤銷', from: '9.3', know: 'restore、revert 與會改寫紀錄的指令有什麼不同。', ai: '故意改壞，請 AI 先說明影響範圍再救回來。', mode: ['once'], result: '各救回一次。' },
+          { title: '分支、Pull Request 與版本標籤', from: '9.4', know: '分支、Pull Request 與標籤各在什麼時候用。', ai: '請 AI 開分支、建 Pull Request、合併後打標籤。', mode: ['once'], result: '透過 Pull Request 合併並打出 v0.1.0。' },
+        ],
+      },
+      {
+        title: '好維護的專案',
+        lessons: [
+          { title: '為什麼結構會影響 AI 的表現', from: '10.1', know: '資料夾與檔名就是給 AI 的地圖。', ai: '請 AI 列出目錄樹與用途，標出放錯位置的檔案。', mode: ['once'], result: '目錄樹與用途說明。' },
+          { title: '請 AI 提出整理方案並搬檔', from: '10.2', know: '先看方案再動手、搬檔前先存檔點。', ai: '請 AI 先提方案，確認後搬檔並用 build 找漏改，沒過就繼續修。', mode: ['rounds'], result: '搬完後 build 成功。' },
+          { title: '同一件事只放一個地方', from: '14.2', know: '重複的資料與畫面為什麼會讓修改漏掉。', ai: '請 AI 找出重複並收斂成單一來源。', mode: ['once'], result: '一項重複內容改成單一來源。' },
+          { title: '把功能切開：一個檔案一件事', from: '14.3', know: '模組、介面與型別怎麼約定各部分的互動。', ai: '請 AI 拆檔，故意改一個欄位名稱，看型別檢查指出漏改。', mode: ['once'], result: '拆開後行為不變。' },
+          { title: '小步修改，把規則寫給 AI', from: '14.4', know: '小步修改、先看方案、看 diff、跑測試的流程。', ai: '請 AI 依流程做一個新功能，並把流程寫進專案說明。', mode: ['once'], result: '每個 commit 都能獨立理解的新功能。' },
+        ],
+      },
+      {
+        title: '後端與 API',
+        lessons: [
+          { title: '前端、後端與 API', know: '瀏覽器、伺服器、資料庫之間怎麼傳資料，HTTP 方法與狀態碼。', ai: '請 AI 把自己專案的請求畫成流程圖。', mode: ['once'], result: '專案的請求流程圖。' },
+          { title: '建立第一支 API', know: 'JSON、路由、請求與回應。', ai: '請 AI 建 API 並自己用 curl 測試，回應不對就修到對。', mode: ['once'], result: '頁面讀得到 API 的資料。' },
+          { title: '串接第三方 API', know: 'API 金鑰、用量限制與錯誤處理。', ai: 'AI 讀官方文件寫串接；申請金鑰的頁面 AI 碰不到，請它寫操作步驟給你。', mode: ['manual', 'once'], result: '頁面顯示第三方服務的資料。', human: '申請 API 金鑰。' },
+          { title: '環境變數與設定', know: '本機與正式環境為什麼要分開設定。', ai: '請 AI 把寫死的金鑰與網址搬進 .env，並寫 .env.example。', mode: ['once'], result: '程式裡沒有寫死的金鑰。' },
+        ],
+      },
+      {
+        title: '資料庫',
+        lessons: [
+          { title: '什麼時候需要資料庫', know: '檔案、SQLite、Postgres、Firestore 的差別。', ai: '請 AI 依專案比較並建議資料庫。', mode: ['once'], result: '選定資料庫與理由。' },
+          { title: '設計資料表', know: '資料表、欄位、主鍵與關聯。', ai: '請 AI 設計資料表並畫關聯圖，看過後補上漏掉的需求。', mode: ['rounds'], result: '資料表設計圖與建表程式。' },
+          { title: '改資料表結構不掉資料', know: 'migration 是什麼，為什麼先在複本上跑。', ai: '請 AI 寫搬移腳本，再寫一個比對筆數與內容的檢查工具。', mode: ['tool'], result: '欄位改名後舊資料完整。' },
+          { title: '用白話查資料', know: 'SQL 查詢的基本樣子，讀不寫的權限。', ai: '用白話問營運問題，請 AI 寫查詢、執行並匯出 CSV。', mode: ['once'], result: '三個營運問題的查詢結果。' },
+        ],
+      },
+      {
+        title: '登入與會員',
+        lessons: [
+          { title: '登入在做什麼：密碼雜湊與 session', from: '12.1', know: '雜湊、session 與 HttpOnly cookie。', ai: '請 AI 畫出登入流程並列出安全要求。', mode: ['once'], result: '登入流程圖與安全要求清單。' },
+          { title: 'Email 與密碼登入', from: '12.2', know: '註冊、登入、登出各要檢查什麼。', ai: '把安全要求交給 AI 實作，再請它自己寫測試證明做到了。', mode: ['once'], result: '本機註冊登入，資料庫只存雜湊。' },
+          { title: '用 Google 帳號登入', from: '12.3', know: 'OAuth 用戶端 ID、允許的網址與 ID Token。', ai: 'Google Cloud Console 的設定 AI 碰不到，請它寫逐步操作；後端驗證程式交給 AI。', mode: ['manual', 'once'], result: '用 Google 帳號登入成功。', human: '在 Google Cloud Console 建立 OAuth 用戶端。' },
+          { title: '登入的測試、上線與法律頁', from: '12.4', know: '機密管理服務與隱私權政策要寫什麼。', ai: '請 AI 寫登入測試、搬機密、更新隱私權政策。', mode: ['once'], result: '正式網址可以登入。' },
+        ],
+      },
+      {
+        title: '金流與訂閱',
+        lessons: [
+          { title: '選金流服務', know: '金流商、手續費、幣別與發票；台灣與海外金流的差異。', ai: '請 AI 依你的商品與所在地比較並列出開通需要的資料。', mode: ['once'], result: '選定金流與開通清單。' },
+          { title: '用測試模式串接結帳', know: '測試模式與正式模式、測試卡號。', ai: '開通商家帳號的頁面照 AI 寫的步驟自己操作；串接與測試付款交給 AI。', mode: ['manual', 'once'], result: '測試模式完成一筆付款。', human: '申請商家帳號，填身分與銀行資料。' },
+          { title: '用 webhook 同步訂閱狀態', know: 'webhook、簽章驗證與重送。', ai: '請 AI 串接，並用金流的模擬工具送出各種事件，逐一確認處理正確。', mode: ['rounds'], result: '取消訂閱後權限跟著改變。' },
+          { title: '發票、退款與帳務', know: '電子發票、退款與對帳。', ai: '請 AI 串接發票並做一個每月對帳報表工具。', mode: ['tool'], result: '收到發票，對帳報表對得上。', human: '確認稅務與發票規定。' },
+        ],
+      },
+      {
+        title: '寄信、檔案與排程',
+        lessons: [
+          { title: '寄信服務與寄件網域驗證', know: 'SPF、DKIM、DMARC 為什麼決定信會不會進垃圾郵件。', ai: '請 AI 產生要加的 DNS 紀錄；網域商後台照步驟填，填完請 AI 用 dig 驗證。', mode: ['manual', 'once'], result: '自己網域寄的信不進垃圾郵件。' },
+          { title: '交易信：註冊確認與重設密碼', know: '一次性連結與有效期限。', ai: '請 AI 寫信件範本與流程，寄到自己信箱檢查後再修。', mode: ['rounds'], result: '可以收確認信與重設密碼。' },
+          { title: '檔案與圖片上傳', know: '雲端儲存、檔案大小與格式限制、縮圖。', ai: '請 AI 串接雲端儲存並自動產生縮圖，上傳幾種檔案測試。', mode: ['once'], result: '上傳的圖片存在雲端並顯示縮圖。' },
+          { title: '排程工作', know: 'cron 語法與雲端排程服務。', ai: '請 AI 設定排程並確認紀錄裡看得到每次執行。', mode: ['once'], result: '準時執行、有紀錄可查的排程。' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'verify',
+    title: '測試、偵錯與安全',
+    units: [
+      {
+        title: '自動化測試',
+        lessons: [
+          { title: '為什麼需要測試：AI 改 A 壞 B', from: '13.1', know: '單元測試與端對端測試的差別。', ai: '請 AI 依專案列出「絕不能壞」的清單。', mode: ['once'], result: '絕不能壞的清單。' },
+          { title: '讓 AI 寫第一個測試', from: '13.2', know: '從不失敗的測試證明不了什麼。', ai: '請 AI 寫測試，故意改壞確認會失敗，再還原。', mode: ['once'], result: '一次被測試抓到的錯誤。' },
+          { title: '端對端測試', from: '13.3', know: 'Playwright 怎麼像人一樣操作瀏覽器。', ai: '請 AI 寫全站測試，失敗時讀截圖與錯誤自己修。', mode: ['rounds'], result: '一個指令跑完全站檢查。' },
+          { title: '每次修改都自動跑', from: '13.4', know: 'CI 是什麼，GitHub 上的通過與失敗標記。', ai: '請 AI 設定 GitHub Actions，失敗時用 gh 讀紀錄修好。', mode: ['once'], result: '每次 push 都有測試標記。' },
+        ],
+      },
+      {
+        title: '偵錯',
+        lessons: [
+          { title: '讀懂錯誤訊息', know: '錯誤類型、堆疊追蹤怎麼由下往上讀。', ai: '把完整錯誤交給 AI，請它找到出錯的那一行、解釋原因再修。', mode: ['once'], result: '修好一個看不懂的錯誤。' },
+          { title: '讓 AI 自己重現問題', know: '先重現才修，修完再重現一次確認。', ai: '只描述症狀，讓 AI 用瀏覽器工具重現、找原因、修好、再驗證。', mode: ['once'], result: 'AI 自己找到並修好問題。' },
+          { title: '只在手機或某個瀏覽器才壞', know: '裝置尺寸、觸控與瀏覽器差異。', ai: '請 AI 模擬裝置逐一截圖；真機才有的問題，請它寫重現步驟給你在手機上試並回報。', mode: ['rounds', 'manual'], result: '修好一個只在手機出現的問題。' },
+          { title: '網頁很慢', know: '載入時間、檔案大小與 Lighthouse 分數。', ai: '請 AI 跑效能檢查並改善，前後各跑一次比較。', mode: ['once'], result: '改善前後的效能分數。' },
+          { title: '只在正式環境發生的錯誤', know: '紀錄（logs）、環境差異與為什麼本機重現不了。', ai: '請 AI 寫一個查正式環境紀錄的指令或腳本，篩出錯誤再比對設定。', mode: ['tool'], result: '從正式紀錄找到問題原因。' },
+        ],
+      },
+      {
+        title: '安全',
+        lessons: [
+          { title: '機密不外洩', know: '金鑰外洩的後果，為什麼從紀錄刪除不夠。', ai: '請 AI 掃描程式與 Git 紀錄，並寫好外洩時的更換步驟。', mode: ['once'], result: '掃描乾淨與處理步驟。' },
+          { title: '相依套件的漏洞', know: '套件漏洞與風險等級。', ai: '請 AI 執行檢查、判斷要升級哪些，升級後跑測試。', mode: ['once'], result: '沒有高風險漏洞。' },
+          { title: '常見攻擊與防護', know: 'XSS、SQL 注入、CSRF、暴力登入。', ai: '請 AI 逐項檢查並加防護，每項都寫一個攻擊測試證明擋得住。', mode: ['once'], result: '每項都有防護與測試。' },
+          { title: '上線前請 AI 做安全審查', know: '安全審查清單與風險分級。', ai: '請另一個 AI 工作階段（沒看過實作的）審查，再請原本的 AI 修正。', mode: ['rounds'], result: '審查報告與修正紀錄。' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'launch',
+    title: '上線',
+    units: [
+      {
+        title: '靜態網站上線',
+        lessons: [
+          { title: '部署到 GitHub Pages', from: '7.3', know: '靜態網站託管與「push → 網站更新」。', ai: '請 AI 用 gh 開啟 GitHub Pages 並確認網址打得開。', mode: ['once'], result: '可以分享的公開網址。' },
+          { title: '其他平台：Cloudflare Pages、Vercel、Netlify', know: '各平台的免費額度、預覽網址與自動部署。', ai: '首次連接帳號照 AI 的步驟操作，之後用平台的 CLI 讓 AI 部署。', mode: ['manual', 'once'], result: '第二個平台上線並有預覽網址。' },
+          { title: 'HTTPS 與快取', know: '憑證、HTTP 轉 HTTPS、快取與為什麼看到舊版。', ai: '請 AI 用 curl -I 檢查轉址與快取標頭並調整。', mode: ['once'], result: '更新後馬上看得到新版。' },
+        ],
+      },
+      {
+        title: '網域與 DNS',
+        lessons: [
+          { title: '網域是什麼、怎麼挑', know: '網域、頂級網域（.com、.tw）、網域商與續約價。', ai: '請 AI 比較網域商與價格，並幫忙查名稱有沒有被註冊。', mode: ['once'], result: '選好網域名稱與網域商。' },
+          { title: '買網域', know: '自動續約、轉移鎖定、WHOIS 隱私保護。', ai: '購買頁面 AI 碰不到：請它寫逐步操作與買完的檢查清單，每步截圖給它確認。', mode: ['manual'], result: '擁有網域，設定都檢查過。', human: '付款、填寫註冊人資料、收驗證信。' },
+          { title: 'DNS 紀錄入門', know: 'A、AAAA、CNAME、TXT、MX 紀錄與 TTL。', ai: '請 AI 用 dig 讀出網域目前的所有紀錄並說明用途。', mode: ['once'], result: '自己網域的 DNS 紀錄表。' },
+          { title: '把網域接到網站', know: 'DNS 生效時間與 HTTPS 憑證怎麼發。', ai: '請 AI 給出要填的值；網域商後台照做；請 AI 寫一個檢查腳本，反覆確認到生效為止。', mode: ['manual', 'tool'], result: '用自己的網域打開網站。', human: '在網域商後台填紀錄並儲存。' },
+          { title: '子網域、轉址與網域信箱', know: '子網域、www 轉址與信箱的 MX 紀錄。', ai: '請 AI 規劃子網域與信箱紀錄，照步驟填好後由 AI 驗證。', mode: ['manual', 'once'], result: 'www 轉址、子網域與網域信箱。' },
+          { title: '把 DNS 交給 Cloudflare 管理', know: 'nameserver 是什麼，搬移時為什麼可能中斷。', ai: '請 AI 用 Cloudflare API 匯入紀錄並比對搬移前後一致，最後換 nameserver 照步驟做。', mode: ['tool', 'manual'], result: 'DNS 搬家，網站與信箱沒有中斷。' },
+        ],
+      },
+      {
+        title: 'Google Cloud（GCP）入門',
+        lessons: [
+          { title: '建立帳號與專案', know: '雲端帳號、專案、帳單帳戶與免費額度。', ai: '註冊與綁卡照 AI 的步驟自己做；之後的建立專案交給 AI 用 gcloud。', mode: ['manual', 'once'], result: '專用的 GCP 專案。', human: '註冊帳號、綁定信用卡。' },
+          { title: '先設預算警示', know: '計費方式、預算與警示，為什麼這是第一件事。', ai: '請 AI 用 gcloud 建立預算與通知，再解釋帳單上各項費用。', mode: ['once'], result: '超過預算一半就會收到通知。' },
+          { title: '讓 AI 用 gcloud 操作雲端', know: '主控台與 CLI 的差別：CLI 讓 AI 碰得到雲端。', ai: '安裝 gcloud，請 AI 每個指令先說明會做什麼、會不會花錢再執行。', mode: ['once'], result: 'AI 列出專案的服務與設定。', human: 'gcloud 登入時的瀏覽器授權。' },
+          { title: '權限與服務帳號', know: 'IAM、角色、服務帳號與最小權限。', ai: '請 AI 建立部署用服務帳號，只給需要的角色並說明每個角色。', mode: ['once'], result: '只有必要權限的服務帳號。' },
+          { title: '啟用 API 與配額', know: '雲端 API、配額與用量。', ai: '請 AI 啟用需要的 API 並列出用量。', mode: ['once'], result: 'API 清單與目前用量。' },
+        ],
+      },
+      {
+        title: '把後端搬上雲端',
+        lessons: [
+          { title: '用 Docker 打包', know: '容器、映像檔與 Dockerfile。', ai: '請 AI 寫 Dockerfile，建置失敗就讀錯誤修到能在本機跑起來。', mode: ['rounds'], result: '本機用容器跑起網站。' },
+          { title: '部署到 Cloud Run', know: '無伺服器容器、地區、記憶體與冷啟動。', ai: '請 AI 用 gcloud 部署並打開網址確認。', mode: ['once'], result: 'Cloud Run 網址打得開網站。' },
+          { title: '雲端資料庫 Cloud SQL', know: '託管資料庫、連線方式與自動備份。', ai: '請 AI 建立 Cloud SQL、搬資料，並寫比對本機與雲端筆數的檢查腳本。', mode: ['once', 'tool'], result: '正式環境使用雲端資料庫。' },
+          { title: '機密放進 Secret Manager', know: '機密管理服務與版本。', ai: '請 AI 搬機密並確認版控沒有殘留。', mode: ['once'], result: '機密都在 Secret Manager。' },
+          { title: '自訂網域接 Cloud Run', know: '網域對應與憑證。', ai: '請 AI 設定網域對應並給出 DNS 紀錄；填完由 AI 驗證憑證生效。', mode: ['manual', 'once'], result: '用自己的網域打開 Cloud Run 網站。' },
+        ],
+      },
+      {
+        title: '自動部署與發版',
+        lessons: [
+          { title: '推送標籤才部署', know: '持續部署、觸發條件與部署前的測試。', ai: '請 AI 寫 GitHub Actions，推一次標籤看部署結果，失敗就讀紀錄修。', mode: ['rounds'], result: '推送標籤後網站自動更新。' },
+          { title: '不用金鑰檔的部署權限', know: 'Workload Identity Federation：不存金鑰也能部署。', ai: '請 AI 用 gcloud 設定並把 GitHub 上舊的金鑰刪掉。', mode: ['once'], result: 'GitHub 上沒有雲端金鑰。' },
+          { title: 'CHANGELOG 與版號', know: '語意化版號與破壞性變更。', ai: '把發版流程寫成技能，之後說「發版」就讓 AI 照步驟讀差異、寫 CHANGELOG、打標籤。', mode: ['tool'], result: '一個固定流程的發版技能。' },
+          { title: '上線後出問題：退版', know: '版本、流量切換與退版。', ai: '請 AI 找出上一個正常版本並切回，事後寫一份事故紀錄。', mode: ['once'], result: '一次退版演練與事故紀錄。' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'operate',
+    title: '營運',
+    units: [
+      {
+        title: '監控與紀錄',
+        lessons: [
+          { title: '讀雲端紀錄', know: '紀錄等級、查詢語法與保留期限。', ai: '請 AI 寫一個查最近錯誤的指令並整理成摘要。', mode: ['tool'], result: '一週的錯誤摘要。' },
+          { title: '網站掛了會通知', know: '健康檢查、告警與通知管道。', ai: '請 AI 設定健康檢查與通知，故意停掉服務測試。', mode: ['once'], result: '幾分鐘內收到通知。' },
+          { title: '錯誤追蹤', know: '錯誤追蹤服務會收集什麼、要注意哪些個資。', ai: '申請帳號照步驟做；串接與測試回報交給 AI。', mode: ['manual', 'once'], result: '前端錯誤自動出現在後台。' },
+          { title: 'AI 每日營運摘要', know: '排程任務與摘要該放什麼。', ai: '請 AI 寫一個每天讀紀錄與數據、寄出摘要的排程任務。', mode: ['tool'], result: '每天收到營運摘要。' },
+        ],
+      },
+      {
+        title: '資料、成本與維護',
+        lessons: [
+          { title: '備份與還原演練', know: '備份、還原點與為什麼要演練。', ai: '請 AI 在複本上還原並寫比對腳本。', mode: ['tool'], result: '一次成功的還原演練。' },
+          { title: '讀懂雲端帳單、降低成本', know: '費用組成與常見的浪費。', ai: '請 AI 匯出帳單資料並分析花最多的服務。', mode: ['once'], result: '費用明細與一項省錢調整。' },
+          { title: '套件與執行環境更新', know: '版本更新的風險與自動更新的 Pull Request。', ai: '請 AI 設定自動更新，並在每個 Pull Request 讀更新說明、跑測試再建議是否合併。', mode: ['once'], result: '每週的更新 Pull Request。' },
+          { title: '個資匯出與刪除請求', know: '個資法對匯出與刪除的要求。', ai: '請 AI 做匯出與刪除的管理工具，在測試帳號上演練。', mode: ['tool'], result: '可以依請求匯出或刪除資料。' },
+        ],
+      },
+      {
+        title: '數據',
+        lessons: [
+          { title: 'GA4 流量分析', from: '11.4', know: '事件、工作階段與即時報表。', ai: 'GA4 建立資源照步驟做；評估 ID 設定與換頁記錄交給 AI。', mode: ['manual', 'once'], result: '即時報表看得到自己的造訪。' },
+          { title: '自訂追蹤事件與漏斗', know: '先想要回答的問題，再決定記錄什麼。', ai: '請 AI 依問題設計事件並實作，自己走一次流程檢查有記到。', mode: ['rounds'], result: '一條從進站到完成目標的漏斗。' },
+          { title: '後台報表', know: '管理員權限與報表該放哪些數字。', ai: '請 AI 做只有管理員看得到的後台頁。', mode: ['tool'], result: '後台報表。' },
+          { title: '用白話問數據', know: '數字的來源與限制，相關不等於因果。', ai: '用白話問，請 AI 查資料回答並附上依據。', mode: ['once'], result: '三個營運問題的答案。' },
+        ],
+      },
+      {
+        title: '法務與客服',
+        lessons: [
+          { title: '隱私權政策與服務條款', know: '要說明收集什麼、為什麼、存多久、怎麼刪。', ai: '請 AI 讀程式找出實際收集的資料，依此起草。', mode: ['once'], result: '網站上的隱私權政策與服務條款。', human: '最後內容與法律責任自己確認。' },
+          { title: 'Cookie 同意', know: '必要與非必要 cookie、同意前不能做什麼。', ai: '請 AI 列出 cookie、做同意橫幅，並用瀏覽器工具確認拒絕後沒有送出分析資料。', mode: ['once'], result: '拒絕後不送出分析資料。' },
+          { title: '常見問題與客服回覆', know: '常見問題頁與回覆範本。', ai: '把來信交給 AI 整理成常見問題與草稿。', mode: ['rounds'], result: '常見問題頁與回覆範本。', human: '回覆送出前自己確認。' },
+          { title: '意見回饋', know: '回饋收集與分類。', ai: '請 AI 做回饋表單，並定期整理成待辦。', mode: ['once'], result: '回饋表單與整理過的待辦。' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'market',
+    title: '行銷',
+    units: [
+      {
+        title: 'SEO',
+        lessons: [
+          { title: '每一頁的標題、描述與分享預覽', from: '11.1', know: 'title、description、canonical 與 Open Graph。', ai: '請 AI 補齊全站，並用 curl 檢查每頁。', mode: ['once'], result: '每頁都有標題、描述與分享圖。' },
+          { title: 'sitemap、robots.txt 與 404', from: '11.2', know: '搜尋引擎怎麼找到頁面、noindex 與 404 狀態碼。', ai: '請 AI 產生檔案並寫測試確保之後不會壞。', mode: ['once'], result: '檢查都正確。' },
+          { title: '結構化資料（JSON-LD）', from: '11.3', know: '結構化資料與複合式搜尋結果。', ai: '請 AI 加上 JSON-LD；測試工具的網頁照步驟貼網址檢查，把結果交給 AI 修。', mode: ['manual', 'rounds'], result: '測試工具沒有錯誤。' },
+          { title: 'Google Search Console', know: '擁有權驗證、收錄與搜尋成效報表。', ai: '請 AI 給出驗證用的 TXT 紀錄並驗證生效；報表下載後交給 AI 解讀。', mode: ['manual', 'once'], result: '網站已驗證並看得到收錄狀況。' },
+        ],
+      },
+      {
+        title: '內容與社群',
+        lessons: [
+          { title: '找關鍵字與寫文章', know: '搜尋意圖與文章結構。', ai: '請 AI 研究關鍵字、寫大綱與初稿，自己改觀點後再請它潤稿。', mode: ['rounds'], result: '一篇針對關鍵字的文章。', human: '最後的觀點與審稿。' },
+          { title: '分享圖與社群貼文', know: '各平台的尺寸、語氣與發文時段。', ai: '請 AI 做一個產生分享圖的小工具，一份內容輸出各平台版本。', mode: ['tool'], result: '一組各平台的貼文與圖片。' },
+          { title: '自動更新粉絲專頁', know: '社群平台的發文 API、權杖與審核；為什麼發文前一定要有人看過。', ai: '先手動發一次找出重複步驟；再請 AI 做「AI 起草、人核准、程式發布」的流程（例如從 CHANGELOG 或新課自動產生草稿）。', mode: ['tool', 'manual'], result: '核准後自動發出的粉絲專頁貼文。', human: '申請開發者帳號與權杖、每篇發文前核准。' },
+          { title: '短影音腳本', know: '短影音的開頭、節奏與字幕。', ai: '請 AI 寫 30 秒腳本與分鏡，看過後再調整。', mode: ['rounds'], result: '一支短影音的腳本與分鏡。' },
+          { title: '曝光平台與商家資訊', know: '適合的曝光管道與各平台要求。', ai: '請 AI 準備各平台的介紹文字；上架頁面照步驟操作。', mode: ['manual'], result: '在一個平台上架。' },
+        ],
+      },
+      {
+        title: '電子報、廣告與轉換',
+        lessons: [
+          { title: '電子報與訂閱表單', know: '名單、雙重確認與退訂。', ai: '請 AI 串接電子報服務並測試訂閱與退訂。', mode: ['once'], result: '可以訂閱、退訂的名單。' },
+          { title: '自動化信件流程', know: '歡迎信、提醒信、回流信的時機。', ai: '請 AI 設計流程並寫信，寄給自己看過再修。', mode: ['rounds'], result: '新訂閱者依序收到信件。' },
+          { title: 'UTM 與成效追蹤', know: 'UTM 參數與歸因。', ai: '請 AI 做一個 UTM 網址產生器，並整理各管道成效。', mode: ['tool'], result: '各管道帶來多少人、多少轉換的表。' },
+          { title: '投放廣告', know: '受眾、出價、預算與轉換追蹤。', ai: '請 AI 寫好受眾、文案與預算建議；廣告後台照步驟設定，成效報表交給 AI 分析。', mode: ['manual', 'rounds'], result: '一個測試廣告與成效報告。', human: '付款與最後送出廣告。' },
+          { title: '到達頁與 A/B 測試', know: '分流、樣本數與統計顯著。', ai: '請 AI 做兩個版本並分流，數據夠了再請它解讀。', mode: ['once'], result: '一次 A/B 測試的結論。' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'ai-workflow',
+    title: '讓 AI 順利工作',
+    units: [
+      {
+        title: '讓 AI 看得到、碰得到',
+        lessons: [
+          { title: '給 AI 眼睛：瀏覽器與截圖', know: 'AI 看不到畫面時只能猜；瀏覽器工具讓它自己看結果。', ai: '同一個畫面問題，比較「口頭描述」與「讓 AI 自己開瀏覽器看」的差別。', mode: ['once'], result: 'AI 自己截圖確認修好的畫面。' },
+          { title: '用 CLI 取代網頁後台', know: 'gh、gcloud、平台 CLI 讓 AI 碰得到原本只能在網頁點的設定。', ai: '把一件原本在主控台點的設定，改成請 AI 用 CLI 完成。', mode: ['once'], result: '一份「哪些事可以用 CLI 做」的清單。' },
+          { title: '用 MCP 連接外部工具', know: 'MCP 伺服器能給 AI 哪些能力，安裝前要看什麼權限。', ai: '加入 GitHub 或資料庫的 MCP，讓 AI 直接查 Issue 或資料。', mode: ['once'], result: 'AI 能讀到專案的 Issue 與資料。' },
+          { title: 'AI 碰不到的頁面：操作步驟與回報', know: '付款、身分驗證與沒有 API 的後台只能自己操作。', ai: '請 AI 寫逐步操作，你每做一步就截圖回報，由 AI 判斷下一步或找出設定錯誤。', mode: ['manual'], result: '一份可以重複使用的操作步驟。' },
+          { title: '把最新文件交給 AI', know: 'AI 的知識有截止日，工具與雲端介面常改版。', ai: '請 AI 先讀官方最新文件或更新紀錄再動手，比較讀之前與讀之後的做法。', mode: ['once'], result: '依最新文件完成的設定。' },
+        ],
+      },
+      {
+        title: '讓 AI 自己檢查',
+        lessons: [
+          { title: '先說好「怎樣算完成」', know: '完成條件（測試通過、截圖一致、curl 回 200）讓 AI 知道何時停下來。', ai: '交代任務時附上完成條件，讓 AI 自己驗證後才回報。', mode: ['once'], result: '附完成條件的任務範本。' },
+          { title: '先寫測試再改', know: '測試先失敗、改完才通過，AI 改錯時馬上知道。', ai: '請 AI 先寫會失敗的測試，再改程式到通過。', mode: ['once'], result: '一個先失敗後通過的修正。' },
+          { title: '請另一個 AI 審查', know: '寫程式的 AI 容易忽略自己的錯；沒看過實作的審查者比較客觀。', ai: '開另一個工作階段只給 diff 請它審查，再把結果交回去修。', mode: ['rounds'], result: '一份審查結果與修正。' },
+          { title: 'AI 卡住時怎麼辦', know: '一直重試同一招、越改越多是卡住的訊號。', ai: '請 AI 停下來整理已知與未知，換方法或縮小問題；必要時開新對話重來。', mode: ['rounds'], result: '一份「卡住時」的處理清單。' },
+        ],
+      },
+      {
+        title: '交代任務的方法',
+        lessons: [
+          { title: '寫清楚任務：目標、限制、完成條件', know: '好的任務說明包含要做什麼、不能動什麼、怎樣算完成。', ai: '同一個任務用模糊與清楚兩種寫法交代，比較結果。', mode: ['once'], result: '自己的任務說明範本。' },
+          { title: '大任務先看方案再動手', know: '先規劃、確認、再執行，可以少走很多回頭路。', ai: '請 AI 只出方案不改檔，確認或修改後才執行。', mode: ['rounds'], result: '一個先看方案完成的功能。' },
+          { title: '來回修正的技巧', know: '一次指出一件事、附截圖或錯誤原文、說明期待的結果。', ai: '練習用截圖與具體描述，三輪內把畫面修到位。', mode: ['rounds'], result: '修正指令的寫法清單。' },
+          { title: '對話太長時：摘要與接續', know: '對話越長 AI 越容易忘記前面的決定。', ai: '請 AI 把目前進度、決定與待辦寫成摘要，開新對話接著做。', mode: ['once'], result: '可以接續工作的進度摘要。' },
+          { title: '專案規則與記憶', know: '專案說明檔與記憶：哪些該寫、哪些不用寫。', ai: '把被糾正過兩次的事寫進規則，下次觀察 AI 有沒有照做。', mode: ['rounds'], result: '更新過的專案規則。' },
+        ],
+      },
+      {
+        title: '讓 AI 自己做工具',
+        lessons: [
+          { title: '重複三次就寫成腳本', know: '腳本把每次都一樣的步驟固定下來，AI 和人都不容易出錯。', ai: '請 AI 把一件重複的工作（例如部署前檢查）寫成腳本並加進專案。', mode: ['tool'], result: '一個常用腳本。' },
+          { title: '做內部小工具頁', know: '給自己用的工具頁（例如本站的研發基地與課程編排看板）可以不講究外觀。', ai: '請 AI 做一個整理資料或檢視狀態的內部頁面。', mode: ['tool'], result: '一個自己會天天用的內部工具。' },
+          { title: '把固定流程做成技能', know: '技能（skill）把多步驟流程與規則包在一起，說一句話就照做。', ai: '把發版或審查流程寫成技能並實際用一次。', mode: ['tool'], result: '一個可以重複呼叫的技能。' },
+          { title: '自動檢查：Hooks', know: 'Hooks 在 AI 每次改檔或結束時自動執行指令。', ai: '請 AI 設定改完檔自動跑格式化與型別檢查。', mode: ['tool'], result: '每次修改都會自動檢查。' },
+        ],
+      },
+      {
+        title: '長時間與多工作業',
+        lessons: [
+          { title: '多個 AI 同時做不同的事', know: '工作階段與 worktree，哪些工作可以平行、哪些會互相干擾。', ai: '開兩個工作階段各做一件不相干的工作，最後合併。', mode: ['once'], result: '兩件工作同時完成並合併。' },
+          { title: '背景執行與通知', know: '長時間的任務（測試、部署）放背景跑，完成時通知。', ai: '請 AI 在背景跑完整測試與部署，完成後回報結果。', mode: ['once'], result: '不用盯著畫面等的長任務。' },
+          { title: '用手機看進度與核准', know: '遠端控制：離開電腦也能看進度、回覆確認。', ai: '在電腦上交代任務，出門用手機核准下一步。', mode: ['once'], result: '一次在手機上完成的核准。' },
+          { title: '排程的 AI 任務', know: '定時執行的 AI 任務適合檢查、整理與摘要。', ai: '設定每週自動檢查套件更新或整理數據的 AI 任務。', mode: ['tool'], result: '每週自動執行並回報的 AI 任務。' },
+        ],
+      },
+      {
+        title: '安全邊界與成本',
+        lessons: [
+          { title: '權限模式：哪些事要先問', know: '付款、刪除資料、動正式資料庫、對外發送一定要先問。', ai: '請 AI 把這些邊界寫進專案規則，並設定對應的權限。', mode: ['once'], result: '專案規則寫明 AI 不能自己做的事。' },
+          { title: '給 AI 最小權限', know: '唯讀帳號、測試環境與正式環境分開。', ai: '請 AI 建立只讀的資料庫帳號與測試環境，日常開發只用這些。', mode: ['once'], result: 'AI 平常碰不到正式環境的寫入權限。' },
+          { title: '看 AI 做了什麼', know: 'diff、指令紀錄與 commit 是檢查 AI 工作的依據。', ai: '請 AI 在每次工作結束時整理做了什麼、沒做什麼、哪裡沒驗證。', mode: ['once'], result: '每次工作的結尾報告。' },
+          { title: 'AI 的費用與用量', know: '訂閱方案、用量計費與哪些做法特別耗用量。', ai: '請 AI 說明這次工作的用量來源，調整交代方式降低用量。', mode: ['once'], result: '自己的用量觀察與節省做法。' },
+        ],
+      },
+    ],
+  },
+]
+
+export type FullCourseKind = 'know' | 'ai'
+export const KIND_LABEL: Record<FullCourseKind, string> = { know: '基礎知識', ai: '用 AI 完成' }
+
+/** 單元依環節連續編號（1、2、3…），環節編號為「單元.第幾項」，例如 17.2 */
+export const FULL_ITEMS: { code: string; unit: number; unitTitle: string; stage: string; lesson: FullLesson }[] = (() => {
+  let n = 0
+  return FULL_STAGES.flatMap((s) =>
+    s.units.flatMap((u) => {
+      n += 1
+      const unit = n
+      return u.lessons.map((lesson, i) => ({ code: `${unit}.${i + 1}`, unit, unitTitle: u.title, stage: s.title, lesson }))
+    }),
+  )
+})()
+
+/** 試做腳本的路徑（相對於 src/content/live/），例如 lab/full-course/17.2-ai.json */
+export const fullScriptPath = (code: string, kind: FullCourseKind): string => `lab/full-course/${code}-${kind}.json`
+/** 試做頁網址，例如 /studio/full-course/17-2/ai */
+export const fullTrialPath = (code: string, kind: FullCourseKind): string => `/studio/full-course/${code.replace('.', '-')}/${kind}`

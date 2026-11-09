@@ -1,0 +1,128 @@
+{
+  "title": "用 Google 帳號登入",
+  "lesson": "全環節 · 單元 10 · 10.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天接上 Google 登入",
+    "line": "今天幫小森烘焙接上 Google 登入。Google 的設定頁 AI 碰不到，由你照它寫的步驟操作；後端檢查 ID Token 的程式交給 AI，最後由你本人實際登入一次。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "Google 登入", "folder": "~/projects/bakery", "branch": "google-login", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "console": {
+      "actor": "browser",
+      "props": { "site": "fc10-3-console", "url": "https://console.cloud.example/apis/credentials?project=bakery-site" },
+      "place": "window",
+      "hidden": true
+    },
+    "site": {
+      "actor": "browser",
+      "props": { "site": "fc10-3-signin", "url": "http://localhost:5173/login" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用 Google 帳號登入",
+      "eyebrow": "全環節 · 單元 10 · 10.3 用 AI 完成",
+      "sub": "主控台你來操作，後端驗證交給 AI，最後你本人登入",
+      "chapter": "AI 寫操作步驟",
+      "narration": "這一堂有三段接力：AI 寫步驟、你操作主控台、AI 寫程式並測試，最後你本人實際登入。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我要加上「用 Google 帳號登入」。Google Cloud Console 的設定你碰不到，請先讀官方文件，寫逐步操作給我；我建好之後把用戶端 ID 給你，你再寫後端檢查 ID Token 的程式。正式網址是 https://bakery.example，本機是 http://localhost:5173。",
+      "narration": "把兩個網址都告訴它：正式網址和本機網址，之後要填進允許的網址。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid",
+      "result": "讀完設定步驟",
+      "narration": "它先讀 Google 的官方說明。"
+    },
+    {
+      "on": "claude",
+      "say": "請在 Google Cloud Console 照做（第一次用要先設定「OAuth 同意畫面」）：\n1. 左邊選 **憑證**，按 **＋ 建立憑證** → OAuth 用戶端 ID\n2. 應用程式類型選 **網頁應用程式**，名稱填 `bakery-web`\n3. 已授權的 JavaScript 來源加兩個：`https://bakery.example`、`http://localhost:5173`\n4. 按 **建立**，把 **用戶端 ID** 貼給我（它本來就公開）\n\n這個做法用不到用戶端密碼，如果畫面上有，不用貼給我。",
+      "narration": "步驟寫得很具體，連「哪個可以貼給它、哪個不用」都說清楚了。"
+    },
+    { "hide": "claude" },
+    { "show": "console", "focus": false, "chapter": "你操作主控台", "narration": "換你。打開主控台，進到憑證頁。" },
+    { "on": "console", "click": "#new", "narration": "按建立憑證。" },
+    { "on": "console", "fill": { "#type": "web", "#cname": "bakery-web", "#origin": "https://bakery.example", "#origin2": "http://localhost:5173" }, "narration": "類型選網頁應用程式，填名稱，再填兩個允許的網址。網址要一字不差，少一個 s 或多一個斜線都會被拒絕。" },
+    { "on": "console", "click": "#create", "narration": "按建立。" },
+    { "callout": "console:sel:.ok", "text": "用戶端 ID：可以貼給 AI", "narration": "建好了。把用戶端 ID 複製下來。" },
+    { "hide": "console" },
+    { "show": "claude", "chapter": "AI 寫後端驗證" },
+    { "on": "claude", "user": "建好了，用戶端 ID 是 1234-abcd.apps.googleusercontent.com，兩個網址都加了。", "narration": "回報給 AI，附上用戶端 ID。" },
+    { "on": "claude", "edit": ".env", "lines": [[5, "+", "GOOGLE_CLIENT_ID=1234-abcd.apps.googleusercontent.com"]], "narration": "它把用戶端 ID 放進設定。" },
+    {
+      "on": "claude",
+      "edit": "routes/google.js",
+      "lines": [
+        [1, "+", "const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)"],
+        [2, "+", "router.post('/auth/google', async (req, res) => {"],
+        [3, "+", "  try {"],
+        [4, "+", "    const t = await client.verifyIdToken({ idToken: req.body.credential, audience: process.env.GOOGLE_CLIENT_ID })"],
+        [5, "+", "    const p = t.getPayload()  // 套件已檢查:Google 的章、iss、aud、exp"],
+        [6, "+", "    if (!p.email_verified) return res.status(401).end()"],
+        [7, "+", "    const user = await upsertUser({ email: p.email, name: p.name, googleId: p.sub })"],
+        [8, "+", "    await req.session.regenerate(); req.session.userId = user.id"],
+        [9, "+", "    res.json({ ok: true })"],
+        [10, "+", "  } catch { res.status(401).json({ error: '登入驗證失敗' }) }"],
+        [11, "+", "})"]
+      ],
+      "narration": "後端用 Google 官方的套件檢查 ID Token：章、發行者、aud、過期時間都檢查；email 要已驗證；通過才發號碼牌。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- tests/google.test.js",
+      "result": "4 / 4 通過",
+      "out": "✓ 亂打的 token 回 401\n✓ 過期的 token 回 401\n✓ aud 是別的網站的 token 回 401\n✓ 正確的 token 建立 session（用測試金鑰簽的假 token）",
+      "chapter": "AI 自己測",
+      "narration": "它自己寫測試：亂打的、過期的、開給別的網站的，都要被擋下；正確的才能登入。"
+    },
+    {
+      "on": "claude",
+      "say": "後端完成，4 個測試都通過，登入頁也加了 Google 按鈕。\n\n最後一步要**你本人**登入：打開 http://localhost:5173/login 按 Google 登入。Google 的密碼和兩步驟驗證都在 Google 的頁面完成，我不會碰。登入後告訴我結果。",
+      "narration": "最後一步，它請你本人實際登入一次。你的 Google 密碼，只在 Google 的頁面上輸入。"
+    },
+    { "hide": "claude" },
+    { "show": "site", "focus": false, "chapter": "你本人登入", "narration": "打開本機的登入頁。" },
+    { "on": "site", "click": "#google", "narration": "按使用 Google 帳號登入。" },
+    { "on": "site", "click": "#acc", "narration": "在 Google 的畫面選自己的帳號。" },
+    { "callout": "site:sel:#in", "text": "登入成功：後端驗證通過", "narration": "登入成功。" },
+    { "hide": "site" },
+    { "show": "claude" },
+    { "on": "claude", "user": "登入成功了，右上角顯示小安。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "tail -3 logs/server.log",
+      "result": "看到這次登入",
+      "out": "POST /auth/google 200  aud=1234-abcd… ✓  email_verified ✓\n新會員：an@example.com（google）\nsession 已建立，cookie: HttpOnly; Secure; SameSite=Lax",
+      "narration": "它再看一次伺服器紀錄，確認這次登入真的有經過檢查、號碼牌的設定也正確。"
+    },
+    { "on": "claude", "say": "確認完成：本機用 Google 登入成功。部署到正式網址時，`GOOGLE_CLIENT_ID` 要一起設定到正式環境，下一堂處理。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 寫 Google Cloud Console 的逐步操作，你自己建立 OAuth 用戶端、把用戶端 ID 給它；後端驗證交給它寫和測，最後你本人登入一次。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "主控台你操作，程式 AI 寫\n最後你本人登入驗收",
+      "eyebrow": "學會",
+      "sub": "用戶端 ID 可以給 AI；Google 的密碼只在 Google 的頁面輸入",
+      "chapter": "學會",
+      "narration": "這一堂的重點：AI 碰不到的主控台，由它寫步驟、你操作；後端驗證交給它寫和測試；登入這一步，由你本人完成。"
+    }
+  ]
+}

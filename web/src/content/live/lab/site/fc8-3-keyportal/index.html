@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>天氣資料平台｜API 金鑰</title><link rel="stylesheet" href="styles.css"></head>
+<body style="--brand:#0891b2">
+<header class="top"><div class="logo"><i></i>天氣資料平台</div><span class="sp"></span><span class="who">你的帳號 ▾</span></header>
+<div class="app">
+  <nav class="side"><a>總覽</a><a class="on">API 金鑰</a><a>用量</a><a>文件</a><a>方案</a></nav>
+  <main class="main">
+    <h1>API 金鑰</h1>
+    <p class="muted">程式呼叫 API 時要帶上金鑰，平台才知道是誰在用、用了多少。</p>
+    <div class="card plan"><div><b>免費方案</b><span class="muted">每天 1,000 次、每分鐘 60 次</span></div><div class="bar"><i style="width:3%"></i></div><span class="muted">今天已用 31 次</span></div>
+    <div class="card" id="list">
+      <div class="lh"><h2>你的金鑰</h2><button class="btn" id="new">＋ 建立金鑰</button></div>
+      <p class="muted" id="empty">還沒有金鑰。</p>
+      <div class="form hide" id="form">
+        <label for="kname">金鑰名稱（給自己看的）</label><input id="kname" placeholder="例如 my-server">
+        <label for="kscope">權限</label><select id="kscope"><option value="read">只能讀取天氣資料</option><option value="all">全部權限</option></select>
+        <div style="margin-top:14px"><button class="btn" id="create">建立</button></div>
+      </div>
+      <div class="made hide" id="made">
+        <div class="kv"><span class="mono" id="kshow">bakery-server</span><span class="tag ok">已啟用</span></div>
+        <div class="key mono">wx_live_••••••••••••••••3f9a <button class="btn small ghost" id="copy">複製</button></div>
+        <div class="note">這組金鑰只會完整顯示這一次。請貼到專案的 <b class="mono">.env</b>，不要貼到聊天、截圖或程式碼裡。</div>
+        <div class="copied hide" id="copied">已複製到剪貼簿</div>
+      </div>
+    </div>
+  </main>
+</div>
+</body></html>

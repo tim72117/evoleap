@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>tool-choice.md</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+<div class="doc card">
+  <div class="muted mono fname">tool-choice.md · AI 整理的比較</div>
+  <div class="ttl">我該用哪一種 AI 程式助手？</div>
+  <div class="sub">你的狀況：零基礎、想做小店網站、已經有 Claude Pro 帳號、用 Mac</div>
+  <table>
+    <tr><th></th><th>聊天視窗</th><th>編輯器裡的助手</th><th class="hl">終端機代理<br><span class="muted small">例如 Claude Code</span></th></tr>
+    <tr><td>讀你的專案檔案</td><td>✗ 要自己貼</td><td>△ 開著的檔案</td><td class="hl">✓ 整個資料夾</td></tr>
+    <tr><td>自己改檔、建檔</td><td>✗</td><td>✓ 一次一處</td><td class="hl">✓ 多個檔案</td></tr>
+    <tr><td>執行指令、跑測試</td><td>✗</td><td>△ 部分</td><td class="hl">✓ 會先問你</td></tr>
+    <tr><td>你的帳號能用嗎</td><td>✓</td><td>要另外訂閱</td><td class="hl">✓ Pro 就能用</td></tr>
+    <tr><td>適合這門課</td><td>問概念</td><td>之後再說</td><td class="hl">⭐ 主力</td></tr>
+  </table>
+  <div class="rec r1" id="rec">
+    <b>建議</b>：主力用終端機代理（Claude Code），聊天視窗留著問概念。<br>
+    <span class="muted">怎樣算完成：選定主力工具，寫下理由 ✓</span>
+  </div>
+  <div class="foot"><button class="btn" id="show-rec" data-go="1">看建議</button></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

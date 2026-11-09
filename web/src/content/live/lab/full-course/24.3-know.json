@@ -1,0 +1,126 @@
+{
+  "title": "同一個問題，不用回答一百次",
+  "lesson": "全環節 · 單元 24 · 24.3 基礎知識",
+  "teacher": {
+    "say": "今天整理常見問題",
+    "line": "網站上線後，客服信會越來越多，而且很多是同樣的問題。這一課來看常見問題頁怎麼寫，以及一封好的回覆範本長什麼樣子。"
+  },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "小森烘焙 客服信箱" },
+      "place": { "x": 680, "y": 110, "w": 560, "h": 860 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc24-3-faq", "url": "https://shop.example.app/faq" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "show": "phone",
+      "chapter": "一天的客服信",
+      "narration": "這是某一天早上的客服信箱。"
+    },
+    { "on": "phone", "receive": "請問幾點可以去拿蛋糕？", "from": "陳小姐" },
+    { "on": "phone", "receive": "可以寄到台中嗎？", "from": "黃先生" },
+    { "on": "phone", "receive": "我訂了週六，可以改週日嗎？", "from": "林小姐" },
+    { "on": "phone", "receive": "取貨時間是幾點到幾點？", "from": "張先生" },
+    {
+      "on": "phone",
+      "receive": "請問下午五點還能取貨嗎？",
+      "from": "吳小姐",
+      "narration": "五封信，其中三封都在問取貨時間。每一封都要重新打一次答案，有時候還會打得不一樣。"
+    },
+    { "hide": "phone" },
+    {
+      "card": "同一個問題，不用回答一百次",
+      "eyebrow": "全環節 · 單元 24 · 24.3 基礎知識",
+      "sub": "常見問題頁 · 回覆範本",
+      "narration": "解法有兩個：常見問題頁，讓客人自己找到答案；回覆範本，讓你回信又快又一致。"
+    },
+    {
+      "show": "web",
+      "chapter": "常見問題頁",
+      "narration": "先看常見問題頁。"
+    },
+    {
+      "callout": "web:section:g-pick",
+      "text": "依主題分組：取貨、宅配、付款與退款",
+      "narration": "問題依主題分組：取貨、宅配、付款退款。客人很快就知道要往哪裡找。"
+    },
+    {
+      "on": "web",
+      "click": "#q1 summary",
+      "narration": "問題用客人自己的說法寫：「可以幾點取貨？」點開就是答案。"
+    },
+    {
+      "callout": "web:section:q1",
+      "text": "答案：第一句直接回答，再補細節",
+      "narration": "答案第一句就直接回答：每天十點到七點。再補充細節。不要讓客人讀一大段才找到重點。"
+    },
+    {
+      "on": "web",
+      "click": "#q4 summary",
+      "narration": "退款這種容易吵架的，更要寫清楚。"
+    },
+    {
+      "callout": "web:section:q4",
+      "text": "條件寫具體：「2 天前取消全額退款」",
+      "narration": "條件寫得具體：取貨日兩天前取消，全額退款；之後不退，還說明原因。寫清楚，客人比較能接受。"
+    },
+    {
+      "callout": "web:section:g-ship",
+      "text": "哪些問題該放進來？客服信裡問最多的",
+      "narration": "哪些問題該放進來？不是你猜的，是客服信裡真的問最多的。下一堂，就請 AI 從來信裡整理。"
+    },
+    {
+      "on": "web",
+      "click": "#tab-tpl",
+      "chapter": "回覆範本",
+      "narration": "第二個是回覆範本。常見問題頁寫得再好，還是會有人來信。"
+    },
+    {
+      "callout": "web:section:t-thanks",
+      "text": "① 稱呼與感謝",
+      "narration": "一封好的回覆有四段。第一，稱呼對方，謝謝他。"
+    },
+    {
+      "callout": "web:section:t-answer",
+      "text": "② 直接回答",
+      "narration": "第二，直接回答，和常見問題頁的答案一致。"
+    },
+    {
+      "callout": "web:section:t-next",
+      "text": "③ 下一步：如果不符合，怎麼辦",
+      "narration": "第三，下一步：如果他的情況不符合，可以怎麼辦。這一段會讓客人覺得被照顧。"
+    },
+    {
+      "callout": "web:section:t-sign",
+      "text": "④ 署名：是真的人在回",
+      "narration": "第四，署名，讓客人知道是真的人在回。"
+    },
+    {
+      "callout": "web:sel:.var",
+      "text": "範本不是照貼：每次換稱呼、商品、日期，再讀一次",
+      "narration": "範本不是複製貼上就送出。每次換掉稱呼、商品、日期，再讀一次確認符合他的情況。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "問最多的，寫成頁面；回最多的，寫成範本",
+      "sub": "用客人的說法問 · 第一句就回答 · 條件寫具體 · 送出前自己讀過",
+      "chapter": "重點整理",
+      "narration": "整理一下：問最多的，寫成常見問題頁；回最多的，寫成範本。送出前，一定自己讀過。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "收集來信",
+      "body": "把最近一個月的客服信（或社群私訊）匯出成文字檔，放進專案的 inbox 資料夾。記得先拿掉電話、地址這些不需要的個資。下一堂交給 AI 整理。",
+      "narration": "換你準備：把最近一個月的客服信匯出成文字檔，先拿掉電話、地址這些個資，下一堂交給 AI 整理。"
+    }
+  ]
+}

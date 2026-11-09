@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>搜尋主控台</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>搜尋主控台<span class="sp"></span><span class="who">komori-bakery.example</span></div>
+<div class="shell">
+ <div class="side">
+  <div class="it act" data-tab="verify" id="tab-verify">擁有權驗證</div>
+  <div class="it" data-tab="index" id="tab-index">網頁收錄</div>
+  <div class="it" data-tab="perf" id="tab-perf">搜尋成效</div>
+ </div>
+ <div class="main">
+  <div data-panel="verify">
+   <div class="ttl">證明這個網站是你的</div>
+   <div class="sub">在網域的 DNS 加一筆 TXT 紀錄，內容如下：</div>
+   <div class="card mono txt" id="txt">site-verification=k7Qm2xR9aLw4</div>
+   <div class="stepbar"><button class="btn" id="verify">驗證</button><span id="vres" class="pill">尚未驗證</span></div>
+   <div id="vok" class="card ok gone">✓ 已驗證擁有權。資料開始收集，報表大約一兩天後出現。</div>
+  </div>
+  <div data-panel="index" class="gone">
+   <div class="ttl">網頁收錄</div>
+   <div class="row nums"><div class="card col"><div class="n ok">18</div>已收錄</div><div class="card col"><div class="n bad">4</div>未收錄</div></div>
+   <table class="t card" id="why"><tr><th>未收錄的原因</th><th>網頁數</th></tr>
+    <tr><td>已偵測到，目前尚未收錄</td><td>2</td></tr>
+    <tr><td>網頁含有 noindex（例如 /cart）</td><td>1</td></tr>
+    <tr><td>找不到網頁（404）</td><td>1</td></tr></table>
+  </div>
+  <div data-panel="perf" class="gone">
+   <div class="ttl">搜尋成效 · 過去 28 天</div>
+   <div class="row nums">
+    <div class="card col" id="m-imp"><div class="n">3,420</div>曝光：出現在搜尋結果的次數</div>
+    <div class="card col" id="m-clk"><div class="n">186</div>點擊：真的點進來</div>
+    <div class="card col" id="m-ctr"><div class="n">5.4%</div>點閱率：點擊 ÷ 曝光</div>
+    <div class="card col" id="m-pos"><div class="n">8.7</div>平均排名</div>
+   </div>
+   <svg viewBox="0 0 900 170" class="chart card"><polyline fill="none" stroke="#5b7ff0" stroke-width="4" points="0,140 60,132 120,120 180,126 240,110 300,104 360,96 420,100 480,84 540,78 600,70 660,74 720,60 780,52 840,44 900,40"/><polyline fill="none" stroke="#1f9d63" stroke-width="4" points="0,160 60,158 120,156 180,155 240,150 300,151 360,146 420,148 480,140 540,138 600,134 660,136 720,128 780,124 840,118 900,114"/></svg>
+  </div>
+ </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

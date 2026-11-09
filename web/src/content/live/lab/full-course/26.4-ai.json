@@ -1,0 +1,100 @@
+{
+  "title": "短影音腳本",
+  "lesson": "全環節 · 單元 26 · 26.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "寫一支 30 秒腳本",
+    "line": "今天請 AI 寫一支 30 秒短影音的腳本和分鏡。第一版通常不會剛好，我們一版一版看、一個一個指出問題。"
+  },
+  "blocking": { "cast": ["claude", "board"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "可頌短影音", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "board": { "actor": "browser", "props": { "site": "fc26-4-board", "width": "desktop", "url": "http://localhost:5173/storyboard/croissant" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "短影音腳本",
+      "eyebrow": "全環節 · 單元 26 · 26.4 用 AI 完成",
+      "sub": "第 1 版 → 指出問題 → 第 2 版 → 再指出 → 第 3 版",
+      "chapter": "第 1 版",
+      "narration": "這一堂是來回修改。每一輪，你只指出一兩個最明顯的問題。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我寫一支 30 秒的短影音腳本，介紹招牌可頌。輸出成分鏡表：每格的秒數、畫面、字幕，存成 storyboard.md，也做一個網頁讓我看。",
+      "narration": "第一次先只給主題和格式，看它怎麼寫。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "Write", "arg": "content/storyboard.md", "result": "已建立 · 4 格" },
+    { "on": "claude", "say": "第 1 版分鏡做好了，4 格，可以在 `/storyboard/croissant` 看。" },
+    { "show": "board", "narration": "打開來看第一版。" },
+    {
+      "callout": "board:sel:[data-panel=v1] tr:nth-child(2)",
+      "text": "前 5 秒在說「大家好」：觀眾已經滑走了",
+      "narration": "想想上一堂學的。前五秒是店門口慢慢推進，字幕寫「大家好，歡迎來到小森烘焙」。觀眾還不知道為什麼要看，就滑走了。"
+    },
+    {
+      "on": "claude",
+      "user": "開頭太慢。前 2 秒直接給可頌撕開的聲音和畫面，用一句話勾起好奇。中間每 2–3 秒換一格，結尾說週六開賣、連結在個人頁。",
+      "chapter": "第 2 輪：開頭與節奏",
+      "narration": "指出問題，也說出你想要的方向：前兩秒給聲音和畫面，中間加快，結尾給下一步。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "edit": "content/storyboard.md",
+      "lines": [
+        [3, "-", "| 0–5 | 店門口全景，慢慢推進 | 大家好，歡迎來到小森烘焙 |"],
+        [3, "+", "| 0–2 | 可頌被撕開的特寫，咔滋聲 | 這聲音，是 27 層奶油 |"],
+        [4, "+", "| 2–10 | 冰箱溫度計 4°C | 祕密 1：奶油冰到 4 度 |"],
+        [5, "+", "| 10–20 | 擀麵、摺疊，數字跳到 27 | 祕密 2：摺 27 層，等三天 |"],
+        [7, "+", "| 27–30 | 店門口 | 週六開賣，連結在個人頁 |"]
+      ],
+      "narration": "它改了開頭，中間拆成兩個祕密，結尾加了下一步。"
+    },
+    { "on": "board", "click": "#t-v2", "narration": "看第二版。黃色是這次改的格子。" },
+    {
+      "callout": "board:sel:[data-panel=v2] tr:nth-child(5)",
+      "text": "這格字幕太長：兩秒讀不完",
+      "narration": "好多了。不過第四格的字幕沒改到，還是一長串：使用法國進口奶油，經過三天低溫發酵……一格只有幾秒，根本讀不完。"
+    },
+    {
+      "on": "claude",
+      "user": "第 4 格字幕太長，改成一句 10 個字以內。其他格不要動。",
+      "chapter": "第 3 輪：字幕",
+      "narration": "這次只指出一個問題，並說清楚其他格不要動，免得它把改好的地方又改掉。"
+    },
+    {
+      "on": "claude",
+      "edit": "content/storyboard.md",
+      "lines": [
+        [6, "-", "| 20–27 | 出爐、撕開 | 今天要介紹我們的招牌可頌，它使用法國進口奶油，經過三天低溫發酵，外酥內軟 |"],
+        [6, "+", "| 20–27 | 出爐、撕開 | 外酥，裡面是軟的 |"]
+      ]
+    },
+    { "on": "board", "click": "#t-v3", "narration": "第三版，只改了那一格。" },
+    { "callout": "board:sel:[data-panel=v3] table", "text": "鉤子、節奏、結果、下一步、字幕：都對了", "narration": "鉤子、節奏、結果、下一步、字幕，都符合上一堂學的。可以拿去拍了。" },
+    {
+      "on": "claude",
+      "say": "最終版 5 格、30 秒。我另外列了拍攝清單：要拍的 5 個畫面、需要的道具（溫度計、擀麵棍），以及收音提醒：撕開的聲音要靠近手機錄。",
+      "narration": "最後它還整理了拍攝清單，你照著拍就好。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 為你的產品寫一支 30 秒短影音的分鏡。每看完一版，只指出一兩個最明顯的問題，並說「其他格不要動」。改到開頭、節奏和字幕都對為止。"
+    },
+    {
+      "card": "一輪只指出一兩個問題\n說出想要的方向\n加一句「其他不要動」",
+      "eyebrow": "學會",
+      "sub": "用上一堂的四段結構當檢查標準",
+      "chapter": "學會",
+      "narration": "一輪只指出一兩個問題，說清楚想要的方向，再加一句其他不要動。用上一堂的四段結構，當你檢查的標準。"
+    }
+  ]
+}

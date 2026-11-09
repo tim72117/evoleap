@@ -33,7 +33,8 @@ import './actor.css'
 
 // ---------- 網頁素材 ----------
 
-const RAW = import.meta.glob('../../../content/live/*/site/*/*', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+// lab/site/ 是研發基地試做用的網頁(例如全環節課程的主控台、後台示意),不打包進公開的 JS,由 studio/StudioApp 用 registerSites 加入
+const RAW = import.meta.glob(['../../../content/live/*/site/*/*', '!../../../content/live/lab/**'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>
 
 interface SiteFiles {
   html: string
@@ -41,15 +42,24 @@ interface SiteFiles {
   js: string
 }
 const SITES: Record<string, SiteFiles> = {}
-for (const [path, text] of Object.entries(RAW)) {
-  const m = /\/site\/([^/]+)\/([^/]+)$/.exec(path)
-  if (!m) continue
-  const site = (SITES[m[1]] ??= { html: '', css: '', js: '' })
-  if (m[2] === 'index.html') site.html = text
-  else if (m[2] === 'styles.css') site.css = text
-  else if (m[2] === 'script.js') site.js = text
+let SITE_IDS: string[] = []
+function addSites(raw: Record<string, string>): void {
+  for (const [path, text] of Object.entries(raw)) {
+    const m = /\/site\/([^/]+)\/([^/]+)$/.exec(path)
+    if (!m) continue
+    const site = (SITES[m[1]] ??= { html: '', css: '', js: '' })
+    if (m[2] === 'index.html') site.html = text
+    else if (m[2] === 'styles.css') site.css = text
+    else if (m[2] === 'script.js') site.js = text
+  }
+  SITE_IDS = Object.keys(SITES).filter((id) => SITES[id].html).sort()
 }
-const SITE_IDS = Object.keys(SITES).filter((id) => SITES[id].html).sort()
+addSites(RAW)
+
+/** 加入內部的網頁素材(key 為檔案路徑,含 /site/<版本>/<檔名>);研發基地試做用 */
+export function registerSites(raw: Record<string, string>): void {
+  addSites(raw)
+}
 
 /** CSS 的一段:query 為 null 是一般規則;否則是 @media 裡的內容,依畫面寬度決定要不要套用 */
 interface CssPart {

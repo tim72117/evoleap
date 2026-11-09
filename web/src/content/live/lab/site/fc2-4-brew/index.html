@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>套件管理器</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-start="1">
+<div class="tabs">
+  <button class="tab cur" id="g1" data-go="1">以前怎麼裝</button>
+  <button class="tab" id="g2" data-go="2">用套件管理器</button>
+  <button class="tab" id="g3" data-go="3">常用四招</button>
+</div>
+<div class="p1">
+  <div class="row steps">
+    <div class="st card">🔍<br>找官網</div><div class="st card">⬇️<br>下載</div><div class="st card">🗜<br>解壓縮</div><div class="st card">📂<br>搬到資料夾</div><div class="st card">🛤<br>設定 PATH</div><div class="st card warn">🔁<br>要更新？<br>全部重來</div>
+  </div>
+  <div class="cap">每個工具都這樣裝一次，還要記得它們放在哪。</div>
+</div>
+<div class="p2">
+  <div class="store card">
+    <div class="h">🏪 套件管理器 ＝ 指令工具的 App Store</div>
+    <div class="row">
+      <div class="os"><b> macOS：Homebrew</b><div class="cmd mono">brew install tree</div></div>
+      <div class="os"><b>⊞ Windows：winget</b><div class="cmd mono">winget install Git.Git</div></div>
+    </div>
+    <div class="cap">一行：自動下載、放到 PATH 找得到的地方、記下裝過什麼。</div>
+  </div>
+</div>
+<div class="p3">
+  <table class="card t">
+    <tr><th>要做什麼</th><th>Homebrew（Mac）</th><th>winget（Windows）</th></tr>
+    <tr><td>📥 安裝</td><td class="mono">brew install git</td><td class="mono">winget install Git.Git</td></tr>
+    <tr><td>⬆️ 更新</td><td class="mono">brew upgrade git</td><td class="mono">winget upgrade Git.Git</td></tr>
+    <tr><td>🗑 移除</td><td class="mono">brew uninstall git</td><td class="mono">winget uninstall Git.Git</td></tr>
+    <tr><td>📋 裝了哪些</td><td class="mono">brew list</td><td class="mono">winget list</td></tr>
+  </table>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

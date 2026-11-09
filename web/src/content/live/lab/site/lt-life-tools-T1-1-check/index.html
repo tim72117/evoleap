@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>自己驗算一次</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main class="desk">
+  <section class="paper">
+    <h1>自己驗算</h1>
+    <p class="given">2,350 元 · 4 人 · 加 10% 服務費 · 無條件進位</p>
+    <ol class="lines">
+      <li data-n="1"><span class="eq">2350 × 1.1 = <b>2585</b></span><span class="why">先加服務費</span></li>
+      <li data-n="2"><span class="eq">2585 ÷ 4 = <b>646.25</b></span><span class="why">再除以人數</span></li>
+      <li data-n="3"><span class="eq">646.25 → <b>647</b></span><span class="why">無條件進位</span></li>
+      <li data-n="4"><span class="eq">647 × 4 = <b>2588</b></span><span class="why">4 人共收</span></li>
+      <li data-n="5"><span class="eq">2588 − 2585 = <b>3</b></span><span class="why">多收的零頭</span></li>
+    </ol>
+    <div class="verdict" id="verdict">工具顯示：每人 647 元、多收 3 元　✓ 一樣</div>
+    <button id="next" class="next">下一行</button>
+  </section>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

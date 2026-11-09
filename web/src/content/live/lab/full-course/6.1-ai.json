@@ -1,0 +1,141 @@
+{
+  "title": "先看再存：status、diff 與 commit 訊息",
+  "lesson": "全環節 · 單元 6 · 6.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 幫你存檔",
+    "line": "今天要請 AI 先把你改過的東西列清楚，再一件事一個 commit 地存起來，每個 commit 都寫上看得懂的訊息。"
+  },
+  "blocking": { "cast": ["claude", "git"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "整理 commit",
+        "folder": "~/projects/profile",
+        "branch": "main",
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "git": {
+      "actor": "fc2-git",
+      "props": {
+        "commits": ["建立介紹頁"],
+        "work": { "index.html": "M", "styles.css": "M", "script.js": "M", "notes.txt": "U" }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "先看再存",
+      "eyebrow": "全環節 · 單元 6 · 6.1 用 AI 完成",
+      "sub": "請 AI 列出變更 → 分組 → 你確認 → 一件事一個 commit",
+      "chapter": "改了一堆，還沒存",
+      "narration": "前幾課改了不少東西，可是一次都還沒存檔。"
+    },
+    {
+      "show": "git",
+      "narration": "工作區裡有四個檔案：三個修改過，一個新的 notes.txt。只有你記得每個檔案改了什麼，而且很快就會忘。"
+    },
+    { "show": "claude", "chapter": "先請 AI 列出變更" },
+    {
+      "on": "claude",
+      "user": "先列出目前有哪些變更，用白話說每個檔案改了什麼。然後照「一件事一個 commit」分組，告訴我打算分成幾個 commit、每個的訊息。我確認之後再 commit。",
+      "narration": "重點是順序：先列出來，再分組，等你確認才存。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git status --short",
+      "result": "4 個檔案有變更",
+      "out": " M index.html\n M script.js\n M styles.css\n?? notes.txt",
+      "narration": "它先跑 git status，看哪些檔案變了。M 是修改，兩個問號是 Git 還不認識的新檔案。這種只是查看的指令，不會改動任何東西。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git diff",
+      "result": "3 個檔案，+31 −4",
+      "out": "index.html   +14   新增 <section id=\"works\">…</section>\nscript.js    +6 −2 打招呼後顯示次數\nstyles.css   +11 −2 @media (max-width: 600px) { .cards … }",
+      "narration": "再跑 git diff，看每個檔案裡改了哪幾行。"
+    },
+    {
+      "on": "claude",
+      "say": "目前的變更：\n- `index.html`：加上「作品集」區塊\n- `styles.css`：手機寬度時，興趣卡片改成一欄\n- `script.js`：按「打個招呼」後顯示是第幾個人\n- `notes.txt`：看起來是你的個人筆記\n\n建議分成 3 個 commit：\n1. `加上作品集區塊`（index.html）\n2. `手機上興趣卡片改成一欄`（styles.css）\n3. `打招呼按鈕顯示次數`（script.js）\n\n`notes.txt` 建議不要 commit。這樣可以嗎？",
+      "chapter": "分組，等你確認",
+      "narration": "三個檔案剛好是三件不相干的事，所以分成三個 commit。它還注意到 notes.txt 是你的私人筆記，建議不要存進去。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "確認：分組對不對、訊息看不看得懂、有沒有不該存的",
+      "narration": "這時候你要看三件事：分組對不對、訊息你自己看不看得懂、有沒有不該存進去的檔案。"
+    },
+    { "on": "claude", "user": "可以，照這樣 commit。" },
+    {
+      "on": "claude",
+      "ask": "git add index.html && git commit -m \"加上作品集區塊\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "只把 index.html 放進暫存區，存成一個 commit",
+      "chapter": "一件事一個 commit",
+      "narration": "第一個 commit。看指令：只 add index.html，訊息是我們說好的。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "git", "add": "index.html", "narration": "index.html 進了暫存區，" },
+    { "on": "git", "commit": "加上作品集區塊", "narration": "存成一個 commit。" },
+    { "on": "claude", "tool": "Bash", "arg": "git add index.html && git commit -m \"加上作品集區塊\"", "result": "完成", "out": "[main 4c1e9a2] 加上作品集區塊\n 1 file changed, 14 insertions(+)" },
+    {
+      "on": "claude",
+      "ask": "git add styles.css && git commit -m \"手機上興趣卡片改成一欄\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "只把 styles.css 存成第二個 commit",
+      "select": 1
+    },
+    { "on": "git", "add": "styles.css" },
+    { "on": "git", "commit": "手機上興趣卡片改成一欄", "narration": "第二個。" },
+    {
+      "on": "claude",
+      "ask": "git add script.js && git commit -m \"打招呼按鈕顯示次數\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "只把 script.js 存成第三個 commit",
+      "select": 1
+    },
+    { "on": "git", "add": "script.js" },
+    { "on": "git", "commit": "打招呼按鈕顯示次數", "narration": "第三個。notes.txt 還留在工作區，沒有被存進去。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log --oneline",
+      "result": "4 個 commit",
+      "out": "b7d2f10 打招呼按鈕顯示次數\n91a3c5e 手機上興趣卡片改成一欄\n4c1e9a2 加上作品集區塊\n2f0b8d1 建立介紹頁",
+      "chapter": "檢查紀錄",
+      "narration": "最後它用 git log 列出紀錄，確認三個 commit 都在。"
+    },
+    {
+      "on": "claude",
+      "say": "已完成 3 個 commit，每個只放一件事。`notes.txt` 沒有 commit，還在工作區；如果不想每次都看到它，可以加進 `.gitignore`（下一課會講）。",
+      "narration": "它也提醒你 notes.txt 還在。下一課，我們就來處理這種「永遠不該存進去」的檔案。"
+    },
+    { "show": "git", "narration": "回頭看存檔紀錄：四個點，每一個都看得懂在做什麼。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "改完一些東西之後，對 AI 說：「先列出目前有哪些變更，用白話說每個檔案改了什麼，照一件事一個 commit 分組，告訴我每個的訊息，我確認後再 commit。」確認分組和訊息後再讓它存。最後請它跑 git log --oneline，看看有沒有 3 個以上清楚的 commit。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "先列出變更\n一件事一個 commit\n訊息你自己看得懂才存",
+      "eyebrow": "學會",
+      "sub": "status 看哪些檔案變了，diff 看改了哪幾行，log 看存了什麼",
+      "chapter": "學會",
+      "narration": "請 AI 先列出變更，一件事一個 commit，訊息你自己看得懂才讓它存。下一課，我們來看哪些檔案永遠不該存進去。"
+    }
+  ]
+}

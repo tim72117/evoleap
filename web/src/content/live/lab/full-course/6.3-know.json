@@ -1,0 +1,143 @@
+{
+  "title": "改壞了怎麼救：三種後悔藥",
+  "lesson": "全環節 · 單元 6 · 6.3 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天學三種後悔藥",
+    "line": "今天要來看改壞了怎麼救。Git 有三種常用的後悔藥：restore、revert 和 reset。差別在於，有沒有改寫紀錄。"
+  },
+  "blocking": { "cast": ["map", "git"], "shot": "depth" },
+  "cast": {
+    "map": {
+      "actor": "browser",
+      "props": { "site": "fc6-3-map", "width": "desktop", "url": "https://diagram.example/undo" },
+      "place": "window",
+      "hidden": true
+    },
+    "git": {
+      "actor": "fc2-git",
+      "props": { "commits": ["建立介紹頁", "加上作品集", "名字改成綠色"] },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "改壞了怎麼救",
+      "eyebrow": "全環節 · 單元 6 · 6.3 基礎知識",
+      "sub": "restore、revert，以及會改寫紀錄的 reset",
+      "chapter": "先問一個問題",
+      "narration": "改壞了，先別慌。只要有 commit，幾乎都救得回來。要用哪一種方法，看兩個問題。"
+    },
+    {
+      "show": "map",
+      "narration": "第一個問題：這個錯誤，已經 commit 了嗎？"
+    },
+    {
+      "on": "map",
+      "click": "#no",
+      "chapter": "還沒 commit：restore",
+      "narration": "如果還沒 commit，用 restore。"
+    },
+    {
+      "show": "git",
+      "narration": "看實際的樣子。紀錄裡有三個 commit，現在一切正常。"
+    },
+    {
+      "on": "git",
+      "change": "index.html",
+      "narration": "你請 AI 改版面，結果它不小心把「關於我」整段刪掉了。index.html 出現在工作區，還沒 commit。"
+    },
+    {
+      "on": "git",
+      "restore": "index.html",
+      "narration": "git restore index.html：把這個檔案變回上一次 commit 的樣子。剛才的修改直接丟掉，紀錄完全沒有動。"
+    },
+    {
+      "callout": "git:graph",
+      "text": "restore：只動還沒存的修改，紀錄不變",
+      "narration": "要注意：被丟掉的修改，沒存過就找不回來。所以只在「確定不要了」的時候用。"
+    },
+    {
+      "on": "map",
+      "click": "#yes",
+      "chapter": "已經推上去：revert",
+      "narration": "如果已經 commit 了，再問第二個問題：別人已經拿到了嗎？例如已經推上 GitHub，或是已經上線。"
+    },
+    {
+      "on": "map",
+      "click": "#shared",
+      "narration": "已經推上去了，用 revert。"
+    },
+    {
+      "on": "git",
+      "revert": "名字改成綠色",
+      "narration": "假設綠色的名字上線後，大家都說不好看。git revert 會新增一個「還原」的 commit，把那次的修改反過來做一遍。"
+    },
+    {
+      "callout": "git:commit:last",
+      "text": "revert：多一個反向的 commit，舊紀錄都還在",
+      "narration": "舊的「名字改成綠色」還在紀錄裡，只是後面多了一個抵銷它的 commit。紀錄只往前加、不刪，所以別人的紀錄和你的還是對得上。這是最安全的做法。"
+    },
+    {
+      "on": "map",
+      "click": "#local",
+      "chapter": "只在自己電腦：reset",
+      "narration": "如果那個 commit 只在你自己的電腦上，還沒給任何人，可以用 reset。"
+    },
+    { "on": "git", "change": "styles.css", "narration": "例如你試了一個彩色背景，" },
+    { "on": "git", "add": "styles.css" },
+    { "on": "git", "commit": "試做彩色背景", "narration": "commit 之後才發現很醜。" },
+    {
+      "on": "git",
+      "reset": 1,
+      "narration": "git reset 把最後一個 commit 從紀錄裡拿掉，好像它從來沒發生過。"
+    },
+    {
+      "callout": "git:graph",
+      "text": "reset：會改寫紀錄",
+      "narration": "這就是改寫紀錄。如果這個 commit 已經推上去、別人也拿到了，你的紀錄少了一個點，別人的還有，兩邊就對不上，很麻煩。所以推上去之後，就不要用 reset。"
+    },
+    {
+      "card": "會改寫紀錄的指令\ngit reset --hard\ngit push --force\ngit commit --amend",
+      "eyebrow": "看到這些要停下來",
+      "sub": "AI 想執行時，先請它說明會影響哪些 commit、能不能救回來",
+      "chapter": "要特別小心的指令",
+      "narration": "這幾個指令都會改寫紀錄，加了 hard 的 reset 還會直接丟掉檔案的修改。AI 程式助手想執行它們時，先別急著允許，請它說明會影響哪些 commit，還有出事能不能救回來。"
+    },
+    {
+      "checkpoint": "上週推上 GitHub 的一個 commit 有錯，要怎麼取消它？",
+      "body": "選一個。",
+      "id": "undo",
+      "options": [
+        {
+          "label": "git revert",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "已經推上去的，用 revert 新增反向 commit，不改寫紀錄", "narration": "答對了。已經推上去的，用 revert 新增一個反向的 commit，大家的紀錄都對得上。" }
+          ]
+        },
+        {
+          "label": "git reset",
+          "steps": [
+            { "card": "危險", "eyebrow": "考考你", "sub": "reset 會改寫紀錄，別人那邊的紀錄就對不上了", "narration": "reset 會改寫紀錄。已經推上去的 commit 用 reset 拿掉，別人的紀錄就和你對不上了。" },
+            { "card": "答案：git revert", "eyebrow": "考考你", "sub": "新增反向的 commit，舊紀錄都還在", "narration": "應該用 revert。" }
+          ]
+        },
+        {
+          "label": "git restore",
+          "steps": [
+            { "card": "救不到", "eyebrow": "考考你", "sub": "restore 只處理還沒 commit 的修改", "narration": "restore 只處理還沒 commit 的修改，已經 commit 的它救不到。" },
+            { "card": "答案：git revert", "eyebrow": "考考你", "sub": "新增反向的 commit，舊紀錄都還在", "narration": "應該用 revert。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "還沒 commit：restore\n已經推上去：revert\n只在自己電腦：reset（改寫紀錄）",
+      "eyebrow": "學會",
+      "sub": "不確定就用 revert，最安全",
+      "chapter": "學會",
+      "narration": "還沒 commit 用 restore，已經推上去用 revert，只在自己電腦才考慮 reset。不確定的時候，用 revert 最安全。下一堂，我們故意改壞，請 AI 先說明影響範圍再救回來。"
+    }
+  ]
+}

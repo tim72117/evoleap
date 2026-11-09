@@ -1,0 +1,88 @@
+{
+  "title": "別把萬能鑰匙交給 AI",
+  "lesson": "全環節 · 單元 33 · 33.2 基礎知識",
+  "teacher": {
+    "say": "今天聊 AI 該拿哪幾把鑰匙",
+    "line": "上一課我們請 AI 遇到危險的事先問你。這一課更進一步：乾脆不給它危險的鑰匙。我們用兩棟房子來想。"
+  },
+  "camera": "auto",
+  "cast": {
+    "web": { "actor": "browser", "props": { "site": "fc33-2-houses", "url": "https://notes.example/two-houses" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "別把萬能鑰匙交給 AI",
+      "eyebrow": "全環節 · 單元 33 · 33.2 基礎知識",
+      "sub": "給 AI 最小權限",
+      "chapter": "萬能鑰匙",
+      "narration": "想像你請一位新來的幫手整理店裡的倉庫。你會把店裡所有的鑰匙、連保險箱的，都交給他嗎？"
+    },
+    {
+      "card": "給剛好夠用的權限",
+      "eyebrow": "最小權限",
+      "sub": "能做完工作就好，多一把都不給",
+      "narration": "不會吧。你只會給他倉庫的鑰匙。這叫最小權限：給剛好夠用的，多一把都不給。AI 也一樣。"
+    },
+    {
+      "show": "web",
+      "chapter": "兩棟房子",
+      "narration": "你的網站，其實有兩棟長得一樣的房子。"
+    },
+    {
+      "callout": "web:section:hTest",
+      "text": "測試環境：樣品屋，放假資料",
+      "narration": "左邊是測試環境，像樣品屋：裡面是假的資料，弄壞了重建就好。"
+    },
+    {
+      "callout": "web:section:hProd",
+      "text": "正式環境：客人真的住在這裡",
+      "narration": "右邊是正式環境：真的訂單、真的客人。這裡壞了，客人就受影響。"
+    },
+    {
+      "on": "web",
+      "click": "#k1",
+      "chapter": "AI 的鑰匙圈",
+      "narration": "我們給 AI 幾把鑰匙？第一把，正式環境的唯讀鑰匙。唯讀，就是只能看、不能改。它可以查真的訂單幫你找問題，但改不了任何東西。"
+    },
+    {
+      "on": "web",
+      "click": "#k2",
+      "narration": "第二把，測試環境的鑰匙，可以隨便改。AI 要試新功能、跑測試，都在樣品屋裡做。"
+    },
+    {
+      "on": "web",
+      "click": "#k3",
+      "narration": "第三把，正式環境的寫入鑰匙，不給。它只在你手上，要上線、要改正式資料，由你來。"
+    },
+    {
+      "callout": "web:sel:.ring",
+      "text": "就算 AI 想做錯事，也做不到",
+      "narration": "這樣做的好處是：就算 AI 誤會了你的意思，想去刪正式的資料，它手上根本沒有那把鑰匙。"
+    },
+    { "hide": "web" },
+    {
+      "diff": "鑰匙放在哪裡：設定檔",
+      "lines": [[" ", "# .env.development（AI 日常用這份）"], ["+", "DATABASE_URL=postgres://ai_reader:****@db.example-cloud.com/bakery"], ["+", "TEST_DATABASE_URL=postgres://dev:****@localhost/bakery_test"], [" ", "# .env.production（只在你手上，不放進專案）"], ["-", "DATABASE_URL=postgres://owner:****@db.example-cloud.com/bakery"]],
+      "chapter": "鑰匙長什麼樣子",
+      "narration": "這些鑰匙，實際上是設定檔裡的一行行連線資訊。AI 日常用的那份，只有唯讀帳號和測試資料庫；擁有者的那一行，不放進專案。"
+    },
+    {
+      "arrow": { "from": [1560, 820], "to": [1300, 650] },
+      "label": "AI 看不到這把",
+      "narration": "AI 根本看不到擁有者的那把鑰匙。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "想想看",
+      "body": "你的專案現在有哪些「鑰匙」（資料庫、雲端帳號、金流、寄信服務）？AI 平常拿得到哪幾把？哪一把其實不該給？",
+      "narration": "想想看：你的專案有哪些鑰匙？AI 現在拿得到哪幾把？有沒有哪一把其實不該給？"
+    },
+    {
+      "card": "下一堂：做一把唯讀鑰匙",
+      "eyebrow": "33.2 用 AI 完成",
+      "sub": "建立唯讀資料庫帳號與測試環境，日常只用這些",
+      "narration": "下一堂，我們請 AI 帶著你建立唯讀帳號和測試環境，讓日常開發只用這些鑰匙。"
+    }
+  ]
+}

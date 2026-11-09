@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>程式碼的三種樣子</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="app" data-tab="html">
+  <div class="tabs"><button id="t-html" type="button">HTML 結構</button><button id="t-css" type="button">CSS 選擇器</button><button id="t-js" type="button">事件處理</button></div>
+
+  <section id="p-html" class="panel">
+    <pre class="code"><span class="c1">&lt;section id="about"&gt;</span>
+  <span class="c2">&lt;h2&gt;</span>關於我<span class="c2">&lt;/h2&gt;</span>
+  <span class="c3">&lt;p&gt;</span>我在台中長大…<span class="c3">&lt;/p&gt;</span>
+<span class="c1">&lt;/section&gt;</span></pre>
+    <div class="nest">
+      <div class="box b1"><i>section</i>
+        <div class="box b2"><i>h2</i>關於我</div>
+        <div class="box b3"><i>p</i>我在台中長大…</div>
+      </div>
+      <p class="note">開頭標籤和結尾標籤成對，<b>包住</b>裡面的東西。<br>縮排越深，代表被包在越裡面。</p>
+    </div>
+  </section>
+
+  <section id="p-css" class="panel">
+    <div class="rule">
+      <div class="sel"><code>.card b</code><span>選擇器：要改誰</span></div>
+      <div class="brace"><code>{</code></div>
+      <div class="decl"><code><em>font-size</em>: <strong>18px</strong>;</code><span><em>屬性</em>：改哪一點　<strong>值</strong>：改成多少</span></div>
+      <div class="brace"><code>}</code></div>
+    </div>
+    <div class="preview">
+      <div class="pv-card"><b class="hit">烘焙</b><span>司康、磅蛋糕</span></div>
+      <div class="pv-card"><b class="hit">散步</b><span>每天傍晚走 30 分鐘</span></div>
+      <div class="pv-card"><b class="hit">做網站</b><span>正在學 HTML 和 CSS</span></div>
+    </div>
+    <p class="note">「.card b」= class 是 card 的方塊<b>裡面</b>的 b。三張卡片的標題一次被選到。</p>
+  </section>
+
+  <section id="p-js" class="panel">
+    <pre class="code js"><span class="n">1</span>const btn = document.getElementById('hi')
+<span class="n">2</span>btn.addEventListener('click', () =&gt; {
+<span class="n">3</span>  msg.textContent = '嗨！謝謝你來看我的頁面'
+   })</pre>
+    <div class="flow">
+      <div class="node k1"><b>1</b>找到按鈕</div><div class="arr">→</div>
+      <div class="node k2"><b>2</b>等它被按</div><div class="arr">→</div>
+      <div class="node k3"><b>3</b>改掉文字</div>
+    </div>
+    <div class="demo"><button id="demo" type="button">打個招呼</button><p id="demo-msg">（還沒按）</p></div>
+  </section>
+</div>
+</body></html>

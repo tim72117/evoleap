@@ -1,0 +1,17 @@
+<!doctype html><html><head><title>工作階段與 worktree</title></head><body><div class="wrap">
+<h1 class="ttl">兩個 AI，同一個專案，怎麼不打架？</h1>
+<p class="sub">worktree：同一個專案，複製出另一張「工作桌」，各自有自己的分支</p>
+<div class="map">
+ <div class="main box" id="repo"><b>專案 bakery</b><small class="mono">main</small></div>
+ <div class="desks">
+  <div class="desk box" id="d1" data-at="w1"><b>工作桌 A</b><small class="mono">分支 feat-menu</small><span>AI 一號：改菜單頁</span></div>
+  <div class="desk box" id="d2" data-at="w1"><b>工作桌 B</b><small class="mono">分支 fix-footer</small><span>AI 二號：修頁尾</span></div>
+ </div>
+ <div class="merge box" data-at="w2"><b>做完：各自合併回 main</b><small>改的是不同檔案，合併時不衝突</small></div>
+</div>
+<div class="rules">
+ <div class="r ok box" data-at="w3"><b>可以平行</b>改不同頁面 · 寫文件 · 查資料 · 跑測試</div>
+ <div class="r bad box" data-at="w4"><b>會互相干擾</b>兩個都改同一個檔 · 同時改資料庫結構 · 同時部署</div>
+</div>
+<div class="btns"><button id="g1" data-go="w1">開兩張桌</button><button id="g2" data-go="w2">合併</button><button id="g3" data-go="w3">可以平行</button><button id="g4" data-go="w4">會打架</button></div>
+</div></body></html>

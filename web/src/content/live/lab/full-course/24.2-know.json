@@ -1,0 +1,137 @@
+{
+  "title": "同意之前，什麼不能送？",
+  "lesson": "全環節 · 單元 24 · 24.2 基礎知識",
+  "teacher": {
+    "say": "今天聊 Cookie 同意",
+    "line": "很多網站一打開就跳出 Cookie 的橫幅。這一課來看 Cookie 是什麼、哪些是必要的、哪些要先問，以及最重要的：客人同意之前，網站不能做什麼。"
+  },
+  "blocking": { "cast": ["flow", "web"], "shot": "depth" },
+  "cast": {
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "客人打開網站的那一刻",
+        "nodes": [
+          { "id": "page", "label": "你的網頁", "icon": "🌐", "x": 14, "y": 50, "w": 9 },
+          { "id": "login", "label": "登入狀態", "sub": "必要", "icon": "🔑", "x": 50, "y": 14, "w": 9, "tone": "ok" },
+          { "id": "cart", "label": "購物車", "sub": "必要", "icon": "🛒", "x": 50, "y": 38, "w": 9, "tone": "ok" },
+          { "id": "ga", "label": "流量分析", "sub": "非必要", "icon": "📈", "x": 50, "y": 62, "w": 9 },
+          { "id": "ads", "label": "廣告追蹤", "sub": "非必要", "icon": "🎯", "x": 50, "y": 86, "w": 9 },
+          { "id": "google", "label": "Google 的伺服器", "icon": "☁", "shape": "cloud", "x": 86, "y": 74, "w": 10 }
+        ],
+        "edges": [
+          { "from": "page", "to": "login" },
+          { "from": "page", "to": "cart" },
+          { "from": "page", "to": "ga" },
+          { "from": "page", "to": "ads" },
+          { "from": "ga", "to": "google" },
+          { "from": "ads", "to": "google" }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc24-2-banner", "url": "https://shop.example.app/" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "同意之前，什麼不能送？",
+      "eyebrow": "全環節 · 單元 24 · 24.2 基礎知識",
+      "sub": "必要與非必要的 Cookie · 同意前不能做什麼",
+      "narration": "Cookie 是網站存在你瀏覽器裡的小紙條。下次你再來，網站讀紙條，就記得你是誰、購物車裡有什麼。"
+    },
+    {
+      "show": "flow",
+      "chapter": "必要與非必要",
+      "narration": "客人打開網站的那一刻，可能會用到這四種 Cookie。"
+    },
+    {
+      "callout": "flow:node:login",
+      "text": "必要：沒有它，網站基本功能就不能用",
+      "narration": "登入狀態和購物車是必要的。沒有它們，每換一頁就要重新登入、購物車就清空。必要的 Cookie 不用先問，但要在政策裡說明。"
+    },
+    {
+      "callout": "flow:node:ga",
+      "text": "非必要：網站沒有它也能用",
+      "narration": "流量分析和廣告追蹤是非必要的。沒有它們，客人照樣可以買東西。而且它們會把資料送到別人的伺服器。"
+    },
+    {
+      "cut": "page>ga",
+      "chapter": "同意之前",
+      "narration": "所以規則是：客人同意之前，非必要的不能用。"
+    },
+    { "cut": "page>ads" },
+    { "send": "page>login", "label": "記住登入", "tone": "ok" },
+    { "send": "page>cart", "label": "記住購物車", "tone": "ok", "narration": "必要的照常運作，" },
+    {
+      "send": "page>ga",
+      "label": "造訪紀錄",
+      "narration": "非必要的送不出去。注意，不只是「不存 Cookie」，連資料都不能先送出去。"
+    },
+    {
+      "callout": "flow:edge:page>ga",
+      "text": "常見的錯：先載入 GA，同意後才「關掉」，資料早就送出去了",
+      "narration": "常見的錯誤，是網頁一打開就先載入分析的程式，等客人按了拒絕才關掉。可是在客人看到橫幅之前，資料早就送出去了。"
+    },
+    {
+      "show": "web",
+      "chapter": "一個好的同意橫幅",
+      "narration": "來看一個好的同意橫幅。右上角是一個小提示，告訴我們分析的資料有沒有送出。現在是等待同意。"
+    },
+    {
+      "callout": "web:section:banner",
+      "text": "說清楚用途 · 拒絕和接受一樣好按",
+      "narration": "好的橫幅說清楚兩種 Cookie 的用途，而且「全部拒絕」和「全部接受」一樣大、一樣好按。只有一個「我知道了」，或拒絕藏得很小，都不算真的讓客人選。"
+    },
+    {
+      "on": "web",
+      "click": "#reject",
+      "narration": "客人按下全部拒絕。"
+    },
+    {
+      "callout": "web:section:status",
+      "text": "拒絕後：分析 0 個請求",
+      "narration": "分析的請求是零。這才是正確的結果：拒絕了，就真的什麼都不送。"
+    },
+    {
+      "on": "flow",
+      "mend": "page>ga",
+      "chapter": "同意之後",
+      "narration": "如果客人按的是接受，"
+    },
+    {
+      "on": "flow",
+      "send": "page>ga",
+      "label": "造訪紀錄",
+      "tone": "ok",
+      "narration": "流量分析才開始運作。"
+    },
+    { "on": "flow", "send": "ga>google", "label": "造訪紀錄", "tone": "ok", "narration": "而且客人之後可以隨時改變心意，在頁尾的「Cookie 設定」重新選。" },
+    { "hide": "flow" },
+    { "hide": "web" },
+    {
+      "shimmer": "必要的說明，非必要的先問",
+      "sub": "同意前不載入、不送出 · 拒絕和接受一樣好按 · 隨時可以改",
+      "chapter": "重點整理",
+      "narration": "整理一下：必要的要說明，非必要的要先問；同意前不載入、不送出；拒絕和接受一樣好按，而且隨時能改。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "判斷看看",
+      "body": "這些要先問嗎？① 記住客人選的語言　② GA4 流量分析　③ 結帳時防止重複送出的暫存　④ 社群網站的廣告追蹤像素",
+      "narration": "判斷看看：記住語言、流量分析、結帳防重複、廣告追蹤，哪些要先問？"
+    },
+    {
+      "card": "要先問：② 和 ④",
+      "eyebrow": "答案",
+      "sub": "① ③ 是讓網站運作需要的；② ④ 沒有也能用，而且會送資料給別人",
+      "narration": "要先問的是流量分析和廣告追蹤。下一堂，請 AI 列出網站實際用了哪些 Cookie，做出橫幅，再用瀏覽器工具確認：拒絕之後，真的一個分析請求都沒有。"
+    }
+  ]
+}

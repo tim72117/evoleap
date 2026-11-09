@@ -1,0 +1,761 @@
+{
+  "title": "拆分、排序，決定第一版",
+  "lesson": "零基礎 · 2.3 試做",
+  "teacher": {
+    "say": "今天把大卡片拆小、排順序",
+    "line": "今天要把太大的工作項目拆小、排好順序，決定小森烘焙的預約系統，第一版先做哪些。"
+  },
+  "cast": {
+    "pile": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "工作項目（上一課的成果）",
+        "nodes": [
+          {
+            "id": "menu",
+            "label": "顯示本週商品",
+            "icon": "🥐",
+            "x": 12,
+            "y": 14,
+            "w": 9
+          },
+          {
+            "id": "pick",
+            "label": "選日期與時段",
+            "icon": "📅",
+            "x": 38,
+            "y": 22,
+            "w": 9
+          },
+          {
+            "id": "submit",
+            "label": "送出預約",
+            "icon": "📨",
+            "x": 64,
+            "y": 12,
+            "w": 9
+          },
+          {
+            "id": "notify",
+            "label": "訂單確認通知",
+            "icon": "🔔",
+            "x": 88,
+            "y": 26,
+            "w": 9
+          },
+          {
+            "id": "cap",
+            "label": "蛋糕每日上限",
+            "icon": "🎂",
+            "x": 12,
+            "y": 50,
+            "w": 9
+          },
+          {
+            "id": "admin",
+            "label": "後台訂單管理",
+            "icon": "🗂",
+            "sub": "這一張特別大",
+            "x": 50,
+            "y": 44,
+            "w": 13
+          },
+          {
+            "id": "remind",
+            "label": "取貨前一天提醒",
+            "icon": "⏰",
+            "x": 88,
+            "y": 58,
+            "w": 9
+          },
+          {
+            "id": "cancel",
+            "label": "取消訂單",
+            "icon": "↩",
+            "x": 88,
+            "y": 88,
+            "w": 9
+          },
+          {
+            "id": "today",
+            "label": "當日取貨清單",
+            "icon": "📋",
+            "x": 30,
+            "y": 76,
+            "w": 9,
+            "hidden": true
+          },
+          {
+            "id": "print",
+            "label": "列印清單",
+            "icon": "🖨",
+            "x": 50,
+            "y": 76,
+            "w": 9,
+            "hidden": true
+          },
+          {
+            "id": "capset",
+            "label": "調整蛋糕上限",
+            "icon": "⚙",
+            "x": 70,
+            "y": 76,
+            "w": 9,
+            "hidden": true
+          }
+        ],
+        "edges": [
+          {
+            "from": "admin",
+            "to": "today",
+            "dashed": true,
+            "hidden": true
+          },
+          {
+            "from": "admin",
+            "to": "print",
+            "dashed": true,
+            "hidden": true
+          },
+          {
+            "from": "admin",
+            "to": "capset",
+            "dashed": true,
+            "hidden": true
+          }
+        ]
+      },
+      "place": {
+        "x": 70,
+        "y": 90,
+        "w": 1200,
+        "h": 820
+      },
+      "hidden": true
+    },
+    "order": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "製作順序（箭頭：要先做完前一張）",
+        "nodes": [
+          {
+            "id": "menu",
+            "label": "1 顯示本週商品",
+            "x": 12,
+            "y": 28,
+            "w": 10
+          },
+          {
+            "id": "pick",
+            "label": "2 選日期與時段",
+            "x": 32,
+            "y": 28,
+            "w": 10
+          },
+          {
+            "id": "submit",
+            "label": "3 送出預約",
+            "x": 52,
+            "y": 28,
+            "w": 10
+          },
+          {
+            "id": "today",
+            "label": "4 當日取貨清單",
+            "x": 72,
+            "y": 28,
+            "w": 10
+          },
+          {
+            "id": "cap",
+            "label": "5 蛋糕每日上限",
+            "x": 10,
+            "y": 74,
+            "w": 8.5
+          },
+          {
+            "id": "capset",
+            "label": "6 調整上限",
+            "x": 26,
+            "y": 74,
+            "w": 8.5
+          },
+          {
+            "id": "notify",
+            "label": "7 確認通知",
+            "x": 42,
+            "y": 74,
+            "w": 8.5
+          },
+          {
+            "id": "remind",
+            "label": "8 前一天提醒",
+            "x": 58,
+            "y": 74,
+            "w": 8.5
+          },
+          {
+            "id": "print",
+            "label": "9 列印清單",
+            "x": 74,
+            "y": 74,
+            "w": 8.5
+          },
+          {
+            "id": "cancel",
+            "label": "10 取消訂單",
+            "x": 90,
+            "y": 74,
+            "w": 8.5
+          }
+        ],
+        "edges": [
+          {
+            "from": "menu",
+            "to": "pick",
+            "hidden": true
+          },
+          {
+            "from": "pick",
+            "to": "submit",
+            "hidden": true
+          },
+          {
+            "from": "submit",
+            "to": "today",
+            "hidden": true
+          },
+          {
+            "from": "submit",
+            "to": "cap",
+            "hidden": true
+          },
+          {
+            "from": "cap",
+            "to": "capset",
+            "hidden": true
+          },
+          {
+            "from": "submit",
+            "to": "notify",
+            "hidden": true
+          },
+          {
+            "from": "notify",
+            "to": "remind",
+            "hidden": true
+          },
+          {
+            "from": "today",
+            "to": "print",
+            "hidden": true
+          },
+          {
+            "from": "submit",
+            "to": "cancel",
+            "hidden": true
+          }
+        ]
+      },
+      "place": {
+        "x": 80,
+        "y": 110,
+        "w": 1760,
+        "h": 760
+      },
+      "hidden": true
+    },
+    "eng": {
+      "actor": "person",
+      "props": {
+        "name": "工程師C",
+        "look": "customer"
+      },
+      "place": {
+        "x": 1320,
+        "y": 300,
+        "w": 540,
+        "h": 420
+      },
+      "hidden": true
+    },
+    "boss": {
+      "actor": "chat",
+      "props": {
+        "title": "老闆A"
+      },
+      "place": {
+        "x": 1340,
+        "y": 100,
+        "w": 520,
+        "h": 800
+      },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "小森烘焙 預約系統",
+        "folder": "~/Documents/practice/bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "sheet": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-l1-2-3-sheet-bad",
+        "width": "desktop",
+        "url": "https://sheet.example/小森烘焙-工作項目"
+      },
+      "place": {
+        "x": 60,
+        "y": 80,
+        "w": 1220,
+        "h": 840
+      },
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "card": "拆分、排序，決定第一版",
+      "eyebrow": "零基礎 · AI 工具入門 · 2.3",
+      "sub": "大卡片拆小 → 排出先後 → 框出第一版 → 貼進試算表",
+      "chapter": "卡片亂成一堆",
+      "narration": "上一課，你把需求變成一張張工作項目。這一課只回答一個問題：這麼多項目，先做哪一個？"
+    },
+    {
+      "show": "pile",
+      "narration": "這是上一課的工作項目，全攤在桌上。看得出每一項要做什麼，可是看不出誰先誰後。"
+    },
+    {
+      "callout": "pile:node:admin",
+      "text": "後台訂單管理：一張卡裝了好幾件事",
+      "narration": "其中一張特別大：後台訂單管理。"
+    },
+    {
+      "show": "eng"
+    },
+    {
+      "on": "eng",
+      "say": "這一項一次做不完。",
+      "mood": "worried",
+      "narration": "工程師C 抱著這張卡說：這一項，一次做不完。"
+    },
+    {
+      "hide": "eng"
+    },
+    {
+      "show": "boss"
+    },
+    {
+      "on": "boss",
+      "receive": "下個月能先用嗎？週末又漏了兩張單 😣",
+      "from": "老闆A",
+      "narration": "偏偏老闆又傳訊息來：下個月能先用嗎？"
+    },
+    {
+      "callout": "boss:msg:last",
+      "text": "越快能用越好",
+      "narration": "大卡片做不完，老闆又在等。這時候要做三件事：拆小、排順序、決定第一版。"
+    },
+    {
+      "hide": "boss"
+    },
+    {
+      "card": "怎樣算「太大」？",
+      "eyebrow": "先想一想",
+      "sub": "一次做不完，或做到一半說不出「哪裡算完成」",
+      "narration": "怎樣算太大？一個項目如果一次做不完，或做到一半，說不出哪裡算完成，它就太大了。拆小，就是拆成每一塊都能各自做完、各自檢查。"
+    },
+    {
+      "checkpoint": "想一想",
+      "body": "「後台訂單管理」裡面，可能藏著哪幾件小事？先在心裡列兩三件，再看 AI 怎麼拆。想好按「繼續」。"
+    },
+    {
+      "show": "claude",
+      "chapter": "請 AI 拆開大項目",
+      "narration": "回到 AI 工具。如果你開了新對話，先貼上上一課整理的摘要。"
+    },
+    {
+      "on": "claude",
+      "user": "把太大的工作項目拆成能各自完成、各自檢查的小項目。",
+      "lessonStep": 1,
+      "narration": "提示詞很短：把太大的工作項目，拆成能各自完成、各自檢查的小項目。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1400
+    },
+    {
+      "on": "claude",
+      "say": "「後台訂單管理」範圍太大，建議拆成三項：\n\n**當日取貨清單**：店員在平板上看今天要取貨的訂單\n驗收：打開後台 3 步內看到今天的清單，依時段排好\n\n**列印清單**：把當日取貨清單印成一張紙\n驗收：按一個按鈕就能印出\n\n**調整蛋糕上限**：老闆可以改每天的生日蛋糕上限\n驗收：平日、週末可以分別設定\n\n其他項目大小適中，不用再拆。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "每一塊都附上自己的驗收條件",
+      "narration": "注意每一塊都有自己的驗收條件。說得出做到哪裡算完成，才算拆得夠小。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "pile",
+      "narration": "回到桌上，照著 AI 的建議拆。"
+    },
+    {
+      "on": "pile",
+      "appear": [
+        "today",
+        "admin>today",
+        "print",
+        "admin>print",
+        "capset",
+        "admin>capset"
+      ],
+      "narration": "大卡片下面，長出三張小卡。"
+    },
+    {
+      "on": "pile",
+      "fade": "admin",
+      "narration": "大卡片可以拿掉了。"
+    },
+    {
+      "on": "pile",
+      "light": "today",
+      "tone": "on",
+      "sub": "3 步內看到今天的單"
+    },
+    {
+      "on": "pile",
+      "light": "print",
+      "tone": "on",
+      "sub": "按一個按鈕印出"
+    },
+    {
+      "on": "pile",
+      "light": "capset",
+      "tone": "on",
+      "sub": "平日、週末分別設",
+      "narration": "每張小卡底下，都寫得出一句能打勾的檢查。"
+    },
+    {
+      "callout": "pile:window",
+      "text": "拆完自己檢查：每一張都說得出「做到哪裡算完成」嗎？",
+      "narration": "拆完以後，自己看一遍：每一張是不是都說得出做到哪裡算完成？還說不出來的，就再拆一次。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "接著上一課的對話（或開新對話、貼上上一課的摘要），送出「把太大的工作項目拆成能各自完成、各自檢查的小項目。」看看每一個小項目，是不是都說得出做到哪裡算完成。做完按「完成了，繼續」。"
+    },
+    {
+      "hide": "pile"
+    },
+    {
+      "card": "先做哪一張？",
+      "eyebrow": "第二段",
+      "sub": "排出先後 → 框出第一版 → 輸出成表格",
+      "chapter": "排順序、定第一版",
+      "narration": "項目變小了。接著決定順序，還有第一版要做到哪裡。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "排出製作順序，標出哪些要先做完才能做下一項。第一版只要做到：客人能線上預約、店員看得到當天的取貨清單。",
+      "lessonStep": 2,
+      "narration": "這次的提示詞多了一句很重要的話：第一版只要做到，客人能線上預約、店員看得到當天的取貨清單。你把終點說清楚，AI 才知道哪些可以往後放。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1500
+    },
+    {
+      "on": "claude",
+      "say": "建議的製作順序（括號是要先做完的項目）：\n\n1. 顯示本週商品\n2. 選數量、取貨日期與時段（1）\n3. 送出預約（2）\n4. 當日取貨清單（3，有訂單才有清單）\n\n**第一版**做到第 4 項：客人能預約、店員看得到當天的取貨清單。\n\n之後再做：\n5. 蛋糕每日上限（3）　6. 調整蛋糕上限（5）\n7. 訂單確認通知（3）　8. 取貨前一天提醒（7）\n9. 列印清單（4）　10. 取消訂單（3）"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "order",
+      "narration": "把這份清單排出來看。上面一排是前四項，下面一排是之後的。"
+    },
+    {
+      "on": "order",
+      "appear": [
+        "menu>pick",
+        "pick>submit",
+        "submit>today"
+      ],
+      "narration": "商品、選時段、送出、取貨清單，一張接一張。前一張沒做完，下一張就做不了。這種先後關係，叫做相依。"
+    },
+    {
+      "on": "order",
+      "send": "menu>pick",
+      "tone": "on"
+    },
+    {
+      "on": "order",
+      "send": "pick>submit",
+      "tone": "on"
+    },
+    {
+      "on": "order",
+      "send": "submit>today",
+      "tone": "on",
+      "narration": "像接力一樣，一棒傳一棒。"
+    },
+    {
+      "on": "order",
+      "appear": [
+        "submit>cap",
+        "cap>capset",
+        "submit>notify",
+        "notify>remind",
+        "today>print",
+        "submit>cancel"
+      ],
+      "narration": "下面那排，也都接在送出預約或取貨清單後面。"
+    },
+    {
+      "chapter": "猜猜看",
+      "checkpoint": "「取貨前一天提醒」要放進第一版嗎？",
+      "body": "老闆說過，常有人忘記來拿。可是第一版只要做到：客人能線上預約、店員看得到當天的取貨清單。",
+      "id": "remind",
+      "options": [
+        {
+          "label": "要，客人常忘記來拿",
+          "steps": [
+            {
+              "card": "很重要，但不是第一版的門檻",
+              "eyebrow": "再想想",
+              "sub": "沒有提醒，客人照樣能預約、店員照樣看得到清單",
+              "narration": "提醒很重要，可是沒有它，客人照樣能預約，店員照樣看得到清單。所以它排在下一版，做完第一版馬上接著做。"
+            }
+          ]
+        },
+        {
+          "label": "先不用，之後再做",
+          "steps": [
+            {
+              "card": "對，用老闆的那句話來判斷",
+              "eyebrow": "答對了",
+              "sub": "第一版的門檻：能預約、看得到取貨清單",
+              "narration": "對。判斷的依據就是老闆那一句話：能預約、看得到取貨清單。少了它第一版還能用的，就往後放。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": []
+      }
+    },
+    {
+      "on": "order",
+      "light": "menu",
+      "tone": "ok"
+    },
+    {
+      "on": "order",
+      "light": "pick",
+      "tone": "ok"
+    },
+    {
+      "on": "order",
+      "light": "submit",
+      "tone": "ok"
+    },
+    {
+      "on": "order",
+      "light": "today",
+      "tone": "ok",
+      "narration": "前四張亮起來，這就是第一版。"
+    },
+    {
+      "on": "order",
+      "light": "cap",
+      "tone": "dim"
+    },
+    {
+      "on": "order",
+      "light": "capset",
+      "tone": "dim"
+    },
+    {
+      "on": "order",
+      "light": "notify",
+      "tone": "dim"
+    },
+    {
+      "on": "order",
+      "light": "remind",
+      "tone": "dim"
+    },
+    {
+      "on": "order",
+      "light": "print",
+      "tone": "dim"
+    },
+    {
+      "on": "order",
+      "light": "cancel",
+      "tone": "dim",
+      "narration": "其他的先變淡，不是不做，是排在後面。"
+    },
+    {
+      "circle": {
+        "x": 170,
+        "y": 262,
+        "w": 1300,
+        "h": 126
+      },
+      "seed": 3
+    },
+    {
+      "arrow": {
+        "from": [
+          1660,
+          170
+        ],
+        "to": [
+          1500,
+          280
+        ]
+      },
+      "label": "第一版",
+      "narration": "圈起來的這一段，做完就能先上線，老闆下個月就能用。"
+    },
+    {
+      "callout": "order:edge:submit>cancel",
+      "text": "箭頭多半是 AI 推測的",
+      "narration": "要提醒你，這些箭頭多半是 AI 推測的。取消訂單一定要等送出預約嗎？很合理。可是蛋糕上限要不要放進第一版，週末才不會超賣？AI 不知道你們店裡的情況。每一條都自己想一遍，或問做的人。排序沒有唯一正確答案。"
+    },
+    {
+      "clear": true
+    },
+    {
+      "hide": "order"
+    },
+    {
+      "show": "claude",
+      "chapter": "貼進試算表",
+      "narration": "最後，把結果搬到試算表，之後追進度、分工都方便。"
+    },
+    {
+      "on": "claude",
+      "user": "整理成可以直接貼到試算表的表格。",
+      "lessonStep": 3
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "好的，下面的表格有五欄：順序、工作項目、驗收條件、要先做完、版本。複製整張表，貼到試算表的 A1 就可以了。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "sheet",
+      "narration": "複製，打開試算表，選好 A1。"
+    },
+    {
+      "on": "sheet",
+      "click": "#paste",
+      "narration": "按下貼上。"
+    },
+    {
+      "callout": "sheet:sel:tr.split",
+      "text": "驗收條件跑成好幾列，對不齊了",
+      "narration": "咦，有兩個項目的驗收條件跑到下一列，前面的順序和工作項目是空的。這樣排序、篩選的時候，條件就會和項目分家。"
+    },
+    {
+      "hide": "sheet"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "有些驗收條件跑成好幾列了，每個工作項目的驗收條件請合併在同一格。",
+      "narration": "直接告訴 AI 哪裡不對：每個工作項目的驗收條件，合併在同一格。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "say": "已調整：每個工作項目只占一列，多條驗收條件放在同一格，用分號隔開。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "sheet",
+      "site": "lt-l1-2-3-sheet",
+      "narration": "復原，重新貼一次。"
+    },
+    {
+      "on": "sheet",
+      "click": "#paste"
+    },
+    {
+      "callout": "sheet:sel:tbody.v1",
+      "text": "一個項目一列；第一版的四列一眼就看得到",
+      "narration": "這次每一格都對齊了。第一版的四列，一眼就看得到。你的欄位可能和這裡不一樣，沒關係，貼上之後每一格對齊就好。"
+    },
+    {
+      "show": "boss"
+    },
+    {
+      "on": "boss",
+      "reply": "第一版先做：線上預約＋當日取貨清單，其他排在後面，表格傳給您看",
+      "narration": "把表格傳給老闆。"
+    },
+    {
+      "on": "boss",
+      "receive": "先能預約、看得到取貨清單就夠了 👍",
+      "from": "老闆A",
+      "narration": "老闆回：先能預約、看得到取貨清單，就夠了。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "送出「排出製作順序，標出哪些要先做完才能做下一項。第一版只要做到：客人能線上預約、店員看得到當天的取貨清單。」自己看一遍每個相依關係；再送出「整理成可以直接貼到試算表的表格。」貼到試算表，檢查每一格有沒有對齊。做完按「完成了，繼續」。"
+    },
+    {
+      "hide": "boss"
+    },
+    {
+      "hide": "sheet"
+    },
+    {
+      "card": "如果每接一個新需求，都要這樣做一次呢？",
+      "eyebrow": "下一單元",
+      "sub": "把這整套做法，變成固定的流程",
+      "chapter": "下一步",
+      "narration": "從一則訊息，到一張排好順序的表格，你走完了一整套。如果每接一個新需求，都要從頭這樣做一次呢？下一單元，把它變成固定的流程。"
+    }
+  ]
+}

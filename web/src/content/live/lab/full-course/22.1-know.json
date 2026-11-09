@@ -1,0 +1,160 @@
+{
+  "title": "沒還原過的備份，不算備份",
+  "lesson": "全環節 · 單元 22 · 22.1 基礎知識",
+  "teacher": {
+    "say": "今天聊備份與還原",
+    "line": "資料一旦不見，網站修得再好也沒用。這一課來看備份、還原點，還有為什麼備份一定要實際演練還原。"
+  },
+  "cast": {
+    "staff": {
+      "actor": "person",
+      "props": { "name": "店員小林", "look": "staff" },
+      "place": { "x": 560, "y": 360, "w": 800, "h": 340 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc22-1-timeline", "url": "https://console.example-cloud.com/sql/shop-db/backups" },
+      "place": "window",
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "以為有備份，真的要用時……",
+        "nodes": [
+          { "id": "bk", "label": "備份檔", "sub": "每天都有 ✓", "icon": "💾", "shape": "db", "x": 14, "y": 50, "w": 8 },
+          { "id": "restore", "label": "還原", "icon": "↺", "x": 44, "y": 50, "w": 8 },
+          { "id": "p1", "label": "權限不夠，不能還原", "icon": "🔒", "x": 76, "y": 18, "w": 12, "hidden": true },
+          { "id": "p2", "label": "備份少了圖片資料夾", "icon": "🖼", "x": 76, "y": 50, "w": 12, "hidden": true },
+          { "id": "p3", "label": "還原要花 3 小時", "icon": "⏳", "x": 76, "y": 82, "w": 12, "hidden": true }
+        ],
+        "edges": [
+          { "from": "bk", "to": "restore" },
+          { "from": "restore", "to": "p1", "hidden": true },
+          { "from": "restore", "to": "p2", "hidden": true },
+          { "from": "restore", "to": "p3", "hidden": true }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "show": "staff",
+      "chapter": "下午兩點半",
+      "narration": "下午兩點半，店員小林在後台整理商品。"
+    },
+    {
+      "on": "staff",
+      "say": "我想刪一個舊商品……結果整個商品表都不見了！",
+      "mood": "busy",
+      "narration": "一個不小心，整張商品表都被刪掉了。網站上一個商品都沒有。"
+    },
+    {
+      "on": "staff",
+      "say": "我們有備份吧？有吧？",
+      "mood": "worried",
+      "narration": "這時候大家第一句話都是：我們有備份吧？"
+    },
+    { "hide": "staff" },
+    {
+      "card": "沒還原過的備份，不算備份",
+      "eyebrow": "全環節 · 單元 22 · 22.1 基礎知識",
+      "sub": "備份 · 還原點 · 為什麼要演練",
+      "narration": "有備份只是第一步。真正的問題是：能不能還原、還原到哪裡、要多久。"
+    },
+    {
+      "show": "web",
+      "chapter": "還原點：要回到哪個時間",
+      "narration": "這是資料庫的備份頁。中間的線是時間，從昨天半夜到今天。"
+    },
+    {
+      "callout": "web:section:boom",
+      "text": "14:32 商品表被刪除",
+      "narration": "紅色的是出事的時間：下午兩點三十二分。"
+    },
+    {
+      "callout": "web:section:b-day",
+      "text": "每日備份：每天 03:00 拍一張完整的照片",
+      "narration": "藍色的點是每日備份：每天凌晨三點，把整個資料庫完整存一份，像拍一張照片。每一個可以回去的時間點，叫還原點。"
+    },
+    {
+      "on": "web",
+      "click": "#b-day",
+      "narration": "如果還原到凌晨三點的備份，"
+    },
+    {
+      "callout": "web:section:res",
+      "text": "03:00 之後的訂單、會員全部不見",
+      "narration": "商品回來了，但三點之後的二十九筆訂單、兩位新會員，也一起不見了。因為那張照片裡還沒有它們。"
+    },
+    {
+      "callout": "web:section:pitr-band",
+      "text": "時間點還原：記下每一次變更，可以回到任何一分鐘",
+      "narration": "所以還有另一種：時間點還原。資料庫把每一次變更都記下來，可以回到最近七天的任何一分鐘。"
+    },
+    {
+      "on": "web",
+      "click": "#b-pitr",
+      "narration": "選刪除前一分鐘，兩點三十一分。"
+    },
+    {
+      "callout": "web:section:res",
+      "text": "只失去最後 1 分鐘",
+      "narration": "這次只失去最後一分鐘的變更。還原點越密，出事時掉的資料越少。"
+    },
+    { "hide": "web" },
+    {
+      "show": "flow",
+      "chapter": "為什麼要演練",
+      "narration": "聽起來很安心。但很多人第一次真的要還原，才發現問題。"
+    },
+    { "send": "bk>restore", "label": "開始還原" },
+    {
+      "appear": ["p1", "restore>p1"],
+      "narration": "有時候是權限不夠，平常用的帳號根本不能還原；"
+    },
+    {
+      "appear": ["p2", "restore>p2"],
+      "narration": "有時候是備份裡少了東西，例如商品圖片根本不在資料庫裡；"
+    },
+    {
+      "appear": ["p3", "restore>p3"],
+      "narration": "有時候是還原比想像慢很多，網站要停三小時。"
+    },
+    { "light": "p1", "tone": "bad" },
+    { "light": "p2", "tone": "bad" },
+    {
+      "light": "p3",
+      "tone": "bad",
+      "narration": "這些問題，在出事當下才發現，就太晚了。"
+    },
+    {
+      "callout": "flow:node:restore",
+      "text": "演練：平常就在「複本」上還原一次，問題先在演練時發現",
+      "narration": "所以要演練：平常沒出事時，就實際還原一次。而且要還原到一個複本，也就是另外開一個新的資料庫，絕對不碰正式的那一個。"
+    },
+    { "hide": "flow" },
+    {
+      "shimmer": "備份 → 還原到複本 → 比對",
+      "sub": "演練時才知道：能不能還原、會少什麼、要多久",
+      "chapter": "重點整理",
+      "narration": "演練的三步：從備份還原到複本，再比對資料是不是完整。做過一次，你才真的知道你有備份。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "想一想",
+      "body": "你的網站資料有哪些不在資料庫裡？（例如上傳的圖片、設定檔）它們有被備份嗎？",
+      "narration": "想一想：你的網站有哪些資料不在資料庫裡？例如上傳的圖片。它們有備份嗎？"
+    },
+    {
+      "card": "下一堂：在複本上演練",
+      "eyebrow": "預告",
+      "sub": "請 AI 還原到複本，再寫一支比對腳本確認資料完整",
+      "narration": "下一堂，我們請 AI 在複本上還原，再寫一支比對腳本，確認資料一筆不少。"
+    }
+  ]
+}

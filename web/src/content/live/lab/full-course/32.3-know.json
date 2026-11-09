@@ -1,0 +1,72 @@
+{
+  "title": "AI 在等你，你在市場",
+  "lesson": "全環節 · 單元 32 · 32.3 基礎知識",
+  "teacher": {
+    "say": "今天用手機看 AI 的進度",
+    "line": "這一課講遠端控制：人不在電腦前，也能用手機看 AI 做到哪裡、回答它的確認。"
+  },
+  "cast": {
+    "phone": { "actor": "chat", "props": { "title": "AI 程式助手" }, "place": { "x": 680, "y": 90, "w": 560, "h": 880 }, "hidden": true },
+    "web": { "actor": "browser", "props": { "site": "fc32-3-flow", "url": "https://notes.example/remote" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "AI 在等你，你在市場",
+      "eyebrow": "全環節 · 單元 32 · 32.3 基礎知識",
+      "sub": "用手機看進度與核准",
+      "chapter": "出門之後",
+      "narration": "早上你交代 AI 上架新菜單，然後出門去市場買水果。"
+    },
+    { "show": "phone", "narration": "走到一半，手機響了。" },
+    { "on": "phone", "receive": "進度：新品 3 款已加入、測試 42 個通過。", "from": "AI 程式助手" },
+    {
+      "on": "phone",
+      "receive": "下一步要部署到測試網站（npm run deploy:staging），可以嗎？",
+      "from": "AI 程式助手",
+      "narration": "它做到一半，有一個步驟需要你允許。以前的話，它就會停在那裡，等你回家。"
+    },
+    {
+      "on": "phone",
+      "reply": "可以，部署到測試網站。正式網站等我回去看過再說。",
+      "narration": "現在你在手機上就能回答。而且你還可以順便說清楚界線：正式網站等你回去看過。"
+    },
+    { "on": "phone", "receive": "已部署：https://staging.bakery.example，回 200。", "from": "AI 程式助手", "narration": "你買完水果，它也做完了。" },
+    { "hide": "phone" },
+    {
+      "show": "web",
+      "chapter": "它是怎麼辦到的",
+      "narration": "這是怎麼辦到的？畫出來看。"
+    },
+    {
+      "callout": "web:section:pc",
+      "text": "AI 還是在家裡的電腦上工作",
+      "narration": "AI 一直都在家裡的電腦上工作：檔案在電腦裡，指令也在電腦上跑。"
+    },
+    { "on": "web", "click": "#y1", "narration": "電腦把進度傳到你的手機。" },
+    { "on": "web", "click": "#y2", "narration": "需要確認的時候，手機上會出現和電腦上一樣的確認提示。" },
+    {
+      "on": "web",
+      "click": "#y3",
+      "narration": "你在手機上按允許，這個決定傳回電腦，AI 接著做。手機就像一個遙控器。"
+    },
+    {
+      "on": "web",
+      "click": "#y4",
+      "chapter": "要記得的兩件事",
+      "narration": "要記得兩件事。第一，電腦要開著、不能睡著，不然 AI 也停了。第二，在手機上按允許，一樣要看清楚它要做什麼。"
+    },
+    { "hide": "web" },
+    {
+      "diff": "手機上適合做的事",
+      "lines": [["+", "看進度、回答「可以繼續嗎」"], ["+", "允許部署到測試網站"], ["+", "交代一句小修改"], ["-", "核准付款、刪資料、部署正式網站"], ["-", "看不清楚畫面就按允許"]],
+      "narration": "手機上適合做的，是看進度、回答簡單的確認、交代一句小修改。付款、刪資料、上正式網站這種大事，回到電腦前看清楚再說。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "想一個出門的時機",
+      "body": "想一個你常常交代完任務就要離開電腦的時候（通勤、開會、買東西）。那時候 AI 最可能卡在哪一個確認？",
+      "narration": "換你想想：你什麼時候常交代完就離開電腦？那時候 AI 最可能卡在哪個確認？"
+    }
+  ]
+}

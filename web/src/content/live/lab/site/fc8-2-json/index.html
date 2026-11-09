@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>拆開一份 JSON</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap">
+  <h1>拆開一份 JSON</h1>
+  <p class="muted">伺服器回給前端的資料，常常長這樣。點下面的按鈕，看每個部分叫什麼。</p>
+  <div class="row2">
+    <pre class="js mono"><span class="ob">{</span>
+  <span class="k">"shop"</span>: <span class="v">"小森烘焙"</span>,
+  <span class="k">"open"</span>: <span class="v">true</span>,
+  <span class="k">"items"</span>: <span class="ar">[
+    <span class="ob2">{ <span class="k">"name"</span>: <span class="v">"可頌"</span>, <span class="k">"price"</span>: <span class="v">65</span> }</span>,
+    <span class="ob2">{ <span class="k">"name"</span>: <span class="v">"肉桂捲"</span>, <span class="k">"price"</span>: <span class="v">80</span> }</span>
+  ]</span>
+<span class="ob">}</span></pre>
+    <div class="side2">
+      <div class="btns">
+        <button class="btn ghost" id="bObj">物件 { }</button>
+        <button class="btn ghost" id="bKey">鍵（名稱）</button>
+        <button class="btn ghost" id="bVal">值</button>
+        <button class="btn ghost" id="bArr">陣列 [ ]</button>
+      </div>
+      <div class="exp card" id="exp">點一個按鈕看看。</div>
+    </div>
+  </div>
+</div>
+</body></html>

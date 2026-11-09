@@ -1,0 +1,32 @@
+<!doctype html><html><head><title>一次性連結</title></head><body>
+<div class="app s0">
+  <div class="mail">
+    <div class="mh"><b>shop.example</b> 寄給你 · 重設你的密碼</div>
+    <div class="mb">有人要求重設你的密碼。如果是你，請按下面的按鈕：<span class="btn">重設密碼</span></div>
+  </div>
+  <div class="url" id="url"><span class="p1">https://shop.example<i>網站</i></span><span class="p2">/reset<i>要做的事</i></span><span class="p3">?token=<i>通行碼</i></span><span class="p4" id="tok">k7Q2x9mLw4Pz<i>猜不到的亂碼，只在這封信裡</i></span></div>
+  <div class="row">
+    <div class="db" id="db">
+      <div class="dbt">網站資料庫裡的一行</div>
+      <table><tr><th>通行碼</th><th>用途</th><th>期限</th><th>用過了嗎</th></tr>
+      <tr><td>k7Q2x9mLw4Pz</td><td>重設密碼</td><td>15:30 前</td><td class="used"><span class="no">還沒</span><span class="yes">用過了</span></td></tr></table>
+    </div>
+    <div class="clock" id="clock">
+      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="face"/><path class="arc" d="M50 6 A44 44 0 1 1 49.9 6"/><line x1="50" y1="50" x2="50" y2="18" class="hand h0"/><line x1="50" y1="50" x2="50" y2="18" class="hand h1"/></svg>
+      <div class="ct"><span class="t0">15:00 寄出</span><span class="t1">15:31 已超過 30 分鐘</span></div>
+    </div>
+    <div class="result" id="result">
+      <div class="r0">點下連結會怎樣？</div>
+      <div class="r1">✓ 通行碼正確、沒過期、沒用過<br><b>可以設定新密碼</b></div>
+      <div class="r2">✗ 這個連結已經用過了<br><b>請重新申請</b></div>
+      <div class="r3">✗ 連結已過期<br><b>請重新申請</b></div>
+    </div>
+  </div>
+  <div class="chips">
+    <button id="b1" data-s="1">① 拆開連結</button>
+    <button id="b2" data-s="2">② 第一次點</button>
+    <button id="b3" data-s="3">③ 再點一次</button>
+    <button id="b4" data-s="4">④ 30 分鐘後</button>
+  </div>
+</div>
+</body></html>

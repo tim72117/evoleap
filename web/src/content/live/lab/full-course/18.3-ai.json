@@ -1,0 +1,161 @@
+{
+  "title": "讓 AI 用 gcloud 操作雲端",
+  "lesson": "全環節 · 單元 18 · 18.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "先說清楚，再動手",
+    "line": "這一堂安裝 gcloud、由你完成登入授權，再定一條規矩：AI 每個雲端指令，都要先說會做什麼、會不會花錢，才執行。"
+  },
+  "blocking": { "cast": ["claude", "auth"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "gcloud 設定",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "auth": {
+      "actor": "browser",
+      "props": { "site": "fc18-3-auth", "width": "desktop", "url": "https://accounts.example-cloud.com/o/oauth2/auth" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "讓 AI 用 gcloud 操作雲端",
+      "eyebrow": "全環節 · 單元 18 · 18.3 用 AI 完成",
+      "sub": "安裝、你登入授權、定好規矩、列出專案現況",
+      "chapter": "安裝 gcloud",
+      "narration": "三件事：裝好 gcloud、你登入授權、然後讓 AI 列出專案現在有什麼。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我安裝 gcloud 並登入。之後每個 gcloud 指令，執行前都先跟我說：會做什麼、會不會花錢。把這條規則寫進 CLAUDE.md，以後都照做。",
+      "narration": "規則寫進 CLAUDE.md，也就是這個專案給 AI 的說明檔，之後每次開新對話它都會遵守。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [
+        [12, "+", "## 雲端指令"],
+        [13, "+", "- 執行任何 gcloud 指令前，先說明：會做什麼、會不會花錢、能不能復原。"],
+        [14, "+", "- 會花錢或刪除資源的指令，一定先問過我。"]
+      ],
+      "narration": "它先把規則寫好。多了一條：會花錢或刪除東西的，一定先問。"
+    },
+    {
+      "on": "claude",
+      "say": "**下一個指令：** `brew install --cask google-cloud-sdk`\n- 做什麼：在你的電腦安裝 gcloud\n- 花錢嗎：不會\n- 復原：可以用 brew 移除"
+    },
+    {
+      "on": "claude",
+      "ask": "brew install --cask google-cloud-sdk",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "brew install --cask google-cloud-sdk"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "brew install --cask google-cloud-sdk && gcloud --version | head -1",
+      "result": "完成",
+      "out": "🍺  google-cloud-sdk was successfully installed!\nGoogle Cloud SDK 548.0.0"
+    },
+    {
+      "on": "claude",
+      "say": "**下一個指令：** `gcloud auth login`\n- 做什麼：打開瀏覽器，讓**你**登入並授權 gcloud 用你的帳號\n- 花錢嗎：不會\n瀏覽器跳出來後，請確認是你自己的帳號，再按允許。",
+      "chapter": "登入授權：你來"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud auth login",
+      "result": "等待中",
+      "out": "Your browser has been opened to visit:\nhttps://accounts.example-cloud.com/o/oauth2/auth?…"
+    },
+    { "show": "auth", "narration": "瀏覽器跳出登入頁。選你自己的帳號。" },
+    { "on": "auth", "click": "#pick" },
+    {
+      "callout": "auth:sel:.note",
+      "text": "確認是自己剛執行的登入，才按允許",
+      "narration": "授權頁列出 gcloud 能做什麼。確認是你自己剛剛執行的登入，再按允許。這一步一定是你按。"
+    },
+    { "on": "auth", "click": "#allow" },
+    {
+      "on": "claude",
+      "user": "（附上截圖）已經按允許，畫面說驗證完成。",
+      "narration": "回到 AI，跟它說好了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud auth list --format='value(account,status)'",
+      "result": "完成",
+      "out": "you@gmail.com  ACTIVE"
+    },
+    {
+      "on": "claude",
+      "user": "列出這個專案目前的設定，還有開了哪些服務。",
+      "chapter": "AI 列出專案現況",
+      "narration": "登入好了，請它看看專案的現況。"
+    },
+    {
+      "on": "claude",
+      "say": "我會執行三個**只讀**的指令：`gcloud config list`、`gcloud services list --enabled`、`gcloud run services list`。都只是查詢，**不會花錢、不會改任何東西**。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "照 CLAUDE.md 的規矩：先說明，再執行",
+      "narration": "它照剛剛的規矩，先說明這三個指令都只是查詢，不花錢、不改東西。只讀的指令很安全，看懂了就放心讓它跑。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud config list",
+      "result": "完成",
+      "out": "[core]\naccount = you@gmail.com\nproject = xiaosen-bakery-prod-2611"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud services list --enabled --format='value(config.name)'",
+      "result": "完成",
+      "out": "billingbudgets.googleapis.com\ncloudresourcemanager.googleapis.com\nlogging.googleapis.com\nmonitoring.googleapis.com"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services list",
+      "result": "完成",
+      "out": "Listed 0 items."
+    },
+    {
+      "on": "claude",
+      "say": "專案現況：\n- 帳號 `you@gmail.com`，預設專案 `xiaosen-bakery-prod-2611`\n- 已啟用 4 個基本服務（預算、資源管理、記錄、監控），目前都沒有費用\n- 還沒有任何網站服務（Cloud Run 是 0 個）\n接下來要部署網站時，會需要先建立權限和啟用 API。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：讓 AI 接上你的雲端",
+      "body": "請 AI 把「雲端指令先說明會做什麼、會不會花錢」寫進 CLAUDE.md，安裝 gcloud；登入時的瀏覽器授權由你自己按。最後請它列出專案的設定與服務。"
+    },
+    { "hide": "auth" },
+    {
+      "card": "規矩寫進 CLAUDE.md：\n先說做什麼、會不會花錢，再執行",
+      "eyebrow": "學會",
+      "sub": "登入授權由你按；只讀的查詢可以放心讓 AI 跑",
+      "chapter": "學會",
+      "narration": "登入授權由你按，規矩寫進 CLAUDE.md：每個雲端指令先說會做什麼、會不會花錢，再執行。現在 AI 碰得到你的雲端了。"
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "title": "Cookie 同意",
+  "lesson": "全環節 · 單元 24 · 24.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做同意橫幅並驗證",
+    "line": "這一課請 AI 列出網站用到的 Cookie、做出同意橫幅，最後用瀏覽器工具實際確認：客人拒絕之後，真的沒有送出任何分析資料。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "Cookie 同意",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc24-2-banner", "url": "https://shop-staging.example.app/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "Cookie 同意",
+      "eyebrow": "全環節 · 單元 24 · 24.2 用 AI 完成",
+      "sub": "列出 Cookie → 做橫幅 → 用瀏覽器工具驗證拒絕後不送資料",
+      "narration": "完成的標準只有一個：拒絕之後，不送出分析資料。不是「橫幅做好了」。"
+    },
+    {
+      "show": "claude",
+      "chapter": "交代：完成標準要能驗證",
+      "narration": "把這個標準寫進要求裡。"
+    },
+    {
+      "on": "claude",
+      "user": "先用瀏覽器工具打開測試環境，列出網站設定的每一個 Cookie 和送出的第三方請求，分成必要和非必要。再做同意橫幅：拒絕和接受一樣大，同意前不能載入分析程式。完成標準：用瀏覽器工具確認，按拒絕後 GA4 的請求是 0；按接受後才有。",
+      "narration": "要求它先查現況、再做橫幅，最後用工具驗證拒絕和接受兩種情況。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/cookie-audit.mjs https://shop-staging.example.app（無頭瀏覽器，清空 Cookie 後打開首頁）",
+      "result": "4 個 Cookie · 2 個第三方請求",
+      "out": "session      必要：登入狀態\ncart         必要：購物車\n_ga, _ga_K7Q 非必要：GA4（一打開就設定了！）\n請求：google-analytics.com/g/collect ×2（還沒同意就送出）",
+      "chapter": "先查現況",
+      "narration": "它先查現況，結果發現問題：一打開首頁，還沒有任何同意，GA4 的 Cookie 就設好了，資料也送出去了兩次。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "現況：還沒同意，GA4 就已經在送資料",
+      "narration": "這就是上一堂說的常見錯誤。前面單元裝 GA4 的時候，還沒有同意橫幅。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/consent.ts",
+      "lines": [
+        [1, "+", "const saved = localStorage.getItem('consent')   // 'granted' | 'denied' | null"],
+        [2, "+", "export function applyConsent(choice) {"],
+        [3, "+", "  localStorage.setItem('consent', choice)"],
+        [4, "+", "  if (choice === 'granted') loadAnalytics()     // 同意後才載入 GA4"],
+        [5, "+", "}"],
+        [6, "+", "if (saved === 'granted') loadAnalytics()          // 以前同意過"],
+        [7, "+", "else if (!saved) showBanner()                     // 沒選過才問"]
+      ],
+      "chapter": "做橫幅：同意後才載入",
+      "narration": "它改成：一開始完全不載入 GA4，只有客人按了同意，才載入。記住選擇，以前選過就不再問。"
+    },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [[14, "-", "  <script async src=\"https://www.googletagmanager.com/gtag/js?id=G-K7Q2M9XW4P\"></script>"]],
+      "narration": "原本寫在網頁最前面、一打開就載入的那一行，拿掉。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/components/CookieBanner.tsx",
+      "lines": [
+        [8, "+", "<button onClick={() => applyConsent('denied')}>全部拒絕</button>"],
+        [9, "+", "<button onClick={openSettings}>設定</button>"],
+        [10, "+", "<button className=\"pri\" onClick={() => applyConsent('granted')}>全部接受</button>"]
+      ],
+      "narration": "橫幅三個按鈕，拒絕和接受一樣大。頁尾也加了 Cookie 設定的連結，隨時能改。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm run deploy:staging", "result": "已部署" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/cookie-audit.mjs --click=\"全部拒絕\" --then-visit=/menu,/cart",
+      "result": "✓ GA4 請求 0 · 非必要 Cookie 0",
+      "out": "首頁（尚未選擇）：GA4 請求 0\n按「全部拒絕」→ 換到 /menu、/cart：GA4 請求 0\nCookie：session、cart、consent=denied",
+      "chapter": "驗證：拒絕",
+      "narration": "驗證拒絕的情況：還沒選的時候是零，按拒絕之後再逛兩頁，還是零。只剩必要的 Cookie，加上一個記住「拒絕」的。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/cookie-audit.mjs --click=\"全部接受\" --then-visit=/menu",
+      "result": "✓ 接受後 GA4 請求 2",
+      "out": "按「全部接受」→ GA4 載入，page_view ×2",
+      "chapter": "驗證：接受",
+      "narration": "再驗證接受：按了之後，GA4 才開始送資料。兩種情況都符合。"
+    },
+    {
+      "show": "web",
+      "narration": "你也可以自己打開測試環境看看。"
+    },
+    {
+      "on": "web",
+      "click": "#reject",
+      "narration": "按全部拒絕。"
+    },
+    {
+      "callout": "web:section:status",
+      "text": "和 AI 的驗證一樣：0 個請求",
+      "narration": "結果和 AI 的驗證一樣。"
+    },
+    {
+      "on": "claude",
+      "say": "完成：首頁不再預先載入 GA4。驗證結果：拒絕後逛 3 頁，GA4 請求 0；接受後才開始送出。橫幅的拒絕與接受按鈕同樣大小，頁尾有「Cookie 設定」可隨時更改。隱私權政策的 Cookie 段落也已同步更新。",
+      "narration": "它回報驗證的結果，也順手更新了隱私權政策裡的 Cookie 說明。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 先用瀏覽器工具列出你的網站實際設定的 Cookie 和第三方請求，再做同意橫幅（同意前不載入）。完成標準：拒絕後分析請求為 0、接受後才有，請它兩種都實際驗證。",
+      "narration": "換你做做看。先查現況，很多網站都會發現：還沒同意就在送資料了。"
+    },
+    {
+      "card": "拒絕後不送出分析資料",
+      "eyebrow": "這一課的成果",
+      "sub": "先查現況 · 同意後才載入 · 兩種情況都實際驗證",
+      "narration": "這一課的成果：客人拒絕後，網站真的不送分析資料。下一課，來整理常見問題和客服回覆。"
+    }
+  ]
+}

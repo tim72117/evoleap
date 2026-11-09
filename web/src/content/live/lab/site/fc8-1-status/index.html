@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>HTTP 狀態碼</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap">
+  <h1>伺服器回信的第一行：狀態碼</h1>
+  <p class="muted">每個回應都帶一個三位數字。看第一個數字，就知道大概發生什麼事。</p>
+  <div class="bands">
+    <div class="band b2"><b>2xx</b> 成功</div>
+    <div class="band b3"><b>3xx</b> 請到別處拿</div>
+    <div class="band b4"><b>4xx</b> 你這邊的請求有問題</div>
+    <div class="band b5"><b>5xx</b> 伺服器那邊出錯</div>
+  </div>
+  <div class="codes">
+    <button class="code c2" id="c200"><span class="num">200</span><span class="nm">OK</span><span class="mean">成功，資料在這裡。</span><span class="eg">例：打開菜單頁</span></button>
+    <button class="code c2" id="c201"><span class="num">201</span><span class="nm">Created</span><span class="mean">成功建立一筆新資料。</span><span class="eg">例：訂單送出成功</span></button>
+    <button class="code c4" id="c400"><span class="num">400</span><span class="nm">Bad Request</span><span class="mean">送來的資料格式不對。</span><span class="eg">例：數量填了「abc」</span></button>
+    <button class="code c4" id="c401"><span class="num">401</span><span class="nm">Unauthorized</span><span class="mean">還沒登入，或通行證無效。</span><span class="eg">例：沒登入就看訂單</span></button>
+    <button class="code c4" id="c404"><span class="num">404</span><span class="nm">Not Found</span><span class="mean">找不到這個網址。</span><span class="eg">例：網址打錯一個字</span></button>
+    <button class="code c5" id="c500"><span class="num">500</span><span class="nm">Server Error</span><span class="mean">伺服器的程式出錯了。</span><span class="eg">例：程式忘了處理空值</span></button>
+  </div>
+</div>
+</body></html>

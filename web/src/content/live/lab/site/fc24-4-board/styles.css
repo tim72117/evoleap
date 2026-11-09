@@ -1,0 +1,16 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#f6f4ef;color:#2a2620}
+.pg{padding:20px 30px;display:grid;grid-template-columns:330px 1fr;grid-template-rows:auto auto;gap:16px}
+.inbox{background:#fff;border-radius:16px;padding:12px 16px;box-shadow:0 0 0 1px #e6dfd2;grid-row:1/3}
+h2{margin:4px 0 10px;font-size:20px}
+.fb{background:#fff8d6;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:17px;box-shadow:0 3px 8px rgba(0,0,0,.08)}
+.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.col{background:#fff;border-radius:16px;padding:10px 12px;min-height:300px;box-shadow:0 0 0 1px #e6dfd2}
+.col h3{margin:2px 0 10px;font-size:17px}
+.col h3 span{background:#eee6d8;border-radius:10px;padding:1px 9px;font-size:15px}
+.c-bug{border-top:5px solid #d2453a}.c-feat{border-top:5px solid #4d6fd0}.c-content{border-top:5px solid #d99a1c}.c-praise{border-top:5px solid #2e9a5b}
+.col .fb{font-size:15px}
+.c-bug .fb{background:#fdeeec}.c-feat .fb{background:#eef2fc}.c-content .fb{background:#fff4dc}.c-praise .fb{background:#ecf8f0}
+.todo{display:none;background:#fff;border-radius:16px;padding:12px 20px;box-shadow:0 0 0 2px #2a2620}
+.todo.on{display:block}
+.todo h3{margin:2px 0 6px}
+.todo ol{margin:0;padding-left:22px;font-size:17px;line-height:1.7}

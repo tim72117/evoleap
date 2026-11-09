@@ -1,0 +1,265 @@
+{
+  "title": "擲骰子",
+  "lesson": "兒童網頁課 · 3.5 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "幸運骰子",
+        "emoji": "🎲",
+        "buttons": [
+          {
+            "id": "roll",
+            "text": "擲骰子"
+          }
+        ],
+        "dice": {
+          "value": 1
+        },
+        "rules": [
+          {
+            "id": "dice",
+            "when": "roll",
+            "do": [
+              {
+                "roll": [
+                  1,
+                  6
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:dice",
+        "text": "網頁上的骰子"
+      },
+      "chapter": "猜猜看",
+      "narration": "這是網頁上的一顆骰子。按擲骰子，它會轉一轉，停在一個數字。"
+    },
+    {
+      "checkpoint": "你猜，會擲出幾點？",
+      "body": "選一個數字。",
+      "id": "quiz-guess",
+      "stage": {
+        "focus": "kid:dice"
+      },
+      "options": [
+        {
+          "label": "1",
+          "steps": [
+            {
+              "guess": 1,
+              "narration": "你猜 1。"
+            },
+            {
+              "press": "roll",
+              "tap": true,
+              "narration": "擲囉！看看停在幾點？跟你猜的一樣嗎？"
+            }
+          ]
+        },
+        {
+          "label": "2",
+          "steps": [
+            {
+              "guess": 2,
+              "narration": "你猜 2。"
+            },
+            {
+              "press": "roll",
+              "tap": true,
+              "narration": "擲囉！看看停在幾點？跟你猜的一樣嗎？"
+            }
+          ]
+        },
+        {
+          "label": "3",
+          "steps": [
+            {
+              "guess": 3,
+              "narration": "你猜 3。"
+            },
+            {
+              "press": "roll",
+              "tap": true,
+              "narration": "擲囉！看看停在幾點？跟你猜的一樣嗎？"
+            }
+          ]
+        },
+        {
+          "label": "4",
+          "steps": [
+            {
+              "guess": 4,
+              "narration": "你猜 4。"
+            },
+            {
+              "press": "roll",
+              "tap": true,
+              "narration": "擲囉！看看停在幾點？跟你猜的一樣嗎？"
+            }
+          ]
+        },
+        {
+          "label": "5",
+          "steps": [
+            {
+              "guess": 5,
+              "narration": "你猜 5。"
+            },
+            {
+              "press": "roll",
+              "tap": true,
+              "narration": "擲囉！看看停在幾點？跟你猜的一樣嗎？"
+            }
+          ]
+        },
+        {
+          "label": "6",
+          "steps": [
+            {
+              "guess": 6,
+              "narration": "你猜 6。"
+            },
+            {
+              "press": "roll",
+              "tap": true,
+              "narration": "擲囉！看看停在幾點？跟你猜的一樣嗎？"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:dice",
+        "text": "猜不到"
+      },
+      "narration": "猜中、沒猜中都沒關係。因為連網頁自己，也不知道下一次會擲出幾點。"
+    },
+    {
+      "press": "roll",
+      "tap": true,
+      "narration": "再擲一次。"
+    },
+    {
+      "press": "roll",
+      "narration": "再一次。每次都不一樣！"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:rule:dice",
+        "text": "隨機：猜不到"
+      },
+      "chapter": "隨機和範圍",
+      "narration": "像這樣每次都不一樣、事先猜不到的，叫做隨機。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:do:dice",
+        "text": "範圍：1 到 6"
+      },
+      "narration": "魔法積木說好：點了擲骰子，就擲出 1 到 6 的數字。1 到 6 叫做範圍，數字只會在這個範圍裡面。"
+    },
+    {
+      "checkpoint": "1 到 6 的骰子，會擲出 8 嗎？",
+      "body": "點下面的答案。",
+      "id": "quiz-range",
+      "stage": {
+        "focus": "kid:do:dice"
+      },
+      "options": [
+        {
+          "label": "會",
+          "retry": true,
+          "steps": [
+            {
+              "check": "dice",
+              "answer": "do:dice",
+              "narration": "8 比 6 大，不在 1 到 6 的範圍裡，所以不會出現。再想一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "不會",
+          "steps": [
+            {
+              "check": "do:dice",
+              "answer": "do:dice",
+              "narration": "答對了！骰子只會擲出 1 到 6，範圍裡的數字。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "chapter": "改範圍",
+      "narration": "如果想要大一點的數字呢？把範圍改大就好。"
+    },
+    {
+      "edit": "dice",
+      "roll": [
+        1,
+        100
+      ],
+      "tap": true,
+      "narration": "把 1 到 6，改成 1 到 100。"
+    },
+    {
+      "press": "roll",
+      "tap": true,
+      "narration": "擲擲看！現在可能擲出很大的數字。"
+    },
+    {
+      "press": "roll",
+      "narration": "再一次，還是猜不到。"
+    },
+    {
+      "checkpoint": "換你擲骰子",
+      "sub": "lab/kids/3.5-roll.json",
+      "chapter": "換你擲骰子"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:rule:dice",
+        "text": "網頁也可以每次都不一樣"
+      },
+      "chapter": "學會",
+      "narration": "今天學到兩個名詞：隨機，和範圍。說好範圍，網頁就在範圍裡，每次給你不一樣的數字！"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>四要素拼一拼</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="head">
+    <div class="ttl">同一件事，問兩次</div>
+    <div class="tools">
+      <button class="btn" id="bg">＋ 背景</button>
+      <button class="btn" id="task">＋ 任務</button>
+      <button class="btn" id="limit">＋ 限制</button>
+      <button class="btn" id="fmt">＋ 格式</button>
+    </div>
+  </div>
+  <div class="card v1">
+    <span class="tag">第一次</span>
+    <span class="q">幫我寫訊息問老闆預約系統的細節。</span>
+    <span class="tag r miss">AI 不知道老闆是誰、要問哪些、要多短</span>
+  </div>
+  <div class="slots">
+    <div class="slot bg" id="s-bg"><div class="sh">背景</div><div class="sq muted">對方是誰？在什麼情況？</div><div class="sa">老闆很忙，習慣用 LINE 簡短回覆</div></div>
+    <div class="slot task" id="s-task"><div class="sh">任務</div><div class="sq muted">要做什麼？根據什麼？</div><div class="sa">根據剛才列出的不清楚之處，寫一則訊息</div></div>
+    <div class="slot limit" id="s-limit"><div class="sh">限制</div><div class="sq muted">範圍多大？不要什麼？</div><div class="sa">只問最重要的幾題</div></div>
+    <div class="slot fmt" id="s-fmt"><div class="sh">格式</div><div class="sq muted">做出來長什麼樣子？</div><div class="sa">他選選項就能回</div></div>
+  </div>
+  <div class="card v2">
+    <span class="tag g">第二次</span>
+    <span class="q">重寫：<span class="seg bg">老闆很忙，習慣用 LINE 簡短回覆。</span><span class="seg task">根據剛才列出的不清楚之處，寫一則</span><span class="seg fmt">他選選項就能回的</span><span class="seg task">訊息，</span><span class="seg limit">只問最重要的幾題。</span><span class="caret"></span></span>
+    <div class="count muted"><span class="n">0</span> / 4 個要素 · 每個一句話就夠</div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

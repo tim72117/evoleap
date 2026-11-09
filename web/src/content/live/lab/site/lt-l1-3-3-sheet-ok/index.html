@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>小森烘焙 會員集點 工作項目</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="top"><div class="doc-icon"></div><div><div class="doc-name">小森烘焙 會員集點 工作項目</div><div class="doc-sub">試算表 · 課程範例（虛構）</div></div></div>
+    <div class="tools"><span class="cellref">A1</span><button class="tool main" id="paste">貼上</button><button class="tool">復原</button><button class="tool">篩選</button><span class="hint">從 AI 的回覆複製表格，選好 A1 再貼上</span></div>
+    <div class="gridwrap">
+      <table>
+        <colgroup><col style="width:44px"><col class="c-a"><col class="c-b"><col class="c-c"><col class="c-d"><col class="c-e"></colgroup>
+        <thead><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead>
+        <tbody class="data">
+        <tr class="head-row"><th class="rn">1</th><td class="sel"><span>順序</span></td><td><span>工作項目</span></td><td><span>驗收條件</span></td><td><span>要先做完</span></td><td><span>版本</span></td></tr>
+        </tbody><tbody class="data v1">
+        <tr class="v1"><th class="rn">2</th><td><span>1</span></td><td><span>用手機號碼建立會員</span></td><td><span>輸入 10 碼手機就能建立；同一支手機不能重複</span></td><td><span>—</span></td><td><span><i class="tag first">第一版</i></span></td></tr>
+        <tr class="v1"><th class="rn">3</th><td><span>2</span></td><td><span>店員結帳時加點</span></td><td><span>每 100 元 1 點；只有店員帳號能加點</span></td><td><span>1</span></td><td><span><i class="tag first">第一版</i></span></td></tr>
+        <tr class="v1 fixed"><th class="rn">4</th><td><span>3</span></td><td><span>客人查看點數</span></td><td><span>在預約頁面輸入手機，1 步內看到目前點數</span></td><td><span>1</span></td><td><span><i class="tag first">第一版</i></span></td></tr>
+        <tr class="v1"><th class="rn">5</th><td><span>4</span></td><td><span>10 點換小蛋糕</span></td><td><span>滿 10 點才能兌換；兌換後扣 10 點</span></td><td><span>2</span></td><td><span><i class="tag first">第一版</i></span></td></tr>
+        </tbody><tbody class="data later">
+        <tr class=""><th class="rn">6</th><td><span>5</span></td><td><span>點數一年過期</span></td><td><span>最後一次消費滿一年，點數歸零</span></td><td><span>2</span></td><td><span><i class="tag">之後</i></span></td></tr>
+        <tr class=""><th class="rn">7</th><td><span>6</span></td><td><span>生日月折價券</span></td><td><span>（待之後再談）</span></td><td><span>1</span></td><td><span><i class="tag">之後</i></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

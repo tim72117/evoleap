@@ -1,0 +1,148 @@
+{
+  "title": "登入在做什麼：密碼雜湊與 session",
+  "lesson": "全環節 · 單元 10 · 10.1 基礎知識",
+  "teacher": {
+    "say": "今天看登入背後在做什麼",
+    "line": "今天我們打開登入的黑盒子：密碼為什麼不能直接存、雜湊是什麼，還有登入之後，網站怎麼一直記得你是誰。"
+  },
+  "cast": {
+    "users": {
+      "actor": "fc3-table",
+      "props": {
+        "title": "如果密碼這樣存……",
+        "tables": [
+          {
+            "name": "users",
+            "label": "會員帳號",
+            "key": "id",
+            "cols": ["id", "email", "password"],
+            "rows": [[1, "an@example.com", "croissant88"], [2, "chen@example.com", "123456"], [3, "lin@example.com", "123456"]]
+          }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "hash": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "雜湊：像果汁機，打碎了就變不回來",
+        "nodes": {
+          "pw": { "label": "croissant88", "sub": "原本的密碼", "icon": "key", "x": 14, "y": 45 },
+          "mix": { "label": "雜湊", "sub": "bcrypt", "icon": "gear", "x": 46, "y": 45 },
+          "out": { "label": "$2b$12$Kx9…", "sub": "存進資料庫的是這個", "icon": "lock", "x": 80, "y": 45 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "sess": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "登入之後：號碼牌（session）",
+        "nodes": {
+          "browser": { "label": "瀏覽器", "icon": "browser", "x": 14, "y": 45 },
+          "server": { "label": "伺服器", "icon": "server", "x": 50, "y": 45 },
+          "store": { "label": "session 紀錄", "sub": "號碼牌 → 哪位會員", "icon": "db", "x": 84, "y": 45 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "登入在做什麼",
+      "eyebrow": "全環節 · 單元 10 · 10.1 基礎知識",
+      "sub": "雜湊、session 與 HttpOnly cookie",
+      "chapter": "密碼不能直接存",
+      "narration": "先想一個最壞的情況：資料庫被偷了。"
+    },
+    { "show": "users", "narration": "如果密碼照原樣存，偷到的人一眼就看到每個人的密碼。很多人在不同網站用同一組密碼，所以外流的不只是你的網站。" },
+    { "stamp": "users", "text": "外流 = 密碼全被看光", "tone": "bad" },
+    { "hide": "users" },
+    {
+      "show": "hash",
+      "chapter": "雜湊：打碎了變不回來",
+      "narration": "所以網站存的不是密碼，而是密碼的雜湊。雜湊像果汁機：把密碼丟進去，打成一串亂碼。"
+    },
+    { "on": "hash", "send": ["pw", "mix"], "label": "丟進去", "keep": false },
+    { "on": "hash", "send": ["mix", "out"], "label": "打成亂碼", "tone": "data", "narration": "同樣的密碼，每次打出來的結果都能拿來比對；但是果汁變不回水果，從亂碼推不回密碼。" },
+    { "on": "hash", "wire": ["out", "pw"], "dashed": true, "narration": "那壞人能不能從亂碼倒推回去？" },
+    { "on": "hash", "send": ["out", "pw"], "label": "倒推？", "tone": "bad" },
+    { "on": "hash", "wire": ["out", "pw"], "cut": true, "narration": "不行，這條路不通。" },
+    { "on": "hash", "pulse": "mix", "text": "每個人再加一撮「鹽」", "tone": "key", "narration": "還有一個小細節：好的雜湊方法，會替每個人加一撮隨機的「鹽」。所以就算兩個人都用 123456，存起來的亂碼也不一樣，壞人沒辦法一次猜一整批。" },
+    {
+      "on": "hash",
+      "pulse": "out",
+      "text": "登入時：把輸入的密碼再打一次，比對亂碼",
+      "tone": "ok",
+      "narration": "那登入時怎麼檢查？把你輸入的密碼再打一次，跟資料庫裡的亂碼比對，一樣就是對的。網站自己也不知道你的密碼。"
+    },
+    { "hide": "hash" },
+    { "show": "users", "focus": false, "narration": "回到資料表，改成存雜湊。" },
+    { "rename": "users", "from": "password", "to": "password_hash" },
+    { "cell": "users", "row": 1, "col": "password_hash", "value": "$2b$12$Kx9fQ…" },
+    { "cell": "users", "row": 2, "col": "password_hash", "value": "$2b$12$m3Lp0…" },
+    { "cell": "users", "row": 3, "col": "password_hash", "value": "$2b$12$Zq81x…" },
+    { "stamp": "users", "text": "外流也看不出密碼 ✓", "tone": "ok", "narration": "第二、第三位都是 123456，加了鹽，亂碼完全不同。" },
+    { "hide": "users" },
+    {
+      "show": "sess",
+      "chapter": "session：登入後的號碼牌",
+      "narration": "第二件事：登入之後，你點到別頁，網站怎麼還記得你？總不能每頁都再輸入一次密碼。"
+    },
+    { "on": "sess", "send": ["browser", "server"], "label": "email＋密碼", "narration": "登入時，瀏覽器送出帳號和密碼。" },
+    { "on": "sess", "pulse": "server", "text": "比對雜湊：正確", "tone": "ok" },
+    { "on": "sess", "send": ["server", "store"], "label": "號碼牌 7f3c… → 小安", "tone": "data", "narration": "比對正確，伺服器發一張號碼牌：一串很長的隨機號碼，記下「這張是小安的」。這張號碼牌就叫 session。" },
+    { "on": "sess", "send": ["server", "browser"], "label": "Set-Cookie: sid=7f3c…", "tone": "key", "narration": "號碼牌放進 cookie，交給瀏覽器保管。cookie 是瀏覽器幫網站保存的小紙條。" },
+    { "on": "sess", "tidy": true },
+    { "on": "sess", "send": ["browser", "server"], "label": "看訂單＋cookie", "narration": "之後每個請求，瀏覽器都會自動附上這張紙條。" },
+    { "on": "sess", "send": ["server", "store"], "label": "7f3c… 是誰？", "tone": "data" },
+    { "on": "sess", "send": ["store", "server"], "label": "小安", "tone": "data", "narration": "伺服器一查就知道是小安，密碼只在登入那一次用到。" },
+    { "on": "sess", "tidy": true, "chapter": "HttpOnly：別讓網頁的程式偷看" },
+    {
+      "on": "sess",
+      "spawn": "bad",
+      "label": "混進網頁的惡意程式",
+      "icon": "code",
+      "x": 14,
+      "y": 85,
+      "tone": "bad",
+      "narration": "最後一個保護。如果網頁裡混進了一段惡意的程式，它會想偷走這張號碼牌，拿去冒充你。"
+    },
+    { "on": "sess", "send": ["bad", "browser"], "label": "讀 document.cookie", "tone": "bad" },
+    {
+      "on": "sess",
+      "pulse": "browser",
+      "text": "HttpOnly：網頁的程式讀不到",
+      "tone": "ok",
+      "narration": "只要 cookie 設成 HttpOnly，網頁裡的程式就讀不到它，只有瀏覽器送請求時才會帶上。再加上 Secure，只走加密連線。"
+    },
+    { "on": "sess", "vanish": "bad" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "客人說忘記密碼，請你「查一下他的密碼是什麼」。你辦得到嗎？",
+      "body": "選一個。",
+      "id": "forgot",
+      "options": [
+        {
+          "label": "查資料庫就有",
+          "steps": [{ "card": "資料庫裡只有亂碼", "eyebrow": "再想想", "sub": "雜湊變不回密碼，所以只能請客人重設", "narration": "資料庫裡只有雜湊，變不回密碼。正確的做法是寄一封重設密碼的信。" }]
+        },
+        {
+          "label": "辦不到，只能請他重設",
+          "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "連網站自己都不知道密碼，這正是雜湊的用意", "narration": "答對了。連網站自己都不知道密碼，這正是雜湊的用意。所以只能寄重設密碼的信。" }]
+        }
+      ]
+    },
+    { "hide": "sess" },
+    {
+      "card": "存雜湊，不存密碼\n登入後發號碼牌（session）\ncookie 設 HttpOnly",
+      "eyebrow": "學會",
+      "sub": "雜湊變不回來；鹽讓同樣的密碼有不同的亂碼；HttpOnly 讓網頁程式偷不走號碼牌",
+      "chapter": "學會",
+      "narration": "今天的重點：網站存的是密碼的雜湊；登入成功後發一張號碼牌，也就是 session，放在設了 HttpOnly 的 cookie 裡。下一堂，請 AI 畫出你的登入流程，並列出安全要求。"
+    }
+  ]
+}

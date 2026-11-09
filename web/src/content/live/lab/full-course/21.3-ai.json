@@ -1,0 +1,155 @@
+{
+  "title": "錯誤追蹤",
+  "lesson": "全環節 · 單元 21 · 21.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天串接錯誤追蹤",
+    "line": "這一課分工合作：錯誤追蹤服務的帳號由你自己申請，AI 寫好步驟給你照做；串接程式和測試回報，交給 AI。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "錯誤追蹤",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc21-3-signup", "url": "https://errors.example.io/signup" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "錯誤追蹤",
+      "eyebrow": "全環節 · 單元 21 · 21.3 用 AI 完成",
+      "sub": "你：申請帳號、建立專案 · AI：串接、遮蔽個資、測試回報",
+      "narration": "AI 碰不到你的帳號註冊頁，所以這次分工：你照步驟申請，AI 做其他的事。"
+    },
+    {
+      "show": "claude",
+      "chapter": "先請 AI 寫步驟",
+      "narration": "先請它把你要做的部分，寫成一步步的操作。"
+    },
+    {
+      "on": "claude",
+      "user": "我想用錯誤追蹤服務收集網站前端的錯誤。帳號我自己申請，請先告訴我要做哪些步驟，做完要交給你什麼。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "say": "請照這幾步做：\n\n1. 到錯誤追蹤服務的網站，用你的 Google 帳號建立帳號（**密碼不要告訴我**）\n2. 建立專案，平台選「瀏覽器 JavaScript」，名稱填 `shop-web`\n3. 建好後會出現一串 **DSN**，複製下來貼給我\n\nDSN 是錯誤報告的收件地址，放在網頁裡本來就看得到，不是密碼。",
+      "narration": "它寫了三步，還特別說：密碼不要告訴它。最後要交給它的，是一串叫 DSN 的收件地址。"
+    },
+    {
+      "show": "web",
+      "chapter": "你：照步驟申請",
+      "narration": "接下來是你的事。打開錯誤追蹤服務的網站。"
+    },
+    {
+      "on": "web",
+      "click": "#google",
+      "narration": "第一步，用 Google 帳號繼續。登入是你自己在自己的瀏覽器裡做，AI 不會碰到你的密碼。"
+    },
+    { "on": "web", "click": "#plat-browser", "narration": "第二步，平台選瀏覽器 JavaScript，" },
+    { "on": "web", "fill": { "#pname": "shop-web" }, "narration": "名稱填 shop web，" },
+    { "on": "web", "click": "#create", "narration": "建立專案。" },
+    {
+      "callout": "web:section:dsn",
+      "text": "這串 DSN 是要交給 AI 的東西",
+      "narration": "第三步，畫面上出現 DSN。這就是要交給 AI 的東西。"
+    },
+    { "on": "web", "click": "#copy", "narration": "複製下來。" },
+    {
+      "on": "claude",
+      "user": "建好了，DSN 是 https://abc123@o42.ingest.errors.example.io/77",
+      "chapter": "AI：串接與遮蔽個資",
+      "narration": "回到 Claude，把 DSN 貼給它。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    { "on": "claude", "tool": "Bash", "arg": "npm install @errors-example/browser", "result": "已安裝" },
+    {
+      "on": "claude",
+      "edit": "src/main.ts",
+      "lines": [
+        [1, "+", "import * as Errors from '@errors-example/browser'"],
+        [2, "+", "Errors.init({"],
+        [3, "+", "  dsn: import.meta.env.VITE_ERRORS_DSN,"],
+        [4, "+", "  release: APP_VERSION,"],
+        [5, "+", "  sendDefaultPii: false,          // 不送 IP、cookie"],
+        [6, "+", "  beforeSend: removeEmailAndForms, // 送出前拿掉 Email 與表單內容"],
+        [7, "+", "})"]
+      ],
+      "narration": "它把串接的程式加進網頁。第五、六行是上一堂學的：不送 IP 和 cookie，送出前拿掉 Email 和表單內容。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "不用交代，它也記得遮蔽個資？最好還是檢查這兩行",
+      "narration": "這兩行很重要，看到 AI 寫的串接程式，一定要找找有沒有。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/errors-smoke.mjs",
+      "lines": [
+        [1, "+", "// 打開測試環境，觸發一個故意的錯誤，確認有送出"],
+        [2, "+", "await page.goto(STAGING + '/?errors-test=1')"],
+        [3, "+", "await page.fill('#email', 'test@example.com')"],
+        [4, "+", "const sent = await waitForRequest(/ingest\\.errors/)"],
+        [5, "+", "assert(!sent.body.includes('test@example.com'))"]
+      ],
+      "chapter": "AI：測試回報",
+      "narration": "接著它寫一個測試：打開測試環境、故意觸發錯誤，確認報告真的送出去，而且報告裡沒有剛才填的 Email。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run deploy:staging && node scripts/errors-smoke.mjs",
+      "result": "✓ 錯誤報告已送出　✓ 內容沒有 Email",
+      "out": "event id: 9f2c…"
+    },
+    {
+      "on": "claude",
+      "say": "測試錯誤已送出，報告裡沒有 Email。請打開錯誤追蹤後台的「問題」頁，截圖給我，我確認它真的收到了。",
+      "narration": "程式這邊確認送出了。但後台有沒有收到，它看不到，所以請你截圖回報。"
+    },
+    {
+      "on": "web",
+      "site": "fc21-3-issues",
+      "chapter": "你：截圖回報",
+      "narration": "打開後台，問題頁多了一筆：串接測試，故意的錯誤。"
+    },
+    {
+      "callout": "web:section:det",
+      "text": "Email 是 [已移除]，IP 只留前三段",
+      "narration": "點進去看，Email 顯示已移除。把這個畫面截圖，貼給 AI。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）後台出現了這一筆。"
+    },
+    {
+      "on": "claude",
+      "say": "確認收到了：問題「串接測試」，環境 staging、版本 v1.1.1，Email 已移除。串接完成，之後前端的錯誤都會自動出現在後台。要我部署到正式網站嗎？",
+      "narration": "它從截圖確認：收到了、版本對、個資有遮蔽。最後問你要不要部署到正式網站。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 寫出申請錯誤追蹤服務的步驟，你自己照著申請（密碼不給 AI），把 DSN 交給它串接。請它在測試環境觸發一個錯誤，你到後台截圖回報，確認收到而且沒有個資。",
+      "narration": "換你做做看。申請帳號你自己來，串接和測試交給 AI，最後截圖回報確認。"
+    },
+    {
+      "card": "前端錯誤自動出現在後台",
+      "eyebrow": "這一課的成果",
+      "sub": "帳號自己申請 · 串接與測試交給 AI · 截圖讓 AI 判斷",
+      "narration": "這一課的成果：前端的錯誤會自動出現在後台。下一課，請 AI 每天早上幫你整理一份營運摘要。"
+    }
+  ]
+}

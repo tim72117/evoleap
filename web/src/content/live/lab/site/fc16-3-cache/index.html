@@ -1,0 +1,29 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>快取與 HTTPS</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · 網頁是怎麼送到你手上的</p>
+<h1>為什麼我看到的是舊版？</h1>
+<div class="tabs"><button id="b0" data-go="0">一路上的三站</button><button id="b1" data-go="1">瀏覽器快取</button><button id="b2" data-go="2">CDN 快取</button><button id="b3" data-go="3">HTTPS 憑證</button><button id="b4" data-go="4">HTTP 轉 HTTPS</button></div>
+<svg class="road" viewBox="0 0 1120 300" width="1120" height="300">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker></defs>
+<rect x="30" y="60" width="250" height="170" rx="16" fill="#fff" stroke="#c9d4e3" stroke-width="2"/>
+<rect x="30" y="60" width="250" height="34" rx="16" fill="#e2e8f0"/><circle cx="52" cy="77" r="6" fill="#f87171"/><circle cx="72" cy="77" r="6" fill="#fbbf24"/><circle cx="92" cy="77" r="6" fill="#34d399"/>
+<text x="155" y="262" text-anchor="middle" font-size="18" font-weight="700">你的瀏覽器</text>
+<rect x="430" y="70" width="250" height="150" rx="16" fill="#fff" stroke="#c9d4e3" stroke-width="2"/>
+<text x="555" y="262" text-anchor="middle" font-size="18" font-weight="700">CDN 邊緣站</text><text x="555" y="284" text-anchor="middle" font-size="14" fill="#6b7a90">離你最近的轉運站</text>
+<rect x="830" y="70" width="250" height="150" rx="16" fill="#fff" stroke="#c9d4e3" stroke-width="2"/>
+<text x="955" y="262" text-anchor="middle" font-size="18" font-weight="700">網站主機</text><text x="955" y="284" text-anchor="middle" font-size="14" fill="#6b7a90">放最新版的地方</text>
+<line x1="290" y1="145" x2="420" y2="145" stroke="#94a3b8" stroke-width="3" marker-end="url(#ah)"/><line x1="690" y1="145" x2="820" y2="145" stroke="#94a3b8" stroke-width="3" marker-end="url(#ah)"/>
+<g><rect x="880" y="110" width="150" height="70" rx="8" fill="#dcf5e6" stroke="#16a34a"/><text x="955" y="152" text-anchor="middle" font-size="18" fill="#13703d" font-weight="700">新版 v2</text></g>
+<g data-at="1"><rect x="80" y="115" width="150" height="70" rx="8" fill="#fde3e3" stroke="#dc2626"/><text x="155" y="148" text-anchor="middle" font-size="18" fill="#a32020" font-weight="700">舊版 v1</text><text x="155" y="172" text-anchor="middle" font-size="13" fill="#a32020">存在電腦裡的副本</text></g>
+<g data-at="2"><rect x="480" y="110" width="150" height="70" rx="8" fill="#fde3e3" stroke="#dc2626"/><text x="555" y="143" text-anchor="middle" font-size="18" fill="#a32020" font-weight="700">舊版 v1</text><text x="555" y="167" text-anchor="middle" font-size="13" fill="#a32020">還沒過期</text></g>
+<g data-only="3 4"><rect x="20" y="10" width="1080" height="36" rx="18" fill="#eef3ff"/><text x="560" y="34" text-anchor="middle" font-size="16" fill="#1e3a8a">🔒 整條路都加密：中途的人看不到、也改不了內容</text></g>
+</svg>
+<div class="box expl">
+<p data-only="0">網頁從主機送到你手上，中間會經過<b>轉運站</b>，你的瀏覽器也會<b>留一份副本</b>。下次打開時，能用副本就不重拿，網頁才會快。</p>
+<p data-only="1"><b>瀏覽器快取</b>：主機回傳時附上一張「保存期限」（<span class="mono">Cache-Control: max-age=600</span>＝10 分鐘內不用再問）。期限內，你看到的是電腦裡的舊副本。</p>
+<p data-only="2"><b>CDN 快取</b>：平台在世界各地放轉運站，把你的檔案先存一份。轉運站的副本也有期限；部署新版時，平台通常會幫你清掉。</p>
+<p data-only="3"><b>HTTPS 憑證</b>就像網站的身分證：由公正的機構簽發，證明「這真的是 bakery-7ka.pages.dev」，瀏覽器才會顯示鎖頭。託管平台會自動幫你申請、到期前自動換新。</p>
+<p data-only="4">有人打 <span class="mono">http://</span>（沒加密）的網址，主機回 <b>301 轉址</b>：「請改走 https://」，瀏覽器自動跳過去。這要在平台設定裡打開。</p>
+</div>
+<div data-only="4" class="redir"><span class="mono bad">http://bakery-7ka.pages.dev</span><span class="arr">── 301 ──▶</span><span class="mono ok">https://bakery-7ka.pages.dev 🔒</span></div>
+</div></body></html>

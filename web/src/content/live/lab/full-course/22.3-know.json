@@ -1,0 +1,160 @@
+{
+  "title": "套件要更新，又怕一更新就壞",
+  "lesson": "全環節 · 單元 22 · 22.3 基礎知識",
+  "teacher": {
+    "say": "今天聊套件更新",
+    "line": "你的網站用了很多別人寫好的套件。這一課來看為什麼要更新、更新有什麼風險，以及怎麼讓機器人每週自動開更新的 Pull Request。"
+  },
+  "cast": {
+    "code": {
+      "actor": "editor",
+      "props": {
+        "project": "shop",
+        "files": { "package.json": "{\n  \"name\": \"shop\",\n  \"dependencies\": {\n    \"react\": \"^18.3.1\",\n    \"react-router\": \"^7.1.0\"\n  },\n  \"devDependencies\": {\n    \"vite\": \"^6.2.0\",\n    \"tailwindcss\": \"^3.4.0\"\n  },\n  \"engines\": { \"node\": \"20\" }\n}\n" }
+      },
+      "place": { "x": 360, "y": 110, "w": 1200, "h": 800 },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "你的網站其實站在很多套件上",
+        "nodes": [
+          { "id": "site", "label": "你的網站", "icon": "🌐", "x": 50, "y": 14, "w": 9 },
+          { "id": "react", "label": "react", "x": 22, "y": 44, "w": 8 },
+          { "id": "vite", "label": "vite", "x": 50, "y": 44, "w": 8 },
+          { "id": "tw", "label": "tailwindcss", "x": 78, "y": 44, "w": 9 },
+          { "id": "a", "label": "esbuild", "x": 36, "y": 76, "w": 8, "hidden": true },
+          { "id": "b", "label": "小套件 path-x", "sub": "v1.0.2", "x": 64, "y": 76, "w": 10, "hidden": true }
+        ],
+        "edges": [
+          { "from": "site", "to": "react" },
+          { "from": "site", "to": "vite" },
+          { "from": "site", "to": "tw" },
+          { "from": "vite", "to": "a", "hidden": true },
+          { "from": "vite", "to": "b", "hidden": true }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc22-3-pr", "url": "https://code.example/komori/shop/pulls" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "套件要更新，又怕一更新就壞",
+      "eyebrow": "全環節 · 單元 22 · 22.3 基礎知識",
+      "sub": "版本更新的風險 · 自動更新的 Pull Request",
+      "narration": "套件，就是別人寫好、你直接拿來用的程式。你的網站一定用了很多。"
+    },
+    {
+      "show": "code",
+      "chapter": "套件寫在哪裡",
+      "narration": "用了哪些套件，寫在 package 點 json 這個檔案裡。"
+    },
+    {
+      "callout": "code:code",
+      "text": "\"vite\": \"^6.2.0\"：用 vite，版本 6.2.0 以上、7 以下",
+      "narration": "每一行是一個套件和它的版本。前面的小尖角，意思是「可以用比較新的修訂和次版號，但不要跳主版號」。還記得嗎？主版號一跳，就可能不相容。"
+    },
+    {
+      "callout": "code:code",
+      "text": "engines.node：執行環境 Node.js 的版本，也要更新",
+      "narration": "最下面還有執行環境，也就是跑你程式的 Node.js 的版本。它也會過期，也要更新。"
+    },
+    { "hide": "code" },
+    {
+      "show": "flow",
+      "chapter": "為什麼要更新",
+      "narration": "為什麼要更新？因為你的網站站在很多套件上，"
+    },
+    {
+      "appear": ["a", "vite>a", "b", "vite>b"],
+      "narration": "而那些套件，又站在更多套件上。一個網站背後，常常有好幾百個套件。"
+    },
+    {
+      "light": "b",
+      "tone": "bad",
+      "sub": "v1.0.2 有安全漏洞",
+      "narration": "某天，最底下一個小套件被發現有安全漏洞。"
+    },
+    {
+      "light": "vite",
+      "tone": "warn",
+      "narration": "用到它的 vite，"
+    },
+    {
+      "light": "site",
+      "tone": "warn",
+      "sub": "也受影響",
+      "narration": "和你的網站，都受影響。修好的版本出來了，但你不更新，漏洞就一直在。"
+    },
+    {
+      "callout": "flow:node:site",
+      "text": "不更新：漏洞留著、越積越多，一次更新越難",
+      "narration": "而且越久不更新，落後越多。哪天非更新不可，一次跳好幾個主版號，就很容易壞。"
+    },
+    { "hide": "flow" },
+    {
+      "show": "web",
+      "chapter": "自動更新的 Pull Request",
+      "narration": "所以好的做法是：讓機器人每週幫你檢查，有新版就自動開一個 Pull Request。"
+    },
+    {
+      "callout": "web:section:list",
+      "text": "Pull Request：一份「我想這樣改，請你審核」的申請",
+      "narration": "Pull Request 是一份「我想這樣改，請你審核」的申請。你按下合併，改動才會真的進到程式裡。這週機器人開了三個。"
+    },
+    {
+      "callout": "web:section:notes1",
+      "text": "更新說明：這版改了什麼（這次有安全性修正）",
+      "narration": "第一個是 vite 的修訂號更新。裡面附上更新說明：這版修正了一個安全性問題。"
+    },
+    {
+      "callout": "web:section:checks1",
+      "text": "檢查：自動跑測試和打包，都通過",
+      "narration": "下面是自動檢查：測試和打包都通過。修訂號、說明沒問題、檢查都過，通常可以放心合併。"
+    },
+    {
+      "on": "web",
+      "click": "#pr-3",
+      "chapter": "主版號的更新要小心",
+      "narration": "再看第三個：tailwind 從 3 跳到 4，主版號。"
+    },
+    {
+      "callout": "web:section:notes3",
+      "text": "破壞性變更：設定檔的寫法改了",
+      "narration": "更新說明寫著破壞性變更：設定檔的寫法改了，有些名稱也改了。"
+    },
+    {
+      "callout": "web:section:checks3",
+      "text": "打包失敗：不能直接合併",
+      "narration": "檢查也失敗了。這種不能直接合併，要照更新說明改程式，再測一次。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "小步、常常、看說明、跑測試",
+      "sub": "修訂號：檢查過就合併 · 主版號：讀破壞性變更，改好再合併",
+      "chapter": "重點整理",
+      "narration": "更新的原則：小步、常常更新；每次讀更新說明、跑測試。修訂號檢查過就合併，主版號要讀破壞性變更，改好再合併。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "判斷看看",
+      "body": "一個 Pull Request：react-router 7.1 → 7.3，更新說明寫「新增：預先載入頁面」，測試全部通過。你會怎麼做？",
+      "narration": "判斷看看：react router 從 7.1 到 7.3，更新說明是新增功能，測試都通過。你會怎麼做？"
+    },
+    {
+      "card": "可以合併",
+      "eyebrow": "參考答案",
+      "sub": "次版號、沒有破壞性變更、測試通過；合併後在測試環境點一下主要頁面更安心",
+      "narration": "可以合併。次版號，沒有破壞性變更，測試也通過。下一堂，請 AI 設定自動更新，並幫每個 Pull Request 讀說明、跑測試、給建議。"
+    }
+  ]
+}

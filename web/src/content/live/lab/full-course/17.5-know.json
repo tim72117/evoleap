@@ -1,0 +1,104 @@
+{
+  "title": "一個網域，好幾個門牌",
+  "lesson": "全環節 · 單元 17 · 17.5 基礎知識",
+  "teacher": {
+    "say": "一個網域，好多用途",
+    "line": "買一個網域，不只能放一個網站。今天看懂子網域、www 轉址，還有怎麼用自己的網域收信。"
+  },
+  "cast": {
+    "map": {
+      "actor": "browser",
+      "props": { "site": "fc17-5-subdomain", "width": "desktop", "url": "https://learn.example/diagram/subdomains-mail" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "一個網域，好幾個門牌",
+      "eyebrow": "全環節 · 單元 17 · 17.5 基礎知識",
+      "sub": "子網域、www 轉址與網域信箱的 MX 紀錄",
+      "chapter": "一棟大樓，很多樓層",
+      "narration": "把網域想成一棟大樓。xiaosen-bakery 點 com 是大樓的地址，裡面可以分成很多樓層。"
+    },
+    {
+      "show": "map",
+      "narration": "這些樓層就是子網域：www、shop、app，加在網域的最左邊。"
+    },
+    {
+      "callout": "map:sel:.tree",
+      "text": "每個子網域可以指到不同地方",
+      "narration": "每個子網域都可以指到不同的地方。例如 shop 放在另一個平台做線上預訂，app 之後放後端服務。各自一筆 DNS 紀錄就好，不用再花錢買。"
+    },
+    {
+      "on": "map",
+      "click": "#b1",
+      "chapter": "www 要不要加？",
+      "narration": "最常見的子網域是 www。有人習慣打 www，有人不打，兩個都要能打開。"
+    },
+    {
+      "callout": "map:sel:.redir .r",
+      "text": "挑一個當正式網址，另一個 301 轉過去",
+      "narration": "做法是：挑一個當正式網址，另一個用 301 轉址導過去。客人不會走丟，搜尋引擎也只記住一個網址，不會把你的網站算成兩個。"
+    },
+    {
+      "on": "map",
+      "click": "#b2",
+      "chapter": "用自己的網域收信",
+      "narration": "接著是信箱。名片上印 hello 小老鼠 xiaosen-bakery 點 com，比免費信箱專業多了。"
+    },
+    {
+      "callout": "map:sel:.mail svg",
+      "text": "寄信的一方先查 MX，才知道送去哪",
+      "narration": "客人寄信時，寄信的那一方會先查你網域的 MX 紀錄，知道要送去哪個信箱服務，再交給它放進你的信箱。網域本身不會收信，要另外找一個信箱服務。"
+    },
+    {
+      "on": "map",
+      "click": "#b3",
+      "narration": "還有一筆常一起設定的 TXT 紀錄，叫 SPF。它聲明：只有這個信箱服務，可以用我的網域寄信。"
+    },
+    {
+      "callout": "map:sel:#spf",
+      "text": "少了 SPF，你寄出的信容易進垃圾信",
+      "narration": "少了它，你寄給客人的信容易被當成垃圾信，甚至被別人冒用你的網域寄詐騙信。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你把 MX 紀錄指到新的信箱服務，卻忘了刪掉網域商舊的 MX。會發生什麼事？",
+      "body": "選一個。",
+      "id": "mx",
+      "options": [
+        {
+          "label": "信會分散到兩個地方",
+          "steps": [
+            {
+              "card": "對，信可能寄到舊的地方",
+              "eyebrow": "想一想",
+              "sub": "兩組 MX 都有效，寄信的一方可能選到舊的",
+              "narration": "對。兩組 MX 都有效，寄信的一方可能選到舊的那組，你就會漏看一些信。換信箱服務時，舊的 MX 要刪掉。"
+            }
+          ]
+        },
+        {
+          "label": "沒影響，新的會自動優先",
+          "steps": [
+            {
+              "card": "不一定",
+              "eyebrow": "再想想",
+              "sub": "要看數字誰小；數字一樣時，兩邊都可能收到",
+              "narration": "不一定。哪一組先送，要看前面的數字；數字一樣，兩邊都可能收到。換信箱服務時，舊的 MX 要刪掉。"
+            }
+          ]
+        }
+      ]
+    },
+    { "hide": "map" },
+    {
+      "card": "子網域：一筆紀錄一個門牌\nwww：301 轉到正式網址\n信箱：MX ＋ SPF",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：子網域、301 轉址、MX、SPF",
+      "chapter": "學會",
+      "narration": "子網域一筆紀錄一個門牌，www 用 301 轉到正式網址，信箱要設 MX 和 SPF。下一堂，請 AI 規劃好這些紀錄，你照步驟填，最後由 AI 驗證。"
+    }
+  ]
+}

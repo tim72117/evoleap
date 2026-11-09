@@ -1,0 +1,440 @@
+{
+  "title": "作品：我的寵物名片",
+  "lesson": "兒童網頁課 · 1.5 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt8-kid-page",
+      "props": {
+        "title": "我的寵物名片",
+        "items": [
+          {
+            "id": "name",
+            "kind": "h1",
+            "text": "小花"
+          },
+          {
+            "id": "photo",
+            "kind": "img",
+            "pic": "🐱",
+            "alt": "橘貓小花在紙箱裡睡午覺"
+          },
+          {
+            "id": "intro",
+            "kind": "p",
+            "text": "小花三歲，最愛睡午覺。"
+          },
+          {
+            "id": "likesT",
+            "kind": "h2",
+            "text": "小花喜歡"
+          },
+          {
+            "id": "likes",
+            "kind": "ul",
+            "items": [
+              "小魚乾",
+              "紙箱",
+              "毛線球"
+            ]
+          },
+          {
+            "id": "link",
+            "kind": "a",
+            "text": "看小花的相簿"
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 80,
+          "y": 50,
+          "w": 1760,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "看看成品",
+      "guide": {
+        "target": "kid:page",
+        "text": "小花的寵物名片"
+      },
+      "narration": "這是小花的寵物名片。它是用你學過的積木蓋出來的。"
+    },
+    {
+      "labels": true,
+      "narration": "掛上名牌看看，每一塊都有名字。"
+    },
+    {
+      "inspect": "name",
+      "narration": "大標題寫名字。"
+    },
+    {
+      "inspect": "photo",
+      "narration": "圖片放照片，還藏著一句替代文字。"
+    },
+    {
+      "inspect": "intro",
+      "narration": "段落介紹小花。"
+    },
+    {
+      "inspect": "likes",
+      "narration": "小標題和清單，列出小花喜歡的東西。"
+    },
+    {
+      "inspect": "link",
+      "narration": "最下面是連結，點了會去相簿。"
+    },
+    {
+      "inspect": false,
+      "ms": 400
+    },
+    {
+      "checkpoint": "換你蓋名片",
+      "sub": "lab/kids/1.5-build.json",
+      "chapter": "換你蓋名片"
+    },
+    {
+      "labels": false,
+      "chapter": "說出名字",
+      "narration": "最後來考考你，一共三題。名牌拿掉了，點名片上的東西回答。"
+    },
+    {
+      "checkpoint": "第 1 題：清單在哪裡？",
+      "body": "點名片上的一塊。",
+      "id": "quiz-1",
+      "stage": {
+        "focus": "kid:page"
+      },
+      "options": [
+        {
+          "label": "大標題",
+          "target": "kid:part:name",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:name",
+              "ok": false,
+              "narration": "這是大標題。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "圖片",
+          "target": "kid:part:photo",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:photo",
+              "ok": false,
+              "narration": "這是圖片。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "段落",
+          "target": "kid:part:intro",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:intro",
+              "ok": false,
+              "narration": "這是段落。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "小標題",
+          "target": "kid:part:likesT",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:likesT",
+              "ok": false,
+              "narration": "這是小標題。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "清單",
+          "target": "kid:part:likes",
+          "steps": [
+            {
+              "mark": "part:likes",
+              "ok": true,
+              "narration": "答對了！清單一項一項列出小花喜歡的東西。"
+            }
+          ]
+        },
+        {
+          "label": "連結",
+          "target": "kid:part:link",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:link",
+              "ok": false,
+              "narration": "這是連結。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mark": false,
+      "ms": 300
+    },
+    {
+      "checkpoint": "第 2 題：連結在哪裡？",
+      "body": "點名片上的一塊。",
+      "id": "quiz-2",
+      "stage": {
+        "focus": "kid:page"
+      },
+      "options": [
+        {
+          "label": "大標題",
+          "target": "kid:part:name",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:name",
+              "ok": false,
+              "narration": "這是大標題。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "圖片",
+          "target": "kid:part:photo",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:photo",
+              "ok": false,
+              "narration": "這是圖片。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "段落",
+          "target": "kid:part:intro",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:intro",
+              "ok": false,
+              "narration": "這是段落。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "小標題",
+          "target": "kid:part:likesT",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:likesT",
+              "ok": false,
+              "narration": "這是小標題。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "清單",
+          "target": "kid:part:likes",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:likes",
+              "ok": false,
+              "narration": "這是清單。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "連結",
+          "target": "kid:part:link",
+          "steps": [
+            {
+              "mark": "part:link",
+              "ok": true,
+              "narration": "答對了！連結點了會跑到另一頁。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mark": false,
+      "ms": 300
+    },
+    {
+      "checkpoint": "第 3 題：小標題在哪裡？",
+      "body": "點名片上的一塊。",
+      "id": "quiz-3",
+      "stage": {
+        "focus": "kid:page"
+      },
+      "options": [
+        {
+          "label": "大標題",
+          "target": "kid:part:name",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:name",
+              "ok": false,
+              "narration": "這是大標題。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "圖片",
+          "target": "kid:part:photo",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:photo",
+              "ok": false,
+              "narration": "這是圖片。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "段落",
+          "target": "kid:part:intro",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:intro",
+              "ok": false,
+              "narration": "這是段落。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "小標題",
+          "target": "kid:part:likesT",
+          "steps": [
+            {
+              "mark": "part:likesT",
+              "ok": true,
+              "narration": "答對了！小標題告訴你下面要講什麼。"
+            }
+          ]
+        },
+        {
+          "label": "清單",
+          "target": "kid:part:likes",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:likes",
+              "ok": false,
+              "narration": "這是清單。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "連結",
+          "target": "kid:part:link",
+          "retry": true,
+          "steps": [
+            {
+              "mark": "part:link",
+              "ok": false,
+              "narration": "這是連結。再試一次！"
+            },
+            {
+              "mark": false,
+              "ms": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mark": false,
+      "ms": 300
+    },
+    {
+      "labels": true,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:window",
+        "text": "我能說出每一塊的名字"
+      },
+      "narration": "你能說出名片上每一塊的名字了！"
+    },
+    {
+      "wait": 400,
+      "narration": "大標題、圖片、段落、小標題、清單、連結，都是網頁的積木。"
+    }
+  ]
+}

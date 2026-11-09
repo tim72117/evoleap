@@ -1,0 +1,243 @@
+{
+  "title": "字體、顏色與一致的設計",
+  "lesson": "網頁怎麼運作 · 單元 2 · 2.5",
+  "teacher": {
+    "say": "今天整理顏色和字級",
+    "line": "今天要來把散落各處的顏色和字級，整理成一套規則，讓網站看起來一致。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-web-2-5-messy",
+        "url": "https://yoga.example/"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "字體、顏色與一致的設計",
+      "eyebrow": "網頁怎麼運作 · 單元 2 · 2.5",
+      "chapter": "哪裡怪怪的？",
+      "narration": "有些網站說不上哪裡不對，就是看起來有點亂。這一課來找出原因，再把它整理成一套規則。"
+    },
+    {
+      "show": "web",
+      "narration": "這是一間瑜珈教室的課表頁。三張課程卡片，各有標題、時間、介紹和一個按鈕。乍看沒什麼問題，但你仔細看看。"
+    },
+    {
+      "callout": "web:sel:#cards",
+      "text": "先找找看",
+      "narration": "先不說答案，你來找找看。"
+    },
+    {
+      "checkpoint": "這一頁有個地方，同樣的意思卻用了不同的顏色。是哪裡？",
+      "body": "看三張卡片：哪些東西做的是同一件事，看起來卻不一樣？",
+      "id": "spot",
+      "stage": {
+        "focus": "web:viewport"
+      },
+      "options": [
+        {
+          "label": "預約按鈕",
+          "target": "web:sel:#b2",
+          "steps": [
+            {
+              "callout": "web:sel:#cards",
+              "text": "三個按鈕：三種藍、三種圓角",
+              "narration": "對。三個按鈕做的都是同一件事：預約。可是用了三種藍色，圓角也一個方、一個圓、一個介於中間。"
+            }
+          ]
+        },
+        {
+          "label": "頁首的店名",
+          "target": "web:sel:#top",
+          "steps": [
+            {
+              "callout": "web:sel:#top",
+              "text": "頁首只有一個店名，只用一種顏色",
+              "narration": "頁首的店名只有一個，沒有和誰不一致。問題在下面三個按鈕：做的是同一件事，卻用了三種藍色。"
+            },
+            {
+              "callout": "web:sel:#cards",
+              "text": "三個按鈕：三種藍"
+            }
+          ]
+        },
+        {
+          "label": "卡片上方的圖片",
+          "target": "web:sel:.p1",
+          "steps": [
+            {
+              "callout": "web:sel:.p1",
+              "text": "三張圖本來就是不同的課",
+              "narration": "三張圖代表三堂不同的課，顏色不同是刻意的。真正不一致的是按鈕：做的是同一件事，卻用了三種藍色。"
+            },
+            {
+              "callout": "web:sel:#cards",
+              "text": "三個按鈕：三種藍"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "callout": "web:sel:#b1",
+      "text": "#2b6cb0",
+      "chapter": "散落各處的樣式",
+      "narration": "把按鈕的顏色一個個看。第一個是這個藍，"
+    },
+    {
+      "callout": "web:sel:#b2",
+      "text": "#4a90e2：比較淺的藍"
+    },
+    {
+      "callout": "web:sel:#b3",
+      "text": "#1c4f8c：比較深的藍，字也比較小",
+      "narration": "第二個淺一點，第三個深一點，字還變小了。這種事常發生在網站被改過很多次，每一次都各自寫一個顏色。"
+    },
+    {
+      "callout": "web:sel:.h-c",
+      "text": "標題：26、19、23 像素，還換了字體",
+      "narration": "標題也一樣。三張卡片的標題，大小都不同，第三個還換成了有襯線的字體。字的大小叫做字級，字的樣式叫做字體。"
+    },
+    {
+      "callout": "web:sel:#low",
+      "text": "淺灰字：看不清楚",
+      "narration": "還有這行淺灰色的介紹，在白底上幾乎看不清。這是對比不夠，等一下會再回來看。"
+    },
+    {
+      "callout": "web:sel:.warn",
+      "text": "警示的紅色，也有兩種",
+      "narration": "連警示用的紅色，「名額已滿」和「逾時恕不退費」也是兩種紅。"
+    },
+    {
+      "site": "lt-web-2-5-tokens",
+      "chapter": "設計變數",
+      "narration": "這是整理過的版本。右邊是我打開的面板，列出這個網站用的所有顏色和字級。"
+    },
+    {
+      "callout": "web:sel:#tokens",
+      "text": "設計變數：給顏色和字級取名字",
+      "narration": "整理的方法，是先給每個顏色、每種字級取一個名字，整站只用這些名字。這組名字叫做設計變數。"
+    },
+    {
+      "callout": "web:sel:#tk-brand",
+      "text": "--color-primary：主色",
+      "narration": "例如主色，名字叫 color-primary，值是這個藍。所有按鈕都寫「我用主色」，不再各自寫一個藍。"
+    },
+    {
+      "callout": "web:sel:#cards",
+      "text": "三個按鈕：同一個主色、同一個圓角",
+      "narration": "所以三個按鈕現在長得一模一樣。"
+    },
+    {
+      "click": ".ctl[data-brand=green]",
+      "chapter": "改一個地方，整站跟著變",
+      "narration": "現在把主色的值改成綠色。只改了一個地方，"
+    },
+    {
+      "callout": "web:sel:#page",
+      "text": "店名和按鈕一起變綠",
+      "narration": "店名、三個按鈕，所有用到主色的地方一起變了。"
+    },
+    {
+      "click": ".ctl[data-brand=orange]",
+      "narration": "換成橘色也一樣。要改品牌顏色，不用一頁一頁找。"
+    },
+    {
+      "click": ".ctl[data-brand=blue]",
+      "narration": "換回藍色。"
+    },
+    {
+      "callout": "web:sel:#tk-sizes",
+      "text": "字級：整站只用三種大小",
+      "narration": "字級也一樣：標題、內文、小字，整站只用這三種大小。字體也只定一種。規則少，畫面才整齊。"
+    },
+    {
+      "click": "#dark",
+      "chapter": "深色模式",
+      "narration": "有了設計變數，深色模式也變簡單了。按一下深色模式。"
+    },
+    {
+      "callout": "web:sel:#tk-colors",
+      "text": "同樣的名字，換一組值",
+      "narration": "名字都沒變，文字、背景、次要文字，換成另一組適合深色的值。深色模式其實就是第二組值，整站照樣只用這些名字。"
+    },
+    {
+      "click": "#dark",
+      "narration": "切回淺色。"
+    },
+    {
+      "click": "#contrast",
+      "chapter": "對比",
+      "narration": "最後來看對比。對比就是文字和背景的差距，用一個比例表示，數字越大越清楚。按一下檢查對比。"
+    },
+    {
+      "callout": "web:sel:#bad",
+      "text": "剛才的淺灰字：1.7 比 1，太淡",
+      "narration": "剛才那行淺灰字，對比只有 1.7 比 1。一般建議，內文至少要 4.5 比 1。"
+    },
+    {
+      "callout": "web:sel:#desc1",
+      "text": "次要文字：5.9 比 1，夠清楚",
+      "narration": "整理後的次要文字，對比是 5.9 比 1，淡一點但看得清楚。挑顏色時，對比也是規則的一部分。"
+    },
+    {
+      "click": "#contrast",
+      "narration": "關掉對比檢查。"
+    },
+    {
+      "checkpoint": "想把整站的主色從藍色換成綠色，跟 AI 怎麼說最好？",
+      "body": "想想看：哪一種說法，改一個地方就夠，也不會漏掉？",
+      "id": "prompt",
+      "chapter": "跟 AI 怎麼說",
+      "stage": {
+        "focus": "web:viewport"
+      },
+      "options": [
+        {
+          "label": "把每個藍色按鈕一個一個改成綠色",
+          "steps": [
+            {
+              "callout": "web:sel:#cards",
+              "text": "一個一個改：容易漏、又會散掉",
+              "narration": "一個一個改很容易漏，改完又會變回各寫各的顏色。比較好的說法是：把設計變數 color-primary 改成綠色。"
+            }
+          ]
+        },
+        {
+          "label": "把設計變數 color-primary 改成綠色",
+          "steps": [
+            {
+              "click": ".ctl[data-brand=green]",
+              "narration": "對。只改主色這個變數，所有用到主色的地方一起變，也不會漏。"
+            },
+            {
+              "click": ".ctl[data-brand=blue]"
+            }
+          ]
+        },
+        {
+          "label": "把網站的顏色改得好看一點",
+          "steps": [
+            {
+              "callout": "web:sel:#tokens",
+              "text": "「好看一點」沒說要改哪個顏色",
+              "narration": "「好看一點」沒說要改哪個顏色、改成什麼，AI 只能猜。比較好的說法是：把設計變數 color-primary 改成綠色。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "把顏色、字級整理成設計變數\n改一個地方，整站跟著變\n深色模式是第二組值，對比要夠",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：字體、字級、設計變數、深色模式、對比",
+      "chapter": "學會",
+      "narration": "把顏色和字級整理成一組有名字的設計變數，整站只用這些名字，改一個地方就全部跟著變。深色模式是同一組名字的第二組值。挑顏色時，文字和背景的對比要夠。下一個單元，我們來看網頁怎麼回應你的操作。"
+    }
+  ]
+}

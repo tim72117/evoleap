@@ -1,0 +1,120 @@
+{
+  "title": "登入的測試、上線與法律頁",
+  "lesson": "全環節 · 單元 10 · 10.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天讓正式網址可以登入",
+    "line": "今天把登入功能送上正式網站。AI 一口氣做三件事：寫登入測試、把機密搬進雲端的保險箱、更新隱私權政策，最後在正式網址驗收。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "登入上線", "folder": "~/projects/bakery", "branch": "google-login", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "site": {
+      "actor": "browser",
+      "props": { "site": "fc10-3-signin", "url": "https://bakery.example/login" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "登入的測試、上線與法律頁",
+      "eyebrow": "全環節 · 單元 10 · 10.4 用 AI 完成",
+      "sub": "測試 → 機密搬進保險箱 → 更新政策 → 正式網址驗收",
+      "chapter": "一次交代四件事",
+      "narration": "這一堂的事情比較多，所以交代時就列成清單，讓 AI 照順序做、每一步都驗證。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "準備把登入上線：\n1. 寫端對端的登入測試，部署前後都跑\n2. 正式環境的 SESSION_SECRET、DATABASE_URL、GOOGLE_CLIENT_ID 放進 Secret Manager，伺服器從那裡讀；值不要印出來\n3. 依網站實際收集的資料更新隱私權政策\n4. 部署後在 https://bakery.example 驗證\n完成標準：測試在正式網址通過；最後我自己用 Google 登入一次。",
+      "narration": "四件事列清楚，完成標準是：測試在正式網址通過，最後你自己登入一次。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "todos": [["端對端登入測試", "doing"], ["機密搬進 Secret Manager", "pending"], ["更新隱私權政策", "pending"], ["部署並在正式網址驗證", "pending"]] },
+    {
+      "on": "claude",
+      "edit": "e2e/login.spec.ts",
+      "lines": [
+        [1, "+", "test('登入頁有 Google 按鈕，用戶端 ID 正確', …)"],
+        [2, "+", "test('假的 ID Token 被拒絕（401）', …)"],
+        [3, "+", "test('沒登入看會員頁會被導回登入頁', …)"],
+        [4, "+", "test('隱私權政策頁可以打開，寫到 Google 登入', …)"]
+      ],
+      "chapter": "測試",
+      "narration": "測試不需要真的登入 Google 帳號：它檢查按鈕和設定對不對、假的身分證明會不會被擋、沒登入能不能偷看。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "BASE_URL=http://localhost:5173 npx playwright test e2e/login.spec.ts", "result": "4 / 4 通過（本機）", "out": "4 passed (8.2s)" },
+    { "on": "claude", "todos": [["端對端登入測試", "done"], ["機密搬進 Secret Manager", "doing"], ["更新隱私權政策", "pending"], ["部署並在正式網址驗證", "pending"]], "chapter": "機密搬進保險箱" },
+    {
+      "on": "claude",
+      "ask": "scripts/put-secrets.sh",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "preview": "for k in SESSION_SECRET DATABASE_URL GOOGLE_CLIENT_ID; do\n  grep \"^$k=\" .env.production | cut -d= -f2- | gcloud secrets create $k --data-file=-\ndone",
+      "note": "從 .env.production 讀值、直接交給 gcloud，不顯示在畫面上",
+      "narration": "搬機密之前它先問你。看指令：值從檔案直接交給 gcloud，不會出現在畫面上，也不會進到對話裡。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud secrets list --format='value(name)' && gcloud run services update bakery --set-secrets=SESSION_SECRET=SESSION_SECRET:latest,DATABASE_URL=DATABASE_URL:latest,GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest",
+      "result": "3 項機密，伺服器已設定讀取",
+      "out": "SESSION_SECRET\nDATABASE_URL\nGOOGLE_CLIENT_ID\n✓ Service [bakery] revision bakery-00042 已部署",
+      "narration": "三項機密進了保險箱，正式伺服器設定成從保險箱讀。只列出名字，不印出值。"
+    },
+    { "on": "claude", "todos": [["端對端登入測試", "done"], ["機密搬進 Secret Manager", "done"], ["更新隱私權政策", "doing"], ["部署並在正式網址驗證", "pending"]], "chapter": "更新隱私權政策" },
+    { "on": "claude", "tool": "Grep", "arg": "upsertUser|INSERT INTO (users|orders)", "result": "收集：email、名字、Google ID、取貨電話", "narration": "更新政策之前，它先從程式找出網站實際存了哪些資料，政策才不會寫錯。" },
+    { "hide": "claude" },
+    {
+      "diff": "privacy.html",
+      "lines": [
+        [" ", "<h2>1. 我們收集哪些資料</h2>"],
+        ["-", "<p>下訂單時：取貨人姓名、電話、訂購內容。</p>"],
+        ["+", "<p>用 Google 登入時：Email、名字、大頭貼、Google 帳號編號。</p>"],
+        ["+", "<p>下訂單時：取貨人姓名、電話、訂購內容。</p>"],
+        [" ", "<h2>3. 和誰分享</h2>"],
+        ["+", "<p>Google（登入驗證）：只用來確認你的身分。</p>"],
+        ["+", "<p class=\"date\">最後更新：2026 年 11 月 9 日</p>"]
+      ],
+      "narration": "它補上 Google 登入會拿到的資料、和 Google 分享了什麼，並更新日期。正式公告前，記得請懂法規的人看一眼。"
+    },
+    { "clear": true },
+    { "show": "claude", "chapter": "部署、驗收" },
+    { "on": "claude", "todos": [["端對端登入測試", "done"], ["機密搬進 Secret Manager", "done"], ["更新隱私權政策", "done"], ["部署並在正式網址驗證", "doing"]] },
+    { "on": "claude", "ask": "npm run deploy", "q": "Claude 想要執行這個指令", "where": "~/projects/bakery", "note": "部署到正式網站 https://bakery.example", "narration": "要部署到正式網站了，它再問你一次。" },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run deploy && BASE_URL=https://bakery.example npx playwright test e2e/login.spec.ts",
+      "result": "4 / 4 通過（正式網址）",
+      "out": "✓ 部署完成 bakery-00043\n✓ 登入頁有 Google 按鈕，用戶端 ID 正確\n✓ 假的 ID Token 被拒絕（401）\n✓ 沒登入看會員頁會被導回登入頁\n✓ 隱私權政策頁可以打開，寫到 Google 登入",
+      "narration": "部署完，同一份測試對正式網址再跑一次，四條都通過。"
+    },
+    { "on": "claude", "say": "正式網址的測試都通過了。最後請你本人到 https://bakery.example/login 用 Google 登入一次，確認看到自己的名字。" },
+    { "hide": "claude" },
+    { "show": "site", "focus": false, "chapter": "你本人驗收", "narration": "最後由你本人在正式網址登入。" },
+    { "click": "#google" },
+    { "click": "#acc" },
+    { "callout": "site:sel:#in", "text": "正式網址可以登入 ✓", "narration": "正式網址可以登入了。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 把登入上線：寫測試、把正式機密放進機密管理服務、依實際收集的資料更新隱私權政策，部署後對正式網址跑測試，最後你本人登入一次。"
+    },
+    { "hide": "site" },
+    {
+      "card": "同一份測試，本機跑、正式網址再跑",
+      "eyebrow": "學會",
+      "sub": "機密進保險箱、不印出來；政策依程式實際存的資料寫；最後你本人驗收",
+      "chapter": "學會",
+      "narration": "這一堂的重點：同一份測試，本機跑、部署後對正式網址再跑；機密放進保險箱、不印出來；隱私權政策依程式實際存的資料寫。最後的登入，由你本人驗收。"
+    }
+  ]
+}

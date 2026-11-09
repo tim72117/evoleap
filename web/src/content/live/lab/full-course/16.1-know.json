@@ -1,0 +1,133 @@
+{
+  "title": "網址給朋友，為什麼打不開？",
+  "lesson": "全環節 · 單元 16 · 16.1 基礎知識",
+  "teacher": {
+    "say": "今天讓網站真的上網",
+    "line": "你的網站做好了，可是現在只有你自己看得到。今天先弄懂：網站要怎麼放上網路，讓別人也打得開。"
+  },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "阿哲" },
+      "place": { "x": 680, "y": 100, "w": 560, "h": 860 },
+      "hidden": true
+    },
+    "map": {
+      "actor": "browser",
+      "props": { "site": "fc16-1-flow", "width": "desktop", "url": "https://learn.example/diagram/static-hosting" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "網址給朋友，為什麼打不開？",
+      "eyebrow": "全環節 · 單元 16 · 16.1 基礎知識",
+      "sub": "靜態網站託管，以及「push 一下，網站就更新」",
+      "chapter": "一個打不開的網址",
+      "narration": "我們從一個很常見的場景開始。"
+    },
+    {
+      "show": "phone",
+      "narration": "你把網站做好了，朋友阿哲傳訊息來。"
+    },
+    { "on": "phone", "receive": "聽說你的麵包店網站做好了？傳網址給我看看！", "from": "阿哲" },
+    {
+      "on": "phone",
+      "reply": "file:///Users/me/bakery/index.html",
+      "narration": "你從瀏覽器的網址列，把網址複製給他。"
+    },
+    { "on": "phone", "receive": "打不開欸……這是什麼網址？", "from": "阿哲" },
+    {
+      "callout": "phone:msg:2",
+      "text": "file:/// 開頭＝打開「這台電腦」上的檔案",
+      "narration": "問題出在開頭的 file 三條斜線。它的意思是：打開這台電腦裡的檔案。阿哲的手機裡，當然沒有你的檔案。"
+    },
+    { "hide": "phone" },
+    {
+      "show": "map",
+      "chapter": "檔案怎麼走到公開網址",
+      "narration": "要讓別人打得開，網頁檔案得放到一台一直開著、連著網路的電腦上。我們一站一站看。"
+    },
+    {
+      "on": "map",
+      "click": "#b1",
+      "narration": "第一站，push。你用 git push，把電腦上的修改送到 GitHub。檔案到了雲端，但這時只是存起來，還不是網站。"
+    },
+    {
+      "on": "map",
+      "click": "#b2",
+      "narration": "第二站，GitHub Pages。它是一種靜態網站託管：幫你把 HTML、CSS、圖片這些現成的檔案放上網路。"
+    },
+    {
+      "callout": "map:sel:.expl",
+      "text": "靜態＝檔案寫好就直接給人看，不用伺服器另外計算",
+      "narration": "靜態的意思是：檔案寫好就直接給人看，不需要伺服器另外計算。麵包店的介紹頁、作品集，都是靜態網站。"
+    },
+    {
+      "on": "map",
+      "click": "#b3",
+      "narration": "第三站，發布完成，你會拿到一個 https 開頭的公開網址。阿哲用手機、用電腦都打得開。"
+    },
+    {
+      "on": "map",
+      "click": "#b4",
+      "chapter": "push 一下就更新",
+      "narration": "最方便的是之後。你改了檔案、存檔、push，大約一分鐘，Pages 就自動重新發布，網址上就是新版。"
+    },
+    {
+      "callout": "map:sel:.expl",
+      "text": "沒有 push，網址上就還是舊版",
+      "narration": "反過來說，只存檔、沒有 push，網址上的網站不會變。這是剛開始最常卡住的地方。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你改了首頁的標題、也存檔了，阿哲打開公開網址卻還是舊標題。最可能是什麼原因？",
+      "body": "選一個。",
+      "id": "push",
+      "options": [
+        {
+          "label": "還沒有 push",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "想一想",
+              "sub": "存檔只改你的電腦；push 之後，Pages 才會重新發布",
+              "narration": "答對了。存檔只改了你自己的電腦，要 push 上去，Pages 才會重新發布。"
+            }
+          ]
+        },
+        {
+          "label": "網址打錯了",
+          "steps": [
+            {
+              "card": "網址沒錯，舊版也打得開",
+              "eyebrow": "再想想",
+              "sub": "看得到舊標題，代表網址是對的；是新版還沒送上去",
+              "narration": "看得到舊標題，代表網址是對的。問題是新版還沒有 push 上去。"
+            }
+          ]
+        },
+        {
+          "label": "要重新買網域",
+          "steps": [
+            {
+              "card": "不用買網域",
+              "eyebrow": "再想想",
+              "sub": "Pages 送你一個免費網址；舊標題是因為還沒 push",
+              "narration": "不用買網域，Pages 已經給你一個免費網址了。舊標題是因為還沒有 push。"
+            }
+          ]
+        }
+      ]
+    },
+    { "hide": "map" },
+    {
+      "card": "電腦 →（push）→ GitHub →（Pages）→ 公開網址",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：靜態網站、託管、GitHub Pages、push",
+      "chapter": "學會",
+      "narration": "記住這條路：電腦，push 到 GitHub，Pages 發布成公開網址。下一堂，我們請 AI 用一個指令把 Pages 打開，並自己確認網址打得開。"
+    }
+  ]
+}

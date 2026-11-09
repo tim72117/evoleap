@@ -83,8 +83,8 @@ export const L2_MODULES: OutlineModule[] = [
   {
     num: '6',
     title: '安裝並設定開發環境',
-    length: '約 1.5 小時',
-    why: '一次裝好、逐項驗證，後面的課才不會卡在環境問題。每個工具都先說它負責什麼，再安裝；安裝卡住時，把畫面上的訊息交給單元 4 裝好的 AI 程式助手判斷。',
+    length: '約 1 小時 50 分',
+    why: '一次裝好、逐項驗證，後面的課才不會卡在環境問題。每個工具都先說它負責什麼，再安裝；安裝卡住時，把畫面上的訊息交給單元 4 裝好的 AI 程式助手判斷。最後讓 AI 程式助手也連上瀏覽器的開發者工具：之後做網頁時，它能自己打開頁面、看錯誤訊息，不用每次由學員複製貼上。',
     lessons: [
       {
         title: 'VS Code：編輯器與內建終端機',
@@ -103,6 +103,12 @@ export const L2_MODULES: OutlineModule[] = [
         length: '約 25 分',
         objective: '使用 Elements 檢視網頁結構、Console 看錯誤訊息與執行 JavaScript、Network 看請求。',
         result: '在任一網頁用 Console 改掉標題文字，並找到一則錯誤或警告訊息。',
+      },
+      {
+        title: '讓 AI 連上瀏覽器開發者工具',
+        length: '約 25 分',
+        objective: '認識 MCP（讓 AI 程式助手使用外部工具的連接方式），請助手依官方說明加入瀏覽器開發者工具的 MCP（例如 Chrome DevTools MCP），讓它自己打開網頁、讀 Console 的錯誤、看 Network 請求並截圖檢查畫面；知道它操作的是另一個瀏覽器視窗，每個動作仍要確認，不讓它登入自己的帳號。',
+        result: '在 hello.html 故意留一個 JavaScript 錯誤，只說「頁面的按鈕沒反應」，請助手自己打開頁面、從 Console 找到錯誤並修好，再截圖確認。',
       },
     ],
   },
@@ -349,6 +355,38 @@ export const L2_MODULES: OutlineModule[] = [
         length: '約 30 分',
         objective: '建立修改流程：一次只做一件事、先看方案再動手、看 diff 確認沒有多改、跑測試後才 commit；把專案的結構與慣例寫進給 AI 看的專案說明，讓 AI 每次都依同樣的方式修改，並用一個新功能走完整個流程。',
         result: '更新過的專案說明（結構、慣例、修改流程），以及一個小步完成、每個 commit 都能獨立理解的新功能。',
+      },
+    ],
+  },
+  {
+    num: '15',
+    title: '串接 Facebook App 自動發文',
+    length: '約 2 小時',
+    why: '本專案實作紀錄：網站上線後，每次上架新課、發新版都要到粉絲專頁更新消息。這個單元請 AI 程式助手串接 Facebook 的發文 API，從 CHANGELOG 起草貼文、人核准後由程式發出，最後交給 GitHub Actions 排程。用到單元 9.2 的 .gitignore（權杖不能 commit）、11.4 的 UTM 與 GA4、13.4 的 GitHub Actions。原則是「AI 起草、人核准、程式發布」：發文前一定有人看過。Meta 的權限、送審與權杖期限常改，寫課時要對照當時的官方文件。',
+    lessons: [
+      {
+        title: '建立 Meta 開發者 App，取得粉專權杖',
+        length: '約 30 分',
+        objective: '分清楚 App、使用者權杖與粉專權杖各是什麼；在 Meta 開發者網站建立 App、加上發文需要的權限（例如 pages_manage_posts），換出粉專權杖；請 AI 把權杖放進 .env、確認 .gitignore 擋住它，並寫一支只讀不寫的腳本確認權杖有效。權杖是密碼等級的機密，不貼進和 AI 的對話。',
+        result: '一組放在 .env、不會被 commit 的粉專權杖，以及一個印出粉專名稱的檢查指令。',
+      },
+      {
+        title: '第一次用程式發文',
+        length: '約 30 分',
+        objective: '請 AI 寫發文腳本，先發一篇排程或不公開的測試貼文確認串接成功，再依序發純文字、附連結、附圖片的貼文；看懂權限不足、權杖過期、參數錯誤的錯誤訊息，把訊息交給 AI 判斷，而不是叫它一直重試。',
+        result: 'npm run publish 在粉專發出一篇貼文，並能說出一則錯誤訊息代表什麼。',
+      },
+      {
+        title: '讓 AI 起草，人核准後才發',
+        length: '約 30 分',
+        objective: '請 AI 從 CHANGELOG 或新上架的課產生貼文草稿，語氣、長度、hashtag 與連結的 UTM 寫成一份規則檔讓它遵守；草稿存成檔案，人修改後標記「已核准」，腳本只發已核准的草稿，發出後記下貼文連結，避免重複發。',
+        result: 'npm run draft 產生的一篇草稿，經修改核准後發出，並留下發文紀錄。',
+      },
+      {
+        title: '排程自動發文，失敗會通知',
+        length: '約 30 分',
+        objective: '請 AI 把權杖放進 GitHub Secrets，用 GitHub Actions 的排程（cron）定時發出已核准的草稿；發文失敗或權杖快過期時寄信通知；讀回貼文的按讚與觸及，和 GA4 從粉專帶來的流量對照。',
+        result: '不用守在電腦前的自動發文流程，失敗會收到通知，並有一份貼文成效紀錄。',
       },
     ],
   },

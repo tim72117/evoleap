@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>三種螢幕</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="doc" data-bp="phone">
+<section id="viewport" class="sec">
+  <h2>viewport：告訴手機「照我的寬度排」</h2>
+  <div class="phones">
+    <figure><div class="ph"><div class="mini zoomed"><div class="mh"></div><div class="mc"><i></i><i></i><i></i></div><div class="mt"></div><div class="mt"></div></div></div><figcaption class="bad">沒有設定：手機假裝自己 980 寬，整頁縮小，字小到看不清</figcaption></figure>
+    <figure><div class="ph"><div class="mini fit"><div class="mh"></div><div class="mc"><i></i><i></i><i></i></div><div class="mt"></div><div class="mt"></div></div></div><figcaption class="good">有設定：用手機真正的寬度排版，字是正常大小</figcaption></figure>
+  </div>
+  <code class="tag">&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code>
+</section>
+<section id="breakpoints" class="sec">
+  <h2>斷點：寬度到哪裡，版面換一種排法</h2>
+  <div class="ruler"><div class="seg s-phone">手機<br><small>0–600</small></div><div class="seg s-tablet">平板<br><small>601–900</small></div><div class="seg s-desktop">桌機<br><small>901 以上</small></div></div>
+  <div class="picks"><button id="bp-phone" type="button">手機</button><button id="bp-tablet" type="button">平板</button><button id="bp-desktop" type="button">桌機</button></div>
+  <div class="demo"><div class="grid"><i></i><i></i><i></i></div><code class="rule"></code></div>
+</section>
+<section id="touch" class="sec">
+  <h2>觸控：手指比滑鼠粗，也不會「滑過」</h2>
+  <div class="tt">
+    <div class="pane"><b>滑鼠</b><div class="links small"><span>首頁</span><span>關於</span><span>作品</span></div><svg class="cursor" viewBox="0 0 20 28"><path d="M2 2 L2 22 L7 17 L11 26 L14 24 L10 16 L17 16 Z" fill="#1f2933" stroke="#fff" stroke-width="1.5"/></svg><p>尖尖的游標，點得到 12px 的小字；移過去還能先看到提示</p></div>
+    <div class="pane"><b>手指</b><div class="links small"><span>首頁</span><span>關於</span><span>作品</span></div><div class="finger"></div><p class="bad">指尖約 44 × 44 px，一次蓋住兩個連結，很容易點錯</p></div>
+    <div class="pane"><b>改好</b><div class="links big"><span>首頁</span><span>關於</span><span>作品</span></div><div class="finger f2"></div><p class="good">按鈕至少 44px 高、彼此留空隙；重要資訊不要只藏在「滑過才出現」</p></div>
+  </div>
+</section>
+</div>
+</body></html>

@@ -1,0 +1,223 @@
+{
+  "title": "買網域",
+  "lesson": "全環節 · 單元 17 · 17.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "買網域：你操作，AI 把關",
+    "line": "購買頁面 AI 碰不到，付款和個人資料也一定是你自己填。這一堂，AI 寫步驟和檢查清單，你每做一步就截圖給它確認。"
+  },
+  "blocking": {
+    "cast": [
+      "claude",
+      "reg"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "買網域",
+        "folder": "~/Documents/practice/bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "reg": {
+      "actor": "browser",
+      "props": {
+        "site": "fc17-2-registrar",
+        "width": "desktop",
+        "url": "https://registrar-b.example/"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "me": {
+      "actor": "person",
+      "props": {
+        "name": "你",
+        "look": "customer"
+      },
+      "place": {
+        "x": 560,
+        "y": 380,
+        "w": 800,
+        "h": 320
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "買網域",
+      "eyebrow": "全環節 · 單元 17 · 17.2 用 AI 完成",
+      "sub": "AI 寫步驟與檢查清單；付款、個資、驗證信由你自己來",
+      "chapter": "先要步驟和檢查清單",
+      "narration": "這一堂的分工很清楚：AI 碰不到購買頁面，所以它負責寫步驟、看截圖；你負責操作，付款和個人資料一定自己填。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "我要在網域商乙買 xiaosen-bakery.com。購買頁面你看不到，請給我逐步操作，還有買完要檢查的清單。我每做一步會截圖給你確認。付款和個人資料我自己填，你不用碰。",
+      "narration": "說清楚：你看不到頁面、我會截圖、付款我自己來。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "on": "claude",
+      "say": "好的。**購買步驟：**\n1. 搜尋 `xiaosen-bakery.com`，確認是 `.com`、續約 NT$350\n2. 加入購物車\n3. 結帳頁勾選：**自動續約、轉移鎖定、WHOIS 隱私保護**，年數選 1 年\n4. 註冊人資料、付款資料由你自己填，按「確認付款」\n5. 到信箱點驗證連結\n\n**買完檢查清單：** 到期日、三個開關都開、Email 已驗證。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "步驟＋買完要檢查什麼，一次給齊",
+      "narration": "步驟和檢查清單都有了。特別注意第三步：三個開關要勾。"
+    },
+    {
+      "show": "reg",
+      "chapter": "照步驟操作",
+      "narration": "打開網域商乙的網站。第一步，搜尋。"
+    },
+    {
+      "on": "reg",
+      "fill": {
+        "#q": "xiaosen-bakery.com"
+      }
+    },
+    {
+      "on": "reg",
+      "click": "#search"
+    },
+    {
+      "callout": "reg:sel:.res",
+      "text": "是 .com、續約 NT$350：跟 AI 說的一樣",
+      "narration": "對照 AI 的第一步：是點 com，續約三百五十元。下面那個點 shop 首年很便宜，但不是我們要的，別點錯。"
+    },
+    {
+      "on": "reg",
+      "click": "#add",
+      "narration": "第二步，加入購物車。"
+    },
+    {
+      "on": "reg",
+      "click": "#ck-renew",
+      "narration": "第三步，結帳頁。勾自動續約，轉移鎖定已經勾好了。"
+    },
+    {
+      "callout": "reg:sel:#ck-priv",
+      "text": "隱私保護還沒勾……",
+      "narration": "咦，隱私保護好像漏了。我們先繼續，等一下看看檢查清單會不會抓到。"
+    },
+    {
+      "callout": "reg:sel:#payinfo",
+      "text": "註冊人資料、付款資料：你自己填",
+      "narration": "第四步，註冊人資料和付款資料。這兩塊一定是你自己填，AI 不會看、也不會碰。"
+    },
+    {
+      "show": "me"
+    },
+    {
+      "on": "me",
+      "say": "資料填好了，金額 NT$350 沒錯，我按下確認付款。",
+      "mood": "calm",
+      "narration": "確認金額和 AI 說的一樣，由你按下付款。"
+    },
+    {
+      "hide": "me"
+    },
+    {
+      "on": "reg",
+      "click": "#pay"
+    },
+    {
+      "on": "reg",
+      "click": "#manage",
+      "narration": "訂單完成。前往網域管理頁，截圖給 AI 對檢查清單。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）付款完成了，這是網域管理頁。",
+      "chapter": "截圖對檢查清單"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "say": "對照檢查清單：\n- 到期日 2027/11/09 ✓\n- 自動續約：開 ✓\n- 轉移鎖定：開 ✓\n- **WHOIS 隱私保護：關** ✗　結帳時漏勾了，請在這頁打開\n- Email：未驗證 ✗　請到信箱點驗證連結（15 天內）"
+    },
+    {
+      "callout": "claude:say",
+      "text": "截圖一對，就抓出兩個沒完成的項目",
+      "narration": "AI 一對照，就抓出剛剛漏勾的隱私保護，還有還沒驗證的 Email。這就是檢查清單的用處。"
+    },
+    {
+      "on": "reg",
+      "click": "#p-priv",
+      "narration": "回到管理頁，打開隱私保護。"
+    },
+    {
+      "show": "me"
+    },
+    {
+      "on": "me",
+      "say": "我去信箱找到驗證信，點了連結。",
+      "mood": "happy",
+      "narration": "驗證信也是你自己的事：打開信箱，點連結。"
+    },
+    {
+      "hide": "me"
+    },
+    {
+      "on": "reg",
+      "click": "#mail",
+      "narration": "重新整理管理頁，Email 已驗證。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）三個開關都開了，Email 也驗證了。",
+      "narration": "再截一次圖。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "whois xiaosen-bakery.com | grep -i -E 'Registrant Name|Domain Status|Expiry'",
+      "result": "完成",
+      "out": "Registry Expiry Date: 2027-11-09\nDomain Status: clientTransferProhibited\nRegistrant Name: REDACTED FOR PRIVACY",
+      "chapter": "AI 從外面再確認一次",
+      "narration": "除了看截圖，AI 還能從外面用 whois 確認：轉移已鎖定，你的名字已經被遮住。"
+    },
+    {
+      "on": "claude",
+      "say": "全部檢查完成 ✓\n- 到期日 2027/11/09，自動續約已開\n- 轉移鎖定生效（clientTransferProhibited）\n- WHOIS 已隱藏你的姓名\n- Email 已驗證\n提醒：換信用卡時，記得回網域商更新付款方式。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：買下你的網域",
+      "body": "請 AI 寫購買步驟與買完的檢查清單。照著操作，付款、註冊人資料、驗證信由你自己處理；每一步截圖給 AI，最後請它用 whois 再確認一次。"
+    },
+    {
+      "hide": "reg"
+    },
+    {
+      "card": "AI：步驟、檢查清單、whois 確認\n你：操作、付款、驗證信",
+      "eyebrow": "學會",
+      "sub": "截圖回報，讓 AI 幫你抓漏掉的設定",
+      "chapter": "學會",
+      "narration": "AI 碰不到的頁面，它寫步驟和檢查清單；你操作、付款、收驗證信，每一步截圖回報。這次就靠檢查清單，抓出了漏開的設定。"
+    }
+  ]
+}

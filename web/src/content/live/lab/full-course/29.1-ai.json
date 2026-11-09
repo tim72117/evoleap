@@ -1,0 +1,392 @@
+{
+  "title": "先說好「怎樣算完成」",
+  "lesson": "全環節 · 單元 29 · 29.1 用 AI 完成",
+  "teacher": {
+    "say": "今天帶著完成條件交代任務",
+    "line": "上一堂畫了終點線，這一堂真的用。你交代任務時多寫一段完成條件，然後看 AI 怎麼自己驗證，驗證過了才跟你說完成。"
+  },
+  "camera": "auto",
+  "blocking": {
+    "cast": [
+      "claude",
+      "web",
+      "files"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "修送出按鈕",
+        "folder": "~/projects/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "fc29-1-order",
+        "url": "http://localhost:5173/order"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "bakery": {
+            "docs": {},
+            "src": {
+              "order.js": ""
+            },
+            "tests": {
+              "order.test.js": ""
+            },
+            "package.json": ""
+          }
+        },
+        "open": "bakery/docs"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "card": "先說好「怎樣算完成」",
+      "eyebrow": "全環節 · 單元 29 · 29.1 用 AI 完成",
+      "sub": "交代任務時附上完成條件，讓 AI 驗證完才回報",
+      "chapter": "三段式任務",
+      "narration": "我們先準備好一個任務的寫法，分成三段。"
+    },
+    {
+      "diff": "任務說明",
+      "lines": [
+        [
+          "+",
+          "要做什麼：修好訂購表單的送出按鈕"
+        ],
+        [
+          "+",
+          "完成條件：1. npm test 全部通過"
+        ],
+        [
+          "+",
+          "　　　　　2. 本機網址 /order 回 200"
+        ],
+        [
+          "+",
+          "　　　　　3. 實際按送出，截圖看到「已送出」"
+        ],
+        [
+          "+",
+          "回報時：附上這三項的結果"
+        ]
+      ],
+      "narration": "第一段，要做什麼。第二段，完成條件，三項都要 AI 自己能檢查。第三段，回報時要附上什麼證據。"
+    },
+    {
+      "clear": true
+    },
+    {
+      "show": "claude",
+      "chapter": "交代任務",
+      "narration": "把這三段一起交給 AI。"
+    },
+    {
+      "on": "claude",
+      "user": "修好訂購表單的送出按鈕。\n完成條件：npm test 全部通過；/order 回 200；用瀏覽器實際按送出、截圖看到「已送出」。\n三項都過才回報，回報時附上結果。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "找出按鈕壞掉的原因",
+          "doing"
+        ],
+        [
+          "修改程式",
+          "pending"
+        ],
+        [
+          "驗證：npm test",
+          "pending"
+        ],
+        [
+          "驗證：/order 回 200",
+          "pending"
+        ],
+        [
+          "驗證：按送出並截圖",
+          "pending"
+        ]
+      ],
+      "narration": "注意它的待辦清單：驗證的三件事，被它排進了工作裡。完成條件變成它自己的待辦。"
+    },
+    {
+      "callout": "claude:todos",
+      "text": "完成條件 → AI 自己的驗證步驟",
+      "narration": "這就是先說好的好處：它知道做到哪裡才算完。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "src/order.js",
+      "result": "38 行"
+    },
+    {
+      "on": "claude",
+      "ask": "src/order.js",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "btn.addEventListener('click', send)",
+      "narration": "它找到拼錯的字，要改檔案前先問你。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "edit": "src/order.js",
+      "lines": [
+        [
+          12,
+          "-",
+          "btn.addEventListner('click', send)"
+        ],
+        [
+          12,
+          "+",
+          "btn.addEventListener('click', send)"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "ask": "npm test",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "執行專案的測試，不會改動檔案",
+      "chapter": "AI 自己驗證",
+      "narration": "上一堂的 AI 改到這裡就說好了。這次它接著跑測試。"
+    },
+    {
+      "on": "claude",
+      "choose": 2,
+      "narration": "跑測試只是檢查，可以選一律允許，之後不用每次問。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test",
+      "result": "1 個失敗",
+      "out": "✓ 表單欄位都有標籤\n✕ 送出後顯示「已送出」\n  找不到 #done 元素的顯示狀態：送出時沒有呼叫 showDone()",
+      "narration": "結果：有一個測試失敗。送出之後，畫面沒有顯示「已送出」。這就是上一堂那個沒走到的坑。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "沒有完成條件時，這個錯會留給你自己發現",
+      "narration": "要是沒有完成條件，這個錯會留到你自己打開網頁才發現。現在 AI 自己撞到了，就會自己去修。"
+    },
+    {
+      "on": "claude",
+      "ask": "src/order.js",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "  await send(form)\n  showDone()"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "edit": "src/order.js",
+      "lines": [
+        [
+          20,
+          " ",
+          "  await send(form)"
+        ],
+        [
+          21,
+          "+",
+          "  showDone()"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test",
+      "result": "全部通過",
+      "out": "✓ 表單欄位都有標籤\n✓ 送出後顯示「已送出」\n2 passed",
+      "narration": "再跑一次，兩個都過了。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "找出按鈕壞掉的原因",
+          "done"
+        ],
+        [
+          "修改程式",
+          "done"
+        ],
+        [
+          "驗證：npm test",
+          "done"
+        ],
+        [
+          "驗證：/order 回 200",
+          "doing"
+        ],
+        [
+          "驗證：按送出並截圖",
+          "pending"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "ask": "curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/order",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "只讀取網頁的狀態碼",
+      "narration": "第二項，用 curl 敲一下本機的網址，只看它回的狀態碼。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl … http://localhost:5173/order",
+      "result": "200",
+      "out": "200"
+    },
+    {
+      "on": "claude",
+      "ask": "npx playwright screenshot --click \"#send\" http://localhost:5173/order shot.png",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "打開本機網頁、按送出、存一張截圖",
+      "narration": "第三項，它要用瀏覽器工具真的按一次送出，再截圖。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright screenshot --click \"#send\" http://localhost:5173/order shot.png",
+      "result": "已截圖"
+    },
+    {
+      "show": "web",
+      "narration": "我們看它截到的畫面。"
+    },
+    {
+      "on": "web",
+      "click": "#send",
+      "narration": "按下送出，"
+    },
+    {
+      "callout": "web:section:done",
+      "text": "看到「已送出」→ 第三項通過",
+      "narration": "出現「已送出」，第三項也過了。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "找出按鈕壞掉的原因",
+          "done"
+        ],
+        [
+          "修改程式",
+          "done"
+        ],
+        [
+          "驗證：npm test",
+          "done"
+        ],
+        [
+          "驗證：/order 回 200",
+          "done"
+        ],
+        [
+          "驗證：按送出並截圖",
+          "done"
+        ]
+      ],
+      "foreground": "claude"
+    },
+    {
+      "on": "claude",
+      "say": "完成了，三項完成條件都通過：\n1. `npm test`：2 passed\n2. `/order` 回 **200**\n3. 按送出後截圖看到「已送出」（shot.png）\n另外修了第二個問題：送出後沒有呼叫 `showDone()`。",
+      "chapter": "有證據的回報",
+      "narration": "這次的回報不一樣了：每一項完成條件，都附上結果。還告訴你，它多修了一個你原本不知道的問題。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "回報＝完成條件逐項打勾＋證據",
+      "narration": "你不用自己重測一遍，只要看證據對不對。"
+    },
+    {
+      "on": "claude",
+      "user": "很好。把這次的任務寫法存成範本 docs/task-template.md，下次照著填",
+      "chapter": "存成範本"
+    },
+    {
+      "on": "claude",
+      "ask": "docs/task-template.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "## 要做什麼\n## 完成條件（AI 自己能檢查）\n- 測試：\n- 網址：\n- 畫面：\n## 回報時附上"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "docs/task-template.md",
+      "result": "12 行"
+    },
+    {
+      "show": "files",
+      "create": "task-template.md",
+      "narration": "範本存進專案的 docs 資料夾。下次交代任務，打開它填三段就好。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "打開自己的專案，用「要做什麼／完成條件／回報時附上」三段交代一件小修改。看 AI 的待辦清單裡有沒有出現驗證步驟，回報有沒有附上結果。",
+      "narration": "換你試試。用三段式交代一件小修改，看看它的待辦清單有沒有驗證步驟，回報有沒有附上結果。"
+    }
+  ]
+}

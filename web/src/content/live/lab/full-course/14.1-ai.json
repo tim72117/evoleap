@@ -1,0 +1,119 @@
+{
+  "title": "讀懂錯誤訊息",
+  "lesson": "全環節 · 單元 14 · 14.1 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "code"], "shot": "depth" },
+  "teacher": {
+    "say": "把完整的錯誤交給 AI",
+    "line": "這一堂把一個看不懂的錯誤，完整地交給 AI。請它找到出錯的那一行、用白話解釋原因，再修好。重點在「完整」兩個字。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "結帳出錯", "folder": "~/projects/shop", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": { "project": "shop", "files": { "src/cart/total.js": "export function cartTotal(cart) {\n  return cart.items\n    .map(itemTotal)\n    .reduce((a, b) => a + b, 0)\n}\n\nfunction itemTotal(item) {\n  const product = catalog.find(item.productId)\n  // 依數量與會員等級計算小計\n  const qty = item.qty\n  const rate = item.vip ? 0.9 : 1\n  return Math.round(product.price * qty * rate)\n}\n" } },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "讀懂錯誤訊息",
+      "eyebrow": "全環節 · 單元 14 · 14.1 用 AI 完成",
+      "sub": "完整的錯誤 → 找到那一行 → 白話解釋 → 修好 → 確認",
+      "chapter": "交出完整的錯誤",
+      "narration": "最常見的錯，是只跟 AI 說「結帳壞了」，或只貼第一行。AI 要的，是完整的錯誤。"
+    },
+    {
+      "card": "「結帳壞了」 vs 整段錯誤＋你做了什麼",
+      "eyebrow": "給 AI 的線索越完整，它越快找到",
+      "sub": "整段紅字（含 at 那幾行）、你按了什麼、預期會怎樣",
+      "narration": "給它三樣東西：整段紅字，包括 at 開頭的那幾行；你做了什麼；你預期會怎樣。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我按結帳沒反應，伺服器紀錄有這段錯誤（完整貼上）：\n\nTypeError: Cannot read properties of undefined (reading 'price')\n    at itemTotal (src/cart/total.js:12:24)\n    at Array.map (<anonymous>)\n    at cartTotal (src/cart/total.js:5:22)\n    at checkout (src/routes/checkout.js:31:17)\n    at Layer.handle (node_modules/express/lib/router/layer.js:95:5)\n\n預期：按結帳後進到付款頁。請找到出錯的那一行，用白話解釋原因，再修好。",
+      "narration": "完整貼上錯誤、說你做了什麼、預期會怎樣，再請它：找到那一行、白話解釋、修好。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "src/cart/total.js",
+      "result": "已讀取 13 行",
+      "chapter": "AI 找到那一行",
+      "narration": "它照著堆疊追蹤，直接打開 total 點 js。"
+    },
+    {
+      "show": "code",
+      "narration": "我們也一起看這個檔案。"
+    },
+    {
+      "callout": "code:code",
+      "text": "第 12 行：product.price；可是 product 可能找不到",
+      "narration": "第十二行要拿 product 的 price。可是 product 是第八行從商品目錄找出來的，如果找不到，就是 undefined，不存在。"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "productId: 'p-17'",
+      "result": "在購物車找到，商品目錄裡沒有",
+      "out": "carts.json: { productId: 'p-17', qty: 1 }\ncatalog: p-17 已於 11/05 下架",
+      "narration": "它再查一步：這位客人的購物車裡，有一個已經下架的商品。"
+    },
+    {
+      "on": "claude",
+      "say": "找到了：**`src/cart/total.js` 第 12 行**。\n\n白話解釋：客人購物車裡有一個商品（p-17）在 11/05 下架了。算小計時，第 8 行在商品目錄找不到它，`product` 就是「不存在」，第 12 行還想拿它的價格，所以當掉。\n\n修法：算總金額前，先把已下架的商品拿出購物車，並告訴客人「有 1 件商品已下架」。這樣可以嗎？",
+      "narration": "它說出是哪一行，用白話解釋原因，還說清楚打算怎麼修，先問你可不可以。這種會影響客人看到什麼的決定，值得問一聲。"
+    },
+    {
+      "on": "claude",
+      "user": "可以，照這樣改，再加一個測試",
+      "narration": "同意，再請它加一個測試，以後不會再犯。"
+    },
+    {
+      "on": "claude",
+      "ask": "src/cart/total.js",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/shop",
+      "preview": "  const items = cart.items.filter((i) => catalog.has(i.productId))\n  cart.removed = cart.items.length - items.length\n  return items.map(itemTotal).reduce((a, b) => a + b, 0)",
+      "chapter": "修好",
+      "narration": "修改內容：先篩掉已下架的商品，記下拿掉了幾件。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Edit", "arg": "src/cart/total.js", "result": "已修改" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- cart",
+      "result": "5 項通過",
+      "out": " ✓ 購物車有下架商品時，結帳不會當掉\n ✓ 下架商品不算進總金額\n ✓ 一般會員不打折\n ✓ VIP 打九折\n ✓ 滿 1000 免運",
+      "chapter": "確認",
+      "narration": "新的測試模擬「購物車裡有下架商品」，結帳不會當掉，金額也對。原本的測試也都還通過。"
+    },
+    {
+      "on": "claude",
+      "say": "修好了 ✓ 有下架商品時，結帳頁會顯示「有 1 件商品已下架，已從購物車移除」，總金額只算還在賣的商品。",
+      "narration": "完成。看不懂的錯誤，就這樣被修好了。"
+    },
+    { "hide": "code" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把完整的錯誤交給 AI",
+      "body": "找一個你看不懂的錯誤，完整貼上（含 at 那幾行），寫出你做了什麼、預期會怎樣，請 AI 找到那一行、白話解釋、修好並加測試。"
+    },
+    {
+      "card": "完整的錯誤 + 你做了什麼 + 預期\n→ 那一行、白話原因、修好、測試",
+      "eyebrow": "學會",
+      "sub": "會影響客人看到什麼的修法，讓 AI 先說再改",
+      "chapter": "學會",
+      "narration": "交給 AI 的是：完整的錯誤、你做了什麼、預期會怎樣。要回來的是：出錯的那一行、白話的原因、修好、再加一個測試。"
+    }
+  ]
+}

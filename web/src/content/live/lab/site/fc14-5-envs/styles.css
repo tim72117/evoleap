@@ -1,0 +1,19 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#eceff1;display:flex;align-items:center;justify-content:center}
+.app{width:1180px;padding:16px 0}
+.head,.row{display:grid;grid-template-columns:1fr 110px 1fr;gap:12px;align-items:center}
+.h{font-size:24px;font-weight:700;padding:8px 18px}.h.r{text-align:right}
+.row{margin-top:8px;opacity:.3}
+.c{background:#fff;border-radius:12px;padding:12px 16px;font-size:18px;min-height:52px}
+.c.l{border-left:6px solid #4a6fa5}.c.r{border-right:6px solid #e08a1e;text-align:right}
+.k{text-align:center;font-size:17px;color:#6b7478;font-weight:700}
+code{font-family:ui-monospace,Menlo,monospace;font-size:15px;background:#f1f3f5;border-radius:5px;padding:1px 6px}
+.box{display:none;margin-top:12px;gap:16px;align-items:center;background:#1f3b44;color:#f1f5f4;border-radius:14px;padding:14px 20px;font-size:18px;line-height:1.6}
+.box svg{width:90px;flex:none}.bx{fill:#2d5260;stroke:#ffd27a;stroke-width:3}.ln{fill:#ffd27a}
+.box code{background:#14282f;color:#ff9c8f}
+.chips{display:flex;gap:12px;margin-top:14px;justify-content:center}
+.chips button{font:inherit;font-size:18px;border:2px solid #c3cbd3;background:#fff;border-radius:999px;padding:7px 20px;color:#1f2a2e}
+.s1 #r1,.s2 #r1,.s2 #r2,.s3 #r1,.s3 #r2,.s3 #r3,.s4 .row,.s5 .row{opacity:1}
+.s1 #r1 .r,.s2 #r2 .r,.s3 #r3 .r,.s4 #r4 .r,.s4 #r5 .r{background:#fff4e2;font-weight:700}
+.s5 .box{display:flex}.s5 .row{opacity:.5}.s5 #r1{opacity:1}
+.s1 #b1,.s2 #b2,.s3 #b3,.s4 #b4,.s5 #b5{background:#1f3b44;color:#fff;border-color:#1f3b44}

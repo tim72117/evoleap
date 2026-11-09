@@ -1,0 +1,112 @@
+{
+  "title": "AI 程式助手的三種形式",
+  "camera": "auto",
+  "teacher": {
+    "say": "請 AI 幫你挑工具",
+    "line": "這一堂，我們把你自己的狀況告訴 AI，請它比較三種助手，幫你選出這門課的主力工具。"
+  },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "AI 聊天" },
+      "place": { "x": 660, "y": 70, "w": 600, "h": 920 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc1-1-compare", "url": "https://chat.example/share/tool-choice" },
+      "place": "window",
+      "hidden": true
+    },
+    "memo": {
+      "actor": "notes",
+      "props": { "label": "我的決定" },
+      "place": { "x": 460, "y": 140, "w": 1000, "h": 760 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 幫你選主力工具",
+      "eyebrow": "全環節 · 單元 1 · 1.1 用 AI 完成",
+      "sub": "一次把話說清楚，讓它直接給你答案",
+      "chapter": "把狀況說清楚",
+      "narration": "還沒安裝任何工具也沒關係，先用你手邊的 AI 聊天就好。重點是：一次把話說清楚。"
+    },
+    {
+      "show": "phone",
+      "narration": "我們打開一個 AI 聊天視窗。"
+    },
+    {
+      "on": "phone",
+      "reply": "我是零基礎，想做小店的訂購網站。我用 Mac，已經有 Claude Pro 帳號。\n請比較：聊天視窗、編輯器裡的助手、終端機代理，建議我這門課用哪一種當主力。\n完成的標準：給我一張比較表，再加一句建議和理由。",
+      "narration": "這段話裡有四件事：你是誰、要做什麼、手上有什麼帳號，還有，怎樣才算完成。"
+    },
+    {
+      "callout": "phone:msg:last",
+      "text": "你是誰 · 要做什麼 · 有什麼帳號 · 怎樣算完成",
+      "narration": "最後一句最常被忘記。說清楚要一張表、一句建議，它就知道做到哪裡可以停。"
+    },
+    {
+      "on": "phone",
+      "receive": "收到！先確認一件事：你願意在「終端機」打字嗎？就是一個黑色視窗，用打字下指令。",
+      "from": "AI",
+      "narration": "AI 先反問一個問題。這很正常，表示它想確認之後再回答。"
+    },
+    {
+      "on": "phone",
+      "reply": "可以，只要有人帶著學。",
+      "narration": "我們老實回答就好。"
+    },
+    {
+      "on": "phone",
+      "receive": "好，那我整理成一張表給你 👇",
+      "from": "AI"
+    },
+    { "hide": "phone" },
+    {
+      "show": "web",
+      "chapter": "看它的比較表",
+      "narration": "這是 AI 整理出來的比較表。我們一列一列看。"
+    },
+    {
+      "callout": "web:sel:table",
+      "text": "每一列，都是你剛剛說過在意的事",
+      "narration": "讀檔案、改檔案、執行指令，還有你的帳號能不能用。它是照你給的狀況比的，不是一般的介紹文。"
+    },
+    {
+      "callout": "web:sel:th.hl",
+      "text": "你的 Pro 帳號就能用終端機代理",
+      "narration": "注意這一欄：你已經有 Pro 帳號，終端機代理不用另外付錢。這種跟你有關的細節，只有你說了，它才會考慮進去。"
+    },
+    {
+      "on": "web",
+      "click": "#show-rec",
+      "narration": "最後看它的建議。"
+    },
+    {
+      "callout": "web:sel:#rec",
+      "text": "建議＋理由 = 你一開始定的完成標準",
+      "narration": "主力用終端機代理，聊天視窗留著問概念。有表、有建議、有理由，正好是你一開始說的完成標準，所以這件事做完了。"
+    },
+    { "hide": "web" },
+    {
+      "show": "memo",
+      "chapter": "寫下決定",
+      "narration": "把決定記下來，之後忘了可以回來看。"
+    },
+    { "on": "memo", "jot": "主力：Claude Code（終端機代理）" },
+    { "on": "memo", "jot": "理由：看得到整個專案、會自己跑指令" },
+    { "on": "memo", "jot": "問概念：用聊天視窗就好" },
+    {
+      "checkpoint": "換你：把自己的狀況告訴 AI",
+      "body": "照這個格式寫：我是（程度）、想做（什麼）、用（作業系統）、有（哪些帳號）。請比較三種 AI 程式助手，完成的標準是一張比較表加一句建議。AI 反問就照實回答，最後把決定寫下來。"
+    },
+    {
+      "card": "選定課程主力工具 ✓",
+      "eyebrow": "1.1 完成",
+      "sub": "下一堂：安裝它、登入，第一次按下「允許」",
+      "narration": "你已經選好主力工具了。下一堂，我們把它裝起來。"
+    }
+  ]
+}

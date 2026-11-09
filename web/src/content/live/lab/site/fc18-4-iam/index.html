@@ -1,0 +1,23 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>IAM 與服務帳號</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · 權限（IAM）</p>
+<h1>誰，拿哪一串鑰匙？</h1>
+<div class="tabs"><button id="b0" data-go="0">一句話</button><button id="b1" data-go="1">角色＝一串鑰匙</button><button id="b2" data-go="2">服務帳號</button><button id="b3" data-go="3">萬能鑰匙</button><button id="b4" data-go="4">最小權限</button></div>
+<div data-only="0" class="sent"><span class="w who">誰</span>＋<span class="w role">拿哪個角色</span>＋<span class="w res">對哪個專案</span><p>這一句就是一條 <b>IAM</b> 權限設定（IAM＝身分與存取管理）。</p></div>
+<div data-only="1 2 3 4" class="board">
+<div class="people">
+<div class="who" id="p-you"><span class="av">你</span><b>你</b><small>擁有者</small></div>
+<div class="who sa" data-at="2" id="p-sa"><span class="av bot">🤖</span><b>deployer</b><small>服務帳號：給程式用的帳號</small></div>
+</div>
+<div class="rings">
+<div class="ring" data-only="1"><b>角色：Cloud Run 開發者</b><div class="keys"><span>🔑 部署網站</span><span>🔑 看網站設定</span></div><small>角色就是一串鑰匙：一組事先包好的權限</small></div>
+<div class="ring owner" data-only="3"><b>角色：擁有者（Owner）</b><div class="keys"><span>🔑 部署</span><span>🔑 刪資料庫</span><span>🔑 看帳單</span><span>🔑 改權限</span><span>🔑 開任何服務</span><span>🔑 …全部</span></div><small class="bad">鑰匙外洩：別人可以做任何事，包括開一堆機器挖礦</small></div>
+<div class="ring min" data-only="2 4"><b>deployer 只拿這三串</b><div class="keys"><span>🔑 Cloud Run 開發者</span><span>🔑 映像檔寫入者</span><span>🔑 服務帳號使用者</span></div><small data-only="4" class="ok">鑰匙外洩：最多只能部署網站，刪不了資料、看不到帳單</small></div>
+</div></div>
+<div class="box expl">
+<p data-only="1"><b>角色</b>是一組包好的權限，像一串鑰匙。給人或程式權限，就是把某串鑰匙交給他。</p>
+<p data-only="2"><b>服務帳號</b>是給程式用的帳號，像一個機器人員工。自動部署、網站讀資料庫，都用它，不用你的帳號。</p>
+<p data-only="3">最省事的做法是給 Owner，什麼都能做。但鑰匙一旦外洩（例如不小心 push 到 GitHub），損失也是「什麼都可能」。</p>
+<p data-only="4"><b>最小權限</b>：只給完成工作需要的鑰匙，多一把都不給。出事時，損害就被關在小範圍裡。</p>
+</div>
+</div></body></html>

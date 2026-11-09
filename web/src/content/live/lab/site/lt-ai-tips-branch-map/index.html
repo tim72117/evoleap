@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>分岔</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="top"><div class="ttl">分岔：從同一個起點，同時走好幾條路</div>
+  <div class="tabs"><button class="tab" data-go="1">起點</button><button class="tab" data-go="2">分出兩條</button><button class="tab" data-go="3">各有一份檔案</button><button class="tab" data-go="4">選一條</button></div></div>
+  <svg class="tree" viewBox="0 0 1200 520" aria-hidden="true">
+    <g class="r2" stroke="#9aa3ad" stroke-width="6" fill="none" stroke-linecap="round">
+      <path d="M330 260 C 460 260, 470 130, 600 130" />
+      <path d="M330 260 C 460 260, 470 390, 600 390" />
+    </g>
+    <g class="r4"><path class="keep" d="M900 130 L 1080 130" stroke="#1f8a5b" stroke-width="6" fill="none" stroke-dasharray="2 14" stroke-linecap="round"/></g>
+  </svg>
+  <div class="node start r1"><b>起點</b><span>目前的對話：網站已經做好</span><span>📁 一份網站檔案</span></div>
+  <div class="node a r2"><b>分支 A：溫暖手作風</b><span>帶著起點的對話</span><span class="cp r3">📁 自己的一份檔案</span></div>
+  <div class="node b r2"><b>分支 B：簡約風</b><span>帶著起點的對話</span><span class="cp r3">📁 自己的一份檔案</span></div>
+  <div class="pick r4">✓ 留下這一版<br><small>另一條可以收起來</small></div>
+  <div class="dim r4"></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

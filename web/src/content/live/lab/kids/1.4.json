@@ -1,0 +1,228 @@
+{
+  "title": "連結把網頁連起來",
+  "lesson": "兒童網頁課 · 1.4 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt8-kid-page",
+      "props": {
+        "pages": {
+          "home": {
+            "title": "小花的家",
+            "items": [
+              {
+                "id": "t",
+                "kind": "h1",
+                "text": "小花的家"
+              },
+              {
+                "id": "photo",
+                "kind": "img",
+                "pic": "🐱",
+                "alt": "橘貓小花"
+              },
+              {
+                "id": "intro",
+                "kind": "p",
+                "text": "小花是一隻愛睡午覺的橘貓。"
+              },
+              {
+                "id": "toAlbum",
+                "kind": "a",
+                "text": "看小花的相簿",
+                "to": "album"
+              },
+              {
+                "id": "toToys",
+                "kind": "a",
+                "text": "點這裡",
+                "to": "toys"
+              }
+            ]
+          },
+          "album": {
+            "title": "小花的相簿",
+            "items": [
+              {
+                "id": "at",
+                "kind": "h1",
+                "text": "小花的相簿"
+              },
+              {
+                "id": "pics",
+                "kind": "img",
+                "pic": "😺😸😹",
+                "alt": "小花的三張照片"
+              },
+              {
+                "id": "back",
+                "kind": "a",
+                "text": "回到小花的家",
+                "to": "home"
+              }
+            ]
+          },
+          "toys": {
+            "title": "小花的玩具",
+            "items": [
+              {
+                "id": "tt",
+                "kind": "h1",
+                "text": "小花的玩具"
+              },
+              {
+                "id": "toyp",
+                "kind": "p",
+                "text": "毛線球、逗貓棒，還有最愛的紙箱。"
+              },
+              {
+                "id": "back2",
+                "kind": "a",
+                "text": "回到小花的家",
+                "to": "home"
+              }
+            ]
+          }
+        },
+        "side": "map"
+      },
+      "place": {
+        "landscape": {
+          "x": 80,
+          "y": 50,
+          "w": 1760,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "點了跑到另一頁",
+      "guide": {
+        "target": "kid:part:toAlbum",
+        "text": "藍色的字"
+      },
+      "narration": "小花的家下面，有幾行藍色、有底線的字。"
+    },
+    {
+      "follow": "toAlbum",
+      "tap": true,
+      "narration": "點一下……咻！跑到另一頁了，小花的相簿。網址列也換了。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:side",
+        "text": "網站地圖"
+      },
+      "narration": "看右邊的網站地圖：小花的家和相簿，用一條線連起來了。"
+    },
+    {
+      "wait": 400,
+      "narration": "點了會跑到另一頁的字，叫做連結。連結把網頁一頁一頁連在一起。"
+    },
+    {
+      "follow": "back",
+      "tap": true,
+      "narration": "相簿這一頁也有連結。點一下，就回到小花的家。"
+    },
+    {
+      "checkpoint": "換你逛逛看",
+      "sub": "lab/kids/1.4-trip.json",
+      "chapter": "換你逛逛看"
+    },
+    {
+      "wait": 400,
+      "chapter": "連結的字要說清楚",
+      "guide": {
+        "target": "kid:part:toToys",
+        "text": "點這裡？"
+      },
+      "narration": "再看這個連結：點這裡。點之前，你知道它會去哪裡嗎？"
+    },
+    {
+      "wait": 400,
+      "narration": "看不出來吧。連結上的字，要說清楚會去哪裡。"
+    },
+    {
+      "checkpoint": "這個連結會去小花的玩具，寫哪一句最清楚？",
+      "body": "點下面的按鈕回答。",
+      "id": "quiz-1",
+      "options": [
+        {
+          "label": "按我",
+          "retry": true,
+          "steps": [
+            {
+              "write": "toToys",
+              "text": "按我"
+            },
+            {
+              "wait": 300,
+              "narration": "按了會去哪裡呢？還是看不出來。再試一次！"
+            },
+            {
+              "write": "toToys",
+              "text": "點這裡",
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "下一頁",
+          "retry": true,
+          "steps": [
+            {
+              "write": "toToys",
+              "text": "下一頁"
+            },
+            {
+              "wait": 300,
+              "narration": "下一頁是哪一頁？還是看不出來。再試一次！"
+            },
+            {
+              "write": "toToys",
+              "text": "點這裡",
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "看小花的玩具",
+          "steps": [
+            {
+              "write": "toToys",
+              "text": "看小花的玩具",
+              "narration": "答對了！現在一看就知道，點了會去小花的玩具。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "follow": "toToys",
+      "tap": true,
+      "narration": "點點看，果然到了小花的玩具。"
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:window",
+        "text": "連結把網頁連起來"
+      },
+      "narration": "連結把網頁一頁一頁連在一起。連結上的字，要說清楚會去哪裡。"
+    },
+    {
+      "wait": 400,
+      "narration": "今天學到兩個名字：連結、另一頁。"
+    }
+  ]
+}

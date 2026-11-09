@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>reports/ 匯出結果</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="sheet">
+  <div class="tabs"><button class="tb on" id="t1">top-products.csv</button><button class="tb" id="t2">inactive-members.csv</button><button class="tb" id="t3">weekend-vs-weekday.csv</button></div>
+  <div class="pane" id="p1"><p class="q">問題 1：上個月賣最好的三樣是什麼？</p>
+    <table><tr><th>#</th><th>product</th><th>qty</th><th>revenue</th></tr><tr><td>1</td><td>可頌</td><td>412</td><td>26,780</td></tr><tr><td>2</td><td>肉桂捲</td><td>288</td><td>23,040</td></tr><tr><td>3</td><td>鄉村麵包</td><td>140</td><td>16,800</td></tr></table></div>
+  <div class="pane hide" id="p2"><p class="q">問題 2：哪些會員超過 60 天沒下單？（共 3 位）</p>
+    <table><tr><th>#</th><th>member</th><th>last_order</th><th>days</th></tr><tr><td>1</td><td>王小姐</td><td>2026-08-02</td><td>99</td></tr><tr><td>2</td><td>陳先生</td><td>2026-08-21</td><td>80</td></tr><tr><td>3</td><td>林小姐</td><td>2026-09-03</td><td>67</td></tr></table></div>
+  <div class="pane hide" id="p3"><p class="q">問題 3：週末和平日，平均一天賣多少？</p>
+    <table><tr><th>#</th><th>day_type</th><th>days</th><th>avg_revenue</th></tr><tr><td>1</td><td>weekend</td><td>8</td><td>4,950</td></tr><tr><td>2</td><td>weekday</td><td>22</td><td>2,310</td></tr></table>
+    <div class="bars"><div><span>週末</span><i style="width:90%"></i><b>4,950</b></div><div><span>平日</span><i style="width:42%"></i><b>2,310</b></div></div></div>
+</div>
+</body></html>

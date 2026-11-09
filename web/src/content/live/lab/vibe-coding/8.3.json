@@ -1,0 +1,501 @@
+{
+  "title": "環境總檢查與下一步",
+  "lesson": "基礎 · 單元 8 · 8.3 試做",
+  "teacher": {
+    "say": "今天做一次環境總檢查",
+    "line": "到這裡，你已經裝了不少工具，也把個人頁放上網路了。今天照一張檢查表，把整個開發環境從頭確認一遍，接下來的單元才能放心往前走。"
+  },
+  "cast": {
+    "list": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-vibe-coding-8-3-check",
+        "width": "desktop",
+        "url": "https://learn.example/practice/env-check"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "環境總檢查",
+        "folder": "~/projects/hello",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": {
+        "os": "mac",
+        "cwd": "~/projects/hello"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "road": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "接下來的路",
+        "nodes": [
+          {
+            "id": "env",
+            "label": "環境就緒",
+            "sub": "今天",
+            "icon": "✔",
+            "x": 8,
+            "y": 48,
+            "w": 8,
+            "tone": "ok"
+          },
+          {
+            "id": "git",
+            "label": "版本管理",
+            "sub": "Git、還原、分支",
+            "icon": "⌥",
+            "x": 25,
+            "y": 48,
+            "w": 8.5,
+            "hidden": true
+          },
+          {
+            "id": "dir",
+            "label": "整理結構",
+            "sub": "搬檔、README",
+            "icon": "▤",
+            "x": 42,
+            "y": 48,
+            "w": 8.5,
+            "hidden": true
+          },
+          {
+            "id": "seo",
+            "label": "上線必備",
+            "sub": "SEO、流量分析",
+            "icon": "🌐",
+            "x": 59,
+            "y": 48,
+            "w": 8.5,
+            "hidden": true
+          },
+          {
+            "id": "test",
+            "label": "自動化測試",
+            "sub": "防止改壞",
+            "icon": "✓",
+            "x": 76,
+            "y": 48,
+            "w": 8.5,
+            "hidden": true
+          },
+          {
+            "id": "agent",
+            "label": "AI Agent 整合應用",
+            "sub": "下一門課",
+            "icon": "✦",
+            "x": 92,
+            "y": 48,
+            "w": 8.5,
+            "shape": "round",
+            "hidden": true
+          }
+        ],
+        "edges": [
+          {
+            "from": "env",
+            "to": "git"
+          },
+          {
+            "from": "git",
+            "to": "dir"
+          },
+          {
+            "from": "dir",
+            "to": "seo"
+          },
+          {
+            "from": "seo",
+            "to": "test"
+          },
+          {
+            "from": "test",
+            "to": "agent"
+          }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "起飛前，機師會照清單逐項檢查",
+      "eyebrow": "基礎 · 單元 8 · 8.3",
+      "sub": "不是不相信飛機，是不想在半空中才發現問題",
+      "chapter": "一張檢查表",
+      "narration": "飛機起飛前，機師會照一張清單逐項檢查。不是不相信飛機，而是不想在半空中才發現問題。開發環境也一樣。"
+    },
+    {
+      "show": "list",
+      "narration": "這是今天的檢查表，一共八項。每一項都寫了怎麼檢查，還有之後會用在哪裡。"
+    },
+    {
+      "callout": "list:sel:#r-user",
+      "text": "版本管理：Git 要知道每一次存檔是誰做的",
+      "narration": "接下來的版本管理單元，要用 Git，也要設定好你的名字和 email，因為每一次存檔都會記下是誰做的。"
+    },
+    {
+      "callout": "list:sel:#r-site",
+      "text": "上線：個人頁要能從網路上打開",
+      "narration": "上線相關的單元，要能推送到 GitHub，個人頁也要真的打得開。"
+    },
+    {
+      "callout": "list:sel:#r-ai",
+      "text": "AI Agent 整合應用：Node.js、npm 和 AI 程式助手",
+      "narration": "之後的 AI Agent 整合應用課，會用到 Node.js、npm 和 AI 程式助手。"
+    },
+    {
+      "hide": "list"
+    },
+    {
+      "show": "claude",
+      "chapter": "請 AI 一起跑",
+      "narration": "八項一個一個打指令也可以，不過我們請 AI 程式助手一起跑，你負責看結果。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我跑一次開發環境總檢查：node、npm、git 的版本，git 的名字和 email，VS Code 的 code 指令，能不能推送到 GitHub。只檢查，不要安裝或修改任何東西，最後列成表",
+      "narration": "重點是最後兩句：只檢查、不要安裝或修改任何東西，最後列成表。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "檢查 node、npm、git 的版本",
+          "doing"
+        ],
+        [
+          "檢查 git 的名字與 email",
+          "pending"
+        ],
+        [
+          "檢查 code 指令",
+          "pending"
+        ],
+        [
+          "試推送到 GitHub（不真的送出）",
+          "pending"
+        ],
+        [
+          "整理成表",
+          "pending"
+        ]
+      ],
+      "narration": "它先列出要檢查的項目，一項一項做。"
+    },
+    {
+      "on": "claude",
+      "ask": "node -v && npm -v && git --version",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/hello",
+      "note": "印出三個工具的版本，不會改動任何東西",
+      "narration": "第一個指令只是印出版本，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node -v && npm -v && git --version",
+      "result": "完成",
+      "out": "v24.11.1\n11.6.2\ngit version 2.50.1"
+    },
+    {
+      "on": "claude",
+      "ask": "git config user.name; git config user.email",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/hello",
+      "note": "讀出 Git 設定的名字與 email",
+      "narration": "接著讀 Git 的名字和 email，一樣只是讀，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git config user.name; git config user.email",
+      "result": "完成",
+      "out": "小安",
+      "narration": "結果只印出名字，email 那一行是空的。"
+    },
+    {
+      "on": "claude",
+      "ask": "code --version && git push --dry-run",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/hello",
+      "note": "查 code 指令；--dry-run 只是試推送，不會真的送出",
+      "narration": "最後是 code 指令和試推送。dash dash dry run 的意思是演練一次，不會真的送出任何東西。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "code --version && git push --dry-run",
+      "result": "完成",
+      "out": "1.105.1\nEverything up-to-date"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "檢查 node、npm、git 的版本",
+          "done"
+        ],
+        [
+          "檢查 git 的名字與 email",
+          "done"
+        ],
+        [
+          "檢查 code 指令",
+          "done"
+        ],
+        [
+          "試推送到 GitHub（不真的送出）",
+          "done"
+        ],
+        [
+          "整理成表",
+          "done"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "檢查結果：\n✓ Node.js v24.11.1、npm 11.6.2\n✓ Git 2.50.1\n✓ Git 名字：小安\n✕ Git email：**沒有設定**\n✓ code 指令 1.105.1\n✓ 可以推送到 GitHub\n\n只有 email 沒設定。我沒有修改任何設定，要設定的話告訴我你要用的 email。",
+      "narration": "它整理成一張表：只有 email 沒設定，也說了它沒有改任何東西。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "list",
+      "chapter": "對照檢查表",
+      "narration": "回到檢查表，把結果一項一項勾起來。"
+    },
+    {
+      "on": "list",
+      "click": "#r-node .st"
+    },
+    {
+      "on": "list",
+      "click": "#r-npm .st"
+    },
+    {
+      "on": "list",
+      "click": "#r-git .st"
+    },
+    {
+      "on": "list",
+      "click": "#r-user .st",
+      "narration": "名字與 email 這一項沒過。"
+    },
+    {
+      "on": "list",
+      "click": "#r-push .st"
+    },
+    {
+      "on": "list",
+      "click": "#r-code .st"
+    },
+    {
+      "on": "list",
+      "click": "#r-ai .st",
+      "narration": "AI 程式助手剛才讀得到專案資料夾，也算通過。"
+    },
+    {
+      "callout": "list:sel:#r-user",
+      "text": "沒有 email，之後 commit 會被拒絕，或記成電腦自己猜的地址",
+      "narration": "沒設定 email，之後存檔時 Git 可能拒絕，或記成電腦自己猜的地址，GitHub 也就認不出是你。我們自己把它設好。"
+    },
+    {
+      "hide": "list"
+    },
+    {
+      "show": "term",
+      "chapter": "修好沒過的那一項",
+      "narration": "打開終端機。這一行設定你自己打，email 用你註冊 GitHub 的那一個。"
+    },
+    {
+      "on": "term",
+      "type": "git config --global user.email \"an@example.com\"",
+      "narration": "git config dash dash global user.email，後面接你的 email。dash dash global 代表這台電腦上的所有專案都用它。"
+    },
+    {
+      "on": "term",
+      "type": "git config user.email",
+      "out": "an@example.com",
+      "tone": "ok",
+      "narration": "再讀一次，email 出現了。"
+    },
+    {
+      "hide": "term"
+    },
+    {
+      "show": "list",
+      "narration": "回到檢查表，這一項改成通過。"
+    },
+    {
+      "on": "list",
+      "click": "#r-user .st"
+    },
+    {
+      "on": "list",
+      "fill": {
+        "#url": "https://an.github.io"
+      },
+      "narration": "最後一項，填上你的個人頁網址，用瀏覽器打開，確認看得到。"
+    },
+    {
+      "on": "list",
+      "click": "#r-site .st",
+      "narration": "八項全部通過。"
+    },
+    {
+      "callout": "list:sel:#done",
+      "text": "全部通過，再進下一個單元",
+      "narration": "環境準備好了。以後換了新電腦，或很久沒用了，也可以拿這張表再跑一次。"
+    },
+    {
+      "hide": "list"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "你請 AI「只檢查，不要修改」。它回報：「全部正常，我順便把 Node.js 更新到最新版了。」你怎麼做？",
+      "body": "選一個。",
+      "id": "only-check",
+      "options": [
+        {
+          "label": "太好了，更新總是好事",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "你說只檢查，它卻改了東西；新版本也可能和專案不相容",
+              "narration": "你明明說只檢查，它卻改了東西。新版本也可能和你的專案不相容。這時要請它說明改了什麼、怎麼還原。"
+            },
+            {
+              "card": "答案：請它說明改了什麼、怎麼還原",
+              "eyebrow": "判斷看看",
+              "sub": "做了你沒要求的事，先弄清楚影響，再決定要不要留",
+              "narration": "AI 做了你沒要求的事，先請它說明改了什麼、怎麼還原，弄清楚影響再決定要不要留。"
+            }
+          ]
+        },
+        {
+          "label": "請它說明改了什麼、怎麼還原",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "做了你沒要求的事，先弄清楚影響，再決定要不要留",
+              "narration": "答對了。AI 做了你沒要求的事，先請它說明改了什麼、怎麼還原，再決定要不要留。下次也可以把權限模式設成每一步都要你同意。"
+            }
+          ]
+        },
+        {
+          "label": "整台電腦重灌比較保險",
+          "steps": [
+            {
+              "card": "不用這麼嚴重",
+              "eyebrow": "判斷看看",
+              "sub": "先弄清楚它改了什麼，大多可以直接還原",
+              "narration": "不用這麼嚴重。先弄清楚它改了什麼，大多可以直接還原。"
+            },
+            {
+              "card": "答案：請它說明改了什麼、怎麼還原",
+              "eyebrow": "判斷看看",
+              "sub": "做了你沒要求的事，先弄清楚影響，再決定要不要留",
+              "narration": "AI 做了你沒要求的事，先請它說明改了什麼、怎麼還原，弄清楚影響再決定要不要留。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "show": "road",
+      "chapter": "下一步",
+      "narration": "環境就緒了。最後看看接下來的路。"
+    },
+    {
+      "on": "road",
+      "appear": [
+        "git",
+        "env>git"
+      ],
+      "narration": "下一個單元是版本管理：每次改完先看再存，改壞了也救得回來。"
+    },
+    {
+      "on": "road",
+      "appear": [
+        "dir",
+        "git>dir",
+        "seo",
+        "dir>seo"
+      ],
+      "narration": "接著整理專案結構，再補齊網站上線需要的 SEO 和流量分析。"
+    },
+    {
+      "on": "road",
+      "appear": [
+        "test",
+        "seo>test"
+      ],
+      "narration": "然後學自動化測試，讓 AI 改程式時不會改壞別的功能。"
+    },
+    {
+      "on": "road",
+      "appear": [
+        "agent",
+        "test>agent"
+      ],
+      "narration": "這些都會了，就可以進 AI Agent 整合應用課。"
+    },
+    {
+      "on": "road",
+      "send": "env>git",
+      "label": "出發",
+      "tone": "ok"
+    },
+    {
+      "hide": "road"
+    },
+    {
+      "card": "動手做：跑完你的環境檢查表",
+      "eyebrow": "練習",
+      "sub": "請 AI「只檢查、不修改」，對照八項逐一打勾；沒過的自己修好，最後附上個人頁網址",
+      "chapter": "動手做",
+      "narration": "換你試試看。請 AI 程式助手只檢查不修改，對照這八項逐一打勾。沒過的自己修好，最後附上你的個人頁網址。"
+    },
+    {
+      "card": "照清單逐項檢查\n請 AI「只檢查，不修改」\n沒過的修好再出發",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：git config、--global、--dry-run",
+      "chapter": "學會",
+      "narration": "照清單逐項檢查，請 AI 只檢查、不修改，沒過的項目自己修好再出發。下一個單元，我們開始用 Git 好好管理版本。"
+    }
+  ]
+}

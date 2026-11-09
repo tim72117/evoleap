@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>接舊的還是開新的</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="top"><div class="ttl">接舊的對話，還是開新的？</div>
+  <div class="tabs"><button class="tab" data-go="1">接舊的</button><button class="tab" data-go="2">開新的</button><button class="tab" data-go="3">去哪裡找</button></div></div>
+  <div class="cols">
+    <div class="c old r1"><div class="h">↩ 接舊的對話</div><ul><li>同一件事，昨天沒做完</li><li>前面講好的規則、決定還要用</li><li>要 AI 記得剛才改過哪裡</li></ul></div>
+    <div class="c new r2"><div class="h">＋ 開新的對話</div><ul><li>換一件不相干的事</li><li>對話太長，AI 開始忘記、回答變慢</li><li>（先請 AI 整理摘要，帶著摘要開新的）</li></ul></div>
+  </div>
+  <div class="where r3">
+    <div class="w"><b>桌面 App</b><span>左側的對話清單</span></div>
+    <div class="w"><b>網頁版</b><span>對話紀錄、搜尋</span></div>
+    <div class="w"><b>終端機</b><span>繼續的指令，例如 <i class="mono">claude --continue</i></span></div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

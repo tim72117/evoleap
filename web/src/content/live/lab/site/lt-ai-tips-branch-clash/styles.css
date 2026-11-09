@@ -1,0 +1,29 @@
+* { box-sizing: border-box; }
+#app { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif; color: #1f2328; background: #f6f4ef; min-height: 100%; font-size: 20px; line-height: 1.5; }
+button { font: inherit; cursor: pointer; }
+.btn { border: 0; background: #2f6fde; color: #fff; border-radius: 10px; padding: 8px 18px; font-weight: 700; font-size: 18px; }
+.btn.ghost { background: #fff; color: #2f6fde; border: 2px solid #2f6fde; }
+.muted { color: #6b7480; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.r1, .r2, .r3, .r4, .r5, .r6 { visibility: hidden; }
+.on1 .r1, .on2 .r2, .on3 .r3, .on4 .r4, .on5 .r5, .on6 .r6 { visibility: visible; }
+.tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+.tab { border: 2px solid #cfd6df; background: #fff; border-radius: 999px; padding: 6px 18px; font-size: 18px; color: #33404d; }
+.tab.cur { background: #1f2328; color: #fff; border-color: #1f2328; }
+#app { padding: 22px 40px; min-height: 720px; }
+.top { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.ttl { font-size: 32px; font-weight: 800; }
+.row { display: flex; align-items: center; justify-content: center; gap: 24px; }
+.who { width: 150px; text-align: center; font-size: 22px; font-weight: 800; border-radius: 14px; padding: 12px; color: #fff; }
+.who small { font-size: 15px; font-weight: 400; }
+.wa { background: #b5733d; } .wb { background: #444; }
+.file { width: 520px; background: #1f2328; color: #e6edf3; border-radius: 14px; padding: 14px 18px; font-family: "SF Mono", Menlo, monospace; }
+.fn { color: #9aa3ad; font-size: 16px; margin-bottom: 6px; }
+.ln { font-size: 20px; padding: 3px 0; }
+.ln i { font-style: normal; font-size: 15px; color: #f2c14e; font-family: -apple-system, sans-serif; }
+.on2 .a2 { display: none; }
+.b2 { background: rgba(196,60,60,.25); }
+.res { margin: 18px auto; text-align: center; font-size: 24px; background: #fde8e8; color: #9b2c2c; border-radius: 14px; padding: 10px; max-width: 900px; }
+.on4 .one, .on4 .res { opacity: .3; }
+.two { margin-top: -10px; }
+.file.small { width: 300px; border: 3px solid #1f8a5b; }

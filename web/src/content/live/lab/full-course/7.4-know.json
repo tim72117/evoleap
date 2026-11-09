@@ -1,0 +1,170 @@
+{
+  "title": "一個檔案一件事：模組、介面與型別",
+  "lesson": "全環節 · 單元 7 · 7.4 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天學把程式切開",
+    "line": "今天要來看，為什麼要把一個大檔案切成好幾個小檔案；切開之後，各部分怎麼靠介面和型別約好彼此怎麼互動。"
+  },
+  "blocking": {
+    "cast": [
+      "mods",
+      "code"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "mods": {
+      "actor": "browser",
+      "props": {
+        "site": "fc7-4-modules",
+        "width": "desktop",
+        "url": "https://diagram.example/modules"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": {
+        "project": "shop",
+        "files": {
+          "src/types.ts": ""
+        }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "一個檔案一件事",
+      "eyebrow": "全環節 · 單元 7 · 7.4 基礎知識",
+      "sub": "模組、介面與型別",
+      "chapter": "一個什麼都做的檔案",
+      "narration": "想像一間餐廳的廚房，只有一個人：備料、炒菜、擺盤、洗碗全包。他一忙就亂，換人來幫忙也不知道從哪裡接手。程式也一樣。"
+    },
+    {
+      "show": "mods",
+      "narration": "這是一個購物小網站的 app.js，820 行。商品資料、購物車、金額格式、畫面更新全在裡面，商品資料還寫了兩份。"
+    },
+    {
+      "callout": "mods:sel:.big",
+      "text": "要改購物車，得先讀完 820 行",
+      "narration": "要改購物車的一個小地方，你或 AI 都得先讀完整個檔案，才敢確定不會動到別的。AI 一次讀進去的東西越多，越容易看漏、改錯。"
+    },
+    {
+      "on": "mods",
+      "click": "#split",
+      "chapter": "切開：模組",
+      "narration": "把它切開。每個檔案只做一件事：product 管商品資料、cart 管購物車、format 管金額格式、ui 管畫面。每一個這樣的檔案，叫做模組。"
+    },
+    {
+      "callout": "mods:sel:.mods",
+      "text": "要改購物車？只要讀 cart.ts",
+      "narration": "現在要改購物車，只要打開 cart.ts。檔名就說明了它負責什麼。"
+    },
+    {
+      "callout": "mods:sel:.type",
+      "text": "介面：大家約好「商品長什麼樣子」",
+      "chapter": "介面與型別：說好怎麼交接",
+      "narration": "切開之後，模組之間要交接資料。就像廚房的出菜單，大家要約好上面寫什麼。這份約定叫介面。"
+    },
+    {
+      "show": "code",
+      "narration": "在 TypeScript 裡，約定寫成型別。"
+    },
+    {
+      "on": "code",
+      "type": "export type Product = {\n  name: string\n  price: number\n}\n",
+      "narration": "這幾行的意思是：一個商品，一定有 name 名稱，是文字；還有 price 價格，是數字。"
+    },
+    {
+      "callout": "code:code",
+      "text": "型別：資料的形狀，寫錯了檢查工具會抓",
+      "narration": "有了型別，誰把價格寫成文字，或是拼錯欄位名稱，型別檢查都會在執行之前就指出來。"
+    },
+    {
+      "on": "mods",
+      "click": "#rename",
+      "chapter": "改一個名字，看誰跟著壞",
+      "narration": "來做個實驗。把 price 改名成 unitPrice。"
+    },
+    {
+      "callout": "mods:sel:.err",
+      "text": "型別檢查列出：3 個地方還在用舊名字",
+      "narration": "cart、format、ui 三個模組還在用舊名字，紅線斷掉了。型別檢查一次把三個地方都列出來，連在哪一行都說得出來。沒有型別的話，要等網頁打開、價格變成空白，你才會發現。"
+    },
+    {
+      "on": "mods",
+      "click": "#fix",
+      "narration": "照著清單改好，檢查通過，零個錯誤。"
+    },
+    {
+      "card": "AI 只要讀一個小檔案\n改錯了型別檢查會抓\n每個人都知道去哪裡改",
+      "eyebrow": "切開的好處",
+      "sub": "模組 = 一個檔案一件事；介面 = 模組之間的約定",
+      "chapter": "切開的好處",
+      "narration": "切開之後，AI 每次只要讀一個小檔案；改錯了，型別檢查會抓；每個人都知道該去哪裡改。"
+    },
+    {
+      "checkpoint": "你把 Product 的 price 改名成 unitPrice，型別檢查出現 3 個錯誤。這代表什麼？",
+      "body": "選一個。",
+      "id": "type-error",
+      "options": [
+        {
+          "label": "還有 3 個地方沒跟著改，照清單改就好",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "考考你",
+              "sub": "型別錯誤就是一份漏改清單",
+              "narration": "答對了。型別錯誤就是一份漏改清單，照著改完就好。"
+            }
+          ]
+        },
+        {
+          "label": "改名失敗了，要改回來",
+          "steps": [
+            {
+              "card": "不用改回來",
+              "eyebrow": "考考你",
+              "sub": "錯誤是在幫你找漏改的地方",
+              "narration": "改名沒有失敗，型別檢查只是在幫你找還沒跟著改的地方。"
+            },
+            {
+              "card": "答案：照清單把 3 個地方改好",
+              "eyebrow": "考考你",
+              "sub": "型別錯誤就是一份漏改清單",
+              "narration": "照清單把三個地方改好就行了。"
+            }
+          ]
+        },
+        {
+          "label": "型別檢查太囉唆，關掉它",
+          "steps": [
+            {
+              "card": "千萬不要",
+              "eyebrow": "考考你",
+              "sub": "關掉之後，錯誤會在使用者面前才出現",
+              "narration": "關掉它，錯誤不會消失，只會等到使用者打開網頁才出現。"
+            },
+            {
+              "card": "答案：照清單把 3 個地方改好",
+              "eyebrow": "考考你",
+              "sub": "型別錯誤就是一份漏改清單",
+              "narration": "照清單把三個地方改好就行了。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "模組：一個檔案一件事\n介面：模組之間的約定\n型別：把約定寫下來，讓工具檢查",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 拆檔，再故意改一個欄位名稱",
+      "chapter": "學會",
+      "narration": "模組是一個檔案一件事，介面是模組之間的約定，型別把約定寫下來，讓工具幫你檢查。下一堂，我們請 AI 拆檔，再故意改一個名字，看型別檢查怎麼抓。"
+    }
+  ]
+}

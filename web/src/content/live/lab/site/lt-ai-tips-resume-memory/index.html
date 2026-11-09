@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>每段對話是一本筆記本</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="top"><div class="ttl">每一段對話，都是一本自己的筆記本</div>
+  <div class="tabs"><button class="tab" data-go="1">昨天那本</button><button class="tab" data-go="2">今天開新的</button><button class="tab" data-go="3">翻回昨天那本</button><button class="tab" data-go="4">寫滿了怎麼辦</button></div></div>
+  <div class="desk">
+    <div class="book old r1">
+      <div class="bt">📒 昨天：小森烘焙網站</div>
+      <ul><li>風格：溫暖手作風</li><li>只用 index.html、styles.css</li><li>價格、營業時間先留空，等老闆確認</li><li>做到：營業時間區塊做一半</li></ul>
+    </div>
+    <div class="book new r2">
+      <div class="bt">📓 今天：新的對話</div>
+      <div class="emp">（一片空白）</div>
+    </div>
+    <div class="ai r2">🤖 AI 只看得到<br><b class="w2">你打開的這一本</b></div>
+    <div class="sum r4">
+      <div class="bt">📒 寫滿了 → 先請 AI 整理摘要</div>
+      <div class="mini">規則 4 條 · 進度 · 下一步</div>
+      <div class="arr">⟶ 帶著摘要開新的一本</div>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

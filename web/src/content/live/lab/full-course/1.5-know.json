@@ -1,0 +1,98 @@
+{
+  "title": "給 AI 的一份新人須知",
+  "camera": "auto",
+  "teacher": {
+    "say": "一份每次都會被讀的檔案",
+    "line": "你是不是常常要跟 AI 重講同樣的規矩？今天認識專案說明檔：寫一次，每個新對話都會先讀它。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc1-5-memory", "url": "https://course.example/explain/project-memory" },
+      "place": "window",
+      "hidden": true
+    },
+    "ed": {
+      "actor": "editor",
+      "props": { "project": "bakery", "files": { "index.html": "<h1>小森烘焙</h1>\n" } },
+      "place": { "x": 260, "y": 110, "w": 1400, "h": 800 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "給 AI 的一份新人須知",
+      "eyebrow": "全環節 · 單元 1 · 1.5 基礎知識",
+      "sub": "專案說明檔：CLAUDE.md、AGENTS.md",
+      "chapter": "每次都要重講",
+      "narration": "想像你每次請新的工讀生來店裡幫忙，都要重新交代一遍規矩。很累，對吧？AI 也是這樣。"
+    },
+    {
+      "show": "web",
+      "narration": "這是同一個專案，三天、三次對話。"
+    },
+    {
+      "callout": "web:sel:.p1 .row",
+      "text": "每個新對話都是一張白紙",
+      "narration": "星期一，你交代：用繁體中文、不要動 .env 這個檔案。星期三，再交代一次。星期五你忘了說，它就照自己的習慣，回英文，還改了 .env。"
+    },
+    {
+      "on": "web",
+      "click": "#with",
+      "chapter": "寫一次，每次都讀",
+      "narration": "換個做法：把規矩寫在專案裡的一個檔案。"
+    },
+    {
+      "callout": "web:sel:.file",
+      "text": "CLAUDE.md：每次開新對話，先讀這份",
+      "narration": "這個檔案叫做專案說明檔。用 Claude Code 的話叫 CLAUDE.md，其他工具常用 AGENTS.md。每次開新對話，它都會先讀這份檔案。"
+    },
+    {
+      "callout": "web:sel:.a.ok",
+      "text": "連你忘了說，它也照規矩來",
+      "narration": "所以星期五就算你隨口說要改 .env，它也會想起規定，先停下來跟你確認。"
+    },
+    { "hide": "web" },
+    {
+      "show": "ed",
+      "chapter": "裡面寫什麼",
+      "narration": "這份檔案就是一般的文字檔。我們打開來寫寫看。"
+    },
+    { "on": "ed", "open": "CLAUDE.md" },
+    {
+      "on": "ed",
+      "type": "# 小森烘焙網站\n手作麵包店的預訂網站，客人多半用手機。\n\n",
+      "narration": "第一段，一兩句話說這個專案在做什麼、給誰用。"
+    },
+    {
+      "on": "ed",
+      "type": "## 慣例\n- 回覆一律用繁體中文\n- 改完要跑 npm test，通過才算完成\n\n",
+      "narration": "第二段是慣例：你希望它每次都照做的事，例如用什麼語言回覆、改完要跑哪個測試。"
+    },
+    {
+      "on": "ed",
+      "type": "## 禁止\n- 不要修改 .env（裡面是密鑰）\n- 不要直接推到 main\n",
+      "narration": "第三段是禁止事項：碰了會出事的東西，寫清楚原因更好。"
+    },
+    {
+      "callout": "ed:code",
+      "text": "短、具體、照做得到",
+      "narration": "寫的原則是：短、具體、照做得到。每一條都像給新同事的一句交代。"
+    },
+    {
+      "card": "不要寫進去的東西",
+      "sub": "密碼與金鑰（它會被讀、可能被上傳）　·　很長的文件（放連結就好）　·　模糊的願望（「寫好一點」）",
+      "narration": "有三樣東西不要寫進去：密碼和金鑰，因為這份檔案會被讀、也會跟著程式碼上傳；很長的文件，放個連結就好；還有像「寫好一點」這種做不到的願望。"
+    },
+    {
+      "checkpoint": "考考你：下面哪一個「不該」寫進 CLAUDE.md？",
+      "body": "A. 測試指令 npm test　B. 資料庫的密碼　C. 檔案命名用小寫加連字號。答案是 B：密碼要放在 .env 或密碼管理器，不放進會被讀、會被上傳的說明檔。"
+    },
+    {
+      "card": "寫一次，每個新對話都照做",
+      "eyebrow": "1.5 重點",
+      "sub": "專案在做什麼 · 慣例 · 禁止事項",
+      "narration": "總結：專案說明檔寫三件事：專案在做什麼、慣例、禁止事項。寫一次，每個新對話都會先讀它。下一堂請 AI 幫你起草一份。"
+    }
+  ]
+}

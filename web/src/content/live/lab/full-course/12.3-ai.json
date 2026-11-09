@@ -1,0 +1,126 @@
+{
+  "title": "檔案與圖片上傳",
+  "lesson": "全環節 · 單元 12 · 12.3 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "teacher": {
+    "say": "交代清楚，讓 AI 一次做完",
+    "line": "這一堂把上傳功能整個交給 AI：串接雲端儲存、自動產生縮圖，還要它自己上傳幾種檔案測試。重點是一開始就交代清楚，怎樣才算完成。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "照片上傳", "folder": "~/projects/shop", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc12-3-gallery", "width": "desktop", "url": "https://shop.example/admin/photos" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "檔案與圖片上傳",
+      "eyebrow": "全環節 · 單元 12 · 12.3 用 AI 完成",
+      "sub": "一次交代：存哪裡、收什麼、多大、縮圖，還有怎樣算完成",
+      "chapter": "一次交代清楚",
+      "narration": "上一堂說過，做上傳要決定四件事。這次把四件事和完成的標準一起交代，讓 AI 自己做、自己驗證。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫後台的商品照片做上傳：存在雲端儲存（Cloud Storage，台灣機房），只收 jpg、png、webp，每張最大 10 MB，上傳後自動產生 300 像素寬的縮圖。\n完成的標準：你自己上傳四種檔案測試——一般照片、超過 10 MB 的照片、exe 檔、webp——該過的過、該擋的擋並顯示原因，而且雲端上看得到原圖和縮圖。",
+      "narration": "四個決定、加上完成的標準：要它自己用四種檔案測試，該過的過、該擋的擋，雲端上要看得到原圖和縮圖。"
+    },
+    {
+      "on": "claude",
+      "todos": [["建立雲端儲存空間", "doing"], ["上傳 API：檢查大小與格式", "pending"], ["產生 300px 縮圖", "pending"], ["用四種檔案測試", "pending"], ["確認雲端上的檔案", "pending"]],
+      "narration": "它先排出五個步驟。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud storage buckets create gs://shop-uploads --location=asia-east1",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "在台灣機房建立一個儲存空間（bucket）",
+      "chapter": "AI 自己做",
+      "narration": "第一步要在雲端建立儲存空間，英文叫 bucket，就是那個倉庫。這會在你的雲端帳號新增東西，所以它先問你。位置是台灣機房，跟你說的一樣，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud storage buckets create gs://shop-uploads --location=asia-east1",
+      "result": "已建立",
+      "out": "Creating gs://shop-uploads/..."
+    },
+    {
+      "on": "claude",
+      "edit": "src/api/upload.ts",
+      "lines": [[1, "+", "const TYPES = ['image/jpeg', 'image/png', 'image/webp']"], [2, "+", "const MAX = 10 * 1024 * 1024 // 10 MB"], [3, "+", "if (!TYPES.includes(file.type)) return fail(400, '只能上傳 jpg、png、webp')"], [4, "+", "if (file.size > MAX) return fail(413, `檔案太大（${mb(file.size)}），上限 10 MB`)"], [5, "+", "await bucket.save(`originals/${id}`, file)"], [6, "+", "await bucket.save(`thumbs/${id}.webp`, await resize(file, 300))"]],
+      "narration": "上傳的程式：先檢查格式和大小，擋下來時寫出原因；通過的存原圖，再另存一份三百像素寬的縮圖。"
+    },
+    {
+      "on": "claude",
+      "todos": [["建立雲端儲存空間", "done"], ["上傳 API：檢查大小與格式", "done"], ["產生 300px 縮圖", "done"], ["用四種檔案測試", "doing"], ["確認雲端上的檔案", "pending"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/try-upload.mjs cat.jpg big-18mb.png quote.exe dessert.webp",
+      "result": "2 個通過、2 個擋下",
+      "out": "cat.jpg       200 ✓ 已上傳\nbig-18mb.png  413 ✗ 檔案太大（18 MB），上限 10 MB\nquote.exe     400 ✗ 只能上傳 jpg、png、webp\ndessert.webp  200 ✓ 已上傳",
+      "chapter": "AI 自己驗證",
+      "narration": "接著它照你說的，自己準備四種檔案上傳。照片和 webp 通過；太大的和 exe 被擋下，原因也寫得清清楚楚。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud storage ls -l gs://shop-uploads/**",
+      "result": "4 個檔案",
+      "out": "  2202009  originals/cat.jpg\n    31744  thumbs/cat.webp\n   921600  originals/dessert.webp\n    18432  thumbs/dessert.webp",
+      "narration": "再到雲端儲存列出檔案：原圖和縮圖都在，縮圖只有三十 KB 左右。被擋下的檔案，沒有留在雲端。"
+    },
+    {
+      "on": "claude",
+      "todos": [["建立雲端儲存空間", "done"], ["上傳 API：檢查大小與格式", "done"], ["產生 300px 縮圖", "done"], ["用四種檔案測試", "done"], ["確認雲端上的檔案", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成了，對照你的標準：\n- 一般照片、webp：上傳成功，原圖與縮圖都在雲端 ✓\n- 18 MB 照片：擋下，顯示「檔案太大」✓\n- exe：擋下，顯示「只能上傳 jpg、png、webp」✓\n\n後台的照片頁已經改成顯示縮圖，你可以打開看看。",
+      "narration": "它對照你一開始給的標準，一條一條回報。這就是先講清楚完成標準的好處：你不用猜它到底做完沒。"
+    },
+    {
+      "show": "web",
+      "chapter": "你看一眼",
+      "narration": "最後你自己打開後台看一眼。照片列表顯示的是縮圖，被擋下的檔案也有清楚的原因。"
+    },
+    {
+      "callout": "web:sel:#err",
+      "text": "擋下的檔案寫出原因，使用者知道怎麼辦",
+      "narration": "錯誤訊息寫出原因和上限，使用者就知道要怎麼辦。"
+    },
+    {
+      "callout": "web:sel:#grid",
+      "text": "列表用縮圖：每張只有十幾、二十幾 KB",
+      "narration": "列表每張都只有二三十 KB，頁面打開很快。"
+    },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：交代上傳功能",
+      "body": "照「存哪裡、收什麼、多大、縮圖」交代給 AI，並寫出完成標準：讓它自己上傳幾種檔案測試，回報哪些過、哪些擋、雲端上有什麼。"
+    },
+    {
+      "card": "四個決定 + 完成標準\nAI 自己測、自己對照回報",
+      "eyebrow": "學會",
+      "sub": "會動到雲端帳號的指令，看清楚再允許",
+      "chapter": "學會",
+      "narration": "交代時說清楚四個決定和完成標準，AI 就能自己測試、自己對照回報。會在雲端帳號新增東西的指令，看清楚位置和名稱再允許。"
+    }
+  ]
+}

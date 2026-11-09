@@ -1,0 +1,103 @@
+{
+  "title": "訂單放在哪：什麼時候需要資料庫",
+  "lesson": "全環節 · 單元 9 · 9.1 基礎知識",
+  "teacher": {
+    "say": "今天看資料要放哪裡",
+    "line": "今天我們看網站的資料要放在哪裡。從最簡單的一個檔案開始，看它什麼時候會出問題，再認識三種常見的資料庫。"
+  },
+  "cast": {
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "兩位客人同時下單",
+        "nodes": {
+          "a": { "label": "客人甲", "icon": "phone", "x": 12, "y": 25 },
+          "b": { "label": "客人乙", "icon": "phone", "x": 12, "y": 75 },
+          "server": { "label": "伺服器", "icon": "server", "x": 44, "y": 50 },
+          "file": { "label": "orders.json", "sub": "一個檔案，目前 5 筆", "icon": "file", "x": 80, "y": 50 }
+        },
+        "links": [["a", "server"], ["b", "server"], ["server", "file"]]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc9-1-compare", "url": "https://learn.example/where-to-store" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "訂單放在哪？",
+      "eyebrow": "全環節 · 單元 9 · 9.1 基礎知識",
+      "sub": "檔案、SQLite、Postgres、Firestore 的差別",
+      "chapter": "一個檔案就夠嗎",
+      "narration": "小森烘焙一開始很簡單：每筆訂單，寫進一個叫 orders.json 的檔案。客人少的時候，這樣完全沒問題。"
+    },
+    { "show": "flow", "narration": "可是有一天，兩位客人幾乎同時按下送出。" },
+    { "send": ["a", "server"], "label": "訂 2 個可頌", "keep": false },
+    { "send": ["server", "file"], "label": "讀出 5 筆", "tone": "data", "narration": "伺服器處理客人甲：先把檔案讀出來，裡面有 5 筆。" },
+    { "send": ["b", "server"], "label": "訂 1 個肉桂捲", "keep": false, "narration": "還沒寫回去，客人乙的訂單也到了。" },
+    { "send": ["file", "server"], "label": "也讀到 5 筆", "tone": "data", "narration": "處理乙的時候讀到的，也是同樣的 5 筆。" },
+    { "send": ["server", "file"], "label": "寫回 6 筆（加甲）", "tone": "warn", "narration": "甲的處理完成：5 筆加上甲，寫回 6 筆。" },
+    { "send": ["server", "file"], "label": "寫回 6 筆（加乙）", "tone": "bad", "narration": "乙的也完成：5 筆加上乙，也寫回 6 筆，把剛剛那份蓋掉了。" },
+    {
+      "pulse": "file",
+      "text": "只剩 6 筆：甲的訂單不見了",
+      "tone": "bad",
+      "narration": "結果檔案裡只有 6 筆，客人甲的訂單憑空消失。沒有任何錯誤訊息，只是少了一筆。"
+    },
+    { "tidy": true },
+    {
+      "pulse": "file",
+      "label": "資料庫",
+      "sub": "專門管資料的程式",
+      "icon": "db",
+      "text": "一筆一筆排隊寫入：7 筆都在",
+      "tone": "ok",
+      "chapter": "資料庫在管什麼",
+      "narration": "資料庫就是專門處理這種事的程式。很多人同時寫，它會讓動作排好隊，一筆都不會掉；還能很快地查詢、加總、排序。"
+    },
+    { "hide": "flow" },
+    {
+      "show": "web",
+      "chapter": "四種常見的選擇",
+      "narration": "資料可以放在哪裡？常見的有四種，我們從最簡單的開始。"
+    },
+    { "on": "web", "click": "#o-file", "narration": "檔案，像一本筆記本。最簡單，但就像剛剛看到的，兩個人同時寫會互相蓋掉。適合放設定、或很少改的資料。" },
+    { "on": "web", "click": "#o-sqlite", "narration": "SQLite 是一個檔案就是一個資料庫，像抽屜裡的檔案櫃。能用查詢語言找資料、速度很快；但它在一台電腦上，好幾台伺服器要共用就麻煩。" },
+    { "on": "web", "click": "#o-pg", "narration": "Postgres 是獨立的資料庫伺服器，像銀行金庫，有專人管理。很多人同時讀寫也穩，適合有會員、訂單、金流的正式網站；代價是要另外開一個服務，每月有費用。" },
+    { "on": "web", "click": "#o-fs", "narration": "Firestore 是雲端的文件資料庫，手機和網頁能即時同步，適合聊天、協作的 App；要做複雜的統計比較麻煩。" },
+    { "callout": "web:sel:.opts", "text": "沒有最好的，只有最適合你現在的", "narration": "沒有哪一種最好。要看資料多不多、幾個人同時寫、網站放在哪裡、要不要做統計。" },
+    {
+      "chapter": "選選看",
+      "checkpoint": "你想做一個只有自己用的記帳小工具，放在自己的電腦上，偶爾想查「這個月花最多的是什麼」。哪一種最適合？",
+      "body": "選一個。",
+      "id": "pickdb",
+      "options": [
+        {
+          "label": "Postgres",
+          "steps": [{ "card": "能用，但太重了", "eyebrow": "再想想", "sub": "只有你一個人、在一台電腦上，不需要另外開資料庫伺服器", "narration": "能用，但太重了。只有你一個人用，不需要另外開資料庫伺服器。" }]
+        },
+        {
+          "label": "SQLite",
+          "steps": [{ "card": "答對了", "eyebrow": "選選看", "sub": "一個檔案、不用另外裝伺服器，又能查詢加總", "narration": "答對了。SQLite 一個檔案就搞定，又能做「這個月花最多」這種查詢。" }]
+        },
+        {
+          "label": "Firestore",
+          "steps": [{ "card": "即時同步用不到", "eyebrow": "再想想", "sub": "它擅長多人即時同步；統計查詢反而比較麻煩", "narration": "Firestore 擅長多人即時同步，這個工具用不到；統計查詢反而比較麻煩。比較適合的是 SQLite。" }]
+        }
+      ]
+    },
+    { "hide": "web" },
+    {
+      "card": "很多人同時寫、要查詢加總\n→ 需要資料庫",
+      "eyebrow": "學會",
+      "sub": "檔案：筆記本　SQLite：抽屜檔案櫃　Postgres：銀行金庫　Firestore：雲端共用筆記本",
+      "chapter": "學會",
+      "narration": "今天的重點：資料少又很少改，檔案就夠；很多人同時寫、要查詢加總，就需要資料庫。下一堂，請 AI 依你的專案比較，建議一種資料庫並說出理由。"
+    }
+  ]
+}

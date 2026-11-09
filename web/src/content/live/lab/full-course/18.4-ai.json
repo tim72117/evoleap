@@ -1,0 +1,132 @@
+{
+  "title": "權限與服務帳號",
+  "lesson": "全環節 · 單元 18 · 18.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "建立一個只會部署的機器人",
+    "line": "這一堂請 AI 建立部署用的服務帳號，只給需要的角色，並一個一個說明每個角色是做什麼的。最後再驗證它真的只有這些權限。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "部署用服務帳號",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "權限與服務帳號",
+      "eyebrow": "全環節 · 單元 18 · 18.4 用 AI 完成",
+      "sub": "只給需要的角色，每個角色說明清楚",
+      "chapter": "先試試偷懶",
+      "narration": "我們先故意偷個懶，看看 AI 怎麼回應。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我之後要把網站部署到 Cloud Run。幫我建一個服務帳號，直接給它 Owner 比較省事吧？",
+      "narration": "直接要它給擁有者的權限。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "我建議**不要給 Owner**。部署只需要三個角色；給 Owner 的話，這個帳號的鑰匙一旦外洩，別人可以刪資料庫、開機器、改權限。\n我的提議：建立 `deployer` 服務帳號，只給：\n1. **Cloud Run 開發者**（`roles/run.developer`）：部署、更新網站\n2. **Artifact Registry 寫入者**（`roles/artifactregistry.writer`）：上傳網站的映像檔\n3. **服務帳號使用者**（`roles/iam.serviceAccountUser`）：讓網站用指定的身分執行\n要照這個做嗎？"
+    },
+    {
+      "callout": "claude:say",
+      "text": "AI 提醒風險，並說明每個角色的用途",
+      "narration": "AI 沒有照做，而是提醒你風險，再提出只有三個角色的方案，每個角色都用白話說明用途。"
+    },
+    {
+      "on": "claude",
+      "user": "好，照你的提議。不要下載金鑰檔。",
+      "chapter": "建立服務帳號",
+      "narration": "同意它的方案。再加一句：不要下載金鑰檔。金鑰檔就是那把鑰匙本身，存在電腦裡最容易外洩。"
+    },
+    {
+      "on": "claude",
+      "say": "下一個指令：建立服務帳號 `deployer`。不會花錢，可以刪除。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud iam service-accounts create deployer",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud iam service-accounts create deployer \\\n  --display-name=\"部署用（只能部署網站）\""
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud iam service-accounts create deployer --display-name=\"部署用（只能部署網站）\"",
+      "result": "完成",
+      "out": "Created service account [deployer]."
+    },
+    {
+      "on": "claude",
+      "say": "下一步：把三個角色交給 `deployer@xiaosen-bakery-prod-2611.iam.gserviceaccount.com`。不會花錢，可以移除。",
+      "chapter": "只給三個角色"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud projects add-iam-policy-binding（3 個角色）",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "for r in run.developer artifactregistry.writer iam.serviceAccountUser; do\n  gcloud projects add-iam-policy-binding xiaosen-bakery-prod-2611 \\\n    --member=serviceAccount:deployer@…iam.gserviceaccount.com \\\n    --role=roles/$r\ndone"
+    },
+    { "on": "claude", "choose": 1, "narration": "看清楚是三個角色、給 deployer，允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for r in run.developer artifactregistry.writer iam.serviceAccountUser; do gcloud projects add-iam-policy-binding xiaosen-bakery-prod-2611 --member=serviceAccount:deployer@xiaosen-bakery-prod-2611.iam.gserviceaccount.com --role=roles/$r --condition=None -q >/dev/null && echo \"✓ roles/$r\"; done",
+      "result": "完成",
+      "out": "✓ roles/run.developer\n✓ roles/artifactregistry.writer\n✓ roles/iam.serviceAccountUser"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud projects get-iam-policy xiaosen-bakery-prod-2611 --flatten=bindings[].members --filter=\"bindings.members:deployer@\" --format='value(bindings.role)'",
+      "result": "完成",
+      "out": "roles/artifactregistry.writer\nroles/iam.serviceAccountUser\nroles/run.developer",
+      "chapter": "驗證：真的只有這些",
+      "narration": "最後從專案的權限表反查：deployer 身上真的只有這三個角色，沒有多的。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud iam service-accounts keys list --iam-account=deployer@xiaosen-bakery-prod-2611.iam.gserviceaccount.com --managed-by=user",
+      "result": "完成",
+      "out": "Listed 0 items.",
+      "narration": "也確認沒有任何你下載過的金鑰檔。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- `deployer` 只有 3 個角色：部署網站、上傳映像檔、指定網站執行身分\n- 沒有建立金鑰檔；之後部署時，我用你的登入「暫時扮演」deployer，不需要把鑰匙存在電腦裡\n- 它**不能**刪資料庫、看帳單、改權限"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "最後一行：它「不能」做什麼",
+      "narration": "好的回報，除了說能做什麼，也說清楚不能做什麼。你一看就知道風險在哪裡。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：建立部署用的服務帳號",
+      "body": "請 AI 建立一個部署用的服務帳號，只給需要的角色，並用白話說明每個角色；不要下載金鑰檔。最後請它反查權限表，確認只有這些角色。"
+    },
+    {
+      "card": "服務帳號只給需要的角色\n每個角色都說得出用途",
+      "eyebrow": "學會",
+      "sub": "不給 Owner、不下載金鑰檔；最後反查權限表驗證",
+      "chapter": "學會",
+      "narration": "服務帳號只給需要的角色，每個角色都說得出用途；不給 Owner、不下載金鑰檔，最後反查權限表確認。現在你有一個只會部署網站的機器人了。"
+    }
+  ]
+}

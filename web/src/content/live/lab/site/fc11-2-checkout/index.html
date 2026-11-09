@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>小森烘焙｜結帳</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="testbar">測試模式：不會真的扣款，只能用測試卡號</div>
+<header class="top" style="--brand:#b45309"><div class="logo"><i></i>小森烘焙</div><span class="sp"></span><span class="who">結帳</span></header>
+<div class="wrap">
+  <div class="card sum"><h2>訂單</h2><div class="li"><span>可頌 × 1</span><span>NT$ 65</span></div><div class="li tot"><span>合計</span><span>NT$ 65</span></div></div>
+  <div class="card pay" id="payBox">
+    <h2>信用卡付款</h2>
+    <label for="card">卡號</label><input id="card" type="text" placeholder="1234 1234 1234 1234">
+    <div class="row"><div style="flex:1"><label for="exp">到期日</label><input id="exp" type="text" placeholder="MM / YY"></div><div style="flex:1"><label for="cvc">安全碼</label><input id="cvc" type="text" placeholder="CVC"></div></div>
+    <p class="msg" id="msg"></p>
+    <button class="btn" id="pay">付款 NT$ 65</button>
+  </div>
+  <div class="card done hide" id="done"><div class="okc">✓</div><h2>付款成功（測試）</h2><p class="muted">訂單 #1042 已付款，狀態：paid</p></div>
+</div>
+</body></html>

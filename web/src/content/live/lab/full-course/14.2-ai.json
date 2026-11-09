@@ -1,0 +1,126 @@
+{
+  "title": "讓 AI 自己重現問題",
+  "lesson": "全環節 · 單元 14 · 14.2 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "teacher": {
+    "say": "只說症狀，讓 AI 自己查",
+    "line": "這一堂你只描述症狀，不告訴 AI 哪裡壞。讓它用瀏覽器工具自己重現、找原因、修好，再重現一次證明修好了。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "購物車數量不對", "folder": "~/projects/shop", "branch": null, "mode": "auto", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc14-2-cart-bug", "width": "desktop", "url": "http://localhost:3000/products/soap" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "讓 AI 自己重現問題",
+      "eyebrow": "全環節 · 單元 14 · 14.2 用 AI 完成",
+      "sub": "你只說症狀，AI 走完：重現 → 找原因 → 修 → 再重現",
+      "chapter": "只說症狀",
+      "narration": "客人回報：按一次加入購物車，數量卻變成二。你不知道原因，也不用知道。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "客人回報：在商品頁按一次「加入購物車」，購物車數量變成 2。請你先用瀏覽器工具在 localhost:3000 自己重現，確認看到同樣的問題後再找原因、修好，最後用同樣的步驟再重現一次證明修好了。",
+      "narration": "你只給症狀和在哪裡，再把四個步驟寫進要求：先重現、找原因、修、再重現。"
+    },
+    {
+      "on": "claude",
+      "tool": "browser_navigate",
+      "arg": "http://localhost:3000/products/soap",
+      "result": "已開啟商品頁",
+      "chapter": "AI 重現",
+      "narration": "它用瀏覽器工具，自己打開商品頁。瀏覽器工具讓 AI 能像人一樣開網頁、點按鈕、看畫面。"
+    },
+    { "show": "web", "narration": "這是它看到的頁面，購物車是零。" },
+    {
+      "on": "claude",
+      "tool": "browser_click",
+      "arg": "按鈕「加入購物車」",
+      "result": "已點擊"
+    },
+    {
+      "on": "web",
+      "click": "#add",
+      "narration": "點一次加入購物車。"
+    },
+    {
+      "callout": "web:sel:#cartbox",
+      "text": "點一次，變成 2：問題重現了",
+      "narration": "購物車變成二。問題重現了，跟客人說的一樣。"
+    },
+    {
+      "on": "claude",
+      "tool": "browser_snapshot",
+      "arg": "讀取購物車數字",
+      "result": "購物車：2（預期 1）",
+      "narration": "它讀取畫面，記下：預期一，實際二。"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "addEventListener\\('click'",
+      "result": "product.js 有 2 處綁在同一個按鈕",
+      "out": "src/pages/product.js:14  addBtn.addEventListener('click', () => addToCart(id))   // init()\nsrc/pages/product.js:41  addBtn.addEventListener('click', () => addToCart(id))   // renderProduct()",
+      "chapter": "找原因",
+      "narration": "接著找原因。它搜尋「點擊時要做什麼」的程式，發現同一個按鈕被綁了兩次：初始化綁一次，顯示商品時又綁一次。所以點一下，就加兩次。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/product.js",
+      "lines": [[41, "-", "  addBtn.addEventListener('click', () => addToCart(id))"], [41, "+", "  // 按鈕已在 init() 綁定，這裡不再重複綁"]],
+      "chapter": "修",
+      "narration": "修法很小：拿掉重複的那一次。只改找到的原因。"
+    },
+    {
+      "on": "claude",
+      "tool": "browser_navigate",
+      "arg": "http://localhost:3000/products/soap",
+      "result": "重新開啟商品頁",
+      "chapter": "再重現一次",
+      "narration": "然後用一模一樣的步驟，再做一次。"
+    },
+    { "on": "web", "site": "fc14-2-cart-fix" },
+    { "on": "claude", "tool": "browser_click", "arg": "按鈕「加入購物車」", "result": "已點擊" },
+    { "on": "web", "click": "#add", "narration": "點一次，購物車是一。" },
+    { "on": "web", "click": "#add", "narration": "再點一次，是二。數量正確了。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright test tests/cart.spec.ts",
+      "result": "通過",
+      "out": " ✓ 按一次加入購物車，數量只加 1\n 1 passed",
+      "narration": "最後，它把剛剛重現的步驟寫成一個測試：按一次，數量只加一。"
+    },
+    {
+      "on": "claude",
+      "say": "修好了 ✓\n- **重現**：點一次加入購物車，數量變 2\n- **原因**：`product.js` 第 14 行和第 41 行把同一個按鈕綁了兩次\n- **修正**：拿掉第 41 行的重複綁定\n- **驗證**：同樣步驟再做一次，點一次 +1；已加上測試 `cart.spec.ts`",
+      "narration": "它的回報照著四個步驟寫，你一看就知道它真的看過問題、也真的確認修好了。"
+    },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：只描述症狀",
+      "body": "挑一個網站上的小問題，只描述症狀和在哪一頁，請 AI 用瀏覽器工具先重現、再找原因、修好、用同樣步驟再重現一次，最後把步驟寫成測試。"
+    },
+    {
+      "card": "你給症狀\nAI 重現 → 找原因 → 修 → 再重現",
+      "eyebrow": "學會",
+      "sub": "回報裡沒有「重現」和「再重現」，就請它補做",
+      "chapter": "學會",
+      "narration": "你只要給症狀，AI 自己重現、找原因、修好、再重現。如果它的回報裡沒有重現和再重現，就請它補做。"
+    }
+  ]
+}

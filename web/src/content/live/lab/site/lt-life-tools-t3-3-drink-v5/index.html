@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>飲料團購統計</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-v="5">
+  <div class="usage" data-need="4">
+    <b>使用方式</b>
+    <span>1. 把群組裡的點單訊息貼到左邊，一行一杯：姓名 品項 甜度冰塊 價格</span>
+    <span>2. 右邊馬上出現訂購單，按「複製訂購單」貼給店家</span>
+    <span>3. 照「每人金額」收錢</span>
+  </div>
+  <div class="wrap">
+    <aside class="controls">
+      <div class="h">飲料團購統計</div>
+      <div class="box">
+        <textarea id="list" placeholder="把點單訊息貼在這裡"></textarea>
+        <button class="paste" data-paste="ex" aria-label="貼上範例訊息"></button>
+        <button class="paste" data-paste="edge" aria-label="貼上奇怪的訊息"></button>
+      </div>
+    </aside>
+    <main class="out">
+      <section class="order">
+        <div class="sh">給店家的訂購單 <button class="btn ghost sm" id="copy" data-need="3">複製訂購單</button><span class="copied" id="copied">已複製 ✓</span></div>
+        <table id="order"></table>
+      </section>
+      <section class="sum">
+        <div class="tot"><span>總杯數</span><b id="cups">0</b></div>
+        <div class="tot"><span>總金額</span><b id="money">0</b></div>
+      </section>
+      <section class="per">
+        <div class="sh">每人金額</div>
+        <div id="per" class="chips"></div>
+      </section>
+      <div class="warns" id="warns"></div>
+    </main>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

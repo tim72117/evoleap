@@ -1,0 +1,159 @@
+{
+  "title": "換你擲骰子",
+  "lesson": "兒童網頁課 · 3.5 試做（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "幸運骰子",
+        "emoji": "🎲",
+        "buttons": [
+          {
+            "id": "roll",
+            "text": "擲骰子"
+          }
+        ],
+        "dice": {
+          "value": 1
+        },
+        "rules": [
+          {
+            "id": "dice",
+            "when": "roll",
+            "do": [
+              {
+                "roll": [
+                  1,
+                  6
+                ]
+              }
+            ]
+          }
+        ],
+        "drawer": [
+          {
+            "id": "r6",
+            "do": {
+              "roll": [
+                1,
+                6
+              ]
+            }
+          },
+          {
+            "id": "r10",
+            "do": {
+              "roll": [
+                1,
+                10
+              ]
+            }
+          },
+          {
+            "id": "r100",
+            "do": {
+              "roll": [
+                1,
+                100
+              ]
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 40,
+          "y": 30,
+          "w": 1840,
+          "h": 900
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！點擲骰子，擲擲看。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:drawer",
+        "text": "換一個範圍"
+      },
+      "narration": "積木盒裡有三種範圍：1 到 6、1 到 10、1 到 100。換一塊放進格子，再擲看看。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "擲 5 次骰子",
+    "body": "也可以換一塊積木，改骰子的範圍",
+    "spots": [
+      {
+        "target": "kid:block:r6",
+        "id": "block:r6",
+        "label": "1 到 6 的積木",
+        "steps": [
+          {
+            "snap": "r6",
+            "into": "dice",
+            "narration": "範圍換成 1 到 6 了。擲擲看！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:r10",
+        "id": "block:r10",
+        "label": "1 到 10 的積木",
+        "steps": [
+          {
+            "snap": "r10",
+            "into": "dice",
+            "narration": "範圍換成 1 到 10 了。擲擲看！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:r100",
+        "id": "block:r100",
+        "label": "1 到 100 的積木",
+        "steps": [
+          {
+            "snap": "r100",
+            "into": "dice",
+            "narration": "範圍換成 1 到 100 了。擲擲看！"
+          }
+        ]
+      },
+      {
+        "target": "kid:button:roll",
+        "id": "button:roll",
+        "label": "擲骰子按鈕",
+        "steps": [
+          {
+            "press": "roll",
+            "narration": "停在幾點呢？"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "rolls",
+      "atLeast": 5
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 400,
+          "narration": "你擲了好多次，每次都不一樣。這就是隨機！"
+        }
+      ]
+    }
+  }
+}

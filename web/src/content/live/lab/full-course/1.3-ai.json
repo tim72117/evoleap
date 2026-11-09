@@ -1,0 +1,191 @@
+{
+  "title": "請 AI 程式助手安裝 Node.js",
+  "camera": "auto",
+  "teacher": {
+    "say": "這次讓 AI 自己裝、自己驗證",
+    "line": "這一堂請 AI 幫你安裝 Node.js。它會自己檢查、自己驗證，失敗了就讀錯誤再試；只有要輸入電腦密碼的那一步，由你自己來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "安裝 Node.js", "folder": "~/projects", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~", "title": "你自己的終端機" },
+      "place": { "x": 300, "y": 200, "w": 1320, "h": 620 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "請 AI 安裝 Node.js，並自己驗證",
+      "eyebrow": "全環節 · 單元 1 · 1.3 用 AI 完成",
+      "sub": "交代清楚：裝什麼、怎麼驗證、怎樣算完成",
+      "chapter": "交代清楚",
+      "narration": "這次我們不自己找安裝檔，交給 AI。重點是一開始就交代清楚。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我安裝 Node.js 的 LTS 版本。裝完用 node -v 和 npm -v 驗證，失敗就讀錯誤再試。需要電腦密碼的步驟告訴我，我自己輸入。最後建立 hello.js 用 node 執行，印出一句話才算完成。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "裝什麼 · 怎麼驗證 · 密碼我來 · 怎樣算完成",
+      "narration": "這段話說了四件事：裝 LTS 版、用 node -v 驗證、密碼你自己輸入，還有完成的標準：hello.js 真的跑得起來。"
+    },
+    {
+      "on": "claude",
+      "todos": [["確認電腦與現有版本", "doing"], ["下載 Node.js LTS", "pending"], ["安裝（密碼由你輸入）", "pending"], ["驗證 node -v、npm -v", "pending"], ["執行 hello.js", "pending"]],
+      "narration": "它先列出待辦清單。"
+    },
+    {
+      "on": "claude",
+      "ask": "uname -m && sw_vers -productVersion && node -v",
+      "where": "~/projects",
+      "select": 1,
+      "narration": "第一步，查這台電腦是什麼晶片、什麼系統版本，有沒有裝過 Node.js。只是查看，允許。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "uname -m && sw_vers -productVersion && node -v",
+      "result": "還沒安裝",
+      "out": "arm64\n15.1\nzsh: command not found: node"
+    },
+    {
+      "on": "claude",
+      "say": "這台是 Apple 晶片的 Mac，系統 15.1，還沒有 Node.js。我先下載官方的 LTS 安裝檔。",
+      "chapter": "失敗，讀錯誤，再試"
+    },
+    {
+      "on": "claude",
+      "ask": "curl -fO https://nodejs.org/dist/v24.0.0/node-v24.0.0-lts.pkg",
+      "where": "~/Downloads",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -fO https://nodejs.org/dist/v24.0.0/node-v24.0.0-lts.pkg",
+      "result": "失敗",
+      "out": "curl: (22) The requested URL returned error: 404",
+      "narration": "第一次下載失敗了：404，表示這個網址不存在。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "404 = 網址不對；它不會假裝成功",
+      "narration": "注意它怎麼處理。它沒有假裝成功，而是去讀錯誤：檔名是它猜的，猜錯了。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "https://nodejs.org/dist/index.json",
+      "result": "最新 LTS：v24.11.1",
+      "narration": "所以它去官方的版本清單查，找到目前最新的 LTS 是 24.11.1。"
+    },
+    {
+      "on": "claude",
+      "ask": "curl -fO https://nodejs.org/dist/v24.11.1/node-v24.11.1.pkg",
+      "where": "~/Downloads",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -fO https://nodejs.org/dist/v24.11.1/node-v24.11.1.pkg",
+      "result": "已下載 72 MB",
+      "narration": "用正確的檔名再試一次，這次成功了。"
+    },
+    {
+      "on": "claude",
+      "say": "下載好了。安裝要用管理員權限，需要你的電腦密碼。請在**你自己的終端機**貼上這一行，密碼由你輸入：\n`sudo installer -pkg ~/Downloads/node-v24.11.1.pkg -target /`",
+      "chapter": "需要密碼：你自己來",
+      "narration": "接下來要安裝，需要電腦密碼。它把指令給你，請你在自己的終端機執行。"
+    },
+    { "hide": "claude" },
+    { "show": "term" },
+    {
+      "on": "term",
+      "type": "sudo installer -pkg ~/Downloads/node-v24.11.1.pkg -target /",
+      "narration": "貼上，按 Enter。"
+    },
+    {
+      "on": "term",
+      "secret": "Password:",
+      "narration": "它要你的電腦密碼。打字的時候畫面上什麼都不會出現，這是正常的，打完按 Enter。密碼只在這裡輸入，不要貼給 AI。"
+    },
+    {
+      "on": "term",
+      "print": "installer: Package name is Node.js\ninstaller: Installing at base path /\ninstaller: The install was successful.",
+      "tone": "ok",
+      "narration": "看到 install was successful，就裝好了。"
+    },
+    { "hide": "term" },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "裝好了，畫面說 The install was successful。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node -v && npm -v",
+      "out": "v24.11.1\n11.6.2",
+      "chapter": "自己驗證",
+      "narration": "它自己用 node -v 和 npm -v 驗證。兩個都有版本號，代表真的裝好了。"
+    },
+    {
+      "on": "claude",
+      "todos": [["確認電腦與現有版本", "done"], ["下載 Node.js LTS", "done"], ["安裝（密碼由你輸入）", "done"], ["驗證 node -v、npm -v", "done"], ["執行 hello.js", "doing"]]
+    },
+    {
+      "on": "claude",
+      "ask": "hello.js",
+      "q": "允許 Claude 建立這個檔案？",
+      "where": "~/projects",
+      "preview": "console.log('你好！我的電腦會跑 JavaScript 了')",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "edit": "hello.js",
+      "lines": [[1, "+", "console.log('你好！我的電腦會跑 JavaScript 了')"]]
+    },
+    {
+      "on": "claude",
+      "ask": "node hello.js",
+      "where": "~/projects",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node hello.js",
+      "out": "你好！我的電腦會跑 JavaScript 了",
+      "narration": "最後一步：用 node 執行 hello.js，真的印出那一句話。"
+    },
+    {
+      "on": "claude",
+      "todos": [["確認電腦與現有版本", "done"], ["下載 Node.js LTS", "done"], ["安裝（密碼由你輸入）", "done"], ["驗證 node -v、npm -v", "done"], ["執行 hello.js", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "全部完成 ✓\n- Node.js **v24.11.1**（LTS）、npm **11.6.2**\n- 第一次下載的網址猜錯（404），查官方清單後改正\n- `node hello.js` 印出輸出",
+      "narration": "它最後回報：裝了哪個版本、中間哪裡出錯、怎麼修好、完成標準有沒有達到。"
+    },
+    {
+      "checkpoint": "換你：請 AI 幫你裝 Node.js",
+      "body": "交代四件事：裝 LTS 版、用 node -v 和 npm -v 驗證、失敗就讀錯誤再試、需要密碼時告訴你。要你輸入密碼時，在你自己的終端機輸入；完成標準是 node hello.js 印出一句話。"
+    },
+    {
+      "card": "node hello.js 印出輸出 ✓",
+      "eyebrow": "1.3 完成",
+      "sub": "下一堂：第一次和 AI 一起改程式",
+      "narration": "你的電腦現在會跑 JavaScript 了。下一堂，我們第一次和 AI 一起改程式。"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 // 研發基地內部頁的 SEO 資料。只由 StudioApp 與 build 使用,不會打包進公開的 JS。
 import { articles } from '../studio/articles/registry'
+import { FULL_ITEMS, KIND_LABEL, fullTrialPath, type FullCourseKind } from '../studio/proposal/fullCourse'
+import { LAB_TRIALS } from '../studio/proposal/labTrials'
 import { NOT_FOUND, type PageMeta } from './pages'
 
 // 以下都是研發基地用的內部頁(文件、課程提案、素材工具):noindex、不列入 sitemap。
@@ -39,6 +41,8 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/resources', '資源系統'],
     ['/studio/news-feed', '科技新知動態牆'],
     ['/studio/extensions', '延伸課程'],
+    ['/studio/ai-scenarios', 'AI 自動化情境'],
+    ['/studio/full-course', '全環節課程清單'],
     ['/studio/actor-interaction', '演員互動'],
     ['/studio/actor-interaction/showcase', '演員展示'],
     ['/studio/ai-tips', 'AI 工具技巧'],
@@ -49,6 +53,9 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/vibe-coding/4-1', 'L2 基礎 4.1 試做'],
     ['/studio/vibe-coding/4-2', 'L2 基礎 4.2 試做'],
     ['/studio/vibe-coding/4-3', 'L2 基礎 4.3 試做'],
+    ['/studio/vibe-coding/15-1', 'L2 基礎 15.1 試做'],
+    ['/studio/vibe-coding/15-2', 'L2 基礎 15.2 試做'],
+    ['/studio/vibe-coding/15-3', 'L2 基礎 15.3 試做'],
     ['/studio/kids-web/0-1', '兒童網頁課 0.1 試做'],
     ['/studio/kids-web/0-1/live', '兒童網頁課 0.1 live 試做'],
     ['/studio/kids-web/0-2/live', '兒童網頁課 0.2 試做'],
@@ -72,7 +79,17 @@ const MATERIALS_PAGES: PageMeta[] = [
   internal('/materials/promo', '宣傳影片 · 課程提案'),
 ]
 
-export const INTERNAL_PAGES: PageMeta[] = [...DOCS_PAGES, ...PROPOSAL_PAGES, ...MATERIALS_PAGES]
+// 全環節課程清單每個環節的兩堂試做課(標題對應 FullCourseTrialPage 的 pageTitle)與腳本檢查頁
+const FULL_COURSE_PAGES: PageMeta[] = [
+  internal('/studio/full-course/check', '全環節課程腳本檢查 · 課程提案'),
+  internal('/studio/trials', '課程試做清單 · 課程提案'),
+  ...LAB_TRIALS.map((t) => internal(t.path, `${t.course} ${t.code} 試做 · 課程提案`)),
+  ...FULL_ITEMS.flatMap((it) =>
+    (['know', 'ai'] as FullCourseKind[]).map((k) => internal(fullTrialPath(it.code, k), `${it.code} ${it.lesson.title}（${KIND_LABEL[k]}）試做 · 課程提案`)),
+  ),
+]
+
+export const INTERNAL_PAGES: PageMeta[] = [...DOCS_PAGES, ...PROPOSAL_PAGES, ...MATERIALS_PAGES, ...FULL_COURSE_PAGES]
 
 const BY_PATH = new Map(INTERNAL_PAGES.map((p) => [p.path, p]))
 

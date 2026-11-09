@@ -1,0 +1,105 @@
+{
+  "title": "不用提醒的檢查站",
+  "lesson": "全環節 · 單元 31 · 31.4 基礎知識",
+  "teacher": {
+    "say": "今天認識 Hooks",
+    "line": "這一課先讓你猜一個問題，再認識 Hooks：一種在 AI 每次改檔、或要結束時，自動執行的檢查。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "改訂單頁", "folder": "~/projects/bakery", "branch": "main", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc31-4-hooks", "url": "https://notes.example/hooks" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "猜猜看：誰提醒 AI 檢查？",
+      "eyebrow": "全環節 · 單元 31 · 31.4 基礎知識",
+      "sub": "AI 改了十個檔案，每一個改完都該跑一次型別檢查",
+      "chapter": "先猜一題",
+      "narration": "先猜一題。AI 一次改了十個檔案。每改完一個，都應該檢查一下有沒有寫錯。誰來提醒它？"
+    },
+    {
+      "checkpoint": "你覺得呢？",
+      "body": "A：每次都在對話裡提醒它。B：寫進專案規則，希望它記得。C：讓電腦在它每次改完檔時自動跑檢查。",
+      "narration": "A，每次在對話裡提醒。B，寫進規則，希望它記得。C，讓電腦自動跑。想好了再繼續。"
+    },
+    {
+      "show": "claude",
+      "chapter": "規則會被忘記",
+      "narration": "先看 B。規則裡明明寫了「改完要跑型別檢查」。"
+    },
+    { "on": "claude", "user": "把訂單頁的價格改成顯示含稅價" },
+    {
+      "on": "claude",
+      "edit": "src/order.ts",
+      "lines": [[8, "-", "const price: number = item.price"], [8, "+", "const price: number = withTax(item.price).toFixed(0)"]]
+    },
+    {
+      "on": "claude",
+      "say": "改好了，價格現在顯示含稅價。",
+      "narration": "它改完就回報了。這次它忘了跑檢查，而這一行其實有錯：toFixed 會變成文字，不是數字。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "規則是「請它記得」；它有時候會忘",
+      "narration": "規則是請 AI 記得，對話一長、事情一多，它還是會忘。所以答案是 C。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "web",
+      "chapter": "Hooks 怎麼運作",
+      "narration": "C 就是 Hooks。你可以把它想成一條路上的檢查站。"
+    },
+    { "on": "web", "click": "#s1", "narration": "AI 改了一個檔，" },
+    {
+      "on": "web",
+      "click": "#s2",
+      "narration": "一改完，就經過檢查站。這個時間點叫「改檔之後」，設定檔裡寫成 Post Tool Use。"
+    },
+    {
+      "on": "web",
+      "click": "#s3",
+      "narration": "檢查站會自動執行你指定的指令，例如 prettier 整理格式、tsc 檢查型別。"
+    },
+    {
+      "callout": "web:sel:.loop",
+      "text": "結果自動交回 AI，它看到錯就自己修",
+      "narration": "檢查的結果會自動交回給 AI。剛剛那個型別錯誤，它馬上就看到，自己修好，再經過一次檢查站。"
+    },
+    {
+      "on": "web",
+      "click": "#s5",
+      "narration": "檢查站不只一個時間點。例如 AI 說「做完了」準備結束時，也可以設一站，跑一次完整的測試。"
+    },
+    { "hide": "web" },
+    {
+      "diff": "規則 vs Hooks",
+      "lines": [["-", "規則：「改完記得跑檢查」→ 靠 AI 記得"], ["+", "Hooks：改完一定跑檢查 → 電腦自動執行"]],
+      "chapter": "什麼該用 Hooks",
+      "narration": "差別在這裡：規則是靠 AI 記得；Hooks 是電腦一定會做。"
+    },
+    {
+      "stream": "改完檔：整理格式、檢查型別。要結束時：跑測試。要執行危險指令前：擋下來。這些「每次都一定要」的事，最適合 Hooks。",
+      "prompt": "哪些事適合用 Hooks？",
+      "narration": "每次都一定要做、不需要判斷的檢查，就適合 Hooks。"
+    },
+    { "clear": true },
+    {
+      "card": "Hooks 要快",
+      "eyebrow": "小提醒",
+      "sub": "每次改檔都會跑：太慢的檢查（完整測試）放在「要結束時」",
+      "narration": "最後提醒：改檔之後的檢查每次都會跑，要選快的。比較慢的完整測試，放在要結束的時候跑就好。"
+    },
+    {
+      "checkpoint": "列出你的檢查站",
+      "body": "想一想你的專案：改完每個檔一定要跑什麼？AI 說做完之前一定要跑什麼？各寫一個指令。",
+      "narration": "換你想想：改完每個檔一定要跑什麼？AI 說做完之前一定要跑什麼？各寫一個指令，下一堂就設定起來。"
+    }
+  ]
+}

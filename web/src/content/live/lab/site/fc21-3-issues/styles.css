@@ -1,0 +1,17 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#f3f1f7;color:#231f2e}
+.bar{display:flex;align-items:center;gap:12px;padding:14px 26px;background:#2d2640;color:#fff;font-weight:700}
+.bar .lg{width:30px;height:30px;border-radius:50%;background:#8f6fe0;display:grid;place-items:center}
+.bar .crumb{opacity:.75;font-weight:600}
+.pg{padding:26px 34px}
+h1{margin:0 0 16px}
+.list{background:#fff;border-radius:12px;box-shadow:0 0 0 1px #e2dcef}
+.it{display:flex;align-items:center;gap:16px;padding:18px 20px;font-size:18px}
+.it.new{background:#f8f5ff}
+.tag{background:#fdeeec;color:#c0392b;font-weight:800;padding:3px 10px;border-radius:8px;font-size:15px}
+.m{color:#6c6480;font-size:15px;margin-top:4px}
+.badge{margin-left:auto;background:#6c4fd0;color:#fff;font-weight:800;padding:4px 12px;border-radius:20px;font-size:14px}
+.det{margin-top:18px;background:#fff;border-radius:12px;box-shadow:0 0 0 1px #e2dcef;padding:16px 20px;max-width:520px}
+.det h3{margin:0 0 10px;color:#6c6480;font-size:15px}
+dl{display:grid;grid-template-columns:80px 1fr;gap:6px 10px;margin:0;font-size:17px}
+dt{color:#6c6480}dd{margin:0;font-family:Menlo,monospace}
+.ok{color:#22804a;font-weight:700}

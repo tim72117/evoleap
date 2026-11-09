@@ -1,0 +1,195 @@
+{
+  "title": "排版：Flex 與 Grid",
+  "lesson": "網頁怎麼運作 · 單元 2 · 2.3",
+  "teacher": {
+    "say": "今天認識 Flex 與 Grid",
+    "line": "今天要把幾張卡片排成一排、置中，再排成好幾欄，最後還有兩關讓你挑戰。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-web-2-3-layout",
+        "url": "https://coffee.example/"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "排版：Flex 與 Grid",
+      "eyebrow": "網頁怎麼運作 · 單元 2 · 2.3",
+      "chapter": "一個接一個往下排",
+      "narration": "盒子會了，接下來是怎麼把一堆盒子排好：並排、置中、排成好幾欄。這一課認識兩種最常用的排版方式。"
+    },
+    {
+      "show": "web",
+      "narration": "三張卡片，一張接一張往下排。這是預設的排法：沒有特別設定的話，一個區塊就佔一整行。"
+    },
+    {
+      "callout": "web:section:cards",
+      "text": "排版要設定在外面的容器上",
+      "narration": "要改排法，不是去改每一張卡片，而是設定包住它們的容器。上一課說的，元素可以包住元素，這裡就派上用場了。"
+    },
+    {
+      "click": "[data-set='lay=row']",
+      "chapter": "Flex：排成一排",
+      "narration": "在容器加上 display: flex，裡面的卡片就排成一排。Flex 的意思是彈性，它沿著一條線，把東西一個接一個排過去。"
+    },
+    {
+      "click": "[data-set='lay=between']",
+      "narration": "加上 justify-content: space-between，卡片平均分散開來，最左和最右貼齊兩邊。"
+    },
+    {
+      "click": "[data-set='lay=center']",
+      "narration": "改成 center，就整排置中。再加上 align-items: center，上下也置中。對齊和置中，以前很難做，用 Flex 兩行就好。"
+    },
+    {
+      "click": "[data-set='lay=gap']",
+      "narration": "卡片黏在一起，加上 gap，也就是間距，每張之間就留出一樣寬的空隙，不用每張卡片各自設外距。"
+    },
+    {
+      "callout": "web:section:css",
+      "text": "Flex：沿著一條線排，管對齊、置中、間距",
+      "narration": "所以 Flex 適合一排東西：導覽列的連結、一排按鈕、並排的幾張卡片。"
+    },
+    {
+      "click": "[data-set='scene=grid lay=grid2']",
+      "chapter": "Grid：排成格線",
+      "narration": "換成六張卡片。這次用 display: grid。Grid 是格線：先在容器裡畫好格子，再一格放一個。現在是兩欄。"
+    },
+    {
+      "click": "[data-set='lay=grid3']",
+      "narration": "改成三欄，只要改一個設定。每一列、每一欄都對得整整齊齊，像一張表格。"
+    },
+    {
+      "callout": "web:section:grid6",
+      "text": "Grid：先畫好格子，一格放一個",
+      "narration": "Flex 是一條線，Grid 是一張表格。版面需要好幾列、好幾欄對齊的時候，就用 Grid。"
+    },
+    {
+      "click": "[data-set='lay=auto']",
+      "narration": "格線還可以不寫死欄數：每一格至少多寬，放得下幾欄就排幾欄。"
+    },
+    {
+      "width": "tablet",
+      "narration": "把畫面變窄，欄數自動變少。"
+    },
+    {
+      "width": "phone",
+      "narration": "窄到像手機，就剩一欄。這叫響應式，下一課會再仔細看。"
+    },
+    {
+      "width": "desktop"
+    },
+    {
+      "click": "[data-set='scene=nav lay=none']",
+      "chapter": "過關",
+      "narration": "來過關吧。第一關：上面是目標，Logo 在左、選單在右，排成一排。現在它們還是一個接一個往下排。"
+    },
+    {
+      "checkpoint": "第一關：導覽列要用 Flex 還是 Grid？",
+      "body": "選一個，看看排出來像不像目標。",
+      "id": "nav",
+      "stage": {
+        "focus": "web:section:stagebox"
+      },
+      "options": [
+        {
+          "label": "Flex（排成一排）",
+          "steps": [
+            {
+              "click": "[data-set='lay=nav-flex']",
+              "narration": "過關。導覽列是排成一排的東西，用 Flex 最直接：Logo 和選單排成一排，再用 space-between 把它們推到兩端。"
+            }
+          ]
+        },
+        {
+          "label": "Grid（排成格線）",
+          "steps": [
+            {
+              "click": "[data-set='lay=nav-grid']",
+              "narration": "Grid 先把導覽列切成一樣寬的兩格，選單只能從中間開始排，不像目標。Grid 也做得到，但要另外規劃格子。"
+            },
+            {
+              "click": "[data-set='lay=nav-flex']",
+              "narration": "導覽列是排成一排的東西，用 Flex 最直接：Logo 和選單排成一排，再用 space-between 把它們推到兩端。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "click": "[data-set='lay=nav-flex']",
+            "narration": "導覽列是排成一排的東西，用 Flex 最直接：Logo 和選單排成一排，再用 space-between 把它們推到兩端。"
+          }
+        ]
+      }
+    },
+    {
+      "click": "[data-set='scene=album lay=none']",
+      "narration": "第二關：一本相簿，六張照片要排成三欄，一列一列對齊。"
+    },
+    {
+      "checkpoint": "第二關：相簿要用 Flex 還是 Grid？",
+      "body": "選一個，看看排出來像不像目標。",
+      "id": "album",
+      "stage": {
+        "focus": "web:section:stagebox"
+      },
+      "options": [
+        {
+          "label": "Flex（排成一排）",
+          "steps": [
+            {
+              "click": "[data-set='lay=album-flex']",
+              "narration": "Flex 讓照片一張接一張排，放不下就換行，但每一列長得不一樣，上下也對不齊。"
+            },
+            {
+              "click": "[data-set='lay=album-grid']",
+              "narration": "相簿要排成三欄、一列一列對齊，像表格一樣，用 Grid：先畫好三欄的格子，照片一格放一張。"
+            }
+          ]
+        },
+        {
+          "label": "Grid（排成格線）",
+          "steps": [
+            {
+              "click": "[data-set='lay=album-grid']",
+              "narration": "過關。相簿要排成三欄、一列一列對齊，像表格一樣，用 Grid：先畫好三欄的格子，照片一格放一張。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "click": "[data-set='lay=album-grid']",
+            "narration": "相簿要排成三欄、一列一列對齊，像表格一樣，用 Grid：先畫好三欄的格子，照片一格放一張。"
+          }
+        ]
+      }
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "把導覽列改成 Flex，Logo 在左、選單靠右\n商品區用 Grid 排成三欄，間距 24px",
+      "eyebrow": "跟 AI 這樣說",
+      "sub": "說出排法、對齊和間距，AI 一次就排對",
+      "chapter": "用對名詞說需求",
+      "narration": "跟 AI 說排版，就說出排法、對齊和間距。例如：把導覽列改成 Flex，Logo 在左、選單靠右；商品區用 Grid 排成三欄，間距 24 像素。"
+    },
+    {
+      "card": "一排東西用 Flex\n像表格的版面用 Grid",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：排版・Flex・Grid・對齊・置中・間距 gap",
+      "chapter": "學會",
+      "narration": "排版設定在外面的容器上。一排東西用 Flex，可以平均分散、置中，用 gap 留間距；像表格一樣好幾列好幾欄對齊的版面，用 Grid。"
+    }
+  ]
+}

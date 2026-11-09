@@ -1,0 +1,21 @@
+<!doctype html><html><head><title>四道要先問的門</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">AI 可以自己走的路，和要先問你的門</h1>
+  <p class="sub">讀檔、改程式、跑測試可以放手；碰到這四道門，一定先停下來問</p>
+  <div class="road">
+    <div class="free">讀檔案<br>改程式<br>跑測試</div>
+    <div class="gate" id="g1" data-go="g1"><div class="door">付款</div><div class="lock" data-at="g1">先問你</div><small>花錢、升級方案、退款</small></div>
+    <div class="gate" id="g2" data-go="g2"><div class="door">刪除資料</div><div class="lock" data-at="g2">先問你</div><small>刪檔、清資料表、git push --force</small></div>
+    <div class="gate" id="g3" data-go="g3"><div class="door">正式資料庫</div><div class="lock" data-at="g3">先問你</div><small>客人真的資料在這裡</small></div>
+    <div class="gate" id="g4" data-go="g4"><div class="door">對外發送</div><div class="lock" data-at="g4">先問你</div><small>寄信、發文、通知客人</small></div>
+  </div>
+  <div class="common" data-at="g4">共同點：<b>做了就收不回來</b>，或是<b>會影響到別人</b></div>
+  <div class="modes" data-at="modes" id="modes">
+    <div class="m"><b>每次問</b>每個改檔、指令都先問</div>
+    <div class="m"><b>只出方案</b>先寫計畫，不動手</div>
+    <div class="m"><b>自動改檔</b>改檔不問，指令照樣問</div>
+    <div class="m"><b>全自動</b>大多不問，危險的事仍會攔下</div>
+  </div>
+  <button class="more" id="modeBtn" data-go="modes">權限模式</button>
+</div>
+</body></html>

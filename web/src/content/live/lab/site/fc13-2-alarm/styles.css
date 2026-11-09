@@ -1,0 +1,16 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#ecebe6;display:flex;align-items:center;justify-content:center}
+.app{width:1160px;padding:24px 0}
+.room{display:grid;grid-template-columns:1fr .8fr 1fr;gap:24px;background:#fbfaf7;border-radius:22px;padding:28px;box-shadow:0 6px 24px rgba(0,0,0,.06)}
+.det{text-align:center}.det svg{width:230px;height:230px}
+.shell{fill:#fff;stroke:#c9c4b6;stroke-width:5}.inner{fill:#f2f0ea;stroke:#ddd8cb;stroke-width:3}
+.led{fill:#b9c2c6}.waves{fill:none;stroke:#d6453d;stroke-width:6;stroke-linecap:round;display:none}
+.bat{display:none}.slot{fill:#fff;stroke:#d6453d;stroke-width:3;stroke-dasharray:6 4}.bat text{font-size:13px;fill:#d6453d}
+.det b{display:block;font-size:24px}.st{font-size:19px;color:#6b7478;margin:6px 0 12px;height:28px}
+button{font:inherit;font-size:19px;border:2px solid #c9c1ad;background:#fff;border-radius:999px;padding:8px 22px;color:#1f2a2e}
+.smoke{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.smoke svg{width:200px;height:160px}.puff{fill:#b9bcbf;opacity:0}
+.msg{margin-top:20px;background:#1f3b44;color:#f1f5f4;border-radius:14px;padding:16px 22px;font-size:22px;text-align:center}
+.beep .waves{display:block}.beep .led{fill:#d6453d}.beep .st{color:#d6453d;font-weight:700}
+.opened .bat{display:block}.opened .inner{fill:#fff}
+.smoky .puff{opacity:.9}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>小森烘焙預約系統 工作項目</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="top"><div class="doc-icon"></div><div><div class="doc-name">小森烘焙預約系統 工作項目</div><div class="doc-sub">試算表 · 課程範例（虛構）</div></div></div>
+    <div class="tools"><span class="cellref">A1</span><button class="tool main" id="paste">貼上</button><button class="tool">復原</button><button class="tool">篩選</button><span class="hint">從 AI 的回覆複製表格，選好 A1 再貼上</span></div>
+    <div class="gridwrap">
+      <table>
+        <colgroup><col style="width:44px"><col class="c-a"><col class="c-b"><col class="c-c"><col class="c-d"><col class="c-e"></colgroup>
+        <thead><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead>
+        <tbody class="data">
+        <tr class="head-row"><th class="rn">1</th><td class="sel"><span>順序</span></td><td><span>工作項目</span></td><td><span>驗收條件</span></td><td><span>要先做完</span></td><td><span>版本</span></td></tr>
+        </tbody><tbody class="data v1">
+        <tr class="v1"><th class="rn">2</th><td><span>1</span></td><td><span>顯示本週商品</span></td><td><span>列出本週可預訂的品項與價格</span></td><td><span>—</span></td><td><span><i class="tag first">第一版</i></span></td></tr>
+        <tr class="v1"><th class="rn">3</th><td><span>2</span></td><td><span>選數量、日期與時段</span></td><td><span>蛋糕只能選 2 天後的日期；週日不出現傍晚時段</span></td><td><span>1</span></td><td><span><i class="tag first">第一版</i></span></td></tr>
+        <tr class="v1"><th class="rn">4</th><td><span>3</span></td><td><span>送出預約</span></td><td><span>送出後畫面顯示訂單內容</span></td><td><span>2</span></td><td><span><i class="tag first">第一版</i></span></td></tr>
+        <tr class="v1"><th class="rn">5</th><td><span>4</span></td><td><span>當日取貨清單</span></td><td><span>店員在平板上 3 步內看到今天的訂單；依上午、下午、傍晚排好</span></td><td><span>3</span></td><td><span><i class="tag first">第一版</i></span></td></tr>
+        </tbody><tbody class="data later">
+        <tr class=""><th class="rn">6</th><td><span>5</span></td><td><span>蛋糕每日上限</span></td><td><span>平日滿 8 個、週末滿 12 個就不能再選</span></td><td><span>3</span></td><td><span><i class="tag">之後</i></span></td></tr>
+        <tr class=""><th class="rn">7</th><td><span>6</span></td><td><span>調整蛋糕上限</span></td><td><span>老闆能分別改平日、週末的上限</span></td><td><span>5</span></td><td><span><i class="tag">之後</i></span></td></tr>
+        <tr class=""><th class="rn">8</th><td><span>7</span></td><td><span>訂單確認通知</span></td><td><span>送出後客人收到一則確認訊息</span></td><td><span>3</span></td><td><span><i class="tag">之後</i></span></td></tr>
+        <tr class=""><th class="rn">9</th><td><span>8</span></td><td><span>取貨前一天提醒</span></td><td><span>取貨前一天客人收到提醒</span></td><td><span>7</span></td><td><span><i class="tag">之後</i></span></td></tr>
+        <tr class=""><th class="rn">10</th><td><span>9</span></td><td><span>列印清單</span></td><td><span>按一個按鈕印出當日取貨清單</span></td><td><span>4</span></td><td><span><i class="tag">之後</i></span></td></tr>
+        <tr class=""><th class="rn">11</th><td><span>10</span></td><td><span>取消訂單</span></td><td><span>取貨前一天中午前可以自己取消</span></td><td><span>3</span></td><td><span><i class="tag">之後</i></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

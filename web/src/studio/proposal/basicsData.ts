@@ -333,8 +333,8 @@ export const TIER_INFO: Record<Tier, TierInfo> = {
       ['學習成果', '在 Windows 或 macOS 上裝好並驗證 VS Code、Git、Node.js LTS 與 AI 程式助手；用 AI 程式助手做出個人介紹頁並部署到公開網址；能讀懂常見安裝錯誤並求助；用 Git 管理版本（diff、.gitignore、還原、分支、標籤部署）、請 AI 整理專案結構、補齊 SEO 與 GA4；進階單元加入 Email＋密碼與 Google 登入；請 AI 寫單元與端對端測試並設定每次 push 自動執行，避免 AI 改壞既有功能。'],
       ['環境需求', 'Windows 或 macOS 電腦（可安裝軟體的權限）、GitHub 帳號、AI 程式助手帳號。'],
       ['存取', '訂閱客戶才能存取（對齊課程地圖 LEVELS 的 access: subscription）。'],
-      ['規模估計', '11 個單元、40 課，約 19 小時（含實作）；其中單元 9–14 共 24 課、約 12 小時。單元 12（登入功能）若移到 L3，L2 為 10 個單元、36 課、約 17 小時。'],
-      ['單元 9–13 來源', '本專案實作紀錄：用 Claude Code 做這個課程網站時實際做過的事（commit 與 .gitignore 檢查、目錄整理與 README 同步、SEO 與 GA4、Email＋密碼與 Google 登入、go test／Vitest／Playwright 測試與 GitHub Actions）。示範以本專案為例，學員在自己的 L0 網站或小專案上跟著做；提示詞維持簡短精確，不講生成式 AI 原理。'],
+      ['規模估計', '12 個單元、45 課，約 22 小時（含實作）；其中單元 9–15 共 28 課、約 14 小時。單元 12（登入功能）若移到 L3，L2 為 11 個單元、41 課、約 20 小時。'],
+      ['單元 9–15 來源', '本專案實作紀錄：用 Claude Code 做這個課程網站時實際做過的事（commit 與 .gitignore 檢查、目錄整理與 README 同步、SEO 與 GA4、Email＋密碼與 Google 登入、go test／Vitest／Playwright 測試與 GitHub Actions；單元 15 的粉絲專頁發文正在本專案實作）。示範以本專案為例，學員在自己的 L0 網站或小專案上跟著做；提示詞維持簡短精確，不講生成式 AI 原理。'],
       ['往上銜接', 'AI Agent 整合應用課（L3）要求終端機、Git、npm、JavaScript／TypeScript 與 Web 前端；L2 負責前三項與「讀懂」網頁程式碼，其餘仍有落差（見「與 L3 的銜接對照」）。'],
     ],
     rationale: [
@@ -343,12 +343,13 @@ export const TIER_INFO: Record<Tier, TierInfo> = {
       '單元 6 其餘工具（VS Code、Git）每個都先說它負責什麼，再安裝，最後用一個指令驗證，形成固定節奏；Git 一裝好就用來替 AI 的修改存檔，讓學員敢放手讓 AI 改檔。',
       '單元 7 串起整條流程（想法 → 程式 → 預覽 → 版本控制 → 公開網址），是 L2 的主要成就點。',
       '疑難排解獨立成單元 8，並附各作業系統的環境檢查表，供 L3 開課前重用。',
-      '單元 9–13 取自本專案實作紀錄：教的是真的做過、真的會遇到的事，而不是想像的練習題；新單元接在單元 8 後面編號（公開章節網址依編號產生）。',
+      '單元 9–15 取自本專案實作紀錄：教的是真的做過、真的會遇到的事，而不是想像的練習題；新單元接在單元 8 後面編號（公開章節網址依編號產生）。',
       '單元 9 放在整理結構之前：大規模搬檔前先學會 diff、存檔點與還原，出錯才救得回來；.gitignore 以本專案的檢查為例（.env、本機資料庫、build 產物、node_modules）。',
       '單元 10 強調「結構清楚，AI 才改得對」：先看方案再搬、搬完用型別檢查／build／逐頁點擊驗證，README 同步更新。',
       '單元 11、12 的每一課都以可檢查的結果收尾（curl 看到 404 狀態碼、GA4 即時報表有資料、資料庫只存密碼雜湊、測試通過），讓學員能驗證 AI 的成果。',
       '單元 13 把「驗證 AI 的成果」變成自動化：先列出絕不能壞的功能，再請 AI 寫測試、故意改壞確認測試抓得到，最後交給 CI 每次 push 都跑；學員要會讀結果，不必自己寫測試程式。',
       '單元 14 補上寫程式的方法：單元 10 整理既有的檔案位置、單元 13 檢查有沒有改壞，單元 14 教一開始就寫得好改（先看影響範圍、同一件事只放一處、一個檔案一件事、小步修改並把規則寫給 AI）。放在單元 13 之後，拆分時才有測試保護。',
+      '單元 15 串接 Facebook App 自動發文：網站上線後要對外更新消息，正好用到前面的 .gitignore、UTM 與 GA4、GitHub Actions；原則是「AI 起草、人核准、程式發布」，權杖當成密碼保管。',
     ],
     todos: [
       '決定主力 AI 程式助手、Windows 是否用 WSL、Node.js 安裝方式（見總覽的「待決定」）。',
@@ -360,13 +361,14 @@ export const TIER_INFO: Record<Tier, TierInfo> = {
       '從本專案的 git 紀錄整理單元 9–13 的示範素材：實際用過的提示詞、目錄整理前後的目錄樹、.gitignore 檢查、SEO 檢查指令（curl -I、sitemap）、登入流程圖、測試檔與 GitHub Actions 設定。',
       '決定學員的單元 11、12 練習專案：L0 的靜態網站（GitHub Pages）可做 SEO 與 GA4，但登入需要後端與資料庫，需另備起始專案或改用本專案的精簡版。',
       '確認 Google Search Console、GA4、Google Cloud（OAuth、Secret Manager）在課程中需要的帳號與費用，再寫進講義（不在大綱預估）。',
+      '本專案實際串接粉絲專頁發文後，整理單元 15 的示範素材（提示詞、草稿規則檔、GitHub Actions 設定），並對照 Meta 當時的權限、送審與權杖期限規定。',
     ],
     risks: [
       '安裝步驟與工具介面隨版本變動，腳本畫面需定期對照更新；版本號只寫「LTS」等穩定說法。',
       '學員電腦環境差異大（公司電腦權限、Proxy、防毒），課程無法涵蓋所有情況，需要求助管道。',
       '學員除了訂閱本站，AI 程式助手可能也需要付費方案，兩筆費用都要在課程介紹說清楚。',
       '只讀懂、不會寫 JavaScript 的學員直接進 L3 會卡關。',
-      'L2 從約 8 小時增加到約 18 小時，對「基礎」的定位可能過長；單元 9–13 可考慮列為選修或拆成 L2 進階。',
+      'L2 從約 8 小時增加到約 22 小時，對「基礎」的定位可能過長；單元 9–15 可考慮列為選修或拆成 L2 進階。',
       '登入功能涉及使用者資料與機密：示範畫面不可出現真實金鑰、資料庫連線字串或使用者資料；學員照做時若誤把 .env push 出去，要教會立即更換機密。',
       'Google Cloud Console、Search Console、GA4 的介面常改版：影片講流程，按鈕位置放講義並定期更新。',
     ],
@@ -601,4 +603,4 @@ export const OPEN_QUESTIONS: { tier: Tier; title: string; body: string }[] = [
 ]
 
 /** 大綱裡已有試做頁的課：鍵是「等級:課號」，值是試做頁網址 */
-export const OUTLINE_DEMOS: Record<string, string> = { 'L2:4.1': '/studio/vibe-coding/4-1', 'L2:4.2': '/studio/vibe-coding/4-2', 'L2:4.3': '/studio/vibe-coding/4-3' }
+export const OUTLINE_DEMOS: Record<string, string> = { 'L2:4.1': '/studio/vibe-coding/4-1', 'L2:4.2': '/studio/vibe-coding/4-2', 'L2:4.3': '/studio/vibe-coding/4-3', 'L2:15.1': '/studio/vibe-coding/15-1', 'L2:15.2': '/studio/vibe-coding/15-2', 'L2:15.3': '/studio/vibe-coding/15-3' }

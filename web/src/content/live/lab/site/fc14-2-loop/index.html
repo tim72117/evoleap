@@ -1,0 +1,31 @@
+<!doctype html><html><head><title>先重現才修</title></head><body>
+<div class="app s0">
+  <div class="grid">
+    <div class="guess" id="guess">
+      <h3>猜著修</h3>
+      <div class="g">「應該是這裡吧」</div><div class="ga">↓</div>
+      <div class="g">改一改</div><div class="ga">↓</div>
+      <div class="g">「修好了！」</div><div class="ga">↓</div>
+      <div class="g bad">客人：還是壞的 😩</div>
+    </div>
+    <div class="loop" id="loop">
+      <svg viewBox="0 0 600 420">
+        <path class="ring" d="M300 60 A160 150 0 1 1 299 60"/>
+        <path class="arrowhead" d="M290 52 l14 8 -14 8z"/>
+      </svg>
+      <div class="n n1" id="n1"><b>① 重現</b><small>照步驟，讓問題再發生一次</small></div>
+      <div class="n n2" id="n2"><b>② 找原因</b><small>看錯誤、看紀錄、縮小範圍</small></div>
+      <div class="n n3" id="n3"><b>③ 修</b><small>只改找到的原因</small></div>
+      <div class="n n4" id="n4"><b>④ 再重現一次</b><small>同樣的步驟，問題不見了</small></div>
+      <div class="center" id="center">重現步驟寫下來<br>＝ 之後的自動測試</div>
+    </div>
+  </div>
+  <div class="chips">
+    <button id="b0" data-s="g">猜著修</button>
+    <button id="b1" data-s="1">① 重現</button>
+    <button id="b2" data-s="2">② 找原因</button>
+    <button id="b3" data-s="3">③ 修</button>
+    <button id="b4" data-s="4">④ 再重現</button>
+  </div>
+</div>
+</body></html>

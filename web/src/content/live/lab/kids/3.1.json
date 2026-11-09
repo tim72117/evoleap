@@ -1,0 +1,221 @@
+{
+  "title": "按下去會發生事",
+  "lesson": "兒童網頁課 · 3.1 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "小狗的家",
+        "emoji": "🐶",
+        "note": "小狗旺旺最喜歡交朋友。",
+        "buttons": [
+          {
+            "id": "hi",
+            "text": "打招呼"
+          },
+          {
+            "id": "bye",
+            "text": "說再見"
+          }
+        ],
+        "rules": [
+          {
+            "id": "hi",
+            "when": "hi",
+            "do": []
+          }
+        ],
+        "drawer": [
+          {
+            "id": "hello",
+            "do": {
+              "say": "你好！"
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "小狗的網頁"
+      },
+      "chapter": "按了沒反應？",
+      "narration": "這是小狗旺旺的網頁。上面有兩個按鈕：打招呼，和說再見。"
+    },
+    {
+      "press": "hi",
+      "tap": true,
+      "narration": "我們按按看打招呼。咦？什麼事都沒發生。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:button:hi",
+        "text": "按鈕不會自己動"
+      },
+      "narration": "按鈕自己不知道，按下去要做什麼。要先跟它說好才行。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:code",
+        "text": "魔法積木"
+      },
+      "chapter": "魔法積木",
+      "narration": "右邊是魔法積木。這個單元要學 JavaScript，它就像網頁的魔法：先說好，網頁就照著做。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:when:hi",
+        "text": "點了什麼"
+      },
+      "narration": "黃色的積木說好「點了什麼」：這裡是，點了打招呼。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:do:hi",
+        "text": "就做什麼：還是空的"
+      },
+      "narration": "箭頭後面的格子，放「就做什麼」。格子現在是空的，所以按了沒反應。"
+    },
+    {
+      "snap": "hello",
+      "into": "hi",
+      "tap": true,
+      "narration": "我們從積木盒拿一塊「說你好」，放進格子裡。"
+    },
+    {
+      "press": "hi",
+      "tap": true,
+      "narration": "再按一次打招呼。哇！網頁說：你好！"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:rule:hi",
+        "text": "點了打招呼 ➜ 就說你好"
+      },
+      "narration": "這一列的意思是：點了打招呼，就說你好。用滑鼠按一下，叫做點擊；按下去之後網頁做的事，叫做發生的事。"
+    },
+    {
+      "checkpoint": "換你換一句話",
+      "sub": "lab/kids/3.1-say.json",
+      "chapter": "換你換一句話"
+    },
+    {
+      "wait": 400,
+      "chapter": "想一想",
+      "narration": "最後來想一想，一共兩題。看上面的題目，點畫面回答。"
+    },
+    {
+      "checkpoint": "第 1 題：按哪一個按鈕，網頁會說話？",
+      "body": "點網頁上的按鈕回答。",
+      "id": "quiz-1",
+      "stage": {
+        "focus": "kid:page"
+      },
+      "options": [
+        {
+          "label": "打招呼",
+          "target": "kid:button:hi",
+          "steps": [
+            {
+              "press": "hi",
+              "narration": "網頁說話了！"
+            },
+            {
+              "check": "button:hi",
+              "answer": "button:hi",
+              "narration": "答對了！魔法積木說好，點了打招呼就說話。"
+            }
+          ]
+        },
+        {
+          "label": "說再見",
+          "target": "kid:button:bye",
+          "retry": true,
+          "steps": [
+            {
+              "press": "bye",
+              "narration": "按了說再見，什麼事都沒發生。魔法積木只說好了打招呼要做什麼。再試一次！"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "checkpoint": "第 2 題：哪一塊說好「按下去要發生的事」？",
+      "body": "點一塊魔法積木回答。",
+      "id": "quiz-2",
+      "stage": {
+        "focus": "kid:code"
+      },
+      "options": [
+        {
+          "label": "點了打招呼",
+          "target": "kid:when:hi",
+          "retry": true,
+          "steps": [
+            {
+              "check": "when:hi",
+              "answer": "do:hi",
+              "narration": "這塊說的是點了什麼，也就是什麼時候。再找找看！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ]
+        },
+        {
+          "label": "說你好",
+          "target": "kid:do:hi",
+          "steps": [
+            {
+              "check": "do:hi",
+              "answer": "do:hi",
+              "narration": "答對了！格子裡放的就是發生的事：說你好。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:rule:hi",
+        "text": "說好「點了什麼」就「做什麼」"
+      },
+      "chapter": "學會",
+      "narration": "今天學到兩個名詞：點擊，和發生的事。先說好點了什麼，再說好就做什麼，網頁就會照著做！"
+    }
+  ]
+}

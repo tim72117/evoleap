@@ -1,0 +1,294 @@
+{
+  "title": "叫對名字，AI 才聽得懂",
+  "lesson": "兒童網頁課 · 4.1 試做",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {
+        "page": {
+          "parts": [
+            {
+              "id": "h1",
+              "kind": "h1",
+              "text": "小花的家"
+            },
+            {
+              "id": "img",
+              "kind": "img",
+              "emoji": "🐱"
+            },
+            {
+              "id": "p",
+              "kind": "p",
+              "text": "小花是一隻愛睡午覺的橘貓。"
+            },
+            {
+              "id": "btn",
+              "kind": "button",
+              "text": "摸摸小花"
+            }
+          ]
+        }
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "認識小幫手",
+      "guide": {
+        "target": "kid:helper",
+        "text": "AI 小幫手"
+      },
+      "narration": "這是 AI 小幫手。它很會做網頁，你說什麼，它就照著做。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "小花的家"
+      },
+      "narration": "中間是小幫手做好的網頁，小花的家。"
+    },
+    {
+      "send": "把那個大大的字改成紅色",
+      "chapter": "小幫手改錯了",
+      "narration": "我們請小幫手：把那個大大的字改成紅色。"
+    },
+    {
+      "make": [
+        {
+          "set": "btn",
+          "color": "#e53935"
+        }
+      ],
+      "reply": "好！我把大大的字改成紅色了。",
+      "narration": "咦？小幫手把按鈕上的字改成紅色了！"
+    },
+    {
+      "checkpoint": "我們本來想改的是哪一個？",
+      "body": "點網頁上的東西回答。",
+      "id": "q-which",
+      "options": [
+        {
+          "label": "標題",
+          "target": "kid:part:h1",
+          "steps": [
+            {
+              "check": "part:h1",
+              "answer": "part:h1",
+              "narration": "對！我們想改的是最上面的標題。"
+            }
+          ]
+        },
+        {
+          "label": "按鈕",
+          "target": "kid:part:btn",
+          "steps": [
+            {
+              "check": "part:btn",
+              "answer": "part:h1",
+              "narration": "這是按鈕，小幫手就是改了這裡。我們想改的是更大的字喔！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "段落",
+          "target": "kid:part:p",
+          "steps": [
+            {
+              "check": "part:p",
+              "answer": "part:h1",
+              "narration": "這是段落，字小小的。再找找看最大的字！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "圖片",
+          "target": "kid:part:img",
+          "steps": [
+            {
+              "check": "part:img",
+              "answer": "part:h1",
+              "narration": "這是圖片，上面沒有字。再找找看！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:chat",
+        "text": "大大的字有好幾個"
+      },
+      "narration": "大大的字有好幾個，小幫手只好用猜的，結果猜錯了。"
+    },
+    {
+      "send": "把[[按鈕]]的字改回黑色",
+      "narration": "先請小幫手把按鈕改回來。"
+    },
+    {
+      "make": [
+        {
+          "set": "btn",
+          "color": "#2b2620"
+        }
+      ],
+      "reply": "好，按鈕改回來了。"
+    },
+    {
+      "send": "把[[標題]]改成紅色",
+      "chapter": "叫對名字",
+      "narration": "這次叫對名字：把標題改成紅色。"
+    },
+    {
+      "make": [
+        {
+          "set": "h1",
+          "color": "#e53935"
+        }
+      ],
+      "reply": "好！標題變成紅色了。",
+      "narration": "成功了！叫對名字，小幫手一次就改對地方。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "標題・圖片・段落・按鈕"
+      },
+      "narration": "標題、圖片、段落、按鈕，每一塊都有名字。這些名字，你在前面都學過了。"
+    },
+    {
+      "checkpoint": "換你請小幫手",
+      "sub": "lab/kids/4.1-cards.json",
+      "chapter": "換你試試看"
+    },
+    {
+      "deal": [
+        {
+          "id": "q1",
+          "text": "把[[那個東西]]換成小狗"
+        },
+        {
+          "id": "q2",
+          "text": "把[[圖片]]換成小狗",
+          "ops": [
+            {
+              "set": "img",
+              "emoji": "🐶"
+            }
+          ],
+          "reply": "汪！圖片換成小狗了。"
+        },
+        {
+          "id": "q3",
+          "text": "把[[下面那個]]換成小狗"
+        }
+      ],
+      "chapter": "找找看",
+      "narration": "最後一題。想請小幫手把小貓的照片換成小狗，要說哪一張卡片呢？"
+    },
+    {
+      "checkpoint": "要說哪一張卡片，小幫手才知道換哪裡？",
+      "body": "點下面的卡片回答。",
+      "id": "q-card",
+      "options": [
+        {
+          "label": "把圖片換成小狗",
+          "target": "kid:card:q2",
+          "steps": [
+            {
+              "check": "card:q2",
+              "answer": "card:q2",
+              "narration": "答對了！說「圖片」，小幫手就知道是哪一個。"
+            },
+            {
+              "ask": "q2",
+              "narration": "小幫手把圖片換成小狗了！"
+            }
+          ]
+        },
+        {
+          "label": "把那個東西換成小狗",
+          "target": "kid:card:q1",
+          "steps": [
+            {
+              "check": "card:q1",
+              "answer": "card:q2",
+              "narration": "「那個東西」是哪一個呢？小幫手猜不到。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "把下面那個換成小狗",
+          "target": "kid:card:q3",
+          "steps": [
+            {
+              "check": "card:q3",
+              "answer": "card:q2",
+              "narration": "下面有段落，也有按鈕，小幫手不知道是哪一個。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:window",
+        "text": "叫對名字"
+      },
+      "narration": "叫對名字，小幫手和別人才知道你說的是哪一個。下次想改什麼，先想想它叫什麼名字！"
+    }
+  ]
+}
