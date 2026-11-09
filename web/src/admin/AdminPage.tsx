@@ -1,9 +1,9 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
-import { adminApi, type AdminOverview, type AdminUser, type Count, type GuestVisit, type HomePath, type LessonStat, type LoginStats, type UserProgress } from './api'
+import { adminApi, type AdminOverview, type AdminUser, type Count, type AdminRange, type GuestVisit, type HomePath, type HomeStay, type LessonStat, type LoginStats, type UserProgress } from './api'
 import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
 import { WEB_OPEN_LESSONS } from '../content/webCourse'
@@ -29,10 +29,26 @@ export function AdminRedirect() {
   return <Navigate to={ADMIN_PATH} replace />
 }
 
+/** 時間篩選的選項:整頁的統計都只算這段時間內的資料 */
+const RANGES: { value: AdminRange; label: string }[] = [
+  { value: '', label: '全部' },
+  { value: '30m', label: '30 分鐘' },
+  { value: '12h', label: '12 小時' },
+  { value: '1d', label: '1 天' },
+  { value: '7d', label: '7 天' },
+]
+
 /** 後台內容(不含版面):依登入狀態與權限顯示載入中、請先登入、沒有權限或儀表板 */
 export function AdminConsole() {
   const auth = useAuth()
   const [state, setState] = useState<State>({ kind: 'loading' })
+  const [range, setRange] = useState<AdminRange>('')
+  // 換篩選時保留舊資料,載入完再換,畫面不會閃成「載入中」
+  const [refreshing, setRefreshing] = useState(false)
+  /** 換篩選後重新載入失敗的訊息:保留舊資料與篩選按鈕,才能再選一次 */
+  const [refreshError, setRefreshError] = useState<string | null>(null)
+  /** 是否已經載入過一次資料(之後換篩選失敗時不換成錯誤畫面) */
+  const loaded = useRef(false)
 
   useEffect(() => {
     if (auth.status === 'loading') return
@@ -42,18 +58,30 @@ export function AdminConsole() {
     }
     // 沒登入也先問伺服器:本機用 -open-studio 啟動時後台不檢查權限;正式環境會回 401,顯示「請先登入」
     let cancelled = false
-    Promise.all([adminApi.overview(), adminApi.users()])
-      .then(([overview, users]) => !cancelled && setState({ kind: 'ready', data: { overview, users } }))
+    setRefreshing(true)
+    setRefreshError(null)
+    Promise.all([adminApi.overview(range), adminApi.users(range)])
+      .then(([overview, users]) => {
+        if (cancelled) return
+        loaded.current = true
+        setState({ kind: 'ready', data: { overview, users } })
+      })
       .catch((err: unknown) => {
         if (cancelled) return
         if (err instanceof ApiError && err.status === 403) setState({ kind: 'forbidden' })
         else if (err instanceof ApiError && err.status === 401) setState({ kind: 'guest' })
-        else setState({ kind: 'error', message: err instanceof ApiError ? err.message : '連線失敗，請檢查網路後再試一次' })
+        else {
+          const message = err instanceof ApiError ? err.message : '連線失敗，請檢查網路後再試一次'
+          // 換篩選時失敗:留在儀表板(保留上一次的資料與篩選按鈕),只在篩選旁顯示錯誤
+          if (loaded.current) setRefreshError(message)
+          else setState({ kind: 'error', message })
+        }
       })
+      .finally(() => !cancelled && setRefreshing(false))
     return () => {
       cancelled = true
     }
-  }, [auth.status])
+  }, [auth.status, range])
 
   return (
     <div className={styles.console}>
@@ -65,17 +93,37 @@ export function AdminConsole() {
         )}
         {state.kind === 'forbidden' && <p className={styles.note}>這個帳號沒有管理權限。</p>}
         {state.kind === 'error' && <p className={styles.note}>{state.message}</p>}
-        {state.kind === 'ready' && <Dashboard data={state.data} />}
+        {state.kind === 'ready' && (
+          <>
+            <div className={styles.ranges} role="group" aria-label="時間範圍">
+              {RANGES.map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  className={styles.range}
+                  aria-pressed={range === r.value}
+                  disabled={refreshing}
+                  onClick={() => setRange(r.value)}
+                >
+                  {r.label}
+                </button>
+              ))}
+              {refreshing && <span className={styles.muted}>更新中…</span>}
+              {refreshError && <span className={styles.rangeError}>{refreshError}（目前顯示的是上一次的資料）</span>}
+            </div>
+            <Dashboard data={state.data} filtered={range !== ''} />
+          </>
+        )}
     </div>
   )
 }
 
-function Dashboard({ data }: { data: Data }) {
+function Dashboard({ data, filtered }: { data: Data; filtered: boolean }) {
   const { overview, users } = data
   return (
     <>
       <div className={styles.stats}>
-        <Stat label="會員數" value={overview.users} />
+        <Stat label={filtered ? '新會員' : '會員數'} value={overview.users} />
         <Stat label="有播放紀錄" value={overview.activeUsers} />
         <Stat label="訪客" value={overview.guests} />
         <Stat label="有人學習的課" value={overview.lessons.filter((l) => !isHomeShowcase(l.lesson) && !isGate(l.lesson) && !isPage(l.lesson)).length} />
@@ -226,6 +274,7 @@ function GuestFunnel({ overview }: { overview: AdminOverview }) {
         </>
       )}
       <HomePaths paths={g.homePaths ?? []} total={g.homeVisits ?? 0} />
+      <HomeStays stays={g.homeStays ?? []} />
       <IdleVisits visits={g.idleVisits ?? []} />
       {gates.length > 0 && (
         <div className={styles.breakdown}>
@@ -377,6 +426,50 @@ export function describeEvent(e: string): string {
     default:
       return e
   }
+}
+
+/** 每個訪客在首頁停留多久:最近來過的在前 */
+function HomeStays({ stays }: { stays: HomeStay[] }) {
+  if (!stays.length) return null
+  return (
+    <>
+      <h3 className={`${styles.subheading} ${styles.section}`}>每個訪客在首頁停留多久（最近 {stays.length} 人）</h3>
+      <div className={styles.scroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>最後造訪</th>
+              <th>訪客</th>
+              <th>裝置／來源</th>
+              <th>次數</th>
+              <th>停留合計</th>
+              <th>最長一次</th>
+              <th>捲到</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stays.map((s, i) => (
+              <tr key={i}>
+                <td>{formatDateTime(s.lastOpened)}</td>
+                <td>
+                  <code>{s.guest}</code>
+                </td>
+                <td>
+                  {DEVICE_LABEL[s.device] ?? s.device}
+                  <br />
+                  <small className={styles.muted}>{SOURCE_LABEL[s.source] ?? (s.source || '—')}</small>
+                </td>
+                <td>{s.visits}</td>
+                <td>{formatDuration(s.totalMs)}</td>
+                <td>{formatDuration(s.longestMs)}</td>
+                <td>{s.maxScroll ? `${s.maxScroll}%` : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )
 }
 
 /** 最近沒播放的造訪:每一筆列出這次造訪的足跡 */

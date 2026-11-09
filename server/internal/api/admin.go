@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/tim72117/evoleap/internal/store"
 )
@@ -90,8 +91,25 @@ func (s *Server) handleAdminMe(w http.ResponseWriter, r *http.Request, user stor
 	writeJSON(w, http.StatusOK, s.authBody(user))
 }
 
+// adminRanges:後台的時間篩選(?range=),沒有或不認得的值就是全部。
+var adminRanges = map[string]time.Duration{
+	"30m": 30 * time.Minute,
+	"12h": 12 * time.Hour,
+	"1d":  24 * time.Hour,
+	"7d":  7 * 24 * time.Hour,
+}
+
+// adminSince 把 ?range= 換成起始時間;零值表示不篩選。
+func adminSince(r *http.Request, now time.Time) time.Time {
+	d, ok := adminRanges[r.URL.Query().Get("range")]
+	if !ok {
+		return time.Time{}
+	}
+	return now.Add(-d)
+}
+
 func (s *Server) handleAdminOverview(w http.ResponseWriter, r *http.Request, _ store.User) {
-	o, err := s.cfg.Store.AdminOverview(r.Context())
+	o, err := s.cfg.Store.AdminOverview(r.Context(), adminSince(r, time.Now()))
 	if err != nil {
 		internalError(w, err)
 		return
@@ -100,7 +118,7 @@ func (s *Server) handleAdminOverview(w http.ResponseWriter, r *http.Request, _ s
 }
 
 func (s *Server) handleAdminUsers(w http.ResponseWriter, r *http.Request, _ store.User) {
-	users, err := s.cfg.Store.AdminUsers(r.Context())
+	users, err := s.cfg.Store.AdminUsers(r.Context(), adminSince(r, time.Now()))
 	if err != nil {
 		internalError(w, err)
 		return

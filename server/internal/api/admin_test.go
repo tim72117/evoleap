@@ -261,3 +261,20 @@ func TestAdminOpenWithOpenStudio(t *testing.T) {
 		t.Errorf("me: %d %s", rec.Code, rec.Body)
 	}
 }
+
+func TestAdminSince(t *testing.T) {
+	now := time.Date(2026, 11, 9, 12, 0, 0, 0, time.UTC)
+	for q, want := range map[string]time.Time{
+		"":             {},
+		"?range=":      {},
+		"?range=bogus": {},
+		"?range=30m":   now.Add(-30 * time.Minute),
+		"?range=12h":   now.Add(-12 * time.Hour),
+		"?range=1d":    now.Add(-24 * time.Hour),
+		"?range=7d":    now.Add(-7 * 24 * time.Hour),
+	} {
+		if got := adminSince(httptest.NewRequest(http.MethodGet, "/api/admin/overview"+q, nil), now); !got.Equal(want) {
+			t.Errorf("%q: got %v, want %v", q, got, want)
+		}
+	}
+}

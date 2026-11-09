@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // 管理後台用的唯讀彙整。資料量小(會員數與課程數都不大),直接把兩張表讀出來在 Go 裡彙整,
@@ -179,6 +182,69 @@ func homePaths(views []guestViewRow) (top []PathCount, total int) {
 // maxIdleVisits 是後台列出幾筆最近沒播放的造訪。
 const maxIdleVisits = 30
 
+// maxHomeStays:後台「首頁停留時間」最多列幾個訪客。
+const maxHomeStays = 50
+
+// homeGuestIDLen:後台只顯示訪客代號的前幾碼(夠分辨不同人,又不會整串外流)。
+const homeGuestIDLen = 8
+
+// HomeStay 是一個訪客在首頁(page:/)的停留:停留時間是頁面在前景的時間。
+type HomeStay struct {
+	Guest      string    `json:"guest"`      // 訪客代號的前 homeGuestIDLen 碼
+	Device     string    `json:"device"`     // 最近一次造訪的裝置
+	Source     string    `json:"source"`     // 最近一次造訪的來源
+	Visits     int       `json:"visits"`     // 打開首頁幾次
+	TotalMs    int64     `json:"totalMs"`    // 首頁停留合計
+	LongestMs  int       `json:"longestMs"`  // 最長的一次
+	MaxScroll  int       `json:"maxScroll"`  // 捲到最深的百分比(25 的倍數;沒捲動是 0)
+	LastOpened time.Time `json:"lastOpened"` // 最後一次打開首頁
+}
+
+// homeStays 依訪客彙整首頁的停留時間(不含爬蟲與沒有裝置資料的舊紀錄)。
+func homeStays(views []guestViewRow) []HomeStay {
+	byGuest := map[string]*HomeStay{}
+	for _, v := range views {
+		if v.Lesson != PagePrefix+"/" || v.Device == "" || v.Device == DeviceBot {
+			continue
+		}
+		h := byGuest[v.GuestID]
+		if h == nil {
+			id := v.GuestID
+			if len(id) > homeGuestIDLen {
+				id = id[:homeGuestIDLen]
+			}
+			h = &HomeStay{Guest: id}
+			byGuest[v.GuestID] = h
+		}
+		h.Visits++
+		h.TotalMs += int64(v.VisibleMs)
+		if v.VisibleMs > h.LongestMs {
+			h.LongestMs = v.VisibleMs
+		}
+		for _, e := range parseEvents(v.Events) {
+			rest, ok := strings.CutPrefix(e.E, "scroll:")
+			if !ok {
+				continue
+			}
+			if pct, err := strconv.Atoi(strings.TrimSuffix(rest, "%")); err == nil && pct > h.MaxScroll {
+				h.MaxScroll = pct
+			}
+		}
+		if !v.OpenedAt.Before(h.LastOpened) {
+			h.LastOpened, h.Device, h.Source = v.OpenedAt, v.Device, v.Source
+		}
+	}
+	out := make([]HomeStay, 0, len(byGuest))
+	for _, h := range byGuest {
+		out = append(out, *h)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].LastOpened.After(out[j].LastOpened) })
+	if len(out) > maxHomeStays {
+		out = out[:maxHomeStays]
+	}
+	return out
+}
+
 // GuestBreakdown 是訪客紀錄(有裝置資料的)的分類統計。
 type GuestBreakdown struct {
 	Devices []Count `json:"devices"` // 每種裝置打開幾次(含爬蟲)
@@ -192,6 +258,8 @@ type GuestBreakdown struct {
 	HomePaths []PathCount `json:"homePaths"`
 	// 從首頁進來的造訪次數
 	HomeVisits int `json:"homeVisits"`
+	// 每個真人訪客在首頁停留多久,最近來過的在前,最多 maxHomeStays 人
+	HomeStays []HomeStay `json:"homeStays"`
 	// 訪客打開登入／註冊頁的次數與結果
 	Login LoginStats `json:"login"`
 }
@@ -289,13 +357,14 @@ func isCompleted(p progressRow) bool {
 }
 
 // AdminUsers 回傳所有使用者與其進度概況,最近註冊的在前。
-func (s *Store) AdminUsers(ctx context.Context) ([]AdminUser, error) {
+// since 不是零值時只列出這段時間內註冊或有播放的會員,課數、播放時間也只算這段時間內更新過的進度。
+func (s *Store) AdminUsers(ctx context.Context, since time.Time) ([]AdminUser, error) {
 	var users []userRow
 	if err := s.db.WithContext(ctx).Order("created_at DESC").Find(&users).Error; err != nil {
 		return nil, err
 	}
 	var rows []progressRow
-	if err := s.db.WithContext(ctx).Find(&rows).Error; err != nil {
+	if err := sinceScope(s.db.WithContext(ctx), "updated_at", since).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	byUser := make(map[string]*AdminUser, len(users))
@@ -319,21 +388,40 @@ func (s *Store) AdminUsers(ctx context.Context) ([]AdminUser, error) {
 			u.LastActive = &t
 		}
 	}
-	return out, nil
+	if since.IsZero() {
+		return out, nil
+	}
+	kept := out[:0]
+	for _, u := range out {
+		if u.LessonCount > 0 || !u.CreatedAt.Before(since) {
+			kept = append(kept, u)
+		}
+	}
+	return kept, nil
+}
+
+// sinceScope:since 不是零值時只取 col >= since 的資料。
+// 時間一律存成 UTC(now());SQLite 的時間是文字、比對是比字串,since 也要換成 UTC 才比得準。
+func sinceScope(db *gorm.DB, col string, since time.Time) *gorm.DB {
+	if since.IsZero() {
+		return db
+	}
+	return db.Where(col+" >= ?", since.UTC())
 }
 
 // AdminOverview 回傳會員數與各課統計(學習人數多的在前,再來是訪客打開次數)。
-func (s *Store) AdminOverview(ctx context.Context) (AdminOverview, error) {
+// since 不是零值時只算這段時間內的資料:會員數是這段時間內註冊的,進度看更新時間,訪客紀錄看打開時間。
+func (s *Store) AdminOverview(ctx context.Context, since time.Time) (AdminOverview, error) {
 	var total int64
-	if err := s.db.WithContext(ctx).Model(&userRow{}).Count(&total).Error; err != nil {
+	if err := sinceScope(s.db.WithContext(ctx).Model(&userRow{}), "created_at", since).Count(&total).Error; err != nil {
 		return AdminOverview{}, err
 	}
 	var rows []progressRow
-	if err := s.db.WithContext(ctx).Find(&rows).Error; err != nil {
+	if err := sinceScope(s.db.WithContext(ctx), "updated_at", since).Find(&rows).Error; err != nil {
 		return AdminOverview{}, err
 	}
 	var views []guestViewRow
-	if err := s.db.WithContext(ctx).Find(&views).Error; err != nil {
+	if err := sinceScope(s.db.WithContext(ctx), "opened_at", since).Find(&views).Error; err != nil {
 		return AdminOverview{}, err
 	}
 	type acc struct {
@@ -460,6 +548,7 @@ func (s *Store) AdminOverview(ctx context.Context) (AdminOverview, error) {
 		IdleVisits: idleVisits,
 		HomePaths:  home,
 		HomeVisits: homeVisits,
+		HomeStays:  homeStays(views),
 		Login:      loginStats(views),
 		Devices:    topCounts(devices, 0),
 		Sources:    topCounts(sources, 10),

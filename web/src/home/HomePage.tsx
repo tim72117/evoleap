@@ -40,6 +40,7 @@ export function HomePage() {
   const [shrinkSlot, setShrinkSlot] = useState<HTMLElement | null>(null)
   /** 兒童主題預覽的環節選單放在卡片左欄的這個位置(窄螢幕時左欄排在預覽上面,一樣顯示) */
   const [kidsMenu, setKidsMenu] = useState<HTMLElement | null>(null)
+  const [resultOpen, setResultOpen] = useState(false)
   const featured = introLesson
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
@@ -100,7 +101,7 @@ export function HomePage() {
             </div>
           </div>
 
-          <div className={styles.result}>
+          <div id="home-result" className={styles.result} data-open={resultOpen}>
             <div className={styles.resultPrompt}>
               <h3>第 2 課就能做出這個網站</h3>
               <p className={styles.resultNote}>一開始，你只要這樣告訴 AI：</p>
@@ -112,6 +113,24 @@ export function HomePage() {
               <figcaption>小森烘焙（課程虛構案例）的參考成品</figcaption>
             </figure>
           </div>
+          {/* 手機版預設收起「第 2 課就能做出這個網站」:卡片下緣的展開條,展開後內容出現在上方、這條變成「收起」;桌機不顯示 */}
+          <button
+            type="button"
+            className={styles.resultToggle}
+            aria-expanded={resultOpen}
+            aria-controls="home-result"
+            onClick={(e) => {
+              const bar = e.currentTarget
+              setResultOpen((o) => !o)
+              // 收起時上方內容消失、展開條往上跳:收起後把展開條捲回畫面中,不會突然看到下一個區塊
+              if (resultOpen) requestAnimationFrame(() => bar.scrollIntoView({ block: 'nearest' }))
+            }}
+          >
+            {resultOpen ? '收起' : '第 2 課就能做出這個網站'}
+            <svg className={styles.resultChevron} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
         </article>
 
         <section className={styles.kids} aria-label={KIDS_TOPIC.name}>

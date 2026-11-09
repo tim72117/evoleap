@@ -58,7 +58,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 
 ## 管理後台
 
-- 在研發基地的「會員」標籤 `/studio/members`（舊網址 `/admin` 轉到這裡），API 在 `/api/admin/*`：`me`、`overview`（會員數、訪客數、各課學習人數／看完人數／平均進度、訪客打開次數／人數／播放時間）、`users`（會員列表與進度概況）、`users/{id}/progress`（單一會員各課進度）。全部唯讀。
+- 在研發基地的「會員」標籤 `/studio/members`（舊網址 `/admin` 轉到這裡），API 在 `/api/admin/*`：`me`、`overview`（會員數、訪客數、各課學習人數／看完人數／平均進度、訪客打開次數／人數／播放時間、每個訪客在首頁停留多久）、`users`（會員列表與進度概況）、`users/{id}/progress`（單一會員各課進度）。全部唯讀。`overview` 與 `users` 可加 `?range=30m|12h|1d|7d` 只算這段時間內的資料（沒有或不認得的值是全部；會員數改成這段時間內註冊的，會員列表只列這段時間內註冊或有播放的），後台頁面上方的篩選就是用這個。
 - 管理員判定沿用 tripace：沒有獨立的管理員帳號，管理員就是「一般會員 + Email 在白名單內」。白名單是環境變數 `ADMIN_BOOTSTRAP_EMAIL`（可用逗號分隔多個，忽略大小寫），而且必須用 Google 登入（Email 經 Google 驗證）才算管理員，純密碼註冊的帳號不算（密碼註冊不驗證 Email 所有權，否則任何人都能搶註冊成管理員）；任何帳號第一次用 Google 登入綁定時，都會清掉原本的密碼，並讓綁定前發出的登入 cookie 失效，所以先用別人的 Email 註冊的人無法繼續登入（已經綁了另一個 Google 帳號的 Email 不會被別的 Google 帳號覆蓋，回 409）；未設定時沒有任何人是管理員（fail-closed）。每次請求都重新比對，移出白名單立即生效。
 - 未登入回 401、已登入但不在白名單回 403；本機用 `-open-studio` 啟動時不檢查（和研發基地一起開放，Cloud Run 上拒絕啟動）。程式在 `server/internal/api/admin.go`、`server/internal/store/admin.go`、`web/src/admin/`。
 

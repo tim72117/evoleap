@@ -199,6 +199,34 @@
   padding: 0 28px 28px;
 }
 
+/* 手機版「第 2 課就能做出這個網站」的展開條:貼在卡片下緣,跟著卡片的下緣圓角(桌機不顯示,見下方 @media) */
+.resultToggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--site-text);
+  background: var(--site-surface-2);
+  border: 0;
+  border-top: 1px solid var(--site-border);
+  cursor: pointer;
+}
+
+.resultChevron {
+  flex: none;
+  color: var(--site-muted);
+  transition: transform 0.15s;
+}
+
+.resultToggle[aria-expanded='true'] .resultChevron {
+  transform: rotate(180deg);
+}
+
 .resultPrompt h3 {
   margin: 0 0 8px;
   font-size: 16px;
@@ -487,6 +515,14 @@
 
   .result {
     padding: 0 20px 20px;
+  }
+
+  .resultToggle {
+    display: flex;
+  }
+
+  .result[data-open='false'] {
+    display: none;
   }
 }
 

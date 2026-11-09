@@ -278,3 +278,44 @@
 .section {
   margin-top: 26px;
 }
+
+/* 時間篩選:整頁的統計都只算選定時間內的資料 */
+.ranges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.range {
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.range:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.range[aria-pressed='true'] {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.range:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+/* 換篩選失敗:研發基地是深色底,用亮一點的紅,淺色底也讀得到 */
+.rangeError {
+  color: #f43f5e;
+  font-size: 13.5px;
+}

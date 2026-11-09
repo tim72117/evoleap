@@ -45,6 +45,8 @@ export interface GuestBreakdown {
   /** 從首頁進來的造訪走過的路徑(最常見的 20 條)與從首頁進來的造訪次數 */
   homePaths: HomePath[]
   homeVisits: number
+  /** 每個真人訪客在首頁停留多久(頁面在前景的時間),最近來過的在前,最多 50 人 */
+  homeStays?: HomeStay[]
   /** 訪客打開登入／註冊頁的次數與結果 */
   login: LoginStats
 }
@@ -71,6 +73,23 @@ export interface HomePath {
   /** 其中有播放過任何東西的次數 */
   played: number
 }
+
+/** 一個訪客在首頁的停留(server/internal/store/admin.go 的 HomeStay) */
+export interface HomeStay {
+  /** 訪客代號的前 8 碼 */
+  guest: string
+  device: string
+  source: string
+  visits: number
+  totalMs: number
+  longestMs: number
+  /** 捲到最深的百分比(25 的倍數) */
+  maxScroll: number
+  lastOpened: string
+}
+
+/** 後台的時間篩選:空字串是全部 */
+export type AdminRange = '' | '30m' | '12h' | '1d' | '7d'
 
 /** 一次沒有播放的造訪與它的足跡 */
 export interface GuestVisit {
@@ -108,10 +127,12 @@ async function get<T>(path: string): Promise<T> {
   return data as T
 }
 
+const rangeQuery = (range: AdminRange): string => (range ? `?range=${range}` : '')
+
 export const adminApi = {
   me: () => get<{ user: User }>('/api/admin/me').then((r) => r.user),
-  overview: () => get<AdminOverview>('/api/admin/overview'),
-  users: () => get<{ total: number; users: AdminUser[] }>('/api/admin/users').then((r) => r.users),
+  overview: (range: AdminRange = '') => get<AdminOverview>(`/api/admin/overview${rangeQuery(range)}`),
+  users: (range: AdminRange = '') => get<{ total: number; users: AdminUser[] }>(`/api/admin/users${rangeQuery(range)}`).then((r) => r.users),
   userProgress: (id: string) =>
     get<{ user: User; progress: UserProgress[] }>(`/api/admin/users/${encodeURIComponent(id)}/progress`).then((r) => r.progress),
 }
