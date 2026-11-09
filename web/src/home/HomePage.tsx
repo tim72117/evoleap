@@ -1,19 +1,17 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { COURSES, coursePath, isPreviewLesson, lessonPath, openLessonsOf } from '../content/catalog'
 import { LEVELS } from '../content/levels'
 import { HOME_INTRO, KIDS_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, type PlannedTopic } from '../content/topics'
-import { KidsPlayer } from '../kids/KidsPlayer'
 import { SiteLayout } from '../site/SiteLayout'
-import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage'
 import bakerySite from './assets/bakery-site.jpg'
 import styles from './HomePage.module.css'
 
-// 首頁:先列出主題,再進入各主題。有內容的主題佔整排,直接看得到教學畫面與做出來的成品;
+// 首頁:先列出主題,再進入各主題。有內容的主題佔整排,直接看得到做出來的成品(首頁不放影片預覽);
 // 規劃中的主題縮小,只寫預計做出的成果。課數、連結與示範提示詞都取自課程資料,主題文案在 content/topics.ts。
 
 const tools = COURSES.find((c) => c.slug === 'tools')!
-// 展示影片一律播序章(不用登入就能看),從頭開始;「開始第一課」也從序章開始
+// 「開始第一課」從序章開始(不用登入就能看)
 const openLessons = openLessonsOf(tools)
 const introLesson = tools.lessons.find(isPreviewLesson)!
 const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!
@@ -37,11 +35,7 @@ const TOPIC_ICONS = {
 export function HomePage() {
   // 課程地圖以前在首頁:舊連結(/#map、/#level-tools)導到主題頁的同一個位置
   const { hash } = useLocation()
-  const [shrinkSlot, setShrinkSlot] = useState<HTMLElement | null>(null)
-  /** 兒童主題預覽的環節選單放在卡片左欄的這個位置(窄螢幕時左欄排在預覽上面,一樣顯示) */
-  const [kidsMenu, setKidsMenu] = useState<HTMLElement | null>(null)
   const [resultOpen, setResultOpen] = useState(false)
-  const featured = introLesson
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
   return (
@@ -85,19 +79,7 @@ export function HomePage() {
                 <Link className={styles.secondary} to={{ pathname: SOFTWARE_TOPIC.path, hash: 'map' }}>
                   課程地圖
                 </Link>
-                <div ref={setShrinkSlot} className={styles.shrinkSlot} />
               </div>
-            </div>
-            <div className={styles.player}>
-              <InteractiveScenePage
-                key={featured.id}
-                script={featured.videos[0].live!}
-                pageTitle={featured.title}
-                interaction="static"
-                embed
-                track="home"
-                shrinkSlot={shrinkSlot}
-              />
             </div>
           </div>
 
@@ -134,34 +116,7 @@ export function HomePage() {
         </article>
 
         <section className={styles.kids} aria-label={KIDS_TOPIC.name}>
-          {/* 課程預覽:第一課(0.1)的試做,用兒童版播放器直接上,放在標題右側。
-              這張卡片給家長看:左欄先介紹哪些環節可互動,再列出環節(點了跳過去);播放控制留在影片下方 */}
-          <ThemeCard
-            t={KIDS_TOPIC}
-            aside={
-              KIDS_TOPIC.preview && (
-                <NearViewport placeholder={<div className={styles.kidsPlaceholder} aria-hidden="true" />}>
-                  <KidsPlayer
-                    script={KIDS_TOPIC.preview.script}
-                    size="compact"
-                    freeJump
-                    track="home"
-                    chaptersSlot={kidsMenu}
-                    chapterInfo={KIDS_TOPIC.preview.sections}
-                  />
-                </NearViewport>
-              )
-            }
-            below={
-              KIDS_TOPIC.preview && (
-                <>
-                  <h4>課程環節</h4>
-                  {KIDS_TOPIC.preview.intro && <p className={styles.kidsIntro}>{KIDS_TOPIC.preview.intro}</p>}
-                  <div ref={setKidsMenu} />
-                </>
-              )
-            }
-          />
+          <ThemeCard t={KIDS_TOPIC} />
         </section>
 
         <section className={styles.next} aria-labelledby="next-themes">
@@ -178,37 +133,12 @@ export function HomePage() {
 }
 
 /**
- * 捲到附近(上下 400px 內)才放上 children,之前先放 placeholder;放上之後就一直留著。
- * 首頁的兒童版播放器一掛上就會建舞台、載腳本,訪客沒捲到那裡就不用做這些事。
- * 不支援 IntersectionObserver 的瀏覽器直接放上
- */
-function NearViewport({ children, placeholder }: { children: ReactNode; placeholder: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [near, setNear] = useState(() => typeof IntersectionObserver === 'undefined')
-  useEffect(() => {
-    const el = ref.current
-    if (near || !el) return
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setNear(true)
-          io.disconnect()
-        }
-      },
-      { rootMargin: '400px 0px' },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [near])
-  return <div ref={ref}>{near ? children : placeholder}</div>
-}
-
-/**
  * 規劃中(或已開放、t.open)主題的卡片:名稱、標語、步驟或整理前後示意、預計做出的成果或涵蓋的情境。
  * aside 放在標題與內容的右側(窄螢幕排到下面);below 接在步驟下面。
- * 有 aside 的卡片,「你會做出」另起一段橫跨整張卡片,放在標題與預覽下面(仿照「做出自己的軟體」的成果段)
+ * 有 aside 的卡片,「你會做出」另起一段橫跨整張卡片,放在標題與預覽下面(仿照「做出自己的軟體」的成果段)。
+ * 首頁不放 aside;展示頁(ShowcasePage)的兒童課卡片把預覽播放器放在 aside
  */
-function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactNode; below?: ReactNode }) {
+export function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactNode; below?: ReactNode }) {
   const outcomes = t.outcomes && (
     <>
       <h4>你會做出</h4>

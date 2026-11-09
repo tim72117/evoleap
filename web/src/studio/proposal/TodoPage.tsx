@@ -9,6 +9,18 @@ const DECISIONS: { title: string; detail: string }[] = []
 
 const GROUPS: { title: string; items: Todo[] }[] = [
   {
+    title: '行銷',
+    items: [
+      {
+        title: '展示頁還沒有入口',
+        problem:
+          '首頁不放影片預覽了，原本的兩支（做出自己的軟體序章、給孩子的網頁程式第一課試做）搬到獨立的展示頁 /showcase（home/ShowcasePage.tsx）。站內沒有任何連結連過去，只列在 sitemap，現在幾乎只有知道網址的人看得到。',
+        action:
+          '決定展示頁怎麼用（廣告落地頁、社群分享、給家長的說明）：要投放就補文案與追蹤參數，要不要從首頁或導覽列連過去也一起決定（SEO 設定在 seo/pages.ts 的 SHOWCASE_PAGE）；後台的「展示影片」紀錄會一起算展示頁的播放。',
+      },
+    ],
+  },
+  {
     title: '付費與法律頁',
     items: [
       {

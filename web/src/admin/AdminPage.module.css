@@ -117,7 +117,7 @@
   color: var(--site-muted);
 }
 
-/* 首頁展示的紀錄:和打開課程頁的紀錄分開看 */
+/* 展示影片(home: 開頭,以前在首頁、現在在展示頁)的紀錄:和打開課程頁的紀錄分開看 */
 .tag {
   display: inline-block;
   margin-right: 6px;

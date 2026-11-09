@@ -293,6 +293,14 @@ const ADMIN_PAGE: PageMeta = {
   noindex: true,
 }
 
+/** 展示頁(home/ShowcasePage.tsx):首頁拿掉的影片預覽搬到這裡當行銷頁;站內沒有連結,公開頁一律收錄(pages.test.ts) */
+const SHOWCASE_PAGE: PageMeta = {
+  path: '/showcase',
+  title: documentTitle('課程展示'),
+  description: '不用登入，直接播放 evoleap 的互動課程：做出自己的軟體的序章，以及給孩子的網頁程式第一課試做。',
+  sitemapPriority: 0.3,
+}
+
 export const PAGES: PageMeta[] = [
   HOME,
   SOFTWARE_TOPIC_PAGE,
@@ -303,6 +311,7 @@ export const PAGES: PageMeta[] = [
   ...KIDS_LESSON_PAGES,
   WEB_TOPIC_PAGE,
   ...WEB_LESSON_PAGES,
+  SHOWCASE_PAGE,
   AI_AGENT_COURSE,
   ...COURSE_PAGES,
   ...LEGAL_PAGES,

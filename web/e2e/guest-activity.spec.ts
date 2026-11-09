@@ -42,18 +42,29 @@ test.describe('訪客上課紀錄', () => {
     expect((await put.response())?.status()).toBe(204)
   })
 
-  test('打開首頁記成 page:/;展示影片按下播放才另外記,記成「首頁展示」', async ({ page }) => {
+  test('打開首頁記成 page:/(首頁沒有展示影片,不會有 home: 紀錄)', async ({ page }) => {
     const lessons: string[] = []
     page.on('request', (r) => {
       if (r.url().endsWith('/api/guest/views') && r.method() === 'POST') lessons.push((JSON.parse(r.postData() ?? '{}') as { lesson: string }).lesson)
     })
     await page.goto('/')
+    await expect.poll(() => lessons).toEqual(['page:/'])
+    await page.waitForTimeout(1500)
+    expect(lessons).toEqual(['page:/'])
+  })
+
+  test('展示頁記成 page:/showcase;展示影片按下播放才另外記(home:)', async ({ page }) => {
+    const lessons: string[] = []
+    page.on('request', (r) => {
+      if (r.url().endsWith('/api/guest/views') && r.method() === 'POST') lessons.push((JSON.parse(r.postData() ?? '{}') as { lesson: string }).lesson)
+    })
+    await page.goto('/showcase')
     const player = page.locator('.vp').first()
     await expect(player.getByRole('slider', { name: '播放進度' })).not.toHaveAttribute('aria-valuemax', '0', { timeout: 15_000 })
     await page.waitForTimeout(1500)
-    expect(lessons).toEqual(['page:/']) // 只打開首頁:記首頁這一頁,展示影片不記
+    expect(lessons).toEqual(['page:/showcase']) // 只打開展示頁:記這一頁,展示影片不記
     await player.getByRole('button', { name: /播放/ }).first().click()
-    await expect.poll(() => lessons).toEqual(['page:/', 'home:live:l0/0.intro.json'])
+    await expect.poll(() => lessons).toEqual(['page:/showcase', 'home:live:l0/0.intro.json'])
   })
 
   test('登入的會員不記訪客紀錄', async ({ page, context }) => {

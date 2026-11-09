@@ -40,10 +40,14 @@
 
 .featuredMain {
   display: grid;
-  grid-template-columns: minmax(280px, 5fr) 7fr;
   gap: 28px;
-  align-items: center;
   padding: 28px;
+}
+
+/* 有播放器(展示頁)時左右兩欄:左邊文字、右邊播放器 */
+.featuredMain:has(.player) {
+  grid-template-columns: minmax(280px, 5fr) 7fr;
+  align-items: center;
 }
 
 .featuredText h2 {
@@ -147,7 +151,7 @@
   color: var(--site-text);
 }
 
-/* 「縮小播放器」放在按鈕下方:按鈕由播放器放進來,沒有放大時是空的,不佔位置 */
+/* 以下是展示頁(ShowcasePage)的播放器:首頁不放影片。「縮小播放器」放在按鈕下方:按鈕由播放器放進來,沒有放大時是空的,不佔位置 */
 .shrinkSlot {
   display: contents;
 }
@@ -330,20 +334,6 @@
   font-weight: 800;
 }
 
-/* 兒童版播放器還沒捲到附近、還沒掛上時的佔位:和舞台一樣 16:9,掛上時版面不會跳太多 */
-.kidsPlaceholder {
-  aspect-ratio: 16 / 9;
-  border-radius: 16px;
-  background: var(--site-surface, #f4efe6);
-}
-
-/* 左欄「課程環節」:介紹哪些環節可互動,下面是 KidsPlayer 放進來的環節選單(chaptersSlot) */
-.kidsIntro {
-  margin: 0 0 8px;
-  color: var(--site-muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
 
 
 @media (max-width: 900px) {
@@ -503,7 +493,8 @@
 }
 
 @media (max-width: 820px) {
-  .featuredMain,
+  /* :has(.player) 要寫出來,權重才蓋得過上面展示頁的兩欄 */
+  .featuredMain:has(.player),
   .result,
   .nextGrid {
     grid-template-columns: minmax(0, 1fr);
@@ -527,10 +518,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .featuredMain {
-    transition: none;
-  }
-
   .ctas a {
     transition: none;
   }
@@ -550,4 +537,24 @@
 
 .themeLink:hover {
   text-decoration: underline;
+}
+
+/* 兒童版播放器還沒捲到附近、還沒掛上時的佔位:和舞台一樣 16:9,掛上時版面不會跳太多 */
+.kidsPlaceholder {
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  background: var(--site-surface, #f4efe6);
+}
+
+/* 左欄「課程環節」:介紹哪些環節可互動,下面是 KidsPlayer 放進來的環節選單(chaptersSlot) */
+.kidsIntro {
+  margin: 0 0 8px;
+  color: var(--site-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 展示頁最後一張卡片下面留白(首頁的「更多主題課程」自己有下方留白) */
+.showcaseEnd {
+  height: 72px;
 }

@@ -9,8 +9,9 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = Number(process.env.E2E_PORT ?? 8198)
 const GATED_PORT = PORT + 1
 const tmpDb = (name: string) => `${process.env.RUNNER_TEMP ?? process.env.TEMP ?? '/tmp'}/shuttle-e2e-${name}-${Date.now()}.db`
+// -env= :不讀 server/.env(本機的 Google 登入、Paddle 等設定),和 CI 一樣用乾淨的環境
 const server = (port: number, flags: string, db: string) => ({
-  command: `go run ./cmd/server -addr 127.0.0.1:${port} -dist ../web/dist -db "${db}"${flags}`,
+  command: `go run ./cmd/server -addr 127.0.0.1:${port} -dist ../web/dist -db "${db}" -env=${flags}`,
   cwd: '../server',
   url: `http://127.0.0.1:${port}/api/health`,
   reuseExistingServer: false,

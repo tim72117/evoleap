@@ -134,14 +134,14 @@ test('舊的首頁錨點導到主題頁:/#map、/#level-tools', async ({ page })
   await expect(page.locator('#level-tools')).toBeVisible()
 })
 
-test('首頁:沒登入時主打主題播放序章,開始第一課連到序章', async ({ page }) => {
+test('首頁:不放影片預覽,開始第一課連到序章', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/')
-  await expect(page.locator('.vp')).toBeVisible()
-  // 主打主題與兒童主題各有一個「開始第一課」
-  // 「開始第一課」連到可以免費預覽的序章,展示播放器播的也是序章(登入後也一樣)
+  await expect(page.getByRole('article', { name: '做出自己的軟體' })).toBeVisible()
+  // 首頁不放播放器(主打主題的展示影片、兒童課的預覽都拿掉了)
+  await expect(page.locator('.vp')).toHaveCount(0)
+  // 主打主題與兒童主題各有一個「開始第一課」;主打主題的連到可以免費預覽的序章
   await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/intro')
-  await expect(page.getByRole('article', { name: '做出自己的軟體' }).locator('.vp')).toBeVisible()
   const kids = page.getByRole('region', { name: '給孩子的網頁程式' })
   await expect(kids.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/topics/kids/0-1')
   await expect(kids.getByRole('link', { name: '課程地圖' })).toHaveAttribute('href', '/topics/kids#map')
@@ -179,21 +179,21 @@ test('網頁怎麼運作:首頁卡片連到主題,第一課免費預覽、其他
   expect(errors).toEqual([])
 })
 
-test('首頁的展示:播序章、從頭開始;開始播放後播放器和卡片同寬放最上面,標題與按鈕移到下面,縮小後恢復', async ({ page }, info) => {
+test('展示頁:播序章、從頭開始;開始播放後播放器和卡片同寬放最上面,標題與按鈕移到下面,縮小後恢復', async ({ page }, info) => {
   test.setTimeout(60000)
   test.skip(info.project.name === 'mobile', '手機上播放器本來就是整排寬')
   const errors = collectErrors(page)
-  await loginAsNewStudent(page) // 登入後一樣播序章
-  await page.goto('/')
+  await page.goto('/showcase')
   const card = page.getByRole('article', { name: '做出自己的軟體' })
-  const facts = page.getByText('不用先學')
+  const lede = card.locator('p').nth(1)
   const shrink = page.getByRole('button', { name: '縮小播放器' })
 
   // 一開始不放大、不自動播放,從 0 秒開始;左欄完整
   await expect(page.locator('.vp.paused')).toBeVisible()
   await expect(page.locator('.vp-time')).toHaveText(/^0:00 /)
-  await expect(facts).toBeVisible()
+  await expect(lede).toBeVisible()
   await expect(shrink).toHaveCount(0)
+  await expect(card.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/intro')
   const small = (await page.locator('.vp').boundingBox())!
 
   // 開始播放:播放器和卡片內容同寬、在最上面,標題與按鈕在播放器下面;其他說明收起來
@@ -203,19 +203,26 @@ test('首頁的展示:播序章、從頭開始;開始播放後播放器和卡片
   const c = (await card.boundingBox())!
   const v = (await page.locator('.vp').boundingBox())!
   const h2 = (await card.getByRole('heading', { name: '做出自己的軟體' }).boundingBox())!
-  const start = (await card.getByRole('link', { name: '開始第一課' }).boundingBox())!
   expect(c.width - v.width).toBeLessThan(80) // 只差卡片的內距
   expect(h2.y).toBeGreaterThanOrEqual(v.y + v.height)
-  expect(start.y).toBeGreaterThan(h2.y)
-  await expect(facts).toBeHidden()
-  expect(await page.evaluate(() => document.fullscreenElement)).toBeNull()
+  await expect(lede).toBeHidden()
 
   // 縮小:回到原本的大小,次要內容回來
   await shrink.click()
   await expect(shrink).toHaveCount(0)
-  await expect(facts).toBeVisible()
+  await expect(lede).toBeVisible()
   await expect.poll(async () => (await page.locator('.vp').boundingBox())!.width).toBeCloseTo(small.width, 0)
+
+  // 兒童課的預覽捲到附近才載入,環節選單在左欄
+  const kids = page.getByRole('region', { name: '給孩子的網頁程式' })
+  await kids.scrollIntoViewIfNeeded()
+  await expect(kids.getByRole('heading', { name: '課程環節' })).toBeVisible()
   expect(errors).toEqual([])
+})
+
+test('首頁與導覽列都沒有連到展示頁', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('a[href="/showcase"]')).toHaveCount(0)
 })
 
 test('前端換到不存在的網址顯示找不到頁面,head 為 noindex 且沒有 canonical', async ({ page }) => {

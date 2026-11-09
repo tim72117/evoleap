@@ -1,4 +1,4 @@
-// 訪客(未登入)的上課紀錄:打開一課時記一筆(首頁的展示影片記成 home:…,按下播放才記),播放時累計實際播放的時間(不管倍速,是真實經過的時間)。
+// 訪客(未登入)的上課紀錄:打開一課時記一筆(展示頁 /showcase 的展示影片記成 home:…,按下播放才記;以前放在首頁),播放時累計實際播放的時間(不管倍速,是真實經過的時間)。
 // 訪客代號在 evoleap_guest cookie(伺服器發的 HttpOnly cookie,前端讀不到也不用管);會員不記在這裡(會員有自己的播放進度)。
 // 伺服器端見 server/internal/api/guest.go。送不出去都靜默略過,不影響上課。
 // 為了看出「打開了卻沒有播放」的原因,另外回報:進站來源(document.referrer,伺服器只留網域)、頁面在前景的時間、
@@ -12,7 +12,7 @@ import { useEffect, useMemo, useRef, type ReactNode } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 
-/** 首頁展示影片的紀錄名稱前綴:和打開課程頁的紀錄分開算(後台標成「首頁展示」) */
+/** 展示影片的紀錄名稱前綴(以前在首頁,現在在展示頁 /showcase;名稱沿用 home:):和打開課程頁的紀錄分開算(後台標成「展示影片」) */
 export const HOME_SHOWCASE_PREFIX = 'home:'
 export const homeShowcaseKey = (lesson: string): string => HOME_SHOWCASE_PREFIX + lesson
 export const isHomeShowcase = (lesson: string): boolean => lesson.startsWith(HOME_SHOWCASE_PREFIX)
@@ -100,7 +100,7 @@ export type GuestTracker = (() => void) & { ready: (elapsedMs?: number) => void;
 
 /**
  * 開始記錄訪客打開了這一課;isPlaying 回報播放器現在是不是在播放。回傳停止記錄的函式(會補送最後的資料)。
- * onPlay 為 true 時(首頁展示),第一次開始播放才記一筆,只打開頁面不記。
+ * onPlay 為 true 時(展示影片),第一次開始播放才記一筆,只打開頁面不記。
  */
 export function startGuestView(lesson: string, isPlaying: () => boolean, api = guestApi, onPlay = false): GuestTracker {
   let id: string | null = null
@@ -278,7 +278,7 @@ export interface GuestReporter {
  * 登入狀態還在確認時就載入完成的,確認是訪客後補記(載入時間照樣從打開頁面算起)。
  */
 export function useGuestView(lesson: string | null, isPlaying: () => boolean): GuestReporter {
-  // 首頁展示(home: 開頭)按下播放才記,只打開首頁不記
+  // 展示影片(home: 開頭)按下播放才記,只打開頁面不記
   const onPlay = lesson != null && isHomeShowcase(lesson)
   const { status } = useAuth()
   const playing = useRef(isPlaying)

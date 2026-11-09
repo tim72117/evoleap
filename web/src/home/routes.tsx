@@ -10,6 +10,7 @@ import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
 import { WEB_OPEN_LESSONS } from '../content/webCourse'
 import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 import { PageView } from '../courses/guestActivity'
+import { SHOWCASE_PATH, ShowcasePage } from './ShowcasePage'
 
 export const homeRoutes: { path: string; element: JSX.Element }[] = [
   // 首頁與課程地圖:訪客打開時記一筆 page:<網址>(PageView,guestActivity.ts),後台串成「從首頁進來的路徑」
@@ -21,6 +22,8 @@ export const homeRoutes: { path: string; element: JSX.Element }[] = [
   // 兒童課已經可以上的課,一課一頁
   ...Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => ({ path: l.path, element: <KidsLessonPage key={id} id={id} /> })),
   { path: WEB_TOPIC.path, element: <PageView><WebTopicPage /></PageView> },
+  // 展示頁:首頁拿掉的影片預覽,當獨立的行銷頁(站內沒有連結連過來,只列在 sitemap)
+  { path: SHOWCASE_PATH, element: <PageView><ShowcasePage /></PageView> },
   // 網頁怎麼運作已經可以上的課,一課一頁
   ...Object.entries(WEB_OPEN_LESSONS).map(([id, l]) => ({ path: l.path, element: <WebLessonPage key={id} id={id} /> })),
 ]

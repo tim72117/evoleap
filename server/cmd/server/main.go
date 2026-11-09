@@ -23,7 +23,19 @@ func main() {
 	dbPath := flag.String("db", "shuttle.db", "DATABASE_URL 未設定時使用的本機 SQLite 檔案")
 	distDir := flag.String("dist", "", "從磁碟目錄提供前端 build(例如 ../web/dist);留空使用內嵌的 build")
 	openStudio := flag.Bool("open-studio", false, "不檢查內部頁(研發基地)與管理後台的權限,只給本機與 E2E 測試用;Cloud Run 上會拒絕啟動")
+	envFile := flag.String("env", ".env", "本機開發時從這個檔案補上還沒設定的環境變數(Google 登入、管理員等);空字串不讀。Cloud Run 上不讀")
 	flag.Parse()
+
+	// 本機:先讀 .env,下面的 os.Getenv 才拿得到(不用每次手動 source);E2E 傳 -env= 不讀,和 CI 一樣
+	if *envFile != "" && os.Getenv("K_SERVICE") == "" {
+		n, err := loadDotEnv(*envFile)
+		if err != nil {
+			log.Fatalf("讀取 %s 失敗:%v", *envFile, err)
+		}
+		if n > 0 {
+			log.Printf("從 %s 載入 %d 個環境變數", *envFile, n)
+		}
+	}
 
 	// PORT 由平台注入(Cloud Run 預設 8080),覆寫監聽位址。
 	if p := os.Getenv("PORT"); p != "" {

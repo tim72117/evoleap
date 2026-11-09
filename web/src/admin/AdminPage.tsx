@@ -176,7 +176,7 @@ function Dashboard({ data, filtered }: { data: Data; filtered: boolean }) {
 function LessonName({ lesson }: { lesson: string }) {
   return (
     <>
-      {isHomeShowcase(lesson) && <span className={styles.tag}>首頁展示</span>}
+      {isHomeShowcase(lesson) && <span className={styles.tag} title="2026-11-09 前在首頁,之後在展示頁 /showcase">展示影片</span>}
       {isGate(lesson) && <span className={styles.tag}>登入門檻</span>}
       {isPage(lesson) && <span className={styles.tag}>頁面</span>}
       {lesson}
@@ -330,6 +330,7 @@ function LoginFunnel({ login }: { login?: LoginStats }) {
 const PAGE_NAME: Record<string, string> = {
   '/login': '登入／註冊頁',
   '/': '首頁',
+  '/showcase': '展示頁',
   [SOFTWARE_TOPIC.path]: `${SOFTWARE_TOPIC.name}（地圖）`,
   [AI_APPS_TOPIC.path]: `${AI_APPS_TOPIC.name}（地圖）`,
   [CLAUDE_CODE_TOPIC.path]: `${CLAUDE_CODE_TOPIC.name}（地圖）`,
@@ -351,7 +352,7 @@ export function stepName(lesson: string): string {
     return PAGE_NAME[path] ?? path
   }
   if (isGate(lesson)) return `登入門檻 ${lesson.slice('gate:'.length)}`
-  if (isHomeShowcase(lesson)) return '首頁展示影片'
+  if (isHomeShowcase(lesson)) return '展示影片'
   return LESSON_NAME[lesson] ?? lesson
 }
 

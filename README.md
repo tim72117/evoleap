@@ -17,7 +17,7 @@ web/                 前端（React + Vite + TypeScript）
       lessonTypes.ts   單課資料型別
       live/            即時教學畫面的腳本（JSON，例如 l0/0.0-tools.json；單課資料以 live 欄位指定）、旁白語音清單（*.voice.json）與章節音軌清單（*.mix.json）
     live/            即時教學畫面引擎（TypeScript）：舞台 stage.ts、播放器外殼 shell.ts、演員 actors/、鏡頭 camera.ts、動畫工具 kit.ts；規格見 src/live/README.md
-    home/            首頁（主題）、主題頁（課程地圖）/
+    home/            首頁（主題，不放影片）/、主題頁（課程地圖）、展示頁 /showcase（兩支影片預覽，站內沒有連結）
     courses/         全部課程 /courses、課程頁 /courses/*：總覽、上課頁（即時教學畫面或預覽大綱＋步驟）、規劃中章節頁；播放進度（只有登入的會員才記）
     auth/            登入頁 /login、使用者選單、登入狀態
     admin/           管理後台元件，放在研發基地的「會員」標籤 /studio/members（/admin 轉到這裡；只有白名單內的管理員，本機 -open-studio 不檢查；會員、播放進度與訪客上課紀錄，唯讀）
@@ -48,7 +48,7 @@ Dockerfile           多階段建置：前端 build → Go 編譯 → distroless
 本機 port 用 5190／8190，避開其他專案常用的 5173–5179、8080–8082。
 
 ```bash
-cd server && go run ./cmd/server         # API：http://127.0.0.1:8190（未設 DATABASE_URL 時用本機 SQLite shuttle.db）
+cd server && go run ./cmd/server         # API：http://127.0.0.1:8190（未設 DATABASE_URL 時用本機 SQLite shuttle.db；啟動時自動讀 server/.env）
 cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api 轉發到 8190）
 ```
 
@@ -73,7 +73,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 
 - `/studio`、`/materials`、`/docs` 與打包內容 `/assets/internal/*` 只有管理員能取得（判定條件同上），由 Go server 檢查（`server/cmd/server/static.go`）。未登入開頁面導向 `/login?next=…`；其他沒有權限的請求回 404。
 - 內部內容由 `web/src/App.tsx` 延遲載入 `src/studio/StudioApp.tsx`，輸出到 `assets/internal/`。`vite.config.ts` 在 build 時檢查內部模組沒有混進公開檔案；公開頁面只能 import `src/studio/interactive/`，其他 `src/studio/` 底下的模組會讓 build 失敗。內部頁的 SEO 資料在 `src/seo/internalPages.ts`，`lab/`、`promo/` 腳本由 StudioApp 註冊。
-- dev server（5190）也會擋：向本機 Go server（8190）的 `/api/admin/me` 確認，未登入導向登入頁，其他沒有權限的情況顯示找不到頁面；Go server 沒開時一律擋下（`vite.config.ts` 的 `devStudioGate`）。本機要以管理員進入，Go server 要設定 `GOOGLE_OAUTH_CLIENT_ID` 與 `ADMIN_BOOTSTRAP_EMAIL`；要略過檢查用 `DEV_OPEN_STUDIO=1 npm run dev`。`npm run record:live` 會帶本機 token（`node_modules/.cache/studio-dev-token`）通過，不用登入。直接跑 Go server 時，需要略過權限可加 `-open-studio`（Cloud Run 上會拒絕啟動）。
+- dev server（5190）也會擋：向本機 Go server（8190）的 `/api/admin/me` 確認，未登入導向登入頁，其他沒有權限的情況顯示找不到頁面；Go server 沒開時一律擋下（`vite.config.ts` 的 `devStudioGate`）。本機要以管理員進入，Go server 要設定 `GOOGLE_OAUTH_CLIENT_ID` 與 `ADMIN_BOOTSTRAP_EMAIL`（寫在 `server/.env`，啟動時自動讀進來；已經在 shell 設定的值優先，`-env=` 不讀，E2E 就是這樣跑；Cloud Run 上不讀）；要略過檢查用 `DEV_OPEN_STUDIO=1 npm run dev`。`npm run record:live` 會帶本機 token（`node_modules/.cache/studio-dev-token`）通過，不用登入。直接跑 Go server 時，需要略過權限可加 `-open-studio`（Cloud Run 上會拒絕啟動）。
 - E2E 開兩台 server：8198 加 `-open-studio` 測內部頁功能，8199 照正式設定測權限（`web/e2e/studio-access.spec.ts`）。管理員必須用 Google 登入，E2E 做不到，管理員可進入的部分由 Go 測試涵蓋。
 
 ## SEO

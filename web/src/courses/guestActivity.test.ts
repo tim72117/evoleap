@@ -54,7 +54,7 @@ describe('startGuestView', () => {
     expect(Math.abs(watched.at(-1)! - (10_000 + FLUSH_MS + 5000))).toBeLessThan(200)
   })
 
-  it('onPlay(首頁展示):只打開不記,第一次播放才記一筆', async () => {
+  it('onPlay(展示影片):只打開不記,第一次播放才記一筆', async () => {
     const { api, watched } = fakeApi()
     let playing = false
     const stop = startGuestView('home:live:a.json', () => playing, api, true)

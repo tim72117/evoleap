@@ -265,7 +265,7 @@ type Props = {
   scrub?: boolean
   /** 浮動版(搭配 layout="page"):舞台撐滿整個播放器,上方指引、字幕、按鈕都浮在舞台上(參考一般版的互動課程頁) */
   floating?: boolean
-  /** 訪客(未登入)打開與播放的時間要記下來(guestActivity.ts):true 是正式課程頁(kids:<腳本>),'home' 是首頁的預覽(記成「首頁展示」home:kids:<腳本>);不寫(研發頁)不記。
+  /** 訪客(未登入)打開與播放的時間要記下來(guestActivity.ts):true 是正式課程頁(kids:<腳本>),'home' 是展示頁的預覽(記成「展示影片」home:kids:<腳本>);不寫(研發頁)不記。
    *  true 時會員另外存播放進度(kids:<腳本>,resume.ts),下次從那一段接著看 */
   track?: boolean | 'home'
 }
