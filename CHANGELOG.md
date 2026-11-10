@@ -4,6 +4,35 @@
 
 ## [Unreleased]
 
+## [0.29.0] - 2026-11-10
+
+課程資料與腳本改由資料庫提供：所有課程寫進資料庫，腳本不再打包進前端，由伺服器依每一課的狀態把關；課程資料改在部署時以 Cloud Run Job 寫入，也可以從 dev 分支手動同步、不用打 tag。沒有破壞性變更（研發基地內部的 registerScripts、scriptPaths 換成 useScriptPaths，不影響公開頁面）。
+
+### 新增
+
+- **9 門課都在資料庫**（`courses_seed.json`）：AI 工具介紹、AI 工具入門、Vibe Coding 入門、AI Agent 整合應用、進階 AI Agent 應用、Claude Code 工作術也有單元與每一課。`lessons` 多了 `minutes`（學習時間）與 `files`（子腳本、開場、試做等附屬檔）。
+- **腳本由 API 提供**（`GET /api/scripts/{path}`，`server/internal/api/scripts.go`）：每一課的腳本、旁白清單、章節音軌清單存在 `lesson_files`（一個檔一列，記著屬於哪一課），研發基地的存在 `studio_files`。免費預覽誰都拿得到、登入後免費要登入、訂閱課程暫不給、草稿與研發基地的只給管理員（其他人當作不存在）；選用的旁白與章節音軌清單沒有時回 `null`。`GET /api/scripts` 列出所有腳本路徑（只給管理員）。沒接資料庫時照內嵌的種子直接讀檔，免登入的課照常能播。
+- **課程同步工作**（`server/cmd/sync`，Dockerfile 的 `course-sync` 目標）：部署時以 Cloud Run Job `shuttle-course-sync` 寫入課程資料，寫入失敗就不部署網站；`sync-courses.yml` 可從 `dev` 分支手動執行，只跑課程相關的測試與 build 小 image。兩個 workflow 共用 `.github/scripts/run-course-sync.sh`。
+- 主題課程的單課頁共用 `home/TopicLessonGate.tsx`：網頁怎麼運作、給孩子的網頁程式也和從做好到上線一樣，能不能上、播哪個腳本、要不要登入都照資料庫。
+- 播放器載不到要登入的腳本時顯示「這一課要登入才能觀看」與登入連結（`live/ScriptError.tsx`）。
+
+### 變更
+
+- **腳本不再打包進前端**（`live/scripts.ts` 改向 API 取）：草稿與研發基地的腳本不會出現在公開的 JS。研發基地的腳本清單改由 API 讀（`useScriptPaths`），刪除 `promoScripts.ts`。
+- AI 工具介紹、AI 工具入門的課程總覽讀課程地圖 API（每一課的一句話、時間、開放與否）；讀到之前不顯示每課的說明，免得文字跳動。
+- `tools` 的存取方式改成 `login-free`（序章 0.intro 免費預覽），和前端的規則一致。
+- sitemap 只列已開放的課（`seo/build.ts` 在建置時讀種子）；草稿與規劃中的課頁面仍可收錄，只是不列入。Docker 建置前端時一併複製種子。
+- Cloud Run 上的網站伺服器不再寫課程資料（只讀）；本機的後端啟動時照舊寫入，改既有腳本不用重啟（直接讀磁碟上的檔案，把關照資料庫）。
+- 更新 README（課程資料庫、研發基地的權限、部署、AdSense 的 repo 變數）、`live/README.md` 與相關註解；研發基地待辦拿掉已解決的「同時啟動兩台伺服器時，同步課程資料會失敗」。
+
+### 已知問題
+
+- 兩個 workflow 共用一個執行序，排隊中的部署可能被之後排隊的手動同步取消。
+- 課程總覽的「免費預覽／鎖頭」標籤沒有限定登入後免費的課程（目前只用在兩門登入後免費的課，不會出錯）。
+- 每讀一個腳本要查三次資料庫。
+- 手動同步每次在 Artifact Registry 留一個 `shuttle-course-sync` image，還沒設定清除規則。
+- `wip/full-course-lab` 分支仍用舊的 `registerScripts`，下次 rebase 到 main 要改。
+
 ## [0.28.0] - 2026-11-10
 
 課程頁可以放 Google AdSense 廣告（要設定編號才會出現）；「從做好到上線」單元 1、2 的 16 課草稿進來（只有管理員看得到）；修掉 iPhone Safari 重新整理後再播放偶爾有兩個聲音疊在一起。沒有破壞性變更。
