@@ -41,10 +41,12 @@ type Server struct {
 	loginEmail *rateLimiter
 	guestOpen  *rateLimiter
 	prune      guestPruner
+	// live 是管理員的即時腳本(livescript.go),只放記憶體
+	live *liveScripts
 }
 
 func New(cfg Config) *Server {
-	s := &Server{cfg: cfg}
+	s := &Server{cfg: cfg, live: newLiveScripts()}
 	if cfg.AuthRateLimit > 0 {
 		s.authIP = newRateLimiter(cfg.AuthRateLimit, time.Minute)
 		s.loginEmail = newRateLimiter(loginEmailLimit, time.Minute)
@@ -92,6 +94,14 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("PUT /api/admin/scripts/{path...}", s.requireAdmin(s.handleAdminScriptPut))
 	mux.HandleFunc("GET /api/admin/course-changes", s.requireAdmin(s.handleAdminCourseChanges))
 	mux.HandleFunc("GET /api/admin/schema-check", s.requireAdmin(s.handleSchemaCheck))
+	// 即時腳本(MCP 改、研發基地的頁面即時演出,見 livescript.go)
+	mux.HandleFunc("GET /api/live-script", s.requireAdmin(s.handleLiveGet))
+	mux.HandleFunc("PUT /api/live-script", s.requireAdmin(s.handleLivePut))
+	mux.HandleFunc("POST /api/live-script/steps", s.requireAdmin(s.handleLiveStepAdd))
+	mux.HandleFunc("PATCH /api/live-script/steps/{n}", s.requireAdmin(s.handleLiveStepUpdate))
+	mux.HandleFunc("DELETE /api/live-script/steps/{n}", s.requireAdmin(s.handleLiveStepDelete))
+	mux.HandleFunc("GET /api/live-script/events", s.requireAdmin(s.handleLiveEvents))
+	mux.HandleFunc("POST /api/live-script/report", s.requireAdmin(s.handleLiveReport))
 	mux.HandleFunc("POST /api/guest/views", s.requireAuth(s.handleGuestOpen))
 	mux.HandleFunc("PUT /api/guest/views/{id}", s.requireAuth(s.handleGuestWatch))
 	mux.HandleFunc("GET /api/admin/me", s.requireAdmin(s.handleAdminMe))

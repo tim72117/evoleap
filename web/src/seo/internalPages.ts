@@ -58,6 +58,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/portrait', '直式舞台'],
     ['/studio/fable-trial', '畫面試作：本機與網路上'],
     ['/studio/scenes', '場景'],
+    ['/studio/live-script', '即時腳本'],
     ['/studio/actor-interaction/scene', '互動教學場景'],
     ['/studio/actor-interaction/push', '互動場景：把演員推到主畫面'],
     ['/studio/actor-interaction/static', '互動場景：靜態演員'],

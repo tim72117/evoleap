@@ -17,6 +17,7 @@ import { KidsLesson03LivePage } from '../kids/KidsLesson03LivePage'
 import { KidsXrayLivePage } from '../kids/KidsXrayLivePage'
 import { FableTrialPage } from '../fable/FableTrialPage'
 import { ScenesPage } from '../fable/ScenesPage'
+import { LiveScriptPage } from '../live/LiveScriptPage'
 import { L1IdeasPage } from './L1IdeasPage'
 import { LifeToolsPage } from './LifeToolsPage'
 import { McpPage } from './McpPage'
@@ -89,4 +90,6 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/fable-trial', element: <FableTrialPage /> },
   // 開發 › 場景:背景依狀態自動變化的場景(試作)
   { path: '/studio/scenes', element: <ScenesPage /> },
+  // 開發 › 即時腳本:AI 透過 MCP(evoleap mcp)改後端的臨時腳本,這一頁即時演出(server/internal/api/livescript.go)
+  { path: '/studio/live-script', element: <LiveScriptPage /> },
 ]

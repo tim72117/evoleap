@@ -20,6 +20,7 @@
 //	script push -file 檔案 [-path 路徑] [-course ID -lesson ID]
 //	change list [-n 20]             最近的修改紀錄(誰、什麼時候、改了什麼)
 //	schema check                    資料庫結構檢查:資料表定義與實際欄位、主鍵是否一致,有沒有遺留表(有問題時結束碼 1)
+//	mcp                             當成 MCP server(stdio)讓 AI 工具操作即時腳本(見 mcp.go;claude mcp add evoleap -- evoleap mcp)
 //
 // 全域旗標 -api(預設 https://evoleap.io)。輸出一律是 JSON(script get 輸出腳本本身);失敗時訊息寫到 stderr、結束碼 1。
 package main
@@ -105,6 +106,9 @@ func main() {
 		mustDo(newClient(api).do("GET", "/api/me", nil, &out))
 		printJSON(out)
 		return
+	case "mcp":
+		cmdMCP(api)
+		return
 	case "version":
 		printJSON(map[string]string{"version": version})
 		return
@@ -157,6 +161,7 @@ func usage() {
   evoleap logout
   evoleap whoami
   evoleap version
+  evoleap mcp                      (MCP server,stdio:讓 AI 工具操作即時腳本)
 `)
 	for _, r := range resources {
 		for _, c := range r.commands {

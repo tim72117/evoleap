@@ -27,6 +27,7 @@ const DEV: Tab[] = [
   { to: '/studio/actor-interaction', label: '演員互動', match: '/studio/actor-interaction' },
   { to: '/studio/portrait', label: '直式舞台' },
   { to: '/studio/scenes', label: '場景' },
+  { to: '/studio/live-script', label: '即時腳本' },
 ]
 
 /** 跨等級構想。 */

@@ -1,0 +1,11 @@
+/* 即時腳本頁:播放區沿用演員展示頁的 16:9 黑底框 */
+.box { aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #000; }
+.cmd { display: block; margin: 6px 0; padding: 6px 10px; border-radius: 6px; background: var(--accent-soft); white-space: pre-wrap; word-break: break-all; }
+.status { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 0 0 10px; font-size: 13.5px; color: var(--ink-soft); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ink-soft); }
+.open { background: var(--done); }
+.connecting { background: var(--todo); }
+.retrying { background: var(--out); }
+.source { margin-top: 12px; }
+.source summary { cursor: pointer; font-size: 14px; }
+.source pre { max-height: 360px; overflow: auto; padding: 10px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; }

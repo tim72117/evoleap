@@ -92,6 +92,24 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
   - `evoleap schema check`：資料庫結構檢查（仿照 tripace 的 schema-check）：程式的資料表定義和資料庫實際的欄位、主鍵是否一致，有沒有遺留表（AutoMigrate 不會處理欄位改名、刪欄位、改主鍵，也不會刪表）；有問題時結束碼 1。研發基地的「會員」標籤也有同樣的檢查（`GET /api/admin/schema-check`）。
 - 伺服器端：登入在 `server/internal/api/cliauth.go`、`store/cliauth.go`；改課程資料在 `api/coursesadmin.go`、`store/coursesadmin.go`（全部經 `requireAdmin`，每次修改記在 `course_changes`）；核准頁是 `web/src/auth/CliAuthPage.tsx`。
 
+## 即時腳本（MCP）
+
+在 AI 工具（Claude Code 等）裡邊說邊改一份「臨時腳本」，研發基地的 `/studio/live-script` 同時照著演，不用存檔、重新整理。
+
+- 後端：`server/internal/api/livescript.go`，管理員專用（網站登入的管理員或 `evoleap` 的 CLI token）。臨時腳本只放在伺服器的記憶體，每位管理員一份，重啟就沒了。API：`GET`／`PUT /api/live-script`、`POST /api/live-script/steps`、`PATCH`／`DELETE /api/live-script/steps/{n}`、`GET /api/live-script/events`（SSE 推播）、`POST /api/live-script/report`（頁面回報載入結果）。
+- MCP：`evoleap mcp`（`server/cmd/evoleap/mcp.go`，stdio），工具有 `get_live_script`、`set_live_script`、`add_live_step`、`update_live_step`、`remove_live_step`、`wait_live_report`。寫錯的動作（演員不認得、狀態對不上）後端不擋，頁面載入時才知道並回報；AI 用 `wait_live_report` 看結果，錯了照訊息修。
+- 頁面：`web/src/studio/live/LiveScriptPage.tsx`，用 SSE 訂閱，收到新版本就重新載入舞台、停在原本的位置附近；載入失敗時顯示錯誤，舞台留在上一個能演的版本。
+- 本機試用（前端 5190、後端 8190 要開著）：
+
+  ```bash
+  cd server && go install ./cmd/evoleap
+  evoleap -api http://localhost:8190 login -console http://localhost:5190   # 以管理員核准
+  claude mcp add evoleap -- evoleap -api http://localhost:8190 mcp
+  ```
+
+  打開 http://localhost:5190/studio/live-script，再在 Claude Code 裡說要演什麼。
+- 限制：正式環境 Cloud Run 可能有好幾台執行個體，記憶體不共用，MCP 和頁面可能連到不同台，所以目前是給本機開發用的。存成正式的腳本檔要另外用 `evoleap script push`。
+
 ## 研發基地的權限
 
 - `/studio`、`/materials`、`/docs` 與打包內容 `/assets/internal/*` 只有管理員能取得（判定條件同上），由 Go server 檢查（`server/cmd/server/static.go`）。未登入開頁面導向 `/login?next=…`；其他沒有權限的請求回 404。
