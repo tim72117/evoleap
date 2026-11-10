@@ -1,29 +1,55 @@
-// 即時教學畫面的腳本:放在 src/content/live/,單課資料以 live: 'l0/0.0-tools.json' 指定(相對於 content/live/)。
-// 各腳本分開打包,播到那一課才載入。
+// 即時教學畫面的腳本:檔案放在 src/content/live/,單課資料以 live: 'l0/0.0-tools.json' 指定(相對於 content/live/)。
+// 腳本(與旁白清單、章節音軌清單)不打包進前端:寫入課程資料時讀進資料庫(正式環境是部署時,本機是後端啟動時;課程的依 courses_seed.json 掛在各課底下,其餘是研發基地的),
+// 這裡向 GET /api/scripts/{path} 取得。伺服器依那一課的狀態與存取方式把關(草稿只給管理員、登入後免費的要登入),研發基地的只給管理員。
+import { useEffect, useState } from 'react'
 import type { MixChapter } from './mixPlan'
 import type { StageScript } from './stage'
 import { withTeacher } from './teacher'
 
-// lab/ 與 promo/ 只有研發基地用,由 studio/StudioApp 註冊,不打包進公開的 JS。
-type Loaders = Record<string, () => Promise<unknown>>
-const SCRIPTS = import.meta.glob(
-  ['../content/live/**/*.json', '!../content/live/lab/**', '!../content/live/promo/**'],
-  { import: 'default' },
-) as Loaders
+/** 腳本要登入才拿得到(登入過期,或課程頁的判斷和伺服器不一致)時的錯誤訊息;播放器看到它會加上登入連結(ScriptError) */
+export const LOGIN_REQUIRED = '這一課要登入才能觀看，請登入後再試一次。'
 
-/** 加入內部的腳本;key 的寫法與這裡相同(../content/live/…) */
-export function registerScripts(loaders: Loaders) {
-  Object.assign(SCRIPTS, loaders)
+/** 向伺服器取一個腳本檔;沒有(或看不到,404)時回傳 null */
+async function loadJson(path: string): Promise<unknown> {
+  const res = await fetch(`/api/scripts/${path}`)
+  if (res.status === 404) return null
+  if (res.status === 401) throw new Error(LOGIN_REQUIRED)
+  if (res.status === 403) throw new Error('這一課要訂閱才能觀看。')
+  if (!res.ok) throw new Error(`讀不到即時教學畫面的腳本 ${path}(${res.status})`)
+  return res.json()
 }
 
-/** 目前可用的腳本路徑(例如 l0/0.0-tools.json) */
-export const scriptPaths = () => Object.keys(SCRIPTS).map((k) => k.replace('../content/live/', ''))
+/** 旁白清單、章節音軌清單:讀不到(沒有、登入過期、伺服器錯誤)都當作沒有,畫面照常播放,只有字幕 */
+const loadOptional = (path: string): Promise<unknown> => loadJson(path).catch(() => null)
 
-export function loadScript(path: string): Promise<StageScript> {
-  const load = SCRIPTS[`../content/live/${path}`]
-  if (!load) return Promise.reject(new Error(`找不到即時教學畫面的腳本:${path}`))
+let pathsRequest: Promise<string[]> | null = null
+
+/** 所有腳本檔的路徑(例如 l0/0.0-tools.json、promo/0.promo-intro.json;只有管理員拿得到,研發基地用);讀到之前是 null */
+export function useScriptPaths(): string[] | null {
+  const [paths, setPaths] = useState<string[] | null>(null)
+  useEffect(() => {
+    // 讀失敗不記住,下次打開頁面再試(例如管理員登入狀態還沒確定)
+    pathsRequest ??= fetch('/api/scripts')
+      .then((r) => (r.ok ? (r.json() as Promise<{ paths: string[] }>) : Promise.reject(new Error(String(r.status)))))
+      .then((b) => b.paths)
+      .catch(() => {
+        pathsRequest = null
+        return []
+      })
+    let cancelled = false
+    void pathsRequest.then((p) => !cancelled && setPaths(p))
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  return paths
+}
+
+export async function loadScript(path: string): Promise<StageScript> {
+  const script = (await loadJson(path)) as StageScript | null
+  if (!script) throw new Error(`找不到即時教學畫面的腳本:${path}`)
   // 腳本有 teacher 時在這裡展開成開頭的老師介紹,之後的程式(互動點、舞台、章節音軌)看到的都是展開後的腳本
-  return (load() as Promise<StageScript>).then(withTeacher)
+  return withTeacher(script)
 }
 
 // 旁白語音(scripts/voice.mjs 產生):腳本旁的 <名稱>.voice.json 記錄每段旁白的音檔與長度,
@@ -42,10 +68,7 @@ export type ScriptVoice = {
 
 /** 腳本的旁白語音;還沒產生時回傳 null(畫面照常播放,只有字幕) */
 export async function loadVoice(path: string): Promise<ScriptVoice | null> {
-  const key = `../content/live/${path.replace(/\.json$/, '.voice.json')}`
-  const load = SCRIPTS[key]
-  if (!load) return null
-  const manifest = (await load()) as VoiceManifest
+  const manifest = (await loadOptional(path.replace(/\.json$/, '.voice.json'))) as VoiceManifest | null
   if (!manifest?.clips) return null
   const durations: Record<string, number> = {}
   const urls: Record<string, string> = {}
@@ -67,9 +90,7 @@ export type ScriptMix = { chapters: MixChapter[] }
 
 /** 腳本的章節音軌;沒有合成時回傳 null */
 export async function loadMix(path: string): Promise<ScriptMix | null> {
-  const load = SCRIPTS[`../content/live/${path.replace(/\.json$/, '.mix.json')}`]
-  if (!load) return null
-  const manifest = (await load()) as MixManifest
+  const manifest = (await loadOptional(path.replace(/\.json$/, '.mix.json'))) as MixManifest | null
   if (!manifest?.chapters?.length) return null
   return { chapters: manifest.chapters.map((c) => ({ file: VOICE_BASE + c.file, clips: c.clips })) }
 }

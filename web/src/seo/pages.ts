@@ -25,6 +25,8 @@ export interface PageMeta {
   /** 不收錄的頁面(登入、後台、研發基地):noindex,且不列入 sitemap */
   noindex?: boolean
   ogType?: 'website' | 'article'
+  /** 這一頁是哪一課(courses_seed.json 的課程 id 與課號);課還沒開放時仍可收錄,但不列入 sitemap(判斷在 build.ts,只在建置時讀種子) */
+  lesson?: { course: string; id: string }
   /** sitemap 的 <priority>(0–1);不填則不輸出,搜尋引擎視為 0.5 */
   sitemapPriority?: number
   jsonLd?: JsonLd[]
@@ -169,6 +171,7 @@ const KIDS_LESSON_PAGES: PageMeta[] = Object.entries(KIDS_OPEN_LESSONS).map(([id
     path: l.path,
     title: documentTitle(kidsLessonDocTitle(id)),
     description,
+    lesson: { course: 'kids', id },
     jsonLd: [breadcrumb([KIDS_TOPIC.name, KIDS_TOPIC.path], [kidsLessonTitle(id), l.path]), course(`${KIDS_TOPIC.name}：${kidsLessonTitle(id)}`, description, l.path)],
   }
 })
@@ -204,6 +207,7 @@ const WEB_LESSON_PAGES: PageMeta[] = Object.entries(WEB_OPEN_LESSONS).map(([id, 
     path: l.path,
     title: documentTitle(webLessonDocTitle(id)),
     description,
+    lesson: { course: 'web', id },
     jsonLd: [breadcrumb([WEB_TOPIC.name, WEB_TOPIC.path], [title, l.path]), course(`${WEB_TOPIC.name}：${title}`, description, l.path)],
   }
 })
@@ -222,6 +226,7 @@ const COURSE_PAGES: PageMeta[] = COURSES.flatMap((c) => {
   // L3 的總覽頁是專屬頁面(AI_AGENT_COURSE),麵包屑沿用它的標題。
   const courseName = c.customOverview ? COURSE.title : c.title
   const topic = topicOfCourse(coursePath(c))
+  const seedId = ALL_LEVELS.find((l) => l.link === coursePath(c))?.id ?? c.slug
   const topicCrumb: [string, string] = [topic.name, topic.path]
   const overview: PageMeta[] = c.customOverview
     ? []
@@ -239,6 +244,7 @@ const COURSE_PAGES: PageMeta[] = COURSES.flatMap((c) => {
       path: lessonPath(c, lesson),
       title: documentTitle(name),
       description: lesson.goal,
+      lesson: { course: seedId, id: lesson.id },
       ogType: 'article' as const,
       jsonLd: [breadcrumb(topicCrumb, [courseName, coursePath(c)], [name, lessonPath(c, lesson)])],
     }
@@ -249,6 +255,7 @@ const COURSE_PAGES: PageMeta[] = COURSES.flatMap((c) => {
       path: plannedChapterPath(c, ch),
       title: documentTitle(name),
       description: ch.summary,
+      lesson: { course: seedId, id: ch.label },
       ogType: 'article' as const,
       jsonLd: [breadcrumb(topicCrumb, [courseName, coursePath(c)], [name, plannedChapterPath(c, ch)])],
     }
@@ -311,6 +318,7 @@ const LAUNCH_PAGES: PageMeta[] = [
       title: documentTitle(`${title}｜${LAUNCH_TOPIC.name}`),
       // 課程地圖上的一句話有些太短,接上主題與課名
       description: lesson ? `${lesson.learn}${LAUNCH_TOPIC.name}：${title}。` : LAUNCH_TOPIC.description,
+      lesson: { course: 'launch', id },
       sitemapPriority: 0.2,
       jsonLd: [breadcrumb([LAUNCH_TOPIC.name, LAUNCH_TOPIC.path], [title, launchLessonPath(id)])],
     }

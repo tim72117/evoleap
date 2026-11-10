@@ -1,6 +1,8 @@
 // build 時把 pages.ts 的資料轉成檔案內容(只有字串處理,檔案讀寫在 scripts/seo.mjs)。
 import { INTERNAL_PAGES } from './internalPages'
 import { absoluteUrl, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES, type HeadTag, type PageMeta } from './pages'
+// 種子只在建置時讀(這個檔不會打包進前端),免得草稿課的腳本路徑出現在公開的 JS;Docker 建置前端時也會複製這份檔案(見 Dockerfile)
+import courseSeed from '../../../server/internal/store/courses_seed.json'
 
 export { NOT_FOUND }
 
@@ -30,8 +32,18 @@ export function outputFile(page: PageMeta): string {
   return page === NOT_FOUND ? '404.html' : `${page.path.slice(1)}${page.path === '/' ? '' : '/'}index.html`
 }
 
+const SEED: { id: string; units?: { lessons: { id: string; status: string }[] }[] }[] = courseSeed
+
+/** 列入 sitemap 的頁面:可收錄,而且如果是一課的頁面,那一課在種子裡是已開放(open);草稿、規劃中的課不列入 */
+export function inSitemap(p: PageMeta): boolean {
+  if (p.noindex) return false
+  if (!p.lesson) return true
+  const { course, id } = p.lesson
+  return SEED.find((c) => c.id === course)?.units?.flatMap((u) => u.lessons).find((l) => l.id === id)?.status === 'open'
+}
+
 export function sitemapXml(): string {
-  const urls = PAGES.filter((p) => !p.noindex).map((p) => {
+  const urls = PAGES.filter(inSitemap).map((p) => {
     const priority = p.sitemapPriority === undefined ? '' : `<priority>${p.sitemapPriority.toFixed(1)}</priority>`
     return `  <url><loc>${escapeHtml(absoluteUrl(p.path))}</loc>${priority}</url>`
   })

@@ -10,7 +10,7 @@ import (
 )
 
 // 一門課(courses)底下分單元(course_units),單元底下是一堂一堂的課(lessons)。
-// 和 courses 一樣以 courses_seed.json 為準:啟動時整份同步(這門課底下的單元與課先刪再建,種子拿掉的就跟著消失)。
+// 和 courses 一樣以 courses_seed.json 為準:寫入課程資料時(正式環境是部署時的同步工作 server -sync-only,本機是後端啟動時)整份同步(這門課底下的單元與課先刪再建,種子拿掉的就跟著消失)。
 // 一堂課的存取方式(access)空的就照這門課,只有例外才填(例如第一課免費預覽)。
 // 狀態 draft(草稿)是公開與否的閘口:只有管理員看得到它是草稿、拿得到腳本路徑,其他人看到的是規劃中。
 
@@ -37,9 +37,11 @@ type lessonRow struct {
 	Access string `gorm:"size:16"`
 	// Status:open(已開放,可以上)、draft(草稿,只有管理員能上)、planned(規劃中)
 	Status string `gorm:"size:16;not null"`
-	// Script 是這一課的舞台腳本(web/src/content/live/ 底下的路徑,例如 launch/0.1.json);暫時記在這裡,之後可能改放課程內容表。
+	// Script 是這一課課程頁要播的舞台腳本(web/src/content/live/ 底下的路徑,例如 launch/0.1.json);檔案內容在 lesson_files(見 lessonfiles.go)。
 	// 沒有課程頁的課是空的
 	Script string `gorm:"size:200"`
+	// Minutes 是預估的學習時間(分鐘,含影片與跟做);0 代表還沒估
+	Minutes int `gorm:"not null;default:0"`
 }
 
 func (lessonRow) TableName() string { return "lessons" }
@@ -66,6 +68,9 @@ type lessonSeed struct {
 	Access  string `json:"access,omitempty"`
 	Status  string `json:"status"`
 	Script  string `json:"script,omitempty"`
+	// Files 是 script 以外這一課要用的腳本檔(子腳本、開場、試做),和 script 一起讀進 lesson_files(見 lessonfiles.go)
+	Files   []string `json:"files,omitempty"`
+	Minutes int      `json:"minutes,omitempty"`
 }
 
 // syncUnits 把一門課的單元與課整份換成種子的內容。
@@ -84,8 +89,8 @@ func syncUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 			switch l.Status {
 			case LessonOpen, LessonDraft:
 			case LessonPlanned:
-				if l.Script != "" {
-					return fmt.Errorf("課程 %s 的 %s:規劃中的課不能有 script", courseID, l.ID)
+				if l.Script != "" || len(l.Files) > 0 {
+					return fmt.Errorf("課程 %s 的 %s:規劃中的課不能有 script 或 files", courseID, l.ID)
 				}
 			default:
 				return fmt.Errorf("課程 %s 的 %s:status 要是 open、draft 或 planned", courseID, l.ID)
@@ -95,7 +100,7 @@ func syncUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 			default:
 				return fmt.Errorf("課程 %s 的 %s:不認得的 access %q", courseID, l.ID, l.Access)
 			}
-			ls = append(ls, lessonRow{CourseID: courseID, ID: l.ID, UnitID: u.ID, Title: l.Title, Summary: l.Summary, Position: len(ls), Access: l.Access, Status: l.Status, Script: l.Script})
+			ls = append(ls, lessonRow{CourseID: courseID, ID: l.ID, UnitID: u.ID, Title: l.Title, Summary: l.Summary, Position: len(ls), Access: l.Access, Status: l.Status, Script: l.Script, Minutes: l.Minutes})
 		}
 	}
 	if len(us) > 0 {
@@ -136,6 +141,8 @@ type MapLesson struct {
 	Status string `json:"status"`
 	// Script 是課程頁要播的腳本;只有看得到這一課的人才有(草稿只給管理員)
 	Script string `json:"script,omitempty"`
+	// Minutes 是預估的學習時間(分鐘);還沒估的課沒有這個欄位
+	Minutes int `json:"minutes,omitempty"`
 }
 
 // CourseMapOf 回傳一門課的課程地圖;課程不存在時回 ErrCourseNotFound。
@@ -179,7 +186,7 @@ func (s *Store) CourseMapOf(ctx context.Context, id string, drafts bool) (Course
 		if status == LessonDraft && !drafts {
 			status, script = LessonPlanned, ""
 		}
-		m.Units[i].Lessons = append(m.Units[i].Lessons, MapLesson{ID: l.ID, Title: l.Title, Summary: l.Summary, Access: access, Status: status, Script: script})
+		m.Units[i].Lessons = append(m.Units[i].Lessons, MapLesson{ID: l.ID, Title: l.Title, Summary: l.Summary, Access: access, Status: status, Script: script, Minutes: l.Minutes})
 	}
 	return m, nil
 }

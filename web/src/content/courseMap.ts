@@ -1,5 +1,5 @@
 // 課程地圖(一門課 → 單元 → 一堂一堂的課):從資料庫讀(GET /api/courses/{id}/map,伺服器的 courses、course_units、lessons 表)。
-// 資料來源是 server/internal/store/courses_seed.json,伺服器啟動時同步進資料表;courseMap.test.ts 檢查它和前端的課程內容一致。
+// 資料來源是 server/internal/store/courses_seed.json,部署時(正式環境的同步工作)或本機後端啟動時同步進資料表;courseMap.test.ts 檢查它和前端的課程內容一致。
 import { useEffect, useState } from 'react'
 
 export type CourseAccess = 'free' | 'login-free' | 'subscription'
@@ -15,6 +15,8 @@ export type MapLesson = {
   status: 'open' | 'draft' | 'planned'
   /** 課程頁要播的腳本(src/content/live/ 底下的路徑);看得到這一課的人才有,暫時記在課程資料裡 */
   script?: string
+  /** 預估的學習時間(分鐘,含影片與跟做);還沒估的課沒有 */
+  minutes?: number
 }
 export type MapUnit = {
   id: string

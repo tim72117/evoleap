@@ -63,7 +63,7 @@ export const courseRoutes: { path: string; element: JSX.Element }[] = [
           path: coursePath(course),
           element:
             course.lessons.length > 0 ? (
-              <CourseOverviewPage course={course} interactive={course.lessons.filter(hasLive).map((l) => l.id)} />
+              <CourseOverviewPage course={course} />
             ) : (
               <PlannedCourseOverviewPage course={course} />
             ),

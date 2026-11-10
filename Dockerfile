@@ -16,6 +16,8 @@ WORKDIR /repo/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
+# 課程的存取方式只寫在這份檔案,前端 build 與後端共用。
+COPY server/internal/store/courses_seed.json /repo/server/internal/store/courses_seed.json
 # GA4 評估 ID(Vite 於 build 時內嵌):docker build --build-arg VITE_GA_MEASUREMENT_ID=G-XXXX。
 # 未傳或留空時前端完全不載入 Google Analytics。
 ARG VITE_GA_MEASUREMENT_ID=""
@@ -52,7 +54,9 @@ RUN cd /src/server && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -
 FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /app
 COPY --from=build /out/server /app/server
+# 課程腳本檔:部署時的同步工作(Cloud Run Job,server -sync-only)依 courses_seed.json 讀進資料庫(-live),前端改由 /api/scripts 取得
+COPY web/src/content/live/ /app/live/
 
 # Cloud Run 會注入 PORT(預設 8080);main.go 讀 PORT 覆寫監聽位址。
 EXPOSE 8080
-ENTRYPOINT ["/app/server"]
+ENTRYPOINT ["/app/server", "-live", "/app/live"]

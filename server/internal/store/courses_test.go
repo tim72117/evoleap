@@ -19,7 +19,7 @@ func TestCoursesSeededOnOpen(t *testing.T) {
 		access Access
 		tier   string
 	}{
-		{"tools", AccessFree, ""},
+		{"tools", AccessLoginFree, ""},
 		{"ai-tools", AccessLoginFree, ""},
 		{"vibe-coding-basics", AccessSubscription, "basic"},
 		{"ai-agent", AccessSubscription, "advanced"},
@@ -42,8 +42,8 @@ func TestCoursesSeededOnOpen(t *testing.T) {
 	defer st.Close()
 	var n int64
 	st.db.Model(&courseRow{}).Count(&n)
-	if n != 8 {
-		t.Errorf("courses: want 8, got %d", n)
+	if n != 9 {
+		t.Errorf("courses: want 9, got %d", n)
 	}
 }
 
@@ -68,8 +68,11 @@ func TestKidsCourseMap(t *testing.T) {
 		t.Errorf("0.1 open: %+v", first[0])
 	}
 	// 沒有單元的課回空清單
-	if m, err := st.CourseMapOf(context.Background(), "tools", false); err != nil || len(m.Units) != 0 {
-		t.Errorf("tools: %+v %v", m, err)
+	if err := st.ReplaceUnitsJSON("advanced", `[]`); err != nil {
+		t.Fatal(err)
+	}
+	if m, err := st.CourseMapOf(context.Background(), "advanced", false); err != nil || len(m.Units) != 0 {
+		t.Errorf("advanced: %+v %v", m, err)
 	}
 	if _, err := st.CourseMapOf(context.Background(), "nope", false); !errors.Is(err, ErrCourseNotFound) {
 		t.Errorf("nope: %v", err)
@@ -158,5 +161,24 @@ func TestSeedRejectsPlannedScript(t *testing.T) {
 	bad[0].Lessons[0] = lessonSeed{ID: "0.1", Status: "hidden"}
 	if err := syncUnits(st.db, "launch", bad); err == nil {
 		t.Error("不認得的 status 應該報錯")
+	}
+}
+
+// 每一課的學習時間(分鐘)存進資料庫、課程地圖回傳;沒估的課是 0(JSON 裡沒有這個欄位)
+func TestLessonMinutes(t *testing.T) {
+	st, err := Open(filepath.Join(t.TempDir(), "test.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	if err := st.ReplaceUnitsJSON("tools", `[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"planned","minutes":25},{"id":"0.2","title":"二","status":"planned"}]}]`); err != nil {
+		t.Fatal(err)
+	}
+	m, err := st.CourseMapOf(context.Background(), "tools", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := m.Units[0].Lessons; got[0].Minutes != 25 || got[1].Minutes != 0 {
+		t.Errorf("minutes: %+v", got)
 	}
 }

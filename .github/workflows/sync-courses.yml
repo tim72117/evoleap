@@ -1,0 +1,67 @@
+name: Sync course data
+
+# 只把課程資料寫進正式資料庫,不部署網站、不用打 tag:改了 courses_seed.json 或 web/src/content/live/ 的腳本時,
+# 在 GitHub Actions 選 dev 分支按「Run workflow」(或 gh workflow run sync-courses.yml --ref dev)。
+# 只能從 dev 分支執行,選其他分支會直接失敗(免得開發中的分支把課程或資料表結構寫進正式資料庫)。
+# 用 dev 分支 build 一個 image(標 sync-<commit>,不動網站用的 latest),執行課程同步工作(Cloud Run Job,server -sync-only)。
+# 正在跑的網站從資料庫讀課程地圖與腳本,所以新的課程狀態、腳本、時間馬上生效;
+# 但新增課程頁(前端路由、SEO、課程內容)和程式的修改,還是要打 tag 部署網站(deploy-cloudrun.yml)。
+on:
+  workflow_dispatch:
+
+# 和部署共用一個執行序:不會和部署或另一次同步同時寫資料庫
+concurrency:
+  group: course-data
+  cancel-in-progress: false
+
+env:
+  GCP_PROJECT_ID: "shuttle-045094509"
+  CLOUD_RUN_REGION: "asia-east1"
+  CLOUD_RUN_SYNC_JOB: "shuttle-course-sync"
+  IMAGE: "asia-east1-docker.pkg.dev/shuttle-045094509/cloud-run-source-deploy/shuttle-server"
+  CLOUDSQL_INSTANCE: "onagent-prod:asia-east1:onagent-db"
+
+jobs:
+  # 只能從 dev 分支執行:其他分支直接失敗(不用 if 跳過,免得看起來像成功)
+  branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only the dev branch can sync course data
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/dev" ]; then
+            echo "::error::課程同步只能從 dev 分支執行(這次是 ${{ github.ref_name }})"
+            exit 1
+          fi
+
+  # 測試沒過就不寫(種子和腳本檔的一致性由前端與 Go 測試檢查)
+  test:
+    needs: branch
+    uses: ./.github/workflows/test.yml
+
+  sync:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-east1-docker.pkg.dev --quiet
+
+      # 只拿來同步課程資料,不部署網站,所以不帶 GA、AdSense 的設定
+      - name: Build and push image
+        run: |
+          docker build -t ${{ env.IMAGE }}:sync-${{ github.sha }} .
+          docker push ${{ env.IMAGE }}:sync-${{ github.sha }}
+
+      - name: Sync course data (Cloud Run Job)
+        run: .github/scripts/run-course-sync.sh ${{ env.IMAGE }}:sync-${{ github.sha }}

@@ -1,5 +1,4 @@
 import { Route, Routes } from 'react-router-dom'
-import { registerScripts } from '../live/scripts'
 import { findInternalPage } from '../seo/internalPages'
 import { usePageMeta } from '../seo/usePageMeta'
 import { NotFoundPage } from '../site/NotFoundPage'
@@ -13,10 +12,6 @@ import { proposalRoutes } from './proposal/routes'
 /** 內部頁的所有路由;scripts/seo.mjs 與 pages.test 用來和 SEO 資料對照 */
 export const internalRoutes = [...proposalRoutes, ...materialsRoutes, ...docsRoutes, ...articleRoutes]
 
-// 實驗與宣傳影片的腳本只有研發基地用,不放進公開的腳本清單(live/scripts.ts)。
-registerScripts(
-  import.meta.glob(['../content/live/lab/**/*.json', '../content/live/promo/**/*.json'], { import: 'default' }),
-)
 
 export default function StudioApp() {
   usePageMeta(findInternalPage)

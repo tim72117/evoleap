@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import type { Aspect } from '../../live/types'
 import { narrationClips } from '../../live/mixPlan'
 import { loadMix, loadScript, loadVoice, type ScriptMix, type ScriptVoice } from '../../live/scripts'
+import { ScriptError } from '../../live/ScriptError'
 import { mountShell, type ProgressStore, type Shell } from '../../live/shell'
 import { homeShowcaseKey, useGuestView } from '../../courses/guestActivity'
 import { createStage, type Stage, type StageChapter, type StageScript } from '../../live/stage'
@@ -470,11 +471,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
           {staticActor}
         </div>
         <div ref={setHintSlot} className={styles.embedHint} />
-        {error && (
-          <p className={styles.error} role="alert">
-            無法載入場景：{error}
-          </p>
-        )}
+        {error && <ScriptError className={styles.error} prefix="無法載入場景：" error={error} />}
         {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} inDrawer moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
         {current && !onActor && (
           <div ref={embedMomentRef} className={styles.embedMoment}>
@@ -596,11 +593,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         </p>
       )}
 
-      {error && (
-        <p className={styles.error} role="alert">
-          無法載入場景：{error}
-        </p>
-      )}
+      {error && <ScriptError className={styles.error} prefix="無法載入場景：" error={error} />}
 
       {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} inDrawer={drawer} moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
 

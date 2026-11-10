@@ -1,7 +1,8 @@
 // 學員端課程目錄：課程地圖上每個等級一門課，每門課的章節各有自己的網址（SEO 逐頁產生）。
 // - lessons：已有完整內容的章節（目標、步驟、提示詞），用 LessonPage 呈現；與提案頁共用資料。
 // - planned：規劃中的章節，只有標題與簡述，用 PlannedChapterPage 呈現；內容完成後改放進 lessons。
-// 新增一門課：在這裡加一筆，routes.tsx 與 seo/pages.ts 會自動產生路由與 SEO。
+// 新增一門課：在這裡加一筆，routes.tsx 與 seo/pages.ts 會自動產生路由與 SEO；課程結構也要寫進 server/internal/store/courses_seed.json（content/courseMap.test.ts 檢查一致）。
+// 課程總覽的每一課（一句話、時間、開放與否）從資料庫讀，這裡的資料是單課頁的內容與讀到之前的備用資料。
 import { ALL_LEVELS, LEVELS, type CourseLevel } from './levels'
 import { L2_MODULES } from './l2Outline'
 import { UNITS } from './aiAgent'
@@ -127,17 +128,17 @@ export function openLessonsOf(course: Course): CourseLesson[] {
 }
 
 /** 顯示用課號：L0 的「0.1」顯示為「1」（第 1 課），其他課顯示原課號（第 1.1 課） */
-export function lessonNumber(lesson: CourseLesson): string {
+export function lessonNumber(lesson: Pick<CourseLesson, 'id'>): string {
   return lesson.id.startsWith('0.') ? lesson.id.slice(2) : lesson.id
 }
 
 /** 顯示用名稱：有 label 用 label（例如「序章」），否則「第 N 課」 */
-export function lessonLabel(lesson: CourseLesson): string {
+export function lessonLabel(lesson: Pick<CourseLesson, 'id' | 'label'>): string {
   return lesson.label ?? `第 ${lessonNumber(lesson)} 課`
 }
 
 /** 網址不用小數點（會被伺服器當成靜態檔副檔名）：L0 /courses/tools/1、L1 /courses/ai-tools/1-1 */
-export function lessonPath(course: Course, lesson: CourseLesson): string {
+export function lessonPath(course: Course, lesson: Pick<CourseLesson, 'id'>): string {
   return `${coursePath(course)}/${lessonNumber(lesson).split('.').join('-')}`
 }
 

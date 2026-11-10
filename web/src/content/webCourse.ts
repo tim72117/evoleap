@@ -276,8 +276,8 @@ export const WEB_UNITS: WebUnit[] = [
   },
 ]
 
-/** 已經可以上的課:課號 → 公開的課程頁路徑與腳本(src/content/live/ 底下)。第一課(0.1)不用登入,之後的課要登入 */
-/** 已經開放的課:課程頁的網址與腳本;interaction 是互動點的做法(static:影片停下來,學員直接操作演員) */
+/** 已經有課程頁的課:課號 → 課程頁網址(路由與 SEO)、腳本與互動點的做法(interaction,static:影片停下來,學員直接操作演員)。
+ *  能不能上、播哪個腳本、要不要登入以資料庫為準(home/TopicLessonGate.tsx);這裡的 script 要和種子一致(content/courseMap.test.ts) */
 export const WEB_OPEN_LESSONS: Record<string, { path: string; script: string; interaction?: 'static' }> = {
   '0.1': { path: '/topics/web/0-1', script: 'web/0.1.json' },
   '0.2': { path: '/topics/web/0-2', script: 'web/0.2.json' },

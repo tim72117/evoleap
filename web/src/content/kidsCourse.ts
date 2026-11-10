@@ -1,6 +1,6 @@
 // 兒童網頁課(主題「給孩子的網頁程式」)的課程大綱:公開的主題頁 /topics/kids 與研發基地的大綱頁(studio/proposal/kidsWeb.ts)共用。
 // 堂數、內容都還是規劃,公開頁面只顯示單元、課名與「學會」;看、做、名詞的細節給研發基地看。
-// 已經可以上的課在 KIDS_OPEN_LESSONS(課號 → 公開的課程頁與腳本)。
+// 已經可以上的課在 KIDS_OPEN_LESSONS(課號 → 課程頁、腳本與給家長的話);能不能上、播哪個腳本以資料庫為準(home/TopicLessonGate.tsx)。
 
 export type KidsLesson = {
   id: string
@@ -247,7 +247,7 @@ export const KIDS_UNITS: KidsUnit[] = [
   },
 ]
 
-/** 已經可以上的課:課號 → 公開的課程頁路徑、腳本(src/content/live/ 底下)與給家長的話(課程頁下方) */
+/** 已經有課程頁的課:課號 → 課程頁路徑(路由與 SEO)、腳本與給家長的話。實際播的腳本從資料庫來,這裡的 script 要和種子一致(content/courseMap.test.ts) */
 export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; parents: string[] }> = {
   '0.1': {
     path: '/topics/kids/0-1',

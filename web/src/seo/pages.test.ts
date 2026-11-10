@@ -3,7 +3,7 @@ import { routes } from '../App'
 import { internalRoutes } from '../studio/StudioApp'
 import { isInternalPath } from '../site/internalPaths'
 import { SITE_ORIGIN } from '../site/siteInfo'
-import { PAGES, robotsTxt, sitemapXml } from './build'
+import { inSitemap, PAGES, robotsTxt, sitemapXml } from './build'
 import { findInternalPage } from './internalPages'
 import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES } from './pages'
 
@@ -190,10 +190,17 @@ describe('sitemap.xml', () => {
     expect(xml).not.toMatch(/&(?!amp;|lt;|gt;|quot;|apos;)/)
   })
 
-  it('contains exactly the indexable pages', () => {
-    expect(locs).toEqual(indexable.map((p) => absoluteUrl(p.path)))
+  it('contains exactly the indexable pages, except lessons that are not open yet', () => {
+    expect(locs).toEqual(PAGES.filter(inSitemap).map((p) => absoluteUrl(p.path)))
     expect(new Set(locs).size).toBe(locs.length)
     for (const loc of locs) expect(isInternal(new URL(loc).pathname), loc).toBe(false)
+  })
+
+  // 還沒開放的課(courses_seed.json 的 draft、planned)可以收錄,但不放進 sitemap
+  it('leaves out lessons that are not open yet, without noindex', () => {
+    const has = (path: string) => locs.includes(absoluteUrl(path))
+    expect([has('/topics/launch/0-1'), has('/topics/launch/1-1'), has('/courses/tools/1'), has('/courses/ai-tools/1-1'), has('/courses/vibe-coding/4-1')]).toEqual([true, false, true, false, false])
+    expect(PAGES.find((p) => p.path === '/topics/launch/1-1')?.noindex).toBeFalsy()
   })
 
   it('priorities are within 0–1', () => {

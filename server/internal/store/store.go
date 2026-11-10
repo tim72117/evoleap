@@ -30,8 +30,22 @@ type Store struct {
 	db *gorm.DB
 }
 
-// Open 依 dsn 開啟資料庫並同步 schema:postgres:// 或 postgresql:// 開頭用 Postgres,其他視為 SQLite 檔案路徑。
+// Open 依 dsn 開啟資料庫、同步 schema,並把 courses_seed.json 的課程寫進資料表(本機開發與測試用)。
+// postgres:// 或 postgresql:// 開頭用 Postgres,其他視為 SQLite 檔案路徑。
 func Open(dsn string) (*Store, error) {
+	s, err := Connect(dsn)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.SeedCourses(context.Background()); err != nil {
+		return nil, fmt.Errorf("seed courses: %w", err)
+	}
+	return s, nil
+}
+
+// Connect 開啟資料庫並同步 schema,不寫課程資料。Cloud Run 上的網站伺服器用:課程資料由部署時的同步工作
+// (Cloud Run Job 執行 server -sync-only,見 SyncCourses)寫入一次,免得每台伺服器啟動都重寫、多台同時啟動互相衝突。
+func Connect(dsn string) (*Store, error) {
 	db, err := gorm.Open(dialector(dsn), &gorm.Config{
 		Logger:         logger.Default.LogMode(logger.Silent),
 		TranslateError: true,
@@ -39,7 +53,7 @@ func Open(dsn string) (*Store, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)
 	}
-	if err := db.AutoMigrate(&userRow{}, &progressRow{}, &guestViewRow{}, &courseRow{}, &unitRow{}, &lessonRow{}); err != nil {
+	if err := db.AutoMigrate(&userRow{}, &progressRow{}, &guestViewRow{}, &courseRow{}, &unitRow{}, &lessonRow{}, &lessonFileRow{}, &studioFileRow{}); err != nil {
 		return nil, fmt.Errorf("migrate: %w", err)
 	}
 	if isPostgres(dsn) {
@@ -52,12 +66,15 @@ func Open(dsn string) (*Store, error) {
 		sqlDB.SetMaxIdleConns(maxOpenConns)
 		sqlDB.SetConnMaxIdleTime(5 * time.Minute)
 	}
-	s := &Store{db: db}
-	// 課程的存取方式以 courses_seed.json 為準,每次啟動同步進 courses 表
-	if err := s.SeedCourses(context.Background()); err != nil {
-		return nil, fmt.Errorf("seed courses: %w", err)
+	return &Store{db: db}, nil
+}
+
+// SyncCourses 把課程資料寫進資料庫:courses_seed.json 的課程、單元與每一課,以及每一課的腳本檔(dir 是 web/src/content/live)。
+func (s *Store) SyncCourses(ctx context.Context, dir string) error {
+	if err := s.SeedCourses(ctx); err != nil {
+		return fmt.Errorf("seed courses: %w", err)
 	}
-	return s, nil
+	return s.SyncLessonFiles(ctx, dir)
 }
 
 func isPostgres(dsn string) bool {

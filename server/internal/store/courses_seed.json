@@ -2,30 +2,577 @@
   {
     "id": "tools",
     "title": "AI 工具介紹：讓 AI 在你的電腦上做出第一個網站",
-    "access": "free"
+    "access": "login-free",
+    "units": [
+      {
+        "id": "0",
+        "title": "讓 AI 在你的電腦上做出第一個網站",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "0.intro",
+            "title": "為什麼不用學寫程式，也能做出軟體",
+            "summary": "為什麼不用學寫程式，也能做出軟體",
+            "access": "free",
+            "status": "open",
+            "script": "l0/0.intro.json",
+            "minutes": 10
+          },
+          {
+            "id": "0.0",
+            "title": "工具介紹：會操作檔案的 AI 工具",
+            "summary": "安裝會操作檔案的 AI 工具，學會安全地允許與拒絕",
+            "status": "open",
+            "script": "l0/0.0-tools.json",
+            "files": [
+              "l0/0.0-tools.en.json"
+            ],
+            "minutes": 15
+          },
+          {
+            "id": "0.1",
+            "title": "認識專案：工作目錄與檔案操作",
+            "summary": "認識專案與工作目錄，讓 AI 幫你建立、搬移檔案",
+            "status": "open",
+            "script": "l0/0.1-project.json",
+            "minutes": 20
+          },
+          {
+            "id": "0.2",
+            "title": "提出需求：做出一頁式網站並精確調整",
+            "summary": "一段話描述，做出一頁式網站，再精確調整到滿意",
+            "status": "open",
+            "script": "l0/0.2-site.json",
+            "minutes": 45
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "ai-tools",
     "title": "AI 工具入門：用 AI 把點子整理成可以開工的需求",
-    "access": "login-free"
+    "access": "login-free",
+    "units": [
+      {
+        "id": "1.0",
+        "title": "訂購單：從一張表單規劃與描述需求",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "1.0",
+            "title": "訂購單：哪些資料要在送出前檢查",
+            "summary": "用一張訂購單學會規劃與描述需求",
+            "status": "open",
+            "script": "l1/1.0-order.json",
+            "files": [
+              "l1/1.0-opening.json"
+            ],
+            "minutes": 35
+          }
+        ]
+      },
+      {
+        "id": "1",
+        "title": "先做出第一個成果：需求清單",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "1.1",
+            "title": "第一個任務：把老闆的訊息整理成需求清單",
+            "summary": "把一則又長又雜的老闆訊息整理成需求清單，標出哪些是原文、哪些是 AI 推測，並分出「一定要有」與「有了更好」",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "1.2",
+            "title": "加入會議筆記：補齊並更新需求清單",
+            "summary": "把一份討論會議筆記併進需求清單",
+            "status": "planned",
+            "minutes": 30
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "title": "把需求說清楚：澄清問題與工作項目",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "2.1",
+            "title": "找出不清楚的地方，寫出澄清問題",
+            "summary": "找出需求清單中不清楚或缺少的地方，寫成一則老闆容易回答的訊息，再依老闆的回覆更新需求清單",
+            "status": "planned",
+            "minutes": 35
+          },
+          {
+            "id": "2.2",
+            "title": "把需求變成工作項目",
+            "summary": "把「一定要有」的需求轉成工作項目，每項都有能檢查的驗收條件，並確認每一項都對得到需求",
+            "status": "planned",
+            "minutes": 35
+          },
+          {
+            "id": "2.3",
+            "title": "拆分、排序，決定第一版",
+            "summary": "把太大的工作項目拆小，標出相依關係、排出製作順序，決定第一版要做哪些，並輸出成可貼到試算表的表格",
+            "status": "planned",
+            "minutes": 30
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "title": "把重複的事變成固定流程",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "3.1",
+            "title": "找出需求整理中重複的步驟",
+            "summary": "回顧前面做過的需求整理流程，找出每次接到新需求都會重複的步驟，整理成一張任務卡（輸入、步驟、輸出、檢查點）",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "3.2",
+            "title": "做一個「需求 → 工作項目」範本",
+            "summary": "把任務卡寫成可重複使用的提問範本，內建原文／推測與來源檢查，用第二個案子測試並修正一次",
+            "status": "planned",
+            "minutes": 35
+          },
+          {
+            "id": "3.3",
+            "title": "結業練習：一封新需求信走完整條流程",
+            "summary": "用自己的範本把老闆的新需求（會員集點）從訊息一路做成需求清單與工作項目表，完成最後檢查，並列出流程中仍需手動的步驟",
+            "status": "planned",
+            "minutes": 30
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "vibe-coding-basics",
     "title": "Vibe Coding 入門：用 AI 做出你的第一個小工具",
     "access": "subscription",
-    "tier": "basic"
+    "tier": "basic",
+    "units": [
+      {
+        "id": "4",
+        "title": "AI 程式助手：安裝與第一次使用",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "4.1",
+            "title": "AI 程式助手的三種形式",
+            "summary": "分辨聊天視窗、編輯器內建補全與對話（例如 GitHub Copilot）、終端機代理（例如 Claude Code）的差異與適用情境。",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "4.2",
+            "title": "安裝、登入與權限",
+            "summary": "依官方說明安裝並登入選定的助手（這時還沒學終端機，優先用安裝程式或桌面 App 的版本），理解它讀檔、改檔、執行指令前的確認機制。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "4.3",
+            "title": "請 AI 程式助手安裝 Node.js",
+            "summary": "說明 Node.js 讓 JavaScript 在瀏覽器外執行、npm 負責安裝套件；請 AI 程式助手依你的作業系統，用官方的方式安裝 LTS 版本：每個安裝指令先看懂確認提示再允許，需要輸入電腦密碼的步驟自己來，最後請它執行 node -v 與 npm -v 驗證。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "4.4",
+            "title": "第一次和 AI 一起改程式",
+            "summary": "描述需求 → 看助手改了哪些檔案、哪幾行 → 接受或要求修改；看不懂的步驟或訊息，請它用白話解釋。",
+            "status": "planned",
+            "minutes": 30
+          }
+        ]
+      },
+      {
+        "id": "5",
+        "title": "開發者的電腦基本功",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "5.1",
+            "title": "檔案、資料夾與路徑",
+            "summary": "顯示副檔名與隱藏檔，分辨絕對路徑與相對路徑，知道專案資料夾為什麼不要放在雲端同步資料夾或含空白的路徑。",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "5.2",
+            "title": "終端機入門（Windows 與 macOS）",
+            "summary": "打開終端機（Windows：Windows Terminal／PowerShell；macOS：終端機／zsh），使用 pwd、ls、cd、mkdir 移動與建立資料夾。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "5.3",
+            "title": "指令從哪來：PATH 與環境變數",
+            "summary": "理解輸入指令時系統如何在 PATH 中尋找程式，這是「找不到指令」最常見的原因。",
+            "status": "planned",
+            "minutes": 25
+          }
+        ]
+      },
+      {
+        "id": "6",
+        "title": "安裝並設定開發環境",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "6.1",
+            "title": "VS Code：編輯器與內建終端機",
+            "summary": "安裝 VS Code（可選裝繁體中文語言套件），用「開啟資料夾」打開專案，使用內建終端機。",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "6.2",
+            "title": "Git 與 GitHub：程式的存檔點",
+            "summary": "安裝 Git、設定 user.name 與 user.email、註冊 GitHub 帳號，理解 commit 與 push 的差別；請 AI 程式助手改完檔案後先看差異（diff）再 commit，改壞時退回上一個版本。",
+            "status": "planned",
+            "minutes": 35
+          },
+          {
+            "id": "6.3",
+            "title": "瀏覽器開發者工具入門",
+            "summary": "使用 Elements 檢視網頁結構、Console 看錯誤訊息與執行 JavaScript、Network 看請求。",
+            "status": "planned",
+            "minutes": 25
+          }
+        ]
+      },
+      {
+        "id": "7",
+        "title": "第一個專案：個人介紹頁上線",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "7.1",
+            "title": "用 AI 做出個人介紹頁",
+            "summary": "用自然語言描述頁面需求，請助手產生 HTML、CSS 與少量 JavaScript，並在本機瀏覽器預覽。",
+            "status": "planned",
+            "minutes": 35
+          },
+          {
+            "id": "7.2",
+            "title": "讀懂 AI 產生的程式碼",
+            "summary": "認得 HTML 結構、CSS 選擇器與 JavaScript 事件處理，能指出「要改哪裡」再請 AI 修改。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "7.3",
+            "title": "部署到 GitHub Pages",
+            "summary": "把專案 push 到 GitHub，開啟 GitHub Pages，理解「改程式 → push → 網站更新」的流程。",
+            "status": "planned",
+            "minutes": 30
+          }
+        ]
+      },
+      {
+        "id": "8",
+        "title": "疑難排解與環境總檢查",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "8.1",
+            "title": "常見安裝錯誤：PATH、權限、Proxy",
+            "summary": "辨識「找不到指令」（PATH 或終端機沒重開）、權限錯誤（不用 sudo 硬裝、PowerShell 執行原則）、公司網路 Proxy 擋下載等狀況。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "8.2",
+            "title": "向 AI 與社群求助的方法",
+            "summary": "完整複製錯誤訊息、附上作業系統與執行的指令，請 AI 協助判斷，並自行查證建議的修正。",
+            "status": "planned",
+            "minutes": 20
+          },
+          {
+            "id": "8.3",
+            "title": "環境總檢查與下一步",
+            "summary": "逐項跑過環境檢查表，確認接下來的版本管理、上線與 AI Agent 整合應用課需要的工具都能正常使用。",
+            "status": "planned",
+            "minutes": 20
+          }
+        ]
+      },
+      {
+        "id": "9",
+        "title": "用 Git 管理版本",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "9.1",
+            "title": "先看再存：status、diff 與 commit 訊息",
+            "summary": "每次 AI 改完，先用 git status 與 git diff 看改了哪些檔案、哪幾行，再請 AI 依變更寫出「做了什麼、為什麼」的 commit 訊息；一個 commit 只放一件事。",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "9.2",
+            "title": "哪些檔案絕不能 commit：.gitignore",
+            "summary": "請 AI 檢查專案的 .gitignore，說明為什麼存放密碼與金鑰的 .env、本機資料庫、build 產物與 node_modules 不能進版控，並用 git status 確認它們沒有被追蹤；知道機密一旦 push 出去就要立刻更換，只從紀錄中刪除不夠。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "9.3",
+            "title": "改壞了怎麼救：還原與撤銷",
+            "summary": "用 git restore 放棄還沒 commit 的修改、用 git revert 撤銷某一次 commit；請 AI 執行前先說明會影響哪些檔案，不隨意使用會改寫紀錄的指令（例如 reset --hard、強制 push）。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "9.4",
+            "title": "分支、Pull Request 與版本標籤",
+            "summary": "開一個分支試做新功能，在 GitHub 用 Pull Request 檢視差異後合併回主分支；替上線的版本打標籤（例如 v0.1.0），並請 AI 設定只在推送標籤時才部署的 GitHub Actions。",
+            "status": "planned",
+            "minutes": 35
+          }
+        ]
+      },
+      {
+        "id": "10",
+        "title": "整理專案結構",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "10.1",
+            "title": "為什麼結構會影響 AI 的表現",
+            "summary": "理解資料夾與檔名就是給 AI 的地圖：資料、頁面和工具混在一起時，AI 容易改錯檔或只改一半；請 AI 列出目前的目錄樹，說明每個資料夾放什麼。",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "10.2",
+            "title": "請 AI 提出整理方案",
+            "summary": "用簡短的提示詞請 AI 提出新結構（內容資料、頁面、內部工具分開），先只看方案、不動檔案，逐項確認或修改後再執行；開始搬之前先 commit。",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "10.3",
+            "title": "搬檔並更新所有引用",
+            "summary": "請 AI 依清單搬移檔案，同步改寫 import 與連結路徑；用 git status 確認搬移被記為改名（renamed），用型別檢查、build 與瀏覽器 Console 找出漏改的路徑。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "10.4",
+            "title": "逐頁驗證並更新 README",
+            "summary": "逐頁點過網站（或請 AI 用瀏覽器自動化工具截圖每一頁）確認沒有壞掉，再請 AI 依新結構更新 README 的目錄說明，讓文件和程式一致。",
+            "status": "planned",
+            "minutes": 25
+          }
+        ]
+      },
+      {
+        "id": "11",
+        "title": "網站上線必備：SEO 與流量分析",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "11.1",
+            "title": "每一頁的標題、描述與分享預覽",
+            "summary": "請 AI 替每一頁加上獨立的 title、description、canonical 網址與 Open Graph 標籤（含 1200×630 的分享圖），再用 curl 或瀏覽器的「檢視原始碼」確認內容正確。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "11.2",
+            "title": "讓搜尋引擎找對頁面：sitemap、robots.txt 與 404",
+            "summary": "請 AI 產生 sitemap.xml 與 robots.txt、替不公開的頁面加上 noindex、讓不存在的網址回傳真正的 404 狀態碼，並用 curl -I 檢查；把 sitemap 提交到 Google Search Console。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "11.3",
+            "title": "結構化資料（JSON-LD）",
+            "summary": "請 AI 為首頁與主要頁面加上 JSON-LD 結構化資料（例如網站、課程），並用 Google 的複合式搜尋結果測試檢查有沒有錯誤。",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "11.4",
+            "title": "GA4 流量分析與隱私權政策",
+            "summary": "建立 GA4 資源，請 AI 用環境變數設定評估 ID 並在每次換頁時記錄瀏覽，用即時報表確認收得到資料；同步更新隱私權政策，說明使用的分析工具與 cookie。",
+            "status": "planned",
+            "minutes": 30
+          }
+        ]
+      },
+      {
+        "id": "12",
+        "title": "加入登入功能（進階）",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "12.1",
+            "title": "登入在做什麼：密碼雜湊與 session",
+            "summary": "請 AI 畫出登入流程（註冊 → 儲存使用者 → 登入 → 發出 session cookie → 之後的請求帶著 cookie），理解密碼為什麼只能存雜湊、session 為什麼要放在前端 JavaScript 讀不到的 HttpOnly cookie。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "12.2",
+            "title": "Email 與密碼登入：後端與資料庫",
+            "summary": "請 AI 依安全要求建立註冊、登入、登出 API 與使用者資料表（本機用 SQLite、正式環境用雲端 Postgres），金鑰與資料庫連線放在環境變數，.env 不進版控；登入後只能讀到自己的資料。",
+            "status": "planned",
+            "minutes": 40
+          },
+          {
+            "id": "12.3",
+            "title": "用 Google 帳號登入",
+            "summary": "在 Google Cloud Console 建立 OAuth 用戶端 ID 並設定允許的網址，請 AI 在後端驗證 Google 回傳的 ID Token 後再建立 session。",
+            "status": "planned",
+            "minutes": 35
+          },
+          {
+            "id": "12.4",
+            "title": "測試、上線與法律頁",
+            "summary": "請 AI 為登入流程寫自動化測試（密碼錯誤、cookie 有 HttpOnly、未登入不能讀取個人資料）；上線時把機密放進雲端的機密管理服務（例如 Google Cloud Secret Manager），並更新隱私權政策與服務條款，說明收集哪些資料與用途。",
+            "status": "planned",
+            "minutes": 35
+          }
+        ]
+      },
+      {
+        "id": "13",
+        "title": "用自動化測試防止 AI 改壞功能",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "13.1",
+            "title": "為什麼需要測試：AI 改 A 壞 B",
+            "summary": "理解 AI 修改一處時可能讓別處壞掉，而且自己不一定會發現；測試就是把「這個功能要能用」寫成電腦能自動檢查的規則。分辨單元測試（檢查一小段程式或資料）與端對端測試（用瀏覽器操作整個網站）。",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "13.2",
+            "title": "讓 AI 寫第一個測試：先看它失敗，再看它通過",
+            "summary": "請 AI 安裝單元測試工具（例如 Vitest），針對清單中的一項寫測試並用 npm test 執行；故意改壞程式確認測試會失敗、還原後再通過，知道從不失敗的測試證明不了什麼；測試失敗時要 AI 修程式，不准為了通過而改掉測試。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "13.3",
+            "title": "端對端測試：讓瀏覽器自動點過每一頁",
+            "summary": "請 AI 用 Playwright 對 build 後的網站寫端對端測試：逐一打開每個網址，檢查回傳 200、標題正確、主要按鈕可以操作、打錯的網址顯示 404 頁面；看懂測試失敗時的錯誤訊息與截圖。",
+            "status": "planned",
+            "minutes": 35
+          },
+          {
+            "id": "13.4",
+            "title": "每次修改都自動跑：CI 與「改完先跑測試」",
+            "summary": "請 AI 設定 GitHub Actions，在每次 push 與 Pull Request 時自動跑全部測試，並在 GitHub 上看懂通過或失敗的標記；養成習慣：每次請 AI 修改後先要它跑測試，測試失敗就先停下來修好，不 commit、不部署，並把這條規則寫進給 AI 看的專案說明。",
+            "status": "planned",
+            "minutes": 30
+          }
+        ]
+      },
+      {
+        "id": "14",
+        "title": "寫出好維護的程式：改一個功能不會壞別的",
+        "subtitle": "",
+        "lessons": [
+          {
+            "id": "14.1",
+            "title": "為什麼改一處會壞別處：先看影響範圍",
+            "summary": "認識最常見的兩個原因：同一件事寫在很多地方，以及一個檔案負責太多事；動手前先請 AI 列出這次修改會影響哪些檔案與功能，只看分析、不改程式。",
+            "status": "planned",
+            "minutes": 25
+          },
+          {
+            "id": "14.2",
+            "title": "同一件事只放一個地方",
+            "summary": "請 AI 找出重複的文字、資料與畫面區塊，收斂成一份資料或一個共用元件，其他地方都從這裡取用；分辨值得共用的重複，與只是剛好長得像、之後會各自改變的程式。",
+            "status": "planned",
+            "minutes": 30
+          },
+          {
+            "id": "14.3",
+            "title": "把功能切開：一個檔案一件事",
+            "summary": "請 AI 把過大的檔案拆成各司其職的小檔案，例如資料、計算邏輯與畫面分開；用函式參數與 TypeScript 型別約定各部分怎麼互動，故意改掉一個欄位名稱，看型別檢查指出所有要跟著改的地方。",
+            "status": "planned",
+            "minutes": 35
+          },
+          {
+            "id": "14.4",
+            "title": "小步修改，把規則寫給 AI",
+            "summary": "建立修改流程：一次只做一件事、先看方案再動手、看 diff 確認沒有多改、跑測試後才 commit；把專案的結構與慣例寫進給 AI 看的專案說明，讓 AI 每次都依同樣的方式修改，並用一個新功能走完整個流程。",
+            "status": "planned",
+            "minutes": 30
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "ai-agent",
     "title": "打造你的第一個 AI Agent 整合應用",
     "access": "subscription",
-    "tier": "advanced"
+    "tier": "advanced",
+    "units": [
+      {
+        "id": "0",
+        "title": "環境準備與心智模型",
+        "subtitle": "看懂整體流程：開發者定義工具、LLM 呼叫工具、前端頁面執行結果。",
+        "lessons": []
+      },
+      {
+        "id": "1",
+        "title": "第一個工具",
+        "subtitle": "理解工具的三個核心欄位：名稱、描述、參數（JSON Schema），如何決定 LLM 何時、如何呼叫它。",
+        "lessons": []
+      },
+      {
+        "id": "capstone",
+        "title": "期末專案：自然語言驅動的分析介面",
+        "subtitle": "做出一個使用者打字提問，Agent 就能判讀問題、跑分析、繪製合適統計圖表的整合應用。",
+        "lessons": []
+      }
+    ]
   },
   {
     "id": "advanced",
     "title": "進階 AI Agent 應用",
     "access": "subscription",
-    "tier": "advanced"
+    "tier": "advanced",
+    "units": [
+      {
+        "id": "1",
+        "title": "串接多個工具與步驟的 Agent 流程",
+        "subtitle": "",
+        "lessons": []
+      },
+      {
+        "id": "2",
+        "title": "權限與安全：讓 Agent 安全地動手做事",
+        "subtitle": "",
+        "lessons": []
+      },
+      {
+        "id": "3",
+        "title": "測試與評估 Agent 的回應品質",
+        "subtitle": "",
+        "lessons": []
+      },
+      {
+        "id": "4",
+        "title": "上線、監控與維運",
+        "subtitle": "",
+        "lessons": []
+      }
+    ]
   },
   {
     "id": "web",
@@ -42,13 +589,15 @@
             "title": "輸入網址之後發生的事",
             "summary": "網頁是瀏覽器向伺服器要來、再自己畫出來的。",
             "access": "free",
-            "status": "open"
+            "status": "open",
+            "script": "web/0.1.json"
           },
           {
             "id": "0.2",
             "title": "HTML、CSS、JavaScript 的分工",
             "summary": "HTML 管有什麼、CSS 管長什麼樣、JavaScript 管會做什麼。",
-            "status": "open"
+            "status": "open",
+            "script": "web/0.2.json"
           }
         ]
       },
@@ -61,13 +610,15 @@
             "id": "1.1",
             "title": "元素與標籤",
             "summary": "網頁由一個個元素組成，標籤告訴瀏覽器它是什麼。",
-            "status": "open"
+            "status": "open",
+            "script": "web/1.1.json"
           },
           {
             "id": "1.2",
             "title": "DOM 樹：元素包著元素",
             "summary": "元素可以包住元素，瀏覽器照著這棵樹由上往下畫。",
-            "status": "open"
+            "status": "open",
+            "script": "web/1.2.json"
           },
           {
             "id": "1.3",
@@ -242,19 +793,32 @@
             "title": "翻到網頁的背面",
             "summary": "網頁是一塊一塊積木組成的，每一塊都有名字。",
             "access": "free",
-            "status": "open"
+            "status": "open",
+            "script": "kids/0.1.json",
+            "files": [
+              "kids/0.1-explore.json"
+            ]
           },
           {
             "id": "0.2",
             "title": "網頁是一棵樹",
             "summary": "瀏覽器照著樹由上往下、一層一層畫；樹改了，畫面就跟著改。",
-            "status": "open"
+            "status": "open",
+            "script": "kids/0.2.json",
+            "files": [
+              "kids/0.2-drag.json"
+            ]
           },
           {
             "id": "0.3",
             "title": "網頁是一封信",
             "summary": "網頁是從別的電腦送來的；我在自己電腦上改的，只有我看得到。",
-            "status": "open"
+            "status": "open",
+            "script": "kids/0.3.json",
+            "files": [
+              "kids/0.3-mail.json",
+              "kids/0.3-edit.json"
+            ]
           }
         ]
       },
@@ -681,6 +1245,64 @@
             "id": "5.6",
             "title": "備份與還原演練",
             "summary": "真的從備份把資料救回來一次，出事時才不慌。",
+            "status": "planned"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "claude-code",
+    "title": "Claude Code 工作術",
+    "access": "free",
+    "units": [
+      {
+        "id": "0",
+        "title": "使用情境",
+        "subtitle": "遇到這些情況時，該怎麼用",
+        "lessons": [
+          {
+            "id": "1",
+            "title": "拿不定主意，想同時試好幾版",
+            "summary": "從同一段對話分出去，各試一個方向，看過再決定留哪一個。",
+            "status": "open",
+            "script": "claude-code/fork.json",
+            "minutes": 1
+          },
+          {
+            "id": "2",
+            "title": "出門了，想用手機接著做",
+            "summary": "AI 繼續在電腦上做，你在路上也能看進度、接著下指令。",
+            "status": "planned"
+          },
+          {
+            "id": "3",
+            "title": "好幾件事想同時做",
+            "summary": "把互不相干的事分給不同的對話，自己只負責檢查與決定。",
+            "status": "planned"
+          },
+          {
+            "id": "4",
+            "title": "昨天做到一半，今天想接著做",
+            "summary": "找回之前的對話接著做，不用重新交代一次。",
+            "status": "planned"
+          },
+          {
+            "id": "5",
+            "title": "對話越聊越長",
+            "summary": "把目前的對話濃縮成摘要繼續，或開一段乾淨的新對話。",
+            "status": "planned"
+          },
+          {
+            "id": "6",
+            "title": "每次都要重講同樣的規則",
+            "summary": "把專案的固定規則寫進說明檔，每次新對話都會先讀。",
+            "status": "planned"
+          },
+          {
+            "id": "7",
+            "title": "任務要跑很久，不想一直盯著",
+            "summary": "把對話丟到背景繼續跑，先去忙別的，之後再回來看結果。",
             "status": "planned"
           }
         ]

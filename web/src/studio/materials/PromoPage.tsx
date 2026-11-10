@@ -2,14 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { narrationClips } from '../../live/mixPlan'
 import { mountShell } from '../../live/shell'
-import { loadMix, loadScript, loadVoice, scriptPaths } from '../../live/scripts'
+import { loadMix, loadScript, loadVoice, useScriptPaths } from '../../live/scripts'
 import { stageSize } from '../../live/place'
 import { createStage } from '../../live/stage'
 import type { Aspect } from '../../live/types'
 import '../../live/shell.css'
 import { ProposalLayout } from '../proposal/ProposalLayout'
 import ui from '../proposal/proposal.module.css'
-import { hasPromoVoice, promoScriptPaths } from './promoScripts'
 import styles from './PromoPage.module.css'
 
 // 宣傳影片:用即時教學畫面(src/live)播放 src/content/live/promo/ 的腳本。
@@ -50,7 +49,7 @@ async function measure(path: string, aspect: Aspect): Promise<Info> {
     const stage = createStage(host, { aspect })
     await stage.load(script, { voice: voice?.durations, aspect })
     const chars = stage.narrations.reduce((n, x) => n + [...x.text].length, 0)
-    return { title: script.title ?? path, duration: stage.duration, chars, voice: hasPromoVoice(path) }
+    return { title: script.title ?? path, duration: stage.duration, chars, voice: voice !== null }
   } finally {
     host.remove()
   }
@@ -106,7 +105,7 @@ export function PromoPage() {
 /** 輸入 src/content/live/ 底下任何腳本的路徑(例如 l0/0.2-site.json),看它在目前方向下的樣子 */
 function ScriptInput({ value, onSubmit }: { value: string; onSubmit: (path: string) => void }) {
   const [text, setText] = useState(value)
-  const paths = scriptPaths().filter((p) => !/\.(voice|mix)\.json$/.test(p)).sort()
+  const paths = (useScriptPaths() ?? []).filter(isScript)
   return (
     <form
       className={styles.pathform}
@@ -122,13 +121,19 @@ function ScriptInput({ value, onSubmit }: { value: string; onSubmit: (path: stri
   )
 }
 
+/** 腳本本身(不是旁白清單、章節音軌清單) */
+const isScript = (p: string): boolean => !/\.(voice|mix)\.json$/.test(p)
+
 function ScriptList({ selected, aspect, onSelect }: { selected: string | null; aspect: Aspect; onSelect: (path: string) => void }) {
   const [infos, setInfos] = useState<Record<string, Info | string>>({})
+  const all = useScriptPaths()
+  const promoScriptPaths = (all ?? []).filter((p) => p.startsWith('promo/') && isScript(p))
+  const key = promoScriptPaths.join('|')
   useEffect(() => {
     let cancelled = false
     void (async () => {
       // 一支一支量(舞台載入會掛 DOM,不要同時進行)
-      for (const p of promoScriptPaths) {
+      for (const p of key ? key.split('|') : []) {
         const info = await measure(p, aspect).catch((e: unknown) => String(e instanceof Error ? e.message : e))
         if (cancelled) return
         setInfos((prev) => ({ ...prev, [p]: info }))
@@ -137,8 +142,9 @@ function ScriptList({ selected, aspect, onSelect }: { selected: string | null; a
     return () => {
       cancelled = true
     }
-  }, [aspect])
+  }, [aspect, key])
 
+  if (!all) return <p className={ui.lead}>讀取腳本清單中…</p>
   if (!promoScriptPaths.length) return <p className={ui.lead}>web/src/content/live/promo/ 底下還沒有腳本。</p>
   return (
     <div>

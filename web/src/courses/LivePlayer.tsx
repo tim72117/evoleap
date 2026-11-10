@@ -4,6 +4,7 @@ import { createStage } from '../live/stage'
 import { useAutoAspect } from '../site/useAutoAspect'
 import { narrationClips } from '../live/mixPlan'
 import { loadMix, loadScript, loadVoice } from '../live/scripts'
+import { ScriptError } from '../live/ScriptError'
 import { useAuth } from '../auth/AuthContext'
 import { clearGuestProgress, memberProgress } from './progress'
 import { useGuestView } from './guestActivity'
@@ -127,11 +128,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
 
   return (
     <div ref={boxRef} className={styles.box} data-aspect={aspect}>
-      {error && (
-        <p className={styles.error} role="alert">
-          無法播放：{error}
-        </p>
-      )}
+      {error && <ScriptError className={styles.error} prefix="無法播放：" error={error} />}
     </div>
   )
 })
