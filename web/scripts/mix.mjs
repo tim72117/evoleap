@@ -71,8 +71,15 @@ try {
 }
 
 // ---------- 在瀏覽器裡排時間 ----------
+// Windows 的 npx 是 npx.cmd,要透過 shell 才叫得起來;也沒有行程群組,要用 taskkill /T 連子程序一起結束
+const WIN = process.platform === 'win32'
+function stopVite(proc) {
+  if (WIN) spawnSync('taskkill', ['/PID', String(proc.pid), '/T', '/F'], { stdio: 'ignore' })
+  else process.kill(-proc.pid)
+}
+
 async function startVite() {
-  const proc = spawn('npx', ['vite', '--port', String(PORT), '--host', '127.0.0.1', '--strictPort'], { cwd: WEB, stdio: 'ignore', detached: true, env: { ...process.env, DEV_HOST: '' } })
+  const proc = spawn('npx', ['vite', '--port', String(PORT), '--host', '127.0.0.1', '--strictPort'], { cwd: WEB, stdio: 'ignore', detached: !WIN, shell: WIN, env: { ...process.env, DEV_HOST: '' } })
   const url = `http://127.0.0.1:${PORT}`
   for (let i = 0; i < 100; i++) {
     try {
@@ -82,7 +89,7 @@ async function startVite() {
     }
     await new Promise((r) => setTimeout(r, 300))
   }
-  process.kill(-proc.pid)
+  stopVite(proc)
   die('vite dev server 沒有起來(5291 被占用嗎?)')
 }
 
@@ -261,6 +268,6 @@ try {
   }
 } finally {
   await browser.close()
-  process.kill(-proc.pid) // npx 底下還有 vite 的子程序,整組一起結束
+  stopVite(proc) // npx 底下還有 vite 的子程序,整組一起結束
 }
 if (failed) process.exitCode = 1

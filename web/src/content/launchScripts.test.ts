@@ -3,12 +3,12 @@ import { ACTORS } from '../live/actors'
 import type { StageScript } from '../live/types'
 import { expandAnswers, momentsOf, type Answers } from '../studio/interactive/scene'
 
-// 「從做好到上線」的腳本(content/live/launch/,不含 .voice.json):每一種回答組合都照順序交給演員的 init/apply 推算一遍,
+// 「從做好到上線」的腳本(content/live/launch/,不含 .voice.json、.mix.json):每一種回答組合都照順序交給演員的 init/apply 推算一遍,
 // 寫錯的操作在這裡就會丟錯,不用等到畫面播到才發現。這裡只推算狀態,沒有真的載入舞台,鏡頭與版面要看畫面才知道。
 
 type Step = Record<string, unknown>
 
-const SCRIPTS = import.meta.glob(['./live/launch/*.json', '!./live/launch/*.voice.json'], { eager: true, import: 'default' }) as Record<string, StageScript>
+const SCRIPTS = import.meta.glob(['./live/launch/*.json', '!./live/launch/*.voice.json', '!./live/launch/*.mix.json'], { eager: true, import: 'default' }) as Record<string, StageScript>
 
 /** 舞台自己的動作(live/stage.ts) */
 const STAGE_KINDS = ['card', 'callout', 'show', 'hide', 'move', 'checkpoint', 'wait', 'parts']

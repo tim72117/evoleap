@@ -79,9 +79,9 @@ describe('從做好到上線的課程地圖(資料庫種子)和前端課程資�
     for (const l of lessons.filter((x) => x.script)) expect(`live:${l.script}`).toBe(launchScriptKey(l.id))
   })
 
-  it('序章三課已開放,單元 1、2 是草稿,其他還在規劃中;只有 0.1 免費預覽', () => {
+  it('序章三課與單元 1 已開放,單元 2 是草稿,其他還在規劃中;只有 0.1 免費預覽', () => {
     expect(lessons.filter((l) => l.status === 'open').map((l) => l.id)).toEqual(LAUNCH_OPEN_LESSONS)
-    expect(lessons.filter((l) => l.status === 'draft').map((l) => l.id)).toEqual(['1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8', '2.9'])
+    expect(lessons.filter((l) => l.status === 'draft').map((l) => l.id)).toEqual(['2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8', '2.9'])
     expect(lessons.filter((l) => l.access).map((l) => [l.id, l.access])).toEqual([['0.1', 'free']])
   })
 })

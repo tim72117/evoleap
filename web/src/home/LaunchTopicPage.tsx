@@ -8,7 +8,7 @@ import { CourseMapUnits } from './CourseMapUnits'
 import styles from './SoftwareTopicPage.module.css'
 
 // 主題「從做好到上線」的課程地圖頁:課程說明,再列出每個單元與每一課學會什麼。版型和「網頁怎麼運作」(WebTopicPage)相同。
-// 單元與每一課從資料庫讀(GET /api/courses/launch/map);序章開放中,草稿的課只有管理員拿得到,標「草稿」、點得進去,其他人看到規劃中。
+// 單元與每一課從資料庫讀(GET /api/courses/launch/map);序章與單元 1 開放中,草稿的課只有管理員拿得到,標「草稿」、點得進去,其他人看到規劃中。
 
 /** 前端內建的同一份課程地圖:資料庫讀到之前先顯示它,讀不到就一直用它(已開放的課當成開放,草稿不會從這裡露出來) */
 const LOCAL_UNITS: MapUnit[] = LAUNCH_UNITS.map((u) => ({
@@ -62,7 +62,7 @@ export function LaunchTopicPage() {
         <div className={styles.container}>
           <header className={styles.sectionHead}>
             <h2>課程地圖</h2>
-            <p className={styles.lead}>序章開放中，第一課不用登入就能預覽，其他課登入後就能學習；還沒開放的課標「規劃中」，內容與順序可能調整。</p>
+            <p className={styles.lead}>序章與單元 1 開放中，第一課不用登入就能預覽，其他課登入後就能學習；還沒開放的課標「規劃中」，內容與順序可能調整。</p>
           </header>
           <CourseMapUnits course="launch" topicPath={topic.path} fallback={LOCAL_UNITS} />
         </div>

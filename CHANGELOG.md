@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [0.33.0] - 2026-11-10
+
+「從做好到上線」單元 1 上架，1.1、1.2 有正式語音與章節音軌；研發基地加入 Fable 試作與宣傳片演員。沒有破壞性變更。
+
+### 變更
+
+- **「從做好到上線」單元 1（1.1–1.7）上架**：`courses_seed.json` 的狀態從草稿改成開放（登入後學習），`content/launchCourse.ts` 的 `LAUNCH_OPEN_LESSONS` 同步；主題頁說明改成「序章與單元 1 開放中」。單元 2 仍是草稿。正式資料庫已有這幾課，種子不會更新，要用 `evoleap lesson set -course launch -lesson <課號> -status open` 改。
+- **1.1、1.2 的正式語音與章節音軌**（`content/live/launch/1.1`、`1.2` 的 `.voice.json`、`.mix.json`）：用 Gemini 批次模式產生。1.3–1.7 的語音還在產生，之後補上；沒有語音前播放沒有旁白。
+- **研發基地**：Fable 試作（`/studio/fable-trial`，演員 fable-sky、fable-world、fable-scene）、場景頁、小管家宣傳片演員（kid-hub、kid-life、kid-day-scene）、兒童課家長模式構想頁；演員只在研發基地登記，不進公開頁面的 JS。
+
+### 修正
+
+- `scripts/mix.mjs` 在 Windows 上叫不起 vite（`npx` 是 `npx.cmd`，要透過 shell），結束時也收不掉子程序（沒有行程群組）；改成 Windows 用 shell 啟動、`taskkill /T` 結束。
+
 ## [0.32.2] - 2026-11-10
 
 修正手機（iOS Safari）上頁首帳號選單的「會員空間」與「登出」點了沒反應。沒有破壞性變更。

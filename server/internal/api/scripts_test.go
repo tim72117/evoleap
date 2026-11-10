@@ -90,7 +90,7 @@ func TestLessonFileWithoutStore(t *testing.T) {
 	for path, code := range map[string]int{
 		"l0/0.intro.json":         http.StatusOK,
 		"l0/0.0-tools.json":       http.StatusUnauthorized,
-		"launch/1.1.json":         http.StatusNotFound,
+		"launch/1.1.json":         http.StatusUnauthorized,
 		"lab/actors/browser.json": http.StatusNotFound,
 	} {
 		if rec := call(h, http.MethodGet, "/api/scripts/"+path, "", nil); rec.Code != code {

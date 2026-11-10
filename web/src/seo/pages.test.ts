@@ -199,8 +199,8 @@ describe('sitemap.xml', () => {
   // 還沒開放的課(courses_seed.json 的 draft、planned)可以收錄,但不放進 sitemap
   it('leaves out lessons that are not open yet, without noindex', () => {
     const has = (path: string) => locs.includes(absoluteUrl(path))
-    expect([has('/topics/launch/0-1'), has('/topics/launch/1-1'), has('/courses/tools/1'), has('/courses/ai-tools/1-1'), has('/courses/vibe-coding/4-1')]).toEqual([true, false, true, false, false])
-    expect(PAGES.find((p) => p.path === '/topics/launch/1-1')?.noindex).toBeFalsy()
+    expect([has('/topics/launch/0-1'), has('/topics/launch/1-1'), has('/topics/launch/2-1'), has('/courses/tools/1'), has('/courses/ai-tools/1-1'), has('/courses/vibe-coding/4-1')]).toEqual([true, true, false, true, false, false])
+    expect(PAGES.find((p) => p.path === '/topics/launch/2-1')?.noindex).toBeFalsy()
   })
 
   it('priorities are within 0–1', () => {
