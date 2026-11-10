@@ -1,0 +1,68 @@
+/* 用到才下載的頁面:下載中與下載失敗時的畫面(site/lazyPage.tsx) */
+
+.state {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  color: var(--site-muted);
+}
+
+/* 下載很快時不閃一下:等一下才淡入 */
+.loading {
+  opacity: 0;
+  animation: show 0.2s ease 0.3s forwards;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--site-border);
+  border-top-color: var(--site-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.state h1 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--site-text);
+}
+
+.state p {
+  margin: 0;
+}
+
+.reload {
+  margin-top: 8px;
+  padding: 10px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--site-accent-solid);
+  color: var(--site-accent-contrast);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@keyframes show {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

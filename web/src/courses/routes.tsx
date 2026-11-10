@@ -2,35 +2,24 @@ import type { JSX } from 'react'
 import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, type Course } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
-import { withL0Moments } from '../studio/interactive/l0-0.0'
-import { withL01Moments } from '../studio/interactive/l0-0.1'
-import { withL02Moments } from '../studio/interactive/l0-0.2'
-import { withL0IntroMoments } from '../studio/interactive/l0-intro'
-import type { StageScript } from '../live/stage'
 import { AiAgentCoursePage } from './AiAgentCoursePage'
-import { InteractiveLessonPage } from './InteractiveLessonPage'
 import { CourseListPage } from './CourseListPage'
 import { CourseOverviewPage } from './CourseOverviewPage'
 import { COURSE_LIST } from '../content/topics'
-import { LessonPage } from './LessonPage'
+import { lazyPage } from '../site/lazyPage'
 import { LoginGate } from './LoginGate'
 import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
 
-/** 用互動版播放的課:課號 → 把互動點加進課程腳本的函式 */
-const INTERACTIVE_LESSONS: Record<string, (script: StageScript) => StageScript> = {
-  '0.0': withL0Moments,
-  '0.1': withL01Moments,
-  '0.2': withL02Moments,
-  '0.intro': withL0IntroMoments,
-}
+// 上課頁(播放器、舞台引擎與演員)用到才下載,不放進課程總覽、課程地圖就要下載的主程式
+const InteractiveLessonPage = lazyPage(() => import('./InteractiveLessonPage').then((m) => m.InteractiveLessonPage))
+const LessonPage = lazyPage(() => import('./LessonPage').then((m) => m.LessonPage))
 
-/** 有即時教學影片的課都用滿版播放器(InteractiveLessonPage);有互動點的課再把互動點加進腳本 */
+/** 有即時教學影片的課都用滿版播放器(InteractiveLessonPage);有互動點的課,互動點在 InteractiveLessonPage 裡加進腳本 */
 const hasLive = (lesson: CourseLesson) => Boolean(lesson.videos[0]?.live)
-const asIs = (script: StageScript) => script
 
 function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
   const page = hasLive(lesson) ? (
-    <InteractiveLessonPage key={lesson.id} course={course} lesson={lesson} prepare={INTERACTIVE_LESSONS[lesson.id] ?? asIs} />
+    <InteractiveLessonPage key={lesson.id} course={course} lesson={lesson} />
   ) : (
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )

@@ -1,12 +1,15 @@
 import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { LivePlayer } from '../courses/LivePlayer'
+import { lazyPage } from '../site/lazyPage'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
 import { CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC } from '../content/topics'
 import styles from './SoftwareTopicPage.module.css'
 
 type Scenario = (typeof CLAUDE_CODE_SCENARIOS)[number]
+
+/** 播放器(含舞台引擎與演員)按下播放、展開影片時才下載 */
+const LivePlayer = lazyPage(() => import('../courses/LivePlayer').then((m) => m.LivePlayer))
 
 /** 開頭是空白的字卡前奏,封面改用 Fork 的選單畫面 */
 const FORK_POSTER = { chapter: '用 Fork 分出去', after: 2500 }

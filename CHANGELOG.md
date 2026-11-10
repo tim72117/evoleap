@@ -4,6 +4,25 @@
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-11-10
+
+公開頁面的 JS 拆開，用到才下載：首頁、課程地圖只下載主程式，舞台引擎與演員、法務頁、管理後台都不再放進主程式。首頁要下載的 JS 從 1035 KB（gzip 307 KB）降到約 482 KB（gzip 約 160 KB），CSS 從 221 KB 降到約 59 KB。沒有破壞性變更。
+
+### 變更
+
+- **用到才下載**（`web/src/site/lazyPage.tsx`）：課程頁（零基礎、網頁怎麼運作、從做好到上線、兒童課）、展示頁，與 Claude Code 主題頁的示範影片播放器，進到時才下載舞台引擎與演員；隱私權政策、服務條款、退款政策打開時才下載。
+- **下載中與下載失敗的畫面**：下載中稍等一下才顯示「載入中…」，下載很快時不會閃一下。下載失敗（多半是剛部署新版，舊版的檔案已經不在）會自動重新整理一次；短時間內又失敗就顯示說明和「重新整理」按鈕，不會整個網站變空白。
+- **管理後台不進公開主程式**：舊網址 `/admin` 的轉址直接寫在 `admin/routes.tsx`，不再 import `AdminPage`（移除 `AdminRedirect`）。
+- 零基礎互動課的互動點（`INTERACTIVE_LESSONS`）從 `courses/routes.tsx` 移到 `courses/InteractiveLessonPage.tsx`，跟著上課頁用到才下載；`InteractiveLessonPage` 不再收 `prepare`，改依課號自己決定。
+- 展示頁網址 `SHOWCASE_PATH` 移到 `home/paths.ts`，路由不用先下載展示頁。
+- 更新 `web/src/live/README.md` 的打包與互動點說明。
+
+### 已知問題
+
+- 課程頁仍會一起下載全部演員（約 391 KB，CSS 約 102 KB），還沒有依腳本只載入用到的演員。
+- 沒有檢查擋住之後又把舞台引擎靜態 import 回公開頁面。
+- Claude Code 主題頁第一次展開示範影片時，先顯示「載入中」，播放器下載完才出現，版面會跳一下。
+
 ## [0.30.0] - 2026-11-10
 
 新增管理員改課程資料的 CLI `evoleap`（仿照 tripace 的 tripace-cli）與資料庫結構檢查（仿照 tripace 的 schema-check）；課程資料改成以資料庫為準，種子只補資料庫還沒有的。沒有破壞性變更。

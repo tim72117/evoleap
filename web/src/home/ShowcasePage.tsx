@@ -12,7 +12,6 @@ import styles from './HomePage.module.css'
 // 站內沒有任何連結連過來(要投放或分享時直接給網址);和其他公開頁一樣列入 sitemap、可被收錄(seo/pages.ts 的 SHOWCASE_PAGE)。
 // 播放器的 track="home":按下播放才記一筆展示影片的紀錄(home:…,後台標成「展示影片」),和打開課程分開算。版面沿用首頁的樣式(HomePage.module.css)。
 
-export const SHOWCASE_PATH = '/showcase'
 
 const tools = COURSES.find((c) => c.slug === 'tools')!
 // 展示影片一律播序章(不用登入就能看),從頭開始;「開始第一課」也從序章開始

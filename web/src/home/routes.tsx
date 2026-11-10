@@ -1,19 +1,23 @@
 import type { JSX } from 'react'
 import { HomePage } from './HomePage'
 import { ClaudeCodeTopicPage } from './ClaudeCodeTopicPage'
-import { KidsLessonPage } from './KidsLessonPage'
 import { KidsTopicPage } from './KidsTopicPage'
-import { LaunchLessonPage } from './LaunchLessonPage'
 import { LaunchTopicPage } from './LaunchTopicPage'
-import { WebLessonPage } from './WebLessonPage'
 import { WebTopicPage } from './WebTopicPage'
+import { lazyPage } from '../site/lazyPage'
+import { SHOWCASE_PATH } from './paths'
 import { AiAppsTopicPage, SoftwareTopicPage } from './SoftwareTopicPage'
 import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
 import { LAUNCH_LESSON_PAGES, launchLessonPath } from '../content/launchCourse'
 import { WEB_OPEN_LESSONS } from '../content/webCourse'
 import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 import { PageView } from '../courses/guestActivity'
-import { SHOWCASE_PATH, ShowcasePage } from './ShowcasePage'
+
+// 有播放器的頁面(課程頁、展示頁)用到才下載:舞台引擎與演員(src/live)不放進首頁、課程地圖就要下載的主程式
+const KidsLessonPage = lazyPage(() => import('./KidsLessonPage').then((m) => m.KidsLessonPage))
+const LaunchLessonPage = lazyPage(() => import('./LaunchLessonPage').then((m) => m.LaunchLessonPage))
+const WebLessonPage = lazyPage(() => import('./WebLessonPage').then((m) => m.WebLessonPage))
+const ShowcasePage = lazyPage(() => import('./ShowcasePage').then((m) => m.ShowcasePage))
 
 export const homeRoutes: { path: string; element: JSX.Element }[] = [
   // 首頁與課程地圖:訪客打開時記一筆 page:<網址>(PageView,guestActivity.ts),後台串成「從首頁進來的路徑」

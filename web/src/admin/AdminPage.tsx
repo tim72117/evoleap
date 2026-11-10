@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
@@ -24,11 +24,6 @@ type State =
   | { kind: 'forbidden' }
   | { kind: 'error'; message: string }
   | { kind: 'ready'; data: Data }
-
-/** 舊網址 /admin:轉到研發基地的「會員」標籤 */
-export function AdminRedirect() {
-  return <Navigate to={ADMIN_PATH} replace />
-}
 
 /** 時間篩選的選項:整頁的統計都只算這段時間內的資料 */
 const RANGES: { value: AdminRange; label: string }[] = [
