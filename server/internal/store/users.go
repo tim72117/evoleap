@@ -181,3 +181,16 @@ func notFound(err error) error {
 	}
 	return err
 }
+
+// UpdateUserName 改使用者的顯示名稱(會員空間);name 由呼叫端先檢查過長度。使用者不存在時回傳 ErrNotFound。
+func (s *Store) UpdateUserName(ctx context.Context, id, name string) (User, error) {
+	db := s.db.WithContext(ctx)
+	res := db.Model(&userRow{}).Where("id = ?", id).Updates(map[string]any{"name": name, "updated_at": now()})
+	if res.Error != nil {
+		return User{}, res.Error
+	}
+	if res.RowsAffected == 0 {
+		return User{}, ErrNotFound
+	}
+	return s.UserByID(ctx, id)
+}

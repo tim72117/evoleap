@@ -13,6 +13,7 @@ import { KIDS_OPEN_LESSONS, KIDS_UNITS, kidsLessonTitle } from '../content/kidsC
 import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, kidsLessonDocTitle, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC, webLessonDocTitle } from '../content/topics'
 import { LAUNCH_LESSON_PAGES, launchLesson, launchLessonPath } from '../content/launchCourse'
 import { WEB_OPEN_LESSONS, WEB_UNITS, webLesson } from '../content/webCourse'
+import { MEMBER_SECTIONS, memberSectionTitle } from '../member/sections'
 
 type JsonLd = Record<string, unknown>
 
@@ -301,6 +302,14 @@ const CLI_AUTH_PAGE: PageMeta = {
   noindex: true,
 }
 
+// 會員空間(member/):要登入才看得到自己的資料,不收錄;每個分頁一筆,跟著 MEMBER_SECTIONS 產生
+const MEMBER_PAGES: PageMeta[] = MEMBER_SECTIONS.map((s) => ({
+  path: s.path,
+  title: documentTitle(memberSectionTitle(s)),
+  description: s.description,
+  noindex: true,
+}))
+
 // 管理後台的舊網址:現在轉到研發基地的「會員」標籤(/studio/members),noindex、不列入 sitemap。
 const ADMIN_PAGE: PageMeta = {
   path: '/admin',
@@ -358,6 +367,7 @@ export const PAGES: PageMeta[] = [
   ...LEGAL_PAGES,
   LOGIN_PAGE,
   CLI_AUTH_PAGE,
+  ...MEMBER_PAGES,
   ADMIN_PAGE,
 ]
 

@@ -1,4 +1,5 @@
 // 播放進度:只有登入的會員才會儲存(存到伺服器,見 server/internal/api/progress.go),訪客完全不存。
+import { ApiError } from '../auth/api'
 import type { ProgressStore } from '../live/shell'
 
 export interface LessonProgress {
@@ -9,6 +10,12 @@ export interface LessonProgress {
 }
 
 export const progressApi = {
+  /** 這位會員所有課的進度,最近看的在前(會員空間用);失敗時丟出 ApiError(未登入或登入過期是 401) */
+  list: async (): Promise<LessonProgress[]> => {
+    const res = await fetch('/api/progress', { credentials: 'same-origin' })
+    if (!res.ok) throw new ApiError(res.status, 'progress_list', '讀不到學習進度')
+    return ((await res.json()) as { progress: LessonProgress[] }).progress ?? []
+  },
   get: async (lesson: string): Promise<LessonProgress | null> => {
     const res = await fetch(`/api/progress?lesson=${encodeURIComponent(lesson)}`, { credentials: 'same-origin' })
     if (!res.ok) return null

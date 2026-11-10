@@ -1,0 +1,487 @@
+/* 會員空間。沿用 SiteLayout 的 --site-* tokens,按鈕與輸入框和登入頁同款。 */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0 32px;
+}
+
+/* ---------- 會員卡 ---------- */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 4px 8px;
+}
+
+.avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--site-accent-solid), var(--site-accent-strong));
+  color: var(--site-accent-contrast);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.heroText {
+  min-width: 0;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--site-muted);
+}
+
+.heroName {
+  margin: 2px 0 0;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- 分頁列(分頁超過一個才顯示) ---------- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  overflow-x: auto;
+  background: var(--site-surface-2);
+  border-radius: 999px;
+}
+
+.tabs a.tab {
+  flex: none;
+  padding: 7px 16px;
+  border-radius: 999px;
+  color: var(--site-muted);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tabs a.tab:hover {
+  color: var(--site-text);
+}
+
+.tabs a.tabActive {
+  background: var(--site-surface);
+  color: var(--site-accent-strong);
+  box-shadow: 0 1px 3px rgb(30 30 20 / 12%);
+}
+
+/* ---------- 區塊 ---------- */
+.panel {
+  padding: 24px;
+  background: var(--site-surface);
+  border: 1px solid var(--site-border);
+  border-radius: calc(var(--site-radius) + 4px);
+  box-shadow: var(--site-shadow);
+}
+
+.panelTitle {
+  margin: 0 0 14px;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.muted {
+  margin: 0 0 16px;
+  color: var(--site-muted);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 0 0;
+  border-top: 1px solid var(--site-border);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 7em 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--site-border);
+  font-size: 15px;
+}
+
+.fact:first-child {
+  border-top: 0;
+}
+
+.fact:last-child {
+  padding-bottom: 0;
+}
+
+.fact dt {
+  color: var(--site-muted);
+}
+
+.fact dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- 課程分頁 ---------- */
+.empty {
+  padding: 20px;
+  margin-bottom: 14px;
+  border: 1px dashed var(--site-border);
+  border-radius: var(--site-radius);
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.empty .muted {
+  margin: 0;
+}
+
+/* 整列可點的卡片 */
+.panel a.rowCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  background: var(--site-surface);
+  color: var(--site-text);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.panel a.rowCard:hover {
+  background: var(--site-surface-2);
+  border-color: var(--site-accent);
+}
+
+.rowCard:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
+
+.rowCardText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowCardText span {
+  color: var(--site-muted);
+  font-size: 14px;
+}
+
+.rowCardArrow {
+  flex: none;
+  color: var(--site-muted);
+}
+
+/* 上過的課程:一門課一張整列可點的卡片 */
+.courseList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel a.courseCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  background: var(--site-surface);
+  color: var(--site-text);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.panel a.courseCard:hover {
+  background: var(--site-surface-2);
+  border-color: var(--site-accent);
+}
+
+.panel a.courseCard:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
+
+.courseBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.courseName {
+  color: var(--site-muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.courseLesson {
+  font-size: 16.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.progressBar {
+  position: relative;
+  flex: 1;
+  max-width: 260px;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--site-surface-2);
+}
+
+.progressBar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: var(--site-accent);
+}
+
+.progressText {
+  flex: none;
+  color: var(--site-accent-strong);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.courseMeta {
+  color: var(--site-muted);
+  font-size: 13px;
+}
+
+.courseAction {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  color: var(--site-accent-strong);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.courseAction .rowCardArrow {
+  color: inherit;
+}
+
+.empty .secondary {
+  margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+  .panel a.courseCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .courseAction {
+    justify-content: flex-end;
+  }
+}
+
+/* ---------- 表單 ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--site-border);
+  border-radius: 10px;
+  background: var(--site-surface);
+  color: var(--site-text);
+  font: inherit;
+  font-size: 16px; /* 16px 避免 iOS 聚焦時自動放大 */
+  line-height: 1.5;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--site-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 20%, transparent);
+}
+
+.field input[aria-invalid='true'] {
+  border-color: #e11d48;
+}
+
+.hint,
+.hintError {
+  margin: 0;
+  font-size: 13px;
+  color: var(--site-muted);
+}
+
+.hintError {
+  color: #be123c;
+}
+
+.error {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.saved {
+  color: var(--site-accent-strong);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ---------- 按鈕 ---------- */
+.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--site-accent-solid), var(--site-accent-strong));
+  color: var(--site-accent-contrast);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--site-accent) 30%, transparent);
+  transition: filter 0.15s, transform 0.15s, opacity 0.15s;
+}
+
+.primary:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: none;
+}
+
+.secondary {
+  appearance: none;
+  padding: 9px 22px;
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--site-surface-2);
+}
+
+.secondary:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.tab:focus-visible,
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .panel {
+    padding: 20px 18px;
+  }
+
+  .fact {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+:global([data-site-theme='dark']) .error {
+  background: #2a0d14;
+  border-color: #5c1a2a;
+  color: #fda4af;
+}
+
+:global([data-site-theme='dark']) .hintError {
+  color: #fda4af;
+}
+
+/* 連結做成的按鈕:蓋過 SiteLayout 的 .site a 連結色 */
+.panel a.primary {
+  color: var(--site-accent-contrast);
+}
+
+.panel a.secondary {
+  display: inline-flex;
+  align-items: center;
+  color: var(--site-text);
+  text-decoration: none;
+}

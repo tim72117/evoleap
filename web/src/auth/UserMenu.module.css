@@ -140,6 +140,7 @@ a[href].login:focus-visible,
   font: inherit;
   font-size: 14px;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
 }
 
@@ -161,4 +162,9 @@ a[href].login:focus-visible,
   .trigger {
     padding-right: 8px;
   }
+}
+
+/* 選單裡的連結(會員空間):蓋過 SiteLayout 的 .site a 連結色 */
+.menu a.item {
+  color: var(--site-text);
 }

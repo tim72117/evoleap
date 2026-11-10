@@ -2,9 +2,10 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 import { loginHref } from './paths'
+import { MEMBER_PATH } from '../member/paths'
 import styles from './UserMenu.module.css'
 
-// 頁首的登入狀態小工具:未登入顯示「登入」連結,已登入顯示頭像 + 名稱,點開可登出。
+// 頁首的登入狀態小工具:未登入顯示「登入」連結,已登入顯示頭像 + 名稱,點開可進會員空間或登出。
 
 export function UserMenu() {
   const { status, user, logout } = useAuth()
@@ -92,11 +93,30 @@ export function UserMenu() {
       </button>
 
       {open ? (
-        <div id={menuId} ref={menuRef} className={styles.menu} role="menu" aria-label="帳號">
+        <div
+          id={menuId}
+          ref={menuRef}
+          className={styles.menu}
+          role="menu"
+          aria-label="帳號"
+          onKeyDown={(e) => {
+            // 選單項目之間用上下鍵、Home／End 移動(WAI-ARIA menu)
+            const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])]
+            const i = items.indexOf(document.activeElement as HTMLElement)
+            const to = e.key === 'ArrowDown' ? (i + 1) % items.length : e.key === 'ArrowUp' ? (i - 1 + items.length) % items.length : e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : -1
+            if (to < 0 || !items.length) return
+            e.preventDefault()
+            items[to].focus()
+          }}
+        >
           <div className={styles.identity}>
             {user.name ? <strong>{user.name}</strong> : null}
             <span>{user.email}</span>
           </div>
+          {/* 已經在會員空間時網址不變,換頁時關閉的效果不會觸發,點了也要關 */}
+          <Link role="menuitem" className={styles.item} to={MEMBER_PATH} onClick={() => setOpen(false)}>
+            會員空間
+          </Link>
           <button
             type="button"
             role="menuitem"

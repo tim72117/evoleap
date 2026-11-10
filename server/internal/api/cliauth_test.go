@@ -55,6 +55,13 @@ func TestCliLoginAndCourseAdmin(t *testing.T) {
 		rec := callHeader(env.h, method, path, body, map[string]string{"Authorization": "Bearer " + ex.Token})
 		return rec.Code, rec.Body.String()
 	}
+	// 會員空間改帳號資料只認網站登入的 cookie,CLI token 不行
+	if code, body := withBearer(http.MethodPatch, "/api/me", `{"name":"CLI 改的"}`); code != http.StatusUnauthorized {
+		t.Errorf("CLI token 改帳號資料應該被拒: %d %s", code, body)
+	}
+	if code, body := withBearer(http.MethodGet, "/api/me", ""); !strings.Contains(body, `"email":"boss@example.com"`) || strings.Contains(body, "CLI 改的") {
+		t.Errorf("CLI token 改到了名稱: %d %s", code, body)
+	}
 	if code, body := withBearer(http.MethodGet, "/api/admin/courses", ""); code != http.StatusOK || !strings.Contains(body, `"id":"kids"`) {
 		t.Errorf("課程清單: %d %s", code, body)
 	}

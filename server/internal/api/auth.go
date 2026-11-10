@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/mail"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/tim72117/evoleap/internal/auth"
@@ -22,9 +23,11 @@ const minPasswordLen = 8
 
 // sessionUser 是回給已登入使用者本人的資料:isAdmin 讓前端決定要不要顯示研發基地的入口,
 // 真正的權限由伺服器每次請求判定(見 InternalAccess、requireAdmin)。
+// google:這個帳號綁定了 Google 登入(會員空間顯示登入方式用)。
 type sessionUser struct {
 	store.User
 	IsAdmin bool `json:"isAdmin"`
+	Google  bool `json:"google"`
 }
 
 type authResponse struct {
@@ -32,7 +35,7 @@ type authResponse struct {
 }
 
 func (s *Server) authBody(user store.User) authResponse {
-	return authResponse{User: sessionUser{User: user, IsAdmin: s.isAdmin(user)}}
+	return authResponse{User: sessionUser{User: user, IsAdmin: s.isAdmin(user), Google: user.GoogleVerified}}
 }
 
 // authEnabled 回報登入功能是否可用(有設定資料庫)。
@@ -81,8 +84,8 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	if name == "" {
 		name = strings.SplitN(email, "@", 2)[0]
 	}
-	if utf8.RuneCountInString(name) > store.MaxNameLen || strings.ContainsRune(name, 0) {
-		writeError(w, http.StatusBadRequest, "invalid_name", "名稱最多 50 個字")
+	if msg := nameProblem(name); msg != "" {
+		writeError(w, http.StatusBadRequest, "invalid_name", msg)
 		return
 	}
 	hash, err := auth.HashPassword(req.Password)
@@ -101,6 +104,32 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	s.noteGuestLogin(r, store.LoginRegister)
 	s.startSession(w, user)
+}
+
+// nameProblem 檢查顯示名稱(註冊與會員空間改名),沒問題回傳空字串,否則回傳給使用者看的訊息:
+//   - 長度上限 store.MaxNameLen。
+//   - 不能有控制字元(換行、tab、NUL,Postgres 不接受 NUL)與格式字元(零寬、方向控制如 U+202E),
+//     避免名稱看起來是空白,或在後台會員清單倒著顯示來偽裝。
+//   - 至少要有一個看得見的字(不能全是空白)。
+//
+// 前端 web/src/member/name.ts 照同樣的規則先檢查一次。
+func nameProblem(name string) string {
+	if utf8.RuneCountInString(name) > store.MaxNameLen {
+		return "名稱最多 50 個字"
+	}
+	visible := false
+	for _, r := range name {
+		if unicode.IsControl(r) || unicode.Is(unicode.Cf, r) {
+			return "名稱不能包含換行或看不見的特殊字元"
+		}
+		if !unicode.IsSpace(r) && !unicode.Is(unicode.Z, r) {
+			visible = true
+		}
+	}
+	if !visible {
+		return "請輸入名稱"
+	}
+	return ""
 }
 
 type loginRequest struct {

@@ -63,6 +63,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /api/auth/google", s.limitAuth(s.requireAuth(s.handleGoogle)))
 	mux.HandleFunc("POST /api/auth/logout", s.handleLogout)
 	mux.HandleFunc("GET /api/me", s.handleMe)
+	mux.HandleFunc("PATCH /api/me", s.requireSiteUser(s.handleMeUpdate))
 	mux.HandleFunc("GET /api/progress", s.requireUser(s.handleProgressGet))
 	mux.HandleFunc("PUT /api/progress", s.requireUser(s.handleProgressPut))
 	mux.HandleFunc("GET /api/courses/{id}/map", s.handleCourseMap)

@@ -9,6 +9,8 @@ export interface User {
   isAdmin?: boolean
   /** 有效訂閱,訂閱者不看廣告。訂閱功能合併前伺服器不會回傳,視為沒訂閱 */
   subscribed?: boolean
+  /** 帳號綁定了 Google 登入(會員空間顯示登入方式用) */
+  google?: boolean
 }
 
 /** API 回傳的錯誤;message 是可以直接顯示給使用者的中文訊息 */
@@ -53,4 +55,6 @@ export const authApi = {
   google: (credential: string) =>
     request<{ user: User }>('POST', '/api/auth/google', { credential }).then((r) => r.user),
   logout: () => request<void>('POST', '/api/auth/logout'),
+  /** 會員空間改自己的資料;沒帶的欄位不改,回傳更新後的使用者 */
+  updateProfile: (fields: { name?: string }) => request<{ user: User }>('PATCH', '/api/me', fields).then((r) => r.user),
 }

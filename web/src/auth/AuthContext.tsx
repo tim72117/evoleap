@@ -13,6 +13,10 @@ type AuthState = {
   /** 登入、註冊或 Google 登入成功後呼叫 */
   setUser: (user: User) => void
   logout: () => Promise<void>
+  /** API 回 401(登入過期、在別處登出):把狀態設回訪客,expired 設為 true,頁面可以導去登入頁再回來 */
+  sessionExpired: () => void
+  /** 這次變成訪客是因為登入過期(sessionExpired),不是自己按登出 */
+  expired: boolean
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -21,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<User | null>(null)
   const [status, setStatus] = useState<AuthState['status']>('loading')
   const [checkFailed, setCheckFailed] = useState(false)
+  const [expired, setExpired] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -48,6 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserState(u)
     setStatus('user')
     setCheckFailed(false)
+    setExpired(false)
+  }, [])
+
+  const sessionExpired = useCallback(() => {
+    setUserState(null)
+    setStatus((s) => (s === 'user' ? 'guest' : s))
+    setCheckFailed(false)
+    setExpired(true)
   }, [])
 
   const logout = useCallback(async () => {
@@ -60,9 +73,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserState(null)
     setStatus('guest')
     setCheckFailed(false)
+    setExpired(false)
   }, [])
 
-  const value = useMemo(() => ({ status, user, checkFailed, setUser, logout }), [status, user, checkFailed, setUser, logout])
+  const value = useMemo(
+    () => ({ status, user, checkFailed, setUser, logout, sessionExpired, expired }),
+    [status, user, checkFailed, setUser, logout, sessionExpired, expired],
+  )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
