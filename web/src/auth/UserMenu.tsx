@@ -63,8 +63,11 @@ export function UserMenu() {
       className={styles.root}
       ref={rootRef}
       onBlur={(e) => {
-        // 焦點移出整個元件時關閉(Tab 離開)
-        if (open && !rootRef.current?.contains(e.relatedTarget as Node | null)) setOpen(false)
+        // 焦點移到元件外的元素時關閉(Tab 離開)。relatedTarget 為 null(焦點沒有移到任何元素)時不關:
+        // iOS／macOS Safari 點按鈕和連結不會把焦點移過去,原本有焦點的選項會先失焦,這時關掉選單就收不到 click(點了沒反應)。
+        // 點選單外面由上方的 pointerdown 處理。
+        const next = e.relatedTarget as Node | null
+        if (open && next && !rootRef.current?.contains(next)) setOpen(false)
       }}
     >
       <button
