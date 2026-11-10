@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/tim72117/evoleap/internal/store"
 )
@@ -12,13 +13,21 @@ import (
 // handleLessonFile 回傳一個腳本檔(GET /api/scripts/{path},path 例如 l0/0.0-tools.json)。
 // 課程的腳本依所屬那一課把關:管理員都看得到;其他人只拿得到已開放(open)的課,access free 不用登入,login-free 要登入,
 // 訂閱課程等訂閱功能上線前不給。研發基地的腳本(不屬於任何一課)只給管理員。
-// 拿不到的草稿、規劃中的課與研發基地的腳本,對其他人一律當作不存在(404),不透露有這個檔。
+// 拿不到的草稿、規劃中的課與研發基地的腳本,對其他人一律當作不存在(404,選用的旁白與章節音軌清單回 null),不透露有這個檔。
 // 沒接資料庫時(Cloud Run 沒設 DATABASE_URL)直接照內嵌的種子讀 ScriptsDir 裡的檔:登入功能停用,所以只有免登入的課拿得到。
 func (s *Server) handleLessonFile(w http.ResponseWriter, r *http.Request) {
 	path := r.PathValue("path")
 	user, loggedIn := s.currentUser(r)
 	admin := s.cfg.OpenAdmin || (loggedIn && s.isAdmin(user))
-	notFound := func() { writeError(w, http.StatusNotFound, "not_found", "找不到這個腳本") }
+	notFound := func() {
+		// 旁白清單、章節音軌清單是選用的(很多腳本沒有):沒有或看不到時回 null(200),瀏覽器不會記成載入失敗
+		if strings.HasSuffix(path, ".voice.json") || strings.HasSuffix(path, ".mix.json") {
+			w.Header().Set("Cache-Control", "private, no-store")
+			writeJSON(w, http.StatusOK, nil)
+			return
+		}
+		writeError(w, http.StatusNotFound, "not_found", "找不到這個腳本")
+	}
 
 	var content string
 	public := false

@@ -13,7 +13,7 @@ import (
 )
 
 // courseRow 記錄每門課的存取方式,Access 為 subscription 代表要訂閱才能看。
-// 資料來源是 courses_seed.json,寫入課程資料時(正式環境是部署時的同步工作 server -sync-only,本機是後端啟動時)同步進這張表。課程地圖 API 回傳它,腳本檔(GET /api/scripts)依它與每一課的 access 把關;
+// 資料來源是 courses_seed.json,寫入課程資料時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)同步進這張表。課程地圖 API 回傳它,腳本檔(GET /api/scripts)依它與每一課的 access 把關;
 // 訂閱檢查還沒做(訂閱課程的腳本只給管理員)。前端 /courses/... 的單課頁要不要登入仍看 content/catalog.ts,content/courseMap.test.ts 檢查兩邊一致。
 type courseRow struct {
 	ID     string `gorm:"primaryKey;size:64"`

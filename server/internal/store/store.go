@@ -44,7 +44,7 @@ func Open(dsn string) (*Store, error) {
 }
 
 // Connect 開啟資料庫並同步 schema,不寫課程資料。Cloud Run 上的網站伺服器用:課程資料由部署時的同步工作
-// (Cloud Run Job 執行 server -sync-only,見 SyncCourses)寫入一次,免得每台伺服器啟動都重寫、多台同時啟動互相衝突。
+// (Cloud Run Job 執行 cmd/sync,見 SyncCourses)寫入一次,免得每台伺服器啟動都重寫、多台同時啟動互相衝突。
 func Connect(dsn string) (*Store, error) {
 	db, err := gorm.Open(dialector(dsn), &gorm.Config{
 		Logger:         logger.Default.LogMode(logger.Silent),

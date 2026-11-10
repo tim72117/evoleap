@@ -17,9 +17,10 @@ on:
 env:
   GCP_PROJECT_ID: "shuttle-045094509"
   CLOUD_RUN_SERVICE: "shuttle-server"
-  # 課程同步工作(Cloud Run Job):每次部署用新的 image 執行一次 server -sync-only,
+  # 課程同步工作(Cloud Run Job):每次部署執行一次 cmd/sync(Dockerfile 的 course-sync 目標,另一個小 image),
   # 把 courses_seed.json 的課程與腳本檔寫進資料庫;網站伺服器在 Cloud Run 上只讀,不再每次啟動都寫。
   CLOUD_RUN_SYNC_JOB: "shuttle-course-sync"
+  SYNC_IMAGE: "asia-east1-docker.pkg.dev/shuttle-045094509/cloud-run-source-deploy/shuttle-course-sync"
   CLOUD_RUN_REGION: "asia-east1"
   IMAGE: "asia-east1-docker.pkg.dev/shuttle-045094509/cloud-run-source-deploy/shuttle-server"
   # 與 tripace 共用同一個 Cloud SQL 實例,資料庫與使用者分開:這裡是 evoleap/evoleap_app。
@@ -71,17 +72,23 @@ jobs:
             -t ${{ env.IMAGE }}:${{ github.sha }} \
             -t ${{ env.IMAGE }}:latest \
             .
+          docker build --target course-sync \
+            -t ${{ env.SYNC_IMAGE }}:${{ github.sha }} \
+            -t ${{ env.SYNC_IMAGE }}:latest \
+            .
 
       - name: Push image
         if: github.event.inputs.skip_build != 'true'
         run: |
           docker push ${{ env.IMAGE }}:${{ github.sha }}
           docker push ${{ env.IMAGE }}:latest
+          docker push ${{ env.SYNC_IMAGE }}:${{ github.sha }}
+          docker push ${{ env.SYNC_IMAGE }}:latest
 
       # 先寫入課程資料,再部署網站:新版網站上線時資料庫已經是新的課程與腳本;寫入失敗就停止部署(網站維持舊版)。
       # 只改課程內容、不想打 tag 時,用 sync-courses.yml(手動執行)。
       - name: Sync course data (Cloud Run Job)
-        run: .github/scripts/run-course-sync.sh ${{ env.IMAGE }}:${{ github.event.inputs.skip_build == 'true' && 'latest' || github.sha }}
+        run: .github/scripts/run-course-sync.sh ${{ env.SYNC_IMAGE }}:${{ github.event.inputs.skip_build == 'true' && 'latest' || github.sha }}
 
       # skip_build=true 時本次沒有 build,${{ github.sha }} 的 image 不存在,改用 :latest。
       # 參數與 tripace 的 deploy-cloudrun.yml 一致(最大實例數除外,這裡刻意設 2);機密與 tripace 同專案,名稱加 EVOLEAP_ 前綴。

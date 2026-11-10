@@ -24,8 +24,7 @@ func main() {
 	dbPath := flag.String("db", "shuttle.db", "DATABASE_URL 未設定時使用的本機 SQLite 檔案")
 	distDir := flag.String("dist", "", "從磁碟目錄提供前端 build(例如 ../web/dist);留空使用內嵌的 build")
 	openStudio := flag.Bool("open-studio", false, "不檢查內部頁(研發基地)與管理後台的權限,只給本機與 E2E 測試用;Cloud Run 上會拒絕啟動")
-	liveDir := flag.String("live", "../web/src/content/live", "課程腳本檔的目錄(web/src/content/live);寫入課程資料時把 courses_seed.json 寫到的檔案讀進資料庫")
-	syncOnly := flag.Bool("sync-only", false, "只把課程資料(courses_seed.json 的課程與腳本檔)寫進資料庫後結束;部署時由 Cloud Run Job 執行")
+	liveDir := flag.String("live", "../web/src/content/live", "課程腳本檔的目錄(web/src/content/live);本機啟動時把 courses_seed.json 寫到的檔案讀進資料庫,沒接資料庫時直接從這裡讀")
 	envFile := flag.String("env", ".env", "本機開發時從這個檔案補上還沒設定的環境變數(Google 登入、管理員等);空字串不讀。Cloud Run 上不讀")
 	flag.Parse()
 
@@ -58,22 +57,6 @@ func main() {
 	if dsn == "" && !onCloudRun {
 		dsn = *dbPath
 	}
-	// 課程同步工作(Cloud Run Job,每次部署執行一次):寫入課程資料後結束,不啟動網站
-	if *syncOnly {
-		if dsn == "" || (os.Getenv("CLOUD_RUN_JOB") != "" && os.Getenv("DATABASE_URL") == "") {
-			log.Fatal("寫入課程資料需要 DATABASE_URL")
-		}
-		st, err := store.Connect(dsn)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if err := st.SyncCourses(context.Background(), *liveDir); err != nil {
-			log.Fatal(err)
-		}
-		log.Print("課程資料已寫入資料庫")
-		return
-	}
-
 	cfg := api.Config{
 		GoogleClientID: os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
 		SecureCookie:   onCloudRun,
@@ -88,7 +71,7 @@ func main() {
 	if dsn == "" {
 		log.Print("未設定 DATABASE_URL:登入功能停用")
 	} else {
-		// Cloud Run 上只讀:課程資料由部署時的同步工作寫入(-sync-only)。本機每次啟動都寫一次,改了種子重啟就生效
+		// Cloud Run 上只讀:課程資料由部署時的同步工作寫入(cmd/sync)。本機每次啟動都寫一次,改了種子重啟就生效
 		var st *store.Store
 		var err error
 		if onCloudRun {

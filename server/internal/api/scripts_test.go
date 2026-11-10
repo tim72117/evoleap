@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -46,11 +47,19 @@ func TestLessonFileGate(t *testing.T) {
 		{"沒有這個檔", "nope.json", boss, http.StatusNotFound},
 		{"研發基地的腳本、會員", "lab/demo.json", amy, http.StatusNotFound},
 		{"研發基地的腳本、管理員", "lab/demo.json", boss, http.StatusOK},
+		{"沒有的旁白清單:回 null,不是 404", "free.voice.json", nil, http.StatusOK},
+		{"看不到的章節音軌清單:也回 null", "draft.mix.json", amy, http.StatusOK},
 	}
 	for _, c := range cases {
 		rec := call(env.h, http.MethodGet, "/api/scripts/"+c.path, "", c.cookie)
 		if rec.Code != c.code {
 			t.Errorf("%s: %d %s", c.name, rec.Code, rec.Body)
+		}
+		if strings.HasSuffix(c.path, ".voice.json") || strings.HasSuffix(c.path, ".mix.json") {
+			if rec.Body.String() != "null\n" {
+				t.Errorf("%s: body %q", c.name, rec.Body)
+			}
+			continue
 		}
 		if c.code == http.StatusOK && rec.Body.String() != `{"from":"`+c.path+`"}` {
 			t.Errorf("%s: body %s", c.name, rec.Body)

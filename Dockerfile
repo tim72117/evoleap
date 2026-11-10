@@ -9,6 +9,10 @@
 #   docker build -t shuttle-server .
 # 本機跑:
 #   docker run --rm -p 8080:8080 shuttle-server
+#
+# 另一個目標 course-sync 是課程同步工作的映像(只有 cmd/sync 與腳本目錄,不建置前端):
+#   docker build --target course-sync -t shuttle-course-sync .
+# 預設(不加 --target)建置的是網站,也就是最後一個階段。
 
 # ---- 階段 1:build 前端 ----
 FROM node:22-alpine AS web-build
@@ -49,12 +53,27 @@ RUN cd /src/server && go test ./...
 RUN cd /src/server && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
     -o /out/server ./cmd/server
 
-# ---- 階段 3:執行 ----
+# ---- 課程同步工作(--target course-sync):只編譯 cmd/sync,不建置前端 ----
+# 部署與從 dev 手動同步時以 Cloud Run Job 執行一次,把 courses_seed.json(內嵌)的課程與 /app/live 的腳本檔寫進資料庫。
+FROM golang:1.26 AS sync-build
+COPY server/go.mod server/go.su[m] /src/server/
+RUN cd /src/server && go mod download
+COPY server/ /src/server/
+RUN cd /src/server && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
+    -o /out/sync ./cmd/sync
+
+FROM gcr.io/distroless/static-debian12:nonroot AS course-sync
+WORKDIR /app
+COPY --from=sync-build /out/sync /app/sync
+COPY web/src/content/live/ /app/live/
+ENTRYPOINT ["/app/sync", "-live", "/app/live"]
+
+# ---- 階段 3:執行(網站,預設目標) ----
 # distroless:只含執行檔需要的最小 runtime,無 shell、體積小、攻擊面小。
 FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /app
 COPY --from=build /out/server /app/server
-# 課程腳本檔:部署時的同步工作(Cloud Run Job,server -sync-only)依 courses_seed.json 讀進資料庫(-live),前端改由 /api/scripts 取得
+# 課程腳本檔:網站沒接資料庫時直接從這裡讀(-live);有資料庫時讀的是課程同步工作(course-sync)寫進去的內容
 COPY web/src/content/live/ /app/live/
 
 # Cloud Run 會注入 PORT(預設 8080);main.go 讀 PORT 覆寫監聽位址。

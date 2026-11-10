@@ -65,7 +65,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 ## 課程資料庫
 
 - 一門課 `courses`（存取方式 `access`：`free`／`login-free`／`subscription`，訂閱課程的最低方案 `tier`）→ 單元 `course_units` → 一堂課 `lessons`（`status`：`open`／`draft`／`planned`；`access` 空的就照這門課，只有例外才填，例如序章免費預覽；`script` 是課程頁要播的腳本、`files` 是這一課其他的腳本檔（子腳本、開場、試做）；`minutes` 是預估學習時間，0 代表還沒估）。草稿（`draft`）只有管理員看得到狀態與腳本，其他人看到的是規劃中。
-- 網站上的 9 門課（AI 工具介紹、AI 工具入門、Vibe Coding 入門、AI Agent 整合應用、進階 AI Agent 應用、網頁怎麼運作、給孩子的網頁程式、從做好到上線、Claude Code 工作術）都在資料庫。資料以 `server/internal/store/courses_seed.json` 為準，寫入資料表的時機：正式環境是每次部署時執行一次的課程同步工作（Cloud Run Job `shuttle-course-sync`，同一個 image 執行 `server -sync-only`，寫入失敗就不部署網站），Cloud Run 上的網站伺服器只讀；本機是後端每次啟動時寫入。有寫 `units` 的課程，單元與課整份換成種子的內容。程式在 `server/internal/store/courses.go`、`lessons.go`。
+- 網站上的 9 門課（AI 工具介紹、AI 工具入門、Vibe Coding 入門、AI Agent 整合應用、進階 AI Agent 應用、網頁怎麼運作、給孩子的網頁程式、從做好到上線、Claude Code 工作術）都在資料庫。資料以 `server/internal/store/courses_seed.json` 為準，寫入資料表的時機：正式環境是每次部署時執行一次的課程同步工作（Cloud Run Job `shuttle-course-sync`，執行 `server/cmd/sync`；image 是 Dockerfile 的 `course-sync` 目標，只有這支程式與腳本目錄，不建置前端；寫入失敗就不部署網站），Cloud Run 上的網站伺服器只讀；本機是後端每次啟動時寫入。有寫 `units` 的課程，單元與課整份換成種子的內容。程式在 `server/internal/store/courses.go`、`lessons.go`。
 - 單元的 `subtitle` 是課程地圖上單元標題下的小字（兒童課是比喻，網頁怎麼運作是這個單元回答的問題）。
 - 公開 API `GET /api/courses/{id}/map` 回傳課程地圖（不用登入，登入功能沒開也能讀，只有沒接資料庫時回 503）。讀它的頁面：
   - 主題的課程地圖：兒童課（`/topics/kids#map`）、網頁怎麼運作（`/topics/web#map`）、從做好到上線（`/topics/launch#map`），畫法共用 `web/src/home/CourseMapUnits.tsx`，讀到之前與讀不到時先用前端內建的同一份資料。
@@ -98,7 +98,7 @@ git tag -a v0.1.0 -m "..." && git push origin v0.1.0
 ```
 
 - 打 `v*` tag 觸發 `.github/workflows/deploy-cloudrun.yml`：先跑完整測試（`test.yml`），通過才 build、執行課程同步工作（寫入課程資料），再部署到 Cloud Run。
-- 只改課程內容（`courses_seed.json` 或 `web/src/content/live/` 的腳本）不用打 tag：在 GitHub Actions 選 `dev` 分支手動執行 `sync-courses.yml`（或 `gh workflow run sync-courses.yml --ref dev`；只能從 `dev` 分支執行，其他分支會直接失敗），跑完測試後用 `dev` 分支 build 一個 image（標 `sync-<commit>`），只執行課程同步工作，不部署網站。網站從資料庫讀課程地圖與腳本，課的開放狀態、腳本、時間馬上生效；新增課程頁（前端路由、SEO、課程內容）與程式的修改仍要打 tag 部署。兩個 workflow 共用 `.github/scripts/run-course-sync.sh`，也共用一個執行序，不會同時寫資料庫。
+- 只改課程內容（`courses_seed.json` 或 `web/src/content/live/` 的腳本）不用打 tag：在 GitHub Actions 選 `dev` 分支手動執行 `sync-courses.yml`（或 `gh workflow run sync-courses.yml --ref dev`；只能從 `dev` 分支執行，其他分支會直接失敗），只跑和課程資料有關的測試（Go 測試、課程一致性測試），用 `dev` 分支 build 課程同步工作的小 image（`shuttle-course-sync:<commit>`），只執行課程同步工作，不部署網站。網站從資料庫讀課程地圖與腳本，課的開放狀態、腳本、時間馬上生效；新增課程頁（前端路由、SEO、課程內容）與程式的修改仍要打 tag 部署。兩個 workflow 共用 `.github/scripts/run-course-sync.sh`，也共用一個執行序，不會同時寫資料庫。
 - GitHub repo secrets：`WIF_PROVIDER`、`WIF_SERVICE_ACCOUNT`（Workload Identity Federation，provider `github-provider-vibing` 只允許 `tim72117/evoleap`；repo 改名時要同步更新 provider 的 attribute condition 與 service account 的 workloadIdentityUser 綁定，否則部署會在驗證步驟失敗）；repo variable `GA_MEASUREMENT_ID`（選填，未設定不載入 GA）、`ADSENSE_CLIENT` 與 `ADSENSE_SLOT`（選填，兩個都設定才在課程頁放廣告；AdSense 後台的自動廣告要保持關閉）。
 - 登入功能需要資料庫：Cloud Run 上沒有 `DATABASE_URL` 時伺服器自動停用登入，網站其他部分照常運作（課程只有免登入的課能播，課程地圖改用前端內建的資料）。
   - Cloud SQL：與 tripace 共用實例 `onagent-prod:asia-east1:onagent-db`，資料庫 `evoleap`、使用者 `evoleap_app`。實例上的 `shuttle`、`shuttle_app` 是 tripace 的正式資料，不可使用。

@@ -13,7 +13,7 @@ import (
 )
 
 // 每一課的腳本檔(舞台腳本、子腳本、開場與試做),以及各自的旁白清單(.voice.json)與章節音軌清單(.mix.json)。
-// 種子(courses_seed.json)只記路徑:一課的 script 加上 files;檔案本身在 web/src/content/live/,寫入課程資料時(正式環境是部署時的同步工作 server -sync-only,本機是後端啟動時)讀進這張表,
+// 種子(courses_seed.json)只記路徑:一課的 script 加上 files;檔案本身在 web/src/content/live/,寫入課程資料時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)讀進這張表,
 // 一個檔案一列、記著屬於哪一門課的哪一課。前端只透過 GET /api/scripts/{path} 取得,所以能依那一課的狀態與存取方式把關。
 type lessonFileRow struct {
 	// Path 是 web/src/content/live/ 底下的相對路徑(例如 l0/0.0-tools.json),前端用它取檔
