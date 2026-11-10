@@ -1,9 +1,10 @@
 import { Component, lazy, Suspense, type ReactNode } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { adminRoutes } from './admin/routes'
 import { authRoutes } from './auth/routes'
 import { courseRoutes } from './courses/routes'
 import { homeRoutes } from './home/routes'
+import { isKidsModePath, KIDS_MODE_HOME, useKidsMode } from './kidsMode/KidsModeContext'
 import { legalRoutes } from './legal/routes'
 import { memberRoutes } from './member/routes'
 import { findPage } from './seo/pages'
@@ -48,6 +49,10 @@ function Fallback() {
 export function App() {
   usePageMeta(publicPageMeta)
   useAnalyticsPageView()
+  const { mode } = useKidsMode()
+  const { pathname } = useLocation()
+  // 兒童模式:只顯示兒童課程,其他網址都帶回兒童課的課程地圖(伺服器另外擋腳本)
+  if (mode?.active && !isKidsModePath(pathname)) return <Navigate to={KIDS_MODE_HOME} replace />
   return (
     <Routes>
       {routes.map((r) => (

@@ -1,0 +1,2 @@
+/* 兒童模式右上角的膠囊頭像:emoji 頭像(沿用帳號選單 auth/UserMenu 的外觀與大小) */
+span.emoji { font-size: 18px; line-height: 1; background: var(--site-surface-2); }

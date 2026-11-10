@@ -4,7 +4,6 @@ import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
 import { SOFTWARE_TOPIC } from '../content/topics'
 import { SiteLayout } from '../site/SiteLayout'
-import { SimulationSwitch } from './SimulationSwitch'
 import { MEMBER_SECTIONS, memberSectionTitle, type MemberSection } from './sections'
 import styles from './member.module.css'
 
@@ -73,7 +72,6 @@ export function MemberLayout({ section, children }: { section: MemberSection; ch
             </nav>
           ) : null}
 
-          {section.id === 'account' && user.isAdmin ? <SimulationSwitch /> : null}
           {children}
         </div>
       )}

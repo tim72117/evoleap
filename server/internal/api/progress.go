@@ -30,9 +30,17 @@ func (s *Server) requireUser(h func(http.ResponseWriter, *http.Request, store.Us
 }
 
 // handleProgressGet:帶 ?lesson= 回單一課的進度(沒有紀錄回 progress: null),不帶則回全部。
+// 兒童模式(kids.go)時,進度讀寫的是這個孩子自己的(child_progress),看完一課另外記一筆上課紀錄;家長本人的進度不動。
 func (s *Server) handleProgressGet(w http.ResponseWriter, r *http.Request, user store.User) {
+	child, kids := s.kidsChild(r, user, true)
 	if lesson := r.URL.Query().Get("lesson"); lesson != "" {
-		p, err := s.cfg.Store.ProgressOf(r.Context(), user.ID, lesson)
+		var p store.Progress
+		var err error
+		if kids {
+			p, err = s.cfg.Store.ChildProgressOf(r.Context(), child.ID, lesson)
+		} else {
+			p, err = s.cfg.Store.ProgressOf(r.Context(), user.ID, lesson)
+		}
 		if errors.Is(err, store.ErrNotFound) {
 			writeJSON(w, http.StatusOK, map[string]any{"progress": nil})
 			return
@@ -44,7 +52,13 @@ func (s *Server) handleProgressGet(w http.ResponseWriter, r *http.Request, user 
 		writeJSON(w, http.StatusOK, map[string]any{"progress": p})
 		return
 	}
-	list, err := s.cfg.Store.ProgressList(r.Context(), user.ID)
+	var list []store.Progress
+	var err error
+	if kids {
+		list, err = s.cfg.Store.ChildProgressList(r.Context(), child.ID)
+	} else {
+		list, err = s.cfg.Store.ProgressList(r.Context(), user.ID)
+	}
 	if err != nil {
 		internalError(w, err)
 		return
@@ -62,6 +76,14 @@ func (s *Server) handleProgressPut(w http.ResponseWriter, r *http.Request, user 
 		req.PositionMs < 0 || req.PositionMs > maxMs || req.DurationMs < 0 || req.DurationMs > maxMs ||
 		req.PositionMs > req.DurationMs+posSlackMs {
 		writeError(w, http.StatusBadRequest, "invalid_progress", "進度資料不正確")
+		return
+	}
+	if child, kids := s.kidsChild(r, user, true); kids {
+		if _, err := s.cfg.Store.SaveChildProgress(r.Context(), child.ID, req); err != nil {
+			internalError(w, err)
+		} else {
+			w.WriteHeader(http.StatusNoContent)
+		}
 		return
 	}
 	if err := s.cfg.Store.SaveProgress(r.Context(), user.ID, req); err != nil {

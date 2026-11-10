@@ -796,7 +796,8 @@
             "status": "open",
             "script": "kids/0.1.json",
             "files": [
-              "kids/0.1-explore.json"
+              "kids/0.1-explore.json",
+              "guide/kids.json"
             ]
           },
           {

@@ -68,6 +68,11 @@
   --site-shadow: 0 1px 2px rgb(0 0 0 / 60%), 0 12px 32px rgb(0 0 0 / 70%);
 }
 
+/* 兒童模式沒有主要導覽時,日夜切換按鈕自己靠右(和帳號／兒童頭像排在一起) */
+.pushRight {
+  margin-left: auto;
+}
+
 .themeToggle {
   flex: none;
   display: grid;

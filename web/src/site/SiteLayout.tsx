@@ -3,6 +3,8 @@ import { Link, NavLink } from 'react-router-dom'
 import { useCanSeeStudio } from '../auth/AuthContext'
 import { SimulationBanner } from '../auth/SimulationBanner'
 import { UserMenu } from '../auth/UserMenu'
+import { KidsCapsule } from '../kidsMode/KidsCapsule'
+import { useKidsMode } from '../kidsMode/KidsModeContext'
 import styles from './SiteLayout.module.css'
 import { documentTitle, SITE_NAME, SITE_TAGLINE } from './siteInfo'
 import { COURSE_LIST, SOFTWARE_TOPIC } from '../content/topics'
@@ -38,6 +40,7 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
   // 亮/暗色是全站共用的偏好:每一頁都讀同一個設定,換頁不會閃回亮色
   const [dark, setDark] = useState(readDark)
   const canSeeStudio = useCanSeeStudio()
+  const kids = useKidsMode().mode
 
   useEffect(() => {
     document.title = documentTitle(title)
@@ -71,18 +74,23 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
         <div className={styles.headerInner}>
           <Link className={styles.brand} to="/">
             <img className={styles.brandLogo} src={dark ? '/brand/evoleap-logo-dark.svg' : '/brand/evoleap-logo.svg'} alt="evoleap" width="110" height="32" />
-            <span className={styles.brandTagline}>{SITE_TAGLINE}</span>
+            {/* 兒童模式的標頭只放標誌,不放「從零開始的 AI 課程地圖」 */}
+            {kids?.active ? null : <span className={styles.brandTagline}>{SITE_TAGLINE}</span>}
           </Link>
-          <nav className={styles.nav} aria-label="主要導覽">
-            {NAV.map((item) => (
-              <NavLink key={item.label} to={item.to} end={item.end}>
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
+          {/* 兒童模式只顯示兒童課程:不放主要導覽 */}
+          {kids?.active ? null : (
+            <nav className={styles.nav} aria-label="主要導覽">
+              {NAV.map((item) => (
+                <NavLink key={item.label} to={item.to} end={item.end}>
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+          )}
           <button
             type="button"
-            className={styles.themeToggle}
+            // 兒童模式沒有主要導覽(平常是導覽把右邊的按鈕推到最右),改由這個按鈕推
+            className={kids?.active ? `${styles.themeToggle} ${styles.pushRight}` : styles.themeToggle}
             onClick={toggleTheme}
             aria-label={dark ? '切換成亮色' : '切換成暗色'}
             title={dark ? '切換成亮色' : '切換成暗色'}
@@ -91,9 +99,7 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
               <path d={dark ? SUN : MOON} />
             </svg>
           </button>
-          <div className={styles.account}>
-            <UserMenu />
-          </div>
+          <div className={styles.account}>{kids?.active ? <KidsCapsule name={kids.child.name} avatar={kids.child.avatar} /> : <UserMenu />}</div>
         </div>
       </header>
 

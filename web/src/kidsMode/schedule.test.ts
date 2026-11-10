@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DAYS, MAX_PER_WEEK, slotLabel, sortSlots, TIMES, toggleSlot, type Slot } from './kidsSchedule'
+import { DAYS, MAX_PER_WEEK, slotLabel, sortSlots, TIMES, toggleSlot, type Slot } from './schedule'
 
 const s = (day: number, time: Slot['time']): Slot => ({ day, time })
 

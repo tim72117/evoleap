@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'
 import { KIDS_OPEN_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
 import { KIDS_TOPIC, kidsLessonDocTitle } from '../content/topics'
 import { KidsPlayer } from '../kids/KidsPlayer'
+import { useKidsMode } from '../kidsMode/KidsModeContext'
+import { isLockedLesson, useKidsProgress } from '../kidsMode/progress'
+import { slotLabel } from '../kidsMode/schedule'
+import { SiteLayout } from '../site/SiteLayout'
 import { documentTitle } from '../site/siteInfo'
 import site from '../site/SiteLayout.module.css'
 import own from './KidsTopicPage.module.css'
@@ -14,6 +18,54 @@ import { TopicLessonGate } from './TopicLessonGate'
 // 有頁面的課(路由與 SEO)由 KIDS_OPEN_LESSONS 產生(routes.tsx、seo/pages.ts)。
 
 export function KidsLessonPage({ id }: { id: string }) {
+  const { mode } = useKidsMode()
+  const progress = useKidsProgress(!!mode?.active)
+  // 兒童模式時段外:不載入播放器(伺服器也不會給腳本),直接告訴孩子下一堂什麼時候
+  if (mode?.active && !mode.schedule.open) {
+    const next = mode.schedule.next
+    return (
+      <SiteLayout title={kidsLessonDocTitle(id)} narrow>
+        <section className={own.closed} role="status">
+          <p className={own.closedIcon} aria-hidden="true">
+            ⏰
+          </p>
+          <h1>還沒到上課時間</h1>
+          <p>{next ? `下一堂是 ${slotLabel({ day: next.day, time: next.time as never })}，到時候再來上「${kidsLessonTitle(id)}」吧！` : '家長還沒排上課時間。'}</p>
+          <Link className={own.closedBack} to={KIDS_TOPIC.path}>
+            回到我的課
+          </Link>
+        </section>
+      </SiteLayout>
+    )
+  }
+  // 兒童模式:進度讀到之前先不載入播放器(免得還沒套上鎖頭就打開了;伺服器也會擋還沒到的課)
+  if (mode?.active && !progress) {
+    return (
+      <SiteLayout title={kidsLessonDocTitle(id)} narrow>
+        <section className={own.closed} role="status" aria-busy="true">
+          <p>準備中…</p>
+        </section>
+      </SiteLayout>
+    )
+  }
+  // 兒童模式:還沒到的進度不能上(看完的與接下來要上的那一課才打得開)
+  if (mode?.active && progress && isLockedLesson(progress, id)) {
+    const next = progress.next
+    return (
+      <SiteLayout title={kidsLessonDocTitle(id)} narrow>
+        <section className={own.closed} role="status">
+          <p className={own.closedIcon} aria-hidden="true">
+            🔒
+          </p>
+          <h1>這一課還沒到</h1>
+          <p>{next ? `先上完「${kidsLessonTitle(next)}」，再一課一課往下上吧！` : '先回到課程地圖看看吧！'}</p>
+          <Link className={own.closedBack} to={next ? KIDS_OPEN_LESSONS[next].path : KIDS_TOPIC.path}>
+            {next ? `去上「${kidsLessonTitle(next)}」` : '回到我的課'}
+          </Link>
+        </section>
+      </SiteLayout>
+    )
+  }
   return (
     <TopicLessonGate
       course="kids"

@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from './AuthContext'
 import { loginHref } from './paths'
 import { MEMBER_PATH } from '../member/paths'
+import { SimulationMenuItems } from './SimulationMenuItems'
 import styles from './UserMenu.module.css'
 
 // 頁首的登入狀態小工具:未登入顯示「登入」連結,已登入顯示頭像 + 名稱,點開可進會員空間或登出。
@@ -36,7 +37,7 @@ export function UserMenu() {
     document.addEventListener('pointerdown', onPointer)
     document.addEventListener('keydown', onKey)
     // 開啟後把焦點移到第一個選項
-    menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
+    menuRef.current?.querySelector<HTMLElement>('[role^="menuitem"]')?.focus()
     return () => {
       document.removeEventListener('pointerdown', onPointer)
       document.removeEventListener('keydown', onKey)
@@ -104,7 +105,7 @@ export function UserMenu() {
           aria-label="帳號"
           onKeyDown={(e) => {
             // 選單項目之間用上下鍵、Home／End 移動(WAI-ARIA menu)
-            const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])]
+            const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])]
             const i = items.indexOf(document.activeElement as HTMLElement)
             const to = e.key === 'ArrowDown' ? (i + 1) % items.length : e.key === 'ArrowUp' ? (i - 1 + items.length) % items.length : e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : -1
             if (to < 0 || !items.length) return
@@ -116,6 +117,8 @@ export function UserMenu() {
             {user.name ? <strong>{user.name}</strong> : null}
             <span>{user.email}</span>
           </div>
+          {/* 管理員:模擬身分(選了就關選單) */}
+          <SimulationMenuItems onPick={() => setOpen(false)} />
           {/* 已經在會員空間時網址不變,換頁時關閉的效果不會觸發,點了也要關 */}
           <Link role="menuitem" className={styles.item} to={MEMBER_PATH} onClick={() => setOpen(false)}>
             會員空間

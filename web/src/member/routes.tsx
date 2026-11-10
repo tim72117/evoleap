@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { CoursesSection } from './CoursesSection'
+import { KidsSection } from './KidsSection'
 import { MemberLayout } from './MemberLayout'
 import { ProfileSection } from './ProfileSection'
 import { MEMBER_SECTIONS } from './sections'
@@ -8,6 +9,7 @@ import { MEMBER_SECTIONS } from './sections'
 const ELEMENTS: Record<string, JSX.Element> = {
   account: <ProfileSection />,
   courses: <CoursesSection />,
+  kids: <KidsSection />,
 }
 
 export const memberRoutes: { path: string; element: JSX.Element }[] = MEMBER_SECTIONS.map((s) => ({

@@ -6,8 +6,8 @@ import { roleLabel, SIMULATED_ROLES } from './simulationRoles'
 const base: User = { id: 'u', email: 'a@example.com', name: 'A', createdAt: '2026-11-10T00:00:00Z' }
 
 describe('模擬身分', () => {
-  it('膠囊依序是本人、訪客、註冊未訂閱、已訂閱', () => {
-    expect(SIMULATED_ROLES.map((r) => r.id)).toEqual(['admin', 'guest', 'member', 'subscriber'])
+  it('膠囊依序是本人、訪客、註冊未訂閱、已訂閱、兒童模式', () => {
+    expect(SIMULATED_ROLES.map((r) => r.id)).toEqual(['admin', 'guest', 'member', 'subscriber', 'kids'])
     expect(roleLabel('member')).toBe('註冊未訂閱')
   })
 

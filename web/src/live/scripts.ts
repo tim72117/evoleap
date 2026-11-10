@@ -14,7 +14,11 @@ async function loadJson(path: string): Promise<unknown> {
   const res = await fetch(`/api/scripts/${path}`)
   if (res.status === 404) return null
   if (res.status === 401) throw new Error(LOGIN_REQUIRED)
-  if (res.status === 403) throw new Error('這一課要訂閱才能觀看。')
+  if (res.status === 403) {
+    // 兒童模式時段外(kids_closed,訊息附下一堂時間)、兒童模式看其他課(kids_only)、要訂閱:照伺服器的訊息顯示
+    const body = (await res.json().catch(() => null)) as { message?: string } | null
+    throw new Error(body?.message ? `${body.message}。` : '這一課要訂閱才能觀看。')
+  }
   if (!res.ok) throw new Error(`讀不到即時教學畫面的腳本 ${path}(${res.status})`)
   return res.json()
 }

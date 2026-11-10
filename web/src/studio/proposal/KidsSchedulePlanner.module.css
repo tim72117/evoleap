@@ -51,7 +51,7 @@
 .day-name { font-weight: 600; padding-top: 7px; }
 .weekend .day-name { color: var(--accent); }
 /* 每天同一組時段排成固定欄位,上下對齊;已排的勾號不會把後面的時段擠開 */
-.times { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+.times { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 6px; }
 
 .slot {
   min-width: 0;

@@ -3,19 +3,21 @@ import { useAuth } from './AuthContext'
 import { SIMULATED_ROLES } from './simulationRoles'
 import styles from './SimulationBanner.module.css'
 
-// 管理員模擬身分時,每一頁底部的浮動膠囊:免得忘了自己正在模擬,也能直接換成別的身分(選「管理員」就結束模擬)。
-// 和會員空間的膠囊(member/SimulationSwitch)是同一組身分。
+// 管理員模擬身分時,每一頁底部的浮動膠囊:在這裡選要模擬的身分,也免得忘了自己正在模擬。剛開啟時是「管理員」(本人),
+// 選其他身分才換畫面;右邊的「結束模擬」回到本人、收起膠囊。
+// 從頭像選單的「開啟模擬」打開(auth/SimulationMenuItems)。
 
 export function SimulationBanner() {
-  const { simulation, setSimulation } = useAuth()
+  const { simulation, setSimulation, simulating, closeSimulation } = useAuth()
   const refs = useRef<(HTMLButtonElement | null)[]>([])
-  if (simulation === 'admin') return null
+  if (!simulating) return null
 
   const onKeyDown = (e: KeyboardEvent, i: number) => {
     const n = SIMULATED_ROLES.length
     const to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (i + 1) % n : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (i - 1 + n) % n : -1
     if (to < 0) return
     e.preventDefault()
+    // 方向鍵在身分之間移動(管理員也是一個身分,不會結束模擬;結束要按右邊的「結束模擬」)
     setSimulation(SIMULATED_ROLES[to].id)
     refs.current[to]?.focus()
   }
@@ -39,10 +41,14 @@ export function SimulationBanner() {
             onClick={() => setSimulation(r.id)}
             onKeyDown={(e) => onKeyDown(e, i)}
           >
-            {r.id === 'admin' ? '結束模擬' : r.label}
+            {r.label}
           </button>
         ))}
       </div>
+      {/* 結束模擬:回到本人並收起膠囊(和身分分開,選「管理員」只是模擬成管理員本人) */}
+      <button type="button" className={styles.close} onClick={closeSimulation}>
+        結束模擬
+      </button>
     </div>
   )
 }

@@ -442,6 +442,9 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
  */
 export const KIDS_RELEASED_LESSONS = ['0.1', '0.2', '0.3']
 
+/** 「怎麼使用兒童課程」的介紹影片(課程地圖頁的小播放器):種子裡掛在 0.1 的 files 底下,和 0.1 一樣不用登入就看得到 */
+export const KIDS_GUIDE_SCRIPT = 'guide/kids.json'
+
 /** 第一課(0.1)可以直接預覽,不用登入;之後的課要登入才能上(課程地圖保持公開) */
 export const KIDS_PREVIEW_LESSON = KIDS_UNITS[0].lessons[0].id
 export const kidsNeedsLogin = (id: string): boolean => id !== KIDS_PREVIEW_LESSON

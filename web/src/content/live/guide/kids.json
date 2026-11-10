@@ -1,0 +1,75 @@
+{
+  "title": "怎麼使用兒童課程",
+  "lesson": "給家長的使用說明",
+  "camera": "auto",
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "kids-setup", "width": "desktop", "url": "https://evoleap.example/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "排好時間，把裝置交給孩子",
+      "eyebrow": "兒童課程 · 給家長",
+      "sub": "新增孩子 → 排上課時間 → 開啟兒童模式",
+      "chapter": "開場",
+      "narration": "排好上課時間，再把裝置交給孩子。"
+    },
+    {
+      "show": "web",
+      "chapter": "新增孩子",
+      "narration": "登入後到會員空間的「兒童」分頁，輸入孩子的暱稱。"
+    },
+    { "fill": { "#kid-name": "小花" } },
+    { "click": "#add" },
+    { "click": "#change", "narration": "孩子有自己的頭像，按「換頭像」可以換。" },
+    { "click": "#pick-rabbit" },
+    {
+      "scroll": "child",
+      "focus": false,
+      "chapter": "排上課時間",
+      "narration": "設定每次上課幾分鐘，最長六十分鐘。"
+    },
+    { "fill": { "#minutes": "30" } },
+    { "click": "#s2-1600", "focus": "web:sel:#week", "narration": "在課表上點時段，點一格就排進去，每週最多三堂。" },
+    { "click": "#s4-1900", "focus": "web:sel:#week" },
+    { "click": "#s5-1000", "focus": "web:sel:#week" },
+    { "callout": "web:sel:#week", "text": "排滿三堂，其他格子變淡", "narration": "排滿之後，其他格子會變淡。" },
+    { "click": "#save", "narration": "按「儲存上課設定」。" },
+    {
+      "click": "#start",
+      "chapter": "開啟兒童模式",
+      "narration": "按「開啟兒童模式」，這台裝置就換成孩子的畫面。"
+    },
+    { "callout": "web:sel:#status", "text": "現在能不能上、到幾點結束", "narration": "最上面寫著現在能不能上課。" },
+    { "callout": "web:sel:#plan", "text": "每一列是一次上課", "narration": "輪到的那一堂按「開始上課」，之後的依進度安排。" },
+    {
+      "card": "上課時間以外",
+      "eyebrow": "隔天",
+      "sub": "還沒到的時段、還沒到的進度都打不開",
+      "chapter": "時段以外",
+      "ms": 1400
+    },
+    { "site": "kids-later", "focus": false, "narration": "時段以外，會寫下一堂是什麼時候。" },
+    { "callout": "web:sel:#l03", "text": "還沒到的進度先鎖住", "narration": "還沒到的進度也會鎖住。" },
+    { "click": "#l02", "narration": "這時打開課，只會看到「還沒到上課時間」。" },
+    {
+      "click": "#kidCap",
+      "chapter": "回到家長畫面",
+      "narration": "按右上角孩子的頭像，就能離開兒童模式。"
+    },
+    { "click": "#leave" },
+    { "scroll": "child", "focus": false, "pause": 0 },
+    { "callout": "web:sel:#weekList", "text": "孩子哪天上完哪一課", "narration": "在「這週的課」看得到孩子哪天上完哪一課。" },
+    {
+      "card": "排好時間，交給孩子",
+      "eyebrow": "兒童課程",
+      "sub": "✓ 新增孩子　✓ 排上課時間　✓ 開啟兒童模式",
+      "chapter": "回顧",
+      "ms": 2000
+    }
+  ]
+}

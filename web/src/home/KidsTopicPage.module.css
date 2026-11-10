@@ -243,3 +243,15 @@
   min-height: 52px;
   font-size: 16px;
 }
+
+/* 兒童模式時段外的課程頁:還沒到上課時間(KidsLessonPage) */
+.closed { margin: 48px auto; max-width: 520px; padding: 32px 24px; text-align: center; border: 1px solid var(--site-border); border-radius: 20px; background: var(--site-surface); }
+.closed h1 { margin: 0 0 10px; font-size: 26px; }
+.closed p { margin: 0 0 20px; font-size: 17px; line-height: 1.7; color: var(--site-muted); }
+.closedIcon { font-size: 48px; margin: 0 0 8px !important; }
+.closed a.closedBack { display: inline-block; padding: 12px 24px; border-radius: 999px; background: var(--site-accent-solid); color: var(--site-accent-contrast); font-weight: 700; text-decoration: none; }
+.closed a.closedBack:focus-visible { outline: 2px solid var(--site-accent); outline-offset: 2px; }
+
+/* 「怎麼使用兒童課程」的小播放器 */
+.guidePlayer { position: relative; max-width: 560px; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 12px; background: #000; }
+.guidePlayer:has([data-aspect='portrait']) { aspect-ratio: 9 / 16; max-width: 320px; }

@@ -1,6 +1,7 @@
 // 課程地圖(一門課 → 單元 → 一堂一堂的課):從資料庫讀(GET /api/courses/{id}/map,伺服器的 courses、course_units、lessons 表)。
 // 資料來源是 server/internal/store/courses_seed.json,部署時(正式環境的同步工作)或本機後端啟動時同步進資料表;courseMap.test.ts 檢查它和前端的課程內容一致。
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '../auth/AuthContext'
 
 export type CourseAccess = 'free' | 'login-free' | 'subscription'
 
@@ -35,9 +36,20 @@ export async function fetchCourseMap(id: string): Promise<CourseMap> {
 
 export type CourseMapState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; map: CourseMap }
 
-/** 讀一門課的課程地圖;讀不到時是 error(畫面提示稍後再試)。草稿的課只有管理員拿得到(伺服器依登入的人決定) */
+/**
+ * 草稿的課當成規劃中(沒有腳本、不能點)。伺服器本來就只把草稿給管理員,但管理員在會員空間「模擬身分」時
+ * 伺服器仍把他當管理員,畫面要照模擬的身分(useCourseMap);前端內建的備援地圖不是管理員時也這樣處理(CourseMapUnits)。
+ */
+export function hideDrafts<T extends { lessons: MapLesson[] }>(units: T[], isAdmin: boolean): T[] {
+  if (isAdmin) return units
+  return units.map((u) => ({ ...u, lessons: u.lessons.map((l) => (l.status === 'draft' ? { ...l, status: 'planned' as const, script: undefined } : l)) }))
+}
+
+/** 讀一門課的課程地圖;讀不到時是 error(畫面提示稍後再試)。草稿的課只有管理員看得到(伺服器依登入的人決定,畫面另外照模擬的身分,見 hideDrafts) */
 export function useCourseMap(id: string): CourseMapState {
   const [state, setState] = useState<CourseMapState>({ status: 'loading' })
+  // 模擬其他身分時(simulation 不是 admin),畫面照模擬的身分:看不到草稿
+  const simulating = useAuth().simulation !== 'admin'
   useEffect(() => {
     let cancelled = false
     setState({ status: 'loading' })
@@ -48,5 +60,5 @@ export function useCourseMap(id: string): CourseMapState {
       cancelled = true
     }
   }, [id])
-  return state
+  return useMemo(() => (state.status === 'ready' && simulating ? { status: 'ready', map: { ...state.map, units: hideDrafts(state.map.units, false) } } : state), [state, simulating])
 }

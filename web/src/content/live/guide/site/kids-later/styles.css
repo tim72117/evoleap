@@ -1,0 +1,129 @@
+/* 「怎麼使用兒童課程」示範用的假網頁:會員空間「兒童」分頁與兒童模式的簡化版(照 member/KidsSection、kidsMode/KidsSchedulePanel 的版面) */
+/* 這份樣式在 kids-setup 與 kids-later 兩個版本各放一份,內容相同 */
+:root {
+  --bg: #f7f6f1;
+  --surface: #ffffff;
+  --surface-2: #f0efe8;
+  --text: #151713;
+  --muted: #5c6057;
+  --border: #e3e2da;
+  --accent: #7ab929;
+  --accent-solid: #4a8217;
+  --accent-strong: #447a14;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+}
+button, input, select { font: inherit; color: inherit; }
+
+/* 頁首:品牌與右上角的膠囊頭像 */
+.top { background: var(--surface); border-bottom: 1px solid var(--border); }
+.bar { max-width: 1160px; margin: 0 auto; padding: 0 28px; height: 60px; display: flex; align-items: center; gap: 28px; }
+.brand { font-size: 22px; font-weight: 800; letter-spacing: 0.02em; }
+.brand b { color: var(--accent-solid); }
+.links { display: flex; gap: 22px; color: var(--muted); font-size: 16px; }
+.capsule { margin-left: auto; display: flex; align-items: center; gap: 8px; padding: 4px 14px 4px 4px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); cursor: pointer; }
+.cap-av { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--surface-2); font-size: 15px; font-weight: 700; }
+.cap-name { font-weight: 600; font-size: 15px; }
+.caret { color: var(--muted); font-size: 12px; }
+/* 兒童模式的膠囊:比較大,頭像是孩子的 emoji */
+.capsule.kid { padding: 4px 18px 4px 4px; border: 2px solid var(--accent); }
+.capsule.kid .cap-av { width: 42px; height: 42px; font-size: 26px; }
+.capsule.kid .cap-name { font-size: 18px; font-weight: 800; }
+.cap-wrap { margin-left: auto; position: relative; }
+.cap-wrap .capsule { margin-left: 0; }
+.menu { position: absolute; right: 0; top: 54px; width: 220px; padding: 8px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: 0 8px 24px rgb(30 30 20 / 12%); z-index: 5; }
+.menu .who { display: grid; padding: 8px 10px 10px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+.menu .who span { color: var(--muted); font-size: 14px; }
+.menu button { width: 100%; text-align: left; padding: 10px; border: 0; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 600; }
+.menu button:hover { background: var(--surface-2); }
+
+/* 會員空間 */
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 28px 40px; }
+.page-head { display: flex; align-items: center; gap: 28px; padding: 18px 0 14px; }
+.page-title { font-size: 26px; font-weight: 800; }
+.tabs { display: flex; gap: 6px; }
+.tabs span { padding: 6px 16px; border-radius: 999px; color: var(--muted); font-size: 16px; }
+.tabs span.on { background: var(--text); color: #fff; font-weight: 700; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin-bottom: 14px; }
+.panel-title { font-size: 20px; font-weight: 800; margin: 0 0 4px; }
+.muted { color: var(--muted); }
+.intro { display: flex; align-items: flex-end; gap: 24px; }
+.intro p { flex: 1; margin: 0; font-size: 15px; color: var(--muted); }
+.add { display: flex; align-items: flex-end; gap: 10px; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: 14px; font-weight: 600; }
+.field input { width: 220px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.primary { padding: 10px 20px; border: 0; border-radius: 999px; background: var(--accent-solid); color: #fff; font-weight: 700; cursor: pointer; }
+.secondary { padding: 9px 18px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-weight: 600; cursor: pointer; }
+.primary:disabled, .secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* 孩子的卡片 */
+.head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.kid-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 22px; font-weight: 800; }
+.avatar { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--surface-2); font-size: 27px; }
+.change { padding: 4px 12px; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--muted); font-size: 14px; cursor: pointer; }
+.count { margin-left: auto; color: var(--muted); font-size: 15px; }
+.picker { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.pick { width: 46px; height: 46px; border: 2px solid var(--border); border-radius: 50%; background: var(--surface-2); font-size: 24px; line-height: 1; cursor: pointer; }
+.pick.on { border-color: var(--accent-solid); box-shadow: 0 0 0 2px var(--accent-solid); }
+.body { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 28px; align-items: start; }
+
+/* 一週的課表:第一欄是時間,後面七欄是週一到週日 */
+.week { display: grid; grid-template-columns: 3.6em repeat(7, minmax(0, 1fr)); gap: 5px; }
+.day { text-align: center; font-weight: 700; font-size: 14px; }
+.time { align-self: center; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.slot { min-height: 34px; padding: 0; border: 1px solid #d9d7cb; border-radius: 8px; background: #ebeae2; font-size: 15px; cursor: pointer; }
+.slot.on { background: var(--accent-solid); border-color: var(--accent-solid); color: #fff; font-weight: 700; }
+.slot.off { opacity: 0.3; cursor: not-allowed; }
+
+.side { display: grid; gap: 16px; }
+.minutes { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.minutes label { font-weight: 700; font-size: 15px; }
+.minutes select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.hint { color: var(--muted); font-size: 13.5px; }
+.week-list h4 { margin: 0 0 8px; font-size: 16px; }
+.week-list ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.week-list li { display: grid; grid-template-columns: 8.4em 1fr; gap: 8px; align-items: baseline; padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; }
+.week-list li.now, .week-list li.next { border-color: var(--accent); }
+.date { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tag { display: inline-block; margin-right: 6px; padding: 0 8px; border-radius: 999px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.tag.done { background: var(--surface-2); color: var(--accent-strong); }
+.tag.go { background: var(--accent-solid); color: #fff; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.saved { color: var(--accent-strong); font-weight: 700; font-size: 15px; }
+
+/* 兒童模式:孩子這週的課(字和按鈕都放大) */
+.kids { max-width: 900px; margin: 0 auto; padding: 22px 28px 40px; }
+.kids-title { display: flex; align-items: center; gap: 14px; margin: 0 0 6px; font-size: 32px; font-weight: 800; }
+.kids-title .avatar { width: 58px; height: 58px; font-size: 36px; }
+.status { margin: 0 0 16px; font-size: 20px; color: var(--muted); }
+.status.open { color: var(--text); font-weight: 800; }
+.slots { list-style: none; margin: 0 0 22px; padding: 0; display: grid; gap: 10px; }
+.slots li { display: grid; grid-template-columns: 7.4em 1fr auto; align-items: center; gap: 14px; min-height: 64px; padding: 10px 20px; border: 2px solid var(--border); border-radius: 18px; background: var(--surface); font-size: 20px; }
+.slots li.now { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.when { font-weight: 800; font-variant-numeric: tabular-nums; }
+.slots .later { color: var(--muted); }
+.pill { padding: 4px 14px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: 16px; font-weight: 700; white-space: nowrap; }
+.slots li.next .pill { color: var(--accent-strong); }
+.go-btn { display: inline-block; padding: 12px 28px; border-radius: 999px; background: var(--accent-solid); color: #fff; font-size: 20px; font-weight: 800; text-decoration: none; white-space: nowrap; box-shadow: 0 8px 22px rgb(122 185 41 / 40%); }
+.my h4 { margin: 0 0 8px; font-size: 18px; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.card { display: grid; gap: 2px; padding: 12px 16px; border: 2px solid var(--border); border-radius: 16px; background: var(--surface); text-align: left; cursor: pointer; }
+.card b { font-size: 18px; }
+.card span { color: var(--muted); font-size: 14px; }
+.card.lock { background: var(--surface-2); color: var(--muted); }
+.card.ok span { color: var(--accent-strong); font-weight: 700; }
+
+/* 時段外打開課 */
+.closed { max-width: 640px; margin: 40px auto; padding: 34px 28px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); text-align: center; }
+.closed .icon { margin: 0; font-size: 54px; line-height: 1.2; }
+.closed .big { margin: 6px 0 8px; font-size: 30px; font-weight: 800; }
+.closed p { margin: 0 0 18px; font-size: 18px; color: var(--muted); }

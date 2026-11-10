@@ -14,6 +14,7 @@ export interface MemberSection {
 export const MEMBER_SECTIONS: MemberSection[] = [
   { id: 'account', label: '帳號', path: MEMBER_PATH, description: '管理你的 evoleap.io 帳號與個人資料（需要登入）。' },
   { id: 'courses', label: '課程', path: `${MEMBER_PATH}/courses`, description: '你在 evoleap.io 的課程（需要登入）。' },
+  { id: 'kids', label: '兒童', path: `${MEMBER_PATH}/kids`, description: '替孩子排上課時間、開啟兒童模式（需要登入）。' },
 ]
 
 /** 頁面標題:只有一個分頁時就是「會員空間」 */

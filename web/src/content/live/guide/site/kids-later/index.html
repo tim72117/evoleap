@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>小花 這週的課</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- 「怎麼使用兒童課程」示範:兒童模式、上課時段以外(週四;週三已上完 0.1)→ 離開兒童模式回到會員空間。假資料。 -->
+<header class="top">
+  <div class="bar">
+    <span class="brand">evo<b>leap</b></span>
+    <nav class="links"><span>課程地圖</span><span>兒童課程</span><span>價格</span></nav>
+    <button id="parentCap" class="capsule" type="button" hidden><span class="cap-av">家</span><span class="cap-name">家長</span><span class="caret">▾</span></button>
+    <div id="kidWrap" class="cap-wrap">
+      <button id="kidCap" class="capsule kid" type="button"><span class="cap-av kid-av">🐰</span><span class="cap-name kid-name">小花</span><span class="caret">▾</span></button>
+      <div id="kmenu" class="menu" hidden>
+        <div class="who"><strong><span class="kid-av">🐰</span> <span class="kid-name">小花</span></strong><span>兒童模式中</span></div>
+        <button id="leave" type="button">離開兒童模式</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="member" class="wrap" hidden>
+  <div class="page-head">
+    <div class="page-title">會員空間</div>
+    <div class="tabs"><span>帳號</span><span>訂閱</span><span>學習紀錄</span><span class="on">兒童</span></div>
+  </div>
+
+  <section class="panel intro">
+    <p><strong class="panel-title">兒童</strong><br>替孩子排每週的上課時間（最多 3 堂），再按「開啟兒童模式」把這台裝置交給孩子。</p>
+    <div class="add">
+      <div class="field"><label for="kid-name">孩子的暱稱</label><input id="kid-name" type="text" placeholder="例如：小花"></div>
+      <button id="add" class="primary" type="button">新增</button>
+    </div>
+  </section>
+
+  <section id="child" class="panel">
+    <div class="head">
+      <div class="kid-title"><span class="avatar kid-av">🐰</span><span class="kid-name">小花</span></div>
+      <button id="change" class="change" type="button">換頭像</button>
+      <span id="count" class="count">已排 3／3 堂</span>
+    </div>
+    <div id="picker" class="picker" hidden>
+      <button class="pick" type="button">🐱</button><button class="pick" type="button">🐶</button><button class="pick on" type="button">🐰</button><button class="pick" type="button">🦊</button><button class="pick" type="button">🐼</button><button class="pick" type="button">🐨</button><button class="pick" type="button">🐯</button><button class="pick" type="button">🦁</button><button class="pick" type="button">🐸</button><button class="pick" type="button">🐧</button><button class="pick" type="button">🦄</button><button class="pick" type="button">🐳</button>
+    </div>
+    <div class="body">
+      <div id="week" class="week" data-picked="2-16:00,4-19:00,5-10:00"></div>
+      <div class="side">
+        <div id="minutesRow" class="minutes">
+          <label for="minutes">每次上課</label>
+          <select id="minutes">
+            <option value="15">15 分鐘</option>
+            <option value="20">20 分鐘</option>
+            <option value="30" selected>30 分鐘</option>
+            <option value="45">45 分鐘</option>
+            <option value="60">60 分鐘</option>
+          </select>
+          <span class="hint">從排好的時間開始，過了就不能上</span>
+        </div>
+        <div id="weekList" class="week-list">
+          <h4>這週的課</h4>
+          <ol>
+            <li><span class="date">11/11（三）16:00</span><span><span class="tag done">✓ 已上完</span>0.1 翻到網頁的背面</span></li>
+            <li class="next"><span class="date">11/13（五）19:00</span><span><span class="tag go">下一堂</span>0.2 網頁是一棵樹</span></li>
+            <li><span class="date">11/14（六）10:00</span><span class="muted">依進度安排</span></li>
+          </ol>
+        </div>
+        <div class="actions">
+          <button id="save" class="secondary" type="button" disabled>儲存上課設定</button>
+          <span id="saved" class="saved" hidden>已儲存</span>
+          <button id="start" class="primary" type="button">開啟兒童模式</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<main id="kids" class="kids">
+  <div id="kidsHome">
+    <div class="kids-title"><span class="avatar kid-av">🐰</span><span><span class="kid-name">小花</span> 這週的課</span></div>
+    <p id="status" class="status">還沒到上課時間，下一堂是 週五 19:00。</p>
+    <ol id="plan" class="slots">
+      <li class="done"><span class="when">週三 16:00</span><span>0.1 翻到網頁的背面</span><span class="pill">本週已上過</span></li>
+      <li class="next"><span class="when">週五 19:00</span><span>0.2 網頁是一棵樹</span><span class="pill">下一堂</span></li>
+      <li><span class="when">週六 10:00</span><span class="later">之後依進度安排</span></li>
+    </ol>
+    <div class="my">
+      <h4>我的課</h4>
+      <div class="cards">
+        <button id="l01" class="card ok" type="button" data-title="翻到網頁的背面"><b>0.1 翻到網頁的背面</b><span>✓ 上完了</span></button>
+        <button id="l02" class="card" type="button" data-title="網頁是一棵樹"><b>0.2 網頁是一棵樹</b><span>下一課</span></button>
+        <button id="l03" class="card lock" type="button" data-title="網頁是一封信"><b>🔒 0.3 網頁是一封信</b><span>還沒到</span></button>
+      </div>
+    </div>
+  </div>
+  <section id="closed" class="closed" hidden>
+    <p class="icon">⏰</p>
+    <div class="big">還沒到上課時間</div>
+    <p>下一堂是 週五 19:00，到時候再來上「<span id="closedLesson">網頁是一棵樹</span>」吧！</p>
+    <button id="back" class="primary" type="button">回到我的課</button>
+  </section>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

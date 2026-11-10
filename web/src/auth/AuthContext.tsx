@@ -5,8 +5,8 @@ import { authApi, type User } from './api'
 // 全站登入狀態。啟動時向 /api/me 確認一次;登入/註冊/登出後更新。
 // status:'loading' 尚未確認、'guest' 未登入、'user' 已登入、'disabled' 伺服器未開放登入。
 
-/** 管理員模擬的身分:admin 是本人(不模擬)、guest 訪客、member 註冊未訂閱、subscriber 已訂閱 */
-export type SimulatedRole = 'admin' | 'guest' | 'member' | 'subscriber'
+/** 管理員模擬的身分:admin 是本人(不模擬)、guest 訪客、member 註冊未訂閱、subscriber 已訂閱、kids 兒童模式(kidsMode/KidsModeContext 用模擬的孩子) */
+export type SimulatedRole = 'admin' | 'guest' | 'member' | 'subscriber' | 'kids'
 
 type Status = 'loading' | 'guest' | 'user' | 'disabled'
 
@@ -28,13 +28,28 @@ type AuthState = {
   /** 目前模擬的身分;只有管理員會是 admin 以外的值。只改這個瀏覽器看到的畫面,伺服器仍把你當管理員 */
   simulation: SimulatedRole
   setSimulation: (role: SimulatedRole) => void
+  /** 模擬開著(頁面底部的模擬膠囊顯示中):按了頭像選單的「開啟模擬」,或正在模擬某個身分。只有管理員會是 true */
+  simulating: boolean
+  /** 頭像選單的「開啟模擬」:打開底部的模擬膠囊,身分先不變(還是本人) */
+  openSimulation: () => void
+  /** 結束模擬:回到本人並收起膠囊 */
+  closeSimulation: () => void
 }
 
 const SIM_KEY = 'auth:simulate'
+/** 模擬膠囊開著(還沒選身分時也要留著,重新整理後保留) */
+const SIM_OPEN_KEY = 'auth:simulate:open'
+const readSimOpen = (): boolean => {
+  try {
+    return sessionStorage.getItem(SIM_OPEN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
 const readSimulation = (): SimulatedRole => {
   try {
     const v = sessionStorage.getItem(SIM_KEY)
-    return v === 'guest' || v === 'member' || v === 'subscriber' ? v : 'admin'
+    return v === 'guest' || v === 'member' || v === 'subscriber' || v === 'kids' ? v : 'admin'
   } catch {
     return 'admin'
   }
@@ -46,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<User | null>(null)
   const [status, setStatus] = useState<Status>('loading')
   const [simulation, setSimulationState] = useState<SimulatedRole>(readSimulation)
+  const [simOpen, setSimOpen] = useState(readSimOpen)
   const [checkFailed, setCheckFailed] = useState(false)
   const [expired, setExpired] = useState(false)
 
@@ -87,6 +103,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await authApi.logout().catch(() => {})
+    // 登出時一併結束模擬(下一個登入的人不會接著用到上一位管理員的模擬身分)
+    try {
+      sessionStorage.removeItem(SIM_KEY)
+      sessionStorage.removeItem(SIM_OPEN_KEY)
+    } catch {
+      /* 私密模式等情況 */
+    }
+    setSimulationState('admin')
+    setSimOpen(false)
     // 內部頁在畫面上不能留著:重新載入,交給伺服器導向登入頁。
     if (isInternalPath(window.location.pathname)) {
       window.location.reload()
@@ -108,18 +133,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const writeSimOpen = useCallback((open: boolean) => {
+    setSimOpen(open)
+    try {
+      if (open) sessionStorage.setItem(SIM_OPEN_KEY, '1')
+      else sessionStorage.removeItem(SIM_OPEN_KEY)
+    } catch {
+      /* 私密模式等情況:這次分頁內仍有效 */
+    }
+  }, [])
+  // 開啟模擬:預設先是「管理員」(本人),在膠囊裡再選要模擬的身分
+  const openSimulation = useCallback(() => {
+    setSimulation('admin')
+    writeSimOpen(true)
+  }, [setSimulation, writeSimOpen])
+  const closeSimulation = useCallback(() => {
+    setSimulation('admin')
+    writeSimOpen(false)
+  }, [setSimulation, writeSimOpen])
+
   // 只有管理員能模擬;不是管理員(或登出了)時一律當本人
   const role: SimulatedRole = status === 'user' && user?.isAdmin ? simulation : 'admin'
   const value = useMemo<AuthState>(() => {
     const real = { status, user }
-    const base = { checkFailed, setUser, logout, sessionExpired, expired, real, simulation: role, setSimulation }
+    const isAdmin = status === 'user' && !!user?.isAdmin
+    const simulating = isAdmin && (simOpen || role !== 'admin')
+    const base = { checkFailed, setUser, logout, sessionExpired, expired, real, simulation: role, setSimulation, simulating, openSimulation, closeSimulation }
     if (role === 'guest') return { ...base, status: 'guest', user: null }
-    if (role === 'member' || role === 'subscriber') {
+    // 兒童模式:家長(一般會員)開啟兒童模式的樣子,孩子與上課時段由 KidsModeContext 模擬
+    if (role === 'member' || role === 'subscriber' || role === 'kids') {
       // 一般會員看到的畫面:不是管理員(不顯示研發基地入口、會看到廣告),訂閱與否照選的
       return { ...base, status: 'user', user: { ...user!, isAdmin: false, subscribed: role === 'subscriber' } }
     }
     return { ...base, status, user }
-  }, [status, user, role, checkFailed, setUser, logout, sessionExpired, expired, setSimulation])
+  }, [status, user, role, checkFailed, setUser, logout, sessionExpired, expired, setSimulation, simOpen, openSimulation, closeSimulation])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

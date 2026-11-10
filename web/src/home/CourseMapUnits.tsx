@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { useCourseMap, type MapUnit } from '../content/courseMap'
+import { hideDrafts, useCourseMap, type MapUnit } from '../content/courseMap'
 import { LockIcon } from '../site/LockIcon'
 import styles from './SoftwareTopicPage.module.css'
 import own from './KidsTopicPage.module.css'
@@ -15,12 +15,12 @@ import own from './KidsTopicPage.module.css'
 export const lessonPath = (topicPath: string, id: string): string => `${topicPath}/${id.replace('.', '-')}`
 
 export function CourseMapUnits({ course, topicPath, fallback }: { course: string; topicPath: string; fallback: MapUnit[] }) {
-  const { status } = useAuth()
+  const { status, user } = useAuth()
   const signedIn = status === 'user' || status === 'disabled'
   const map = useCourseMap(course)
   return (
     <div className={own.units}>
-      {(map.status === 'ready' ? map.map.units : fallback).map((unit) => (
+      {(map.status === 'ready' ? map.map.units : hideDrafts(fallback, !!user?.isAdmin)).map((unit) => (
         <div className={styles.group} key={unit.id}>
           <h3 className={`${styles.groupHead} ${own.unitHead}`}>
             {unit.title}
@@ -30,8 +30,7 @@ export function CourseMapUnits({ course, topicPath, fallback }: { course: string
             {unit.lessons.map((l) => {
               const path = l.status === 'open' || l.status === 'draft' ? lessonPath(topicPath, l.id) : null
               // 還在確認登入狀態(null)時先不標,免得已登入的人閃過鎖頭
-              const state =
-                l.status === 'draft' ? 'draft' : !path ? 'planned' : signedIn ? 'start' : status === 'loading' ? null : l.access === 'free' ? 'free' : 'login'
+              const state = l.status === 'draft' ? 'draft' : !path ? 'planned' : signedIn ? 'start' : status === 'loading' ? null : l.access === 'free' ? 'free' : 'login'
               return (
                 <li key={l.id}>
                   <div className={path ? `${styles.row} ${styles.rowPlayable}` : styles.row}>

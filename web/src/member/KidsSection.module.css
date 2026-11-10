@@ -1,0 +1,86 @@
+/* 會員空間「兒童」分頁:一週的上課時段(和研發基地的排課試作同一套規則),顏色用網站的 --site-* 變數 */
+.add { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.add > div { flex: 1 1 220px; }
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.count { color: var(--site-muted); font-size: 14px; white-space: nowrap; }
+/* 一週的課表:第一欄是時間,後面七欄是週一到週日 */
+.week { display: grid; grid-template-columns: 3.6em repeat(7, minmax(0, 1fr)); gap: 6px; margin: 4px 0 16px; }
+.corner { display: block; }
+.dayName { text-align: center; font-weight: 600; font-size: 14px; padding-bottom: 2px; }
+.timeName { align-self: center; font-size: 13px; color: var(--site-muted); font-variant-numeric: tabular-nums; }
+.slot {
+  min-width: 0;
+  min-height: 36px;
+  padding: 0;
+  border: 1px solid var(--site-border);
+  border-radius: 8px;
+  background: var(--site-surface-2);
+  color: var(--site-text);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+.slot:hover { border-color: var(--site-accent); }
+.slot:focus-visible { outline: 2px solid var(--site-accent); outline-offset: 2px; }
+/* 已排:實心強調色 + 勾號(不只靠顏色) */
+.slot.on { background: var(--site-accent-solid); border-color: var(--site-accent-solid); color: var(--site-accent-contrast); font-weight: 700; }
+.slot[aria-disabled='true'] { opacity: 0.4; cursor: not-allowed; }
+.slot[aria-disabled='true']:hover { border-color: var(--site-border); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.remove { margin-left: auto; padding: 8px 12px; border: 0; background: transparent; color: var(--site-muted); font: inherit; font-size: 14px; cursor: pointer; }
+.remove:hover { color: #be123c; }
+@media (max-width: 640px) {
+  .week { grid-template-columns: 3em repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .dayName { font-size: 12.5px; }
+  .timeName { font-size: 12px; }
+  .slot { min-height: 34px; }
+}
+
+/* 每次上課多久 */
+.minutes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; }
+.minutes label { font-weight: 600; font-size: 14px; }
+.minutes select { padding: 8px 12px; border: 1px solid var(--site-border); border-radius: 10px; background: var(--site-surface); color: var(--site-text); font: inherit; cursor: pointer; }
+.minutes select:focus-visible { outline: 2px solid var(--site-accent); outline-offset: 2px; }
+.hint { color: var(--site-muted); font-size: 13.5px; }
+
+/* 這週的課:實際日期、上完的課與最近一次的課 */
+.weekList { margin: 0 0 16px; }
+.weekList h4 { margin: 0 0 8px; font-size: 15px; }
+.weekList ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.weekList li { display: grid; grid-template-columns: 9.5em 1fr; gap: 10px; align-items: center; padding: 10px 14px; border: 1px solid var(--site-border); border-radius: 10px; }
+.weekList li.now, .weekList li.next { border-color: var(--site-accent); }
+.date { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.what { min-width: 0; overflow-wrap: anywhere; }
+/* 標籤:淺底強調字,不和「開啟兒童模式」主按鈕搶 */
+.doneTag, .nextTag { display: inline-block; margin-right: 8px; padding: 2px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; line-height: 1.6; white-space: nowrap; vertical-align: middle; }
+.doneTag { background: var(--site-surface-2); color: var(--site-muted); }
+.nextTag { background: color-mix(in srgb, var(--site-accent) 14%, transparent); color: var(--site-accent-strong); }
+/* 課名:和網站其他課程清單一樣不畫底線,滑過才提示可以點 */
+.what a { color: var(--site-text); font-weight: 600; text-decoration: none; }
+.what a:hover { color: var(--site-accent-strong); text-decoration: underline; text-underline-offset: 3px; }
+.what a:focus-visible { outline: 2px solid var(--site-accent); outline-offset: 2px; border-radius: 4px; }
+.muted { color: var(--site-muted); }
+@media (max-width: 640px) {
+  .weekList li { grid-template-columns: 1fr; gap: 2px; }
+}
+.what { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+.part { white-space: normal; }
+
+/* 頭像 */
+.title { display: flex; align-items: center; gap: 10px; margin: 0; }
+.avatar { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--site-surface-2); font-size: 26px; }
+.change { padding: 4px 12px; border: 1px solid var(--site-border); border-radius: 999px; background: transparent; color: var(--site-muted); font: inherit; font-size: 13px; cursor: pointer; }
+.change:hover { border-color: var(--site-accent); color: var(--site-text); }
+.change:focus-visible { outline: 2px solid var(--site-accent); outline-offset: 2px; }
+.head { flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.head .count { margin-left: auto; }
+.avatars { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.avatarPick { width: 46px; height: 46px; border: 2px solid var(--site-border); border-radius: 50%; background: var(--site-surface-2); font-size: 24px; line-height: 1; cursor: pointer; }
+.avatarPick:hover { border-color: var(--site-accent); }
+.avatarPick:focus-visible { outline: 2px solid var(--site-accent); outline-offset: 2px; }
+/* 選中的頭像:強調色粗框(不只靠顏色,也有 aria-checked) */
+.avatarPick.on { border-color: var(--site-accent-solid); box-shadow: 0 0 0 2px var(--site-accent-solid); }
+
+/* 儲存上課設定:沒有變更時是「不能點」的游標;真的在儲存時才是忙碌中(會員空間的 secondary 停用時一律是 progress,是給「登出中…」用的) */
+button.save:disabled { cursor: not-allowed; }
+button.save[aria-busy='true'] { cursor: progress; }

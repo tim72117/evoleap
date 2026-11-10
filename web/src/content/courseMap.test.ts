@@ -8,6 +8,7 @@ import { L2_MODULES } from './l2Outline'
 import { minutesOf } from '../courses/CourseOverviewPage'
 import { UNITS as AI_AGENT_UNITS } from './aiAgent'
 import { ALL_LEVELS } from './levels'
+import { hideDrafts } from './courseMap'
 import { CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC } from './topics'
 
 // 課程地圖的資料在伺服器的種子資料(資料庫);課程頁、SEO、研發基地還是用前端的 kidsCourse.ts、webCourse.ts。兩邊要一致。
@@ -174,5 +175,19 @@ describe('種子寫到的每一課的腳本檔都存在', () => {
     const studioOnly = /^(lab\/|promo\/|kids\/xray)/
     const orphan = [...LIVE].filter((p) => !studioOnly.test(p) && !owned.has(base(p)))
     expect(orphan).toEqual([])
+  })
+})
+
+describe('畫面上的身分不是管理員時,草稿當成規劃中(模擬身分、備援地圖)', () => {
+  const units = [{ id: '1', title: 'u', subtitle: '', lessons: [
+    { id: '1.1', title: 'a', summary: '', access: 'login-free' as const, status: 'open' as const, script: 'k/1.1.json' },
+    { id: '1.2', title: 'b', summary: '', access: 'login-free' as const, status: 'draft' as const, script: 'k/1.2.json' },
+  ] }]
+  it('不是管理員:草稿變規劃中、拿掉腳本;開放的不動', () => {
+    const out = hideDrafts(units, false)
+    expect(out[0].lessons.map((l) => [l.id, l.status, l.script])).toEqual([['1.1', 'open', 'k/1.1.json'], ['1.2', 'planned', undefined]])
+  })
+  it('管理員:原樣', () => {
+    expect(hideDrafts(units, true)).toBe(units)
   })
 })

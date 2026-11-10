@@ -38,6 +38,12 @@ func (s *Server) handleLessonFile(w http.ResponseWriter, r *http.Request) {
 	} else {
 		f, err = s.cfg.Store.LessonFileOf(r.Context(), path)
 	}
+	// 兒童模式(kids.go):只給兒童課、只在上課時段給;排在管理員之前,家長是管理員也一樣
+	if err == nil || errors.Is(err, store.ErrLessonFileNotFound) {
+		if s.kidsGate(w, r, user, loggedIn, f) {
+			return
+		}
+	}
 	switch {
 	case errors.Is(err, store.ErrLessonFileNotFound):
 		// 不屬於任何一課:研發基地的腳本(要有資料庫,只給管理員)
@@ -77,9 +83,11 @@ func (s *Server) handleLessonFile(w http.ResponseWriter, r *http.Request) {
 			body = b
 		}
 	}
-	// 本機開發讀磁碟上的檔案時不快取,改了腳本重新整理就看得到
-	if public && s.cfg.LiveDir == "" {
+	// 本機開發讀磁碟上的檔案時不快取,改了腳本重新整理就看得到。
+	// 兒童課要看兒童模式的時段與進度,不給共用快取;其他免費課的快取依 cookie 區分,開了兒童模式(多了 evoleap_kids)就不會拿到之前快取的檔而繞過 kidsGate
+	if public && s.cfg.LiveDir == "" && f.CourseID != "kids" {
 		w.Header().Set("Cache-Control", "public, max-age=300")
+		w.Header().Set("Vary", "Cookie")
 	} else {
 		w.Header().Set("Cache-Control", "private, no-store")
 	}

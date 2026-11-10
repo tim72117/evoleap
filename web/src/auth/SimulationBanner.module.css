@@ -66,6 +66,34 @@
   outline-offset: 1px;
 }
 
+/* 結束模擬:和身分選項分開,外框按鈕 */
+.close {
+  appearance: none;
+  flex: none;
+  padding: 6px 12px;
+  border: 1px solid #4a4d45;
+  border-radius: 999px;
+  background: transparent;
+  color: #c9cbc2;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.close:hover {
+  color: #fff;
+  border-color: #c9cbc2;
+  background: #30322d;
+}
+
+.close:focus-visible {
+  outline: 2px solid #b4e36a;
+  outline-offset: 1px;
+}
+
 /* 呼吸燈:亮度與光暈慢慢起伏 */
 @keyframes breathe {
   0%,
