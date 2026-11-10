@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+// 研發基地的試作演員(fable-sky、fable-world)只在研發基地登記,要先寫進 ACTORS 再列出名稱;場景放在「開發 › 場景」,這裡不列
+import { SCENES } from '../fable/registerActors'
 import { ACTORS } from '../../live/actors'
 import { mountShell, type Shell } from '../../live/shell'
 import { ActorStaticDemo } from './ActorStaticDemo'
@@ -15,7 +17,7 @@ import styles from './ActorsPage.module.css'
 // 兩種都能勾選區塊看關掉之後的樣子,並產生可以貼進腳本 cast 的設定。
 // 網址 ?actor=<名稱> 直接開某一位,&mode=static 開靜態展示。
 
-const NAMES = Object.keys(ACTORS)
+const NAMES = Object.keys(ACTORS).filter((n) => !SCENES.some((s) => s.name === n))
 const CAST_ID = 'a'
 type Mode = 'dynamic' | 'static'
 const MODES: { id: Mode; label: string }[] = [
@@ -26,7 +28,7 @@ const MODES: { id: Mode; label: string }[] = [
 export function ActorsPage() {
   const [params, setParams] = useSearchParams()
   const asked = params.get('actor')
-  const name = asked && asked in ACTORS ? asked : NAMES[0]
+  const name = asked && NAMES.includes(asked) ? asked : NAMES[0]
   const mode: Mode = params.get('mode') === 'static' ? 'static' : 'dynamic'
   const go = (actor: string, m: Mode): void => setParams({ actor, ...(m === 'static' ? { mode: m } : {}) })
   const def = ACTORS[name]

@@ -1,0 +1,113 @@
+/* 演員 kid-life:宣傳片的痛點開場(三格、媽媽、轉折句)。選擇器都以 .A-kid-life 開頭。
+   版面是 1080×1920 的設計座標乘上 --s(由 actor.ts 依根元素大小設定),--ox/--oy 是置中的位移。
+   三格、中線、聚焦點、安全區的數字來自共用錨點 ../../anchors.ts,由 actor.ts 寫成 --strip-x 等 CSS 變數(單位是設計 px)。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-kid-life {
+  --s: 1; --ox: 0px; --oy: 0px;
+  position: absolute; inset: 0; overflow: hidden;
+  background: linear-gradient(170deg, #14213d 0%, #1a2b4c 55%, #1d3557 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  color: #fff;
+}
+/* bare:場景(kid-day-scene)畫背景,這裡只畫前景 */
+.A-kid-life.bare { background: transparent; }
+.A-kid-life *, .A-kid-life *::before, .A-kid-life *::after { box-sizing: border-box; }
+
+/* 背景:柔焦光點(位置、亮度由程式依時間設定) */
+.A-kid-life .kl-bokeh { position: absolute; inset: 0; }
+.A-kid-life .kl-bokeh i {
+  position: absolute; border-radius: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(140, 180, 255, 0.55) 0%, rgba(110, 150, 240, 0.18) 45%, rgba(110, 150, 240, 0) 70%);
+}
+.A-kid-life .kl-bokeh i.red { background: radial-gradient(circle, rgba(255, 120, 130, 0.45) 0%, rgba(255, 90, 110, 0.14) 45%, rgba(255, 90, 110, 0) 70%); }
+/* 緊張感:四角帶一點紅 */
+.A-kid-life .kl-tension {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at 0% 100%, rgba(230, 70, 90, 0.28), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 100% 0%, rgba(230, 70, 90, 0.2), transparent 70%),
+    radial-gradient(ellipse 120% 90% at 50% 50%, transparent 55%, rgba(5, 8, 20, 0.55) 100%);
+}
+
+.A-kid-life .kl-frame {
+  position: absolute; left: var(--ox); top: var(--oy);
+  width: calc(1080px * var(--s)); height: calc(1920px * var(--s));
+}
+
+/* 三格(另一位演員 kid-hub 用同一組位置) */
+.A-kid-life .kl-strip {
+  position: absolute; left: calc(var(--strip-x) * 1px * var(--s));
+  width: calc(var(--strip-w) * 1px * var(--s)); height: calc(var(--strip-h) * 1px * var(--s));
+  border-radius: calc(var(--strip-r) * 1px * var(--s));
+  transform-origin: 50% 50%;
+}
+.A-kid-life .kl-inner { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; background: #1b2745; isolation: isolate; }
+.A-kid-life .kl-ring { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+.A-kid-life .kl-art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+/* overflow: visible:放大後的牆面比格子寬,甩鏡時內容滑動,左右才不會露出空白 */
+.A-kid-life .kl-scrim {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(160deg, rgba(10, 16, 34, 0.62) 0%, rgba(10, 16, 34, 0.25) 32%, rgba(10, 16, 34, 0) 52%);
+}
+.A-kid-life .kl-line {
+  position: absolute; left: calc(42px * var(--s)); top: calc(30px * var(--s));
+  white-space: nowrap;
+  font-size: calc(64px * var(--s)); font-weight: 800; line-height: 1.15; letter-spacing: 0.01em;
+  color: #fff; transform-origin: 0% 50%;
+  text-shadow: 0 calc(4px * var(--s)) calc(18px * var(--s)) rgba(5, 10, 25, 0.55);
+}
+/* 甩鏡的光帶:帶橫向速度線,兩側羽化 */
+.A-kid-life .kl-whip {
+  position: absolute; top: -5%; bottom: -5%; left: 0; width: 45%; pointer-events: none; opacity: 0;
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0) 0 calc(18px * var(--s)), rgba(255, 255, 255, 0.5) calc(18px * var(--s)) calc(21px * var(--s)), rgba(255, 255, 255, 0) calc(21px * var(--s)) calc(47px * var(--s))),
+    linear-gradient(90deg, rgba(200, 225, 255, 0) 0%, rgba(220, 235, 255, 0.75) 40%, rgba(255, 255, 255, 0.95) 55%, rgba(200, 225, 255, 0) 100%);
+}
+
+/* 收成一點:發光的點與擴散的柔光 */
+.A-kid-life .kl-dot {
+  position: absolute; left: calc(var(--mid-x) * 1px * var(--s)); top: calc(var(--focus-y) * 1px * var(--s));
+  width: calc(64px * var(--s)); height: calc(64px * var(--s)); border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #fff 0%, #fff6d8 45%, #ffd27a 100%);
+  box-shadow: 0 0 calc(40px * var(--s)) calc(16px * var(--s)) rgba(255, 214, 130, 0.85), 0 0 calc(120px * var(--s)) calc(50px * var(--s)) rgba(255, 190, 110, 0.45);
+}
+.A-kid-life .kl-glow {
+  position: absolute; left: calc(var(--mid-x) * 1px * var(--s)); top: calc(var(--focus-y) * 1px * var(--s));
+  width: calc(1500px * var(--s)); height: calc(1500px * var(--s)); border-radius: 50%; opacity: 0; pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 236, 196, 0.85) 0%, rgba(255, 200, 140, 0.4) 22%, rgba(140, 170, 255, 0.12) 50%, rgba(140, 170, 255, 0) 70%);
+}
+.A-kid-life .kl-turn {
+  position: absolute; left: calc(var(--mid-x) * 1px * var(--s)); top: calc(var(--focus-y) * 1px * var(--s)); transform: translate(-50%, -50%);
+  width: calc(var(--safe-w) * 1px * var(--s)); text-align: center;
+  font-size: calc(84px * var(--s)); font-weight: 800; line-height: 1.25; letter-spacing: 0.02em;
+  color: #fff; visibility: hidden;
+  text-shadow: 0 calc(4px * var(--s)) calc(24px * var(--s)) rgba(80, 50, 10, 0.45);
+}
+.A-kid-life .kl-turn span { display: inline-block; }
+.A-kid-life .kl-turn span.em { color: #ffd27a; }
+
+/* 媽媽與泡泡 */
+.A-kid-life .kl-parent {
+  /* 安全區內:以中線置中、下緣貼齊安全區下緣(設計稿 700×1160 等比例縮成 600×994),下緣淡出不留硬切邊 */
+  position: absolute; left: calc((var(--mid-x) - 300) * 1px * var(--s)); top: calc((var(--safe-bottom) - 994) * 1px * var(--s));
+  width: calc(600px * var(--s)); height: calc(994px * var(--s)); visibility: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
+  filter: drop-shadow(0 calc(-10px * var(--s)) calc(50px * var(--s)) rgba(4, 8, 22, 0.6));
+}
+.A-kid-life .kl-parent svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.A-kid-life .kl-bubble {
+  position: absolute; left: calc(var(--mid-x) * 1px * var(--s)); top: calc(600px * var(--s)); visibility: hidden;
+  max-width: calc(var(--safe-w) * 1px * var(--s)); width: max-content;
+  padding: calc(30px * var(--s)) calc(48px * var(--s));
+  border-radius: calc(44px * var(--s));
+  background: #fffaf3; color: #2b2433;
+  font-size: calc(56px * var(--s)); font-weight: 800; line-height: 1.3;
+  transform-origin: 50% 100%;
+  box-shadow: 0 calc(16px * var(--s)) calc(50px * var(--s)) rgba(4, 8, 22, 0.45);
+}
+.A-kid-life .kl-bubble::after {
+  content: ''; position: absolute; left: 46%; bottom: calc(-26px * var(--s));
+  border: calc(16px * var(--s)) solid transparent; border-top: calc(30px * var(--s)) solid #fffaf3; border-bottom: 0;
+}
+.A-kid-life .kl-unsaid { opacity: 0; }

@@ -15,10 +15,13 @@ import { KidsLesson01LivePage } from '../kids/KidsLesson01LivePage'
 import { KidsLesson02LivePage } from '../kids/KidsLesson02LivePage'
 import { KidsLesson03LivePage } from '../kids/KidsLesson03LivePage'
 import { KidsXrayLivePage } from '../kids/KidsXrayLivePage'
+import { FableTrialPage } from '../fable/FableTrialPage'
+import { ScenesPage } from '../fable/ScenesPage'
 import { L1IdeasPage } from './L1IdeasPage'
 import { LifeToolsPage } from './LifeToolsPage'
 import { McpPage } from './McpPage'
 import { MemberPage } from './MemberPage'
+import { KidsFamilyPage } from './KidsFamilyPage'
 import { NewsFeedPage } from './NewsFeedPage'
 import { ExtensionsPage } from './ExtensionsPage'
 import { PortraitPage } from './PortraitPage'
@@ -50,6 +53,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/advanced', element: <AdvancedPage /> },
   { path: '/studio/mcp', element: <McpPage /> },
   { path: '/studio/member', element: <MemberPage /> },
+  { path: '/studio/kids-family', element: <KidsFamilyPage /> },
   { path: '/studio/resources', element: <ResourcesPage /> },
   { path: '/studio/news-feed', element: <NewsFeedPage /> },
   { path: '/studio/extensions', element: <ExtensionsPage /> },
@@ -79,4 +83,8 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/kids-web/xray', element: <KidsXrayLivePage /> },
   { path: '/studio/visuals', element: <VisualsPage /> },
   { path: '/studio/portrait', element: <PortraitPage /> },
+  // 畫面試作:從做好到上線 0.1 不用字卡、全用場景與動畫演(演員只登記給這一頁,腳本在 content/live/lab/fable/)
+  { path: '/studio/fable-trial', element: <FableTrialPage /> },
+  // 開發 › 場景:背景依狀態自動變化的場景(試作)
+  { path: '/studio/scenes', element: <ScenesPage /> },
 ]

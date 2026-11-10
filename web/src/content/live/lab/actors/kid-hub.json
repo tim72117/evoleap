@@ -1,0 +1,27 @@
+{
+  "title": "kid-hub：小管家 App",
+  "lesson": "演員展示",
+  "cast": {
+    "hub": {
+      "actor": "kid-hub",
+      "props": { "name": "小宇的小管家", "goal": 2000, "saved": 1300, "todo": ["帶水壺", "美術用品", "聯絡簿簽名"] },
+      "place": "full"
+    }
+  },
+  "steps": [
+    { "wait": 400 },
+    { "ask": "幫我做孩子的小管家：存錢目標、3C 時間、每天要帶的東西，還有習慣打卡。" },
+    { "wait": 400 },
+    { "build": true },
+    { "wait": 500 },
+    { "spread": true },
+    { "deposit": 200 },
+    { "timer": 30 },
+    { "tick": "帶水壺" },
+    { "tick": "美術用品" },
+    { "tick": "聯絡簿簽名", "ms": 900 },
+    { "deposit": 500, "ms": 1600 },
+    { "habit": 7 },
+    { "wait": 2000 }
+  ]
+}

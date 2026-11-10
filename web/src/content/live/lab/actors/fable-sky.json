@@ -1,0 +1,16 @@
+{
+  "title": "fable-sky：動態夜景背景",
+  "lesson": "演員展示",
+  "cast": {
+    "a": { "actor": "fable-sky", "place": "full" }
+  },
+  "steps": [
+    { "wait": 4000 },
+    { "mood": "network" },
+    { "wait": 4000 },
+    { "mood": "dawn" },
+    { "wait": 4000 },
+    { "mood": "night" },
+    { "wait": 3000 }
+  ]
+}

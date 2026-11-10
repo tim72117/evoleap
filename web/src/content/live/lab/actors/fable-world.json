@@ -1,0 +1,36 @@
+{
+  "title": "fable-world：從本機到上線的場景",
+  "lesson": "演員展示",
+  "cast": {
+    "sky": { "actor": "fable-sky", "place": "full" },
+    "a": {
+      "actor": "fable-world",
+      "props": { "friend": "阿哲", "port": 5173, "domain": "www.example.com", "site": "小森烘焙" },
+      "place": "full"
+    }
+  },
+  "steps": [
+    { "wait": 800 },
+    { "boot": true },
+    { "open": true },
+    { "send": "我的網站做好了！快看 http://localhost:5173" },
+    { "visit": "http://localhost:5173" },
+    { "reveal": true },
+    { "peek": true },
+    { "doors": true },
+    { "stop": true },
+    { "peek": false },
+    { "mood": "network" },
+    { "deploy": true },
+    { "reveal": false },
+    { "doors": false },
+    { "visit": "https://www.example.com" },
+    { "crowd": true },
+    { "power": false },
+    { "visit": "https://www.example.com" },
+    { "power": true },
+    { "visit": "https://www.example.com" },
+    { "mood": "dawn" },
+    { "wait": 2000 }
+  ]
+}

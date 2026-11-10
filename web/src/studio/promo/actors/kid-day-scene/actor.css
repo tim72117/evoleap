@@ -1,0 +1,36 @@
+/* 演員 kid-day-scene:背景(底色、光斑、四角紅光、壓暗、聚焦柔光、變亮)與前景兩層(kid-life、kid-hub,都是 bare)、最上面的閃光。
+   選擇器都以 .A-kid-day-scene 開頭;所有變化由 actor.ts 依時間設定 style,不用 animation/transition(SPEC 第 1 節)。
+   --s 是 1080×1920 設計座標的縮放,--fx/--fy 是聚焦點(anchors.ts 的 FOCUS)在根元素裡的位置,都由 actor.ts 設定。 */
+.A-kid-day-scene { --s: 1; --fx: 50%; --fy: 46%; position: absolute; inset: 0; overflow: hidden; background: #14213d; }
+.A-kid-day-scene .kd-bg { position: absolute; inset: -40px; pointer-events: none; }
+.A-kid-day-scene .kd-base { position: absolute; inset: 0; }
+.A-kid-day-scene .kd-spots { position: absolute; inset: 40px; }
+.A-kid-day-scene .kd-spots i { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); }
+/* 緊張感:四角帶一點紅 */
+.A-kid-day-scene .kd-tension {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 0% 100%, rgba(230, 70, 90, 0.28), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 100% 0%, rgba(230, 70, 90, 0.2), transparent 70%);
+}
+/* 冷色時四周偏暗 */
+.A-kid-day-scene .kd-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 120% 90% at 50% 50%, transparent 55%, rgba(5, 8, 20, 0.55) 100%); }
+/* 只剩中央的光:四周壓暗,聚焦點留一團柔光 */
+.A-kid-day-scene .kd-dim {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle calc(900px * var(--s)) at calc(var(--fx) + 40px) calc(var(--fy) + 40px), rgba(5, 8, 20, 0) 0%, rgba(5, 8, 20, 0.55) 55%, rgba(4, 6, 16, 0.92) 100%);
+}
+.A-kid-day-scene .kd-focus {
+  position: absolute; left: calc(var(--fx) + 40px); top: calc(var(--fy) + 40px);
+  width: calc(1300px * var(--s)); height: calc(1300px * var(--s)); border-radius: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 228, 180, 0.5) 0%, rgba(255, 196, 130, 0.22) 30%, rgba(140, 170, 255, 0.06) 55%, rgba(140, 170, 255, 0) 70%);
+}
+/* 最亮:整片暖白的光 */
+.A-kid-day-scene .kd-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 85% 60% at calc(var(--fx) + 40px) calc(var(--fy) + 40px), rgba(255, 255, 255, 0.9) 0%, rgba(255, 246, 225, 0.45) 45%, rgba(255, 240, 215, 0) 80%);
+}
+.A-kid-day-scene .kd-layer { position: absolute; inset: 0; }
+.A-kid-day-scene .kd-actor { position: absolute; inset: 0; }
+/* 達標的閃光:背景最上層(前景的卡片不被洗白) */
+.A-kid-day-scene .kd-flash { position: absolute; inset: 0; pointer-events: none; visibility: hidden; background: radial-gradient(ellipse 90% 70% at 50% 40%, #fffaf0 0%, #fff1d6 60%, #ffe6c0 100%); }

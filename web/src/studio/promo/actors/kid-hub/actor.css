@@ -1,0 +1,213 @@
+/* 演員 kid-hub:小管家 App(宣傳片)。選擇器都以 .A-kid-hub 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。
+   .kh-box 是 1080×1920 的設計盒(直式 px),actor.ts 依演員根元素大小整個等比例縮放、置中。 */
+.A-kid-hub {
+  position: relative;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  line-height: 1.3;
+  color: #3a2a22;
+}
+.A-kid-hub *, .A-kid-hub *::before, .A-kid-hub *::after { box-sizing: border-box; }
+.A-kid-hub svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* ── 背景:暖色漸層、飄動的柔光、浮塵 ── */
+.A-kid-hub .kh-bg { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(170deg, #fff6e9 0%, #ffeedb 45%, #ffe3c2 100%); }
+.A-kid-hub .kh-glow {
+  position: absolute; left: 0; top: 0; width: 900px; height: 900px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.78) 0%, rgba(255, 238, 205, 0.42) 38%, rgba(255, 220, 180, 0) 70%);
+}
+.A-kid-hub .kh-glow:nth-child(2) { background: radial-gradient(circle, rgba(255, 214, 170, 0.6) 0%, rgba(255, 200, 150, 0.25) 40%, rgba(255, 200, 150, 0) 70%); }
+.A-kid-hub .kh-glow:nth-child(4) { background: radial-gradient(circle, rgba(255, 246, 214, 0.7) 0%, rgba(255, 233, 190, 0.3) 40%, rgba(255, 233, 190, 0) 70%); }
+.A-kid-hub .kh-motes i {
+  position: absolute; left: 0; top: 0; width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95); box-shadow: 0 0 14px 3px rgba(255, 196, 120, 0.7);
+}
+.A-kid-hub .kh-box { position: absolute; left: 0; top: 0; transform-origin: 0 0; } /* 寬高(設計盒)由 actor.ts 依 anchors.ts 的 DESIGN 設定 */
+.A-kid-hub .kh-proxy { position: absolute; visibility: hidden; pointer-events: none; }
+
+/* ── 開場:請 AI 做 App ── */
+.A-kid-hub .kh-ask {
+  position: absolute; display: none; border-radius: 48px; padding: 44px 48px 140px;
+  background: #fff; box-shadow: 0 30px 70px rgba(170, 100, 40, 0.18), 0 6px 16px rgba(170, 100, 40, 0.08), inset 0 0 0 3px #ffe6d2;
+  transform-origin: 50% 0;
+}
+.A-kid-hub .kh-ask-label { font-size: 34px; font-weight: 800; color: #c07a52; margin-bottom: 22px; }
+.A-kid-hub .kh-ask-text { font-size: 50px; font-weight: 800; line-height: 1.45; color: #3a2a22; word-break: break-all; }
+.A-kid-hub .kh-caret { display: inline-block; width: 5px; height: 1.1em; margin-left: 4px; vertical-align: -0.15em; border-radius: 3px; background: #ff8a5b; }
+.A-kid-hub .kh-send {
+  position: absolute; right: 36px; bottom: 36px; width: 96px; height: 96px; border-radius: 50%; padding: 22px;
+  background: #d9cfc6; box-shadow: 0 8px 18px rgba(255, 138, 91, 0.35);
+}
+.A-kid-hub .kh-working { position: absolute; top: 700px; height: 200px; display: none; } /* 左右(安全區)由 actor.ts 設定 */
+.A-kid-hub .kh-working-text { position: absolute; left: 0; right: 0; top: 60px; text-align: center; font-size: 64px; font-weight: 900; color: #e0703f; }
+.A-kid-hub .kh-working-dots { display: inline-block; width: 1.4em; text-align: left; }
+.A-kid-hub .kh-working-sparks { position: absolute; left: 50%; top: 100px; width: 0; height: 0; }
+.A-kid-hub .kh-working-sparks i { position: absolute; left: -18px; top: -18px; width: 36px; height: 36px; color: #ffc93c; opacity: 0; }
+.A-kid-hub .kh-working-sparks i:nth-child(3n) { color: #ff8a5b; }
+.A-kid-hub .kh-working-sparks i:nth-child(3n + 1) { color: #fff; filter: drop-shadow(0 0 8px rgba(255, 170, 80, 0.9)); }
+.A-kid-hub .kh-working-sparks svg { fill: currentColor; }
+
+/* ── 手機 ── */
+.A-kid-hub .kh-phone-at { position: absolute; width: 620px; height: 1240px; transform-origin: 0 0; }
+.A-kid-hub .kh-phone {
+  position: absolute; border-radius: 84px;
+  background: linear-gradient(145deg, #444956, #1f2229 60%);
+  box-shadow: 0 50px 90px rgba(160, 90, 30, 0.28), 0 12px 24px rgba(120, 60, 20, 0.18), inset 0 0 0 3px rgba(255, 255, 255, 0.1);
+  transform-origin: 50% 60%;
+}
+.A-kid-hub .kh-phone-glow {
+  position: absolute; inset: -6px; border-radius: 90px; pointer-events: none; opacity: 0;
+  box-shadow: 0 0 90px 30px rgba(255, 186, 100, 0.65);
+}
+.A-kid-hub .kh-screen {
+  position: absolute; inset: 22px; border-radius: 64px; overflow: hidden;
+  background: linear-gradient(180deg, #fffaf3, #fff0df);
+}
+.A-kid-hub .kh-status {
+  position: absolute; left: 0; right: 0; top: 0; height: 74px;
+  display: flex; justify-content: space-between; align-items: center; padding: 0 48px;
+  font-size: 26px; font-weight: 700; color: #3a2a22;
+}
+.A-kid-hub .kh-notch { position: absolute; left: 50%; top: 18px; width: 150px; height: 40px; margin-left: -75px; border-radius: 20px; background: #1f2229; }
+.A-kid-hub .kh-skel { position: absolute; inset: 0; opacity: 0; overflow: hidden; }
+.A-kid-hub .kh-skel i { position: absolute; border-radius: 18px; background: #efe3d5; }
+.A-kid-hub .kh-skel-shine { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0) 70%); }
+.A-kid-hub .kh-hello { position: absolute; left: 36px; top: 96px; font-size: 34px; font-weight: 700; color: #a5806a; }
+.A-kid-hub .kh-title { position: absolute; left: 36px; top: 146px; font-weight: 900; letter-spacing: 0.02em; white-space: nowrap; line-height: 1.2; }
+.A-kid-hub .kh-title span { display: inline-block; }
+.A-kid-hub .kh-tile {
+  position: absolute; border-radius: 40px; opacity: 0;
+  background: color-mix(in srgb, var(--c) 15%, #fff);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--c) 24%, transparent), inset 0 0 0 2px color-mix(in srgb, var(--c) 18%, transparent);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+}
+.A-kid-hub .kh-tile-emoji { font-size: 104px; line-height: 1; }
+.A-kid-hub .kh-tile b, .A-kid-hub .kh-mini b { font-size: 38px; font-weight: 900; color: color-mix(in srgb, var(--c) 72%, #3a2a22); }
+.A-kid-hub .kh-glint {
+  position: absolute; inset: 0; border-radius: inherit; opacity: 0; pointer-events: none;
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0.95) 50%, rgba(255, 255, 255, 0) 62%);
+  background-size: 260% 100%;
+}
+.A-kid-hub .kh-sparks { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.A-kid-hub .kh-sparks i { position: absolute; left: -16px; top: -16px; width: 32px; height: 32px; opacity: 0; color: #ffc93c; }
+.A-kid-hub .kh-sparks i:nth-child(2n) { color: #fff; filter: drop-shadow(0 0 6px rgba(255, 190, 90, 0.9)); }
+.A-kid-hub .kh-sparks svg, .A-kid-hub .kh-kid-stars svg { fill: currentColor; }
+.A-kid-hub .kh-today {
+  position: absolute; left: 36px; top: 860px; width: 504px; height: 190px; border-radius: 36px; opacity: 0;
+  background: #fff; box-shadow: 0 10px 26px rgba(170, 100, 40, 0.12); padding: 26px 32px;
+}
+.A-kid-hub .kh-today b { display: block; font-size: 36px; font-weight: 900; }
+.A-kid-hub .kh-today span { position: absolute; right: 32px; bottom: 34px; font-size: 30px; font-weight: 700; color: #a5806a; }
+.A-kid-hub .kh-today-dots { display: flex; gap: 16px; margin-top: 22px; }
+.A-kid-hub .kh-today-dots i { width: 52px; height: 52px; border-radius: 50%; background: #ff8a5b; transform: scale(0); }
+.A-kid-hub .kh-today-dots i:nth-child(2) { background: #3fb68b; }
+.A-kid-hub .kh-today-dots i:nth-child(3) { background: #4f7cff; }
+.A-kid-hub .kh-nav { position: absolute; left: 70px; right: 70px; bottom: 36px; height: 70px; display: flex; justify-content: space-between; align-items: center; opacity: 0; }
+.A-kid-hub .kh-nav i { width: 54px; height: 54px; border-radius: 18px; background: #f3e2cf; }
+.A-kid-hub .kh-nav i:first-child { background: #ffb38f; }
+
+/* ── 三格大卡 ── */
+.A-kid-hub .kh-strips { position: absolute; inset: 0; }
+.A-kid-hub .kh-strip { position: absolute; overflow: hidden; background: #fff; transform-origin: 50% 50%; }
+.A-kid-hub .kh-tint { position: absolute; inset: 0; background: color-mix(in srgb, var(--c) 15%, #fff); }
+.A-kid-hub .kh-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 14px; background: var(--c); }
+.A-kid-hub .kh-mini { position: absolute; inset: 0; transform-origin: 50% 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.A-kid-hub .kh-full { position: absolute; left: 0; top: 0; width: 1000px; height: 460px; transform-origin: 0 0; }
+.A-kid-hub .kh-s-head {
+  position: absolute; left: 430px; right: 50px; top: 44px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 42px; font-weight: 900; color: color-mix(in srgb, var(--c) 78%, #3a2a22);
+}
+.A-kid-hub .kh-s-head small { font-size: 40px; font-weight: 700; color: #a5806a; }
+.A-kid-hub .kh-badge {
+  position: absolute; padding: 10px 30px; border-radius: 999px; white-space: nowrap; opacity: 0;
+  font-size: 44px; font-weight: 900; color: #fff; background: var(--c);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--c) 40%, transparent);
+}
+.A-kid-hub .kh-confetti { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+.A-kid-hub .kh-confetti i { position: absolute; left: 0; top: 0; opacity: 0; border-radius: 3px; }
+
+/* 第 1 格:存錢 */
+.A-kid-hub .kh-pig { position: absolute; left: 60px; top: 110px; width: 320px; height: 300px; }
+.A-kid-hub .kh-pig svg { transform-origin: 50% 92%; }
+.A-kid-hub .kh-coin {
+  position: absolute; left: 167px; top: 6px; width: 84px; height: 84px; border-radius: 50%; opacity: 0;
+  display: grid; place-items: center; font-size: 48px; font-weight: 900; color: #b86b00;
+  background: radial-gradient(circle at 35% 30%, #fff5b8, #ffc93c 55%, #e89b12);
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.12), 0 6px 14px rgba(200, 130, 0, 0.35);
+}
+.A-kid-hub .kh-plus { position: absolute; left: 210px; top: 0; font-size: 68px; font-weight: 900; color: var(--c); white-space: nowrap; opacity: 0; text-shadow: 0 4px 0 #fff; }
+.A-kid-hub .kh-amount { position: absolute; left: 430px; top: 104px; display: flex; align-items: baseline; gap: 14px; transform-origin: 0 80%; }
+.A-kid-hub .kh-amount b { font-size: 132px; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.A-kid-hub .kh-amount span { font-size: 50px; font-weight: 900; color: #a5806a; }
+.A-kid-hub .kh-bar { position: absolute; left: 430px; right: 50px; top: 292px; height: 46px; border-radius: 23px; background: #ffeadf; overflow: hidden; box-shadow: inset 0 3px 6px rgba(200, 100, 50, 0.12); }
+.A-kid-hub .kh-bar-fill { display: block; position: relative; height: 100%; border-radius: 23px; overflow: hidden; background: linear-gradient(90deg, #ffb48a, var(--c)); }
+.A-kid-hub .kh-bar-shine { position: absolute; left: 0; top: 0; bottom: 0; width: 45%; opacity: 0; background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0)); }
+.A-kid-hub .kh-bar-label { position: absolute; left: 430px; top: 358px; font-size: 46px; font-weight: 900; color: var(--c); white-space: nowrap; }
+.A-kid-hub .kh-goal-badge { right: 40px; top: 26px; padding: 6px 26px; font-size: 40px; transform-origin: 70% 50%; }
+
+/* 第 2 格:3C 時間 */
+.A-kid-hub .kh-ring { position: absolute; left: 50px; top: 45px; width: 380px; height: 380px; }
+.A-kid-hub .kh-ring-track { fill: none; stroke: #edf7f2; stroke-width: 30; }
+.A-kid-hub .kh-ring-arc { fill: none; stroke-width: 30; stroke-linecap: round; stroke-dasharray: 1; transform: rotate(-90deg); transform-origin: 180px 180px; }
+.A-kid-hub .kh-ring-time { position: absolute; left: 0; right: 0; top: 128px; text-align: center; font-size: 92px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+.A-kid-hub .kh-ring-sub { position: absolute; left: 0; right: 0; top: 240px; text-align: center; font-size: 30px; font-weight: 700; color: #86a196; }
+.A-kid-hub .kh-full-2 .kh-s-head { left: 470px; right: 250px; }
+.A-kid-hub .kh-timer-status { position: absolute; left: 470px; top: 130px; max-width: 270px; font-size: 38px; font-weight: 800; line-height: 1.2; color: #6f857b; }
+.A-kid-hub .kh-rest { position: absolute; left: 470px; top: 236px; font-size: 56px; font-weight: 900; line-height: 1.25; color: var(--c); transform-origin: 0 50%; opacity: 0; white-space: nowrap; }
+.A-kid-hub .kh-tablet { position: absolute; right: 50px; top: 70px; width: 170px; height: 230px; transform-origin: 50% 100%; }
+.A-kid-hub .kh-lock { position: absolute; left: 50%; top: 46%; width: 76px; height: 92px; opacity: 0; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)); }
+.A-kid-hub .kh-leaves { position: absolute; left: 470px; top: 220px; width: 0; height: 0; }
+.A-kid-hub .kh-leaves i { position: absolute; left: 0; top: 0; font-size: 40px; font-style: normal; opacity: 0; }
+
+/* 第 3 格:今日行程 */
+.A-kid-hub .kh-full-3 .kh-s-head { left: 64px; right: 330px; }
+.A-kid-hub .kh-todos { position: absolute; left: 40px; top: 118px; width: 680px; display: flex; flex-direction: column; gap: 4px; }
+.A-kid-hub .kh-todo { display: flex; align-items: center; gap: 24px; height: min(106px, calc(320px / var(--n))); padding: 0 22px; border-radius: 26px; }
+.A-kid-hub .kh-chk { flex: none; width: 70px; height: 70px; }
+.A-kid-hub .kh-chk-bg { stroke-width: 5; }
+.A-kid-hub .kh-chk-path { fill: none; stroke: #fff; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.A-kid-hub .kh-todo-text { position: relative; font-size: clamp(34px, calc(150px / var(--n)), 50px); font-weight: 900; white-space: nowrap; }
+.A-kid-hub .kh-strike { position: absolute; left: -6px; right: -6px; top: 52%; height: 6px; border-radius: 3px; background: #4f7cff; transform-origin: 0 50%; transform: scaleX(0); }
+.A-kid-hub .kh-bag { position: absolute; right: 70px; top: 96px; font-size: 200px; line-height: 1; transform-origin: 50% 100%; }
+.A-kid-hub .kh-ready { right: 40px; bottom: 36px; transform-origin: 50% 50%; }
+.A-kid-hub .kh-ready-sparks { left: 830px; top: 390px; }
+
+/* ── 習慣打卡 ── */
+.A-kid-hub .kh-habit-at { position: absolute; width: 1000px; height: 1380px; transform-origin: 0 0; }
+.A-kid-hub .kh-habit {
+  position: absolute; left: 0; top: 0; width: 1000px; height: 1380px; border-radius: 52px; overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #fff8f6 100%);
+  box-shadow: 0 30px 70px rgba(170, 90, 50, 0.2), inset 0 0 0 3px #ffe1e5;
+  transform-origin: 50% 50%;
+}
+.A-kid-hub .kh-h-head { position: absolute; left: 64px; top: 50px; font-size: 52px; font-weight: 900; color: var(--c); }
+.A-kid-hub .kh-h-head small { display: block; margin-top: 8px; font-size: 38px; font-weight: 700; color: #a5806a; }
+.A-kid-hub .kh-flame { position: absolute; left: 90px; top: 260px; width: 330px; height: 380px; transform-origin: 50% 92%; }
+.A-kid-hub .kh-flame-out { transform-box: fill-box; transform-origin: 50% 100%; }
+.A-kid-hub .kh-flame-num {
+  position: absolute; left: 50%; top: 64%; font-size: 176px; font-weight: 900; line-height: 1; color: #fff;
+  text-shadow: 0 6px 18px rgba(200, 40, 60, 0.45); transform-origin: 50% 60%; font-variant-numeric: tabular-nums;
+}
+.A-kid-hub .kh-kid { position: absolute; right: 80px; top: 266px; width: 380px; height: 380px; transform-origin: 50% 90%; opacity: 0; }
+.A-kid-hub .kh-kid-stars i { position: absolute; width: 46px; height: 46px; color: #ffc93c; }
+.A-kid-hub .kh-kid-stars i:nth-child(1) { left: 0; top: 20px; }
+.A-kid-hub .kh-kid-stars i:nth-child(2) { right: -6px; top: 0; width: 34px; height: 34px; color: #ff8a5b; }
+.A-kid-hub .kh-kid-stars i:nth-child(3) { left: -30px; top: 250px; width: 30px; height: 30px; color: #4f7cff; }
+.A-kid-hub .kh-kid-stars i:nth-child(4) { right: -24px; top: 270px; }
+.A-kid-hub .kh-streak { position: absolute; left: 0; right: 0; top: 700px; text-align: center; font-size: 104px; font-weight: 900; line-height: 1.1; opacity: 0; }
+.A-kid-hub .kh-week { position: absolute; left: 40px; right: 40px; top: 900px; display: flex; justify-content: space-between; }
+.A-kid-hub .kh-day { width: 124px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.A-kid-hub .kh-day > span { font-size: 40px; font-weight: 900; color: #a5806a; }
+.A-kid-hub .kh-slot { position: relative; width: 120px; height: 120px; border-radius: 32px; background: #fff4f5; border: 4px dashed #ffc2cb; }
+.A-kid-hub .kh-stamp {
+  position: absolute; inset: 4px; border-radius: 50%; opacity: 0;
+  display: grid; place-items: center; font-size: 56px; line-height: 1;
+  background: radial-gradient(circle at 35% 30%, #ff98a7, #ff5d73 70%);
+  box-shadow: 0 6px 14px rgba(255, 93, 115, 0.4), inset 0 -4px 0 rgba(150, 20, 40, 0.15);
+}
+.A-kid-hub .kh-stamp-ring { position: absolute; inset: -4px; border-radius: 50%; border: 6px solid #ff5d73; opacity: 0; }
+.A-kid-hub .kh-h-foot { position: absolute; left: 0; right: 0; top: 1200px; text-align: center; font-size: 48px; font-weight: 800; color: #a5806a; }
+.A-kid-hub .kh-big-confetti { position: absolute; left: 0; top: 0; }

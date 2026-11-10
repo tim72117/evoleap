@@ -1,0 +1,3 @@
+/* 演員 fable-sky:夜景背景(canvas)。選擇器都以 .A-fable-sky 開頭;動畫由 actor.ts 依時間重畫,不用 animation/transition。 */
+.A-fable-sky { position: absolute; inset: 0; overflow: hidden; background: #070a1c; pointer-events: none; }
+.A-fable-sky .sky-canvas { display: block; width: 100%; height: 100%; }

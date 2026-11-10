@@ -1,0 +1,215 @@
+/* 演員 fable-world:書桌與筆電、小房間、城裡的伺服器大樓、朋友的手機。選擇器都以 .A-fable-world 開頭。
+   版面用 1920×1080 的 px(place 是 full);所有動畫由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-fable-world {
+  position: absolute; inset: 0; overflow: hidden;
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: 20px; line-height: 1.4; color: #e9ecf5;
+}
+.A-fable-world *, .A-fable-world *::before, .A-fable-world *::after { box-sizing: border-box; }
+.A-fable-world .fw-scene { position: absolute; inset: 0; transform-origin: 0 0; }
+.A-fable-world .fw-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 45%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+.A-fable-world small { display: block; font-size: 0.7em; font-weight: 400; color: #aab2c8; letter-spacing: 0.02em; }
+
+/* ---------- 路徑 ---------- */
+.A-fable-world .fw-paths { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.A-fable-world .fw-path { fill: none; stroke: #8fd3ff; stroke-width: 3; stroke-linecap: round; opacity: 0; filter: drop-shadow(0 0 6px rgba(143, 211, 255, 0.8)); }
+.A-fable-world .fw-path-loop { stroke: #ffb067; filter: drop-shadow(0 0 6px rgba(255, 176, 103, 0.8)); }
+.A-fable-world .fw-path-deploy { stroke: #ffd76a; filter: drop-shadow(0 0 8px rgba(255, 215, 106, 0.8)); }
+.A-fable-world .fw-path-crowd { stroke-width: 2; }
+
+/* ---------- 共用:迷你網站 ---------- */
+.A-fable-world .fw-site { width: 100%; height: 100%; background: #fffdf8; color: #2b2a27; overflow: hidden; font-size: 1em; }
+.A-fable-world .fw-site-nav { display: flex; align-items: center; gap: 0.5em; padding: 0.55em 0.8em; border-bottom: 1px solid #ece7db; font-size: 1.05em; }
+.A-fable-world .fw-site-nav b { color: #b5542f; }
+.A-fable-world .fw-site-nav i { width: 1.6em; height: 0.45em; margin-left: auto; border-radius: 1em; background: #e6e0d2; }
+.A-fable-world .fw-site-nav i + i { margin-left: 0; }
+.A-fable-world .fw-site-hero { padding: 1em 0.9em 0.8em; background: linear-gradient(135deg, #fff2e2, #fbe3c8); }
+.A-fable-world .fw-site-hero h3 { margin: 0 0 0.2em; font-size: 1.7em; line-height: 1.15; }
+.A-fable-world .fw-site-hero p { margin: 0 0 0.6em; font-size: 0.95em; color: #6b6862; }
+.A-fable-world .fw-site-btn { display: inline-block; padding: 0.3em 0.9em; border-radius: 1em; background: #d97757; color: #fff; font-size: 0.9em; }
+.A-fable-world .fw-site-cards { display: flex; gap: 0.5em; padding: 0.7em 0.9em; }
+.A-fable-world .fw-site-cards span { flex: 1; height: 3.2em; border-radius: 0.4em; background: linear-gradient(#f3eee3, #e9e2d3); }
+
+/* ---------- 書桌與筆電 ---------- */
+.A-fable-world .fw-desk { position: absolute; left: 0; top: 0; width: 1000px; height: 1080px; }
+.A-fable-world .fw-desk::before {
+  content: ''; position: absolute; left: -40px; top: 800px; width: 1100px; height: 320px;
+  background: linear-gradient(#3a2a22, #1d1511 60%, #130e0b); border-radius: 60px 60px 0 0 / 30px 30px 0 0;
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.5);
+}
+.A-fable-world .fw-lamp-glow {
+  position: absolute; left: -250px; top: 180px; width: 1000px; height: 900px; pointer-events: none;
+  background: radial-gradient(45% 45% at 35% 55%, rgba(255, 196, 120, 0.28), rgba(255, 196, 120, 0) 70%);
+}
+.A-fable-world .fw-lamp {
+  position: absolute; left: 70px; top: 470px; width: 150px; height: 120px;
+  background: linear-gradient(#3c3f4c, #22242d); border-radius: 75px 75px 10px 10px / 70px 70px 10px 10px;
+  box-shadow: inset 0 -30px 40px rgba(255, 210, 140, 0.55), 0 30px 80px rgba(255, 200, 130, 0.35);
+}
+.A-fable-world .fw-lamp::after { content: ''; position: absolute; left: 68px; top: 110px; width: 14px; height: 700px; background: linear-gradient(#3c3f4c, #15161c); }
+.A-fable-world .fw-mug { position: absolute; left: 900px; top: 760px; width: 70px; height: 70px; border-radius: 8px 8px 14px 14px; background: linear-gradient(#f0e9dc, #c9bfae); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); }
+.A-fable-world .fw-mug::after { content: ''; position: absolute; right: -22px; top: 14px; width: 26px; height: 34px; border: 7px solid #d8d0c2; border-left: 0; border-radius: 0 16px 16px 0; }
+
+.A-fable-world .fw-laptop { position: absolute; left: 230px; top: 400px; width: 620px; transform-origin: 50% 80%; }
+.A-fable-world .fw-lid {
+  width: 620px; height: 390px; padding: 14px; border-radius: 16px 16px 4px 4px;
+  background: linear-gradient(#3a3d4b, #262834); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.A-fable-world .fw-screen { position: relative; width: 100%; height: 100%; border-radius: 8px; overflow: hidden; background: #0e1120; box-shadow: 0 0 60px rgba(120, 170, 255, 0.18); }
+.A-fable-world .fw-wall { position: absolute; inset: 0; background: radial-gradient(70% 70% at 30% 20%, #2a3a74, #0f1430 70%); }
+.A-fable-world .fw-screen.dim .fw-brw { filter: brightness(0.55) saturate(0.5); }
+.A-fable-world .fw-term {
+  position: absolute; left: 16px; top: 18px; right: 16px; height: 230px; overflow: hidden;
+  background: rgba(14, 16, 26, 0.96); border-radius: 8px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  font: 17px / 1.6 ui-monospace, Menlo, Consolas, monospace; color: #d9dde8;
+}
+.A-fable-world .fw-term-bar { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; background: #1f2230; font-size: 12px; color: #8a90a6; }
+.A-fable-world .fw-term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+.A-fable-world .fw-term-bar i:nth-child(2) { background: #febc2e; }
+.A-fable-world .fw-term-bar i:nth-child(3) { background: #28c840; }
+.A-fable-world .fw-term-bar span { margin-left: auto; margin-right: auto; }
+.A-fable-world .fw-term-body { margin: 0; padding: 12px 14px; white-space: pre; }
+.A-fable-world .fw-t-prompt { color: #7ee2a0; }
+.A-fable-world .fw-t-out1 { color: #c9a2ff; }
+.A-fable-world .fw-t-url { color: #8fd3ff; text-decoration: underline; text-underline-offset: 3px; }
+.A-fable-world .fw-t-stop { color: #8a90a6; }
+.A-fable-world .fw-brw {
+  position: absolute; left: 36px; top: 70px; right: 36px; bottom: 0; overflow: hidden;
+  background: #fff; border-radius: 10px 10px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5); opacity: 0;
+}
+.A-fable-world .fw-brw-bar { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; background: #e8ecf1; }
+.A-fable-world .fw-brw-bar i { width: 10px; height: 10px; border-radius: 50%; background: #c4cbd4; }
+.A-fable-world .fw-brw-url { flex: 1; margin-left: 8px; padding: 3px 10px; border-radius: 6px; background: #fff; color: #1f2933; font: 13px / 1.4 ui-monospace, Menlo, monospace; }
+.A-fable-world .fw-brw-page { position: absolute; top: 34px; left: 0; right: 0; bottom: 0; font-size: 13px; }
+.A-fable-world .fw-base { position: relative; width: 700px; height: 34px; margin-left: -40px; border-radius: 0 0 20px 20px; background: linear-gradient(#454959, #22242e); transform: perspective(700px) rotateX(48deg); transform-origin: 50% 0; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
+.A-fable-world .fw-keys { position: absolute; left: 70px; right: 70px; top: 5px; height: 16px; border-radius: 4px; background: repeating-linear-gradient(90deg, #1a1c24 0 22px, #2f3240 22px 24px); opacity: 0.8; }
+.A-fable-world .fw-you { position: absolute; left: 540px; top: 900px; transform: translateX(-50%); text-align: center; font-weight: 700; font-size: 26px; color: #fff; }
+.A-fable-world .fw-keycap {
+  position: absolute; left: 540px; top: 840px; transform: translate(-50%, 0); opacity: 0;
+  padding: 10px 22px; border-radius: 12px; background: #f4f1ea; color: #2b2a27; font: 700 26px / 1 ui-monospace, Menlo, monospace;
+  box-shadow: 0 6px 0 #c8c2b4, 0 16px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- 小房間 ---------- */
+.A-fable-world .fw-house, .A-fable-world .fw-phouse { position: absolute; transform-origin: 50% 60%; opacity: 0; visibility: hidden; }
+.A-fable-world .fw-house { left: 200px; top: 300px; width: 680px; height: 560px; }
+.A-fable-world .fw-phouse { left: 1340px; top: 560px; width: 220px; height: 260px; font-size: 12px; }
+.A-fable-world .fw-roof {
+  position: absolute; left: 50%; top: 0; width: 110%; height: 120px; transform: translateX(-50%);
+  background: linear-gradient(#5b3a2e, #3d261e); clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+}
+.A-fable-world .fw-phouse .fw-roof { height: 50px; }
+.A-fable-world .fw-wallbox {
+  position: absolute; left: 0; right: 0; top: 118px; bottom: 60px;
+  background: linear-gradient(#2d2a36, #1d1b25); border: 4px solid #4a4356; border-top: 0; border-radius: 0 0 14px 14px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 0 80px rgba(255, 200, 130, 0.08);
+}
+.A-fable-world .fw-phouse .fw-wallbox { top: 48px; bottom: 56px; }
+.A-fable-world .fw-house.lit .fw-wallbox { box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 0 120px rgba(255, 200, 130, 0.22); }
+.A-fable-world .fw-window {
+  position: absolute; right: 34px; top: 34px; width: 110px; height: 110px; border-radius: 8px;
+  background: radial-gradient(circle at 50% 40%, #ffe9b8, #ffb95c 70%); box-shadow: 0 0 60px rgba(255, 200, 120, 0.6);
+}
+.A-fable-world .fw-window::before, .A-fable-world .fw-window::after { content: ''; position: absolute; background: #3d2f2a; }
+.A-fable-world .fw-window::before { left: 50%; top: 0; width: 6px; height: 100%; margin-left: -3px; }
+.A-fable-world .fw-window::after { top: 50%; left: 0; height: 6px; width: 100%; margin-top: -3px; }
+.A-fable-world .fw-frame {
+  position: absolute; left: 36px; top: 36px; width: 330px; height: 210px; padding: 8px; overflow: hidden;
+  background: #6b4b3a; border-radius: 6px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); font-size: 11px;
+}
+.A-fable-world .fw-frame .fw-site { border-radius: 2px; }
+.A-fable-world .fw-frame.moved .fw-site { opacity: 0.12 !important; }
+.A-fable-world .fw-frame.moved::after { content: '搬到伺服器上了'; position: absolute; inset: 8px; display: grid; place-items: center; color: #d9cbb8; font-size: 18px; }
+.A-fable-world .fw-frame-off { position: absolute; inset: 8px; display: grid; place-items: center; background: rgba(15, 12, 18, 0.85); color: #d9cbb8; font-size: 22px; font-weight: 700; opacity: 0; }
+.A-fable-world .fw-frame-empty { display: grid; place-items: center; background: #2a2630; color: #8d8599; font-size: 15px; width: 150px; height: 90px; left: 30px; top: 22px; }
+.A-fable-world .fw-doorrow { position: absolute; left: 36px; bottom: 0; display: flex; align-items: flex-end; gap: 18px; }
+.A-fable-world .fw-door { position: relative; width: 78px; height: 130px; border-radius: 40px 40px 0 0; background: linear-gradient(#a06c3a, #6d4523); box-shadow: inset 0 0 0 5px #4a2f18; }
+.A-fable-world .fw-phouse .fw-door { width: 44px; height: 72px; box-shadow: inset 0 0 0 3px #4a2f18; }
+.A-fable-world .fw-door::after { content: ''; position: absolute; right: 12px; top: 64px; width: 9px; height: 9px; border-radius: 50%; background: #ffd76a; }
+.A-fable-world .fw-phouse .fw-door::after { right: 7px; top: 36px; width: 5px; height: 5px; }
+.A-fable-world .fw-door.glow { box-shadow: inset 0 0 0 5px #4a2f18, 0 0 40px rgba(255, 215, 106, 0.6); }
+.A-fable-world .fw-door-more { opacity: 0; }
+.A-fable-world .fw-plate {
+  position: absolute; left: 50%; top: -34px; transform: translateX(-50%); padding: 2px 10px; border-radius: 6px;
+  background: #f4f1ea; color: #2b2a27; font: 700 20px / 1.3 ui-monospace, Menlo, monospace; white-space: nowrap; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+.A-fable-world .fw-phouse .fw-plate { top: -22px; font-size: 12px; padding: 1px 6px; }
+.A-fable-world .fw-house-label { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); text-align: center; font-weight: 700; font-size: 28px; color: #fff; white-space: nowrap; }
+.A-fable-world .fw-phouse .fw-house-label { font-size: 18px; }
+.A-fable-world .fw-phouse .fw-house-label small { font-size: 12px; }
+
+/* ---------- 伺服器大樓 ---------- */
+.A-fable-world .fw-server { position: absolute; left: 1130px; top: 300px; width: 190px; height: 500px; }
+.A-fable-world .fw-srv-body {
+  position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 36px; gap: 10px 14px; padding: 18px 20px;
+  align-content: start; background: linear-gradient(#262a3c, #141627); border-radius: 10px 10px 0 0;
+  box-shadow: 0 0 0 2px #3d4262, 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 80px rgba(120, 180, 255, 0.12);
+}
+.A-fable-world .fw-srv-body > i { display: block; border-radius: 3px; background: linear-gradient(#ffe6b0, #ffc46a); box-shadow: 0 0 14px rgba(255, 200, 110, 0.55); }
+.A-fable-world .fw-server.off .fw-srv-body { background: linear-gradient(#171a26, #0d0e18); box-shadow: 0 0 0 2px #262a3c, 0 30px 80px rgba(0, 0, 0, 0.7); }
+.A-fable-world .fw-srv-rack {
+  position: absolute; left: 14px; right: 14px; bottom: 14px; height: 130px; padding: 8px; border-radius: 6px;
+  background: #0b0d16; box-shadow: inset 0 0 0 2px #2d3148;
+}
+.A-fable-world .fw-srv-lamp { position: absolute; right: 10px; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: #7ee2a0; box-shadow: 0 0 12px #7ee2a0; }
+.A-fable-world .fw-server.off .fw-srv-lamp { background: #3a3f55; box-shadow: none; }
+.A-fable-world .fw-srv-site { position: absolute; left: 8px; right: 8px; top: 24px; bottom: 8px; font-size: 5px; border-radius: 3px; overflow: hidden; transform-origin: 50% 50%; opacity: 0; }
+.A-fable-world .fw-sign {
+  position: absolute; left: 50%; top: -74px; transform: translateX(-50%); padding: 8px 18px; border-radius: 10px; white-space: nowrap;
+  background: #10121c; border: 3px solid #3d4262; color: #6d7390; font: 700 24px / 1.2 ui-monospace, Menlo, monospace;
+}
+.A-fable-world .fw-sign.on { color: #ffd76a; border-color: #ffd76a; box-shadow: 0 0 40px rgba(255, 215, 106, 0.55), inset 0 0 20px rgba(255, 215, 106, 0.25); text-shadow: 0 0 12px rgba(255, 215, 106, 0.9); }
+.A-fable-world .fw-neon { position: absolute; left: 50%; top: -118px; transform: translateX(-50%); color: #ff7ab8; font: 800 30px / 1 ui-monospace, Menlo, monospace; letter-spacing: 0.05em; text-shadow: 0 0 14px #ff7ab8, 0 0 36px rgba(255, 122, 184, 0.7); opacity: 0; }
+.A-fable-world .fw-srv-label { position: absolute; left: 50%; top: 100%; margin-top: 10px; transform: translateX(-50%); text-align: center; font-weight: 700; font-size: 24px; color: #fff; white-space: nowrap; }
+
+/* ---------- 城裡的裝置 ---------- */
+.A-fable-world .fw-dev { position: absolute; opacity: 0; }
+.A-fable-world .fw-dev-phone { width: 54px; height: 100px; padding: 6px 4px; border-radius: 9px; background: #23263a; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 230, 180, 0.25); }
+.A-fable-world .fw-dev-laptop { width: 120px; height: 78px; padding: 5px; border-radius: 6px; background: #2b2e3f; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 230, 180, 0.25); }
+.A-fable-world .fw-dev-screen { width: 100%; height: 100%; overflow: hidden; border-radius: 4px; font-size: 4px; }
+.A-fable-world .fw-dev-laptop::after { content: ''; position: absolute; left: -10px; right: -10px; bottom: -8px; height: 8px; border-radius: 0 0 6px 6px; background: #3a3e52; }
+
+/* ---------- 朋友的手機 ---------- */
+.A-fable-world .fw-phone { position: absolute; left: 1580px; top: 560px; width: 170px; height: 330px; }
+.A-fable-world .fw-phone::before { content: ''; position: absolute; left: -200px; top: -120px; width: 560px; height: 560px; border-radius: 50%; background: radial-gradient(circle, rgba(140, 170, 255, 0.16), rgba(140, 170, 255, 0) 65%); }
+.A-fable-world .fw-phone-screen {
+  position: absolute; inset: 0; overflow: hidden; border-radius: 26px; padding: 10px;
+  background: #0f1322; box-shadow: 0 0 0 7px #1f2233, 0 0 0 9px #3c4056, 0 30px 70px rgba(0, 0, 0, 0.7), 0 0 50px rgba(140, 170, 255, 0.25);
+  font-size: 12px;
+}
+.A-fable-world .fw-pstatus { display: flex; justify-content: space-between; padding: 2px 8px; font-size: 10px; color: #8a90a6; }
+.A-fable-world .fw-chat { position: absolute; left: 10px; right: 10px; top: 34px; opacity: 0; }
+.A-fable-world .fw-chat-head { font-size: 11px; color: #8a90a6; margin: 0 0 6px 4px; }
+.A-fable-world .fw-chat-msg { padding: 7px 10px; border-radius: 12px 12px 12px 4px; background: #2a3d6e; color: #e9ecf5; font-size: 11.5px; line-height: 1.4; word-break: break-all; transform-origin: 0 0; }
+.A-fable-world .fw-sheet { position: absolute; left: 0; right: 0; top: 60px; bottom: 0; background: #fff; border-radius: 16px 16px 24px 24px; color: #1f2933; opacity: 0; transform: translateY(105%); }
+.A-fable-world .fw-sheet-bar { display: flex; align-items: center; margin: 8px; padding: 6px 10px; border-radius: 8px; background: #eef1f5; font: 11px / 1.3 ui-monospace, Menlo, monospace; white-space: nowrap; overflow: hidden; }
+.A-fable-world .fw-sheet-caret { color: #2563eb; }
+.A-fable-world .fw-sheet-body { position: absolute; left: 0; right: 0; top: 44px; bottom: 0; overflow: hidden; border-radius: 0 0 24px 24px; }
+.A-fable-world .fw-sheet-loading { position: absolute; inset: 0; display: grid; place-items: center; color: #7b8794; font-size: 12px; opacity: 0; }
+.A-fable-world .fw-sheet-site { position: absolute; inset: 0; font-size: 7.5px; opacity: 0; }
+.A-fable-world .fw-sheet-err { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 4px; padding: 10px; text-align: center; opacity: 0; transform-origin: 50% 50%; }
+.A-fable-world .fw-sheet-err b { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fde2df; color: #d64545; font-size: 20px; }
+.A-fable-world .fw-sheet-err h4 { margin: 2px 0 0; font-size: 12px; }
+.A-fable-world .fw-sheet-err p { margin: 0; font-size: 10px; color: #7b8794; line-height: 1.4; }
+.A-fable-world .fw-friend { position: absolute; left: 50%; top: 100%; margin-top: 16px; transform: translateX(-50%); text-align: center; font-weight: 700; font-size: 26px; color: #fff; white-space: nowrap; }
+
+/* ---------- 飛行中的東西 ---------- */
+.A-fable-world .fw-bubble {
+  position: absolute; left: 600px; top: 330px; transform: translate(-50%, 0); max-width: 520px; padding: 12px 20px; border-radius: 18px 18px 18px 4px;
+  background: #2a3d6e; color: #fff; font-size: 22px; line-height: 1.4; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); opacity: 0; word-break: break-all;
+}
+.A-fable-world .fw-plane { position: absolute; left: 0; top: 0; width: 72px; height: 48px; display: none; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5)); }
+.A-fable-world .fw-plane svg { width: 100%; height: 100%; display: block; }
+.A-fable-world .fw-plane-body { fill: #f8f6f0; }
+.A-fable-world .fw-plane-wing { fill: #cfcac0; }
+.A-fable-world .fw-packet { position: absolute; left: 0; top: 0; display: none; text-align: center; }
+.A-fable-world .fw-env { width: 64px; height: 46px; margin: 0 auto; }
+.A-fable-world .fw-env svg { width: 100%; height: 100%; display: block; fill: #fffdf8; stroke: #8a7a66; stroke-width: 2.4; }
+.A-fable-world .fw-plabel { margin-top: 4px; padding: 3px 10px; border-radius: 8px; background: #fffdf8; color: #2b2a27; font: 600 16px / 1.3 ui-monospace, Menlo, monospace; white-space: nowrap; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4); }
+.A-fable-world .fw-packet[data-tone='bad'] .fw-plabel { background: #fde2df; color: #b3261e; }
+.A-fable-world .fw-packet[data-tone='ok'] .fw-plabel { background: #dff5e5; color: #1c7a3f; }
+.A-fable-world .fw-sitebox { position: absolute; left: 0; top: 0; width: 330px; height: 200px; display: none; overflow: hidden; border-radius: 8px; font-size: 11px; box-shadow: 0 0 0 6px #6b4b3a, 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 60px rgba(255, 215, 106, 0.5); }

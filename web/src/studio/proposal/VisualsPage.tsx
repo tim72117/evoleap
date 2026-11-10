@@ -109,6 +109,14 @@ const PROGRESS: [string, string, 'done' | 'todo'][] = [
   ['繪製層、素材包、驗證工具', '待做', 'todo'],
 ]
 
+// 引擎優化構想:Fable 試作「從做好到上線」0.1(/studio/fable-trial)碰到的極限,這幾項要改舞台引擎(stage.ts、types.ts、kit.ts),先記下來
+const ENGINE_IDEAS: { title: string; body: string }[] = [
+  { title: '同一拍演好幾個動作', body: '例如步驟加一個 with 欄位，讓背景的光纖亮起和前景的網站起飛同時開始；現在一步只能一位演員的動作，只能一前一後接著演，節奏容易拖。' },
+  { title: '鏡頭跟拍、搖鏡，演員回報自己的推軌', body: '舞台鏡頭現在只有推近目標與拉回。加上跟著移動中的目標、從 A 平移到 B；演員自己做推軌時能告訴舞台目前的縮放，舞台才避得開字幕區、對得準聚焦位置，推軌也不用每位演員各寫一次。' },
+  { title: '演員之間讀得到彼此的狀態', body: '例如背景演員查得到「伺服器關機了」，自己把光纖調暗，不用在腳本裡多下一步。' },
+  { title: '把常用手法收進 kit', body: '沿曲線飛行並順著方向轉、場景整體推軌（位移加縮放）、燈光氣氛漸變，這次都寫在演員裡，之後的課也會用到。' },
+]
+
 const OPEN_QUESTIONS: { title: string; body: string }[] = [
   { title: '旁白來源', body: '目前用 Gemini TTS 分段產生（費用評估見研究文章「旁白語音的費用評估」）。研究顯示自然人聲效果較好；聽過整課後再決定是否改成真人錄音。' },
   { title: '模擬其他產品介面的限制', body: '模擬 AI 工具介面的素材包不使用官方 Logo、商標或截圖，只做近似的版面與配色並註明非官方；產品改版時介面會與實際不同，需要定期對照更新。' },
@@ -294,6 +302,19 @@ export function VisualsPage() {
             ))}
           </tbody>
         </table>
+      </section>
+
+      <h2 id="engine-ideas">引擎優化構想</h2>
+      <span className={`${ui.chip} ${ui.out}`}>構想 · 待評估</span>
+      <section className={ui.card}>
+        <p>Fable 試作「從做好到上線」0.1 時碰到的引擎極限，以下幾項要改舞台引擎，先記下來。</p>
+        <ul>
+          {ENGINE_IDEAS.map((q) => (
+            <li key={q.title}>
+              <strong style={{ display: 'inline' }}>{q.title}</strong>：{q.body}
+            </li>
+          ))}
+        </ul>
       </section>
 
       <h2>待決定</h2>

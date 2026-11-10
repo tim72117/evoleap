@@ -1,0 +1,50 @@
+{
+  "title": "宣傳片：孩子的一天，交給小管家（直式・快節奏）",
+  "lesson": "宣傳影片",
+  "cast": {
+    "day": {
+      "actor": "kid-day-scene",
+      "props": {
+        "life": { "kid": "小宇", "lit": 1, "line": "零用錢又花光了" },
+        "hub": { "name": "小宇的小管家", "goal": 2000, "saved": 1300, "todo": ["帶水壺", "美術用品", "聯絡簿簽名"] }
+      },
+      "place": "full"
+    }
+  },
+  "steps": [
+    { "strip": 1, "line": "零用錢又花光了", "ms": 900, "instant": true, "chapter": "痛點" },
+    { "strip": 2, "line": "再五分鐘就好！", "ms": 700 },
+    { "strip": 3, "line": "今天要帶什麼？", "ms": 700 },
+    { "strip": 1, "line": "零用錢又花光了", "ms": 450 },
+    { "strip": 2, "line": "再五分鐘就好！", "ms": 450 },
+    { "strip": 3, "line": "今天要帶什麼？", "ms": 450 },
+    { "all": true, "ms": 1000 },
+    { "parent": "每天都在提醒、在吵。", "ms": 1600, "narration": "每天提醒，每天吵。" },
+    { "collapse": "如果用一個小工具管起來？", "ms": 1800, "chapter": "轉折", "narration": "如果，用一個小工具管起來？" },
+
+    {
+      "ask": "幫我做孩子的小管家：存錢目標、3C 時間、每天要帶的東西，還有習慣打卡。",
+      "chapter": "做出來",
+      "narration": "跟 AI 說一句話，"
+    },
+    { "build": true, "narration": "小管家就做好了。" },
+    { "spread": true, "ms": 800 },
+
+    { "deposit": 700, "ms": 1100, "chapter": "解決", "narration": "存錢有目標，" },
+    { "timer": 30, "ms": 1200, "narration": "時間到自動休息，" },
+    { "tick": "帶水壺", "ms": 400, "narration": "要帶的東西一項項勾。" },
+    { "tick": "美術用品", "ms": 350 },
+    { "tick": "聯絡簿簽名", "ms": 350 },
+    { "habit": 7, "chapter": "習慣打卡", "narration": "好習慣，天天打卡。" },
+    { "hide": "day", "ms": 300 },
+
+    {
+      "card": "把麻煩做成[[你的軟體]]",
+      "eyebrow": "evoleap · 做出自己的軟體",
+      "sub": "不會寫程式也能開始，免費從入門課學起",
+      "fx": "rise",
+      "chapter": "結尾",
+      "narration": "把生活的麻煩，做成你自己的軟體。免費從入門課開始。"
+    }
+  ]
+}

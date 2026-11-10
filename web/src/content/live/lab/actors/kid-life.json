@@ -1,0 +1,21 @@
+{
+  "title": "kid-life：孩子一天的三格痛點",
+  "lesson": "演員展示",
+  "cast": {
+    "life": { "actor": "kid-life", "props": { "kid": "小宇", "lit": 1, "line": "零用錢又花光了" }, "place": "full" }
+  },
+  "steps": [
+    { "strip": 1, "ms": 700, "instant": true },
+    { "strip": 2, "line": "再五分鐘就好！", "ms": 700 },
+    { "strip": 3, "line": "早上又找不到要帶的東西", "ms": 700 },
+    { "strip": 1, "ms": 600 },
+    { "strip": 2, "ms": 600 },
+    { "strip": 3, "ms": 600 },
+    { "all": true },
+    { "wait": 800 },
+    { "parent": "每天都在提醒、在吵。" },
+    { "wait": 900 },
+    { "collapse": "如果用一個小工具管起來？" },
+    { "wait": 2000 }
+  ]
+}

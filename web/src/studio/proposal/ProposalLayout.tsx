@@ -26,12 +26,14 @@ const DEV: Tab[] = [
   { to: '/studio/visuals', label: '即時教學影像' },
   { to: '/studio/actor-interaction', label: '演員互動', match: '/studio/actor-interaction' },
   { to: '/studio/portrait', label: '直式舞台' },
+  { to: '/studio/scenes', label: '場景' },
 ]
 
 /** 跨等級構想。 */
 const IDEAS: Tab[] = [
   { to: '/studio/mcp', label: '課程 MCP' },
   { to: '/studio/member', label: '會員空間' },
+  { to: '/studio/kids-family', label: '兒童課家長模式' },
   { to: '/studio/resources', label: '資源系統' },
   { to: '/studio/news-feed', label: '科技新知動態牆' },
   { to: '/studio/extensions', label: '延伸課程' },

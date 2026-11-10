@@ -8,6 +8,8 @@ import { createStage } from '../../live/stage'
 import type { Aspect } from '../../live/types'
 import '../../live/shell.css'
 import { ProposalLayout } from '../proposal/ProposalLayout'
+// 宣傳片專用演員(kid-life、kid-hub)只登記給研發基地,不進公開 bundle
+import '../promo/registerActors'
 import ui from '../proposal/proposal.module.css'
 import styles from './PromoPage.module.css'
 

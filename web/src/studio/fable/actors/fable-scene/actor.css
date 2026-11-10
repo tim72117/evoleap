@@ -1,0 +1,5 @@
+/* 演員 fable-scene:背景(夜景 canvas)與前景(fable-world)兩層。選擇器都以 .A-fable-scene 開頭;動畫由 actor.ts 依時間設定,不用 animation/transition。 */
+.A-fable-scene { position: absolute; inset: 0; overflow: hidden; background: #070a1c; }
+.A-fable-scene .fs-bg { position: absolute; inset: 0; transform-origin: 0 0; pointer-events: none; }
+.A-fable-scene .fs-bg .sky-canvas { display: block; width: 100%; height: 100%; }
+.A-fable-scene .fs-fg { position: absolute; inset: 0; }

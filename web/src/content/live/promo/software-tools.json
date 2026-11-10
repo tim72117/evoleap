@@ -1,0 +1,360 @@
+{
+  "title": "宣傳片：生活裡卡住的小事，都能做成自己的工具（做出自己的軟體）",
+  "lesson": "宣傳影片",
+  "camera": "auto",
+  "blocking": {
+    "portrait": {
+      "cast": [
+        "claude",
+        "split",
+        "cards",
+        "list"
+      ],
+      "shot": "depth"
+    }
+  },
+  "cast": {
+    "mei": {
+      "actor": "person",
+      "props": {
+        "name": "小美",
+        "look": "customer"
+      },
+      "place": {
+        "landscape": {
+          "x": 40,
+          "y": 170,
+          "w": 600,
+          "h": 620
+        },
+        "portrait": {
+          "x": 40,
+          "y": 140,
+          "w": 1000,
+          "h": 480
+        }
+      },
+      "hidden": true
+    },
+    "zhe": {
+      "actor": "person",
+      "props": {
+        "name": "阿哲",
+        "look": "customer"
+      },
+      "place": {
+        "landscape": {
+          "x": 660,
+          "y": 170,
+          "w": 600,
+          "h": 620
+        },
+        "portrait": {
+          "x": 40,
+          "y": 660,
+          "w": 1000,
+          "h": 480
+        }
+      },
+      "hidden": true
+    },
+    "hui": {
+      "actor": "person",
+      "props": {
+        "name": "佳慧",
+        "look": "customer"
+      },
+      "place": {
+        "landscape": {
+          "x": 1280,
+          "y": 170,
+          "w": 600,
+          "h": 620
+        },
+        "portrait": {
+          "x": 40,
+          "y": 1180,
+          "w": 1000,
+          "h": 480
+        }
+      },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "我的小工具",
+        "folder": "~/Documents/tools",
+        "branch": null,
+        "mode": "accept",
+        "sessions": [],
+        "labels": {
+          "placeholder": "說說你想做什麼工具…"
+        }
+      },
+      "place": {
+        "landscape": {
+          "x": 40,
+          "y": 60,
+          "w": 930,
+          "h": 900
+        },
+        "portrait": "window"
+      },
+      "parts": {
+        "sidebar": false
+      },
+      "hidden": true
+    },
+    "split": {
+      "actor": "browser",
+      "props": {
+        "site": "tool-split",
+        "width": "tablet",
+        "url": "file:///Documents/tools/split.html"
+      },
+      "place": {
+        "landscape": {
+          "x": 1000,
+          "y": 60,
+          "w": 880,
+          "h": 900
+        },
+        "portrait": "window"
+      },
+      "hidden": true
+    },
+    "cards": {
+      "actor": "browser",
+      "props": {
+        "site": "tool-cards",
+        "width": "tablet",
+        "url": "file:///Documents/tools/cards.html"
+      },
+      "place": {
+        "landscape": {
+          "x": 1000,
+          "y": 60,
+          "w": 880,
+          "h": 900
+        },
+        "portrait": "window"
+      },
+      "hidden": true
+    },
+    "list": {
+      "actor": "browser",
+      "props": {
+        "site": "tool-list",
+        "width": "tablet",
+        "url": "file:///Documents/tools/list.html"
+      },
+      "place": {
+        "landscape": {
+          "x": 1000,
+          "y": 60,
+          "w": 880,
+          "h": 900
+        },
+        "portrait": "window"
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "show": "mei",
+      "chapter": "生活裡的小麻煩"
+    },
+    {
+      "on": "mei",
+      "say": "每次聚餐分帳，都要算好久。",
+      "mood": "tired",
+      "narration": "聚餐完要分帳，算來算去總是算不清。"
+    },
+    {
+      "show": "zhe"
+    },
+    {
+      "on": "zhe",
+      "say": "孩子背單字，每天都要我抽考。",
+      "mood": "worried",
+      "narration": "孩子背單字，每天晚上都要陪著抽考。"
+    },
+    {
+      "show": "hui"
+    },
+    {
+      "on": "hui",
+      "say": "報名名單好亂，每次都手動整理。",
+      "mood": "busy",
+      "narration": "群組裡的報名訊息亂成一團，每次都要一筆一筆整理。"
+    },
+    {
+      "wait": 500
+    },
+    {
+      "card": "這些小事，其實都能[[做成工具]]",
+      "eyebrow": "你不用等別人做",
+      "sub": "用說的，請 AI 幫你做出來",
+      "fx": "rise",
+      "chapter": "做成工具",
+      "narration": "這些生活裡的小麻煩，其實都能做成自己的工具。不用會寫程式，用說的就好。"
+    },
+    {
+      "hide": "mei"
+    },
+    {
+      "hide": "zhe"
+    },
+    {
+      "hide": "hui"
+    },
+    {
+      "show": "claude",
+      "chapter": "示範：聚餐分帳"
+    },
+    {
+      "user": "幫我做一個聚餐分帳小工具：輸入每個人先付了多少，算出誰要轉給誰多少錢。",
+      "narration": "先把需求說出來：我要一個分帳小工具。"
+    },
+    {
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "say": "好的，我來做一個一頁的分帳工具，填上金額就會自動算好。"
+    },
+    {
+      "tool": "Write",
+      "arg": "split.html",
+      "result": "已建立",
+      "narration": "AI 動手把工具做出來。"
+    },
+    {
+      "show": "split"
+    },
+    {
+      "on": "split",
+      "fill": {
+        "#a": "2400",
+        "#c": "600"
+      },
+      "narration": "填上誰付了多少，誰該轉給誰，馬上就算好了。"
+    },
+    {
+      "wait": 900
+    },
+    {
+      "hide": "split",
+      "chapter": "示範：單字小卡"
+    },
+    {
+      "user": "再幫我做一個單字小卡，點一下翻面看意思，會了就換下一張。",
+      "narration": "換一個需求，再說一次。"
+    },
+    {
+      "thinking": true,
+      "ms": 700
+    },
+    {
+      "tool": "Write",
+      "arg": "cards.html",
+      "result": "已建立"
+    },
+    {
+      "show": "cards",
+      "narration": "孩子自己就能翻卡片練習。"
+    },
+    {
+      "on": "cards",
+      "click": "#card"
+    },
+    {
+      "wait": 500
+    },
+    {
+      "on": "cards",
+      "click": "#know"
+    },
+    {
+      "on": "cards",
+      "click": "#card"
+    },
+    {
+      "wait": 700
+    },
+    {
+      "hide": "cards",
+      "chapter": "示範：整理名單"
+    },
+    {
+      "user": "群組的報名訊息貼上後，幫我整理成表格，重複報名的合併。",
+      "narration": "工作上的雜事也一樣。"
+    },
+    {
+      "thinking": true,
+      "ms": 700
+    },
+    {
+      "tool": "Write",
+      "arg": "list.html",
+      "result": "已建立"
+    },
+    {
+      "show": "list",
+      "narration": "亂七八糟的報名訊息，按一下就整理成表格，重複的也幫你合併。"
+    },
+    {
+      "on": "list",
+      "click": "#go"
+    },
+    {
+      "wait": 1200
+    },
+    {
+      "hide": "list",
+      "chapter": "結果"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "mei"
+    },
+    {
+      "on": "mei",
+      "say": "一按就算好了！",
+      "mood": "happy",
+      "narration": "一個想法，一句話，就是一個真的能用的工具。"
+    },
+    {
+      "show": "zhe"
+    },
+    {
+      "on": "zhe",
+      "say": "孩子自己會練了。",
+      "mood": "happy"
+    },
+    {
+      "show": "hui"
+    },
+    {
+      "on": "hui",
+      "say": "整理名單變成三秒鐘。",
+      "mood": "happy"
+    },
+    {
+      "wait": 600
+    },
+    {
+      "card": "生活裡的想法，都能做成[[你的軟體]]",
+      "eyebrow": "evoleap · 做出自己的軟體",
+      "sub": "不會寫程式也能開始，免費從入門課學起",
+      "fx": "rise",
+      "chapter": "結尾",
+      "narration": "生活裡的想法，都能做成你自己的軟體。不會寫程式也能開始，免費從入門課學起。"
+    }
+  ]
+}

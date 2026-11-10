@@ -1,0 +1,81 @@
+{
+  "title": "fable-scene：背景依狀態自動變化的場景",
+  "lesson": "場景展示",
+  "cast": {
+    "a": {
+      "actor": "fable-scene",
+      "props": {
+        "friend": "阿哲",
+        "port": 5173,
+        "domain": "www.example.com",
+        "site": "小森烘焙"
+      },
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "wait": 800
+    },
+    {
+      "boot": true
+    },
+    {
+      "open": true
+    },
+    {
+      "send": "我的網站做好了！快看 http://localhost:5173"
+    },
+    {
+      "visit": "http://localhost:5173"
+    },
+    {
+      "reveal": true
+    },
+    {
+      "peek": true
+    },
+    {
+      "doors": true
+    },
+    {
+      "stop": true
+    },
+    {
+      "peek": false
+    },
+    {
+      "deploy": true
+    },
+    {
+      "reveal": false
+    },
+    {
+      "doors": false
+    },
+    {
+      "visit": "https://www.example.com"
+    },
+    {
+      "crowd": true
+    },
+    {
+      "power": false
+    },
+    {
+      "visit": "https://www.example.com"
+    },
+    {
+      "power": true
+    },
+    {
+      "visit": "https://www.example.com"
+    },
+    {
+      "sky": "dawn"
+    },
+    {
+      "wait": 2500
+    }
+  ]
+}
