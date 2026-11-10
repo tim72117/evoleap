@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test'
 import { desktopOnly, loginAsNewStudent } from './support'
 
 // 訪客能直接看的只有序章
-const LESSON = '/courses/tools/intro?aspect=landscape'
+const LESSON = '/courses/software/intro?aspect=landscape'
 
 test.describe('訪客上課紀錄', () => {
   test.beforeEach(({}, info) => {
@@ -47,8 +47,8 @@ test.describe('訪客上課紀錄', () => {
       page.waitForRequest((r) => r.url().endsWith('/api/guest/views') && r.method() === 'POST' && (JSON.parse(r.postData() ?? '{}') as { lesson: string }).lesson === lesson)
     // 照正式設定跑的 server:訪客看到的狀態和正式站一樣
     const gated = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 8198) + 1}`
-    const map = opened('page:/topics/launch')
-    await page.goto(`${gated}/topics/launch#map`)
+    const map = opened('page:/courses/launch')
+    await page.goto(`${gated}/courses/launch#map`)
     await map
     const rows = page.locator('#map li')
     await expect(rows.filter({ hasText: '本機與網路上' }).getByText('免費預覽')).toBeVisible()
@@ -59,13 +59,13 @@ test.describe('訪客上課紀錄', () => {
     await expect(rows.filter({ hasText: '前端、後端與 API' }).getByText('規劃中')).toBeVisible()
     await expect(rows.filter({ hasText: '前端、後端與 API' }).getByRole('link')).toHaveCount(0)
     const lesson = opened('live:launch/0.1.json')
-    await page.goto(`${gated}/topics/launch/0-1`)
+    await page.goto(`${gated}/courses/launch/0-1`)
     await lesson
-    await page.goto(`${gated}/topics/launch/1-1`)
+    await page.goto(`${gated}/courses/launch/1-1`)
     // 登入視窗彈出來,視窗裡說明要登入
     await expect(page.getByRole('dialog', { name: '登入' }).getByText('之後的課程要登入才能觀看')).toBeVisible()
-    const notice = opened('page:/topics/launch/2-1')
-    await page.goto(`${gated}/topics/launch/2-1`)
+    const notice = opened('page:/courses/launch/2-1')
+    await page.goto(`${gated}/courses/launch/2-1`)
     await notice
     await expect(page.getByText('這一課還沒開放')).toBeVisible()
   })

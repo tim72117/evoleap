@@ -12,7 +12,7 @@ import own from './KidsTopicPage.module.css'
 // 沒登入時 access 是 free 的標「免費預覽」,其他開放的只放鎖頭(登入後學習);還沒開放的標「規劃中」。
 // 草稿(status draft,只有管理員會拿到)也整列連到課程頁,標「草稿」。
 
-/** 一堂課的課程頁網址(課號 0.1 → /topics/kids/0-1) */
+/** 一堂課的課程頁網址(課號 0.1 → /courses/kids/0-1) */
 export const lessonPath = (topicPath: string, id: string): string => `${topicPath}/${id.replace('.', '-')}`
 
 export function CourseMapUnits({ course, topicPath, fallback }: { course: string; topicPath: string; fallback: MapUnit[] }) {

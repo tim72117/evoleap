@@ -28,11 +28,18 @@ export type CourseLevel = {
   status: CourseStatus
   access: CourseAccess
   art: CourseArt
-  /** 課程頁連結(站內路徑);沒有就不顯示按鈕 */
+  /** 課程頁連結(站內路徑);沒有就不顯示按鈕。「做出自己的軟體」的三個階段是同一門課(software)的三個單元,
+   *  連結帶 #stage-<單元 id> 指到課程頁上那個階段;要比對課程頁路徑用 levelPath */
   link?: string
   /** 建議的先備條件 */
   prerequisite?: string
 }
+
+/** 等級連結的頁面路徑(去掉 #stage-… 這類頁內位置):用來對到 catalog.ts 的課程 */
+export const levelPath = (level: Pick<CourseLevel, 'link'>): string | undefined => level.link?.split('#')[0]
+
+/** 階段在課程頁上的位置:課程頁每個單元的 id */
+export const stageAnchor = (id: string): string => `stage-${id}`
 
 export const ACCESS_LABEL: Record<CourseAccess, string | null> = {
   free: '免費',
@@ -65,27 +72,28 @@ export const LEVELS: CourseLevel[] = [
       { id: '0.2', text: '一段話描述，做出一頁式網站，再精確調整到滿意' },
     ],
     status: 'planned',
-    access: 'login-free',
+    // 序章免費預覽,其他課要訂閱(廣告方案也能看);和 courses_seed.json 一致,courseMap.test.ts 檢查
+    access: 'subscription',
     art: 'tools',
-    link: '/courses/tools',
+    link: '/courses/software#stage-tools',
     prerequisite: '會用電腦開資料夾、用瀏覽器上網即可；需要一台可以安裝軟體的電腦',
   },
   {
     id: 'ai-tools',
     levelLabel: '零基礎',
     title: 'AI 工具入門：用 AI 把點子整理成可以開工的需求',
-    summary: '跟著一家小店做預約系統的真實案例，用 AI 把一段口語描述變成清楚的需求清單和工作項目。下次接到新需求，套用範本幾分鐘就能整理好。',
+    summary: '跟著一位店主替自己的小店做預約工具，用 AI 把腦中零散的想法變成清楚的需求清單和工作項目。下次想做新工具，套用範本幾分鐘就能整理好。',
     topics: [
       '做一張訂購單，學會哪些資料要在送出前檢查',
-      '把老闆的一段話整理成需求清單，分出必要與加分項目',
-      '找出沒說清楚的地方，寫出對方容易回答的問題',
+      '把自己隨手寫的想法整理成需求清單，分出必要與加分項目',
+      '找出沒想清楚的地方，寫出別人容易回答的問題',
       '拆成有驗收條件、可以直接開工的工作項目',
       '做成「需求 → 工作項目」範本，重複的事交給 AI',
     ],
     status: 'planned',
     access: 'login-free',
     art: 'chat',
-    link: '/courses/ai-tools',
+    link: '/courses/software#stage-ai-tools',
     prerequisite: '不需要任何程式背景；建議先完成「AI 工具介紹」',
   },
   {
@@ -102,7 +110,7 @@ export const LEVELS: CourseLevel[] = [
     status: 'planned',
     access: 'subscription',
     art: 'build',
-    link: '/courses/vibe-coding',
+    link: '/courses/software#stage-vibe-coding-basics',
     prerequisite: '會使用 AI 工具，願意開始動手寫程式',
   },
 ]

@@ -20,7 +20,7 @@ func testDist() fstest.MapFS {
 	file := func(s string) *fstest.MapFile { return &fstest.MapFile{Data: []byte(s)} }
 	return fstest.MapFS{
 		"index.html":                          file(`<title>home</title>`),
-		"courses/tools/index.html":            file(`<title>tools</title>`),
+		"courses/web/index.html":              file(`<title>web</title>`),
 		"studio/index.html":                   file(`<title>studio</title><meta name="robots" content="noindex, nofollow" data-seo>`),
 		"404.html":                            file(`<title>not found</title><meta name="robots" content="noindex, nofollow" data-seo>`),
 		"assets/index-abc123.js":              file(`console.log(1)`),
@@ -52,17 +52,17 @@ func TestStaticHandler(t *testing.T) {
 		noindex  bool
 	}{
 		{path: "/", status: 200, body: "<title>home</title>", cache: "no-cache"},
-		{path: "/courses/tools", status: 200, body: "<title>tools</title>", cache: "no-cache"},
+		{path: "/courses/web", status: 200, body: "<title>web</title>", cache: "no-cache"},
 		{path: "/studio", status: 200, body: "<title>studio</title>", noindex: true},
 		// 結尾斜線、實際檔名 → 導向頁面網址(不會出現 FileServer 的目錄斜線導向)
-		{path: "/courses/tools/", status: 301, location: "/courses/tools"},
-		{path: "/courses/tools/?x=1", status: 301, location: "/courses/tools?x=1"},
-		{path: "/courses/tools/index.html", status: 301, location: "/courses/tools"},
+		{path: "/courses/web/", status: 301, location: "/courses/web"},
+		{path: "/courses/web/?x=1", status: 301, location: "/courses/web?x=1"},
+		{path: "/courses/web/index.html", status: 301, location: "/courses/web"},
 		{path: "/index.html", status: 301, location: "/"},
 		// 沒有對應頁面的路由:404 + 404.html
 		{path: "/nope", status: 404, body: "<title>not found</title>", noindex: true},
 		{path: "/courses", status: 404, body: "<title>not found</title>", noindex: true}, // 目錄存在但不是頁面
-		{path: "/courses/tools/99", status: 404, body: "<title>not found</title>", noindex: true},
+		{path: "/courses/web/99", status: 404, body: "<title>not found</title>", noindex: true},
 		{path: "/assets", status: 404, body: "<title>not found</title>", noindex: true},
 		// 靜態檔
 		{path: "/assets/index-abc123.js", status: 200, cache: "public, max-age=31536000, immutable"},
@@ -138,7 +138,7 @@ func TestStaticHandlerInternalAccess(t *testing.T) {
 
 	// 公開頁與公開檔不受影響
 	for _, h := range []http.Handler{guest, denied} {
-		for _, path := range []string{"/", "/courses/tools", "/assets/index-abc123.js", "/robots.txt"} {
+		for _, path := range []string{"/", "/courses/web", "/assets/index-abc123.js", "/robots.txt"} {
 			if rec := get(h, http.MethodGet, path, nil); rec.Code != http.StatusOK {
 				t.Errorf("公開路徑 %s: status = %d, want 200", path, rec.Code)
 			}
@@ -156,14 +156,87 @@ func TestStaticHandlerInternalAccess(t *testing.T) {
 	}
 }
 
+// 課程頁從 /topics/<id>/... 搬到 /courses/<id>/...,舊網址 301 到新頁面。
+func TestStaticHandlerTopicsToCoursesRedirect(t *testing.T) {
+	file := func(s string) *fstest.MapFile { return &fstest.MapFile{Data: []byte(s)} }
+	h := newStaticHandler(fstest.MapFS{
+		"index.html":                 file(`<title>home</title>`),
+		"404.html":                   file(`<title>not found</title>`),
+		"courses/web/0-1/index.html": file(`<title>lesson</title>`),
+		"topics/web/index.html":      file(`<title>topic</title>`),
+	}, openAccess)
+	cases := []struct {
+		path     string
+		status   int
+		location string
+		body     string
+	}{
+		{path: "/topics/web/0-1?x=1", status: 301, location: "/courses/web/0-1?x=1"},
+		{path: "/topics/web", status: 200, body: "<title>topic</title>"},
+		{path: "/topics/nope/0-1", status: 404, body: "<title>not found</title>"},
+	}
+	for _, c := range cases {
+		rec := get(h, http.MethodGet, c.path, nil)
+		if rec.Code != c.status {
+			t.Errorf("%s: status = %d, want %d", c.path, rec.Code, c.status)
+		}
+		if got := rec.Header().Get("Location"); got != c.location {
+			t.Errorf("%s: Location = %q, want %q", c.path, got, c.location)
+		}
+		if c.body != "" && !strings.Contains(rec.Body.String(), c.body) {
+			t.Errorf("%s: body = %q, want it to contain %q", c.path, rec.Body.String(), c.body)
+		}
+	}
+}
+
+// tools / ai-tools / vibe-coding 合併成 /courses/software:舊網址 301 到新網址。
+func TestStaticHandlerLegacyCourseRedirect(t *testing.T) {
+	file := func(s string) *fstest.MapFile { return &fstest.MapFile{Data: []byte(s)} }
+	h := newStaticHandler(fstest.MapFS{
+		"index.html":                    file(`<title>home</title>`),
+		"404.html":                      file(`<title>not found</title>`),
+		"courses/software/index.html":   file(`<title>software</title>`),
+		"courses/software/1/index.html": file(`<title>lesson</title>`),
+	}, openAccess)
+	cases := []struct {
+		path     string
+		status   int
+		location string
+	}{
+		{"/courses/tools", 301, "/courses/software#stage-tools"},
+		{"/courses/ai-tools", 301, "/courses/software#stage-ai-tools"},
+		{"/courses/vibe-coding", 301, "/courses/software#stage-vibe-coding-basics"},
+		{"/courses/tools/", 301, "/courses/software#stage-tools"},
+		{"/courses/tools?x=1", 301, "/courses/software?x=1#stage-tools"},
+		{"/courses/tools/1", 301, "/courses/software/1"},
+		{"/courses/tools/1/", 301, "/courses/software/1"},
+		{"/courses/tools/1?x=1", 301, "/courses/software/1?x=1"},
+		{"/courses/ai-tools/1-1", 301, "/courses/software/1-1"},
+		{"/courses/vibe-coding/4-1", 301, "/courses/software/4-1"},
+		{"/courses/vibe-coding/a/b", 301, "/courses/software/a/b"},
+		{"/courses/software", 200, ""},
+		{"/courses/software/1", 200, ""},
+		{"/courses/tools-other", 404, ""},
+	}
+	for _, c := range cases {
+		rec := get(h, http.MethodGet, c.path, nil)
+		if rec.Code != c.status {
+			t.Errorf("%s: status = %d, want %d", c.path, rec.Code, c.status)
+		}
+		if got := rec.Header().Get("Location"); got != c.location {
+			t.Errorf("%s: Location = %q, want %q", c.path, got, c.location)
+		}
+	}
+}
+
 func TestStaticHandlerETag(t *testing.T) {
 	h := newStaticHandler(testDist(), openAccess)
-	first := get(h, http.MethodGet, "/courses/tools", nil)
+	first := get(h, http.MethodGet, "/courses/web", nil)
 	etag := first.Header().Get("ETag")
 	if etag == "" {
 		t.Fatal("page response has no ETag")
 	}
-	again := get(h, http.MethodGet, "/courses/tools", map[string]string{"If-None-Match": etag})
+	again := get(h, http.MethodGet, "/courses/web", map[string]string{"If-None-Match": etag})
 	if again.Code != http.StatusNotModified {
 		t.Errorf("conditional GET: status = %d, want 304", again.Code)
 	}

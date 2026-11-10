@@ -4,7 +4,7 @@
   "cast": {
     "phone": { "actor": "chat", "props": { "title": "小森烘焙" }, "place": { "landscape": { "x": 140, "y": 130, "w": 560, "h": 780 }, "portrait": { "x": 40, "y": 110, "w": 500, "h": 760 } }, "hidden": true },
     "desk": { "actor": "notes", "props": { "label": "今日訂單" }, "place": { "landscape": { "x": 780, "y": 110, "w": 600, "h": 820 }, "portrait": { "x": 560, "y": 110, "w": 480, "h": 760 } }, "hidden": true },
-    "boss": { "actor": "person", "props": { "name": "老闆", "look": "boss" }, "place": { "landscape": { "x": 1390, "y": 90, "w": 510, "h": 400 }, "portrait": { "x": 40, "y": 920, "w": 500, "h": 400 } }, "hidden": true },
+    "boss": { "actor": "person", "props": { "name": "店主", "look": "boss" }, "place": { "landscape": { "x": 1390, "y": 90, "w": 510, "h": 400 }, "portrait": { "x": 40, "y": 920, "w": 500, "h": 400 } }, "hidden": true },
     "staff": { "actor": "person", "props": { "name": "店員B", "look": "staff" }, "place": { "landscape": { "x": 1390, "y": 530, "w": 510, "h": 400 }, "portrait": { "x": 560, "y": 920, "w": 480, "h": 400 } }, "hidden": true }
   },
   "steps": [
@@ -25,8 +25,8 @@
     { "lose": "客人丙", "narration": "便條越堆越高，一張滑到地上，沒有人發現。" },
     { "callout": "desk:floor", "text": "漏單" },
 
-    { "show": "boss", "chapter": "分鏡 3 · 老闆嘆氣" },
-    { "on": "boss", "say": "每一張都要再回問一次。", "mood": "tired", "narration": "老闆嘆了口氣：每一張都要再回問一次。" },
+    { "show": "boss", "chapter": "分鏡 3 · 店主嘆氣" },
+    { "on": "boss", "say": "每一張都要再回問一次。", "mood": "tired", "narration": "身為店主的你嘆了口氣：每一張都要再回問一次。" },
 
     { "card": "做一張訂購單，讓客人填錯時當場就知道。", "eyebrow": "這一課的任務", "chapter": "任務卡", "narration": "這一課的任務：做一張訂購單，讓客人填錯時當場就知道。" }
   ]

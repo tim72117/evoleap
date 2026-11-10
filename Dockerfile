@@ -38,6 +38,8 @@ RUN npm run build
 FROM golang:1.26 AS build
 
 # 先單獨複製 go.mod(有 go.sum 時一併)以利 layer 快取。
+# server/go.mod 用 replace 指向方案套件,go mod download 之前就要有這個目錄。
+COPY packages/subscription/go/ /src/packages/subscription/go/
 COPY server/go.mod server/go.su[m] /src/server/
 RUN cd /src/server && go mod download
 
@@ -56,6 +58,8 @@ RUN cd /src/server && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -
 # ---- 課程同步工作(--target course-sync):只編譯 cmd/sync,不建置前端 ----
 # 部署與從 dev 手動同步時以 Cloud Run Job 執行一次,把 courses_seed.json(內嵌)與 /app/live 裡資料庫還沒有的課程、腳本檔補進去。
 FROM golang:1.26 AS sync-build
+# server/go.mod 用 replace 指向方案套件,go mod download 之前就要有這個目錄。
+COPY packages/subscription/go/ /src/packages/subscription/go/
 COPY server/go.mod server/go.su[m] /src/server/
 RUN cd /src/server && go mod download
 COPY server/ /src/server/

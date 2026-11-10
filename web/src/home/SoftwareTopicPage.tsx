@@ -2,8 +2,8 @@ import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
-import { AI_APPS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
-import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, type CourseLevel } from '../content/levels'
+import { AI_APPS_TOPIC } from '../content/topics'
+import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, levelPath, type CourseLevel } from '../content/levels'
 import { COURSES, coursePath, lessonLabel, lessonPath } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { useT } from '../i18n/I18nProvider'
@@ -17,7 +17,7 @@ const isOpen = (l: CourseLesson) => l.videos.some((v) => v.live)
  *  對不到的項目直接略過(不在 render 中 throw,免得整個首頁空白);資料一致性由 catalog.test.ts 檢查 */
 /** (lessonLabel 依目前語言,呼叫的元件用 useT() 訂閱語言,換語言時會重算) */
 function levelLessons(level: CourseLevel) {
-  const course = COURSES.find((c) => coursePath(c) === level.link)
+  const course = COURSES.find((c) => coursePath(c) === levelPath(level))
   if (!course) return []
   return (level.lessons ?? []).flatMap((item) => {
     const lesson = course.lessons.find((l) => l.id === item.id)
@@ -119,8 +119,7 @@ type TopicMap = {
   first: number
 }
 
-/** 主題「做出自己的軟體」:L0 起步到 L2 基礎 */
-export const SoftwareTopicPage = () => <TopicMapPage topic={SOFTWARE_TOPIC} intro={MAP_INTRO} levels={LEVELS} first={0} />
+// 主題「做出自己的軟體」的等級已合併成一門課(/courses/software,等級就是單元),不再用這個課程地圖頁
 
 /** 主題「打造 AI 互動軟體」:中階、進階(都還在規劃中) */
 export const AiAppsTopicPage = () => <TopicMapPage topic={AI_APPS_TOPIC} intro={AI_APPS_INTRO} levels={AI_APP_LEVELS} first={3} />

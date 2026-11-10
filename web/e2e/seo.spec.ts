@@ -112,7 +112,7 @@ test('robots.txt 有 Sitemap、沒有封鎖全站', async ({ request }) => {
   expect(body).not.toMatch(/^Disallow:\s*\/\s*$/m)
 })
 
-for (const path of ['/nope', '/courses/nope', '/courses/tools/999', '/docs/nope', '/studio/nope']) {
+for (const path of ['/nope', '/courses/nope', '/courses/software/999', '/docs/nope', '/studio/nope']) {
   test(`不存在的頁面回 404 + noindex:${path}`, async ({ request }) => {
     const r = await request.get(path, { maxRedirects: 0 })
     expect(r.status()).toBe(404)
@@ -127,12 +127,12 @@ for (const path of ['/nope', '/courses/nope', '/courses/tools/999', '/docs/nope'
 
 test('結尾斜線與 /index.html 以 301 導向正式網址(保留 query)', async ({ request }) => {
   const cases: [string, string][] = [
-    ['/courses/tools/', '/courses/tools'],
+    ['/courses/software/', '/courses/software'],
     ['/studio/', '/studio'],
-    ['/courses/tools/1/', '/courses/tools/1'],
+    ['/courses/software/1/', '/courses/software/1'],
     ['/index.html', '/'],
-    ['/courses/tools/index.html', '/courses/tools'],
-    ['/courses/tools/?a=1', '/courses/tools?a=1'],
+    ['/courses/software/index.html', '/courses/software'],
+    ['/courses/software/?a=1', '/courses/software?a=1'],
   ]
   for (const [from, to] of cases) {
     const r = await request.get(from, { maxRedirects: 0 })
@@ -152,7 +152,7 @@ test('靜態檔:找不到回 404 而不是 HTML;/assets 長期快取、頁面 no
   const home = await request.get('/')
   expect(home.headers()['cache-control']).toBe('no-cache')
   expect(home.headers()['etag']).toBeTruthy()
-  expect((await request.get('/courses/tools')).headers()['cache-control']).toBe('no-cache')
+  expect((await request.get('/courses/software')).headers()['cache-control']).toBe('no-cache')
   expect((await request.get('/nope')).headers()['cache-control']).toBe('no-cache')
 
   const html = await home.text()
@@ -169,13 +169,13 @@ test('靜態檔:找不到回 404 而不是 HTML;/assets 長期快取、頁面 no
 })
 
 test('條件式請求:帶 ETag 回 304', async ({ request }) => {
-  const etag = (await request.get('/courses/tools')).headers()['etag']
-  const r = await request.get('/courses/tools', { headers: { 'If-None-Match': etag } })
+  const etag = (await request.get('/courses/software')).headers()['etag']
+  const r = await request.get('/courses/software', { headers: { 'If-None-Match': etag } })
   expect(r.status()).toBe(304)
 })
 
 test('HEAD 請求:頁面 200、找不到 404,都沒有 body', async ({ request }) => {
-  const ok = await request.head('/courses/tools')
+  const ok = await request.head('/courses/software')
   expect(ok.status()).toBe(200)
   expect(ok.headers()['content-type']).toContain('text/html')
   expect((await ok.body()).length).toBe(0)

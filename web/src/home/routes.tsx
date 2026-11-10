@@ -6,12 +6,15 @@ import { LaunchTopicPage } from './LaunchTopicPage'
 import { WebTopicPage } from './WebTopicPage'
 import { lazyPage } from '../site/lazyPage'
 import { SHOWCASE_PATH } from './paths'
-import { AiAppsTopicPage, SoftwareTopicPage } from './SoftwareTopicPage'
+import { AiAppsTopicPage } from './SoftwareTopicPage'
 import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
 import { LAUNCH_LESSON_PAGES, launchLessonPath } from '../content/launchCourse'
 import { WEB_OPEN_LESSONS } from '../content/webCourse'
-import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
+import { IdeaTopicPage } from './IdeaTopicPage'
+import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, IDEA_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, WEB_TOPIC } from '../content/topics'
 import { PageView } from '../courses/guestActivity'
+import { TOPIC_IDS, TOPICS } from '../content/topicCourses'
+import { TopicPage } from './TopicPage'
 
 // 有播放器的頁面(課程頁、展示頁)用到才下載:舞台引擎與演員(src/live)不放進首頁、課程地圖就要下載的主程式
 const KidsLessonPage = lazyPage(() => import('./KidsLessonPage').then((m) => m.KidsLessonPage))
@@ -22,7 +25,7 @@ const ShowcasePage = lazyPage(() => import('./ShowcasePage').then((m) => m.Showc
 export const homeRoutes: { path: string; element: JSX.Element }[] = [
   // 首頁與課程地圖:訪客打開時記一筆 page:<網址>(PageView,guestActivity.ts),後台串成「從首頁進來的路徑」
   { path: '/', element: <PageView><HomePage /></PageView> },
-  { path: SOFTWARE_TOPIC.path, element: <PageView><SoftwareTopicPage /></PageView> },
+  // 做出自己的軟體的課程頁(/courses/software)就是合併成一門的 software 課,路由在 courses/routes.tsx
   { path: AI_APPS_TOPIC.path, element: <PageView><AiAppsTopicPage /></PageView> },
   { path: CLAUDE_CODE_TOPIC.path, element: <PageView><ClaudeCodeTopicPage /></PageView> },
   { path: KIDS_TOPIC.path, element: <PageView><KidsTopicPage /></PageView> },
@@ -31,8 +34,12 @@ export const homeRoutes: { path: string; element: JSX.Element }[] = [
   { path: WEB_TOPIC.path, element: <PageView><WebTopicPage /></PageView> },
   // 序章開放中,首頁放在「做出自己的軟體」下方
   { path: LAUNCH_TOPIC.path, element: <PageView><LaunchTopicPage /></PageView> },
+  // 全部規劃中,只有課程地圖頁
+  { path: IDEA_TOPIC.path, element: <PageView><IdeaTopicPage /></PageView> },
   // 有課程頁的課,一課一頁;能不能上、播哪個腳本看課程地圖 API 的 status 與 script,草稿只有管理員進得來
   ...LAUNCH_LESSON_PAGES.map((id) => ({ path: launchLessonPath(id), element: <LaunchLessonPage key={id} id={id} /> })),
+  // 主題頁(/topics/<主題>):列出這個主題的課,課程本身在 /courses/<課程>(上面的課程地圖與單課頁)
+  ...TOPIC_IDS.map((id) => ({ path: TOPICS[id].path, element: <PageView><TopicPage id={id} /></PageView> })),
   // 展示頁:首頁拿掉的影片預覽,當獨立的行銷頁(站內沒有連結連過來,只列在 sitemap)
   { path: SHOWCASE_PATH, element: <PageView><ShowcasePage /></PageView> },
   // 網頁怎麼運作已經可以上的課,一課一頁

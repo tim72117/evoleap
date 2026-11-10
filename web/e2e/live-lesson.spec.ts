@@ -1,4 +1,4 @@
-// 即時教學畫面(LivePlayer)的回歸測試:L0 第 2 課是互動版(/courses/tools/2,第 0、1 課與序章同樣,互動點的測試在 navigation.spec.ts),
+// 即時教學畫面(LivePlayer)的回歸測試:L0 第 2 課是互動版(/courses/software/2,第 0、1 課與序章同樣,互動點的測試在 navigation.spec.ts),
 // 沒有影片檔,是直接掛在課程頁上的浮動播放器外殼(src/live/shell.ts,根元素 .vp)+ 舞台(src/live/stage.ts,根元素 .live-stage),
 // 依 src/content/live/ 的腳本即時畫出;右側「課程章節與步驟」列出章節,點章節跳到該時間點。沒有 iframe,也沒有 /live/ 路由。
 // 這裡測:播放器載入後章節都有時間(遞增)、點章節跳轉、播放時時間往前走、舊的 /live/ 網址回 404、腳本 lessonStep 與課程步驟數一致。
@@ -14,7 +14,7 @@ type Case = { path: string; script: string; steps: number; chapters: string[] }
 
 const LESSONS: Case[] = [
   {
-    path: '/courses/tools/2',
+    path: '/courses/software/2',
     script: 'l0/0.2-site.json',
     steps: 9,
     chapters: ['一次描述整頁，產生第一版', '在瀏覽器打開，對照需求檢查', '調整頁首與導覽', '商品卡片的排列', '統一標題字級', '營業時間表與常見問題', '小互動：手機版選單', '改太多時，比對並還原', '最後檢查：三種寬度'],

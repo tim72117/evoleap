@@ -9,7 +9,7 @@ import { useT } from '../../i18n/I18nProvider'
 // 登入 cookie evoleap_session、訪客上課紀錄與訪客 cookie evoleap_guest(server/internal/api/guest.go、web/src/courses/guestActivity.ts)、Google Analytics 4(僅正式環境且有設定評估 ID 時)、
 // 伺服器存取記錄(課程影片是網站自己即時畫出的教學畫面,不嵌入 YouTube 等第三方播放器)、Paddle 付款與訂閱紀錄(訂閱制條文先於程式改寫,開放付費前 purchases 要改成對應的訂閱資料)。新增任何蒐集資料的功能(例如練習完成狀態、表單)前,
 // 必須先更新本頁。對應程式:server/internal/api/auth.go、server/internal/api/progress.go、server/internal/store/users.go、server/internal/store/progress.go、server/internal/api/paddle.go、server/internal/store/purchases.go、web/src/pricing/、
-// web/src/site/analytics.ts。廣告:web/src/site/AdSlot.tsx、web/src/courses/lessonAds.ts(僅正式環境且有設定 AdSense ID 時)。
+// web/src/site/analytics.ts。廣告:web/src/site/AdSlot.tsx、web/src/courses/lessonAds.ts(僅正式環境且有設定 AdSense ID 時)、廣告方案的開課廣告 web/src/courses/PrerollAd.tsx(看完哪一課的短期 cookie,30 分鐘)。
 
 const sections: LegalSection[] = [
   {
@@ -218,10 +218,16 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          序章與每門課的第 0 課沒有廣告，訂閱者也不會看到廣告。其他課程會對登入、未訂閱的使用者顯示 Google AdSense 廣告，並標示「廣告」。只有這些頁面會連線到 AdSense。
+          序章與每門課的第 0 課沒有廣告，訂閱者也不會看到廣告。其他課程（「給孩子的網頁程式」除外）會對登入、未訂閱的使用者顯示 Google AdSense 廣告，並標示「廣告」。只有這些頁面會連線到 AdSense。
         </p>
         <p>
-          Google 等第三方供應商可能使用 cookie，依您先前造訪本網站或其他網站的紀錄放送廣告，並統計廣告的顯示與點擊；您的瀏覽器會直接連線到 Google，Google 可能因此取得您的 IP 位址、裝置資訊與正在瀏覽的網址。我們<strong>不會</strong>把您的姓名、Email 或帳號編號傳給廣告服務。
+          「給孩子的網頁程式」的課程頁面一律沒有廣告，也不會連線到 AdSense。
+        </p>
+        <p>
+          選擇「廣告方案」的使用者，在訂閱課程的每一課開始前會先看到一段廣告。為了確認廣告已經播完，伺服器只會在您瀏覽器的短期 cookie 裡記下您看完了哪一課的廣告，30 分鐘後失效，不另外保存觀看紀錄。
+        </p>
+        <p>
+          Google 等第三方供應商（包括 Google 本身）會使用 cookie（例如 DoubleClick cookie），依您先前造訪本網站或其他網站的紀錄放送廣告，並統計廣告的顯示與點擊；您的瀏覽器會直接連線到 Google，Google 可能因此取得您的 IP 位址、裝置資訊與正在瀏覽的網址。我們<strong>不會</strong>把您的姓名、Email 或帳號編號傳給廣告服務。
         </p>
         <p>
           您可以到 <Ext href="https://adssettings.google.com/?hl=zh-TW">Google 廣告設定</Ext>關閉個人化廣告，或到 <Ext href="https://www.aboutads.info/choices/">aboutads.info</Ext> 管理第三方供應商的個人化廣告 cookie。Google 如何使用這些資料，請參考{' '}
@@ -443,7 +449,7 @@ const sections: LegalSection[] = [
     title: '兒童與未成年人',
     body: (
       <p>
-        本網站的課程以一般成人學習者為對象，並非專為兒童設計，我們不會刻意蒐集兒童的個人資料。未成年人註冊帳號、使用本網站及課程中介紹的 AI 工具時，建議在法定代理人陪同或同意下進行，並留意各 AI 工具自身的年齡限制。若您是家長或法定代理人，認為我們保有您孩子的個人資料，請與我們聯絡，我們會協助處理，包括刪除帳號。
+        本網站的課程以一般成人學習者為對象。「給孩子的網頁程式」是為 9 歲左右的孩子設計的課程，內容寫給家長閱讀與陪伴，建議由家長或法定代理人陪同孩子使用；這個課程的頁面沒有廣告，也不會連線到 Google AdSense。我們不會刻意向兒童蒐集姓名、Email 或聯絡方式等個人資料，也不要求孩子自己建立帳號。使用本網站及課程中介紹的 AI 工具時，建議未成年人在法定代理人陪同或同意下進行，並留意各 AI 工具自身的年齡限制。若您是家長或法定代理人，認為我們保有您孩子的個人資料，請與我們聯絡，我們會協助處理，包括刪除帳號。
       </p>
     ),
   },

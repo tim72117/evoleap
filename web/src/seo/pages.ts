@@ -6,12 +6,13 @@
 // 課程、單課、文章、文件都從既有的目錄資料推導,新增課程/文章不用改這裡;
 // 新增其他類型的頁面時,在下方 PAGES 加一筆(內部頁加在 internalPages.ts)。
 import { AI_AGENT_COURSE_PATH, COURSE } from '../content/aiAgent'
-import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath } from '../content/catalog'
-import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
+import { COURSES, coursePath, lessonLabel, lessonPath, levelIdOf, plannedChapterPath } from '../content/catalog'
+import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, levelPath, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
 import { KIDS_OPEN_LESSONS, KIDS_RELEASED_LESSONS, KIDS_UNITS, kidsLessonTitle } from '../content/kidsCourse'
-import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, kidsLessonDocTitle, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC, webLessonDocTitle } from '../content/topics'
+import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, IDEA_TOPIC, KIDS_TOPIC, kidsLessonDocTitle, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC, webLessonDocTitle } from '../content/topics'
 import { LAUNCH_LESSON_PAGES, launchLesson, launchLessonPath } from '../content/launchCourse'
+import { pickTopicCourses, TOPIC_IDS, TOPICS } from '../content/topicCourses'
 import { WEB_OPEN_LESSONS, WEB_UNITS, webLesson } from '../content/webCourse'
 import { MEMBER_SECTIONS, memberSectionTitle } from '../member/sections'
 
@@ -113,14 +114,17 @@ function topicPage(topic: { name: string; path: string; seoTitle: string; descri
       ld({
         '@type': 'ItemList',
         name: topic.name,
+        // 「做出自己的軟體」的三個階段是同一頁(帶 #stage-… 位置),結構化資料只列一次頁面網址
         itemListElement: levels
-          .filter((level) => level.link)
-          .map((level, i) => ({ '@type': 'ListItem', position: i + 1, name: level.title, url: absoluteUrl(level.link!) })),
+          .filter((level) => levelPath(level))
+          .filter((level, i, all) => all.findIndex((x) => levelPath(x) === levelPath(level)) === i)
+          .map((level, i) => ({ '@type': 'ListItem', position: i + 1, name: COURSES.find((c) => coursePath(c) === levelPath(level) && c.stages)?.title ?? level.title, url: absoluteUrl(levelPath(level)!) })),
       }),
     ],
   }
 }
 
+// 做出自己的軟體的課程頁就是合併成一門的 software 課(等級就是單元):用主題的標題與描述,結構化資料列出各等級(單元),COURSE_PAGES 不再產生它的總覽頁
 const SOFTWARE_TOPIC_PAGE = topicPage(SOFTWARE_TOPIC, LEVELS)
 
 const AI_APPS_TOPIC_PAGE = topicPage(AI_APPS_TOPIC, AI_APP_LEVELS)
@@ -166,7 +170,7 @@ const KIDS_TOPIC_PAGE: PageMeta = {
   ],
 }
 
-/** 兒童課已經可以上的課:一課一頁 */
+/** 兒童課有課程頁的課:一課一頁;草稿的課不放 sitemap(seo/build.ts 的 inSitemap),不加 noindex */
 const KIDS_LESSON_PAGES: PageMeta[] = Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => {
   const learn = KIDS_UNITS.flatMap((u) => u.lessons).find((x) => x.id === id)?.learn
   // 課程地圖上的一句話有些太短,接上主題與課名
@@ -230,9 +234,9 @@ const COURSE_PAGES: PageMeta[] = COURSES.flatMap((c) => {
   // L3 的總覽頁是專屬頁面(AI_AGENT_COURSE),麵包屑沿用它的標題。
   const courseName = c.customOverview ? COURSE.title : c.title
   const topic = topicOfCourse(coursePath(c))
-  const seedId = ALL_LEVELS.find((l) => l.link === coursePath(c))?.id ?? c.slug
-  const topicCrumb: [string, string] = [topic.name, topic.path]
-  const overview: PageMeta[] = c.customOverview
+  const seedId = levelIdOf(c) ?? c.slug
+  const topicCrumb: [string, string] = [topic.name, topic.topicPath]
+  const overview: PageMeta[] = c.customOverview || coursePath(c) === SOFTWARE_TOPIC.path
     ? []
     : [
         {
@@ -288,6 +292,14 @@ const LEGAL_PAGES: PageMeta[] = [
     sitemapPriority: 0.3,
   },
 ]
+
+// 方案頁(pricing/):廣告方案與訂閱方案,公開、可收錄。
+const PRICING_PAGE: PageMeta = {
+  path: '/pricing',
+  title: documentTitle('課程方案'),
+  description: 'evoleap.io 的課程方案：免費課程直接開始，廣告方案免費觀看基礎訂閱課程，訂閱方案即將開放。',
+  sitemapPriority: 0.5,
+}
 
 // 登入頁:公開但不需要被收錄。
 const LOGIN_PAGE: PageMeta = {
@@ -345,6 +357,35 @@ const LAUNCH_PAGES: PageMeta[] = [
   }),
 ]
 
+/** 主題「從構想到實作」(全部規劃中):只有課程地圖頁 */
+const IDEA_TOPIC_PAGE: PageMeta = {
+  path: IDEA_TOPIC.path,
+  title: documentTitle(IDEA_TOPIC.seoTitle),
+  description: IDEA_TOPIC.description,
+  sitemapPriority: 0.3,
+  jsonLd: [breadcrumb([IDEA_TOPIC.name, IDEA_TOPIC.path])],
+}
+
+/** 主題頁(/topics/<主題>,home/TopicPage.tsx):結構化資料列出 pickTopicCourses 挑出的課;課程本身的頁面在上面(/courses/<課程>) */
+const TOPIC_PAGES: PageMeta[] = TOPIC_IDS.map((id) => {
+  const t = TOPICS[id]
+  const courses = pickTopicCourses(id)
+  return {
+    path: t.path,
+    title: documentTitle(`${t.name}｜主題`),
+    description: `主題「${t.name}」：${t.slogan}。這個主題的課程：${courses.map((c) => c.title).join('、')}。`,
+    sitemapPriority: 0.5,
+    jsonLd: [
+      breadcrumb([t.name, t.path]),
+      ld({
+        '@type': 'ItemList',
+        name: t.name,
+        itemListElement: courses.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.title, url: absoluteUrl(c.path) })),
+      }),
+    ],
+  }
+})
+
 /** 展示頁(home/ShowcasePage.tsx):首頁拿掉的影片預覽搬到這裡當行銷頁;站內沒有連結,公開頁一律收錄(pages.test.ts) */
 const SHOWCASE_PAGE: PageMeta = {
   path: '/showcase',
@@ -364,10 +405,13 @@ export const PAGES: PageMeta[] = [
   WEB_TOPIC_PAGE,
   ...WEB_LESSON_PAGES,
   ...LAUNCH_PAGES,
+  IDEA_TOPIC_PAGE,
+  ...TOPIC_PAGES,
   SHOWCASE_PAGE,
   AI_AGENT_COURSE,
   ...COURSE_PAGES,
   ...LEGAL_PAGES,
+  PRICING_PAGE,
   LOGIN_PAGE,
   CLI_AUTH_PAGE,
   ...MEMBER_PAGES,

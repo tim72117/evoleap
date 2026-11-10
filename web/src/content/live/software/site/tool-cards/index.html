@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>單字小卡</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>🦉 單字小卡</h1>
+      <p class="progress"><span id="no">1</span> / 5 · 答對 <span id="ok">0</span> 張</p>
+    </header>
+    <button class="card" id="card" type="button">
+      <span class="face front"><small>點一下翻面</small><strong id="word">apple</strong></span>
+      <span class="face back"><small>意思</small><strong id="mean">蘋果 🍎</strong></span>
+    </button>
+    <div class="actions">
+      <button class="again" id="again" type="button">再想想</button>
+      <button class="know" id="know" type="button">我會了 ✓</button>
+    </div>
+    <div class="dots" id="dots"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

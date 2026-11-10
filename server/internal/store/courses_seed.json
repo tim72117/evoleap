@@ -1,13 +1,16 @@
 [
   {
-    "id": "tools",
-    "title": "AI 工具介紹：讓 AI 在你的電腦上做出第一個網站",
+    "id": "software",
+    "title": "做出自己的軟體",
+    "topic": "software",
     "access": "login-free",
     "units": [
       {
-        "id": "0",
-        "title": "讓 AI 在你的電腦上做出第一個網站",
-        "subtitle": "",
+        "id": "tools",
+        "title": "起步・AI 工具介紹：讓 AI 在你的電腦上做出第一個網站",
+        "subtitle": "不用先學寫程式，第一堂課就讓 AI 在你的電腦上建好專案、做出一頁式網站。學會把想要的畫面說清楚，一步步調整到你滿意。",
+        "access": "subscription",
+        "tier": "basic",
         "lessons": [
           {
             "id": "0.intro",
@@ -46,18 +49,12 @@
             "minutes": 45
           }
         ]
-      }
-    ]
-  },
-  {
-    "id": "ai-tools",
-    "title": "AI 工具入門：用 AI 把點子整理成可以開工的需求",
-    "access": "login-free",
-    "units": [
+      },
       {
-        "id": "1.0",
-        "title": "訂購單：從一張表單規劃與描述需求",
-        "subtitle": "",
+        "id": "ai-tools",
+        "title": "零基礎・AI 工具入門：用 AI 把點子整理成可以開工的需求",
+        "subtitle": "跟著一位店主替自己的小店做預約工具，用 AI 把腦中零散的想法變成清楚的需求清單和工作項目。下次想做新工具，套用範本幾分鐘就能整理好。",
+        "access": "login-free",
         "lessons": [
           {
             "id": "1.0",
@@ -69,39 +66,25 @@
               "l1/1.0-opening.json"
             ],
             "minutes": 35
-          }
-        ]
-      },
-      {
-        "id": "1",
-        "title": "先做出第一個成果：需求清單",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "1.1",
-            "title": "第一個任務：把老闆的訊息整理成需求清單",
-            "summary": "把一則又長又雜的老闆訊息整理成需求清單，標出哪些是原文、哪些是 AI 推測，並分出「一定要有」與「有了更好」",
+            "title": "第一個任務：把自己的想法整理成需求清單",
+            "summary": "把自己隨手寫下、又長又雜的想法筆記整理成需求清單，標出哪些是筆記原文、哪些是 AI 推測，並分出「一定要有」與「有了更好」",
             "status": "planned",
             "minutes": 30
           },
           {
             "id": "1.2",
-            "title": "加入會議筆記：補齊並更新需求清單",
-            "summary": "把一份討論會議筆記併進需求清單",
+            "title": "加入店內討論：補齊並更新需求清單",
+            "summary": "把一份和店員討論的筆記併進需求清單",
             "status": "planned",
             "minutes": 30
-          }
-        ]
-      },
-      {
-        "id": "2",
-        "title": "把需求說清楚：澄清問題與工作項目",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "2.1",
             "title": "找出不清楚的地方，寫出澄清問題",
-            "summary": "找出需求清單中不清楚或缺少的地方，寫成一則老闆容易回答的訊息，再依老闆的回覆更新需求清單",
+            "summary": "找出需求清單中不清楚或缺少的地方，寫成一則店員容易回答的訊息，再依大家的回覆和自己的決定更新需求清單",
             "status": "planned",
             "minutes": 35
           },
@@ -118,49 +101,36 @@
             "summary": "把太大的工作項目拆小，標出相依關係、排出製作順序，決定第一版要做哪些，並輸出成可貼到試算表的表格",
             "status": "planned",
             "minutes": 30
-          }
-        ]
-      },
-      {
-        "id": "3",
-        "title": "把重複的事變成固定流程",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "3.1",
             "title": "找出需求整理中重複的步驟",
-            "summary": "回顧前面做過的需求整理流程，找出每次接到新需求都會重複的步驟，整理成一張任務卡（輸入、步驟、輸出、檢查點）",
+            "summary": "回顧前面做過的需求整理流程，找出每次想做新工具都會重複的步驟，整理成一張任務卡（輸入、步驟、輸出、檢查點）",
             "status": "planned",
             "minutes": 25
           },
           {
             "id": "3.2",
             "title": "做一個「需求 → 工作項目」範本",
-            "summary": "把任務卡寫成可重複使用的提問範本，內建原文／推測與來源檢查，用第二個案子測試並修正一次",
+            "summary": "把任務卡寫成可重複使用的提問範本，內建原文／推測與來源檢查，用第二個點子測試並修正一次",
             "status": "planned",
             "minutes": 35
           },
           {
             "id": "3.3",
-            "title": "結業練習：一封新需求信走完整條流程",
-            "summary": "用自己的範本把老闆的新需求（會員集點）從訊息一路做成需求清單與工作項目表，完成最後檢查，並列出流程中仍需手動的步驟",
+            "title": "結業練習：一個新點子走完整條流程",
+            "summary": "用自己的範本把新點子（會員集點）從想法筆記一路做成需求清單與工作項目表，完成最後檢查，並列出流程中仍需手動的步驟",
             "status": "planned",
             "minutes": 30
           }
         ]
-      }
-    ]
-  },
-  {
-    "id": "vibe-coding-basics",
-    "title": "Vibe Coding 入門：用 AI 做出你的第一個小工具",
-    "access": "subscription",
-    "tier": "basic",
-    "units": [
+      },
       {
-        "id": "4",
-        "title": "AI 程式助手：安裝與第一次使用",
-        "subtitle": "",
+        "id": "vibe-coding-basics",
+        "title": "基礎・Vibe Coding 入門：用 AI 做出你的第一個小工具",
+        "subtitle": "建好自己的開發環境，和 AI 程式助手一起做出網站並部署上線。再補上真實產品需要的版本管理、SEO、登入與自動化測試，做出能長期維護的作品。",
+        "access": "subscription",
+        "tier": "basic",
         "lessons": [
           {
             "id": "4.1",
@@ -189,14 +159,7 @@
             "summary": "描述需求 → 看助手改了哪些檔案、哪幾行 → 接受或要求修改；看不懂的步驟或訊息，請它用白話解釋。",
             "status": "planned",
             "minutes": 30
-          }
-        ]
-      },
-      {
-        "id": "5",
-        "title": "開發者的電腦基本功",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "5.1",
             "title": "檔案、資料夾與路徑",
@@ -217,14 +180,7 @@
             "summary": "理解輸入指令時系統如何在 PATH 中尋找程式，這是「找不到指令」最常見的原因。",
             "status": "planned",
             "minutes": 25
-          }
-        ]
-      },
-      {
-        "id": "6",
-        "title": "安裝並設定開發環境",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "6.1",
             "title": "VS Code：編輯器與內建終端機",
@@ -245,14 +201,7 @@
             "summary": "使用 Elements 檢視網頁結構、Console 看錯誤訊息與執行 JavaScript、Network 看請求。",
             "status": "planned",
             "minutes": 25
-          }
-        ]
-      },
-      {
-        "id": "7",
-        "title": "第一個專案：個人介紹頁上線",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "7.1",
             "title": "用 AI 做出個人介紹頁",
@@ -273,14 +222,7 @@
             "summary": "把專案 push 到 GitHub，開啟 GitHub Pages，理解「改程式 → push → 網站更新」的流程。",
             "status": "planned",
             "minutes": 30
-          }
-        ]
-      },
-      {
-        "id": "8",
-        "title": "疑難排解與環境總檢查",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "8.1",
             "title": "常見安裝錯誤：PATH、權限、Proxy",
@@ -301,14 +243,7 @@
             "summary": "逐項跑過環境檢查表，確認接下來的版本管理、上線與 AI Agent 整合應用課需要的工具都能正常使用。",
             "status": "planned",
             "minutes": 20
-          }
-        ]
-      },
-      {
-        "id": "9",
-        "title": "用 Git 管理版本",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "9.1",
             "title": "先看再存：status、diff 與 commit 訊息",
@@ -336,14 +271,7 @@
             "summary": "開一個分支試做新功能，在 GitHub 用 Pull Request 檢視差異後合併回主分支；替上線的版本打標籤（例如 v0.1.0），並請 AI 設定只在推送標籤時才部署的 GitHub Actions。",
             "status": "planned",
             "minutes": 35
-          }
-        ]
-      },
-      {
-        "id": "10",
-        "title": "整理專案結構",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "10.1",
             "title": "為什麼結構會影響 AI 的表現",
@@ -371,14 +299,7 @@
             "summary": "逐頁點過網站（或請 AI 用瀏覽器自動化工具截圖每一頁）確認沒有壞掉，再請 AI 依新結構更新 README 的目錄說明，讓文件和程式一致。",
             "status": "planned",
             "minutes": 25
-          }
-        ]
-      },
-      {
-        "id": "11",
-        "title": "網站上線必備：SEO 與流量分析",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "11.1",
             "title": "每一頁的標題、描述與分享預覽",
@@ -406,14 +327,7 @@
             "summary": "建立 GA4 資源，請 AI 用環境變數設定評估 ID 並在每次換頁時記錄瀏覽，用即時報表確認收得到資料；同步更新隱私權政策，說明使用的分析工具與 cookie。",
             "status": "planned",
             "minutes": 30
-          }
-        ]
-      },
-      {
-        "id": "12",
-        "title": "加入登入功能（進階）",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "12.1",
             "title": "登入在做什麼：密碼雜湊與 session",
@@ -441,14 +355,7 @@
             "summary": "請 AI 為登入流程寫自動化測試（密碼錯誤、cookie 有 HttpOnly、未登入不能讀取個人資料）；上線時把機密放進雲端的機密管理服務（例如 Google Cloud Secret Manager），並更新隱私權政策與服務條款，說明收集哪些資料與用途。",
             "status": "planned",
             "minutes": 35
-          }
-        ]
-      },
-      {
-        "id": "13",
-        "title": "用自動化測試防止 AI 改壞功能",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "13.1",
             "title": "為什麼需要測試：AI 改 A 壞 B",
@@ -476,14 +383,7 @@
             "summary": "請 AI 設定 GitHub Actions，在每次 push 與 Pull Request 時自動跑全部測試，並在 GitHub 上看懂通過或失敗的標記；養成習慣：每次請 AI 修改後先要它跑測試，測試失敗就先停下來修好，不 commit、不部署，並把這條規則寫進給 AI 看的專案說明。",
             "status": "planned",
             "minutes": 30
-          }
-        ]
-      },
-      {
-        "id": "14",
-        "title": "寫出好維護的程式：改一個功能不會壞別的",
-        "subtitle": "",
-        "lessons": [
+          },
           {
             "id": "14.1",
             "title": "為什麼改一處會壞別處：先看影響範圍",
@@ -519,6 +419,7 @@
   {
     "id": "ai-agent",
     "title": "打造你的第一個 AI Agent 整合應用",
+    "topic": "ai-apps",
     "access": "subscription",
     "tier": "advanced",
     "units": [
@@ -545,6 +446,7 @@
   {
     "id": "advanced",
     "title": "進階 AI Agent 應用",
+    "topic": "ai-apps",
     "access": "subscription",
     "tier": "advanced",
     "units": [
@@ -577,6 +479,7 @@
   {
     "id": "web",
     "title": "網頁怎麼運作",
+    "topic": "web",
     "access": "login-free",
     "units": [
       {
@@ -781,6 +684,7 @@
   {
     "id": "kids",
     "title": "給孩子的網頁程式",
+    "topic": "kids",
     "access": "login-free",
     "units": [
       {
@@ -1060,6 +964,7 @@
   {
     "id": "launch",
     "title": "從做好到上線",
+    "topic": "launch",
     "access": "login-free",
     "units": [
       {
@@ -1337,8 +1242,190 @@
     ]
   },
   {
+    "id": "idea",
+    "title": "從構想到實作",
+    "topic": "idea",
+    "access": "login-free",
+    "units": [
+      {
+        "id": "0",
+        "title": "序章　從點子開始",
+        "subtitle": "為什麼不直接叫 AI 做出來？",
+        "lessons": [
+          {
+            "id": "0.1",
+            "title": "點子、需求、規格",
+            "summary": "分得出想法、需求和規格差在哪裡，知道少了哪一步會讓 AI 做到一半重來。",
+            "status": "planned"
+          },
+          {
+            "id": "0.2",
+            "title": "一個人也能開產品會議",
+            "summary": "知道怎麼讓好幾個 AI 各自扮演角色討論，自己負責定題目和做決定。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "1",
+        "title": "單元 1　多 AI 腦力激盪",
+        "subtitle": "怎麼讓 AI 想出我沒想到的，而不是一直附和我？",
+        "lessons": [
+          {
+            "id": "1.1",
+            "title": "定題目和範圍",
+            "summary": "寫出這次要討論的問題、給誰用，以及這次不討論的事。",
+            "status": "planned"
+          },
+          {
+            "id": "1.2",
+            "title": "挑會吵架的角色",
+            "summary": "選出三個立場互相衝突的角色，其中至少一個是真正會用的人。",
+            "status": "planned"
+          },
+          {
+            "id": "1.3",
+            "title": "先寫下現況",
+            "summary": "把現在做得到、做不到的事寫在最前面，AI 才不會憑空想像能力。",
+            "status": "planned"
+          },
+          {
+            "id": "1.4",
+            "title": "各自發想",
+            "summary": "讓每個角色提出一樣多的構想，從不同角度看同一個問題。",
+            "status": "planned"
+          },
+          {
+            "id": "1.5",
+            "title": "輪流回應到有共識",
+            "summary": "每個構想都讓其他角色接著回應，每個人的顧慮都有回答才算共識，不用多數決。",
+            "status": "planned"
+          },
+          {
+            "id": "1.6",
+            "title": "讓一個 AI 當主持人",
+            "summary": "讓不代表任何角色的 AI 判斷有沒有共識、指定下一位，討論繞圈子時把問題拉回來。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "title": "單元 2　收斂成要做的事",
+        "subtitle": "點子這麼多，先做哪一個？",
+        "lessons": [
+          {
+            "id": "2.1",
+            "title": "大家都提到的最重要",
+            "summary": "找出被好幾個角色同時提到的需求，優先放進清單。",
+            "status": "planned"
+          },
+          {
+            "id": "2.2",
+            "title": "想不清楚的先擱置",
+            "summary": "把還想不清楚的事標成之後再談，寫下理由，不硬湊答案。",
+            "status": "planned"
+          },
+          {
+            "id": "2.3",
+            "title": "排優先順序",
+            "summary": "請 AI 依影響和難度排序，自己決定第一版做哪幾項。",
+            "status": "planned"
+          },
+          {
+            "id": "2.4",
+            "title": "寫成規格",
+            "summary": "把選中的構想寫成 AI 照著就能做的規格：做什麼、不做什麼、怎樣算完成。",
+            "status": "planned"
+          },
+          {
+            "id": "2.5",
+            "title": "補齊後再開一輪",
+            "summary": "原本做不到的事補上之後重新討論，舊的結論留著不覆蓋。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "title": "單元 3　文件管理",
+        "subtitle": "討論完的東西放哪裡，才不會越來越亂？",
+        "lessons": [
+          {
+            "id": "3.1",
+            "title": "結論和過程分開放",
+            "summary": "主文件只放結論和取捨理由，逐輪的討論內容另外存，要查時找得到。",
+            "status": "planned"
+          },
+          {
+            "id": "3.2",
+            "title": "一個構想一頁",
+            "summary": "每個構想用一頁寫下定位、對象、大綱和待決定的事，點子不會散落在對話裡。",
+            "status": "planned"
+          },
+          {
+            "id": "3.3",
+            "title": "一份文件一種用途",
+            "summary": "分出研究、構想、規格和決策紀錄，看名稱就知道裡面是什麼。",
+            "status": "planned"
+          },
+          {
+            "id": "3.4",
+            "title": "待辦和進度",
+            "summary": "用一份待辦清單追蹤做到哪裡，自己和 AI 看的是同一份。",
+            "status": "planned"
+          },
+          {
+            "id": "3.5",
+            "title": "寫給 AI 的說明",
+            "summary": "把專案的規則和慣例寫進 AI 每次都會先讀的說明檔，不用每次重講。",
+            "status": "planned"
+          },
+          {
+            "id": "3.6",
+            "title": "文件會過期",
+            "summary": "定期請 AI 比對文件和實際狀況，過期的就改掉或刪掉。",
+            "status": "planned"
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "title": "單元 4　從規格到第一版",
+        "subtitle": "規格寫好了，怎麼交給 AI 做出來？",
+        "lessons": [
+          {
+            "id": "4.1",
+            "title": "拆成小步驟",
+            "summary": "把規格拆成一次做得完、做完看得到結果的小步驟。",
+            "status": "planned"
+          },
+          {
+            "id": "4.2",
+            "title": "先做試做版",
+            "summary": "請 AI 先做一版看得到的試做，看過再決定要不要往下做。",
+            "status": "planned"
+          },
+          {
+            "id": "4.3",
+            "title": "照規格驗收",
+            "summary": "照規格的完成條件一項一項檢查，不符合的地方寫清楚再交回給 AI。",
+            "status": "planned"
+          },
+          {
+            "id": "4.4",
+            "title": "做完更新文件",
+            "summary": "把實作時的改變寫回規格和決策紀錄，下一輪討論從這裡接著開始。",
+            "status": "planned"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "claude-code",
     "title": "Claude Code 工作術",
+    "topic": "claude-code",
     "access": "free",
     "units": [
       {

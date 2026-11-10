@@ -10,6 +10,7 @@ import (
 
 	"github.com/tim72117/evoleap/internal/auth"
 	"github.com/tim72117/evoleap/internal/store"
+	"github.com/tim72117/subscription"
 )
 
 type Config struct {
@@ -32,6 +33,8 @@ type Config struct {
 	LiveDir string
 	// VerifyGoogle 驗證 Google 登入憑證;nil 時用 auth.VerifyGoogleToken。測試可替換。
 	VerifyGoogle func(ctx context.Context, credential, clientID string) (auth.GoogleIdentity, error)
+	// Plans 是方案服務(packages/subscription);nil 代表方案功能停用(沒接資料庫),訂閱課程一律不放行。
+	Plans *subscription.Service
 }
 
 type Server struct {
@@ -67,6 +70,9 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /api/progress", s.requireUser(s.handleProgressGet))
 	mux.HandleFunc("PUT /api/progress", s.requireUser(s.handleProgressPut))
 	mux.HandleFunc("GET /api/courses/{id}/map", s.handleCourseMap)
+	mux.HandleFunc("GET /api/topics", s.handleTopics)
+	mux.HandleFunc("GET /api/topics/{id}", s.handleTopic)
+	s.planRoutes(mux)
 	mux.HandleFunc("GET /api/scripts/{path...}", s.handleLessonFile)
 	mux.HandleFunc("GET /api/scripts", s.requireAdmin(s.handleScriptPaths))
 	// 兒童模式(kids.go)

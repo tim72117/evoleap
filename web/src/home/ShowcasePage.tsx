@@ -14,7 +14,7 @@ import styles from './HomePage.module.css'
 // 播放器的 track="home":按下播放才記一筆展示影片的紀錄(home:…,後台標成「展示影片」),和打開課程分開算。版面沿用首頁的樣式(HomePage.module.css)。
 
 
-const tools = COURSES.find((c) => c.slug === 'tools')!
+const tools = COURSES.find((c) => c.slug === 'software')!
 // 展示影片一律播序章(不用登入就能看),從頭開始;「開始第一課」也從序章開始
 const introLesson = tools.lessons.find(isPreviewLesson)!
 

@@ -1,0 +1,227 @@
+[
+  {
+    "id": "software",
+    "name": "做出自己的軟體",
+    "slogan": "不會寫程式，也能打造自己的軟體",
+    "description": "線上互動課程，學習透過對話，打造真的能上線的軟體。零基礎也能開始，用 AI 做出網站與小工具，再學會串接自動化流程，免費從入門課開始。",
+    "seoTitle": "不會寫程式也能做軟體：零基礎 AI 開發課程地圖",
+    "coursePath": "/courses/software",
+    "topicPath": "/topics/software",
+    "position": 0,
+    "content": {
+      "lede": "線上互動課程，學習透過對話，打造真的能上線的軟體"
+    }
+  },
+  {
+    "id": "ai-apps",
+    "name": "打造 AI 互動軟體",
+    "slogan": "不只是對話，讓 AI 查資料、跑分析、畫出圖表",
+    "description": "學會打造會動手做事的 AI 軟體：寫出工具、讓 AI 自己判斷要呼叫哪一個，做成打字提問就能用的介面，並穩定上線。課程規劃中。",
+    "seoTitle": "AI 互動軟體開發課程：讓 AI 查資料、跑分析、畫圖表",
+    "coursePath": "/courses/ai-apps",
+    "topicPath": "/topics/ai-apps",
+    "position": 1,
+    "content": {
+      "flow": [
+        "寫出工具",
+        "讓 AI 呼叫工具",
+        "做成互動介面"
+      ],
+      "outcomes": [
+        "打字提問就能用的資料分析介面",
+        "能查資料、畫圖表的 AI 助理",
+        "可以穩定上線的 AI 功能"
+      ]
+    }
+  },
+  {
+    "id": "web",
+    "name": "網頁怎麼運作",
+    "slogan": "語法交給 AI，看懂原理才能跟 AI 說清楚",
+    "description": "AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。第一課可以免費預覽。",
+    "seoTitle": "網頁怎麼運作：AI 時代的網頁基礎課",
+    "coursePath": "/courses/web",
+    "topicPath": "/topics/web",
+    "position": 2,
+    "content": {
+      "open": true,
+      "start": {
+        "label": "開始第一課",
+        "path": "/courses/web/0-1"
+      },
+      "tag": "AI 寫程式，我還需要知道什麼？",
+      "intro": "AI 已經能寫出大部分的程式碼，但寫得出來，不代表你看得懂、說得準。這門課不教語法，教網頁怎麼運作：瀏覽器怎麼畫出畫面、樣式和資料各歸誰管、網站怎麼放上網路。",
+      "learn": [
+        "用對名詞，把想要的畫面和功能跟 AI 說清楚",
+        "看懂 AI 改了哪裡、為什麼這樣改",
+        "畫面壞掉時，知道該往哪裡找問題"
+      ]
+    }
+  },
+  {
+    "id": "launch",
+    "name": "從做好到上線",
+    "slogan": "繁雜的上線流程交給 AI，輕鬆讓作品變成服務",
+    "description": "部署、網域、資料與登入、收費、監控，這些繁雜的上線流程，學會用 AI 處理，輕鬆把做好的網站與工具變成別人能用的服務。序章開放中，第一課可以免費預覽。",
+    "seoTitle": "從做好到上線：用 AI 處理繁雜流程，輕鬆把作品放上線",
+    "coursePath": "/courses/launch",
+    "topicPath": "/topics/launch",
+    "position": 3,
+    "content": {
+      "open": true,
+      "start": {
+        "label": "開始第一課",
+        "path": "/courses/launch/0-1"
+      },
+      "pains": [
+        "做好了，網址卻是 localhost，傳給朋友打不開",
+        "一上線就白畫面、資料不見，錯誤訊息看不懂",
+        "金鑰放在程式裡安不安全？流量變大會不會收到一大筆帳單？",
+        "想讓人登入、想收費，不知道從哪裡開始",
+        "上線後有沒有人在用、哪裡壞了，都要等別人來講才知道"
+      ],
+      "learnTitle": "你會學會",
+      "learn": [
+        "用 AI 架設公開網站",
+        "用 AI 做自動部署",
+        "用 AI 避開資安風險",
+        "用 AI 做網站監控"
+      ]
+    }
+  },
+  {
+    "id": "kids",
+    "name": "給孩子的網頁程式",
+    "slogan": "用積木蓋網頁，陪 9 歲的孩子做出自己的小網站",
+    "description": "給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程陸續開放中，第一課可以免費預覽。",
+    "seoTitle": "給孩子的網頁程式課：用積木認識 HTML、CSS、JavaScript",
+    "coursePath": "/courses/kids",
+    "topicPath": "/topics/kids",
+    "position": 4,
+    "content": {
+      "open": true,
+      "start": {
+        "label": "開始第一課",
+        "path": "/courses/kids/0-1"
+      },
+      "flow": [
+        "用積木蓋網頁",
+        "幫網頁換衣服",
+        "讓網頁動起來",
+        "說清楚，請 AI 幫忙做"
+      ],
+      "outcomes": [
+        "說得出網頁每個部分的名字",
+        "一張自己的寵物名片網頁",
+        "請 AI 做出自己的小網站"
+      ],
+      "preview": {
+        "script": "kids/0.1.json",
+        "intro": "這堂課可以互動：標著「可互動」的環節會停下來，等孩子自己點畫面上的網頁和積木。點下面的環節可以直接跳過去看。",
+        "sections": {
+          "網頁有背面": {
+            "note": "跟著旁白看：網頁翻到背面，原來是一塊一塊印著名字的積木。"
+          },
+          "換你試試看": {
+            "note": "孩子自己點網頁上的東西或積木，把 4 塊積木都找出來。",
+            "interactive": true
+          },
+          "找找看": {
+            "note": "三個小問題，答錯會說明原因，再試一次。",
+            "interactive": true
+          },
+          "學會": {
+            "note": "用一句話整理：網頁是用一塊一塊積木蓋出來的。"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "claude-code",
+    "name": "Claude Code 工作術",
+    "slogan": "遇到這些情況時，該怎麼用",
+    "description": "整理使用 Claude Code 時的常見情境：換手機接著做、同時試好幾版、接回昨天的對話、把規則寫下來。遇到哪個情況就看哪一個。內容規劃中。",
+    "seoTitle": "Claude Code 使用技巧：常見情境與對應做法",
+    "coursePath": "/courses/claude-code",
+    "topicPath": "/topics/claude-code",
+    "position": 5,
+    "content": {
+      "icon": "terminal",
+      "scenarios": [
+        {
+          "title": "拿不定主意，想同時試好幾版",
+          "summary": "從同一段對話分出去，各試一個方向，看過再決定留哪一個。",
+          "tools": [
+            "/fork",
+            "/branch",
+            "Worktree"
+          ],
+          "video": {
+            "script": "claude-code/fork.json",
+            "title": "Fork：帶著對話另開一條路",
+            "duration": "約 1 分鐘"
+          }
+        },
+        {
+          "title": "出門了，想用手機接著做",
+          "summary": "AI 繼續在電腦上做，你在路上也能看進度、接著下指令。",
+          "tools": [
+            "/remote-control"
+          ]
+        },
+        {
+          "title": "好幾件事想同時做",
+          "summary": "把互不相干的事分給不同的對話，自己只負責檢查與決定。",
+          "tools": [
+            "多個 session",
+            "Worktree"
+          ]
+        },
+        {
+          "title": "昨天做到一半，今天想接著做",
+          "summary": "找回之前的對話接著做，不用重新交代一次。",
+          "tools": [
+            "/resume",
+            "claude --continue"
+          ]
+        },
+        {
+          "title": "對話越聊越長",
+          "summary": "把目前的對話濃縮成摘要繼續，或開一段乾淨的新對話。",
+          "tools": [
+            "/compact",
+            "/clear"
+          ]
+        },
+        {
+          "title": "每次都要重講同樣的規則",
+          "summary": "把專案的固定規則寫進說明檔，每次新對話都會先讀。",
+          "tools": [
+            "CLAUDE.md",
+            "/init"
+          ]
+        },
+        {
+          "title": "任務要跑很久，不想一直盯著",
+          "summary": "把對話丟到背景繼續跑，先去忙別的，之後再回來看結果。",
+          "tools": [
+            "/background",
+            "claude agents"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "idea",
+    "name": "從構想到實作",
+    "slogan": "讓幾個 AI 一起想點子，你來拍板，再一步步做出來",
+    "description": "有了點子，先讓幾個立場不同的 AI 一起討論、互相挑毛病，再收斂成要做的事與規格；把構想、待辦與決策紀錄整理成文件，最後請 AI 做出第一版。課程規劃中。",
+    "seoTitle": "從構想到實作：多個 AI 腦力激盪，把點子變成做得出來的規格",
+    "coursePath": "/courses/idea",
+    "topicPath": "/topics/idea",
+    "position": 6,
+    "content": {}
+  }
+]

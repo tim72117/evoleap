@@ -42,6 +42,15 @@ export const courses = {
     otherPlanned: '其他規劃中',
     viewMap: '看課程地圖',
     viewScenarios: '看全部情境',
+    viewContent: '看課程內容',
+  },
+
+  // ---------- 主題頁(home/TopicPage.tsx) ----------
+  topicPage: {
+    /** 頁面標題:<主題>｜主題 */
+    title: (name: string) => `${name}｜主題`,
+    heading: '這個主題的課程',
+    plannedNote: '標示「規劃中」的內容仍在規劃，可能調整。',
   },
 
   // ---------- 課程總覽(CourseOverviewPage) ----------
@@ -51,6 +60,9 @@ export const courses = {
     freePreview: '免費預覽',
     signInToLearn: '登入後學習',
     interactive: '互動',
+    /** 只顯示一個單元(#stage-<id>)時,回到全部單元的連結 */
+    otherUnits: '這門課還有其他單元',
+    allUnits: '看全部單元',
   },
 
   // ---------- 規劃中的課程與章節(PlannedPages) ----------
@@ -137,6 +149,13 @@ export const courses = {
     reload: '重新整理',
     signInOrUp: '登入或註冊',
     note: '序章可以直接預覽；第 0 課登入後免費觀看，之後的課程需要訂閱。登入後也會記錄你的播放進度。',
+  },
+
+  // ---------- 訂閱課程的單課頁(SubscriptionGate) ----------
+  subscriptionGate: {
+    notOpen: '這門課還沒開放，敬請期待。',
+    needPlan: '這一課需要登入並選擇方案。廣告方案免費，可以觀看基礎訂閱課程。',
+    checkFailed: '暫時無法確認你能不能觀看這一課，請重新整理再試一次。',
   },
 
   // ---------- 模擬播放器(MockPlayer) ----------

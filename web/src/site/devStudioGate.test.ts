@@ -23,7 +23,7 @@ describe('gatedKind', () => {
     '/',
     '/login',
     '/admin',
-    '/courses/tools',
+    '/courses/software',
     '/studios',
     '/src/App.tsx',
     '/src/studio/interactive/InteractiveScenePage.tsx',

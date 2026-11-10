@@ -13,7 +13,7 @@ import styles from '../studio/interactive/InteractiveScenePage.module.css'
 import { lessonPath } from './CourseMapUnits'
 import { TopicLessonGate } from './TopicLessonGate'
 
-// 「從做好到上線」的一課(/topics/launch/0-1,LAUNCH_LESSON_PAGES 裡的課才有頁面):整個視窗都是互動舞台(InteractiveScenePage,和「網頁怎麼運作」的課程頁同一個外殼)。
+// 「從做好到上線」的一課(/courses/launch/0-1,LAUNCH_LESSON_PAGES 裡的課才有頁面):整個視窗都是互動舞台(InteractiveScenePage,和「網頁怎麼運作」的課程頁同一個外殼)。
 // 能不能上、播哪個腳本、要不要登入都照資料庫(TopicLessonGate);課名在前端的 launchCourse.ts。播放進度只有登入的會員才記。
 // 追蹤:打開課程頁由 InteractiveScenePage 記 live:<腳本>;看到提示頁的訪客記 page:<網址>(PageView),後台看得出有人想上還沒開放的課。
 

@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { COURSES, coursePath, isPreviewLesson, lessonPath, openLessonsOf } from '../content/catalog'
-import { LEVELS } from '../content/levels'
+import { COURSES, isPreviewLesson, lessonPath, openLessonsOf } from '../content/catalog'
 import { KIDS_TOPIC, LAUNCH_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, topicStartLabel, type PlannedTopic } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
@@ -11,16 +10,17 @@ import styles from './HomePage.module.css'
 // 首頁:先列出主題,再進入各主題。有內容的主題佔整排,直接看得到做出來的成品(首頁不放影片預覽);
 // 規劃中的主題縮小,只寫預計做出的成果。課數、連結與示範提示詞都取自課程資料,主題文案在 content/topics.ts。
 
-const tools = COURSES.find((c) => c.slug === 'tools')!
-// 「開始第一課」從序章開始(不用登入就能看)
-const openLessons = openLessonsOf(tools)
+const tools = COURSES.find((c) => c.slug === 'software')!
+// 「開始第一課」從序章開始(不用登入就能看);已開放的課數算起步階段(tools)的
+const toolsStage = tools.stages!.find((st) => st.id === 'tools')!
+const openLessons = openLessonsOf({ ...tools, lessons: toolsStage.lessons })
 const introLesson = tools.lessons.find(isPreviewLesson)!
 const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!
 
 // 這個主題的等級(起步、零基礎、基礎);中階、進階在主題「打造 AI 互動軟體」
-const LADDER = COURSES.filter((c) => LEVELS.some((l) => l.link === coursePath(c))).map((c) => ({
-  name: c.level,
-  open: c.lessons.some((l) => l.videos.some((v) => v.live)),
+const LADDER = tools.stages!.map((st) => ({
+  name: st.label,
+  open: st.lessons.some((l) => l.videos.some((v) => v.live)),
 }))
 
 const TOPIC_ICONS = {
@@ -34,12 +34,12 @@ const TOPIC_ICONS = {
 }
 
 export function HomePage() {
-  // 課程地圖以前在首頁:舊連結(/#map、/#level-tools)導到主題頁的同一個位置
+  // 課程地圖以前在首頁:舊連結(/#map、/#level-tools)導到課程頁的同一個位置(等級就是單元:#level-<等級> → #stage-<等級>)
   const { hash } = useLocation()
   const [resultOpen, setResultOpen] = useState(false)
   const t = useT()
   const facts = [t.home.home.facts.free, t.home.home.facts.open(openLessons.length), t.home.home.facts.noCode]
-  if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
+  if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash: hash.replace('#level-', '#stage-') }} />
 
   return (
     <SiteLayout>

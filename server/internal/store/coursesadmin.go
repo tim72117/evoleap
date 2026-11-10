@@ -12,8 +12,8 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// 管理員改課程資料(evoleap CLI 經 /api/admin/courses/*、/api/admin/scripts/*):正式環境的課程資料以資料庫為準,
-// 種子(courses_seed.json)只補資料庫還沒有的課程、單元、課與腳本檔(見 SeedCourses、SyncLessonFiles)。
+// 管理員改課程資料(evoleap CLI 經 /api/admin/courses/*、/api/admin/scripts/*)。現階段課程資料以種子(courses_seed.json)為準,
+// 同步時會蓋掉這裡改的內容(見 SeedCourses、SyncLessonFiles);等課程架構穩定、改成以資料庫為準後,這些修改才會保留。
 // 每次修改都記一筆 course_changes:誰、什麼時候、改了什麼。
 
 // courseChangeRow 是一筆課程資料的修改紀錄。
@@ -74,6 +74,7 @@ type CourseSummary struct {
 	Title   string `json:"title"`
 	Access  string `json:"access"`
 	Tier    string `json:"tier,omitempty"`
+	Topic   string `json:"topic,omitempty"`
 	Open    int    `json:"open"`
 	Draft   int    `json:"draft"`
 	Planned int    `json:"planned"`
@@ -82,12 +83,12 @@ type CourseSummary struct {
 // AdminCourses 回傳所有課程與各狀態的課數(依建立順序)。
 func (s *Store) AdminCourses(ctx context.Context) ([]CourseSummary, error) {
 	var out []CourseSummary
-	err := s.db.WithContext(ctx).Raw(`SELECT c.id, c.title, c.access, c.tier,
+	err := s.db.WithContext(ctx).Raw(`SELECT c.id, c.title, c.access, c.tier, c.topic_id AS topic,
 		COUNT(CASE WHEN l.status = 'open' THEN 1 END) AS open,
 		COUNT(CASE WHEN l.status = 'draft' THEN 1 END) AS draft,
 		COUNT(CASE WHEN l.status = 'planned' THEN 1 END) AS planned
 		FROM courses c LEFT JOIN lessons l ON l.course_id = c.id
-		GROUP BY c.id, c.title, c.access, c.tier, c.created_at ORDER BY c.created_at, c.id`).Scan(&out).Error
+		GROUP BY c.id, c.title, c.access, c.tier, c.topic_id, c.created_at ORDER BY c.created_at, c.id`).Scan(&out).Error
 	return out, err
 }
 

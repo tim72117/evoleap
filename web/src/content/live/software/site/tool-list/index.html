@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>報名名單整理器</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>📋 報名名單整理器</h1>
+      <p>把群組裡的報名訊息貼上，按一下就整理好。</p>
+    </header>
+    <textarea id="raw" rows="6">+1 王小明 0912-345-678 素食
+陳怡君 0988123456
+我也要！林志豪 0933 222 111
+王小明 0912345678 素食
++1 張雅婷 0922-111-333
+黃建宏 0955-666-777 帶一位朋友</textarea>
+    <button class="go" id="go" type="button">✨ 整理名單</button>
+    <section id="out" class="out" hidden>
+      <div class="stats"><span>共 <b id="count">0</b> 人</span><span class="dup">重複 <b id="dups">0</b> 筆已合併</span></div>
+      <table>
+        <thead><tr><th>#</th><th>姓名</th><th>電話</th><th>備註</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

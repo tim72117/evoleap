@@ -4,7 +4,7 @@ import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
 import { adminApi, type SchemaReport, type AdminOverview, type AdminUser, type Count, type AdminRange, type GuestVisit, type HomePath, type HomeStay, type LessonStat, type LoginStats, type UserProgress } from './api'
-import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
+import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, IDEA_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
 import { LAUNCH_LESSON_PAGES, launchLessonPath, launchScriptKey } from '../content/launchCourse'
 import { WEB_OPEN_LESSONS } from '../content/webCourse'
@@ -383,6 +383,14 @@ const PAGE_NAME: Record<string, string> = {
   [KIDS_TOPIC.path]: `${KIDS_TOPIC.name}（地圖）`,
   [WEB_TOPIC.path]: `${WEB_TOPIC.name}（地圖）`,
   [LAUNCH_TOPIC.path]: `${LAUNCH_TOPIC.name}（地圖）`,
+  [IDEA_TOPIC.path]: `${IDEA_TOPIC.name}（地圖）`,
+  [SOFTWARE_TOPIC.topicPath]: `${SOFTWARE_TOPIC.name}（主題）`,
+  [AI_APPS_TOPIC.topicPath]: `${AI_APPS_TOPIC.name}（主題）`,
+  [CLAUDE_CODE_TOPIC.topicPath]: `${CLAUDE_CODE_TOPIC.name}（主題）`,
+  [KIDS_TOPIC.topicPath]: `${KIDS_TOPIC.name}（主題）`,
+  [WEB_TOPIC.topicPath]: `${WEB_TOPIC.name}（主題）`,
+  [LAUNCH_TOPIC.topicPath]: `${LAUNCH_TOPIC.name}（主題）`,
+  [IDEA_TOPIC.topicPath]: `${IDEA_TOPIC.name}（主題）`,
   // 這幾課還沒開放時,訪客看到的是提示頁(LaunchLessonPage 的 Notice),記成 page:<網址>
   ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [launchLessonPath(id), `上線課 ${id}（還沒開放）`])),
 }

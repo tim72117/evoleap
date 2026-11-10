@@ -1,0 +1,16 @@
+body { margin: 0; font-family: "Noto Sans TC", system-ui, sans-serif; background: #f2f6f3; color: #1e3328; min-height: 100%; }
+.app { max-width: 760px; margin: 0 auto; padding: 28px 24px 40px; }
+h1 { margin: 0 0 4px; font-size: 28px; }
+header p { margin: 0 0 18px; color: #5b7566; }
+textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; line-height: 1.6; border: 2px solid #cfe0d5; border-radius: 14px; padding: 12px 14px; background: #fff; color: #44584c; resize: none; }
+.go { display: block; width: 100%; margin: 14px 0 20px; font: inherit; font-size: 18px; font-weight: 700; border: 0; border-radius: 14px; padding: 14px; background: #2e8b57; color: #fff; cursor: pointer; }
+.out { background: #fff; border-radius: 16px; padding: 16px; box-shadow: 0 8px 24px rgba(30, 80, 50, .1); }
+.out[hidden] { display: none; }
+.stats { display: flex; gap: 16px; margin-bottom: 10px; font-size: 16px; }
+.stats b { font-size: 20px; color: #2e8b57; }
+.stats .dup b { color: #d9822b; }
+table { width: 100%; border-collapse: collapse; font-size: 16px; }
+th { text-align: left; color: #5b7566; font-weight: 600; border-bottom: 2px solid #e3ede7; padding: 8px; }
+td { padding: 9px 8px; border-bottom: 1px solid #eef3f0; }
+td.note { color: #d9822b; }
+tr.merged td { background: #fff7ec; }

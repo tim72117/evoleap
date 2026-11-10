@@ -56,6 +56,13 @@ export const courses: Messages['courses'] = {
     otherPlanned: 'More coming soon',
     viewMap: 'View course map',
     viewScenarios: 'View all scenarios',
+    viewContent: 'View course content',
+  },
+
+  topicPage: {
+    title: (name) => `${name} | Topic`,
+    heading: 'Courses in this topic',
+    plannedNote: 'Content marked “Coming soon” is still being planned and may change.',
   },
 
   overview: {
@@ -64,6 +71,8 @@ export const courses: Messages['courses'] = {
     freePreview: 'Free preview',
     signInToLearn: 'Sign in to watch',
     interactive: 'Interactive',
+    otherUnits: 'This course has more units',
+    allUnits: 'View all units',
   },
 
   plannedPages: {
@@ -143,6 +152,12 @@ export const courses: Messages['courses'] = {
     reload: 'Refresh',
     signInOrUp: 'Sign in or sign up',
     note: 'You can preview the Prologue right away. Lesson 0 is free once you sign in, and later lessons need a subscription. Signing in also saves your progress.',
+  },
+
+  subscriptionGate: {
+    notOpen: 'This course isn’t open yet. Stay tuned.',
+    needPlan: 'This lesson requires signing in and choosing a plan. The Ad plan is free and includes the basic subscription courses.',
+    checkFailed: "We couldn't confirm whether you can watch this lesson. Please refresh and try again.",
   },
 
   mock: {

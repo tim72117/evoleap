@@ -7,7 +7,7 @@ test('點點看:點一下顯示元素的框,再點一下隱藏,按繼續接著�
   test.skip(desktopOnly(info), '只在桌面版測一次')
   test.setTimeout(60_000)
   await loginAsNewStudent(page)
-  await page.goto('/topics/web/1-1?aspect=landscape')
+  await page.goto('/courses/web/1-1?aspect=landscape')
   const player = page.locator('.vp')
   await expect(player.getByRole('slider', { name: '播放進度' })).not.toHaveAttribute('aria-valuemax', '0', { timeout: 15_000 })
   await openCoursePanel(page) // 側欄預設收合

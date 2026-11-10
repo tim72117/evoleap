@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, type Course } from '../content/catalog'
+import { COURSES, coursePath, isPreviewLesson, lessonLabel, lessonPath, levelIdOf, plannedChapterPath, requiresLogin, requiresSubscription, type Course } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
 import { AiAgentCoursePage } from './AiAgentCoursePage'
@@ -10,6 +10,7 @@ import { useT } from '../i18n/I18nProvider'
 import { lazyPage } from '../site/lazyPage'
 import { LoginGate } from './LoginGate'
 import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
+import { SubscriptionGate } from './SubscriptionGate'
 
 // 上課頁(播放器、舞台引擎與演員)用到才下載,不放進課程總覽、課程地圖就要下載的主程式
 const InteractiveLessonPage = lazyPage(() => import('./InteractiveLessonPage').then((m) => m.InteractiveLessonPage))
@@ -24,12 +25,38 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
   ) : (
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )
+  // 訂閱課程(序章這類預覽課除外):伺服器判定能不能看,廣告方案先播開課廣告
+  if (requiresSubscription(course, lesson) && !isPreviewLesson(lesson)) {
+    return (
+      <SubscribedLesson key={lesson.id} course={course} lesson={lesson}>
+        {page}
+      </SubscribedLesson>
+    )
+  }
   return requiresLogin(course, lesson) ? (
     <GatedLesson key={lesson.id} course={course} lesson={lesson}>
       {page}
     </GatedLesson>
   ) : (
     page
+  )
+}
+
+/** 訂閱課程的單課頁:返回連結的文字在渲染時取目前語言 */
+function SubscribedLesson({ course, lesson, children }: { course: Course; lesson: CourseLesson; children: JSX.Element }) {
+  const t = useT().courses
+  const label = lessonLabel(lesson)
+  return (
+    <SubscriptionGate
+      courseId={levelIdOf(course)}
+      lessonId={lesson.id}
+      kicker={`${course.title} · ${label}`}
+      title={lesson.title}
+      docTitle={`${label} ${lesson.title}`}
+      back={{ to: coursePath(course), label: t.backToOverview }}
+    >
+      {children}
+    </SubscriptionGate>
   )
 }
 

@@ -729,7 +729,7 @@ packs/<name>/
 - 鏡頭(camera.ts):演算法不變,只把「目標下緣的安全線」依舞台寬高決定(`safeBottomOf`:橫式 68%、直式 84%);其餘(倍率上限、不露出空白)本來就用舞台實際寬高。
 - 手機直拿的互動課程頁(`InteractiveScenePage`,`phonePortrait`):上方是 4:5 的播放窗,直式畫布用 CSS 壓成 1080×1350(演員位置是畫布高度的百分比,跟著等比壓矮;字與元件大小不變),外殼照舞台實際大小縮放;下方是課程名稱、步驟清單、互動點與下一課。按全螢幕換成橫式舞台,縮小或把手機轉回直的就回到直式。
 - 手機直拿(視窗寬度 ≤600px 且直拿,`site/useAutoAspect.ts`)時,互動課程頁、首頁的嵌入播放器與一般課程頁的 `LivePlayer` 都自動用直式;網址的 `?aspect=portrait|landscape` 優先,「橫/直」切換鈕在手機上選橫式會寫成 `?aspect=landscape`。兒童課的 `KidsPlayer` 也一樣(舞台尺寸依方向,轉向時重建、主腳本從原本的時間接著;子腳本會收起來)。兒童課腳本的直式位置避開上方指引與下方大按鈕(`{ x: 40, y: 260, w: 1000, h: 1260 }`);`kid-web` 在直的外框裡加寬、分開時改成上下排,`kid-tree` 用容器查詢改成網頁在上、樹在下。
-- 直式互動課程頁:`/courses/tools/intro?aspect=portrait`(第 0、1、2 課同理,`?aspect=` 由 `studio/interactive/portrait.ts` 解析)。視窗 ≤820px 時課程章節與步驟側欄改成底部抽屜(收合 56px 把手、展開 55dvh;播到互動點自動展開並只顯示提問與選項,回答後收合);>820px 維持右側浮動面板、舞台 9:16 置中。工具列有「橫/直」切換鈕(切換時暫停、保留時間與已作答內容)。序章的 `0.intro.json` 改用調度(見「調度」一節);第 0、1、2 課還沒補,直式下沿用橫式位置,版面不佳。
+- 直式互動課程頁:`/courses/software/intro?aspect=portrait`(第 0、1、2 課同理,`?aspect=` 由 `studio/interactive/portrait.ts` 解析)。視窗 ≤820px 時課程章節與步驟側欄改成底部抽屜(收合 56px 把手、展開 55dvh;播到互動點自動展開並只顯示提問與選項,回答後收合);>820px 維持右側浮動面板、舞台 9:16 置中。工具列有「橫/直」切換鈕(切換時暫停、保留時間與已作答內容)。序章的 `0.intro.json` 改用調度(見「調度」一節);第 0、1、2 課還沒補,直式下沿用橫式位置,版面不佳。
 - 看直式:`/materials/promo?script=promo/portrait-demo.json&aspect=portrait`;`script` 可以是 `src/content/live/` 底下任何腳本(例如 `l0/0.2-site.json`);`&record=1` 輸出舞台、`npm run record:live -- promo/portrait-demo.json --aspect portrait` 輸出 1080×1920 的 mp4。
 
 **逐演員觀察**(各演員原樣放進直式槽,槽尺寸 1000×1400、1000×700、500×700;演員程式這次沒有改):

@@ -69,13 +69,16 @@ func Connect(dsn string) (*Store, error) {
 	return &Store{db: db}, nil
 }
 
-// SyncCourses 把 courses_seed.json 裡資料庫還沒有的課程、單元、課,以及每一課的腳本檔(dir 是 web/src/content/live)補進資料庫;已經有的不動。
+// SyncCourses 把 courses_seed.json 的課程、單元、課,以及每一課的腳本檔(dir 是 web/src/content/live)寫進資料庫:沒有的新增,已經有的更新成種子的內容(現階段以種子為準)。
 func (s *Store) SyncCourses(ctx context.Context, dir string) error {
 	if err := s.SeedCourses(ctx); err != nil {
 		return fmt.Errorf("seed courses: %w", err)
 	}
 	return s.SyncLessonFiles(ctx, dir)
 }
+
+// DB 回傳資料庫連線,給自己管理資料表的套件(packages/subscription)使用。
+func (s *Store) DB() *gorm.DB { return s.db }
 
 func isPostgres(dsn string) bool {
 	return strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://")

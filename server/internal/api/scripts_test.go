@@ -25,10 +25,10 @@ func TestLessonFileGate(t *testing.T) {
 		`{"id":"0.1","title":"一","access":"free","status":"open","script":"free.json"},` +
 		`{"id":"0.2","title":"二","status":"open","script":"member.json"},` +
 		`{"id":"0.3","title":"三","status":"draft","script":"draft.json"}]}]`
-	if err := env.st.ReplaceUnitsJSON("tools", units); err != nil {
+	if err := env.st.ReplaceUnitsJSON("web", units); err != nil {
 		t.Fatal(err)
 	}
-	if err := env.st.SyncLessonFilesJSON(context.Background(), []byte(`[{"id":"tools","title":"t","access":"login-free","units":`+units+`}]`), dir); err != nil {
+	if err := env.st.SyncLessonFilesJSON(context.Background(), []byte(`[{"id":"web","title":"t","access":"login-free","units":`+units+`}]`), dir); err != nil {
 		t.Fatal(err)
 	}
 	amy := registerCookie(t, env.h, "amy@example.com")

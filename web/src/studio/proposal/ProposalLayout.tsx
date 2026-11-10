@@ -39,6 +39,8 @@ const IDEAS: Tab[] = [
   { to: '/studio/news-feed', label: '科技新知動態牆' },
   { to: '/studio/extensions', label: '延伸課程' },
   { to: '/studio/ops-course', label: '從上線到維運' },
+  // 構想內容直接放在公開的課程地圖頁(home/IdeaTopicPage.tsx),這裡只放連結
+  { to: '/courses/idea', label: '從構想到實作' },
 ]
 
 /** 文件清單與每一份文件。 */

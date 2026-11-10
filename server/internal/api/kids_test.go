@@ -25,12 +25,12 @@ func TestKidsModeFlow(t *testing.T) {
 	}
 	kidsUnits := `[{"id":"0","title":"序章","lessons":[{"id":"0.2","title":"二","status":"open","script":"kid.json"},{"id":"0.3","title":"三","status":"open","script":"kid2.json"}]}]`
 	toolUnits := `[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"open","script":"tool.json"}]}]`
-	for id, units := range map[string]string{"kids": kidsUnits, "tools": toolUnits} {
+	for id, units := range map[string]string{"kids": kidsUnits, "web": toolUnits} {
 		if err := env.st.ReplaceUnitsJSON(id, units); err != nil {
 			t.Fatal(err)
 		}
 	}
-	seed := `[{"id":"kids","title":"k","access":"login-free","units":` + kidsUnits + `},{"id":"tools","title":"t","access":"login-free","units":` + toolUnits + `}]`
+	seed := `[{"id":"kids","title":"k","access":"login-free","units":` + kidsUnits + `},{"id":"web","title":"t","access":"login-free","units":` + toolUnits + `}]`
 	if err := env.st.SyncLessonFilesJSON(context.Background(), []byte(seed), dir); err != nil {
 		t.Fatal(err)
 	}

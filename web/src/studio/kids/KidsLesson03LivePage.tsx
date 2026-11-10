@@ -4,7 +4,7 @@ import { ProposalLayout } from '../proposal/ProposalLayout'
 import ui from '../proposal/proposal.module.css'
 
 // 兒童網頁課 0.3「網頁是一封信」的試做:kid-mail 演員(瀏覽器、伺服器、來回的信封)+ 主腳本與兩個子腳本。
-// 已開放:公開的課程頁是 /topics/kids/0-3(content/kidsCourse.ts 的 KIDS_OPEN_LESSONS)。語音已產生(0.3*.voice.json)。
+// 已開放:公開的課程頁是 /courses/kids/0-3(content/kidsCourse.ts 的 KIDS_OPEN_LESSONS)。語音已產生(0.3*.voice.json)。
 
 export function KidsLesson03LivePage() {
   return (
@@ -18,7 +18,7 @@ export function KidsLesson03LivePage() {
       <KidsPlayer script="kids/0.3.json" scrub />
 
       <h2>這一課怎麼演</h2>
-      <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>已開放 · 公開課程頁 /topics/kids/0-3（登入後學習）</span>
+      <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>已開放 · 公開課程頁 /courses/kids/0-3（登入後學習）</span>
       <section className={ui.card}>
         <ul>
           <li>

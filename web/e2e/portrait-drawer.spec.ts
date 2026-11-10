@@ -7,7 +7,7 @@ test.use({ viewport: { width: 390, height: 844 } })
 test.beforeEach(async ({ page }) => loginAsNewStudent(page))
 
 test('直式:舞台是直式,步驟與下一課直接列在播放窗下方,沒有側欄', async ({ page }) => {
-  await page.goto('/courses/tools/0?aspect=portrait')
+  await page.goto('/courses/software/0?aspect=portrait')
   await expect(page.locator('.vp.vp-portrait')).toBeVisible()
   await expect(page.locator('.live-stage.portrait')).toBeAttached()
   await expect(page.getByRole('complementary', { name: '課程章節與步驟' })).toHaveCount(0)
@@ -20,7 +20,7 @@ test('直式:舞台是直式,步驟與下一課直接列在播放窗下方,沒�
 })
 
 test('直式:播到互動點抽屜自動展開,選一個選項後收合並繼續', async ({ page }) => {
-  await page.goto('/courses/tools/0?aspect=portrait')
+  await page.goto('/courses/software/0?aspect=portrait')
   const info = page.getByRole('region', { name: '課程資訊' })
   await info.getByRole('button', { name: /互動/ }).first().click()
   // 互動點停下來:抽屜展開、題目與選項在抽屜裡
@@ -34,17 +34,17 @@ test('直式:播到互動點抽屜自動展開,選一個選項後收合並繼續
 })
 
 test('手機直拿不帶參數:自動直式、步驟在下方;?aspect=landscape 時維持橫式', async ({ page }) => {
-  await page.goto('/courses/tools/0')
+  await page.goto('/courses/software/0')
   await expect(page.locator('.vp.vp-portrait')).toBeVisible()
   await expect(page.locator('.live-stage.portrait')).toBeAttached()
   await expect(page.getByRole('region', { name: '課程資訊' })).toBeVisible()
-  await page.goto('/courses/tools/0?aspect=landscape')
+  await page.goto('/courses/software/0?aspect=landscape')
   await expect(page.locator('.vp.vp-float')).toBeVisible()
   await expect(page.locator('.vp-portrait')).toHaveCount(0)
 })
 
 test('手機直拿:播到一半捲動下方的步驟清單時,播放器不會被捲走', async ({ page }) => {
-  await page.goto('/topics/web/0-1')
+  await page.goto('/courses/web/0-1')
   await expect(page.locator('.vp.vp-portrait')).toBeVisible()
   // 跳到中段:清單上有「目前這一步」
   const track = page.locator('.vp-track')
@@ -69,7 +69,7 @@ test('手機直拿:播到一半捲動下方的步驟清單時,播放器不會被
 test.describe('寬視窗', () => {
   test.use({ viewport: { width: 1366, height: 768 } })
   test('不帶參數:橫式,側欄預設收合,打開後沒有抽屜把手', async ({ page }) => {
-    await page.goto('/courses/tools/0')
+    await page.goto('/courses/software/0')
     await expect(page.locator('.vp.vp-float')).toBeVisible()
     await expect(page.locator('.vp-portrait')).toHaveCount(0)
     const panel = await openCoursePanel(page)
@@ -78,7 +78,7 @@ test.describe('寬視窗', () => {
 })
 
 test('手機直拿:一般課程頁的 LivePlayer 也是直式', async ({ page }) => {
-  await page.goto('/topics/claude-code')
+  await page.goto('/courses/claude-code')
   await page.locator('h4 button[aria-expanded="false"]').first().click()
   await expect(page.locator('[data-aspect="portrait"] .vp.vp-portrait')).toBeVisible({ timeout: 15000 })
 })
@@ -87,7 +87,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 820, height: 1180 
   test.describe(`兒童課 ${viewport.width}px`, () => {
     test.use({ viewport })
     test('段落收在右上角:按「☰ 段落」才在右上角的側欄打開,播放器下方沒有段落', async ({ page }) => {
-      await page.goto('/topics/kids/0-1')
+      await page.goto('/courses/kids/0-1')
       const side = page.getByRole('complementary', { name: '這一課' })
       const toggle = side.getByRole('button', { name: '打開段落' })
       await expect(toggle).toBeVisible()

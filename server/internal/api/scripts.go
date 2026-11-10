@@ -12,7 +12,7 @@ import (
 
 // handleLessonFile 回傳一個腳本檔(GET /api/scripts/{path},path 例如 l0/0.0-tools.json)。
 // 課程的腳本依所屬那一課把關:管理員都看得到;其他人只拿得到已開放(open)的課,access free 不用登入,login-free 要登入,
-// 訂閱課程等訂閱功能上線前不給。研發基地的腳本(不屬於任何一課)只給管理員。
+// 訂閱課程照方案判斷(plan.go 的 decideLesson):廣告方案要先看完這一課的片頭廣告。研發基地的腳本(不屬於任何一課)只給管理員。
 // 拿不到的草稿、規劃中的課與研發基地的腳本,對其他人一律當作不存在(404,選用的旁白與章節音軌清單回 null),不透露有這個檔。
 // 沒接資料庫時(Cloud Run 沒設 DATABASE_URL)直接照內嵌的種子讀 ScriptsDir 裡的檔:登入功能停用,所以只有免登入的課拿得到。
 func (s *Server) handleLessonFile(w http.ResponseWriter, r *http.Request) {
@@ -66,6 +66,25 @@ func (s *Server) handleLessonFile(w http.ResponseWriter, r *http.Request) {
 	case !loggedIn:
 		writeError(w, http.StatusUnauthorized, "login_required", "這一課要登入才能觀看")
 		return
+	case f.Access == store.AccessSubscription:
+		// 訂閱課程:照方案判斷(decideLesson,見 plan.go);廣告方案要有這一課的片頭廣告通行證
+		var la store.LessonAccess
+		if la, err = s.cfg.Store.LessonAccessOf(r.Context(), f.CourseID, f.LessonID); err != nil {
+			break
+		}
+		var d lessonDecision
+		if d, err = s.decideLesson(r, f.CourseID, f.LessonID, la); err != nil {
+			break
+		}
+		if !d.Allowed {
+			writeError(w, http.StatusForbidden, "plan_required", "這一課要選擇方案才能觀看")
+			return
+		}
+		if d.Ad {
+			writeError(w, http.StatusForbidden, "ad_required", "要先看完片頭廣告")
+			return
+		}
+		content = f.Content
 	case f.Access != store.AccessLoginFree:
 		writeError(w, http.StatusForbidden, "subscription_required", "這一課要訂閱才能觀看")
 		return

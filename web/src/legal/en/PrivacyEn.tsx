@@ -232,10 +232,16 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          The Prologue and Lesson 0 of each course have no ads, and subscribers do not see ads either. Other lessons show Google AdSense ads, labeled as "Ad", to users who are signed in but not subscribed. Only these pages connect to AdSense.
+          The Prologue and Lesson 0 of each course have no ads, and subscribers do not see ads either. Other lessons (except the kids’ web programming course) show Google AdSense ads, labeled as "Ad", to users who are signed in but not subscribed. Only these pages connect to AdSense.
         </p>
         <p>
-          Google and other third-party vendors may use cookies to serve ads based on your previous visits to the Site or other websites, and to count ad impressions and clicks; your browser connects directly to Google, so Google may obtain your IP address, device information, and the URL you are viewing. We do <strong>not</strong> send your name, email address, or account ID to advertising services.
+          Pages of the kids’ web programming course never show ads and do not connect to AdSense.
+        </p>
+        <p>
+          Users who choose the “Ad plan” see a short ad before each lesson of a subscription course. To confirm the ad has finished playing, the server only records which lesson’s ad you finished in a short-lived cookie in your browser, which expires after 30 minutes; no separate viewing record is kept.
+        </p>
+        <p>
+          Third-party vendors, including Google, use cookies (such as the DoubleClick cookie) to serve ads based on your previous visits to the Site or other websites, and to count ad impressions and clicks; your browser connects directly to Google, so Google may obtain your IP address, device information, and the URL you are viewing. We do <strong>not</strong> send your name, email address, or account ID to advertising services.
         </p>
         <p>
           You can turn off personalized ads in <Ext href="https://adssettings.google.com/?hl=en">Google Ad Settings</Ext>, or manage third-party vendors' personalized advertising cookies at <Ext href="https://www.aboutads.info/choices/">aboutads.info</Ext>. For how Google uses this data, please see{' '}
@@ -453,7 +459,7 @@ const sections: LegalSection[] = [
     title: 'Children and minors',
     body: (
       <p>
-        The courses on the Site are intended for general adult learners and are not designed specifically for children, and we do not knowingly collect personal data from children. We recommend that minors sign up for an account and use the Site and the AI tools introduced in the courses with the supervision or consent of a parent or legal guardian, and pay attention to each AI tool's own age restrictions. If you are a parent or legal guardian and believe we hold personal data about your child, please contact us and we will help, including by deleting the account.
+        The courses on the Site are intended for general adult learners. The kids’ web programming course is designed for children around 9 years old; its content is written for parents to read and accompany their child, and we recommend that a parent or legal guardian use it together with the child. Pages of this course have no ads and do not connect to Google AdSense. We do not knowingly collect personal data such as names, email addresses, or contact details from children, and we do not ask children to create their own accounts. We recommend that minors use the Site and the AI tools introduced in the courses with the supervision or consent of a parent or legal guardian, and pay attention to each AI tool's own age restrictions. If you are a parent or legal guardian and believe we hold personal data about your child, please contact us and we will help, including by deleting the account.
       </p>
     ),
   },

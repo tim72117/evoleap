@@ -16,14 +16,16 @@ describe('全部課程', () => {
     const page = findPage('/courses')!
     expect(page).not.toBe(NOT_FOUND)
     const list = page.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { url: string }[] }
-    expect(list.itemListElement.map((x) => x.url)).toContain(absoluteUrl('/courses/ai-agent'))
-    expect(list.itemListElement.map((x) => x.url)).toContain(absoluteUrl('/courses/tools'))
+    // 「做出自己的軟體」的三個階段連到同一頁的階段錨點(#stage-<id>),比對時去掉錨點
+    const urls = list.itemListElement.map((x) => x.url.split('#')[0])
+    expect(urls).toContain(absoluteUrl('/courses/ai-agent'))
+    expect(urls).toContain(absoluteUrl('/courses/software'))
   })
 })
 
 describe('主題頁', () => {
-  const software = findPage('/topics/software')!
-  const aiApps = findPage('/topics/ai-apps')!
+  const software = findPage('/courses/software')!
+  const aiApps = findPage('/courses/ai-apps')!
   const list = (p: typeof software) => p.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { url: string }[] }
 
   it('每個主題有自己的標題與描述,也和首頁不同', () => {
@@ -34,8 +36,8 @@ describe('主題頁', () => {
 
   it('sitemap 列出主題頁與優先度', () => {
     const xml = sitemapXml()
-    expect(xml).toContain(`<loc>${absoluteUrl('/topics/software')}</loc><priority>0.9</priority>`)
-    expect(xml).toContain(`<loc>${absoluteUrl('/topics/ai-apps')}</loc><priority>0.9</priority>`)
+    expect(xml).toContain(`<loc>${absoluteUrl('/courses/software')}</loc><priority>0.9</priority>`)
+    expect(xml).toContain(`<loc>${absoluteUrl('/courses/ai-apps')}</loc><priority>0.9</priority>`)
   })
 
   it('描述不會太長,搜尋結果顯示得完', () => {
@@ -43,27 +45,27 @@ describe('主題頁', () => {
   })
 
   it('結構化資料列出各自的課程,彼此不重複', () => {
-    const urls = (p: typeof software) => list(p).itemListElement.map((x) => x.url)
-    expect(urls(software)).toContain(absoluteUrl('/courses/tools'))
+    const urls = (p: typeof software) => list(p).itemListElement.map((x) => x.url.split('#')[0])
+    expect(urls(software)).toContain(absoluteUrl('/courses/software'))
     expect(urls(aiApps)).toContain(absoluteUrl('/courses/ai-agent'))
     expect(urls(software).filter((u) => urls(aiApps).includes(u))).toEqual([])
   })
 
   it('課程的麵包屑掛在所屬主題底下', () => {
     const crumbs = (path: string) => JSON.stringify(findPage(path)!.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))
-    expect(crumbs('/courses/tools/1')).toContain('/topics/software')
-    expect(crumbs('/courses/ai-agent')).toContain('/topics/ai-apps')
+    expect(crumbs('/courses/software/1')).toContain('/topics/software')
+    expect(crumbs('/courses/ai-agent')).toContain('/courses/ai-apps')
   })
 })
 
 describe('兒童課(給孩子的網頁程式)', () => {
-  const topic = findPage('/topics/kids')!
-  const lesson = findPage('/topics/kids/0-1')!
+  const topic = findPage('/courses/kids')!
+  const lesson = findPage('/courses/kids/0-1')!
 
   it('主題頁與課程頁都有 SEO 資料,標題、描述和其他主題不同', () => {
     expect(topic).not.toBe(NOT_FOUND)
     expect(lesson).not.toBe(NOT_FOUND)
-    const others = ['/', '/topics/software', '/topics/ai-apps', '/topics/claude-code'].map((p) => findPage(p)!)
+    const others = ['/', '/courses/software', '/courses/ai-apps', '/courses/claude-code'].map((p) => findPage(p)!)
     expect(others.map((p) => p.title)).not.toContain(topic.title)
     expect(others.map((p) => p.description)).not.toContain(topic.description)
     expect(topic.description.length).toBeLessThanOrEqual(80)
@@ -71,19 +73,19 @@ describe('兒童課(給孩子的網頁程式)', () => {
 
   it('sitemap 列出主題頁與已經可以上的課', () => {
     const xml = sitemapXml()
-    expect(xml).toContain(`<loc>${absoluteUrl('/topics/kids')}</loc><priority>0.8</priority>`)
-    expect(xml).toContain(`<loc>${absoluteUrl('/topics/kids/0-1')}</loc>`)
+    expect(xml).toContain(`<loc>${absoluteUrl('/courses/kids')}</loc><priority>0.8</priority>`)
+    expect(xml).toContain(`<loc>${absoluteUrl('/courses/kids/0-1')}</loc>`)
   })
 
   it('主題頁的結構化資料列出每一課,可以上的課附網址;課程頁的麵包屑掛在主題底下', () => {
     const list = topic.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { name: string; url?: string }[] }
-    expect(list.itemListElement.find((x) => x.name.startsWith('0.1'))?.url).toBe(absoluteUrl('/topics/kids/0-1'))
-    expect(list.itemListElement.find((x) => x.name.startsWith('0.2'))?.url).toBe(absoluteUrl('/topics/kids/0-2'))
-    expect(list.itemListElement.find((x) => x.name.startsWith('0.3'))?.url).toBe(absoluteUrl('/topics/kids/0-3'))
-    expect(list.itemListElement.find((x) => x.name.startsWith('1.1'))?.url).toBe(absoluteUrl('/topics/kids/1-1'))
+    expect(list.itemListElement.find((x) => x.name.startsWith('0.1'))?.url).toBe(absoluteUrl('/courses/kids/0-1'))
+    expect(list.itemListElement.find((x) => x.name.startsWith('0.2'))?.url).toBe(absoluteUrl('/courses/kids/0-2'))
+    expect(list.itemListElement.find((x) => x.name.startsWith('0.3'))?.url).toBe(absoluteUrl('/courses/kids/0-3'))
+    expect(list.itemListElement.find((x) => x.name.startsWith('1.1'))?.url).toBe(absoluteUrl('/courses/kids/1-1'))
     // 草稿的課(2.1 起,管理員才看得到)不附網址
     expect(list.itemListElement.find((x) => x.name.startsWith('2.1'))?.url).toBeUndefined()
-    expect(JSON.stringify(lesson.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))).toContain('/topics/kids')
+    expect(JSON.stringify(lesson.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))).toContain('/courses/kids')
     expect(lesson.jsonLd?.some((x) => x['@type'] === 'Course')).toBe(true)
   })
 })
@@ -123,7 +125,7 @@ describe('PAGES', () => {
   })
 
   it('home and the course pages are indexable', () => {
-    expect(indexable.map((p) => p.path)).toEqual(expect.arrayContaining(['/', '/courses/tools', '/privacy', '/terms', '/refund']))
+    expect(indexable.map((p) => p.path)).toEqual(expect.arrayContaining(['/', '/courses/software', '/privacy', '/terms', '/refund']))
   })
 })
 
@@ -143,12 +145,12 @@ describe('URL helpers', () => {
   it('absoluteUrl uses https://evoleap.io', () => {
     expect(SITE_ORIGIN).toBe('https://evoleap.io')
     expect(absoluteUrl('/')).toBe('https://evoleap.io/')
-    expect(absoluteUrl('/courses/tools')).toBe('https://evoleap.io/courses/tools')
+    expect(absoluteUrl('/courses/software')).toBe('https://evoleap.io/courses/software')
   })
 
   it('findPage ignores a trailing slash and falls back to NOT_FOUND', () => {
     expect(findPage('/').path).toBe('/')
-    expect(findPage('/courses/tools/').path).toBe('/courses/tools')
+    expect(findPage('/courses/software/').path).toBe('/courses/software')
     expect(findPage('/no-such-page')).toBe(NOT_FOUND)
   })
 
@@ -200,11 +202,11 @@ describe('sitemap.xml', () => {
   // 還沒開放的課(courses_seed.json 的 draft、planned)可以收錄,但不放進 sitemap
   it('leaves out lessons that are not open yet, without noindex', () => {
     const has = (path: string) => locs.includes(absoluteUrl(path))
-    expect([has('/topics/launch/0-1'), has('/topics/launch/1-1'), has('/topics/launch/2-1'), has('/courses/tools/1'), has('/courses/ai-tools/1-1'), has('/courses/vibe-coding/4-1')]).toEqual([true, true, false, true, false, false])
-    expect(PAGES.find((p) => p.path === '/topics/launch/2-1')?.noindex).toBeFalsy()
+    expect([has('/courses/launch/0-1'), has('/courses/launch/1-1'), has('/courses/launch/2-1'), has('/courses/software/1'), has('/courses/software/1-1'), has('/courses/software/4-1')]).toEqual([true, true, false, true, false, false])
+    expect(PAGES.find((p) => p.path === '/courses/launch/2-1')?.noindex).toBeFalsy()
     // 兒童課:序章與單元 1 開放,2.1 起是草稿
-    expect([has('/topics/kids/0-1'), has('/topics/kids/1-1'), has('/topics/kids/2-1'), has('/topics/kids/4-5')]).toEqual([true, true, false, false])
-    expect(PAGES.find((p) => p.path === '/topics/kids/2-1')?.noindex).toBeFalsy()
+    expect([has('/courses/kids/0-1'), has('/courses/kids/1-1'), has('/courses/kids/2-1'), has('/courses/kids/4-5')]).toEqual([true, true, false, false])
+    expect(PAGES.find((p) => p.path === '/courses/kids/2-1')?.noindex).toBeFalsy()
   })
 
   it('priorities are within 0–1', () => {

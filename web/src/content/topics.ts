@@ -1,9 +1,9 @@
-// 首頁的主題。一個主題是一組不同目標的課程:「做出自己的軟體」(levels.ts 的 LEVELS)與「打造 AI 互動軟體」(AI_APP_LEVELS)各有課程地圖頁。
+// 首頁的主題。一個主題是一組不同目標的課程(主題頁 /topics/<主題> 列出哪些課由 content/topicCourses.ts 決定):每個主題的課程都在 /courses/<主題>:「做出自己的軟體」是合併成一門的分階段課程(catalog.ts 的 software),「打造 AI 互動軟體」(levels.ts 的 AI_APP_LEVELS)是兩門課的課程地圖頁。
 // 規劃中的主題只放暫定的名稱、標語與預計做出的成果;不要寫未確認的事實(價格、日期、收入、學員數等)。
 import { messages } from '../i18n/current'
 import { KIDS_OPEN_LESSONS, kidsLessonTitle } from './kidsCourse'
 import { launchLessonPath } from './launchCourse'
-import { AI_APP_LEVELS, SOFTWARE_LEDE } from './levels'
+import { AI_APP_LEVELS, levelPath, SOFTWARE_LEDE } from './levels'
 import { WEB_OPEN_LESSONS, webLesson } from './webCourse'
 
 /** 主題卡片「開始第一課」這顆固定按鈕的文字:資料只存這一份中文,畫面依目前語言換成字典的 home.startFirstLesson(topicStartLabel) */
@@ -20,8 +20,10 @@ export const SOFTWARE_TOPIC = {
   name: '做出自己的軟體',
   slogan: '不會寫程式，也能打造自己的軟體',
   lede: SOFTWARE_LEDE,
-  /** 課程地圖所在的頁面 */
-  path: '/topics/software',
+  /** 課程頁:合併成一門的分階段課程,課程地圖的等級就是單元(#stage-<等級>) */
+  path: '/courses/software',
+  /** 主題頁:列出這個主題的課(content/topicCourses.ts 挑選) */
+  topicPath: '/topics/software',
   /** 搜尋結果的標題與描述:寫學員會搜尋的說法,不要寫未確認的事實 */
   seoTitle: '不會寫程式也能做軟體：零基礎 AI 開發課程地圖',
   description: `${SOFTWARE_LEDE}。零基礎也能開始，用 AI 做出網站與小工具，再學會串接自動化流程，免費從入門課開始。`,
@@ -31,7 +33,10 @@ export const SOFTWARE_TOPIC = {
 export const AI_APPS_TOPIC = {
   name: '打造 AI 互動軟體',
   slogan: '不只是對話，讓 AI 查資料、跑分析、畫出圖表',
-  path: '/topics/ai-apps',
+  /** 課程頁 */
+  path: '/courses/ai-apps',
+  /** 主題頁:列出這個主題的課(content/topicCourses.ts 挑選) */
+  topicPath: '/topics/ai-apps',
   seoTitle: 'AI 互動軟體開發課程：讓 AI 查資料、跑分析、畫圖表',
   description: '學會打造會動手做事的 AI 軟體：寫出工具、讓 AI 自己判斷要呼叫哪一個，做成打字提問就能用的介面，並穩定上線。課程規劃中。',
 }
@@ -40,16 +45,22 @@ export const AI_APPS_TOPIC = {
 export const CLAUDE_CODE_TOPIC = {
   name: 'Claude Code 工作術',
   slogan: '遇到這些情況時，該怎麼用',
-  path: '/topics/claude-code',
+  /** 課程頁(課程地圖與一課一頁都在這底下) */
+  path: '/courses/claude-code',
+  /** 主題頁:列出這個主題的課(content/topicCourses.ts 挑選) */
+  topicPath: '/topics/claude-code',
   seoTitle: 'Claude Code 使用技巧：常見情境與對應做法',
   description: '整理使用 Claude Code 時的常見情境：換手機接著做、同時試好幾版、接回昨天的對話、把規則寫下來。遇到哪個情況就看哪一個。內容規劃中。',
 }
 
-/** 主題「從做好到上線」:開放中(序章三課可以上,其他課規劃中),課程地圖在 /topics/launch(home/LaunchTopicPage.tsx),大綱在 content/launchCourse.ts;首頁放在「做出自己的軟體」下方 */
+/** 主題「從做好到上線」:開放中(序章三課可以上,其他課規劃中),課程地圖在 /courses/launch(home/LaunchTopicPage.tsx)、主題頁在 /topics/launch,大綱在 content/launchCourse.ts;首頁放在「做出自己的軟體」下方 */
 export const LAUNCH_TOPIC = {
   name: '從做好到上線',
   slogan: '繁雜的上線流程交給 AI，輕鬆讓作品變成服務',
-  path: '/topics/launch',
+  /** 課程頁(課程地圖與一課一頁都在這底下) */
+  path: '/courses/launch',
+  /** 主題頁:列出這個主題的課(content/topicCourses.ts 挑選) */
+  topicPath: '/topics/launch',
   seoTitle: '從做好到上線：用 AI 處理繁雜流程，輕鬆把作品放上線',
   description: '部署、網域、資料與登入、收費、監控，這些繁雜的上線流程，學會用 AI 處理，輕鬆把做好的網站與工具變成別人能用的服務。序章開放中，第一課可以免費預覽。',
   open: true,
@@ -63,7 +74,19 @@ export const LAUNCH_TOPIC = {
   ],
   learnTitle: '你會學會',
   learn: ['用 AI 架設公開網站', '用 AI 做自動部署', '用 AI 避開資安風險', '用 AI 做網站監控'],
-} satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
+} satisfies PlannedTopic & { path: string; topicPath: string; seoTitle: string; description: string }
+
+/** 主題「從構想到實作」:全部規劃中,課程地圖在 /courses/idea(home/IdeaTopicPage.tsx)、主題頁在 /topics/idea,大綱在 content/ideaCourse.ts;首頁還沒放 */
+export const IDEA_TOPIC = {
+  name: '從構想到實作',
+  slogan: '讓幾個 AI 一起想點子，你來拍板，再一步步做出來',
+  /** 課程頁(課程地圖與一課一頁都在這底下) */
+  path: '/courses/idea',
+  /** 主題頁:列出這個主題的課(content/topicCourses.ts 挑選) */
+  topicPath: '/topics/idea',
+  seoTitle: '從構想到實作：多個 AI 腦力激盪，把點子變成做得出來的規格',
+  description: '有了點子，先讓幾個立場不同的 AI 一起討論、互相挑毛病，再收斂成要做的事與規格；把構想、待辦與決策紀錄整理成文件，最後請 AI 做出第一版。課程規劃中。',
+} satisfies PlannedTopic & { path: string; topicPath: string; seoTitle: string; description: string }
 
 /** 這個主題的情境,依遇到的情況列出,沒有先後順序。tools 是會用到的功能,名稱以官方文件為準,改版時要更新 */
 export const CLAUDE_CODE_SCENARIOS: {
@@ -96,8 +119,8 @@ export const COURSE_LIST = {
 }
 
 /** 課程所在的主題(依課程頁路徑判斷):麵包屑、「課程地圖」連結用 */
-export function topicOfCourse(coursePath: string): { name: string; path: string } {
-  return AI_APP_LEVELS.some((l) => l.link === coursePath) ? AI_APPS_TOPIC : SOFTWARE_TOPIC
+export function topicOfCourse(coursePath: string): { name: string; path: string; topicPath: string } {
+  return AI_APP_LEVELS.some((l) => levelPath(l) === coursePath) ? AI_APPS_TOPIC : SOFTWARE_TOPIC
 }
 
 export type PlannedTopic = {
@@ -137,13 +160,16 @@ export type PlannedTopic = {
 }
 
 /**
- * 主題「給孩子的網頁程式」:開放中(課程陸續開放),首頁單獨放在「更多主題課程」上方;課程地圖在 /topics/kids(home/KidsTopicPage.tsx)。
+ * 主題「給孩子的網頁程式」:開放中(課程陸續開放),首頁單獨放在「更多主題課程」上方;課程地圖在 /courses/kids(home/KidsTopicPage.tsx)、主題頁在 /topics/kids。
  * 單元與課程在 content/kidsCourse.ts;研發中的大綱與試做在研發基地 /studio/kids-web。這裡只寫大綱裡已有的內容。
  */
 export const KIDS_TOPIC = {
   name: '給孩子的網頁程式',
   slogan: '用積木蓋網頁，陪 9 歲的孩子做出自己的小網站',
-  path: '/topics/kids',
+  /** 課程頁(課程地圖與一課一頁都在這底下) */
+  path: '/courses/kids',
+  /** 主題頁:列出這個主題的課(content/topicCourses.ts 挑選) */
+  topicPath: '/topics/kids',
   seoTitle: '給孩子的網頁程式課：用積木認識 HTML、CSS、JavaScript',
   description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程陸續開放中，第一課可以免費預覽。',
   open: true,
@@ -161,19 +187,22 @@ export const KIDS_TOPIC = {
       學會: { note: '用一句話整理：網頁是用一塊一塊積木蓋出來的。' },
     },
   },
-} satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
+} satisfies PlannedTopic & { path: string; topicPath: string; seoTitle: string; description: string }
 
 /** 兒童課課程頁的標題(頁面的 document.title 與 seo/pages.ts 共用) */
 export const kidsLessonDocTitle = (id: string): string => `${kidsLessonTitle(id)}｜${KIDS_TOPIC.name}`
 
 /**
- * 主題「網頁怎麼運作」:開放中(序章、單元 1 的 1.1、1.2 可以上,其他課規劃中),課程地圖在 /topics/web(home/WebTopicPage.tsx)。
+ * 主題「網頁怎麼運作」:開放中(序章、單元 1 的 1.1、1.2 可以上,其他課規劃中),課程地圖在 /courses/web(home/WebTopicPage.tsx)、主題頁在 /topics/web。
  * 單元與課程在 content/webCourse.ts;研發中的構想在研發基地 /studio/web-basics。第一課(0.1)不用登入就能預覽,其他開放的課要登入(訂閱制上線後改成訂閱才能看)。
  */
 export const WEB_TOPIC = {
   name: '網頁怎麼運作',
   slogan: '語法交給 AI，看懂原理才能跟 AI 說清楚',
-  path: '/topics/web',
+  /** 課程頁(課程地圖與一課一頁都在這底下) */
+  path: '/courses/web',
+  /** 主題頁:列出這個主題的課(content/topicCourses.ts 挑選) */
+  topicPath: '/topics/web',
   seoTitle: '網頁怎麼運作：AI 時代的網頁基礎課',
   description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。第一課可以免費預覽。',
   open: true,
@@ -181,7 +210,7 @@ export const WEB_TOPIC = {
   tag: 'AI 寫程式，我還需要知道什麼？',
   intro: 'AI 已經能寫出大部分的程式碼，但寫得出來，不代表你看得懂、說得準。這門課不教語法，教網頁怎麼運作：瀏覽器怎麼畫出畫面、樣式和資料各歸誰管、網站怎麼放上網路。',
   learn: ['用對名詞，把想要的畫面和功能跟 AI 說清楚', '看懂 AI 改了哪裡、為什麼這樣改', '畫面壞掉時，知道該往哪裡找問題'],
-} satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
+} satisfies PlannedTopic & { path: string; topicPath: string; seoTitle: string; description: string }
 
 /** 網頁怎麼運作課程頁的標題(頁面的 document.title 與 seo/pages.ts 共用) */
 export const webLessonDocTitle = (id: string): string => `${webLesson(id)?.title ?? id}｜${WEB_TOPIC.name}`

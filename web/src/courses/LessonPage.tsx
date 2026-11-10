@@ -6,7 +6,7 @@ import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { useCopy } from '../site/useCopy'
 import type { CourseLesson, LessonStep } from '../content/lessonTypes'
-import { coursePath, lessonLabel, lessonPath, nextCourse, type Course } from '../content/catalog'
+import { coursePath, lessonLabel, lessonPath, levelLabelOf, nextCourse, type Course } from '../content/catalog'
 import styles from './Lesson.module.css'
 import type { PlayerHandle } from './playerHandle'
 import { LessonAd } from './LessonAd'
@@ -246,7 +246,7 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
             <nav className={styles.crumb} aria-label={tt.courses.breadcrumb}>
               <Link to={`${SOFTWARE_TOPIC.path}#map`}>{tt.courses.courseMap}</Link>
               <span aria-hidden="true"> / </span>
-              <Link to={coursePath(course)}>{tt.courses.levelName(course.level)}</Link>
+              <Link to={coursePath(course)}>{tt.courses.levelName(levelLabelOf(course, lesson))}</Link>
               <span aria-hidden="true"> / </span>
               <span>{label}</span>
             </nav>

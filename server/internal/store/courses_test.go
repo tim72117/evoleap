@@ -19,9 +19,7 @@ func TestCoursesSeededOnOpen(t *testing.T) {
 		access Access
 		tier   string
 	}{
-		{"tools", AccessLoginFree, ""},
-		{"ai-tools", AccessLoginFree, ""},
-		{"vibe-coding-basics", AccessSubscription, "basic"},
+		{"software", AccessLoginFree, ""},
 		{"ai-agent", AccessSubscription, "advanced"},
 	}
 	for _, c := range cases {
@@ -42,8 +40,8 @@ func TestCoursesSeededOnOpen(t *testing.T) {
 	defer st.Close()
 	var n int64
 	st.db.Model(&courseRow{}).Count(&n)
-	if n != 9 {
-		t.Errorf("courses: want 9, got %d", n)
+	if n != 8 {
+		t.Errorf("courses: want 8, got %d", n)
 	}
 }
 
@@ -171,10 +169,10 @@ func TestLessonMinutes(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer st.Close()
-	if err := st.ReplaceUnitsJSON("tools", `[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"planned","minutes":25},{"id":"0.2","title":"二","status":"planned"}]}]`); err != nil {
+	if err := st.ReplaceUnitsJSON("software", `[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"planned","minutes":25},{"id":"0.2","title":"二","status":"planned"}]}]`); err != nil {
 		t.Fatal(err)
 	}
-	m, err := st.CourseMapOf(context.Background(), "tools", false)
+	m, err := st.CourseMapOf(context.Background(), "software", false)
 	if err != nil {
 		t.Fatal(err)
 	}

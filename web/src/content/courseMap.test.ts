@@ -3,16 +3,17 @@ import courseSeed from '../../../server/internal/store/courses_seed.json'
 import { KIDS_OPEN_LESSONS, KIDS_PREVIEW_LESSON, KIDS_RELEASED_LESSONS, KIDS_UNITS } from './kidsCourse'
 import { LAUNCH_LESSON_PAGES, LAUNCH_OPEN_LESSONS, LAUNCH_UNITS, launchScriptKey } from './launchCourse'
 import { WEB_OPEN_LESSONS, WEB_UNITS, webNeedsLogin } from './webCourse'
-import { COURSES, coursePath, isPreviewLesson } from './catalog'
+import { COURSES, isPreviewLesson } from './catalog'
 import { L2_MODULES } from './l2Outline'
 import { minutesOf } from '../courses/CourseOverviewPage'
 import { UNITS as AI_AGENT_UNITS } from './aiAgent'
 import { ALL_LEVELS } from './levels'
 import { hideDrafts } from './courseMap'
-import { CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC } from './topics'
+import { CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, IDEA_TOPIC } from './topics'
+import { IDEA_UNITS } from './ideaCourse'
 
 // 課程地圖的資料在伺服器的種子資料(資料庫);課程頁、SEO、研發基地還是用前端的 kidsCourse.ts、webCourse.ts。兩邊要一致。
-type Seed = { id: string; title: string; access: string; units?: { id: string; title: string; subtitle: string; lessons: { id: string; title: string; summary: string; access?: string; status: string; script?: string; files?: string[]; minutes?: number }[] }[] }
+type Seed = { id: string; title: string; access: string; tier?: string; units?: { id: string; title: string; subtitle: string; access?: string; tier?: string; lessons: { id: string; title: string; summary: string; access?: string; status: string; script?: string; files?: string[]; minutes?: number }[] }[] }
 
 // 種子資料在 web/ 外面(Docker 建置前端時也會複製這份檔案,見 Dockerfile;seo/build.ts 也直接 import)
 const SEED_JSON: unknown = courseSeed
@@ -54,8 +55,8 @@ describe('網頁怎麼運作的課程地圖(資料庫種子)和前端課程資�
     expect(lessons.filter((l) => l.access).map((l) => [l.id, l.access])).toEqual(lessons.filter((l) => !webNeedsLogin(l.id)).map((l) => [l.id, 'free']))
   })
 
-  it('課程頁網址照課號規則(0.1 → /topics/web/0-1),課程地圖連得過去', () => {
-    for (const [id, l] of Object.entries(WEB_OPEN_LESSONS)) expect(l.path).toBe(`/topics/web/${id.replace('.', '-')}`)
+  it('課程頁網址照課號規則(0.1 → /courses/web/0-1),課程地圖連得過去', () => {
+    for (const [id, l] of Object.entries(WEB_OPEN_LESSONS)) expect(l.path).toBe(`/courses/web/${id.replace('.', '-')}`)
   })
 })
 
@@ -89,42 +90,71 @@ describe('從做好到上線的課程地圖(資料庫種子)和前端課程資�
   })
 })
 
-// 「AI 工具介紹」「AI 工具入門」的課程頁還是讀前端的 l0Lessons.ts、l1Lessons.ts;資料庫只記錄課程結構與狀態,兩邊要一致。
-// 單元名稱來自研發基地的課程規劃(studio/proposal/basicsData.ts 的 MODULES)。
-describe.each([
-  ['tools', '/courses/tools'],
-  ['ai-tools', '/courses/ai-tools'],
-])('%s 的課程地圖(資料庫種子)和前端課程資料一致', (id, path) => {
-  const seed = (SEED_JSON as Seed[]).find((c) => c.id === id)!
-  const course = COURSES.find((c) => coursePath(c) === path)!
-  const lessons = seed.units!.flatMap((u) => u.lessons)
+// 「做出自己的軟體」(software)一門課三個單元(階段):起步 tools、零基礎 ai-tools、基礎 vibe-coding-basics。
+// 課程頁讀前端的 l0Lessons.ts、l1Lessons.ts 與 l2Outline.ts;資料庫只記錄課程結構與狀態,兩邊要一致。
+// tools:要訂閱(basic),只有序章免費預覽;ai-tools:登入後免費;vibe-coding-basics:要訂閱(basic)
+describe('做出自己的軟體的課程地圖(資料庫種子)和前端課程資料一致', () => {
+  const seed = (SEED_JSON as Seed[]).find((c) => c.id === 'software')!
+  const course = COURSES.find((c) => c.slug === 'software')!
+  const lessonsOf = (unitId: string) => seed.units!.find((u) => u.id === unitId)!.lessons
 
-  it('每一課的課號、名稱、順序與學習時間相同', () => {
-    expect(lessons.map((l) => [l.id, l.title, l.minutes])).toEqual(course.lessons.map((l) => [l.id, l.title, minutesOf(l.length)]))
+  it('整門課:課名相同,存取方式是登入後免費(各單元再自己決定)', () => {
+    expect(seed.title).toBe(course.title)
+    expect(seed.access).toBe('login-free')
   })
 
-  it('有影片的課是開放、腳本和第一支影片相同,其他是規劃中', () => {
-    for (const l of course.lessons) {
-      const s = lessons.find((x) => x.id === l.id)!
+  it('單元就是前端的階段:id、順序相同,標題是「階段・等級標題」,標題下是等級簡介', () => {
+    expect(seed.units!.map((u) => u.id)).toEqual(course.stages!.map((st) => st.id))
+    for (const st of course.stages!) {
+      const level = ALL_LEVELS.find((l) => l.id === st.id)!
+      const unit = seed.units!.find((u) => u.id === st.id)!
+      expect([unit.title, unit.subtitle]).toEqual([`${st.label}・${level.title}`, level.summary])
+    }
+  })
+
+  it('單元底下每一課的課號與順序和前端階段相同(合起來就是課程的全部單課與規劃章節)', () => {
+    for (const st of course.stages!) {
+      expect(lessonsOf(st.id).map((l) => l.id), st.id).toEqual([...st.lessons.map((l) => l.id), ...st.planned.map((c) => c.label)])
+    }
+    expect(seed.units!.flatMap((u) => u.lessons.map((l) => l.id))).toEqual([...course.lessons.map((l) => l.id), ...course.planned.map((c) => c.label)])
+  })
+
+  it('單元的存取方式與方案等級照課程地圖(levels.ts)', () => {
+    expect(seed.units!.map((u) => [u.id, u.access, u.tier])).toEqual([
+      ['tools', 'subscription', 'basic'],
+      ['ai-tools', 'login-free', undefined],
+      ['vibe-coding-basics', 'subscription', 'basic'],
+    ])
+    for (const u of seed.units!) expect(u.access, u.id).toBe(ALL_LEVELS.find((l) => l.id === u.id)!.access)
+  })
+
+  it.each([['tools'], ['ai-tools']])('%s:每一課的名稱、順序與學習時間相同', (id) => {
+    const st = course.stages!.find((x) => x.id === id)!
+    expect(lessonsOf(id).map((l) => [l.id, l.title, l.minutes])).toEqual(st.lessons.map((l) => [l.id, l.title, minutesOf(l.length)]))
+  })
+
+  it.each([['tools'], ['ai-tools']])('%s:有影片的課是開放、腳本和第一支影片相同,其他是規劃中', (id) => {
+    const st = course.stages!.find((x) => x.id === id)!
+    for (const l of st.lessons) {
+      const s = lessonsOf(id).find((x) => x.id === l.id)!
       const live = l.videos[0]?.live
       expect([l.id, s.status, s.script]).toEqual([l.id, live ? 'open' : 'planned', live])
     }
   })
 
-  it('整門課登入後免費,只有序章免費預覽', () => {
-    expect(seed.access).toBe('login-free')
-    expect(lessons.filter((l) => l.access).map((l) => [l.id, l.access])).toEqual(course.lessons.filter(isPreviewLesson).map((l) => [l.id, 'free']))
+  it('只有序章(起步)免費預覽', () => {
+    const all = seed.units!.flatMap((u) => u.lessons)
+    expect(all.filter((l) => l.access).map((l) => [l.id, l.access])).toEqual(course.lessons.filter(isPreviewLesson).map((l) => [l.id, 'free']))
   })
 })
 
-// 還沒有課程內容的課:Vibe Coding 入門的課照 l2Outline.ts;AI Agent 整合應用、進階 AI Agent 應用只規劃到單元／主題,單元底下還沒有課
+// 還沒有課程內容的課:Vibe Coding 入門(基礎階段)的課照 l2Outline.ts;AI Agent 整合應用、進階 AI Agent 應用只規劃到單元／主題,單元底下還沒有課
 describe('還在規劃的課程(資料庫種子)和前端的規劃一致', () => {
   const seed = (id: string) => (SEED_JSON as Seed[]).find((c) => c.id === id)!
 
-  it('Vibe Coding 入門:單元與每一課(課號、名稱、這一課能做到的事)相同,全部規劃中', () => {
-    const vc = seed('vibe-coding-basics')
-    expect(vc.units!.map((u) => [u.id, u.title])).toEqual(L2_MODULES.map((m) => [m.num, m.title]))
-    expect(vc.units!.flatMap((u) => u.lessons.map((l) => [l.id, l.title, l.summary, l.status, l.minutes]))).toEqual(
+  it('Vibe Coding 入門(基礎階段):每一課(課號、名稱、這一課能做到的事)與 l2Outline 相同,全部規劃中', () => {
+    const vc = seed('software').units!.find((u) => u.id === 'vibe-coding-basics')!
+    expect(vc.lessons.map((l) => [l.id, l.title, l.summary, l.status, l.minutes])).toEqual(
       L2_MODULES.flatMap((m) => m.lessons.map((l, i) => [`${m.num}.${i + 1}`, l.title, l.objective, 'planned', minutesOf(l.length)])),
     )
   })
@@ -138,6 +168,21 @@ describe('還在規劃的課程(資料庫種子)和前端的規劃一致', () =>
   it('進階 AI Agent 應用:每個規劃主題是一個單元', () => {
     const topics = ALL_LEVELS.find((l) => l.id === 'advanced')!.topics!
     expect(seed('advanced').units!.map((u) => [u.id, u.title, u.lessons.length])).toEqual(topics.map((t, i) => [String(i + 1), t, 0]))
+  })
+})
+
+describe('從構想到實作的課程地圖(資料庫種子)和前端課程資料一致', () => {
+  const idea = (SEED_JSON as Seed[]).find((c) => c.id === 'idea')!
+  const lessons = idea.units!.flatMap((u) => u.lessons)
+
+  it('課名、單元與每一課的名稱、學會什麼相同', () => {
+    expect(idea.title).toBe(IDEA_TOPIC.name)
+    expect(idea.units!.map((u) => [u.id, u.title, u.subtitle])).toEqual(IDEA_UNITS.map((u) => [u.id, u.title, u.question]))
+    expect(lessons.map((l) => [l.id, l.title, l.summary])).toEqual(IDEA_UNITS.flatMap((u) => u.lessons.map((l) => [l.id, l.title, l.learn])))
+  })
+
+  it('全部規劃中,沒有腳本(主題頁沒有課程頁)', () => {
+    expect(lessons.filter((l) => l.status !== 'planned' || l.script)).toEqual([])
   })
 })
 
@@ -189,5 +234,19 @@ describe('畫面上的身分不是管理員時,草稿當成規劃中(模擬身�
   })
   it('管理員:原樣', () => {
     expect(hideDrafts(units, true)).toBe(units)
+  })
+})
+
+// 前端課程地圖(levels.ts)的存取方式決定單課頁要不要套訂閱關卡,和資料庫種子要一致;只有「還沒決定」(tbd)的不比對
+describe('課程地圖的存取方式和資料庫種子一致', () => {
+  // 「做出自己的軟體」的三個等級是 software 課程底下的單元,存取方式記在單元;其他等級各是一門課
+  const accessOf = (id: string) => {
+    const seeds = SEED_JSON as Seed[]
+    return seeds.find((c) => c.id === id) ?? seeds.flatMap((c) => c.units ?? []).find((u) => u.id === id)
+  }
+  it.each(ALL_LEVELS.filter((l) => l.access !== 'tbd').map((l) => [l.id, l.access] as const))('%s', (id, access) => {
+    const seed = accessOf(id)
+    expect(seed, `種子沒有課程或單元 ${id}`).toBeDefined()
+    expect(seed!.access).toBe(access)
   })
 })

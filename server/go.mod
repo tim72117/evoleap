@@ -5,6 +5,7 @@ go 1.26.0
 require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/jackc/pgx/v5 v5.10.0
+	github.com/tim72117/subscription v0.0.0
 	google.golang.org/api v0.310.0
 	gorm.io/driver/postgres v1.6.3
 	gorm.io/gorm v1.31.2
@@ -51,3 +52,6 @@ require (
 	modernc.org/memory v1.5.0 // indirect
 	modernc.org/sqlite v1.23.1 // indirect
 )
+
+// 方案套件放在同一個 repo(packages/subscription),不另外發布
+replace github.com/tim72117/subscription => ../packages/subscription/go

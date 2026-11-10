@@ -1,15 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
-import { coursePath, lessonNumber, lessonPath, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
+import { coursePath, lessonNumber, levelLabelOf, lessonPath, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
 import styles from './Lesson.module.css'
 import { topicOfCourse } from '../content/topics'
 
 // 規劃中的課程總覽與章節頁：只有標題與簡述，內容完成後章節改由 LessonPage 呈現。
 
-function Crumb({ course, current }: { course: Course; current?: string }) {
+function Crumb({ course, current, chapter }: { course: Course; current?: string; chapter?: PlannedChapter }) {
   const t = useT()
-  const level = t.courses.levelName(course.level)
+  const level = t.courses.levelName(levelLabelOf(course, chapter))
   return (
     <nav className={styles.crumb} aria-label={t.courses.breadcrumb}>
       <Link to={`${topicOfCourse(coursePath(course)).path}#map`}>{t.courses.courseMap}</Link>
@@ -81,10 +81,10 @@ export function PlannedChapterPage({ course, chapter }: { course: Course; chapte
   return (
     <SiteLayout title={`${label(chapter)} ${chapter.title}`}>
       <div className={styles.page}>
-        <Crumb course={course} current={label(chapter)} />
+        <Crumb course={course} current={label(chapter)} chapter={chapter} />
         <header className={styles.head}>
           <p className={styles.kicker}>
-            {t.courses.levelName(course.level)} · {label(chapter)} · <span aria-hidden="true">🌱 </span>{t.courses.planned}
+            {t.courses.levelName(levelLabelOf(course, chapter))} · {label(chapter)} · <span aria-hidden="true">🌱 </span>{t.courses.planned}
           </p>
           <h1>{chapter.title}</h1>
         </header>

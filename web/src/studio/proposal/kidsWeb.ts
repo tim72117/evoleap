@@ -98,7 +98,7 @@ export const KIDS_LIVE_GAPS: { need: string; now: string; idea: string }[] = [
 ]
 
 export const KIDS_OPEN: [string, string][] = [
-  ['放在哪個主題', '已是獨立的主題「給孩子的網頁程式」：首頁單獨一張卡片（content/topics.ts 的 KIDS_TOPIC），有公開的課程地圖 /topics/kids 與 0.1 課程頁 /topics/kids/0-1；大綱在 content/kidsCourse.ts。'],
+  ['放在哪個主題', '已是獨立的主題「給孩子的網頁程式」：首頁單獨一張卡片（content/topics.ts 的 KIDS_TOPIC），有公開的課程地圖 /courses/kids 與 0.1 課程頁 /courses/kids/0-1；大綱在 content/kidsCourse.ts。'],
   ['AI 從哪裡開始', '目前排在單元 4（內容、外觀、動作的名詞都學完）；也可以提早到單元 2 之後，讓 AI 早一點出現。'],
   ['要不要接真的 AI', '單元 4 先用演員模擬的 AI 小幫手。常見的 AI 服務多半有使用年齡限制，若要接真的 AI，要先確認各服務的規定並由家長陪同。'],
   ['要不要看到程式碼', '整門課不教語法；要決定作品完成後要不要讓孩子「翻開看看」AI 寫出來的程式碼（只看、不寫）。'],

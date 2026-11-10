@@ -1,7 +1,8 @@
 // Command evoleap 是管理員改課程資料的 CLI(仿照 tripace 的 tripace-cli),給人或 Claude Code 直接操作。
 //
 // 一律走伺服器的 HTTP API(/api/admin/*、/api/scripts),不直連資料庫:權限、規則檢查與修改紀錄都在伺服器。
-// 正式環境的課程資料以資料庫為準,courses_seed.json 只補資料庫還沒有的課程、單元、課與腳本檔。
+// 注意:現階段課程資料以 courses_seed.json 為準,每次同步(部署、本機啟動)都會把種子的內容寫回資料庫,
+// 用這個 CLI 改的內容會被蓋掉。等課程架構穩定、改成以資料庫為準後才用它改課程資料。
 //
 // 先登入一次:evoleap login(打開瀏覽器,在 evoleap.io 的核准頁按核准,只有管理員能核准),
 // token 依 -api 的主機分開存在使用者設定目錄(見 token.go),之後的指令自動帶上。token 有效期 7 天,可以撤銷。
@@ -250,6 +251,7 @@ func cmdLessonSet(c *client, args []string) {
 	var out any
 	mustDo(c.do("PATCH", "/api/admin/courses/"+url.PathEscape(*course)+"/lessons/"+url.PathEscape(*lesson), patch, &out))
 	printJSON(out)
+	warnSeedOverwrites()
 }
 
 func cmdScriptGet(c *client, args []string) {
@@ -265,6 +267,11 @@ func cmdScriptGet(c *client, args []string) {
 	}
 	mustDo(os.WriteFile(*out, body, 0o644))
 	printJSON(map[string]any{"path": *path, "out": *out, "bytes": len(body)})
+}
+
+// warnSeedOverwrites 提醒:現階段課程資料以種子為準,每次部署與本機啟動的同步都會把種子的內容寫回資料庫,這次的修改會被蓋掉。
+func warnSeedOverwrites() {
+	fmt.Fprintln(os.Stderr, "注意:現階段以 courses_seed.json 與 web/src/content/live 為準,下次同步(部署、本機啟動)會蓋掉這次的修改;要長期保留請改種子。")
 }
 
 func cmdScriptPush(c *client, args []string) {
@@ -297,6 +304,7 @@ func cmdScriptPush(c *client, args []string) {
 	var out any
 	mustDo(c.doBody("PUT", target, body, &out))
 	printJSON(out)
+	warnSeedOverwrites()
 }
 
 // livePath 把 web/src/content/live/ 底下的檔案轉成腳本路徑(例如 …/live/l0/0.0-tools.json → l0/0.0-tools.json)

@@ -65,7 +65,7 @@ export function WebBasicsPage() {
                 {WEB_DEMOS[l.id] && (
                   <>
                     {' '}
-                    <Link to={WEB_DEMOS[l.id]}>{WEB_DEMOS[l.id].startsWith('/topics/') ? '看課程 →' : '看試做 →'}</Link>
+                    <Link to={WEB_DEMOS[l.id]}>{WEB_DEMOS[l.id].startsWith('/courses/') ? '看課程 →' : '看試做 →'}</Link>
                   </>
                 )}
                 <br />

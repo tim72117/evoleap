@@ -4,6 +4,39 @@
 
 ## [Unreleased]
 
+### 變更
+
+- **課程資料現階段以種子為準**（反轉 0.30.0 的「以資料庫為準」）：種子同步（部署時的課程同步工作、本機後端啟動時）把 `courses_seed.json` 與腳本檔寫進資料庫，沒有的新增，**已經有的課、單元、課程與腳本檔也更新成種子與磁碟上的內容**（課名、一句話、存取方式、狀態、腳本、時間），種子拿掉的仍不刪。等課程架構穩定，才改回以資料庫為準、用 `evoleap` CLI 改。
+  - 影響：用 `evoleap` CLI 或後台改過的課程資料，下次同步會被種子蓋回去；正式環境下次部署或手動執行 `sync-courses.yml` 就會生效。
+  - 修掉：本機資料庫比種子舊時，已開放的課因為 `script` 是空的被前端當成還沒開放（例如給孩子的網頁程式 0.2），重啟後端也補不回來。
+  - **AI 工具介紹（tools）改成要訂閱**：種子裡 tools 的存取方式從 `login-free` 改成 `subscription`（方案等級 `basic`），只有序章（0.intro）維持免費；第 0 課起要訂閱或選廣告方案才能看。前端 `content/levels.ts` 的 tools 也同步改成 `subscription`（單課頁要不要套訂閱關卡看的是這一份），並新增測試檢查前端與種子的存取方式一致（`courseMap.test.ts`），之後兩邊不會再各改各的。影響：正式環境下次同步後，原本登入就能看 tools 第 0 課起的會員會被導到收費頁；e2e 裡用一般新會員開 tools 第 0、1、2 課的測試要改（見下方「已知問題」）。
+  - 涉及：`store.SeedCourses`、`SyncLessonFiles`（`insertMissingUnits` 改名 `upsertUnits`）；README、workflow 與 CLI 的說明已同步更新。
+
+### 新增
+
+- **廣告方案（看廣告換觀看權）**：訂閱課程的單課頁（`courses/SubscriptionGate.tsx`）先問 `GET /api/courses/{id}/access?lesson=`。
+  - 沒登入：顯示登入提示。
+  - 沒有方案：轉到新的收費頁 `/pricing?next=<那一課>`。
+  - 在收費頁選了廣告方案（`POST /api/plan/ads`）：回到原本那一課。
+  - 廣告方案的人每一課先看片頭廣告（`courses/PrerollAd.tsx`，畫面用現有的 `AdSlot`，倒數 15 秒）。播完由伺服器發這一課的通行證，是 HttpOnly cookie `evoleap_ad_pass`，30 分鐘內重新整理不用再看。
+  - 腳本檔 `GET /api/scripts` 對訂閱課程照方案把關：廣告方案沒有這一課的通行證時回 403 `ad_required`。
+  - 廣告方案只涵蓋 `basic` 的課程，`advanced` 要等付費訂閱。
+  - 付費訂閱還沒開放，收費頁顯示「即將開放」。
+- **方案套件** `packages/subscription`：從 `feat/subscription` 分支抽出方案與權限的部分，不含金流（Paddle、webhook、付款紀錄還在那個分支）。
+  - 方案由低到高：`free < basic < advanced`，見 `server/internal/plans/plans.go`。
+  - 使用者的方案紀錄存在新的 `subscriptions` 表，廣告方案是 `source = ads`。
+  - `server/go.mod` 用 `replace` 指向這個目錄，Dockerfile 和 CI 都已經跟著改。
+- **管理員模擬身分也影響課程權限**：會員空間切換「訪客／註冊未訂閱／已訂閱」時，前端問權限的請求會帶 `X-Simulate-Role`（`auth/api.ts`），伺服器的課程權限（`GET /api/courses/{id}/access`）與方案狀態（`GET /api/plan/me`）照模擬的身分回答，所以模擬「註冊未訂閱」進不了訂閱課。只有真的管理員送的標頭有效，一般使用者送了會被忽略；腳本檔與後台不受影響。切換身分時關卡會重新查詢。
+- API：`GET /api/plan/me`、`POST /api/plan/ads`、`POST /api/plan/ads/start`、`POST /api/plan/ads/finish`、`GET /api/courses/{id}/access`。
+- 隱私權政策的「廣告」一節加上片頭廣告與通行證 cookie 的說明。
+
+### 已知問題
+
+- **e2e 還沒跟上 tools 改成訂閱**：下列測試用一般新會員開 tools 的第 0、1、2 課，現在會被導到收費頁，要先讓測試帳號有方案（廣告方案要多等 15 秒的片頭廣告）：`auth.spec.ts`（第 0 課的登入門檻、課程清單）、`live-lesson.spec.ts`、`navigation.spec.ts`（第 1、2 課與側欄）、`portrait-drawer.spec.ts`，以及用 `loginAsNewStudent` 的其他 spec。尚未修改，也沒有跑 e2e。
+- 片頭廣告的畫面還沒在瀏覽器裡實際走過：之前沒有開放中的訂閱課，現在 tools 改成訂閱後可以走了，但目前只有 API 測試（`internal/api/plan_test.go`）和實際打 API 驗證過。
+- 網頁廣告沒辦法由伺服器確認真的看完，只確認從開始到完成至少過了 15 秒。
+- 廣告方案的人進課後，側欄原本的 `LessonAd` 廣告位仍然會出現。
+
 ## [0.39.0] - 2026-11-13
 
 網站英文版介面：整個網站的介面可以在繁中與英文之間切換，課程內容維持中文。新增 `users.locale` 欄位（AutoMigrate 自動建立）；沒有破壞性的 API 變更。

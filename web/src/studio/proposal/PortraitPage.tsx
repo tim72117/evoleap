@@ -137,7 +137,7 @@ export function PortraitPage() {
       <p className={ui.lead}>選一支腳本，切換橫式和直式比較。序章與第 0 課是課程本身的腳本，兩種方向都用調度。「調度」是兩位演員共用同一塊位置、輪流到前景：依序示範縱深構圖（depth）、子母畫面（pip）、單人鏡頭（single），規格見 web/src/live/blocking.ts。</p>
       <PortraitTrial />
       <div className={ui.links}>
-        <Link className={`${ui.btn} ${ui.ghost}`} to="/courses/tools/intro?aspect=portrait">
+        <Link className={`${ui.btn} ${ui.ghost}`} to="/courses/software/intro?aspect=portrait">
           序章的直式互動頁（含手機底部抽屜）
         </Link>
       </div>

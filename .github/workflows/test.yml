@@ -45,6 +45,13 @@ jobs:
           go vet ./...
           go test ./...
 
+      # 方案套件單獨檢查:不經過專案也要能編譯,確保它沒有依賴專案。
+      - name: Subscription package
+        working-directory: packages/subscription/go
+        run: |
+          go vet ./...
+          go test ./...
+
       - name: Go API tests on Postgres
         working-directory: server
         env:

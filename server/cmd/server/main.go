@@ -11,7 +11,10 @@ import (
 
 	"github.com/tim72117/evoleap/internal/api"
 	"github.com/tim72117/evoleap/internal/auth"
+	"github.com/tim72117/evoleap/internal/plans"
 	"github.com/tim72117/evoleap/internal/store"
+	"github.com/tim72117/subscription"
+	"github.com/tim72117/subscription/gormstore"
 )
 
 // authRateLimitPerIP 是正式環境每個來源 IP 每分鐘可嘗試登入、註冊的次數。
@@ -71,8 +74,8 @@ func main() {
 	if dsn == "" {
 		log.Print("未設定 DATABASE_URL:登入功能停用")
 	} else {
-		// Cloud Run 上只讀:課程資料由部署時的同步工作補進去(cmd/sync)。本機每次啟動補一次種子新加的課程、單元、課與腳本檔;
-		// 已經有的不會被種子蓋掉(資料庫為準),要整份換成種子的內容就刪掉 shuttle.db 再啟動
+		// Cloud Run 上只讀:課程資料由部署時的同步工作寫進去(cmd/sync)。本機每次啟動把種子與腳本檔同步進資料庫:
+		// 現階段以種子為準,沒有的新增、已經有的更新成種子的內容
 		var st *store.Store
 		var err error
 		if onCloudRun {
@@ -93,6 +96,13 @@ func main() {
 		}
 		cfg.Store = st
 		cfg.Signer = auth.NewSigner(secret, 30*24*time.Hour)
+		// 方案(packages/subscription):目前只有廣告方案,還沒有金流
+		if err := plans.Catalog.Validate(); err != nil {
+			log.Fatal(err)
+		}
+		if cfg.Plans, err = gormstore.NewService(st.DB(), plans.Catalog, subscription.Options{}); err != nil {
+			log.Fatal(err)
+		}
 	}
 	if onCloudRun {
 		cfg.AuthRateLimit = authRateLimitPerIP

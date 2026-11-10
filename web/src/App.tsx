@@ -7,6 +7,7 @@ import { homeRoutes } from './home/routes'
 import { isKidsModePath, KIDS_MODE_HOME, useKidsMode } from './kidsMode/KidsModeContext'
 import { legalRoutes } from './legal/routes'
 import { memberRoutes } from './member/routes'
+import { pricingRoutes } from './pricing/routes'
 import { findPage } from './seo/pages'
 import { usePageMeta } from './seo/usePageMeta'
 import { useAnalyticsPageView } from './site/analytics'
@@ -18,7 +19,7 @@ import { NotFoundPage } from './site/NotFoundPage'
 const StudioApp = lazy(() => import('./studio/StudioApp'))
 
 // scripts/seo.mjs 會檢查這裡與 studio/StudioApp 的 internalRoutes 的每個路由在 SEO 資料裡都有一筆。
-export const routes = [...homeRoutes, ...courseRoutes, ...legalRoutes, ...authRoutes, ...memberRoutes, ...adminRoutes]
+export const routes = [...homeRoutes, ...courseRoutes, ...legalRoutes, ...pricingRoutes, ...authRoutes, ...memberRoutes, ...adminRoutes]
 
 // 內部頁的 SEO 資料在 StudioApp 裡,公開的打包內容不包含內部頁清單。
 const publicPageMeta = (pathname: string) => (isInternalPath(pathname) ? null : findPage(pathname))

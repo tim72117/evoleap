@@ -1,4 +1,4 @@
-// 單課頁(/courses/ai-tools/3-3 = L1 第 3.3 課,2 支影片、5 個步驟,影片未上架 → 預覽大綱播放器)的回歸測試:
+// 單課頁(/courses/software/3-3 = L1 第 3.3 課,2 支影片、5 個步驟,影片未上架 → 預覽大綱播放器)的回歸測試:
 // (L0 第 0、1、2 課已改用即時教學畫面,一課一支影片;這裡測多支影片的預覽大綱播放器,
 //  要找一門還沒有即時影片、且有多支影片的課:L0 全部上架後改用 L1。)
 // 第一屏同時看得到播放器、播放中的步驟提示詞與複製鈕;播放進度驅動「播放中」;
@@ -6,7 +6,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { collectErrors } from './support'
 
-const LESSON = '/courses/ai-tools/3-3'
+const LESSON = '/courses/software/3-3'
 
 const player = (page: Page) => page.getByRole('group', { name: /^預覽大綱：/ })
 const step = (page: Page, n: number) => page.locator(`#step-${n}`)

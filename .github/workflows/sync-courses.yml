@@ -5,7 +5,8 @@ name: Sync course data
 # 只能從 dev 分支執行,選其他分支會直接失敗(免得開發中的分支把課程或資料表結構寫進正式資料庫)。
 # 只跑和課程資料有關的測試(Go 測試、課程一致性測試),build 課程同步工作的小 image(Dockerfile 的 course-sync 目標,
 # 只有 cmd/sync 與腳本目錄,不建置前端),再執行課程同步工作(Cloud Run Job)。
-# 課程資料以資料庫為準:同步只補資料庫還沒有的,已經有的課(開放狀態、時間、腳本內容)用 evoleap CLI 改。
+# 現階段課程資料以種子為準:同步會把資料庫裡已經有的課(開放狀態、時間、腳本內容)也更新成種子的內容,要改請改種子;
+# 等課程架構穩定、改成以資料庫為準後,才用 evoleap CLI 改。
 # 新增課程頁(前端路由、SEO、課程內容)和程式的修改,還是要打 tag 部署網站(deploy-cloudrun.yml)。
 on:
   workflow_dispatch:

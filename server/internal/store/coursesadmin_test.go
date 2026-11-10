@@ -20,8 +20,8 @@ func openSeeded(t *testing.T) *Store {
 	return st
 }
 
-// 管理員改一課:檢查規則、記一筆修改紀錄;種子再同步一次也不會蓋掉(資料庫為準)
-func TestUpdateLessonKeptAcrossSeed(t *testing.T) {
+// 管理員改一課:檢查規則、記一筆修改紀錄。現階段以種子為準,種子再同步一次就蓋回種子的內容(之後改以資料庫為準時,這裡要改回「不蓋掉」)
+func TestUpdateLessonOverwrittenBySeed(t *testing.T) {
 	st := openSeeded(t)
 	ctx := context.Background()
 	minutes := 12
@@ -43,8 +43,8 @@ func TestUpdateLessonKeptAcrossSeed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if l := m.Units[0].Lessons[0]; l.Status != LessonDraft || l.Minutes != 12 {
-		t.Errorf("種子不能蓋掉管理員改過的課: %+v", l)
+	if l := m.Units[0].Lessons[0]; l.Status != LessonOpen || l.Minutes == 12 {
+		t.Errorf("種子要蓋回管理員改過的課: %+v", l)
 	}
 	changes, err := st.CourseChanges(ctx, 10)
 	if err != nil || len(changes) == 0 || changes[0].Action != "lesson.update" || changes[0].Target != "kids 0.1" || changes[0].User != "boss@example.com" {
@@ -107,24 +107,24 @@ func TestUpdateLessonScriptMustExist(t *testing.T) {
 	}
 }
 
-// 種子中間插入新課:既有的課內容不動,順序照種子重排,不會撞號
-func TestInsertMissingUnitsReorders(t *testing.T) {
+// 種子中間插入新課:既有的課內容與順序都照種子更新,不會撞號
+func TestUpsertUnitsReorders(t *testing.T) {
 	st := openSeeded(t)
 	lesson := func(id string) lessonSeed { return lessonSeed{ID: id, Title: id, Status: LessonPlanned} }
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return syncUnits(tx, "tools", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("c")}}})
+		return syncUnits(tx, "software", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("c")}}})
 	}); err != nil {
 		t.Fatal(err)
 	}
-	if err := st.db.Model(&lessonRow{}).Where("course_id = ? AND id = ?", "tools", "c").Update("title", "改過的").Error; err != nil {
+	if err := st.db.Model(&lessonRow{}).Where("course_id = ? AND id = ?", "software", "c").Update("title", "改過的").Error; err != nil {
 		t.Fatal(err)
 	}
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return insertMissingUnits(tx, "tools", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("b"), lesson("c")}}})
+		return upsertUnits(tx, "software", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("b"), lesson("c")}}})
 	}); err != nil {
 		t.Fatal(err)
 	}
-	m, err := st.CourseMapOf(context.Background(), "tools", true)
+	m, err := st.CourseMapOf(context.Background(), "software", true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -132,38 +132,57 @@ func TestInsertMissingUnitsReorders(t *testing.T) {
 	for _, l := range m.Units[0].Lessons {
 		got = append(got, l.ID+":"+l.Title)
 	}
-	if strings.Join(got, ",") != "a:a,b:b,c:改過的" {
-		t.Errorf("順序照種子、內容不動: %v", got)
+	if strings.Join(got, ",") != "a:a,b:b,c:c" {
+		t.Errorf("順序與內容都照種子: %v", got)
 	}
 }
 
 // 規劃中的課不能上傳腳本(要先改成草稿)
 func TestPutScriptRefusesPlannedLesson(t *testing.T) {
 	st := openSeeded(t)
-	if err := st.PutScript(context.Background(), "boss@example.com", "web/x.json", "web", "2.1", []byte(`{}`)); !errors.Is(err, ErrInvalidCourseData) {
+	if err := st.PutScript(context.Background(), "boss@example.com", "software/x.json", "software", "4.1", []byte(`{}`)); !errors.Is(err, ErrInvalidCourseData) {
 		t.Errorf("規劃中的課: %v", err)
 	}
 }
 
-// 種子把課搬到別的單元:課跟著搬(結構照種子),內容不動
-func TestInsertMissingUnitsMovesLesson(t *testing.T) {
+// 種子把課搬到別的單元:課跟著搬
+func TestUpsertUnitsMovesLesson(t *testing.T) {
 	st := openSeeded(t)
 	lesson := func(id string) lessonSeed { return lessonSeed{ID: id, Title: id, Status: LessonPlanned} }
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return syncUnits(tx, "tools", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a"), lesson("b")}}, {ID: "2", Title: "u2"}})
+		return syncUnits(tx, "software", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a"), lesson("b")}}, {ID: "2", Title: "u2"}})
 	}); err != nil {
 		t.Fatal(err)
 	}
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return insertMissingUnits(tx, "tools", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a")}}, {ID: "2", Title: "u2", Lessons: []lessonSeed{lesson("b")}}})
+		return upsertUnits(tx, "software", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a")}}, {ID: "2", Title: "u2", Lessons: []lessonSeed{lesson("b")}}})
 	}); err != nil {
 		t.Fatal(err)
 	}
-	m, err := st.CourseMapOf(context.Background(), "tools", true)
+	m, err := st.CourseMapOf(context.Background(), "software", true)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(m.Units) != 2 || len(m.Units[1].Lessons) != 1 || m.Units[1].Lessons[0].ID != "b" {
 		t.Errorf("b 要搬到單元 2: %+v", m.Units)
+	}
+}
+
+// 資料庫裡舊的列(腳本是空的、狀態是規劃中)同步後要補成種子的內容,課才能開
+func TestSeedFillsStaleLessonRows(t *testing.T) {
+	st := openSeeded(t)
+	ctx := context.Background()
+	if err := st.db.Model(&lessonRow{}).Where("course_id = ? AND id = ?", "kids", "0.2").Updates(map[string]any{"script": "", "status": LessonPlanned}).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SeedCourses(ctx); err != nil {
+		t.Fatal(err)
+	}
+	var l lessonRow
+	if err := st.db.First(&l, "course_id = ? AND id = ?", "kids", "0.2").Error; err != nil {
+		t.Fatal(err)
+	}
+	if l.Script != "kids/0.2.json" || l.Status != LessonOpen {
+		t.Errorf("要補成種子的內容: script=%q status=%q", l.Script, l.Status)
 	}
 }

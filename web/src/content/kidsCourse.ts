@@ -1,4 +1,4 @@
-// 兒童網頁課(主題「給孩子的網頁程式」)的課程大綱:公開的主題頁 /topics/kids 與研發基地的大綱頁(studio/proposal/kidsWeb.ts)共用。
+// 兒童網頁課(主題「給孩子的網頁程式」)的課程大綱:公開的課程地圖 /courses/kids 與研發基地的大綱頁(studio/proposal/kidsWeb.ts)共用。
 // 堂數、內容都還是規劃,公開頁面只顯示單元、課名與「學會」;看、做、名詞的細節給研發基地看。
 // 有課程頁的課在 KIDS_OPEN_LESSONS(課號 → 課程頁、腳本與給家長的話;序章與單元 1 已開放,2.1 起是草稿),已開放的在 KIDS_RELEASED_LESSONS;
 // 能不能上、播哪個腳本以資料庫為準(home/TopicLessonGate.tsx)。
@@ -251,7 +251,7 @@ export const KIDS_UNITS: KidsUnit[] = [
 /** 已經有課程頁的課:課號 → 課程頁路徑(路由與 SEO)、腳本與給家長的話。實際播的腳本從資料庫來,這裡的 script 要和種子一致(content/courseMap.test.ts) */
 export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; parents: string[] }> = {
   '0.1': {
-    path: '/topics/kids/0-1',
+    path: '/courses/kids/0-1',
     script: 'kids/0.1.json',
     parents: [
       '這一課不用打字，只要點一點。旁白會說明每一步；停下來的地方，等孩子自己點畫面上的網頁或積木。',
@@ -259,7 +259,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '0.2': {
-    path: '/topics/kids/0-2',
+    path: '/courses/kids/0-2',
     script: 'kids/0.2.json',
     parents: [
       '這一課看瀏覽器怎麼把網頁畫出來：它先把網頁排成一棵樹，再照著樹由上往下、一層一層畫。孩子會拖動樹上的節點，看網頁跟著重新排好。',
@@ -267,7 +267,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '0.3': {
-    path: '/topics/kids/0-3',
+    path: '/courses/kids/0-3',
     script: 'kids/0.3.json',
     parents: [
       '這一課看網頁從哪裡來：網頁放在另一台電腦（伺服器）上，瀏覽器照網址寄信去要，伺服器把網頁寄回來，瀏覽器再照著畫出來。孩子會點書籤寄信，也會在自己的電腦上改字、再按重新整理。',
@@ -275,7 +275,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '1.1': {
-    path: '/topics/kids/1-1',
+    path: '/courses/kids/1-1',
     script: 'kids/1.1.json',
     parents: [
       '這一課看一篇擠在一起的介紹，怎麼分成大標題、小標題和段落，一眼就看得懂。孩子會自己動手，把文字分到標題和段落裡。不用打字，點一點、放一放就可以。',
@@ -283,7 +283,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '1.2': {
-    path: '/topics/kids/1-2',
+    path: '/courses/kids/1-2',
     script: 'kids/1.2.json',
     parents: [
       '這一課看喜歡的東西寫成一長串很難讀，排成清單就清楚了。孩子會把小花喜歡的東西排成清單，再試試有順序的編號清單。操作都是點一點、排一排。',
@@ -291,7 +291,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '1.3': {
-    path: '/topics/kids/1-3',
+    path: '/courses/kids/1-3',
     script: 'kids/1.3.json',
     parents: [
       '這一課看圖片載不出來的時候，畫面只剩下圖片的說明文字，所以圖片要有說明，看不到圖片的人也知道那是什麼。孩子會幫寵物名片的照片選一句說明。',
@@ -299,7 +299,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '1.4': {
-    path: '/topics/kids/1-4',
+    path: '/courses/kids/1-4',
     script: 'kids/1.4.json',
     parents: [
       '這一課看點一下連結就跑到另一頁，網頁就是靠連結一頁一頁連起來的。孩子會幫名片加一個連到小花相簿的連結，並選一句說得清楚的連結文字。',
@@ -307,7 +307,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '1.5': {
-    path: '/topics/kids/1-5',
+    path: '/courses/kids/1-5',
     script: 'kids/1.5.json',
     parents: [
       '這一課是單元 1 的作品：孩子用學過的積木，選一選、排順序，組成一張寵物名片，有名字、照片、介紹和喜歡的東西。做好後會說出每一塊叫什麼名字。',
@@ -315,7 +315,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '2.1': {
-    path: '/topics/kids/2-1',
+    path: '/courses/kids/2-1',
     script: 'kids/2.1.json',
     parents: [
       '這一課開始幫網頁換衣服：同一張名片，字的顏色和背景顏色換一換，感覺就不一樣；顏色太接近還會看不清楚。孩子會用色盤幫標題和背景換顏色，找出看得清楚的搭配。',
@@ -323,7 +323,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '2.2': {
-    path: '/topics/kids/2-2',
+    path: '/courses/kids/2-2',
     script: 'kids/2.2.json',
     parents: [
       '這一課看字變大、變小、變粗之後，重要的字一眼就看到。孩子會玩「猜猜看」：先猜按下去會變大還是變小，再按按看結果。猜錯也沒關係，看結果就是學習。',
@@ -331,7 +331,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '2.3': {
-    path: '/topics/kids/2-3',
+    path: '/courses/kids/2-3',
     script: 'kids/2.3.json',
     parents: [
       '這一課把網頁上的每一塊都當成一個盒子：外面有邊框，盒子裡面和外面都可以留白。孩子會拖動滑桿，看邊框和留白怎麼讓盒子變大、讓盒子彼此分開。',
@@ -339,7 +339,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '2.4': {
-    path: '/topics/kids/2-4',
+    path: '/courses/kids/2-4',
     script: 'kids/2.4.json',
     parents: [
       '這一課看三張卡片從一直往下排，變成並排、置中站好。孩子會玩過關遊戲，把卡片排到指定的位置，一關比一關難。卡住時可以讓孩子多試幾次。',
@@ -347,7 +347,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '2.5': {
-    path: '/topics/kids/2-5',
+    path: '/courses/kids/2-5',
     script: 'kids/2.5.json',
     parents: [
       '這一課是單元 2 的作品：同一張寵物名片，孩子自己挑顏色、字的大小和排法幫它換裝，再用一句話說出改了哪一塊、改成什麼樣子。',
@@ -355,7 +355,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '3.1': {
-    path: '/topics/kids/3-1',
+    path: '/courses/kids/3-1',
     script: 'kids/3.1.json',
     parents: [
       '這一課讓網頁動起來：按一下按鈕，網頁上跳出「你好！」。孩子會換掉按下去要說的話，再按一次，看網頁有沒有照著說的做。',
@@ -363,7 +363,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '3.2': {
-    path: '/topics/kids/3-2',
+    path: '/courses/kids/3-2',
     script: 'kids/3.2.json',
     parents: [
       '這一課看網頁上的東西可以出現，也可以藏起來：按一下答案出現，再按一下答案藏起來。孩子會做一張「按一下看答案」的小卡。',
@@ -371,7 +371,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '3.3': {
-    path: '/topics/kids/3-3',
+    path: '/courses/kids/3-3',
     script: 'kids/3.3.json',
     parents: [
       '這一課看網頁怎麼記住數字：畫面上有一個貼著名字的盒子，每按一下，盒子裡的數字加 1。孩子會做一個計數器，再改成每次加 2，或從 10 開始倒數。',
@@ -379,7 +379,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '3.4': {
-    path: '/topics/kids/3-4',
+    path: '/courses/kids/3-4',
     script: 'kids/3.4.json',
     parents: [
       '這一課讓網頁學會判斷：數到 10 的時候，畫面放出煙火。孩子會改條件，決定數到幾要放煙火、要變成什麼顏色，再試試看。',
@@ -387,7 +387,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '3.5': {
-    path: '/topics/kids/3-5',
+    path: '/courses/kids/3-5',
     script: 'kids/3.5.json',
     parents: [
       '這一課看網頁怎麼每次都不一樣：按一下，骰子轉一轉，停在 1 到 6 其中一個數字。孩子會先猜會擲出幾點再按下去，也會把骰子改成 1 到 100。',
@@ -395,7 +395,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '4.1': {
-    path: '/topics/kids/4-1',
+    path: '/courses/kids/4-1',
     script: 'kids/4.1.json',
     parents: [
       '這一課開始請「AI 小幫手」幫忙改網頁。這個小幫手是課程裡模擬的，不是真的連到 AI；它只照孩子說的做，名字叫錯就會改錯地方。孩子會從名詞卡裡選出正確的名字，請小幫手改對地方。',
@@ -403,7 +403,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '4.2': {
-    path: '/topics/kids/4-2',
+    path: '/courses/kids/4-2',
     script: 'kids/4.2.json',
     parents: [
       '這一課練習把話說清楚。課程裡的 AI 小幫手是模擬的，不是真的 AI：一句「幫我做網頁」只做出空空的網頁，說出有哪些部分、什麼順序、什麼樣子，才做得很接近。孩子會用句子卡拼出描述，請小幫手做出一張寵物名片。',
@@ -411,7 +411,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '4.3': {
-    path: '/topics/kids/4-3',
+    path: '/courses/kids/4-3',
     script: 'kids/4.3.json',
     parents: [
       '這一課學檢查和修正。小幫手是課程模擬的，不是真的 AI：做出來和想要的不一樣時，孩子要找出哪一句沒說清楚，一次只改一件事再試一次。孩子會比對目標圖和做出來的網頁，把描述改到一樣。',
@@ -419,7 +419,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '4.4': {
-    path: '/topics/kids/4-4',
+    path: '/courses/kids/4-4',
     script: 'kids/4.4.json',
     parents: [
       '這一課學先畫草圖，再把大目標拆成幾句小描述。孩子可以從範本挑一個起點，或從空白開始畫出網站的樣子，再拆成幾句清楚的話。',
@@ -427,7 +427,7 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
     ],
   },
   '4.5': {
-    path: '/topics/kids/4-5',
+    path: '/courses/kids/4-5',
     script: 'kids/4.5.json',
     parents: [
       '這一課是整個課程的作品：孩子照著自己的草圖說給 AI 小幫手聽，做出自我介紹頁和一個小遊戲，再檢查、修正。小幫手是課程模擬的，不是真的 AI。卡住時，可以讓孩子回去看前面的課。',

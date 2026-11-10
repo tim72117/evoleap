@@ -1,4 +1,4 @@
-// 正式課程「網頁怎麼運作」(主題頁 /topics/web,home/WebTopicPage.tsx):單元、每一課與課程說明。
+// 正式課程「網頁怎麼運作」(課程地圖 /courses/web,home/WebTopicPage.tsx):單元、每一課與課程說明。
 // 研發中的構想(定位、設計原則、元件、待決定)留在研發基地 studio/proposal/webBasics.ts。
 // 不教語法(語法交給 AI),教運作概念與正確的名詞,讓學員看得懂網頁、跟 AI 說得清楚。
 // 只寫大綱裡已有的內容;還沒開放的課在主題頁標「規劃中」。
@@ -279,10 +279,10 @@ export const WEB_UNITS: WebUnit[] = [
 /** 已經有課程頁的課:課號 → 課程頁網址(路由與 SEO)、腳本與互動點的做法(interaction,static:影片停下來,學員直接操作演員)。
  *  能不能上、播哪個腳本、要不要登入以資料庫為準(home/TopicLessonGate.tsx);這裡的 script 要和種子一致(content/courseMap.test.ts) */
 export const WEB_OPEN_LESSONS: Record<string, { path: string; script: string; interaction?: 'static' }> = {
-  '0.1': { path: '/topics/web/0-1', script: 'web/0.1.json' },
-  '0.2': { path: '/topics/web/0-2', script: 'web/0.2.json' },
-  '1.1': { path: '/topics/web/1-1', script: 'web/1.1.json', interaction: 'static' },
-  '1.2': { path: '/topics/web/1-2', script: 'web/1.2.json', interaction: 'static' },
+  '0.1': { path: '/courses/web/0-1', script: 'web/0.1.json' },
+  '0.2': { path: '/courses/web/0-2', script: 'web/0.2.json' },
+  '1.1': { path: '/courses/web/1-1', script: 'web/1.1.json', interaction: 'static' },
+  '1.2': { path: '/courses/web/1-2', script: 'web/1.2.json', interaction: 'static' },
 }
 
 /** 只有第一課(0.1)可以直接預覽,其他課要登入 */

@@ -35,11 +35,11 @@ describe('課程編排', () => {
   })
 
   it('課程移到別的程度,段落跟著走;移回原處就沒有移動紀錄', () => {
-    const next = moveCourse(seed, '0.2', 'ai-tools', 0)
-    expect(courses(next, 'ai-tools')[0]).toBe('0.2')
+    const next = moveCourse(seed, '0.2', 'ai-agent', 0)
+    expect(courses(next, 'ai-agent')[0]).toBe('0.2')
     expect(segments(next, '0.2')).toHaveLength(9)
-    expect(next.changes).toEqual([{ type: 'course', id: '0.2', title: expect.any(String), from: 'tools', to: 'ai-tools' }])
-    expect(moveCourse(next, '0.2', 'tools', 2).changes).toEqual([])
+    expect(next.changes).toEqual([{ type: 'course', id: '0.2', title: expect.any(String), from: 'software', to: 'ai-agent' }])
+    expect(moveCourse(next, '0.2', 'software', 2).changes).toEqual([])
   })
 
   it('鍵盤移動:清單內換位,到邊緣跨到相鄰的課程或程度,最外層不動', () => {
@@ -48,7 +48,10 @@ describe('課程編排', () => {
     expect(segments(nudge(seed, 'segment', '0.0#5', 1), '0.1')[0]).toBe('0.0#5')
     expect(segments(nudge(seed, 'segment', '0.1#1', -1), '0.0').at(-1)).toBe('0.1#1')
     expect(nudge(seed, 'segment', '0.intro#1', -1)).toEqual(seed)
-    expect(courses(nudge(seed, 'course', '0.2', 1), 'ai-tools')[0]).toBe('0.2')
+    // 「做出自己的軟體」的最後一項往後移,跨到下一個程度(AI 互動軟體 中階)的最前面
+    const last = courses(seed, 'software').at(-1)!
+    expect(courses(nudge(seed, 'course', last, 1), 'ai-agent')[0]).toBe(last)
+    expect(courses(nudge(seed, 'course', '0.2', 1), 'software').slice(0, 4)).toEqual(['0.intro', '0.0', '0.1', '1.0'])
     expect(nudge(seed, 'course', '0.intro', -1)).toEqual(seed)
   })
 
@@ -58,7 +61,7 @@ describe('課程編排', () => {
     const c0 = newer.levels[0].courses.find((c) => c.id === '0.0')!
     c0.segments.push({ id: '0.0#6', title: '新步驟', from: '0.0' })
     c0.segments[4].title = '改過的標題'
-    newer.levels[0].courses.push({ id: '0.3', code: '0.3', title: '新課', from: 'tools', segments: [{ id: '0.3#1', title: '第一步', from: '0.3' }] })
+    newer.levels[0].courses.push({ id: '0.3', code: '0.3', title: '新課', from: 'software', segments: [{ id: '0.3#1', title: '第一步', from: '0.3' }] })
     const out = reconcile(moved, newer)
     expect(segments(out, '0.1')[0]).toBe('0.0#5')
     expect(out.levels[0].courses.find((c) => c.id === '0.1')!.segments[0].title).toBe('改過的標題')

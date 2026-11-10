@@ -66,7 +66,8 @@ func lessonFilePaths(dir string, l lessonSeed) []string {
 }
 
 // SyncLessonFiles 依 courses_seed.json 把每一課的腳本檔從 dir(web/src/content/live)讀進 lesson_files,其餘的 .json 讀進 studio_files。
-// 只新增資料庫還沒有的檔,已經有的不動:上線後腳本以資料庫為準,改腳本用 evoleap script push(見 coursesadmin.go)。
+// 現階段以磁碟上的檔案為準:沒有的新增,已經有的用檔案的內容更新(課程的腳本與研發基地的腳本都一樣)。
+// 資料庫裡已經掛在某一課底下、種子沒有寫到的檔不動。等課程架構穩定,才改成以資料庫為準、改腳本用 evoleap script push(見 coursesadmin.go)。
 // 種子寫到的檔案不存在時回傳錯誤(啟動失敗),免得上線後課程頁才發現少了腳本。
 func (s *Store) SyncLessonFiles(ctx context.Context, dir string) error {
 	return s.SyncLessonFilesJSON(ctx, courseSeed, dir)
@@ -131,14 +132,25 @@ func (s *Store) SyncLessonFilesJSON(ctx context.Context, seed []byte, dir string
 	}
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if len(rows) > 0 {
-			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(rows, 20).Error; err != nil {
+			err := tx.Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "path"}},
+				DoUpdates: clause.AssignmentColumns([]string{"course_id", "lesson_id", "content"}),
+			}).CreateInBatches(rows, 20).Error
+			if err != nil {
 				return err
 			}
 		}
 		if len(studio) > 0 {
-			return tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(studio, 20).Error
+			err := tx.Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "path"}},
+				DoUpdates: clause.AssignmentColumns([]string{"content"}),
+			}).CreateInBatches(studio, 20).Error
+			if err != nil {
+				return err
+			}
 		}
-		return nil
+		// 檔案已經改掛到合併後的課程底下,舊課程(retiredCourses)的列與沒被搬走的檔到這裡才清
+		return deleteRetiredCourses(tx, retiredIn(seeds))
 	})
 }
 
@@ -161,7 +173,11 @@ func (s *Store) LessonFileOf(ctx context.Context, path string) (LessonFile, erro
 	if err := db.First(&c, "id = ?", f.CourseID).Error; err != nil {
 		return LessonFile{}, notFoundAs(err)
 	}
-	return LessonFile{CourseID: f.CourseID, LessonID: f.LessonID, Status: l.Status, Access: effectiveAccess(l.Access, c.Access), Content: f.Content}, nil
+	var u unitRow
+	if err := db.First(&u, "course_id = ? AND id = ?", f.CourseID, l.UnitID).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return LessonFile{}, err
+	}
+	return LessonFile{CourseID: f.CourseID, LessonID: f.LessonID, Status: l.Status, Access: effectiveAccess(l.Access, string(effectiveAccess(u.Access, c.Access))), Content: f.Content}, nil
 }
 
 func notFoundAs(err error) error {
@@ -171,12 +187,20 @@ func notFoundAs(err error) error {
 	return err
 }
 
-// 一課的存取方式沒寫就照這門課的
-func effectiveAccess(lesson, course string) Access {
-	if lesson == "" {
-		return Access(course)
+// 存取方式沒寫就照上一層的:一課照單元、單元照課程(呼叫端先把單元與課程合成 parent)
+func effectiveAccess(own, parent string) Access {
+	if own == "" {
+		return Access(parent)
 	}
-	return Access(lesson)
+	return Access(own)
+}
+
+// 單元沒寫最低方案就照這門課的
+func effectiveTier(unit, course string) string {
+	if unit == "" {
+		return course
+	}
+	return unit
 }
 
 // SeedLessonFile 不經資料庫,直接從內嵌的種子與 dir 裡的檔案找一課的腳本檔:沒接資料庫時用,讓免登入的課照常能播。
@@ -196,7 +220,7 @@ func SeedLessonFile(dir, path string) (LessonFile, error) {
 					if err != nil {
 						return LessonFile{}, err
 					}
-					return LessonFile{CourseID: c.ID, LessonID: l.ID, Status: l.Status, Access: effectiveAccess(l.Access, c.Access), Content: string(b)}, nil
+					return LessonFile{CourseID: c.ID, LessonID: l.ID, Status: l.Status, Access: effectiveAccess(l.Access, string(effectiveAccess(u.Access, c.Access))), Content: string(b)}, nil
 				}
 			}
 		}

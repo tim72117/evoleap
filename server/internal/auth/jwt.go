@@ -86,6 +86,29 @@ func (s *Signer) Verify(token string) (*Claims, error) {
 	return &c, nil
 }
 
+// SignPurpose 用同一把金鑰簽一段短期資料(例如片頭廣告的通行證)。格式是「內容.簽章」兩段,
+// 簽章算進 purpose,不同用途的 token 不能互換,也不會被 Verify 當成登入 JWT(登入 JWT 是三段)。
+func (s *Signer) SignPurpose(purpose string, payload []byte) string {
+	body := b64(payload)
+	return body + "." + s.mac(purpose+":"+body)
+}
+
+// VerifyPurpose 驗證 SignPurpose 簽的 token 並回傳內容;到期要由呼叫端看內容判斷。
+func (s *Signer) VerifyPurpose(purpose, token string) ([]byte, error) {
+	body, sig, ok := strings.Cut(token, ".")
+	if !ok || strings.Contains(sig, ".") {
+		return nil, ErrInvalidToken
+	}
+	if !hmac.Equal([]byte(s.mac(purpose+":"+body)), []byte(sig)) {
+		return nil, ErrInvalidToken
+	}
+	raw, err := base64.RawURLEncoding.DecodeString(body)
+	if err != nil {
+		return nil, ErrInvalidToken
+	}
+	return raw, nil
+}
+
 func (s *Signer) mac(input string) string {
 	h := hmac.New(sha256.New, s.secret)
 	h.Write([]byte(input))

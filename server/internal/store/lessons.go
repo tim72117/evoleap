@@ -11,8 +11,8 @@ import (
 )
 
 // 一門課(courses)底下分單元(course_units),單元底下是一堂一堂的課(lessons)。
-// 正式環境以資料庫為準(管理員用 evoleap CLI 修改);courses_seed.json 只補資料庫還沒有的單元與課(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時),
-// 已經有的不動,種子拿掉的也不會從資料庫刪除。
+// 現階段以 courses_seed.json 為準:同步時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)新增沒有的單元與課,
+// 已經有的用種子的內容更新,種子拿掉的不會從資料庫刪除。等課程架構穩定,才改成以資料庫為準(管理員用 evoleap CLI 修改)。
 // 一堂課的存取方式(access)空的就照這門課,只有例外才填(例如第一課免費預覽)。
 // 狀態 draft(草稿)是公開與否的閘口:只有管理員看得到它是草稿、拿得到腳本路徑,其他人看到的是規劃中。
 
@@ -23,6 +23,11 @@ type unitRow struct {
 	// Subtitle 是課程地圖上單元標題下的小字(兒童課是解釋概念的比喻,網頁怎麼運作是這個單元回答的問題)
 	Subtitle string `gorm:"size:500"`
 	Position int    `gorm:"not null"`
+	// Access、Tier:這個單元底下的課預設的存取方式與最低方案;空字串代表照這門課的。
+	// 一門課的單元可以有不同的存取方式(例如「做出自己的軟體」的起步、零基礎、基礎三個階段),
+	// 一課自己的 access 優先於單元的,單元優先於課程的(見 effectiveAccess)。
+	Access string `gorm:"size:16"`
+	Tier   string `gorm:"size:32"`
 }
 
 func (unitRow) TableName() string { return "course_units" }
@@ -57,10 +62,13 @@ const (
 
 // unitSeed、lessonSeed 是 courses_seed.json 裡一門課的 units。
 type unitSeed struct {
-	ID       string       `json:"id"`
-	Title    string       `json:"title"`
-	Subtitle string       `json:"subtitle"`
-	Lessons  []lessonSeed `json:"lessons"`
+	ID       string `json:"id"`
+	Title    string `json:"title"`
+	Subtitle string `json:"subtitle"`
+	// Access、Tier 是這個單元底下的課預設的存取方式與最低方案(見 unitRow);沒寫就照這門課的
+	Access  string       `json:"access,omitempty"`
+	Tier    string       `json:"tier,omitempty"`
+	Lessons []lessonSeed `json:"lessons"`
 }
 
 type lessonSeed struct {
@@ -86,12 +94,16 @@ func validateLesson(status, access string, hasScript bool) error {
 	default:
 		return errors.New("status 要是 open、draft 或 planned")
 	}
+	return validateAccess(access)
+}
+
+// validateAccess 檢查存取方式;空字串代表照上一層的(課照單元、單元照課程)。
+func validateAccess(access string) error {
 	switch Access(access) {
 	case "", AccessFree, AccessLoginFree, AccessSubscription:
-	default:
-		return fmt.Errorf("不認得的 access %q(要是 free、login-free、subscription,或空字串照這門課)", access)
+		return nil
 	}
-	return nil
+	return fmt.Errorf("不認得的 access %q(要是 free、login-free、subscription,或空字串照上一層)", access)
 }
 
 // unitRows 把種子的單元與課轉成資料列,並檢查狀態、存取方式與「規劃中的課不能有腳本」。
@@ -99,7 +111,10 @@ func unitRows(courseID string, units []unitSeed) ([]unitRow, []lessonRow, error)
 	var us []unitRow
 	var ls []lessonRow
 	for i, u := range units {
-		us = append(us, unitRow{CourseID: courseID, ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Position: i})
+		if err := validateAccess(u.Access); err != nil {
+			return nil, nil, fmt.Errorf("課程 %s 的單元 %s:%s", courseID, u.ID, err)
+		}
+		us = append(us, unitRow{CourseID: courseID, ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Position: i, Access: u.Access, Tier: u.Tier})
 		for _, l := range u.Lessons {
 			if err := validateLesson(l.Status, l.Access, l.Script != "" || len(l.Files) > 0); err != nil {
 				return nil, nil, fmt.Errorf("課程 %s 的 %s:%s", courseID, l.ID, err)
@@ -133,21 +148,21 @@ func syncUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 	return nil
 }
 
-// insertMissingUnits 新增資料庫還沒有的單元與課;已經有的內容不動(正式環境以資料庫為準,見 SeedCourses),
-// 只有結構跟著種子:順序(position)與課屬於哪個單元(unit_id)。CLI 不能調結構,種子中間插入新課或把課搬到別的單元時才不會撞號、放錯單元。
-func insertMissingUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
+// upsertUnits 把種子的單元與課寫進資料庫:沒有的新增,已經有的全部欄位用種子的內容更新(現階段以種子為準,見 SeedCourses)。
+// 種子中間插入新課或把課搬到別的單元時,順序(position)與所屬單元(unit_id)也一併更新,才不會撞號、放錯單元。
+func upsertUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 	us, ls, err := unitRows(courseID, units)
 	if err != nil {
 		return err
 	}
 	key := []clause.Column{{Name: "course_id"}, {Name: "id"}}
 	if len(us) > 0 {
-		if err := tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"position"})}).Create(&us).Error; err != nil {
+		if err := tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"title", "subtitle", "position", "access", "tier"})}).Create(&us).Error; err != nil {
 			return err
 		}
 	}
 	if len(ls) > 0 {
-		return tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"position", "unit_id"})}).Create(&ls).Error
+		return tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"unit_id", "title", "summary", "position", "access", "status", "script", "minutes"})}).Create(&ls).Error
 	}
 	return nil
 }
@@ -164,10 +179,13 @@ type CourseMap struct {
 }
 
 type MapUnit struct {
-	ID       string      `json:"id"`
-	Title    string      `json:"title"`
-	Subtitle string      `json:"subtitle"`
-	Lessons  []MapLesson `json:"lessons"`
+	ID       string `json:"id"`
+	Title    string `json:"title"`
+	Subtitle string `json:"subtitle"`
+	// Access、Tier 是這個單元的存取方式與最低方案(已套用這門課的預設)
+	Access  Access      `json:"access"`
+	Tier    string      `json:"tier,omitempty"`
+	Lessons []MapLesson `json:"lessons"`
 }
 
 type MapLesson struct {
@@ -206,17 +224,18 @@ func (s *Store) CourseMapOf(ctx context.Context, id string, drafts bool) (Course
 	index := map[string]int{}
 	for _, u := range units {
 		index[u.ID] = len(m.Units)
-		m.Units = append(m.Units, MapUnit{ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Lessons: []MapLesson{}})
+		tier := u.Tier
+		if tier == "" {
+			tier = c.Tier
+		}
+		m.Units = append(m.Units, MapUnit{ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Access: effectiveAccess(u.Access, c.Access), Tier: tier, Lessons: []MapLesson{}})
 	}
 	for _, l := range lessons {
 		i, ok := index[l.UnitID]
 		if !ok {
 			continue
 		}
-		access := Access(l.Access)
-		if access == "" {
-			access = m.Access
-		}
+		access := effectiveAccess(l.Access, string(m.Units[i].Access))
 		status, script := l.Status, l.Script
 		if status == LessonDraft {
 			m.hasDrafts = true

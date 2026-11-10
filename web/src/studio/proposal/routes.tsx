@@ -68,7 +68,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/kids-web', element: <KidsWebPage /> },
   { path: '/studio/web-basics', element: <WebBasicsPage /> },
   { path: '/studio/ops-course', element: <OpsCoursePage /> },
-  // 網頁運作知識的試做:單元 5 的 5.1 開發者工具(序章、1.1、1.2 已是正式課,在 /topics/web),腳本在 content/live/lab/web/
+  // 網頁運作知識的試做:單元 5 的 5.1 開發者工具(序章、1.1、1.2 已是正式課,在 /courses/web),腳本在 content/live/lab/web/
   ...(['5.1'] as const).map((id) => ({
     path: `/studio/web-basics/${id.replace('.', '-')}`,
     element: <InteractiveScenePage key={`web-${id}`} script={`lab/web/${id}.json`} pageTitle={`網頁運作知識 ${id} 試做`} back={{ to: '/studio/web-basics', label: '← 網頁運作知識' }} />,

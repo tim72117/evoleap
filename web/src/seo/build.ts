@@ -27,7 +27,7 @@ export function renderPage(template: string, page: PageMeta): string {
   return out
 }
 
-/** dist 內的輸出路徑:/ → index.html、/courses/tools → courses/tools/index.html */
+/** dist 內的輸出路徑:/ → index.html、/courses/software → courses/software/index.html */
 export function outputFile(page: PageMeta): string {
   return page === NOT_FOUND ? '404.html' : `${page.path.slice(1)}${page.path === '/' ? '' : '/'}index.html`
 }

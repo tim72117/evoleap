@@ -122,12 +122,24 @@ func newStaticHandler(dist fs.FS, access accessFunc) http.Handler {
 		}
 
 		if path.Ext(name) == "" {
+			if to, ok := legacyCourseTarget(name); ok {
+				redirect(w, r, to)
+				return
+			}
 			pg := pages[name]
 			if pg != nil && name != r.URL.Path {
 				redirect(w, r, name)
 				return
 			}
 			if pg == nil {
+				// 課程頁從 /topics/<id>/... 搬到 /courses/<id>/...(/topics/<id> 本身仍是主題頁):
+				// 舊網址有對應的新頁面就 301 過去,保留查詢字串。
+				if rest, ok := strings.CutPrefix(name, "/topics/"); ok && strings.Contains(rest, "/") {
+					if to := "/courses/" + rest; pages[to] != nil {
+						redirect(w, r, to)
+						return
+					}
+				}
 				serveNotFound(w, r, notFound)
 				return
 			}
@@ -176,11 +188,45 @@ func denyInternal(w http.ResponseWriter, r *http.Request, name string, a api.Acc
 	http.NotFound(w, r)
 }
 
+// legacyCourseRedirects:tools(起步)、ai-tools(零基礎)、vibe-coding(基礎)三門課
+// 合併成 /courses/software 一門課,原本的課成為其中的階段(單元錨點)。
+// 課程根網址導向對應的階段錨點;單元網址的 slug 在合併後的課程內不重複,
+// /courses/<舊>/<rest> 直接對應 /courses/software/<rest>。
+var legacyCourseRedirects = map[string]string{
+	"/courses/tools":       "/courses/software#stage-tools",
+	"/courses/ai-tools":    "/courses/software#stage-ai-tools",
+	"/courses/vibe-coding": "/courses/software#stage-vibe-coding-basics",
+}
+
+const softwareCourse = "/courses/software"
+
+// legacyCourseTarget 回傳舊課程網址(name 已 path.Clean,含結尾斜線的變體也會命中)
+// 對應的新網址;不是舊網址、或新舊相同時回傳 false。
+func legacyCourseTarget(name string) (string, bool) {
+	for old, root := range legacyCourseRedirects {
+		to := ""
+		if name == old {
+			to = root
+		} else if rest, ok := strings.CutPrefix(name, old+"/"); ok {
+			to = softwareCourse + "/" + rest
+		}
+		if to != "" && to != name {
+			return to, true
+		}
+	}
+	return "", false
+}
+
+// redirect 以 301 導向 to,保留查詢字串;to 可帶 #fragment(查詢字串會插在 fragment 之前)。
 func redirect(w http.ResponseWriter, r *http.Request, to string) {
+	frag := ""
+	if i := strings.IndexByte(to, '#'); i >= 0 {
+		to, frag = to[:i], to[i:]
+	}
 	if r.URL.RawQuery != "" {
 		to += "?" + r.URL.RawQuery
 	}
-	http.Redirect(w, r, to, http.StatusMovedPermanently)
+	http.Redirect(w, r, to+frag, http.StatusMovedPermanently)
 }
 
 func setPageHeaders(w http.ResponseWriter, pg *page) {

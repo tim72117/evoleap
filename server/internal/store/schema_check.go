@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/tim72117/subscription/gormstore"
 	"gorm.io/gorm"
 )
 
@@ -14,13 +15,14 @@ import (
 // 也反過來列出資料庫裡沒有對應定義的遺留表(AutoMigrate 不會刪表)。
 
 // models 是所有資料表的定義:Connect 的 AutoMigrate 與 CheckSchema 共用同一份,新增資料表只要加在這裡。
+// models 也包含方案套件(packages/subscription)自己管理的表,結構檢查與 AutoMigrate 才看得到。
 func models() []any {
-	return []any{
+	return append([]any{
 		&userRow{}, &progressRow{}, &guestViewRow{},
-		&courseRow{}, &unitRow{}, &lessonRow{}, &lessonFileRow{}, &studioFileRow{},
+		&topicRow{}, &courseRow{}, &unitRow{}, &lessonRow{}, &lessonFileRow{}, &studioFileRow{},
 		&cliAuthSessionRow{}, &cliTokenRow{}, &courseChangeRow{},
 		&childRow{}, &childProgressRow{}, &childLessonRow{},
-	}
+	}, gormstore.Models()...)
 }
 
 // SchemaCheck 是一張表的比對結果。

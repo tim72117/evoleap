@@ -16,6 +16,31 @@ export interface User {
   locale?: string
 }
 
+/** 使用者選的方案:'free' 還沒選、'ads' 廣告方案(看基礎訂閱課程,每課開始前播一段廣告)、'subscription' 訂閱(全部課程、免廣告) */
+export type PlanKind = 'free' | 'ads' | 'subscription'
+
+/** GET /api/plan/me、POST /api/plan/ads 的回傳;tier 是方案涵蓋到哪一級課程('free' | 'basic' | 'advanced') */
+export interface PlanMe {
+  plan: PlanKind
+  tier: string
+}
+
+/** GET /api/courses/{courseId}/access 的回傳:這一課現在能不能看(伺服器判定) */
+export interface CourseAccessResult {
+  access: 'free' | 'login-free' | 'subscription'
+  allowed: boolean
+  /** allowed 為 false 時的原因 */
+  reason?: 'login_required' | 'plan_required'
+  /** 廣告方案:要先看完這一課的開課廣告(還沒有這一課的有效通行) */
+  ad?: boolean
+}
+
+/** POST /api/plan/ads/start 的回傳:token 交給 finish;seconds 是廣告要播放的秒數 */
+export interface AdStart {
+  token: string
+  seconds: number
+}
+
 /** API 回傳的錯誤;message 是依錯誤代碼翻成目前語言、可以直接顯示給使用者的訊息 */
 export class ApiError extends Error {
   constructor(
@@ -27,11 +52,28 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * 管理員在會員空間「模擬身分」時(AuthContext 存在 sessionStorage 的 auth:simulate),請求帶上 X-Simulate-Role,
+ * 伺服器的課程權限與方案狀態才會照模擬的身分回答(不然伺服器一律把你當管理員)。只有真的管理員送的才算數,一般使用者不會有這個值。
+ */
+function simulatedRole(): string | null {
+  try {
+    const v = sessionStorage.getItem('auth:simulate')
+    return v === 'guest' || v === 'member' || v === 'subscriber' ? v : null
+  } catch {
+    return null
+  }
+}
+
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  const headers: Record<string, string> = {}
+  if (body !== undefined) headers['Content-Type'] = 'application/json'
+  const role = simulatedRole()
+  if (role) headers['X-Simulate-Role'] = role
   const res = await fetch(path, {
     method,
     credentials: 'same-origin',
-    headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+    headers: Object.keys(headers).length > 0 ? headers : undefined,
     body: body === undefined ? undefined : JSON.stringify(body),
   })
   if (res.status === 204) return undefined as T
@@ -60,4 +102,15 @@ export const authApi = {
   logout: () => request<void>('POST', '/api/auth/logout'),
   /** 會員空間改自己的資料;沒帶的欄位不改,回傳更新後的使用者 */
   updateProfile: (fields: { name?: string; locale?: string }) => request<{ user: User }>('PATCH', '/api/me', fields).then((r) => r.user),
+  /** 目前的方案(要登入) */
+  planMe: () => request<PlanMe>('GET', '/api/plan/me'),
+  /** 選擇廣告方案(要登入);重複選擇沒有副作用,回傳選完的方案 */
+  chooseAdsPlan: () => request<PlanMe>('POST', '/api/plan/ads'),
+  /** 這一課能不能看;courseId 是課程種子的 id(levels.ts 的等級 id),lessonId 是課號(例如 '4.1');不用登入 */
+  courseAccess: (courseId: string, lessonId: string) =>
+    request<CourseAccessResult>('GET', `/api/courses/${encodeURIComponent(courseId)}/access?lesson=${encodeURIComponent(lessonId)}`),
+  /** 開始播放開課廣告(廣告方案,要登入) */
+  adsStart: (course: string, lesson: string) => request<AdStart>('POST', '/api/plan/ads/start', { course, lesson }),
+  /** 廣告播完:伺服器發這一課的短期通行 cookie;秒數還沒到回 409 too_early */
+  adsFinish: (token: string) => request<void>('POST', '/api/plan/ads/finish', { token }),
 }
