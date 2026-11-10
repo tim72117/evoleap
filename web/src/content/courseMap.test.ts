@@ -165,14 +165,15 @@ describe('種子寫到的每一課的腳本檔都存在', () => {
   const files = (SEED_JSON as Seed[]).flatMap((c) => (c.units ?? []).flatMap((u) => u.lessons.flatMap((l) => [l.script, ...(l.files ?? [])].filter(Boolean).map((p) => [`${c.id} ${l.id}`, p!]))))
 
   it('script 與 files 都在 src/content/live/,而且不在研發基地專用的 lab/、promo/', () => {
-    expect(files.filter(([, p]) => !LIVE.has(p) || /^(lab|promo)\//.test(p))).toEqual([])
+    expect(files.filter(([, p]) => !LIVE.has(p) || /^(lab|promo|data)\//.test(p))).toEqual([])
   })
 
   it('公開的腳本檔(研發基地專用的除外)都掛在某一課底下,前端才拿得到', () => {
     // 旁白清單、章節音軌清單跟著同名的腳本
     const base = (p: string) => p.replace(/(\.voice|\.mix)?\.json$/, '')
     const owned = new Set(files.map(([, p]) => base(p)))
-    const studioOnly = /^(lab\/|promo\/|kids\/xray)/
+    // data/ 是研發基地的資料檔(全課程清單等,studio/studioData.ts),不是腳本
+    const studioOnly = /^(lab\/|promo\/|data\/|kids\/xray)/
     const orphan = [...LIVE].filter((p) => !studioOnly.test(p) && !owned.has(base(p)))
     expect(orphan).toEqual([])
   })

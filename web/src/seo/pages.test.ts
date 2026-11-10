@@ -136,6 +136,9 @@ describe('公開與內部資料分開', () => {
     expect(findInternalPage('/studio').path).toBe('/studio')
     expect(findInternalPage('/studio/').path).toBe('/studio')
     expect(findInternalPage('/studio/no-such-page')).toBe(NOT_FOUND)
+    // 帶參數的路由(全環節課程的試做)依樣式比對,不符樣式的還是找不到
+    expect(findInternalPage('/studio/full-course/17-2/ai').path).toBe('/studio/full-course/:item/:kind')
+    expect(findInternalPage('/studio/full-course/17-2/ai/x')).toBe(NOT_FOUND)
   })
 })
 

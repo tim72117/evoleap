@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
-import { FULL_ITEMS, KIND_LABEL, fullScriptPath, fullTrialPath, type FullCourseKind } from './fullCourse'
+import { STUDIO_DATA } from '../studioData'
+import { KIND_LABEL, fullItems, fullScriptPath, fullTrialPath, type FullCourseData, type FullCourseKind, type FullItem } from './fullCourse'
+import { WithStudioData } from './WithStudioData'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 import { useScriptCheck, type CheckStatus } from './useScriptCheck'
@@ -8,7 +10,15 @@ const STATUS: Record<CheckStatus, string> = { ok: '通過', error: '錯誤', wai
 
 // 全環節課程腳本檢查:逐一載入 content/live/lab/full-course/ 的腳本,列出載入錯誤與長度(結果也在 window.__fullCourseCheck)。
 export function FullCourseCheckPage() {
-  const rows = FULL_ITEMS.flatMap((it) => (['know', 'ai'] as FullCourseKind[]).map((kind) => ({ code: it.code, kind, title: it.lesson.title, path: fullScriptPath(it.code, kind) })))
+  return (
+    <WithStudioData<FullCourseData> path={STUDIO_DATA.fullCourse} title="全環節課程腳本檢查" footer="腳本：src/content/live/lab/full-course/">
+      {(d) => <FullCourseCheck items={fullItems(d.stages)} />}
+    </WithStudioData>
+  )
+}
+
+function FullCourseCheck({ items }: { items: FullItem[] }) {
+  const rows = items.flatMap((it) => (['know', 'ai'] as FullCourseKind[]).map((kind) => ({ code: it.code, kind, title: it.lesson.title, path: fullScriptPath(it.code, kind) })))
   const results = useScriptCheck(
     rows.map((r) => r.path),
     '__fullCourseCheck',

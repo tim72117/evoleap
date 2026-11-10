@@ -7,10 +7,9 @@ import { AiTipsPage } from './AiTipsPage'
 import { AiScenariosPage } from './AiScenariosPage'
 import { FullCourseCheckPage } from './FullCourseCheckPage'
 import { FullCoursePage } from './FullCoursePage'
-import { LabTrialPage } from './LabTrialPage'
 import { LabTrialsPage } from './LabTrialsPage'
-import { LAB_TRIALS } from './labTrials'
-import { FULL_ITEMS, KIND_LABEL, fullScriptPath, fullTrialPath, type FullCourseKind } from './fullCourse'
+import { FULL_TRIAL_ROUTE } from './fullCourse'
+import { FullTrialRoute } from './TrialRoutes'
 import { AiToolsPage } from './AiToolsPage'
 import { CoverPage } from './CoverPage'
 import { FieldsPage } from './FieldsPage'
@@ -69,24 +68,11 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/ai-scenarios', element: <AiScenariosPage /> },
   { path: '/studio/full-course', element: <FullCoursePage /> },
   { path: '/studio/full-course/check', element: <FullCourseCheckPage /> },
-  // 其他課程(和全環節課程不重疊的部分)的試做,清單與腳本在 labTrials.ts、content/live/lab/<課程>/
+  // 其他課程(和全環節課程不重疊的部分)的試做:清單頁;清單在 content/live/data/lab-trials.json,腳本在 content/live/lab/<課程>/
   { path: '/studio/trials', element: <LabTrialsPage /> },
-  ...LAB_TRIALS.map((t) => ({ path: t.path, element: <LabTrialPage key={t.path} trial={t} /> })),
-  // 全環節課程清單的試做:每個環節兩堂(基礎知識、用 AI 完成),腳本在 content/live/lab/full-course/
-  ...FULL_ITEMS.flatMap((it) =>
-    (['know', 'ai'] as FullCourseKind[]).map((k) => ({
-      path: fullTrialPath(it.code, k),
-      element: (
-        <InteractiveScenePage
-          key={`full-${it.code}-${k}`}
-          script={fullScriptPath(it.code, k)}
-          pageTitle={`${it.code} ${it.lesson.title}（${KIND_LABEL[k]}）試做`}
-          interaction="static"
-          back={{ to: '/studio/full-course', label: '← 全環節課程清單' }}
-        />
-      ),
-    })),
-  ),
+  // 各堂試做沒有逐頁的路由:清單在研發基地的資料檔(content/live/data/lab-trials.json),StudioApp 找不到路由時依網址找(TrialRoutes.tsx)
+  // 全環節課程清單的試做:每個環節兩堂(基礎知識、用 AI 完成),腳本在 content/live/lab/full-course/,例如 /studio/full-course/17-2/ai
+  { path: FULL_TRIAL_ROUTE, element: <FullTrialRoute /> },
   { path: '/studio/actor-interaction', element: <ActorInteractionPage /> },
   { path: '/studio/actor-interaction/showcase', element: <ActorsPage /> },
   { path: '/studio/actor-interaction/scene', element: <InteractiveScenePage key="bakery" script="lab/interactive-bakery.json" pageTitle="互動教學場景" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },

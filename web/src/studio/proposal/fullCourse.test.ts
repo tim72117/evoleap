@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { L2_MODULES } from '../../content/l2Outline'
-import { FULL_STAGES } from './fullCourse'
+import data from '../../content/live/data/full-course.json'
+import type { FullCourseData } from './fullCourse'
+
+// 清單是研發基地的資料檔(content/live/data/full-course.json),測試直接讀檔
+const FULL_STAGES = (data as FullCourseData).stages
 
 describe('全環節課程清單', () => {
   const lessons = FULL_STAGES.flatMap((s) => s.units.flatMap((u) => u.lessons))

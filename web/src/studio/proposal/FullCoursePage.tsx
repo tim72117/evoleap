@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useScriptPaths } from '../../live/scripts'
-import { FULL_STAGES, KIND_LABEL, MODE_LABEL, fullScriptPath, fullTrialPath, type FullCourseKind, type Mode } from './fullCourse'
+import { STUDIO_DATA } from '../studioData'
+import { KIND_LABEL, MODE_LABEL, fullScriptPath, fullTrialPath, type FullCourseData, type FullCourseKind, type FullStage, type Mode } from './fullCourse'
+import { WithStudioData } from './WithStudioData'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
@@ -12,7 +14,17 @@ const MODES: { mode: Mode; desc: string }[] = [
 ]
 
 // 全環節課程清單：單元依環節連續編號（1、2、3…），環節編號為「單元.第幾項」；每個環節是基礎知識與用 AI 完成兩堂課。
+const FOOTER = '資料：src/content/live/data/full-course.json（研發基地的資料，進資料庫）'
+
 export function FullCoursePage() {
+  return (
+    <WithStudioData<FullCourseData> path={STUDIO_DATA.fullCourse} title="全環節課程清單" footer={FOOTER}>
+      {(d) => <FullCourseView stages={d.stages} />}
+    </WithStudioData>
+  )
+}
+
+function FullCourseView({ stages: FULL_STAGES }: { stages: FullStage[] }) {
   let unitNum = 0
   const units = FULL_STAGES.flatMap((s) => s.units)
   const lessons = units.flatMap((u) => u.lessons)
@@ -23,7 +35,7 @@ export function FullCoursePage() {
   const trials = (code: string) =>
     (['know', 'ai'] as FullCourseKind[]).filter((k) => have.has(fullScriptPath(code, k)))
   return (
-    <ProposalLayout title="全環節課程清單" footer="資料：src/studio/proposal/fullCourse.ts">
+    <ProposalLayout title="全環節課程清單" footer={FOOTER}>
       <h1>全環節課程清單</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>構想 · 待選主題</span>
       <p className={ui.lead}>

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { SCENARIO_STAGES, SCENARIO_THEMES } from './aiScenarios'
+import data from '../../content/live/data/ai-scenarios.json'
+import type { AiScenariosData } from './aiScenarios'
+
+// 清單是研發基地的資料檔(content/live/data/ai-scenarios.json),測試直接讀檔
+const { stages: SCENARIO_STAGES, themes: SCENARIO_THEMES } = data as AiScenariosData
 
 describe('AI 自動化情境清單', () => {
   const titles = SCENARIO_STAGES.flatMap((s) => s.scenarios.map((x) => x.title))

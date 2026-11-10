@@ -112,7 +112,7 @@ test('robots.txt 有 Sitemap、沒有封鎖全站', async ({ request }) => {
   expect(body).not.toMatch(/^Disallow:\s*\/\s*$/m)
 })
 
-for (const path of ['/nope', '/courses/nope', '/courses/tools/999', '/docs/nope', '/studio/nope']) {
+for (const path of ['/nope', '/courses/nope', '/courses/tools/999', '/docs/nope']) {
   test(`不存在的頁面回 404 + noindex:${path}`, async ({ request }) => {
     const r = await request.get(path, { maxRedirects: 0 })
     expect(r.status()).toBe(404)
@@ -124,6 +124,17 @@ for (const path of ['/nope', '/courses/nope', '/courses/tools/999', '/docs/nope'
     expect(h.titles).toHaveLength(1)
   })
 }
+
+// 研發基地沒有預先產生 HTML 的網址(試做頁的清單在資料庫,build 時不知道有哪幾堂):管理員拿到研發基地首頁的 HTML(仍是 noindex),
+// 由前端路由決定;不是試做就顯示找不到頁面。沒有權限的人照舊導向登入或 404(e2e/studio-access.spec.ts)
+test('研發基地不存在的頁面:管理員拿到研發基地的 HTML,前端顯示找不到頁面', async ({ request, page }) => {
+  const r = await request.get('/studio/nope', { maxRedirects: 0 })
+  expect(r.status()).toBe(200)
+  expect(r.headers()['x-robots-tag']).toBe('noindex, nofollow')
+  expect(parseHead(await r.text()).meta('robots')).toEqual(['noindex, nofollow'])
+  await page.goto('/studio/nope')
+  await expect(page.getByRole('heading', { level: 1, name: '找不到頁面' })).toBeVisible()
+})
 
 test('結尾斜線與 /index.html 以 301 導向正式網址(保留 query)', async ({ request }) => {
   const cases: [string, string][] = [

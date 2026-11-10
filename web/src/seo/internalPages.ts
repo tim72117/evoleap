@@ -1,7 +1,6 @@
 // 研發基地內部頁的 SEO 資料。只由 StudioApp 與 build 使用,不會打包進公開的 JS。
 import { articles } from '../studio/articles/registry'
-import { FULL_ITEMS, KIND_LABEL, fullTrialPath, type FullCourseKind } from '../studio/proposal/fullCourse'
-import { LAB_TRIALS } from '../studio/proposal/labTrials'
+import { FULL_TRIAL_ROUTE } from '../studio/proposal/fullCourse'
 import { NOT_FOUND, type PageMeta } from './pages'
 
 // 以下都是研發基地用的內部頁(文件、課程提案、素材工具):noindex、不列入 sitemap。
@@ -79,21 +78,28 @@ const MATERIALS_PAGES: PageMeta[] = [
   internal('/materials/promo', '宣傳影片 · 課程提案'),
 ]
 
-// 全環節課程清單每個環節的兩堂試做課(標題對應 FullCourseTrialPage 的 pageTitle)與腳本檢查頁
+// 全環節課程清單與 lab 試做清單是研發基地的資料(進資料庫,studio/studioData.ts),build 時不知道有哪幾堂:
+// 全環節課程的試做頁用一條帶參數的路由(FULL_TRIAL_ROUTE),這裡放同一個樣式,findInternalPage 依樣式比對;
+// lab 試做頁沒有自己的路由(StudioApp 找不到路由時依網址在清單裡找),也沒有逐頁的 SEO 資料。標題由頁面自己設定。
 const FULL_COURSE_PAGES: PageMeta[] = [
   internal('/studio/full-course/check', '全環節課程腳本檢查 · 課程提案'),
   internal('/studio/trials', '課程試做清單 · 課程提案'),
-  ...LAB_TRIALS.map((t) => internal(t.path, `${t.course} ${t.code} 試做 · 課程提案`)),
-  ...FULL_ITEMS.flatMap((it) =>
-    (['know', 'ai'] as FullCourseKind[]).map((k) => internal(fullTrialPath(it.code, k), `${it.code} ${it.lesson.title}（${KIND_LABEL[k]}）試做 · 課程提案`)),
-  ),
+  internal(FULL_TRIAL_ROUTE, '全環節課程試做 · 課程提案'),
 ]
 
 export const INTERNAL_PAGES: PageMeta[] = [...DOCS_PAGES, ...PROPOSAL_PAGES, ...MATERIALS_PAGES, ...FULL_COURSE_PAGES]
 
-const BY_PATH = new Map(INTERNAL_PAGES.map((p) => [p.path, p]))
+/** 路由樣式(帶 :參數,例如 /studio/full-course/:item/:kind)的頁面:不預先產生 HTML,開頁時依樣式比對 */
+export const isRoutePattern = (path: string): boolean => path.includes('/:')
 
-/** 依網址找內部頁的 SEO 資料;結尾斜線視為同一頁。找不到回傳 NOT_FOUND。 */
+const BY_PATH = new Map(INTERNAL_PAGES.filter((p) => !isRoutePattern(p.path)).map((p) => [p.path, p]))
+const PATTERNS = INTERNAL_PAGES.filter((p) => isRoutePattern(p.path)).map((p) => ({
+  re: new RegExp(`^${p.path.replace(/:[^/]+/g, '[^/]+')}$`),
+  page: p,
+}))
+
+/** 依網址找內部頁的 SEO 資料;結尾斜線視為同一頁,帶參數的路由依樣式比對。找不到回傳 NOT_FOUND。 */
 export function findInternalPage(pathname: string): PageMeta {
-  return BY_PATH.get(pathname.replace(/\/+$/, '')) ?? NOT_FOUND
+  const path = pathname.replace(/\/+$/, '')
+  return BY_PATH.get(path) ?? PATTERNS.find((x) => x.re.test(path))?.page ?? NOT_FOUND
 }

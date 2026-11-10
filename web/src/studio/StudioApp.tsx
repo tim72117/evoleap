@@ -2,11 +2,11 @@ import { Route, Routes } from 'react-router-dom'
 import { registerSites } from '../live/actors/browser/actor'
 import { findInternalPage } from '../seo/internalPages'
 import { usePageMeta } from '../seo/usePageMeta'
-import { NotFoundPage } from '../site/NotFoundPage'
 import { articleRoutes } from './articles/routes'
 import { docsRoutes } from './docs/routes'
 import { materialsRoutes } from './materials/routes'
 import { proposalRoutes } from './proposal/routes'
+import { LabTrialOrNotFound } from './proposal/TrialRoutes'
 
 // 研發基地的入口,整包是獨立 chunk(由 App.tsx 延遲載入),Go server 限管理員下載。
 
@@ -23,7 +23,8 @@ export default function StudioApp() {
       {internalRoutes.map((r) => (
         <Route key={r.path} path={r.path} element={r.element} />
       ))}
-      <Route path="*" element={<NotFoundPage />} />
+      {/* lab 試做頁沒有逐頁的路由,依網址在試做清單裡找,不是試做就顯示找不到頁面 */}
+      <Route path="*" element={<LabTrialOrNotFound />} />
     </Routes>
   )
 }

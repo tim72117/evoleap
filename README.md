@@ -72,7 +72,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
   - 這三個主題的單課頁：能不能上、播哪個腳本、要不要登入都照資料庫（`web/src/home/TopicLessonGate.tsx`）；有頁面的課（路由與 SEO）仍由前端的 `KIDS_OPEN_LESSONS`、`WEB_OPEN_LESSONS`、`LAUNCH_LESSON_PAGES` 決定。
   - AI 工具介紹、AI 工具入門的課程總覽（`/courses/tools`、`/courses/ai-tools`）：每一課的一句話、時間、開放與否、免費預覽。
 - 還在前端的：課程與主題的介紹（`levels.ts`、`topics.ts`）、單課頁的內容（步驟、提示詞，`l0Lessons.ts` 等）、`/courses/...` 單課頁要不要登入（`catalog.ts` 的 `requiresLogin`）、規劃中課程的章節頁。課名、一句話、開放狀態、腳本、時間兩邊都有一份，`web/src/content/courseMap.test.ts` 檢查一致。
-- 腳本檔：補課程資料時（`-live`，預設 `../web/src/content/live`，映像裡是 `/app/live`）把每一課的 `script`、`files` 與同名的 `.voice.json`、`.mix.json` 讀進 `lesson_files`（一個檔一列，記著屬於哪門課的哪一課），其餘的 `.json`（研發基地的 `lab/`、`promo/` 與草稿）讀進 `studio_files`，同樣只補資料庫還沒有的檔；種子寫到的檔不存在、或兩課寫到同一個檔時失敗（正式環境就是部署失敗）。上線後改腳本內容用 `evoleap script push`。程式在 `server/internal/store/lessonfiles.go`。
+- 腳本檔：補課程資料時（`-live`，預設 `../web/src/content/live`，映像裡是 `/app/live`）把每一課的 `script`、`files` 與同名的 `.voice.json`、`.mix.json` 讀進 `lesson_files`（一個檔一列，記著屬於哪門課的哪一課），其餘的 `.json`（研發基地的 `lab/`、`promo/`、草稿，以及 `data/` 的研發基地資料檔：全環節課程清單、lab 試做清單、AI 情境清單，研發基地的頁面由 `web/src/studio/studioData.ts` 讀）讀進 `studio_files`，同樣只補資料庫還沒有的檔；種子寫到的檔不存在、或兩課寫到同一個檔時失敗（正式環境就是部署失敗）。上線後改腳本內容用 `evoleap script push`。程式在 `server/internal/store/lessonfiles.go`。
 - `GET /api/scripts/{path}` 依所屬那一課把關：免費預覽誰都拿得到、登入後免費要登入（401）、訂閱課程等訂閱功能上線前不給（403）、草稿與規劃中的課只給管理員（其他人 404）；研發基地的檔只給管理員。`GET /api/scripts` 列出所有腳本路徑（只給管理員）。程式在 `server/internal/api/scripts.go`。本機開發時直接讀磁碟上最新的檔案（把關仍照資料庫），改既有的腳本不用重啟；本機新增檔案要重啟後端。沒接資料庫時照內嵌的種子直接讀檔，只有免登入的課拿得到。
 - sitemap 只列已開放的課（`web/src/seo/build.ts` 在建置時讀種子，所以用 CLI 改了開放狀態後，sitemap 要等種子也改了、下次部署才會跟上）；草稿與規劃中的課頁面仍可收錄，只是不列入。
 

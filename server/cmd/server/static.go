@@ -80,7 +80,8 @@ func staticHandler(distDir string, access accessFunc) http.Handler {
 //   - 內部路徑(internalPrefixes)先檢查權限:未登入的頁面請求導向登入頁,
 //     其他沒有權限的情況一律回 404,不透露內部頁存在與否。
 //   - 無副檔名的路徑是頁面:回傳該路由預先產生的 HTML(含各頁 SEO 標籤),
-//     沒有對應的頁面就以 404 狀態回傳 404.html(前端 router 會顯示「找不到頁面」)。
+//     沒有對應的頁面就以 404 狀態回傳 404.html(前端 router 會顯示「找不到頁面」);
+//     研發基地(/studio/…)例外:回研發基地首頁的 HTML,由前端路由決定(試做頁沒有預先產生的 HTML)。
 //     結尾多了斜線(/docs/)以 301 導向不帶斜線的網址,與 canonical 一致。
 //   - 有副檔名的路徑是靜態檔:/assets/*(檔名含 hash)長期快取,其他短期快取;
 //     找不到回 404,不回 HTML——否則瀏覽器會把 HTML 當成 JS/CSS 解析,錯誤更難查。
@@ -126,6 +127,11 @@ func newStaticHandler(dist fs.FS, access accessFunc) http.Handler {
 			if pg != nil && name != r.URL.Path {
 				redirect(w, r, name)
 				return
+			}
+			if pg == nil && strings.HasPrefix(name, "/studio/") {
+				// 研發基地有些頁面沒有預先產生的 HTML(試做清單是資料庫裡的資料,build 時不知道有哪幾堂):
+				// 管理員開這種網址時回研發基地首頁的 HTML,由前端路由處理(是試做就開那一堂,不是就顯示找不到頁面)
+				pg = pages["/studio"]
 			}
 			if pg == nil {
 				serveNotFound(w, r, notFound)

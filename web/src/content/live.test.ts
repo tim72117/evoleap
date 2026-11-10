@@ -6,7 +6,7 @@ import { L1_LESSONS } from './l1Lessons'
 
 type Script = { steps: { lessonStep?: number }[] }
 
-const SCRIPTS = import.meta.glob<Script>('./live/**/*.json', { import: 'default', eager: true })
+const SCRIPTS = import.meta.glob<Script>(['./live/**/*.json', '!./live/data/**'], { import: 'default', eager: true })
 const script = (path: string): Script | undefined => SCRIPTS[`./live/${path}`]
 
 const liveVideos = [...L0_LESSONS, ...L1_LESSONS].flatMap((l) =>

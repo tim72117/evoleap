@@ -1,12 +1,24 @@
-import { SCENARIO_STAGES, SCENARIO_THEMES } from './aiScenarios'
+import { STUDIO_DATA } from '../studioData'
+import type { AiScenariosData } from './aiScenarios'
+import { WithStudioData } from './WithStudioData'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
 // AI 自動化情境清單：之後決定主題時，從這裡挑情境組合成單元。
+const FOOTER = '資料：src/content/live/data/ai-scenarios.json（研發基地的資料，進資料庫）'
+
 export function AiScenariosPage() {
+  return (
+    <WithStudioData<AiScenariosData> path={STUDIO_DATA.aiScenarios} title="AI 自動化情境" footer={FOOTER}>
+      {(d) => <AiScenariosView data={d} />}
+    </WithStudioData>
+  )
+}
+
+function AiScenariosView({ data: { stages: SCENARIO_STAGES, themes: SCENARIO_THEMES } }: { data: AiScenariosData }) {
   const total = SCENARIO_STAGES.reduce((n, s) => n + s.scenarios.length, 0)
   return (
-    <ProposalLayout title="AI 自動化情境" footer="資料：src/studio/proposal/aiScenarios.ts">
+    <ProposalLayout title="AI 自動化情境" footer={FOOTER}>
       <h1>AI 自動化情境清單</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>構想 · 待選主題</span>
       <p className={ui.lead}>

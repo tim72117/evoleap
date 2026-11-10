@@ -5,7 +5,7 @@ import { KIDS_TOPIC } from './topics'
 
 type Script = { steps: { chapter?: string }[] }
 
-const SCRIPTS = import.meta.glob<Script>('./live/**/*.json', { import: 'default', eager: true })
+const SCRIPTS = import.meta.glob<Script>(['./live/**/*.json', '!./live/data/**'], { import: 'default', eager: true })
 
 describe('KIDS_TOPIC.preview', () => {
   const preview = KIDS_TOPIC.preview

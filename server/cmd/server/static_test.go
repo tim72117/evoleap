@@ -150,6 +150,16 @@ func TestStaticHandlerInternalAccess(t *testing.T) {
 	if page.Code != http.StatusOK || page.Header().Get("Cache-Control") != "private, no-cache" {
 		t.Errorf("admin /studio: status = %d, Cache-Control = %q", page.Code, page.Header().Get("Cache-Control"))
 	}
+	// 研發基地沒有預先產生 HTML 的網址(例如試做頁):管理員拿到研發基地首頁的 HTML,由前端路由處理
+	for _, path := range []string{"/studio/full-course/17-2/ai", "/studio/no-such-page"} {
+		if rec := get(allowed, http.MethodGet, path, nil); rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "<title>studio</title>") {
+			t.Errorf("admin %s: status = %d, body = %q, want 200 studio", path, rec.Code, rec.Body.String())
+		}
+	}
+	// 其他內部路徑沒有頁面仍是 404
+	if rec := get(allowed, http.MethodGet, "/docs/nope", nil); rec.Code != http.StatusNotFound {
+		t.Errorf("admin /docs/nope: status = %d, want 404", rec.Code)
+	}
 	js := get(allowed, http.MethodGet, chunk, nil)
 	if js.Code != http.StatusOK || js.Body.String() != secret || !strings.HasPrefix(js.Header().Get("Cache-Control"), "private,") {
 		t.Errorf("admin chunk: status = %d, Cache-Control = %q", js.Code, js.Header().Get("Cache-Control"))

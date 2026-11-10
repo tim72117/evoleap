@@ -23,7 +23,7 @@ describe('splitCaption', () => {
   })
 
   it('所有腳本的旁白切完都不超過一行', () => {
-    const scripts = import.meta.glob('../content/live/**/*.json', { eager: true, import: 'default' })
+    const scripts = import.meta.glob(['../content/live/**/*.json', '!../content/live/data/**'], { eager: true, import: 'default' })
     const texts: string[] = []
     for (const [file, data] of Object.entries(scripts)) {
       if (file.endsWith('.voice.json') || file.includes('/site/')) continue
