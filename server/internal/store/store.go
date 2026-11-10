@@ -53,7 +53,7 @@ func Connect(dsn string) (*Store, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)
 	}
-	if err := db.AutoMigrate(&userRow{}, &progressRow{}, &guestViewRow{}, &courseRow{}, &unitRow{}, &lessonRow{}, &lessonFileRow{}, &studioFileRow{}); err != nil {
+	if err := db.AutoMigrate(models()...); err != nil {
 		return nil, fmt.Errorf("migrate: %w", err)
 	}
 	if isPostgres(dsn) {
@@ -69,7 +69,7 @@ func Connect(dsn string) (*Store, error) {
 	return &Store{db: db}, nil
 }
 
-// SyncCourses 把課程資料寫進資料庫:courses_seed.json 的課程、單元與每一課,以及每一課的腳本檔(dir 是 web/src/content/live)。
+// SyncCourses 把 courses_seed.json 裡資料庫還沒有的課程、單元、課,以及每一課的腳本檔(dir 是 web/src/content/live)補進資料庫;已經有的不動。
 func (s *Store) SyncCourses(ctx context.Context, dir string) error {
 	if err := s.SeedCourses(ctx); err != nil {
 		return fmt.Errorf("seed courses: %w", err)

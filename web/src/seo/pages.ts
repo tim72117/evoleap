@@ -293,6 +293,14 @@ const LOGIN_PAGE: PageMeta = {
   noindex: true,
 }
 
+// evoleap CLI 的登入核准頁(auth/CliAuthPage.tsx):只給管理員,不收錄
+const CLI_AUTH_PAGE: PageMeta = {
+  path: '/login/cli',
+  title: documentTitle('核准 evoleap CLI 登入'),
+  description: '核准 evoleap CLI 用你的管理員帳號登入（內部使用）。',
+  noindex: true,
+}
+
 // 管理後台的舊網址:現在轉到研發基地的「會員」標籤(/studio/members),noindex、不列入 sitemap。
 const ADMIN_PAGE: PageMeta = {
   path: '/admin',
@@ -349,6 +357,7 @@ export const PAGES: PageMeta[] = [
   ...COURSE_PAGES,
   ...LEGAL_PAGES,
   LOGIN_PAGE,
+  CLI_AUTH_PAGE,
   ADMIN_PAGE,
 ]
 

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // 每一課的腳本檔(舞台腳本、子腳本、開場與試做),以及各自的旁白清單(.voice.json)與章節音軌清單(.mix.json)。
@@ -64,8 +65,8 @@ func lessonFilePaths(dir string, l lessonSeed) []string {
 	return paths
 }
 
-// SyncLessonFiles 依 courses_seed.json 把每一課的腳本檔從 dir(web/src/content/live)讀進 lesson_files,
-// 其餘的 .json 讀進 studio_files;兩張表都整份換成這次的內容。
+// SyncLessonFiles 依 courses_seed.json 把每一課的腳本檔從 dir(web/src/content/live)讀進 lesson_files,其餘的 .json 讀進 studio_files。
+// 只新增資料庫還沒有的檔,已經有的不動:上線後腳本以資料庫為準,改腳本用 evoleap script push(見 coursesadmin.go)。
 // 種子寫到的檔案不存在時回傳錯誤(啟動失敗),免得上線後課程頁才發現少了腳本。
 func (s *Store) SyncLessonFiles(ctx context.Context, dir string) error {
 	return s.SyncLessonFilesJSON(ctx, courseSeed, dir)
@@ -104,6 +105,14 @@ func (s *Store) SyncLessonFilesJSON(ctx context.Context, seed []byte, dir string
 	for _, r := range rows {
 		owned[r.Path] = true
 	}
+	// 資料庫裡已經掛在某一課底下的檔(例如管理員用 evoleap script push -course -lesson 從研發基地搬過去的),不再當成研發基地的檔補一份
+	var inLessons []string
+	if err := s.db.WithContext(ctx).Model(&lessonFileRow{}).Pluck("path", &inLessons).Error; err != nil {
+		return err
+	}
+	for _, p := range inLessons {
+		owned[p] = true
+	}
 	var studio []studioFileRow
 	err := filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() || filepath.Ext(p) != ".json" {
@@ -121,19 +130,13 @@ func (s *Store) SyncLessonFilesJSON(ctx context.Context, seed []byte, dir string
 		return fmt.Errorf("讀取研發基地的腳本:%w", err)
 	}
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("1 = 1").Delete(&lessonFileRow{}).Error; err != nil {
-			return err
-		}
-		if err := tx.Where("1 = 1").Delete(&studioFileRow{}).Error; err != nil {
-			return err
-		}
 		if len(rows) > 0 {
-			if err := tx.CreateInBatches(rows, 20).Error; err != nil {
+			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(rows, 20).Error; err != nil {
 				return err
 			}
 		}
 		if len(studio) > 0 {
-			return tx.CreateInBatches(studio, 20).Error
+			return tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(studio, 20).Error
 		}
 		return nil
 	})

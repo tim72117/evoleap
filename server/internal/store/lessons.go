@@ -7,10 +7,12 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // 一門課(courses)底下分單元(course_units),單元底下是一堂一堂的課(lessons)。
-// 和 courses 一樣以 courses_seed.json 為準:寫入課程資料時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)整份同步(這門課底下的單元與課先刪再建,種子拿掉的就跟著消失)。
+// 正式環境以資料庫為準(管理員用 evoleap CLI 修改);courses_seed.json 只補資料庫還沒有的單元與課(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時),
+// 已經有的不動,種子拿掉的也不會從資料庫刪除。
 // 一堂課的存取方式(access)空的就照這門課,只有例外才填(例如第一課免費預覽)。
 // 狀態 draft(草稿)是公開與否的閘口:只有管理員看得到它是草稿、拿得到腳本路徑,其他人看到的是規劃中。
 
@@ -73,35 +75,52 @@ type lessonSeed struct {
 	Minutes int      `json:"minutes,omitempty"`
 }
 
-// syncUnits 把一門課的單元與課整份換成種子的內容。
-func syncUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
-	if err := tx.Delete(&lessonRow{}, "course_id = ?", courseID).Error; err != nil {
-		return err
+// validateLesson 檢查一課的狀態、存取方式,以及「規劃中的課不能有腳本」;種子(unitRows)與 CLI(UpdateLesson、PutScript)共用。
+func validateLesson(status, access string, hasScript bool) error {
+	switch status {
+	case LessonOpen, LessonDraft:
+	case LessonPlanned:
+		if hasScript {
+			return errors.New("規劃中的課不能有腳本(script 或 files),要先改成草稿(draft)")
+		}
+	default:
+		return errors.New("status 要是 open、draft 或 planned")
 	}
-	if err := tx.Delete(&unitRow{}, "course_id = ?", courseID).Error; err != nil {
-		return err
+	switch Access(access) {
+	case "", AccessFree, AccessLoginFree, AccessSubscription:
+	default:
+		return fmt.Errorf("不認得的 access %q(要是 free、login-free、subscription,或空字串照這門課)", access)
 	}
+	return nil
+}
+
+// unitRows 把種子的單元與課轉成資料列,並檢查狀態、存取方式與「規劃中的課不能有腳本」。
+func unitRows(courseID string, units []unitSeed) ([]unitRow, []lessonRow, error) {
 	var us []unitRow
 	var ls []lessonRow
 	for i, u := range units {
 		us = append(us, unitRow{CourseID: courseID, ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Position: i})
 		for _, l := range u.Lessons {
-			switch l.Status {
-			case LessonOpen, LessonDraft:
-			case LessonPlanned:
-				if l.Script != "" || len(l.Files) > 0 {
-					return fmt.Errorf("課程 %s 的 %s:規劃中的課不能有 script 或 files", courseID, l.ID)
-				}
-			default:
-				return fmt.Errorf("課程 %s 的 %s:status 要是 open、draft 或 planned", courseID, l.ID)
-			}
-			switch Access(l.Access) {
-			case "", AccessFree, AccessLoginFree, AccessSubscription:
-			default:
-				return fmt.Errorf("課程 %s 的 %s:不認得的 access %q", courseID, l.ID, l.Access)
+			if err := validateLesson(l.Status, l.Access, l.Script != "" || len(l.Files) > 0); err != nil {
+				return nil, nil, fmt.Errorf("課程 %s 的 %s:%s", courseID, l.ID, err)
 			}
 			ls = append(ls, lessonRow{CourseID: courseID, ID: l.ID, UnitID: u.ID, Title: l.Title, Summary: l.Summary, Position: len(ls), Access: l.Access, Status: l.Status, Script: l.Script, Minutes: l.Minutes})
 		}
+	}
+	return us, ls, nil
+}
+
+// syncUnits 把一門課的單元與課整份換成給定的內容(ReplaceUnitsJSON 用,測試準備資料)。
+func syncUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
+	us, ls, err := unitRows(courseID, units)
+	if err != nil {
+		return err
+	}
+	if err := tx.Delete(&lessonRow{}, "course_id = ?", courseID).Error; err != nil {
+		return err
+	}
+	if err := tx.Delete(&unitRow{}, "course_id = ?", courseID).Error; err != nil {
+		return err
 	}
 	if len(us) > 0 {
 		if err := tx.Create(&us).Error; err != nil {
@@ -110,6 +129,25 @@ func syncUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 	}
 	if len(ls) > 0 {
 		return tx.Create(&ls).Error
+	}
+	return nil
+}
+
+// insertMissingUnits 新增資料庫還沒有的單元與課;已經有的內容不動(正式環境以資料庫為準,見 SeedCourses),
+// 只有結構跟著種子:順序(position)與課屬於哪個單元(unit_id)。CLI 不能調結構,種子中間插入新課或把課搬到別的單元時才不會撞號、放錯單元。
+func insertMissingUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
+	us, ls, err := unitRows(courseID, units)
+	if err != nil {
+		return err
+	}
+	key := []clause.Column{{Name: "course_id"}, {Name: "id"}}
+	if len(us) > 0 {
+		if err := tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"position"})}).Create(&us).Error; err != nil {
+			return err
+		}
+	}
+	if len(ls) > 0 {
+		return tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"position", "unit_id"})}).Create(&ls).Error
 	}
 	return nil
 }

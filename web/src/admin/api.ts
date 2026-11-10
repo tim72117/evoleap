@@ -129,7 +129,26 @@ async function get<T>(path: string): Promise<T> {
 
 const rangeQuery = (range: AdminRange): string => (range ? `?range=${range}` : '')
 
+/** 資料庫結構檢查(GET /api/admin/schema-check,server/internal/store/schema_check.go):程式的資料表定義與資料庫實際的欄位、主鍵 */
+export interface SchemaCheck {
+  table: string
+  /** 程式有定義、資料庫沒有的欄位 */
+  missing?: string[]
+  /** 資料庫有、程式已經沒有的欄位(常見是欄位改名後舊的留著) */
+  extra?: string[]
+  primaryKey?: { expected: string[]; actual: string[] }
+  ok: boolean
+}
+
+export interface SchemaReport {
+  ok: boolean
+  tables: SchemaCheck[]
+  /** 資料庫裡沒有對應定義的遺留表 */
+  orphans: string[]
+}
+
 export const adminApi = {
+  schemaCheck: () => get<SchemaReport>('/api/admin/schema-check'),
   me: () => get<{ user: User }>('/api/admin/me').then((r) => r.user),
   overview: (range: AdminRange = '') => get<AdminOverview>(`/api/admin/overview${rangeQuery(range)}`),
   users: (range: AdminRange = '') => get<{ total: number; users: AdminUser[] }>(`/api/admin/users${rangeQuery(range)}`).then((r) => r.users),

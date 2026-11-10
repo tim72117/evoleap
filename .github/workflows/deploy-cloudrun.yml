@@ -18,7 +18,7 @@ env:
   GCP_PROJECT_ID: "shuttle-045094509"
   CLOUD_RUN_SERVICE: "shuttle-server"
   # 課程同步工作(Cloud Run Job):每次部署執行一次 cmd/sync(Dockerfile 的 course-sync 目標,另一個小 image),
-  # 把 courses_seed.json 的課程與腳本檔寫進資料庫;網站伺服器在 Cloud Run 上只讀,不再每次啟動都寫。
+  # 把 courses_seed.json 裡資料庫還沒有的課程與腳本檔補進去(已經有的以資料庫為準,用 evoleap CLI 改);網站伺服器在 Cloud Run 上只讀,不再每次啟動都寫。
   CLOUD_RUN_SYNC_JOB: "shuttle-course-sync"
   SYNC_IMAGE: "asia-east1-docker.pkg.dev/shuttle-045094509/cloud-run-source-deploy/shuttle-course-sync"
   CLOUD_RUN_REGION: "asia-east1"

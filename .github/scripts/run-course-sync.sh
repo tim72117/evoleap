@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 執行課程同步工作(Cloud Run Job):用給定的 image(Dockerfile 的 course-sync 目標,只有 cmd/sync 與腳本目錄)
-# 把 courses_seed.json 的課程、單元、每一課與腳本檔寫進資料庫,寫完就結束。
+# 把 courses_seed.json 裡資料庫還沒有的課程、單元、課與腳本檔補進去(已經有的不動),寫完就結束。
 # 部署(deploy-cloudrun.yml)與只同步課程(sync-courses.yml)共用這支,參數由兩邊的 env 提供:
 #   GCP_PROJECT_ID、CLOUD_RUN_REGION、CLOUDSQL_INSTANCE、CLOUD_RUN_SYNC_JOB
 # 用法:.github/scripts/run-course-sync.sh <image>

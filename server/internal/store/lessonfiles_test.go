@@ -89,3 +89,36 @@ func TestLessonFilesOwnership(t *testing.T) {
 		t.Errorf("課不在要當作沒有這個檔: %v", err)
 	}
 }
+
+// 管理員把研發基地的檔搬到某一課底下之後,再同步也不會把它補回研發基地
+func TestSyncKeepsMovedStudioFile(t *testing.T) {
+	st, err := Open(filepath.Join(t.TempDir(), "test.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, "lab"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "lab", "x.json"), []byte(`{"disk":1}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	seed := []byte(`[]`)
+	if err := st.SyncLessonFilesJSON(ctx, seed, dir); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.PutScript(ctx, "boss@example.com", "lab/x.json", "kids", "0.1", []byte(`{"moved":1}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.SyncLessonFilesJSON(ctx, seed, dir); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.StudioFileOf(ctx, "lab/x.json"); !errors.Is(err, ErrLessonFileNotFound) {
+		t.Errorf("不該補回研發基地: %v", err)
+	}
+	if f, err := st.LessonFileOf(ctx, "lab/x.json"); err != nil || f.Content != `{"moved":1}` {
+		t.Errorf("還是 kids 0.1 的、內容是搬過去時的: %+v %v", f, err)
+	}
+}

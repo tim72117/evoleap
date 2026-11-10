@@ -4,6 +4,33 @@
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-11-10
+
+新增管理員改課程資料的 CLI `evoleap`（仿照 tripace 的 tripace-cli）與資料庫結構檢查（仿照 tripace 的 schema-check）；課程資料改成以資料庫為準，種子只補資料庫還沒有的。沒有破壞性變更。
+
+### 新增
+
+- **課程 CLI `evoleap`**（`server/cmd/evoleap`）：一律走 API，不直連資料庫。指令是「資源 動作」、輸出 JSON：`login`、`logout`、`whoami`、`course list|show`、`lesson set`、`script get|push`、`change list`、`token list|revoke`、`schema check`；全域旗標 `-api`（預設 `https://evoleap.io`）。
+- **CLI 登入**（`/api/cli-auth/*`，核准頁 `/login/cli`）：瀏覽器核准，只有管理員能核准。核准時產生一次性的驗證碼，只放在導回 CLI 本機網址的網址上，CLI 要用 id 加驗證碼才換得到 token（別人自己發起登入、騙管理員按核准也拿不到）；token 在 CLI 換的那一刻才發，只能換一次；發起登入依來源 IP 限流，過期的登入要求會清掉。
+- **CLI token**（`cli_tokens`）：不是網站登入的 JWT，而是資料庫裡的隨機字串（`evc_` 開頭，只存雜湊），有效期 7 天、每次呼叫都查資料庫，所以可以撤銷：`evoleap logout` 會在伺服器撤銷，`evoleap token list|revoke`（`/api/admin/cli-tokens`）管理所有 CLI 登入；使用者的登入全部失效時也跟著失效。`Authorization: Bearer` 只接受這種 token。本機依主機分開存在使用者設定目錄（權限 0600）。
+- **管理員改課程資料**（全部只給管理員，每次修改記在 `course_changes`）：`/api/admin/courses`、`/api/admin/courses/{id}`、`PATCH /api/admin/courses/{id}/lessons/{lesson}`、`PUT /api/admin/scripts/{path}`、`/api/admin/course-changes`。改一課與種子共用同一套規則檢查；指定腳本時要已經上傳、而且屬於這一課；規劃中的課不能上傳腳本（要先改成草稿）。
+- **資料庫結構檢查**：`GET /api/admin/schema-check`、`evoleap schema check` 與研發基地「會員」標籤的面板，比對資料表定義和資料庫實際的欄位、主鍵，並列出遺留表（AutoMigrate 不會處理欄位改名、刪欄位、改主鍵，也不會刪表）。資料表定義集中在 `store/schema_check.go` 的 `models()`，AutoMigrate 也用同一份。
+
+### 變更
+
+- **課程資料以資料庫為準**：種子同步（部署時的課程同步工作、本機後端啟動時）只補資料庫還沒有的課程、單元、課與腳本檔，已經有的內容不動；只有結構（順序、課屬於哪個單元）照種子。改已經有的課用 `evoleap` CLI。本機要整份換成種子的內容，刪掉 `server/shuttle.db` 再啟動。
+- 已經被管理員搬到某一課底下的研發基地腳本，同步時不再補回研發基地。
+- 更新 README（課程資料庫、課程 CLI、部署）、workflow、Dockerfile 與相關註解的說明。
+
+### 已知問題
+
+- 種子把腳本檔改掛到別的課時不會套用（資料庫裡還是原本那一課，權限照原本那一課判斷），要用 `evoleap script push -course -lesson` 搬。
+- 課程與單元的名稱、存取方式，CLI 還不能改，種子也不會覆蓋已經有的。
+- 本機開發時 `/api/scripts` 直接讀磁碟上的檔案（改腳本不用重啟），所以在本機 `evoleap script push` 看不出效果。
+- 用 CLI 改了課的開放狀態後，sitemap 要等種子也改了、下次部署才會跟上（sitemap 是建置時讀種子）。
+- 本機資料庫有舊的欄位與遺留表（`course_units.metaphor`、`courses.paddle_price_id`、`courses.on_sale`、訂閱相關的表），結構檢查會列出來；正式資料庫還沒檢查。
+- 沒有做裝置代碼登入（`--device`）。
+
 ## [0.29.0] - 2026-11-10
 
 課程資料與腳本改由資料庫提供：所有課程寫進資料庫，腳本不再打包進前端，由伺服器依每一課的狀態把關；課程資料改在部署時以 Cloud Run Job 寫入，也可以從 dev 分支手動同步、不用打 tag。沒有破壞性變更（研發基地內部的 registerScripts、scriptPaths 換成 useScriptPaths，不影響公開頁面）。

@@ -54,7 +54,7 @@ RUN cd /src/server && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -
     -o /out/server ./cmd/server
 
 # ---- 課程同步工作(--target course-sync):只編譯 cmd/sync,不建置前端 ----
-# 部署與從 dev 手動同步時以 Cloud Run Job 執行一次,把 courses_seed.json(內嵌)的課程與 /app/live 的腳本檔寫進資料庫。
+# 部署與從 dev 手動同步時以 Cloud Run Job 執行一次,把 courses_seed.json(內嵌)與 /app/live 裡資料庫還沒有的課程、腳本檔補進去。
 FROM golang:1.26 AS sync-build
 COPY server/go.mod server/go.su[m] /src/server/
 RUN cd /src/server && go mod download

@@ -30,6 +30,20 @@ func call(h http.Handler, method, path, body string, cookie *http.Cookie) *httpt
 	return rec
 }
 
+// callHeader 同 call,但帶自訂標頭(例如 evoleap CLI 的 Authorization: Bearer)而不是 cookie
+func callHeader(h http.Handler, method, path, body string, headers map[string]string) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, strings.NewReader(body))
+	if body != "" {
+		req.Header.Set("Content-Type", "application/json")
+	}
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	return rec
+}
+
 func sessionFrom(t *testing.T, rec *httptest.ResponseRecorder) *http.Cookie {
 	t.Helper()
 	for _, c := range rec.Result().Cookies() {

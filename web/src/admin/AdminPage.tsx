@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom'
 import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
-import { adminApi, type AdminOverview, type AdminUser, type Count, type AdminRange, type GuestVisit, type HomePath, type HomeStay, type LessonStat, type LoginStats, type UserProgress } from './api'
+import { adminApi, type SchemaReport, type AdminOverview, type AdminUser, type Count, type AdminRange, type GuestVisit, type HomePath, type HomeStay, type LessonStat, type LoginStats, type UserProgress } from './api'
 import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
 import { LAUNCH_LESSON_PAGES, launchLessonPath, launchScriptKey } from '../content/launchCourse'
@@ -170,6 +170,56 @@ function Dashboard({ data, filtered }: { data: Data; filtered: boolean }) {
 
       <h2 className={styles.heading}>會員列表（{users.length}）</h2>
       <UserTable users={users} />
+
+      <SchemaPanel />
+    </>
+  )
+}
+
+/** 資料庫結構檢查:程式的資料表定義和資料庫實際的欄位、主鍵對不對得上,有沒有遺留表(AutoMigrate 不會處理改名、刪欄位、改主鍵) */
+function SchemaPanel() {
+  const [report, setReport] = useState<SchemaReport | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const check = () => {
+    setError(null)
+    adminApi
+      .schemaCheck()
+      .then(setReport)
+      .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
+  }
+  useEffect(check, [])
+  const problems = report?.tables.filter((t) => !t.ok) ?? []
+  return (
+    <>
+      <h2 className={styles.heading}>
+        資料庫結構檢查{' '}
+        <button type="button" onClick={check}>
+          重新檢查
+        </button>
+      </h2>
+      {error ? (
+        <p className={styles.note}>檢查失敗：{error}</p>
+      ) : !report ? (
+        <p className={styles.note}>檢查中…</p>
+      ) : report.ok ? (
+        <p className={styles.note}>{report.tables.length} 張表都和程式的定義一致，沒有遺留表。</p>
+      ) : (
+        <ul>
+          {problems.map((t) => (
+            <li key={t.table}>
+              <code>{t.table}</code>
+              {t.missing?.length ? `：缺少欄位 ${t.missing.join('、')}` : ''}
+              {t.extra?.length ? `：多出欄位 ${t.extra.join('、')}` : ''}
+              {t.primaryKey ? `：主鍵應為 ${t.primaryKey.expected.join('+')}，實際是 ${t.primaryKey.actual.join('+') || '（沒有）'}` : ''}
+            </li>
+          ))}
+          {report.orphans.map((t) => (
+            <li key={t}>
+              <code>{t}</code>：遺留表（程式裡已經沒有這張表的定義）
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   )
 }

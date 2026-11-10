@@ -189,16 +189,24 @@ func (s *Server) handleMe(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, s.authBody(user))
 }
 
-// currentUser 從登入 cookie 取得目前使用者;token 無效或使用者已不存在時回傳 false。
+// currentUser 從登入 cookie(網站登入的 JWT)取得目前使用者;沒有 cookie 時看 Authorization: Bearer,
+// 只接受 evoleap CLI 的 token(資料庫裡的隨機字串,可撤銷,見 store/clitokens.go)。
+// token 無效、已撤銷、過期或使用者已不存在時回傳 false。Bearer 只能由呼叫端自己帶上,別的網站無法讓瀏覽器代送,不會有 CSRF 的問題。
 func (s *Server) currentUser(r *http.Request) (store.User, bool) {
 	if !s.authEnabled() {
 		return store.User{}, false
 	}
 	c, err := r.Cookie(sessionCookie)
 	if err != nil {
-		return store.User{}, false
+		token := bearerCliToken(r)
+		if token == "" {
+			return store.User{}, false
+		}
+		user, err := s.cfg.Store.UserByCliToken(r.Context(), token)
+		return user, err == nil
 	}
-	claims, err := s.cfg.Signer.Verify(c.Value)
+	token := c.Value
+	claims, err := s.cfg.Signer.Verify(token)
 	if err != nil {
 		return store.User{}, false
 	}
@@ -207,6 +215,15 @@ func (s *Server) currentUser(r *http.Request) (store.User, bool) {
 		return store.User{}, false
 	}
 	return user, true
+}
+
+// bearerCliToken 回傳 Authorization: Bearer 帶的 evoleap CLI token;沒帶或不是 CLI token 時回空字串
+func bearerCliToken(r *http.Request) string {
+	token, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if token = strings.TrimSpace(token); !ok || !store.IsCliToken(token) {
+		return ""
+	}
+	return token
 }
 
 func (s *Server) startSession(w http.ResponseWriter, user store.User) {

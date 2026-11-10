@@ -38,6 +38,10 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 }
 
 export const authApi = {
+  /** evoleap CLI 登入要求要顯示的名稱(核准頁用,見 CliAuthPage) */
+  cliAuthName: (id: string) => request<{ name: string }>('GET', `/api/cli-auth/${encodeURIComponent(id)}`).then((r) => r.name),
+  /** 管理員核准 CLI 登入;回傳要把瀏覽器導回去的 CLI 本機網址 */
+  cliAuthApprove: (id: string) => request<{ redirect: string }>('POST', `/api/cli-auth/${encodeURIComponent(id)}/approve`).then((r) => r.redirect),
   /** enabled:伺服器是否開放登入(未設定資料庫時為 false) */
   config: () => request<{ enabled: boolean; googleClientId: string }>('GET', '/api/auth/config'),
   /** 目前登入的使用者;未登入回傳 null */

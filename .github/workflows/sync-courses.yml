@@ -1,12 +1,12 @@
 name: Sync course data
 
-# 只把課程資料寫進正式資料庫,不部署網站、不用打 tag:改了 courses_seed.json 或 web/src/content/live/ 的腳本時,
+# 只把新的課程資料補進正式資料庫,不部署網站、不用打 tag:courses_seed.json 新加了課程、單元、課,或有新的腳本檔時,
 # 在 GitHub Actions 選 dev 分支按「Run workflow」(或 gh workflow run sync-courses.yml --ref dev)。
 # 只能從 dev 分支執行,選其他分支會直接失敗(免得開發中的分支把課程或資料表結構寫進正式資料庫)。
 # 只跑和課程資料有關的測試(Go 測試、課程一致性測試),build 課程同步工作的小 image(Dockerfile 的 course-sync 目標,
 # 只有 cmd/sync 與腳本目錄,不建置前端),再執行課程同步工作(Cloud Run Job)。
-# 正在跑的網站從資料庫讀課程地圖與腳本,所以新的課程狀態、腳本、時間馬上生效;
-# 但新增課程頁(前端路由、SEO、課程內容)和程式的修改,還是要打 tag 部署網站(deploy-cloudrun.yml)。
+# 課程資料以資料庫為準:同步只補資料庫還沒有的,已經有的課(開放狀態、時間、腳本內容)用 evoleap CLI 改。
+# 新增課程頁(前端路由、SEO、課程內容)和程式的修改,還是要打 tag 部署網站(deploy-cloudrun.yml)。
 on:
   workflow_dispatch:
 

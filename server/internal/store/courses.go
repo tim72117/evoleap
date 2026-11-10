@@ -65,8 +65,8 @@ type courseSeedRow struct {
 //go:embed courses_seed.json
 var courseSeed []byte
 
-// SeedCourses 把 courses_seed.json 同步進資料表:新增還不存在的課程,更新已存在課程的名稱與存取方式;
-// 有寫 units 的課程,單元與每一堂課整份換成種子的內容。
+// SeedCourses 把 courses_seed.json 裡資料庫還沒有的課程、單元與課新增進去,已經有的不動:
+// 課程資料以資料庫為準,上線後由管理員用 evoleap CLI 修改(見 coursesadmin.go),種子只負責第一次建立與新加的課。
 func (s *Store) SeedCourses(ctx context.Context) error {
 	var seeds []courseSeedRow
 	if err := json.Unmarshal(courseSeed, &seeds); err != nil {
@@ -78,17 +78,14 @@ func (s *Store) SeedCourses(ctx context.Context) error {
 		rows[i] = courseRow{ID: c.ID, Title: c.Title, Access: c.Access, Tier: c.Tier, CreatedAt: at, UpdatedAt: at}
 	}
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "id"}},
-			DoUpdates: clause.AssignmentColumns([]string{"title", "access", "tier", "updated_at"}),
-		}).Create(&rows).Error; err != nil {
+		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&rows).Error; err != nil {
 			return err
 		}
 		for _, c := range seeds {
 			if c.Units == nil {
 				continue
 			}
-			if err := syncUnits(tx, c.ID, c.Units); err != nil {
+			if err := insertMissingUnits(tx, c.ID, c.Units); err != nil {
 				return fmt.Errorf("sync units of %s: %w", c.ID, err)
 			}
 		}

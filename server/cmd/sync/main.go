@@ -1,5 +1,5 @@
-// sync 把課程資料寫進資料庫後結束:courses_seed.json(內嵌在 store 套件)的課程、單元與每一課,
-// 以及每一課的腳本檔(-live 目錄,web/src/content/live)。不啟動網站。
+// sync 把課程資料補進資料庫後結束:courses_seed.json(內嵌在 store 套件)裡資料庫還沒有的課程、單元與課,
+// 以及每一課的腳本檔(-live 目錄,web/src/content/live)。已經有的不動:課程資料以資料庫為準,用 evoleap CLI 改。不啟動網站。
 //
 // 正式環境:每次部署(deploy-cloudrun.yml)與從 dev 分支手動同步(sync-courses.yml)時,
 // 以 Cloud Run Job(shuttle-course-sync)執行一次;映像是 Dockerfile 的 course-sync 目標,只有這支程式與腳本目錄。
