@@ -243,7 +243,11 @@ const actor = defineActor<Kind, Step, Props, State, string>({
     const start = props.start ?? ids[0]
     if (!pages[start]) throw new Error(`lt8-kid-page:start「${start}」不是 pages 裡的頁`)
     if (props.side && !['stack', 'map', 'none'].includes(props.side)) throw new Error('lt8-kid-page:side 只能是 stack、map、none')
-    for (const t of props.tools ?? []) if (!isBlockKind(t)) throw new Error(`lt8-kid-page:tools 裡的「${t}」不是積木種類`)
+    // 積木盒的積木是拿來換「文字」的種類(use 把一段文字換成標題或段落),清單、圖片、連結沒有對應的內容,不能放
+    for (const t of props.tools ?? []) {
+      if (!isBlockKind(t)) throw new Error(`lt8-kid-page:tools 裡的「${t}」不是積木種類`)
+      if (t === 'raw' || !TEXT_KINDS.includes(t)) throw new Error(`lt8-kid-page:tools 只能放文字的積木(h1、h2、p),「${t}」不行`)
+    }
     const kinds: Record<string, BlockKind> = {}
     const seq: Record<string, number[]> = {}
     const fixed: Record<string, Fixed> = {}
@@ -326,7 +330,7 @@ const actor = defineActor<Kind, Step, Props, State, string>({
       const want = st.fixed[id]?.want
       let next: State
       if (isBlockKind(tool)) {
-        if (!TEXT_KINDS.includes(k)) return { ...st, nag: '這一塊不能換' }
+        if (!TEXT_KINDS.includes(k) || !TEXT_KINDS.includes(tool)) return { ...st, nag: '這一塊不能換' }
         next = { ...st, kinds: { ...st.kinds, [id]: tool } }
       } else {
         if (k !== 'img') return { ...st, nag: '說明卡要放在圖片上' }

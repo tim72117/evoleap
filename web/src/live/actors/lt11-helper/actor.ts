@@ -294,20 +294,51 @@ function cardById(st: HelperState, id: unknown, kind: string): Card {
   if (!c) throw new Error(`${kind}:卡片盤上沒有「${String(id)}」`)
   return c
 }
-/** 照卡片回答:做法接在一起;都沒有做法也沒有回答時,小幫手說聽不懂 */
-function respond(cards: Card[]): Pick<Response, 'ops' | 'reply' | 'mood' | 'stars'> {
+/** 這張卡的做法套在網頁上:回傳套完的網頁,以及有沒有至少一項真的做到(對不上網頁的做法略過) */
+function tryCard(page: PageSpec, c: Card): { page: PageSpec; did: boolean } {
+  let did = false
+  for (const op of c.ops ?? []) {
+    try {
+      page = applyOp(page, op)
+      did = true
+    } catch {
+      // 對不上網頁(例如還沒有標題就要改標題):略過
+    }
+  }
+  return { page, did }
+}
+
+/**
+ * 照卡片回答:做法接在一起;都沒有做法也沒有回答時,小幫手說聽不懂。
+ * 卡片有做法、但在當時的網頁上一項都對不上(例如還沒有標題就要改標題)時,這張卡沒有做到:不給星星;
+ * 點的卡片都沒做到任何改變,小幫手說找不到要改的地方,不說「做好了」。
+ */
+function respond(cards: Card[], page: PageSpec): Pick<Response, 'ops' | 'reply' | 'mood' | 'stars'> {
   const ops = cards.flatMap((c) => c.ops ?? [])
+  let pg = page
+  const didOf = cards.map((c) => {
+    const r = tryCard(pg, c)
+    pg = r.page
+    return r.did
+  })
+  const missed = ops.length > 0 && cards.every((c, i) => !c.ops?.length || !didOf[i])
+  const stars = cards.flatMap((c, i) => (c.star && (!c.ops?.length || didOf[i]) ? [c.star] : []))
+  if (missed) {
+    // 腳本預先寫好的困惑回覆(故意示範說錯的卡)照用,其他的換成「找不到」
+    const own = cards.flatMap((c) => (c.mood === 'puzzled' && c.reply ? [c.reply] : []))
+    return { ops, reply: own.length ? own.join(' ') : '網頁上還找不到要改的地方，先請我把它做出來，再來改吧！', mood: 'puzzled', stars }
+  }
   const replies = cards.flatMap((c) => (c.reply ? [c.reply] : []))
   const puzzled = cards.some((c) => c.mood === 'puzzled') || !ops.length
   const reply = replies.length ? replies.join(' ') : ops.length ? '好了！我照你說的做好了。' : '嗯……我聽不太懂，可以說清楚一點嗎？'
-  return { ops, reply, mood: puzzled && !cards.some((c) => c.mood === 'happy') ? 'puzzled' : 'happy', stars: cards.flatMap((c) => (c.star ? [c.star] : [])) }
+  return { ops, reply, mood: puzzled && !cards.some((c) => c.mood === 'happy') ? 'puzzled' : 'happy', stars }
 }
 const joinCards = (cards: Card[]): string => cards.map((c) => c.text).join('，')
 /** 這一步小幫手要說、要做的事(apply 和 render 共用,過場時才能一項一項畫出來) */
 function responseOf(st: HelperState, kind: Kind, s: Step): Response | null {
   if (kind === 'ask') {
     const c = cardById(st, s.ask, 'ask')
-    return { me: c.text, ...respond([c]), cards: [c.id], loose: true }
+    return { me: c.text, ...respond([c], st.page), cards: [c.id], loose: true }
   }
   if (kind === 'send') {
     if (typeof s.send === 'string') {
@@ -316,7 +347,7 @@ function responseOf(st: HelperState, kind: Kind, s: Step): Response | null {
     }
     if (!st.draft.length) return { me: null, ops: [], reply: '先點卡片，拼出你要說的話吧！', mood: 'puzzled', stars: [], cards: [] }
     const cards = st.draft.map((id) => cardById(st, id, 'send'))
-    return { me: joinCards(cards), ...respond(cards), cards: cards.map((c) => c.id), loose: true }
+    return { me: joinCards(cards), ...respond(cards, st.page), cards: cards.map((c) => c.id), loose: true }
   }
   if (kind === 'make') {
     if (!Array.isArray(s.make)) throw new Error('make 要寫做法的陣列')
