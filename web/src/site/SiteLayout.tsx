@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useCanSeeStudio } from '../auth/AuthContext'
+import { SimulationBanner } from '../auth/SimulationBanner'
 import { UserMenu } from '../auth/UserMenu'
 import styles from './SiteLayout.module.css'
 import { documentTitle, SITE_NAME, SITE_TAGLINE } from './siteInfo'
@@ -100,6 +101,7 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
         {children}
       </main>
 
+      <SimulationBanner />
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div>

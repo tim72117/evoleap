@@ -14,7 +14,8 @@ function joinedText(createdAt: string): string {
 }
 
 export function ProfileSection() {
-  const { user, setUser, logout, sessionExpired } = useAuth()
+  const { real, setUser, logout, sessionExpired } = useAuth()
+  const user = real.user
   const [name, setName] = useState(user?.name ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')

@@ -1,0 +1,98 @@
+/* 模擬身分中的浮動膠囊:固定在畫面底部中間,可以直接換成別的身分。 */
+.banner {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 24px);
+  padding: 5px 5px 5px 14px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #1c1d1a;
+  color: #f2f3ee;
+  font-size: 14px;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 28%);
+}
+
+.dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f5a524;
+  box-shadow: 0 0 0 0 rgb(245 165 36 / 60%);
+  animation: breathe 2s ease-in-out infinite;
+}
+
+.capsule {
+  display: flex;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.item {
+  appearance: none;
+  flex: none;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #c9cbc2;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.item:hover {
+  color: #fff;
+  background: #30322d;
+}
+
+.active,
+.active:hover {
+  background: #b4e36a;
+  color: #1c1d1a;
+}
+
+.item:focus-visible {
+  outline: 2px solid #b4e36a;
+  outline-offset: 1px;
+}
+
+/* 呼吸燈:亮度與光暈慢慢起伏 */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+    box-shadow: 0 0 0 0 rgb(245 165 36 / 0%);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 10px 3px rgb(245 165 36 / 55%);
+  }
+}
+
+@media (max-width: 480px) {
+  .banner {
+    padding-left: 12px;
+    gap: 8px;
+  }
+
+  .item {
+    padding: 6px 9px;
+    font-size: 12.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+  }
+}
