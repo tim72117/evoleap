@@ -1,0 +1,106 @@
+/* 兒童課家長模式的排課畫面。顏色都用 proposal.module.css 在 .proposal 上定義的變數(含深色模式) */
+
+.picked {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.picked li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 14.5px;
+}
+.filled { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+.empty { border: 1px dashed var(--border); color: var(--ink-soft); }
+.nth { font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); white-space: nowrap; }
+.placeholder { font-size: 13.5px; }
+.remove {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.remove:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
+
+.status { margin: 12px 0 16px; font-size: 14px; color: var(--ink-soft); }
+
+.week { display: flex; flex-direction: column; gap: 6px; }
+.day {
+  display: grid;
+  grid-template-columns: 3.5em 1fr;
+  align-items: start;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.day:first-child { border-top: 0; }
+.day-name { font-weight: 600; padding-top: 7px; }
+.weekend .day-name { color: var(--accent); }
+/* 每天同一組時段排成固定欄位,上下對齊;已排的勾號不會把後面的時段擠開 */
+.times { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+
+.slot {
+  min-width: 0;
+  padding: 7px 4px;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.slot:hover { border-color: var(--accent); }
+.slot:focus-visible, .remove:focus-visible, .save:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* 已排:實心強調色 + 勾號(不只靠顏色) */
+.slot.on { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 600; }
+/* 排滿後其他時段不能再選 */
+.slot[aria-disabled='true'] { opacity: 0.4; cursor: not-allowed; }
+.slot[aria-disabled='true']:hover { border-color: var(--border); }
+
+.ad {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.save {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--on-accent);
+  background: var(--accent);
+  border: 0;
+  border-radius: 9px;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+.save:hover { opacity: 0.88; }
+.save:disabled { opacity: 0.45; cursor: not-allowed; }
+
+@media (max-width: 640px) {
+  .picked { grid-template-columns: 1fr; gap: 6px; }
+  .picked li { min-height: 44px; }
+  .day { grid-template-columns: 1fr; gap: 6px; }
+  .day-name { padding-top: 0; }
+  .times { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .slot { padding: 9px 4px; }
+}
