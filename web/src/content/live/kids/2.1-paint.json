@@ -1,0 +1,105 @@
+{
+  "title": "換你配配看",
+  "lesson": "兒童網頁課 · 2.1（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt9-wear",
+      "props": {
+        "title": "小花的名片",
+        "look": {
+          "h1": {
+            "color": "navy"
+          }
+        },
+        "tools": [
+          {
+            "part": "h1",
+            "prop": "color",
+            "values": [
+              "black",
+              "navy",
+              "red",
+              "green",
+              "purple",
+              "yellow",
+              "white",
+              "pink"
+            ]
+          },
+          {
+            "part": "card",
+            "prop": "bg",
+            "values": [
+              "cream",
+              "white",
+              "lemon",
+              "sky",
+              "mint",
+              "pink",
+              "navy",
+              "black"
+            ]
+          }
+        ],
+        "meter": "h1",
+        "goals": [
+          {
+            "id": "text",
+            "label": "幫標題換一個文字顏色",
+            "part": "h1",
+            "changed": true
+          },
+          {
+            "id": "bg",
+            "label": "幫名片換一個背景顏色",
+            "part": "card",
+            "changed": true
+          },
+          {
+            "id": "hide",
+            "label": "故意讓標題看不清楚",
+            "part": "h1",
+            "readable": false
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！點衣櫃裡的顏色，幫名片換衣服。右下角有三個任務，最後一個要故意弄得看不清楚喔。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點衣櫃裡的顏色，幫名片換衣服",
+    "body": "完成右下角的三個任務",
+    "until": {
+      "count": "achieved",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "三個任務都完成了！看不清楚的時候，把文字顏色或背景顏色其中一個換掉就好。"
+        }
+      ]
+    }
+  }
+}

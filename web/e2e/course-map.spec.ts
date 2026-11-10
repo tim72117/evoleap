@@ -4,16 +4,26 @@ import { expect, test } from '@playwright/test'
 import { collectErrors, desktopOnly, loginAsNewStudent } from './support'
 
 test('兒童課程地圖由資料庫讀取', async ({ page }) => {
+  // 照正式設定跑的 server:訪客看到的狀態和正式站一樣(這台 -open-studio 的 server 把每個人當管理員)
+  const gated = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 8198) + 1}`
   const res = page.waitForResponse((r) => r.url().endsWith('/api/courses/kids/map'))
-  await page.goto('/topics/kids#map')
+  await page.goto(`${gated}/topics/kids#map`)
   expect((await res).status()).toBe(200)
   const map = page.locator('#map')
   const row = (id: string) => map.locator('li').filter({ hasText: new RegExp(`^${id.replace('.', '\\.')}`) })
   await expect(row('0.1')).toContainText('免費預覽')
   await expect(row('0.1').getByRole('link', { name: '翻到網頁的背面' })).toHaveAttribute('href', '/topics/kids/0-1')
   await expect(row('0.2').getByRole('img', { name: '登入後學習' })).toBeVisible()
+  // 1.1 起是草稿:訪客看到規劃中、沒有連結,直接打開課程頁是「還沒開放」
   await expect(row('1.1')).toContainText('規劃中')
   await expect(row('1.1').getByRole('link')).toHaveCount(0)
+  await page.goto(`${gated}/topics/kids/1-1`)
+  await expect(page.getByText('這一課還沒開放')).toBeVisible()
+
+  // 管理員看到草稿,整列連到課程頁
+  await page.goto('/topics/kids#map')
+  await expect(row('1.1')).toContainText('草稿')
+  await expect(row('1.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/1-1')
 })
 
 test('網頁怎麼運作的課程地圖由資料庫讀取', async ({ page }) => {

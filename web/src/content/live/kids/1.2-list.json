@@ -1,0 +1,142 @@
+{
+  "title": "換你拉拉看",
+  "lesson": "兒童網頁課 · 1.2（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt8-kid-page",
+      "props": {
+        "title": "小花的最愛",
+        "items": [
+          {
+            "id": "t",
+            "kind": "h1",
+            "text": "小花的最愛"
+          },
+          {
+            "id": "likes",
+            "kind": "ul",
+            "lead": "小花喜歡",
+            "items": [
+              "小魚乾",
+              "紙箱",
+              "曬太陽",
+              "毛線球"
+            ],
+            "loose": true
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 80,
+          "y": 50,
+          "w": 1760,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:part:likes",
+        "text": "點一長串裡的東西"
+      },
+      "narration": "換你了！點一長串裡的東西，把它們一項一項拉出來排好。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點一長串裡的東西，拉出來排成清單",
+    "body": "4 樣東西都排好，集滿 4 顆星星",
+    "spots": [
+      {
+        "target": "kid:entry:likes:0",
+        "id": "e0",
+        "label": "小魚乾",
+        "steps": [
+          {
+            "pull": "likes",
+            "entry": 0
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這一項排好囉，點還在一長串裡的。"
+          }
+        ]
+      },
+      {
+        "target": "kid:entry:likes:1",
+        "id": "e1",
+        "label": "紙箱",
+        "steps": [
+          {
+            "pull": "likes",
+            "entry": 1
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這一項排好囉，點還在一長串裡的。"
+          }
+        ]
+      },
+      {
+        "target": "kid:entry:likes:2",
+        "id": "e2",
+        "label": "曬太陽",
+        "steps": [
+          {
+            "pull": "likes",
+            "entry": 2
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這一項排好囉，點還在一長串裡的。"
+          }
+        ]
+      },
+      {
+        "target": "kid:entry:likes:3",
+        "id": "e3",
+        "label": "毛線球",
+        "steps": [
+          {
+            "pull": "likes",
+            "entry": 3
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這一項排好囉，點還在一長串裡的。"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "done",
+      "atLeast": 4
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "4 樣東西都排好了！一眼就看得到小花喜歡什麼。"
+        }
+      ]
+    }
+  }
+}

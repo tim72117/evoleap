@@ -1,0 +1,177 @@
+{
+  "title": "換你逛逛看",
+  "lesson": "兒童網頁課 · 1.4（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt8-kid-page",
+      "props": {
+        "pages": {
+          "home": {
+            "title": "小花的家",
+            "items": [
+              {
+                "id": "t",
+                "kind": "h1",
+                "text": "小花的家"
+              },
+              {
+                "id": "photo",
+                "kind": "img",
+                "pic": "🐱",
+                "alt": "橘貓小花"
+              },
+              {
+                "id": "intro",
+                "kind": "p",
+                "text": "小花是一隻愛睡午覺的橘貓。"
+              },
+              {
+                "id": "toAlbum",
+                "kind": "a",
+                "text": "看小花的相簿",
+                "to": "album"
+              },
+              {
+                "id": "toToys",
+                "kind": "a",
+                "text": "點這裡",
+                "to": "toys"
+              }
+            ]
+          },
+          "album": {
+            "title": "小花的相簿",
+            "items": [
+              {
+                "id": "at",
+                "kind": "h1",
+                "text": "小花的相簿"
+              },
+              {
+                "id": "pics",
+                "kind": "img",
+                "pic": "😺😸😹",
+                "alt": "小花的三張照片"
+              },
+              {
+                "id": "back",
+                "kind": "a",
+                "text": "回到小花的家",
+                "to": "home"
+              }
+            ]
+          },
+          "toys": {
+            "title": "小花的玩具",
+            "items": [
+              {
+                "id": "tt",
+                "kind": "h1",
+                "text": "小花的玩具"
+              },
+              {
+                "id": "toyp",
+                "kind": "p",
+                "text": "毛線球、逗貓棒，還有最愛的紙箱。"
+              },
+              {
+                "id": "back2",
+                "kind": "a",
+                "text": "回到小花的家",
+                "to": "home"
+              }
+            ]
+          }
+        },
+        "side": "map"
+      },
+      "place": {
+        "landscape": {
+          "x": 80,
+          "y": 50,
+          "w": 1760,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！點網頁上的連結，逛遍小花的網站。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:side",
+        "text": "去過的頁會亮星星"
+      },
+      "narration": "去過的頁，網站地圖上會亮一顆星星。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點網頁上的連結，逛遍小花的網站",
+    "body": "三頁都去過，集滿 3 顆星星",
+    "spots": [
+      {
+        "target": "kid:part:toAlbum",
+        "id": "toAlbum",
+        "label": "「看小花的相簿」連結",
+        "steps": [
+          {
+            "follow": "toAlbum"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:toToys",
+        "id": "toToys",
+        "label": "「點這裡」連結",
+        "steps": [
+          {
+            "follow": "toToys"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:back",
+        "id": "back",
+        "label": "「回到小花的家」連結",
+        "steps": [
+          {
+            "follow": "back"
+          }
+        ]
+      },
+      {
+        "target": "kid:part:back2",
+        "id": "back2",
+        "label": "「回到小花的家」連結",
+        "steps": [
+          {
+            "follow": "back2"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "visited",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "三頁都逛過了！連結把它們連在一起。"
+        }
+      ]
+    }
+  }
+}

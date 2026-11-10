@@ -80,7 +80,7 @@ describe('兒童課(給孩子的網頁程式)', () => {
     expect(list.itemListElement.find((x) => x.name.startsWith('0.1'))?.url).toBe(absoluteUrl('/topics/kids/0-1'))
     expect(list.itemListElement.find((x) => x.name.startsWith('0.2'))?.url).toBe(absoluteUrl('/topics/kids/0-2'))
     expect(list.itemListElement.find((x) => x.name.startsWith('0.3'))?.url).toBe(absoluteUrl('/topics/kids/0-3'))
-    // 還在規劃中的課沒有網址
+    // 草稿的課(1.1 起,管理員才看得到)不附網址
     expect(list.itemListElement.find((x) => x.name.startsWith('1.1'))?.url).toBeUndefined()
     expect(JSON.stringify(lesson.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))).toContain('/topics/kids')
     expect(lesson.jsonLd?.some((x) => x['@type'] === 'Course')).toBe(true)
@@ -201,6 +201,9 @@ describe('sitemap.xml', () => {
     const has = (path: string) => locs.includes(absoluteUrl(path))
     expect([has('/topics/launch/0-1'), has('/topics/launch/1-1'), has('/topics/launch/2-1'), has('/courses/tools/1'), has('/courses/ai-tools/1-1'), has('/courses/vibe-coding/4-1')]).toEqual([true, true, false, true, false, false])
     expect(PAGES.find((p) => p.path === '/topics/launch/2-1')?.noindex).toBeFalsy()
+    // 兒童課:序章開放,1.1 起是草稿
+    expect([has('/topics/kids/0-1'), has('/topics/kids/1-1'), has('/topics/kids/4-5')]).toEqual([true, false, false])
+    expect(PAGES.find((p) => p.path === '/topics/kids/1-1')?.noindex).toBeFalsy()
   })
 
   it('priorities are within 0–1', () => {

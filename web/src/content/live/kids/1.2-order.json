@@ -1,0 +1,170 @@
+{
+  "title": "排排看順序",
+  "lesson": "兒童網頁課 · 1.2（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt8-kid-page",
+      "props": {
+        "title": "小花的最愛",
+        "items": [
+          {
+            "id": "t",
+            "kind": "h1",
+            "text": "小花的最愛"
+          },
+          {
+            "id": "likes",
+            "kind": "ul",
+            "lead": "小花喜歡",
+            "items": [
+              "小魚乾",
+              "紙箱",
+              "曬太陽",
+              "毛線球"
+            ],
+            "loose": false
+          },
+          {
+            "id": "feedT",
+            "kind": "h2",
+            "text": "餵小花的步驟"
+          },
+          {
+            "id": "feed",
+            "kind": "ol",
+            "lead": "餵小花要",
+            "items": [
+              "把碗洗乾淨",
+              "倒進飼料",
+              "加一點水",
+              "叫小花來吃"
+            ],
+            "loose": true,
+            "ordered": true,
+            "mix": [
+              1,
+              3,
+              0,
+              2
+            ]
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 80,
+          "y": 50,
+          "w": 1760,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:part:feed",
+        "text": "照順序點"
+      },
+      "narration": "餵小花的步驟亂掉了。照順序點：第一步要先做什麼？"
+    },
+    {
+      "wait": 400,
+      "narration": "點錯了會搖一搖，再想一想就好。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "照順序點餵小花的步驟",
+    "body": "從第 1 步點到第 4 步",
+    "spots": [
+      {
+        "target": "kid:entry:feed:0",
+        "id": "f0",
+        "label": "把碗洗乾淨",
+        "steps": [
+          {
+            "pull": "feed",
+            "entry": 0
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這一步排好囉，接著找下一步。"
+          }
+        ]
+      },
+      {
+        "target": "kid:entry:feed:1",
+        "id": "f1",
+        "label": "倒進飼料",
+        "steps": [
+          {
+            "pull": "feed",
+            "entry": 1
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這一步排好囉，接著找下一步。"
+          }
+        ]
+      },
+      {
+        "target": "kid:entry:feed:2",
+        "id": "f2",
+        "label": "加一點水",
+        "steps": [
+          {
+            "pull": "feed",
+            "entry": 2
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這一步排好囉，接著找下一步。"
+          }
+        ]
+      },
+      {
+        "target": "kid:entry:feed:3",
+        "id": "f3",
+        "label": "叫小花來吃",
+        "steps": [
+          {
+            "pull": "feed",
+            "entry": 3
+          }
+        ],
+        "again": [
+          {
+            "wait": 200,
+            "narration": "這一步排好囉，接著找下一步。"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "done",
+      "atLeast": 4
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "四個步驟都照順序排好了！"
+        }
+      ]
+    }
+  }
+}

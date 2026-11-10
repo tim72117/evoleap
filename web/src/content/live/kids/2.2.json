@@ -1,0 +1,250 @@
+{
+  "title": "字的大小和粗細",
+  "lesson": "兒童網頁課 · 2.2",
+  "cast": {
+    "kid": {
+      "actor": "lt9-wear",
+      "props": {
+        "title": "小花的名片",
+        "look": {
+          "h1": {
+            "size": "m",
+            "bold": false
+          },
+          "button": {
+            "bold": false
+          }
+        },
+        "tools": [
+          {
+            "part": "h1",
+            "prop": "size"
+          },
+          {
+            "part": "h1",
+            "prop": "bold"
+          },
+          {
+            "part": "p",
+            "prop": "size"
+          },
+          {
+            "part": "button",
+            "prop": "bold"
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "找不到重點",
+      "guide": {
+        "target": "kid:page",
+        "text": "每一行都一樣"
+      },
+      "narration": "小花的名片又來了。可是這次，每一行字都一樣大、一樣細。小花的名字在哪裡？要找一下才看到。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:row:h1:size",
+        "text": "字的大小"
+      },
+      "narration": "衣櫃裡有字的大小：小、中、大、特大。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:row:h1:bold",
+        "text": "粗細"
+      },
+      "narration": "還有粗細：一般的字，和粗粗的粗體。我們來玩猜猜看！"
+    },
+    {
+      "checkpoint": "猜猜看：按下「特大」，標題會怎樣？",
+      "body": "先猜，再看答案。",
+      "id": "guess-1",
+      "options": [
+        {
+          "label": "變大",
+          "steps": [
+            {
+              "wear": "h1",
+              "size": "xl",
+              "tap": true,
+              "narration": "你猜對了！標題變得好大，一眼就看到小花的名字。"
+            }
+          ]
+        },
+        {
+          "label": "變小",
+          "steps": [
+            {
+              "wear": "h1",
+              "size": "xl",
+              "tap": true,
+              "narration": "猜錯沒關係，看！標題變大了。特大就是最大的字。"
+            }
+          ]
+        }
+      ],
+      "chapter": "猜猜看"
+    },
+    {
+      "checkpoint": "猜猜看：按下「粗體」，標題會怎樣？",
+      "body": "先猜，再看答案。",
+      "id": "guess-2",
+      "options": [
+        {
+          "label": "變粗",
+          "steps": [
+            {
+              "wear": "h1",
+              "bold": true,
+              "tap": true,
+              "narration": "沒錯！標題的字變粗了，看起來更有力氣。"
+            }
+          ]
+        },
+        {
+          "label": "變細",
+          "steps": [
+            {
+              "wear": "h1",
+              "bold": true,
+              "tap": true,
+              "narration": "猜錯沒關係，看！粗體會讓字變粗。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "checkpoint": "猜猜看：按下「小」，段落會怎樣？",
+      "body": "先猜，再看答案。",
+      "id": "guess-3",
+      "options": [
+        {
+          "label": "變小",
+          "steps": [
+            {
+              "wear": "p",
+              "size": "s",
+              "tap": true,
+              "narration": "答對了！段落變小了，標題看起來更顯眼。"
+            }
+          ]
+        },
+        {
+          "label": "變大",
+          "steps": [
+            {
+              "wear": "p",
+              "size": "s",
+              "tap": true,
+              "narration": "猜錯沒關係，看！段落變小了，標題就更顯眼。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wait": 400,
+      "chapter": "全部都變大？",
+      "narration": "那如果每一行都變成特大、都變粗呢？"
+    },
+    {
+      "outfit": {
+        "h1": {
+          "size": "xl",
+          "bold": true
+        },
+        "p": {
+          "size": "xl",
+          "bold": true
+        },
+        "button": {
+          "size": "xl",
+          "bold": true
+        }
+      },
+      "narration": "哇！名片擠得滿滿的，又找不到重點了。"
+    },
+    {
+      "wait": 400,
+      "narration": "重要的字才放大、變粗，其他的字小一點，重要的東西才會顯眼。"
+    },
+    {
+      "reset": true,
+      "narration": "先變回原來的樣子。"
+    },
+    {
+      "checkpoint": "換你找重點",
+      "sub": "kids/2.2-size.json",
+      "chapter": "換你找重點"
+    },
+    {
+      "checkpoint": "哪一句說得清楚？",
+      "body": "點下面的答案。",
+      "id": "quiz-1",
+      "chapter": "說清楚",
+      "options": [
+        {
+          "label": "把字弄大一點",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "是哪一塊的字呢？名片上有好多字，沒說清楚喔。再想一想！"
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "把標題的字的大小換成特大",
+          "steps": [
+            {
+              "wear": "h1",
+              "size": "xl",
+              "narration": "答對了！說出哪一塊、換成什麼大小，就很清楚。"
+            }
+          ]
+        },
+        {
+          "label": "把那個大大的變粗粗的",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "「那個大大的」是哪一個呢？要叫它的名字：標題。再想一想！"
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:panel",
+        "text": "字的大小・粗體"
+      },
+      "narration": "字的大小和粗體，可以讓重要的東西更顯眼。但不要全部都放大，重點才看得出來。"
+    }
+  ]
+}

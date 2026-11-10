@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest'
 import kidMail from '../live/actors/kid-mail/actor'
 import kidTree from '../live/actors/kid-tree/actor'
 import kidWeb from '../live/actors/kid-web/actor'
+import lt10Magic from '../live/actors/lt10-magic/actor'
+import lt11Helper from '../live/actors/lt11-helper/actor'
+import lt8KidPage from '../live/actors/lt8-kid-page/actor'
+import lt9Wear from '../live/actors/lt9-wear/actor'
 import type { AnyActor } from '../live/types'
 
 // 兒童課的腳本(content/live/kids/,不含 .voice.json):照順序把每一步交給演員(kid-web 或 kid-tree)的 init/apply 推算一遍,
@@ -13,7 +17,10 @@ type Script = { cast: Record<string, { actor: string; props?: object }>; steps: 
 
 const SCRIPTS = import.meta.glob(['./live/kids/*.json', '!./live/kids/*.voice.json'], { eager: true, import: 'default' }) as Record<string, Script>
 
-const ACTORS: Record<string, AnyActor> = { [kidWeb.name]: kidWeb as unknown as AnyActor, [kidTree.name]: kidTree as unknown as AnyActor, [kidMail.name]: kidMail as unknown as AnyActor }
+const ACTORS: Record<string, AnyActor> = {
+  [kidWeb.name]: kidWeb as unknown as AnyActor, [kidTree.name]: kidTree as unknown as AnyActor, [kidMail.name]: kidMail as unknown as AnyActor,
+  ...Object.fromEntries([lt8KidPage, lt9Wear, lt10Magic, lt11Helper].map((a) => [a.name, a as unknown as AnyActor])),
+}
 function run(actor: AnyActor, state: unknown, steps: Step[]): unknown {
   let st = state
   for (const s of steps) {
@@ -48,10 +55,25 @@ describe('兒童課腳本的演員操作', () => {
       }
       st = run1(st, [s])
     }
+    // 可點區多半各自從當時的狀態推算;有些要先點過別的才點得到(例如先到別頁才有「回首頁」、先畫了草圖才能拆成句子),
+    // 這種從前面點過的任何一個狀態推算得過就算通過,都不行才算錯
+    const reached: unknown[] = [st]
+    const tryFrom = (steps: Step[]): unknown => {
+      let first: unknown
+      for (const from of reached) {
+        try {
+          return run1(from, steps)
+        } catch (e) {
+          first ??= e
+        }
+      }
+      throw first
+    }
     for (const spot of script.interact?.spots ?? []) {
-      const after = run1(st, spot.steps)
+      const after = tryFrom(spot.steps)
+      reached.push(after)
       if (spot.again) run1(after, spot.again)
     }
-    if (script.interact?.done) run1(st, script.interact.done.steps)
+    if (script.interact?.done) tryFrom(script.interact.done.steps)
   })
 })

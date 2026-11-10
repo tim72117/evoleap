@@ -1,0 +1,155 @@
+/* 演員 lt8-kid-page:兒童網頁課單元 1 的內容積木網頁。選擇器都以 .A-lt8-kid-page 開頭。
+   動畫一律由 actor.ts 依時間設定 style(--pop、--on、--dim、--good、--bad、--x、opacity),這裡不用 animation/transition。
+   卡通樣式與 kid-web 一致(尺寸是 1920 寬舞台的 px)。 */
+.A-lt8-kid-page {
+  --x: 0;
+  position: relative;
+  width: 100%; height: 100%;
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: 28px; line-height: 1.4; color: #2b2620;
+}
+.A-lt8-kid-page *, .A-lt8-kid-page *::before, .A-lt8-kid-page *::after { box-sizing: border-box; }
+.A-lt8-kid-page .kp-scene { position: absolute; inset: 0; display: flex; gap: 36px; }
+.A-lt8-kid-page[data-tall="1"] .kp-scene { flex-direction: column; gap: 28px; }
+
+/* ── 網頁視窗 ── */
+.A-lt8-kid-page .kp-win {
+  position: relative; flex: 1.45; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column;
+  background: #fffaf0; border: 6px solid #2b2620; border-radius: 30px; overflow: hidden;
+  box-shadow: 0 12px 0 #2b2620;
+}
+.A-lt8-kid-page[data-side="none"] .kp-win { flex: 1; }
+.A-lt8-kid-page .kp-bar { display: flex; align-items: center; gap: 20px; padding: 14px 24px; background: #ffe7c2; border-bottom: 6px solid #2b2620; }
+.A-lt8-kid-page .kp-lights { display: flex; gap: 10px; }
+.A-lt8-kid-page .kp-lights i { width: 22px; height: 22px; border-radius: 50%; border: 4px solid #2b2620; background: #f26b5b; }
+.A-lt8-kid-page .kp-lights i:nth-child(2) { background: #f7c548; }
+.A-lt8-kid-page .kp-lights i:nth-child(3) { background: #5cc477; }
+.A-lt8-kid-page .kp-url { flex: 1; background: #fff; border: 4px solid #2b2620; border-radius: 999px; padding: 2px 24px; font-size: 26px; }
+.A-lt8-kid-page .kp-page { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 26px 40px 30px; overflow: hidden; }
+.A-lt8-kid-page .kp-empty { margin: auto; color: #9a9086; font-size: 28px; }
+
+/* 網頁上的一塊:亮暗、跳一下、對錯 */
+.A-lt8-kid-page .kp-part, .A-lt8-kid-page .kp-chip, .A-lt8-kid-page .kp-li {
+  --on: 0; --dim: 0; --pop: 0; --good: 0; --bad: 0;
+}
+.A-lt8-kid-page .kp-part {
+  position: relative; max-width: 100%;
+  padding: 4px 16px; border-radius: 18px;
+  outline: 6px solid color-mix(in srgb, #2fb36b calc(var(--good) * 100%), color-mix(in srgb, #e0453a calc(var(--bad) * 100%), color-mix(in srgb, var(--c) calc(max(var(--on), var(--pop)) * 100%), transparent)));
+  outline-offset: 2px;
+  background: color-mix(in srgb, #ffd6d1 calc(var(--bad) * 100%), color-mix(in srgb, #fff3b0 calc(var(--pop) * 100%), transparent));
+  opacity: calc(1 - var(--dim) * 0.7);
+  scale: calc(1 + var(--pop) * 0.06 + var(--on) * 0.03);
+  transform-origin: 0 50%;
+}
+.A-lt8-kid-page .kp-h1 { display: block; font-size: 58px; font-weight: 900; letter-spacing: 0.03em; line-height: 1.2; }
+.A-lt8-kid-page .kp-h2 { display: block; font-size: 40px; font-weight: 800; line-height: 1.25; border-left: 12px solid #f7c548; padding-left: 14px; }
+.A-lt8-kid-page .kp-p { display: block; font-size: 30px; }
+.A-lt8-kid-page .kp-a { font-size: 32px; font-weight: 700; color: #2f45d8; text-decoration: underline; text-decoration-thickness: 4px; text-underline-offset: 6px; }
+.A-lt8-kid-page .kp-a::before { content: "🔗 "; }
+
+/* 擠在一起的字:小小的、沒有分行 */
+.A-lt8-kid-page .kp-raw { width: 100%; font-size: 23px; line-height: 1.25; letter-spacing: -0.02em; color: #5a5148; background: #f1ece3; border: 3px dashed #b9afa2; border-radius: 16px; padding: 12px 16px; }
+.A-lt8-kid-page .kp-chunk { display: inline; padding: 0 2px; border-radius: 8px; }
+
+/* 清單與一長串 */
+.A-lt8-kid-page .kp-run { display: block; font-size: 28px; line-height: 1.7; }
+.A-lt8-kid-page .kp-chip {
+  position: relative; display: inline-block; padding: 0 10px; margin: 2px 0; border-radius: 12px; font-weight: 700;
+  background: color-mix(in srgb, #ffd6d1 calc(var(--bad) * 100%), color-mix(in srgb, #c8f0d4 calc(var(--good) * 100%), #ffe9ef));
+  border: 3px solid color-mix(in srgb, #e0453a calc(var(--bad) * 100%), #e6a4b6);
+}
+.A-lt8-kid-page .kp-list { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.A-lt8-kid-page .kp-lead { font-size: 28px; }
+.A-lt8-kid-page .kp-li {
+  display: flex; align-items: center; gap: 14px; font-size: 30px; padding: 0 10px; border-radius: 12px;
+  background: color-mix(in srgb, #fff3b0 calc(var(--pop) * 100%), color-mix(in srgb, #c8f0d4 calc(var(--good) * 100%), transparent));
+  scale: calc(1 + var(--pop) * 0.08); transform-origin: 0 50%;
+}
+.A-lt8-kid-page .kp-li i { font-style: normal; font-weight: 900; color: var(--d); min-width: 38px; }
+.A-lt8-kid-page .kp-list[data-kind="ul"] .kp-li i { font-size: 20px; }
+
+/* 圖片與載不出來的圖片 */
+.A-lt8-kid-page .kp-img { display: inline-flex; align-items: center; justify-content: center; min-width: 260px; min-height: 150px; background: #ffe3b3; border: 6px solid #2b2620; border-radius: 30px; padding: 6px 30px; }
+.A-lt8-kid-page .kp-pic { font-size: 100px; line-height: 1.1; }
+.A-lt8-kid-page .kp-broken { flex-direction: column; gap: 6px; max-width: 640px; background: #f6f3ee; border: 5px dashed #9a9086; color: #5a5148; font-size: 28px; font-style: italic; text-align: center; }
+.A-lt8-kid-page .kp-broken i { font-style: normal; font-size: 36px; opacity: 0.6; }
+
+/* 名牌(labels)與對錯的小徽章 */
+.A-lt8-kid-page .kp-name {
+  position: absolute; top: -16px; right: -18px;
+  padding: 0 12px; border-radius: 10px; background: var(--d); color: #fff;
+  font-size: 22px; font-style: normal; font-weight: 800; line-height: 1.5;
+  box-shadow: 0 4px 0 #2b2620;
+  opacity: var(--x); scale: calc(0.6 + var(--x) * 0.4);
+}
+.A-lt8-kid-page .kp-badge {
+  position: absolute; left: -22px; top: -18px;
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+  border: 4px solid #2b2620; background: #fff; font-size: 24px; font-weight: 900; color: #2fb36b;
+  opacity: 0;
+}
+.A-lt8-kid-page .kp-badge[data-ok="1"] { background: #e2f7e8; color: #2fb36b; }
+.A-lt8-kid-page .kp-badge[data-ok="0"] { background: #ffd6d1; color: #e0453a; }
+
+/* 念給看不到的人聽 */
+.A-lt8-kid-page .kp-readout {
+  position: absolute; left: 24px; right: 24px; bottom: 20px;
+  padding: 14px 22px; border: 5px solid #2b2620; border-radius: 22px; background: #2b2620; color: #fff;
+  font-size: 27px; line-height: 1.45; opacity: 0;
+  box-shadow: 0 8px 0 rgba(43, 38, 32, 0.35);
+}
+.A-lt8-kid-page .kp-readout b { display: block; font-size: 22px; color: #ffd36b; }
+
+/* ── 側欄:積木盒、網頁的積木、網站地圖 ── */
+.A-lt8-kid-page .kp-side {
+  flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column;
+  padding: 20px 24px 24px; border: 6px solid #2b2620; border-radius: 30px; box-shadow: 0 12px 0 #2b2620;
+  background-color: #eef4ff;
+  background-image: linear-gradient(#d8e4fb 2px, transparent 2px), linear-gradient(90deg, #d8e4fb 2px, transparent 2px);
+  background-size: 40px 40px;
+}
+.A-lt8-kid-page .kp-tools:empty { display: none; }
+.A-lt8-kid-page .kp-tools { margin-bottom: 18px; padding: 12px 14px 16px; background: #fff; border: 4px solid #2b2620; border-radius: 20px; }
+.A-lt8-kid-page .kp-tools-label, .A-lt8-kid-page .kp-side-label { margin: 0 0 10px; font-size: 24px; font-weight: 800; }
+.A-lt8-kid-page .kp-tools-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.A-lt8-kid-page .kp-tool {
+  --c: #ffe08a; --d: #8a6a00; --pop: 0; --bad: 0; --good: 0;
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;
+  background: var(--c); border: 5px solid #2b2620; border-radius: 16px;
+  box-shadow: 0 6px 0 #2b2620, 0 0 0 calc(var(--bad) * 10px) #e0453a, 0 0 0 calc(var(--good) * 10px) #2fb36b;
+  font-size: 28px; font-weight: 800;
+  scale: calc(1 + var(--pop) * 0.08);
+}
+.A-lt8-kid-page .kp-tool small { font-size: 24px; }
+.A-lt8-kid-page .kp-tool span { font-size: 22px; font-weight: 600; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.A-lt8-kid-page .kp-tool[data-on="1"] { outline: 7px solid #2f6bff; outline-offset: 3px; translate: 0 -6px; box-shadow: 0 12px 0 #2b2620; }
+.A-lt8-kid-page .kp-card { background: #fff; font-size: 25px; font-weight: 700; }
+.A-lt8-kid-page .kp-side-body { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+.A-lt8-kid-page .kp-block {
+  --on: 0; --dim: 0;
+  display: flex; align-items: stretch; flex: none;
+  background: var(--c); border: 5px solid #2b2620; border-radius: 18px; box-shadow: 0 7px 0 #2b2620, 0 0 0 calc(var(--on) * 12px) color-mix(in srgb, var(--c) 45%, transparent);
+  opacity: calc(1 - var(--dim) * 0.65);
+}
+.A-lt8-kid-page .kp-block-tag { display: flex; align-items: center; gap: 6px; min-width: 170px; padding: 6px 14px; background: var(--d); color: #fff; font-size: 26px; font-weight: 800; border-right: 5px solid #2b2620; border-radius: 12px 0 0 12px; }
+.A-lt8-kid-page .kp-block-val { flex: 1; min-width: 0; margin: 8px; padding: 4px 14px; background: #fff; border: 3px solid #2b2620; border-radius: 12px; font-size: 23px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.A-lt8-kid-page .kp-block-val small { font-size: 20px; color: #5a5148; }
+
+/* 網站地圖 */
+.A-lt8-kid-page .kp-map { position: relative; flex: 1; }
+.A-lt8-kid-page .kp-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.A-lt8-kid-page .kp-map line { stroke: #323fa8; stroke-width: 1.2; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; stroke-width: 6px; }
+.A-lt8-kid-page .kp-node {
+  --pop: 0;
+  position: absolute; translate: -50% -50%;
+  padding: 14px 22px; background: #fff; border: 5px solid #2b2620; border-radius: 20px; box-shadow: 0 7px 0 #2b2620;
+  font-size: 26px; font-weight: 800; white-space: nowrap;
+}
+.A-lt8-kid-page .kp-node[data-here="1"] { background: #ffe08a; outline: 7px solid #f6a03c; outline-offset: 3px; }
+.A-lt8-kid-page .kp-node em { position: absolute; left: 50%; top: -40px; translate: -50% 0; font-style: normal; font-size: 20px; background: #2b2620; color: #fff; padding: 0 10px; border-radius: 8px; }
+
+/* 提示:還沒選積木就點網頁 */
+.A-lt8-kid-page .kp-nag { position: absolute; left: 50%; top: 10px; translate: -50% 0; padding: 6px 22px; border-radius: 999px; background: #e0453a; color: #fff; font-size: 26px; font-weight: 800; opacity: 0; white-space: nowrap; }
+.A-lt8-kid-page .kp-nag:empty { display: none; }

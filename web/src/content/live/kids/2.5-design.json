@@ -1,0 +1,95 @@
+{
+  "title": "換你設計",
+  "lesson": "兒童網頁課 · 2.5（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt9-wear",
+      "props": {
+        "title": "小花的名片",
+        "tools": [
+          {
+            "part": "card",
+            "prop": "bg",
+            "values": [
+              "cream",
+              "white",
+              "sky",
+              "pink",
+              "mint",
+              "lemon",
+              "navy"
+            ]
+          },
+          {
+            "part": "h1",
+            "prop": "color",
+            "values": [
+              "black",
+              "navy",
+              "red",
+              "purple",
+              "white",
+              "yellow"
+            ]
+          },
+          {
+            "part": "h1",
+            "prop": "size"
+          },
+          {
+            "part": "card",
+            "prop": "align"
+          },
+          {
+            "part": "button",
+            "prop": "bg",
+            "values": [
+              "pink",
+              "yellow",
+              "sky",
+              "mint",
+              "white"
+            ]
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！點衣櫃，幫小花設計一套新衣服。換五個不一樣的地方就完成。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點衣櫃，幫小花設計一套新衣服",
+    "body": "換五個不一樣的地方",
+    "until": {
+      "count": "tried",
+      "atLeast": 5
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "好漂亮的名片！這是你自己設計的新衣服。"
+        }
+      ]
+    }
+  }
+}

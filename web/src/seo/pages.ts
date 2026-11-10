@@ -9,7 +9,7 @@ import { AI_AGENT_COURSE_PATH, COURSE } from '../content/aiAgent'
 import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath } from '../content/catalog'
 import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
-import { KIDS_OPEN_LESSONS, KIDS_UNITS, kidsLessonTitle } from '../content/kidsCourse'
+import { KIDS_OPEN_LESSONS, KIDS_RELEASED_LESSONS, KIDS_UNITS, kidsLessonTitle } from '../content/kidsCourse'
 import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, kidsLessonDocTitle, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC, webLessonDocTitle } from '../content/topics'
 import { LAUNCH_LESSON_PAGES, launchLesson, launchLessonPath } from '../content/launchCourse'
 import { WEB_OPEN_LESSONS, WEB_UNITS, webLesson } from '../content/webCourse'
@@ -159,7 +159,8 @@ const KIDS_TOPIC_PAGE: PageMeta = {
         '@type': 'ListItem',
         position: i + 1,
         name: `${l.id} ${l.title}`,
-        ...(KIDS_OPEN_LESSONS[l.id] && { url: absoluteUrl(KIDS_OPEN_LESSONS[l.id].path) }),
+        // 草稿的課(管理員才看得到)不附網址
+        ...(KIDS_RELEASED_LESSONS.includes(l.id) && { url: absoluteUrl(KIDS_OPEN_LESSONS[l.id].path) }),
       })),
     }),
   ],
@@ -167,7 +168,9 @@ const KIDS_TOPIC_PAGE: PageMeta = {
 
 /** 兒童課已經可以上的課:一課一頁 */
 const KIDS_LESSON_PAGES: PageMeta[] = Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => {
-  const description = KIDS_UNITS.flatMap((u) => u.lessons).find((x) => x.id === id)?.learn ?? KIDS_TOPIC.description
+  const learn = KIDS_UNITS.flatMap((u) => u.lessons).find((x) => x.id === id)?.learn
+  // 課程地圖上的一句話有些太短,接上主題與課名
+  const description = learn ? (learn.length >= 20 ? learn : `${learn}${KIDS_TOPIC.name}：${kidsLessonTitle(id)}。`) : KIDS_TOPIC.description
   return {
     path: l.path,
     title: documentTitle(kidsLessonDocTitle(id)),

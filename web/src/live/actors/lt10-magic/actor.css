@@ -1,0 +1,155 @@
+/* 演員 lt10-magic:兒童網頁課單元 3 的機關積木(魔法積木)。選擇器都以 .A-lt10-magic 開頭。
+   動畫一律由 actor.ts 依時間設定 style 與 data-*,這裡不用 animation/transition(SPEC 第 1 節)。
+   配色、粗黑框和 kid-web、kid-mail 一致(尺寸是 1920 寬舞台的 px)。 */
+.A-lt10-magic {
+  position: relative;
+  width: 100%; height: 100%;
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: 28px;
+  line-height: 1.4;
+  color: #2b2620;
+}
+.A-lt10-magic *, .A-lt10-magic *::before, .A-lt10-magic *::after { box-sizing: border-box; }
+
+/* ── 版面:橫式左右排,直式上下排 ── */
+.A-lt10-magic .mg-side { position: absolute; top: 0; height: 100%; display: flex; flex-direction: column; }
+.A-lt10-magic .mg-web { left: 0; width: 46%; }
+.A-lt10-magic .mg-code { right: 0; width: 51%; }
+.A-lt10-magic[data-tall='true'] .mg-web { width: 100%; height: 49%; }
+.A-lt10-magic[data-tall='true'] .mg-code { left: 0; right: auto; top: 52%; width: 100%; height: 48%; }
+.A-lt10-magic .mg-label { margin: 0 0 14px; font-size: 32px; font-weight: 900; }
+
+/* ── 網頁 ── */
+.A-lt10-magic .mg-win {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  border: 6px solid #2b2620; border-radius: 30px; overflow: hidden;
+  background: #fffaf0; box-shadow: 0 12px 0 #2b2620;
+}
+.A-lt10-magic .mg-bar { display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: #ffe7c2; border-bottom: 6px solid #2b2620; }
+.A-lt10-magic .mg-lights { display: flex; gap: 8px; }
+.A-lt10-magic .mg-lights i { width: 20px; height: 20px; border-radius: 50%; border: 4px solid #2b2620; background: #f26b5b; }
+.A-lt10-magic .mg-lights i:nth-child(2) { background: #f7c548; }
+.A-lt10-magic .mg-lights i:nth-child(3) { background: #5cc477; }
+.A-lt10-magic .mg-reload { display: inline-grid; place-items: center; width: 52px; height: 52px; border: 4px solid #2b2620; border-radius: 50%; background: #fff; font-size: 32px; font-weight: 900; }
+.A-lt10-magic .mg-tab { padding: 4px 22px; border: 4px solid #2b2620; border-radius: 999px; background: #fff; font-size: 24px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.A-lt10-magic .mg-page {
+  position: relative; flex: 1; min-height: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  padding: 24px 28px; background: #fffaf0;
+}
+.A-lt10-magic .mg-title { margin: 0; font-size: 52px; font-weight: 900; letter-spacing: 0.03em; text-align: center; }
+.A-lt10-magic .mg-note { margin: 0; font-size: 32px; font-weight: 700; text-align: center; }
+.A-lt10-magic[data-tall='true'] .mg-title { font-size: 46px; }
+
+/* 會出現和藏起來的東西 */
+.A-lt10-magic .mg-thing { min-width: 60%; padding: 14px 30px; border: 6px solid #2b2620; border-radius: 24px; background: #d6f2c9; text-align: center; font-size: 40px; font-weight: 900; }
+.A-lt10-magic .mg-thing-hid { display: none; font-size: 28px; font-weight: 800; color: #8a7d6b; }
+.A-lt10-magic .mg-thing[data-shown='false'] { background: transparent; border-style: dashed; border-color: #c9b89a; }
+.A-lt10-magic .mg-thing[data-shown='false'] .mg-thing-text { display: none; }
+.A-lt10-magic .mg-thing[data-shown='false'] .mg-thing-hid { display: inline; }
+
+/* 盒子與骰子 */
+.A-lt10-magic .mg-row { display: flex; align-items: center; justify-content: center; gap: 48px; }
+.A-lt10-magic .mg-row:empty { display: none; }
+.A-lt10-magic .mg-box {
+  position: relative; display: grid; place-items: center; width: 230px; height: 180px; margin-top: 30px;
+  border: 6px solid #2b2620; border-radius: 10px 10px 24px 24px; background: #f4c98a; box-shadow: 0 8px 0 #2b2620;
+}
+.A-lt10-magic .mg-box::before { content: ''; position: absolute; left: -16px; right: -16px; top: -26px; height: 30px; border: 6px solid #2b2620; border-radius: 10px; background: #e9b26b; }
+.A-lt10-magic .mg-boxname { position: absolute; left: 50%; top: -74px; translate: -50% 0; padding: 2px 18px; border: 4px solid #2b2620; border-radius: 12px; background: #fff; font-size: 26px; font-weight: 900; white-space: nowrap; rotate: -3deg; }
+.A-lt10-magic .mg-num { display: inline-block; font-size: 88px; font-weight: 900; line-height: 1; padding-top: 10px; }
+.A-lt10-magic .mg-dicewrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.A-lt10-magic .mg-dice { display: grid; place-items: center; width: 170px; height: 170px; border: 6px solid #2b2620; border-radius: 34px; background: #fff; box-shadow: 0 8px 0 #2b2620; }
+.A-lt10-magic .mg-dice b { font-size: 96px; font-weight: 900; line-height: 1; color: #e0453a; }
+.A-lt10-magic .mg-dice[data-big='true'] b { font-size: 70px; }
+.A-lt10-magic .mg-dice[data-landed='true'] { background: #fff3a6; }
+.A-lt10-magic .mg-guess { position: absolute; right: -170px; top: 10px; padding: 8px 18px; background: #ffe58a; border: 4px solid #2b2620; font-size: 28px; font-weight: 900; rotate: 4deg; white-space: nowrap; }
+.A-lt10-magic .mg-guess[data-show='false'] { display: none; }
+.A-lt10-magic .mg-luck { padding: 4px 20px; border-radius: 999px; background: #8a7d6b; color: #fff; font-size: 28px; font-weight: 900; white-space: nowrap; }
+.A-lt10-magic .mg-luck[data-hit='true'] { background: #3fae5a; }
+.A-lt10-magic .mg-luck[data-show='false'] { display: none; }
+
+/* 按鈕 */
+.A-lt10-magic .mg-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; }
+.A-lt10-magic .mg-btn { display: inline-block; padding: 10px 38px; border: 6px solid #2b2620; border-radius: 999px; background: #ff9fb7; font-size: 34px; font-weight: 900; box-shadow: 0 6px 0 #2b2620; }
+.A-lt10-magic .mg-btn:nth-child(2) { background: #9fd3ff; }
+.A-lt10-magic .mg-btn:nth-child(3) { background: #ffd84d; }
+.A-lt10-magic .mg-btn[data-shadow='off'] { box-shadow: 0 0 0 #2b2620; }
+
+/* 說的話 */
+.A-lt10-magic .mg-bubble {
+  position: absolute; left: 50%; top: 22px; z-index: 2; transform-origin: 50% 100%;
+  padding: 14px 36px; border: 6px solid #2b2620; border-radius: 30px; background: #fff; box-shadow: 0 8px 0 #2b2620;
+  font-size: 48px; font-weight: 900; white-space: nowrap;
+}
+.A-lt10-magic .mg-bubble::after { content: ''; position: absolute; left: 50%; bottom: -26px; translate: -50% 0; border: 14px solid transparent; border-top: 16px solid #2b2620; }
+.A-lt10-magic .mg-bubble[data-show='false'] { display: none; }
+.A-lt10-magic .mg-quiet { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; margin: 0; padding: 6px 24px; border-radius: 999px; background: #e9e1d2; font-size: 28px; font-weight: 800; color: #6b6156; white-space: nowrap; }
+.A-lt10-magic .mg-quiet[data-show='false'] { display: none; }
+
+/* 煙火 */
+.A-lt10-magic .mg-fire { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.A-lt10-magic .mg-burst { position: absolute; width: 0; height: 0; }
+.A-lt10-magic .mg-burst:nth-child(1) { left: 22%; top: 28%; }
+.A-lt10-magic .mg-burst:nth-child(2) { left: 78%; top: 22%; }
+.A-lt10-magic .mg-burst:nth-child(3) { left: 50%; top: 55%; }
+.A-lt10-magic .mg-burst[data-show='false'] { display: none; }
+.A-lt10-magic .mg-burst i { position: absolute; left: -10px; top: -10px; width: 20px; height: 20px; border-radius: 50%; background: #ff6b8a; }
+.A-lt10-magic .mg-burst i:nth-child(3n + 1) { background: #ffd84d; }
+.A-lt10-magic .mg-burst i:nth-child(3n + 2) { background: #5cc4ff; }
+.A-lt10-magic .mg-burst em { position: absolute; left: -45px; top: -45px; font-style: normal; font-size: 90px; line-height: 1; }
+
+/* 飛過去的數字 */
+.A-lt10-magic .mg-plus { position: absolute; z-index: 5; translate: -50% -50%; padding: 4px 22px; border: 5px solid #2b2620; border-radius: 999px; background: #5cc477; color: #fff; font-size: 44px; font-weight: 900; pointer-events: none; }
+.A-lt10-magic .mg-plus[data-neg='true'] { background: #f26b5b; }
+.A-lt10-magic .mg-plus[data-show='false'], .A-lt10-magic .mg-plus:not([data-show]) { display: none; }
+
+/* ── 魔法積木 ── */
+.A-lt10-magic .mg-rules {
+  flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 22px;
+  padding: 26px; border: 6px solid #2b2620; border-radius: 30px; background: #efe6ff; box-shadow: 0 12px 0 #2b2620;
+}
+.A-lt10-magic .mg-rules[data-empty='true']::before { content: '還沒有魔法積木'; margin: auto; font-size: 32px; font-weight: 800; color: #8a7d9b; }
+.A-lt10-magic .mg-rule { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 14px; border: 4px solid #2b2620; border-radius: 22px; background: #fff; }
+.A-lt10-magic .mg-rule[data-fired='now'] { background: #fff3a6; box-shadow: 0 0 0 12px rgba(255, 216, 77, 0.55); }
+.A-lt10-magic .mg-rule[data-fired='done'] { background: #fffbe0; }
+.A-lt10-magic .mg-when { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border: 4px solid #2b2620; border-radius: 16px; background: #ffd84d; font-size: 30px; font-weight: 900; white-space: nowrap; }
+.A-lt10-magic .mg-rule[data-box='true'] .mg-when { background: #9fd3ff; }
+.A-lt10-magic .mg-when small { padding: 0 10px; border-radius: 8px; background: #2b2620; color: #fff; font-size: 22px; }
+.A-lt10-magic .mg-is { display: inline-block; min-width: 56px; padding: 0 10px; border: 4px solid #2b2620; border-radius: 12px; background: #fff; text-align: center; }
+.A-lt10-magic .mg-arrow { font-size: 28px; font-weight: 900; white-space: nowrap; }
+.A-lt10-magic .mg-do { display: inline-flex; flex-wrap: wrap; gap: 10px; min-width: 260px; min-height: 66px; padding: 4px; border-radius: 18px; }
+.A-lt10-magic .mg-rule[data-edit='true'] .mg-do { background: #fff3a6; }
+.A-lt10-magic .mg-rule[data-snap='wait'] .mg-do { box-shadow: 0 0 0 6px rgba(92, 196, 119, 0.5); }
+.A-lt10-magic .mg-rule[data-snap='true'] .mg-do { background: #d6f2c9; box-shadow: 0 0 0 10px rgba(92, 196, 119, 0.6); }
+.A-lt10-magic .mg-slot { display: inline-flex; align-items: center; padding: 10px 22px; border: 4px dashed #8a7d9b; border-radius: 16px; color: #8a7d9b; font-size: 28px; font-weight: 800; white-space: nowrap; }
+
+/* 「做什麼」的積木(列裡的、積木盒裡的、飛過去的都一樣) */
+.A-lt10-magic .mg-chip, .A-lt10-magic .mg-block, .A-lt10-magic .mg-flyer {
+  display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px;
+  border: 4px solid #2b2620; border-radius: 16px; background: #ff9fb7; font-size: 28px; font-weight: 900; white-space: nowrap;
+}
+.A-lt10-magic [data-k='show'], .A-lt10-magic [data-k='hide'], .A-lt10-magic [data-k='toggle'] { background: #b9ecc8; }
+.A-lt10-magic [data-k='add'] { background: #f4c98a; }
+.A-lt10-magic [data-k='roll'] { background: #ffd1dc; }
+.A-lt10-magic [data-k='fireworks'], .A-lt10-magic [data-k='paint'] { background: #cfe6ff; }
+.A-lt10-magic .mg-chip b, .A-lt10-magic .mg-block b, .A-lt10-magic .mg-flyer b { padding: 0 8px; border-radius: 8px; background: #fff; }
+.A-lt10-magic .mg-swatch { display: inline-block; width: 30px; height: 30px; margin: 0 4px; border: 3px solid #2b2620; border-radius: 8px; }
+
+.A-lt10-magic .mg-drawer { margin-top: 26px; padding: 14px 20px 20px; border: 5px dashed #2b2620; border-radius: 24px; background: #fffaf0; }
+.A-lt10-magic .mg-drawer[data-show='false'] { display: none; }
+.A-lt10-magic .mg-drawer-head { margin: 0 0 10px; font-size: 26px; font-weight: 900; }
+.A-lt10-magic .mg-blocks { display: flex; flex-wrap: wrap; gap: 14px; }
+.A-lt10-magic .mg-block[data-on='true'] { outline: 8px solid #ffd84d; outline-offset: 4px; }
+.A-lt10-magic .mg-flyer { position: absolute; z-index: 6; translate: -50% -50%; pointer-events: none; box-shadow: 0 10px 0 rgba(43, 38, 32, 0.35); }
+.A-lt10-magic .mg-flyer:not([data-show='true']) { display: none; }
+
+/* 直式:字小一點、留白少一點 */
+.A-lt10-magic[data-tall='true'] .mg-rules { padding: 18px; gap: 14px; }
+.A-lt10-magic[data-tall='true'] .mg-when, .A-lt10-magic[data-tall='true'] .mg-chip, .A-lt10-magic[data-tall='true'] .mg-block { font-size: 26px; padding: 8px 14px; }
+.A-lt10-magic[data-tall='true'] .mg-drawer { margin-top: 18px; }
+
+/* ── 回答題目 ── */
+.A-lt10-magic [data-verdict='right'] { outline: 10px solid #3fae5a; outline-offset: 6px; }
+.A-lt10-magic [data-verdict='wrong'] { outline: 10px solid #e0453a; outline-offset: 6px; }

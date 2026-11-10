@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { COURSES, coursePath, openLessonsOf, type Course } from '../content/catalog'
 import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
-import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
+import { KIDS_RELEASED_LESSONS } from '../content/kidsCourse'
 import { LAUNCH_OPEN_LESSONS } from '../content/launchCourse'
 import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC } from '../content/topics'
 import { WEB_OPEN_LESSONS } from '../content/webCourse'
@@ -38,7 +38,7 @@ function CourseCard({ course }: { course: Course }) {
 const SINGLE_TOPICS = [
   { id: 'web', topic: WEB_TOPIC, title: `${WEB_TOPIC.name}：AI 時代的網頁基礎課`, badge: `已開放 ${Object.keys(WEB_OPEN_LESSONS).length} 課`, planned: true, mapLabel: '看課程地圖' },
   { id: 'launch', topic: LAUNCH_TOPIC, title: `${LAUNCH_TOPIC.name}：把作品變成服務`, badge: `已開放 ${LAUNCH_OPEN_LESSONS.length} 課`, planned: true, mapLabel: '看課程地圖' },
-  { id: 'kids', topic: KIDS_TOPIC, title: `${KIDS_TOPIC.name}：用積木蓋網頁`, badge: `已開放 ${Object.keys(KIDS_OPEN_LESSONS).length} 課`, planned: true, mapLabel: '看課程地圖' },
+  { id: 'kids', topic: KIDS_TOPIC, title: `${KIDS_TOPIC.name}：用積木蓋網頁`, badge: `已開放 ${KIDS_RELEASED_LESSONS.length} 課`, planned: true, mapLabel: '看課程地圖' },
   {
     id: 'claude-code',
     topic: CLAUDE_CODE_TOPIC,

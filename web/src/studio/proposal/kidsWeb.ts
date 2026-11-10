@@ -1,13 +1,18 @@
 // 構想：給 9 歲孩子的網頁程式設計基礎課。頁面在 KidsWebPage.tsx。
-// 2026-11-06 提出，大綱草稿；堂數、時長都是暫定。0.1、0.2 已上線（主題開放中），其他課規劃中。
+// 2026-11-06 提出，大綱草稿；堂數、時長都是暫定。0.1–0.3 已上線（主題開放中），1.1–4.5 已有腳本、是草稿（管理員才看得到），還沒有語音。
 // 方向：不強調語法（AI 能處理大部分語法），教重要概念、正確的名詞與說清楚目標；前面先教運作概念，單元 4 才加入 AI。
 // 單元與課程(KIDS_UNITS)在公開的 content/kidsCourse.ts,公開的主題頁也用同一份。
-import { KIDS_UNITS, type KidsLesson, type KidsUnit } from '../../content/kidsCourse'
+import { KIDS_OPEN_LESSONS, KIDS_UNITS, type KidsLesson, type KidsUnit } from '../../content/kidsCourse'
 
 export { KIDS_UNITS, type KidsLesson, type KidsUnit }
 
-/** 已有試做頁的課:課號 → 研發基地的試做頁 */
-export const KIDS_DEMOS: Record<string, string> = { '0.1': '/studio/kids-web/0-1', '0.2': '/studio/kids-web/0-2/live', '0.3': '/studio/kids-web/0-3/live' }
+/** 已有試做頁的課:課號 → 試做頁。序章在研發基地;1.1 起已經是草稿課程頁(管理員才看得到) */
+export const KIDS_DEMOS: Record<string, string> = {
+  '0.1': '/studio/kids-web/0-1',
+  '0.2': '/studio/kids-web/0-2/live',
+  '0.3': '/studio/kids-web/0-3/live',
+  ...Object.fromEntries(Object.entries(KIDS_OPEN_LESSONS).filter(([id]) => !id.startsWith('0.')).map(([id, l]) => [id, l.path])),
+}
 
 export const KIDS_POSITIONING: [string, string][] = [
   ['對象', '9 歲左右、會用滑鼠和鍵盤、看得懂短句的孩子；建議家長在旁陪學。'],
@@ -16,7 +21,7 @@ export const KIDS_POSITIONING: [string, string][] = [
   ['教什麼', '三件事：重要概念（網頁怎麼組成、怎麼畫出來、怎麼動）、正確的名詞（說對名字才能精準溝通）、說清楚目標（要什麼、在哪裡、長什麼樣，做出來再檢查）。'],
   ['怎麼排', '序章到單元 3 先教運作概念與名詞，單元名稱保留 HTML（網頁的積木）、CSS（網頁的衣服）、JavaScript（讓網頁動起來的魔法），孩子直接操作積木；單元 4 才加入 AI，用前面學到的名詞向 AI 小幫手描述目標。'],
   ['規模（暫定）', '序章 3 課與 4 個單元，共 23 課；每課 5–8 分鐘，一課只學一件事。'],
-  ['研發階段', '大綱草稿；0.1、0.2「網頁是一棵樹」有試做與正式語音，已上線（0.2 要登入）；都還沒找孩子試上。'],
+  ['研發階段', '大綱草稿；序章 0.1–0.3 有試做與正式語音，已上線（0.2 起要登入）；單元 1–4 共 20 課已有腳本（草稿，還沒有語音）；都還沒找孩子試上。'],
 ]
 
 export const KIDS_PRINCIPLES: [string, string][] = [
@@ -38,10 +43,10 @@ export const KIDS_COMPONENTS: { name: string; status: '現有' | '需新做'; us
   { name: '兒童版播放器', status: '現有', use: '大按鈕、說明框、子腳本自由互動、點選與拖曳、是非題、正式語音（web/src/kids/）。' },
   { name: 'browser 演員', status: '現有', use: '顯示孩子做出來的網頁，可以切換手機、平板、桌面寬度。' },
   { name: '信件與兩台電腦', status: '需新做', use: '0.3「網頁是一封信」：網址、伺服器送信、瀏覽器打開信照著畫。' },
-  { name: '內容積木', status: '需新做', use: '單元 1 的段落、清單、圖片說明、連結；沿用 kid-tree 的樹與拖曳。' },
-  { name: '滑桿與色盤', status: '需新做', use: '單元 2 調整顏色、大小、留白、排列，畫面同步變化。' },
-  { name: '機關積木', status: '需新做', use: '單元 3 的點擊、顯示和隱藏、計數盒子、如果就、隨機，用積木拼出「什麼時候做什麼」。' },
-  { name: 'AI 小幫手演員與描述卡', status: '需新做', use: '單元 4：孩子用名詞卡、句子卡拼出描述（不用打字），小幫手照著做；名詞不對或說不清楚時會改錯地方或反問。先模擬，不接真的 AI。' },
+  { name: 'lt8-kid-page 演員', status: '現有', use: '單元 1 的內容積木：段落、清單、圖片說明、連結，把擠在一起的內容分成積木、叫對名字。' },
+  { name: 'lt9-wear 演員（滑桿與色盤）', status: '現有', use: '單元 2 調整顏色、大小、留白、排列，畫面同步變化。' },
+  { name: 'lt10-magic 演員（機關積木）', status: '現有', use: '單元 3 的點擊、顯示和隱藏、計數盒子、如果就、隨機，用積木拼出「什麼時候做什麼」。' },
+  { name: 'lt11-helper 演員（AI 小幫手與描述卡）', status: '現有', use: '單元 4：孩子用名詞卡、句子卡拼出描述（不用打字），小幫手照著做；名詞不對或說不清楚時會改錯地方或反問。先模擬，不接真的 AI。' },
   { name: '過關遊戲', status: '需新做', use: '2.4 排排站等一關一關的小題目，答對才解鎖下一關。' },
 ]
 

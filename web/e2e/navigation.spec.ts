@@ -503,6 +503,11 @@ const PAGES = [
   '/studio/kids-web/0-2/live',
   '/studio/kids-web/0-3/live',
   '/studio/kids-web/xray',
+  // 兒童課草稿(這台 server 把每個人當管理員,看得到):新演員 lt8–lt11 的課各挑一課
+  '/topics/kids/1-1',
+  '/topics/kids/2-1',
+  '/topics/kids/3-1',
+  '/topics/kids/4-5',
   '/studio/docs',
   '/materials',
   '/studio/actor-interaction/scene',

@@ -1,0 +1,175 @@
+{
+  "title": "換你做小卡",
+  "lesson": "兒童網頁課 · 3.2（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "猜謎小卡",
+        "emoji": "🃏",
+        "note": "什麼東西越洗越髒？",
+        "things": [
+          {
+            "id": "answer",
+            "name": "答案",
+            "text": "洗澡水 💧",
+            "shown": false
+          }
+        ],
+        "buttons": [
+          {
+            "id": "look",
+            "text": "看答案"
+          }
+        ],
+        "rules": [
+          {
+            "id": "look",
+            "when": "look",
+            "do": []
+          }
+        ],
+        "drawer": [
+          {
+            "id": "show",
+            "do": {
+              "show": "answer"
+            }
+          },
+          {
+            "id": "hide",
+            "do": {
+              "hide": "answer"
+            }
+          },
+          {
+            "id": "flip",
+            "do": {
+              "toggle": "answer"
+            }
+          },
+          {
+            "id": "hello",
+            "do": {
+              "say": "你好！"
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 40,
+          "y": 30,
+          "w": 1840,
+          "h": 900
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你做一張新的謎語小卡：什麼東西越洗越髒？答案已經藏好了。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:button:look",
+        "text": "只有一個按鈕"
+      },
+      "narration": "這張卡只有一個按鈕。請你讓它：按一下答案出現，再按一下藏起來，再按又出現。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:drawer",
+        "text": "選一塊積木"
+      },
+      "narration": "先點積木盒裡的一塊積木放進格子，再按看答案試試看。選錯了也沒關係，換一塊就好。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "讓答案出現、藏起來、再出現",
+    "body": "先放一塊積木，再按「看答案」",
+    "spots": [
+      {
+        "target": "kid:block:show",
+        "id": "block:show",
+        "label": "顯示答案的積木",
+        "steps": [
+          {
+            "snap": "show",
+            "into": "look",
+            "narration": "放好顯示答案了。按看答案試試看！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:hide",
+        "id": "block:hide",
+        "label": "隱藏答案的積木",
+        "steps": [
+          {
+            "snap": "hide",
+            "into": "look",
+            "narration": "放好隱藏答案了。按看答案試試看！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:flip",
+        "id": "block:flip",
+        "label": "顯示⇄隱藏的積木",
+        "steps": [
+          {
+            "snap": "flip",
+            "into": "look",
+            "narration": "放好顯示⇄隱藏了。按看答案試試看！"
+          }
+        ]
+      },
+      {
+        "target": "kid:block:hello",
+        "id": "block:hello",
+        "label": "說你好的積木",
+        "steps": [
+          {
+            "snap": "hello",
+            "into": "look",
+            "narration": "放好說你好了。按看答案，看看會怎樣？"
+          }
+        ]
+      },
+      {
+        "target": "kid:button:look",
+        "id": "button:look",
+        "label": "看答案按鈕",
+        "steps": [
+          {
+            "press": "look",
+            "narration": "按了看答案！看看答案現在是出現，還是藏起來？"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "appeared",
+      "atLeast": 2
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 400,
+          "narration": "答案出現、藏起來、又出現了！你做出一張會藏答案的小卡！"
+        }
+      ]
+    }
+  }
+}

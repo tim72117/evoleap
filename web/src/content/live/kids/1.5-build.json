@@ -1,0 +1,163 @@
+{
+  "title": "換你蓋名片",
+  "lesson": "兒童網頁課 · 1.5（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt8-kid-page",
+      "props": {
+        "title": "我的寵物名片",
+        "items": [],
+        "pool": [
+          {
+            "id": "name",
+            "kind": "h1",
+            "text": "小花"
+          },
+          {
+            "id": "photo",
+            "kind": "img",
+            "pic": "🐱",
+            "alt": "橘貓小花在紙箱裡睡午覺"
+          },
+          {
+            "id": "intro",
+            "kind": "p",
+            "text": "小花三歲，最愛睡午覺。"
+          },
+          {
+            "id": "likesT",
+            "kind": "h2",
+            "text": "小花喜歡"
+          },
+          {
+            "id": "likes",
+            "kind": "ul",
+            "items": [
+              "小魚乾",
+              "紙箱",
+              "毛線球"
+            ]
+          },
+          {
+            "id": "link",
+            "kind": "a",
+            "text": "看小花的相簿"
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 80,
+          "y": 50,
+          "w": 1760,
+          "h": 800
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:tools",
+        "text": "積木盒"
+      },
+      "narration": "換你蓋一張名片！積木盒裡有 6 塊積木，點一下就放到名片上。"
+    },
+    {
+      "wait": 400,
+      "narration": "先放的在上面。想一想，要先放哪一塊？"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點積木盒裡的積木，放到名片上",
+    "body": "6 塊都放好，集滿 6 顆星星",
+    "spots": [
+      {
+        "target": "kid:pool:name",
+        "id": "name",
+        "label": "大標題積木",
+        "steps": [
+          {
+            "add": "name",
+            "narration": "放上大標題：小花。"
+          }
+        ]
+      },
+      {
+        "target": "kid:pool:photo",
+        "id": "photo",
+        "label": "圖片積木",
+        "steps": [
+          {
+            "add": "photo",
+            "narration": "放上圖片：小花的照片。"
+          }
+        ]
+      },
+      {
+        "target": "kid:pool:intro",
+        "id": "intro",
+        "label": "段落積木",
+        "steps": [
+          {
+            "add": "intro",
+            "narration": "放上段落：介紹小花。"
+          }
+        ]
+      },
+      {
+        "target": "kid:pool:likesT",
+        "id": "likesT",
+        "label": "小標題積木",
+        "steps": [
+          {
+            "add": "likesT",
+            "narration": "放上小標題：小花喜歡。"
+          }
+        ]
+      },
+      {
+        "target": "kid:pool:likes",
+        "id": "likes",
+        "label": "清單積木",
+        "steps": [
+          {
+            "add": "likes",
+            "narration": "放上清單：小花喜歡的東西。"
+          }
+        ]
+      },
+      {
+        "target": "kid:pool:link",
+        "id": "link",
+        "label": "連結積木",
+        "steps": [
+          {
+            "add": "link",
+            "narration": "放上連結：看小花的相簿。"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "done",
+      "atLeast": 6
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "6 塊積木都放好了，名片蓋好了！"
+        }
+      ]
+    }
+  }
+}

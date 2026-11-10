@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { MapUnit } from '../content/courseMap'
-import { KIDS_OPEN_LESSONS, KIDS_UNITS, kidsNeedsLogin } from '../content/kidsCourse'
+import { KIDS_OPEN_LESSONS, KIDS_RELEASED_LESSONS, KIDS_UNITS, kidsNeedsLogin } from '../content/kidsCourse'
 import { KIDS_TOPIC } from '../content/topics'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
@@ -21,7 +21,8 @@ const LOCAL_UNITS: MapUnit[] = KIDS_UNITS.map((u) => ({
     title: l.title,
     summary: l.learn,
     access: kidsNeedsLogin(l.id) ? 'login-free' : 'free',
-    status: KIDS_OPEN_LESSONS[l.id] ? 'open' : 'planned',
+    // 有課程頁但還沒開放的是草稿(訪客看到「還沒開放」)
+    status: KIDS_RELEASED_LESSONS.includes(l.id) ? 'open' : KIDS_OPEN_LESSONS[l.id] ? 'draft' : 'planned',
   })),
 }))
 

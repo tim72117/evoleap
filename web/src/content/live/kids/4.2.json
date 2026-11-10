@@ -1,0 +1,231 @@
+{
+  "title": "說清楚：要什麼、在哪裡、長什麼樣",
+  "lesson": "兒童網頁課 · 4.2",
+  "cast": {
+    "kid": {
+      "actor": "lt11-helper",
+      "props": {},
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "只說一句話",
+      "guide": {
+        "target": "kid:page",
+        "text": "空白的網頁"
+      },
+      "narration": "這次網頁是空白的。小明想請小幫手，幫他的小狗小黑做一張名片。"
+    },
+    {
+      "send": "幫我做網頁",
+      "narration": "小明只說了一句：幫我做網頁。"
+    },
+    {
+      "make": [
+        {
+          "add": {
+            "id": "h1",
+            "kind": "h1",
+            "text": "我的網頁"
+          }
+        }
+      ],
+      "reply": "做好了！可是……你想放什麼呢？",
+      "mood": "puzzled",
+      "narration": "小幫手只做出一個標題，其他都空空的。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:helper",
+        "text": "猜不到你心裡想的"
+      },
+      "narration": "小幫手不是小明，猜不到他心裡想的。要把想要的說出來才行。"
+    },
+    {
+      "deal": [
+        {
+          "id": "e1",
+          "tag": "要什麼",
+          "text": "[[標題]]、[[圖片]]、[[清單]]"
+        },
+        {
+          "id": "e2",
+          "tag": "在哪裡",
+          "text": "標題在[[最上面]]，清單在[[最下面]]"
+        },
+        {
+          "id": "e3",
+          "tag": "長什麼樣",
+          "text": "背景是[[淺藍色]]，標題[[大大的]]"
+        }
+      ],
+      "chapter": "說清楚三件事",
+      "narration": "說清楚三件事就好。看下面三張卡片。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:card:e1",
+        "text": "要什麼"
+      },
+      "narration": "第一，要什麼：網頁上要有哪些部分。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:card:e2",
+        "text": "在哪裡"
+      },
+      "narration": "第二，在哪裡：誰在上面、誰在下面，這叫做順序。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:card:e3",
+        "text": "長什麼樣"
+      },
+      "narration": "第三，長什麼樣：顏色、大小，這叫做外觀。"
+    },
+    {
+      "send": "做小黑的名片：最上面是大大的標題「小黑的名片」，下面放一張小狗圖片，最下面放清單：骨頭、散步、玩球。背景是淺藍色。",
+      "chapter": "說清楚再試一次",
+      "narration": "小明這次說清楚了：要什麼、在哪裡、長什麼樣，都說出來。"
+    },
+    {
+      "make": [
+        {
+          "set": "h1",
+          "text": "小黑的名片",
+          "size": "xl"
+        },
+        {
+          "add": {
+            "id": "img",
+            "kind": "img",
+            "emoji": "🐶",
+            "bg": "#ffe3b3"
+          }
+        },
+        {
+          "add": {
+            "id": "ul",
+            "kind": "ul",
+            "items": [
+              "骨頭",
+              "散步",
+              "玩球"
+            ]
+          }
+        },
+        {
+          "set": "page",
+          "bg": "#e3f2ff"
+        }
+      ],
+      "reply": "做好了！是不是跟你想的很像？",
+      "narration": "哇，小幫手一次就做得好接近！"
+    },
+    {
+      "checkpoint": "換你拼句子",
+      "sub": "kids/4.2-build.json",
+      "chapter": "換你拼句子"
+    },
+    {
+      "deal": [
+        {
+          "id": "q1",
+          "text": "做得[[漂亮]]一點"
+        },
+        {
+          "id": "q2",
+          "text": "在[[最上面]]放一個[[粉紅色]]的[[標題]]"
+        },
+        {
+          "id": "q3",
+          "text": "[[加一些東西]]"
+        }
+      ],
+      "chapter": "找找看",
+      "narration": "最後來想一想。"
+    },
+    {
+      "checkpoint": "哪一句說得最清楚？",
+      "body": "點下面的卡片回答。",
+      "id": "q-clear",
+      "options": [
+        {
+          "label": "在最上面放一個粉紅色的標題",
+          "target": "kid:card:q2",
+          "steps": [
+            {
+              "check": "card:q2",
+              "answer": "card:q2",
+              "narration": "答對了！要什麼、在哪裡、長什麼樣，三件事都說到了。"
+            }
+          ]
+        },
+        {
+          "label": "做得漂亮一點",
+          "target": "kid:card:q1",
+          "steps": [
+            {
+              "check": "card:q1",
+              "answer": "card:q2",
+              "narration": "漂亮是什麼樣子呢？每個人想的都不一樣。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "加一些東西",
+          "target": "kid:card:q3",
+          "steps": [
+            {
+              "check": "card:q3",
+              "answer": "card:q2",
+              "narration": "加什麼東西？加在哪裡？小幫手猜不到。再選一次！"
+            },
+            {
+              "check": false,
+              "ms": 300
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "check": false,
+      "ms": 300
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:window",
+        "text": "部分・順序・外觀"
+      },
+      "narration": "說得越清楚，小幫手越能做出你想要的。記得三件事：要哪些部分、什麼順序、什麼外觀。"
+    }
+  ]
+}

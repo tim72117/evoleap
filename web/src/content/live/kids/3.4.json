@@ -1,0 +1,239 @@
+{
+  "title": "如果……就……",
+  "lesson": "兒童網頁課 · 3.4",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "神秘驚喜",
+        "emoji": "🎁",
+        "buttons": [
+          {
+            "id": "go",
+            "text": "按一下"
+          }
+        ],
+        "box": {
+          "name": "按了幾下",
+          "value": 0
+        },
+        "rules": [
+          {
+            "id": "count",
+            "when": "go",
+            "do": [
+              {
+                "add": 1
+              }
+            ]
+          },
+          {
+            "id": "boom",
+            "when": "box",
+            "if": {
+              "is": 10
+            },
+            "do": [
+              {
+                "fireworks": true
+              }
+            ]
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:page",
+        "text": "神秘驚喜"
+      },
+      "chapter": "驚喜在哪裡",
+      "narration": "這個網頁藏著一個驚喜，要按到 10 才看得到。我們先偷偷把盒子放到 8。"
+    },
+    {
+      "fill": 8,
+      "tap": true,
+      "narration": "盒子「按了幾下」，現在是 8。"
+    },
+    {
+      "press": "go",
+      "tap": true,
+      "narration": "按一下，9。沒有驚喜。"
+    },
+    {
+      "press": "go",
+      "narration": "再按一下，10！哇，放煙火了！"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:rule:boom",
+        "text": "到 10 才放煙火"
+      },
+      "chapter": "拆開來看",
+      "narration": "為什麼到 10 才放煙火？看下面這一列魔法積木。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:when:boom",
+        "text": "如果：條件"
+      },
+      "narration": "藍色的積木說：如果盒子「按了幾下」是 10。這叫做條件。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:do:boom",
+        "text": "就：要做的事"
+      },
+      "narration": "條件成立了，就放煙火。條件不成立，就不放。如果……就……，網頁就知道什麼時候要做。"
+    },
+    {
+      "reload": true,
+      "tap": true,
+      "narration": "按重新整理，盒子回到 8，煙火也不見了。"
+    },
+    {
+      "checkpoint": "現在是 8，按一下會放煙火嗎？",
+      "body": "先猜猜看，再點下面的答案。",
+      "id": "quiz-1",
+      "stage": {
+        "focus": "kid:box"
+      },
+      "options": [
+        {
+          "label": "會",
+          "retry": true,
+          "steps": [
+            {
+              "press": "go",
+              "narration": "按了一下，變成 9，沒有放煙火。9 不是 10，條件不成立。再想一次！"
+            }
+          ]
+        },
+        {
+          "label": "不會",
+          "steps": [
+            {
+              "press": "go",
+              "narration": "答對了！變成 9，9 不是 10，所以不放煙火。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "press": "go",
+      "narration": "再按一下，10，條件成立，放煙火！"
+    },
+    {
+      "wait": 400,
+      "chapter": "改條件",
+      "narration": "條件裡的數字，也可以換。你想按到幾，就放驚喜？"
+    },
+    {
+      "checkpoint": "你想按到幾，就放煙火？",
+      "body": "選一個數字。",
+      "id": "quiz-2",
+      "stage": {
+        "focus": "kid:rule:boom"
+      },
+      "options": [
+        {
+          "label": "按到 3",
+          "steps": [
+            {
+              "fill": 0,
+              "narration": "盒子先放回 0。"
+            },
+            {
+              "edit": "boom",
+              "is": 3,
+              "tap": true,
+              "narration": "把條件裡的 10 改成 3。"
+            },
+            {
+              "press": "go",
+              "ms": 1500
+            },
+            {
+              "press": "go",
+              "ms": 1500
+            },
+            {
+              "press": "go",
+              "narration": "1、2、3！條件成立，放煙火！"
+            }
+          ]
+        },
+        {
+          "label": "按到 5",
+          "steps": [
+            {
+              "fill": 0,
+              "narration": "盒子先放回 0。"
+            },
+            {
+              "edit": "boom",
+              "is": 5,
+              "tap": true,
+              "narration": "把條件裡的 10 改成 5。"
+            },
+            {
+              "press": "go",
+              "ms": 1500
+            },
+            {
+              "press": "go",
+              "ms": 1500
+            },
+            {
+              "press": "go",
+              "ms": 1500
+            },
+            {
+              "press": "go",
+              "ms": 1500
+            },
+            {
+              "press": "go",
+              "narration": "1、2、3、4、5！條件成立，放煙火！"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "checkpoint": "換你換驚喜",
+      "sub": "kids/3.4-surprise.json",
+      "chapter": "換你換驚喜"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:rule:boom",
+        "text": "如果……就……"
+      },
+      "chapter": "學會",
+      "narration": "今天學到三個名詞：如果、就，和條件。說清楚「如果什麼時候」，網頁才知道要不要做！"
+    }
+  ]
+}

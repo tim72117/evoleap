@@ -1,0 +1,120 @@
+{
+  "title": "換你調調看",
+  "lesson": "兒童網頁課 · 2.3（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt9-wear",
+      "props": {
+        "title": "小花的名片",
+        "look": {
+          "card": {
+            "pad": 1
+          },
+          "h1": {
+            "pad": 0
+          },
+          "img": {
+            "border": 0,
+            "pad": 0
+          },
+          "p": {
+            "pad": 0
+          },
+          "button": {
+            "border": 0,
+            "pad": 0
+          }
+        },
+        "tools": [
+          {
+            "part": "h1",
+            "prop": "margin"
+          },
+          {
+            "part": "button",
+            "prop": "border"
+          },
+          {
+            "part": "button",
+            "prop": "pad"
+          },
+          {
+            "part": "button",
+            "prop": "margin"
+          }
+        ],
+        "goals": [
+          {
+            "id": "border",
+            "label": "幫按鈕加上粗粗的邊框",
+            "part": "button",
+            "set": {
+              "border": 3
+            }
+          },
+          {
+            "id": "pad",
+            "label": "讓按鈕的字和邊框之間留很多白",
+            "part": "button",
+            "set": {
+              "pad": 3
+            }
+          },
+          {
+            "id": "gap",
+            "label": "讓標題和下面的圖片分開",
+            "part": "h1",
+            "min": {
+              "margin": 2
+            }
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "boxes": true,
+      "ms": 600
+    },
+    {
+      "pick": "button",
+      "ms": 500
+    },
+    {
+      "wait": 400,
+      "narration": "換你了！點滑桿上的刻度，調整邊框和留白。右下角有三個任務。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點滑桿上的刻度，調整邊框和留白",
+    "body": "完成右下角的三個任務",
+    "until": {
+      "count": "achieved",
+      "atLeast": 3
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 300,
+          "narration": "三個任務都完成了！有了留白，名片就不擠了。"
+        }
+      ]
+    }
+  }
+}

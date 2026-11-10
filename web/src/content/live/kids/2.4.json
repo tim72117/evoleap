@@ -1,0 +1,169 @@
+{
+  "title": "排排站：置中和並排",
+  "lesson": "兒童網頁課 · 2.4",
+  "cast": {
+    "kid": {
+      "actor": "lt9-wear",
+      "props": {
+        "title": "寵物朋友",
+        "parts": [
+          {
+            "id": "h1",
+            "text": "我的寵物朋友"
+          },
+          {
+            "id": "cards"
+          }
+        ],
+        "look": {
+          "card": {
+            "pad": 1
+          },
+          "h1": {
+            "size": "m"
+          }
+        },
+        "tools": [
+          {
+            "part": "cards",
+            "prop": "dir"
+          },
+          {
+            "part": "cards",
+            "prop": "align"
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "一直往下排",
+      "guide": {
+        "target": "kid:page",
+        "text": "三張卡片"
+      },
+      "narration": "這是寵物朋友的網頁，有三張卡片。它們一張接一張，一直往下排。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:mini:0",
+        "text": "第一張"
+      },
+      "narration": "網頁上的東西，本來就會一個一個由上往下排，像排隊一樣。"
+    },
+    {
+      "wear": "cards",
+      "dir": "row",
+      "tap": true,
+      "chapter": "並排",
+      "guide": {
+        "target": "kid:row:cards:dir",
+        "text": "排法"
+      },
+      "narration": "把卡片的排法換成並排：三張卡片手牽手，站成一排。"
+    },
+    {
+      "wear": "cards",
+      "align": "center",
+      "tap": true,
+      "chapter": "置中和對齊",
+      "guide": {
+        "target": "kid:row:cards:align",
+        "text": "對齊"
+      },
+      "narration": "再把對齊換成置中：整排卡片站到正中間。"
+    },
+    {
+      "wear": "cards",
+      "align": "end",
+      "tap": true,
+      "narration": "換成靠右，就站到右邊。"
+    },
+    {
+      "wear": "cards",
+      "align": "start",
+      "tap": true,
+      "narration": "換成靠左，就回到左邊。靠左、置中、靠右，這些叫做對齊。"
+    },
+    {
+      "wear": "cards",
+      "dir": "column",
+      "tap": true,
+      "narration": "排法換回上下排，又變回一直往下排了。"
+    },
+    {
+      "checkpoint": "過關遊戲",
+      "sub": "kids/2.4-line.json",
+      "chapter": "過關遊戲"
+    },
+    {
+      "wear": "cards",
+      "dir": "row",
+      "align": "center",
+      "chapter": "考考你",
+      "narration": "最後考考你。看看卡片，它們現在是怎麼站的？"
+    },
+    {
+      "checkpoint": "卡片現在是怎麼排的？",
+      "body": "點下面的答案。",
+      "id": "quiz-1",
+      "options": [
+        {
+          "label": "上下排、靠左",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "卡片是站成一排的，不是上下排喔。再看一次！"
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "並排、置中",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "答對了！三張卡片並排，而且站在正中間。"
+            }
+          ]
+        },
+        {
+          "label": "並排、靠右",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "它們是並排沒錯，可是右邊還有空位，不是靠右喔。再看一次！"
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:page",
+        "text": "並排・置中・對齊"
+      },
+      "narration": "同樣三張卡片，可以上下排，也可以並排；還可以靠左、置中、靠右對齊。"
+    }
+  ]
+}

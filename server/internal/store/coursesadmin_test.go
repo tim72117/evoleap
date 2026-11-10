@@ -140,7 +140,7 @@ func TestInsertMissingUnitsReorders(t *testing.T) {
 // 規劃中的課不能上傳腳本(要先改成草稿)
 func TestPutScriptRefusesPlannedLesson(t *testing.T) {
 	st := openSeeded(t)
-	if err := st.PutScript(context.Background(), "boss@example.com", "kids/x.json", "kids", "1.1", []byte(`{}`)); !errors.Is(err, ErrInvalidCourseData) {
+	if err := st.PutScript(context.Background(), "boss@example.com", "web/x.json", "web", "2.1", []byte(`{}`)); !errors.Is(err, ErrInvalidCourseData) {
 		t.Errorf("規劃中的課: %v", err)
 	}
 }

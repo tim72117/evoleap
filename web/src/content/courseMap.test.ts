@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import courseSeed from '../../../server/internal/store/courses_seed.json'
-import { KIDS_OPEN_LESSONS, KIDS_PREVIEW_LESSON, KIDS_UNITS } from './kidsCourse'
+import { KIDS_OPEN_LESSONS, KIDS_PREVIEW_LESSON, KIDS_RELEASED_LESSONS, KIDS_UNITS } from './kidsCourse'
 import { LAUNCH_LESSON_PAGES, LAUNCH_OPEN_LESSONS, LAUNCH_UNITS, launchScriptKey } from './launchCourse'
 import { WEB_OPEN_LESSONS, WEB_UNITS, webNeedsLogin } from './webCourse'
 import { COURSES, coursePath, isPreviewLesson } from './catalog'
@@ -28,9 +28,11 @@ describe('兒童課的課程地圖(資料庫種子)和前端課程資料一致',
     expect(kids.units!.flatMap((u) => u.lessons.map((l) => [l.id, l.title, l.summary]))).toEqual(KIDS_UNITS.flatMap((u) => u.lessons.map((l) => [l.id, l.title, l.learn])))
   })
 
-  it('開放的課和課程頁(KIDS_OPEN_LESSONS)相同、腳本相同,只有第一課免費預覽', () => {
+  it('有腳本的課(開放與草稿)和課程頁(KIDS_OPEN_LESSONS)相同、腳本相同;開放的課是 KIDS_RELEASED_LESSONS;只有第一課免費預覽', () => {
     const lessons = kids.units!.flatMap((u) => u.lessons)
-    expect(lessons.filter((l) => l.status === 'open').map((l) => [l.id, l.script])).toEqual(Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => [id, l.script]))
+    expect(lessons.filter((l) => l.script).map((l) => [l.id, l.script])).toEqual(Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => [id, l.script]))
+    expect(lessons.filter((l) => l.script && l.status !== 'open' && l.status !== 'draft')).toEqual([])
+    expect(lessons.filter((l) => l.status === 'open').map((l) => l.id)).toEqual(KIDS_RELEASED_LESSONS)
     expect(kids.access).toBe('login-free')
     expect(lessons.filter((l) => l.access).map((l) => [l.id, l.access])).toEqual([[KIDS_PREVIEW_LESSON, 'free']])
   })

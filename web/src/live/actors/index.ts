@@ -14,12 +14,16 @@ import fx from './fx/actor'
 import kidMail from './kid-mail/actor'
 import kidTree from './kid-tree/actor'
 import kidWeb from './kid-web/actor'
+import lt10Magic from './lt10-magic/actor'
+import lt11Helper from './lt11-helper/actor'
+import lt8KidPage from './lt8-kid-page/actor'
+import lt9Wear from './lt9-wear/actor'
 import macbook from './macbook/actor'
 import netTrip from './net-trip/actor'
 import notes from './notes/actor'
 import person from './person/actor'
 
-export const ACTORS: Record<string, AnyActor> = Object.fromEntries([claudeDesktop, finder, browser, chat, person, notes, editor, macbook, kidWeb, kidTree, kidMail, netTrip, devtools, domTree, fx, fc1Terminal, fc2Git, fc3Flow].map((def) => [def.name, def]))
+export const ACTORS: Record<string, AnyActor> = Object.fromEntries([claudeDesktop, finder, browser, chat, person, notes, editor, macbook, kidWeb, kidTree, kidMail, lt8KidPage, lt9Wear, lt10Magic, lt11Helper, netTrip, devtools, domTree, fx, fc1Terminal, fc2Git, fc3Flow].map((def) => [def.name, def]))
 
 
 // 開發時引擎的程式一改就整頁重新載入:舞台、外殼、演員是掛上去就一直在跑的物件,不是 React 元件,

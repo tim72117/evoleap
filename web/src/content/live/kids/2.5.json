@@ -1,0 +1,256 @@
+{
+  "title": "作品：幫寵物名片換裝",
+  "lesson": "兒童網頁課 · 2.5",
+  "cast": {
+    "kid": {
+      "actor": "lt9-wear",
+      "props": {
+        "title": "小花的名片",
+        "tools": [
+          {
+            "part": "card",
+            "prop": "bg",
+            "values": [
+              "cream",
+              "white",
+              "sky",
+              "pink",
+              "mint",
+              "lemon",
+              "navy"
+            ]
+          },
+          {
+            "part": "h1",
+            "prop": "color",
+            "values": [
+              "black",
+              "navy",
+              "red",
+              "purple",
+              "white",
+              "yellow"
+            ]
+          },
+          {
+            "part": "h1",
+            "prop": "size"
+          },
+          {
+            "part": "card",
+            "prop": "align"
+          },
+          {
+            "part": "button",
+            "prop": "bg",
+            "values": [
+              "pink",
+              "yellow",
+              "sky",
+              "mint",
+              "white"
+            ]
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 60,
+          "y": 40,
+          "w": 1800,
+          "h": 840
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "chapter": "換裝秀",
+      "guide": {
+        "target": "kid:page",
+        "text": "小花的名片"
+      },
+      "narration": "小花要上台走秀了！同一張名片，等一下要換三套衣服。裡面的內容都一樣，只換衣服。"
+    },
+    {
+      "outfit": {
+        "card": {
+          "bg": "sky",
+          "align": "center"
+        },
+        "h1": {
+          "color": "navy",
+          "size": "xl"
+        },
+        "button": {
+          "bg": "white"
+        }
+      },
+      "name": "海洋風",
+      "narration": "第一套：海洋風。名片的背景顏色換成淺藍色，標題換成深藍色、特大的字。"
+    },
+    {
+      "outfit": {
+        "card": {
+          "bg": "cream",
+          "align": "start"
+        },
+        "h1": {
+          "color": "red",
+          "size": "l"
+        },
+        "button": {
+          "bg": "pink"
+        }
+      },
+      "name": "草莓蛋糕風",
+      "narration": "第二套：草莓蛋糕風。標題的文字顏色換成紅色，名片上的東西全部靠左站。"
+    },
+    {
+      "outfit": {
+        "card": {
+          "bg": "navy",
+          "align": "center"
+        },
+        "h1": {
+          "color": "yellow"
+        },
+        "p": {
+          "color": "white"
+        },
+        "button": {
+          "bg": "yellow"
+        }
+      },
+      "name": "夜晚星空風",
+      "narration": "第三套：夜晚星空風。背景換成深藍色，字就要換成亮亮的黃色和白色，才看得清楚。"
+    },
+    {
+      "wait": 400,
+      "chapter": "一句話說清楚",
+      "narration": "每一套衣服，都可以用一句話說清楚：哪一塊，換成什麼樣子。"
+    },
+    {
+      "note": "把名片的背景顏色換成深藍色",
+      "narration": "像這樣：把名片的背景顏色，換成深藍色。"
+    },
+    {
+      "note": false,
+      "ms": 400
+    },
+    {
+      "reset": true,
+      "narration": "換你當設計師了。先把衣服脫掉，變回原來的名片。"
+    },
+    {
+      "checkpoint": "換你設計",
+      "sub": "kids/2.5-design.json",
+      "chapter": "換你設計"
+    },
+    {
+      "wear": "h1",
+      "color": "purple",
+      "tap": true,
+      "chapter": "換你說說看",
+      "narration": "最後換你說說看。看，有一個地方變了。"
+    },
+    {
+      "checkpoint": "哪一句話說得最清楚？",
+      "body": "點下面的答案。",
+      "id": "quiz-1",
+      "options": [
+        {
+          "label": "把它變漂亮一點",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "變漂亮，是哪一塊、怎麼變呢？沒說清楚喔。再想一想！"
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "把標題的文字顏色換成紫色",
+          "steps": [
+            {
+              "note": "把標題的文字顏色換成紫色",
+              "narration": "答對了！說出哪一塊、換成什麼顏色，就很清楚。"
+            }
+          ]
+        },
+        {
+          "label": "把背景換成紫色",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "背景沒有變喔，是標題的字變了。再看一次！"
+            }
+          ],
+          "retry": true
+        }
+      ]
+    },
+    {
+      "note": false,
+      "ms": 400
+    },
+    {
+      "wear": "h1",
+      "size": "xl",
+      "tap": true,
+      "narration": "又有一個地方變了。"
+    },
+    {
+      "checkpoint": "這次要怎麼說？",
+      "body": "點下面的答案。",
+      "id": "quiz-2",
+      "options": [
+        {
+          "label": "把字變大",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "是哪一塊的字呢？名片上有好多字喔。再想一想！"
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "把標題換成粗體",
+          "steps": [
+            {
+              "wait": 300,
+              "narration": "標題的粗細沒有變，是字的大小變了。再看一次！"
+            }
+          ],
+          "retry": true
+        },
+        {
+          "label": "把標題的字的大小換成特大",
+          "steps": [
+            {
+              "note": "把標題的字的大小換成特大",
+              "narration": "答對了！哪一塊、換成什麼樣子，都說到了。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "wait": 400,
+      "chapter": "學會",
+      "guide": {
+        "target": "kid:panel",
+        "text": "哪一塊・換成什麼樣子"
+      },
+      "narration": "你會幫網頁換衣服了！文字顏色、背景顏色、字的大小、留白、置中，說的時候記得：哪一塊，換成什麼樣子。"
+    }
+  ]
+}

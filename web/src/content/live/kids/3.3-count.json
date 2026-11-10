@@ -1,0 +1,92 @@
+{
+  "title": "換你數數看",
+  "lesson": "兒童網頁課 · 3.3（做）",
+  "cast": {
+    "kid": {
+      "actor": "lt10-magic",
+      "props": {
+        "title": "小兔數數機",
+        "emoji": "🐰",
+        "buttons": [
+          {
+            "id": "go",
+            "text": "按一下"
+          }
+        ],
+        "box": {
+          "name": "數到幾",
+          "value": 3
+        },
+        "rules": [
+          {
+            "id": "count",
+            "when": "go",
+            "do": [
+              {
+                "add": 1
+              }
+            ]
+          }
+        ]
+      },
+      "place": {
+        "landscape": {
+          "x": 40,
+          "y": 30,
+          "w": 1840,
+          "h": 900
+        },
+        "portrait": {
+          "x": 40,
+          "y": 240,
+          "w": 1000,
+          "h": 1340
+        }
+      }
+    }
+  },
+  "steps": [
+    {
+      "wait": 400,
+      "narration": "換你了！盒子現在是 3。"
+    },
+    {
+      "wait": 400,
+      "guide": {
+        "target": "kid:button:go",
+        "text": "點這個按鈕"
+      },
+      "narration": "點網頁上的按一下，一直數到 8。看看盒子裡的數字怎麼變。"
+    }
+  ],
+  "interact": {
+    "on": "kid",
+    "prompt": "點「按一下」，數到 8",
+    "body": "每按一下，盒子裡的數字加 1",
+    "spots": [
+      {
+        "target": "kid:button:go",
+        "id": "button:go",
+        "label": "按一下按鈕",
+        "steps": [
+          {
+            "press": "go",
+            "narration": "加 1！"
+          }
+        ]
+      }
+    ],
+    "until": {
+      "count": "value",
+      "atLeast": 8
+    },
+    "done": {
+      "steps": [
+        {
+          "wait": 400,
+          "narration": "數到 8 了！盒子幫你記得清清楚楚。"
+        }
+      ]
+    }
+  }
+}
