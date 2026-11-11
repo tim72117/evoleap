@@ -522,7 +522,8 @@ const PAGES = [
   '/materials/promo',
 ]
 
-for (const path of PAGES) {
+// 清單裡手寫的網址可能已經在 sitemap 裡(課程開放後):去掉重複,Playwright 不允許同名測試
+for (const path of new Set(PAGES)) {
   test(`開啟無錯誤:${path}`, async ({ page, request }) => {
     const errors = collectErrors(page)
     const res = await page.goto(path)
