@@ -1,0 +1,66 @@
+/* 演員 kid-reel-cards:浮空字卡(這一課學會什麼)。1080×1920 設計畫布,縮放由 learn.ts 設定;
+   所有動畫由 learn.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-kid-reel-cards {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  font-family: "Noto Sans TC", "PingFang TC", -apple-system, "Microsoft JhengHei", sans-serif;
+  color: #2b2140;
+}
+.A-kid-reel-cards *, .A-kid-reel-cards *::before, .A-kid-reel-cards *::after { box-sizing: border-box; }
+.A-kid-reel-cards .kc-canvas { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; }
+.A-kid-reel-cards .kc-set { position: absolute; inset: 0; }
+
+/* 卡片:玻璃底 + 柔和的雙層陰影(近的卡陰影深而散,遠的卡淺而小) */
+.A-kid-reel-cards .kc-card {
+  position: absolute; border-radius: 34px; overflow: hidden; will-change: transform, opacity, filter;
+  transform-origin: 50% 100%;
+}
+.A-kid-reel-cards .kc-glass {
+  position: absolute; inset: 0; border-radius: inherit;
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.7) 45%, rgba(255, 244, 236, 0.78) 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow:
+    inset 0 0 0 2.5px rgba(255, 255, 255, 0.95),
+    inset 0 -5px 0 rgba(255, 190, 160, 0.25),
+    inset 0 2px 0 rgba(255, 255, 255, 1);
+}
+.A-kid-reel-cards .kc-main {
+  box-shadow: 0 46px 70px -28px rgba(110, 40, 70, 0.5), 0 14px 26px -12px rgba(110, 40, 70, 0.3), 0 3px 0 rgba(235, 180, 160, 0.6);
+}
+.A-kid-reel-cards .kc-also {
+  border-radius: 28px;
+  box-shadow: 0 30px 50px -24px rgba(70, 50, 120, 0.42), 0 8px 16px -10px rgba(70, 50, 120, 0.3), 0 3px 0 rgba(200, 185, 235, 0.6);
+}
+.A-kid-reel-cards .kc-body { position: relative; display: flex; white-space: nowrap; }
+.A-kid-reel-cards .kc-main .kc-body { flex-direction: column; align-items: flex-start; gap: 6px; padding: 16px 36px 20px 26px; }
+.A-kid-reel-cards .kc-also .kc-body { align-items: center; gap: 16px; padding: 18px 34px 18px 20px; }
+
+.A-kid-reel-cards .kc-kicker {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 18px 6px 12px; border-radius: 99px;
+  font-size: 26px; font-weight: 800; letter-spacing: 0.08em; color: #fff;
+  background: linear-gradient(160deg, #ffb062, #ff6b6b);
+  box-shadow: 0 8px 16px -8px rgba(255, 90, 90, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+.A-kid-reel-cards .kc-kicker svg { width: 28px; height: 28px; fill: #fff; }
+.A-kid-reel-cards .kc-main .kc-text { font-size: 48px; font-weight: 900; line-height: 1.2; letter-spacing: 0.02em; }
+.A-kid-reel-cards .kc-also .kc-text { font-size: 36px; font-weight: 800; line-height: 1.25; color: #4a3a66; }
+.A-kid-reel-cards .kc-ico {
+  display: flex; align-items: center; justify-content: center; flex: none;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: linear-gradient(160deg, #b39cff, #7a5cf0);
+  box-shadow: 0 8px 14px -8px rgba(108, 79, 216, 0.9), inset 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+.A-kid-reel-cards .kc-ico svg { width: 30px; height: 30px; fill: #fff; }
+
+/* 說明卡(plain):沒有「這一課學會」字頭,左邊一個橘色小圖示,字大一點 */
+.A-kid-reel-cards .kc-ico-plain { display: none; width: 62px; height: 62px; background: linear-gradient(160deg, #ffb062, #ff6b6b); box-shadow: 0 8px 16px -8px rgba(255, 90, 90, 0.85), inset 0 2px 0 rgba(255, 255, 255, 0.4); }
+.A-kid-reel-cards .kc-ico-plain svg { width: 34px; height: 34px; }
+.A-kid-reel-cards .kc-main.kc-plain .kc-kicker { display: none; }
+.A-kid-reel-cards .kc-main.kc-plain .kc-ico-plain { display: flex; }
+.A-kid-reel-cards .kc-main.kc-plain .kc-body { flex-direction: row; align-items: center; gap: 20px; padding: 20px 40px 20px 22px; }
+.A-kid-reel-cards .kc-main.kc-plain .kc-text { font-size: 56px; }
+.A-kid-reel-cards .kc-sheen {
+  position: absolute; left: 0; top: -20px; bottom: -20px; width: 110px; opacity: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+}

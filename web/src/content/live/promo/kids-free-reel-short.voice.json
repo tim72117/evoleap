@@ -1,0 +1,43 @@
+{
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Sulafat",
+  "style": "台灣華語，語氣溫暖親切、咬字清楚，像老師在旁邊帶著學員一步一步操作，語速適中",
+  "clips": {
+    "孩子的第一堂程式課。": {
+      "file": "promo/93d107dbd915.mp3",
+      "ms": 2600
+    },
+    "拉一拉，網頁就重畫。": {
+      "file": "promo/1a7eba8db30e.mp3",
+      "ms": 2520
+    },
+    "點顏色，幫網頁換衣服。": {
+      "file": "promo/6dc89d5316ac.mp3",
+      "ms": 3320
+    },
+    "拼積木，改範圍，擲骰子！": {
+      "file": "promo/4c442eb48e73.mp3",
+      "ms": 3360
+    },
+    "說清楚，AI 就幫你做。": {
+      "file": "promo/64c8ca7d52f8.mp3",
+      "ms": 2560
+    },
+    "在家用平板就能上。": {
+      "file": "promo/9090a5e49c61.mp3",
+      "ms": 2320
+    },
+    "先跟老師學，": {
+      "file": "promo/666be4fcf689.mp3",
+      "ms": 1480
+    },
+    "再自己玩！": {
+      "file": "promo/9ddda774b51b.mp3",
+      "ms": 1240
+    },
+    "evoleap 兒童網頁程式，第一課免費。": {
+      "file": "promo/3f8c81d303af.mp3",
+      "ms": 3920
+    }
+  }
+}

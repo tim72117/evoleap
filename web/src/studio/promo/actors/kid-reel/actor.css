@@ -1,0 +1,19 @@
+/* kid-reel 的外框:1080×1920 設計畫布(縮放由 actor.ts 設定);各段的樣式在 tablet.css、desk.css */
+.A-kid-reel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.A-kid-reel .kr-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1080px;
+  height: 1920px;
+  transform-origin: 0 0;
+}
+.A-kid-reel .kr-tablet-layer,
+.A-kid-reel .kr-desk-layer {
+  position: absolute;
+  inset: 0;
+}
