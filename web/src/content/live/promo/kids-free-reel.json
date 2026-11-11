@@ -55,6 +55,6 @@
     {"deskTap": true, "ms": 1800},
     {"learn": false, "ms": 1, "pause": 0},
     {"desk": false, "ms": 600},
-    {"card": "孩子的第一堂[[程式課]]", "eyebrow": "evoleap · 給孩子的網頁程式", "sub": "第一課免費，不用登入就能玩", "fx": "rise", "chapter": "結尾", "narration": "evoleap 給孩子的網頁程式，第一課免費，不用登入。"}
+    {"card": "孩子的第一堂[[程式課]]", "eyebrow": "evoleap · 給孩子的網頁程式", "fx": "rise", "chapter": "結尾", "narration": "evoleap 給孩子的網頁程式。"}
   ]
 }

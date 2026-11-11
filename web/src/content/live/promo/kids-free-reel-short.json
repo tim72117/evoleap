@@ -1,6 +1,7 @@
 {
   "title": "宣傳片：免費兒童程式課（直式・FB Reels・短版）",
   "lesson": "宣傳影片",
+  "voice": {"profile": "showcase"},
   "cast": {
     "reel": {"actor": "kid-reel", "place": "full"},
     "tree": {"actor": "kid-tree", "props": {"title": "小花的家", "nodes": [{"id": "h1", "text": "小花的家"}, {"id": "card", "children": [{"id": "img", "text": "🐱"}, {"id": "p", "text": "小花是一隻愛睡午覺的橘貓。"}]}, {"id": "button", "text": "摸摸小花"}], "drawn": true}, "place": {"landscape": {"x": 722.625, "y": 237.375, "w": 441, "h": 585}, "portrait": {"x": 118, "y": 422, "w": 784, "h": 1040}}, "hidden": true},
@@ -52,6 +53,6 @@
     {"deskTap": "cheer", "ms": 1500, "pause": 0},
     {"learn": false, "ms": 1, "pause": 0},
     {"desk": false, "ms": 500, "pause": 0},
-    {"card": "孩子的第一堂[[程式課]]", "eyebrow": "evoleap · 給孩子的網頁程式", "sub": "第一課免費，不用登入就能玩", "fx": "rise", "chapter": "結尾", "narration": "evoleap 兒童網頁程式，第一課免費。"}
+    {"card": "孩子的第一堂[[程式課]]", "eyebrow": "evoleap · 給孩子的網頁程式", "fx": "rise", "chapter": "結尾", "narration": "evoleap 兒童網頁程式。"}
   ]
 }

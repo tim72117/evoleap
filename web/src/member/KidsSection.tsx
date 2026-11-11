@@ -1,9 +1,10 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { KIDS_OPEN_LESSONS, KIDS_RELEASED_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
+import { KIDS_OPEN_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
 import { dateLabel, parentWeek } from '../kidsMode/plan'
 import { kidsApi, type Child } from '../kidsMode/api'
 import { KIDS_MODE_HOME, useKidsMode } from '../kidsMode/KidsModeContext'
+import { useKidsReleased } from '../kidsMode/progress'
 import { DAYS, isFull, isPicked, MAX_PER_WEEK, MINUTES_OPTIONS, slotKey, sortSlots, TIMES, toggleSlot, type Slot } from '../kidsMode/schedule'
 import styles from './member.module.css'
 import kids from './KidsSection.module.css'
@@ -288,8 +289,9 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
 
 /** 這週的課(照已儲存的時段):每一次上課的實際日期,上完的課與最近一次要上的課,點課名打開那一課 */
 function WeekList({ child, records }: { child: Child; records: Finished[] }) {
-  if (child.slots.length === 0) return null
-  const rows = parentWeek(child.slots, child.minutes, new Date(), KIDS_RELEASED_LESSONS, records)
+  const released = useKidsReleased()
+  if (child.slots.length === 0 || !released) return null
+  const rows = parentWeek(child.slots, child.minutes, new Date(), released, records)
   const lesson = (id: string) => (
     <Link to={KIDS_OPEN_LESSONS[id].path}>
       {id} {kidsLessonTitle(id)}

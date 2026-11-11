@@ -402,30 +402,32 @@ function kidSvg(): string {
   return (
     `<svg class="kr-d-kidsvg" viewBox="0 0 1080 1920" aria-hidden="true">` +
     `<defs>` +
-    `<linearGradient id="krd-hoodie" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fb0bd"/><stop offset=".35" stop-color="#4f8494"/><stop offset="1" stop-color="#29505c"/></linearGradient>` +
-    `<linearGradient id="krd-hood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fc0cc"/><stop offset=".55" stop-color="#4a7d8c"/><stop offset="1" stop-color="#2b5260"/></linearGradient>` +
+    `<linearGradient id="krd-hoodie" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd98a"/><stop offset=".35" stop-color="#f4ac45"/><stop offset="1" stop-color="#b8681e"/></linearGradient>` +
+    `<linearGradient id="krd-hood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe4a6"/><stop offset=".55" stop-color="#eda248"/><stop offset="1" stop-color="#a95f1c"/></linearGradient>` +
     `<radialGradient id="krd-hair" cx=".32" cy=".3" r=".8"><stop offset="0" stop-color="#6b4a33"/><stop offset=".55" stop-color="#3d2a1e"/><stop offset="1" stop-color="#1e140e"/></radialGradient>` +
     `<linearGradient id="krd-skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6cfb2"/><stop offset=".6" stop-color="#e3a587"/><stop offset="1" stop-color="#b9765e"/></linearGradient>` +
     `<linearGradient id="krd-rim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffd9a3" stop-opacity=".9"/><stop offset="1" stop-color="#ffd9a3" stop-opacity="0"/></linearGradient>` +
     `</defs>` +
     `<g class="kr-d-body">` +
-    `<path d="M-90 1920 L-90 1300 C-50 1236 60 1196 190 1188 C 320 1180 440 1206 540 1262 C 640 1318 716 1404 770 1520 C 812 1620 836 1760 846 1920 Z" fill="url(#krd-hoodie)"/>` +
+    `<path d="M-40 1920 L-40 1360 C 0 1290 96 1252 204 1246 C 304 1240 398 1262 470 1312 C 552 1370 612 1450 652 1560 C 682 1650 698 1780 704 1920 Z" fill="url(#krd-hoodie)"/>` +
     // 肩膀上的光(左邊窗光)
-    `<path d="M-90 1300 C-50 1236 60 1196 190 1188 C 120 1210 20 1250 -40 1320 Z" fill="#ffe2b8" opacity=".35"/>` +
+    `<path d="M-40 1360 C 0 1290 96 1252 204 1246 C 130 1268 40 1306 -10 1380 Z" fill="#fff1cf" opacity=".45"/>` +
     // 肩線與皺褶
-    `<path d="M560 1290 C 600 1360 610 1460 600 1600" stroke="#24434d" stroke-width="5" fill="none" opacity=".45"/>` +
-    `<path d="M180 1420 C 260 1460 360 1470 440 1440" stroke="#24434d" stroke-width="10" fill="none" opacity=".18" stroke-linecap="round"/>` +
-    `<path d="M120 1600 C 220 1640 330 1650 420 1620" stroke="#24434d" stroke-width="14" fill="none" opacity=".14" stroke-linecap="round"/>` +
+    `<path d="M500 1330 C 540 1400 556 1480 552 1600" stroke="#8a4f14" stroke-width="5" fill="none" opacity=".45"/>` +
+    `<path d="M170 1450 C 240 1484 330 1492 400 1466" stroke="#8a4f14" stroke-width="10" fill="none" opacity=".18" stroke-linecap="round"/>` +
+    `<path d="M110 1620 C 200 1656 300 1664 380 1638" stroke="#8a4f14" stroke-width="14" fill="none" opacity=".14" stroke-linecap="round"/>` +
     // 帽子堆在後頸
-    `<path d="M96 1196 C 120 1128 262 1104 396 1146 C 460 1168 494 1222 470 1268 C 420 1316 254 1318 150 1284 C 104 1266 86 1232 96 1196 Z" fill="url(#krd-hood)"/>` +
-    `<path d="M140 1218 C 200 1180 320 1176 420 1214" stroke="#21414b" stroke-width="12" fill="none" opacity=".35" stroke-linecap="round"/>` +
-    `<path d="M130 1258 C 220 1290 340 1292 440 1262" stroke="#9fd0db" stroke-width="5" fill="none" opacity=".35" stroke-linecap="round"/>` +
+    `<path d="M120 1214 C 140 1150 262 1128 372 1164 C 426 1182 452 1228 432 1270 C 390 1312 252 1316 168 1288 C 128 1272 112 1242 120 1214 Z" fill="url(#krd-hood)"/>` +
+    `<path d="M160 1230 C 212 1196 314 1190 400 1226" stroke="#8a4f14" stroke-width="12" fill="none" opacity=".35" stroke-linecap="round"/>` +
+    `<path d="M152 1268 C 228 1296 330 1298 416 1272" stroke="#fff0c4" stroke-width="5" fill="none" opacity=".35" stroke-linecap="round"/>` +
     `</g>` +
     `<g class="kr-d-head">` +
     // 脖子與耳朵
     `<linearGradient id="krd-neck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5340"/><stop offset=".35" stop-color="#c98a6c"/><stop offset="1" stop-color="#b07258"/></linearGradient>` +
-    `<path d="M196 1070 C 236 1092 300 1090 334 1066 C 340 1110 344 1150 346 1182 C 300 1198 240 1202 204 1194 C 202 1150 200 1110 196 1070 Z" fill="url(#krd-neck)"/>` +
-    `<path d="M232 1110 C 236 1140 240 1166 242 1190" stroke="#9b604a" stroke-width="6" fill="none" opacity=".35" stroke-linecap="round"/>` +
+    `<path d="M222 1080 C 250 1096 292 1094 316 1076 C 320 1120 322 1160 324 1200 C 292 1212 252 1214 228 1206 C 226 1160 224 1120 222 1080 Z" fill="url(#krd-neck)"/>` +
+    `<path d="M250 1130 C 252 1160 254 1190 256 1220" stroke="#9b604a" stroke-width="6" fill="none" opacity=".35" stroke-linecap="round"/>` +
+    // 頭比例放大(小孩頭大、肩窄):臉頰、耳朵、頭髮一起以後頸為中心放大
+    `<g transform="translate(262 1096) scale(1.16) translate(-262 -1096)">` +
     // 右邊臉頰的一點點輪廓
     `<path d="M330 900 C 360 940 372 1010 360 1066 C 352 1092 334 1104 318 1100 Z" fill="url(#krd-skin)"/>` +
     `<g transform="rotate(8 330 990)"><path d="M316 930 C 352 922 372 950 370 990 C 368 1030 352 1054 330 1060 C 316 1062 306 1050 308 1034 Z" fill="url(#krd-skin)"/>` +
@@ -433,12 +435,16 @@ function kidSvg(): string {
     `<path d="M340 966 C 346 984 344 1004 336 1016" stroke="#c97f66" stroke-width="4" fill="none" opacity=".7" stroke-linecap="round"/>` +
     `<path d="M356 954 C 368 976 368 1010 356 1036" stroke="#ff9a7a" stroke-width="3" fill="none" opacity=".45" stroke-linecap="round"/></g>` +
     // 後腦勺的頭髮(下緣是一撮撮髮尾)
-    `<path d="M-110 980 C -110 820 0 700 130 690 C 260 680 360 760 372 880 C 380 930 360 960 340 952 C 332 992 330 1036 316 1066 Q 306 1092 296 1080 Q 286 1106 268 1094 Q 254 1124 236 1100 Q 220 1114 204 1098 Q 184 1128 166 1102 Q 146 1118 130 1100 Q 112 1126 96 1096 Q 80 1108 64 1094 C 0 1100 -110 1080 -110 980 Z" fill="url(#krd-hair)"/>` +
+    `<path d="M-100 960 C -110 790 0 680 140 676 C 270 672 368 756 376 880 C 382 930 362 960 340 952 C 332 992 330 1036 316 1066 Q 306 1092 296 1080 Q 286 1106 268 1094 Q 254 1124 236 1100 Q 220 1114 204 1098 Q 184 1128 166 1102 Q 146 1118 130 1100 Q 112 1126 96 1096 Q 80 1108 64 1094 C 0 1100 -100 1070 -100 960 Z" fill="url(#krd-hair)"/>` +
+    // 頭頂翹起來的一撮呆毛
+    `<path d="M112 690 C 104 646 128 610 170 604 C 196 601 214 612 222 628 C 204 618 180 618 166 632 C 154 646 156 666 166 682 C 148 680 128 682 112 690 Z" fill="url(#krd-hair)"/>` +
+    `` +
     `<g stroke="#8a6447" stroke-width="3" fill="none" opacity=".5" stroke-linecap="round">` +
     `<path d="M40 760 C 120 740 220 760 290 830"/><path d="M10 820 C 110 800 230 830 320 910"/><path d="M60 900 C 150 900 240 940 300 1020"/><path d="M-40 900 C 40 920 120 980 170 1080"/><path d="M180 720 C 240 740 300 790 340 860"/></g>` +
     `<g stroke="#2a1b12" stroke-width="5" fill="none" opacity=".35" stroke-linecap="round"><path d="M100 980 C 160 1000 220 1040 250 1100"/><path d="M200 900 C 250 930 290 980 300 1050"/></g>` +
     // 窗光打在頭髮左上緣的輪廓光
-    `<path d="M-110 980 C -110 820 0 700 130 690 C 200 686 260 704 300 738 C 240 716 150 712 70 744 C -20 784 -80 880 -86 990 Z" fill="url(#krd-rim)" opacity=".55"/>` +
+    `<path d="M-100 960 C -110 790 0 680 140 676 C 210 674 266 694 304 730 C 244 708 154 702 74 734 C -16 774 -76 870 -80 980 Z" fill="url(#krd-rim)" opacity=".55"/>` +
+    `</g>` +
     `</g>` +
     `</svg>`
   )
@@ -452,7 +458,7 @@ function armSvg(): string {
     `<defs>` +
     `<linearGradient id="krd-hand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8d6bc"/><stop offset=".55" stop-color="#e6a98b"/><stop offset="1" stop-color="#c07b62"/></linearGradient>` +
     `<linearGradient id="krd-finger" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fbdcc4"/><stop offset=".6" stop-color="#eab093"/><stop offset="1" stop-color="#c98468"/></linearGradient>` +
-    `<linearGradient id="krd-sleeve" gradientUnits="userSpaceOnUse" x1="560" y1="1200" x2="1000" y2="1500"><stop offset="0" stop-color="#76aab8"/><stop offset=".5" stop-color="#4a7f8f"/><stop offset="1" stop-color="#264954"/></linearGradient>` +
+    `<linearGradient id="krd-sleeve" gradientUnits="userSpaceOnUse" x1="560" y1="1200" x2="1000" y2="1500"><stop offset="0" stop-color="#ffd98a"/><stop offset=".5" stop-color="#efa548"/><stop offset="1" stop-color="#b0631c"/></linearGradient>` +
     `<radialGradient id="krd-screenlight" cx=".3" cy=".1" r=".6"><stop offset="0" stop-color="#dff1ff" stop-opacity=".55"/><stop offset="1" stop-color="#dff1ff" stop-opacity="0"/></radialGradient>` +
     `</defs>` +
     `<g class="kr-d-hand">` +
@@ -469,19 +475,21 @@ function armSvg(): string {
     `<path d="M6 84 C 4 110 10 140 22 168" stroke="#ffe7cf" stroke-width="5" fill="none" opacity=".55" stroke-linecap="round"/>` +
     // 食指(按下去時會被壓短一點)
     `<g class="kr-d-index">` +
+    `<g transform="scale(1.14 0.84)">` +
     `<path d="M4 74 C 0 52 -8 28 -9 12 C -10 1 -4 -6 4 -5 C 11 -4 13 2 13 9 C 15 28 22 52 30 72 Z" fill="url(#krd-finger)"/>` +
     `<path d="M2 38 q7 -3 13 1" stroke="#c98468" stroke-width="2" fill="none" opacity=".6"/>` +
     `<ellipse cx="3" cy="6" rx="6.5" ry="8.5" fill="#f7d3c4" transform="rotate(-6 3 6)"/>` +
     `<ellipse cx="1.5" cy="4" rx="2.6" ry="4" fill="#fff" opacity=".7" transform="rotate(-6 1.5 4)"/>` +
     `</g>` +
+    `</g>` +
     // 螢幕的冷光打在手指上
     `<path d="M-10 0 C 10 -10 40 20 60 70 L 0 80 Z" fill="url(#krd-screenlight)"/>` +
     `</g>` +
     `<path class="kr-d-upper" fill="url(#krd-sleeve)"/>` +
-    `<circle class="kr-d-elbow" r="80" fill="url(#krd-sleeve)"/>` +
+    `<circle class="kr-d-elbow" r="64" fill="url(#krd-sleeve)"/>` +
     `<path class="kr-d-sleeve" fill="url(#krd-sleeve)"/>` +
-    `<path class="kr-d-fold" fill="none" stroke="#24434d" stroke-width="7" opacity=".35" stroke-linecap="round"/>` +
-    `<path class="kr-d-cuff" fill="#3f7381"/>` +
+    `<path class="kr-d-fold" fill="none" stroke="#8a4f14" stroke-width="7" opacity=".35" stroke-linecap="round"/>` +
+    `<path class="kr-d-cuff" fill="#d98a2b"/>` +
     `<path class="kr-d-sleevelight" fill="none" stroke="#ffe2b8" stroke-width="6" opacity=".3" stroke-linecap="round"/>` +
     `</svg>`
   )
@@ -715,7 +723,7 @@ export function mountDesk(root: HTMLElement): { render(f: ReelFrame): void; targ
       const calm = 1 - pose.reach
       const tipL = { x: pose.tip.x + idle.x * calm, y: pose.tip.y + idle.y * calm, z: pose.tip.z + idle.z * calm }
       const tp = project(tipL.x, tipL.y, tipL.z)
-      const hs = 1.5 * tp.k
+      const hs = 1.22 * tp.k
       const rot = kit.lerp(-24, -8, pose.reach) + kit.noise(t * 0.5, 64) * 2 * calm
       // 按下:手往指尖方向沉一點,指尖被壓扁
       const sink = pose.press * 6
@@ -724,17 +732,17 @@ export function mountDesk(root: HTMLElement): { render(f: ReelFrame): void; targ
       attr(index, 'transform', `translate(0 ${(sink).toFixed(2)}) scale(${(1 + pose.press * 0.06).toFixed(3)} ${(1 - pose.press * 0.08).toFixed(3)})`)
       const wrist = handAt(tipPx, rot, hs)
       // 上臂從肩膀往下到桌邊的手肘,前臂從手肘往前伸到平板
-      const shoulder = { x: 640 + breath * 1.5, y: 1480 + breath * 3.5 - lift }
-      const elbow = { x: 905 - pose.reach * 40 + breath, y: 1740 - pose.reach * 70 - lift * 0.6 }
+      const shoulder = { x: 600 + breath * 1.5, y: 1500 + breath * 3.5 - lift }
+      const elbow = { x: 860 - pose.reach * 40 + breath, y: 1740 - pose.reach * 70 - lift * 0.6 }
       const mid = (a: Pt, b: Pt, ox: number, oy: number): Pt => ({ x: (a.x + b.x) / 2 + ox, y: (a.y + b.y) / 2 + oy })
-      attr(upper, 'd', tube(shoulder, elbow, mid(shoulder, elbow, 30, -30), 220, 160))
+      attr(upper, 'd', tube(shoulder, elbow, mid(shoulder, elbow, 30, -30), 168, 128))
       attr(elbowEl, 'cx', fx(elbow.x))
       attr(elbowEl, 'cy', fx(elbow.y))
       const fctl = mid(elbow, wrist, 34, 14)
-      const ww = 96 * tp.k
-      attr(sleeve, 'd', tube(elbow, wrist, fctl, 158, ww, 0, 0.98))
+      const ww = 78 * tp.k
+      attr(sleeve, 'd', tube(elbow, wrist, fctl, 128, ww, 0, 0.98))
       // 袖口:最後一小截
-      attr(cuff, 'd', tube(elbow, wrist, fctl, 158, ww * 1.04, 0.86, 1.0))
+      attr(cuff, 'd', tube(elbow, wrist, fctl, 128, ww * 1.04, 0.86, 1.0))
       attr(fold, 'd', `M${fx(elbow.x - 40)} ${fx(elbow.y - 50)} Q ${fx(fctl.x - 10)} ${fx(fctl.y + 6)} ${fx(kit.lerp(elbow.x, wrist.x, 0.7))} ${fx(kit.lerp(elbow.y, wrist.y, 0.7) + 14)}`)
       attr(sleeveLight, 'd', `M${fx(elbow.x - 70)} ${fx(elbow.y - 40)} Q ${fx(fctl.x - 60)} ${fx(fctl.y - 20)} ${fx(wrist.x - ww * 0.42)} ${fx(wrist.y - 6)}`)
 

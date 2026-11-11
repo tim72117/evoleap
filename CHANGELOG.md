@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+## [0.36.0] - 2026-11-11
+
+兒童課單元 1「HTML：用積木蓋網頁」1.1–1.5 開放（正式機已用 `evoleap` 開放，這一版讓前端跟上），兒童模式改成照資料庫決定哪些課已開放，另有兒童課 FB Reels 宣傳片與語音「展示版」設定。沒有破壞性變更；沒有資料表變動。
+
+### 新增
+
+- **單元 1 的語音**（`content/live/kids/1.1`–`1.5` 與各課「做做看」腳本的 `.voice.json`，共 10 份）：兒童版語氣（Sulafat），單元 1 五課都有旁白了。
+- **兒童課 FB Reels 宣傳片**（`content/live/promo/kids-free-reel.json`、`kids-free-reel-short.json`，演員 `kid-reel`、`kid-reel-cards`）：完整版約 58 秒、短版約 35 秒；書桌鏡頭的孩子改成穿黃橘色連帽衣的小孩；結尾卡不再提「第一課免費」。
+- **語音「展示版」設定**（`scripts/voice.mjs`）：行銷展示影片用，聲音 Zephyr、語氣明亮、節奏較快；腳本寫 `"voice": {"profile": "showcase"}` 套用，試聽用 `--profile showcase`。`live/types.ts` 的 `voice.profile` 新增 `showcase`。短版宣傳片已套用。
+
+### 變更
+
+- **兒童模式的「已開放的課」改讀資料庫**（`kidsMode/progress.ts` 的 `loadKidsReleased`、`useKidsReleased`）：孩子的「這週的課」、課程頁的上鎖判斷、家長的課表都照課程地圖 API 裡狀態是開放的課；讀不到才用 `KIDS_RELEASED_LESSONS` 備援。之後用 `evoleap` 開新課，兒童模式不用重新部署就跟著開。修正：正式機用 `evoleap` 開了 1.1 之後，兒童模式仍因前端寫死的清單只有序章三課，孩子上完 0.3 就沒有下一課、1.1 顯示上鎖。
+- **`KIDS_RELEASED_LESSONS` 補上 1.1–1.5**、`courses_seed.json` 的 1.1–1.5 改成開放（和正式機一致）：課程地圖備援、SEO 結構化資料附網址、課程頁進 sitemap。
+- 相關測試（`seo/pages.test.ts`、`e2e/course-map.spec.ts`）改用 2.1 當草稿的例子。
+
 ## [0.35.0] - 2026-11-11
 
 兒童模式（粗略版，打通整套流程）：家長在會員空間設定孩子與上課時段，開啟兒童模式後全站只剩兒童課，只在時段內打得開、照進度一課一課上；每個孩子的進度與上課紀錄分開存。另有模擬身分改放頭像選單、兒童課程地圖的使用說明影片、「從做好到上線」1.3–1.7 的語音。沒有破壞性的 API 變更；新增三張資料表（AutoMigrate 自動建立）。

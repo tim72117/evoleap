@@ -7,6 +7,7 @@
 //   npm run voice -- l0/0.0-tools.json --limit 10     只產生前 10 段旁白(試做用)
 //   npm run voice -- --sample "一句旁白" --voices Sulafat,Kore,Charon   試聽:各聲音念同一句,輸出到 recordings/voice-samples/
 //   npm run voice -- --sample "一句旁白" --profile kids   用兒童版的語氣試聽(kids/ 底下的腳本自動用兒童版)
+//   npm run voice -- --sample "一句旁白" --profile showcase   用展示版試聽(行銷展示影片;腳本寫 "voice": { "profile": "showcase" } 套用)
 //   npm run voice -- --batch web/1.1.json web/1.2.json   批次模式:缺的旁白整包送出(Gemini Batch API,約一半價格,24 小時內完成,通常快很多),
 //                                                不用等;送出的批次記在 recordings/voice-batch.json(不進版控)。也可以 --all --batch
 //   npm run voice -- --batch web/1.1.json --dry-run   只列出要送哪些段落與第一筆請求,不呼叫 API、不花錢
@@ -42,8 +43,24 @@ const KIDS = {
   ...DEFAULTS,
   style: '台灣華語，對 9 歲的小朋友說話：活潑、有精神，帶著好奇和驚喜，像親切的大哥哥大姊姊陪著一起玩；句子短、咬字清楚，語速比平常稍快但不趕，說到「哇」「看看」這種驚喜的地方語氣上揚',
 }
-/** 腳本用哪一組設定:kids/ 底下用兒童版,其他用預設;腳本自己的 voice 欄位再覆寫 */
-const profileOf = (rel) => (rel.split(path.sep).join('/').startsWith('kids/') ? KIDS : DEFAULTS)
+// 展示版(行銷展示影片、/showcase、宣傳片):明亮有活力、節奏俐落,像在介紹讓人期待的新東西。
+// 腳本頂層寫 "voice": { "profile": "showcase" } 套用;試聽用 --profile showcase
+const SHOWCASE = {
+  ...DEFAULTS,
+  voice: 'Zephyr',
+  style: '台灣華語，行銷展示影片的旁白：明亮、有自信、有活力，像在介紹一個讓人期待的新東西；咬字清楚、節奏明快緊湊，語速比一般說話快、句子之間停頓短，但不急促，重點詞稍微加重，句尾帶著笑意、讓人想試試看',
+}
+const PROFILES = { default: DEFAULTS, kids: KIDS, showcase: SHOWCASE }
+const isKidsPath = (rel) => rel.split(path.sep).join('/').startsWith('kids/')
+/**
+ * 腳本用哪一組設定:腳本的 voice.profile(default、kids、showcase)優先,沒寫時 kids/ 底下用兒童版、其他用預設;
+ * 腳本 voice 欄位的其他鍵(voice、style、model)再覆寫
+ */
+function configOf(rel, script) {
+  const { profile, ...over } = script.voice || {}
+  if (profile !== undefined && !PROFILES[profile]) die(`${rel}:voice.profile 只能是 ${Object.keys(PROFILES).join('、')}`)
+  return { ...(PROFILES[profile] ?? (isKidsPath(rel) ? KIDS : DEFAULTS)), ...over }
+}
 const KBPS = 48
 const BUCKET = 'shuttle-voice'
 
@@ -168,7 +185,9 @@ const hashOf = (text, cfg) => createHash('sha1').update([cfg.model, cfg.voice, c
 async function sample() {
   const text = flag('sample')
   if (typeof text !== 'string') die('用法:npm run voice -- --sample "一句旁白" --voices Sulafat,Kore')
-  const base = flag('profile') === 'kids' ? KIDS : DEFAULTS
+  const name = flag('profile')
+  if (name !== undefined && !PROFILES[name]) die(`--profile 只能是 ${Object.keys(PROFILES).join('、')}`)
+  const base = PROFILES[name] ?? DEFAULTS
   const voices = String(flag('voices') || base.voice).split(',').map((v) => v.trim()).filter(Boolean)
   const key = apiKey()
   const dir = path.join(WEB, 'recordings/voice-samples')
@@ -211,7 +230,7 @@ async function build(rel, audio) {
   // 互動點(有 id 的 checkpoint)的選項回應與示範(skip,學員沒回答直接播放時也會演)也要有語音;自己打字的回應(free)內容不固定,不產生
   const topLevel = (steps) =>
     (steps || []).flatMap((s) => [s.narration, ...(s.id && s.checkpoint ? [...(s.options || []).flatMap((o) => (o.steps || []).map((x) => x.narration)), ...(s.skip?.steps || []).map((x) => x.narration)] : [])])
-  const all = [...intro, ...(profileOf(rel) === KIDS ? deepNarrations({ steps: script.steps, interact: script.interact }) : topLevel(script.steps))]
+  const all = [...intro, ...(isKidsPath(rel) ? deepNarrations({ steps: script.steps, interact: script.interact }) : topLevel(script.steps))]
   let texts = [...new Set(all.filter(Boolean))]
   // --max-sec:只取開頭幾段,累計估算長度(每秒約 4.2 字)到達上限為止;其他段落沿用舊音檔或維持只有字幕
   const maxSec = Number(flag('max-sec'))
@@ -221,7 +240,7 @@ async function build(rel, audio) {
   }
   const limit = Number(flag('limit'))
   if (limit > 0) texts = texts.slice(0, limit)
-  const cfg = { ...profileOf(rel), ...(script.voice || {}) }
+  const cfg = configOf(rel, script)
   const manifestPath = scriptPath.replace(/\.json$/, '.voice.json')
   const old = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : { clips: {} }
   // GCS 上的路徑照腳本的資料夾(例如 l0/0.0-tools.json → l0/<hash>.mp3)

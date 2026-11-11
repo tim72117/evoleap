@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { KIDS_OPEN_LESSONS, KIDS_RELEASED_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
+import { KIDS_OPEN_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
 import type { KidsMode } from './api'
 import { planWeek, taipeiNow } from './plan'
-import { useKidsProgress } from './progress'
+import { useKidsProgress, useKidsReleased } from './progress'
 import { slotLabel } from './schedule'
 import styles from './KidsSchedulePanel.module.css'
 
@@ -28,10 +28,11 @@ const hhmm = (iso?: string): string =>
 
 export function KidsSchedulePanel({ mode }: { mode: Extract<KidsMode, { active: true }> }) {
   const progress = useKidsProgress()
+  const released = useKidsReleased()
   const finished = progress?.finished ?? new Set<string>()
 
   const { child, schedule } = mode
-  const plan = planWeek(child.slots, taipeiNow(new Date()), child.minutes, KIDS_RELEASED_LESSONS, finished)
+  const plan = planWeek(child.slots, taipeiNow(new Date()), child.minutes, released ?? [], finished)
 
   return (
     <section className={styles.panel} aria-labelledby="kids-plan-title">
@@ -51,7 +52,7 @@ export function KidsSchedulePanel({ mode }: { mode: Extract<KidsMode, { active: 
               : '家長還沒排上課時間，請家長到會員空間的「兒童」排課。'}
           </p>
         )}
-        {plan.length ? (
+        {released && plan.length ? (
           <ol className={styles.slots}>
             {plan.map((p) => (
               <li key={`${p.slot.day}-${p.slot.time}`} className={styles[p.state]}>

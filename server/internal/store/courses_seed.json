@@ -832,7 +832,7 @@
             "id": "1.1",
             "title": "標題和段落",
             "summary": "標題告訴大家在講什麼，段落把話說完。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/1.1.json",
             "files": [
               "kids/1.1-sort.json"
@@ -842,7 +842,7 @@
             "id": "1.2",
             "title": "一項一項的清單",
             "summary": "一項一項的東西，用清單排好。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/1.2.json",
             "files": [
               "kids/1.2-list.json",
@@ -853,7 +853,7 @@
             "id": "1.3",
             "title": "圖片要有說明",
             "summary": "圖片要有說明，看不到圖片的人也知道是什麼。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/1.3.json",
             "files": [
               "kids/1.3-alt.json"
@@ -863,7 +863,7 @@
             "id": "1.4",
             "title": "連結把網頁連起來",
             "summary": "連結把網頁一頁一頁連在一起。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/1.4.json",
             "files": [
               "kids/1.4-trip.json"
@@ -873,7 +873,7 @@
             "id": "1.5",
             "title": "作品：我的寵物名片",
             "summary": "我能說出網頁上每個部分的名字。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/1.5.json",
             "files": [
               "kids/1.5-build.json"
