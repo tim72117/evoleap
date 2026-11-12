@@ -132,12 +132,18 @@ function SignedIn({ user, next, onLogout }: { user: User; next: string; onLogout
 }
 
 /** onFail:登入或註冊失敗時顯示的訊息(訪客紀錄用,不含輸入的內容);onGoogleReady／onGoogleError:Google 登入按鈕畫好／載入失敗 */
-function AuthForm({
+export function AuthForm({
   onSignedIn,
   onFail,
   onGoogleReady,
   onGoogleError,
+  subtitle,
+  titleAs: Title = 'h1',
 }: {
+  /** 標題的標籤(登入視窗開在別的頁面上,頁面本身已有 h1,視窗裡用 h2) */
+  titleAs?: 'h1' | 'h2'
+  /** 說明文字(換掉預設的「歡迎回來…」,登入視窗用來說明為什麼要登入) */
+  subtitle?: string
   onSignedIn: (u: User) => void
   onFail: (message: string) => void
   onGoogleReady: () => void
@@ -218,8 +224,8 @@ function AuthForm({
 
   return (
     <div className={styles.card}>
-      <h1 className={styles.title}>{isRegister ? '建立帳號' : '登入'}</h1>
-      <p className={styles.subtitle}>{isRegister ? '註冊後即可記錄你的學習進度。' : '歡迎回來，登入以繼續你的課程。'}</p>
+      <Title className={styles.title}>{isRegister ? '建立帳號' : '登入'}</Title>
+      <p className={styles.subtitle}>{subtitle ?? (isRegister ? '註冊後即可記錄你的學習進度。' : '歡迎回來，登入以繼續你的課程。')}</p>
 
       <div className={styles.tabs} role="tablist" aria-label="登入或註冊">
         {(['login', 'register'] as const).map((m) => (

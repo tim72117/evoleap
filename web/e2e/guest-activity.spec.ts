@@ -62,7 +62,8 @@ test.describe('訪客上課紀錄', () => {
     await page.goto(`${gated}/topics/launch/0-1`)
     await lesson
     await page.goto(`${gated}/topics/launch/1-1`)
-    await expect(page.getByText('之後的課程要登入才能觀看')).toBeVisible()
+    // 登入視窗彈出來,視窗裡說明要登入
+    await expect(page.getByRole('dialog', { name: '登入' }).getByText('之後的課程要登入才能觀看')).toBeVisible()
     const notice = opened('page:/topics/launch/2-1')
     await page.goto(`${gated}/topics/launch/2-1`)
     await notice

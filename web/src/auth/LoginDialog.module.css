@@ -1,0 +1,55 @@
+/* 小的登入視窗。dialog 在 SiteLayout 裡面,沿用 --site-* tokens。 */
+
+.dialog {
+  width: min(400px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--site-text);
+  overflow: visible;
+}
+
+.dialog::backdrop {
+  background: rgb(20 20 15 / 45%);
+}
+
+.body {
+  position: relative;
+}
+
+/* 表單卡片:縮小內距、拿掉外層陰影(視窗本身已經浮在背景上),內容太高時卡片內捲動 */
+.body > div:not(.close) {
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  padding: 28px 24px 20px;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgb(20 20 15 / 28%);
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--site-muted);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--site-surface-2);
+  color: var(--site-text);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 2px;
+}
