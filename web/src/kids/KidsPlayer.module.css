@@ -45,6 +45,7 @@
   text-align: center;
   overflow: hidden;
 }
+.ask[data-idle='true'] { visibility: hidden; }
 .ask[data-asking='true'] {
   background: color-mix(in srgb, var(--kp-accent) 16%, var(--kp-surface));
   border-color: var(--kp-accent);

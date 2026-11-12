@@ -1114,8 +1114,9 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
 
   return (
     <div className={s.player} ref={fsRef} data-size={size} data-layout={fit} data-float={floating && fit === 'page' ? 'true' : undefined} data-full={pageFull ? 'page' : nativeFull ? 'native' : undefined} data-ready={ready ? 'true' : 'false'}>
-      {/* 上方的指引一直都在(高度固定),只換內容:停下來等孩子點時是題目,其他時候說現在在做什麼 */}
-      <p className={s.ask} data-asking={ask ? 'true' : 'false'} data-stars={stars ? 'true' : 'false'} role="status">
+      {/* 上方的指引只有停下來等孩子點的時候才出現(題目;有集星星時加上星星);其他時候(播放中、暫停、看完)是空的,不顯示任何狀態文字。
+          空的時候只是看不見(保留高度),題目出現時舞台不會跳動 */}
+      <p className={s.ask} data-asking={ask ? 'true' : 'false'} data-stars={stars ? 'true' : 'false'} data-idle={!ask && !stars ? 'true' : 'false'} role="status">
         {stars && (
           <span className={s.stars} aria-label={`找到 ${stars.got} / ${stars.of}`}>
             {Array.from({ length: stars.of }, (_, i) => (
@@ -1123,17 +1124,11 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
             ))}
           </span>
         )}
-        {ask ? (
+        {ask && (
           <>
             👉 {ask.again ? '再試一次：' : ''}
             {ask.title}
             <small>{ask.body || ' '}</small>
-          </>
-        ) : (
-          <>
-            {/* 還沒開始時不寫「按播放開始」(畫面中間已經有大播放鍵),直接顯示第一段 */}
-            {done ? '🎉 看完了！' : `${playing || (now === 0 && inSub === null) ? '👀' : '⏸'} ${chapters[curChapter]?.label ?? ''}`}
-            <small>{done ? '可以按「再看一次」，或回到前面的段落。' : playing || now === 0 ? '先看，等一下換你動手。' : '按播放繼續。'}</small>
           </>
         )}
       </p>
