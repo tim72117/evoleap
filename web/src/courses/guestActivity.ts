@@ -2,7 +2,7 @@
 // 訪客代號在 evoleap_guest cookie(伺服器發的 HttpOnly cookie,前端讀不到也不用管);會員不記在這裡(會員有自己的播放進度)。
 // 伺服器端見 server/internal/api/guest.go。送不出去都靜默略過,不影響上課。
 // 為了看出「打開了卻沒有播放」的原因,另外回報:進站來源(document.referrer,伺服器只留網域)、頁面在前景的時間、
-// 播放器多久載入完成(ready)或載入失敗的訊息(fail)。看到登入門檻的訪客也記一筆(gate: 開頭,LoginGate.tsx);
+// 播放器多久載入完成(ready)或載入失敗的訊息(fail)。看到登入門檻的訪客也記一筆(gate: 開頭,LoginGate.tsx;門檻上登入視窗裡的登入失敗、Google 載入失敗記成這筆的備註);
 // 打開首頁、課程地圖也記一筆(page:<網址>,PageView),後台串成「從首頁進來的路徑」。
 // 打開登入頁也記一筆(page:/login,auth/LoginPage.tsx):頁面用 note() 記下 next:<網址>、fail:<訊息>,用 ready／fail 記 Google 登入按鈕的載入時間;
 // 登入或註冊成功由伺服器記在這筆紀錄上(store.NoteGuestLogin),因為登入後前端就不能再回報訪客紀錄。
