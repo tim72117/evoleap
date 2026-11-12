@@ -498,6 +498,7 @@ const PAGES = [
   '/studio/fable-trial',
   '/studio/kids-family',
   '/studio/extensions',
+  '/studio/live-script-mcp',
   '/studio/kids-web/0-1',
   '/studio/kids-web/0-1/live',
   '/studio/kids-web/0-2/live',

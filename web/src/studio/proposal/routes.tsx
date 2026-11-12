@@ -20,6 +20,7 @@ import { ScenesPage } from '../fable/ScenesPage'
 import { L1IdeasPage } from './L1IdeasPage'
 import { LifeToolsPage } from './LifeToolsPage'
 import { McpPage } from './McpPage'
+import { LiveScriptMcpPage } from './LiveScriptMcpPage'
 import { MemberPage } from './MemberPage'
 import { KidsFamilyPage } from './KidsFamilyPage'
 import { NewsFeedPage } from './NewsFeedPage'
@@ -52,6 +53,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/ai-agent/cover', element: <CoverPage /> },
   { path: '/studio/advanced', element: <AdvancedPage /> },
   { path: '/studio/mcp', element: <McpPage /> },
+  { path: '/studio/live-script-mcp', element: <LiveScriptMcpPage /> },
   { path: '/studio/member', element: <MemberPage /> },
   { path: '/studio/kids-family', element: <KidsFamilyPage /> },
   { path: '/studio/resources', element: <ResourcesPage /> },

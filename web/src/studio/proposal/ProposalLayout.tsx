@@ -32,6 +32,7 @@ const DEV: Tab[] = [
 /** 跨等級構想。 */
 const IDEAS: Tab[] = [
   { to: '/studio/mcp', label: '課程 MCP' },
+  { to: '/studio/live-script-mcp', label: '即時腳本 MCP' },
   { to: '/studio/member', label: '會員空間' },
   { to: '/studio/kids-family', label: '兒童課家長模式' },
   { to: '/studio/resources', label: '資源系統' },
