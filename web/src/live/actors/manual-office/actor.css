@@ -27,11 +27,11 @@
 .A-manual-office .mo-pg-blank { display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 30px; background: #f4f6f9; color: #8793a3; font-size: 13px; line-height: 1.7; }
 .A-manual-office .mo-loadbar { position: absolute; left: 0; top: 0; height: 3px; background: #4c9aff; box-shadow: 0 0 8px #4c9aff; }
 .A-manual-office .mo-serif { font-family: "Times New Roman", "PMingLiU", serif; color: #000; font-size: 14px; line-height: 1.5; padding: 10px 14px; }
-.A-manual-office .mo-serif h1 { font-size: 28px; margin: 6px 0; }
+.A-manual-office .mo-serif [data-h1] { font-weight: 700; font-size: 28px; margin: 6px 0; }
 .A-manual-office .mo-serif ul { margin: 8px 0; padding-left: 26px; }
 .A-manual-office .mo-serif p { margin: 8px 0; }
 .A-manual-office .mo-pg-half, .A-manual-office .mo-pg-ok { background: #fff8ef; color: #5a3a22; padding: 18px 18px; font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; font-size: 14px; line-height: 1.6; }
-.A-manual-office .mo-pg-half h1, .A-manual-office .mo-pg-ok h1 { font-size: 30px; color: #5a3a22; margin: 6px 0 6px; }
+.A-manual-office .mo-pg-half [data-h1], .A-manual-office .mo-pg-ok [data-h1] { font-weight: 700; font-size: 30px; color: #5a3a22; margin: 6px 0 6px; }
 .A-manual-office .mo-pg-half p, .A-manual-office .mo-pg-ok p { margin: 0 0 10px; }
 .A-manual-office .mo-pg-ok ul { margin: 0; padding-left: 22px; }
 .A-manual-office .mo-pg-ok li::marker { color: #d9822b; }

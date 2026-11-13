@@ -246,12 +246,13 @@ export const keyed = (l: number, keys: [number, number][]): number => {
 }
 
 // ---------- 預覽的網頁(依 run 時的 fixes) ----------
-const pageVanish = (site: string): string => `<div class="mo-serif"><h1>${kit.esc(site)}</h1></div>`
+// 標題用 [data-h1] 而不是 <h1>:這只是示範畫面,不該讓課程頁多出第二個 h1(和 browser 演員相同)
+const pageVanish = (site: string): string => `<div class="mo-serif"><div data-h1>${kit.esc(site)}</div></div>`
 const pageRaw = (site: string): string =>
-  `<div class="mo-serif"><h1>${kit.esc(site)}</h1><p>每天現烤的麵包與甜點</p><ul><li>可頌 NT$65</li><li>肉桂捲 NT$80</li></ul></div>`
+  `<div class="mo-serif"><div data-h1>${kit.esc(site)}</div><p>每天現烤的麵包與甜點</p><ul><li>可頌 NT$65</li><li>肉桂捲 NT$80</li></ul></div>`
 const pageHalf = (site: string): string =>
-  `<h1>${kit.esc(site)}</h1><p>每天現烤的麵包與甜點</p><span class="mo-runon">可頌 NT$65肉桂捲 NT$80</span>`
-const pageOk = (site: string): string => `<h1>${kit.esc(site)}</h1><p>每天現烤的麵包與甜點</p><ul><li>可頌 NT$65</li><li>肉桂捲 NT$80</li></ul>`
+  `<div data-h1>${kit.esc(site)}</div><p>每天現烤的麵包與甜點</p><span class="mo-runon">可頌 NT$65肉桂捲 NT$80</span>`
+const pageOk = (site: string): string => `<div data-h1>${kit.esc(site)}</div><p>每天現烤的麵包與甜點</p><ul><li>可頌 NT$65</li><li>肉桂捲 NT$80</li></ul>`
 
 const LOOK = {
   monitor: { yaw: -0.98, pitch: 0.02, tilt: 0 } as BotLook,
