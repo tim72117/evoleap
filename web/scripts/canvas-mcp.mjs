@@ -10,6 +10,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { compose, diffPng, inspect, listHistory, OUT, render, resolveArt, slugOf, writeOut, closeAll, REPO } from './canvas/art.mjs'
+import { createSerial, DEFAULT_TIMEOUT_MS } from './canvas/queue.mjs'
 import { createMcpServer, png, text } from './canvas/rpc.mjs'
 import { stageTools } from './canvas/stage.mjs'
 
@@ -192,13 +193,8 @@ const artTools = [
   },
 ]
 
-// 所有工具共用同一個瀏覽器頁面:一次只跑一個
-let chain = Promise.resolve()
-const serial = (fn) => (args) => {
-  const p = chain.then(() => fn(args))
-  chain = p.catch(() => {})
-  return p
-}
+// 所有工具共用同一個瀏覽器頁面:一次只跑一個,而且每個呼叫都有逾時(見 canvas/queue.mjs):逾時就中止並重設瀏覽器,不會讓後面的呼叫永遠排隊
+const serial = createSerial({ timeoutMs: Number(process.env.CANVAS_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS, onTimeout: () => closeAll() })
 const tools = [...artTools, ...stageTools].map((t) => ({ ...t, run: serial(t.run) }))
 
 const server = createMcpServer({

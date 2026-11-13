@@ -4,7 +4,9 @@ import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { execFileSync } from 'node:child_process'
 import { chromium } from '@playwright/test'
+import { assertNotCancelled } from './queue.mjs'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 export const WEB = path.resolve(HERE, '../..')
@@ -46,16 +48,19 @@ const sha = (s) => createHash('sha1').update(s).digest('hex').slice(0, 8)
 let browserP = null
 const pages = {}
 async function browser() {
+  assertNotCancelled() // 已逾時的呼叫不能再把瀏覽器開回來
   if (browserP) {
     const b = await browserP.catch(() => null)
     if (b?.isConnected()) return b
   }
-  browserP = chromium.launch({ channel: process.env.CANVAS_CHANNEL ?? (process.env.CI ? undefined : 'chrome'), args: ['--hide-scrollbars', '--force-color-profile=srgb'] })
+  // timeout:啟動瀏覽器最多等 30 秒(不給時整個呼叫會一直等下去);整個呼叫另外有逾時(queue.mjs),逾時會 closeAll 重設
+  browserP = chromium.launch({ timeout: 30_000, channel: process.env.CANVAS_CHANNEL ?? (process.env.CI ? undefined : 'chrome'), args: ['--hide-scrollbars', '--force-color-profile=srgb'] })
   for (const k in pages) delete pages[k]
   return browserP
 }
 /** 名稱 → { page, cdp, ctx };art(作品頁)、util(拼圖與差異)、stage(舞台,stage.mjs 用) */
 export async function getPage(name, setup) {
+  assertNotCancelled()
   const b = await browser()
   if (pages[name] && !pages[name].page.isClosed()) return pages[name]
   const ctx = await b.newContext({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1 })
@@ -75,11 +80,45 @@ export async function getPage(name, setup) {
   pages[name] = entry
   return entry
 }
+/**
+ * 關掉瀏覽器並清掉頁面,下一次呼叫會重新啟動。可以在瀏覽器卡住時呼叫:每一步都有時間上限,不會跟著卡住。
+ * 順序:正常關閉(最多 5 秒)→ 還沒結束就對自己的子程序(就是這個瀏覽器)送終止訊號 → 3 秒後還在就強制結束。
+ */
 export async function closeAll() {
-  const b = browserP && (await browserP.catch(() => null))
+  const launching = browserP
   browserP = null
   for (const k in pages) delete pages[k]
-  await b?.close()
+  // 啟動還沒完成(或啟動卡住)時不能一直等它
+  const b = launching && (await Promise.race([launching.catch(() => null), sleep(5000).then(() => null)]))
+  if (b) {
+    const closed = await Promise.race([b.close().then(() => true).catch(() => true), sleep(5000).then(() => false)])
+    if (closed) return
+  }
+  killOwnChildren()
+}
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+/** 這個行程自己啟動的瀏覽器子程序(只認瀏覽器,別的子程序不動):先 TERM,3 秒後還在就 KILL */
+function killOwnChildren() {
+  const browsers = () => {
+    try {
+      const kids = execFileSync('pgrep', ['-P', String(process.pid)], { encoding: 'utf8' }).split('\n').filter(Boolean)
+      if (!kids.length) return []
+      const rows = execFileSync('ps', ['-o', 'pid=,command=', '-p', kids.join(',')], { encoding: 'utf8' }).split('\n')
+      return rows.filter((r) => /chrom|headless_shell/i.test(r)).map((r) => r.trim().split(/\s+/)[0])
+    } catch {
+      return [] // pgrep 找不到時結束碼是 1
+    }
+  }
+  for (const pid of browsers()) process.kill(Number(pid), 'SIGTERM')
+  setTimeout(() => {
+    for (const pid of browsers()) {
+      try {
+        process.kill(Number(pid), 'SIGKILL')
+      } catch {
+        /* 已經結束 */
+      }
+    }
+  }, 3000).unref()
 }
 
 /** 截圖:clip 是 CSS px,scale 是輸出倍率(向量內容放大也是清晰的) */

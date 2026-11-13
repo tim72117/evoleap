@@ -781,6 +781,8 @@ packs/<name>/
 
 給 Claude 用的「畫 → 看」迴圈:`web/scripts/canvas-mcp.mjs` 是一個 MCP 伺服器(stdio,沒有 SDK 依賴),常駐一個無頭 Chromium(本機用系統的 Chrome,同 `record-live.mjs`),回傳 PNG 與量測數字。repo 根目錄的 `.mcp.json` 已登記為 `evoleap-canvas`,在 repo 裡開 Claude Code 會自動詢問是否啟用;手動加:`claude mcp add evoleap-canvas -- node web/scripts/canvas-mcp.mjs`(或 `npm run canvas:mcp` 單獨跑)。
 
+**逾時與自動重設**(`scripts/canvas/queue.mjs`):所有工具共用同一個瀏覽器頁面,所以呼叫是一次跑一個;每個呼叫開始跑之後超過 120 秒(環境變數 `CANVAS_TIMEOUT_MS` 可改,單位毫秒;舞台聯絡表格數多時可以調大)就中止,回傳「逾時」錯誤,同時重設瀏覽器(先正常關閉,關不掉就對自己的子程序送終止訊號),下一個呼叫用全新的瀏覽器,不會再因為前一個呼叫卡住而永遠排隊。排隊等待的時間不算進逾時。啟動瀏覽器最多等 30 秒。已經在跑、還是舊程式的 MCP 行程要重新連線(在 Claude 的 `/mcp` 重連 evoleap-canvas)才會套用。
+
 | 工具 | 用途 |
 |---|---|
 | `art_render` | 靜態圖(SVG,或 HTML + CSS + 內嵌 SVG)→ PNG。`overlays`:`grid`、`rulers`、`layers`(每個有 id 的元素外框與名稱,拆骨架用)、`bbox`、`pivots`(`data-pivot`)、`canvas`;`crop`、`scale`、`background`(試過 resvg 當不開瀏覽器的快速路徑,比 Chrome 慢、粗體字型畫不對、不能疊加線,沒有保留) |
