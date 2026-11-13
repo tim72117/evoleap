@@ -12,6 +12,9 @@ export interface Child {
   /** 每次上課多久(分鐘,最長 60):時段從開始時間起開放這麼久 */
   minutes: number
   createdAt: string
+  /** 已經配對了孩子自己的帳號(孩子用那個帳號登入就是兒童模式);accountLabel 是帳號給家長看的名稱 */
+  paired: boolean
+  accountLabel?: string
 }
 
 /** 某個時間點的上課狀態(伺服器照台灣時間算) */
@@ -29,7 +32,8 @@ export interface ChildLesson {
   finishedAt: string
 }
 
-export type KidsMode = { active: false } | { active: true; child: Child; schedule: KidsSchedule }
+/** self:孩子本人用配對的帳號登入(兒童模式是帳號帶的,不能自己離開) */
+export type KidsMode = { active: false } | { active: true; self?: boolean; child: Child; schedule: KidsSchedule }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(path, {
@@ -50,6 +54,11 @@ export const kidsApi = {
   updateChild: (id: string, patch: { name?: string; slots?: Slot[]; minutes?: number; avatar?: string }) => request<{ child: Child }>('PATCH', `/api/kids/children/${encodeURIComponent(id)}`, patch).then((r) => r.child),
   lessons: (id: string) => request<{ lessons: ChildLesson[] }>('GET', `/api/kids/children/${encodeURIComponent(id)}/lessons`).then((r) => r.lessons),
   deleteChild: (id: string) => request<void>('DELETE', `/api/kids/children/${encodeURIComponent(id)}`),
+  /** 孩子的帳號產生配對碼(6 位數,10 分鐘內有效、只能用一次) */
+  pairCode: () => request<{ code: string; expiresAt: string }>('POST', '/api/kids/pair-code'),
+  /** 家長用配對碼配對孩子的帳號;沒給 childId 就新增一個孩子 */
+  pair: (code: string, childId?: string) => request<{ child: Child }>('POST', '/api/kids/children/pair', { code, childId: childId ?? '' }).then((r) => r.child),
+  unpair: (id: string) => request<void>('DELETE', `/api/kids/children/${encodeURIComponent(id)}/pair`),
   mode: () => request<KidsMode>('GET', '/api/kids/mode'),
   start: (childId: string) => request<KidsMode>('POST', '/api/kids/mode', { childId }),
   stop: () => request<void>('DELETE', '/api/kids/mode'),

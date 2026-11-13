@@ -64,6 +64,11 @@ type Child struct {
 	// Minutes 是每次上課多久:時段從開始時間起開放幾分鐘
 	Minutes   int       `json:"minutes"`
 	CreatedAt time.Time `json:"createdAt"`
+	// Paired:這個孩子已經配對了一個孩子自己的帳號(見 kidspair.go);AccountLabel 是那個帳號給家長看的名稱(帳號名稱,沒有名稱時是遮住一部分的 Email)
+	Paired       bool   `json:"paired"`
+	AccountLabel string `json:"accountLabel,omitempty"`
+	// AccountUserID 是配對的帳號;不對外輸出(孩子本人登入時,伺服器靠它直接進兒童模式)
+	AccountUserID string `json:"-"`
 }
 
 type childRow struct {
@@ -75,6 +80,8 @@ type childRow struct {
 	Slots     string    `gorm:"type:text;not null"`
 	Minutes   int       `gorm:"not null;default:60"`
 	CreatedAt time.Time `gorm:"not null"`
+	// AccountUserID:配對的孩子帳號(已經有自己帳號的孩子,見 kidspair.go);沒有配對是 NULL。一個帳號只能配對一個孩子(唯一)
+	AccountUserID *string `gorm:"size:32;uniqueIndex"`
 }
 
 func (childRow) TableName() string { return "children" }
@@ -88,6 +95,9 @@ func (r childRow) toChild() Child {
 		c.Minutes = MaxMinutes
 	}
 	_ = json.Unmarshal([]byte(r.Slots), &c.Slots)
+	if r.AccountUserID != nil && *r.AccountUserID != "" {
+		c.Paired, c.AccountUserID = true, *r.AccountUserID
+	}
 	return c
 }
 
@@ -145,7 +155,7 @@ func (s *Store) Children(ctx context.Context, userID string) ([]Child, error) {
 	for _, r := range rows {
 		out = append(out, r.toChild())
 	}
-	return out, nil
+	return s.withAccountLabels(ctx, out)
 }
 
 // ChildOf 回傳家長的某個孩子;不是這位家長的或不存在都回 ErrNotFound。
@@ -158,7 +168,11 @@ func (s *Store) ChildOf(ctx context.Context, userID, id string) (Child, error) {
 	if err != nil {
 		return Child{}, err
 	}
-	return r.toChild(), nil
+	out, err := s.withAccountLabels(ctx, []Child{r.toChild()})
+	if err != nil {
+		return Child{}, err
+	}
+	return out[0], nil
 }
 
 // CreateChild 新增一個孩子(還沒有時段)。
@@ -174,21 +188,9 @@ func (s *Store) CreateChild(ctx context.Context, userID, name string) (Child, er
 	if n >= MaxChildren {
 		return Child{}, invalidChild("最多 %d 個孩子", MaxChildren)
 	}
-	// 頭像:依序給這位家長還沒用過的
-	var used []string
-	if err := s.db.WithContext(ctx).Model(&childRow{}).Where("user_id = ?", userID).Pluck("avatar", &used).Error; err != nil {
+	avatar, err := nextAvatar(s.db.WithContext(ctx), userID, int(n))
+	if err != nil {
 		return Child{}, err
-	}
-	avatar := Avatars[int(n)%len(Avatars)]
-	for _, a := range Avatars {
-		taken := false
-		for _, u := range used {
-			taken = taken || u == a
-		}
-		if !taken {
-			avatar = a
-			break
-		}
 	}
 	r := childRow{ID: newID(), UserID: userID, Name: name, Avatar: avatar, Slots: "[]", Minutes: MaxMinutes, CreatedAt: now()}
 	if err := s.db.WithContext(ctx).Create(&r).Error; err != nil {
@@ -310,4 +312,22 @@ func SlotLabel(s Slot) string {
 		return s.Time
 	}
 	return days[s.Day] + " " + s.Time
+}
+
+// nextAvatar 依序給這位家長還沒用過的頭像;n 是目前的孩子數(全部用過時照順序輪)。
+func nextAvatar(db *gorm.DB, userID string, n int) (string, error) {
+	var used []string
+	if err := db.Model(&childRow{}).Where("user_id = ?", userID).Pluck("avatar", &used).Error; err != nil {
+		return "", err
+	}
+	for _, a := range Avatars {
+		taken := false
+		for _, u := range used {
+			taken = taken || u == a
+		}
+		if !taken {
+			return a, nil
+		}
+	}
+	return Avatars[n%len(Avatars)], nil
 }

@@ -20,4 +20,7 @@ export const kidsMode = {
   active: '兒童模式中',
   leaving: '離開中…',
   leave: '離開兒童模式',
+  /** 孩子本人用配對的帳號登入時(mode.self)沒有「離開」,只有「登出」 */
+  loggingOut: '登出中…',
+  logout: '登出',
 }

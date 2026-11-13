@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 import { MEMBER_PATH } from '../member/paths'
 import styles from '../auth/UserMenu.module.css'
 import kids from './KidsCapsule.module.css'
@@ -8,10 +9,13 @@ import { useKidsMode } from './KidsModeContext'
 import { useT } from '../i18n/I18nProvider'
 
 // 兒童模式時,頁首右上角的膠囊頭像換成兒童(暱稱);按下後可以離開兒童模式,回到家長的會員空間。
+// 孩子本人用配對的帳號登入時(mode.self)兒童模式是帳號帶的,沒有「離開」,只有「登出」。
 // 外觀沿用帳號選單(auth/UserMenu)。粗略版離開不用家長確認(待決定,見研發基地 /studio/kids-family)。
 
 export function KidsCapsule({ name, avatar }: { name: string; avatar: string }) {
-  const { stop } = useKidsMode()
+  const { mode, stop } = useKidsMode()
+  const { logout } = useAuth()
+  const self = mode?.active === true && mode.self === true
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -65,15 +69,20 @@ export function KidsCapsule({ name, avatar }: { name: string; avatar: string }) 
             onClick={async () => {
               setBusy(true)
               try {
-                await stop()
-                navigate(`${MEMBER_PATH}/kids`)
+                if (self) {
+                  await logout()
+                  navigate('/')
+                } else {
+                  await stop()
+                  navigate(`${MEMBER_PATH}/kids`)
+                }
               } finally {
                 setBusy(false)
                 setOpen(false)
               }
             }}
           >
-            {busy ? k.leaving : k.leave}
+            {self ? (busy ? k.loggingOut : k.logout) : busy ? k.leaving : k.leave}
           </button>
         </div>
       ) : null}

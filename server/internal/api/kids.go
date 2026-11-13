@@ -16,7 +16,10 @@ import (
 //   GET    /api/kids/children/{id}/lessons  上課紀錄(每看完一課一筆:哪一課、什麼時候看完),家長課表用
 //   GET    /api/kids/mode              這台裝置的兒童模式:{"active": false} 或 {"active": true, "child": …, "schedule": …}
 //   POST   /api/kids/mode              開啟 {"childId": "…"}(記在這台裝置的 cookie)
-//   DELETE /api/kids/mode              離開
+//   DELETE /api/kids/mode              離開(孩子本人用配對的帳號登入時不能離開)
+//   POST   /api/kids/pair-code         孩子的帳號產生配對碼 {"code": "123456", "expiresAt": …}(6 位數、10 分鐘、只能用一次)
+//   POST   /api/kids/children/pair     家長用配對碼配對孩子的帳號 {"code": "123456", "childId": "…"};childId 空白就新增一個孩子
+//   DELETE /api/kids/children/{id}/pair  解除配對
 // 兒童模式下,腳本 API(scripts.go)只給兒童課,而且只在上課時段給;家長是管理員也一樣。
 
 const kidsCookie = "evoleap_kids"
@@ -25,10 +28,18 @@ func (s *Server) kidsCookie(value string, maxAge int) *http.Cookie {
 	return &http.Cookie{Name: kidsCookie, Value: value, Path: "/", MaxAge: maxAge, HttpOnly: true, Secure: s.cfg.SecureCookie, SameSite: http.SameSiteLaxMode}
 }
 
-// kidsChild 回傳這個請求的兒童模式孩子:有 cookie、已登入、而且是這位家長的孩子才算;否則 ok 是 false。
+// kidsChild 回傳這個請求的兒童模式孩子,ok 是 false 代表不在兒童模式:
+//   - 孩子本人用配對的帳號登入:一律是兒童模式(不看 cookie,也不能離開);
+//   - 家長的裝置:有 cookie、已登入、而且是這位家長的孩子才算。
 func (s *Server) kidsChild(r *http.Request, user store.User, loggedIn bool) (store.Child, bool) {
+	if !loggedIn || s.cfg.Store == nil {
+		return store.Child{}, false
+	}
+	if child, err := s.cfg.Store.ChildByAccount(r.Context(), user.ID); err == nil {
+		return child, true
+	}
 	c, err := r.Cookie(kidsCookie)
-	if err != nil || c.Value == "" || !loggedIn || s.cfg.Store == nil {
+	if err != nil || c.Value == "" {
 		return store.Child{}, false
 	}
 	child, err := s.cfg.Store.ChildOf(r.Context(), user.ID, c.Value)
@@ -45,6 +56,10 @@ func writeChildErr(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, store.ErrInvalidChild):
 		writeError(w, http.StatusBadRequest, "invalid_child", err.Error())
+	case errors.Is(err, store.ErrInvalidPair):
+		writeError(w, http.StatusBadRequest, "invalid_pair", err.Error())
+	case errors.Is(err, store.ErrPairCode):
+		writeError(w, http.StatusBadRequest, "invalid_pair_code", err.Error())
 	case errors.Is(err, store.ErrNotFound):
 		writeError(w, http.StatusNotFound, "not_found", "找不到這個孩子")
 	default:
@@ -115,9 +130,9 @@ func (s *Server) handleChildDelete(w http.ResponseWriter, r *http.Request, user 
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// kidsModeBody 是兒童模式的狀態:孩子、每週時段與現在的上課狀態
-func kidsModeBody(child store.Child) map[string]any {
-	return map[string]any{"active": true, "child": child, "schedule": store.ScheduleAt(child.Slots, child.Minutes, kidsNow())}
+// kidsModeBody 是兒童模式的狀態:孩子、每週時段與現在的上課狀態;self 是孩子本人用配對的帳號登入(不能離開兒童模式)
+func kidsModeBody(child store.Child, self bool) map[string]any {
+	return map[string]any{"active": true, "self": self, "child": child, "schedule": store.ScheduleAt(child.Slots, child.Minutes, kidsNow())}
 }
 
 func (s *Server) handleKidsModeGet(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +142,7 @@ func (s *Server) handleKidsModeGet(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]any{"active": false})
 		return
 	}
-	writeJSON(w, http.StatusOK, kidsModeBody(child))
+	writeJSON(w, http.StatusOK, kidsModeBody(child, child.AccountUserID != "" && child.AccountUserID == user.ID))
 }
 
 func (s *Server) handleKidsModeStart(w http.ResponseWriter, r *http.Request, user store.User) {
@@ -143,10 +158,17 @@ func (s *Server) handleKidsModeStart(w http.ResponseWriter, r *http.Request, use
 		return
 	}
 	http.SetCookie(w, s.kidsCookie(child.ID, 60*60*24*30))
-	writeJSON(w, http.StatusOK, kidsModeBody(child))
+	writeJSON(w, http.StatusOK, kidsModeBody(child, false))
 }
 
 func (s *Server) handleKidsModeStop(w http.ResponseWriter, r *http.Request) {
+	// 孩子本人用配對的帳號登入時,兒童模式是帳號帶的,不能自己離開
+	if user, ok := s.currentUser(r); ok {
+		if child, kids := s.kidsChild(r, user, true); kids && child.AccountUserID == user.ID {
+			writeError(w, http.StatusForbidden, "kids_parent_only", "這是小朋友的帳號，不能離開兒童模式，請家長到會員空間解除配對")
+			return
+		}
+	}
 	http.SetCookie(w, s.kidsCookie("", -1))
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -194,4 +216,43 @@ func (s *Server) kidsGate(w http.ResponseWriter, r *http.Request, user store.Use
 	}
 	writeError(w, http.StatusForbidden, "kids_closed", "還沒到上課時間，請家長在會員空間排入上課時段")
 	return true
+}
+
+// handlePairCode:孩子的帳號產生配對碼(給家長在「兒童」分頁輸入)。
+func (s *Server) handlePairCode(w http.ResponseWriter, r *http.Request, user store.User) {
+	code, expiresAt, err := s.cfg.Store.CreatePairCode(r.Context(), user.ID)
+	if err != nil {
+		writeChildErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"code": code, "expiresAt": expiresAt})
+}
+
+// handleChildPair:家長用配對碼配對孩子的帳號。猜碼要擋:每位家長與每個來源 IP 都有嘗試次數上限(不分對錯)。
+func (s *Server) handleChildPair(w http.ResponseWriter, r *http.Request, user store.User) {
+	if (s.pairTry != nil && !s.pairTry.allow("u:"+user.ID)) || (s.pairTry != nil && !s.pairTry.allow("ip:"+clientIP(r))) {
+		writeRateLimited(w)
+		return
+	}
+	var body struct {
+		Code    string `json:"code"`
+		ChildID string `json:"childId"`
+	}
+	if !decode(w, r, &body) {
+		return
+	}
+	child, err := s.cfg.Store.PairChild(r.Context(), user.ID, body.Code, body.ChildID)
+	if err != nil {
+		writeChildErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"child": child})
+}
+
+func (s *Server) handleChildUnpair(w http.ResponseWriter, r *http.Request, user store.User) {
+	if err := s.cfg.Store.UnpairChild(r.Context(), user.ID, r.PathValue("id")); err != nil {
+		writeChildErr(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

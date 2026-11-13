@@ -40,7 +40,9 @@ type Server struct {
 	authIP     *rateLimiter
 	loginEmail *rateLimiter
 	guestOpen  *rateLimiter
-	prune      guestPruner
+	// pairTry 是配對碼的嘗試次數(每位家長、每個 IP 各算),擋猜碼;cfg.AuthRateLimit 為 0 時是 nil
+	pairTry *rateLimiter
+	prune   guestPruner
 }
 
 func New(cfg Config) *Server {
@@ -48,6 +50,7 @@ func New(cfg Config) *Server {
 	if cfg.AuthRateLimit > 0 {
 		s.authIP = newRateLimiter(cfg.AuthRateLimit, time.Minute)
 		s.loginEmail = newRateLimiter(loginEmailLimit, time.Minute)
+		s.pairTry = newRateLimiter(pairTryLimit, 10*time.Minute)
 		s.guestOpen = newRateLimiter(guestOpenLimit, time.Minute)
 	}
 	return s
@@ -74,6 +77,9 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /api/kids/children", s.requireUser(s.parentOnly(s.handleChildCreate)))
 	mux.HandleFunc("PATCH /api/kids/children/{id}", s.requireUser(s.parentOnly(s.handleChildUpdate)))
 	mux.HandleFunc("DELETE /api/kids/children/{id}", s.requireUser(s.parentOnly(s.handleChildDelete)))
+	mux.HandleFunc("POST /api/kids/children/pair", s.requireUser(s.parentOnly(s.handleChildPair)))
+	mux.HandleFunc("DELETE /api/kids/children/{id}/pair", s.requireUser(s.parentOnly(s.handleChildUnpair)))
+	mux.HandleFunc("POST /api/kids/pair-code", s.requireUser(s.parentOnly(s.handlePairCode)))
 	mux.HandleFunc("GET /api/kids/children/{id}/lessons", s.requireUser(s.handleChildLessons))
 	mux.HandleFunc("GET /api/kids/mode", s.requireAuth(s.handleKidsModeGet))
 	mux.HandleFunc("POST /api/kids/mode", s.requireUser(s.parentOnly(s.handleKidsModeStart)))

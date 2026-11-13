@@ -19,7 +19,7 @@ func models() []any {
 		&userRow{}, &progressRow{}, &guestViewRow{},
 		&courseRow{}, &unitRow{}, &lessonRow{}, &lessonFileRow{}, &studioFileRow{},
 		&cliAuthSessionRow{}, &cliTokenRow{}, &courseChangeRow{},
-		&childRow{}, &childProgressRow{}, &childLessonRow{},
+		&childRow{}, &childProgressRow{}, &childLessonRow{}, &pairCodeRow{},
 	}
 }
 

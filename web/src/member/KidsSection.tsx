@@ -13,6 +13,9 @@ import kids from './KidsSection.module.css'
 // 會員空間「兒童」分頁(粗略版):家長設定兒童(暱稱、每週上課時段,最多 3 堂),並在這台裝置開啟兒童模式讓孩子上課。
 // 每次上課多久也由家長設定(最長 60 分鐘)。兒童模式下只顯示兒童課程,只有排入的時段打得開(伺服器判斷,台灣時間)。規則見 server/internal/store/kids.go。
 
+/** 一個家長帳號最多幾個孩子(同 server/internal/store/kids.go 的 MaxChildren) */
+const MAX_CHILDREN = 5
+
 /** 看完的兒童課與看完的時間(每個孩子自己的上課紀錄,GET /api/kids/children/{id}/lessons) */
 type Finished = { lessonId: string; at: Date }
 
@@ -83,6 +86,11 @@ export function KidsSection() {
           </button>
         </form>
       </section>
+      <PairPanel
+        unpaired={(children ?? []).filter((c) => !c.paired)}
+        full={(children ?? []).length >= MAX_CHILDREN}
+        onPaired={(c, replaced) => setChildren((list) => (replaced ? (list ?? []).map((x) => (x.id === c.id ? c : x)) : [...(list ?? []), c]))}
+      />
       {children === null ? (
         <p className={styles.muted}>{k.loading}</p>
       ) : children.length === 0 ? (
@@ -98,6 +106,8 @@ export function KidsSection() {
           />
         ))
       )}
+      {/* 這個帳號是小朋友的:沒有自己的孩子時才列出產生配對碼 */}
+      {children !== null && children.length === 0 ? <PairCodePanel /> : null}
     </>
   )
 }
@@ -156,6 +166,11 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
         <span className={kids.count}>
           {k.count(picked.length, MAX_PER_WEEK)}
         </span>
+        {child.paired ? (
+          <p className={kids.paired}>
+            🔗 已配對孩子的帳號：<strong>{child.accountLabel ?? '已配對的帳號'}</strong>。孩子用那個帳號登入就是兒童模式，只能在排好的時段上兒童課。
+          </p>
+        ) : null}
       </div>
       {picking ? (
         <div className={kids.avatars} role="radiogroup" aria-label={k.avatarsOf(child.name)}>
@@ -274,6 +289,21 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
         >
           {status === 'starting' ? k.starting : k.start}
         </button>
+        {child.paired ? (
+          <button
+            type="button"
+            className={kids.remove}
+            onClick={() => {
+              if (!window.confirm(`解除「${child.name}」和帳號「${child.accountLabel ?? ''}」的配對？孩子的帳號會回到一般帳號，孩子的進度與上課時間還留著。`)) return
+              void run('', async () => {
+                await kidsApi.unpair(child.id)
+                onChange({ ...child, paired: false, accountLabel: undefined })
+              })
+            }}
+          >
+            解除配對
+          </button>
+        ) : null}
         <button
           type="button"
           className={kids.remove}
@@ -342,5 +372,154 @@ function WeekList({ child, records }: { child: Child; records: Finished[] }) {
         ))}
       </ol>
     </div>
+  )
+}
+
+/** 家長:輸入孩子(已經有自己帳號)產生的配對碼,配成新的孩子,或接到還沒配對的孩子 */
+function PairPanel({ unpaired, full, onPaired }: { unpaired: Child[]; full: boolean; onPaired: (c: Child, replaced: boolean) => void }) {
+  const [code, setCode] = useState('')
+  const [target, setTarget] = useState('') // 空白 = 新增一個孩子
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const [done, setDone] = useState('')
+  const newDisabled = full
+  // 孩子滿了時只能接到既有的孩子;選的孩子不見了(例如剛配對完)回到預設
+  const chosen = target && unpaired.some((c) => c.id === target) ? target : newDisabled ? (unpaired[0]?.id ?? '') : ''
+  const ready = /^\d{6}$/.test(code) && !busy && (chosen !== '' || !newDisabled)
+
+  return (
+    <section className={styles.panel} aria-labelledby="kids-pair-title">
+      <h2 id="kids-pair-title" className={styles.panelTitle}>
+        配對已經有帳號的孩子
+      </h2>
+      <p className={styles.muted}>
+        孩子已經有自己的帳號時，請孩子登入自己的帳號，到會員空間的「兒童」分頁按「產生配對碼」，再把 6 位數的配對碼輸入這裡（10 分鐘內有效、只能用一次）。配對後孩子用自己的帳號登入就是兒童模式：只有兒童課，只在你排好的時段能上，孩子原本在兒童課的進度會一起併進來。
+      </p>
+      {error ? (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      ) : null}
+      {done ? (
+        <p className={styles.saved} role="status">
+          {done}
+        </p>
+      ) : null}
+      <form
+        className={kids.add}
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (!ready) return
+          setBusy(true)
+          setError('')
+          setDone('')
+          kidsApi.pair(code, chosen || undefined).then(
+            (c) => {
+              onPaired(c, chosen !== '')
+              setCode('')
+              setTarget('')
+              setDone(`已配對：${c.name}${c.accountLabel && c.accountLabel !== c.name ? `（${c.accountLabel}）` : ''}。接著替他排上課時段。`)
+              setBusy(false)
+            },
+            (err: unknown) => {
+              setError(err instanceof Error ? err.message : String(err))
+              setBusy(false)
+            },
+          )
+        }}
+      >
+        <div className={styles.field}>
+          <label htmlFor="kid-pair-code">配對碼</label>
+          <input
+            id="kid-pair-code"
+            value={code}
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={6}
+            placeholder="6 位數"
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+          />
+        </div>
+        <div className={styles.field}>
+          <label htmlFor="kid-pair-target">配給</label>
+          <select id="kid-pair-target" value={chosen} onChange={(e) => setTarget(e.target.value)}>
+            <option value="" disabled={newDisabled}>
+              新增一個孩子
+            </option>
+            {unpaired.map((c) => (
+              <option key={c.id} value={c.id}>
+                接到「{c.name}」
+              </option>
+            ))}
+          </select>
+        </div>
+        <button type="submit" className={styles.primary} disabled={!ready}>
+          {busy ? '配對中…' : '配對'}
+        </button>
+      </form>
+    </section>
+  )
+}
+
+/** 孩子(這個帳號是小朋友的):產生配對碼,給家長輸入;顯示剩下的有效時間 */
+function PairCodePanel() {
+  const [code, setCode] = useState<{ code: string; expiresAt: number } | null>(null)
+  const [left, setLeft] = useState(0)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (!code) return
+    const tick = () => setLeft(Math.max(0, Math.round((code.expiresAt - Date.now()) / 1000)))
+    tick()
+    const id = window.setInterval(tick, 1000)
+    return () => window.clearInterval(id)
+  }, [code])
+
+  const expired = code !== null && left === 0
+  return (
+    <section className={styles.panel} aria-labelledby="kids-code-title">
+      <h2 id="kids-code-title" className={styles.panelTitle}>
+        我是小朋友，要讓家長配對
+      </h2>
+      <p className={styles.muted}>
+        如果這個帳號是小朋友自己的，按「產生配對碼」，再請家長用自己的帳號，在會員空間的「兒童」分頁輸入這組 6 位數的配對碼。配對之後，這個帳號會變成兒童模式：只有兒童課，而且只在家長排好的時段能上。
+      </p>
+      {error ? (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      ) : null}
+      {code && !expired ? (
+        <p className={kids.code} role="status" aria-label={`配對碼 ${code.code.split('').join(' ')}`}>
+          <strong>{code.code}</strong>
+          <span>
+            還有 {Math.floor(left / 60)}:{String(left % 60).padStart(2, '0')} 有效
+          </span>
+        </p>
+      ) : null}
+      {expired ? <p className={styles.muted}>配對碼已經過期，請再產生一組。</p> : null}
+      <button
+        type="button"
+        className={styles.secondary}
+        disabled={busy}
+        onClick={() => {
+          setBusy(true)
+          setError('')
+          kidsApi.pairCode().then(
+            (r) => {
+              setCode({ code: r.code, expiresAt: new Date(r.expiresAt).getTime() })
+              setBusy(false)
+            },
+            (e: unknown) => {
+              setError(e instanceof Error ? e.message : String(e))
+              setBusy(false)
+            },
+          )
+        }}
+      >
+        {busy ? '產生中…' : code && !expired ? '重新產生' : '產生配對碼'}
+      </button>
+    </section>
   )
 }

@@ -84,3 +84,11 @@
 /* 儲存上課設定:沒有變更時是「不能點」的游標;真的在儲存時才是忙碌中(會員空間的 secondary 停用時一律是 progress,是給「登出中…」用的) */
 button.save:disabled { cursor: not-allowed; }
 button.save[aria-busy='true'] { cursor: progress; }
+
+/* 配對:孩子檔案上的配對說明、孩子的配對碼 */
+.paired { flex-basis: 100%; margin: 4px 0 0; color: var(--site-muted); font-size: 14px; line-height: 1.6; }
+.paired strong { color: var(--site-text); }
+.code { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 14px; }
+.code strong { font-size: 40px; letter-spacing: 0.18em; font-variant-numeric: tabular-nums; }
+.code span { color: var(--site-muted); font-size: 14px; }
+.add select { width: 100%; min-height: 44px; padding: 10px 14px; border: 1px solid var(--site-border); border-radius: 10px; background: var(--site-surface); color: var(--site-text); font: inherit; font-size: 16px; }

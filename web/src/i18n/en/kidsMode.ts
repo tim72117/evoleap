@@ -19,4 +19,6 @@ export const kidsMode: Messages['kidsMode'] = {
   active: 'In Kids Mode',
   leaving: 'Leaving…',
   leave: 'Leave Kids Mode',
+  loggingOut: 'Signing out…',
+  logout: 'Sign out',
 }

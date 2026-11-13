@@ -55,7 +55,7 @@ export function simulatedKidsMode(now: Date): KidsMode {
   const endsAt = new Date(start.getTime() + 60 * 60_000).toISOString()
   return {
     active: true,
-    child: { id: 'simulated', name: messages().kidsMode.simulatedChild, avatar: '🐣', slots: sortSlots([current, later]), minutes: 60, createdAt: now.toISOString() },
+    child: { id: 'simulated', name: messages().kidsMode.simulatedChild, avatar: '🐣', slots: sortSlots([current, later]), minutes: 60, createdAt: now.toISOString(), paired: false },
     schedule: { open: true, current, endsAt, next: later },
   }
 }

@@ -14,6 +14,9 @@ import (
 // loginEmailLimit 是同一個 Email 每分鐘可嘗試密碼登入的次數,防止從多個 IP 猜同一個帳號。
 const loginEmailLimit = 10
 
+// pairTryLimit 是每位家長(與每個來源 IP)每 10 分鐘可以嘗試輸入配對碼的次數:碼只有 6 位數,不限次數就能猜。
+const pairTryLimit = 10
+
 // rateLimiterMaxKeys 是清理過期紀錄的門檻,避免偽造大量 key 把記憶體用完。
 const rateLimiterMaxKeys = 10000
 

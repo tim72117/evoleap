@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/tim72117/evoleap/internal/auth"
 	"github.com/tim72117/evoleap/internal/store"
 )
 
@@ -213,4 +214,151 @@ func serve(h http.Handler, req *http.Request) *httptest.ResponseRecorder {
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
 	return rec
+}
+
+// 配對:孩子的帳號產生配對碼 → 家長輸入 → 孩子本人用自己的帳號登入就是兒童模式(只有兒童課、只在家長排的時段、不能離開、不能改設定)
+func TestKidsPairFlow(t *testing.T) {
+	env := newAdminEnv(t, "")
+	dir := t.TempDir()
+	for _, p := range []string{"kid.json", "tool.json"} {
+		if err := os.WriteFile(filepath.Join(dir, p), []byte(`{"from":"`+p+`"}`), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	kidsUnits := `[{"id":"0","title":"序章","lessons":[{"id":"0.2","title":"二","status":"open","script":"kid.json"}]}]`
+	toolUnits := `[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"open","script":"tool.json"}]}]`
+	for id, units := range map[string]string{"kids": kidsUnits, "tools": toolUnits} {
+		if err := env.st.ReplaceUnitsJSON(id, units); err != nil {
+			t.Fatal(err)
+		}
+	}
+	seed := `[{"id":"kids","title":"k","access":"login-free","units":` + kidsUnits + `},{"id":"tools","title":"t","access":"login-free","units":` + toolUnits + `}]`
+	if err := env.st.SyncLessonFilesJSON(context.Background(), []byte(seed), dir); err != nil {
+		t.Fatal(err)
+	}
+	at := time.Date(2026, 11, 10, 15, 30, 0, 0, store.KidsZone) // 週二 15:30
+	kidsNow = func() time.Time { return at }
+	t.Cleanup(func() { kidsNow = time.Now })
+
+	parent := registerCookie(t, env.h, "mom@example.com")
+	kid := registerCookie(t, env.h, "kid@example.com")
+	do := func(c *http.Cookie, method, path, body string) *httptestRec {
+		req := newReq(method, path, body)
+		req.AddCookie(c)
+		return serve(env.h, req)
+	}
+
+	// 孩子產生配對碼
+	rec := do(kid, http.MethodPost, "/api/kids/pair-code", "")
+	var pc struct {
+		Code      string
+		ExpiresAt time.Time
+	}
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &pc) != nil || len(pc.Code) != 6 {
+		t.Fatalf("產生配對碼: %d %s", rec.Code, rec.Body)
+	}
+	if rec := serve(env.h, newReq(http.MethodPost, "/api/kids/pair-code", "")); rec.Code != http.StatusUnauthorized {
+		t.Errorf("未登入產生配對碼: %d", rec.Code)
+	}
+	// 家長輸入錯的碼、自己的碼
+	if rec := do(parent, http.MethodPost, "/api/kids/children/pair", `{"code":"000000"}`); rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "invalid_pair_code") {
+		t.Errorf("錯的碼: %d %s", rec.Code, rec.Body)
+	}
+	// 配對:新增一個孩子
+	rec = do(parent, http.MethodPost, "/api/kids/children/pair", `{"code":"`+pc.Code+`"}`)
+	var paired struct{ Child store.Child }
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &paired) != nil || !paired.Child.Paired || paired.Child.Name != "Amy" {
+		t.Fatalf("配對: %d %s", rec.Code, rec.Body)
+	}
+	id := paired.Child.ID
+	if strings.Contains(rec.Body.String(), "kid@example.com") || strings.Contains(rec.Body.String(), "accountUserID") {
+		t.Errorf("不能輸出孩子帳號的 Email 與 id: %s", rec.Body)
+	}
+	if rec := do(parent, http.MethodPost, "/api/kids/children/pair", `{"code":"`+pc.Code+`"}`); rec.Code != http.StatusBadRequest {
+		t.Errorf("碼用過了: %d", rec.Code)
+	}
+	if rec := do(kid, http.MethodPost, "/api/kids/pair-code", ""); rec.Code != http.StatusForbidden {
+		t.Errorf("配對之後孩子本人不能再產生碼(已在兒童模式): %d %s", rec.Code, rec.Body)
+	}
+
+	// 家長排時段(週二 16:00,30 分鐘)
+	if rec := do(parent, http.MethodPatch, "/api/kids/children/"+id, `{"slots":[{"day":1,"time":"16:00"}],"minutes":30}`); rec.Code != http.StatusOK {
+		t.Fatalf("排時段: %d %s", rec.Code, rec.Body)
+	}
+
+	// 孩子本人登入(沒有兒童模式的 cookie):兒童模式自己就開著,而且不能離開
+	mode := do(kid, http.MethodGet, "/api/kids/mode", "").Body.String()
+	if !strings.Contains(mode, `"active":true`) || !strings.Contains(mode, `"self":true`) {
+		t.Errorf("孩子本人的兒童模式: %s", mode)
+	}
+	if rec := do(kid, http.MethodDelete, "/api/kids/mode", ""); rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "kids_parent_only") {
+		t.Errorf("孩子本人離開兒童模式: %d %s", rec.Code, rec.Body)
+	}
+	// 家長自己的裝置沒有開兒童模式:不受影響
+	if mode := do(parent, http.MethodGet, "/api/kids/mode", "").Body.String(); !strings.Contains(mode, `"active":false`) {
+		t.Errorf("家長不在兒童模式: %s", mode)
+	}
+	// 時段外:兒童課打不開;其他課不給;時段內兒童課打得開
+	if rec := do(kid, http.MethodGet, "/api/scripts/kid.json", ""); rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "週二 16:00") {
+		t.Errorf("時段外: %d %s", rec.Code, rec.Body)
+	}
+	if rec := do(kid, http.MethodGet, "/api/scripts/tool.json", ""); rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "kids_only") {
+		t.Errorf("其他課: %d %s", rec.Code, rec.Body)
+	}
+	at = time.Date(2026, 11, 10, 16, 10, 0, 0, store.KidsZone)
+	if rec := do(kid, http.MethodGet, "/api/scripts/kid.json", ""); rec.Code != http.StatusOK {
+		t.Errorf("時段內: %d %s", rec.Code, rec.Body)
+	}
+	// 孩子本人看完一課:進度與上課紀錄記在孩子底下,家長看得到
+	if rec := do(kid, http.MethodPut, "/api/progress", `{"lesson":"kids:kid.json","positionMs":59000,"durationMs":60000}`); rec.Code != http.StatusNoContent {
+		t.Fatalf("看完: %d %s", rec.Code, rec.Body)
+	}
+	rec = do(parent, http.MethodGet, "/api/kids/children/"+id+"/lessons", "")
+	if !strings.Contains(rec.Body.String(), "kids:kid.json") {
+		t.Errorf("家長看到的上課紀錄: %s", rec.Body)
+	}
+	// 孩子本人不能改家長的設定
+	for _, c := range []struct{ method, path, body string }{
+		{http.MethodPatch, "/api/kids/children/" + id, `{"slots":[]}`},
+		{http.MethodPost, "/api/kids/children", `{"name":"x"}`},
+		{http.MethodPost, "/api/kids/children/pair", `{"code":"123456"}`},
+		{http.MethodDelete, "/api/kids/children/" + id + "/pair", ""},
+	} {
+		if rec := do(kid, c.method, c.path, c.body); rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "kids_parent_only") {
+			t.Errorf("孩子本人 %s %s: %d %s", c.method, c.path, rec.Code, rec.Body)
+		}
+	}
+
+	// 家長解除配對:孩子的帳號回到一般帳號(不再是兒童模式),孩子檔案還在
+	if rec := do(parent, http.MethodDelete, "/api/kids/children/"+id+"/pair", ""); rec.Code != http.StatusNoContent {
+		t.Fatalf("解除配對: %d %s", rec.Code, rec.Body)
+	}
+	if mode := do(kid, http.MethodGet, "/api/kids/mode", "").Body.String(); !strings.Contains(mode, `"active":false`) {
+		t.Errorf("解除之後: %s", mode)
+	}
+	if rec := do(kid, http.MethodGet, "/api/scripts/tool.json", ""); rec.Code != http.StatusOK {
+		t.Errorf("解除之後看其他課: %d", rec.Code)
+	}
+	if rec := do(parent, http.MethodGet, "/api/kids/children", ""); !strings.Contains(rec.Body.String(), id) {
+		t.Errorf("孩子檔案還在: %s", rec.Body)
+	}
+}
+
+// 配對碼只有 6 位數:每位家長、每個來源 IP 都限制嘗試次數(對錯都算)
+func TestKidsPairCodeRateLimit(t *testing.T) {
+	st := openTestStore(t)
+	h := New(Config{Store: st, Signer: auth.NewSigner("test-secret", time.Hour), AuthRateLimit: 1000}).Routes()
+	parent := registerCookie(t, h, "mom@example.com")
+	var last int
+	for i := 0; i < pairTryLimit+3; i++ {
+		req := newReq(http.MethodPost, "/api/kids/children/pair", `{"code":"000000"}`)
+		req.AddCookie(parent)
+		last = serve(h, req).Code
+		if i < pairTryLimit && last != http.StatusBadRequest {
+			t.Fatalf("第 %d 次: %d", i+1, last)
+		}
+	}
+	if last != http.StatusTooManyRequests {
+		t.Errorf("超過次數: %d", last)
+	}
 }
