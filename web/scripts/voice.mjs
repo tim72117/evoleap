@@ -7,6 +7,7 @@
 //   npm run voice -- l0/0.0-tools.json --limit 10     只產生前 10 段旁白(試做用)
 //   npm run voice -- --sample "一句旁白" --voices Sulafat,Kore,Charon   試聽:各聲音念同一句,輸出到 recordings/voice-samples/
 //   npm run voice -- --sample "一句旁白" --profile kids   用兒童版的語氣試聽(kids/ 底下的腳本自動用兒童版)
+//   npm run voice -- --sample "一句旁白" --profile news   用科技新聞播報版試聽(科技新知、週報、快訊;腳本寫 "voice": { "profile": "news" } 套用)
 //   npm run voice -- --sample "一句旁白" --profile showcase   用展示版試聽(行銷展示影片;腳本寫 "voice": { "profile": "showcase" } 套用)
 //   npm run voice -- --batch web/1.1.json web/1.2.json   批次模式:缺的旁白整包送出(Gemini Batch API,約一半價格,24 小時內完成,通常快很多),
 //                                                不用等;送出的批次記在 recordings/voice-batch.json(不進版控)。也可以 --all --batch
@@ -50,10 +51,15 @@ const SHOWCASE = {
   voice: 'Zephyr',
   style: '台灣華語，行銷展示影片的旁白：明亮、有自信、有活力，像在介紹一個讓人期待的新東西；咬字清楚、節奏明快緊湊，語速比一般說話快、句子之間停頓短，但不急促，重點詞稍微加重，句尾帶著笑意、讓人想試試看',
 }
-const PROFILES = { default: DEFAULTS, kids: KIDS, showcase: SHOWCASE }
+// 科技新聞播報版(科技新知、週報、快訊):沉穩專業、清楚俐落,像科技頻道的主播;腳本頂層寫 "voice": { "profile": "news" } 套用,試聽用 --profile news
+const NEWS = {
+  ...DEFAULTS,
+  style: '台灣華語，科技新聞播報：語氣沉穩專業、清楚俐落，像財經科技頻道的主播；節奏明快但不趕、句子之間停頓短，數字與專有名詞咬字特別清楚，重點詞稍微加重，句尾收得乾脆，不過度熱情也不拖長',
+}
+const PROFILES = { default: DEFAULTS, kids: KIDS, showcase: SHOWCASE, news: NEWS }
 const isKidsPath = (rel) => rel.split(path.sep).join('/').startsWith('kids/')
 /**
- * 腳本用哪一組設定:腳本的 voice.profile(default、kids、showcase)優先,沒寫時 kids/ 底下用兒童版、其他用預設;
+ * 腳本用哪一組設定:腳本的 voice.profile(default、kids、showcase、news)優先,沒寫時 kids/ 底下用兒童版、其他用預設;
  * 腳本 voice 欄位的其他鍵(voice、style、model)再覆寫
  */
 function configOf(rel, script) {

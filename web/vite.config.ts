@@ -81,6 +81,46 @@ function courseMapFile(): Plugin {
   }
 }
 
+// 試聽語音頁(/materials/voice-samples):列出並提供 recordings/voice-samples/ 底下的 mp3(npm run voice -- --sample 的輸出)。
+// 只在開發時存在、唯讀;recordings/ 不進版控,檔案只在本機。路徑限定在該資料夾內,/__studio/ 本身已由 devStudioGate 擋管理員。
+function voiceSamples(): Plugin {
+  const root = path.resolve(import.meta.dirname, 'recordings/voice-samples')
+  const walk = (dir: string): string[] =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : e.name.endsWith('.mp3') ? [path.join(dir, e.name)] : []))
+  return {
+    name: 'voice-samples',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/__studio/voice-samples', (req, res, next) => {
+        if (req.method !== 'GET') return next()
+        let rel: string
+        try {
+          rel = decodeURIComponent((req.url ?? '/').split('?')[0]).replace(/^\/+/, '')
+        } catch {
+          res.statusCode = 404 // 壞掉的網址編碼
+          return void res.end()
+        }
+        if (!rel) {
+          const files = fs.existsSync(root)
+            ? walk(root).map((f) => ({ path: path.relative(root, f).split(path.sep).join('/'), bytes: fs.statSync(f).size, mtime: fs.statSync(f).mtimeMs }))
+            : []
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.setHeader('Cache-Control', 'no-store')
+          return void res.end(JSON.stringify({ files }))
+        }
+        const file = path.resolve(root, rel)
+        if (!file.startsWith(root + path.sep) || !file.endsWith('.mp3') || !fs.existsSync(file)) {
+          res.statusCode = 404
+          return void res.end()
+        }
+        res.setHeader('Content-Type', 'audio/mpeg')
+        res.setHeader('Cache-Control', 'no-store')
+        fs.createReadStream(file).pipe(res)
+      })
+    },
+  }
+}
+
 // 開發時也擋研發基地:向本機 Go server 確認登入的是不是管理員(判定條件與正式環境相同)。
 // 例外:scripts/record-live.mjs 錄影時帶本機的 token(存在 node_modules/.cache,不進版控);
 // 要在本機略過檢查時用 DEV_OPEN_STUDIO=1 npm run dev。
@@ -158,7 +198,7 @@ function internalBundleGuard(): Plugin {
 // 開發時 /api 轉發到本機 Go server(go run ./cmd/server,預設 :8190),
 // 正式環境前端由 Go server 以 go:embed 提供,同源不需要 proxy。
 export default defineConfig({
-  plugins: [react(), seoDevFiles(), devStudioGate(), courseMapFile(), internalBundleGuard()],
+  plugins: [react(), seoDevFiles(), devStudioGate(), courseMapFile(), voiceSamples(), internalBundleGuard()],
   build: {
     rollupOptions: {
       output: {

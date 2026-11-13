@@ -32,6 +32,13 @@ const TOOLS: Tool[] = [
     path: 'web/src/studio/materials/PromoPage.tsx · web/scripts/record-live.mjs · web/src/content/live/promo/',
   },
   {
+    title: '試聽語音',
+    body: '列出本機試聽用的語音檔（npm run voice -- --sample 的輸出），每個加播放器，方便比較不同聲音。檔案不進 git。',
+    how: '網頁（只有本機開發站）；產生：在 web/ 執行 npm run voice -- --sample "一句旁白" --voices Charon,Kore',
+    links: [{ to: '/materials/voice-samples', label: '開啟' }],
+    path: 'web/src/studio/materials/VoiceSamplesPage.tsx · web/recordings/voice-samples/',
+  },
+  {
     title: '封面設計',
     body: '繪製 L3 課程的長形與方形封面，另存成 PNG。',
     how: '網頁',
