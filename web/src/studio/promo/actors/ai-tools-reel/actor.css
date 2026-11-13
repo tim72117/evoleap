@@ -1,0 +1,20 @@
+/* ai-tools-reel 的外框:1080×1920 設計畫布(縮放由 actor.ts 設定);畫面全是 SVG */
+.A-ai-tools-reel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff3e2;
+}
+.A-ai-tools-reel .atr-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1080px;
+  height: 1920px;
+  transform-origin: 0 0;
+}
+.A-ai-tools-reel .atr-canvas svg {
+  display: block;
+  width: 1080px;
+  height: 1920px;
+}
