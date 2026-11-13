@@ -385,10 +385,21 @@ else:
     r.engine = "BLENDER_EEVEE_NEXT"; e = scene.eevee; e.taa_render_samples = SAMPLES[PRESET]
     e.use_raytracing = True; e.use_shadows = True
 # compositor: soft bloom / glare for the glowing parts
-scene.use_nodes = True; ct = scene.node_tree; ct.nodes.clear()
-rl_n = ct.nodes.new("CompositorNodeRLayers"); gl = ct.nodes.new("CompositorNodeGlare"); cp = ct.nodes.new("CompositorNodeComposite")
-gl.glare_type = "FOG_GLOW"; gl.threshold = 1.2; gl.quality = "HIGH"; gl.size = 7; gl.mix = -0.5
-ct.links.new(rl_n.outputs["Image"], gl.inputs["Image"]); ct.links.new(gl.outputs["Image"], cp.inputs["Image"])
+if hasattr(scene, "compositing_node_group"):
+    # Blender 5.x: 合成節點放在 node group(Scene.node_tree 與 Composite 節點已移除);Glare 的參數改成輸入插座,
+    # size 是 0–1(舊的 1–9 對應 2^(size-9)),mix(-1..1)改成 strength(0–1,這裡取 (1+mix)/2)
+    ng = bpy.data.node_groups.new("robot-office-compositor", "CompositorNodeTree"); scene.compositing_node_group = ng
+    ng.interface.new_socket("Image", in_out="OUTPUT", socket_type="NodeSocketColor")
+    rl_n = ng.nodes.new("CompositorNodeRLayers"); gl = ng.nodes.new("CompositorNodeGlare"); go = ng.nodes.new("NodeGroupOutput")
+    gl.inputs["Type"].default_value = "Fog Glow"; gl.inputs["Quality"].default_value = "High"
+    gl.inputs["Threshold"].default_value = 1.2; gl.inputs["Size"].default_value = 2 ** (7 - 9); gl.inputs["Strength"].default_value = 0.25
+    ng.links.new(rl_n.outputs["Image"], gl.inputs["Image"]); ng.links.new(gl.outputs["Image"], go.inputs["Image"])
+else:
+    # Blender 4.x
+    scene.use_nodes = True; ct = scene.node_tree; ct.nodes.clear()
+    rl_n = ct.nodes.new("CompositorNodeRLayers"); gl = ct.nodes.new("CompositorNodeGlare"); cp = ct.nodes.new("CompositorNodeComposite")
+    gl.glare_type = "FOG_GLOW"; gl.threshold = 1.2; gl.quality = "HIGH"; gl.size = 7; gl.mix = -0.5
+    ct.links.new(rl_n.outputs["Image"], gl.inputs["Image"]); ct.links.new(gl.outputs["Image"], cp.inputs["Image"])
 
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(RENDERS, "robot-office.blend"))
 r.filepath = os.path.join(RENDERS, f"{OUT}.png")
