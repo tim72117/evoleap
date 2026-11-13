@@ -104,3 +104,26 @@ func (s *Server) courseAccess(r *http.Request, id string) (courseAccessResponse,
 	}
 	return result, nil
 }
+
+// subscribedFor 回傳使用者的有效訂閱是否包含這門課需要的方案(進階包含基礎);沒接訂閱、沒寫方案或方案不存在一律不放行。
+func (s *Server) subscribedFor(r *http.Request, userID, courseID string) (bool, error) {
+	if s.cfg.Subscriptions == nil || s.cfg.Store == nil {
+		return false, nil
+	}
+	_, tier, err := s.cfg.Store.CourseAccess(r.Context(), courseID)
+	if errors.Is(err, store.ErrCourseNotFound) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	need := subscription.Tier(tier)
+	if _, ok := s.cfg.Subscriptions.Plan(need); !ok {
+		return false, nil
+	}
+	sub, subscribed, err := s.cfg.Subscriptions.Current(r.Context(), userID)
+	if err != nil {
+		return false, err
+	}
+	return subscribed && s.cfg.Subscriptions.Includes(sub.Tier, need), nil
+}

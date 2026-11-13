@@ -6,8 +6,8 @@
 
 - **Paddle 移進訂閱套件**：`packages/subscription/go/paddle` 實作金流商介面 `Provider`，`POST /api/paddle/webhook` 改由套件接收訂閱事件並寫入 `subscriptions` 資料表；全額退款或爭議款會立即停權並停止續訂。移除單門購買的 `purchases` 資料表與 `GET /api/purchases`。新增 `POST /api/plan/checkout` 與 `POST /api/plan/manage`；扣款重試期間（`past_due`）保留權限。移除課程的單門價格欄位、`GET /api/courses` 與後台設定課程價格的 API。訂閱分月繳與年繳：價格放在訂閱套件的方案（`Plan.Prices`），新增 `GET /api/plan/plans`，收費頁接上兩個週期的結帳與管理訂閱，沒有設定價格時按鈕停用。Paddle 的環境與 client token 改由 `GET /api/plan/plans` 提供，不用在前端 build 時設定；webhook 寫入改在 transaction 內鎖定紀錄；啟動時檢查方案資料。新增金流防護：事件與處理結果寫進 `subscription_events` 並長期保存（隱私權政策已寫明），權限看當期結束時間加 7 天寬限期（扣款重試期間最多 35 天），重複訂閱不覆蓋原本的紀錄並停止續訂。新增 `subscription_payments`，由 `transaction.completed` 記下每筆款項的交易編號與付款時間；隱私權政策改成實際保存的欄位，拿掉當期開始時間與取消時間。還沒有對 Paddle sandbox 實際測試。
 - **訂閱架構調整**：`subscriptions` 改成每筆 Paddle 訂閱一列，權限看使用者有沒有任一筆有效，舊訂閱的事件不再影響新訂閱。webhook 在同一個交易內寫入事件、訂閱與工作，取消訂閱改由背景重試，Paddle 出錯不會讓事件失敗；事件原始內容保存 90 天，管理員可用 `POST /api/admin/subscription-events/{id}/replay` 重新處理。退款比訂閱事件先到時不再要求重送。事件帶的帳號要確認存在，也可以從交易補上訂閱的帳號。
-- **帳號刪除**：新增 `DELETE /api/admin/users/{id}`，刪除帳號與播放進度、排入取消訂閱，訂閱與付款紀錄保留；隱私權政策同步說明。
-- **課程權限由後端判斷**：課程的存取方式只寫在 `courses_seed.json`，啟動時同步進 `courses` 資料表，前端 `levels.ts` 讀同一份；新增 `GET /api/courses/{id}/access` 與前端訂閱閘門。訂閱課程的內容還沒有從公開 bundle 移出，L2 上架前要處理。
+- **帳號刪除**：新增 `DELETE /api/admin/users/{id}`，刪除帳號、播放進度、孩子（連同孩子的進度與上課紀錄）與 CLI 登入，排入取消訂閱，訂閱與付款紀錄保留；隱私權政策同步說明。
+- **課程權限由後端判斷**：課程的存取方式只寫在 `courses_seed.json`，啟動時同步進 `courses` 資料表，前端 `levels.ts` 讀同一份；新增 `GET /api/courses/{id}/access` 與前端訂閱閘門；訂閱課程的腳本檔（`GET /api/scripts/{path}`）改成有效訂閱且方案包含這門課就能拿到。訂閱課程的內容還沒有從公開 bundle 移出，L2 上架前要處理。
 - **收費頁顯示訂閱狀態**：`GET /api/plan/me` 回傳 `subscribed`、狀態、到期日與排定取消，收費頁顯示續訂日、結束日與扣款失敗提醒；管理訂閱改用 Paddle 顧客入口，可以直接換卡。
 - **L3、L4 定為訂閱專屬**：除了免費與登入後免費，其他課程都要訂閱，拿掉「尚未決定」的存取狀態；收費頁的「規劃中的課程」併入訂閱方案，移除前端單門販售的程式。
 

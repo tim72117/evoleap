@@ -98,3 +98,40 @@ func TestLessonFileWithoutStore(t *testing.T) {
 		}
 	}
 }
+
+// 訂閱課程的腳本:要有包含這門課所需方案的有效訂閱;基礎方案看不到進階課
+func TestLessonFileSubscription(t *testing.T) {
+	st := openTestStore(t)
+	h, _ := newPaddleServerOn(t, st)
+	dir := t.TempDir()
+	for _, p := range []string{"basic.json", "adv.json"} {
+		if err := os.WriteFile(filepath.Join(dir, p), []byte(`{"from":"`+p+`"}`), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	unitsOf := func(script string) string {
+		return `[{"id":"1","title":"一","lessons":[{"id":"1.1","title":"一","status":"open","script":"` + script + `"}]}]`
+	}
+	if err := st.ReplaceUnitsJSON("vibe-coding-basics", unitsOf("basic.json")); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.ReplaceUnitsJSON("ai-agent", unitsOf("adv.json")); err != nil {
+		t.Fatal(err)
+	}
+	seed := `[{"id":"vibe-coding-basics","title":"b","access":"subscription","tier":"basic","units":` + unitsOf("basic.json") + `},` +
+		`{"id":"ai-agent","title":"a","access":"subscription","tier":"advanced","units":` + unitsOf("adv.json") + `}]`
+	if err := st.SyncLessonFilesJSON(context.Background(), []byte(seed), dir); err != nil {
+		t.Fatal(err)
+	}
+	amy, amyID := registerUser(t, h, "amy@example.com")
+	check := func(name, path string, code int) {
+		t.Helper()
+		if rec := call(h, http.MethodGet, "/api/scripts/"+path, "", amy); rec.Code != code {
+			t.Errorf("%s: %d %s", name, rec.Code, rec.Body)
+		}
+	}
+	check("沒訂閱", "basic.json", http.StatusForbidden)
+	deliver(t, h, subscriptionEvent("active", amyID, "pri_sub"))
+	check("基礎方案看基礎課", "basic.json", http.StatusOK)
+	check("基礎方案不能看進階課", "adv.json", http.StatusForbidden)
+}
