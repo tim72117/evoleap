@@ -5,6 +5,7 @@ import styles from '../auth/UserMenu.module.css'
 import kids from './KidsCapsule.module.css'
 import { SimulationMenuItems } from '../auth/SimulationMenuItems'
 import { useKidsMode } from './KidsModeContext'
+import { useT } from '../i18n/I18nProvider'
 
 // 兒童模式時,頁首右上角的膠囊頭像換成兒童(暱稱);按下後可以離開兒童模式,回到家長的會員空間。
 // 外觀沿用帳號選單(auth/UserMenu)。粗略版離開不用家長確認(待決定,見研發基地 /studio/kids-family)。
@@ -16,6 +17,7 @@ export function KidsCapsule({ name, avatar }: { name: string; avatar: string }) 
   const [busy, setBusy] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuId = useId()
+  const k = useT().kidsMode
 
   useEffect(() => {
     if (!open) return
@@ -34,11 +36,11 @@ export function KidsCapsule({ name, avatar }: { name: string; avatar: string }) 
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        aria-label={`兒童模式:${name}`}
+        aria-label={k.capsuleLabel(name)}
         onClick={() => setOpen((v) => !v)}
       >
         <span className={`${styles.avatar} ${kids.emoji}`} aria-hidden="true">
-          {avatar || ([...name][0] ?? '童')}
+          {avatar || ([...name][0] ?? k.avatarFallback)}
         </span>
         <span className={styles.name}>{name}</span>
         <svg className={styles.caret} width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
@@ -46,12 +48,12 @@ export function KidsCapsule({ name, avatar }: { name: string; avatar: string }) 
         </svg>
       </button>
       {open ? (
-        <div id={menuId} className={styles.menu} role="menu" aria-label="兒童模式">
+        <div id={menuId} className={styles.menu} role="menu" aria-label={k.menuLabel}>
           <div className={styles.identity}>
             <strong>
               {avatar} {name}
             </strong>
-            <span>兒童模式中</span>
+            <span>{k.active}</span>
           </div>
           {/* 管理員模擬兒童模式時:可以直接換成別的身分 */}
           <SimulationMenuItems onPick={() => setOpen(false)} />
@@ -71,7 +73,7 @@ export function KidsCapsule({ name, avatar }: { name: string; avatar: string }) 
               }
             }}
           >
-            {busy ? '離開中…' : '離開兒童模式'}
+            {busy ? k.leaving : k.leave}
           </button>
         </div>
       ) : null}

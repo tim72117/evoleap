@@ -13,9 +13,11 @@ import (
 
 // User 是對外使用的使用者資料(不含密碼雜湊)。
 type User struct {
-	ID        string    `json:"id"`
-	Email     string    `json:"email"`
-	Name      string    `json:"name"`
+	ID    string `json:"id"`
+	Email string `json:"email"`
+	Name  string `json:"name"`
+	// Locale:網站介面語言偏好("zh-Hant"、"en");空字串表示沒選過,前端依瀏覽器語言決定。
+	Locale    string    `json:"locale"`
 	CreatedAt time.Time `json:"createdAt"`
 	// GoogleVerified:這個帳號的 Email 經 Google 驗證過。密碼註冊不驗證 Email 所有權,
 	// 所以管理員身分只承認這種帳號(見 api/admin.go)。不對外輸出。
@@ -28,9 +30,10 @@ type userRow struct {
 	ID                 string  `gorm:"primaryKey;size:32"`
 	Email              string  `gorm:"uniqueIndex;size:320;not null"` // 一律小寫儲存
 	Name               string  `gorm:"size:100;not null"`
-	PasswordHash       string  `gorm:"size:200"`            // 只用 Google 登入的帳號為空
-	GoogleSub          *string `gorm:"uniqueIndex;size:64"` // Google 帳號的穩定 ID;未綁定為 NULL
-	SessionsValidAfter int64   `gorm:"not null;default:0"`  // 綁定 Google 時更新,讓先前的登入 cookie 失效
+	PasswordHash       string  `gorm:"size:200"`                    // 只用 Google 登入的帳號為空
+	GoogleSub          *string `gorm:"uniqueIndex;size:64"`         // Google 帳號的穩定 ID;未綁定為 NULL
+	SessionsValidAfter int64   `gorm:"not null;default:0"`          // 綁定 Google 時更新,讓先前的登入 cookie 失效
+	Locale             string  `gorm:"size:10;not null;default:''"` // 介面語言偏好,見 User.Locale
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
 }
@@ -38,7 +41,7 @@ type userRow struct {
 func (userRow) TableName() string { return "users" }
 
 func (r userRow) toUser() User {
-	return User{ID: r.ID, Email: r.Email, Name: r.Name, CreatedAt: r.CreatedAt, GoogleVerified: r.GoogleSub != nil, SessionsValidAfter: r.SessionsValidAfter}
+	return User{ID: r.ID, Email: r.Email, Name: r.Name, Locale: r.Locale, CreatedAt: r.CreatedAt, GoogleVerified: r.GoogleSub != nil, SessionsValidAfter: r.SessionsValidAfter}
 }
 
 // MaxEmailLen、MaxNameLen 是註冊與 Google 登入接受的長度上限,都在資料庫欄位長度之內。
@@ -182,10 +185,20 @@ func notFound(err error) error {
 	return err
 }
 
-// UpdateUserName 改使用者的顯示名稱(會員空間);name 由呼叫端先檢查過長度。使用者不存在時回傳 ErrNotFound。
-func (s *Store) UpdateUserName(ctx context.Context, id, name string) (User, error) {
-	db := s.db.WithContext(ctx)
-	res := db.Model(&userRow{}).Where("id = ?", id).Updates(map[string]any{"name": name, "updated_at": now()})
+// Locales 是網站介面支援的語言。
+var Locales = []string{"zh-Hant", "en"}
+
+// UpdateUserProfile 一次改使用者的顯示名稱與介面語言(nil 的不改);兩個欄位在同一個 UPDATE 裡寫入,不會只改到一半。
+// name 與 locale 由呼叫端先檢查過(名稱長度、locale 在 Locales 裡)。使用者不存在時回傳 ErrNotFound。
+func (s *Store) UpdateUserProfile(ctx context.Context, id string, name, locale *string) (User, error) {
+	updates := map[string]any{"updated_at": now()}
+	if name != nil {
+		updates["name"] = *name
+	}
+	if locale != nil {
+		updates["locale"] = *locale
+	}
+	res := s.db.WithContext(ctx).Model(&userRow{}).Where("id = ?", id).Updates(updates)
 	if res.Error != nil {
 		return User{}, res.Error
 	}
@@ -193,4 +206,14 @@ func (s *Store) UpdateUserName(ctx context.Context, id, name string) (User, erro
 		return User{}, ErrNotFound
 	}
 	return s.UserByID(ctx, id)
+}
+
+// UpdateUserName 改使用者的顯示名稱(會員空間);name 由呼叫端先檢查過長度。使用者不存在時回傳 ErrNotFound。
+func (s *Store) UpdateUserName(ctx context.Context, id, name string) (User, error) {
+	return s.UpdateUserProfile(ctx, id, &name, nil)
+}
+
+// UpdateUserLocale 更新使用者的介面語言偏好(呼叫端先確認 locale 在 Locales 裡)。
+func (s *Store) UpdateUserLocale(ctx context.Context, id, locale string) (User, error) {
+	return s.UpdateUserProfile(ctx, id, nil, &locale)
 }

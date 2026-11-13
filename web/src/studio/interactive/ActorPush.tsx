@@ -4,6 +4,7 @@ import { stageSize } from '../../live/place'
 import type { Stage } from '../../live/stage'
 import type { Aspect } from '../../live/types'
 import { clickInPage, type Answer, type Moment } from './scene'
+import { useT } from '../../i18n/I18nProvider'
 import styles from './InteractiveScenePage.module.css'
 
 // 把演員推到主畫面互動:整個舞台推近聚焦的目標、其他地方變暗,學員直接操作演員身上的選項與按鈕。
@@ -35,6 +36,7 @@ type Props = {
 }
 
 export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', inDrawer = false, onAnswer }: Props) {
+  const L = useT().player.scene
   const { w: STAGE_W, h: STAGE_H } = stageSize(aspect)
   const portrait = aspect === 'portrait'
   const [rects, setRects] = useState<Record<string, Rect>>({})
@@ -144,7 +146,7 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
                 }
           }
         >
-          <p className={styles.eyebrow}>換你動手</p>
+          <p className={styles.eyebrow}>{L.yourTurnHands}</p>
           <h2 ref={headRef} tabIndex={-1}>
             {moment.title}
           </h2>
@@ -152,7 +154,7 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
           {!choicesRect && chips.length > 0 && <div className={styles.pushChips}>{chips}</div>}
           {!moment.noSkip && (
             <button type="button" className={styles.skip} onClick={() => onAnswer({ skipped: true })}>
-              {moment.skip?.label ?? '略過，繼續看'}
+              {moment.skip?.label ?? L.skip}
             </button>
           )}
         </div>

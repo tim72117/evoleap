@@ -162,6 +162,12 @@ a[href].login:focus-visible,
   .trigger {
     padding-right: 8px;
   }
+
+  /* 手機上標頭很擠(英文的「Sign in」比「登入」寬):登入鈕縮小一點 */
+  a[href].login {
+    padding: 5px 12px;
+    font-size: 14px;
+  }
 }
 
 /* 選單裡的連結(會員空間):蓋過 SiteLayout 的 .site a 連結色 */

@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext'
 import { GATE_PREFIX, useGuestView } from './guestActivity'
 import { LoginDialog } from '../auth/LoginDialog'
 import { loginHref } from '../auth/paths'
+import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import styles from './LoginGate.module.css'
 
@@ -28,6 +29,7 @@ export function LoginGate({ kicker, title, docTitle, back, note, children }: Pro
   const { pathname, search } = useLocation()
   // 登入視窗:訪客一到門檻就打開;關掉後按「登入或註冊」再開
   const [dialog, setDialog] = useState(true)
+  const t = useT().courses.gate
   // 訪客看到登入門檻也記一筆(gate:<網址>),後台看得出有多少人卡在這裡
   const guest = useGuestView(status === 'guest' && !checkFailed ? GATE_PREFIX + pathname : null, () => false)
   if (status === 'user' || status === 'disabled') return <>{children}</>
@@ -40,10 +42,10 @@ export function LoginGate({ kicker, title, docTitle, back, note, children }: Pro
         {/* 確認登入狀態前只留標題,已登入的人不會閃過登入提示 */}
         {checkFailed && (
           <>
-            <p className={styles.note}>暫時無法確認登入狀態，請重新整理再試一次。</p>
+            <p className={styles.note}>{t.checkFailed}</p>
             <div className={styles.actions}>
               <button type="button" className={styles.primary} onClick={() => window.location.reload()}>
-                重新整理
+                {t.reload}
               </button>
               <Link to={back.to}>{back.label}</Link>
             </div>
@@ -61,7 +63,7 @@ export function LoginGate({ kicker, title, docTitle, back, note, children }: Pro
                   setDialog(true)
                 }}
               >
-                登入或註冊
+                {t.signInOrUp}
               </Link>
               <Link to={back.to}>{back.label}</Link>
             </div>

@@ -188,10 +188,10 @@ func (s *Server) kidsGate(w http.ResponseWriter, r *http.Request, user store.Use
 		}
 		return false
 	}
-	msg := "還沒到上課時間，請家長在會員空間排入上課時段"
 	if sch.Next != nil {
-		msg = "還沒到上課時間，下一堂是 " + store.SlotLabel(*sch.Next)
+		writeErrorWith(w, http.StatusForbidden, "kids_closed", "還沒到上課時間，下一堂是 "+store.SlotLabel(*sch.Next), map[string]any{"next": *sch.Next})
+		return true
 	}
-	writeError(w, http.StatusForbidden, "kids_closed", msg)
+	writeError(w, http.StatusForbidden, "kids_closed", "還沒到上課時間，請家長在會員空間排入上課時段")
 	return true
 }

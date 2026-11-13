@@ -6,6 +6,7 @@ import { AiAgentCoursePage } from './AiAgentCoursePage'
 import { CourseListPage } from './CourseListPage'
 import { CourseOverviewPage } from './CourseOverviewPage'
 import { COURSE_LIST } from '../content/topics'
+import { useT } from '../i18n/I18nProvider'
 import { lazyPage } from '../site/lazyPage'
 import { LoginGate } from './LoginGate'
 import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
@@ -24,18 +25,28 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )
   return requiresLogin(course, lesson) ? (
-    <LoginGate
-      key={lesson.id}
-      kicker={`${course.title} · ${lessonLabel(lesson)}`}
-      title={lesson.title}
-      docTitle={`${lessonLabel(lesson)} ${lesson.title}`}
-      back={{ to: coursePath(course), label: '回課程總覽' }}
-      note="序章可以直接預覽；第 0 課登入後免費觀看，之後的課程需要訂閱。登入後也會記錄你的播放進度。"
-    >
+    <GatedLesson key={lesson.id} course={course} lesson={lesson}>
       {page}
-    </LoginGate>
+    </GatedLesson>
   ) : (
     page
+  )
+}
+
+/** 要登入的單課頁:文字在渲染時取目前語言(路由表是模組層級建好的) */
+function GatedLesson({ course, lesson, children }: { course: Course; lesson: CourseLesson; children: JSX.Element }) {
+  const t = useT().courses
+  const label = lessonLabel(lesson)
+  return (
+    <LoginGate
+      kicker={`${course.title} · ${label}`}
+      title={lesson.title}
+      docTitle={`${label} ${lesson.title}`}
+      back={{ to: coursePath(course), label: t.backToOverview }}
+      note={t.gate.note}
+    >
+      {children}
+    </LoginGate>
   )
 }
 

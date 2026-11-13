@@ -1,17 +1,20 @@
 import { useId, useState, type FormEvent } from 'react'
 import { ApiError, authApi } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
+import { formatDate, useLocale, useT } from '../i18n/I18nProvider'
+import { isLocale, LOCALES, type Locale } from '../i18n/locale'
 import { nameProblem, NAME_MAX } from './name'
 import styles from './member.module.css'
 
 // 會員空間「帳號」分頁:帳號資訊與可修改的個人資料(顯示名稱)放在同一個區塊,另有登出。Email 是登入用的帳號,不在這裡改。
 
-const joinedFormat = new Intl.DateTimeFormat('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
-
-function joinedText(createdAt: string): string {
+function joinedText(createdAt: string, locale: Locale): string {
   const d = new Date(createdAt)
-  return Number.isNaN(d.getTime()) ? '—' : joinedFormat.format(d)
+  return Number.isNaN(d.getTime()) ? '—' : formatDate(d, locale)
 }
+
+/** 語言選單:每個語言用它自己的寫法顯示(不跟著介面語言翻) */
+const LOCALE_NAMES: Record<Locale, string> = { 'zh-Hant': '繁體中文', en: 'English' }
 
 export function ProfileSection() {
   const { real, setUser, logout, sessionExpired } = useAuth()
@@ -22,6 +25,9 @@ export function ProfileSection() {
   const [saved, setSaved] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
   const ids = useId()
+  const t = useT()
+  const p = t.member.profile
+  const { locale, setLocale } = useLocale()
 
   if (!user) return null
 
@@ -35,11 +41,11 @@ export function ProfileSection() {
     if (saving || !changed) return
     setSaved(false)
     if (!trimmed) {
-      setError('請輸入名稱')
+      setError(p.nameRequired)
       return
     }
     if (tooLong) {
-      setError(`名稱最多 ${NAME_MAX} 個字`)
+      setError(p.nameTooLong(NAME_MAX))
       return
     }
     const invalid = nameProblem(trimmed)
@@ -61,7 +67,7 @@ export function ProfileSection() {
         sessionExpired()
         return
       }
-      setError(err instanceof ApiError ? err.message : '連線失敗，請檢查網路後再試一次')
+      setError(err instanceof ApiError ? err.message : t.member.networkError)
     } finally {
       setSaving(false)
     }
@@ -71,11 +77,11 @@ export function ProfileSection() {
     <>
       <section className={styles.panel} aria-labelledby={`${ids}-account`}>
         <h2 id={`${ids}-account`} className={styles.panelTitle}>
-          帳號與個人資料
+          {p.title}
         </h2>
         <form className={styles.form} onSubmit={onSubmit} noValidate>
           <div className={styles.field}>
-            <label htmlFor={`${ids}-name`}>顯示名稱</label>
+            <label htmlFor={`${ids}-name`}>{p.displayName}</label>
             <input
               id={`${ids}-name`}
               type="text"
@@ -91,7 +97,7 @@ export function ProfileSection() {
               }}
             />
             <p id={`${ids}-name-hint`} className={tooLong ? styles.hintError : styles.hint}>
-              顯示在頁首的帳號選單，最多 {NAME_MAX} 個字（{length}/{NAME_MAX}）
+              {p.nameHint(NAME_MAX, length)}
             </p>
           </div>
           {error ? (
@@ -101,11 +107,11 @@ export function ProfileSection() {
           ) : null}
           <div className={styles.formActions}>
             <button type="submit" className={styles.primary} disabled={saving || !changed}>
-              {saving ? '儲存中…' : '儲存'}
+              {saving ? p.saving : p.save}
             </button>
             {saved ? (
               <span className={styles.saved} role="status">
-                已儲存
+                {p.saved}
               </span>
             ) : null}
           </div>
@@ -116,21 +122,42 @@ export function ProfileSection() {
             <dd>{user.email}</dd>
           </div>
           <div className={styles.fact}>
-            <dt>登入方式</dt>
-            <dd>{user.google ? 'Google 帳號' : 'Email 與密碼'}</dd>
+            <dt>{p.signInMethod}</dt>
+            <dd>{user.google ? p.google : p.emailPassword}</dd>
           </div>
           <div className={styles.fact}>
-            <dt>加入日期</dt>
-            <dd>{joinedText(user.createdAt)}</dd>
+            <dt>{p.joined}</dt>
+            <dd>{joinedText(user.createdAt, locale)}</dd>
           </div>
         </dl>
+        {/* 介面語言:選了馬上換,記在這個瀏覽器並存進帳號(I18nProvider 的 setLocale) */}
+        <div className={`${styles.field} ${styles.language}`}>
+          <label htmlFor={`${ids}-locale`}>{p.language}</label>
+          <select
+            id={`${ids}-locale`}
+            value={locale}
+            aria-describedby={`${ids}-locale-hint`}
+            onChange={(e) => {
+              if (isLocale(e.target.value)) setLocale(e.target.value)
+            }}
+          >
+            {LOCALES.map((l) => (
+              <option key={l} value={l} lang={l}>
+                {LOCALE_NAMES[l]}
+              </option>
+            ))}
+          </select>
+          <p id={`${ids}-locale-hint`} className={styles.hint}>
+            {p.languageHint}
+          </p>
+        </div>
       </section>
 
       <section className={styles.panel} aria-labelledby={`${ids}-session`}>
         <h2 id={`${ids}-session`} className={styles.panelTitle}>
-          登出
+          {p.signOutTitle}
         </h2>
-        <p className={styles.muted}>在這台裝置上登出。之後要記錄播放進度時再登入即可。</p>
+        <p className={styles.muted}>{p.signOutText}</p>
         <div className={styles.formActions}>
           <button
             type="button"
@@ -141,7 +168,7 @@ export function ProfileSection() {
               await logout()
             }}
           >
-            {loggingOut ? '登出中…' : '登出'}
+            {loggingOut ? p.signingOut : p.signOut}
           </button>
         </div>
       </section>

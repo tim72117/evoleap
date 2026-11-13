@@ -5,7 +5,8 @@ import { dateLabel, parentWeek } from '../kidsMode/plan'
 import { kidsApi, type Child } from '../kidsMode/api'
 import { KIDS_MODE_HOME, useKidsMode } from '../kidsMode/KidsModeContext'
 import { useKidsReleased } from '../kidsMode/progress'
-import { DAYS, isFull, isPicked, MAX_PER_WEEK, MINUTES_OPTIONS, slotKey, sortSlots, TIMES, toggleSlot, type Slot } from '../kidsMode/schedule'
+import { useLocale, useT } from '../i18n/I18nProvider'
+import { isFull, isPicked, MAX_PER_WEEK, MINUTES_OPTIONS, slotKey, sortSlots, TIMES, toggleSlot, type Slot } from '../kidsMode/schedule'
 import styles from './member.module.css'
 import kids from './KidsSection.module.css'
 
@@ -24,6 +25,7 @@ export function KidsSection() {
   const [error, setError] = useState('')
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
+  const k = useT().member.kids
 
   const load = () =>
     kidsApi.children().then(
@@ -55,10 +57,10 @@ export function KidsSection() {
     <>
       <section className={styles.panel} aria-labelledby="kids-title">
         <h2 id="kids-title" className={styles.panelTitle}>
-          兒童
+          {k.title}
         </h2>
         <p className={styles.muted}>
-          替孩子排每週的上課時間（最多 {MAX_PER_WEEK} 堂），再按「開啟兒童模式」把這台裝置交給孩子：畫面只會有兒童課程，而且只有在排好的時段（台灣時間）才能上課，每次上課多久也由你決定（最長 60 分鐘）。按右上角的孩子頭像就能離開兒童模式。
+          {k.intro(MAX_PER_WEEK)}
         </p>
         {error ? (
           <p className={styles.error} role="alert">
@@ -73,18 +75,18 @@ export function KidsSection() {
           }}
         >
           <div className={styles.field}>
-            <label htmlFor="kid-name">孩子的暱稱</label>
-            <input id="kid-name" value={name} maxLength={20} placeholder="例如：小花" onChange={(e) => setName(e.target.value)} />
+            <label htmlFor="kid-name">{k.nickname}</label>
+            <input id="kid-name" value={name} maxLength={20} placeholder={k.nicknamePlaceholder} onChange={(e) => setName(e.target.value)} />
           </div>
           <button type="submit" className={styles.primary} disabled={busy || !name.trim()}>
-            新增
+            {k.add}
           </button>
         </form>
       </section>
       {children === null ? (
-        <p className={styles.muted}>讀取中…</p>
+        <p className={styles.muted}>{k.loading}</p>
       ) : children.length === 0 ? (
-        <p className={styles.muted}>還沒有設定孩子。</p>
+        <p className={styles.muted}>{k.none}</p>
       ) : (
         children.map((c) => (
           <ChildCard
@@ -102,6 +104,9 @@ export function KidsSection() {
 
 function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avatars: string[]; onChange: (c: Child) => void; onDelete: () => void }) {
   const [picking, setPicking] = useState(false)
+  const t = useT()
+  const k = t.member.kids
+  const days = t.kidsMode.days
   // 這個孩子自己的上課紀錄(每個孩子分開)
   const [records, setRecords] = useState<Finished[]>([])
   useEffect(() => {
@@ -137,7 +142,7 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
   }
 
   return (
-    <section className={styles.panel} aria-label={`${child.name} 的上課時間`}>
+    <section className={styles.panel} aria-label={k.scheduleOf(child.name)}>
       <div className={kids.head}>
         <h3 className={`${styles.panelTitle} ${kids.title}`}>
           <span className={kids.avatar} aria-hidden="true">
@@ -146,21 +151,21 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
           {child.name}
         </h3>
         <button type="button" className={kids.change} aria-expanded={picking} onClick={() => setPicking((v) => !v)}>
-          {picking ? '收起' : '換頭像'}
+          {picking ? k.collapse : k.changeAvatar}
         </button>
         <span className={kids.count}>
-          已排 {picked.length}／{MAX_PER_WEEK} 堂
+          {k.count(picked.length, MAX_PER_WEEK)}
         </span>
       </div>
       {picking ? (
-        <div className={kids.avatars} role="radiogroup" aria-label={`${child.name} 的頭像`}>
+        <div className={kids.avatars} role="radiogroup" aria-label={k.avatarsOf(child.name)}>
           {avatars.map((a) => (
             <button
               key={a}
               type="button"
               role="radio"
               aria-checked={a === child.avatar}
-              aria-label={`頭像 ${a}`}
+              aria-label={k.avatar(a)}
               className={a === child.avatar ? `${kids.avatarPick} ${kids.on}` : kids.avatarPick}
               onClick={() =>
                 run('', async () => {
@@ -175,7 +180,7 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
         </div>
       ) : null}
       <div className={kids.minutes}>
-        <label htmlFor={`kid-minutes-${child.id}`}>每次上課</label>
+        <label htmlFor={`kid-minutes-${child.id}`}>{k.perClass}</label>
         <select
           id={`kid-minutes-${child.id}`}
           value={minutes}
@@ -187,16 +192,16 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
           {/* 之前存過選單以外的長度(伺服器接受 5 到 60 分鐘、5 的倍數)也列出來,選單才對得上 */}
           {((MINUTES_OPTIONS as readonly number[]).includes(minutes) ? MINUTES_OPTIONS : [...MINUTES_OPTIONS, minutes].sort((a, b) => a - b)).map((m) => (
             <option key={m} value={m}>
-              {m} 分鐘
+              {k.minutes(m)}
             </option>
           ))}
         </select>
-        <span className={kids.hint}>從排好的時間開始，過了就不能上</span>
+        <span className={kids.hint}>{k.minutesHint}</span>
       </div>
       {/* 一週的課表:每一列是一個時間,每一欄是星期幾 */}
-      <div className={kids.week} role="group" aria-label={`${child.name} 一週的上課時段`}>
+      <div className={kids.week} role="group" aria-label={k.weekOf(child.name)}>
         <span className={kids.corner} aria-hidden="true" />
-        {DAYS.map((day) => (
+        {days.map((day) => (
           <span key={day} className={kids.dayName} aria-hidden="true">
             {day}
           </span>
@@ -206,7 +211,7 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
             <span className={kids.timeName} aria-hidden="true">
               {time}
             </span>
-            {DAYS.map((day, d) => {
+            {days.map((day, d) => {
               const s = { day: d, time }
               const on = isPicked(picked, s)
               const blocked = full && !on
@@ -217,8 +222,8 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
                   className={on ? `${kids.slot} ${kids.on}` : kids.slot}
                   aria-pressed={on}
                   aria-disabled={blocked}
-                  aria-label={`${day} ${time}${on ? '，已排' : ''}`}
-                  title={blocked ? `已排滿 ${MAX_PER_WEEK} 堂，先取消一堂才能換` : `${day} ${time}`}
+                  aria-label={`${day} ${time}${on ? k.slotPicked : ''}`}
+                  title={blocked ? k.full(MAX_PER_WEEK) : `${day} ${time}`}
                   onClick={() => {
                     if (blocked) return
                     setPicked((p) => toggleSlot(p, s))
@@ -244,7 +249,7 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
           className={`${styles.secondary} ${kids.save}`}
           disabled={!dirty || status === 'saving'}
           aria-busy={status === 'saving'}
-          title={!dirty && status !== 'saving' ? '沒有要儲存的變更' : undefined}
+          title={!dirty && status !== 'saving' ? k.noChanges : undefined}
           onClick={() =>
             run('saving', async () => {
               onChange(await kidsApi.updateChild(child.id, { slots: picked, minutes }))
@@ -252,14 +257,14 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
             })
           }
         >
-          {status === 'saving' ? '儲存中…' : '儲存上課設定'}
+          {status === 'saving' ? k.saving : k.save}
         </button>
-        {status === 'saved' ? <span className={styles.saved}>已儲存</span> : null}
+        {status === 'saved' ? <span className={styles.saved}>{k.saved}</span> : null}
         <button
           type="button"
           className={styles.primary}
           disabled={dirty || status === 'starting' || child.slots.length === 0}
-          title={dirty ? '先儲存上課設定' : child.slots.length === 0 ? '先排上課時間' : undefined}
+          title={dirty ? k.saveFirst : child.slots.length === 0 ? k.pickFirst : undefined}
           onClick={() =>
             run('starting', async () => {
               await start(child.id)
@@ -267,20 +272,20 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
             })
           }
         >
-          {status === 'starting' ? '開啟中…' : '開啟兒童模式'}
+          {status === 'starting' ? k.starting : k.start}
         </button>
         <button
           type="button"
           className={kids.remove}
           onClick={() => {
-            if (!window.confirm(`刪掉「${child.name}」和他的上課時間？`)) return
+            if (!window.confirm(k.confirmDelete(child.name))) return
             void run('', async () => {
               await kidsApi.deleteChild(child.id)
               onDelete()
             })
           }}
         >
-          刪除
+          {k.delete}
         </button>
       </div>
     </section>
@@ -289,6 +294,8 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
 
 /** 這週的課(照已儲存的時段):每一次上課的實際日期,上完的課與最近一次要上的課,點課名打開那一課 */
 function WeekList({ child, records }: { child: Child; records: Finished[] }) {
+  const k = useT().member.kids
+  const { locale } = useLocale()
   const released = useKidsReleased()
   if (child.slots.length === 0 || !released) return null
   const rows = parentWeek(child.slots, child.minutes, new Date(), released, records)
@@ -299,20 +306,20 @@ function WeekList({ child, records }: { child: Child; records: Finished[] }) {
   )
   return (
     <div className={kids.weekList}>
-      <h4>這週的課</h4>
+      <h4>{k.thisWeek}</h4>
       <ol>
         {rows.map((r) => (
           <li key={r.start.toISOString()} className={kids[r.state]}>
             <span className={kids.date}>
-              {dateLabel(r.start)} {r.slot.time}
+              {dateLabel(r.start, locale)} {r.slot.time}
             </span>
             <span className={kids.what}>
               {r.finished.length ? (
                 <span className={kids.part}>
-                  <span className={kids.doneTag}>✓ 已上完</span>
+                  <span className={kids.doneTag}>{k.done}</span>
                   {r.finished.map((id, i) => (
                     <span key={id}>
-                      {i ? '、' : ''}
+                      {i ? k.listSep : ''}
                       {lesson(id)}
                     </span>
                   ))}
@@ -320,15 +327,15 @@ function WeekList({ child, records }: { child: Child; records: Finished[] }) {
               ) : null}
               {r.lessonId ? (
                 <span className={kids.part}>
-                  <span className={kids.nextTag}>{r.state === 'next' ? '下一堂' : r.finished.length ? '接著上' : '上課中'}</span>
+                  <span className={kids.nextTag}>{r.state === 'next' ? k.next : r.finished.length ? k.continue : k.inClass}</span>
                   {lesson(r.lessonId)}
                 </span>
               ) : r.finished.length ? null : r.state === 'done' ? (
-                <span className={kids.muted}>沒有上課</span>
+                <span className={kids.muted}>{k.missed}</span>
               ) : r.state === 'later' ? (
-                <span className={kids.muted}>依進度安排</span>
+                <span className={kids.muted}>{k.later}</span>
               ) : (
-                <span className={kids.muted}>已開放的課都上完了</span>
+                <span className={kids.muted}>{k.allDone}</span>
               )}
             </span>
           </li>

@@ -54,3 +54,46 @@ func TestMeUpdateName(t *testing.T) {
 		t.Fatalf("email changed: %s", rec.Body)
 	}
 }
+
+func TestMeUpdateLocale(t *testing.T) {
+	h := newTestServer(t)
+	rec := call(h, http.MethodPost, "/api/auth/register", `{"email":"amy@example.com","password":"secret123","name":"Amy"}`, nil)
+	cookie := sessionFrom(t, rec)
+	if !strings.Contains(rec.Body.String(), `"locale":""`) {
+		t.Fatalf("new user should have no locale: %s", rec.Body)
+	}
+	if rec := call(h, http.MethodPatch, "/api/me", `{"locale":"en"}`, cookie); rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `"locale":"en"`) {
+		t.Fatalf("set locale: %d %s", rec.Code, rec.Body)
+	}
+	if rec := call(h, http.MethodGet, "/api/me", "", cookie); !strings.Contains(rec.Body.String(), `"locale":"en"`) {
+		t.Fatalf("me after locale: %s", rec.Body)
+	}
+	if rec := call(h, http.MethodPatch, "/api/me", `{"locale":"fr"}`, cookie); rec.Code != http.StatusBadRequest {
+		t.Fatalf("unsupported locale: %d %s", rec.Code, rec.Body)
+	}
+	// 名稱不合格時語言也不改
+	if rec := call(h, http.MethodPatch, "/api/me", `{"locale":"zh-Hant","name":"   "}`, cookie); rec.Code != http.StatusBadRequest {
+		t.Fatalf("bad name: %d %s", rec.Code, rec.Body)
+	}
+	if rec := call(h, http.MethodGet, "/api/me", "", cookie); !strings.Contains(rec.Body.String(), `"locale":"en"`) {
+		t.Fatalf("locale changed despite bad name: %s", rec.Body)
+	}
+}
+
+// 名稱與語言一起改:同一個請求兩個都生效(同一個 UPDATE,不會只改到一個)
+func TestMeUpdateNameAndLocale(t *testing.T) {
+	h := newTestServer(t)
+	rec := call(h, http.MethodPost, "/api/auth/register", `{"email":"bea@example.com","password":"secret123","name":"Bea"}`, nil)
+	cookie := sessionFrom(t, rec)
+	rec = call(h, http.MethodPatch, "/api/me", `{"name":"小蜜","locale":"en"}`, cookie)
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `"name":"小蜜"`) || !strings.Contains(rec.Body.String(), `"locale":"en"`) {
+		t.Fatalf("name and locale: %d %s", rec.Code, rec.Body)
+	}
+	// 只改名稱:語言留著;只改語言:名稱留著
+	if rec := call(h, http.MethodPatch, "/api/me", `{"name":"小花"}`, cookie); !strings.Contains(rec.Body.String(), `"locale":"en"`) || !strings.Contains(rec.Body.String(), `"name":"小花"`) {
+		t.Fatalf("name only: %s", rec.Body)
+	}
+	if rec := call(h, http.MethodPatch, "/api/me", `{"locale":"zh-Hant"}`, cookie); !strings.Contains(rec.Body.String(), `"name":"小花"`) || !strings.Contains(rec.Body.String(), `"locale":"zh-Hant"`) {
+		t.Fatalf("locale only: %s", rec.Body)
+	}
+}

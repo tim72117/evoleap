@@ -6,6 +6,7 @@ import { coursePath, lessonLabel, lessonPath, nextCourse, type Course } from '..
 import type { CourseLesson } from '../content/lessonTypes'
 import { SOFTWARE_TOPIC } from '../content/topics'
 import type { StageScript } from '../live/stage'
+import { useT } from '../i18n/I18nProvider'
 import { documentTitle } from '../site/siteInfo'
 import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage'
 import { withL0Moments } from '../studio/interactive/l0-0.0'
@@ -40,6 +41,8 @@ export function InteractiveLessonPage({ course, lesson }: Props) {
   const { status, user } = useAuth()
   const memberId = user?.id ?? null
   const location = useLocation()
+  const t = useT()
+  const c = t.courses.interactive
   const progress = useMemo(() => (memberId ? memberProgress(`live:${script}`) : undefined), [memberId, script])
   useEffect(() => {
     if (status !== 'loading' && !memberId) clearGuestProgress()
@@ -61,7 +64,7 @@ export function InteractiveLessonPage({ course, lesson }: Props) {
       course={{
         docTitle: documentTitle(name),
         heading: lesson.title,
-        back: { to: coursePath(course), label: '← 課程' },
+        back: { to: coursePath(course), label: c.back },
         progress,
         ready: status !== 'loading',
         prompts: Object.fromEntries(lesson.steps.flatMap((s, i) => (s.prompt ? [[i + 1, s.prompt]] : []))),
@@ -69,18 +72,19 @@ export function InteractiveLessonPage({ course, lesson }: Props) {
           <>
             {status === 'guest' && (
               <p className={styles.panelLogin}>
-                <Link to={loginHref(location.pathname)}>登入</Link>後會記住你看到哪裡，下次從這裡接著看。
+                <Link to={loginHref(location.pathname)}>{t.common.signIn}</Link>
+                {c.guestHint}
               </p>
             )}
             <LessonAd course={course} lesson={lesson} />
-            <nav className={styles.panelFooter} aria-label="上一課與下一課">
-              {prev ? <Link to={lessonPath(course, prev)}>← 上一課：{lessonLabel(prev)}</Link> : <span />}
+            <nav className={styles.panelFooter} aria-label={t.courses.lesson.pager}>
+              {prev ? <Link to={lessonPath(course, prev)}>{c.prev(lessonLabel(prev))}</Link> : <span />}
               {next ? (
-                <Link to={lessonPath(course, next)}>下一課：{lessonLabel(next)} →</Link>
+                <Link to={lessonPath(course, next)}>{c.next(lessonLabel(next))}</Link>
               ) : nextC ? (
-                <Link to={coursePath(nextC)}>下一章：{nextC.level} →</Link>
+                <Link to={coursePath(nextC)}>{c.nextChapter(t.courses.levelName(nextC.level))}</Link>
               ) : (
-                <Link to={`${SOFTWARE_TOPIC.path}#map`}>課程地圖 →</Link>
+                <Link to={`${SOFTWARE_TOPIC.path}#map`}>{c.courseMap}</Link>
               )}
             </nav>
           </>

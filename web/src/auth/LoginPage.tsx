@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
+import { messages } from '../i18n/current'
+import { useT } from '../i18n/I18nProvider'
 import { ApiError, authApi, type User } from './api'
 import { useAuth } from './AuthContext'
 import { LOGIN_PATH, safeNextPath } from './paths'
@@ -38,7 +40,7 @@ function loadGsi(): Promise<void> {
 
 function errorMessage(err: unknown): string {
   if (err instanceof ApiError) return err.message
-  return '連線失敗，請檢查網路後再試一次'
+  return messages().auth.networkError
 }
 
 export function LoginPage() {
@@ -48,6 +50,7 @@ export function LoginPage() {
   const next = safeNextPath(params.get('next'))
   // 剛在本頁完成登入時不顯示「你已登入」畫面,直接導頁
   const [justSignedIn, setJustSignedIn] = useState(false)
+  const t = useT()
 
   // 訪客打開登入頁也記一筆(page:/login):從哪一課被帶過來(next)、登入失敗的訊息;登入成功由伺服器記(store.NoteGuestLogin)
   const guest = useGuestView(PAGE_PREFIX + LOGIN_PATH, () => false)
@@ -62,18 +65,18 @@ export function LoginPage() {
   }
 
   return (
-    <SiteLayout title="登入" narrow>
+    <SiteLayout title={t.common.signIn} narrow>
       <div className={styles.wrap}>
         {status === 'loading' || justSignedIn ? (
           <div className={styles.card} aria-busy="true">
-            <p className={styles.loading}>載入中…</p>
+            <p className={styles.loading}>{t.auth.loading}</p>
           </div>
         ) : status === 'disabled' ? (
           <div className={styles.card}>
-            <h1 className={styles.title}>登入功能尚未開放</h1>
-            <p className={styles.subtitle}>目前所有公開課程都不需要登入，可以直接開始學習。</p>
+            <h1 className={styles.title}>{t.auth.disabledTitle}</h1>
+            <p className={styles.subtitle}>{t.auth.disabledText}</p>
             <Link className={styles.submit} to={`${SOFTWARE_TOPIC.path}#map`}>
-              前往課程地圖
+              {t.auth.toCourseMap}
             </Link>
           </div>
         ) : status === 'user' && user ? (
@@ -94,24 +97,27 @@ export function LoginPage() {
 
 function SignedIn({ user, next, onLogout }: { user: User; next: string; onLogout: () => Promise<void> }) {
   const [busy, setBusy] = useState(false)
+  const t = useT()
   return (
     <div className={styles.card}>
       <div className={styles.avatar} aria-hidden="true">
         {(user.name || user.email).trim().charAt(0).toUpperCase()}
       </div>
-      <h1 className={styles.title}>你已登入</h1>
+      <h1 className={styles.title}>{t.auth.signedInTitle}</h1>
       <p className={styles.signedInText}>
-        你已登入為 <strong>{user.name || user.email}</strong>
+        {t.auth.signedInAsPrefix}
+        <strong>{user.name || user.email}</strong>
+        {t.auth.signedInAsSuffix}
         {user.name ? <span className={styles.signedInEmail}>{user.email}</span> : null}
       </p>
       <div className={styles.actions}>
         {next === '/' ? (
           <Link className={styles.primary} to={`${SOFTWARE_TOPIC.path}#map`}>
-            前往課程地圖
+            {t.auth.toCourseMap}
           </Link>
         ) : (
           <Link className={styles.primary} to={next}>
-            繼續前往
+            {t.auth.continue}
           </Link>
         )}
         <button
@@ -124,7 +130,7 @@ function SignedIn({ user, next, onLogout }: { user: User; next: string; onLogout
             setBusy(false)
           }}
         >
-          {busy ? '登出中…' : '登出'}
+          {busy ? t.auth.signingOut : t.auth.signOut}
         </button>
       </div>
     </div>
@@ -158,6 +164,8 @@ export function AuthForm({
   const [error, setError] = useState('')
   const [googleClientId, setGoogleClientId] = useState('')
   const ids = useId()
+  const t = useT()
+  const f = t.auth.form
   const isRegister = mode === 'register'
 
   useEffect(() => {
@@ -183,18 +191,18 @@ export function AuthForm({
     if (submitting) return
     setError('')
     if (!email.trim()) {
-      setError('請輸入 Email')
-      onFail('請輸入 Email')
+      setError(f.emailRequired)
+      onFail(f.emailRequired)
       return
     }
     if (isRegister && password.length < 8) {
-      setError('密碼至少需要 8 個字元')
-      onFail('密碼至少需要 8 個字元')
+      setError(f.passwordTooShort)
+      onFail(f.passwordTooShort)
       return
     }
     if (!password) {
-      setError('請輸入密碼')
-      onFail('請輸入密碼')
+      setError(f.passwordRequired)
+      onFail(f.passwordRequired)
       return
     }
     setSubmitting(true)
@@ -224,10 +232,10 @@ export function AuthForm({
 
   return (
     <div className={styles.card}>
-      <Title className={styles.title}>{isRegister ? '建立帳號' : '登入'}</Title>
-      <p className={styles.subtitle}>{subtitle ?? (isRegister ? '註冊後即可記錄你的學習進度。' : '歡迎回來，登入以繼續你的課程。')}</p>
+      <Title className={styles.title}>{isRegister ? f.registerTitle : f.loginTitle}</Title>
+      <p className={styles.subtitle}>{subtitle ?? (isRegister ? f.registerSubtitle : f.loginSubtitle)}</p>
 
-      <div className={styles.tabs} role="tablist" aria-label="登入或註冊">
+      <div className={styles.tabs} role="tablist" aria-label={f.tabsLabel}>
         {(['login', 'register'] as const).map((m) => (
           <button
             key={m}
@@ -248,7 +256,7 @@ export function AuthForm({
               }
             }}
           >
-            {m === 'login' ? '登入' : '註冊'}
+            {m === 'login' ? f.tabLogin : f.tabRegister}
           </button>
         ))}
       </div>
@@ -259,17 +267,18 @@ export function AuthForm({
             <GoogleButton
               clientId={googleClientId}
               text={isRegister ? 'signup_with' : 'signin_with'}
+              locale={t.auth.googleLocale}
               onCredential={onGoogleCredential}
               onReady={onGoogleReady}
               onError={(reason) => {
-                setError('無法載入 Google 登入，請改用 Email 或稍後再試')
+                setError(f.googleLoadFailed)
                 onGoogleError(reason)
               }}
               // 只是太久沒偵測到按鈕畫好:記下來就好,不在畫面上顯示錯誤(按鈕可能其實是好的)
               onSlow={onGoogleError}
             />
             <div className={styles.divider}>
-              <span>或使用 Email</span>
+              <span>{f.orEmail}</span>
             </div>
           </>
         ) : null}
@@ -278,7 +287,7 @@ export function AuthForm({
           {isRegister ? (
             <div className={styles.field}>
               <label htmlFor={`${ids}-name`}>
-                名稱 <span className={styles.optional}>(選填)</span>
+                {f.name} <span className={styles.optional}>{f.optional}</span>
               </label>
               <input
                 id={`${ids}-name`}
@@ -288,7 +297,7 @@ export function AuthForm({
                 maxLength={60}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="想怎麼稱呼你？"
+                placeholder={f.namePlaceholder}
               />
             </div>
           ) : null}
@@ -311,7 +320,7 @@ export function AuthForm({
           </div>
 
           <div className={styles.field}>
-            <label htmlFor={`${ids}-password`}>密碼</label>
+            <label htmlFor={`${ids}-password`}>{f.password}</label>
             <div className={styles.passwordRow}>
               <input
                 id={`${ids}-password`}
@@ -329,15 +338,15 @@ export function AuthForm({
                 className={styles.reveal}
                 aria-pressed={showPassword}
                 aria-controls={`${ids}-password`}
-                aria-label={showPassword ? '隱藏密碼' : '顯示密碼'}
+                aria-label={showPassword ? f.hidePassword : f.showPassword}
                 onClick={() => setShowPassword((v) => !v)}
               >
-                {showPassword ? '隱藏' : '顯示'}
+                {showPassword ? f.hide : f.show}
               </button>
             </div>
             {isRegister ? (
               <p id={`${ids}-pwhint`} className={styles.hint}>
-                至少 8 個字元
+                {f.passwordHint}
               </p>
             ) : null}
           </div>
@@ -349,20 +358,24 @@ export function AuthForm({
           ) : null}
 
           <button type="submit" className={styles.submit} disabled={submitting}>
-            {submitting ? (isRegister ? '註冊中…' : '登入中…') : isRegister ? '建立帳號' : '登入'}
+            {submitting ? (isRegister ? f.registering : f.signingIn) : isRegister ? f.createAccount : f.signIn}
           </button>
         </form>
 
         <p className={styles.switch}>
-          {isRegister ? '已經有帳號了？' : '還沒有帳號？'}
+          {isRegister ? f.haveAccount : f.noAccount}
           <button type="button" className={styles.linkButton} onClick={() => switchMode(isRegister ? 'login' : 'register')}>
-            {isRegister ? '登入' : '免費註冊'}
+            {isRegister ? f.signIn : f.signUpFree}
           </button>
         </p>
       </div>
 
       <p className={styles.legal}>
-        登入即表示你同意<Link to="/terms">服務條款</Link>與<Link to="/privacy">隱私權政策</Link>
+        {f.legalPrefix}
+        <Link to="/terms">{f.terms}</Link>
+        {f.legalAnd}
+        <Link to="/privacy">{f.privacy}</Link>
+        {f.legalSuffix}
       </p>
     </div>
   )
@@ -375,8 +388,11 @@ function GoogleButton({
   onReady,
   onError,
   onSlow,
+  locale,
 }: {
   clientId: string
+  /** Google 按鈕的語言 */
+  locale: string
   text: 'signin_with' | 'signup_with'
   onCredential: (credential: string) => void
   /** 按鈕畫好(Google 的按鈕 iframe 載入完成) */
@@ -447,7 +463,7 @@ function GoogleButton({
           shape: 'pill',
           text,
           width,
-          locale: 'zh-TW',
+          locale,
           logo_alignment: 'center',
         })
       })
@@ -457,7 +473,7 @@ function GoogleButton({
     return () => {
       cancelled = true
     }
-  }, [clientId, text])
+  }, [clientId, text, locale])
 
   return <div ref={ref} className={styles.google} />
 }

@@ -9,6 +9,7 @@ import { UNITS } from './aiAgent'
 import type { CourseLesson } from './lessonTypes'
 import { L0_LESSONS } from './l0Lessons'
 import { L1_LESSONS } from './l1Lessons'
+import { messages } from '../i18n/current'
 
 export interface PlannedChapter {
   /** 網址 /courses/<course>/<slug> */
@@ -132,9 +133,10 @@ export function lessonNumber(lesson: Pick<CourseLesson, 'id'>): string {
   return lesson.id.startsWith('0.') ? lesson.id.slice(2) : lesson.id
 }
 
-/** 顯示用名稱：有 label 用 label（例如「序章」），否則「第 N 課」 */
+/** 顯示用名稱(目前語言)：有 label 用 label（例如「序章」），否則「第 N 課」 */
 export function lessonLabel(lesson: Pick<CourseLesson, 'id' | 'label'>): string {
-  return lesson.label ?? `第 ${lessonNumber(lesson)} 課`
+  const t = messages().courses
+  return lesson.label ? t.lessonName(lesson.label) : t.lessonN(lessonNumber(lesson))
 }
 
 /** 網址不用小數點（會被伺服器當成靜態檔副檔名）：L0 /courses/tools/1、L1 /courses/ai-tools/1-1 */

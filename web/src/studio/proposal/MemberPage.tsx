@@ -4,7 +4,7 @@ import ui from './proposal.module.css'
 
 // 跨等級構想：登入前後的差異（會員空間）。2026-11-03 整理。
 // 「播放進度」已實作（server/internal/api/progress.go、web/src/courses/progress.ts），訪客上課紀錄也已實作（server/internal/api/guest.go、web/src/courses/guestActivity.ts）；其餘為構想，尚未決定是否實作。
-// 新增任何會員資料前必須先更新隱私權政策（web/src/legal/PrivacyPage.tsx）。
+// 新增任何會員資料前必須先更新隱私權政策（web/src/legal/zh/PrivacyZh.tsx 與英文版 legal/en/PrivacyEn.tsx）。
 
 const POSITIONING: [string, string][] = [
   ['研發階段', '部分已做（播放進度）；其餘為構想，尚未評估工時，優先順序尚未決定。'],

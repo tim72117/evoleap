@@ -10,6 +10,7 @@ import { KIDS_OPEN_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
 import { LAUNCH_LESSON_PAGES, launchLesson, launchLessonPath, launchScriptKey } from '../content/launchCourse'
 import { KIDS_TOPIC, LAUNCH_TOPIC, WEB_TOPIC } from '../content/topics'
 import { WEB_OPEN_LESSONS, webLesson } from '../content/webCourse'
+import { messages } from '../i18n/current'
 
 export interface IndexedLesson {
   /** 課程的識別(同一門課的課共用) */
@@ -87,7 +88,7 @@ export function buildLessonIndex(maps: Partial<Record<MappedCourse, CourseMap>> 
     const lessons = new Map(map.units.flatMap((u) => u.lessons).filter(visible).map((l) => [l.id, l]))
     const entry = (id: string) => {
       const e = spec.entry(id)
-      return e && lessons.get(id)?.status === 'draft' ? { ...e, title: `${e.title}（草稿）`, draft: true } : e
+      return e && lessons.get(id)?.status === 'draft' ? { ...e, title: `${e.title}${messages().member.courses.draft}`, draft: true } : e
     }
     // 地圖的腳本先放,同一個腳本以地圖為準
     for (const l of lessons.values()) if (l.script) add(`${spec.prefix}${l.script}`, entry(l.id))

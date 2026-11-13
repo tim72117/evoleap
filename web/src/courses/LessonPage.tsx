@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
+import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { useCopy } from '../site/useCopy'
 import type { CourseLesson, LessonStep } from '../content/lessonTypes'
@@ -13,6 +14,7 @@ import { MockPlayer } from './MockPlayer'
 import { LivePlayer } from './LivePlayer'
 import { effectiveCues, mmss, stepAt } from './lessonTiming'
 import { SOFTWARE_TOPIC } from '../content/topics'
+import { minutesOf } from './CourseOverviewPage'
 
 // 學員端單課頁。第一屏（fold）剛好一個視窗高：左邊影片、右邊「步驟軌」（窄螢幕時上下堆疊），
 // 影片播到哪一步（依 LessonVideo.cues），軌道裡就自動展開並捲到那一步，提示詞和複製鈕
@@ -20,12 +22,13 @@ import { SOFTWARE_TOPIC } from '../content/topics'
 
 function PromptBlock({ prompt }: { prompt: string }) {
   const { state, copy } = useCopy()
+  const t = useT()
   return (
     <div className={styles.prompt}>
       <div className={styles.promptHead}>
-        <span>提示詞</span>
+        <span>{t.courses.lesson.prompt}</span>
         <button type="button" onClick={() => copy(prompt)} aria-live="polite">
-          {state === 'copied' ? '已複製 ✓' : state === 'failed' ? '複製失敗，請手動選取' : '複製'}
+          {state === 'copied' ? t.player.copied : state === 'failed' ? t.player.copyFailed : t.player.copy}
         </button>
       </div>
       <pre>{prompt}</pre>
@@ -51,6 +54,7 @@ type StepProps = {
 }
 
 function Step({ step, index, open, playing, passed, cueAt, onToggle, onSeek, onNext, otherVideo, onGo }: StepProps) {
+  const t = useT().courses.lesson
   const cls = [styles.step, open ? styles.open : '', playing ? styles.playing : '', passed ? styles.passed : ''].join(' ')
   return (
     <li className={cls} id={`step-${index + 1}`}>
@@ -60,35 +64,35 @@ function Step({ step, index, open, playing, passed, cueAt, onToggle, onSeek, onN
             {passed && !open ? '✓' : index + 1}
           </span>
           <span className={styles.stepTitle}>{step.title}</span>
-          {playing && <span className={styles.nowPlaying}>播放中</span>}
+          {playing && <span className={styles.nowPlaying}>{t.nowPlaying}</span>}
         </button>
         {cueAt !== undefined && onSeek ? (
-          <button type="button" className={styles.seek} onClick={onSeek} title="從這一步開始播放">
+          <button type="button" className={styles.seek} onClick={onSeek} title={t.playFromStep}>
             ▶ {mmss(cueAt)}
           </button>
         ) : otherVideo !== undefined ? (
-          <button type="button" className={styles.seek} onClick={onGo} title={`這一步在影片 ${otherVideo} 示範`}>
-            影片 {otherVideo}
+          <button type="button" className={styles.seek} onClick={onGo} title={t.stepInVideo(otherVideo)}>
+            {t.videoN(otherVideo)}
           </button>
         ) : null}
       </div>
       {open && (
         <div className={styles.stepBody}>
-          {step.prompt ? <PromptBlock prompt={step.prompt} /> : <p className={styles.noPrompt}>這一步是介面操作，不需要提示詞。</p>}
+          {step.prompt ? <PromptBlock prompt={step.prompt} /> : <p className={styles.noPrompt}>{t.noPrompt}</p>}
           <p className={styles.expected}>
-            <strong>應該看到</strong>
+            <strong>{t.expected}</strong>
             {step.expected}
           </p>
           {step.note && (
             <p className={styles.note}>
-              <strong>注意</strong>
+              <strong>{t.note}</strong>
               {step.note}
             </p>
           )}
           {onNext && (
             <div className={styles.stepFoot}>
               <button type="button" className={styles.nextStep} onClick={onNext}>
-                下一步 ›
+                {t.nextStep} ›
               </button>
             </div>
           )}
@@ -105,6 +109,8 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
   // 這門課的最後一課:連到同一主題的下一章(下一門課)
   const nextC = next ? undefined : nextCourse(course)
   const label = lessonLabel(lesson)
+  const tt = useT()
+  const t = tt.courses.lesson
   const auth = useAuth()
   const location = useLocation()
   const total = lesson.steps.length
@@ -237,17 +243,17 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
       <div className={styles.lesson} ref={lessonRef}>
         <div className={styles.fold}>
           <div className={styles.topbar}>
-            <nav className={styles.crumb} aria-label="麵包屑">
-              <Link to={`${SOFTWARE_TOPIC.path}#map`}>課程地圖</Link>
+            <nav className={styles.crumb} aria-label={tt.courses.breadcrumb}>
+              <Link to={`${SOFTWARE_TOPIC.path}#map`}>{tt.courses.courseMap}</Link>
               <span aria-hidden="true"> / </span>
-              <Link to={coursePath(course)}>{course.level}</Link>
+              <Link to={coursePath(course)}>{tt.courses.levelName(course.level)}</Link>
               <span aria-hidden="true"> / </span>
               <span>{label}</span>
             </nav>
             {/* h1 只放課名(搜尋引擎讀的主標題);課號與時長放在旁邊 */}
             <div className={styles.title}>
               <span className={styles.kicker}>
-                {label} · {lesson.length}
+                {label} · {tt.courses.lessonLength(lesson.length, minutesOf(lesson.length))}
               </span>
               <h1>{lesson.title}</h1>
             </div>
@@ -281,11 +287,12 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
               </div>
               {video?.live && auth.status === 'guest' && (
                 <p className={styles.guestHint}>
-                  <Link to={loginHref(location.pathname)}>登入</Link>後會記住你看到哪裡，下次從這裡接著看；未登入不會儲存播放進度。
+                  <Link to={loginHref(location.pathname)}>{tt.common.signIn}</Link>
+                  {t.guestHint}
                 </p>
               )}
               {hasTabs && (
-                <div className={styles.videoTabs} role="tablist" aria-label="本課影片">
+                <div className={styles.videoTabs} role="tablist" aria-label={t.videos}>
                   {lesson.videos.map((v, i) => (
                     <button
                       key={v.title}
@@ -304,7 +311,7 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
                         pendingSeek.current = null
                       }}
                     >
-                      <small>影片 {i + 1}</small>
+                      <small>{t.videoN(i + 1)}</small>
                       {v.title}
                     </button>
                   ))}
@@ -312,17 +319,17 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
               )}
             </div>
 
-            <aside className={styles.rail} aria-label="跟著步驟做">
+            <aside className={styles.rail} aria-label={t.followSteps}>
               <div className={styles.railHead}>
                 <div className={styles.progress}>
                   <span className={styles.progressText} aria-live="polite">
                     {playingStep === null ? (
                       <>
-                        <strong>跟著步驟做</strong> · 共 {total} 步
+                        <strong>{t.followSteps}</strong> · {t.totalSteps(total)}
                       </>
                     ) : (
                       <>
-                        <strong>第 {current} 步</strong> / {total} 步
+                        <strong>{t.stepN(current)}</strong> / {t.ofSteps(total)}
                       </>
                     )}
                   </span>
@@ -331,8 +338,8 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
                       type="button"
                       onClick={() => goStep(current - 1)}
                       disabled={current <= 1}
-                      title="上一步（←）"
-                      aria-label="上一步"
+                      title={t.prevStepKey}
+                      aria-label={t.prevStep}
                     >
                       ‹
                     </button>
@@ -340,8 +347,8 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
                       type="button"
                       onClick={() => goStep(current + 1)}
                       disabled={current >= total}
-                      title="下一步（→）"
-                      aria-label="下一步"
+                      title={t.nextStepKey}
+                      aria-label={t.nextStep}
                     >
                       ›
                     </button>
@@ -351,7 +358,7 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
                       aria-expanded={goalOpen}
                       onClick={() => setGoalOpen((o) => !o)}
                     >
-                      目標
+                      {t.goal}
                     </button>
                   </div>
                 </div>
@@ -392,8 +399,8 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
               </ol>
 
               <div className={styles.railFoot}>
-                <span>影片播到哪一步就展開哪一步；也可以自己點開任一步。</span>
-                <a href="#wrapup">完成檢核 ↓</a>
+                <span>{t.railFoot}</span>
+                <a href="#wrapup">{t.wrapUpLink}</a>
               </div>
             </aside>
           </div>
@@ -401,14 +408,14 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
 
         <div className={styles.below}>
           <section className={styles.goal} id="goal">
-            <h2>這一課的目標</h2>
+            <h2>{t.lessonGoal}</h2>
             <p>{lesson.goal}</p>
             <p className={styles.scenario}>{lesson.scenario}</p>
           </section>
 
           <section className={styles.wrapUp} id="wrapup">
             <div>
-              <h2>完成檢核</h2>
+              <h2>{t.wrapUp}</h2>
               <ul className={styles.checklist}>
                 {lesson.checkpoint.map((c) => (
                   <li key={c}>{c}</li>
@@ -416,9 +423,9 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
               </ul>
             </div>
             <div>
-              <h2>完成後你會有</h2>
+              <h2>{t.deliverable}</h2>
               <p>{lesson.deliverable}</p>
-              <h2>需要準備</h2>
+              <h2>{t.materials}</h2>
               <ul>
                 {lesson.materials.map((m) => (
                   <li key={m}>{m}</li>
@@ -429,35 +436,35 @@ export function LessonPage({ course, lesson }: { course: Course; lesson: CourseL
 
           {lesson.tryYourOwn && (
             <section className={styles.tryOwn}>
-              <h2>換成你自己的點子</h2>
+              <h2>{t.tryYourOwn}</h2>
               <p>{lesson.tryYourOwn}</p>
             </section>
           )}
 
           <LessonAd course={course} lesson={lesson} />
 
-          <nav className={styles.pager} aria-label="上一課與下一課">
+          <nav className={styles.pager} aria-label={t.pager}>
             {prev ? (
               <Link to={lessonPath(course, prev)}>
-                <small>上一課</small>{lessonLabel(prev)} {prev.title}
+                <small>{tt.courses.prevLesson}</small>{lessonLabel(prev)} {prev.title}
               </Link>
             ) : (
               <Link to={coursePath(course)}>
-                <small>回到</small>課程總覽
+                <small>{tt.courses.backTo}</small>{tt.courses.courseOverview}
               </Link>
             )}
             {next ? (
               <Link to={lessonPath(course, next)} className={styles.next}>
-                <small>下一課</small>{lessonLabel(next)} {next.title}
+                <small>{tt.courses.nextLesson}</small>{lessonLabel(next)} {next.title}
               </Link>
             ) : nextC ? (
               <Link to={coursePath(nextC)} className={styles.next}>
-                <small>下一章</small>
-                {nextC.level} · {nextC.title}
+                <small>{tt.courses.nextCourse}</small>
+                {tt.courses.levelName(nextC.level)} · {nextC.title}
               </Link>
             ) : (
               <Link to={`${SOFTWARE_TOPIC.path}#map`} className={styles.next}>
-                <small>完成這門課</small>回到課程地圖
+                <small>{t.finishCourse}</small>{t.backToMap}
               </Link>
             )}
           </nav>

@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext'
 import { useCourseMap, type MapLesson } from '../content/courseMap'
 import { PageView } from '../courses/guestActivity'
 import { LoginGate } from '../courses/LoginGate'
+import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import page from './SoftwareTopicPage.module.css'
 
@@ -37,14 +38,15 @@ export function TopicLessonGate({
 }) {
   const { status: auth } = useAuth()
   const map = useCourseMap(course)
+  const t = useT()
   // 等登入狀態確定後才判斷,免得管理員先閃過「還沒開放」
   if (map.status === 'loading' || auth === 'loading') return null
   // 讀不到不代表課沒開放(資料庫或網路暫時有問題),不要說成還沒開放
   if (map.status === 'error') {
     return (
-      <Notice topic={topic} id={id} title={title} message="暫時讀不到課程資料，請稍後再試一次。">
+      <Notice topic={topic} id={id} title={title} message={t.home.gate.loadError}>
         <button type="button" className={page.primary} onClick={() => location.reload()}>
-          重新載入
+          {t.home.gate.reload}
         </button>
       </Notice>
     )
@@ -53,9 +55,9 @@ export function TopicLessonGate({
   const lesson = playable.find((l) => l.id === id)
   if (!lesson) {
     return (
-      <Notice topic={topic} id={id} title={title} message="這一課還沒開放，完成後會出現在課程地圖上。">
+      <Notice topic={topic} id={id} title={title} message={t.home.gate.notOpen}>
         <Link className={page.primary} to={{ pathname: topic.path, hash: 'map' }}>
-          回課程地圖
+          {t.home.gate.backToMap}
         </Link>
       </Notice>
     )
@@ -64,16 +66,17 @@ export function TopicLessonGate({
   const content = children(lesson, playable[index - 1], playable[index + 1])
   if (lesson.access === 'free') return content
   return (
-    <LoginGate key={id} kicker={`${topic.name} · ${id}`} title={title} docTitle={docTitle} back={{ to: topic.path, label: '回課程地圖' }} note={loginNote}>
+    <LoginGate key={id} kicker={`${topic.name} · ${id}`} title={title} docTitle={docTitle} back={{ to: topic.path, label: t.home.gate.backToMap }} note={loginNote}>
       {content}
     </LoginGate>
   )
 }
 
 function Notice({ topic, id, title, message, children }: { topic: Topic; id: string; title: string; message: string; children: ReactNode }) {
+  const t = useT()
   return (
     <PageView>
-      <SiteLayout title={`${title}｜${topic.name}`}>
+      <SiteLayout title={t.home.lesson.docTitle(title, topic.name)}>
         <section className={page.hero}>
           <div className={page.heroInner}>
             <p className={page.kicker}>

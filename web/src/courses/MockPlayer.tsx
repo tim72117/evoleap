@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent } from 'react'
+import { useT } from '../i18n/I18nProvider'
 import type { PlayerHandle } from './playerHandle'
 import styles from './MockPlayer.module.css'
 
@@ -28,6 +29,8 @@ export const MockPlayer = forwardRef<PlayerHandle, Props>(function MockPlayer(
   { title, duration, onTime, chapters = [] },
   ref,
 ) {
+  const tt = useT()
+  const t = tt.courses.mock
   const [time, setTime] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState<number>(1)
@@ -96,12 +99,12 @@ export const MockPlayer = forwardRef<PlayerHandle, Props>(function MockPlayer(
   const pct = duration > 0 ? (time / duration) * 100 : 0
 
   return (
-    <div className={styles.player} tabIndex={0} onKeyDown={onKeyDown} aria-label={`預覽大綱：${title}`} role="group">
+    <div className={styles.player} tabIndex={0} onKeyDown={onKeyDown} aria-label={t.label(title)} role="group">
       <div className={styles.screen} onClick={toggle}>
-        <span className={styles.badge}>預覽大綱 · <span aria-hidden="true">🌱 </span>影片規劃中</span>
+        <span className={styles.badge}>{t.badge}<span aria-hidden="true">🌱 </span>{t.badgePlanned}</span>
         <p className={styles.title}>{title}</p>
         <p className={styles.chapter} aria-live="polite">
-          {chapter ? chapter.label : time === 0 && !playing ? '按下播放預覽大綱' : '開場：目標 → 步驟拆解'}
+          {chapter ? chapter.label : time === 0 && !playing ? t.pressPlay : t.opening}
         </p>
         {!playing && (
           <span className={styles.bigPlay} aria-hidden="true">
@@ -111,7 +114,7 @@ export const MockPlayer = forwardRef<PlayerHandle, Props>(function MockPlayer(
       </div>
 
       <div className={styles.controls}>
-        <button type="button" className={styles.btn} onClick={toggle} aria-label={playing ? '暫停' : '播放'}>
+        <button type="button" className={styles.btn} onClick={toggle} aria-label={playing ? tt.player.pause : tt.player.play}>
           {playing ? '❚❚' : '▶'}
         </button>
         <div className={styles.bar}>
@@ -129,14 +132,14 @@ export const MockPlayer = forwardRef<PlayerHandle, Props>(function MockPlayer(
             step={1}
             value={Math.floor(time)}
             onChange={(e) => seek(Number(e.target.value))}
-            aria-label="播放進度"
+            aria-label={tt.player.progress}
             aria-valuetext={`${clock(time)} / ${clock(duration)}`}
           />
         </div>
         <span className={styles.time}>
           {clock(time)} / {clock(duration)}
         </span>
-        <div className={styles.speeds} role="group" aria-label="播放速度">
+        <div className={styles.speeds} role="group" aria-label={tt.player.speed}>
           {SPEEDS.map((s) => (
             <button
               key={s}

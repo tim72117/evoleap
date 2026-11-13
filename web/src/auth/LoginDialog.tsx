@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react'
 import type { GuestReporter } from '../courses/guestActivity'
+import { useT } from '../i18n/I18nProvider'
 import type { User } from './api'
 import { AuthForm } from './LoginPage'
 import styles from './LoginDialog.module.css'
@@ -21,6 +22,7 @@ export function LoginDialog({
   /** 訪客紀錄:登入失敗的訊息、Google 登入程式載入失敗記成備註(不記載入時間:門檻那筆紀錄的載入時間照舊不算) */
   guest?: Pick<GuestReporter, 'note'>
 }) {
+  const t = useT().common
   const ref = useRef<HTMLDialogElement>(null)
   // layout effect:要在表單裡的 Google 按鈕量寬度之前就已經顯示出來
   useLayoutEffect(() => {
@@ -40,7 +42,7 @@ export function LoginDialog({
     <dialog
       ref={ref}
       className={styles.dialog}
-      aria-label="登入"
+      aria-label={t.signIn}
       onClose={onClose}
       // 點到視窗外(背景)才關:點視窗裡面的目標不是 dialog 本身
       onMouseDown={(e) => (downOnBackdrop.current = e.target === e.currentTarget)}
@@ -57,7 +59,7 @@ export function LoginDialog({
             onGoogleError={(message) => guest?.note(`google:${message}`)}
           />
           {/* 關閉鈕放在表單後面(用 CSS 定位在右上角):開啟時焦點不會落在它身上,按 Enter 也不會不小心關掉 */}
-          <button type="button" className={styles.close} aria-label="關閉" onClick={onClose}>
+          <button type="button" className={styles.close} aria-label={t.close} onClick={onClose}>
             ✕
           </button>
         </div>

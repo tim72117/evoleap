@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
 import {
@@ -26,16 +27,18 @@ function SectionHead({ eyebrow, title, lead }: { eyebrow: string; title: string;
 
 export function AiAgentCoursePage() {
   useHashScroll()
+  const t = useT()
+  const a = t.courses.aiAgent
 
   return (
     <SiteLayout title={COURSE.title}>
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <div className={styles.heroText}>
-            <nav className={styles.crumbs} aria-label="麵包屑">
+            <nav className={styles.crumbs} aria-label={t.courses.breadcrumb}>
               <Link to={`${AI_APPS_TOPIC.path}#map`}>{AI_APPS_TOPIC.name}</Link>
               <span aria-hidden="true">/</span>
-              <span>{COURSE.level}</span>
+              <span>{t.courses.levelName(COURSE.level)}</span>
             </nav>
             <p className={styles.kicker}>{COURSE.kicker}</p>
             <h1>
@@ -46,14 +49,14 @@ export function AiAgentCoursePage() {
               ))}
             </h1>
             <p className={styles.pitch}>{COURSE.pitch}</p>
-            <ul className={styles.tags} aria-label="課程特色">
-              {COURSE.tags.map((t) => (
-                <li key={t}>{t}</li>
+            <ul className={styles.tags} aria-label={a.features}>
+              {COURSE.tags.map((tag) => (
+                <li key={tag}>{tag}</li>
               ))}
             </ul>
             <div className={styles.ctas}>
               <Link className={styles.primary} to={{ pathname: AI_AGENT_COURSE_PATH, hash: 'units' }}>
-                查看課程單元
+                {a.viewUnits}
               </Link>
             </div>
           </div>
@@ -62,7 +65,7 @@ export function AiAgentCoursePage() {
 
       <section className={styles.section} id="outcomes">
         <div className={styles.container}>
-          <SectionHead eyebrow="學習成果" title="你會學到什麼" lead="完成這堂課後，你將能夠：" />
+          <SectionHead eyebrow={a.outcomesEyebrow} title={a.outcomesTitle} lead={a.outcomesLead} />
           <ol className={styles.outcomes}>
             {OUTCOMES.map((o, i) => (
               <li key={o.title} className={styles.card}>
@@ -77,10 +80,10 @@ export function AiAgentCoursePage() {
 
       <section className={`${styles.section} ${styles.alt}`} id="audience">
         <div className={styles.container}>
-          <SectionHead eyebrow="適合對象" title="這堂課適合誰" />
+          <SectionHead eyebrow={a.audienceEyebrow} title={a.audienceTitle} />
           <div className={styles.audience}>
             <div className={`${styles.card} ${styles.fit}`}>
-              <h3>適合</h3>
+              <h3>{a.fit}</h3>
               <ul>
                 {AUDIENCE_FIT.map((s) => (
                   <li key={s}>{s}</li>
@@ -88,13 +91,13 @@ export function AiAgentCoursePage() {
               </ul>
             </div>
             <div className={`${styles.card} ${styles.notFit}`}>
-              <h3>較不適合</h3>
+              <h3>{a.notFit}</h3>
               <ul>
                 {AUDIENCE_NOT_FIT.map((s) => (
                   <li key={s}>{s}</li>
                 ))}
               </ul>
-              <h3 className={styles.prereqHead}>需要具備的背景知識</h3>
+              <h3 className={styles.prereqHead}>{a.prerequisites}</h3>
               <ul>
                 {PREREQUISITES.map((s) => (
                   <li key={s}>{s}</li>
@@ -108,9 +111,9 @@ export function AiAgentCoursePage() {
       <section className={styles.section} id="units">
         <div className={styles.container}>
           <SectionHead
-            eyebrow="課程單元"
-            title="從第一個工具到上線的整合應用"
-            lead="每個單元都有明確的學習目標與動手實作。單元內容持續規劃與更新中。"
+            eyebrow={a.unitsEyebrow}
+            title={a.unitsTitle}
+            lead={a.unitsLead}
           />
           <ol className={styles.units}>
             {UNITS.map((u) => (
@@ -121,13 +124,13 @@ export function AiAgentCoursePage() {
                 <div className={styles.unitBody}>
                   <h3>
                     <Link to={`${AI_AGENT_COURSE_PATH}/${u.num === '★' ? 'capstone' : `unit-${u.num}`}`}>{u.title}</Link>
-                    {u.status === 'planned' && <span className={`${styles.badge} ${styles.badgePlanned}`}><span aria-hidden="true">🌱 </span>規劃中</span>}
+                    {u.status === 'planned' && <span className={`${styles.badge} ${styles.badgePlanned}`}><span aria-hidden="true">🌱 </span>{t.courses.planned}</span>}
                   </h3>
                   <p className={styles.unitGoal}>{u.goal}</p>
                   <dl>
-                    <dt>對應概念</dt>
+                    <dt>{a.concepts}</dt>
                     <dd>{u.concepts}</dd>
-                    <dt>實作</dt>
+                    <dt>{a.practice}</dt>
                     <dd>{u.practice}</dd>
                   </dl>
                 </div>
@@ -140,15 +143,15 @@ export function AiAgentCoursePage() {
       <section className={`${styles.section} ${styles.alt}`} id="teaching">
         <div className={styles.container}>
           <SectionHead
-            eyebrow="教學方式"
-            title="影片加實作，一次只講一個想法"
-            lead="課程的切片長度、腳本與錄製方式，依據線上課程設計研究整理出的製作原則。"
+            eyebrow={a.teachingEyebrow}
+            title={a.teachingTitle}
+            lead={a.teachingLead}
           />
           <div className={styles.teaching}>
-            {TEACHING.map((t) => (
-              <div key={t.title} className={styles.card}>
-                <h3>{t.title}</h3>
-                <p>{t.body}</p>
+            {TEACHING.map((x) => (
+              <div key={x.title} className={styles.card}>
+                <h3>{x.title}</h3>
+                <p>{x.body}</p>
               </div>
             ))}
           </div>

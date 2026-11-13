@@ -3,6 +3,7 @@ import { useAuth } from '../auth/AuthContext'
 import { kidsApi, type KidsMode } from './api'
 import { taipeiNow } from './plan'
 import { sortSlots, type Slot } from './schedule'
+import { messages } from '../i18n/current'
 
 // 這台裝置的兒童模式(伺服器用 cookie 記,GET /api/kids/mode 讀):開啟後全站只顯示兒童課程,右上角是兒童的膠囊頭像(KidsCapsule)。
 // 上課時段的狀態(現在能不能上、下一堂幾點)每分鐘重新問一次伺服器,時段到了畫面自己更新;真正的把關在伺服器(腳本 API)。
@@ -54,7 +55,7 @@ export function simulatedKidsMode(now: Date): KidsMode {
   const endsAt = new Date(start.getTime() + 60 * 60_000).toISOString()
   return {
     active: true,
-    child: { id: 'simulated', name: '模擬兒童', avatar: '🐣', slots: sortSlots([current, later]), minutes: 60, createdAt: now.toISOString() },
+    child: { id: 'simulated', name: messages().kidsMode.simulatedChild, avatar: '🐣', slots: sortSlots([current, later]), minutes: 60, createdAt: now.toISOString() },
     schedule: { open: true, current, endsAt, next: later },
   }
 }

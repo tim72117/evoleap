@@ -97,6 +97,13 @@
   margin-bottom: 0;
 }
 
+/* 翻譯版頂端的提醒(以繁中版為準) */
+.notice {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--site-muted);
+}
+
 /* 尚未填寫的營運者資訊,醒目標示以免漏填 */
 .placeholder {
   padding: 0 0.25em;

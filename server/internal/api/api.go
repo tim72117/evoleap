@@ -128,6 +128,16 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 }
 
 // writeError 回傳 {"error": code, "message": 給使用者看的訊息}。
+// 前端依 code 顯示目前語言的訊息,message 是沒有對應翻譯時的備用(中文)。
 func writeError(w http.ResponseWriter, status int, code, message string) {
 	writeJSON(w, status, map[string]string{"error": code, "message": message})
+}
+
+// writeErrorWith 同 writeError,再附上前端組訊息要用的欄位(例如兒童模式下一堂的時段)。
+func writeErrorWith(w http.ResponseWriter, status int, code, message string, extra map[string]any) {
+	body := map[string]any{"error": code, "message": message}
+	for k, v := range extra {
+		body[k] = v
+	}
+	writeJSON(w, status, body)
 }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { COURSES, isPreviewLesson, lessonPath } from '../content/catalog'
 import { KIDS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
 import { KidsPlayer } from '../kids/KidsPlayer'
+import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage'
 import { ThemeCard } from './HomePage'
@@ -21,13 +22,14 @@ export function ShowcasePage() {
   const [shrinkSlot, setShrinkSlot] = useState<HTMLElement | null>(null)
   /** 兒童主題預覽的環節選單放在卡片左欄的這個位置(窄螢幕時左欄排在預覽上面,一樣顯示) */
   const [kidsMenu, setKidsMenu] = useState<HTMLElement | null>(null)
+  const t = useT()
 
   return (
-    <SiteLayout title="課程展示">
+    <SiteLayout title={t.home.showcase.title}>
       <section className={styles.hero}>
         <div className={styles.container}>
-          <h1>看看上課的樣子</h1>
-          <p>不用登入，直接按播放，體驗互動課程。</p>
+          <h1>{t.home.showcase.heading}</h1>
+          <p>{t.home.showcase.lead}</p>
         </div>
       </section>
 
@@ -40,10 +42,10 @@ export function ShowcasePage() {
               <p className={styles.lede}>{SOFTWARE_TOPIC.lede}</p>
               <div className={styles.ctas}>
                 <Link className={styles.primary} to={lessonPath(tools, introLesson)}>
-                  開始第一課
+                  {t.home.startFirstLesson}
                 </Link>
                 <Link className={styles.secondary} to={{ pathname: SOFTWARE_TOPIC.path, hash: 'map' }}>
-                  課程地圖
+                  {t.home.courseMap}
                 </Link>
                 <div ref={setShrinkSlot} className={styles.shrinkSlot} />
               </div>
@@ -84,7 +86,7 @@ export function ShowcasePage() {
             below={
               KIDS_TOPIC.preview && (
                 <>
-                  <h4>課程環節</h4>
+                  <h4>{t.home.showcase.sections}</h4>
                   {KIDS_TOPIC.preview.intro && <p className={styles.kidsIntro}>{KIDS_TOPIC.preview.intro}</p>}
                   <div ref={setKidsMenu} />
                 </>

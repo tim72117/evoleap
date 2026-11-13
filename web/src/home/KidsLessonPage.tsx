@@ -6,6 +6,7 @@ import { KidsPlayer } from '../kids/KidsPlayer'
 import { useKidsMode } from '../kidsMode/KidsModeContext'
 import { isLockedLesson, useKidsProgress } from '../kidsMode/progress'
 import { slotLabel } from '../kidsMode/schedule'
+import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { documentTitle } from '../site/siteInfo'
 import site from '../site/SiteLayout.module.css'
@@ -20,6 +21,8 @@ import { TopicLessonGate } from './TopicLessonGate'
 export function KidsLessonPage({ id }: { id: string }) {
   const { mode } = useKidsMode()
   const progress = useKidsProgress(!!mode?.active)
+  const t = useT()
+  const m = t.home.kidsLesson
   // 兒童模式時段外:不載入播放器(伺服器也不會給腳本),直接告訴孩子下一堂什麼時候
   if (mode?.active && !mode.schedule.open) {
     const next = mode.schedule.next
@@ -29,10 +32,10 @@ export function KidsLessonPage({ id }: { id: string }) {
           <p className={own.closedIcon} aria-hidden="true">
             ⏰
           </p>
-          <h1>還沒到上課時間</h1>
-          <p>{next ? `下一堂是 ${slotLabel({ day: next.day, time: next.time as never })}，到時候再來上「${kidsLessonTitle(id)}」吧！` : '家長還沒排上課時間。'}</p>
+          <h1>{m.notYetTime}</h1>
+          <p>{next ? m.nextSlot(slotLabel({ day: next.day, time: next.time as never }), kidsLessonTitle(id)) : m.noSchedule}</p>
           <Link className={own.closedBack} to={KIDS_TOPIC.path}>
-            回到我的課
+            {m.backToMyLessons}
           </Link>
         </section>
       </SiteLayout>
@@ -43,7 +46,7 @@ export function KidsLessonPage({ id }: { id: string }) {
     return (
       <SiteLayout title={kidsLessonDocTitle(id)} narrow>
         <section className={own.closed} role="status" aria-busy="true">
-          <p>準備中…</p>
+          <p>{m.preparing}</p>
         </section>
       </SiteLayout>
     )
@@ -57,10 +60,10 @@ export function KidsLessonPage({ id }: { id: string }) {
           <p className={own.closedIcon} aria-hidden="true">
             🔒
           </p>
-          <h1>這一課還沒到</h1>
-          <p>{next ? `先上完「${kidsLessonTitle(next)}」，再一課一課往下上吧！` : '先回到課程地圖看看吧！'}</p>
+          <h1>{m.locked}</h1>
+          <p>{next ? m.finishFirst(kidsLessonTitle(next)) : m.checkMap}</p>
           <Link className={own.closedBack} to={next ? KIDS_OPEN_LESSONS[next].path : KIDS_TOPIC.path}>
-            {next ? `去上「${kidsLessonTitle(next)}」` : '回到我的課'}
+            {next ? m.goTo(kidsLessonTitle(next)) : m.backToMyLessons}
           </Link>
         </section>
       </SiteLayout>
@@ -74,7 +77,7 @@ export function KidsLessonPage({ id }: { id: string }) {
       id={id}
       title={kidsLessonTitle(id)}
       docTitle={kidsLessonDocTitle(id)}
-      loginNote="第一課可以直接預覽，之後的課登入後就能學習，也會記錄孩子上到哪裡。"
+      loginNote={t.home.lesson.kidsLoginNote}
     >
       {(lesson) => <KidsLesson id={id} script={lesson.script!} />}
     </TopicLessonGate>
@@ -88,6 +91,8 @@ function KidsLesson({ id, script }: { id: string; script: string }) {
   const [side, setSide] = useState<HTMLElement | null>(null)
   // 段落面板一開始收起來,按「☰ 段落」才打開
   const [sideOpen, setSideOpen] = useState(false)
+  const t = useT()
+  const m = t.home.kidsLesson
 
   // 沒有 SiteLayout,頁面標題自己設(和 seo/pages.ts 一致)
   useEffect(() => {
@@ -102,11 +107,11 @@ function KidsLesson({ id, script }: { id: string; script: string }) {
 
       {/* 浮在左上角:回課程地圖(大按鈕,孩子點得到) */}
       <Link className={own.floatBack} to={KIDS_TOPIC.path}>
-        ← 課程地圖
+        {t.home.lesson.backToMap}
       </Link>
 
       {/* 浮在右上角的側欄:課名、給家長、這一課的段落(可以收起來) */}
-      <aside className={own.side} data-open={sideOpen ? 'true' : 'false'} aria-label="這一課">
+      <aside className={own.side} data-open={sideOpen ? 'true' : 'false'} aria-label={m.thisLesson}>
         <div className={own.sideHead}>
           {/* 課名一直都在(頁面的標題);側欄收起來或窄螢幕時只是看不到 */}
           <h1 className={sideOpen ? undefined : own.srOnly}>
@@ -115,10 +120,10 @@ function KidsLesson({ id, script }: { id: string; script: string }) {
           </h1>
           <div className={own.sideButtons}>
             <button type="button" className={own.bigButton} aria-expanded={parents} onClick={() => setParents(!parents)}>
-              給家長
+              {m.forParents}
             </button>
-            <button type="button" className={own.bigButton} aria-expanded={sideOpen} aria-label={sideOpen ? '收起段落' : '打開段落'} onClick={() => setSideOpen(!sideOpen)}>
-              {sideOpen ? '收起 ▴' : '☰ 段落'}
+            <button type="button" className={own.bigButton} aria-expanded={sideOpen} aria-label={sideOpen ? m.closeSections : m.openSections} onClick={() => setSideOpen(!sideOpen)}>
+              {sideOpen ? m.closeButton : m.sectionsButton}
             </button>
           </div>
         </div>
@@ -126,14 +131,14 @@ function KidsLesson({ id, script }: { id: string; script: string }) {
       </aside>
 
       {parents && (
-        <div className={own.parentsLayer} role="dialog" aria-label="給家長" onClick={() => setParents(false)}>
+        <div className={own.parentsLayer} role="dialog" aria-label={m.forParents} onClick={() => setParents(false)}>
           <section className={own.parentsCard} onClick={(e) => e.stopPropagation()}>
-            <h2>給家長</h2>
+            <h2>{m.forParents}</h2>
             {parentsNotes.map((p) => (
               <p key={p}>{p}</p>
             ))}
             <button type="button" className={own.bigButton} onClick={() => setParents(false)}>
-              知道了
+              {m.gotIt}
             </button>
           </section>
         </div>

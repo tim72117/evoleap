@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from './AuthContext'
+import { useT } from '../i18n/I18nProvider'
 import { loginHref } from './paths'
 import { MEMBER_PATH } from '../member/paths'
 import { SimulationMenuItems } from './SimulationMenuItems'
@@ -17,6 +18,7 @@ export function UserMenu() {
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const menuId = useId()
+  const t = useT()
 
   // 換頁時關閉
   useEffect(() => {
@@ -51,7 +53,7 @@ export function UserMenu() {
     const here = location.pathname + location.search + location.hash
     return (
       <Link className={styles.login} to={loginHref(here)}>
-        登入
+        {t.auth.menu.signIn}
       </Link>
     )
   }
@@ -78,7 +80,7 @@ export function UserMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        aria-label={`帳號選單:${display}`}
+        aria-label={t.auth.menu.accountMenu(display)}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(e) => {
           if (e.key === 'ArrowDown' && !open) {
@@ -102,7 +104,7 @@ export function UserMenu() {
           ref={menuRef}
           className={styles.menu}
           role="menu"
-          aria-label="帳號"
+          aria-label={t.auth.menu.account}
           onKeyDown={(e) => {
             // 選單項目之間用上下鍵、Home／End 移動(WAI-ARIA menu)
             const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])]
@@ -121,7 +123,7 @@ export function UserMenu() {
           <SimulationMenuItems onPick={() => setOpen(false)} />
           {/* 已經在會員空間時網址不變,換頁時關閉的效果不會觸發,點了也要關 */}
           <Link role="menuitem" className={styles.item} to={MEMBER_PATH} onClick={() => setOpen(false)}>
-            會員空間
+            {t.auth.menu.memberArea}
           </Link>
           <button
             type="button"
@@ -135,7 +137,7 @@ export function UserMenu() {
               setOpen(false)
             }}
           >
-            {busy ? '登出中…' : '登出'}
+            {busy ? t.auth.signingOut : t.auth.signOut}
           </button>
         </div>
       ) : null}

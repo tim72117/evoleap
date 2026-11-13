@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { hideDrafts, useCourseMap, type MapUnit } from '../content/courseMap'
+import { useT } from '../i18n/I18nProvider'
 import { LockIcon } from '../site/LockIcon'
 import styles from './SoftwareTopicPage.module.css'
 import own from './KidsTopicPage.module.css'
@@ -18,6 +19,7 @@ export function CourseMapUnits({ course, topicPath, fallback }: { course: string
   const { status, user } = useAuth()
   const signedIn = status === 'user' || status === 'disabled'
   const map = useCourseMap(course)
+  const t = useT()
   return (
     <div className={own.units}>
       {(map.status === 'ready' ? map.map.units : hideDrafts(fallback, !!user?.isAdmin)).map((unit) => (
@@ -53,14 +55,14 @@ export function CourseMapUnits({ course, topicPath, fallback }: { course: string
                     <div className={styles.rowMeta}>
                       {/* 開始學習與免費預覽(綠)、登入後學習(單色鎖頭)、規劃中(淡色)、草稿(虛線強調色) */}
                       {state === 'login' ? (
-                        <LockIcon label="登入後學習" />
+                        <LockIcon label={t.home.map.signInToLearn} />
                       ) : (
                         state && (
                           <span className={own.status} data-state={state}>
                             <span className={own.statusIcon} aria-hidden="true">
                               {{ start: '▶', free: '▶', planned: '🌱', draft: '✎' }[state]}
                             </span>
-                            {{ start: '開始學習', free: '免費預覽', planned: '規劃中', draft: '草稿' }[state]}
+                            {{ start: t.home.map.start, free: t.home.map.freePreview, planned: t.home.map.planned, draft: t.home.map.draft }[state]}
                           </span>
                         )
                       )}

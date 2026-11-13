@@ -68,7 +68,7 @@
   --site-shadow: 0 1px 2px rgb(0 0 0 / 60%), 0 12px 32px rgb(0 0 0 / 70%);
 }
 
-/* 兒童模式沒有主要導覽時,日夜切換按鈕自己靠右(和帳號／兒童頭像排在一起) */
+/* 兒童模式沒有主要導覽時,語言切換按鈕自己靠右(和帳號／兒童頭像排在一起) */
 .pushRight {
   margin-left: auto;
 }
@@ -89,6 +89,29 @@
 
 .themeToggle:hover {
   color: var(--site-text);
+}
+
+/* 語言切換:顯示要切換到的語言(English／中文) */
+.langToggle {
+  flex: none;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.langToggle:hover {
+  color: var(--site-text);
+}
+
+.langShort {
+  display: none;
 }
 
 
@@ -267,6 +290,21 @@
     height: 30px;
   }
 
+  .langToggle {
+    height: 30px;
+    min-width: 30px;
+    padding: 0 8px;
+  }
+
+  /* 手機上標頭很擠:只顯示 EN／中 */
+  .langLong {
+    display: none;
+  }
+
+  .langShort {
+    display: inline;
+  }
+
   .brandLogo {
     height: 28px;
   }
@@ -279,6 +317,11 @@
     padding: 4px 8px;
     font-size: 14px;
     white-space: nowrap;
+  }
+
+  /* 英文的導覽字比較長:連結左右留白少一點 */
+  .site:lang(en) .nav a {
+    padding: 4px 6px;
   }
 
   .footerInner {

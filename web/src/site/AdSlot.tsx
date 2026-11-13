@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../i18n/I18nProvider'
 import styles from './AdSlot.module.css'
 
 /**
@@ -39,6 +40,7 @@ export function AdSlot({ className }: { className?: string }) {
   const requested = useRef(false)
   // script 被擋(例如廣告阻擋程式)時整塊收起來,不留空框
   const [blocked, setBlocked] = useState(false)
+  const t = useT()
 
   useEffect(() => {
     const ins = insRef.current
@@ -73,17 +75,17 @@ export function AdSlot({ className }: { className?: string }) {
   if (!ENABLED) {
     if (!import.meta.env.DEV) return null
     return (
-      <aside className={[styles.slot, className].filter(Boolean).join(' ')} aria-label="廣告">
-        <span className={styles.label}>廣告</span>
+      <aside className={[styles.slot, className].filter(Boolean).join(' ')} aria-label={t.home.ad.label}>
+        <span className={styles.label}>{t.home.ad.label}</span>
         <div className={styles.placeholder} style={{ height: HEIGHT }}>
-          廣告位（開發預覽）
+          {t.home.ad.placeholder}
         </div>
       </aside>
     )
   }
   return (
-    <aside className={[styles.slot, className].filter(Boolean).join(' ')} aria-label="廣告">
-      <span className={styles.label}>廣告</span>
+    <aside className={[styles.slot, className].filter(Boolean).join(' ')} aria-label={t.home.ad.label}>
+      <span className={styles.label}>{t.home.ad.label}</span>
       <div className={styles.frame}>
         <ins
           ref={insRef}

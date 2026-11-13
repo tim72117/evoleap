@@ -1,6 +1,7 @@
 // 拖曳層:兒童版播放器(KidsPlayer)與成人課的靜態互動(studio/interactive/StaticActor)共用。
 // 拖放的計畫(哪些東西可以拖、放到哪裡、放下去是哪一步)見 drag.ts;外觀由 classes 決定。
 import { useEffect, useRef, useState } from 'react'
+import { useT } from '../i18n/I18nProvider'
 import type { ScriptStep } from '../live/types'
 import type { DragPlan, DropSlot } from './drag'
 
@@ -31,6 +32,7 @@ export function DragLayer({
   /** 目標(「演員代號:目標」)現在對應的元素:拖的時候複製一份跟著指標走 */
   elementOf?: (target: string) => HTMLElement | null
 }) {
+  const t = useT()
   const [held, setHeld] = useState<{ id: string; label: string; x: number; y: number; slot: DropSlot | null } | null>(null)
   // 拖的時候整個節點跟著指標走:複製一份放進演員裡(才有演員的樣式),原本的先藏起來;放開就拿掉複製的、原本的顯示回來。
   // 這只在停下來等孩子操作時存在,不屬於舞台的時間軸,放開後演員照新的狀態重畫
@@ -78,7 +80,7 @@ export function DragLayer({
             key={it.id}
             type="button"
             className={classes.grab}
-            aria-label={`拖動「${it.label}」`}
+            aria-label={t.kids.drag.grab(it.label)}
             style={{ left: r.x - 10, top: r.y - 10, width: r.w + 20, height: r.h + 20 }}
             onPointerDown={(e) => {
               e.preventDefault()
@@ -141,7 +143,7 @@ export function DragLayer({
           const h = Math.max(minZone.h, size?.h ?? minZone.h)
           return on ? (
             <span key={d.target} className={classes.dropZone} style={{ left: r.x, top: r.y + r.h / 2 - h / 2, width: w, height: h }}>
-              放這裡
+              {t.kids.drag.dropHere}
             </span>
           ) : (
             <span key={d.target} className={classes.dropDot} style={{ left: r.x, top: r.y + r.h / 2 }} aria-hidden="true">

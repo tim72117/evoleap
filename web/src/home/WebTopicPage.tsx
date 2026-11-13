@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import type { MapUnit } from '../content/courseMap'
 import { WEB_OPEN_LESSONS, WEB_PITCH, WEB_UNITS, webNeedsLogin } from '../content/webCourse'
-import { WEB_TOPIC } from '../content/topics'
+import { topicStartLabel, WEB_TOPIC } from '../content/topics'
+import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
 import { CourseMapUnits } from './CourseMapUnits'
@@ -27,19 +28,20 @@ const LOCAL_UNITS: MapUnit[] = WEB_UNITS.map((u) => ({
 export function WebTopicPage() {
   useHashScroll()
   const topic = WEB_TOPIC
+  const t = useT()
   return (
     <SiteLayout title={topic.seoTitle}>
       <section className={styles.hero}>
         <div className={styles.heroInner}>
-          <p className={styles.kicker}>開放中</p>
+          <p className={styles.kicker}>{t.home.openNow}</p>
           <h1>{topic.name}</h1>
-          <p className={styles.pitch}>{topic.slogan}。不教語法，教網頁怎麼運作、每個東西叫什麼。</p>
+          <p className={styles.pitch}>{t.home.web.pitch(topic.slogan)}</p>
           <div className={styles.ctas}>
             <Link className={styles.primary} to={topic.start.path}>
-              {topic.start.label}
+              {topicStartLabel(topic.start)}
             </Link>
             <Link className={styles.secondary} to={{ pathname: topic.path, hash: 'map' }}>
-              查看課程地圖
+              {t.home.viewCourseMap}
             </Link>
           </div>
         </div>
@@ -48,7 +50,7 @@ export function WebTopicPage() {
       <section className={styles.section} id="about">
         <div className={styles.container}>
           <header className={styles.sectionHead}>
-            <h2>課程說明</h2>
+            <h2>{t.home.aboutCourse}</h2>
             {WEB_PITCH.map((p) => (
               <p key={p} className={styles.lead}>
                 {p}
@@ -61,8 +63,8 @@ export function WebTopicPage() {
       <section className={styles.section} id="map">
         <div className={styles.container}>
           <header className={styles.sectionHead}>
-            <h2>課程地圖</h2>
-            <p className={styles.lead}>課程陸續開放中，還沒開放的課標「規劃中」。第一課不用登入就能預覽，其他課登入後就能學習。</p>
+            <h2>{t.home.courseMap}</h2>
+            <p className={styles.lead}>{t.home.web.mapLead}</p>
           </header>
           <CourseMapUnits course="web" topicPath={topic.path} fallback={LOCAL_UNITS} />
         </div>

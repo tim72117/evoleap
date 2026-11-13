@@ -5,16 +5,11 @@ import { SimulationBanner } from '../auth/SimulationBanner'
 import { UserMenu } from '../auth/UserMenu'
 import { KidsCapsule } from '../kidsMode/KidsCapsule'
 import { useKidsMode } from '../kidsMode/KidsModeContext'
+import { useLocale, useT } from '../i18n/I18nProvider'
 import styles from './SiteLayout.module.css'
-import { documentTitle, SITE_NAME, SITE_TAGLINE } from './siteInfo'
+import { SITE_NAME } from './siteInfo'
 import { COURSE_LIST, SOFTWARE_TOPIC } from '../content/topics'
 
-type NavItem = { label: string; to: string; end?: boolean }
-
-const NAV: NavItem[] = [
-  { label: '首頁', to: '/', end: true },
-  { label: COURSE_LIST.name, to: COURSE_LIST.path, end: true },
-]
 
 type Props = {
   /** Page name for the document title ("<title> · evoleap"); omit on the home page. */
@@ -41,10 +36,17 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
   const [dark, setDark] = useState(readDark)
   const canSeeStudio = useCanSeeStudio()
   const kids = useKidsMode().mode
+  const t = useT()
+  const { locale, setLocale } = useLocale()
+  const nav = [
+    { label: t.site.nav.home, to: '/', end: true },
+    { label: t.site.nav.courses, to: COURSE_LIST.path, end: true },
+  ]
 
+  // 「<頁名> · evoleap」;首頁(不給頁名)為「evoleap：<副標>」(同 siteInfo.documentTitle,副標依語言)
   useEffect(() => {
-    document.title = documentTitle(title)
-  }, [title])
+    document.title = title ? `${title} · ${SITE_NAME}` : `${SITE_NAME}：${t.site.tagline}`
+  }, [title, t])
 
   // <html> 也跟著換底色與 color-scheme,捲過頭露出的底和捲軸才不會是亮的;離開學員頁(例如 /studio)時拿掉
   useEffect(() => {
@@ -66,21 +68,21 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
   }
 
   return (
-    <div className={dark ? `${styles.site} ${styles.dark}` : styles.site} lang="zh-Hant">
+    <div className={dark ? `${styles.site} ${styles.dark}` : styles.site} lang={locale}>
       <a className={styles.skip} href="#main">
-        跳到主要內容
+        {t.site.skipToMain}
       </a>
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link className={styles.brand} to="/">
             <img className={styles.brandLogo} src={dark ? '/brand/evoleap-logo-dark.svg' : '/brand/evoleap-logo.svg'} alt="evoleap" width="110" height="32" />
             {/* 兒童模式的標頭只放標誌,不放「從零開始的 AI 課程地圖」 */}
-            {kids?.active ? null : <span className={styles.brandTagline}>{SITE_TAGLINE}</span>}
+            {kids?.active ? null : <span className={styles.brandTagline}>{t.site.tagline}</span>}
           </Link>
           {/* 兒童模式只顯示兒童課程:不放主要導覽 */}
           {kids?.active ? null : (
-            <nav className={styles.nav} aria-label="主要導覽">
-              {NAV.map((item) => (
+            <nav className={styles.nav} aria-label={t.site.nav.main}>
+              {nav.map((item) => (
                 <NavLink key={item.label} to={item.to} end={item.end}>
                   {item.label}
                 </NavLink>
@@ -89,11 +91,22 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
           )}
           <button
             type="button"
+            className={kids?.active ? `${styles.langToggle} ${styles.pushRight}` : styles.langToggle}
+            onClick={() => setLocale(locale === 'en' ? 'zh-Hant' : 'en')}
+            aria-label={t.common.switchToLabel}
+            title={t.common.switchToLabel}
+            lang={locale === 'en' ? 'zh-Hant' : 'en'}
+          >
+            <span className={styles.langLong}>{t.common.switchTo}</span>
+            <span className={styles.langShort}>{t.common.switchToShort}</span>
+          </button>
+          <button
+            type="button"
             // 兒童模式沒有主要導覽(平常是導覽把右邊的按鈕推到最右),改由這個按鈕推
-            className={kids?.active ? `${styles.themeToggle} ${styles.pushRight}` : styles.themeToggle}
+            className={styles.themeToggle}
             onClick={toggleTheme}
-            aria-label={dark ? '切換成亮色' : '切換成暗色'}
-            title={dark ? '切換成亮色' : '切換成暗色'}
+            aria-label={dark ? t.site.themeToLight : t.site.themeToDark}
+            title={dark ? t.site.themeToLight : t.site.themeToDark}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d={dark ? SUN : MOON} />
@@ -111,25 +124,25 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div>
-            <strong>{SITE_NAME}</strong>：{SITE_TAGLINE}
+            <strong>{SITE_NAME}</strong>{locale === 'en' ? ': ' : '：'}{t.site.tagline}
           </div>
-          <nav className={styles.footerNav} aria-label="頁尾導覽">
-            <Link to={`${SOFTWARE_TOPIC.path}#map`}>課程地圖</Link>
-            <Link to="/courses/ai-agent">AI Agent 整合應用</Link>
+          <nav className={styles.footerNav} aria-label={t.site.nav.footer}>
+            <Link to={`${SOFTWARE_TOPIC.path}#map`}>{t.site.footer.courseMap}</Link>
+            <Link to="/courses/ai-agent">{t.site.footer.aiAgent}</Link>
           </nav>
           <div className={styles.domain}>
             <Link className={styles.devLink} to="/privacy">
-              隱私權政策
+              {t.site.footer.privacy}
             </Link>
             <Link className={styles.devLink} to="/terms">
-              服務條款
+              {t.site.footer.terms}
             </Link>
             <Link className={styles.devLink} to="/refund">
-              退款政策
+              {t.site.footer.refund}
             </Link>
             {canSeeStudio && (
               <Link className={styles.devLink} to="/studio">
-                研發基地
+                {t.site.footer.studio}
               </Link>
             )}
           </div>

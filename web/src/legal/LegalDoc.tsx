@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { formatDate, useLocale, useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { CONTACT_EMAIL, isPlaceholder } from './operator'
 import styles from './Legal.module.css'
@@ -23,19 +24,29 @@ export function LegalDoc({
   intro: ReactNode
   sections: LegalSection[]
 }) {
+  const t = useT()
+  const { locale } = useLocale()
   return (
     <SiteLayout title={title}>
       <article className={styles.doc}>
         <header className={styles.head}>
           <h1>{title}</h1>
+          {t.legal.translationNotice && (
+            <p className={`${styles.note} ${styles.notice}`} role="note">
+              {t.legal.translationNotice}
+            </p>
+          )}
           <p className={styles.updated}>
-            最後更新日期：<time dateTime={updated}>{updated}</time>
+            {t.legal.updated}
+            {/* 日期字串是 UTC 的年月日,用 UTC 格式化才不會因時區差一天 */}
+            {/* 中文版維持原本的 2026-11-09 寫法 */}
+            <time dateTime={updated}>{locale === 'en' ? formatDate(updated, locale, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) : updated}</time>
           </p>
           <p className={styles.intro}>{intro}</p>
         </header>
 
-        <nav className={styles.toc} aria-label="本頁目錄">
-          <p className={styles.tocTitle}>本頁目錄</p>
+        <nav className={styles.toc} aria-label={t.legal.toc}>
+          <p className={styles.tocTitle}>{t.legal.toc}</p>
           <ol>
             {sections.map((s) => (
               <li key={s.id}>

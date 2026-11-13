@@ -26,6 +26,7 @@
 // 播放器行為:播放暫停、拖曳時間軸(含預覽時間與章節)、章節刻度、倍速、字幕開關、音量(有音訊時)、
 // 全螢幕(手機自動轉橫向;iPhone 不支援元素全螢幕時改用滿版)、手機橫放自動滿版、
 // 控制列自動隱藏、鍵盤快捷鍵、觸控雙擊快轉倒轉、記住進度、播放時螢幕不休眠、系統媒體控制。
+import { messages } from '../i18n/current'
 import { createNarration, type Clip } from './narration'
 import { stageSize } from './place'
 import type { Aspect } from './types'
@@ -160,6 +161,8 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     renderAt: () => {},
     ...opts,
   }
+  // 介面文字:建立播放器時的語言(換語言時由使用的頁面重建播放器,見 LivePlayer、InteractiveScenePage)
+  const L = messages().player
   const root = document.createElement('div')
   const portrait = o.aspect === 'portrait'
   const { w: W, h: H } = stageSize(o.aspect)
@@ -168,41 +171,41 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   if (portrait) root.style.cssText = `--vp-w:${W}px;--vp-h:${H}px`
   root.tabIndex = 0
   root.setAttribute('role', 'region')
-  root.setAttribute('aria-label', `影片播放器:${o.title || ''}`)
+  root.setAttribute('aria-label', L.region(o.title || ''))
   root.innerHTML = `
       <div class="vp-stage"><div class="vp-canvas"></div></div>
       <div class="vp-caption" aria-live="off"></div>
       <div class="vp-hit"></div>
       <div class="vp-seekfx vp-seekfx-l"></div><div class="vp-seekfx vp-seekfx-r"></div>
-      <button class="vp-big" type="button" aria-label="播放">${ICON.play}</button>
-      <div class="vp-hint" hidden>把手機轉成橫向可以看得更清楚</div>
+      <button class="vp-big" type="button" aria-label="${L.play}">${ICON.play}</button>
+      <div class="vp-hint" hidden>${L.rotateHint}</div>
       <div class="vp-stop" hidden role="dialog" aria-live="polite">
         <div class="vp-stop-in">
-          <div class="vp-stop-eyebrow">停一下</div>
+          <div class="vp-stop-eyebrow">${L.stopEyebrow}</div>
           <h3 class="vp-stop-title"></h3>
           <p class="vp-stop-body"></p>
-          <div class="vp-stop-btns"><button type="button" class="vp-stop-back">再看一次這段</button><button type="button" class="vp-stop-go">完成了，繼續</button></div>
+          <div class="vp-stop-btns"><button type="button" class="vp-stop-back">${L.stopBack}</button><button type="button" class="vp-stop-go">${L.stopGo}</button></div>
         </div>
       </div>
       <div class="vp-ui">
         <div class="vp-top"><span class="vp-title"></span></div>
         <div class="vp-bottom">
-          <div class="vp-bar" role="slider" tabindex="-1" aria-label="播放進度" aria-valuemin="0">
+          <div class="vp-bar" role="slider" tabindex="-1" aria-label="${L.progress}" aria-valuemin="0">
             <div class="vp-track"><div class="vp-fill"></div><div class="vp-ticks"></div><div class="vp-knob"></div></div>
             <div class="vp-tip"><span class="vp-tip-ch"></span><span class="vp-tip-t"></span></div>
           </div>
           <div class="vp-row">
-            <button class="vp-btn vp-play" type="button" aria-label="播放">${ICON.play}</button>
-            <button class="vp-btn vp-vol" type="button" aria-label="靜音" hidden>${ICON.vol}</button>
+            <button class="vp-btn vp-play" type="button" aria-label="${L.play}">${ICON.play}</button>
+            <button class="vp-btn vp-vol" type="button" aria-label="${L.mute}" hidden>${ICON.vol}</button>
             <span class="vp-time"><span class="vp-cur">0:00</span> / <span class="vp-dur">0:00</span></span>
             <span class="vp-chapter"></span>
             <span class="vp-grow"></span>
-            <button class="vp-btn vp-cc" type="button" aria-label="字幕" aria-pressed="true" hidden>${ICON.cc}</button>
+            <button class="vp-btn vp-cc" type="button" aria-label="${L.captions}" aria-pressed="true" hidden>${ICON.cc}</button>
             <div class="vp-ratebox">
-              <button class="vp-btn vp-rate" type="button" aria-label="播放速度" aria-haspopup="menu">1×</button>
+              <button class="vp-btn vp-rate" type="button" aria-label="${L.speed}" aria-haspopup="menu">1×</button>
               <div class="vp-menu" role="menu" hidden>${RATES.map((r) => `<button type="button" role="menuitemradio" data-rate="${r}">${r}×</button>`).join('')}</div>
             </div>
-            <button class="vp-btn vp-fs" type="button" aria-label="全螢幕">${ICON.fs}</button>
+            <button class="vp-btn vp-fs" type="button" aria-label="${L.fullscreen}">${ICON.fs}</button>
           </div>
         </div>
       </div>`
@@ -278,7 +281,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
       (o.stops || []).map((x) => `<b style="left:${(x.at / dur()) * 100}%" title="${String(x.title || '').replace(/"/g, '&quot;')}"></b>`).join('')
   }
   setChapters()
-  const chapterAt = (ms: number): string => chapters.filter((c) => c.at <= ms).at(-1)?.label || ''
+  const chapterAt = (ms: number): string => L.chapterName(chapters.filter((c) => c.at <= ms).at(-1)?.label || '')
 
   // ---------- 畫面 ----------
   let lastKey = ''
@@ -300,7 +303,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
       bar.setAttribute('aria-valuenow', String(Math.round(t / 1000)))
       bar.setAttribute('aria-valuetext', `${cur} / ${fmt(dur())}`)
       const icon = state.ended ? ICON.replay : state.playing ? ICON.pause : ICON.play
-      const label = state.ended ? '重播' : state.playing ? '暫停' : '播放'
+      const label = state.ended ? L.replay : state.playing ? L.pause : L.play
       for (const b of [$('.vp-play'), $('.vp-big')]) {
         b.innerHTML = icon
         b.setAttribute('aria-label', label)
@@ -351,7 +354,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
 
   function showStop(stop: ShellStop): void {
     if (o.onStop?.(stop)) return
-    $('.vp-stop-title').textContent = stop.title || '換你試試'
+    $('.vp-stop-title').textContent = stop.title || L.stopTitle
     $('.vp-stop-body').textContent = stop.body || ''
     $('.vp-stop').hidden = false
     root.classList.add('stopped')
@@ -459,7 +462,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     const full = state.fs || state.pseudo || state.ext
     root.classList.toggle('is-fs', on)
     $('.vp-fs').innerHTML = full ? ICON.fsExit : ICON.fs
-    $('.vp-fs').setAttribute('aria-label', full ? '離開全螢幕' : '全螢幕')
+    $('.vp-fs').setAttribute('aria-label', full ? L.exitFullscreen : L.fullscreen)
     $('.vp-hint').hidden = portrait || !((state.pseudo || state.ext) && matchMedia('(orientation: portrait)').matches)
     requestAnimationFrame(fit)
   }
@@ -537,7 +540,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   function skip(delta: number): void {
     seek(state.t + delta)
     const fx = $(delta < 0 ? '.vp-seekfx-l' : '.vp-seekfx-r')
-    fx.textContent = `${delta < 0 ? '−' : '+'}${Math.abs(delta / 1000)} 秒`
+    fx.textContent = L.seekBy(delta < 0 ? '−' : '+', Math.abs(delta / 1000))
     fx.classList.remove('on')
     void fx.offsetWidth
     fx.classList.add('on')
@@ -630,7 +633,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     if (audio) audio.muted = state.muted
     narration.setMuted(state.muted)
     $('.vp-vol').innerHTML = state.muted ? ICON.mute : ICON.vol
-    $('.vp-vol').setAttribute('aria-label', state.muted ? '取消靜音' : '靜音')
+    $('.vp-vol').setAttribute('aria-label', state.muted ? L.unmute : L.mute)
   }
   const menu = $('.vp-menu')
   $('.vp-rate').addEventListener('click', (e) => {

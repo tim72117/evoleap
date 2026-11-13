@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useT } from '../i18n/I18nProvider'
 import { lazyPage } from '../site/lazyPage'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
@@ -18,6 +19,7 @@ function ScenarioRow({ scenario: s, visible }: { scenario: Scenario; visible: bo
   const [open, setOpen] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const playerId = useId()
+  const t = useT()
   const toggle = () => {
     setOpen(!open)
     setLoaded(true)
@@ -49,8 +51,8 @@ function ScenarioRow({ scenario: s, visible }: { scenario: Scenario; visible: bo
           <p>
             {s.summary}{' '}
             <span className={styles.tools}>
-              {s.tools.map((t) => (
-                <code key={t}>{t}</code>
+              {s.tools.map((x) => (
+                <code key={x}>{x}</code>
               ))}
             </span>
           </p>
@@ -58,11 +60,11 @@ function ScenarioRow({ scenario: s, visible }: { scenario: Scenario; visible: bo
         <div className={styles.rowMeta}>
           {s.video ? (
             <>
-              <span className={styles.tag}>影片</span>
+              <span className={styles.tag}>{t.home.claudeCode.video}</span>
               <span>{s.video.duration}</span>
             </>
           ) : (
-            <span className={`${styles.tag} ${styles.tagPlanned}`}><span aria-hidden="true">🌱 </span>規劃中</span>
+            <span className={`${styles.tag} ${styles.tagPlanned}`}><span aria-hidden="true">🌱 </span>{t.home.planned}</span>
           )}
         </div>
       </div>
@@ -84,6 +86,8 @@ function ScenarioRow({ scenario: s, visible }: { scenario: Scenario; visible: bo
 export function ClaudeCodeTopicPage() {
   useHashScroll()
   const topic = CLAUDE_CODE_TOPIC
+  const t = useT()
+  const m = t.home.claudeCode
   const [expanded, setExpanded] = useState(true)
   const rowsId = useId()
 
@@ -91,12 +95,12 @@ export function ClaudeCodeTopicPage() {
     <SiteLayout title={topic.seoTitle}>
       <section className={styles.hero}>
         <div className={styles.heroInner}>
-          <p className={styles.kicker}><span aria-hidden="true">🌱 </span>規劃中</p>
+          <p className={styles.kicker}><span aria-hidden="true">🌱 </span>{t.home.planned}</p>
           <h1>{topic.name}</h1>
-          <p className={styles.pitch}>{topic.slogan}。遇到哪個情況就看哪一個，不用照順序。</p>
+          <p className={styles.pitch}>{m.pitch(topic.slogan)}</p>
           <div className={styles.ctas}>
             <Link className={styles.primary} to={{ pathname: topic.path, hash: 'scenarios' }}>
-              查看所有情境
+              {m.viewAll}
             </Link>
           </div>
         </div>
@@ -105,8 +109,8 @@ export function ClaudeCodeTopicPage() {
       <section className={styles.section} id="scenarios">
         <div className={styles.container}>
           <header className={styles.sectionHead}>
-            <h2>使用情境</h2>
-            <p className={styles.lead}>內容還在規劃，可能調整；功能名稱會隨工具改版。</p>
+            <h2>{m.scenariosTitle}</h2>
+            <p className={styles.lead}>{m.scenariosLead}</p>
           </header>
           <div className={styles.group}>
             <h3 className={styles.groupHead}>
@@ -114,8 +118,8 @@ export function ClaudeCodeTopicPage() {
                 <svg className={styles.chevron} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="m9 6 6 6-6 6" />
                 </svg>
-                全部情境
-                <span className={styles.groupCount}>{CLAUDE_CODE_SCENARIOS.length} 個情境</span>
+                {m.allScenarios}
+                <span className={styles.groupCount}>{m.count(CLAUDE_CODE_SCENARIOS.length)}</span>
               </button>
             </h3>
             <ul id={rowsId} className={styles.rows} hidden={!expanded}>

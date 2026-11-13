@@ -1,5 +1,6 @@
 // 兒童模式的 API(server/internal/api/kids.go):家長的孩子與每週時段、這台裝置的兒童模式。
 import { ApiError } from '../auth/api'
+import { errorText } from '../i18n/errorText'
 import type { Slot } from './schedule'
 
 export interface Child {
@@ -38,8 +39,8 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     body: body === undefined ? undefined : JSON.stringify(body),
   })
   if (res.status === 204) return undefined as T
-  const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string }
-  if (!res.ok) throw new ApiError(res.status, data.error ?? 'error', data.message ?? '發生錯誤，請稍後再試')
+  const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string; next?: { day?: number; time?: string } }
+  if (!res.ok) throw new ApiError(res.status, data.error ?? 'error', errorText(data))
   return data as T
 }
 

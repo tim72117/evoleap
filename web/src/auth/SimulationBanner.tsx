@@ -1,6 +1,7 @@
 import { useRef, type KeyboardEvent } from 'react'
 import { useAuth } from './AuthContext'
-import { SIMULATED_ROLES } from './simulationRoles'
+import { roleLabel, SIMULATED_ROLES } from './simulationRoles'
+import { useT } from '../i18n/I18nProvider'
 import styles from './SimulationBanner.module.css'
 
 // 管理員模擬身分時,每一頁底部的浮動膠囊:在這裡選要模擬的身分,也免得忘了自己正在模擬。剛開啟時是「管理員」(本人),
@@ -10,6 +11,7 @@ import styles from './SimulationBanner.module.css'
 export function SimulationBanner() {
   const { simulation, setSimulation, simulating, closeSimulation } = useAuth()
   const refs = useRef<(HTMLButtonElement | null)[]>([])
+  const t = useT()
   if (!simulating) return null
 
   const onKeyDown = (e: KeyboardEvent, i: number) => {
@@ -26,7 +28,7 @@ export function SimulationBanner() {
     <div className={styles.banner}>
       {/* 呼吸燈:表示正在模擬(不寫字,螢幕閱讀器由 radiogroup 的名稱得知) */}
       <span className={styles.dot} aria-hidden="true" />
-      <div className={styles.capsule} role="radiogroup" aria-label="模擬中的身分">
+      <div className={styles.capsule} role="radiogroup" aria-label={t.auth.simulation.groupLabel}>
         {SIMULATED_ROLES.map((r, i) => (
           <button
             key={r.id}
@@ -41,13 +43,13 @@ export function SimulationBanner() {
             onClick={() => setSimulation(r.id)}
             onKeyDown={(e) => onKeyDown(e, i)}
           >
-            {r.label}
+            {roleLabel(r.id, t)}
           </button>
         ))}
       </div>
       {/* 結束模擬:回到本人並收起膠囊(和身分分開,選「管理員」只是模擬成管理員本人) */}
       <button type="button" className={styles.close} onClick={closeSimulation}>
-        結束模擬
+        {t.auth.simulation.end}
       </button>
     </div>
   )

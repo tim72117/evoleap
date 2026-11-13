@@ -1,4 +1,5 @@
 import { Component, lazy, Suspense, type ComponentType, type ReactNode } from 'react'
+import { useT } from '../i18n/I18nProvider'
 import styles from './lazyPage.module.css'
 
 // 用到才下載的頁面或元件:打包成另一個 chunk,第一次顯示時才載入。
@@ -27,10 +28,11 @@ function reloadOnce(): boolean {
 }
 
 function Loading() {
+  const t = useT()
   return (
     <div className={`${styles.state} ${styles.loading}`} role="status">
       <span className={styles.spinner} aria-hidden="true" />
-      <p>載入中…</p>
+      <p>{t.common.loading}</p>
     </div>
   )
 }
@@ -43,16 +45,21 @@ class LoadBoundary extends Component<{ children: ReactNode }, { failed: boolean 
   }
   render() {
     if (!this.state.failed) return this.props.children
-    return (
-      <div className={styles.state} role="alert">
-        <h1>這一頁沒有載入成功</h1>
-        <p>可能是網路不穩，或網站剛更新。重新整理就能繼續。</p>
-        <button type="button" className={styles.reload} onClick={() => window.location.reload()}>
-          重新整理
-        </button>
-      </div>
-    )
+    return <LoadFailed />
   }
+}
+
+function LoadFailed() {
+  const t = useT()
+  return (
+    <div className={styles.state} role="alert">
+      <h1>{t.home.lazy.failedTitle}</h1>
+      <p>{t.home.lazy.failedBody}</p>
+      <button type="button" className={styles.reload} onClick={() => window.location.reload()}>
+        {t.home.lazy.reload}
+      </button>
+    </div>
+  )
 }
 
 export function lazyPage<P extends object>(load: () => Promise<ComponentType<P>>): ComponentType<P> {

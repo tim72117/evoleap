@@ -1,4 +1,5 @@
 import { useAuth } from './AuthContext'
+import { useT } from '../i18n/I18nProvider'
 import styles from './UserMenu.module.css'
 
 // 頭像選單(帳號選單 UserMenu、兒童模式的膠囊 KidsCapsule)裡的「開啟模擬／結束模擬」:只有真的管理員看得到。
@@ -6,6 +7,7 @@ import styles from './UserMenu.module.css'
 
 export function SimulationMenuItems({ onPick }: { onPick?: () => void }) {
   const { real, simulating, openSimulation, closeSimulation } = useAuth()
+  const t = useT()
   if (!real.user?.isAdmin) return null
   return (
     <button
@@ -18,7 +20,7 @@ export function SimulationMenuItems({ onPick }: { onPick?: () => void }) {
         onPick?.()
       }}
     >
-      {simulating ? '結束模擬' : '開啟模擬'}
+      {simulating ? t.auth.simulation.end : t.auth.simulation.open}
     </button>
   )
 }

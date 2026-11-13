@@ -2,24 +2,27 @@
 // 腳本(與旁白清單、章節音軌清單)不打包進前端:寫入課程資料時讀進資料庫(正式環境是部署時,本機是後端啟動時;課程的依 courses_seed.json 掛在各課底下,其餘是研發基地的),
 // 這裡向 GET /api/scripts/{path} 取得。伺服器依那一課的狀態與存取方式把關(草稿只給管理員、登入後免費的要登入),研發基地的只給管理員。
 import { useEffect, useState } from 'react'
+import { errorText } from '../i18n/errorText'
+import { loadedMessages, messages } from '../i18n/current'
 import type { MixChapter } from './mixPlan'
 import type { StageScript } from './stage'
 import { withTeacher } from './teacher'
 
-/** 腳本要登入才拿得到(登入過期,或課程頁的判斷和伺服器不一致)時的錯誤訊息;播放器看到它會加上登入連結(ScriptError) */
-export const LOGIN_REQUIRED = '這一課要登入才能觀看，請登入後再試一次。'
+/** 錯誤訊息是不是「要登入」(登入過期,或課程頁的判斷和伺服器不一致):播放器會加上登入連結(ScriptError)。
+ *  訊息可能是切換語言之前產生的(畫面上還留著),所以和每一種已載入的語言的「要登入」比 */
+export const isLoginRequired = (message: string): boolean => loadedMessages().some((m) => message === m.errors.scriptLoginRequired)
 
 /** 向伺服器取一個腳本檔;沒有(或看不到,404)時回傳 null */
 async function loadJson(path: string): Promise<unknown> {
   const res = await fetch(`/api/scripts/${path}`)
   if (res.status === 404) return null
-  if (res.status === 401) throw new Error(LOGIN_REQUIRED)
+  if (res.status === 401) throw new Error(messages().errors.scriptLoginRequired)
   if (res.status === 403) {
     // 兒童模式時段外(kids_closed,訊息附下一堂時間)、兒童模式看其他課(kids_only)、要訂閱:照伺服器的訊息顯示
-    const body = (await res.json().catch(() => null)) as { message?: string } | null
-    throw new Error(body?.message ? `${body.message}。` : '這一課要訂閱才能觀看。')
+    const body = (await res.json().catch(() => null)) as { error?: string; message?: string } | null
+    throw new Error(body?.error || body?.message ? errorText(body) : messages().errors.scriptSubscriptionRequired)
   }
-  if (!res.ok) throw new Error(`讀不到即時教學畫面的腳本 ${path}(${res.status})`)
+  if (!res.ok) throw new Error(messages().errors.scriptLoadFailed(path, res.status))
   return res.json()
 }
 

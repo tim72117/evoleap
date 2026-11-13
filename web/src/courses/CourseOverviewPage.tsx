@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom'
+import { messages } from '../i18n/current'
+import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
 import { coursePath, lessonLabel, lessonPath, nextCourse, requiresLogin, type Course } from '../content/catalog'
@@ -23,10 +25,11 @@ export function minutesOf(length: string): number {
   return (h ? Number(h[1]) * 60 : 0) + (m ? Number(m[1]) : 0)
 }
 
+/** 總時長(目前語言):「約 45 分鐘」「約 1 小時 20 分」 */
 export function formatMinutes(total: number): string {
-  if (total < 60) return `約 ${total} 分鐘`
-  const m = total % 60
-  return `約 ${Math.floor(total / 60)} 小時${m ? ` ${m} 分` : ''}`
+  const t = messages().courses
+  if (total < 60) return t.aboutMinutes(total)
+  return t.aboutHours(Math.floor(total / 60), total % 60)
 }
 
 
@@ -51,6 +54,8 @@ function localLessons(course: Course): MapLesson[] {
 }
 
 export function CourseOverviewPage({ course }: { course: Course }) {
+  const t = useT()
+  const c = t.courses
   const next = nextCourse(course)
   const level = ALL_LEVELS.find((l) => l.link === coursePath(course))
   const topic = topicOfCourse(coursePath(course))
@@ -68,14 +73,14 @@ export function CourseOverviewPage({ course }: { course: Course }) {
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <div className={styles.intro}>
-            <nav className={styles.crumb} aria-label="麵包屑">
+            <nav className={styles.crumb} aria-label={c.breadcrumb}>
               <Link to={`${topic.path}#map`}>{topic.name}</Link>
               <span aria-hidden="true">/</span>
-              <span>{course.level}</span>
+              <span>{c.levelName(course.level)}</span>
             </nav>
             <p className={styles.tags}>
-              {level && <span className={styles.tagStrong}>{level.levelLabel}</span>}
-              {access && <span className={styles.tag}>{access}</span>}
+              {level && <span className={styles.tagStrong}>{c.levelName(level.levelLabel)}</span>}
+              {access && <span className={styles.tag}>{c.accessName(access)}</span>}
               <span className={styles.tag}>{topic.name}</span>
             </p>
             <h1>{course.title}</h1>
@@ -89,7 +94,7 @@ export function CourseOverviewPage({ course }: { course: Course }) {
               )}
               <span>
                 <Icon d={BOOK} size={22} />
-                {lessons.length} 課
+                {c.lessonCount(lessons.length)}
               </span>
             </p>
           </div>
@@ -102,7 +107,7 @@ export function CourseOverviewPage({ course }: { course: Course }) {
             {start && (
               <Link className={styles.start} to={lessonPath(course, start)}>
                 <Icon d={PLAY} />
-                開始學習
+                {c.overview.start}
               </Link>
             )}
           </aside>
@@ -110,12 +115,12 @@ export function CourseOverviewPage({ course }: { course: Course }) {
       </section>
 
       <section className={styles.content} aria-labelledby="course-content">
-        <h2 id="course-content">課程內容</h2>
+        <h2 id="course-content">{c.overview.content}</h2>
         <details className={styles.group} open>
           <summary>
             <Icon d={CHEVRON} />
             <span className={styles.groupTitle}>{course.title}</span>
-            <span className={styles.groupCount}>{lessons.length} 課</span>
+            <span className={styles.groupCount}>{c.lessonCount(lessons.length)}</span>
           </summary>
           <ol className={styles.rows}>
             {lessons.map((l) => {
@@ -139,20 +144,20 @@ export function CourseOverviewPage({ course }: { course: Course }) {
                     <span className={styles.rowMeta}>
                       {!ready && (
                         <span className={styles.badge}>
-                          <span aria-hidden="true">🌱 </span>規劃中
+                          <span aria-hidden="true">🌱 </span>{c.planned}
                         </span>
                       )}
-                      {guest && ready && (l.access === 'free' ? <span className={`${styles.badge} ${styles.badgePreview}`}>免費預覽</span> : <LockIcon label="登入後學習" />)}
+                      {guest && ready && (l.access === 'free' ? <span className={`${styles.badge} ${styles.badgePreview}`}>{c.overview.freePreview}</span> : <LockIcon label={c.overview.signInToLearn} />)}
                       {ready && l.script && (
                         <span className={styles.chip}>
                           <Icon d={INTERACTIVE_ICON} size={16} />
-                          互動
+                          {c.overview.interactive}
                         </span>
                       )}
                       {minutes > 0 && (
                         <span className={styles.time}>
                           <Icon d={CLOCK} size={18} />
-                          {minutes} 分鐘
+                          {c.minutes(minutes)}
                         </span>
                       )}
                     </span>
@@ -164,9 +169,9 @@ export function CourseOverviewPage({ course }: { course: Course }) {
         </details>
         {next && (
           <Link className={styles.nextCourse} to={coursePath(next)}>
-            <small>下一章</small>
+            <small>{c.nextCourse}</small>
             <span>
-              {next.level} · {next.title}
+              {c.levelName(next.level)} · {next.title}
             </span>
             <span aria-hidden="true">→</span>
           </Link>

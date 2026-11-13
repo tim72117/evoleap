@@ -15,6 +15,7 @@ import { hush, playClip, speak } from './speech'
 import { homeShowcaseKey, useGuestView } from '../courses/guestActivity'
 import { memberProgress } from '../courses/progress'
 import { useAuth } from '../auth/AuthContext'
+import { useT } from '../i18n/I18nProvider'
 import { resumeChapter, toPlain, type Chapter } from './resume'
 
 // 兒童版播放器殼層(試做):給 9 歲孩子用,不用 live/shell.ts 的外殼,舞台與腳本引擎照舊。
@@ -271,6 +272,7 @@ type Props = {
 }
 
 export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'kids', freeJump = false, layout = 'inline', scrub = false, floating = false, track = false }: Props) {
+  const t = useT()
   const boxRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const subRef = useRef<HTMLDivElement>(null)
@@ -478,12 +480,15 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     if (voiceOn.current) {
       const url = VOICES.get(active()!)?.urls[ask.title]
       if (url) playClip(url)
-      else speak(`${ask.again ? '再試一次。' : ''}${ask.title}${ask.body ? `。${ask.body}` : ''}`)
+      // 「再試一次」是介面文字,跟著介面語言念;題目與說明是課程內容,用中文念
+      else speak([...(ask.again ? [{ text: t.kids.sayAgain, lang: t.kids.speechLang }] : []), { text: `${ask.title}${ask.body ? `。${ask.body}` : ''}`, lang: 'zh-TW' }])
     }
     // 孩子在這段拖曳裡已經開始動手(拖過一次)就不再出現提示;不是拖曳的題目照常
     if (!ask.drag) grabbed.current = false
-    const t = window.setTimeout(() => !grabbed.current && setHint(true), 4000)
-    return () => window.clearTimeout(t)
+    const timer = window.setTimeout(() => !grabbed.current && setHint(true), 4000)
+    return () => window.clearTimeout(timer)
+    // t(字典)換語言時不用重念題目
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ask])
 
   // 繼續播放:除了 playing,也遞增 run,讓時鐘的 effect 一定重新開始。
@@ -1036,39 +1041,39 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     <div className={s.controlsBox} data-size={size}>
       <div className={s.controls}>
         <button type="button" onClick={() => void jump(curChapter - 1)} disabled={!ready || locked || curChapter === 0}>
-          ⏮ 上一段
+          {t.kids.controls.prev}
         </button>
         <button type="button" className={s.primary} onClick={play} disabled={!ready || !!ask}>
-          {playing ? '⏸ 暫停' : done ? '↺ 再看一次' : '▶ 播放'}
+          {playing ? t.kids.controls.pause : done ? t.kids.controls.replay : t.kids.controls.play}
         </button>
         <button type="button" onClick={() => void jump(curChapter + 1)} disabled={!ready || (freeJump ? curChapter >= chapters.length - 1 : (!!ask && inSub === null) || (inSub === null && curChapter >= chapters.length - 1))}>
-          下一段 ⏭
+          {t.kids.controls.next}
         </button>
         <button type="button" onClick={() => void restart()} disabled={!ready}>
-          ↺ 從頭開始
+          {t.kids.controls.restart}
         </button>
-        <button type="button" className={s.icon} aria-pressed={voice} aria-label={voice ? '旁白開' : '旁白關'} title={voice ? '旁白開' : '旁白關'} onClick={toggleVoice}>
+        <button type="button" className={s.icon} aria-pressed={voice} aria-label={voice ? t.kids.controls.voiceOn : t.kids.controls.voiceOff} title={voice ? t.kids.controls.voiceOn : t.kids.controls.voiceOff} onClick={toggleVoice}>
           {voice ? '🔊' : '🔇'}
         </button>
         {!menuOutside && chapters.length > 0 && (
           <button type="button" className={s.chapterToggle} aria-expanded={chaptersOpen} aria-controls={chaptersId} onClick={() => setChaptersOpen((o) => !o)}>
-            ☰ 段落 {curChapter + 1}/{chapters.length}
+            {t.kids.controls.chapters(curChapter + 1, chapters.length)}
           </button>
         )}
         <button type="button" aria-pressed={isFullscreen} onClick={fullscreen}>
-          {isFullscreen ? '✕ 離開全螢幕' : '⛶ 全螢幕'}
+          {isFullscreen ? t.kids.controls.exitFullscreen : t.kids.controls.fullscreen}
         </button>
       </div>
 
       {scrub && ready && (
         <label className={s.scrub}>
           <span>{fmt(mainNow)}</span>
-          <input type="range" min={0} max={Math.round(total)} step={100} value={Math.round(mainNow)} aria-label="拉到要看的地方" onChange={(e) => void seekTo(Number(e.target.value))} />
+          <input type="range" min={0} max={Math.round(total)} step={100} value={Math.round(mainNow)} aria-label={t.kids.controls.seek} onChange={(e) => void seekTo(Number(e.target.value))} />
           <span>{fmt(total)}</span>
         </label>
       )}
       {!menuOutside && (
-        <ol className={s.chapters} id={chaptersId} data-open={chaptersOpen ? 'true' : 'false'} aria-label="段落">
+        <ol className={s.chapters} id={chaptersId} data-open={chaptersOpen ? 'true' : 'false'} aria-label={t.kids.chaptersLabel}>
           {chapters.map((c, i) => (
             <li key={c.at} aria-current={i === curChapter ? 'step' : undefined}>
               <button
@@ -1091,7 +1096,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
 
   // 段落選單放在播放器外面(chaptersSlot)時:一段一列,附上說明與「可互動」標籤,樣式融入外面的版面
   const menu = (
-    <ol className={s.menu} aria-label="段落">
+    <ol className={s.menu} aria-label={t.kids.chaptersLabel}>
       {chapters.map((c, i) => {
         const info = chapterInfo?.[c.label]
         return (
@@ -1101,7 +1106,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
               <span className={s.menuText}>
                 <strong>
                   {c.label}
-                  {info?.interactive && <em className={s.menuTag}>可互動</em>}
+                  {info?.interactive && <em className={s.menuTag}>{t.kids.interactiveTag}</em>}
                 </strong>
                 {info?.note && <small>{info.note}</small>}
               </span>
@@ -1118,7 +1123,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
           空的時候只是看不見(保留高度),題目出現時舞台不會跳動 */}
       <p className={s.ask} data-asking={ask ? 'true' : 'false'} data-stars={stars ? 'true' : 'false'} data-idle={!ask && !stars ? 'true' : 'false'} role="status">
         {stars && (
-          <span className={s.stars} aria-label={`找到 ${stars.got} / ${stars.of}`}>
+          <span className={s.stars} aria-label={t.kids.stars(stars.got, stars.of)}>
             {Array.from({ length: stars.of }, (_, i) => (
               <Star key={i} on={i < stars.got} />
             ))}
@@ -1126,7 +1131,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
         )}
         {ask && (
           <>
-            👉 {ask.again ? '再試一次：' : ''}
+            👉 {ask.again ? t.kids.tryAgain : ''}
             {ask.title}
             <small>{ask.body || ' '}</small>
           </>
@@ -1184,18 +1189,18 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
               )}
               {hint && hintAt && !hintAt.quiz && (
                 <span className={s.hand} style={{ left: hintAt.x, top: hintAt.y }} aria-hidden="true">
-                  👆<em>{ask.drag ? '按住拉動這裡' : '點這裡試試看'}</em>
+                  👆<em>{ask.drag ? t.kids.hintDrag : t.kids.hintTap}</em>
                 </span>
               )}
               {hint && hintAt?.quiz && (
                 <span className={s.quizHint} style={{ left: hintAt.x, top: hintAt.y }} aria-hidden="true">
-                  點一塊你覺得對的積木
+                  {t.kids.quizHint}
                 </span>
               )}
             </div>
           )}
           {!playing && !ask && ready && (
-            <button type="button" className={s.bigPlay} aria-label={done ? '再看一次' : '播放'} onClick={play}>
+            <button type="button" className={s.bigPlay} aria-label={done ? t.kids.bigReplay : t.kids.bigPlay} onClick={play}>
               {done ? '↺' : '▶'}
             </button>
           )}
@@ -1215,7 +1220,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
       </div>
 
       {error ? (
-        <p className={s.error}>腳本有錯：{error}</p>
+        <p className={s.error}>{t.kids.scriptError(error)}</p>
       ) : (
         <p className={s.say} aria-live="polite">
           <Say text={narration} />

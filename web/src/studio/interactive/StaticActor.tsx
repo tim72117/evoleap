@@ -7,6 +7,7 @@ import type { ScriptStep } from '../../live/types'
 import { dragPlan, type DragPlan } from '../../kids/drag'
 import { DragLayer } from '../../kids/DragLayer'
 import { clickInPage, collapsedParts, goneInPage, spotId, staticScript, type Answer, type Answers, type InteractSpot, type Moment } from './scene'
+import { useT } from '../../i18n/I18nProvider'
 import styles from './InteractiveScenePage.module.css'
 
 // 互動時的靜態演員:影片停在互動點,換成另一個舞台(主舞台先藏起來,不是壓暗),只有這位演員,停在同一個狀態。
@@ -66,6 +67,7 @@ function BesideActor({
   onStage: (stage: Stage | null) => void
   onSpot: (spot: Spot) => void
 }) {
+  const L = useT().player.scene
   const boxRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<Stage | null>(null)
@@ -155,7 +157,7 @@ function BesideActor({
           }}
         />
       )}
-      {error && <p className={styles.error}>無法載入演員：{error}</p>}
+      {error && <p className={styles.error}>{L.actorLoadError}{error}</p>}
     </div>
   )
 }
@@ -202,6 +204,7 @@ type Props = {
 }
 
 export function StaticActor({ script, answers, moment, interactive, headRef, hint: withHint = false, hintSlot, onLocked, onAnswer }: Props) {
+  const L = useT().player.scene
   const hostRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const [measured, setMeasured] = useState<Measured | null>(null)
@@ -439,7 +442,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
       {!choicesRect && chips.length > 0 && <div className={styles.pushChips}>{chips}</div>}
       {!moment.noSkip && (
         <button type="button" className={styles.skip} onClick={() => onAnswer({ skipped: true })}>
-          {moment.skip?.label ?? '略過，繼續看'}
+          {moment.skip?.label ?? L.skip}
         </button>
       )}
     </div>
@@ -452,7 +455,8 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
         <div ref={rootRef} className={styles.staticRoot} />
         {error && (
           <p className={styles.error} role="alert">
-            無法載入演員：{error}
+            {L.actorLoadError}
+            {error}
           </p>
         )}
         {interactive && (

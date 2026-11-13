@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { App } from './App'
 import { AuthProvider } from './auth/AuthContext'
+import { I18nProvider } from './i18n/I18nProvider'
 import { KidsModeProvider } from './kidsMode/KidsModeContext'
 import { ScrollToTop } from './site/ScrollToTop'
 import './site/global.css'
@@ -12,9 +13,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <ScrollToTop />
       <AuthProvider>
-        <KidsModeProvider>
-          <App />
-        </KidsModeProvider>
+        <I18nProvider>
+          <KidsModeProvider>
+            <App />
+          </KidsModeProvider>
+        </I18nProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,

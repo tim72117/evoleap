@@ -1,4 +1,5 @@
 // 登入相關 API(server/internal/api/auth.go)。登入狀態存在 HttpOnly cookie,前端不保存 token。
+import { errorText } from '../i18n/errorText'
 
 export interface User {
   id: string
@@ -11,9 +12,11 @@ export interface User {
   subscribed?: boolean
   /** 帳號綁定了 Google 登入(會員空間顯示登入方式用) */
   google?: boolean
+  /** 介面語言偏好("zh-Hant"、"en");空字串是沒選過 */
+  locale?: string
 }
 
-/** API 回傳的錯誤;message 是可以直接顯示給使用者的中文訊息 */
+/** API 回傳的錯誤;message 是依錯誤代碼翻成目前語言、可以直接顯示給使用者的訊息 */
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -34,7 +37,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   if (res.status === 204) return undefined as T
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {
-    throw new ApiError(res.status, data.error ?? 'unknown', data.message ?? '發生錯誤，請稍後再試')
+    throw new ApiError(res.status, data.error ?? 'unknown', errorText(data))
   }
   return data as T
 }
@@ -56,5 +59,5 @@ export const authApi = {
     request<{ user: User }>('POST', '/api/auth/google', { credential }).then((r) => r.user),
   logout: () => request<void>('POST', '/api/auth/logout'),
   /** 會員空間改自己的資料;沒帶的欄位不改,回傳更新後的使用者 */
-  updateProfile: (fields: { name?: string }) => request<{ user: User }>('PATCH', '/api/me', fields).then((r) => r.user),
+  updateProfile: (fields: { name?: string; locale?: string }) => request<{ user: User }>('PATCH', '/api/me', fields).then((r) => r.user),
 }

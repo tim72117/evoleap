@@ -1,9 +1,14 @@
 // 首頁的主題。一個主題是一組不同目標的課程:「做出自己的軟體」(levels.ts 的 LEVELS)與「打造 AI 互動軟體」(AI_APP_LEVELS)各有課程地圖頁。
 // 規劃中的主題只放暫定的名稱、標語與預計做出的成果;不要寫未確認的事實(價格、日期、收入、學員數等)。
+import { messages } from '../i18n/current'
 import { KIDS_OPEN_LESSONS, kidsLessonTitle } from './kidsCourse'
 import { launchLessonPath } from './launchCourse'
 import { AI_APP_LEVELS, SOFTWARE_LEDE } from './levels'
 import { WEB_OPEN_LESSONS, webLesson } from './webCourse'
+
+/** 主題卡片「開始第一課」這顆固定按鈕的文字:資料只存這一份中文,畫面依目前語言換成字典的 home.startFirstLesson(topicStartLabel) */
+export const START_FIRST_LESSON = '開始第一課'
+export const topicStartLabel = (start: { label: string }): string => (start.label === START_FIRST_LESSON ? messages().home.startFirstLesson : start.label)
 
 export const HOME_INTRO = {
   title: '善用 AI，把時間用在真正想做的事',
@@ -48,7 +53,7 @@ export const LAUNCH_TOPIC = {
   seoTitle: '從做好到上線：用 AI 處理繁雜流程，輕鬆把作品放上線',
   description: '部署、網域、資料與登入、收費、監控，這些繁雜的上線流程，學會用 AI 處理，輕鬆把做好的網站與工具變成別人能用的服務。序章開放中，第一課可以免費預覽。',
   open: true,
-  start: { label: '開始第一課', path: launchLessonPath('0.1') },
+  start: { label: START_FIRST_LESSON, path: launchLessonPath('0.1') },
   pains: [
     '做好了，網址卻是 localhost，傳給朋友打不開',
     '一上線就白畫面、資料不見，錯誤訊息看不懂',
@@ -142,7 +147,7 @@ export const KIDS_TOPIC = {
   seoTitle: '給孩子的網頁程式課：用積木認識 HTML、CSS、JavaScript',
   description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程陸續開放中，第一課可以免費預覽。',
   open: true,
-  start: { label: '開始第一課', path: KIDS_OPEN_LESSONS['0.1'].path },
+  start: { label: START_FIRST_LESSON, path: KIDS_OPEN_LESSONS['0.1'].path },
   flow: ['用積木蓋網頁', '幫網頁換衣服', '讓網頁動起來', '說清楚，請 AI 幫忙做'],
   outcomes: ['說得出網頁每個部分的名字', '一張自己的寵物名片網頁', '請 AI 做出自己的小網站'],
   // 這張卡片是給家長看的:環節說明寫孩子會做什麼;段落名稱要和 content/live/kids/0.1.json 的 chapter 一致
@@ -172,7 +177,7 @@ export const WEB_TOPIC = {
   seoTitle: '網頁怎麼運作：AI 時代的網頁基礎課',
   description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。第一課可以免費預覽。',
   open: true,
-  start: { label: '開始第一課', path: WEB_OPEN_LESSONS['0.1'].path },
+  start: { label: START_FIRST_LESSON, path: WEB_OPEN_LESSONS['0.1'].path },
   tag: 'AI 寫程式，我還需要知道什麼？',
   intro: 'AI 已經能寫出大部分的程式碼，但寫得出來，不代表你看得懂、說得準。這門課不教語法，教網頁怎麼運作：瀏覽器怎麼畫出畫面、樣式和資料各歸誰管、網站怎麼放上網路。',
   learn: ['用對名詞，把想要的畫面和功能跟 AI 說清楚', '看懂 AI 改了哪裡、為什麼這樣改', '畫面壞掉時，知道該往哪裡找問題'],

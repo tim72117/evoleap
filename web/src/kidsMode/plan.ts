@@ -1,6 +1,8 @@
 // 兒童模式畫面最上方「這週的課」:家長排的時段。只安排最近的一次(正在上的,沒有就是下一堂)要上哪一課:
 // 照已開放的課的順序,第一個還沒看完的課;看完了就換下一課。之後的時段不先排,到時候再依進度安排。
 import type { Slot } from './schedule'
+import { currentLocale } from '../i18n/current'
+import type { Locale } from '../i18n/locale'
 
 export type PlannedSlot = {
   slot: Slot
@@ -87,9 +89,10 @@ export function parentWeek(slots: Slot[], slotMinutes: number, now: Date, lesson
   })
 }
 
-/** 日期的寫法,例如「11/12（三）」(台灣時間) */
-export function dateLabel(d: Date): string {
-  const parts = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', month: 'numeric', day: 'numeric', weekday: 'narrow' }).formatToParts(d)
+/** 日期的寫法(台灣時間),依語言:中文「11/12（三）」、英文「Wed 11/12」 */
+export function dateLabel(d: Date, locale: Locale = currentLocale()): string {
+  const en = locale === 'en'
+  const parts = new Intl.DateTimeFormat(en ? 'en-US' : 'zh-TW', { timeZone: 'Asia/Taipei', month: 'numeric', day: 'numeric', weekday: en ? 'short' : 'narrow' }).formatToParts(d)
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
-  return `${get('month')}/${get('day')}（${get('weekday')}）`
+  return en ? `${get('weekday')} ${get('month')}/${get('day')}` : `${get('month')}/${get('day')}（${get('weekday')}）`
 }

@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import type { MapUnit } from '../content/courseMap'
 import { KIDS_GUIDE_SCRIPT, KIDS_OPEN_LESSONS, KIDS_RELEASED_LESSONS, KIDS_UNITS, kidsNeedsLogin } from '../content/kidsCourse'
-import { KIDS_TOPIC } from '../content/topics'
+import { KIDS_TOPIC, topicStartLabel } from '../content/topics'
 import { KidsSchedulePanel } from '../kidsMode/KidsSchedulePanel'
 import { useKidsMode } from '../kidsMode/KidsModeContext'
+import { useT } from '../i18n/I18nProvider'
 import { lazyPage } from '../site/lazyPage'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
@@ -36,6 +37,7 @@ const LivePlayer = lazyPage(() => import('../courses/LivePlayer').then((m) => m.
 export function KidsTopicPage() {
   useHashScroll()
   const topic = KIDS_TOPIC
+  const t = useT()
   const { mode } = useKidsMode()
   // 兒童模式:只有家長安排好的這週的課(不介紹課程、不放課程地圖)
   if (mode?.active) {
@@ -49,15 +51,15 @@ export function KidsTopicPage() {
     <SiteLayout title={topic.seoTitle}>
       <section className={styles.hero}>
         <div className={styles.heroInner}>
-          <p className={styles.kicker}>開放中</p>
+          <p className={styles.kicker}>{t.home.openNow}</p>
           <h1>{topic.name}</h1>
-          <p className={styles.pitch}>{topic.slogan}。不用打程式碼，點一點、拖一拖積木就能做出網頁；建議家長在旁陪學。</p>
+          <p className={styles.pitch}>{t.home.kidsTopic.pitch(topic.slogan)}</p>
           <div className={styles.ctas}>
             <Link className={styles.primary} to={topic.start.path}>
-              {topic.start.label}
+              {topicStartLabel(topic.start)}
             </Link>
             <Link className={styles.secondary} to={{ pathname: topic.path, hash: 'map' }}>
-              查看課程地圖
+              {t.home.viewCourseMap}
             </Link>
           </div>
         </div>
@@ -66,11 +68,11 @@ export function KidsTopicPage() {
       <section className={styles.section} id="how">
         <div className={styles.container}>
           <header className={styles.sectionHead}>
-            <h2>怎麼使用兒童課程</h2>
-            <p className={styles.lead}>家長在會員空間替孩子排好上課時間、開啟兒童模式，孩子就只看得到兒童課程，時間到了才能上課，一課一課照進度往下上。</p>
+            <h2>{t.home.kidsTopic.howTitle}</h2>
+            <p className={styles.lead}>{t.home.kidsTopic.howLead}</p>
           </header>
           <div className={own.guidePlayer}>
-            <LivePlayer script={KIDS_GUIDE_SCRIPT} title="怎麼使用兒童課程" onTime={() => {}} saveProgress={false} />
+            <LivePlayer script={KIDS_GUIDE_SCRIPT} title={t.home.kidsTopic.howTitle} onTime={() => {}} saveProgress={false} />
           </div>
         </div>
       </section>
@@ -78,8 +80,8 @@ export function KidsTopicPage() {
       <section className={styles.section} id="map">
         <div className={styles.container}>
           <header className={styles.sectionHead}>
-            <h2>課程地圖</h2>
-            <p className={styles.lead}>課程陸續開放中，還沒開放的課標「規劃中」。第一課不用登入就能預覽，之後的課登入後就能學習。</p>
+            <h2>{t.home.courseMap}</h2>
+            <p className={styles.lead}>{t.home.kidsTopic.mapLead}</p>
           </header>
           <CourseMapUnits course="kids" topicPath={topic.path} fallback={LOCAL_UNITS} />
         </div>

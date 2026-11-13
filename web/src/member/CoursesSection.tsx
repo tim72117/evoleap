@@ -4,6 +4,8 @@ import { COURSE_LIST } from '../content/topics'
 import { fetchCourseMap, type CourseMap } from '../content/courseMap'
 import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
+import { formatDate, useLocale, useT } from '../i18n/I18nProvider'
+import type { Locale } from '../i18n/locale'
 import { progressApi } from '../courses/progress'
 import { buildLessonIndex, MAPPED_COURSES, type MappedCourse } from './lessonIndex'
 import { startedCourses, type StartedCourse } from './memberCourses'
@@ -13,17 +15,17 @@ import styles from './member.module.css'
 
 type State = { status: 'loading' } | { status: 'error' } | { status: 'ready'; courses: StartedCourse[] }
 
-const dateFormat = new Intl.DateTimeFormat('zh-TW', { month: 'long', day: 'numeric' })
-
-function dateText(iso: string): string {
+function dateText(iso: string, locale: Locale): string {
   const d = new Date(iso)
-  return Number.isNaN(d.getTime()) ? '' : dateFormat.format(d)
+  return Number.isNaN(d.getTime()) ? '' : formatDate(d, locale, { month: 'long', day: 'numeric' })
 }
 
 export function CoursesSection() {
   const [state, setState] = useState<State>({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
   const { sessionExpired } = useAuth()
+  const t = useT()
+  const c = t.member.courses
 
   useEffect(() => {
     let cancelled = false
@@ -50,17 +52,17 @@ export function CoursesSection() {
   return (
     <section className={styles.panel} aria-labelledby="member-courses-title" aria-busy={state.status === 'loading'}>
       <h2 id="member-courses-title" className={styles.panelTitle}>
-        我的課程
+        {c.title}
       </h2>
 
       {state.status === 'loading' ? (
-        <p className={styles.muted}>載入中…</p>
+        <p className={styles.muted}>{c.loading}</p>
       ) : state.status === 'error' ? (
         <div className={styles.empty}>
-          <p className={styles.emptyTitle}>讀不到你的學習進度</p>
-          <p className={styles.muted}>可能是網路不穩，請再試一次。</p>
+          <p className={styles.emptyTitle}>{c.errorTitle}</p>
+          <p className={styles.muted}>{c.errorText}</p>
           <button type="button" className={styles.secondary} onClick={() => setAttempt((n) => n + 1)}>
-            重新載入
+            {c.reload}
           </button>
         </div>
       ) : state.courses.length > 0 ? (
@@ -74,13 +76,13 @@ export function CoursesSection() {
       ) : (
         <>
           <div className={styles.empty}>
-            <p className={styles.emptyTitle}>你還沒開始上課</p>
-            <p className={styles.muted}>開始上課後，上過的課和看到哪裡都會記在這裡。先到課程列表挑一門課開始吧。</p>
+            <p className={styles.emptyTitle}>{c.emptyTitle}</p>
+            <p className={styles.muted}>{c.emptyText}</p>
           </div>
           <Link className={styles.rowCard} to={COURSE_LIST.path}>
             <span className={styles.rowCardText}>
-              <strong>{COURSE_LIST.name}</strong>
-              <span>看看有哪些課可以上</span>
+              <strong>{t.site.nav.courses}</strong>
+              <span>{c.browse}</span>
             </span>
             <Arrow />
           </Link>
@@ -94,6 +96,9 @@ function CourseCard({ course }: { course: StartedCourse }) {
   const { last } = course
   const percent = Math.round(last.ratio * 100)
   const started = course.lessons.length
+  const c = useT().member.courses
+  const { locale } = useLocale()
+  const date = dateText(last.updatedAt, locale)
   return (
     <Link className={styles.courseCard} to={last.path}>
       <span className={styles.courseBody}>
@@ -103,22 +108,23 @@ function CourseCard({ course }: { course: StartedCourse }) {
           <span
             className={styles.progressBar}
             role="progressbar"
-            aria-label={`${last.title} 的進度`}
+            aria-label={c.progressOf(last.title)}
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={last.finished ? 100 : percent}
           >
             <span style={{ width: `${last.finished ? 100 : percent}%` }} />
           </span>
-          <span className={styles.progressText}>{last.finished ? '已看完' : `看到 ${percent}%`}</span>
+          <span className={styles.progressText}>{last.finished ? c.finished : c.watched(percent)}</span>
         </span>
         <span className={styles.courseMeta}>
-          上過 {started} 課{course.finishedCount > 0 ? `・看完 ${course.finishedCount} 課` : ''}
-          {dateText(last.updatedAt) ? `・上次 ${dateText(last.updatedAt)}` : ''}
+          {c.started(started)}
+          {course.finishedCount > 0 ? c.finishedCount(course.finishedCount) : ''}
+          {date ? c.lastTime(date) : ''}
         </span>
       </span>
       <span className={styles.courseAction}>
-        {last.finished ? '再看一次' : '接著上'}
+        {last.finished ? c.rewatch : c.resume}
         <Arrow />
       </span>
     </Link>

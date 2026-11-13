@@ -2,7 +2,8 @@ import { useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { COURSES, coursePath, isPreviewLesson, lessonPath, openLessonsOf } from '../content/catalog'
 import { LEVELS } from '../content/levels'
-import { HOME_INTRO, KIDS_TOPIC, LAUNCH_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, type PlannedTopic } from '../content/topics'
+import { KIDS_TOPIC, LAUNCH_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, topicStartLabel, type PlannedTopic } from '../content/topics'
+import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import bakerySite from './assets/bakery-site.jpg'
 import styles from './HomePage.module.css'
@@ -36,14 +37,16 @@ export function HomePage() {
   // 課程地圖以前在首頁:舊連結(/#map、/#level-tools)導到主題頁的同一個位置
   const { hash } = useLocation()
   const [resultOpen, setResultOpen] = useState(false)
+  const t = useT()
+  const facts = [t.home.home.facts.free, t.home.home.facts.open(openLessons.length), t.home.home.facts.noCode]
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
   return (
     <SiteLayout>
       <section className={styles.hero}>
         <div className={styles.container}>
-          <h1>{HOME_INTRO.title}</h1>
-          <p className={styles.pitch}>{HOME_INTRO.pitch}</p>
+          <h1>{t.home.introTitle}</h1>
+          <p className={styles.pitch}>{t.home.introPitch}</p>
         </div>
       </section>
 
@@ -55,29 +58,27 @@ export function HomePage() {
               <p className={styles.slogan}>{SOFTWARE_TOPIC.slogan}</p>
               <p className={styles.lede}>{SOFTWARE_TOPIC.lede}</p>
               <ul className={styles.facts}>
-                <li>
-                  <strong>免費</strong>開始
-                </li>
-                <li>
-                  已開放 <strong>{openLessons.length} 課</strong>
-                </li>
-                <li>
-                  不用先學<strong>程式</strong>
-                </li>
+                {facts.map((f) => (
+                  <li key={f.strong}>
+                    {f.pre}
+                    <strong>{f.strong}</strong>
+                    {f.post}
+                  </li>
+                ))}
               </ul>
-              <ol className={styles.ladder} aria-label="課程順序">
+              <ol className={styles.ladder} aria-label={t.home.home.ladderLabel}>
                 {LADDER.map((s) => (
                   <li key={s.name} className={s.open ? styles.ladderOpen : undefined}>
-                    {s.name}
+                    {t.home.levelName(s.name)}
                   </li>
                 ))}
               </ol>
               <div className={styles.ctas}>
                 <Link className={styles.primary} to={lessonPath(tools, introLesson)}>
-                  開始第一課
+                  {t.home.startFirstLesson}
                 </Link>
                 <Link className={styles.secondary} to={{ pathname: SOFTWARE_TOPIC.path, hash: 'map' }}>
-                  課程地圖
+                  {t.home.courseMap}
                 </Link>
               </div>
             </div>
@@ -85,14 +86,14 @@ export function HomePage() {
 
           <div id="home-result" className={styles.result} data-open={resultOpen}>
             <div className={styles.resultPrompt}>
-              <h3>第 2 課就能做出這個網站</h3>
-              <p className={styles.resultNote}>一開始，你只要這樣告訴 AI：</p>
+              <h3>{t.home.home.resultTitle}</h3>
+              <p className={styles.resultNote}>{t.home.home.resultIntro}</p>
               <blockquote>{sitePrompt}</blockquote>
-              <p className={styles.resultNote}>再一個區塊一個區塊調整，就完成了。</p>
+              <p className={styles.resultNote}>{t.home.home.resultOutro}</p>
             </div>
             <figure className={styles.resultShot}>
-              <img src={bakerySite} alt="課程做出的小森烘焙一頁式網站，有導覽、主視覺與本週商品" width={1520} height={1040} loading="lazy" />
-              <figcaption>小森烘焙（課程虛構案例）的參考成品</figcaption>
+              <img src={bakerySite} alt={t.home.home.resultAlt} width={1520} height={1040} loading="lazy" />
+              <figcaption>{t.home.home.resultCaption}</figcaption>
             </figure>
           </div>
           {/* 手機版預設收起「第 2 課就能做出這個網站」:卡片下緣的展開條,展開後內容出現在上方、這條變成「收起」;桌機不顯示 */}
@@ -108,7 +109,7 @@ export function HomePage() {
               if (resultOpen) requestAnimationFrame(() => bar.scrollIntoView({ block: 'nearest' }))
             }}
           >
-            {resultOpen ? '收起' : '第 2 課就能做出這個網站'}
+            {resultOpen ? t.home.home.collapse : t.home.home.resultTitle}
             <svg className={styles.resultChevron} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="m6 9 6 6 6-6" />
             </svg>
@@ -125,10 +126,10 @@ export function HomePage() {
         </section>
 
         <section className={styles.next} aria-labelledby="next-themes">
-          <h2 id="next-themes">更多主題課程</h2>
+          <h2 id="next-themes">{t.home.home.moreTopics}</h2>
           <div className={styles.nextGrid}>
-            {PLANNED_TOPICS.map((t) => (
-              <ThemeCard t={t} key={t.name} />
+            {PLANNED_TOPICS.map((p) => (
+              <ThemeCard t={p} key={p.name} />
             ))}
           </div>
         </section>
@@ -143,12 +144,16 @@ export function HomePage() {
  * 有 aside 的卡片,「你會做出」另起一段橫跨整張卡片,放在標題與預覽下面(仿照「做出自己的軟體」的成果段)。
  * 首頁不放 aside;展示頁(ShowcasePage)的兒童課卡片把預覽播放器放在 aside
  */
-export function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactNode; below?: ReactNode }) {
-  const outcomes = t.outcomes && (
+export function ThemeCard({ t: topic, aside, below }: { t: PlannedTopic; aside?: ReactNode; below?: ReactNode }) {
+  const t = useT()
+  const m = t.home.themeCard
+  // 「開始第一課」寫在課程資料裡;是這句固定按鈕字就照目前語言
+  const startLabel = topic.start && topicStartLabel(topic.start)
+  const outcomes = topic.outcomes && (
     <>
-      <h4>你會做出</h4>
+      <h4>{m.youWillMake}</h4>
       <ul className={styles.outcomes}>
-        {t.outcomes.map((o) => (
+        {topic.outcomes.map((o) => (
           <li key={o}>{o}</li>
         ))}
       </ul>
@@ -157,67 +162,67 @@ export function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactN
   const body = (
     <>
       {/* 首頁不標「開放中」:有主色標籤的主題放標籤;規劃中的主題在標題右邊標小樹苗(和兒童課的「規劃中」一樣) */}
-      {t.tag && <p className={`${styles.badge} ${styles.badgeOpen}`}>{t.tag}</p>}
+      {topic.tag && <p className={`${styles.badge} ${styles.badgeOpen}`}>{topic.tag}</p>}
       <div className={styles.themeHead}>
         <h3>
-          {t.icon && TOPIC_ICONS[t.icon]}
-          {t.name}
+          {topic.icon && TOPIC_ICONS[topic.icon]}
+          {topic.name}
         </h3>
-        {!t.open && (
+        {!topic.open && (
           <p className={styles.planned}>
             <span className={styles.plannedIcon} aria-hidden="true">
               🌱
             </span>
-            規劃中
+            {t.home.planned}
           </p>
         )}
       </div>
-      <p className={styles.themeSlogan}>{t.slogan}</p>
-      {t.intro && <p className={styles.themeIntro}>{t.intro}</p>}
-      {t.pains && (
+      <p className={styles.themeSlogan}>{topic.slogan}</p>
+      {topic.intro && <p className={styles.themeIntro}>{topic.intro}</p>}
+      {topic.pains && (
         <>
-          <h4>你是不是也卡在這裡</h4>
+          <h4>{m.stuck}</h4>
           <ul className={styles.outcomes}>
-            {t.pains.map((s) => (
+            {topic.pains.map((s) => (
               <li key={s}>{s}</li>
             ))}
           </ul>
         </>
       )}
-      {t.learn && (
+      {topic.learn && (
         <>
-          <h4>{t.learnTitle ?? '學完你會'}</h4>
+          <h4>{topic.learnTitle ?? m.learnDefault}</h4>
           <ul className={styles.outcomes}>
-            {t.learn.map((s) => (
+            {topic.learn.map((s) => (
               <li key={s}>{s}</li>
             ))}
           </ul>
         </>
       )}
-      {t.flow && (
-        <ol className={styles.flow} aria-label="會經歷的步驟">
-          {t.flow.map((s) => (
+      {topic.flow && (
+        <ol className={styles.flow} aria-label={m.flowLabel}>
+          {topic.flow.map((s) => (
             <li key={s}>{s}</li>
           ))}
         </ol>
       )}
-      {t.sample && (
+      {topic.sample && (
         <div className={styles.sample}>
-          <p className={styles.sampleCaption}>{t.sample.caption}</p>
+          <p className={styles.sampleCaption}>{topic.sample.caption}</p>
           <div className={styles.sampleGrid}>
             <div>
-              <h4>整理前</h4>
+              <h4>{m.before}</h4>
               <ul>
-                {t.sample.before.map((s) => (
+                {topic.sample.before.map((s) => (
                   <li key={s}>{s}</li>
                 ))}
               </ul>
             </div>
             <span aria-hidden="true">→</span>
             <div>
-              <h4>整理後</h4>
+              <h4>{m.after}</h4>
               <ul>
-                {t.sample.after.map((s) => (
+                {topic.sample.after.map((s) => (
                   <li key={s}>{s}</li>
                 ))}
               </ul>
@@ -225,49 +230,49 @@ export function ThemeCard({ t, aside, below }: { t: PlannedTopic; aside?: ReactN
           </div>
         </div>
       )}
-      {t.start && (
+      {topic.start && (
         // 已經可以上第一課的主題:按鈕放在步驟下面,和「做出自己的軟體」的位置一樣
         <div className={styles.ctas}>
-          <Link className={styles.primary} to={t.start.path}>
-            {t.start.label}
+          <Link className={styles.primary} to={topic.start.path}>
+            {startLabel}
           </Link>
-          {t.path && (
-            <Link className={styles.secondary} to={{ pathname: t.path, hash: 'map' }}>
-              課程地圖
+          {topic.path && (
+            <Link className={styles.secondary} to={{ pathname: topic.path, hash: 'map' }}>
+              {t.home.courseMap}
             </Link>
           )}
         </div>
       )}
       {below}
       {!aside && outcomes}
-      {t.scenarios && (
+      {topic.scenarios && (
         <>
-          <h4>涵蓋的情境</h4>
+          <h4>{m.scenarios}</h4>
           <ul className={styles.outcomes}>
-            {t.scenarios.map((s) => (
+            {topic.scenarios.map((s) => (
               <li key={s}>{s}</li>
             ))}
           </ul>
         </>
       )}
-      {!t.start && t.path && (
-        <Link className={styles.themeLink} to={t.path}>
-          看課程規劃 <span aria-hidden="true">→</span>
+      {!topic.start && topic.path && (
+        <Link className={styles.themeLink} to={topic.path}>
+          {m.seePlan} <span aria-hidden="true">→</span>
         </Link>
       )}
     </>
   )
-  const cls = t.open ? `${styles.theme} ${styles.themeOpen}` : styles.theme
+  const cls = topic.open ? `${styles.theme} ${styles.themeOpen}` : styles.theme
   if (!aside) return <article className={cls}>{body}</article>
   return (
     <article className={`${cls} ${styles.themeAside}`}>
       <div>{body}</div>
       {aside}
-      {t.outcomes && (
+      {topic.outcomes && (
         <div className={styles.themeResult}>
-          <h3>你會做出</h3>
+          <h3>{m.youWillMake}</h3>
           <ol>
-            {t.outcomes.map((o) => (
+            {topic.outcomes.map((o) => (
               <li key={o}>{o}</li>
             ))}
           </ol>

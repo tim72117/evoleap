@@ -6,6 +6,7 @@ import { narrationClips } from '../live/mixPlan'
 import { loadMix, loadScript, loadVoice } from '../live/scripts'
 import { ScriptError } from '../live/ScriptError'
 import { useAuth } from '../auth/AuthContext'
+import { useLocale, useT } from '../i18n/I18nProvider'
 import { clearGuestProgress, memberProgress } from './progress'
 import { useGuestView } from './guestActivity'
 import '../live/shell.css'
@@ -40,6 +41,9 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
   onTimeRef.current = onTime
   onCuesRef.current = onCues
   const [error, setError] = useState<string | null>(null)
+  const t = useT()
+  // 換語言時重建播放器(控制列的文字在建立時決定),從原本的時間接著播
+  const { locale } = useLocale()
   // 登入狀態確認前先不建立播放器,免得會員的進度被當成訪客略過
   const { status, user } = useAuth()
   const memberId = saveProgress ? (user?.id ?? null) : null
@@ -120,7 +124,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
       vp.destroy()
       shellRef.current = null
     }
-  }, [script, title, status, memberId, aspect, guest])
+  }, [script, title, status, memberId, aspect, guest, locale])
 
   useEffect(() => {
     if (paused) shellRef.current?.pause()
@@ -128,7 +132,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
 
   return (
     <div ref={boxRef} className={styles.box} data-aspect={aspect}>
-      {error && <ScriptError className={styles.error} prefix="無法播放：" error={error} />}
+      {error && <ScriptError className={styles.error} prefix={t.courses.live.cannotPlay} error={error} />}
     </div>
   )
 })

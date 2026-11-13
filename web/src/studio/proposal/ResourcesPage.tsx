@@ -5,7 +5,7 @@ import ui from './proposal.module.css'
 
 // 跨等級構想：資源與角色系統（小葉片、進化膠囊、生命之鹿、物種培養）。2026-11-04 提出，尚未評估。
 // 依附會員空間（MemberPage）：資源要記在會員帳號上，訪客沒有資源。
-// 新增任何會員資料前必須先更新隱私權政策（web/src/legal/PrivacyPage.tsx）。
+// 新增任何會員資料前必須先更新隱私權政策（web/src/legal/zh/PrivacyZh.tsx 與英文版 legal/en/PrivacyEn.tsx）。
 
 const POSITIONING: [string, string][] = [
   ['研發階段', '構想，尚未評估工時與數值。'],

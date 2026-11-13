@@ -6,6 +6,7 @@ import type { MapLesson } from '../content/courseMap'
 import { WEB_OPEN_LESSONS, webLesson } from '../content/webCourse'
 import { WEB_TOPIC, webLessonDocTitle } from '../content/topics'
 import { clearGuestProgress, memberProgress } from '../courses/progress'
+import { useT } from '../i18n/I18nProvider'
 import { documentTitle } from '../site/siteInfo'
 import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage'
 import styles from '../studio/interactive/InteractiveScenePage.module.css'
@@ -18,6 +19,7 @@ import { TopicLessonGate } from './TopicLessonGate'
 
 export function WebLessonPage({ id }: { id: string }) {
   const title = webLesson(id)?.title ?? id
+  const t = useT()
   return (
     <TopicLessonGate
       course="web"
@@ -26,7 +28,7 @@ export function WebLessonPage({ id }: { id: string }) {
       id={id}
       title={title}
       docTitle={webLessonDocTitle(id)}
-      loginNote="第一課可以直接預覽，之後的課程要登入才能觀看。登入後也會記錄你的播放進度。"
+      loginNote={t.home.lesson.loginNote}
     >
       {(lesson, prev, next) => <Player lesson={lesson} title={title} prev={prev} next={next} />}
     </TopicLessonGate>
@@ -38,6 +40,7 @@ function Player({ lesson, title, prev, next }: { lesson: MapLesson; title: strin
   const { status, user } = useAuth()
   const memberId = user?.id ?? null
   const location = useLocation()
+  const t = useT()
   const progress = useMemo(() => (memberId ? memberProgress(`live:${script}`) : undefined), [memberId, script])
   useEffect(() => {
     if (status !== 'loading' && !memberId) clearGuestProgress()
@@ -51,19 +54,20 @@ function Player({ lesson, title, prev, next }: { lesson: MapLesson; title: strin
       course={{
         docTitle: documentTitle(webLessonDocTitle(lesson.id)),
         heading: title,
-        back: { to: WEB_TOPIC.path, label: '← 課程地圖' },
+        back: { to: WEB_TOPIC.path, label: t.home.lesson.backToMap },
         progress,
         ready: status !== 'loading',
         footer: (
           <>
             {status === 'guest' && (
               <p className={styles.panelLogin}>
-                <Link to={loginHref(location.pathname)}>登入</Link>後會記住你看到哪裡，下次從這裡接著看。
+                <Link to={loginHref(location.pathname)}>{t.common.signIn}</Link>
+                {t.home.lesson.resumeAfterSignIn}
               </p>
             )}
-            <nav className={styles.panelFooter} aria-label="上一課與下一課">
-              {prev ? <Link to={lessonPath(WEB_TOPIC.path, prev.id)}>← 上一課：{prev.id}</Link> : <span />}
-              {next ? <Link to={lessonPath(WEB_TOPIC.path, next.id)}>下一課：{next.id} →</Link> : <Link to={`${WEB_TOPIC.path}#map`}>課程地圖 →</Link>}
+            <nav className={styles.panelFooter} aria-label={t.home.lesson.navLabel}>
+              {prev ? <Link to={lessonPath(WEB_TOPIC.path, prev.id)}>{t.home.lesson.prev(prev.id)}</Link> : <span />}
+              {next ? <Link to={lessonPath(WEB_TOPIC.path, next.id)}>{t.home.lesson.next(next.id)}</Link> : <Link to={`${WEB_TOPIC.path}#map`}>{t.home.lesson.mapNext}</Link>}
             </nav>
           </>
         ),

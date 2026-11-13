@@ -26,6 +26,8 @@ export default defineConfig({
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,
+    // 網站依瀏覽器語言決定介面語言(src/i18n/locale.ts);測試以繁中為準,英文版另外在 i18n.spec.ts 測
+    locale: 'zh-TW',
     trace: 'retain-on-failure',
     // 本機直接用已安裝的 Chrome(免下載瀏覽器);CI 用 Playwright 內建的 Chromium。
     channel: process.env.CI ? undefined : 'chrome',

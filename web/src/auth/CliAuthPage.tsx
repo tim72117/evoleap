@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
+import { useT } from '../i18n/I18nProvider'
 import { ApiError, authApi } from './api'
 import { useAuth } from './AuthContext'
 import { loginHref } from './paths'
@@ -18,13 +19,17 @@ export function CliAuthPage() {
   const { status, user } = useAuth()
   const { pathname, search } = useLocation()
   const [state, setState] = useState<State>({ kind: 'loading' })
+  const t = useT()
+  const c = t.auth.cli
 
   useEffect(() => {
-    if (!id) return setState({ kind: 'error', message: '網址少了登入要求的代碼，請在終端機重新執行 evoleap login --web。' })
+    if (!id) return setState({ kind: 'error', message: c.missingId })
     authApi
       .cliAuthName(id)
       .then((name) => setState({ kind: 'ready', name }))
-      .catch((e: unknown) => setState({ kind: 'error', message: e instanceof ApiError ? e.message : '讀不到登入要求，請稍後再試。' }))
+      .catch((e: unknown) => setState({ kind: 'error', message: e instanceof ApiError ? e.message : c.loadFailed }))
+    // 只在換了要求的代碼時重讀;語言切換不重讀
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const approve = () => {
@@ -32,37 +37,38 @@ export function CliAuthPage() {
     authApi
       .cliAuthApprove(id)
       .then((redirect) => window.location.assign(redirect))
-      .catch((e: unknown) => setState({ kind: 'error', message: e instanceof ApiError ? e.message : '核准失敗，請稍後再試。' }))
+      .catch((e: unknown) => setState({ kind: 'error', message: e instanceof ApiError ? e.message : c.approveFailed }))
   }
 
   let body
   if (state.kind === 'error') body = <p className={styles.error}>{state.message}</p>
-  else if (state.kind === 'loading' || status === 'loading') body = <p className={styles.loading}>讀取中…</p>
+  else if (state.kind === 'loading' || status === 'loading') body = <p className={styles.loading}>{c.loading}</p>
   else if (!user)
     body = (
       <p className={styles.subtitle}>
-        要先<Link to={loginHref(pathname + search)}>登入</Link>，才能核准。
+        {c.loginFirstPrefix}
+        <Link to={loginHref(pathname + search)}>{c.loginLink}</Link>
+        {c.loginFirstSuffix}
       </p>
     )
-  else if (!user.isAdmin) body = <p className={styles.error}>只有管理員可以核准 evoleap CLI 登入。</p>
+  else if (!user.isAdmin) body = <p className={styles.error}>{c.adminOnly}</p>
   else
     body = (
       <>
         <p className={styles.subtitle}>
-          {state.kind === 'ready' ? state.name : 'evoleap CLI'} 想用你的帳號（{user.email}）登入，之後可以修改正式環境的課程資料。
-          如果這不是你剛剛在終端機執行的，請關掉這一頁。
+          {c.request(state.kind === 'ready' ? state.name : 'evoleap CLI', user.email)}
         </p>
         <button type="button" className={styles.submit} disabled={state.kind === 'approving'} onClick={approve}>
-          {state.kind === 'approving' ? '核准中…' : '核准'}
+          {state.kind === 'approving' ? c.approving : c.approve}
         </button>
       </>
     )
 
   return (
-    <SiteLayout title="核准 evoleap CLI 登入">
+    <SiteLayout title={c.title}>
       <div className={styles.wrap}>
         <section className={styles.card}>
-          <h1 className={styles.title}>核准 evoleap CLI 登入</h1>
+          <h1 className={styles.title}>{c.title}</h1>
           {body}
         </section>
       </div>

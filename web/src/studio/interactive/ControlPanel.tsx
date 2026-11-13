@@ -4,6 +4,7 @@
 // 標題列與膠囊不在播放器裡面:滑鼠指著它們時告訴播放器先不要收起(holdControls),才不會指著按鈕時整組消失。
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import type { Shell } from '../../live/shell'
+import { useT } from '../../i18n/I18nProvider'
 import styles from './InteractiveScenePage.module.css'
 
 /**
@@ -101,12 +102,13 @@ const sameCc = (a: CcState, b: CcState): boolean => a.shown === b.shown && a.pre
  */
 export function CaptionToggle({ box, className }: { box: RefObject<HTMLElement | null>; className?: string }) {
   const cc = useVpState(box, readCc, watchCc, sameCc)
+  const t = useT()
   if (!cc.shown) return null
   return (
     <button
       type="button"
       className={className}
-      aria-label="字幕"
+      aria-label={t.player.captions}
       aria-pressed={cc.pressed}
       onClick={() => box.current?.querySelector<HTMLButtonElement>('.vp-cc')?.click()}
       // 圖示沿用播放器自己的字幕圖示(shell.ts 產生的固定 SVG)
@@ -130,6 +132,7 @@ const sameRate = (a: RateState, b: RateState): boolean => a.label === b.label &&
  */
 export function RateMenu({ box, shell, className, menuClassName }: { box: RefObject<HTMLElement | null>; shell: () => Shell | undefined; className?: string; menuClassName?: string }) {
   const rate = useVpState(box, readRate, watchRate, sameRate)
+  const t = useT()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   // 點清單以外的地方就收起來
@@ -144,7 +147,7 @@ export function RateMenu({ box, shell, className, menuClassName }: { box: RefObj
   if (!rate.label) return null
   return (
     <div ref={ref} className={className}>
-      <button type="button" aria-label="播放速度" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+      <button type="button" aria-label={t.player.speed} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
         {rate.label}
       </button>
       {open && (
