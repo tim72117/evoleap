@@ -1,9 +1,5 @@
 /* 學員端課程總覽:簡單線條的介紹區 + 課程內容清單。顏色一律用 SiteLayout 的 --site-* token。 */
 
-.icon {
-  flex: none;
-}
-
 /* ---------- 介紹區 ---------- */
 .hero {
   background: var(--site-surface-2, var(--site-bg));
@@ -143,160 +139,6 @@
   font-size: 26px;
 }
 
-.group {
-  border: 1px solid var(--site-border);
-  border-radius: var(--site-radius);
-  background: var(--site-surface);
-  overflow: hidden;
-}
-
-.group summary {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px 24px;
-  background: var(--site-bg);
-  border-bottom: 1px solid var(--site-border);
-  cursor: pointer;
-  list-style: none;
-}
-
-.group summary::-webkit-details-marker {
-  display: none;
-}
-
-.group summary .icon {
-  color: var(--site-muted);
-  transition: transform 0.15s;
-}
-
-.group[open] summary .icon {
-  transform: rotate(90deg);
-}
-
-.groupTitle {
-  flex: 1;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.groupCount {
-  color: var(--site-muted);
-}
-
-.rows {
-  margin: 0;
-  padding: 0 24px;
-  list-style: none;
-}
-
-.rows li + li {
-  border-top: 1px solid var(--site-border);
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 18px 0;
-  color: var(--site-text) !important;
-  text-decoration: none;
-}
-
-.play {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--site-code-bg);
-  color: var(--site-muted);
-}
-
-.row:hover .play {
-  background: var(--site-accent-solid);
-  color: var(--site-accent-contrast);
-}
-
-.rowText {
-  flex: 1;
-  min-width: 0;
-  display: grid;
-  gap: 4px;
-}
-
-.rowTitle {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 10px;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.row:hover .rowTitle {
-  color: var(--site-link);
-}
-
-.rowNum {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--site-muted);
-}
-
-.badge {
-  padding: 1px 8px;
-  border-radius: 6px;
-  background: var(--site-code-bg);
-  color: var(--site-muted);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-/* 未登入時的存取標籤:免費預覽用實心綠,登入後學習只放鎖頭(site/LockIcon.tsx) */
-.badgePreview {
-  background: var(--site-accent-solid);
-  color: var(--site-accent-contrast);
-}
-
-.rowGoal {
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--site-muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.rowMeta {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: var(--site-muted);
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border: 1px solid var(--site-border);
-  border-radius: 8px;
-  font-size: 14px;
-  color: var(--site-text);
-}
-
-.time {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 84px;
-  font-size: 15px;
-}
-
 @media (max-width: 900px) {
   .heroInner {
     grid-template-columns: 1fr;
@@ -317,27 +159,6 @@
     padding: 32px 16px 48px;
   }
 
-  .rows {
-    padding: 0 16px;
-  }
-
-  .group summary {
-    padding: 16px;
-  }
-
-  .row {
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .rowText {
-    flex-basis: calc(100% - 46px);
-  }
-
-  .rowMeta {
-    margin-left: 46px;
-  }
 }
 
 /* 課程內容下方:連到同一主題的下一章(下一門課) */

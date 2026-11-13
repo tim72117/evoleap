@@ -51,6 +51,8 @@ export const courses = {
     freePreview: '免費預覽',
     signInToLearn: '登入後學習',
     interactive: '互動',
+    listLoading: '正在讀取課程資訊…',
+    listError: '無法讀取課程資訊，請稍後再試。',
   },
 
   // ---------- 規劃中的課程與章節(PlannedPages) ----------

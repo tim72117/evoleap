@@ -81,8 +81,9 @@ describe('兒童課(給孩子的網頁程式)', () => {
     expect(list.itemListElement.find((x) => x.name.startsWith('0.2'))?.url).toBe(absoluteUrl('/topics/kids/0-2'))
     expect(list.itemListElement.find((x) => x.name.startsWith('0.3'))?.url).toBe(absoluteUrl('/topics/kids/0-3'))
     expect(list.itemListElement.find((x) => x.name.startsWith('1.1'))?.url).toBe(absoluteUrl('/topics/kids/1-1'))
-    // 草稿的課(2.1 起,管理員才看得到)不附網址
-    expect(list.itemListElement.find((x) => x.name.startsWith('2.1'))?.url).toBeUndefined()
+    expect(list.itemListElement.find((x) => x.name.startsWith('2.1'))?.url).toBe(absoluteUrl('/topics/kids/2-1'))
+    // 草稿的課(3.1 起,管理員才看得到)不附網址
+    expect(list.itemListElement.find((x) => x.name.startsWith('3.1'))?.url).toBeUndefined()
     expect(JSON.stringify(lesson.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))).toContain('/topics/kids')
     expect(lesson.jsonLd?.some((x) => x['@type'] === 'Course')).toBe(true)
   })
@@ -204,9 +205,9 @@ describe('sitemap.xml', () => {
     expect(PAGES.find((p) => p.path === '/topics/launch/2-1')?.noindex).toBeFalsy()
     // Vibe Coding 入門 4.2 是草稿(單課頁,不是規劃中章節頁):收錄、不進 sitemap
     expect([has('/courses/vibe-coding/4-2'), PAGES.find((p) => p.path === '/courses/vibe-coding/4-2')?.lesson]).toEqual([false, { course: 'vibe-coding-basics', id: '4.2' }])
-    // 兒童課:序章與單元 1 開放,2.1 起是草稿
-    expect([has('/topics/kids/0-1'), has('/topics/kids/1-1'), has('/topics/kids/2-1'), has('/topics/kids/4-5')]).toEqual([true, true, false, false])
-    expect(PAGES.find((p) => p.path === '/topics/kids/2-1')?.noindex).toBeFalsy()
+    // 兒童課:序章、單元 1、單元 2 開放(照正式機),3.1 起是草稿
+    expect([has('/topics/kids/0-1'), has('/topics/kids/1-1'), has('/topics/kids/2-1'), has('/topics/kids/3-1'), has('/topics/kids/4-5')]).toEqual([true, true, true, false, false])
+    expect(PAGES.find((p) => p.path === '/topics/kids/3-1')?.noindex).toBeFalsy()
   })
 
   it('priorities are within 0–1', () => {

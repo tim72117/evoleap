@@ -232,6 +232,24 @@ test('登入視窗:登入失敗留在視窗裡顯示訊息、輸入的內容還�
   expect(errors.filter((e) => !/401/.test(e))).toEqual([])
 })
 
+test('單課頁要不要登入照課程地圖(資料庫)的設定,不是寫死在前端', async ({ page }) => {
+  // 把課程地圖回應的存取設定對調:第 0 課(0.0)改成登入後免費、第 1 課(0.1)改成免費預覽
+  await page.route('**/api/courses/tools/map', async (route) => {
+    const res = await route.fetch()
+    const body = (await res.json()) as { units: { lessons: { id: string; access: string }[] }[] }
+    for (const l of body.units.flatMap((u) => u.lessons)) {
+      if (l.id === '0.0') l.access = 'login-free'
+      if (l.id === '0.1') l.access = 'free'
+    }
+    await route.fulfill({ response: res, json: body })
+  })
+  await page.goto('/courses/tools/0')
+  await expect(loginDialog(page)).toBeVisible()
+  await page.goto('/courses/tools/1')
+  await expect(page.locator('.vp').first()).toBeVisible()
+  await expect(loginDialog(page)).toHaveCount(0)
+})
+
 test('登入檢查失敗:已登入的會員看到重新整理,不是登入提示;恢復後看得到課程', async ({ page }) => {
   await registerViaApi(page, randomEmail('checkfail'))
   await page.route('**/api/me', (route) => route.abort())

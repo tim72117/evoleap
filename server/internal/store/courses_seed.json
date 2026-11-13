@@ -899,7 +899,7 @@
             "id": "2.1",
             "title": "文字顏色和背景顏色",
             "summary": "文字顏色和背景顏色是兩件事，要分開說。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/2.1.json",
             "files": [
               "kids/2.1-paint.json"
@@ -909,7 +909,7 @@
             "id": "2.2",
             "title": "字的大小和粗細",
             "summary": "字的大小和粗細，讓重要的東西更顯眼。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/2.2.json",
             "files": [
               "kids/2.2-size.json"
@@ -919,7 +919,7 @@
             "id": "2.3",
             "title": "盒子：邊框和留白",
             "summary": "留白讓網頁不擠；說清楚是裡面還是外面留白。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/2.3.json",
             "files": [
               "kids/2.3-box.json"
@@ -929,7 +929,7 @@
             "id": "2.4",
             "title": "排排站：置中和並排",
             "summary": "同樣的東西，可以上下排、並排或置中。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/2.4.json",
             "files": [
               "kids/2.4-line.json"
@@ -939,7 +939,7 @@
             "id": "2.5",
             "title": "作品：幫寵物名片換裝",
             "summary": "我能說清楚「哪一塊」要換成「什麼樣子」。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/2.5.json",
             "files": [
               "kids/2.5-design.json"
@@ -1124,35 +1124,35 @@
             "id": "1.3",
             "title": "HTTPS 與快取",
             "summary": "網址有鎖頭，更新後馬上看得到新版。",
-            "status": "open",
+            "status": "draft",
             "script": "launch/1.3.json"
           },
           {
             "id": "1.4",
             "title": "網域是什麼、怎麼挑",
             "summary": "比較網域名稱、網域商與續約價，選好自己的網域。",
-            "status": "open",
+            "status": "draft",
             "script": "launch/1.4.json"
           },
           {
             "id": "1.5",
             "title": "買網域",
             "summary": "買下網域，確認自動續約與隱私保護都設好。",
-            "status": "open",
+            "status": "draft",
             "script": "launch/1.5.json"
           },
           {
             "id": "1.6",
             "title": "DNS 紀錄入門",
             "summary": "看懂網域的 DNS 紀錄各在做什麼。",
-            "status": "open",
+            "status": "draft",
             "script": "launch/1.6.json"
           },
           {
             "id": "1.7",
             "title": "把網域接到網站",
             "summary": "用自己的網域打開網站。",
-            "status": "open",
+            "status": "draft",
             "script": "launch/1.7.json"
           }
         ]

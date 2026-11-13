@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { KIDS_OPEN_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
 import type { KidsMode } from './api'
 import { planWeek, taipeiNow } from './plan'
-import { useKidsProgress, useKidsReleased } from './progress'
+import { useKidsProgress, useKidsReleasedState } from './progress'
 import { slotLabel } from './schedule'
 import styles from './KidsSchedulePanel.module.css'
 import { useT } from '../i18n/I18nProvider'
@@ -22,7 +22,8 @@ const hhmm = (iso?: string): string =>
 
 export function KidsSchedulePanel({ mode }: { mode: Extract<KidsMode, { active: true }> }) {
   const progress = useKidsProgress()
-  const released = useKidsReleased()
+  const releasedState = useKidsReleasedState()
+  const released = Array.isArray(releasedState) ? releasedState : null
   const k = useT().kidsMode
   const finished = progress?.finished ?? new Set<string>()
 
@@ -70,6 +71,10 @@ export function KidsSchedulePanel({ mode }: { mode: Extract<KidsMode, { active: 
               </li>
             ))}
           </ol>
+        ) : releasedState === 'error' ? (
+          <p className={styles.status} role="alert">
+            {k.loadFailed}
+          </p>
         ) : null}
       </div>
     </section>

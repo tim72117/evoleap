@@ -38,27 +38,77 @@ export type CourseMapState = { status: 'loading' } | { status: 'error' } | { sta
 
 /**
  * 草稿的課當成規劃中(沒有腳本、不能點)。伺服器本來就只把草稿給管理員,但管理員在會員空間「模擬身分」時
- * 伺服器仍把他當管理員,畫面要照模擬的身分(useCourseMap);前端內建的備援地圖不是管理員時也這樣處理(CourseMapUnits)。
+ * 伺服器仍把他當管理員,畫面要照模擬的身分(useCourseMap)。
  */
 export function hideDrafts<T extends { lessons: MapLesson[] }>(units: T[], isAdmin: boolean): T[] {
   if (isAdmin) return units
   return units.map((u) => ({ ...u, lessons: u.lessons.map((l) => (l.status === 'draft' ? { ...l, status: 'planned' as const, script: undefined } : l)) }))
 }
 
+// 讀過的課程地圖記在記憶體裡(依課程與登入的人分開:管理員拿到的有草稿,不能給別人看):換課、回到上一頁時先用記住的,背景再讀一次更新,
+// 不用每次都先顯示讀取中(單課頁要等地圖才知道要不要登入,不記的話每一課都先空白一下)。
+// 同一份地圖正在讀的時候共用同一個請求(同一頁上好幾個元件讀同一門課,只打一次 API)。
+const mapCache = new Map<string, CourseMap>()
+const inflight = new Map<string, Promise<CourseMap>>()
+function loadCourseMap(key: string, id: string): Promise<CourseMap> {
+  let p = inflight.get(key)
+  if (!p) {
+    p = fetchCourseMap(id)
+      .then((map) => {
+        mapCache.set(key, map)
+        return map
+      })
+      .finally(() => inflight.delete(key))
+    inflight.set(key, p)
+  }
+  return p
+}
+
 /** 讀一門課的課程地圖;讀不到時是 error(畫面提示稍後再試)。草稿的課只有管理員看得到(伺服器依登入的人決定,畫面另外照模擬的身分,見 hideDrafts) */
 export function useCourseMap(id: string): CourseMapState {
-  const [state, setState] = useState<CourseMapState>({ status: 'loading' })
+  // 登入的人換了(登入、登出)就重讀:地圖內容依人而不同
+  const who = useAuth().user?.id ?? 'guest'
+  const key = `${who}:${id}`
+  // 結果記著是哪一組(key)讀到的:課程或登入的人換了的那一個 render,不能拿上一組的結果(例如管理員登出後還看到草稿)
+  const [res, setRes] = useState<{ key: string; state: CourseMapState } | null>(null)
+  const hit = mapCache.get(key)
+  const state: CourseMapState = res?.key === key ? res.state : hit ? { status: 'ready', map: hit } : { status: 'loading' }
   // 模擬其他身分時(simulation 不是 admin),畫面照模擬的身分:看不到草稿
   const simulating = useAuth().simulation !== 'admin'
   useEffect(() => {
     let cancelled = false
-    setState({ status: 'loading' })
-    fetchCourseMap(id)
-      .then((map) => !cancelled && setState({ status: 'ready', map }))
-      .catch(() => !cancelled && setState({ status: 'error' }))
+    loadCourseMap(key, id).then(
+      (map) => !cancelled && setRes({ key, state: { status: 'ready', map } }),
+      // 已經有記住的就繼續用,沒有才是讀不到
+      () => !cancelled && setRes((r) => (r?.key === key && r.state.status === 'ready') || mapCache.has(key) ? r : { key, state: { status: 'error' } }),
+    )
     return () => {
       cancelled = true
     }
-  }, [id])
+  }, [id, key])
   return useMemo(() => (state.status === 'ready' && simulating ? { status: 'ready', map: { ...state.map, units: hideDrafts(state.map.units, false) } } : state), [state, simulating])
+}
+
+/**
+ * 一次讀好幾門課的課程地圖(首頁、課程列表、等級卡片只要知道各課開放了沒):同一份快取與請求,讀到的先放進去;還沒讀到或讀不到的是 undefined,
+ * 呼叫的畫面不顯示開放狀態(不用前端的課程資料頂替)。只看開放狀態,所以不處理模擬身分(草稿本來就不算開放)。
+ */
+export function useCourseMaps(ids: string[]): Record<string, CourseMap | undefined> {
+  const who = useAuth().user?.id ?? 'guest'
+  const idsKey = ids.join(',')
+  const [maps, setMaps] = useState<Record<string, CourseMap | undefined>>({})
+  useEffect(() => {
+    let cancelled = false
+    setMaps(Object.fromEntries(idsKey.split(',').map((id) => [id, mapCache.get(`${who}:${id}`)])))
+    for (const id of idsKey.split(',')) {
+      loadCourseMap(`${who}:${id}`, id).then(
+        (map) => !cancelled && setMaps((m) => ({ ...m, [id]: map })),
+        () => {},
+      )
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [idsKey, who])
+  return maps
 }

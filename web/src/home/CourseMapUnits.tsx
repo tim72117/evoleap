@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { hideDrafts, useCourseMap, type MapUnit } from '../content/courseMap'
+import { useCourseMap } from '../content/courseMap'
+import { LessonListStatus } from '../courses/LessonGroup'
 import { useT } from '../i18n/I18nProvider'
 import { LockIcon } from '../site/LockIcon'
 import styles from './SoftwareTopicPage.module.css'
 import own from './KidsTopicPage.module.css'
 
-// 主題頁的課程地圖(單元 → 每一堂課):從資料庫讀(content/courseMap.ts,GET /api/courses/{id}/map),兒童課與網頁怎麼運作共用。
-// 讀到之前與讀不到時(伺服器沒接資料庫、網路錯誤)用前端內建的同一份資料(fallback);兩邊一致由 content/courseMap.test.ts 檢查。
+// 兒童版主題頁的課程地圖(單元 → 每一堂課):從資料庫讀(content/courseMap.ts,GET /api/courses/{id}/map)。
+// 其他主題(網頁怎麼運作、launch)與課程總覽頁用另一種畫法,同一個元件(TopicCourseMap、courses/LessonGroup.tsx);這裡只留兒童版的畫法。
+// 讀取中顯示佔位卡、讀不到(伺服器沒接資料庫、網路錯誤)顯示「無法讀取」,不用前端寫死的資料頂替。
 // 已開放的課(status open)整列連到課程頁(課號 0.1 → {topicPath}/0-1)。狀態:登入後是「開始學習」;
 // 沒登入時 access 是 free 的標「免費預覽」,其他開放的只放鎖頭(登入後學習);還沒開放的標「規劃中」。
 // 草稿(status draft,只有管理員會拿到)也整列連到課程頁,標「草稿」。
@@ -15,14 +17,16 @@ import own from './KidsTopicPage.module.css'
 /** 一堂課的課程頁網址(課號 0.1 → /topics/kids/0-1) */
 export const lessonPath = (topicPath: string, id: string): string => `${topicPath}/${id.replace('.', '-')}`
 
-export function CourseMapUnits({ course, topicPath, fallback }: { course: string; topicPath: string; fallback: MapUnit[] }) {
-  const { status, user } = useAuth()
+export function CourseMapUnits({ course, topicPath }: { course: string; topicPath: string }) {
+  const { status } = useAuth()
   const signedIn = status === 'user' || status === 'disabled'
   const map = useCourseMap(course)
   const t = useT()
+  // 讀取中顯示佔位卡、讀不到顯示「無法讀取」,不用前端寫死的課程資料頂替
+  if (map.status !== 'ready') return <LessonListStatus state={map.status} />
   return (
     <div className={own.units}>
-      {(map.status === 'ready' ? map.map.units : hideDrafts(fallback, !!user?.isAdmin)).map((unit) => (
+      {map.map.units.map((unit) => (
         <div className={styles.group} key={unit.id}>
           <h3 className={`${styles.groupHead} ${own.unitHead}`}>
             {unit.title}

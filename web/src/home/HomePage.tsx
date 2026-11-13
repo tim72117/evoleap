@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { COURSES, coursePath, isPreviewLesson, lessonPath, openLessonsOf } from '../content/catalog'
+import { COURSES, coursePath, courseMapId, isPreviewLesson, lessonPath, openLessonCount } from '../content/catalog'
+import { useCourseMaps } from '../content/courseMap'
 import { LEVELS } from '../content/levels'
 import { KIDS_TOPIC, LAUNCH_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, topicStartLabel, type PlannedTopic } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
@@ -13,15 +14,12 @@ import styles from './HomePage.module.css'
 
 const tools = COURSES.find((c) => c.slug === 'tools')!
 // 「開始第一課」從序章開始(不用登入就能看)
-const openLessons = openLessonsOf(tools)
 const introLesson = tools.lessons.find(isPreviewLesson)!
 const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!
 
-// 這個主題的等級(起步、零基礎、基礎);中階、進階在主題「打造 AI 互動軟體」
-const LADDER = COURSES.filter((c) => LEVELS.some((l) => l.link === coursePath(c))).map((c) => ({
-  name: c.level,
-  open: c.lessons.some((l) => !l.draft && l.videos.some((v) => v.live)),
-}))
+// 這個主題的等級(起步、零基礎、基礎);中階、進階在主題「打造 AI 互動軟體」。已開放與否照資料庫的課程地圖
+const LADDER_COURSES = COURSES.filter((c) => LEVELS.some((l) => l.link === coursePath(c)))
+const LADDER_MAP_IDS = LADDER_COURSES.map(courseMapId)
 
 const TOPIC_ICONS = {
   terminal: (
@@ -38,7 +36,11 @@ export function HomePage() {
   const { hash } = useLocation()
   const [resultOpen, setResultOpen] = useState(false)
   const t = useT()
-  const facts = [t.home.home.facts.free, t.home.home.facts.open(openLessons.length), t.home.home.facts.noCode]
+  const maps = useCourseMaps(LADDER_MAP_IDS)
+  // 已開放與否照資料庫的課程地圖;還在讀、讀不到時等級不亮、不顯示開放課數(不用前端的課程資料頂替)
+  const ladder = LADDER_COURSES.map((c) => ({ name: c.level, open: Boolean(maps[courseMapId(c)]?.units.some((u) => u.lessons.some((l) => l.status === 'open'))) }))
+  const toolsLessons = maps[courseMapId(tools)]?.units.flatMap((u) => u.lessons)
+  const facts = [t.home.home.facts.free, ...(toolsLessons ? [t.home.home.facts.open(openLessonCount(tools, toolsLessons))] : []), t.home.home.facts.noCode]
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
   return (
@@ -67,7 +69,7 @@ export function HomePage() {
                 ))}
               </ul>
               <ol className={styles.ladder} aria-label={t.home.home.ladderLabel}>
-                {LADDER.map((s) => (
+                {ladder.map((s) => (
                   <li key={s.name} className={s.open ? styles.ladderOpen : undefined}>
                     {t.home.levelName(s.name)}
                   </li>

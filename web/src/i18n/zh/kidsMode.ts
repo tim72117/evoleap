@@ -7,6 +7,7 @@ export const kidsMode = {
   simulatedChild: '模擬兒童',
   avatarFallback: '童',
   thisWeek: '這週的課',
+  loadFailed: '無法讀取課程資訊，請稍後再試。',
   nextWeek: '下週的課',
   openUntil: (time: string) => `現在可以上課，到 ${time} 結束。`,
   notYet: (slot: string) => `還沒到上課時間，下一堂是 ${slot}。`,

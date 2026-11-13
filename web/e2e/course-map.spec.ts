@@ -16,21 +16,22 @@ test('兒童課程地圖由資料庫讀取', async ({ page }) => {
   // 依順序前兩課(0.1、0.2)免費預覽,第三課(0.3)起登入後學習
   await expect(row('0.2')).toContainText('免費預覽')
   await expect(row('0.3').getByRole('img', { name: '登入後學習' })).toBeVisible()
-  // 單元 1 已開放:訪客看到可以點的課
+  // 單元 1、單元 2 已開放(種子照正式機):訪客看到可以點的課
   await expect(row('1.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/1-1')
-  // 2.1 起是草稿:訪客看到規劃中、沒有連結,直接打開課程頁是「還沒開放」
-  await expect(row('2.1')).toContainText('規劃中')
-  await expect(row('2.1').getByRole('link')).toHaveCount(0)
-  await page.goto(`${gated}/topics/kids/2-1`)
+  await expect(row('2.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/2-1')
+  // 3.1 起是草稿:訪客看到規劃中、沒有連結,直接打開課程頁是「還沒開放」
+  await expect(row('3.1')).toContainText('規劃中')
+  await expect(row('3.1').getByRole('link')).toHaveCount(0)
+  await page.goto(`${gated}/topics/kids/3-1`)
   await expect(page.getByText('這一課還沒開放')).toBeVisible()
 
   // 管理員看到草稿,整列連到課程頁(等 API 回來再看:前端內建的備援地圖一開始也畫了草稿,不等就測不到伺服器)
   const adminMap = page.waitForResponse((r) => r.url().endsWith('/api/courses/kids/map'))
   await page.goto('/topics/kids#map')
   const body = (await (await adminMap).json()) as { units: { lessons: { id: string; status: string }[] }[] }
-  expect(body.units.flatMap((u) => u.lessons).find((l) => l.id === '2.1')?.status).toBe('draft')
-  await expect(row('2.1')).toContainText('草稿')
-  await expect(row('2.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/2-1')
+  expect(body.units.flatMap((u) => u.lessons).find((l) => l.id === '3.1')?.status).toBe('draft')
+  await expect(row('3.1')).toContainText('草稿')
+  await expect(row('3.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/3-1')
 })
 
 test('網頁怎麼運作的課程地圖由資料庫讀取', async ({ page }) => {
@@ -66,4 +67,42 @@ test('從做好到上線:序章前兩課免費預覽、第三課要登入,三課
   await loginAsNewStudent(page)
   await playToEnd('/topics/launch/0-3')
   expect(errors).toEqual([])
+})
+
+// 課程資訊只用資料庫:讀取中是佔位卡,讀不到是「無法讀取」,不用前端寫死的課程資料頂替
+test('課程清單:讀取中顯示佔位卡,讀到之後換成課程', async ({ page }) => {
+  let release: () => void = () => {}
+  const gate = new Promise<void>((r) => (release = r))
+  await page.route('**/api/courses/web/map', async (route) => {
+    await gate
+    await route.continue()
+  })
+  await page.goto('/topics/web#map')
+  await expect(page.getByTestId('lesson-list-loading')).toBeVisible()
+  await expect(page.locator('#map li')).toHaveCount(0)
+  release()
+  await expect(page.getByTestId('lesson-list-loading')).toHaveCount(0)
+  await expect(page.locator('#map li').first()).toBeVisible()
+})
+
+for (const [name, path, scope] of [
+  ['網頁怎麼運作', '/topics/web#map', '#map'],
+  ['從做好到上線', '/topics/launch#map', '#map'],
+  ['兒童課程地圖', '/topics/kids#map', '#map'],
+  ['課程總覽(AI 工具介紹)', '/courses/tools', '#course-content'],
+] as const) {
+  test(`課程清單讀不到:${name}顯示無法讀取,沒有前端的課程頂替`, async ({ page }) => {
+    await page.route(/\/api\/courses\/[^/]+\/map$/, (route) => route.abort())
+    await page.goto(path)
+    await expect(page.getByTestId('lesson-list-error')).toBeVisible()
+    await expect(page.getByText('無法讀取課程資訊')).toBeVisible()
+    await expect(page.locator(`${scope} li`)).toHaveCount(0)
+  })
+}
+
+test('單課頁:讀不到課程資訊時顯示無法讀取,不是直接放行', async ({ page }) => {
+  await page.route(/\/api\/courses\/[^/]+\/map$/, (route) => route.abort())
+  await page.goto('/courses/tools/1')
+  await expect(page.getByTestId('lesson-list-error')).toBeVisible()
+  await expect(page.locator('.vp')).toHaveCount(0)
 })

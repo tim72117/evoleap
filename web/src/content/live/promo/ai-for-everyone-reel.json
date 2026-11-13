@@ -1,0 +1,19 @@
+{
+  "title": "宣傳片：文組也能用 AI 寫工具（直式・FB Reels）",
+  "lesson": "宣傳影片",
+  "voice": {"profile": "showcase", "voice": "Sulafat"},
+  "cast": {
+    "reel": {"actor": "ai-tools-reel", "place": "full"}
+  },
+  "steps": [
+    {"scene": "pain", "chapter": "痛點", "narration": "沒學過程式、不是理工背景，卻天天被重複的瑣事淹沒？", "ms": 5800, "pause": 0},
+    {"scene": "ask", "chapter": "AI 幫你寫", "narration": "現在，只要用幾句話說出需求，AI 就幫你把工具寫出來，不用先學語法。", "ms": 7400, "pause": 0},
+    {"scene": "teacher", "chapter": "案例：國文老師", "narration": "國文老師，做一個作文輔助工具，錯字和段落結構一眼就看到。", "ms": 6200, "pause": 0},
+    {"scene": "nurse", "chapter": "案例：排班", "narration": "管排班的人，做一個檢查工具，夜班太多、人力缺口，馬上標出來。", "ms": 6300, "pause": 0},
+    {"scene": "lawyer", "chapter": "案例：法務", "narration": "法務，讓兩份合約並排比對，改了哪裡，一目了然。", "ms": 6100, "pause": 0},
+    {"scene": "historian", "chapter": "案例：研究者", "narration": "研究史料的人，讓卡片自己排成時間軸。", "ms": 5600, "pause": 0},
+    {"scene": "toolbox", "chapter": "自己的工具箱", "narration": "每一個，都是為自己的工作量身做的工具。", "ms": 4500, "pause": 0},
+    {"scene": "course", "chapter": "evoleap 課程", "narration": "evoleap 的互動課程，從起步、零基礎到基礎，一步步帶你做出自己的軟體。", "ms": 7600, "pause": 0},
+    {"scene": "brand", "chapter": "結尾", "narration": "evoleap，不會寫程式，也能打造自己的軟體。", "ms": 4600, "pause": 0}
+  ]
+}

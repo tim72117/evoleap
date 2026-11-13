@@ -64,6 +64,8 @@ export const courses: Messages['courses'] = {
     freePreview: 'Free preview',
     signInToLearn: 'Sign in to watch',
     interactive: 'Interactive',
+    listLoading: 'Loading course information…',
+    listError: 'Course information could not be loaded. Please try again later.',
   },
 
   plannedPages: {

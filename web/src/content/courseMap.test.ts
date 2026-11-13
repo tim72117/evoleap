@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import courseSeed from '../../../server/internal/store/courses_seed.json'
 import { FREE_LESSON_COUNT } from './access'
-import { KIDS_OPEN_LESSONS, KIDS_RELEASED_LESSONS, KIDS_UNITS, kidsNeedsLogin } from './kidsCourse'
-import { LAUNCH_LESSON_PAGES, LAUNCH_OPEN_LESSONS, LAUNCH_UNITS, launchNeedsLogin, launchScriptKey } from './launchCourse'
-import { WEB_OPEN_LESSONS, WEB_UNITS, webNeedsLogin } from './webCourse'
+import { KIDS_OPEN_LESSONS, KIDS_RELEASED_LESSONS, KIDS_UNITS } from './kidsCourse'
+import { LAUNCH_LESSON_PAGES, LAUNCH_OPEN_LESSONS, LAUNCH_UNITS, launchScriptKey } from './launchCourse'
+import { WEB_OPEN_LESSONS, WEB_UNITS } from './webCourse'
 import { COURSES, coursePath, isPreviewLesson } from './catalog'
 import { L2_MODULES } from './l2Outline'
 import { L2_LESSONS } from './l2Lessons'
@@ -38,8 +38,6 @@ describe('兒童課的課程地圖(資料庫種子)和前端課程資料一致',
     expect(lessons.filter((l) => l.status === 'open').map((l) => l.id)).toEqual(KIDS_RELEASED_LESSONS)
     expect(kids.access).toBe('login-free')
     expect(lessons.filter((l) => l.access).map((l) => [l.id, l.access])).toEqual(lessons.slice(0, FREE_LESSON_COUNT).map((l) => [l.id, 'free']))
-    // 前端備援的規則(kidsNeedsLogin)和種子一致
-    expect(lessons.map((l) => [l.id, kidsNeedsLogin(l.id)])).toEqual(lessons.map((l) => [l.id, (l.access ?? kids.access) !== 'free']))
   })
 })
 
@@ -55,7 +53,7 @@ describe('網頁怎麼運作的課程地圖(資料庫種子)和前端課程資�
     const lessons = web.units!.flatMap((u) => u.lessons)
     expect(lessons.filter((l) => l.status === 'open').map((l) => [l.id, l.script])).toEqual(Object.entries(WEB_OPEN_LESSONS).map(([id, l]) => [id, l.script]))
     expect(web.access).toBe('login-free')
-    expect(lessons.filter((l) => l.access).map((l) => [l.id, l.access])).toEqual(lessons.filter((l) => !webNeedsLogin(l.id)).map((l) => [l.id, 'free']))
+    expect(lessons.filter((l) => l.access).map((l) => [l.id, l.access])).toEqual(lessons.slice(0, FREE_LESSON_COUNT).map((l) => [l.id, 'free']))
   })
 
   it('課程頁網址照課號規則(0.1 → /topics/web/0-1),課程地圖連得過去', () => {
@@ -86,11 +84,10 @@ describe('從做好到上線的課程地圖(資料庫種子)和前端課程資�
     for (const l of lessons.filter((x) => x.script)) expect(`live:${l.script}`).toBe(launchScriptKey(l.id))
   })
 
-  it('序章三課與單元 1 已開放,單元 2 是草稿,其他還在規劃中;依順序前兩課免費預覽', () => {
+  it('序章三課與 1.1、1.2 已開放,1.3 起(含單元 2)是草稿(照正式機);依順序前兩課免費預覽', () => {
     expect(lessons.filter((l) => l.status === 'open').map((l) => l.id)).toEqual(LAUNCH_OPEN_LESSONS)
-    expect(lessons.filter((l) => l.status === 'draft').map((l) => l.id)).toEqual(['2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8', '2.9'])
+    expect(lessons.filter((l) => l.status === 'draft').map((l) => l.id)).toEqual(['1.3', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8', '2.9'])
     expect(lessons.filter((l) => l.access).map((l) => [l.id, l.access])).toEqual(lessons.slice(0, FREE_LESSON_COUNT).map((l) => [l.id, 'free']))
-    expect(lessons.map((l) => [l.id, launchNeedsLogin(l.id)])).toEqual(lessons.map((l) => [l.id, (l.access ?? launch.access) !== 'free']))
   })
 })
 

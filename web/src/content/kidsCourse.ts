@@ -1,9 +1,8 @@
 // 兒童網頁課(主題「給孩子的網頁程式」)的課程大綱:公開的主題頁 /topics/kids 與研發基地的大綱頁(studio/proposal/kidsWeb.ts)共用。
 // 堂數、內容都還是規劃,公開頁面只顯示單元、課名與「學會」;看、做、名詞的細節給研發基地看。
-// 有課程頁的課在 KIDS_OPEN_LESSONS(課號 → 課程頁、腳本與給家長的話;序章與單元 1 已開放,2.1 起是草稿),已開放的在 KIDS_RELEASED_LESSONS;
+// 有課程頁的課在 KIDS_OPEN_LESSONS(課號 → 課程頁、腳本與給家長的話;序章、單元 1、單元 2 已開放,3.1 起是草稿),已開放的在 KIDS_RELEASED_LESSONS;
 // 能不能上、播哪個腳本以資料庫為準(home/TopicLessonGate.tsx)。
 
-import { isFreeByOrder } from './access'
 
 export type KidsLesson = {
   id: string
@@ -439,19 +438,17 @@ export const KIDS_OPEN_LESSONS: Record<string, { path: string; script: string; p
 }
 
 /**
- * 已開放的課(其他有課程頁的課是草稿,只有管理員看得到):課程地圖的備援資料、「已開放幾課」、結構化資料要不要附網址,
- * 以及兒童模式讀不到課程地圖時的備援(兒童模式平常照資料庫,見 kidsMode/progress.ts);
+ * 已開放的課(其他有課程頁的課是草稿,只有管理員看得到):SEO 與 sitemap(建置時產生)、結構化資料要不要附網址,
+ * 兒童模式與畫面一律照資料庫的課程地圖(kidsMode/progress.ts),不用這份清單;
  * 和種子資料的 status open 一致,由 content/courseMap.test.ts 檢查(同 launchCourse.ts 的 LAUNCH_OPEN_LESSONS)
  */
-export const KIDS_RELEASED_LESSONS = ['0.1', '0.2', '0.3', '1.1', '1.2', '1.3', '1.4', '1.5']
+export const KIDS_RELEASED_LESSONS = ['0.1', '0.2', '0.3', '1.1', '1.2', '1.3', '1.4', '1.5', '2.1', '2.2', '2.3', '2.4', '2.5']
 
 /** 「怎麼使用兒童課程」的介紹影片(課程地圖頁的小播放器):種子裡掛在 0.1 的 files 底下,和 0.1 一樣不用登入就看得到 */
 export const KIDS_GUIDE_SCRIPT = 'guide/kids.json'
 
 /** 第一課(0.1)是「怎麼使用兒童課程」介紹影片掛的那一課 */
 export const KIDS_PREVIEW_LESSON = KIDS_UNITS[0].lessons[0].id
-/** 前兩課(0.1、0.2)不用登入就能看,第三課起要登入(content/access.ts);課程地圖保持公開 */
-export const kidsNeedsLogin = (id: string): boolean => !isFreeByOrder(KIDS_UNITS.flatMap((u) => u.lessons.map((l) => l.id)), id)
 
 /** 課號 → 課名 */
 export const kidsLessonTitle = (id: string): string => KIDS_UNITS.flatMap((u) => u.lessons).find((l) => l.id === id)?.title ?? id

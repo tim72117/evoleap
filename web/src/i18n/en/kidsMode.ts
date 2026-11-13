@@ -6,6 +6,7 @@ export const kidsMode: Messages['kidsMode'] = {
   simulatedChild: 'Test Kid',
   avatarFallback: 'K',
   thisWeek: 'This week’s classes',
+  loadFailed: 'Course information could not be loaded. Please try again later.',
   nextWeek: 'Next week’s classes',
   openUntil: (time: string) => `Class is open now until ${time}.`,
   notYet: (slot: string) => `It’s not class time yet. Your next class is ${slot}.`,

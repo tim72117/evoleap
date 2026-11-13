@@ -17,13 +17,13 @@ const map = (id: string, lessons: { id: string; script?: string; status?: 'open'
 })
 
 describe('buildLessonIndex', () => {
-  it('沒有課程地圖時,認得每種播放器存的課號', () => {
+  it('沒有課程地圖時,上線課、網頁課、兒童課沒有對照(不用前端寫死的路徑頂替);課程目錄裡的課照樣認得', () => {
     const lookup = buildLessonIndex()
-    const [webId, web] = Object.entries(WEB_OPEN_LESSONS)[0]
-    expect(lookup(`live:${web.script}`)?.path, webId).toBe(web.path)
+    const web = Object.values(WEB_OPEN_LESSONS)[0]
+    expect(lookup(`live:${web.script}`)).toBeUndefined()
     const kids = Object.values(KIDS_OPEN_LESSONS)[0]
-    expect(lookup(`kids:${kids.script}`)?.path).toBe(kids.path)
-    expect(lookup(launchScriptKey('0.1'))?.path).toBe(launchLessonPath('0.1'))
+    expect(lookup(`kids:${kids.script}`)).toBeUndefined()
+    expect(lookup(launchScriptKey('0.1'))).toBeUndefined()
     const course = COURSES.find((c) => c.lessons.some((l) => l.videos.some((v) => v.live)))!
     const lesson = course.lessons.find((l) => l.videos.some((v) => v.live))!
     expect(lookup(`live:${lesson.videos.find((v) => v.live)!.live}`)?.path).toBe(lessonPath(course, lesson))
@@ -41,13 +41,12 @@ describe('buildLessonIndex', () => {
     expect(lookup('live:launch/v2/0.2.json')?.path).toBe(launchLessonPath('0.2'))
     expect(lookup('live:web/renamed.json')?.path).toBe(web.path)
     expect(lookup('kids:kids/renamed.json')?.path).toBe(kids.path)
-    // 換腳本之前的舊進度也對得上
-    expect(lookup(launchScriptKey('0.2'))?.path).toBe(launchLessonPath('0.2'))
-    expect(lookup(`kids:${kids.script}`)?.path).toBe(kids.path)
     // 沒有單課頁的課不列
     expect(lookup('live:launch/x.json')).toBeUndefined()
-    // 地圖上開放但沒給腳本的課,用前端寫死的路徑對
-    expect(lookup(launchScriptKey('0.1'))?.path).toBe(launchLessonPath('0.1'))
+    // 以地圖的腳本為準:地圖上沒給腳本的課、換腳本之前的舊腳本都不對照(不用前端寫死的路徑補)
+    expect(lookup(launchScriptKey('0.1'))).toBeUndefined()
+    expect(lookup(launchScriptKey('0.2'))).toBeUndefined()
+    expect(lookup(`kids:${kids.script}`)).toBeUndefined()
   })
 
   it('地圖讀得到時,改回規劃中或拿掉的課不列;管理員看得到的草稿課標上草稿', () => {
@@ -62,7 +61,11 @@ describe('buildLessonIndex', () => {
 })
 
 describe('startedCourses', () => {
-  const lookup = buildLessonIndex()
+  const kidsLesson = Object.entries(KIDS_OPEN_LESSONS)[0]
+  const lookup = buildLessonIndex({
+    launch: map('launch', [{ id: '0.1', script: 'launch/0.1.json' }, { id: '0.2', script: 'launch/0.2.json' }]),
+    kids: map('kids', [{ id: kidsLesson[0], script: kidsLesson[1].script }]),
+  })
 
   it('一門課一筆,最近看的課程在前,點進去是最近看的那一課', () => {
     const [a, b] = ['0.1', '0.2'].map(launchScriptKey)

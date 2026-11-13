@@ -37,7 +37,7 @@ export type CourseLevel = {
 export const ACCESS_LABEL: Record<CourseAccess, string | null> = {
   free: '免費',
   // 2026-11-07 起每門課都是「序章免登入、第 0 課登入後免費、其餘訂閱」,整門課不再標「登入後免費」「訂閱專屬」
-  // (access 仍決定哪些單課頁要登入,見 catalog.ts 的 requiresLogin;單課的標示在課程總覽頁)
+  // (哪些單課頁要登入照資料庫每一課的 access;單課的標示在課程總覽頁)
   'login-free': null,
   subscription: null,
   tbd: null,

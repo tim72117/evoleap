@@ -30,9 +30,9 @@ export function CoursesSection() {
   useEffect(() => {
     let cancelled = false
     setState({ status: 'loading' })
-    // 課程地圖讀不到不算失敗:那門課改用前端寫死的腳本路徑對照(lessonIndex.ts)
-    const maps = Promise.all(MAPPED_COURSES.map((id) => fetchCourseMap(id).then((m) => [id, m] as const, () => null))).then(
-      (list) => Object.fromEntries(list.filter((x) => x !== null)) as Partial<Record<MappedCourse, CourseMap>>,
+    // 課程地圖讀不到就是讀取失敗(不用前端寫死的腳本路徑頂替);登入過期(401)由進度的請求處理
+    const maps = Promise.all(MAPPED_COURSES.map((id) => fetchCourseMap(id).then((m) => [id, m] as const))).then(
+      (list) => Object.fromEntries(list) as Partial<Record<MappedCourse, CourseMap>>,
     )
     Promise.all([progressApi.list(), maps])
       .then(([list, m]) => {

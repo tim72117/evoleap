@@ -10,7 +10,7 @@ import type { CourseLesson } from './lessonTypes'
 import { L0_LESSONS } from './l0Lessons'
 import { L1_LESSONS } from './l1Lessons'
 import { L2_LESSONS } from './l2Lessons'
-import { isFreeByOrder } from './access'
+import type { MapLesson } from './courseMap'
 import { messages } from '../i18n/current'
 
 export interface PlannedChapter {
@@ -121,15 +121,18 @@ export function isPreviewLesson(lesson: CourseLesson): boolean {
   return Boolean(lesson.label)
 }
 
-/** 課程地圖標示「登入後免費」的課程:依順序前兩課(content/access.ts)以外的單課頁要登入才能看(LoginGate);序章這類預覽課一定不用登入 */
-export function requiresLogin(course: Course, lesson: CourseLesson): boolean {
-  if (ALL_LEVELS.find((l) => l.link === coursePath(course))?.access !== 'login-free') return false
-  return !isPreviewLesson(lesson) && !isFreeByOrder(course.lessons.map((l) => l.id), lesson.id)
-}
-
 /** 已開放的單課:有可以播放的影片,序章這類短導覽與草稿(只有管理員看得到)不算 */
 export function openLessonsOf(course: Course): CourseLesson[] {
   return course.lessons.filter((l) => !l.label && !l.draft && l.videos.some((v) => v.live))
+}
+
+/** 課程地圖 API 用的課程 id(種子 courses_seed.json 的 id;網址的 slug 不一定相同,例如 vibe-coding → vibe-coding-basics) */
+export const courseMapId = (course: Course): string => ALL_LEVELS.find((l) => l.link === coursePath(course))?.id ?? course.slug
+
+/** 已開放的課數:照資料庫課程地圖的課(status open;序章這類預覽課不算,和 openLessonsOf 同一個口徑) */
+export function openLessonCount(course: Course, mapLessons: MapLesson[]): number {
+  const preview = new Set(course.lessons.filter(isPreviewLesson).map((l) => l.id))
+  return mapLessons.filter((l) => l.status === 'open' && !preview.has(l.id)).length
 }
 
 /** 顯示用課號：L0 的「0.1」顯示為「1」（第 1 課），其他課顯示原課號（第 1.1 課） */

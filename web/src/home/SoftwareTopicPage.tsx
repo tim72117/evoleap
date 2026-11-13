@@ -5,34 +5,34 @@ import { useHashScroll } from '../site/useHashScroll'
 import { AI_APPS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
 import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, type CourseLevel } from '../content/levels'
 import { COURSES, coursePath, lessonLabel, lessonPath } from '../content/catalog'
-import type { CourseLesson } from '../content/lessonTypes'
+import { useCourseMaps, type CourseMap } from '../content/courseMap'
 import { useT } from '../i18n/I18nProvider'
 import { LevelArt } from './LevelArt'
 import styles from './SoftwareTopicPage.module.css'
 
-/** 已有可以播放的影片(即時教學畫面)的課 */
-const isOpen = (l: CourseLesson) => l.videos.some((v) => v.live)
+/** 資料庫課程地圖裡已開放(status open)的課號;還在讀、讀不到時是 undefined */
+const openIdsOf = (map?: CourseMap) => (map ? new Set(map.units.flatMap((u) => u.lessons).filter((l) => l.status === 'open').map((l) => l.id)) : undefined)
 
 /** 等級的單課清單:對到課程目錄裡的單課,附上網址與是否已開放。
  *  對不到的項目直接略過(不在 render 中 throw,免得整個首頁空白);資料一致性由 catalog.test.ts 檢查 */
 /** (lessonLabel 依目前語言,呼叫的元件用 useT() 訂閱語言,換語言時會重算) */
-function levelLessons(level: CourseLevel) {
+function levelLessons(level: CourseLevel, openIds: Set<string> | undefined) {
   const course = COURSES.find((c) => coursePath(c) === level.link)
   if (!course) return []
   return (level.lessons ?? []).flatMap((item) => {
     const lesson = course.lessons.find((l) => l.id === item.id)
     if (!lesson) return []
-    return [{ ...item, label: lessonLabel(lesson), to: lessonPath(course, lesson), open: isOpen(lesson) }]
+    return [{ ...item, label: lessonLabel(lesson), to: lessonPath(course, lesson), open: openIds?.has(lesson.id) ?? false }]
   })
 }
 
-function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
+function LevelCard({ level, index, openIds }: { level: CourseLevel; index: number; openIds?: Set<string> }) {
   const t = useT()
   const m = t.home.software
   const available = level.status === 'available'
   // 目前只有「免費」會顯示(其他是 null)
   const access = ACCESS_LABEL[level.access] && (level.access === 'free' ? m.free : ACCESS_LABEL[level.access])
-  const lessons = levelLessons(level)
+  const lessons = levelLessons(level, openIds)
   const opened = lessons.filter((l) => l.open)
   return (
     <li
@@ -57,9 +57,10 @@ function LevelCard({ level, index }: { level: CourseLevel; index: number }) {
                 {access}
               </span>
             )}
+            {/* 開放了哪幾課照資料庫的課程地圖;還在讀、讀不到時不標(不誤標成規劃中) */}
             {available ? (
               <span className={`${styles.badge} ${styles.badgeOpen}`}>{m.contentReady}</span>
-            ) : opened.length ? (
+            ) : openIds === undefined ? null : opened.length ? (
               <span className={`${styles.badge} ${styles.badgeOpen}`}>{m.openedLessons(opened.map((l) => l.label).join(m.listSep))}</span>
             ) : (
               <span className={`${styles.badge} ${styles.badgePlanned}`}><span aria-hidden="true">🌱 </span>{t.home.planned}</span>
@@ -131,7 +132,10 @@ function TopicMapPage({ topic, intro, levels, first }: TopicMap) {
   const t = useT()
   const m = t.home.software
   // 主視覺的次要按鈕:連到第一個已有課程可看的等級(都還在規劃中時不顯示)
-  const featured = levels.find((l) => l.link && (l.status === 'available' || levelLessons(l).some((x) => x.open)))
+  // 哪些課開放了照資料庫的課程地圖(讀不到時卡片不標開放狀態)
+  const maps = useCourseMaps(levels.map((l) => l.id))
+  const openIds = (l: CourseLevel) => openIdsOf(maps[l.id])
+  const featured = levels.find((l) => l.link && (l.status === 'available' || levelLessons(l, openIds(l)).some((x) => x.open)))
 
   return (
     <SiteLayout title={topic.seoTitle}>
@@ -178,7 +182,7 @@ function TopicMapPage({ topic, intro, levels, first }: TopicMap) {
           </header>
           <ol className={styles.map}>
             {levels.map((l, i) => (
-              <LevelCard key={l.id} level={l} index={first + i} />
+              <LevelCard key={l.id} level={l} index={first + i} openIds={openIds(l)} />
             ))}
           </ol>
         </div>

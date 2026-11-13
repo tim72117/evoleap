@@ -1,15 +1,16 @@
 import type { JSX } from 'react'
-import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, type Course } from '../content/catalog'
+import { COURSES, coursePath, courseMapId, lessonLabel, lessonPath, plannedChapterPath, type Course } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
-import { useCourseMap } from '../content/courseMap'
-import { ALL_LEVELS } from '../content/levels'
+import { useCourseMap, type MapLesson } from '../content/courseMap'
 import { AiAgentCoursePage } from './AiAgentCoursePage'
 import { CourseListPage } from './CourseListPage'
 import { CourseOverviewPage } from './CourseOverviewPage'
 import { COURSE_LIST } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
 import { lazyPage } from '../site/lazyPage'
+import { SiteLayout } from '../site/SiteLayout'
+import { LessonListStatus } from './LessonGroup'
 import { LoginGate } from './LoginGate'
 import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
 
@@ -27,8 +28,35 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )
   if (lesson.draft) return <DraftLessonGate key={lesson.id} course={course} lesson={lesson} page={page} />
-  return requiresLogin(course, lesson) ? (
-    <GatedLesson key={lesson.id} course={course} lesson={lesson}>
+  return <AccessLessonGate key={lesson.id} course={course} lesson={lesson} page={page} />
+}
+
+/** 課程地圖還在讀、讀不到時的單課頁:一張佔位卡或「無法讀取」(不用前端寫死的課程資料頂替) */
+function LessonInfoStatus({ state }: { state: 'loading' | 'error' }) {
+  return (
+    <SiteLayout>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px', minHeight: '60vh' }}>
+        <LessonListStatus state={state} />
+      </div>
+    </SiteLayout>
+  )
+}
+
+/** 這一課在課程地圖裡的資料;地圖裡沒有這一課(不在資料庫)是 undefined */
+const lessonInMap = (map: { map: { units: { lessons: MapLesson[] }[] } }, id: string) => map.map.units.flatMap((u) => u.lessons).find((l) => l.id === id)
+
+/**
+ * 要不要登入照資料庫(課程地圖 API 的這一課 access,和伺服器把關腳本的規則同一份;用 evoleap lesson set -access 改了就跟著變):
+ * free 直接給看,其他(登入後免費、訂閱)要登入(LoginGate)。讀取中顯示佔位卡、讀不到顯示「無法讀取」;
+ * 地圖裡沒有這一課(資料庫沒有)當成還沒開放,顯示規劃中的章節頁。沒有前端的備援規則。
+ */
+function AccessLessonGate({ course, lesson, page }: { course: Course; lesson: CourseLesson; page: JSX.Element }) {
+  const map = useCourseMap(courseMapId(course))
+  if (map.status !== 'ready') return <LessonInfoStatus state={map.status} />
+  const entry = lessonInMap(map, lesson.id)
+  if (!entry) return <PlannedLesson course={course} lesson={lesson} />
+  return entry.access !== 'free' ? (
+    <GatedLesson course={course} lesson={lesson}>
       {page}
     </GatedLesson>
   ) : (
@@ -36,17 +64,20 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
   )
 }
 
+/** 還沒開放的單課:規劃中的章節頁(不載入播放器) */
+function PlannedLesson({ course, lesson }: { course: Course; lesson: CourseLesson }) {
+  return <PlannedChapterPage course={course} chapter={{ slug: lessonPath(course, lesson).split('/').pop()!, label: lesson.id, title: lesson.title, summary: lesson.goal }} />
+}
+
 /**
  * 草稿的課(lesson.draft):照課程地圖 API 決定給不給看。伺服器只把草稿給管理員(腳本檔也一樣把關),
  * 其他人(含模擬其他身分的管理員)拿到的是規劃中,這時顯示規劃中的章節頁,不載入播放器。
  */
 function DraftLessonGate({ course, lesson, page }: { course: Course; lesson: CourseLesson; page: JSX.Element }) {
-  const map = useCourseMap(ALL_LEVELS.find((l) => l.link === coursePath(course))?.id ?? course.slug)
-  // 讀課程地圖的時候不顯示任何內容,但標成載入中(螢幕閱讀器與測試看得到),不是一個沒有說明的空白頁
-  if (map.status === 'loading') return <div role="status" aria-busy="true" data-testid="draft-gate-loading" style={{ minHeight: '60vh' }} />
-  const status = map.status === 'ready' ? map.map.units.flatMap((u) => u.lessons).find((l) => l.id === lesson.id)?.status : undefined
-  if (status === 'draft' || status === 'open') return page
-  return <PlannedChapterPage course={course} chapter={{ slug: lessonPath(course, lesson).split('/').pop()!, label: lesson.id, title: lesson.title, summary: lesson.goal }} />
+  const map = useCourseMap(courseMapId(course))
+  if (map.status !== 'ready') return <LessonInfoStatus state={map.status} />
+  const status = lessonInMap(map, lesson.id)?.status
+  return status === 'draft' || status === 'open' ? page : <PlannedLesson course={course} lesson={lesson} />
 }
 
 /** 要登入的單課頁:文字在渲染時取目前語言(路由表是模組層級建好的) */

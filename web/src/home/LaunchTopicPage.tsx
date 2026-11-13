@@ -1,29 +1,14 @@
 import { Link } from 'react-router-dom'
-import type { MapUnit } from '../content/courseMap'
-import { LAUNCH_OPEN_LESSONS, LAUNCH_PITCH, LAUNCH_UNITS, launchNeedsLogin } from '../content/launchCourse'
+import { LAUNCH_PITCH } from '../content/launchCourse'
 import { LAUNCH_TOPIC, topicStartLabel } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
-import { CourseMapUnits } from './CourseMapUnits'
+import { TopicCourseMap } from './TopicCourseMap'
 import styles from './SoftwareTopicPage.module.css'
 
 // 主題「從做好到上線」的課程地圖頁:課程說明,再列出每個單元與每一課學會什麼。版型和「網頁怎麼運作」(WebTopicPage)相同。
 // 單元與每一課從資料庫讀(GET /api/courses/launch/map);序章與單元 1 開放中,草稿的課只有管理員拿得到,標「草稿」、點得進去,其他人看到規劃中。
-
-/** 前端內建的同一份課程地圖:資料庫讀到之前先顯示它,讀不到就一直用它(已開放的課當成開放,草稿不會從這裡露出來) */
-const LOCAL_UNITS: MapUnit[] = LAUNCH_UNITS.map((u) => ({
-  id: u.id,
-  title: u.title,
-  subtitle: u.question,
-  lessons: u.lessons.map((l) => ({
-    id: l.id,
-    title: l.title,
-    summary: l.learn,
-    access: launchNeedsLogin(l.id) ? 'login-free' : 'free',
-    status: LAUNCH_OPEN_LESSONS.includes(l.id) ? 'open' : 'planned',
-  })),
-}))
 
 export function LaunchTopicPage() {
   useHashScroll()
@@ -66,7 +51,7 @@ export function LaunchTopicPage() {
             <h2>{t.home.courseMap}</h2>
             <p className={styles.lead}>{t.home.launch.mapLead}</p>
           </header>
-          <CourseMapUnits course="launch" topicPath={topic.path} fallback={LOCAL_UNITS} />
+          <TopicCourseMap course="launch" topicPath={topic.path} />
         </div>
       </section>
     </SiteLayout>

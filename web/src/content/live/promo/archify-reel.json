@@ -1,0 +1,17 @@
+{
+  "title": "宣傳片：Archify 與 Diagram Design（直式・FB Reels）",
+  "lesson": "宣傳影片",
+  "voice": {"profile": "news", "voice": "Charon"},
+  "cast": {
+    "reel": {"actor": "archify-reel", "place": "full"}
+  },
+  "steps": [
+    {"scene": "growth", "chapter": "成長", "narration": "兩個開源專案，四月中旬才誕生，不到七個月，一個近十萬顆星，一個六萬多顆星！", "ms": 8100, "pause": 0},
+    {"scene": "assist", "chapter": "做什麼", "narration": "它們都是給 AI 程式助手用的技能：把腦中的想法、計畫，甚至整個程式碼，整理成一張乾淨的圖。", "ms": 9100, "pause": 0},
+    {"scene": "ir", "chapter": "原理", "narration": "Archify 的原理：AI 先寫出結構化的描述，驗證一關，捏造的元件馬上被擋下，修正了才畫出來。", "ms": 8600, "pause": 0},
+    {"scene": "style", "narration": "Diagram Design 走編輯風格，同一份內容，能換成數十種圖型，輸出單一的 HTML 加 SVG。", "ms": 8100, "pause": 0},
+    {"scene": "show", "chapter": "效果", "narration": "畫面是活的：節點一個個長出來，資料沿著連線流動，點一下看細節，明暗主題一鍵切換，還能匯出圖片。", "ms": 9900, "pause": 0},
+    {"scene": "types", "narration": "架構、流程、時序、生命週期，通通畫得出來。", "ms": 5200, "pause": 0},
+    {"scene": "repos", "chapter": "收尾", "narration": "兩個開源專案，現在就去 GitHub 看看。", "ms": 4500, "pause": 0}
+  ]
+}
