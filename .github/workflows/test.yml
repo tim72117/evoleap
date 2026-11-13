@@ -1,7 +1,10 @@
 name: Test
 
-# 每次 push 與 PR 都跑完整測試,確保修改(包含 AI 產生的修改)沒有改壞既有功能:
-#   Go 單元測試 → 前端型別檢查 → vitest 單元測試 → 正式 build(含 SEO 產生)→ Playwright E2E
+# 每次 push 與 PR 都跑完整測試,確保修改(包含 AI 產生的修改)沒有改壞既有功能。分成兩組同時跑:
+#   checks:Go 單元測試 → Go API 測試(Postgres)→ 前端型別檢查 → vitest 單元測試
+#   e2e   :正式 build(含 SEO 產生)→ Playwright E2E,切成 4 份(shard)各用一台機器同時跑
+# (GitHub 的 ubuntu-latest 只有 2 核心,E2E 一台跑要 5 分多鐘;分 4 份後約 1.5 到 2 分鐘,整體約 3 分鐘。)
+# 只要有一個工作失敗,整份測試就算失敗;部署流程(deploy-cloudrun.yml)等全部通過才部署。
 on:
   push:
     branches: ['**']
@@ -10,7 +13,7 @@ on:
   workflow_call:
 
 jobs:
-  test:
+  checks:
     runs-on: ubuntu-latest
     # 正式環境是 Postgres,Go 測試要連同一種資料庫,SQLite 測不出欄位長度、NUL 與連線數的問題。
     services:
@@ -63,6 +66,34 @@ jobs:
         working-directory: web
         run: npm test
 
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      # 一份失敗不取消其他份:一次看到全部失敗的測試
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    env:
+      SHARD_COUNT: 4
+    steps:
+      - uses: actions/checkout@v4
+
+      # E2E 的 server(go run)用正式 build 的 dist/ 與暫存 SQLite,不需要 Postgres;每一份在自己的機器上,埠不會衝突
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
       - name: Build (includes SEO pages, sitemap, robots)
         working-directory: web
         run: npm run build
@@ -71,15 +102,15 @@ jobs:
         working-directory: web
         run: npx playwright install --with-deps chromium
 
-      - name: E2E tests (production build served by Go)
+      - name: E2E tests, shard ${{ matrix.shard }}/${{ env.SHARD_COUNT }} (production build served by Go)
         working-directory: web
-        run: npm run test:e2e
+        run: npm run test:e2e -- --shard=${{ matrix.shard }}/${{ env.SHARD_COUNT }}
 
       - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: |
             web/playwright-report
             web/test-results
