@@ -6,7 +6,9 @@
   font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 .art-office *, .art-office *::before, .art-office *::after { box-sizing: border-box; }
-.art-office .art-frame { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; }
+/* 膠囊版面(舞台鋪滿視窗):不把場景裁成 1920×1080,房間背景(office.ts 的 roomSvg)畫到舞台外,視窗比 16:9 寬或高時兩側與上下也是房間;外層 .vp 負責裁切 */
+.vp-float .art-office { overflow: visible; }
+.art-office .art-frame { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }  /* 不裁成 1920×1080:房間背景畫到舞台外,視窗比例不同時兩側與上下也是房間(外層的舞台容器負責裁切) */
 .art-office .art-L { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; pointer-events: none; }
 .art-office .art-L > svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
 .art-office .art-rays { mix-blend-mode: screen; }
@@ -69,3 +71,14 @@
 .art-office .art-deco svg { display: block; width: 100%; height: 76px; margin-top: 6px; overflow: visible; }
 .art-office .art-deco-l1 { stroke: #8ff0ff; stroke-width: 2.5; filter: drop-shadow(0 0 4px #5fd4ff); }
 .art-office .art-deco-l2 { stroke: #ffd27a; stroke-width: 2; opacity: 0.8; }
+
+/* ---------- 直式舞台(.live-stage.portrait,畫布 1080 寬):不重畫場景,把 1920×1080 的房間「框」住螢幕與人的範圍、置中放大 ----------
+   --pk 是縮放倍率(約 1080 ÷ 要看的水平範圍),--pcx 是要置中的水平位置(世界座標);垂直置中在 540。
+   框外上下的空間由 office.ts 的 roomSvg 與桌子、人的延伸補滿(畫到舞台外,見上面)。鏡頭推近、視差都在框裡面,照常運作。
+   manual-office:螢幕到坐著的人(x 約 372–1500);agent-office:螢幕、機器人到站著的人(x 約 372–1790,站著的人頭在 1664) */
+.live-stage.portrait .art-office .art-frame {
+  left: 50%; top: 50%; transform-origin: 0 0;
+  transform: scale(var(--pk, 0.8)) translate(calc(var(--pcx, 960) * -1px), -540px);
+}
+.live-stage.portrait .A-manual-office { --pk: 0.86; --pcx: 930; }
+.live-stage.portrait .A-agent-office { --pk: 0.64; --pcx: 1100; }

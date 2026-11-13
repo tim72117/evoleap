@@ -26,6 +26,9 @@ export interface DeskOpts extends OfficeOpts {
 }
 
 // ---------- 背景:辦公室(整層會模糊) ----------
+/** 房間往四周多畫的距離(px):視窗比 16:9 寬或窄時,舞台以外的地方也是房間,不露出底色。要夠大,鏡頭視差與推近都不會露邊 */
+const BLEED = 2400
+
 export function roomSvg(o: RoomOpts = {}): string {
   const k = o.prefix ?? 'ao'
   const r = kit.rand(o.seed ?? 2081)
@@ -40,6 +43,15 @@ export function roomSvg(o: RoomOpts = {}): string {
     for (let wy = 720 - h + 14; wy < 700; wy += 22)
       if (r() < 0.6) city += `<rect x="${f(x + 8)}" y="${f(wy)}" width="${f(w - 16)}" height="5" fill="#ffffff" opacity="${(0.25 + r() * 0.3).toFixed(2)}"/>`
     x += w + 6 + r() * 30
+  }
+  // 窗戶往左延伸出舞台外:再接一排大樓(另一組亂數,原本看得到的那排不變)
+  const rl = kit.rand((o.seed ?? 2081) + 17)
+  let lx = -130
+  while (lx > -BLEED) {
+    const w = 50 + rl() * 90
+    const h = 120 + rl() * 260
+    lx -= w + 6 + rl() * 30
+    city += `<rect x="${f(lx)}" y="${f(720 - h)}" width="${f(w)}" height="${f(h)}" fill="#7f9fbf" opacity="${(0.22 + rl() * 0.25).toFixed(2)}"/>`
   }
   // 遠處的辦公桌與椅子
   let far = ''
@@ -58,22 +70,22 @@ export function roomSvg(o: RoomOpts = {}): string {
   return (
     `<svg class="${k}-roomsvg" viewBox="0 0 1920 1080" aria-hidden="true">` +
     `<defs>` +
-    `<linearGradient id="${k}-wall" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8f0f8"/><stop offset=".55" stop-color="#cfdce9"/><stop offset="1" stop-color="#a9bdd2"/></linearGradient>` +
+    `<linearGradient id="${k}-wall" gradientUnits="userSpaceOnUse" gradientTransform="matrix(2120 0 0 1300 -100 -100)" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8f0f8"/><stop offset=".55" stop-color="#cfdce9"/><stop offset="1" stop-color="#a9bdd2"/></linearGradient>` +
     `<linearGradient id="${k}-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#eaf4ff"/><stop offset="1" stop-color="#c9def2"/></linearGradient>` +
     `<linearGradient id="${k}-ceil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8c8d9"/><stop offset="1" stop-color="#dbe5ef"/></linearGradient>` +
     `<radialGradient id="${k}-burst" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>` +
-    `<linearGradient id="${k}-dim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0b2a4a" stop-opacity="0"/><stop offset=".55" stop-color="#0b2a4a" stop-opacity=".08"/><stop offset="1" stop-color="#0b2a4a" stop-opacity=".35"/></linearGradient>` +
+    `<linearGradient id="${k}-dim" gradientUnits="userSpaceOnUse" x1="-100" y1="0" x2="2020" y2="0"><stop offset="0" stop-color="#0b2a4a" stop-opacity="0"/><stop offset=".55" stop-color="#0b2a4a" stop-opacity=".08"/><stop offset="1" stop-color="#0b2a4a" stop-opacity=".35"/></linearGradient>` +
     `<linearGradient id="${k}-wd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1a2b"/><stop offset="1" stop-color="#16263b"/></linearGradient>` +
     `</defs>` +
-    `<rect x="-100" y="-100" width="2120" height="1300" fill="url(#${k}-wall)"/>` +
+    `<rect x="${-BLEED}" y="${-BLEED}" width="${1920 + 2 * BLEED}" height="${1080 + 2 * BLEED}" fill="url(#${k}-wall)"/>` +
     // 左邊的大片窗戶
-    `<rect x="-100" y="40" width="880" height="700" fill="url(#${k}-sky)"/>` +
+    `<rect x="${-BLEED}" y="40" width="${780 + BLEED}" height="700" fill="url(#${k}-sky)"/>` +
     city +
     `<ellipse cx="300" cy="300" rx="520" ry="380" fill="url(#${k}-burst)"/>` +
-    `<g fill="#8396ab">${[60, 250, 440, 630].map((mx) => `<rect x="${mx}" y="40" width="16" height="700"/>`).join('')}<rect x="-100" y="318" width="880" height="10"/><rect x="760" y="20" width="44" height="760"/></g>` +
+    `<g fill="#8396ab">${[60, 250, 440, 630].map((mx) => `<rect x="${mx}" y="40" width="16" height="700"/>`).join('')}<rect x="${-BLEED}" y="318" width="${780 + BLEED}" height="10"/><rect x="760" y="20" width="44" height="760"/>${Array.from({ length: Math.floor(BLEED / 190) }, (_, i) => `<rect x="${60 - 190 * (i + 1)}" y="40" width="16" height="700"/>`).join('')}</g>` +
     `<g fill="#ffffff" opacity=".55">${[60, 250, 440, 630].map((mx) => `<rect x="${mx}" y="40" width="4" height="700"/>`).join('')}</g>` +
     // 天花板與燈條
-    `<path d="M-100 -100 H2020 V70 C 1500 52 600 44 -100 52Z" fill="url(#${k}-ceil)"/>` +
+    `<path d="M${-BLEED} -100 H${1920 + BLEED} V70 H2020 C 1500 52 600 44 -100 52 H${-BLEED}Z" fill="url(#${k}-ceil)"/>` +
     `<g fill="#ffffff">` +
     `<rect x="880" y="22" width="520" height="12" rx="6" opacity=".95"/><rect x="1500" y="26" width="420" height="10" rx="5" opacity=".9"/><rect x="300" y="12" width="420" height="10" rx="5" opacity=".7"/>` +
     `</g>` +
@@ -92,7 +104,7 @@ export function roomSvg(o: RoomOpts = {}): string {
     `<g fill="#3f7a5a">${[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<ellipse cx="${1870 + Math.sin(i * 1.7) * 60}" cy="${560 - i * 22}" rx="22" ry="54" transform="rotate(${-40 + i * 12} ${1870 + Math.sin(i * 1.7) * 60} ${560 - i * 22})"/>`).join('')}</g></g>` +
     far +
     // 越往右越暗一點,讓前景的白色機器人跳出來
-    `<rect x="-100" y="-100" width="2120" height="1300" fill="url(#${k}-dim)"/>` +
+    `<rect x="${-BLEED}" y="${-BLEED}" width="${1920 + 2 * BLEED}" height="${1080 + 2 * BLEED}" fill="url(#${k}-dim)"/>` +
     `</svg>`
   )
 }
@@ -175,18 +187,18 @@ export function deskSvg(o: DeskOpts = {}): string {
   return (
     `<svg class="${k}-desksvg" viewBox="0 0 1920 1080" aria-hidden="true">` +
     `<defs>` +
-    `<linearGradient id="${k}-top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7fafd"/><stop offset=".25" stop-color="#e3eaf2"/><stop offset="1" stop-color="#b7c5d4"/></linearGradient>` +
-    `<linearGradient id="${k}-refl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff" stop-opacity=".85"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>` +
+    `<linearGradient id="${k}-top" gradientUnits="userSpaceOnUse" x1="0" y1="${DESK_Y}" x2="0" y2="${DESK_Y + 420}"><stop offset="0" stop-color="#f7fafd"/><stop offset=".25" stop-color="#e3eaf2"/><stop offset="1" stop-color="#b7c5d4"/></linearGradient>` +
+    `<linearGradient id="${k}-refl" gradientUnits="userSpaceOnUse" x1="-100" y1="0" x2="780" y2="0"><stop offset="0" stop-color="#ffffff" stop-opacity=".85"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>` +
     `<linearGradient id="${k}-metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e9eef4"/><stop offset=".45" stop-color="#aab6c3"/><stop offset=".55" stop-color="#d7dee6"/><stop offset="1" stop-color="#7d8a98"/></linearGradient>` +
     `<linearGradient id="${k}-kb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f7fa"/><stop offset="1" stop-color="#c9d3de"/></linearGradient>` +
     `<radialGradient id="${k}-screenspill" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#8fd8ff" stop-opacity=".55"/><stop offset="1" stop-color="#8fd8ff" stop-opacity="0"/></radialGradient>` +
     `<filter id="${k}-b4" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter>` +
     `<filter id="${k}-b14" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>` +
     `</defs>` +
-    `<rect x="-100" y="${DESK_Y}" width="2120" height="420" fill="url(#${k}-top)"/>` +
-    `<rect x="-100" y="${DESK_Y - 2}" width="2120" height="5" fill="#ffffff" opacity=".9"/>` +
+    `<rect x="${-BLEED}" y="${DESK_Y}" width="${1920 + 2 * BLEED}" height="${1080 + BLEED - DESK_Y}" fill="url(#${k}-top)"/>` +
+    `<rect x="${-BLEED}" y="${DESK_Y - 2}" width="${1920 + 2 * BLEED}" height="5" fill="#ffffff" opacity=".9"/>` +
     // 窗戶倒映在亮面桌上
-    `<polygon points="-100,${DESK_Y + 4} 780,${DESK_Y + 4} 560,1080 -100,1080" fill="url(#${k}-refl)" opacity=".55" filter="url(#${k}-b14)"/>` +
+    `<polygon points="${-BLEED},${DESK_Y + 4} 780,${DESK_Y + 4} 560,1080 ${-BLEED},1080" fill="url(#${k}-refl)" opacity=".55" filter="url(#${k}-b14)"/>` +
     // 螢幕的光灑在桌上
     `<ellipse cx="760" cy="${DESK_Y + 40}" rx="420" ry="60" fill="url(#${k}-screenspill)"/>` +
     // 螢幕支架

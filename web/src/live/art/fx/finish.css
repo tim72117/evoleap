@@ -6,3 +6,10 @@
   opacity: 0.09; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.4 -.2'/></filter><rect width='256' height='256' filter='url(%23n)'/></svg>");
 }
+
+/* 膠囊版面(舞台鋪滿視窗,場景畫到舞台外,見 office.css):調色與暗角也畫到舞台外,不在 1920×1080 的邊界留下一圈色差。
+   漸層改用 px 對到原本 1920×1080 的位置,舞台裡面的樣子不變;舞台外延續邊緣的顏色(調色 100deg 的起點在箱子中心往回推 L/2,L = 1920·sin100° + 1080·|cos100°| ≈ 2078px;
+   箱子加大 2400px 之後 L ≈ 7639px,所以三個色標在 2780、3820、4859px) */
+.vp-float .art-grade, .vp-float .art-vignette { inset: -2400px; }
+.vp-float .art-grade { background: linear-gradient(100deg, rgba(255, 255, 255, 0.1) 2780px, rgba(40, 110, 200, 0.08) 3820px, rgba(10, 40, 90, 0.2) 4859px); }
+.vp-float .art-vignette { background: radial-gradient(ellipse 1440px 756px at 3321.6px 2940px, rgba(0, 0, 0, 0) 55%, rgba(8, 22, 44, 0.42) 100%); }

@@ -14,14 +14,14 @@ const sha = async (s: string): Promise<{ len: number; sha1: string }> => ({
   sha1: [...new Uint8Array(await crypto.subtle.digest('SHA-1', new TextEncoder().encode(s)))].map((b) => b.toString(16).padStart(2, '0')).join(''),
 })
 
-// 抽出 art/ 之前,從 agent-office/paint.ts 取的輸出指紋(長度 + sha1)。預設值要永遠產生一樣的字串。
+// 輸出指紋(長度 + sha1):預設值要永遠產生一樣的字串。roomSvg、deskSvg、manSvg 在 2026-11-13 改成畫到舞台外(視窗比例不同時背景也要填滿,見 office.ts 的 BLEED)後重取;其他沒變。
 const REF = {
-  roomSvg: { len: 11376, sha1: '7ee175977b79fd7cf8cfaceb8645576a0ca158dc' },
+  roomSvg: { len: 13746, sha1: '6c21024956831fb5b84e0d1e91e72b32694e600f' },
   raysSvg: { len: 753, sha1: 'fb0682712c30c36d2e274029337431d250e08121' },
-  deskSvg: { len: 7840, sha1: '1528dfcc95ce2c89fb0ddfb773756fef107a163c' },
+  deskSvg: { len: 7917, sha1: '995778116245851bb731b98d49088ff3444ac258' },
   foreSvg: { len: 441, sha1: '9398f3b1c90042c025a7cfefbe9dd1dac88e4c8d' },
   robotSvg: { len: 10926, sha1: 'a4b02de715099b2e5da14fd17c147ead769076ad' },
-  manSvg: { len: 7623, sha1: '1e57d69bcb360ae294527348773b176ebcf10572' },
+  manSvg: { len: 7695, sha1: '6ab0c124d05f612c49c8502f282300c25fbd8cdf' },
   bokeh: { len: 1456, sha1: '54448b4f32511ccc36df431256670f1d8acfb3e7' },
 }
 
