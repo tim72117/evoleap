@@ -1,0 +1,9 @@
+/* art/fx/clock:牆上時鐘與日曆牌。外框(.art-clock)用 position:absolute,位置由場景決定;寬 150px。 */
+.art-clock { position: absolute; width: 150px; filter: drop-shadow(0 8px 14px rgba(20, 40, 70, 0.3)); }
+.art-clock-face { display: block; width: 150px; height: 150px; }
+.art-clock-cal {
+  margin: -6px auto 0; width: 118px; padding: 6px 0 7px; border-radius: 10px; text-align: center; position: relative;
+  background: linear-gradient(#ffffff, #e9eef4); border: 2px solid #2b3644; border-top: 9px solid #d9482b;
+}
+.art-clock-day { display: block; font-size: 22px; line-height: 26px; font-weight: 800; color: #1f2833; letter-spacing: 0.04em; }
+.art-clock-time { display: block; font: 600 13px/16px "SF Mono", Menlo, Consolas, monospace; color: #5b6a7c; }

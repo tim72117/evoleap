@@ -1,0 +1,5 @@
+/* art/fx/ambient:散景光點與灰塵(都是絕對定位的小圓,位置由 render 設)。窗光的 SVG 在 art/office.ts 的 raysSvg。 */
+.art-bokeh i { position: absolute; border-radius: 50%; }
+.art-bokeh i.w { background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(240, 248, 255, 0.4) 55%, rgba(240, 248, 255, 0) 72%); }
+.art-bokeh i.b { background: radial-gradient(circle, rgba(150, 215, 255, 0.9), rgba(110, 190, 255, 0.35) 55%, rgba(110, 190, 255, 0) 72%); }
+.art-dust i { position: absolute; left: 0; top: 0; border-radius: 50%; background: radial-gradient(circle, #fff, rgba(255, 255, 255, 0) 70%); }

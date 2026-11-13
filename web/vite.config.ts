@@ -1,10 +1,11 @@
-import { createHash, randomBytes } from 'node:crypto'
+import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import type { Plugin } from 'vite'
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { devGateDecision, gatedKind } from './src/site/devStudioGate'
+import { STUDIO_TOKEN_COOKIE, studioDevToken } from './scripts/lib/studioToken.mjs'
 
 // 開發時也提供 /sitemap.xml 與 /robots.txt(正式環境由 scripts/seo.mjs 在 build 時寫進 dist),
 // 內容來自同一份 src/seo/build.ts,每次請求即時產生。
@@ -83,15 +84,6 @@ function courseMapFile(): Plugin {
 // 開發時也擋研發基地:向本機 Go server 確認登入的是不是管理員(判定條件與正式環境相同)。
 // 例外:scripts/record-live.mjs 錄影時帶本機的 token(存在 node_modules/.cache,不進版控);
 // 要在本機略過檢查時用 DEV_OPEN_STUDIO=1 npm run dev。
-const STUDIO_TOKEN_COOKIE = 'studio_dev_token'
-function studioDevToken(): string {
-  const file = path.resolve(import.meta.dirname, 'node_modules/.cache/studio-dev-token')
-  if (fs.existsSync(file)) return fs.readFileSync(file, 'utf8').trim()
-  const token = randomBytes(24).toString('hex')
-  fs.mkdirSync(path.dirname(file), { recursive: true })
-  fs.writeFileSync(file, token, { mode: 0o600 })
-  return token
-}
 
 function devStudioGate(): Plugin {
   return {
@@ -102,7 +94,7 @@ function devStudioGate(): Plugin {
         server.config.logger.warn('DEV_OPEN_STUDIO=1:研發基地不檢查權限')
         return
       }
-      const token = studioDevToken()
+      const token = studioDevToken(import.meta.dirname)
       server.middlewares.use(async (req, res, next) => {
         const url = req.url ?? '/'
         const kind = gatedKind(url.split('?')[0])
@@ -191,7 +183,8 @@ export default defineConfig({
     fs: { allow: ['..'] },
     // 產生旁白語音(npm run voice、mix)時每段都會改寫 .voice.json / .mix.json,不忽略的話頁面會一直重新載入;
     // 改過的語音設定要重開 dev server 才會讀到
-    watch: { ignored: ['**/*.voice.json', '**/*.mix.json'] },
+    // 旁白與章節音軌清單(產生時會大量改寫)、錄影輸出、Blender 渲染圖與場景檔、建置輸出都不是模組,不用監聽
+    watch: { ignored: ['**/*.voice.json', '**/*.mix.json', '**/recordings/**', '**/art/**/renders/**', '**/test-results/**'] },
     proxy: {
       '/api': 'http://127.0.0.1:8190',
     },

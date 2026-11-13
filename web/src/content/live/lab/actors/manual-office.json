@@ -1,0 +1,73 @@
+{
+  "title": "manual-office：手寫程式的年代",
+  "lesson": "演員展示",
+  "cast": {
+    "m": {
+      "actor": "manual-office",
+      "props": {
+        "site": "小森烘焙"
+      },
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "wait": 900,
+      "chapter": "手寫的年代",
+      "narration": "以前想做網站，得先學會寫程式。"
+    },
+    {
+      "write": true,
+      "narration": "一個字一個字，慢慢手打。"
+    },
+    {
+      "run": true,
+      "narration": "少了一個符號，整個畫面就壞了。"
+    },
+    {
+      "hunt": true,
+      "chapter": "找錯",
+      "narration": "找一個錯，可能要花上好幾個小時。"
+    },
+    {
+      "patch": true,
+      "narration": "改一個字。"
+    },
+    {
+      "run": true,
+      "narration": "這裡好了，別的地方又壞了。"
+    },
+    {
+      "hunt": true,
+      "narration": "再找一次。"
+    },
+    {
+      "patch": true,
+      "narration": "再改一個字。"
+    },
+    {
+      "run": true,
+      "narration": "還是不對。"
+    },
+    {
+      "slump": true,
+      "narration": "一天、兩天、三天過去了。"
+    },
+    {
+      "call": true,
+      "chapter": "請 AI 幫忙",
+      "narration": "所以我請 AI 代理人來幫忙。"
+    },
+    {
+      "enter": true,
+      "narration": "它來了。"
+    },
+    {
+      "handoff": "幫我做一個網站。",
+      "narration": "我只要把需求說出來。"
+    },
+    {
+      "wait": 1200
+    }
+  ]
+}

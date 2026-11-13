@@ -1,0 +1,21 @@
+{
+  "title": "agent-office：AI Agent 自己動手做事",
+  "lesson": "演員展示",
+  "cast": {
+    "a": { "actor": "agent-office", "props": { "site": "小森烘焙" }, "place": "full" }
+  },
+  "steps": [
+    { "wait": 900, "chapter": "你只說一次需求", "narration": "這是 AI Agent，它會自己動手做事。" },
+    { "need": "幫我做小森烘焙的一頁式網站，要有菜單和地址。", "narration": "你只要把需求說一次。" },
+    { "plan": true, "narration": "它先把步驟想好。" },
+    { "ask": "建立 index.html", "chapter": "動手之前先問你", "narration": "要動你的電腦之前，它會先問你。" },
+    { "allow": false, "narration": "你可以拒絕，它就停下來。" },
+    { "ask": "只在「小森烘焙」資料夾裡建立 index.html，不動其他檔案", "narration": "它換個方式，再問你一次。" },
+    { "allow": true, "narration": "你按下允許，它才開始動手。" },
+    { "build": true, "chapter": "它自己做、自己檢查", "narration": "接下來它自己寫程式，網站一塊一塊長出來。" },
+    { "check": true, "narration": "寫完它自己開瀏覽器檢查，發現少了樣式。" },
+    { "fix": true, "narration": "它自己修改，網站換上了顏色與版面。" },
+    { "done": true, "chapter": "做完回報給你", "narration": "做完回報給你。你只說了需求、按了允許。" },
+    { "wait": 1500 }
+  ]
+}

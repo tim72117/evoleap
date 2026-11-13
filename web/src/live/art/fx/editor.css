@@ -1,0 +1,8 @@
+/* art/fx/editor:編輯器每一行的版面(容器 .art-ed,另外要 .art-code 才有上色);字 12px、行高 18px(ROW_H)。 */
+.art-ed { padding: 8px 0; font: 12px/18px "SF Mono", Menlo, Consolas, monospace; color: #d7e2f0; white-space: pre; position: relative; }
+.art-ed-row { position: relative; display: flex; min-width: 330px; height: 18px; }
+.art-ed-row em { flex: none; width: 30px; padding-right: 10px; text-align: right; font-style: normal; color: #44556d; }
+.art-ed-row::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; background: rgba(120, 220, 255, 0.28); }
+.art-ed-hot::before { opacity: var(--hot, 0); }
+.art-ed-flash::before { opacity: var(--flash, 0); background: rgba(94, 240, 176, 0.38); }
+.art-ed .art-caret { height: 13px; vertical-align: -2px; }

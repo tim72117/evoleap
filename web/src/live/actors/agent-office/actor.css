@@ -1,0 +1,84 @@
+/* agent-office:白色機器人與旁邊看螢幕的人、青藍色全息面板。選擇器都以 .A-agent-office 開頭(類別名稱 ao-…)。
+   共用的辦公室樣式(舞台層、螢幕、對話視窗、瀏覽器外框、系統狀態 / 圖表 / 需求)在 ../../art/office.css(.art-office、類別 art-…),效果樣式在 ../../art/fx/*.css。
+   1920×1080 舞台的 px;所有動畫由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+
+/* ---------- 螢幕 ---------- */
+/* 代理人的對話畫面(共用的外框在 ../../art/office.css,這裡是訊息泡泡的顏色) */
+.A-agent-office .ao-m-you { align-self: flex-end; align-items: flex-end; }
+.A-agent-office .ao-m-you span { background: #2d6fd6; color: #fff; }
+.A-agent-office .ao-m-ai span { border: 1px solid rgba(100, 200, 255, 0.25); }
+.A-agent-office .ao-m-res span { background: #173b30; border-color: rgba(90, 220, 150, 0.4); color: #bff5d6; }
+.A-agent-office .ao-m-res.no span { background: #3a2a14; border-color: rgba(255, 190, 90, 0.4); color: #ffe2ad; }
+
+/* 編輯器 */
+.A-agent-office .ao-code { padding: 8px 0; font: 12px/19px "SF Mono", Menlo, Consolas, monospace; color: #d7e2f0; white-space: pre; }
+.A-agent-office .ao-code div { display: flex; min-width: 330px; }
+.A-agent-office .ao-code em { flex: none; width: 30px; padding-right: 10px; text-align: right; font-style: normal; color: #44556d; }
+
+/* 沒有樣式的網頁:瀏覽器預設的樣子 */
+.A-agent-office .ao-raw { position: absolute; inset: 0; padding: 10px 14px; font-family: "Times New Roman", "PMingLiU", serif; color: #000; font-size: 14px; line-height: 1.5; }
+.A-agent-office .ao-raw u { color: #0000ee; }
+.A-agent-office .ao-rh1 { font-size: 28px; font-weight: 700; margin: 6px 0; }
+.A-agent-office .ao-rh2 { font-size: 19px; font-weight: 700; margin: 6px 0 2px; }
+.A-agent-office .ao-rli { padding-left: 24px; position: relative; }
+.A-agent-office .ao-rli::before { content: ''; position: absolute; left: 10px; top: 9px; width: 5px; height: 5px; border-radius: 50%; background: #000; }
+
+/* 換上樣式之後 */
+.A-agent-office .ao-styled { position: absolute; inset: 0; display: flex; flex-direction: column; background: #fff8ef; color: #3d2a1c; font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
+.A-agent-office .ao-sn { flex: none; display: flex; align-items: center; gap: 18px; padding: 9px 20px; background: #5a3a22; color: #fff; font-size: 13px; }
+.A-agent-office .ao-sn b { margin-right: auto; font-size: 15px; letter-spacing: 0.06em; }
+.A-agent-office .ao-shero { flex: none; padding: 16px 20px 14px; text-align: center; background: linear-gradient(160deg, #f6e3c8, #f2d3a8); }
+.A-agent-office .ao-sh1 { font-size: 32px; font-weight: 800; color: #5a3a22; letter-spacing: 0.08em; }
+.A-agent-office .ao-sp { font-size: 13px; color: #7a5a40; margin: 2px 0 8px; }
+.A-agent-office .ao-sbtn { display: inline-block; padding: 5px 16px; border-radius: 999px; background: #d9822b; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 3px 0 #a85f17; }
+.A-agent-office .ao-smenu { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px 16px; }
+.A-agent-office .ao-scard { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(90, 58, 34, 0.12); font-size: 13px; }
+.A-agent-office .ao-scard span { font-size: 12px; color: #d9822b; font-weight: 700; }
+.A-agent-office .ao-bread { display: block; width: 46px; height: 28px; margin-bottom: 4px; border-radius: 50% 50% 40% 40%; background: radial-gradient(circle at 40% 35%, #f3c27a, #c47a2c 70%, #8f5216); }
+.A-agent-office .ao-bread.c2 { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #e8b06a 0 20%, #9c5a24 22% 30%, #e1a45c 32% 50%, #8a4e1c 52% 60%, #d39552 62%); }
+.A-agent-office .ao-bread.c3 { width: 52px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 45% 30%, #e7c08b, #a8743c 70%, #6f4620); }
+.A-agent-office .ao-sfoot { flex: none; padding: 8px 20px; background: #2f2a26; color: #f6e3c8; font-size: 11px; }
+.A-agent-office .ao-wipe {
+  position: absolute; left: 0; right: 0; height: 6px; margin-top: -3px; pointer-events: none;
+  background: linear-gradient(90deg, rgba(120, 230, 255, 0), #8ff0ff 20%, #ffffff 50%, #8ff0ff 80%, rgba(120, 230, 255, 0));
+  box-shadow: 0 0 18px 6px rgba(80, 210, 255, 0.6);
+}
+.A-agent-office .ao-scan {
+  position: absolute; left: 0; right: 0; height: 60px; margin-top: -60px; pointer-events: none;
+  background: linear-gradient(180deg, rgba(80, 210, 255, 0), rgba(80, 210, 255, 0.28) 85%, #8ff0ff 100%);
+  border-bottom: 2px solid #b9f6ff;
+}
+.A-agent-office .ao-mark {
+  position: absolute; inset: 8px; border-radius: 10px; border: 3px dashed #ffb547; box-shadow: 0 0 0 4px rgba(255, 181, 71, 0.18), inset 0 0 30px rgba(255, 181, 71, 0.18);
+}
+.A-agent-office .ao-mark span { position: absolute; right: 10px; top: 10px; padding: 3px 10px; border-radius: 8px; background: #ffb547; color: #3a2400; font-size: 13px; font-weight: 800; }
+
+/* 計畫 */
+.A-agent-office .ao-plan { left: 44px; top: 150px; width: 362px; transform-origin: 0 0; }
+.A-agent-office .ao-plan-need { margin: 6px 0 12px; font-size: 16px; color: #cfeeff; line-height: 1.45; }
+.A-agent-office .ao-plan ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.A-agent-office .ao-plan li { position: relative; display: flex; align-items: center; gap: 12px; height: 50px; padding: 0 14px; border-radius: 12px; background: rgba(120, 210, 255, 0.1); border: 1px solid rgba(130, 230, 255, 0.3); font-size: 20px; font-weight: 700; }
+.A-agent-office .ao-st { display: none; }
+.A-agent-office .ao-st-n { flex: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 2px solid rgba(160, 235, 255, 0.7); color: #bff6ff; }
+.A-agent-office .ao-st-t { flex: 1; }
+.A-agent-office .ao-st-tag { font-style: normal; font-size: 14px; padding: 2px 10px; border-radius: 999px; }
+.A-agent-office .ao-plan li.s-todo { opacity: 0.85; }
+.A-agent-office .ao-plan li.s-doing { background: rgba(90, 210, 255, 0.28); border-color: #9ff0ff; box-shadow: 0 0 18px rgba(90, 210, 255, 0.45); }
+.A-agent-office .ao-plan li.s-doing .ao-st-tag { background: #4cc4ff; color: #04223a; text-shadow: none; }
+.A-agent-office .ao-plan li.s-wait { border-color: #ffc56b; }
+.A-agent-office .ao-plan li.s-wait .ao-st-tag { background: #ffc56b; color: #3a2400; text-shadow: none; }
+.A-agent-office .ao-plan li.s-done .ao-st-n { background: #4fe0a0; border-color: #4fe0a0; color: #052e1d; text-shadow: none; }
+.A-agent-office .ao-plan li.s-done .ao-st-tag { color: #8ff5c4; }
+
+/* 權限 */
+.A-agent-office .ao-ask { left: 990px; top: 92px; width: 470px; }
+
+/* 系統狀態 / 工作紀錄 */
+.A-agent-office .ao-dash-log { position: absolute; inset: 14px 18px; display: flex; gap: 16px; align-items: center; }
+
+/* 檢查結果 */
+.A-agent-office .ao-issue { left: 950px; top: 150px; width: 330px; border-color: #ffc56b; box-shadow: 0 0 28px rgba(255, 180, 80, 0.5), inset 0 0 24px rgba(255, 180, 80, 0.18); }
+.A-agent-office .ao-issue-t { margin-top: 6px; font-size: 23px; font-weight: 800; line-height: 1.4; color: #fff; }
+
+/* 鍵盤上方的全息程式碼面板(斜放) */
+.A-agent-office .ao-kh { position: absolute; left: 610px; top: 548px; width: 540px; height: 236px; transform-origin: 50% 100%; }

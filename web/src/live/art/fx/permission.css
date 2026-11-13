@@ -1,0 +1,16 @@
+/* art/fx/permission:權限提示全息面板(標題 + 問題 + 允許/拒絕按鈕 + 結果列)。面板本身要有 .art-holo,位置由場景決定。 */
+.art-ask .art-holo-title { color: #ffd88f; text-shadow: 0 0 10px rgba(255, 200, 110, 0.7); }
+.art-ask-q { margin: 8px 0 14px; font-size: 28px; font-weight: 800; line-height: 1.35; color: #fff; min-height: 38px; }
+.art-ask-btns { display: flex; gap: 14px; }
+.art-btn {
+  flex: 1; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 23px; font-weight: 800; letter-spacing: 0.1em;
+  border: 1.5px solid rgba(160, 235, 255, 0.85); background: rgba(90, 200, 255, 0.16);
+}
+.art-allow { background: linear-gradient(180deg, rgba(90, 230, 170, 0.55), rgba(30, 150, 100, 0.55)); border-color: #8ff5c4; box-shadow: 0 0 18px rgba(80, 230, 160, 0.45); }
+.art-allow.art-on { background: linear-gradient(180deg, #5ef0b0, #20a56c); color: #032417; text-shadow: none; box-shadow: 0 0 30px rgba(80, 240, 170, 0.85); }
+.art-deny.art-on { background: linear-gradient(180deg, #ffbf6b, #d9822b); color: #2a1600; text-shadow: none; border-color: #ffd08f; box-shadow: 0 0 30px rgba(255, 170, 70, 0.7); }
+.art-ask-res { margin-top: 12px; font-size: 19px; font-weight: 700; min-height: 26px; }
+.art-ask.art-ok { border-color: #8ff5c4; box-shadow: 0 0 30px rgba(80, 240, 170, 0.55), inset 0 0 28px rgba(80, 240, 170, 0.2); }
+.art-ask.art-ok .art-ask-res { color: #9ff7cc; }
+.art-ask.art-no { border-color: #ffc56b; box-shadow: 0 0 30px rgba(255, 180, 80, 0.5), inset 0 0 28px rgba(255, 180, 80, 0.18); }
+.art-ask.art-no .art-ask-res { color: #ffe0a8; }

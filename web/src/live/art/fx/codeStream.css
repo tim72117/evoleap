@@ -1,0 +1,18 @@
+/* art/fx/codeStream:程式碼串流的語法上色(.art-code 容器裡的 b.art-t/a/s/c)、游標,以及鍵盤上方斜放的全息程式碼面板。 */
+.art-code b.art-t { font-weight: 400; color: #66d4ff; }
+.art-code b.art-a { font-weight: 400; color: #ffcf7a; }
+.art-code b.art-s { font-weight: 400; color: #9fe39b; }
+.art-code b.art-c { font-weight: 400; color: #7c8da4; }
+.art-caret { display: inline-block; width: 7px; height: 14px; margin-left: 1px; vertical-align: -2px; background: #7fe3ff; }
+
+/* 全息程式碼面板:放在一個自己定位、有大小的外框裡(外框做透視與出現動畫),這個填滿外框 */
+.art-codeholo {
+  position: absolute; inset: 0; padding: 12px 18px; border-radius: 14px; box-sizing: border-box;
+  background: linear-gradient(170deg, rgba(70, 190, 255, 0.24), rgba(10, 50, 110, 0.42));
+  border: 2px solid rgba(140, 240, 255, 0.95);
+  box-shadow: 0 0 30px rgba(70, 200, 255, 0.7), 0 0 90px rgba(70, 200, 255, 0.3), inset 0 0 30px rgba(110, 220, 255, 0.3);
+  text-shadow: 0 0 8px rgba(120, 230, 255, 0.9);
+}
+.art-codeholo-tab { display: inline-block; padding: 2px 12px; border-radius: 6px; background: rgba(140, 240, 255, 0.25); color: #dffaff; font: 700 14px/1.5 "SF Mono", Menlo, Consolas, monospace; }
+.art-codeholo-code { margin-top: 8px; font: 15px/23px "SF Mono", Menlo, Consolas, monospace; color: #e8fbff; white-space: pre; overflow: hidden; }
+.art-codeholo .art-codeholo-code b.art-t { color: #8ff0ff; }

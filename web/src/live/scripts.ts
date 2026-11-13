@@ -6,6 +6,7 @@ import { errorText } from '../i18n/errorText'
 import { loadedMessages, messages } from '../i18n/current'
 import type { MixChapter } from './mixPlan'
 import type { StageScript } from './stage'
+import { castActorNames, ensureActors } from './actors/lazy'
 import { withTeacher } from './teacher'
 
 /** 錯誤訊息是不是「要登入」(登入過期,或課程頁的判斷和伺服器不一致):播放器會加上登入連結(ScriptError)。
@@ -56,7 +57,10 @@ export async function loadScript(path: string): Promise<StageScript> {
   const script = (await loadJson(path)) as StageScript | null
   if (!script) throw new Error(`找不到即時教學畫面的腳本:${path}`)
   // 腳本有 teacher 時在這裡展開成開頭的老師介紹,之後的程式(互動點、舞台、章節音軌)看到的都是展開後的腳本
-  return withTeacher(script)
+  const expanded = withTeacher(script)
+  // 延遲載入的演員(agent-office、manual-office)在這裡載好,舞台 load 時 ACTORS 已有
+  await ensureActors(castActorNames(expanded))
+  return expanded
 }
 
 // 旁白語音(scripts/voice.mjs 產生):腳本旁的 <名稱>.voice.json 記錄每段旁白的音檔與長度,

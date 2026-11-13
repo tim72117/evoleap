@@ -16,8 +16,7 @@ const SKIP = { label: '先看示範', steps: [] as ScriptStep[] }
 export function withL0IntroMoments(base: StageScript): StageScript {
   const steps = base.steps as Loose[]
   const find = stepFinder(steps, 'l0-intro.ts')
-  const beforeEnd = find('「以前」的最後一步', (s) => s.callout === 'browser0:content' && s.text === 'CSS：決定網頁長什麼樣子')
-  const beforeWait = find('「以前」結束前的停頓', (s) => typeof s.wait === 'number', beforeEnd)
+  const beforeWait = find('「以前」的最後一步(累了)', (s) => s.slump === true)
   const chatEnd = find('聊天式 AI 的總結', (s) => typeof s.card === 'string' && s.card.startsWith('複製 → 貼上'), beforeWait)
   const agentCard = find('AI Agent 的章節卡', (s) => s.lessonStep === 4, chatEnd)
   const checkEnd = find('「他只負責說清楚要什麼」的聚光燈', (s) => s.callout === 'boss:bubble', agentCard)
@@ -26,7 +25,7 @@ export function withL0IntroMoments(base: StageScript): StageScript {
     checkpoint: '以前自己寫程式，哪一段最花時間？',
     body: '想一想剛才的流程，點一個你的猜測。',
     id: 'hardest',
-    stage: { focus: 'browser0:content' },
+    stage: { focus: 'manual:preview' },
     options: [
       { label: '學程式語言', steps: [reply('對，學語言最花時間', '學語言、一行一行寫最花時間，零基礎通常卡在這裡。', '對，學語言最花時間。學語言、一行一行寫，零基礎通常卡在這裡。')] },
       { label: '一行一行寫', steps: [reply('對，一行一行寫最花時間', '學語言、一行一行寫最花時間，零基礎通常卡在這裡。', '對，一行一行寫最花時間。學語言、一行一行寫，零基礎通常卡在這裡。')] },

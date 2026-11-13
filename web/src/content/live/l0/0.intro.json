@@ -4,35 +4,13 @@
   "camera": "auto",
   "blocking": {
     "cast": [
-      "editor0",
-      "browser0",
       "chat",
       "editor2",
-      "browser",
-      "claude",
-      "browser4"
+      "browser"
     ],
     "shot": "depth"
   },
   "cast": {
-    "editor0": {
-      "actor": "editor",
-      "props": {
-        "project": "bakery"
-      },
-      "place": "window",
-      "hidden": true
-    },
-    "browser0": {
-      "actor": "browser",
-      "props": {
-        "site": "intro1",
-        "width": "tablet",
-        "url": "file:///Documents/bakery/index.html"
-      },
-      "place": "window",
-      "hidden": true
-    },
     "boss": {
       "actor": "person",
       "props": {
@@ -102,31 +80,6 @@
       "place": "window",
       "hidden": true
     },
-    "claude": {
-      "actor": "claude-desktop",
-      "props": {
-        "title": "小森烘焙網站",
-        "folder": "~/Documents/bakery",
-        "branch": null,
-        "mode": "ask",
-        "sessions": [],
-        "labels": {
-          "placeholder": "描述你要做的事…"
-        }
-      },
-      "place": "window",
-      "hidden": true
-    },
-    "browser4": {
-      "actor": "browser",
-      "props": {
-        "site": "intro1",
-        "width": "tablet",
-        "url": "file:///Documents/bakery/index.html"
-      },
-      "place": "window",
-      "hidden": true
-    },
     "site": {
       "actor": "browser",
       "props": {
@@ -149,6 +102,22 @@
         }
       },
       "hidden": true
+    },
+    "manual": {
+      "actor": "manual-office",
+      "props": {
+        "site": "小森烘焙"
+      },
+      "place": "full",
+      "hidden": true
+    },
+    "office": {
+      "actor": "agent-office",
+      "props": {
+        "site": "小森烘焙"
+      },
+      "place": "full",
+      "hidden": true
     }
   },
   "teacher": {"say": "今天聊聊：不寫程式也能做軟體", "line": "今天先來聊聊，為什麼不用學寫程式，也能做出自己的軟體。"},
@@ -162,73 +131,48 @@
       "focus": false
     },
     {
-      "show": "editor0",
-      "narration": "打開程式編輯器，新增一個檔案：index.html。",
+      "show": "manual",
       "focus": false
     },
     {
-      "on": "editor0",
-      "open": "index.html",
-      "focus": false
+      "write": true,
+      "narration": "你得先學會一種語言，再一個字一個字，慢慢手打。"
     },
     {
-      "on": "editor0",
-      "type": "<header>\n  <h1>小森烘焙</h1>\n</header>\n<section class=\"hero\">\n  <h2>每天早上七點出爐</h2>\n</section>\n<div class=\"cards\">\n  <div class=\"card\">鄉村麵包 $120</div>\n  <div class=\"card\">可頌 $65</div>\n  <div class=\"card\">肉桂捲 $80</div>\n</div>",
-      "chapter": "HTML：網頁的骨架",
-      "narration": "先學 HTML，用一個個標籤，寫出網頁上有哪些東西：店名、標語，還有商品。",
-      "focus": false
+      "run": true,
+      "narration": "存檔，重新整理。少了一個符號，整個畫面就壞了。"
     },
     {
-      "callout": "editor0:code",
-      "text": "HTML：決定網頁上有什麼",
-      "narration": "每個角括號、每個斜線都要打對，少一個，畫面就可能出錯。",
-      "focus": false
+      "hunt": true,
+      "chapter": "一個符號，找上好幾個小時",
+      "narration": "要找出是哪一個符號，可能得花上好幾個小時。"
     },
     {
-      "show": "browser0",
-      "narration": "存檔，用瀏覽器打開。",
-      "focus": false
+      "patch": true,
+      "narration": "改一個字。"
     },
     {
-      "callout": "browser0:content",
-      "text": "只有骨架：沒有顏色，也沒有排版",
-      "narration": "內容都在，但只是一行一行由上往下排，沒有顏色，也沒有排版。",
-      "focus": false
+      "run": true,
+      "narration": "這裡好了，別的地方又壞了。"
     },
     {
-      "on": "editor0",
-      "open": "styles.css",
-      "chapter": "CSS：加上樣式",
-      "narration": "接著要學另一種語言：CSS，再開一個檔案 styles.css。",
-      "focus": false
+      "hunt": true,
+      "narration": "再找一次。"
     },
     {
-      "on": "editor0",
-      "type": "header {\n  background: #8b5e3c;\n  color: #fff;\n}\n.hero {\n  padding: 40px;\n  background: #f3e3c8;\n}\n.cards {\n  display: flex;\n  gap: 16px;\n}\n.card {\n  padding: 24px;\n  background: #efe1cc;\n}",
-      "narration": "顏色、間距、哪些東西要排成一排，都要用 CSS 寫出來。",
-      "focus": false
+      "patch": true,
+      "narration": "再改一個字。"
     },
     {
-      "on": "browser0",
-      "site": "intro2",
-      "narration": "存檔，重新整理。",
-      "focus": false
+      "run": true,
+      "narration": "還是不對。"
     },
     {
-      "callout": "browser0:content",
-      "text": "CSS：決定網頁長什麼樣子",
-      "narration": "網頁終於有了顏色和排版。到這裡，你已經學了兩種語言。",
-      "focus": false
+      "slump": true,
+      "narration": "一天、兩天、三天過去了。語言學會了，卻還是卡在一個小符號。"
     },
     {
-      "wait": 1500,
-      "focus": false
-    },
-    {
-      "hide": "editor0"
-    },
-    {
-      "hide": "browser0"
+      "hide": "manual"
     },
     {
       "card": "寫程式，其實是在「翻譯」",
@@ -374,105 +318,75 @@
       "narration": "再來是 AI Agent。Agent 可以想成「代理人」，也就是替你動手做事的 AI。這門課用的，就是這一類工具。"
     },
     {
-      "show": "claude",
-      "narration": "這一次，老闆只說一次需求。"
-    },
-    {
-      "on": "claude",
-      "user": "幫我做一頁介紹小森烘焙的網站，有店名、標語和三種麵包"
-    },
-    {
-      "on": "claude",
-      "thinking": true,
-      "ms": 1300
-    },
-    {
-      "on": "claude",
-      "say": "好的，我先建立 index.html 和 styles.css。"
-    },
-    {
-      "on": "claude",
-      "ask": "index.html",
-      "q": "Claude 想要建立這個檔案",
-      "where": "~/Documents/bakery",
-      "preview": "<h1>小森烘焙</h1> <h2>每天早上七點出爐</h2> …",
-      "narration": "動手之前，它會先問你：哪個檔案、在哪個資料夾、內容是什麼。"
-    },
-    {
-      "callout": "claude:ask",
-      "text": "動手前先問你：由你決定「允許」或「拒絕」",
-      "narration": "你看過，再決定允許，或拒絕。"
-    },
-    {
-      "on": "claude",
-      "choose": 1
-    },
-    {
-      "on": "claude",
-      "tool": "Write",
-      "arg": "index.html",
-      "result": "已建立",
-      "narration": "建立檔案，是它自己做的，不用你複製貼上。"
-    },
-    {
-      "on": "claude",
-      "tool": "Write",
-      "arg": "styles.css",
-      "result": "已建立"
-    },
-    {
-      "on": "claude",
-      "tool": "Bash",
-      "arg": "open index.html",
-      "result": "已用瀏覽器打開",
-      "narration": "接著，它自己打開瀏覽器看結果。"
-    },
-    {
-      "show": "browser4"
-    },
-    {
-      "on": "claude",
-      "say": "我看到頁面還沒有排版，我來修改 styles.css。",
-      "focus": false,
-      "narration": "它看出頁面還沒有排版，自己回頭修改。"
-    },
-    {
-      "on": "claude",
-      "edit": "styles.css",
-      "focus": false,
-      "lines": [
-        [
-          1,
-          "+",
-          "header { background: #8b5e3c; color: #fff; }"
-        ],
-        [
-          2,
-          "+",
-          ".hero { padding: 40px; background: #f3e3c8; }"
-        ]
-      ]
-    },
-    {
-      "on": "browser4",
-      "site": "intro2",
+      "show": "manual",
       "focus": false
     },
     {
-      "on": "claude",
-      "say": "完成了！網站已經在瀏覽器打開。",
+      "call": true,
+      "narration": "卡了好幾天，他舉手，請 AI Agent 來幫忙。"
+    },
+    {
+      "enter": true,
+      "narration": "它來了。"
+    },
+    {
+      "handoff": "幫我做一個網站。",
+      "narration": "他只要把需求說出來。"
+    },
+    {
+      "show": "office",
       "focus": false
     },
     {
-      "callout": "claude:say",
-      "text": "建立、執行、看結果、再修改：整個來回它自己做完",
-      "narration": "建立、執行、看結果、再修改，整個來回它自己做完，你只要說一次需求。"
+      "hide": "manual"
     },
     {
-      "hide": "claude"
+      "need": "幫我做小森烘焙的一頁式網站，要有菜單和地址。",
+      "narration": "第一件事：把需求說清楚。說一次就好，說得越清楚，做出來的越接近你要的。"
     },
     {
-      "hide": "browser4"
+      "plan": true,
+      "narration": "它先把步驟想好。"
+    },
+    {
+      "ask": "建立 index.html",
+      "chapter": "動手之前先問你",
+      "narration": "要動你的電腦之前，它會先問你。要看清楚：要做什麼、動哪個地方。"
+    },
+    {
+      "allow": false,
+      "narration": "覺得不對，就按拒絕，它就會停下來。"
+    },
+    {
+      "ask": "只在「小森烘焙」資料夾裡建立 index.html，不動其他檔案",
+      "narration": "它換個範圍更小的方式，再問你一次。"
+    },
+    {
+      "allow": true,
+      "narration": "你看過、確認沒問題，再按允許，它才開始動手。"
+    },
+    {
+      "build": true,
+      "chapter": "它自己做、自己檢查",
+      "narration": "接下來它自己寫程式，網站一塊一塊長出來。"
+    },
+    {
+      "check": true,
+      "narration": "寫完它自己開瀏覽器檢查，發現少了樣式。"
+    },
+    {
+      "fix": true,
+      "narration": "它自己修改，網站換上了顏色與版面。"
+    },
+    {
+      "done": true,
+      "narration": "做完回報給你。不過它做得對不對，最後還是要你親眼檢查。"
+    },
+    {
+      "wait": 800
+    },
+    {
+      "hide": "office"
     },
     {
       "card": "不用寫程式，但這三件事要你來",

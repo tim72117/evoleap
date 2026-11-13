@@ -1,0 +1,8 @@
+/* art/fx/finish:調色、暗角、底片顆粒(蓋在整個場景上,放在場景根元素的最後;根元素要是定位元素)。 */
+.art-grade, .art-vignette, .art-grain { position: absolute; inset: 0; pointer-events: none; }
+.art-grade { background: linear-gradient(100deg, rgba(255, 255, 255, 0.1), rgba(40, 110, 200, 0.08) 50%, rgba(10, 40, 90, 0.2)); mix-blend-mode: soft-light; }
+.art-vignette { background: radial-gradient(ellipse 75% 70% at 48% 50%, rgba(0, 0, 0, 0) 55%, rgba(8, 22, 44, 0.42) 100%); }
+.art-grain {
+  opacity: 0.09; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.4 -.2'/></filter><rect width='256' height='256' filter='url(%23n)'/></svg>");
+}

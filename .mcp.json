@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "evoleap-canvas": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${CLAUDE_PROJECT_DIR:-.}/web/scripts/canvas-mcp.mjs"],
+      "env": {}
+    }
+  }
+}

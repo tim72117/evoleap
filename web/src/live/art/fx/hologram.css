@@ -1,0 +1,24 @@
+/* art/fx/hologram:青藍色全息面板(半透明、發光邊、掃描線、四角框)。位置與大小由場景自己的 class 決定。
+   用法:<div class="art-holo my-panel"><div class="art-holo-title">標題</div>…</div>,再由 renderHolo 依時間設 opacity / scaleY。 */
+.art-holo {
+  position: absolute; padding: 16px 20px; border-radius: 16px; color: #e3f8ff; transform-origin: 50% 0; box-sizing: border-box;
+  background: linear-gradient(160deg, rgba(60, 170, 255, 0.3), rgba(12, 44, 96, 0.62) 60%, rgba(8, 28, 64, 0.7));
+  border: 1.5px solid rgba(130, 230, 255, 0.85);
+  box-shadow: 0 0 26px rgba(70, 190, 255, 0.55), 0 0 70px rgba(70, 190, 255, 0.22), inset 0 0 28px rgba(110, 210, 255, 0.25);
+  backdrop-filter: blur(5px) brightness(0.8);
+  text-shadow: 0 0 10px rgba(120, 230, 255, 0.75);
+}
+.art-holo::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(180, 240, 255, 0.07) 0 1px, rgba(0, 0, 0, 0) 1px 4px);
+}
+.art-holo::after {
+  content: ''; position: absolute; inset: -7px; border-radius: 20px; pointer-events: none;
+  background:
+    linear-gradient(#bff6ff, #bff6ff) left top / 22px 3px no-repeat, linear-gradient(#bff6ff, #bff6ff) left top / 3px 22px no-repeat,
+    linear-gradient(#bff6ff, #bff6ff) right bottom / 22px 3px no-repeat, linear-gradient(#bff6ff, #bff6ff) right bottom / 3px 22px no-repeat;
+  filter: drop-shadow(0 0 6px #5fd4ff);
+}
+.art-holo-title { font-size: 15px; font-weight: 700; letter-spacing: 0.12em; color: #8fe6ff; text-transform: uppercase; }
+/* 琥珀色的警示版 */
+.art-holo-warn .art-holo-title { color: #ffd88f; text-shadow: 0 0 10px rgba(255, 200, 110, 0.7); }

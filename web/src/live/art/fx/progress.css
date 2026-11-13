@@ -1,0 +1,16 @@
+/* art/fx/progress:進度環 + 工作紀錄(放在全息面板裡,橫向排)。外框加 .art-ok 時環與標題變綠(完成)。 */
+.art-ring { position: relative; flex: none; width: 118px; height: 118px; }
+.art-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); filter: drop-shadow(0 0 6px #5fd4ff); }
+.art-ring-bg { fill: none; stroke: rgba(140, 220, 255, 0.2); stroke-width: 9; }
+.art-ring-fg { fill: none; stroke: #8ff0ff; stroke-width: 9; stroke-linecap: round; }
+.art-ok .art-ring-fg { stroke: #5ef0b0; }
+.art-ring-n { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; }
+.art-logbox { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; }
+.art-ok .art-log-title { color: #8ff5c4; }
+.art-log { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 3px; overflow: hidden; margin-top: 4px; }
+.art-lg { flex: none; font-size: 14px; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #d6f3ff; padding-left: 14px; position: relative; }
+.art-lg::before { content: ''; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: #7fe3ff; }
+.art-lg.ok { color: #a6f7d0; }
+.art-lg.ok::before { background: #5ef0b0; }
+.art-lg.warn { color: #ffd690; }
+.art-lg.warn::before { background: #ffb547; }

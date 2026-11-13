@@ -194,6 +194,8 @@ export default defineActor({
 | `lt11-helper` | ask、pick、unpick、clear、send、make、reply、deal、mark、compare、check、sketch、draw、split、press、cheer（有狀態；兒童網頁課單元 4「請 AI 幫忙做」的 AI 小幫手，模擬、不接真的 AI：孩子點名詞卡、句子卡跟它說，它照卡片的 ops 改網頁；卡片的做法對不上當時的網頁時不算做到，不給星星；props：page、goal 或 sketch、cards、starsOf） | window、helper、chat、page、part:id、paper、goal:id、box:id、tray、card:id、compose、send、tpl:id、tool:kind、stars |
 | `dom-tree` | grow、focus、anatomy、wrap、unwrap（有狀態；元素結構圖：容器是方框，上緣開頭標籤、下緣結尾標籤，子元素包在裡面；anatomy 拆開標示開頭標籤／內容／結尾標籤；wrap 把相鄰元素包進新容器、unwrap 拆開；props.look：clean（預設，成人課）或 kids（兒童課粗黑框）；網頁怎麼運作 1.1 原本用，現在改用 `kid-tree`） | window、tree、node:id、open:id、text:id、close:id |
 | `fx` | logo、stream、diff、shimmer、circle、arrow、flash、whip、reveal、clear（宣傳片特效層，參考 HyperFrames 效果目錄改寫成純函式；place 用 `full`、放在演員表最後；畫面類同時只顯示最新一個，標註類會累積，轉場用 flash／whip 蓋住、reveal 掀開；用法見 `actor.ts` 開頭，示範腳本 `content/live/promo/fx-reel.json`） | window、panel |
+| `manual-office` | write、run、hunt、patch、slump、call、enter、handoff（有狀態；「手寫程式的年代」：明亮的辦公室裡穿西裝的人手打 HTML，打錯一個符號、找錯、改了又壞，時鐘一天天過去，最後舉手求助、機器人坐辦公椅滑進來；結束畫面和 `agent-office` 第一格相同，可用 show/hide 無縫接；place 用 `full`；共用繪圖在 `live/art/`；用在 `content/live/l0/0.intro.json`） | window、human、head、monitor、screen、code、preview、clock、circle、robot、say |
+| `agent-office` | need、plan、ask、allow、build、check、fix、done（有狀態；「AI Agent 自己動手做事」：同一間辦公室，機器人操作電腦，人只說需求、回答權限提示；推近／拉遠的鏡位由狀態決定；place 用 `full`；用在 `content/live/l0/0.intro.json`） | window、robot、head、human、monitor、screen、code、plan、need、ask、allow、deny、dash、issue |
 
 **`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。
 
@@ -773,3 +775,23 @@ packs/<name>/
 - 退場的演員排到最後,前後順序只算看得到的演員,所以一份 `cast` 可以放好幾段場景的演員(序章五段場景共用一份)。加了調度的腳本,時間軸會因為輪替預留的時間變長一點(旁白與字幕跟著排)。
 - 已知問題:`pip` 的小畫面固定在右下角,會蓋住前景的右下角(claude-desktop 的送出鈕、瀏覽器的內容);小畫面裡的字太小看不清,只是讓學員知道它還在。三位以上演員只做了簡單的往後疊。
 
+
+## 畫面快速檢查(canvas MCP)
+
+給 Claude 用的「畫 → 看」迴圈:`web/scripts/canvas-mcp.mjs` 是一個 MCP 伺服器(stdio,沒有 SDK 依賴),常駐一個無頭 Chromium(本機用系統的 Chrome,同 `record-live.mjs`),回傳 PNG 與量測數字。repo 根目錄的 `.mcp.json` 已登記為 `evoleap-canvas`,在 repo 裡開 Claude Code 會自動詢問是否啟用;手動加:`claude mcp add evoleap-canvas -- node web/scripts/canvas-mcp.mjs`(或 `npm run canvas:mcp` 單獨跑)。
+
+| 工具 | 用途 |
+|---|---|
+| `art_render` | 靜態圖(SVG,或 HTML + CSS + 內嵌 SVG)→ PNG。`overlays`:`grid`、`rulers`、`layers`(每個有 id 的元素外框與名稱,拆骨架用)、`bbox`、`pivots`(`data-pivot`)、`canvas`;`crop`、`scale`、`background`(試過 resvg 當不開瀏覽器的快速路徑,比 Chrome 慢、粗體字型畫不對、不能疊加線,沒有保留) |
+| `art_zoom` | 放大一塊(`x,y,w,h`,或直接給 `id`),向量放大看髮絲、反光、邊緣 |
+| `art_compare` | 左舊右新並排 + 差異熱圖,回報變動範圍;預設和上一版比(每次 render 都自動存版本),也可給版本號或另一個檔 |
+| `art_inspect` | 文字:id 元素樹與 bbox、顏色清單、路徑與節點數、漸層/濾鏡、文字位置、超出畫布、找不到的 `url(#id)`、重複 id |
+| `art_history` | 版本紀錄 |
+| `canvas_sheet` / `canvas_frame` / `canvas_inspect` / `canvas_scripts` | 舞台腳本:多格縮圖(預設每一步演完的那一格)、單格(可 crop)、量測 JSON(演員外框、目標、文字、重疊與安全區警告)、腳本與演員清單 |
+| `canvas_reload` | 重開瀏覽器 |
+
+- 靜態圖放 `web/art/<名稱>/*.svg|html`(只在本機用,沒有任何程式 import,不會進網站)。路徑可以是絕對路徑、相對 repo、相對 `web/` 或 `web/art/`。中文字型用系統的 Noto Sans TC / 微軟正黑體。
+- `canvas_*` 需要 Vite dev server(`npm run dev`,預設 `http://localhost:5190`,`CANVAS_URL` 可改)。渲染頁是 `src/studio/canvas/host.html`(只有 dev server 有,不在 build 入口;研發基地的權限檢查照樣適用,工具帶本機 token 通過)。腳本直接讀 `src/content/live/` 的檔案(不經過後端資料庫),同樣展開老師開場、套用 `.voice.json` 的旁白長度;腳本檔改過會自動重新載入。瀏覽器也能直接看:`/src/studio/canvas/host.html?script=promo/kids-free-reel-short.json&aspect=portrait&t=6000&overlays=bounds,safe`。
+- 安全區:直式是 FB Reels(`promo/actors/kid-reel/layout.ts` 的 `SAFE`),橫式是四邊各 5%。
+- 輸出(版本紀錄、拼圖、放大圖)在 `CANVAS_OUT`,預設 `web/node_modules/.cache/canvas/`。
+- 速度(本機實測):瀏覽器冷啟動約 0.5–1 秒;之後 SVG 全圖 1600×1000 約 150 ms、放大 60–130 ms、inspect 10–40 ms、compare 約 0.5 秒;舞台單格(1080×1920)約 0.3 秒、36 格縮圖約 3.5 秒。

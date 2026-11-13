@@ -19,6 +19,12 @@ export const SCENES: { name: string; title: string; script: string; summary: str
     script: 'lab/scenes/fable-scene.json',
     summary: '前景是書桌、筆電、朋友的手機與城裡的伺服器大樓（fable-world），背景是星空、城市與地底光纖（fable-sky 的畫法）。',
   },
+  {
+    name: 'intro-manual-to-agent',
+    title: '手寫程式 → AI 代理人：同一間辦公室',
+    script: 'lab/scenes/intro-manual-to-agent.json',
+    summary: '手寫 HTML、打錯一個符號、找了三天（manual-office），最後舉手求助，機器人坐著辦公椅滑進來，接著演 agent-office 的完整流程。同一個房間無縫接。',
+  },
   ...PROMO_SCENES,
 ]
 

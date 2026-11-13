@@ -280,7 +280,7 @@ describe('序章的互動版', () => {
     expect(moments.map((m) => m.title)).toEqual(['以前自己寫程式,哪一段最花時間?', '把程式碼存成檔案、打開來看、把錯誤貼回去問,這些要誰做?', 'AI 說做好了,你要怎麼辦?'].map((s) => s.replace(',', '，').replace('?', '？')))
     const index = (id: string) => scene.steps.findIndex((s) => (s as { id?: string }).id === id)
     const text = (i: number) => JSON.stringify(scene.steps[i - 1])
-    expect(text(index('hardest'))).toContain('"wait":1500')
+    expect(text(index('hardest'))).toContain('"slump":true')
     expect(text(index('who'))).toContain('複製 → 貼上')
     expect(text(index('verify'))).toContain('boss:bubble')
     for (const m of moments) {

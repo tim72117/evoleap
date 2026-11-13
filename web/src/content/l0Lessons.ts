@@ -46,7 +46,7 @@ export const L0_LESSONS: CourseLesson[] = [
       },
     ],
     videos: [
-      { title: '以前與現在：做軟體的方式變了', minutes: 5, steps: [1, 2, 3, 4, 5], wrap: '下一課：挑一個會操作檔案的 AI 工具裝好，讓它建立第一個檔案。', live: 'l0/0.intro.json' },
+      { title: '以前與現在：做軟體的方式變了', minutes: 6, steps: [1, 2, 3, 4, 5], wrap: '下一課：挑一個會操作檔案的 AI 工具裝好，讓它建立第一個檔案。', live: 'l0/0.intro.json' },
     ],
     knowledge: {
       AI: ['AI Agent', '聊天式 AI'],
