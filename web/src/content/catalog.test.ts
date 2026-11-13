@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { FREE_LESSON_COUNT } from './access'
 import { COURSES, coursePath, lessonNumber, lessonPath, plannedChapterPath, requiresLogin } from './catalog'
 import type { CourseLesson } from './lessonTypes'
 import { ALL_LEVELS as LEVELS } from './levels'
@@ -9,9 +10,13 @@ describe('requiresLogin', () => {
     const course = COURSES.find((c) => c.slug === slug)!
     return course.lessons.filter((l) => !requiresLogin(course, l)).map((l) => l.id)
   }
-  it('「做出自己的軟體」只有序章不用登入', () => {
-    expect(open('tools')).toEqual(['0.intro'])
-    expect(open('ai-tools')).toEqual([])
+  it('登入後免費的課:序章(預覽課)與依順序的前兩課不用登入,第三課起要登入', () => {
+    const first = (slug: string) => COURSES.find((c) => c.slug === slug)!.lessons.slice(0, FREE_LESSON_COUNT).map((l) => l.id)
+    expect(open('tools')).toEqual(['0.intro', '0.0'])
+    expect(first('tools')).toEqual(['0.intro', '0.0'])
+    expect(open('ai-tools')).toEqual(first('ai-tools'))
+    const tools = COURSES.find((c) => c.slug === 'tools')!
+    expect(requiresLogin(tools, tools.lessons.find((l) => l.id === '0.1')!)).toBe(true)
   })
 })
 

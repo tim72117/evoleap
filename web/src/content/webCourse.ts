@@ -3,6 +3,8 @@
 // 不教語法(語法交給 AI),教運作概念與正確的名詞,讓學員看得懂網頁、跟 AI 說得清楚。
 // 只寫大綱裡已有的內容;還沒開放的課在主題頁標「規劃中」。
 
+import { isFreeByOrder } from './access'
+
 export type WebLesson = {
   id: string
   title: string
@@ -285,8 +287,8 @@ export const WEB_OPEN_LESSONS: Record<string, { path: string; script: string; in
   '1.2': { path: '/topics/web/1-2', script: 'web/1.2.json', interaction: 'static' },
 }
 
-/** 只有第一課(0.1)可以直接預覽,其他課要登入 */
-export const webNeedsLogin = (id: string): boolean => id !== '0.1'
+/** 前兩課(0.1、0.2)不用登入就能看,第三課起要登入(content/access.ts) */
+export const webNeedsLogin = (id: string): boolean => !isFreeByOrder(WEB_UNITS.flatMap((u) => u.lessons.map((l) => l.id)), id)
 
 const ALL_WEB_LESSONS = WEB_UNITS.flatMap((u) => u.lessons)
 

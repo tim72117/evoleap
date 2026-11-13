@@ -61,8 +61,9 @@ func TestKidsCourseMap(t *testing.T) {
 		t.Fatalf("map: %+v", m)
 	}
 	first := m.Units[0].Lessons
-	if len(first) < 2 || first[0].ID != "0.1" || first[0].Access != AccessFree || first[1].Access != AccessLoginFree {
-		t.Errorf("第一課免費預覽、其他照課程(登入後免費): %+v", first)
+	// 依順序前兩課(0.1、0.2)不用登入,第三課(0.3)起照課程(登入後免費)
+	if len(first) < 3 || first[0].ID != "0.1" || first[0].Access != AccessFree || first[1].Access != AccessFree || first[2].Access != AccessLoginFree {
+		t.Errorf("前兩課免費預覽、第三課起照課程(登入後免費): %+v", first)
 	}
 	if first[0].Status != LessonOpen {
 		t.Errorf("0.1 open: %+v", first[0])
@@ -100,8 +101,8 @@ func TestWebCourseMap(t *testing.T) {
 			}
 		}
 	}
-	// 序章兩課與單元 1 的 1.1、1.2 已開放;只有 0.1 免費預覽
-	want := map[string]Access{"0.1": AccessFree, "0.2": AccessLoginFree, "1.1": AccessLoginFree, "1.2": AccessLoginFree}
+	// 序章兩課與單元 1 的 1.1、1.2 已開放;前兩課(0.1、0.2)免費預覽,1.1 起登入後免費
+	want := map[string]Access{"0.1": AccessFree, "0.2": AccessFree, "1.1": AccessLoginFree, "1.2": AccessLoginFree}
 	if len(open) != len(want) {
 		t.Errorf("open lessons: %+v", open)
 	}

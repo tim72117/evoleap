@@ -162,21 +162,24 @@ test('登入後免費的課程:未登入彈出小登入視窗,登入後在同一
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(gateLogin).toHaveCount(0)
 
-  // 課程內容清單:未登入時序章標「免費預覽」,其他課標「登入後學習」
+  // 課程內容清單:未登入時依順序前兩課(序章、第 0 課)標「免費預覽」,其他課標「登入後學習」
   await page.goto('/courses/tools')
   const rows = page.locator('#course-content ~ details li')
   await expect(rows.filter({ hasText: '序章' }).getByText('免費預覽', { exact: true })).toBeVisible()
-  await expect(rows.filter({ hasText: '第 0 課' }).getByRole('img', { name: '登入後學習' })).toBeVisible()
-  await expect(page.getByText('免費預覽', { exact: true })).toHaveCount(1)
+  await expect(rows.filter({ hasText: '第 0 課' }).getByText('免費預覽', { exact: true })).toBeVisible()
+  await expect(rows.filter({ hasText: /第 1 課/ }).getByRole('img', { name: '登入後學習' })).toBeVisible()
+  await expect(page.getByText('免費預覽', { exact: true })).toHaveCount(2)
   // 「開始學習」連到不用登入就能看的序章
   await expect(page.getByRole('link', { name: '開始學習' })).toHaveAttribute('href', '/courses/tools/intro')
 
-  // 只有序章可以直接預覽,L0 的第 0 課起就要登入
-  await page.goto('/courses/tools/intro')
-  await expect(page.locator('h1')).toBeVisible()
-  await expect(gateLogin).toHaveCount(0)
-  await expect(loginDialog(page)).toHaveCount(0)
-  await page.goto('/courses/tools/0')
+  // 依順序前兩課(序章、第 0 課)可以直接預覽,第三課(第 1 課)起就要登入
+  for (const free of ['/courses/tools/intro', '/courses/tools/0']) {
+    await page.goto(free)
+    await expect(page.locator('.vp').first()).toBeVisible()
+    await expect(gateLogin).toHaveCount(0)
+    await expect(loginDialog(page)).toHaveCount(0)
+  }
+  await page.goto('/courses/tools/1')
   await expect(loginDialog(page)).toBeVisible()
 
   // 在視窗裡登入:還是同一個網址,視窗消失、課程內容出現

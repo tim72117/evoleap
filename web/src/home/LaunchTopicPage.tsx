@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { MapUnit } from '../content/courseMap'
-import { LAUNCH_OPEN_LESSONS, LAUNCH_PITCH, LAUNCH_UNITS } from '../content/launchCourse'
+import { LAUNCH_OPEN_LESSONS, LAUNCH_PITCH, LAUNCH_UNITS, launchNeedsLogin } from '../content/launchCourse'
 import { LAUNCH_TOPIC, topicStartLabel } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
@@ -20,7 +20,7 @@ const LOCAL_UNITS: MapUnit[] = LAUNCH_UNITS.map((u) => ({
     id: l.id,
     title: l.title,
     summary: l.learn,
-    access: l.id === '0.1' ? 'free' : 'login-free',
+    access: launchNeedsLogin(l.id) ? 'login-free' : 'free',
     status: LAUNCH_OPEN_LESSONS.includes(l.id) ? 'open' : 'planned',
   })),
 }))

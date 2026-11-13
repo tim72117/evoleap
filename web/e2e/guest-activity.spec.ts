@@ -52,7 +52,9 @@ test.describe('訪客上課紀錄', () => {
     await map
     const rows = page.locator('#map li')
     await expect(rows.filter({ hasText: '本機與網路上' }).getByText('免費預覽')).toBeVisible()
-    await expect(rows.filter({ hasText: '上線前要想清楚的事' }).getByRole('img', { name: '登入後學習' })).toBeVisible()
+    // 依順序前兩課(0.1、0.2)免費預覽,第三課(0.3)起登入後學習
+    await expect(rows.filter({ hasText: '上線前要想清楚的事' }).getByText('免費預覽')).toBeVisible()
+    await expect(rows.filter({ hasText: '哪些檔案絕不能 commit' }).getByRole('img', { name: '登入後學習' })).toBeVisible()
     // 1.1 已開放、要登入:訪客看到登入後學習
     await expect(rows.filter({ hasText: '環境變數與設定' }).getByRole('img', { name: '登入後學習' })).toBeVisible()
     // 2.1 是草稿:訪客看到規劃中、沒有連結

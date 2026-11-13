@@ -22,6 +22,7 @@
             "id": "0.0",
             "title": "工具介紹：會操作檔案的 AI 工具",
             "summary": "安裝會操作檔案的 AI 工具，學會安全地允許與拒絕",
+            "access": "free",
             "status": "open",
             "script": "l0/0.0-tools.json",
             "files": [
@@ -63,6 +64,7 @@
             "id": "1.0",
             "title": "訂購單：哪些資料要在送出前檢查",
             "summary": "用一張訂購單學會規劃與描述需求",
+            "access": "free",
             "status": "open",
             "script": "l1/1.0-order.json",
             "files": [
@@ -81,6 +83,7 @@
             "id": "1.1",
             "title": "第一個任務：把老闆的訊息整理成需求清單",
             "summary": "把一則又長又雜的老闆訊息整理成需求清單，標出哪些是原文、哪些是 AI 推測，並分出「一定要有」與「有了更好」",
+            "access": "free",
             "status": "planned",
             "minutes": 30
           },
@@ -166,6 +169,7 @@
             "id": "4.1",
             "title": "AI 程式助手的三種形式",
             "summary": "分辨聊天視窗、編輯器內建補全與對話（例如 GitHub Copilot）、終端機代理（例如 Claude Code）的差異與適用情境。",
+            "access": "free",
             "status": "planned",
             "minutes": 25
           },
@@ -173,6 +177,7 @@
             "id": "4.2",
             "title": "安裝、登入與權限",
             "summary": "依官方說明安裝並登入選定的助手（這時還沒學終端機，優先用安裝程式或桌面 App 的版本），理解它讀檔、改檔、執行指令前的確認機制。",
+            "access": "free",
             "status": "draft",
             "minutes": 30,
             "script": "vibe-coding/4.2.json"
@@ -181,6 +186,7 @@
             "id": "4.3",
             "title": "請 AI 程式助手安裝 Node.js",
             "summary": "說明 Node.js 讓 JavaScript 在瀏覽器外執行、npm 負責安裝套件；請 AI 程式助手依你的作業系統，用官方的方式安裝 LTS 版本：每個安裝指令先看懂確認提示再允許，需要輸入電腦密碼的步驟自己來，最後請它執行 node -v 與 npm -v 驗證。",
+            "access": "login-free",
             "status": "planned",
             "minutes": 30
           },
@@ -597,6 +603,7 @@
             "id": "0.2",
             "title": "HTML、CSS、JavaScript 的分工",
             "summary": "HTML 管有什麼、CSS 管長什麼樣、JavaScript 管會做什麼。",
+            "access": "free",
             "status": "open",
             "script": "web/0.2.json"
           }
@@ -805,6 +812,7 @@
             "id": "0.2",
             "title": "網頁是一棵樹",
             "summary": "瀏覽器照著樹由上往下、一層一層畫；樹改了，畫面就跟著改。",
+            "access": "free",
             "status": "open",
             "script": "kids/0.2.json",
             "files": [
@@ -1080,6 +1088,7 @@
             "id": "0.2",
             "title": "上線前要想清楚的事",
             "summary": "放哪裡、用什麼網址、資料存哪、秘密怎麼保管，先想清楚再動手。",
+            "access": "free",
             "status": "open",
             "script": "launch/0.2.json"
           },

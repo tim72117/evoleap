@@ -151,7 +151,7 @@ test('首頁:不放影片預覽,開始第一課連到序章', async ({ page }) =
   expect(errors).toEqual([])
 })
 
-test('網頁怎麼運作:首頁卡片連到主題,第一課免費預覽、其他開放的課登入後學習,第一課不用登入就能上', async ({ page }) => {
+test('網頁怎麼運作:首頁卡片連到主題,前兩課免費預覽、其他開放的課登入後學習,第一課不用登入就能上', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/')
   const card = page.locator('article').filter({ has: page.getByRole('heading', { name: '網頁怎麼運作', exact: true }) })
@@ -164,7 +164,7 @@ test('網頁怎麼運作:首頁卡片連到主題,第一課免費預覽、其他
   await expect(page.getByRole('heading', { name: '課程說明' })).toBeVisible()
   const row = (title: string) => page.locator('#map li').filter({ hasText: title })
   await expect(row('輸入網址之後發生的事').getByText('免費預覽')).toBeVisible()
-  await expect(row('HTML、CSS、JavaScript 的分工').getByRole('img', { name: '登入後學習' })).toBeVisible()
+  await expect(row('HTML、CSS、JavaScript 的分工').getByText('免費預覽')).toBeVisible()
   await expect(row('元素與標籤').getByRole('img', { name: '登入後學習' })).toBeVisible()
   await expect(row('有意義的區塊').getByText('規劃中')).toBeVisible()
   await expect(row('有意義的區塊').getByRole('link')).toHaveCount(0)

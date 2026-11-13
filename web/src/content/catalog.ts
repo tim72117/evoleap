@@ -10,6 +10,7 @@ import type { CourseLesson } from './lessonTypes'
 import { L0_LESSONS } from './l0Lessons'
 import { L1_LESSONS } from './l1Lessons'
 import { L2_LESSONS } from './l2Lessons'
+import { isFreeByOrder } from './access'
 import { messages } from '../i18n/current'
 
 export interface PlannedChapter {
@@ -120,9 +121,10 @@ export function isPreviewLesson(lesson: CourseLesson): boolean {
   return Boolean(lesson.label)
 }
 
-/** 課程地圖標示「登入後免費」的課程:預覽課以外的單課頁要登入才能看(LoginGate) */
+/** 課程地圖標示「登入後免費」的課程:依順序前兩課(content/access.ts)以外的單課頁要登入才能看(LoginGate);序章這類預覽課一定不用登入 */
 export function requiresLogin(course: Course, lesson: CourseLesson): boolean {
-  return ALL_LEVELS.find((l) => l.link === coursePath(course))?.access === 'login-free' && !isPreviewLesson(lesson)
+  if (ALL_LEVELS.find((l) => l.link === coursePath(course))?.access !== 'login-free') return false
+  return !isPreviewLesson(lesson) && !isFreeByOrder(course.lessons.map((l) => l.id), lesson.id)
 }
 
 /** 已開放的單課:有可以播放的影片,序章這類短導覽與草稿(只有管理員看得到)不算 */

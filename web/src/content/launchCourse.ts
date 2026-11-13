@@ -5,6 +5,8 @@
 // from 是研發中的全環節課程清單的環節編號(例如 16.1),之後可以沿用那邊的試做腳本;序章的觀念課沒有。
 // 和「網頁怎麼運作」單元 5 的分工:那邊教上線的觀念與名詞,這門課實際把自己的作品放上線、讓別人使用。
 
+import { isFreeByOrder } from './access'
+
 export type LaunchLesson = {
   id: string
   title: string
@@ -125,3 +127,6 @@ export const launchScriptKey = (id: string): string => `live:launch/${id}.json`
 
 /** 課號 → 課 */
 export const launchLesson = (id: string): LaunchLesson | undefined => LAUNCH_UNITS.flatMap((u) => u.lessons).find((l) => l.id === id)
+
+/** 前兩課(0.1、0.2)不用登入就能看,第三課起要登入(content/access.ts) */
+export const launchNeedsLogin = (id: string): boolean => !isFreeByOrder(LAUNCH_UNITS.flatMap((u) => u.lessons.map((l) => l.id)), id)

@@ -13,7 +13,7 @@ import (
 // 一門課(courses)底下分單元(course_units),單元底下是一堂一堂的課(lessons)。
 // 正式環境以資料庫為準(管理員用 evoleap CLI 修改);courses_seed.json 只補資料庫還沒有的單元與課(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時),
 // 已經有的不動,種子拿掉的也不會從資料庫刪除。
-// 一堂課的存取方式(access)空的就照這門課,只有例外才填(例如第一課免費預覽)。
+// 一堂課的存取方式(access)空的就照這門課,只有例外才填(例如依順序前兩課免費預覽,見 web/src/content/access.ts)。
 // 狀態 draft(草稿)是公開與否的閘口:只有管理員看得到它是草稿、拿得到腳本路徑,其他人看到的是規劃中。
 
 type unitRow struct {

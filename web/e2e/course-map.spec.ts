@@ -13,7 +13,9 @@ test('兒童課程地圖由資料庫讀取', async ({ page }) => {
   const row = (id: string) => map.locator('li').filter({ hasText: new RegExp(`^${id.replace('.', '\\.')}`) })
   await expect(row('0.1')).toContainText('免費預覽')
   await expect(row('0.1').getByRole('link', { name: '翻到網頁的背面' })).toHaveAttribute('href', '/topics/kids/0-1')
-  await expect(row('0.2').getByRole('img', { name: '登入後學習' })).toBeVisible()
+  // 依順序前兩課(0.1、0.2)免費預覽,第三課(0.3)起登入後學習
+  await expect(row('0.2')).toContainText('免費預覽')
+  await expect(row('0.3').getByRole('img', { name: '登入後學習' })).toBeVisible()
   // 單元 1 已開放:訪客看到可以點的課
   await expect(row('1.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/1-1')
   // 2.1 起是草稿:訪客看到規劃中、沒有連結,直接打開課程頁是「還沒開放」
@@ -45,8 +47,8 @@ test('網頁怎麼運作的課程地圖由資料庫讀取', async ({ page }) => 
   await expect(row('1.3').getByRole('link')).toHaveCount(0)
 })
 
-// 序章三課已開放:第一課不用登入,其他課登入後能上;腳本載入後整課拖到底都不出錯
-test('從做好到上線:序章第一課免費預覽、其他課要登入,三課都播得動', async ({ page }, info) => {
+// 序章三課已開放:前兩課不用登入,第三課登入後能上;腳本載入後整課拖到底都不出錯
+test('從做好到上線:序章前兩課免費預覽、第三課要登入,三課都播得動', async ({ page }, info) => {
   test.skip(desktopOnly(info), '只在桌面版測一次')
   const errors = collectErrors(page)
   const slider = () => page.getByRole('slider', { name: '播放進度' }).first()
@@ -58,10 +60,10 @@ test('從做好到上線:序章第一課免費預覽、其他課要登入,三課
     await expect(page.getByText('找不到')).toHaveCount(0)
   }
   await playToEnd('/topics/launch/0-1')
-  await page.goto('/topics/launch/0-2')
-  await expect(page.getByRole('link', { name: /登入/ }).first()).toBeVisible()
-  await loginAsNewStudent(page)
   await playToEnd('/topics/launch/0-2')
+  await page.goto('/topics/launch/0-3')
+  await expect(page.getByRole('dialog', { name: '登入' })).toBeVisible()
+  await loginAsNewStudent(page)
   await playToEnd('/topics/launch/0-3')
   expect(errors).toEqual([])
 })

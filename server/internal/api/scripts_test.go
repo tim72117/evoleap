@@ -89,7 +89,10 @@ func TestLessonFileWithoutStore(t *testing.T) {
 	h := New(Config{ScriptsDir: dir}).Routes()
 	for path, code := range map[string]int{
 		"l0/0.intro.json":         http.StatusOK,
-		"l0/0.0-tools.json":       http.StatusUnauthorized,
+		"l0/0.0-tools.json":       http.StatusOK,           // 依順序第二課:不用登入
+		"l0/0.1-project.json":     http.StatusUnauthorized, // 第三課起要登入
+		"launch/0.2.json":         http.StatusOK,
+		"launch/0.3.json":         http.StatusUnauthorized,
 		"launch/1.1.json":         http.StatusUnauthorized,
 		"lab/actors/browser.json": http.StatusNotFound,
 	} {
