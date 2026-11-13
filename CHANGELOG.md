@@ -4,6 +4,30 @@
 
 ## [Unreleased]
 
+## [0.40.0] - 2026-11-13
+
+單課存取規則改成「每門課依順序的前兩課不用登入、第三課登入後免費」，辦公室場景的背景可以依視窗比例填滿並有直式構圖，序章換成新的辦公室場景，Vibe Coding 入門 4.2（草稿）與語音。沒有破壞性的 API 變更；沒有資料表變動。
+
+### 變更
+
+- **單課存取規則**（`web/src/content/access.ts`、`server/internal/store/courses_seed.json`）：每門課依課程順序的前兩課不用登入就能看（免費預覽），第三課起要登入（第三課登入後免費），第四課起維持原設定。種子資料新增的設定：`tools` 0.0、`ai-tools` 1.0／1.1、`vibe-coding-basics` 4.1／4.2、`web` 0.2、`kids` 0.2、`launch` 0.2 改成 `free`；`vibe-coding-basics` 4.3 改成 `login-free`（原本是訂閱）。前端備援與課程地圖標籤（`requiresLogin`、`webNeedsLogin`、`kidsNeedsLogin`、`launchNeedsLogin`）都用同一個 `isFreeByOrder`。`claude-code`（整門課預設免費）沒有改。
+  - **正式機要另外改**：課程同步只補新的，不會改資料庫裡已有的課，所以這次的 9 處已用 `evoleap lesson set -access` 在正式機直接改好並驗證（未登入讀 `kids/0.2`、`web/0.2`、`launch/0.2`、`l0/0.0` 回 200，`kids/0.3`、`launch/0.3`、`l0/0.1` 回 401）。「AI 工具介紹」「AI 工具入門」的登入畫面寫在前端（`catalog.ts`），部署這一版之後才和資料庫一致。
+- **辦公室場景的背景畫到舞台外**（`live/art/office.ts`、`office.css`、`fx/finish.css`）：房間、桌子、人的身體往舞台外延伸 2400px（漸層改用固定座標，舞台內的樣子不變），膠囊版面不再把場景裁成 1920×1080，調色與暗角也畫到舞台外；視窗比 16:9 寬、窄、高時兩側與上下都是房間，不再露出底色。
+- **辦公室場景的直式構圖**（`.live-stage.portrait`）：不重畫場景，把 1920×1080 的房間框住螢幕與人的範圍、置中放大（`manual-office`、`agent-office` 各一組倍率）；手機直拿時開場「人在電腦前打字」填滿播放窗。
+- 「兒童課播放器上方狀態區塊」等已在 0.38.0；研發基地兒童課說明頁更新存取規則的文字。
+
+### 新增
+
+- **序章換成新的辦公室場景**（公司電腦，`61e040e`）：新演員 `manual-office`（手寫時代）與 `agent-office`（AI 代理人），`0.intro` 第 1–3 章換成手寫時代、第 6 章換成 AI 代理人，補齊旁白語音與章節音軌；演員改成用到才載入（播放器共用區塊 617 → 536 kB）；畫布 MCP（`web/scripts/canvas-mcp.mjs`）與 `web/art/` 的 Blender 純腳本實驗。
+- **Vibe Coding 入門 4.2「安裝、登入與權限」（草稿）**（公司電腦，`50d6511`）：即時教學腳本 `vibe-coding/4.2.json`（70 步）、新演員 `desk`（寫實的「你自己的電腦」）、草稿課的課程目錄支援（`lesson.draft`，草稿不算已開放）；本版補上旁白語音 `vibe-coding/4.2.voice.json`（54 段、339 秒）。
+- **「從做好到上線」2.1 的旁白語音**（`launch/2.1.voice.json`，39 段補錄，約 306 秒）。
+- **Blender 場景腳本相容 5.x**（`web/art/blender/robot-office/build_scene.py`）：合成節點依版本分支，5.2.3 實測可渲染；4.x 的寫法保留（沒有重新驗證）。
+
+### 已知問題（下一版處理）
+
+- 端對端的 `/showcase`、`/courses/tools/intro` 兩個「開啟無錯誤」測試失敗：辦公室場景裡預覽網頁的 `<h1>`（「小森烘焙」）被 `locator('h1').first()` 抓到，而它是隱藏的（`61e040e` 起就有）。
+- `0.intro` 約 59 秒處沒有語音（還在查，章節音軌與腳本時間軸可能對不上，需要重新執行 mix 確認）。
+
 ## [0.39.0] - 2026-11-13
 
 網站英文版介面：整個網站的介面可以在繁中與英文之間切換，課程內容維持中文。新增 `users.locale` 欄位（AutoMigrate 自動建立）；沒有破壞性的 API 變更。
