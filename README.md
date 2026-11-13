@@ -68,10 +68,11 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 - 網站上的 9 門課（AI 工具介紹、AI 工具入門、Vibe Coding 入門、AI Agent 整合應用、進階 AI Agent 應用、網頁怎麼運作、給孩子的網頁程式、從做好到上線、Claude Code 工作術）都在資料庫。**課程資料以資料庫為準**：上線後由管理員用 `evoleap` CLI 修改（見下方「課程 CLI」）；`server/internal/store/courses_seed.json` 只補資料庫還沒有的課程、單元、課與腳本檔，已經有的不動、種子拿掉的也不會刪。補的時機：正式環境是每次部署時執行一次的課程同步工作（Cloud Run Job `shuttle-course-sync`，執行 `server/cmd/sync`；image 是 Dockerfile 的 `course-sync` 目標，只有這支程式與腳本目錄，不建置前端；失敗就不部署網站），Cloud Run 上的網站伺服器只讀；本機是後端每次啟動時補。本機要整份換成種子的內容，刪掉 `server/shuttle.db` 再啟動。程式在 `server/internal/store/courses.go`、`lessons.go`。
 - 單元的 `subtitle` 是課程地圖上單元標題下的小字（兒童課是比喻，網頁怎麼運作是這個單元回答的問題）。
 - 公開 API `GET /api/courses/{id}/map` 回傳課程地圖（不用登入，登入功能沒開也能讀，只有沒接資料庫時回 503）。讀它的頁面：
-  - 主題的課程地圖：兒童課（`/topics/kids#map`）、網頁怎麼運作（`/topics/web#map`）、從做好到上線（`/topics/launch#map`），畫法共用 `web/src/home/CourseMapUnits.tsx`，讀到之前與讀不到時先用前端內建的同一份資料。
+  - 主題的課程地圖：兒童課（`/topics/kids#map`）、網頁怎麼運作（`/topics/web#map`）、從做好到上線（`/topics/launch#map`），網頁怎麼運作、從做好到上線用 `web/src/home/TopicCourseMap.tsx`（和課程總覽頁同一個清單元件 `web/src/courses/LessonGroup.tsx`），兒童版用自己的畫法 `web/src/home/CourseMapUnits.tsx`。**課程資訊不做前端備援**：讀取中顯示佔位卡，讀不到顯示「無法讀取課程資訊」。
   - 這三個主題的單課頁：能不能上、播哪個腳本、要不要登入都照資料庫（`web/src/home/TopicLessonGate.tsx`）；有頁面的課（路由與 SEO）仍由前端的 `KIDS_OPEN_LESSONS`、`WEB_OPEN_LESSONS`、`LAUNCH_LESSON_PAGES` 決定。
-  - AI 工具介紹、AI 工具入門的課程總覽（`/courses/tools`、`/courses/ai-tools`）：每一課的一句話、時間、開放與否、免費預覽。
-- 還在前端的：課程與主題的介紹（`levels.ts`、`topics.ts`）、單課頁的內容（步驟、提示詞，`l0Lessons.ts` 等）、`/courses/...` 單課頁要不要登入（`catalog.ts` 的 `requiresLogin`）、規劃中課程的章節頁。課名、一句話、開放狀態、腳本、時間兩邊都有一份，`web/src/content/courseMap.test.ts` 檢查一致。
+  - 所有課程的課程總覽（`/courses/...`）：每一課的一句話、時間、開放與否、免費預覽；所有 `/courses/...` 單課頁要不要登入也照每一課的 `access`（資料庫裡沒有的課顯示規劃中）。
+  - 首頁、課程列表（`/courses`）、軟體課程地圖頁等級卡片的「已開放」與課數；會員空間「課程」分頁與兒童模式的進度、這週的課。讀不到時這些地方不標開放狀態或顯示讀取失敗，不用前端資料頂替。
+- 還在前端的：課程與主題的介紹（`levels.ts`、`topics.ts`）、單課頁的內容（步驟、提示詞，`l0Lessons.ts` 等）、規劃中課程的章節頁。課名、單課頁的路由與 SEO（建置時產生）仍用前端清單（`WEB_OPEN_LESSONS`、`KIDS_RELEASED_LESSONS` 等），畫面不用它們；`web/src/content/courseMap.test.ts` 檢查這些清單和種子一致。
 - 腳本檔：補課程資料時（`-live`，預設 `../web/src/content/live`，映像裡是 `/app/live`）把每一課的 `script`、`files` 與同名的 `.voice.json`、`.mix.json` 讀進 `lesson_files`（一個檔一列，記著屬於哪門課的哪一課），其餘的 `.json`（研發基地的 `lab/`、`promo/` 與草稿）讀進 `studio_files`，同樣只補資料庫還沒有的檔；種子寫到的檔不存在、或兩課寫到同一個檔時失敗（正式環境就是部署失敗）。上線後改腳本內容用 `evoleap script push`。程式在 `server/internal/store/lessonfiles.go`。
 - `GET /api/scripts/{path}` 依所屬那一課把關：免費預覽誰都拿得到、登入後免費要登入（401）、訂閱課程等訂閱功能上線前不給（403）、草稿與規劃中的課只給管理員（其他人 404）；研發基地的檔只給管理員。`GET /api/scripts` 列出所有腳本路徑（只給管理員）。程式在 `server/internal/api/scripts.go`。本機開發時直接讀磁碟上最新的檔案（把關仍照資料庫），改既有的腳本不用重啟；本機新增檔案要重啟後端。沒接資料庫時照內嵌的種子直接讀檔，只有免登入的課拿得到。
 - sitemap 只列已開放的課（`web/src/seo/build.ts` 在建置時讀種子，所以用 CLI 改了開放狀態後，sitemap 要等種子也改了、下次部署才會跟上）；草稿與規劃中的課頁面仍可收錄，只是不列入。
@@ -127,4 +128,4 @@ cd server && go test ./...     # Go：靜態頁面／SEO 路由、登入 API、�
 cd web && npm run check        # 型別檢查 → 單元測試（vitest）→ build → E2E（Playwright，對正式 build）
 ```
 
-每次 push 都會在 GitHub Actions 跑同一套測試。
+每次 push 都會在 GitHub Actions 跑同一套測試：Go 與前端檢查（`checks`）和 E2E 同時跑，E2E 切成 4 份（`e2e (1)`–`e2e (4)`）各用一台機器。

@@ -4,6 +4,42 @@
 
 ## [Unreleased]
 
+## [0.41.0] - 2026-11-14
+
+課程資訊（清單、單課頁登入判斷、開放狀態與課數）只讀資料庫，不再用前端資料備援；課程清單改成共用元件；種子照正式機的狀態；canvas MCP 逾時；CI 分片；研發基地試聽語音頁與兩支宣傳片。沒有 API 或資料表變動。
+
+### 變更
+
+- **課程資訊不做前端備援**：讀取中顯示佔位卡、讀不到顯示「無法讀取課程資訊」（`courses/LessonGroup.tsx` 的 `LessonListStatus`），不再用前端寫死的課程資料頂替。範圍：網頁怎麼運作、從做好到上線、兒童版的課程地圖與單課頁；課程總覽（課數、時長、開始學習在讀到後才顯示）；所有 `/courses/...` 單課頁的登入判斷（只看每一課的 `access`，資料庫沒有的課顯示規劃中）；首頁等級、課程列表與軟體課程地圖頁等級卡片的「已開放」與課數（讀不到時不標）；會員空間「課程」分頁（任一門地圖讀不到就是讀取失敗）；兒童模式的進度與這週的課（讀不到顯示無法讀取）。
+  - **移除的符號**：`requiresLogin`（`catalog.ts`）、`webNeedsLogin`、`launchNeedsLogin`、`kidsNeedsLogin`，以及 `kidsProgressOf` 的預設開放清單（現在要傳入）、`CourseMapUnits` 與 `TopicCourseMap` 的 `fallback` 參數。前端的 `*_OPEN_LESSONS`、`KIDS_RELEASED_LESSONS` 只剩路由、SEO 與 sitemap（建置時產生）用，畫面不用。
+- **課程清單共用元件**（`courses/LessonGroup.tsx`）：課程總覽、網頁怎麼運作、從做好到上線用同一種列（播放圖示、課號與課名、一句話、免費預覽／鎖頭／規劃中／草稿、「互動」、時長），單元可收合；規劃中的列不連結也沒有 hover。兒童版維持原畫法。
+- **課程地圖快取與共用請求**（`content/courseMap.ts`）：`useCourseMap` 依課程與登入的人記住讀過的地圖並在背景更新，換課不再先空白；同一份地圖同時讀只打一次 API；新增 `useCourseMaps`（首頁、課程列表、等級卡片一次讀多門課）。
+- **種子照正式機的狀態**（`courses_seed.json`）：兒童 2.1–2.5 改開放；從做好到上線 1.3–1.7 改草稿（訪客看不到草稿與規劃中的差別，這是依「有腳本、訪客看不到」的推測）；前端清單、`courseMap.test.ts`、`seo/pages.test.ts` 同步（兒童 2.1–2.5 進 sitemap、launch 1.3–1.7 離開）。
+  - **正式機不受影響**：課程同步只補新的，不改資料庫裡已有的課。
+
+### 新增
+
+- **canvas MCP 逾時**（`scripts/canvas/queue.mjs`）：每個呼叫 120 秒逾時（`CANVAS_TIMEOUT_MS` 可改），逾時的呼叫標為已取消並重設瀏覽器（只終止 chrome 子程序），不再讓後面的呼叫永遠排隊。
+- **研發基地「試聽語音」**（`/materials/voice-samples`、`vite.config.ts` 的 `voiceSamples()`）：列出 `web/recordings/voice-samples/` 的 mp3 並附播放器與語音產生指引（只在本機開發站，檔案不進 git）；`voice.mjs` 新增 `news`（科技新聞播報）語氣設定。
+- **宣傳片**：Archify（Charon）、「文組也能用 AI 寫工具」（Sulafat，另有上集、下集兩個拆分版），演員 `archify-reel`、`ai-tools-reel`。
+- **e2e**：課程清單讀取中與讀不到（四種清單與單課頁）。
+
+### CI
+
+- **Go 與前端檢查和 e2e 並行，e2e 切成 4 份**（`.github/workflows/test.yml`）：工作 `checks`、`e2e (1)`–`e2e (4)`；GitHub 上的檢查名稱從 `test` 改了，若分支保護指定必要檢查要同步改。部署流程的 `needs: test` 不用改。
+
+### 修正
+
+- 試聽語音的開發中介層遇到壞掉的網址編碼回 404（原本會丟出未處理的例外）。
+- `npm run build` 的 SEO 檢查：`/materials/voice-samples` 補上 SEO 資料。
+
+### 已知問題
+
+- 單課頁第一次進入（還沒有快取）時，讀取中的佔位和真正的頁面各用一個 `SiteLayout`，頁首會閃一下。
+- 本機資料庫的課程狀態和種子不一致（兒童版只有 3 課開放）：資料庫以現有資料為準，要對齊用 `evoleap lesson set`。
+- 沒有為 `LessonGroup`、`TopicCourseMap` 寫直接的單元測試（e2e 間接涵蓋）。
+
+
 ## [0.40.1] - 2026-11-13
 
 修正 0.40.0 部署被端對端測試擋下的問題。沒有 API 或資料表變動。
