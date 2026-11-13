@@ -1,0 +1,296 @@
+/* 演員 desk:你自己的電腦(寫實情境)。選擇器都以 .A-desk 開頭。
+   場景固定 16:9,1em = 場景寬度的 1/96(用容器查詢單位,跟著 place 的寬度縮放)。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。
+   寫實繪製:主光源是左後方的窗戶,物件左亮右暗、投影往右前方;牆與桌面貼 CC0 材質圖(textures/README.md)。
+   房間、桌上物件都是靜態層(不會動),模糊與大片陰影只放在這些層上;會動的螢幕內容不加 filter。 */
+.A-desk {
+  position: relative;
+  width: 100%; height: 100%;
+  container-type: inline-size;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  color: #1f2328;
+}
+.A-desk *, .A-desk *::before, .A-desk *::after { box-sizing: border-box; }
+.A-desk .dk-clip { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: calc(100cqw / 96 * 0.6); }
+.A-desk .dk-scene {
+  position: absolute; left: 0; top: 0;
+  width: 100%; aspect-ratio: 16 / 9;
+  font-size: calc(100cqw / 96);
+  overflow: hidden;
+  line-height: 1.35;
+  background: #cfc6b8;
+}
+.A-desk .dk-scene svg { display: block; width: 100%; height: 100%; }
+.A-desk .dk-shadow { position: absolute; pointer-events: none; }
+
+/* ---------- 牆:漆面灰泥,靠窗亮、往右漸暗 ---------- */
+.A-desk .dk-wall {
+  position: absolute; left: 0; top: 0; width: 100%; height: 36.4em;
+  background:
+    radial-gradient(34em 26em at 10em 15em, rgba(255, 248, 232, 0.75), rgba(255, 248, 232, 0) 70%),
+    linear-gradient(90deg, #ebe4d8 0%, #e1d8ca 38%, #cfc4b3 78%, #bfb3a1 100%);
+}
+.A-desk .dk-wall::before { content: ""; position: absolute; inset: 0; background: url("./textures/plaster.webp") 0 0 / 30em auto; mix-blend-mode: multiply; opacity: 0.42; }
+.A-desk .dk-wall::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(70, 55, 35, 0.16) 0%, rgba(70, 55, 35, 0) 22%),
+    linear-gradient(180deg, rgba(60, 44, 28, 0) 88%, rgba(60, 44, 28, 0.22) 100%);
+}
+
+/* ---------- 窗:白色木窗框、窗外景深模糊、光暈 ---------- */
+.A-desk .dk-win {
+  position: absolute; left: 3.4em; top: 3em; width: 14.4em; height: 24.4em;
+  padding: 0.85em; border-radius: 0.15em;
+  background: linear-gradient(135deg, #fbfaf6, #ece8df 60%, #d9d3c7);
+  box-shadow: 0.25em 0.35em 0.9em rgba(70, 55, 35, 0.22), inset -0.08em -0.08em 0 rgba(120, 105, 85, 0.35), inset 0.08em 0.08em 0 #fff;
+}
+.A-desk .dk-win-out { position: absolute; inset: 0.85em; overflow: hidden; box-shadow: inset 0.2em 0.25em 0.35em rgba(60, 50, 35, 0.35); }
+.A-desk .dk-win-out i { position: absolute; display: block; }
+.A-desk .dk-out-sky { inset: 0; background: linear-gradient(180deg, #b9d3e8 0%, #dbe8f0 45%, #eef2ec 70%, #d9e2cf 100%); }
+/* 遠處的樹與建築:靜態層,景深模糊 */
+.A-desk .dk-out-trees {
+  left: -2em; right: -2em; top: 9em; bottom: -1em;
+  background:
+    radial-gradient(5em 4em at 2em 6em, #6f8f64 0%, rgba(111, 143, 100, 0) 70%),
+    radial-gradient(6em 5em at 9em 5em, #5f8158 0%, rgba(95, 129, 88, 0) 70%),
+    radial-gradient(4em 6em at 14em 7em, #7c9a6c 0%, rgba(124, 154, 108, 0) 70%),
+    linear-gradient(180deg, rgba(160, 170, 160, 0) 0%, rgba(160, 170, 160, 0) 30%, #c9cdbf 30.5%, #b7bca9 52%, #8d9a78 100%);
+  filter: blur(0.35em);
+}
+.A-desk .dk-out-bloom { inset: -2em; background: radial-gradient(14em 12em at 40% 30%, rgba(255, 252, 240, 0.85), rgba(255, 252, 240, 0) 70%); }
+.A-desk .dk-win-bar { position: absolute; left: 50%; top: 0.85em; bottom: 0.85em; width: 0.55em; margin-left: -0.275em; background: linear-gradient(90deg, #fbfaf6, #e4dfd5); box-shadow: 0.12em 0.1em 0.25em rgba(60, 50, 35, 0.25); }
+.A-desk .dk-win-bar::after { content: ""; position: absolute; left: -5.95em; right: -5.95em; top: 44%; height: 0.55em; background: linear-gradient(180deg, #fbfaf6, #e1dcd1); box-shadow: 0.1em 0.15em 0.25em rgba(60, 50, 35, 0.25); }
+.A-desk .dk-win-glass { position: absolute; inset: 0.85em; background: linear-gradient(120deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 62%, rgba(255, 255, 255, 0.12) 70%, rgba(255, 255, 255, 0) 80%); }
+.A-desk .dk-sill { position: absolute; left: 2.6em; top: 27.2em; width: 16em; height: 0.9em; border-radius: 0.1em; background: linear-gradient(180deg, #fdfcf8 0%, #ebe6dc 55%, #c8c0b2 100%); box-shadow: 0.2em 0.45em 0.6em rgba(70, 55, 35, 0.25); }
+/* 半透明的紗簾(左側) */
+.A-desk .dk-curtain {
+  position: absolute; left: -0.5em; top: 0; width: 6.2em; height: 36.4em;
+  background:
+    linear-gradient(90deg, rgba(255, 253, 247, 0) 0%, rgba(255, 253, 247, 0.5) 100%),
+    repeating-linear-gradient(90deg, rgba(255, 252, 244, 0.55) 0 0.55em, rgba(236, 228, 214, 0.75) 0.9em, rgba(255, 252, 244, 0.6) 1.3em 1.5em);
+  box-shadow: 0.4em 0 1.2em rgba(70, 55, 35, 0.1);
+}
+
+/* 相框(背景、景深略糊) */
+.A-desk .dk-frame { position: absolute; left: 80.6em; top: 6.2em; width: 10.4em; height: 7.8em; box-shadow: 0.35em 0.45em 0.8em rgba(60, 45, 30, 0.3); filter: blur(0.03em); }
+
+/* ---------- 桌面:木紋透視往後延伸 ---------- */
+.A-desk .dk-desk { position: absolute; left: 0; top: 36.4em; width: 100%; height: 15.4em; overflow: hidden; perspective: 22em; perspective-origin: 50% -26em; }
+.A-desk .dk-wood {
+  position: absolute; left: -70em; right: -70em; bottom: 0; height: 64em;
+  transform-origin: 50% 100%; transform: rotateX(74deg);
+  background: url("./textures/oak-veneer.webp") 0 0 / 20em auto;
+}
+/* 壓低木紋的對比、調成胡桃偏暖的色調 */
+.A-desk .dk-wood::after { content: ""; position: absolute; inset: 0; background: rgba(150, 100, 60, 0.28); mix-blend-mode: multiply; }
+.A-desk .dk-desk-light {
+  position: absolute; inset: 0;
+  background:
+    /* 窗光落在桌面左側(往右前方斜斜地拉長) */
+    radial-gradient(40em 12em at 6em 2em, rgba(255, 246, 225, 0.55), rgba(255, 246, 225, 0) 75%),
+    linear-gradient(118deg, rgba(255, 244, 220, 0) 4%, rgba(255, 244, 220, 0.16) 12%, rgba(255, 244, 220, 0.16) 26%, rgba(255, 244, 220, 0) 36%),
+    /* 螢幕的冷色光 */
+    radial-gradient(30em 7em at 48em 0em, rgba(185, 210, 240, 0.28), rgba(185, 210, 240, 0) 80%),
+    /* 桌面靠牆的接觸陰影 */
+    linear-gradient(180deg, rgba(40, 26, 12, 0.42) 0%, rgba(40, 26, 12, 0.12) 0.7em, rgba(40, 26, 12, 0) 2.4em),
+    /* 左亮右暗 */
+    linear-gradient(90deg, rgba(255, 240, 215, 0.12) 0%, rgba(30, 18, 8, 0) 45%, rgba(30, 18, 8, 0.3) 100%),
+    /* 漆面的反光帶(順著窗的方向) */
+    linear-gradient(100deg, rgba(255, 255, 255, 0) 8%, rgba(255, 255, 255, 0.1) 18%, rgba(255, 255, 255, 0) 30%);
+}
+.A-desk .dk-desk-front {
+  position: absolute; left: 0; top: 51.8em; width: 100%; height: 2.2em;
+  background:
+    linear-gradient(180deg, rgba(255, 240, 215, 0.55) 0, rgba(255, 240, 215, 0) 0.14em),
+    linear-gradient(180deg, rgba(25, 14, 5, 0.35), rgba(25, 14, 5, 0.6)),
+    linear-gradient(90deg, rgba(255, 240, 215, 0.1), rgba(30, 18, 8, 0.25)),
+    url("./textures/oak-veneer.webp") 0 0 / 30em auto;
+  box-shadow: 0 -0.05em 0 rgba(255, 245, 225, 0.6);
+}
+/* 照片的暗角(只壓房間,不壓螢幕) */
+.A-desk .dk-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 70% 75% at 42% 45%, rgba(20, 12, 4, 0) 55%, rgba(20, 12, 4, 0.32) 100%); }
+
+/* ---------- 螢幕(27 吋):窄邊框、霧面黑塑膠、鋁合金支架 ---------- */
+.A-desk .dk-monitor { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
+.A-desk .dk-bezel {
+  position: absolute; left: 21em; top: 2.4em; width: 54em; height: 31.6em;
+  padding: 0.6em; border-radius: 0.45em;
+  background: linear-gradient(160deg, #2a2c31 0%, #111214 18%, #0b0b0d 70%, #17181b 100%);
+  box-shadow:
+    inset 0 0 0 0.07em #3c3f46,
+    inset 0.1em 0.12em 0 rgba(255, 255, 255, 0.14),
+    0.5em 0.7em 1.2em rgba(40, 28, 15, 0.32),
+    2.6em 2.2em 4.5em rgba(40, 28, 15, 0.22),
+    0 0 5em rgba(150, 185, 225, 0.16);
+}
+.A-desk .dk-screen { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 0.12em; box-shadow: 0 0 0 0.05em #000; }
+/* 螢幕玻璃很淡的反光(窗的倒影 + 斜向光) */
+.A-desk .dk-glare {
+  position: absolute; inset: 0; pointer-events: none; z-index: 3;
+  background:
+    linear-gradient(112deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 22%, rgba(255, 255, 255, 0) 34%),
+    radial-gradient(10em 16em at 2em 40%, rgba(255, 252, 240, 0.06), rgba(255, 252, 240, 0) 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 8%);
+}
+.A-desk .dk-neck {
+  position: absolute; left: 45.9em; top: 33.2em; width: 4.2em; height: 4.4em;
+  background: linear-gradient(90deg, #7d828a 0%, #c4c8ce 22%, #eceef1 38%, #b9bdc3 62%, #858a92 85%, #6c7178 100%);
+  box-shadow: inset 0 1.2em 0.8em -0.6em rgba(0, 0, 0, 0.45);
+}
+.A-desk .dk-base {
+  position: absolute; left: 40.6em; top: 36.9em; width: 14.8em; height: 2em;
+  border-radius: 0.6em 0.6em 0.9em 0.9em / 0.5em 0.5em 0.9em 0.9em;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0, rgba(0, 0, 0, 0) 0.7em),
+    linear-gradient(90deg, #a7acb3 0%, #e7e9ec 30%, #d7dade 60%, #9da2a9 100%);
+  box-shadow: inset 0 -0.28em 0 #8a8f96, inset 0 -0.32em 0 #e9ebee;
+}
+.A-desk .dk-base-shadow { position: absolute; left: 39em; top: 37.6em; width: 21em; height: 3em; background: radial-gradient(closest-side, rgba(30, 18, 8, 0.55), rgba(30, 18, 8, 0.25) 60%, rgba(30, 18, 8, 0)); }
+
+.A-desk .dk-paper { position: absolute; inset: 0; background: radial-gradient(ellipse at 75% 115%, #3f8f8a 0%, rgba(63, 143, 138, 0) 55%), radial-gradient(ellipse at 15% 110%, #2f6f9b 0%, rgba(47, 111, 155, 0) 60%), linear-gradient(180deg, #7fb2d9 0%, #a7cfe0 55%, #c9e2dc 100%); }
+.A-desk .dk-topbar { position: absolute; left: 0; right: 0; top: 0; height: 1.4em; display: flex; align-items: center; justify-content: space-between; padding: 0 0.8em; background: rgba(255, 255, 255, 0.55); font-size: 0.8em; color: #23303d; }
+.A-desk .dk-dot { width: 0.7em; height: 0.7em; border-radius: 50%; background: #23303d; opacity: 0.55; }
+
+/* 桌面上的東西 */
+.A-desk .dk-icons { position: absolute; left: 0.8em; top: 2.2em; display: flex; flex-direction: column; gap: 0.35em; }
+.A-desk .dk-item { position: relative; display: flex; flex-direction: column; align-items: center; width: 5.8em; padding: 0.25em 0.1em; border-radius: 0.4em; transform-origin: 50% 40%; }
+.A-desk .dk-item[data-hot="1"] { background: rgba(255, 255, 255, 0.45); box-shadow: 0 0 0 0.14em rgba(255, 255, 255, 0.9); }
+.A-desk .dk-glyph { display: block; width: 2.7em; height: 2.5em; }
+.A-desk .dk-glyph svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0.1em 0.15em rgba(0, 0, 0, 0.18)); }
+.A-desk .dk-name { margin-top: 0.15em; max-width: 100%; font-size: 0.85em; text-align: center; color: #fff; text-shadow: 0 0.08em 0.25em rgba(0, 0, 0, 0.6); word-break: break-all; line-height: 1.2; }
+.A-desk .dk-mark { position: absolute; right: -0.1em; top: -0.2em; padding: 0.05em 0.45em; border-radius: 1em; font-size: 0.72em; font-weight: 700; color: #fff; background: #3a7be0; box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.25); }
+.A-desk .dk-mark[data-m="edit"] { background: #e08a1e; }
+
+/* 資料夾視窗 */
+.A-desk .dk-folder { position: absolute; left: 8em; top: 2.6em; width: 21.5em; height: 17.5em; background: #fbfbfc; border-radius: 0.6em; box-shadow: 0 0.8em 2em rgba(0, 0, 0, 0.3); overflow: hidden; transform-origin: 30% 20%; }
+.A-desk .dk-fhead { display: flex; align-items: center; gap: 0.6em; height: 2.1em; padding: 0 0.8em; background: #eceef1; border-bottom: 0.06em solid #d9dce1; font-size: 0.9em; }
+.A-desk .dk-lights { display: flex; gap: 0.35em; }
+.A-desk .dk-lights i { width: 0.7em; height: 0.7em; border-radius: 50%; background: #ff5f57; }
+.A-desk .dk-lights i:nth-child(2) { background: #febc2e; }
+.A-desk .dk-lights i:nth-child(3) { background: #28c840; }
+.A-desk .dk-ftitle { font-weight: 700; }
+.A-desk .dk-fcount { margin-left: auto; color: #6b7280; font-size: 0.9em; }
+.A-desk .dk-flist { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 0.5em 0.3em; padding: 0.9em 0.6em; }
+.A-desk .dk-flist .dk-name { color: #1f2328; text-shadow: none; }
+.A-desk .dk-flist .dk-item[data-hot="1"] { background: rgba(58, 123, 224, 0.14); box-shadow: 0 0 0 0.14em rgba(58, 123, 224, 0.5); }
+.A-desk .dk-empty { width: 100%; margin: 4em 0 0; text-align: center; color: #9aa1ab; font-size: 0.95em; }
+
+/* 助手視窗 */
+.A-desk .dk-app { position: absolute; right: 1.1em; top: 2.3em; width: 19.6em; height: 24.6em; display: flex; flex-direction: column; background: #fffdf9; border-radius: 0.7em; box-shadow: 0 0.8em 2.2em rgba(0, 0, 0, 0.32); overflow: hidden; transform-origin: 70% 90%; }
+.A-desk .dk-ahead { display: flex; align-items: center; gap: 0.5em; height: 2.4em; padding: 0 0.8em; border-bottom: 0.06em solid #eee6da; background: #f7f1e8; }
+.A-desk .dk-aicon { width: 1.4em; height: 1.4em; display: block; }
+.A-desk .dk-aicon svg, .A-desk .dk-sbig svg, .A-desk .dk-ibig svg, .A-desk .dk-app-icon svg { width: 100%; height: 100%; display: block; }
+.A-desk .dk-aname { font-weight: 700; font-size: 0.95em; }
+.A-desk .dk-always { display: none; padding: 0.05em 0.5em; border-radius: 1em; font-size: 0.7em; font-weight: 700; color: #a3360f; background: #fde3d6; }
+.A-desk .dk-always[data-on="1"] { display: inline-block; }
+.A-desk .dk-acct { margin-left: auto; padding: 0.1em 0.55em; border-radius: 1em; font-size: 0.72em; color: #6b7280; background: #ece7df; }
+.A-desk .dk-acct[data-on="1"] { color: #1d6b3a; background: #dcf2e3; }
+.A-desk .dk-abody { position: relative; flex: 1; padding: 0.8em; display: flex; flex-direction: column; gap: 0.6em; overflow: hidden; }
+.A-desk .dk-signin { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.7em; background: #fffdf9; z-index: 2; }
+.A-desk .dk-sbig { width: 3.4em; height: 3.4em; display: block; }
+.A-desk .dk-signin p { margin: 0; font-size: 1.1em; font-weight: 700; }
+.A-desk .dk-signbtn { padding: 0.5em 1.3em; border-radius: 0.5em; font-size: 0.95em; font-weight: 700; color: #fff; background: #2f2a26; }
+.A-desk .dk-signbtn[data-down="1"] { background: #4a433d; transform: scale(0.96); }
+.A-desk .dk-signwait { font-size: 0.8em; color: #6b7280; }
+.A-desk .dk-chat { display: flex; flex-direction: column; align-items: flex-end; gap: 0.45em; }
+.A-desk .dk-bubble { margin: 0; max-width: 90%; padding: 0.45em 0.7em; border-radius: 0.8em 0.8em 0.2em 0.8em; font-size: 0.92em; background: #efe7db; }
+.A-desk .dk-activity { display: flex; align-items: center; gap: 0.5em; font-size: 0.9em; }
+.A-desk .dk-verb { flex: none; padding: 0.1em 0.5em; border-radius: 0.3em; font-size: 0.85em; font-weight: 700; color: #fff; background: #3a7be0; }
+.A-desk .dk-verb[data-k="edit"] { background: #e08a1e; }
+.A-desk .dk-verb[data-k="run"] { background: #3c3f46; }
+.A-desk .dk-activity code, .A-desk .dk-dcmd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.A-desk .dk-activity code { padding: 0.15em 0.45em; border-radius: 0.3em; background: #23262d; color: #e8eaed; font-size: 0.9em; }
+.A-desk .dk-result { margin-top: auto; padding: 0.5em 0.7em; border-radius: 0.5em; font-size: 0.88em; font-weight: 600; color: #1d6b3a; background: #e3f4e8; }
+.A-desk .dk-result[data-a="deny"] { color: #374151; background: #eef0f3; }
+.A-desk .dk-result[data-a="always"] { color: #a3360f; background: #fde3d6; }
+.A-desk .dk-ainput { margin: 0 0.7em 0.7em; padding: 0.55em 0.8em; border-radius: 0.6em; border: 0.08em solid #e5ddd0; font-size: 0.85em; color: #a39a8e; background: #fff; }
+
+/* 確認提示 */
+.A-desk .dk-dialog {
+  position: absolute; right: 1.6em; top: 11.6em; width: 18.8em;
+  padding: 0.9em 1em 1em; border-radius: 0.7em;
+  background: #fff; border: 0.12em solid #e9774b;
+  box-shadow: 0 0.8em 2em rgba(0, 0, 0, 0.3);
+}
+.A-desk .dk-dq { margin: 0 0 0.5em; font-size: 0.9em; font-weight: 700; }
+.A-desk .dk-dcmd { display: block; padding: 0.45em 0.6em; border-radius: 0.4em; background: #23262d; color: #f3f4f6; font-size: 0.95em; word-break: break-all; }
+.A-desk .dk-dsay { margin: 0.5em 0 0; font-size: 0.85em; color: #4b5563; }
+.A-desk .dk-dopts { display: flex; gap: 0.45em; margin-top: 0.8em; }
+.A-desk .dk-dopts span { flex: 1; padding: 0.45em 0; border-radius: 0.45em; text-align: center; font-size: 0.85em; font-weight: 700; border: 0.08em solid #d6d9de; background: #f7f8f9; }
+.A-desk .dk-dopts [data-o="once"] { color: #fff; border-color: #2f2a26; background: #2f2a26; }
+.A-desk .dk-dopts [data-down="1"] { transform: scale(0.94); filter: brightness(0.9); }
+
+/* 安裝視窗 */
+.A-desk .dk-installer { position: absolute; left: 14em; top: 7.5em; width: 20em; padding: 1.4em 1.4em 1.2em; display: flex; flex-direction: column; align-items: center; gap: 0.6em; border-radius: 0.8em; background: #fbfbfc; box-shadow: 0 0.8em 2.2em rgba(0, 0, 0, 0.32); }
+.A-desk .dk-ibig { width: 3.6em; height: 3.6em; display: block; }
+.A-desk .dk-iname { margin: 0; font-size: 1.05em; font-weight: 700; }
+.A-desk .dk-ibar { width: 100%; height: 0.6em; border-radius: 1em; background: #e5e7eb; overflow: hidden; }
+.A-desk .dk-ibar i { display: block; height: 100%; width: 0; border-radius: 1em; background: #3a7be0; }
+.A-desk .dk-istate { margin: 0; font-size: 0.85em; color: #4b5563; }
+
+/* 讀檔、改檔的線 */
+.A-desk .dk-wire { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.A-desk .dk-wire path { fill: none; stroke: #3a7be0; stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)); }
+.A-desk .dk-wire path[data-k="edit"] { stroke: #e08a1e; }
+
+/* Dock */
+.A-desk .dk-dock { position: absolute; left: 50%; bottom: 0.6em; transform: translateX(-50%); display: flex; align-items: center; gap: 0.5em; padding: 0.4em 0.6em; border-radius: 1em; background: rgba(255, 255, 255, 0.45); box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.15); }
+.A-desk .dk-app-icon { display: block; width: 2.6em; height: 2.6em; }
+.A-desk .dk-app-icon.dk-mine { margin-left: -0.5em; }
+
+/* ---------- 桌上的東西(前景,清楚;投影往右前方) ---------- */
+/* 盆栽:螢幕右後方,靠牆 */
+.A-desk .dk-plant { position: absolute; left: 79.4em; top: 13.4em; width: 11.6em; height: 25em; }
+.A-desk .dk-plant .dk-shadow { left: 1.6em; bottom: -0.9em; width: 13em; height: 2.6em; background: radial-gradient(closest-side, rgba(30, 18, 8, 0.5), rgba(30, 18, 8, 0.18) 60%, rgba(30, 18, 8, 0)); }
+.A-desk .dk-plant::after { content: ""; position: absolute; left: 3em; top: 2em; width: 14em; height: 22em; z-index: -1; background: radial-gradient(closest-side, rgba(60, 45, 30, 0.2), rgba(60, 45, 30, 0)); }
+
+/* 鍵盤:俯視的 SVG 用 rotateX 壓成透視,前緣另畫一條鋁的側面 */
+.A-desk .dk-keyboard { position: absolute; left: 30em; top: 30.6em; width: 36em; height: 15.24em; }
+.A-desk .dk-kb-top { position: absolute; inset: 0; transform-origin: 50% 100%; transform: perspective(46em) rotateX(60deg); }
+.A-desk .dk-kb-front { position: absolute; left: 0.25em; right: 0.25em; bottom: -0.32em; height: 0.36em; border-radius: 0 0 0.4em 0.4em; background: linear-gradient(90deg, #9da2a9, #d9dce0 25%, #c3c7cc 60%, #8c9198); }
+.A-desk .dk-keyboard .dk-shadow { left: -1em; right: -3.5em; bottom: -1.6em; height: 7.5em; background: radial-gradient(closest-side, rgba(30, 18, 8, 0.5), rgba(30, 18, 8, 0.2) 65%, rgba(30, 18, 8, 0)); transform: translateX(1.2em); }
+
+/* 滑鼠 */
+.A-desk .dk-mouse { position: absolute; left: 70em; top: 37em; width: 4.8em; height: 8.32em; }
+.A-desk .dk-ms-top { position: absolute; inset: 0; transform-origin: 50% 100%; transform: perspective(40em) rotateX(50deg); }
+.A-desk .dk-mouse .dk-shadow { left: -0.4em; right: -1.6em; bottom: -1em; height: 5.6em; background: radial-gradient(closest-side, rgba(30, 18, 8, 0.55), rgba(30, 18, 8, 0.2) 60%, rgba(30, 18, 8, 0)); transform: translateX(0.6em); }
+
+/* 馬克杯 */
+.A-desk .dk-mug { position: absolute; left: 7.4em; top: 37.4em; width: 9em; height: 9em; }
+.A-desk .dk-mug svg { position: relative; }
+.A-desk .dk-mug .dk-shadow { left: 1.2em; top: 6.8em; width: 9.4em; height: 3em; background: radial-gradient(closest-side, rgba(30, 18, 8, 0.6), rgba(30, 18, 8, 0.22) 55%, rgba(30, 18, 8, 0)); transform: rotate(4deg); }
+
+/* 便利貼:平放在桌上(透視),邊角微微翹起 */
+.A-desk .dk-sticky { position: absolute; left: 19.4em; top: 42.4em; width: 5.4em; height: 5.4em; transform-origin: 50% 100%; transform: perspective(30em) rotateX(48deg) rotateZ(-6deg); }
+.A-desk .dk-sticky span {
+  position: absolute; inset: 0; padding: 0.6em 0.4em; font-size: 1.15em; line-height: 1.2; text-align: center; color: #4d3f12;
+  background: linear-gradient(160deg, #fdeea0, #f6dc6c 70%, #e9c94f);
+  box-shadow: inset -0.3em -0.3em 0.5em rgba(150, 110, 10, 0.18);
+  font-family: "Segoe Print", "Bradley Hand", "Kaiti TC", "KaiTi", cursive;
+}
+.A-desk .dk-sticky .dk-shadow { inset: 0; background: rgba(30, 18, 8, 0.35); transform: translate(0.3em, 0.35em); filter: blur(0.15em); }
+
+/* 標籤:全景時貼在螢幕右上方的牆面(不蓋螢幕,也避開畫面下方的字幕) */
+.A-desk .dk-label {
+  position: absolute; right: calc(100cqw / 96 * 1.4); top: calc(100cqw / 96 * 1.1);
+  padding: 0.25em 1em; border-radius: 0.4em; white-space: nowrap;
+  font-size: calc(100cqw / 96 * 1.6); font-weight: 800; color: #fff;
+  background: rgba(24, 26, 30, 0.86); box-shadow: 0 0.2em 0.6em rgba(0, 0, 0, 0.3);
+  z-index: 5;
+}
+
+/* 近景(props.close):只拍螢幕。場景放大到螢幕差不多填滿,位置用 em 平移(不用 transform,鏡頭與滑鼠量得到正確的位置) */
+.A-desk[data-close="1"] .dk-scene { width: 96em; height: 54em; aspect-ratio: auto; font-size: calc(100cqw / 54.6); left: -20.7em; top: -2.84em; }
+/* 螢幕剛好填滿畫面:外框四邊都看得到(拍螢幕正面的近照) */
+.A-desk[data-close="1"] .dk-bezel { left: 20.72em; top: 2.86em; width: 54.56em; height: 30.67em; border-radius: 0.5em; }
+/* 標籤放在畫面外的正上方,不蓋住螢幕 */
+.A-desk[data-close="1"] .dk-label { top: auto; right: auto; left: 50%; transform: translateX(-50%); bottom: calc(100% + 100cqw / 96 * 0.9); font-size: calc(100cqw / 96 * 2.6); border-radius: 0.35em; }
+/* 近景時螢幕裡的介面放大 15%,視窗重新排過,字才看得清楚 */
+.A-desk[data-close="1"] .dk-screen { font-size: 1.15em; }
+.A-desk[data-close="1"] .dk-icons { left: 0.5em; top: 1.9em; }
+.A-desk[data-close="1"] .dk-icons .dk-item { width: 5.2em; }
+.A-desk[data-close="1"] .dk-folder { left: 6.2em; top: 2.1em; width: 19.6em; height: 15.6em; }
+.A-desk[data-close="1"] .dk-app { right: 0.7em; top: 1.9em; width: 18.9em; height: 19.4em; }
+.A-desk[data-close="1"] .dk-dialog { right: 1.1em; top: 7.6em; width: 17.9em; }
+.A-desk[data-close="1"] .dk-installer { left: 12em; top: 5.5em; }

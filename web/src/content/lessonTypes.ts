@@ -86,4 +86,6 @@ export type CourseLesson = {
   checkpoint: string[]
   /** 換成自己的資料再做一次的建議 */
   tryYourOwn?: string
+  /** 還是草稿(資料庫 courses_seed.json 的 status 是 draft):只有管理員播得到,課程地圖不算開放的課;開放時兩邊一起改 */
+  draft?: boolean
 }

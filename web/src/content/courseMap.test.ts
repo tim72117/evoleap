@@ -5,6 +5,7 @@ import { LAUNCH_LESSON_PAGES, LAUNCH_OPEN_LESSONS, LAUNCH_UNITS, launchScriptKey
 import { WEB_OPEN_LESSONS, WEB_UNITS, webNeedsLogin } from './webCourse'
 import { COURSES, coursePath, isPreviewLesson } from './catalog'
 import { L2_MODULES } from './l2Outline'
+import { L2_LESSONS } from './l2Lessons'
 import { minutesOf } from '../courses/CourseOverviewPage'
 import { UNITS as AI_AGENT_UNITS } from './aiAgent'
 import { ALL_LEVELS } from './levels'
@@ -121,12 +122,27 @@ describe.each([
 describe('還在規劃的課程(資料庫種子)和前端的規劃一致', () => {
   const seed = (id: string) => (SEED_JSON as Seed[]).find((c) => c.id === id)!
 
-  it('Vibe Coding 入門:單元與每一課(課號、名稱、這一課能做到的事)相同,全部規劃中', () => {
+  it('Vibe Coding 入門:單元與每一課(課號、名稱、這一課能做到的事)相同;寫好的課(l2Lessons.ts)有腳本,草稿與否兩邊一致,其他規劃中', () => {
     const vc = seed('vibe-coding-basics')
     expect(vc.units!.map((u) => [u.id, u.title])).toEqual(L2_MODULES.map((m) => [m.num, m.title]))
-    expect(vc.units!.flatMap((u) => u.lessons.map((l) => [l.id, l.title, l.summary, l.status, l.minutes]))).toEqual(
-      L2_MODULES.flatMap((m) => m.lessons.map((l, i) => [`${m.num}.${i + 1}`, l.title, l.objective, 'planned', minutesOf(l.length)])),
+    const status = (id: string) => {
+      const l = L2_LESSONS.find((x) => x.id === id)
+      return l ? (l.draft ? 'draft' : 'open') : 'planned'
+    }
+    expect(vc.units!.flatMap((u) => u.lessons.map((l) => [l.id, l.title, l.summary, l.status, l.minutes, l.script]))).toEqual(
+      L2_MODULES.flatMap((m) =>
+        m.lessons.map((l, i) => {
+          const id = `${m.num}.${i + 1}`
+          return [id, l.title, l.objective, status(id), minutesOf(l.length), L2_LESSONS.find((x) => x.id === id)?.videos[0].live]
+        }),
+      ),
     )
+    // 課程頁的課名、時間和大綱相同
+    for (const l of L2_LESSONS) {
+      const [num, n] = l.id.split('.')
+      const outline = L2_MODULES.find((m) => m.num === num)!.lessons[Number(n) - 1]
+      expect([l.title, l.length], l.id).toEqual([outline.title, outline.length])
+    }
   })
 
   it('AI Agent 整合應用:單元與目標相同,期末專案的 id 是 capstone', () => {

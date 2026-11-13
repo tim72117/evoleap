@@ -9,6 +9,7 @@ import { UNITS } from './aiAgent'
 import type { CourseLesson } from './lessonTypes'
 import { L0_LESSONS } from './l0Lessons'
 import { L1_LESSONS } from './l1Lessons'
+import { L2_LESSONS } from './l2Lessons'
 import { messages } from '../i18n/current'
 
 export interface PlannedChapter {
@@ -63,7 +64,8 @@ export const COURSES: Course[] = [
   {
     ...fromLevel('vibe-coding-basics', 'vibe-coding', '基礎'),
     status: 'planned',
-    lessons: [],
+    // 寫好內容的課(l2Lessons.ts)放進 lessons,其餘照大綱(l2Outline.ts)是規劃中的章節
+    lessons: L2_LESSONS,
     planned: L2_MODULES.flatMap((m) =>
       m.lessons.map((l, i) => ({
         slug: `${m.num}-${i + 1}`,
@@ -72,7 +74,7 @@ export const COURSES: Course[] = [
         summary: l.objective,
         result: l.result,
       })),
-    ),
+    ).filter((ch) => !L2_LESSONS.some((l) => l.id === ch.label)),
   },
   {
     ...fromLevel('ai-agent', 'ai-agent', 'AI 互動軟體 中階'),
@@ -123,9 +125,9 @@ export function requiresLogin(course: Course, lesson: CourseLesson): boolean {
   return ALL_LEVELS.find((l) => l.link === coursePath(course))?.access === 'login-free' && !isPreviewLesson(lesson)
 }
 
-/** 已開放的單課:有可以播放的影片,序章這類短導覽不算 */
+/** 已開放的單課:有可以播放的影片,序章這類短導覽與草稿(只有管理員看得到)不算 */
 export function openLessonsOf(course: Course): CourseLesson[] {
-  return course.lessons.filter((l) => !l.label && l.videos.some((v) => v.live))
+  return course.lessons.filter((l) => !l.label && !l.draft && l.videos.some((v) => v.live))
 }
 
 /** 顯示用課號：L0 的「0.1」顯示為「1」（第 1 課），其他課顯示原課號（第 1.1 課） */

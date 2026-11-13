@@ -1,0 +1,39 @@
+{
+  "title": "desk：安裝、登入、讀改檔、確認提示",
+  "lesson": "演員展示",
+  "cast": {
+    "a": {
+      "actor": "desk",
+      "props": {
+        "tree": {
+          "文件": {
+            "工作報告.docx": "",
+            "家庭帳本.xlsx": ""
+          },
+          "下載": {
+            "AI 程式助手安裝檔": "",
+            "報稅資料.pdf": "",
+            "旅行照片.zip": ""
+          }
+        }
+      },
+      "place": "full"
+    }
+  },
+  "steps": [
+    { "on": "a", "open": "下載" },
+    { "on": "a", "install": true },
+    { "on": "a", "close": true },
+    { "on": "a", "launch": true },
+    { "on": "a", "signin": "you@example.com" },
+    { "on": "a", "user": "幫我看看工作報告，把錯字改掉" },
+    { "on": "a", "read": "文件/工作報告.docx" },
+    { "on": "a", "edit": "文件/工作報告.docx" },
+    { "on": "a", "run": "ls ~/下載" },
+    { "on": "a", "open": "下載" },
+    { "on": "a", "ask": "rm -rf ~/下載/*", "say": "刪除「下載」裡的 3 個檔案", "will": { "empty": "下載" } },
+    { "on": "a", "answer": "deny" },
+    { "on": "a", "ask": "mkdir ~/projects", "say": "在桌面建立 projects 資料夾", "will": { "mkdir": "projects" } },
+    { "on": "a", "answer": "always" }
+  ]
+}

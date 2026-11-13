@@ -73,8 +73,9 @@ export function PlannedCourseOverviewPage({ course }: { course: Course }) {
 export function PlannedChapterPage({ course, chapter }: { course: Course; chapter: PlannedChapter }) {
   const all = course.planned
   const i = all.indexOf(chapter)
-  const prev = all[i - 1]
-  const next = all[i + 1]
+  // 不在規劃清單裡的章節(草稿的課給沒權限的人看的替代頁):前後都連回課程總覽
+  const prev = i >= 0 ? all[i - 1] : undefined
+  const next = i >= 0 ? all[i + 1] : undefined
   const t = useT()
   const p = t.courses.plannedPages
   const label = (c: PlannedChapter) => t.courses.chapterName(c.label)

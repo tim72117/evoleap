@@ -202,6 +202,8 @@ describe('sitemap.xml', () => {
     const has = (path: string) => locs.includes(absoluteUrl(path))
     expect([has('/topics/launch/0-1'), has('/topics/launch/1-1'), has('/topics/launch/2-1'), has('/courses/tools/1'), has('/courses/ai-tools/1-1'), has('/courses/vibe-coding/4-1')]).toEqual([true, true, false, true, false, false])
     expect(PAGES.find((p) => p.path === '/topics/launch/2-1')?.noindex).toBeFalsy()
+    // Vibe Coding 入門 4.2 是草稿(單課頁,不是規劃中章節頁):收錄、不進 sitemap
+    expect([has('/courses/vibe-coding/4-2'), PAGES.find((p) => p.path === '/courses/vibe-coding/4-2')?.lesson]).toEqual([false, { course: 'vibe-coding-basics', id: '4.2' }])
     // 兒童課:序章與單元 1 開放,2.1 起是草稿
     expect([has('/topics/kids/0-1'), has('/topics/kids/1-1'), has('/topics/kids/2-1'), has('/topics/kids/4-5')]).toEqual([true, true, false, false])
     expect(PAGES.find((p) => p.path === '/topics/kids/2-1')?.noindex).toBeFalsy()

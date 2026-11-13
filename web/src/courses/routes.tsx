@@ -2,6 +2,8 @@ import type { JSX } from 'react'
 import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath, requiresLogin, type Course } from '../content/catalog'
 import type { CourseLesson } from '../content/lessonTypes'
 import { AI_AGENT_COURSE_PATH } from '../content/aiAgent'
+import { useCourseMap } from '../content/courseMap'
+import { ALL_LEVELS } from '../content/levels'
 import { AiAgentCoursePage } from './AiAgentCoursePage'
 import { CourseListPage } from './CourseListPage'
 import { CourseOverviewPage } from './CourseOverviewPage'
@@ -24,6 +26,7 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
   ) : (
     <LessonPage key={lesson.id} course={course} lesson={lesson} />
   )
+  if (lesson.draft) return <DraftLessonGate key={lesson.id} course={course} lesson={lesson} page={page} />
   return requiresLogin(course, lesson) ? (
     <GatedLesson key={lesson.id} course={course} lesson={lesson}>
       {page}
@@ -31,6 +34,19 @@ function lessonElement(course: Course, lesson: CourseLesson): JSX.Element {
   ) : (
     page
   )
+}
+
+/**
+ * 草稿的課(lesson.draft):照課程地圖 API 決定給不給看。伺服器只把草稿給管理員(腳本檔也一樣把關),
+ * 其他人(含模擬其他身分的管理員)拿到的是規劃中,這時顯示規劃中的章節頁,不載入播放器。
+ */
+function DraftLessonGate({ course, lesson, page }: { course: Course; lesson: CourseLesson; page: JSX.Element }) {
+  const map = useCourseMap(ALL_LEVELS.find((l) => l.link === coursePath(course))?.id ?? course.slug)
+  // 讀課程地圖的時候不顯示任何內容,但標成載入中(螢幕閱讀器與測試看得到),不是一個沒有說明的空白頁
+  if (map.status === 'loading') return <div role="status" aria-busy="true" data-testid="draft-gate-loading" style={{ minHeight: '60vh' }} />
+  const status = map.status === 'ready' ? map.map.units.flatMap((u) => u.lessons).find((l) => l.id === lesson.id)?.status : undefined
+  if (status === 'draft' || status === 'open') return page
+  return <PlannedChapterPage course={course} chapter={{ slug: lessonPath(course, lesson).split('/').pop()!, label: lesson.id, title: lesson.title, summary: lesson.goal }} />
 }
 
 /** 要登入的單課頁:文字在渲染時取目前語言(路由表是模組層級建好的) */

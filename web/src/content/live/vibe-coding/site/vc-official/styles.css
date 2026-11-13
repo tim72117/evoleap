@@ -1,0 +1,15 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; color: #2b2622; background: #faf6f0; line-height: 1.6; }
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; border-bottom: 1px solid #ece4d8; }
+.brand { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; }
+.mark { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: #e9774b; color: #fff8f0; font-size: 20px; }
+.links { font-size: 17px; color: #6b625a; }
+.links b { color: #2b2622; }
+.hero { max-width: 900px; margin: 0 auto; padding: 90px 48px; text-align: center; }
+h1 { margin: 0 0 14px; font-size: 52px; }
+.lead { margin: 0 0 36px; font-size: 21px; color: #5c544c; }
+.btns { display: flex; justify-content: center; }
+.btn { padding: 18px 46px; border-radius: 14px; font-size: 22px; font-weight: 800; color: #fff; background: #2f2a26; cursor: pointer; }
+.os { margin: 22px 0 0; font-size: 16px; color: #7a7168; }
+.saved { margin: 28px auto 0; width: fit-content; padding: 10px 22px; border-radius: 10px; font-size: 17px; color: #1d6b3a; background: #dcf2e3; visibility: hidden; }
+.saved.on { visibility: visible; }

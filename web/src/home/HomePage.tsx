@@ -20,7 +20,7 @@ const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!
 // 這個主題的等級(起步、零基礎、基礎);中階、進階在主題「打造 AI 互動軟體」
 const LADDER = COURSES.filter((c) => LEVELS.some((l) => l.link === coursePath(c))).map((c) => ({
   name: c.level,
-  open: c.lessons.some((l) => l.videos.some((v) => v.live)),
+  open: c.lessons.some((l) => !l.draft && l.videos.some((v) => v.live)),
 }))
 
 const TOPIC_ICONS = {

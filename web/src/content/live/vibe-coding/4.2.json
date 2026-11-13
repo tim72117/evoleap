@@ -1,0 +1,721 @@
+{
+  "title": "安裝、登入與權限",
+  "lesson": "Vibe Coding 入門 · 單元 4 · 4.2",
+  "camera": "auto",
+  "cast": {
+    "desk": {
+      "actor": "desk",
+      "props": {
+        "tree": {
+          "文件": {
+            "工作報告.docx": "",
+            "家庭帳本.xlsx": ""
+          },
+          "旅行照片": {
+            "海邊.jpg": "",
+            "夕陽.jpg": ""
+          },
+          "下載": {
+            "報稅資料.pdf": "",
+            "旅行照片.zip": "",
+            "合約掃描.pdf": "",
+            "會議記錄.docx": "",
+            "舊的安裝檔": "",
+            "孩子的作業.jpg": ""
+          }
+        },
+        "installed": true,
+        "running": true,
+        "account": "you@example.com"
+      },
+      "place": "full",
+      "hidden": true
+    },
+    "deny": {
+      "actor": "desk",
+      "props": {
+        "tree": {
+          "文件": {
+            "工作報告.docx": "",
+            "家庭帳本.xlsx": ""
+          },
+          "下載": {
+            "報稅資料.pdf": "",
+            "旅行照片.zip": "",
+            "合約掃描.pdf": "",
+            "會議記錄.docx": "",
+            "舊的安裝檔": "",
+            "孩子的作業.jpg": ""
+          }
+        },
+        "installed": true,
+        "running": true,
+        "account": "you@example.com",
+        "open": "下載",
+        "label": "按「拒絕」",
+        "close": true
+      },
+      "place": {
+        "x": 30,
+        "y": 160,
+        "w": 920,
+        "h": 518
+      },
+      "hidden": true
+    },
+    "allow": {
+      "actor": "desk",
+      "props": {
+        "tree": {
+          "文件": {
+            "工作報告.docx": "",
+            "家庭帳本.xlsx": ""
+          },
+          "下載": {
+            "報稅資料.pdf": "",
+            "旅行照片.zip": "",
+            "合約掃描.pdf": "",
+            "會議記錄.docx": "",
+            "舊的安裝檔": "",
+            "孩子的作業.jpg": ""
+          }
+        },
+        "installed": true,
+        "running": true,
+        "account": "you@example.com",
+        "open": "下載",
+        "label": "按「允許一次」",
+        "close": true
+      },
+      "place": {
+        "x": 970,
+        "y": 160,
+        "w": 920,
+        "h": 518
+      },
+      "hidden": true
+    },
+    "search": {
+      "actor": "browser",
+      "props": {
+        "site": "vc-search",
+        "url": "搜尋：AI 程式助手 下載"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "official": {
+      "actor": "browser",
+      "props": {
+        "site": "vc-official",
+        "url": "https://（講義上的官方網址）/download"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "pc": {
+      "actor": "desk",
+      "props": {
+        "tree": {
+          "文件": {
+            "工作報告.docx": "",
+            "家庭帳本.xlsx": ""
+          },
+          "下載": {
+            "AI 程式助手安裝檔": ""
+          }
+        }
+      },
+      "place": "full",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "新的 session",
+        "folder": "~",
+        "branch": null,
+        "mode": "accept",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "title": "家目錄",
+        "tree": {
+          "文件": {
+            "工作報告.docx": "",
+            "家庭帳本.xlsx": ""
+          },
+          "下載": {
+            "報稅資料.pdf": "",
+            "旅行照片.zip": ""
+          },
+          "圖片": {},
+          "音樂": {}
+        }
+      },
+      "place": "center",
+      "hidden": true
+    },
+    "oops": {
+      "actor": "desk",
+      "props": {
+        "tree": {
+          "文件": {
+            "工作報告.docx": "",
+            "家庭帳本.xlsx": ""
+          },
+          "下載": {
+            "報稅資料.pdf": "",
+            "旅行照片.zip": "",
+            "合約掃描.pdf": "",
+            "會議記錄.docx": "",
+            "舊的安裝檔": "",
+            "孩子的作業.jpg": ""
+          }
+        },
+        "installed": true,
+        "running": true,
+        "account": "you@example.com",
+        "open": "下載",
+        "label": "如果按下去……"
+      },
+      "place": "full",
+      "hidden": true
+    },
+    "lena": {
+      "actor": "person",
+      "props": {
+        "name": "Lena",
+        "look": "teacher"
+      },
+      "place": {
+        "x": 560,
+        "y": 330,
+        "w": 800,
+        "h": 360
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "show": "desk",
+      "chapter": "它會在你的電腦上動手",
+      "narration": "嗨，我是 Lena。"
+    },
+    {
+      "wait": 400,
+      "narration": "今天要把會動手的 AI 程式助手裝好、登入，再請它建立整門課的工作資料夾。過程中會遇到它的確認提示，我們一起練習怎麼判斷該不該允許。"
+    },
+    {
+      "wait": 400,
+      "narration": "上一課看過三種 AI 程式助手，這門課用的是會在你電腦上動手的那一種。先想像這是你家的電腦：桌面上有文件、旅行照片，還有一個塞滿東西的下載資料夾。"
+    },
+    {
+      "on": "desk",
+      "user": "幫我看看工作報告，把錯字改掉",
+      "narration": "你請助手幫忙看工作報告、改錯字。"
+    },
+    {
+      "on": "desk",
+      "read": "文件/工作報告.docx",
+      "narration": "它會自己打開你電腦上的檔案來讀。"
+    },
+    {
+      "on": "desk",
+      "edit": "文件/工作報告.docx",
+      "narration": "讀完，直接在檔案裡改。"
+    },
+    {
+      "on": "desk",
+      "run": "ls ~/下載",
+      "narration": "它還會在你的電腦上執行指令，像是列出、搬移，甚至刪除檔案。"
+    },
+    {
+      "on": "desk",
+      "open": "下載",
+      "narration": "打開下載資料夾看看，裡面有報稅資料、合約掃描、孩子的作業。"
+    },
+    {
+      "on": "desk",
+      "user": "幫我把下載資料夾清乾淨",
+      "narration": "這時你隨口說一句：幫我把下載資料夾清乾淨。"
+    },
+    {
+      "on": "desk",
+      "ask": "rm -rf ~/下載/*",
+      "say": "刪除「下載」裡的 6 個檔案，不會進垃圾桶",
+      "will": {
+        "empty": "下載"
+      },
+      "narration": "它真的會動手，所以要刪東西之前，先停下來問你。"
+    },
+    {
+      "hide": "desk"
+    },
+    {
+      "show": "deny",
+      "ask": "rm -rf ~/下載/*",
+      "say": "刪除「下載」裡的 6 個檔案，不會進垃圾桶",
+      "will": {
+        "empty": "下載"
+      },
+      "focus": false,
+      "narration": "同一個提示，兩種回答，結果差很多。"
+    },
+    {
+      "show": "allow",
+      "ask": "rm -rf ~/下載/*",
+      "say": "刪除「下載」裡的 6 個檔案，不會進垃圾桶",
+      "will": {
+        "empty": "下載"
+      },
+      "focus": false
+    },
+    {
+      "on": "deny",
+      "answer": "deny",
+      "focus": false,
+      "narration": "按拒絕，它就不動手，六個檔案都還在。"
+    },
+    {
+      "on": "allow",
+      "answer": "once",
+      "focus": false,
+      "narration": "按允許，六個檔案一下子就不見了。而且沒有進垃圾桶，找不回來。"
+    },
+    {
+      "wait": 600,
+      "narration": "所以它動手前一定會問你。按下去之前看清楚，你才是最後決定的人。"
+    },
+    {
+      "hide": "deny"
+    },
+    {
+      "hide": "allow"
+    },
+    {
+      "show": "search",
+      "chapter": "從官方網站下載安裝",
+      "lessonStep": 1,
+      "narration": "先把助手裝起來。我們還沒學終端機，所以選有安裝程式、或桌面 App 的版本。打開瀏覽器搜尋它的名字。"
+    },
+    {
+      "callout": "search:sel:#ad1",
+      "text": "標著「贊助」的是廣告",
+      "narration": "最上面幾筆標著贊助，是廣告。有些會假裝成官方，下載到的可能是被動過手腳的程式。"
+    },
+    {
+      "on": "search",
+      "click": "#official",
+      "narration": "對照講義上的官方網址，點官方網站那一筆。"
+    },
+    {
+      "hide": "search"
+    },
+    {
+      "show": "official",
+      "narration": "這就是官方網站的下載頁。"
+    },
+    {
+      "on": "official",
+      "click": "#dl",
+      "narration": "按下載桌面版。"
+    },
+    {
+      "hide": "official"
+    },
+    {
+      "show": "pc",
+      "open": "下載",
+      "narration": "回到你的電腦，安裝檔已經在下載資料夾裡。"
+    },
+    {
+      "on": "pc",
+      "install": true,
+      "narration": "點兩下打開它，照畫面按下一步。裝好之後，就會多一個它的圖示。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "照講義上的官方網址，下載 AI 程式助手的桌面版並安裝。看得到它的圖示，按「完成了，繼續」。"
+    },
+    {
+      "on": "pc",
+      "close": true,
+      "chapter": "登入，權限選「每次都詢問」",
+      "lessonStep": 2
+    },
+    {
+      "on": "pc",
+      "launch": true,
+      "narration": "點它的圖示，打開助手。"
+    },
+    {
+      "on": "pc",
+      "signin": "you@example.com",
+      "narration": "第一次打開會請你登入。照畫面指示，在瀏覽器裡用你自己的帳號登入。密碼自己輸入，不要給別人，也不要貼給 AI。"
+    },
+    {
+      "hide": "pc"
+    },
+    {
+      "show": "claude",
+      "narration": "登入後就是這個畫面。我們以 Claude 的桌面版為例，其他助手的位置大同小異。"
+    },
+    {
+      "callout": "claude:sidebar",
+      "text": "看得到帳號，代表登入成功",
+      "narration": "左下角看得到帳號，代表登入成功了。"
+    },
+    {
+      "callout": "claude:head",
+      "text": "它工作的資料夾：家目錄（~）",
+      "narration": "上方是它現在工作的資料夾。波浪號代表家目錄，也就是你這個使用者自己的資料夾。"
+    },
+    {
+      "callout": "claude:mode",
+      "text": "權限模式：現在是 Accept edits",
+      "narration": "接著看權限模式。現在是 Accept edits，改檔案前不會先問你。"
+    },
+    {
+      "on": "claude",
+      "mode": "ask",
+      "narration": "入門階段請切成每次都詢問，這裡叫 Ask permissions。它要讀檔、改檔、執行指令之前，都會先停下來問你。"
+    },
+    {
+      "callout": "claude:mode",
+      "text": "每次都詢問（Ask permissions）",
+      "narration": "以後每一次，都由你看過再決定。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "打開助手，用你自己的帳號登入；權限模式選「每次都詢問」（Ask permissions）。做完按「完成了，繼續」。"
+    },
+    {
+      "on": "claude",
+      "user": "請在家目錄建立一個 projects 資料夾，之後這門課的作業都放在這裡。",
+      "chapter": "建立整門課的工作資料夾",
+      "lessonStep": 3,
+      "narration": "請它在家目錄建立一個 projects 資料夾，當作整門課的工作區。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "好的，我會在家目錄建立 `projects` 資料夾。"
+    },
+    {
+      "on": "claude",
+      "ask": "mkdir projects",
+      "q": "Claude 想要執行這個指令",
+      "where": "~",
+      "note": "這會在家目錄建立 projects 資料夾",
+      "narration": "它沒有直接動手，跳出了確認提示。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "先看三件事：做什麼？在哪裡？會不會刪掉或改掉東西？",
+      "narration": "按下去之前先看三件事：要做什麼、在哪個資料夾、會不會刪掉或改掉東西。mkdir 是建立資料夾，位置在家目錄，不會動到別的檔案。"
+    },
+    {
+      "checkpoint": "Claude 想建立 projects 資料夾，你要允許嗎？",
+      "body": "先看三件事：做什麼、在哪個資料夾、會不會刪掉或改掉東西。",
+      "id": "mkdir",
+      "stage": {
+        "focus": "claude:ask"
+      },
+      "options": [
+        {
+          "label": "允許一次",
+          "target": "claude:option:1",
+          "steps": [
+            {
+              "on": "claude",
+              "choose": 1,
+              "narration": "三件事都沒問題，選允許一次。"
+            }
+          ]
+        },
+        {
+          "label": "拒絕",
+          "target": "claude:option:0",
+          "steps": [
+            {
+              "on": "claude",
+              "choose": 0,
+              "narration": "你拒絕了，它就不會動手。這個資料夾我們需要，再請它建立一次。"
+            },
+            {
+              "on": "claude",
+              "say": "好的，我不會建立這個資料夾。"
+            },
+            {
+              "on": "claude",
+              "user": "請在家目錄建立一個 projects 資料夾，之後這門課的作業都放在這裡。"
+            },
+            {
+              "on": "claude",
+              "thinking": true,
+              "ms": 900
+            },
+            {
+              "on": "claude",
+              "ask": "mkdir projects",
+              "q": "Claude 想要執行這個指令",
+              "where": "~",
+              "note": "這會在家目錄建立 projects 資料夾"
+            },
+            {
+              "on": "claude",
+              "choose": 1,
+              "narration": "這次允許一次。"
+            }
+          ]
+        },
+        {
+          "label": "一律允許",
+          "target": "claude:option:2",
+          "steps": [
+            {
+              "on": "claude",
+              "choose": 2,
+              "narration": "一律允許之後，同類的指令它就不會再問你。入門階段先不要選這個，每一次都自己看過。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "先看示範",
+        "steps": [
+          {
+            "on": "claude",
+            "choose": 1,
+            "hover": [
+              2
+            ],
+            "narration": "沒問題，選允許一次。旁邊的一律允許先不要按，入門階段每一次都自己看過。"
+          }
+        ]
+      }
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "mkdir projects",
+      "result": "已完成"
+    },
+    {
+      "on": "claude",
+      "say": "已建立 `~/projects`，之後的作業都可以放在這裡。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "finder",
+      "narration": "打開家目錄看看。"
+    },
+    {
+      "on": "finder",
+      "mkdir": "projects",
+      "narration": "真的多了一個 projects 資料夾。這就是它在你電腦上動手的結果。"
+    },
+    {
+      "hide": "finder"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "複製右側的提示詞，請助手在家目錄建立 projects 資料夾。看到確認提示，先看清楚三件事再按「允許一次」，再打開檔案總管或 Finder，確認資料夾真的出現。做完按「完成了，繼續」。"
+    },
+    {
+      "show": "claude",
+      "chapter": "會刪檔的要求，先拒絕",
+      "lessonStep": 4,
+      "narration": "最後練習拒絕。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我把下載資料夾清乾淨",
+      "narration": "又是那句隨口的話：幫我把下載資料夾清乾淨。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "ask": "rm -rf ~/下載/*",
+      "q": "Claude 想要執行這個指令",
+      "where": "~",
+      "note": "這會刪除下載資料夾裡的所有檔案，而且不會進垃圾桶"
+    },
+    {
+      "checkpoint": "它想執行 rm -rf ~/下載/*，你會怎麼選？",
+      "body": "rm 是刪除。想一想：裡面有什麼，你看過了嗎？",
+      "id": "clean",
+      "stage": {
+        "focus": "claude:ask"
+      },
+      "options": [
+        {
+          "label": "拒絕",
+          "target": "claude:option:0",
+          "steps": [
+            {
+              "on": "claude",
+              "choose": 0,
+              "narration": "對。裡面有什麼你都還沒看過，刪了又找不回來，先拒絕。"
+            }
+          ]
+        },
+        {
+          "label": "允許一次",
+          "target": "claude:option:1",
+          "steps": [
+            {
+              "show": "oops",
+              "ask": "rm -rf ~/下載/*",
+              "say": "刪除「下載」裡的 6 個檔案，不會進垃圾桶",
+              "will": {
+                "empty": "下載"
+              },
+              "narration": "先等一下，看看按下去會怎樣。"
+            },
+            {
+              "on": "oops",
+              "answer": "once",
+              "narration": "報稅資料、合約、孩子的作業，全部不見，也沒有進垃圾桶。"
+            },
+            {
+              "hide": "oops"
+            },
+            {
+              "on": "claude",
+              "choose": 0,
+              "narration": "還好這只是示範。這次改按拒絕。"
+            }
+          ]
+        },
+        {
+          "label": "一律允許",
+          "target": "claude:option:2",
+          "steps": [
+            {
+              "show": "oops",
+              "ask": "rm -rf ~/下載/*",
+              "say": "刪除「下載」裡的 6 個檔案，不會進垃圾桶",
+              "will": {
+                "empty": "下載"
+              },
+              "narration": "先等一下，看看按下去會怎樣。"
+            },
+            {
+              "on": "oops",
+              "answer": "always",
+              "narration": "檔案全部不見。而且一律允許之後，下次它再刪東西，也不會問你了。"
+            },
+            {
+              "hide": "oops"
+            },
+            {
+              "on": "claude",
+              "choose": 0,
+              "narration": "還好這只是示範。這次改按拒絕。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "先看示範",
+        "steps": [
+          {
+            "on": "claude",
+            "choose": 0,
+            "hover": [
+              1
+            ],
+            "narration": "裡面有什麼，我們自己都還沒看過，刪了又找不回來。所以選拒絕。"
+          }
+        ]
+      }
+    },
+    {
+      "on": "claude",
+      "say": "好的，我不會刪除任何檔案。要不要我先列出下載資料夾裡有哪些檔案，讓你挑要刪哪些？",
+      "narration": "拒絕了，它就不動手，還會問你要不要換個做法。"
+    },
+    {
+      "on": "claude",
+      "user": "請列出下載資料夾裡有哪些檔案，先不要刪除或搬移任何東西。",
+      "narration": "那就請它先列出來，而且講清楚，不要刪、也不要搬。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "ask": "ls -lh ~/下載",
+      "q": "Claude 想要執行這個指令",
+      "where": "~",
+      "note": "只會列出檔案，不會改動任何東西",
+      "narration": "這次是 ls，只是列出檔案，不會改動任何東西。"
+    },
+    {
+      "on": "claude",
+      "choose": 1,
+      "narration": "看得懂、不會刪改東西，就可以允許一次。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "ls -lh ~/下載",
+      "result": "6 個檔案",
+      "out": "報稅資料.pdf      2.1M\n旅行照片.zip      840M\n合約掃描.pdf      3.4M\n會議記錄.docx      56K\n舊的安裝檔        212M\n孩子的作業.jpg    1.8M"
+    },
+    {
+      "on": "claude",
+      "say": "下載資料夾裡有 6 個檔案。最占空間的是 `旅行照片.zip`（840M）和 `舊的安裝檔`（212M）。報稅資料、合約看起來很重要，建議留著。要刪哪幾個，告訴我檔名就好。",
+      "narration": "列出來看過，你再決定刪哪幾個。要刪的時候，它還是會先問你。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "複製右側的提示詞，請助手列出下載資料夾裡的檔案。確認提示的指令是 ls、只會列出檔案，才按「允許一次」；看到 rm 這種會刪除的指令，就按「拒絕」。做完按「完成了，繼續」。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "lena",
+      "chapter": "學會"
+    },
+    {
+      "on": "lena",
+      "say": "官方網站安裝・選每次都詢問・看清楚再允許",
+      "mood": "happy",
+      "narration": "今天學會三件事：只從官方網站安裝；權限模式選每次都詢問；每次確認提示，看清楚要做什麼、在哪裡、會不會刪掉東西，再決定允許或拒絕。"
+    },
+    {
+      "on": "lena",
+      "say": "下一課：請它幫你安裝 Node.js",
+      "mood": "happy",
+      "narration": "projects 資料夾準備好了。下一課，我們就請助手幫你安裝 Node.js，一樣每個指令都先看懂再允許。"
+    },
+    {
+      "hide": "lena"
+    }
+  ]
+}

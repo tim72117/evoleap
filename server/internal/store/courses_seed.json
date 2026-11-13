@@ -173,8 +173,9 @@
             "id": "4.2",
             "title": "安裝、登入與權限",
             "summary": "依官方說明安裝並登入選定的助手（這時還沒學終端機，優先用安裝程式或桌面 App 的版本），理解它讀檔、改檔、執行指令前的確認機制。",
-            "status": "planned",
-            "minutes": 30
+            "status": "draft",
+            "minutes": 30,
+            "script": "vibe-coding/4.2.json"
           },
           {
             "id": "4.3",

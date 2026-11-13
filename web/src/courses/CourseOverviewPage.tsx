@@ -47,10 +47,20 @@ const CHEVRON = 'M9 6l6 6-6 6'
 /** 讀到資料庫之前與讀不到時:用前端 catalog.ts 的課(有即時教學腳本的就是開放)。
  *  每一課的一句話只在資料庫,這裡先留空,免得讀到之後文字整個換掉 */
 function localLessons(course: Course): MapLesson[] {
-  return course.lessons.map((l) => {
+  const ready: MapLesson[] = course.lessons.map((l) => {
     const script = l.videos[0]?.live
-    return { id: l.id, title: l.title, summary: '', access: requiresLogin(course, l) ? 'login-free' : 'free', status: script ? 'open' : 'planned', script, minutes: minutesOf(l.length) }
+    // 草稿只有管理員看得到,備用資料一律當成規劃中
+    return { id: l.id, title: l.title, summary: '', access: requiresLogin(course, l) ? 'login-free' : 'free', status: script && !l.draft ? 'open' : 'planned', script: l.draft ? undefined : script, minutes: minutesOf(l.length) }
   })
+  // 部分章節寫好、其餘規劃中的課(Vibe Coding 入門):規劃中的章節也列出來,依課號排序
+  const planned: MapLesson[] = course.planned.map((ch) => ({ id: ch.label, title: ch.title, summary: '', access: 'free', status: 'planned' }))
+  // 課號「0.intro」這類不是數字的,當成 0(排在同一單元的最前面),免得比較函式回傳 NaN、排序結果看引擎而定
+  const num = (id: string) => id.split('.').map((p) => (Number.isFinite(Number(p)) ? Number(p) : 0))
+  const byId = (a: MapLesson, b: MapLesson) => {
+    const [x, y] = [num(a.id), num(b.id)]
+    return x[0] - y[0] || (x[1] ?? 0) - (y[1] ?? 0)
+  }
+  return planned.length && ready.length ? [...ready, ...planned].sort(byId) : ready
 }
 
 export function CourseOverviewPage({ course }: { course: Course }) {

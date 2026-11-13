@@ -1,8 +1,9 @@
-// 舞台可用的演員(腳本 cast 裡的 "actor" 名稱 → 演員定義)。新增演員:在 actors/<名稱>/ 寫好 actor.ts、actor.css(用 defineActor 宣告),再在這裡登記。
+// 舞台可用的演員(腳本 cast 裡的 "actor" 名稱 → 演員定義)。新增演員:在 actors/<名稱>/ 寫好 actor.ts、actor.css(用 defineActor 宣告),再在這裡登記(體積大、少數課才用的在 lazy.ts 登記,動態載入)。
 import type { AnyActor } from '../types'
 import browser from './browser/actor'
 import chat from './chat/actor'
 import claudeDesktop from './claude-desktop/actor'
+import desk from './desk/actor'
 import devtools from './devtools/actor'
 import domTree from './dom-tree/actor'
 import editor from './editor/actor'
@@ -23,7 +24,7 @@ import netTrip from './net-trip/actor'
 import notes from './notes/actor'
 import person from './person/actor'
 
-export const ACTORS: Record<string, AnyActor> = Object.fromEntries([claudeDesktop, finder, browser, chat, person, notes, editor, macbook, kidWeb, kidTree, kidMail, lt8KidPage, lt9Wear, lt10Magic, lt11Helper, netTrip, devtools, domTree, fx, fc1Terminal, fc2Git, fc3Flow].map((def) => [def.name, def]))
+export const ACTORS: Record<string, AnyActor> = Object.fromEntries([claudeDesktop, finder, browser, chat, person, notes, editor, macbook, kidWeb, kidTree, kidMail, lt8KidPage, lt9Wear, lt10Magic, lt11Helper, netTrip, devtools, domTree, fx, fc1Terminal, fc2Git, fc3Flow, desk].map((def) => [def.name, def]))
 
 
 // 開發時引擎的程式一改就整頁重新載入:舞台、外殼、演員是掛上去就一直在跑的物件,不是 React 元件,
