@@ -20,6 +20,8 @@ WORKDIR /repo/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
+# 前端 build 的 tsc -b 會型別檢查 courseMap.test.ts,它讀這份種子(執行時的程式不讀,存取與開放狀態都由資料庫決定)。
+COPY server/internal/store/courses_seed.json /repo/server/internal/store/courses_seed.json
 # GA4 評估 ID(Vite 於 build 時內嵌):docker build --build-arg VITE_GA_MEASUREMENT_ID=G-XXXX。
 # 未傳或留空時前端完全不載入 Google Analytics。
 ARG VITE_GA_MEASUREMENT_ID=""
