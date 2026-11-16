@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 // E2E 測試(npm run test:e2e):對「正式 build」測試,不是 dev server。
-// 先 npm run build 產生 dist/,再由 Go server 以 -dist 直接提供(含各頁 SEO HTML、404、sitemap),
+// 先 npm run build 產生 dist/,再由 Go server 以 -dist 直接提供(含各頁 SEO HTML、404、依資料庫產生的 sitemap),
 // 資料庫用暫存 SQLite,每次測試都是乾淨的。port 8198 避開開發用的 8190/5190。
 // 管理員必須用 Google 登入,E2E 做不到,所以測內部頁功能的 server(8198)加 -open-studio 不檢查權限;
 // 權限本身由另一台照正式設定跑的 server(8199)測試,見 e2e/studio-access.spec.ts。

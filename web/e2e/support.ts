@@ -2,7 +2,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { expect, type Page, type TestInfo } from '@playwright/test'
+import { expect, type APIRequestContext, type Locator, type Page, type TestInfo } from '@playwright/test'
 
 export const ORIGIN = 'https://evoleap.io'
 export const DIST = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist')
@@ -33,9 +33,19 @@ export function sitemapPaths(xml: string): string[] {
   })
 }
 
-/** 收集測試時(server 還沒啟動)從磁碟讀 build 產生的 sitemap */
+/** build 產生的「可收錄的頁面清單」(dist/sitemap-pages.json);/sitemap.xml 由 server 依資料庫從這份清單產生 */
+export interface SitemapPageEntry {
+  loc: string
+  priority?: number
+  lesson?: { course: string; id: string }
+}
+export function distSitemapPages(): SitemapPageEntry[] {
+  return JSON.parse(readDist('sitemap-pages.json')) as SitemapPageEntry[]
+}
+
+/** 收集測試時(server 還沒啟動)從磁碟讀所有可收錄的頁面路徑(含課頁;課頁實際收不收進 sitemap 看資料庫) */
 export function distSitemapPaths(): string[] {
-  return sitemapPaths(readDist('sitemap.xml'))
+  return distSitemapPages().map((p) => (p.loc.startsWith(ORIGIN) ? p.loc.slice(ORIGIN.length) || '/' : p.loc))
 }
 
 /** dist 內所有預先產生的頁面路徑(dist/<路由>/index.html) */
@@ -155,4 +165,43 @@ export async function openCoursePanel(page: Page) {
   }
   await expect(panel).toBeVisible()
   return panel
+}
+
+/** 照正式設定跑的 server(訪客看到的狀態和正式站一樣;預設的 server 為 -open-studio,每個人都當管理員) */
+export const GATED = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 8198) + 1}`
+
+/** 課程地圖裡的一課,加上依資料算出來的、未登入的人在課程清單看到的標示 */
+export interface MapLesson {
+  id: string
+  title: string
+  status: string
+  script?: string
+  /** 這一課實際的存取方式:課沒寫就照整門課 */
+  access: string
+  label: '免費預覽' | '登入後學習' | '規劃中' | '草稿'
+}
+
+/**
+ * 讀課程地圖(GET /api/courses/{id}/map),依順序回傳每一課。標示由資料決定,不寫死課號或「前幾課」:
+ * 開放的課 access 是 free 標「免費預覽」,其他標「登入後學習」;還沒開放的標「規劃中」(管理員看到草稿標「草稿」)。
+ * base 是要測的 server(預設測試的 server;訪客的畫面用 GATED)。
+ */
+export async function mapLessons(request: APIRequestContext, courseId: string, base = ''): Promise<MapLesson[]> {
+  const res = await request.get(`${base}/api/courses/${courseId}/map`)
+  expect(res.status()).toBe(200)
+  const map = (await res.json()) as { access: string; units: { lessons: { id: string; title: string; status: string; script?: string; access?: string }[] }[] }
+  return map.units.flatMap((u) =>
+    u.lessons.map((l) => {
+      const access = l.access || map.access
+      const label = l.status === 'open' ? (access === 'free' ? '免費預覽' : '登入後學習') : l.status === 'draft' ? '草稿' : '規劃中'
+      return { id: l.id, title: l.title, status: l.status, script: l.script, access, label } as MapLesson
+    }),
+  )
+}
+
+/** 課程清單裡的這一列標示和資料算出來的一樣(開放的課有標示、還沒開放的沒有連結) */
+export async function expectLabel(row: Locator, lesson: MapLesson): Promise<void> {
+  if (lesson.label === '登入後學習') await expect(row.getByRole('img', { name: '登入後學習' }), lesson.id).toBeVisible()
+  else await expect(row, lesson.id).toContainText(lesson.label)
+  if (lesson.status !== 'open' && lesson.label === '規劃中') await expect(row.getByRole('link'), lesson.id).toHaveCount(0)
 }

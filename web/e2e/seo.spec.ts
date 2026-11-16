@@ -1,7 +1,7 @@
 // SEO 與 server 回應的回歸測試:sitemap 每一頁的 <head>、內部頁 noindex、robots.txt、
 // 404/301、快取標頭。全部是 HTTP 請求(不開瀏覽器頁面),只在 desktop project 跑一次。
 import { expect, test } from '@playwright/test'
-import { desktopOnly, distPagePaths, isInternal, ORIGIN, parseHead, sitemapPaths } from './support'
+import { desktopOnly, distPagePaths, distSitemapPages, isInternal, mapLessons, ORIGIN, parseHead, sitemapPaths } from './support'
 
 test.beforeEach(({}, testInfo) => {
   test.skip(desktopOnly(testInfo), 'HTTP 檢查只在 desktop project 跑')
@@ -83,13 +83,34 @@ test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁(�
       expect.soft(h.meta('robots'), `${path}:meta robots`).toEqual(['noindex, nofollow'])
       expect.soft(h.titles.length, `${path}:<title> 數量`).toBe(1)
     } else if (!sitemap.has(path)) {
-      // 還沒開放的課(種子裡是草稿或規劃中)可以收錄但不放進 sitemap(seo/build.ts 的 inSitemap);其他公開頁都要在 sitemap
+      // 還沒開放的課(資料庫裡不是 open)可以收錄但不放進 sitemap;其他公開頁都要在 sitemap
       expect.soft(LESSON_PAGE.test(path), `${path}:公開頁應在 sitemap(或改為內部頁)`).toBe(true)
       const h = parseHead(await (await request.get(path)).text())
       expect.soft(h.meta('robots'), `${path}:還沒開放的課仍可收錄,不能 noindex`).toEqual([])
     }
   }
   for (const path of sitemap) expect.soft(pages, `sitemap 的 ${path} 沒有預先產生的 HTML`).toContain(path)
+})
+
+// /sitemap.xml 由 server 依資料庫產生:頁面清單(dist/sitemap-pages.json)裡的課頁,在 sitemap 裡就是資料庫裡那一課開放(open)
+test('sitemap 的課頁依資料庫:課開放才收錄', async ({ request }) => {
+  const sitemap = new Set(sitemapPaths(await (await request.get('/sitemap.xml')).text()))
+  const lessonPages = distSitemapPages().filter((p) => p.lesson)
+  expect(lessonPages.length).toBeGreaterThan(0)
+  const maps = new Map<string, Awaited<ReturnType<typeof mapLessons>>>()
+  let inCount = 0
+  let outCount = 0
+  for (const p of lessonPages) {
+    const { course, id } = p.lesson!
+    if (!maps.has(course)) maps.set(course, await mapLessons(request, course))
+    const open = maps.get(course)!.find((l) => l.id === id)?.status === 'open'
+    const path = p.loc.slice(ORIGIN.length)
+    expect.soft(sitemap.has(path), `${path}(${course} ${id},資料庫 ${open ? 'open' : '未開放'})`).toBe(open)
+    if (open) inCount++
+    else outCount++
+  }
+  expect(inCount, '資料裡要有開放的課').toBeGreaterThan(0)
+  expect(outCount, '資料裡要有還沒開放的課').toBeGreaterThan(0)
 })
 
 test('所有 /studio 頁都是 noindex', async ({ request }) => {

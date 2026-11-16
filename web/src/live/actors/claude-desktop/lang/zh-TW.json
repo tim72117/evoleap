@@ -19,5 +19,9 @@
   "forked": "從「{title}」分支",
   "switchTo": "切換到「{name}」",
   "menuOf": "「{name}」的選單",
-  "input": "輸入訊息"
+  "input": "輸入訊息",
+  "sent": "Messaged @{name}",
+  "sending": "Messaging @{name}…",
+  "received": "Received a message",
+  "from": "來自「{name}」"
 }

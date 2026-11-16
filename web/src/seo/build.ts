@@ -1,8 +1,6 @@
 // build 時把 pages.ts 的資料轉成檔案內容(只有字串處理,檔案讀寫在 scripts/seo.mjs)。
 import { INTERNAL_PAGES } from './internalPages'
 import { absoluteUrl, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES, type HeadTag, type PageMeta } from './pages'
-// 種子只在建置時讀(這個檔不會打包進前端),免得草稿課的腳本路徑出現在公開的 JS;Docker 建置前端時也會複製這份檔案(見 Dockerfile)
-import courseSeed from '../../../server/internal/store/courses_seed.json'
 
 export { NOT_FOUND }
 
@@ -32,22 +30,21 @@ export function outputFile(page: PageMeta): string {
   return page === NOT_FOUND ? '404.html' : `${page.path.slice(1)}${page.path === '/' ? '' : '/'}index.html`
 }
 
-const SEED: { id: string; units?: { lessons: { id: string; status: string }[] }[] }[] = courseSeed
-
-/** 列入 sitemap 的頁面:可收錄,而且如果是一課的頁面,那一課在種子裡是已開放(open);草稿、規劃中的課不列入 */
-export function inSitemap(p: PageMeta): boolean {
-  if (p.noindex) return false
-  if (!p.lesson) return true
-  const { course, id } = p.lesson
-  return SEED.find((c) => c.id === course)?.units?.flatMap((u) => u.lessons).find((l) => l.id === id)?.status === 'open'
+/** sitemap-pages.json 的一筆:build 只輸出「可收錄的頁面清單」,不判斷課開放了沒有 */
+export interface SitemapPage {
+  loc: string
+  priority?: number
+  /** 這一頁是哪一課;server 的 /sitemap.xml 依資料庫裡那一課的狀態,只收錄已開放(open)的課 */
+  lesson?: { course: string; id: string }
 }
 
-export function sitemapXml(): string {
-  const urls = PAGES.filter(inSitemap).map((p) => {
-    const priority = p.sitemapPriority === undefined ? '' : `<priority>${p.sitemapPriority.toFixed(1)}</priority>`
-    return `  <url><loc>${escapeHtml(absoluteUrl(p.path))}</loc>${priority}</url>`
-  })
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`
+/** 可收錄的頁面(不含內部頁、noindex 的頁);課頁是否收錄由 server 依資料庫決定(server/cmd/server/sitemap.go) */
+export function sitemapPages(): SitemapPage[] {
+  return PAGES.filter((p) => !p.noindex).map((p) => ({
+    loc: absoluteUrl(p.path),
+    ...(p.sitemapPriority === undefined ? {} : { priority: p.sitemapPriority }),
+    ...(p.lesson ? { lesson: p.lesson } : {}),
+  }))
 }
 
 export function robotsTxt(): string {

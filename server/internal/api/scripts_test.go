@@ -2,11 +2,14 @@ package api
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/tim72117/evoleap/internal/store"
 )
 
 // 腳本檔依所屬那一課把關:免費預覽誰都拿得到、登入後免費要登入、草稿只給管理員(其他人當作不存在)
@@ -80,24 +83,60 @@ func TestLessonFileGate(t *testing.T) {
 	}
 }
 
-// 沒接資料庫:照內嵌的種子直接讀腳本目錄,只有免登入的課拿得到(登入功能停用)
+// 沒接資料庫:沒有種子備援,回 503(課程與腳本只讀資料庫)
 func TestLessonFileWithoutStore(t *testing.T) {
+	h := New(Config{}).Routes()
+	if rec := call(h, http.MethodGet, "/api/scripts/l0/0.intro.json", "", nil); rec.Code != http.StatusServiceUnavailable {
+		t.Errorf("沒接資料庫: %d %s", rec.Code, rec.Body)
+	}
+	// 選用的旁白清單、章節音軌清單照舊回 null,不讓瀏覽器記成載入失敗
+	if rec := call(h, http.MethodGet, "/api/scripts/l0/0.intro.voice.json", "", nil); rec.Code != http.StatusOK || rec.Body.String() != "null\n" {
+		t.Errorf("沒接資料庫的旁白清單: %d %q", rec.Code, rec.Body)
+	}
+}
+
+// 單課存取規則依據資料:每一個腳本檔,訪客拿到什麼由資料庫裡那一課的狀態與存取方式決定,
+// 草稿 404、免費(free)200、其他(登入後免費、訂閱)401。不寫死課號或「前幾課」,資料怎麼設就怎麼驗證。
+func TestLessonFileGateFollowsData(t *testing.T) {
 	dir := filepath.Join("..", "..", "..", "web", "src", "content", "live")
 	if _, err := os.Stat(dir); err != nil {
 		t.Skip("沒有腳本目錄(Docker 建置後端時只有 server/)")
 	}
-	h := New(Config{ScriptsDir: dir}).Routes()
-	for path, code := range map[string]int{
-		"l0/0.intro.json":         http.StatusOK,
-		"l0/0.0-tools.json":       http.StatusOK,           // 依順序第二課:不用登入
-		"l0/0.1-project.json":     http.StatusUnauthorized, // 第三課起要登入
-		"launch/0.2.json":         http.StatusOK,
-		"launch/0.3.json":         http.StatusUnauthorized,
-		"launch/1.1.json":         http.StatusUnauthorized,
-		"lab/actors/browser.json": http.StatusNotFound,
-	} {
-		if rec := call(h, http.MethodGet, "/api/scripts/"+path, "", nil); rec.Code != code {
-			t.Errorf("%s: %d %s", path, rec.Code, rec.Body)
+	env := newAdminEnv(t, "boss@example.com")
+	ctx := context.Background()
+	if err := env.st.SyncLessonFiles(ctx, dir); err != nil {
+		t.Fatal(err)
+	}
+	paths, err := env.st.ScriptPaths(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	seen := map[int]int{}
+	for _, p := range paths {
+		if strings.HasSuffix(p, ".voice.json") || strings.HasSuffix(p, ".mix.json") {
+			continue
 		}
+		f, err := env.st.LessonFileOf(ctx, p)
+		if errors.Is(err, store.ErrLessonFileNotFound) {
+			continue // 研發基地的腳本不屬於任何一課
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := http.StatusUnauthorized
+		switch {
+		case f.Status == store.LessonDraft:
+			want = http.StatusNotFound
+		case f.Access == store.AccessFree:
+			want = http.StatusOK
+		}
+		seen[want]++
+		if rec := call(env.h, http.MethodGet, "/api/scripts/"+p, "", nil); rec.Code != want {
+			t.Errorf("%s(%s %s/%s,access=%q):訪客 %d,資料決定的是 %d", p, f.Status, f.CourseID, f.LessonID, f.Access, rec.Code, want)
+		}
+	}
+	// 資料裡至少要有免費與要登入的課,否則這個測試什麼都沒驗證
+	if seen[http.StatusOK] == 0 || seen[http.StatusUnauthorized] == 0 {
+		t.Errorf("資料裡沒有同時包含免費與要登入的課:%v", seen)
 	}
 }

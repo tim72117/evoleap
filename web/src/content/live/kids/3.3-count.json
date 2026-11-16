@@ -56,7 +56,7 @@
         "target": "kid:button:go",
         "text": "點這個按鈕"
       },
-      "narration": "點網頁上的按一下，一直數到 8。看看盒子裡的數字怎麼變。"
+      "narration": "點「按一下」，一直數到 8。看看盒子裡的數字怎麼變。"
     }
   ],
   "interact": {

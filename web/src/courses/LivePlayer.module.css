@@ -22,3 +22,30 @@
   color: #fff;
   text-align: center;
 }
+
+/* 「動手試試」按鈕:浮在播放器右上角 */
+.practiceBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  cursor: pointer;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: #7c5cf0;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 30%);
+}
+
+.practiceBtn:hover {
+  background: #6a49e0;
+}
+
+.practiceBtn:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}

@@ -1,0 +1,36 @@
+{
+  "title": "宣傳片：Claude Code 跨 session 通訊（直式・FB Reels）",
+  "lesson": "宣傳影片",
+  "voice": {"profile": "news", "voice": "Charon", "trim": true, "style": "台灣華語，科技短影音旁白：語速明顯偏快、節奏緊湊，整句一口氣連貫地念，句中與句間幾乎不停頓、不換氣，咬字清楚俐落，重點詞稍微加重，不拖長、不過度熱情"},
+  "camera": "auto",
+  "cast": {
+    "reel": {"actor": "sessions-reel", "place": "full"},
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {"title": "記帳 App", "sessions": ["price-utils"], "folder": "~/Documents/budget-app", "branch": "feat/price-display", "mode": "auto", "dark": false, "cps": {"user": 30, "say": 90}, "labels": {"recent": "最近", "new": "New session"}},
+      "place": {"landscape": {"x": 70, "y": 45, "w": 1780, "h": 990}, "portrait": {"x": 70, "y": 250, "w": 870, "h": 1250}},
+      "parts": {"account": false},
+      "hidden": true
+    }
+  },
+  "steps": [
+    {"scene": "hook", "chapter": "開場", "narration": "用 Claude Code 做專案，常常會同時開好幾個 session，你是不是變成了它們之間的傳話筒？", "ms": 4700, "pause": 0},
+    {"scene": "pain", "chapter": "痛點", "narration": "每次都得複製貼上，另一個 session 不懂背景，還得重講一次。", "ms": 3800, "pause": 0},
+    {"hide": "reel", "pause": 0},
+    {"show": "claude", "chapter": "傳訊息並回覆", "narration": "現在只要一句話，Claude 就能傳訊息給另一個 session。", "focus": "claude:composer", "pause": 0},
+    {"user": "問一下「price-utils」那個 session，formatPrice 怎麼用", "ms": 1800, "pause": 0},
+    {"thinking": true, "ms": 1500, "pause": 0},
+    {"narration": "它會連同背景一起，把問題傳給另一個 session，", "tell": "price-utils", "message": "記帳 App 要用 `formatPrice()` 顯示金額，請告訴我參數和回傳格式？", "open": true, "ms": 2600, "pause": 0},
+    {"state": "wait", "pause": 0},
+    {"narration": "它收到後，直接回覆，", "session": "price-utils", "focus": false, "ms": 1700, "pause": 0},
+    {"narration": "答案就回到原本的對話裡，", "tell": "記帳 App", "message": "`formatPrice(amount, { currency, digits })`，回傳字串，例如 `NT$ 10.5`。", "open": true, "ms": 1700, "pause": 0},
+    {"state": "ok", "pause": 0},
+    {"narration": "完全不用你轉述，也不用重講背景。", "session": "記帳 App", "focus": false, "ms": 2500, "pause": 0},
+    {"hide": "claude", "focus": false, "pause": 0},
+    {"show": "reel", "pause": 0},
+    {"scene": "fetch", "chapter": "取資料", "narration": "這個功能有三種常見用法。第一，取資料：直接問另一個專案，資料規格是什麼。", "ms": 4700, "pause": 0},
+    {"scene": "send", "chapter": "回報問題", "narration": "第二，回報問題：用到另一個專案的功能出了狀況，直接傳訊息通知那個 session。", "ms": 4600, "pause": 0},
+    {"scene": "coord", "chapter": "協調溝通", "narration": "第三，協調溝通：確認細節，修正後發布，再通知你。", "ms": 3700, "pause": 0},
+    {"scene": "follow", "chapter": "追蹤", "narration": "追蹤 evoleap 粉絲團，定期提供 AI 資訊。", "ms": 3600, "pause": 0}
+  ]
+}

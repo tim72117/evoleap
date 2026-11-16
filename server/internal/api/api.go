@@ -26,8 +26,6 @@ type Config struct {
 	AuthRateLimit int
 	// OpenAdmin 為 true 時管理後台 API(/api/admin/*)不檢查登入與白名單(-open-studio,只給本機開發用;Cloud Run 上 main 會拒絕啟動)。
 	OpenAdmin bool
-	// ScriptsDir 是課程腳本檔的目錄(web/src/content/live);沒接資料庫時腳本直接從這裡讀。
-	ScriptsDir string
 	// LiveDir 是本機的 web/src/content/live:設定時腳本檔直接讀磁碟上最新的內容(改腳本不用重啟);Cloud Run 上不設定,讀資料庫。
 	LiveDir string
 	// VerifyGoogle 驗證 Google 登入憑證;nil 時用 auth.VerifyGoogleToken。測試可替換。

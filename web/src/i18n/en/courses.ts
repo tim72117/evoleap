@@ -157,5 +157,23 @@ export const courses: Messages['courses'] = {
 
   live: {
     cannotPlay: "Can't play this video: ",
+    practice: {
+      open: 'Try it yourself',
+      title: 'Practice: Claude Code',
+      note: "This is a simulation; it never touches your files. Click the labeled buttons below to practice, and press Reset to start over.",
+      reset: 'Reset',
+      close: 'Close',
+      moreTitle: 'Try this',
+      createFile: 'Ask the AI to create hello.txt',
+      createFileUser: 'Create hello.txt with the text "Hello"',
+      createFileQ: 'Create this file?',
+      allowed: 'Done, hello.txt is created.',
+      denied: "OK, I won't create this file.",
+      replyToTyped: "This is a practice screen, so nothing really runs. Try the buttons above, or ask the AI to create hello.txt.",
+      modes: { auto: 'Auto-approve', ask: 'Ask before acting', plan: 'Plan first', accept: 'Auto-accept edits' },
+      mode: 'Permission mode: {mode}',
+      send: 'Send',
+      error: "Can't do that right now: ",
+    },
   },
 }

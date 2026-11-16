@@ -2,7 +2,7 @@
 // 前端換頁後 <title> 與 canonical 要和 server 預先產生的 HTML 一致;
 // 每個公開頁與主要內部頁開啟時沒有 console error / 例外 / 失敗的請求。
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
-import { collectErrors, distSitemapPaths, ensureLandscape, landscape, ORIGIN, openCoursePanel, parseHead, loginAsNewStudent } from './support'
+import { collectErrors, distSitemapPaths, ensureLandscape, expectLabel, landscape, mapLessons, ORIGIN, openCoursePanel, parseHead, loginAsNewStudent } from './support'
 
 /** server 回傳的(預先產生的)HTML 裡的 <title> */
 async function serverTitle(request: APIRequestContext, path: string): Promise<string> {
@@ -151,7 +151,7 @@ test('首頁:不放影片預覽,開始第一課連到序章', async ({ page }) =
   expect(errors).toEqual([])
 })
 
-test('網頁怎麼運作:首頁卡片連到主題,前兩課免費預覽、其他開放的課登入後學習,第一課不用登入就能上', async ({ page }) => {
+test('網頁怎麼運作:首頁卡片連到主題,課程清單的標示依資料庫,第一課不用登入就能上', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/')
   const card = page.locator('article').filter({ has: page.getByRole('heading', { name: '網頁怎麼運作', exact: true }) })
@@ -163,11 +163,10 @@ test('網頁怎麼運作:首頁卡片連到主題,前兩課免費預覽、其他
   await expect(page.locator('h1')).toHaveText('網頁怎麼運作')
   await expect(page.getByRole('heading', { name: '課程說明' })).toBeVisible()
   const row = (title: string) => page.locator('#map li').filter({ hasText: title })
-  await expect(row('輸入網址之後發生的事').getByText('免費預覽')).toBeVisible()
-  await expect(row('HTML、CSS、JavaScript 的分工').getByText('免費預覽')).toBeVisible()
-  await expect(row('元素與標籤').getByRole('img', { name: '登入後學習' })).toBeVisible()
-  await expect(row('有意義的區塊').getByText('規劃中')).toBeVisible()
-  await expect(row('有意義的區塊').getByRole('link')).toHaveCount(0)
+  // 每一課的標示(免費預覽、登入後學習、規劃中)依資料庫的課程地圖
+  const lessons = await mapLessons(page.request, 'web')
+  for (const l of lessons) await expectLabel(row(l.title), l)
+  expect(lessons[0]).toMatchObject({ id: '0.1', label: '免費預覽' })
 
   // 第一課不用登入:直接進到互動舞台,側欄有下一課
   await row('輸入網址之後發生的事').getByRole('link').click()

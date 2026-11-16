@@ -32,6 +32,20 @@ describe('claude-desktop 的 session 操作', () => {
   })
 })
 
+describe('claude-desktop 的跨 session 訊息', () => {
+  it('傳給存在的另一個 session;對象不存在、傳給自己、沒寫內容都報錯', () => {
+    expect(() => actor.apply!(start(), 'tell', { tell: 'B', message: '嗨' })).not.toThrow()
+    expect(() => actor.apply!(start(), 'tell', { tell: 'A', message: '回覆', in: 'B' })).not.toThrow()
+    expect(() => actor.apply!(start(), 'tell', { tell: '沒有', message: '嗨' })).toThrow('沒有叫')
+    expect(() => actor.apply!(start(), 'tell', { tell: 'A', message: '嗨' })).toThrow('給自己')
+    expect(() => actor.apply!(start(), 'tell', { tell: 'B', message: '' })).toThrow('message')
+  })
+  it('前景傳送要時間,背景回覆瞬間送達', () => {
+    expect(actor.duration('tell', { tell: 'B', message: '嗨' }, {}, undefined)).toBe(1100)
+    expect(actor.duration('tell', { tell: 'A', message: '嗨', in: 'B' }, {}, undefined)).toBe(1)
+  })
+})
+
 describe('claude-desktop 的可點區', () => {
   const targets = (st: ReturnType<typeof start>) => actor.hotspots!(st, {}).map((h) => h.target)
 

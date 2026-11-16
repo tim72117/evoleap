@@ -11,6 +11,7 @@ import { clearGuestProgress, memberProgress } from './progress'
 import { useGuestView } from './guestActivity'
 import '../live/shell.css'
 import type { PlayerHandle } from './playerHandle'
+import { ClaudePractice } from './ClaudePractice'
 import styles from './LivePlayer.module.css'
 
 // 即時教學畫面:不是影片檔,而是 src/live 的舞台依腳本(src/content/live/)即時畫出,由播放器外殼負責播放。
@@ -41,6 +42,9 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
   onTimeRef.current = onTime
   onCuesRef.current = onCues
   const [error, setError] = useState<string | null>(null)
+  // 腳本有 practice 時,播放中提供「動手試試」(靜態的 Claude Code 練習,見 ClaudePractice.tsx)
+  const [practice, setPractice] = useState<{ props?: Record<string, unknown> } | null>(null)
+  const [practiceOpen, setPracticeOpen] = useState(false)
   const t = useT()
   // 換語言時重建播放器(控制列的文字在建立時決定),從原本的時間接著播
   const { locale } = useLocale()
@@ -75,6 +79,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
     const vp = mountShell(box, { stage: stageEl, title, progress: memberId ? memberProgress(`live:${script}`) : undefined, globalKeys: false, aspect })
     shellRef.current = vp
     setError(null)
+    setPractice(null)
 
     // 語音是選用的:讀不到(例如部署後舊頁面找不到檔案)就只顯示字幕,不影響播放
     Promise.all([loadScript(script), loadVoice(script).catch(() => null), loadMix(script).catch(() => null)])
@@ -96,6 +101,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
           // 有產生旁白語音的段落,播到那裡就播對應的音檔(合成過章節音軌的用章節音軌)
           clips: narrationClips(stage.narrations, voice, mix),
         })
+        setPractice(data.practice ?? null)
         guest.ready()
         if (carry.current > 0) {
           vp.seek(carry.current)
@@ -132,6 +138,19 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
 
   return (
     <div ref={boxRef} className={styles.box} data-aspect={aspect}>
+      {practice && !error && !practiceOpen && (
+        <button
+          type="button"
+          className={styles.practiceBtn}
+          onClick={() => {
+            shellRef.current?.pause()
+            setPracticeOpen(true)
+          }}
+        >
+          {t.courses.live.practice.open}
+        </button>
+      )}
+      {practice && practiceOpen && <ClaudePractice props={practice.props} onClose={() => setPracticeOpen(false)} />}
       {error && <ScriptError className={styles.error} prefix={t.courses.live.cannotPlay} error={error} />}
     </div>
   )

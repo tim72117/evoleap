@@ -14,30 +14,40 @@ import (
 // 課程的腳本依所屬那一課把關:管理員都看得到;其他人只拿得到已開放(open)的課,access free 不用登入,login-free 要登入,
 // 訂閱課程等訂閱功能上線前不給。研發基地的腳本(不屬於任何一課)只給管理員。
 // 拿不到的草稿、規劃中的課與研發基地的腳本,對其他人一律當作不存在(404,選用的旁白與章節音軌清單回 null),不透露有這個檔。
-// 沒接資料庫時(Cloud Run 沒設 DATABASE_URL)直接照內嵌的種子讀 ScriptsDir 裡的檔:登入功能停用,所以只有免登入的課拿得到。
+// 課程與腳本只讀資料庫,沒有種子備援:沒接資料庫時回 503。
+// writeOptionalNull:旁白清單(.voice.json)、章節音軌清單(.mix.json)是選用的(很多腳本沒有):
+// 沒有或看不到時回 null(200),瀏覽器不會記成載入失敗。是這兩種就回應並回傳 true。
+func writeOptionalNull(w http.ResponseWriter, path string) bool {
+	if !strings.HasSuffix(path, ".voice.json") && !strings.HasSuffix(path, ".mix.json") {
+		return false
+	}
+	w.Header().Set("Cache-Control", "private, no-store")
+	writeJSON(w, http.StatusOK, nil)
+	return true
+}
+
 func (s *Server) handleLessonFile(w http.ResponseWriter, r *http.Request) {
 	path := r.PathValue("path")
 	user, loggedIn := s.currentUser(r)
 	admin := s.cfg.OpenAdmin || (loggedIn && s.isAdmin(user))
 	notFound := func() {
-		// 旁白清單、章節音軌清單是選用的(很多腳本沒有):沒有或看不到時回 null(200),瀏覽器不會記成載入失敗
-		if strings.HasSuffix(path, ".voice.json") || strings.HasSuffix(path, ".mix.json") {
-			w.Header().Set("Cache-Control", "private, no-store")
-			writeJSON(w, http.StatusOK, nil)
+		if writeOptionalNull(w, path) {
 			return
 		}
 		writeError(w, http.StatusNotFound, "not_found", "找不到這個腳本")
 	}
 
+	if s.cfg.Store == nil {
+		// 選用的旁白清單、章節音軌清單照舊回 null,其他回 503
+		if writeOptionalNull(w, path) {
+			return
+		}
+		writeError(w, http.StatusServiceUnavailable, "no_database", "課程資料還沒連上資料庫")
+		return
+	}
 	var content string
 	public := false
-	var f store.LessonFile
-	var err error
-	if s.cfg.Store == nil {
-		f, err = store.SeedLessonFile(s.cfg.ScriptsDir, path)
-	} else {
-		f, err = s.cfg.Store.LessonFileOf(r.Context(), path)
-	}
+	f, err := s.cfg.Store.LessonFileOf(r.Context(), path)
 	// 兒童模式(kids.go):只給兒童課、只在上課時段給;排在管理員之前,家長是管理員也一樣
 	if err == nil || errors.Is(err, store.ErrLessonFileNotFound) {
 		if s.kidsGate(w, r, user, loggedIn, f) {
@@ -47,7 +57,7 @@ func (s *Server) handleLessonFile(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case errors.Is(err, store.ErrLessonFileNotFound):
 		// 不屬於任何一課:研發基地的腳本(要有資料庫,只給管理員)
-		if !admin || s.cfg.Store == nil {
+		if !admin {
 			notFound()
 			return
 		}

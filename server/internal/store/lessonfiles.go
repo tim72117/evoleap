@@ -179,31 +179,6 @@ func effectiveAccess(lesson, course string) Access {
 	return Access(lesson)
 }
 
-// SeedLessonFile 不經資料庫,直接從內嵌的種子與 dir 裡的檔案找一課的腳本檔:沒接資料庫時用,讓免登入的課照常能播。
-func SeedLessonFile(dir, path string) (LessonFile, error) {
-	var seeds []courseSeedRow
-	if err := json.Unmarshal(courseSeed, &seeds); err != nil {
-		return LessonFile{}, fmt.Errorf("parse course seed: %w", err)
-	}
-	for _, c := range seeds {
-		for _, u := range c.Units {
-			for _, l := range u.Lessons {
-				for _, p := range lessonFilePaths(dir, l) {
-					if p != path {
-						continue
-					}
-					b, err := os.ReadFile(filepath.Join(dir, p))
-					if err != nil {
-						return LessonFile{}, err
-					}
-					return LessonFile{CourseID: c.ID, LessonID: l.ID, Status: l.Status, Access: effectiveAccess(l.Access, c.Access), Content: string(b)}, nil
-				}
-			}
-		}
-	}
-	return LessonFile{}, ErrLessonFileNotFound
-}
-
 // StudioFileOf 回傳研發基地用的腳本檔內容;沒有這個檔回 ErrLessonFileNotFound。
 func (s *Store) StudioFileOf(ctx context.Context, path string) (string, error) {
 	var f studioFileRow

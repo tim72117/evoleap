@@ -7,8 +7,8 @@ import react from '@vitejs/plugin-react'
 import { devGateDecision, gatedKind } from './src/site/devStudioGate'
 import { STUDIO_TOKEN_COOKIE, studioDevToken } from './scripts/lib/studioToken.mjs'
 
-// 開發時也提供 /sitemap.xml 與 /robots.txt(正式環境由 scripts/seo.mjs 在 build 時寫進 dist),
-// 內容來自同一份 src/seo/build.ts,每次請求即時產生。
+// 開發時也提供 /robots.txt(正式環境由 scripts/seo.mjs 在 build 時寫進 dist),內容來自同一份 src/seo/build.ts,每次請求即時產生。
+// /sitemap.xml 由後端依資料庫產生,開發時不提供。
 function seoDevFiles(): Plugin {
   return {
     name: 'seo-dev-files',
@@ -16,12 +16,11 @@ function seoDevFiles(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const path = req.url?.split('?')[0]
-        if (path !== '/sitemap.xml' && path !== '/robots.txt') return next()
+        if (path !== '/robots.txt') return next()
         try {
           const seo = await server.ssrLoadModule('/src/seo/build.ts')
-          const xml = path === '/sitemap.xml'
-          res.setHeader('Content-Type', xml ? 'application/xml; charset=utf-8' : 'text/plain; charset=utf-8')
-          res.end(xml ? seo.sitemapXml() : seo.robotsTxt())
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          res.end(seo.robotsTxt())
         } catch (e) {
           next(e)
         }

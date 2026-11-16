@@ -25,13 +25,19 @@
 //   { "menu": "名稱" }                          (滑鼠)按該列的 ⋯ 打開選單,停住等下一個 fork
 //   { "fork": "新名稱", "branch": "…" }         (滑鼠)按選單的 Fork:帶著對話開新的巢狀 session,切過去
 //   { "state": "run"|"ok"|"wait"|"idle" }       設定 session 的狀態燈(送出 user 時自動變 run)
+//   跨 session 通訊(Claude 用 SendMessage 把訊息傳給另一個 session):
+//   { "tell": "對象 session", "message": "…", "open": true }
+//       目前的 session(或 "in" 指定的)傳訊息出去。照真的桌面版:對話裡只是一行灰色的活動摘要
+//       (這邊「Messaged @對象 ›」,對方「Received a message ›」),之後 Claude 用一般的 say 說明;
+//       open 是把那一行展開,看得到訊息內容。送達後對方的狀態燈變成 run。回覆就是對方再 send 回來。
 //   上面的 user、say、tool 等動作可以加 "in": "名稱":瞬間記到那個背景 session,不切畫面,不佔時間(pause 要自己寫 0)。
 //   名稱對不上、沒開選單就 fork 時,載入就報錯並指出第幾步。
 //
 // 目標(給鏡頭、聚光燈、滑鼠用,腳本裡寫成「演員代號:目標」,例如 claude:ask):
 //   composer、input、send、mode、model、head、sidebar、log、latest(對話最底下那一帶)、ask(最後一個確認提示)、
 //   option:N(待選提示的第 N 個選項)、user(最後一則使用者訊息)、say、tool、edit、todos、
-//   new(新增 session 按鈕)、sessions(側欄整份清單)、session:名稱(側欄那一列)、more:名稱(那一列的 ⋯)、menu(選單)、menuitem:項目(例如 menuitem:Fork)
+//   new(新增 session 按鈕)、sessions(側欄整份清單)、session:名稱(側欄那一列)、more:名稱(那一列的 ⋯)、menu(選單)、menuitem:項目(例如 menuitem:Fork)、
+//   sent(最後一張傳出的訊息卡)、inbox(最後一則收到的訊息)
 import { kit } from '../../kit'
 import { defineActor, type ActorEvent, type CommonStepFields, type CursorPlan, type Hotspot } from '../../types'
 import './actor.css'
@@ -54,6 +60,11 @@ export interface ClaudeUi {
   switchTo: string
   menuOf: string
   input: string
+  /** 跨 session 訊息的活動摘要:傳出({name} 是對象)、傳送中、收到;展開後寄件者那一行({name} 是寄件的 session) */
+  sent: string
+  sending: string
+  received: string
+  from: string
 }
 const LANGS: Record<string, ClaudeUi> = Object.fromEntries(
   Object.entries(import.meta.glob('./lang/*.json', { eager: true, import: 'default' }) as Record<string, ClaudeUi>).map(([f, ui]) => [f.replace(/^.*\/|\.json$/g, ''), ui]),
@@ -93,9 +104,10 @@ export type ClaudeStep = CommonStepFields & { in?: string } &
     | { menu: string }
     | { fork: string; branch?: string | null }
     | { state: SessionState }
+    | { tell: string; message: string; open?: boolean }
   )
-type ClaudeKind = 'user' | 'thinking' | 'say' | 'tool' | 'edit' | 'todos' | 'ask' | 'choose' | 'mode' | 'newSession' | 'session' | 'menu' | 'fork' | 'state'
-const KINDS: readonly ClaudeKind[] = ['user', 'thinking', 'say', 'tool', 'edit', 'todos', 'ask', 'choose', 'mode', 'newSession', 'session', 'menu', 'fork', 'state']
+type ClaudeKind = 'user' | 'thinking' | 'say' | 'tool' | 'edit' | 'todos' | 'ask' | 'choose' | 'mode' | 'newSession' | 'session' | 'menu' | 'fork' | 'state' | 'tell'
+const KINDS: readonly ClaudeKind[] = ['user', 'thinking', 'say', 'tool', 'edit', 'todos', 'ask', 'choose', 'mode', 'newSession', 'session', 'menu', 'fork', 'state', 'tell']
 type StepOf<K extends ClaudeKind> = Extract<ClaudeStep, Record<K, unknown>>
 type Ev<K extends ClaudeKind = ClaudeKind> = ActorEvent<ClaudeStep, K>
 
@@ -105,6 +117,7 @@ export type ClaudeTarget =
   | 'ask' | 'user' | 'say' | 'tool' | 'edit' | 'todos'
   | `option:${number}`
   | 'new' | 'menu' | 'sessions' | `session:${string}` | `more:${string}` | `menuitem:${string}`
+  | 'sent' | 'inbox'
 
 interface Labels { new: string; recent: string; placeholder: string; thinking: string }
 interface Cps { user: number; say: number }
@@ -318,6 +331,13 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
         return (step as StepOf<'ask'>).select == null ? { ...st, asking: askOptions(step as StepOf<'ask'>, st.ui) } : st
       case 'choose':
         return { ...st, asking: null }
+      case 'tell': {
+        const s = step as StepOf<'tell'>
+        need(s.tell)
+        if (s.tell === (step.in ?? st.active)) throw new Error(`「${s.tell}」不能傳訊息給自己`)
+        if (!s.message) throw new Error('tell 要寫 message')
+        return st
+      }
       default:
         return st
     }
@@ -355,6 +375,7 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
       case 'ask': return (step as StepOf<'ask'>).select == null ? 900 : 2400
       case 'choose': return choosePlan(step as StepOf<'choose'>).dur
       case 'mode': return 300
+      case 'tell': return 1100
       default: return 1
     }
   },
@@ -479,6 +500,16 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
       return `<div class="card ask pending"><div class="q">${esc(s.q || c.ui.askQuestion)}</div>${s.where ? `<div class="where">▣ ${esc(s.where)}</div>` : ''}<div class="cmd">${esc(s.ask)}</div>${s.preview ? `<div class="preview">${esc(s.preview)}</div>` : ''}${s.note ? `<div class="note">${esc(s.note)}</div>` : ''}<div class="opts">${opts}</div></div>`
     }
 
+    // 跨 session 訊息:照真的桌面版,對話裡是一行灰色的活動摘要(結尾 ›,可展開);open 時下面帶訊息內容
+    const activity = (cls: string, label: string, open: boolean, detail: string, spin = ''): string =>
+      `<div class="activity ${cls}${open ? ' open' : ''}"><div class="act-row">${spin}<span>${label}</span><span class="chev">›</span></div>${open ? `<div class="act-detail">${detail}</div>` : ''}</div>`
+    const sentHtml = (s: StepOf<'tell'>, p: number, ms: number): string =>
+      p >= 1
+        ? activity('msg-out', esc(fill(c.ui.sent, { name: s.tell })), !!s.open, paras(s.message))
+        : activity('msg-out', esc(fill(c.ui.sending, { name: s.tell })), false, '', `<span class="spin" style="--r:${kit.spin(ms, 100).toFixed(1)}deg"></span>`)
+    const inboxHtml = (from: string, s: StepOf<'tell'>): string =>
+      activity('msg-in', esc(c.ui.received), !!s.open, `<div class="act-from">${esc(fill(c.ui.from, { name: from }))}</div>${paras(s.message)}`)
+
     function menuHtml(hoverItem: string): string {
       const rows = MENU_ITEMS.map((it) => {
         if (!it) return '<div class="sep"></div>'
@@ -588,6 +619,16 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
             case 'state':
               log.state = (ev.step as StepOf<'state'>).state
               break
+            case 'tell': {
+              const s = ev.step as StepOf<'tell'>
+              blocks.push(sentHtml(s, p, ms))
+              if (p >= 1) {
+                const to = logOf(s.tell)
+                to.blocks.push(inboxHtml(log.title, s))
+                to.state = 'run'
+              }
+              break
+            }
             case 'newSession': {
               const s = ev.step as StepOf<'newSession'>
               if (local < CLICK.commit) hoverNew = local >= CLICK.arrive
@@ -664,7 +705,7 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
         el.newBtn.classList.toggle('hov', hoverNew)
 
         // 只有一個 session 的腳本:燈號照舊,跟著最後一個動作;有多個 session 時每個 session 自己記狀態
-        const multi = events.some((e) => e.step.in || e.kind === 'state' || clickTarget(e.kind, e.step))
+        const multi = events.some((e) => e.step.in || e.kind === 'state' || e.kind === 'tell' || clickTarget(e.kind, e.step))
         const last = events.at(-1)
         const busy = last && ms < last.start + last.dur
         const single = !events.length ? '' : busy ? 'run' : 'ok'
@@ -715,6 +756,8 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
           case 'tool': return lastOf('.cd-log .tool')
           case 'edit': return lastOf('.cd-log .edit')
           case 'todos': return lastOf('.cd-log .todos-card')
+          case 'sent': return lastOf('.cd-log .msg-out')
+          case 'inbox': return lastOf('.cd-log .msg-in')
         }
         return null
       },

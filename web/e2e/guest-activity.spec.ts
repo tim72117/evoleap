@@ -1,7 +1,7 @@
 // 訪客上課紀錄(src/courses/guestActivity.ts、server/internal/api/guest.go):
 // 未登入打開一課時記一筆、伺服器發 evoleap_guest cookie,播放後暫停會回報播放時間;登入的會員不記。
 import { expect, test } from '@playwright/test'
-import { desktopOnly, loginAsNewStudent } from './support'
+import { GATED, desktopOnly, expectLabel, loginAsNewStudent, mapLessons } from './support'
 
 // 訪客能直接看的只有序章
 const LESSON = '/courses/tools/intro?aspect=landscape'
@@ -46,28 +46,30 @@ test.describe('訪客上課紀錄', () => {
     const opened = (lesson: string) =>
       page.waitForRequest((r) => r.url().endsWith('/api/guest/views') && r.method() === 'POST' && (JSON.parse(r.postData() ?? '{}') as { lesson: string }).lesson === lesson)
     // 照正式設定跑的 server:訪客看到的狀態和正式站一樣
-    const gated = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 8198) + 1}`
+    const gated = GATED
+    const lessons = await mapLessons(page.request, 'launch', gated)
+    const free = lessons.find((l) => l.status === 'open' && l.access === 'free')!
+    // 要登入的開放課:從資料找(這門課開放的課目前都免費預覽時,用別門課的)
+    const loginCourse = (await Promise.all(['launch', 'kids', 'web'].map(async (c) => [c, c === 'launch' ? lessons : await mapLessons(page.request, c, gated)] as const))).find(([, ls]) => ls.some((l) => l.status === 'open' && l.access !== 'free'))!
+    const needLogin = loginCourse[1].find((l) => l.status === 'open' && l.access !== 'free')!
+    const notOpen = lessons.find((l) => l.status !== 'open')!
+    const pathOf = (id: string) => `/topics/launch/${id.replace('.', '-')}`
     const map = opened('page:/topics/launch')
     await page.goto(`${gated}/topics/launch#map`)
     await map
     const rows = page.locator('#map li')
-    await expect(rows.filter({ hasText: '本機與網路上' }).getByText('免費預覽')).toBeVisible()
-    // 依順序前兩課(0.1、0.2)免費預覽,第三課(0.3)起登入後學習
-    await expect(rows.filter({ hasText: '上線前要想清楚的事' }).getByText('免費預覽')).toBeVisible()
-    await expect(rows.filter({ hasText: '哪些檔案絕不能 commit' }).getByRole('img', { name: '登入後學習' })).toBeVisible()
-    // 1.1 已開放、要登入:訪客看到登入後學習
-    await expect(rows.filter({ hasText: '環境變數與設定' }).getByRole('img', { name: '登入後學習' })).toBeVisible()
-    // 2.1 是草稿:訪客看到規劃中、沒有連結
-    await expect(rows.filter({ hasText: '前端、後端與 API' }).getByText('規劃中')).toBeVisible()
-    await expect(rows.filter({ hasText: '前端、後端與 API' }).getByRole('link')).toHaveCount(0)
-    const lesson = opened('live:launch/0.1.json')
-    await page.goto(`${gated}/topics/launch/0-1`)
+    // 每一課的標示依資料庫的課程地圖(免費預覽、登入後學習、規劃中)
+    for (const l of lessons) await expectLabel(rows.filter({ hasText: l.title }), l)
+    const lesson = opened(`live:${free.script}`)
+    await page.goto(`${gated}${pathOf(free.id)}`)
     await lesson
-    await page.goto(`${gated}/topics/launch/1-1`)
-    // 登入視窗彈出來,視窗裡說明要登入
-    await expect(page.getByRole('dialog', { name: '登入' }).getByText('之後的課程要登入才能觀看')).toBeVisible()
-    const notice = opened('page:/topics/launch/2-1')
-    await page.goto(`${gated}/topics/launch/2-1`)
+    // 要登入的開放課:訪客看到登入視窗
+    await page.goto(`${gated}/topics/${loginCourse[0]}/${needLogin.id.replace('.', '-')}`)
+    // 登入視窗彈出來
+    await expect(page.getByRole('dialog', { name: '登入' })).toBeVisible()
+    // 還沒開放的課(草稿對訪客是規劃中):提示頁也記一筆
+    const notice = opened(`page:${pathOf(notOpen.id)}`)
+    await page.goto(`${gated}${pathOf(notOpen.id)}`)
     await notice
     await expect(page.getByText('這一課還沒開放')).toBeVisible()
   })

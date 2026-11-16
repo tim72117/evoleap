@@ -20,8 +20,6 @@ WORKDIR /repo/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
-# 課程的存取方式只寫在這份檔案,前端 build 與後端共用。
-COPY server/internal/store/courses_seed.json /repo/server/internal/store/courses_seed.json
 # GA4 評估 ID(Vite 於 build 時內嵌):docker build --build-arg VITE_GA_MEASUREMENT_ID=G-XXXX。
 # 未傳或留空時前端完全不載入 Google Analytics。
 ARG VITE_GA_MEASUREMENT_ID=""
@@ -31,7 +29,7 @@ ARG VITE_ADSENSE_CLIENT=""
 ENV VITE_ADSENSE_CLIENT=$VITE_ADSENSE_CLIENT
 ARG VITE_ADSENSE_SLOT=""
 ENV VITE_ADSENSE_SLOT=$VITE_ADSENSE_SLOT
-# build 含 scripts/seo.mjs:產生各路由的 HTML(SEO 標籤)、404.html、sitemap.xml、robots.txt。
+# build 含 scripts/seo.mjs:產生各路由的 HTML(SEO 標籤)、404.html、sitemap-pages.json(/sitemap.xml 由後端依資料庫產生)、robots.txt。
 RUN npm run build
 
 # ---- 階段 2:編譯 Go ----

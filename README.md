@@ -30,7 +30,7 @@ web/                 前端（React + Vite + TypeScript）
       docs/            Markdown 文件頁 /docs/*（即時教學畫面規格、錄製工具說明）；文件列表在總覽頁 /studio#docs
       materials/       工具總覽 /materials、宣傳影片 /materials/promo（即時教學畫面播放與逐格輸出掛鉤）、封面設計與裁切工具 /materials/*
       recorder/        宣傳影片錄製工具（舊版 v1 分鏡腳本）：npm run record（JSON 分鏡腳本 → 1080p mp4）
-  scripts/seo.mjs    build 後產生各頁 HTML、sitemap.xml、robots.txt
+  scripts/seo.mjs    build 後產生各頁 HTML、sitemap-pages.json（可收錄的頁面清單）、robots.txt
   scripts/voice.mjs  npm run voice：用 Gemini TTS 產生旁白語音，上傳到 GCS gs://shuttle-voice（見 src/live/README.md「旁白語音」）
   scripts/record-live.mjs  npm run record:live -- promo/xxx.json：把即時教學畫面的宣傳影片腳本（src/content/live/promo/）逐格錄成 1080p mp4 與 .srt，有旁白語音時混入音軌，輸出到 recordings/promo/（--from/--to 毫秒只錄一段）
   scripts/mix.mjs    npm run mix：把連續的旁白依時間軸合成章節音軌（手機播放不斷續），--publish 上傳到 gs://shuttle-voice/mix/
@@ -103,7 +103,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 ## SEO
 
 - 唯一來源：`web/src/seo/pages.ts`（公開頁）、`web/src/seo/internalPages.ts`（內部頁）。課程與章節從 `src/content/catalog.ts`、文章從 `src/studio/articles/registry.ts`／`src/studio/docs/registry.ts` 自動推導；新增其他頁面時在 `PAGES` 加一筆（漏了 build 會失敗並列出缺少的路由）。
-- `npm run build` 最後一步 `node scripts/seo.mjs`：產生 `dist/<路由>/index.html`（title、description、canonical、og:*、twitter:*、JSON-LD）、`dist/404.html`、`sitemap.xml`、`robots.txt`。開發時 `/sitemap.xml`、`/robots.txt` 由 Vite 即時產生。
+- `npm run build` 最後一步 `node scripts/seo.mjs`：產生 `dist/<路由>/index.html`（title、description、canonical、og:*、twitter:*、JSON-LD）、`dist/404.html`、`sitemap-pages.json`（可收錄的頁面清單，課頁標著是哪一課）、`robots.txt`。`/sitemap.xml` 由 Go server 依資料庫每一課的狀態即時產生（只收錄已開放的課，`server/cmd/server/sitemap.go`），開發時沒有；`/robots.txt` 開發時由 Vite 即時產生。
 - 公開頁：`/`、`/topics/*`、`/courses`、`/courses/*`、`/privacy`、`/terms`、`/refund`。內部頁 `/docs*`、`/studio*`、`/materials*` 與 `/login`：noindex（meta + `X-Robots-Tag`）、不列入 sitemap。
 - Go server（`server/cmd/server/static.go`）：頁面回傳對應的 HTML（`Cache-Control: no-cache` + ETag），未知路由回 404 + `404.html`，結尾斜線 301 到不帶斜線的網址；`/assets/*` 一年 immutable 快取。
 - 預設分享圖 `web/public/og-default.png`（1200×630），原始檔 `web/scripts/og-image.html`。

@@ -1,0 +1,11 @@
+/* file-ai:整個演員就是一張 SVG,填滿它的位置 */
+.A-file-ai {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.A-file-ai .fa-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

@@ -19,5 +19,9 @@
   "forked": "Forked from “{title}”",
   "switchTo": "Switch to “{name}”",
   "menuOf": "Menu for “{name}”",
-  "input": "Type a message"
+  "input": "Type a message",
+  "sent": "Messaged @{name}",
+  "sending": "Messaging @{name}…",
+  "received": "Received a message",
+  "from": "From “{name}”"
 }

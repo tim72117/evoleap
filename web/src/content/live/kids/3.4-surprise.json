@@ -14,7 +14,7 @@
           }
         ],
         "box": {
-          "name": "按了幾下",
+          "name": "數到幾",
           "value": 0
         },
         "rules": [
@@ -86,7 +86,7 @@
         "target": "kid:when:boom",
         "text": "條件是 3"
       },
-      "narration": "換你了！這裡的條件是：如果「按了幾下」是 3。"
+      "narration": "換你了！條件是：如果數到幾是 3。"
     },
     {
       "wait": 400,
@@ -94,7 +94,7 @@
         "target": "kid:do:boom",
         "text": "放一個驚喜"
       },
-      "narration": "「就」的格子還是空的。從積木盒選一個驚喜放進去，再按到 3 看看。"
+      "narration": "「就」的格子還是空的。選一個驚喜放進去。"
     },
     {
       "wait": 400,
@@ -102,12 +102,12 @@
         "target": "kid:reload",
         "text": "重新整理"
       },
-      "narration": "按超過 3 也沒關係，按重新整理，盒子就回到 0，可以再來一次。"
+      "narration": "按超過 3 也沒關係。按重新整理，盒子就回到 0。"
     }
   ],
   "interact": {
     "on": "kid",
-    "prompt": "放一個驚喜，再按到 3",
+    "prompt": "放一個驚喜，再數到 3",
     "body": "讓條件成立兩次，集滿 2 顆星星",
     "spots": [
       {
@@ -118,7 +118,7 @@
           {
             "snap": "fire",
             "into": "boom",
-            "narration": "放好放煙火了！按到 3 看看。"
+            "narration": "放進放煙火了！按到 3 看看。"
           }
         ]
       },
@@ -130,7 +130,7 @@
           {
             "snap": "pink",
             "into": "boom",
-            "narration": "放好背景變粉紅了！按到 3 看看。"
+            "narration": "放進背景變粉紅了！按到 3 看看。"
           }
         ]
       },
@@ -142,7 +142,7 @@
           {
             "snap": "blue",
             "into": "boom",
-            "narration": "放好背景變藍色了！按到 3 看看。"
+            "narration": "放進背景變藍色了！按到 3 看看。"
           }
         ]
       },
@@ -154,7 +154,7 @@
           {
             "snap": "yay",
             "into": "boom",
-            "narration": "放好說好棒了！按到 3 看看。"
+            "narration": "放進說好棒了！按到 3 看看。"
           }
         ]
       },
@@ -165,7 +165,7 @@
         "steps": [
           {
             "press": "go",
-            "narration": "按了一下！盒子裡是幾？"
+            "narration": "按一下！現在數到幾？"
           }
         ]
       },

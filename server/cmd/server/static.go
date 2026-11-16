@@ -63,17 +63,17 @@ func newPage(body []byte, internal bool) *page {
 	}
 }
 
-// staticHandler 提供內嵌的前端 build;distDir 非空時改從磁碟目錄讀取
+// distFS 是前端 build 的檔案系統:內嵌的 build;distDir 非空時改從磁碟目錄讀取
 // (本機與 E2E 測試直接用 web/dist,不必複製進 embed 目錄)。
-func staticHandler(distDir string, access accessFunc) http.Handler {
+func distFS(distDir string) fs.FS {
 	if distDir != "" {
-		return newStaticHandler(os.DirFS(distDir), access)
+		return os.DirFS(distDir)
 	}
 	sub, err := fs.Sub(webDist, "web/dist")
 	if err != nil {
 		panic(err)
 	}
-	return newStaticHandler(sub, access)
+	return sub
 }
 
 // newStaticHandler 提供前端 build 產物:
@@ -141,6 +141,11 @@ func newStaticHandler(dist fs.FS, access accessFunc) http.Handler {
 				redirect(w, r, dir)
 				return
 			}
+		}
+		// 建置產物裡給 /sitemap.xml 用的頁面清單(含還沒開放的課):不公開
+		if name == "/"+sitemapPagesFile {
+			http.NotFound(w, r)
+			return
 		}
 		info, err := fs.Stat(dist, name[1:])
 		if err != nil || info.IsDir() {

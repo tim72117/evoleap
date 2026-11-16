@@ -285,3 +285,16 @@
   align-self: center; font-size: 0.8em; color: var(--dim);
   padding: 0.15em 0.9em; border: 1px dashed var(--faint); border-radius: 1em;
 }
+
+/* 跨 session 訊息:照真的桌面版,是一行灰色的活動摘要(結尾 ›);open 時展開,下面是訊息內容 */
+.A-claude-desktop .activity { font-size: 0.92em; color: var(--dim); }
+.A-claude-desktop .activity .act-row { display: flex; align-items: center; gap: 0.45em; }
+.A-claude-desktop .activity .chev { color: var(--faint); }
+.A-claude-desktop .activity.open .chev { transform: rotate(90deg); }
+.A-claude-desktop .activity .act-detail {
+  margin: 0.45em 0 0 0.2em; padding: 0.15em 0 0.15em 0.9em;
+  border-left: 2px solid var(--line); color: var(--fg); font-size: 0.95em;
+}
+.A-claude-desktop .activity .act-from { color: var(--dim); font-size: 0.9em; margin-bottom: 0.2em; }
+.A-claude-desktop .activity .act-detail p { margin: 0 0 0.35em; }
+.A-claude-desktop .activity .act-detail p:last-child { margin-bottom: 0; }

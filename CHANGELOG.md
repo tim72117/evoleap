@@ -4,6 +4,35 @@
 
 ## [Unreleased]
 
+## [0.42.0] - 2026-11-17
+
+依順序前五課免登入、課程與腳本只讀資料庫（移除種子回退）、sitemap 改由資料庫產生；宣傳片「Claude Code 跨 session 通訊」、claude-desktop 傳訊息動作、第 0 課開頭情境動畫、播放中「動手試試」練習、單元 3 語音。沒有資料表或公開 API 的變動；有行為變更與內部符號移除（見「變更」）。
+
+### 變更
+
+- **單課存取規則：每門課依課程順序的前五課不用登入**（原本前兩課）：`courses_seed.json` 把 17 課的 `access` 設成 `free`（tools 0.1、0.2；ai-tools 1.2、2.1、2.2；vibe-coding-basics 4.3、4.4、5.1；web 1.1–1.3；kids 0.3、1.1、1.2；launch 0.3、1.1、1.2）。其中 vibe-coding-basics 4.3 從 `login-free` 改成 `free`；ai-tools 1.2／2.1／2.2、vibe-coding-basics 4.3／4.4／5.1、web 1.3 目前是規劃中，開放後對訪客就是免費預覽。`claude-code`（整門課免費）沒有動。
+  - **移除的符號**：`web/src/content/access.ts`（`FREE_LESSON_COUNT`、`isFreeByOrder`；前端已不做存取判斷，只有測試在用）。
+- **課程與腳本只讀資料庫，沒有種子回退**：移除 `store.SeedLessonFile` 與 `api.Config.ScriptsDir`；後端沒接資料庫（Cloud Run 沒設 `DATABASE_URL`）時，`/api/scripts/*` 回 503（選用的 `.voice.json`、`.mix.json` 仍回 `null`），原本會照內嵌種子提供免登入的課。啟動訊息與註解已說明。`cmd/server` 的 `staticHandler` 移除，改用 `distFS` 加 `newStaticHandler`。
+- **sitemap.xml 由後端依資料庫產生**（`server/cmd/server/sitemap.go`）：前端 build 不再讀種子，只輸出 `dist/sitemap-pages.json`（可收錄的頁面清單，課頁標著是哪一課）；`/sitemap.xml` 依資料庫每一課的 `status`，只收錄已開放（open）的課，程序內快取 1 分鐘，資料庫查不到時用上一次的結果。`sitemap-pages.json` 不對外提供（404）。開發站（Vite）不再提供 `/sitemap.xml`。新增 `store.OpenLessonKeys`。Dockerfile 前端 build 不再複製種子。
+- **測試依資料判斷**：新增 `TestLessonFileGateFollowsData`（每個腳本檔，訪客拿到的回應由資料庫裡那一課的狀態與存取方式決定）、`TestSitemapFollowsDatabase`；e2e 的課程清單標示（免費預覽、登入後學習、規劃中）、課程頁登入視窗、sitemap 課頁都改成讀課程地圖 API，不寫死課號或「前幾課」。移除各測試裡讀種子比對存取設定的斷言。
+
+### 新增
+
+- **宣傳片 `promo/claude-code-sessions-reel`**（直式 FB Reels，約 30 秒，語音整段一次錄再依停頓切句）：開場、痛點、擬真的 session 傳訊與回覆（切換 session 時先拉遠鏡頭）、三種用法、追蹤粉絲團（箭頭指向 Reels 左下角的粉絲團頭像）；新演員 `sessions-reel`（研發基地專用）。
+- **claude-desktop 動作 `tell`**：跨 session 傳訊息（傳出端 `Messaged @X`、收到端 `Received a message`，可展開內容）；新目標 `sent`、`inbox`。
+- **第 0 課開頭情境動畫**：新演員 `file-ai`（延遲載入），`l0/0.0-tools.json` 前 6 張字卡換成情境，旁白不變。
+- **播放中「動手試試」**：腳本欄位 `practice`；互動版播放頁右上角打開靜態的 claude-desktop，學員按標籤按鈕練習（新增 session、Fork、權限模式、請 AI 建立檔案並允許或拒絕）；模擬環境，目前只有第 0 課有。
+- **語音產生選項**（`scripts/voice.mjs`）：`trim`（腳本 `voice` 欄位，修掉每段頭尾靜音；沒寫的腳本雜湊不變）、`--whole`（整份旁白一次合成，依句間停頓切回一句一個音檔，以逐句長度為預期值挑切點）。
+- **兒童課單元 3** 旁白潤稿，並產生語音清單。
+
+### 部署注意
+
+課程資料以資料庫為準，種子與同步只補新的，不會覆蓋既有的課與腳本：
+
+1. **存取設定**：上面 17 課在正式機已用 `evoleap lesson set -course <課程> -lesson <課號> -access free` 改好並驗證（未登入讀 `l0/0.1-project`、`launch/0.3`、`1.1`、`1.2`、`kids/0.3`、`1.1`、`1.2` 回 200，`kids/1.3` 回 401）。新環境與本機資料庫要自己改（種子只對新建的資料庫有效）。
+2. **腳本**：部署後用 `evoleap script push` 更新 `l0/0.0-tools.json`（要和新前端一起，新演員在前端程式碼裡），並推 `promo/claude-code-sessions-reel.json` 與 `.voice.json`、`kids/3.*` 的 `.voice.json`。
+3. **後端必須接資料庫**：沒設 `DATABASE_URL` 時課程地圖與課程腳本都不提供。
+
 ## [0.41.0] - 2026-11-14
 
 課程資訊（清單、單課頁登入判斷、開放狀態與課數）只讀資料庫，不再用前端資料備援；課程清單改成共用元件；種子照正式機的狀態；canvas MCP 逾時；CI 分片；研發基地試聽語音頁與兩支宣傳片。沒有 API 或資料表變動。

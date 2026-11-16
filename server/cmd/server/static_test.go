@@ -181,7 +181,7 @@ func TestStaticHandlerHead(t *testing.T) {
 
 // 版控裡的 placeholder(只有 index.html、沒有 404.html)也要能啟動。
 func TestEmbeddedPlaceholder(t *testing.T) {
-	h := staticHandler("", openAccess)
+	h := newStaticHandler(distFS(""), openAccess)
 	if rec := get(h, http.MethodGet, "/", nil); rec.Code != http.StatusOK {
 		t.Errorf("/: status = %d, want 200", rec.Code)
 	}

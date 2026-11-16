@@ -1,21 +1,19 @@
 // 主題頁的課程地圖從資料庫讀(GET /api/courses/{id}/map;資料是 server/internal/store/courses_seed.json):
 // 未登入時第一課免費預覽、其他開放的課登入後學習、還沒開放的規劃中;開放的課連到課程頁。
 import { expect, test } from '@playwright/test'
-import { collectErrors, desktopOnly, loginAsNewStudent } from './support'
+import { GATED, collectErrors, desktopOnly, expectLabel, loginAsNewStudent, mapLessons } from './support'
 
 test('兒童課程地圖由資料庫讀取', async ({ page }) => {
   // 照正式設定跑的 server:訪客看到的狀態和正式站一樣(這台 -open-studio 的 server 把每個人當管理員)
-  const gated = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 8198) + 1}`
+  const gated = GATED
   const res = page.waitForResponse((r) => r.url().endsWith('/api/courses/kids/map'))
   await page.goto(`${gated}/topics/kids#map`)
   expect((await res).status()).toBe(200)
   const map = page.locator('#map')
-  const row = (id: string) => map.locator('li').filter({ hasText: new RegExp(`^${id.replace('.', '\\.')}`) })
-  await expect(row('0.1')).toContainText('免費預覽')
+  const row = (id: string) => map.locator('li').filter({ hasText: new RegExp(`^${id.replace('.', '\\.')}(?![\\d.])`) })
   await expect(row('0.1').getByRole('link', { name: '翻到網頁的背面' })).toHaveAttribute('href', '/topics/kids/0-1')
-  // 依順序前兩課(0.1、0.2)免費預覽,第三課(0.3)起登入後學習
-  await expect(row('0.2')).toContainText('免費預覽')
-  await expect(row('0.3').getByRole('img', { name: '登入後學習' })).toBeVisible()
+  // 每一課的標示(免費預覽、登入後學習、規劃中)依資料庫的課程地圖
+  for (const l of await mapLessons(page.request, 'kids', gated)) await expectLabel(row(l.id), l)
   // 單元 1、單元 2 已開放(種子照正式機):訪客看到可以點的課
   await expect(row('1.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/1-1')
   await expect(row('2.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/2-1')
@@ -39,17 +37,15 @@ test('網頁怎麼運作的課程地圖由資料庫讀取', async ({ page }) => 
   await page.goto('/topics/web#map')
   expect((await res).status()).toBe(200)
   const map = page.locator('#map')
-  const row = (id: string) => map.locator('li').filter({ hasText: new RegExp(`^${id.replace('.', '\\.')}`) })
+  const row = (id: string) => map.locator('li').filter({ hasText: new RegExp(`^${id.replace('.', '\\.')}(?![\\d.])`) })
   await expect(map.getByRole('heading', { name: /序章：網頁從哪裡來/ })).toContainText('在網址列按下 Enter 之後')
-  await expect(row('0.1')).toContainText('免費預覽')
   await expect(row('0.1').getByRole('link', { name: '輸入網址之後發生的事' })).toHaveAttribute('href', '/topics/web/0-1')
-  await expect(row('1.2').getByRole('img', { name: '登入後學習' })).toBeVisible()
-  await expect(row('1.3')).toContainText('規劃中')
-  await expect(row('1.3').getByRole('link')).toHaveCount(0)
+  // 每一課的標示依資料庫的課程地圖
+  for (const l of await mapLessons(page.request, 'web')) await expectLabel(row(l.id), l)
 })
 
-// 序章三課已開放:前兩課不用登入,第三課登入後能上;腳本載入後整課拖到底都不出錯
-test('從做好到上線:序章前兩課免費預覽、第三課要登入,三課都播得動', async ({ page }, info) => {
+// 序章三課已開放:免費預覽的不用登入、其他的登入後能上(依資料庫的課程地圖);腳本載入後整課拖到底都不出錯
+test('從做好到上線:序章三課,免費預覽的直接播、其他要登入,三課都播得動', async ({ page }, info) => {
   test.skip(desktopOnly(info), '只在桌面版測一次')
   const errors = collectErrors(page)
   const slider = () => page.getByRole('slider', { name: '播放進度' }).first()
@@ -60,12 +56,17 @@ test('從做好到上線:序章前兩課免費預覽、第三課要登入,三課
     await page.keyboard.press('End')
     await expect(page.getByText('找不到')).toHaveCount(0)
   }
-  await playToEnd('/topics/launch/0-1')
-  await playToEnd('/topics/launch/0-2')
-  await page.goto('/topics/launch/0-3')
-  await expect(page.getByRole('dialog', { name: '登入' })).toBeVisible()
+  // 用照正式設定跑的 server:訪客的存取方式和正式站一樣
+  const intro = (await mapLessons(page.request, 'launch', GATED)).filter((l) => l.id.startsWith('0.') && l.status === 'open')
+  expect(intro.length).toBeGreaterThanOrEqual(3)
+  const pathOf = (id: string) => `${GATED}/topics/launch/${id.replace('.', '-')}`
+  for (const l of intro.filter((x) => x.access === 'free')) await playToEnd(pathOf(l.id))
+  for (const l of intro.filter((x) => x.access !== 'free')) {
+    await page.goto(pathOf(l.id))
+    await expect(page.getByRole('dialog', { name: '登入' })).toBeVisible()
+  }
   await loginAsNewStudent(page)
-  await playToEnd('/topics/launch/0-3')
+  for (const l of intro.filter((x) => x.access !== 'free')) await playToEnd(`/topics/launch/${l.id.replace('.', '-')}`)
   expect(errors).toEqual([])
 })
 

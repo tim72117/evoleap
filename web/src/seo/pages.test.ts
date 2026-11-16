@@ -3,7 +3,7 @@ import { routes } from '../App'
 import { internalRoutes } from '../studio/StudioApp'
 import { isInternalPath } from '../site/internalPaths'
 import { SITE_ORIGIN } from '../site/siteInfo'
-import { inSitemap, PAGES, robotsTxt, sitemapXml } from './build'
+import { PAGES, robotsTxt, sitemapPages } from './build'
 import { findInternalPage } from './internalPages'
 import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES } from './pages'
 
@@ -32,10 +32,10 @@ describe('主題頁', () => {
     expect(new Set([home.description, software.description, aiApps.description]).size).toBe(3)
   })
 
-  it('sitemap 列出主題頁與優先度', () => {
-    const xml = sitemapXml()
-    expect(xml).toContain(`<loc>${absoluteUrl('/topics/software')}</loc><priority>0.9</priority>`)
-    expect(xml).toContain(`<loc>${absoluteUrl('/topics/ai-apps')}</loc><priority>0.9</priority>`)
+  it('sitemap 頁面清單列出主題頁與優先度', () => {
+    const pages = sitemapPages()
+    expect(pages).toContainEqual({ loc: absoluteUrl('/topics/software'), priority: 0.9 })
+    expect(pages).toContainEqual({ loc: absoluteUrl('/topics/ai-apps'), priority: 0.9 })
   })
 
   it('描述不會太長,搜尋結果顯示得完', () => {
@@ -69,10 +69,10 @@ describe('兒童課(給孩子的網頁程式)', () => {
     expect(topic.description.length).toBeLessThanOrEqual(80)
   })
 
-  it('sitemap 列出主題頁與已經可以上的課', () => {
-    const xml = sitemapXml()
-    expect(xml).toContain(`<loc>${absoluteUrl('/topics/kids')}</loc><priority>0.8</priority>`)
-    expect(xml).toContain(`<loc>${absoluteUrl('/topics/kids/0-1')}</loc>`)
+  it('sitemap 頁面清單列出主題頁與課頁(課頁標著是哪一課,開放與否由後端依資料庫決定)', () => {
+    const pages = sitemapPages()
+    expect(pages).toContainEqual({ loc: absoluteUrl('/topics/kids'), priority: 0.8 })
+    expect(pages.find((p) => p.loc === absoluteUrl('/topics/kids/0-1'))?.lesson).toEqual({ course: 'kids', id: '0.1' })
   })
 
   it('主題頁的結構化資料列出每一課,可以上的課附網址;課程頁的麵包屑掛在主題底下', () => {
@@ -180,41 +180,29 @@ describe('URL helpers', () => {
   })
 })
 
-describe('sitemap.xml', () => {
-  const xml = sitemapXml()
-  const locs = [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1])
+describe('sitemap 頁面清單(sitemap-pages.json)', () => {
+  const pages = sitemapPages()
 
-  it('is well-formed', () => {
-    expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')).toBe(true)
-    expect(xml.trimEnd().endsWith('</urlset>')).toBe(true)
-    expect((xml.match(/<url>/g) ?? []).length).toBe((xml.match(/<\/url>/g) ?? []).length)
-    // 沒有未跳脫的 &
-    expect(xml).not.toMatch(/&(?!amp;|lt;|gt;|quot;|apos;)/)
+  it('只有可收錄的頁面:不含 noindex 與內部頁,網址不重複', () => {
+    expect(pages.map((p) => p.loc)).toEqual(PAGES.filter((p) => !p.noindex).map((p) => absoluteUrl(p.path)))
+    expect(new Set(pages.map((p) => p.loc)).size).toBe(pages.length)
+    for (const p of pages) expect(isInternal(new URL(p.loc).pathname), p.loc).toBe(false)
   })
 
-  it('contains exactly the indexable pages, except lessons that are not open yet', () => {
-    expect(locs).toEqual(PAGES.filter(inSitemap).map((p) => absoluteUrl(p.path)))
-    expect(new Set(locs).size).toBe(locs.length)
-    for (const loc of locs) expect(isInternal(new URL(loc).pathname), loc).toBe(false)
-  })
-
-  // 還沒開放的課(courses_seed.json 的 draft、planned)可以收錄,但不放進 sitemap
-  it('leaves out lessons that are not open yet, without noindex', () => {
-    const has = (path: string) => locs.includes(absoluteUrl(path))
-    expect([has('/topics/launch/0-1'), has('/topics/launch/1-1'), has('/topics/launch/2-1'), has('/courses/tools/1'), has('/courses/ai-tools/1-1'), has('/courses/vibe-coding/4-1')]).toEqual([true, true, false, true, false, false])
+  it('課頁標著是哪一課(後端依資料庫決定收不收);還沒開放的課頁本身不加 noindex', () => {
+    const lessons = pages.filter((p) => p.lesson)
+    expect(lessons.length).toBeGreaterThan(0)
+    for (const p of lessons) expect(p.lesson, p.loc).toEqual({ course: expect.any(String), id: expect.any(String) })
     expect(PAGES.find((p) => p.path === '/topics/launch/2-1')?.noindex).toBeFalsy()
-    // Vibe Coding 入門 4.2 是草稿(單課頁,不是規劃中章節頁):收錄、不進 sitemap
-    expect([has('/courses/vibe-coding/4-2'), PAGES.find((p) => p.path === '/courses/vibe-coding/4-2')?.lesson]).toEqual([false, { course: 'vibe-coding-basics', id: '4.2' }])
-    // 兒童課:序章、單元 1、單元 2 開放(照正式機),3.1 起是草稿
-    expect([has('/topics/kids/0-1'), has('/topics/kids/1-1'), has('/topics/kids/2-1'), has('/topics/kids/3-1'), has('/topics/kids/4-5')]).toEqual([true, true, true, false, false])
-    expect(PAGES.find((p) => p.path === '/topics/kids/3-1')?.noindex).toBeFalsy()
+    // Vibe Coding 入門 4.2(單課頁,不是規劃中章節頁)標著是哪一課
+    expect(PAGES.find((p) => p.path === '/courses/vibe-coding/4-2')?.lesson).toEqual({ course: 'vibe-coding-basics', id: '4.2' })
   })
 
   it('priorities are within 0–1', () => {
-    for (const m of xml.matchAll(/<priority>([^<]*)<\/priority>/g)) {
-      const v = Number(m[1])
-      expect(v).toBeGreaterThanOrEqual(0)
-      expect(v).toBeLessThanOrEqual(1)
+    for (const p of pages) {
+      if (p.priority === undefined) continue
+      expect(p.priority).toBeGreaterThanOrEqual(0)
+      expect(p.priority).toBeLessThanOrEqual(1)
     }
   })
 })

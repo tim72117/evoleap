@@ -178,7 +178,7 @@ export default defineActor({
 
 | 演員 | 動作 | 目標 |
 |---|---|---|
-| `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode、newSession、session、menu、fork、state（多個 session 見 `actor.ts` 開頭；介面語言用 `props.lang` 選 `lang/<語言>.json`，目前有 `zh-TW`（預設）與 `en`，新增語言就加一個檔案） | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos、new、sessions、session:名稱、more:名稱、menu、menuitem:項目 |
+| `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode、newSession、session、menu、fork、state、tell（跨 session 傳訊息；多個 session 見 `actor.ts` 開頭；介面語言用 `props.lang` 選 `lang/<語言>.json`，目前有 `zh-TW`（預設）與 `en`，新增語言就加一個檔案） | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos、new、sessions、session:名稱、more:名稱、menu、menuitem:項目、sent、inbox |
 | `finder` | open、mkdir、create、delete、rename、select、drag、drop、highlight（有狀態，見 2A.5） | window、file:名稱（或 item:名稱） |
 | `browser` | site、width、scroll、go、click、fill、reload（有狀態；網頁放在 Shadow DOM，寬度條件由腳本指定的寬度判斷，素材在 `content/live/<課程>/site/<版本>/`，版本名稱不能重複；fill 逐字填表單欄位，填完觸發 input／change；表單送出不會離開頁面） | window、tab、addressbar、content、viewport、section:id、sel:css選擇器 |
 | `chat` | receive（帶 from）、reply（有狀態；通用手機聊天畫面，情境開場用） | window、msg:N、msg:last |
@@ -196,6 +196,7 @@ export default defineActor({
 | `fx` | logo、stream、diff、shimmer、circle、arrow、flash、whip、reveal、clear（宣傳片特效層，參考 HyperFrames 效果目錄改寫成純函式；place 用 `full`、放在演員表最後；畫面類同時只顯示最新一個，標註類會累積，轉場用 flash／whip 蓋住、reveal 掀開；用法見 `actor.ts` 開頭，示範腳本 `content/live/promo/fx-reel.json`） | window、panel |
 | `desk` | open、close、install、launch、signin、user、read、edit、run、ask、answer（有狀態；寫實情境「你自己的電腦」：房間、木頭桌、螢幕上的桌面與 AI 程式助手視窗，演出沒有對應介面的觀念：讀檔、改檔、執行指令、確認提示與允許／拒絕的結果，也演安裝與登入；場景 16:9，props.close 為只拍螢幕的近景；用法見 `actor.ts` 開頭，用在 `content/live/vibe-coding/4.2.json`） | window、screen、app、dialog、option:deny\|once\|always、folder、item:路徑、dock、launcher、installer、signin、result |
 | `manual-office` | write、run、hunt、patch、slump、call、enter、handoff（有狀態；「手寫程式的年代」：明亮的辦公室裡穿西裝的人手打 HTML，打錯一個符號、找錯、改了又壞，時鐘一天天過去，最後舉手求助、機器人坐辦公椅滑進來；結束畫面和 `agent-office` 第一格相同，可用 show/hide 無縫接；place 用 `full`；共用繪圖在 `live/art/`；用在 `content/live/l0/0.intro.json`） | window、human、head、monitor、screen、code、preview、clock、circle、robot、say |
+| `file-ai` | scene（`four`、`read`、`write`、`run`、`direct`、`tools`；「會操作檔案的 AI 工具」的情境動畫：四件事、讀取、建立修改、執行指令、與聊天工具的差別（動手前先問你）、常見工具；SVG 純函式、延遲載入；place 用 `full`；用在 `content/live/l0/0.0-tools.json`） | window |
 | `agent-office` | need、plan、ask、allow、build、check、fix、done（有狀態；「AI Agent 自己動手做事」：同一間辦公室，機器人操作電腦，人只說需求、回答權限提示；推近／拉遠的鏡位由狀態決定；place 用 `full`；用在 `content/live/l0/0.intro.json`） | window、robot、head、human、monitor、screen、code、plan、need、ask、allow、deny、dash、issue |
 
 **`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。

@@ -36,7 +36,8 @@
             "summary": "認識專案與工作目錄，讓 AI 幫你建立、搬移檔案",
             "status": "open",
             "script": "l0/0.1-project.json",
-            "minutes": 20
+            "minutes": 20,
+            "access": "free"
           },
           {
             "id": "0.2",
@@ -44,7 +45,8 @@
             "summary": "一段話描述，做出一頁式網站，再精確調整到滿意",
             "status": "open",
             "script": "l0/0.2-site.json",
-            "minutes": 45
+            "minutes": 45,
+            "access": "free"
           }
         ]
       }
@@ -92,7 +94,8 @@
             "title": "加入會議筆記：補齊並更新需求清單",
             "summary": "把一份討論會議筆記併進需求清單",
             "status": "planned",
-            "minutes": 30
+            "minutes": 30,
+            "access": "free"
           }
         ]
       },
@@ -106,14 +109,16 @@
             "title": "找出不清楚的地方，寫出澄清問題",
             "summary": "找出需求清單中不清楚或缺少的地方，寫成一則老闆容易回答的訊息，再依老闆的回覆更新需求清單",
             "status": "planned",
-            "minutes": 35
+            "minutes": 35,
+            "access": "free"
           },
           {
             "id": "2.2",
             "title": "把需求變成工作項目",
             "summary": "把「一定要有」的需求轉成工作項目，每項都有能檢查的驗收條件，並確認每一項都對得到需求",
             "status": "planned",
-            "minutes": 35
+            "minutes": 35,
+            "access": "free"
           },
           {
             "id": "2.3",
@@ -186,7 +191,7 @@
             "id": "4.3",
             "title": "請 AI 程式助手安裝 Node.js",
             "summary": "說明 Node.js 讓 JavaScript 在瀏覽器外執行、npm 負責安裝套件；請 AI 程式助手依你的作業系統，用官方的方式安裝 LTS 版本：每個安裝指令先看懂確認提示再允許，需要輸入電腦密碼的步驟自己來，最後請它執行 node -v 與 npm -v 驗證。",
-            "access": "login-free",
+            "access": "free",
             "status": "planned",
             "minutes": 30
           },
@@ -195,7 +200,8 @@
             "title": "第一次和 AI 一起改程式",
             "summary": "描述需求 → 看助手改了哪些檔案、哪幾行 → 接受或要求修改；看不懂的步驟或訊息，請它用白話解釋。",
             "status": "planned",
-            "minutes": 30
+            "minutes": 30,
+            "access": "free"
           }
         ]
       },
@@ -209,7 +215,8 @@
             "title": "檔案、資料夾與路徑",
             "summary": "顯示副檔名與隱藏檔，分辨絕對路徑與相對路徑，知道專案資料夾為什麼不要放在雲端同步資料夾或含空白的路徑。",
             "status": "planned",
-            "minutes": 25
+            "minutes": 25,
+            "access": "free"
           },
           {
             "id": "5.2",
@@ -619,20 +626,23 @@
             "title": "元素與標籤",
             "summary": "網頁由一個個元素組成，標籤告訴瀏覽器它是什麼。",
             "status": "open",
-            "script": "web/1.1.json"
+            "script": "web/1.1.json",
+            "access": "free"
           },
           {
             "id": "1.2",
             "title": "DOM 樹：元素包著元素",
             "summary": "元素可以包住元素，瀏覽器照著這棵樹由上往下畫。",
             "status": "open",
-            "script": "web/1.2.json"
+            "script": "web/1.2.json",
+            "access": "free"
           },
           {
             "id": "1.3",
             "title": "有意義的區塊",
             "summary": "用有意義的區塊組織網頁，人和機器都比較好理解。",
-            "status": "planned"
+            "status": "planned",
+            "access": "free"
           },
           {
             "id": "1.4",
@@ -828,7 +838,8 @@
             "files": [
               "kids/0.3-mail.json",
               "kids/0.3-edit.json"
-            ]
+            ],
+            "access": "free"
           }
         ]
       },
@@ -845,7 +856,8 @@
             "script": "kids/1.1.json",
             "files": [
               "kids/1.1-sort.json"
-            ]
+            ],
+            "access": "free"
           },
           {
             "id": "1.2",
@@ -856,7 +868,8 @@
             "files": [
               "kids/1.2-list.json",
               "kids/1.2-order.json"
-            ]
+            ],
+            "access": "free"
           },
           {
             "id": "1.3",
@@ -1097,7 +1110,8 @@
             "title": "哪些檔案絕不能 commit：.gitignore",
             "summary": "推上 GitHub 前，先把金鑰和不該公開的檔案排除。",
             "status": "open",
-            "script": "launch/0.3.json"
+            "script": "launch/0.3.json",
+            "access": "free"
           }
         ]
       },
@@ -1111,14 +1125,16 @@
             "title": "環境變數與設定",
             "summary": "把寫死的金鑰與網址搬進設定檔，本機和正式站各用各的。",
             "status": "open",
-            "script": "launch/1.1.json"
+            "script": "launch/1.1.json",
+            "access": "free"
           },
           {
             "id": "1.2",
             "title": "部署到 GitHub Pages",
             "summary": "拿到第一個可以分享的公開網址，之後推上去就自動更新。",
             "status": "open",
-            "script": "launch/1.2.json"
+            "script": "launch/1.2.json",
+            "access": "free"
           },
           {
             "id": "1.3",

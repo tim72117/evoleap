@@ -1,6 +1,6 @@
 // 登入/註冊的回歸測試(資料庫是每次測試新建的暫存 SQLite;每個測試用自己的隨機 Email)。
 import { expect, test, type Page } from '@playwright/test'
-import { collectErrors, desktopOnly } from './support'
+import { GATED, collectErrors, desktopOnly, expectLabel, mapLessons } from './support'
 
 const PASSWORD = 'secret-pass-123'
 const randomEmail = (tag: string) =>
@@ -138,6 +138,9 @@ test('登入後免費的課程:未登入彈出小登入視窗,登入後在同一
   await registerViaApi(page, email)
   await page.request.post('/api/auth/logout')
 
+  // 這一課要登入(資料庫的存取方式不是免費預覽),否則底下「彈出登入視窗」的檢查沒有意義
+  expect((await mapLessons(page.request, 'ai-tools', GATED)).find((l) => l.id === '3.3')?.access).not.toBe('free')
+
   // 不轉頁:網址不變,原頁面上彈出登入視窗,課程內容還沒有
   await page.goto('/courses/ai-tools/3-3')
   await expect(loginDialog(page)).toBeVisible()
@@ -162,25 +165,29 @@ test('登入後免費的課程:未登入彈出小登入視窗,登入後在同一
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(gateLogin).toHaveCount(0)
 
-  // 課程內容清單:未登入時依順序前兩課(序章、第 0 課)標「免費預覽」,其他課標「登入後學習」
+  // 課程內容清單:未登入時,免費預覽的課標「免費預覽」,其他開放的課標「登入後學習」(依資料庫的課程地圖,用照正式設定跑的 server 讀)
+  const lessons = await mapLessons(page.request, 'tools', GATED)
+  // 課程頁的名稱:序章是 0.intro,第 N 課是 0.N
+  const nameOf = (id: string) => (id === '0.intro' ? '序章' : `第 ${id.slice(2)} 課`)
+  const pathOf = (id: string) => `/courses/tools/${id.slice(2)}`
   await page.goto('/courses/tools')
   const rows = page.locator('#course-content ~ details li')
-  await expect(rows.filter({ hasText: '序章' }).getByText('免費預覽', { exact: true })).toBeVisible()
-  await expect(rows.filter({ hasText: '第 0 課' }).getByText('免費預覽', { exact: true })).toBeVisible()
-  await expect(rows.filter({ hasText: /第 1 課/ }).getByRole('img', { name: '登入後學習' })).toBeVisible()
-  await expect(page.getByText('免費預覽', { exact: true })).toHaveCount(2)
-  // 「開始學習」連到不用登入就能看的序章
+  for (const l of lessons) await expectLabel(rows.filter({ hasText: new RegExp(`${nameOf(l.id)}(?!\\d)`) }), l)
+  await expect(page.getByText('免費預覽', { exact: true })).toHaveCount(lessons.filter((l) => l.label === '免費預覽').length)
+  // 「開始學習」連到序章(不用登入就能看)
   await expect(page.getByRole('link', { name: '開始學習' })).toHaveAttribute('href', '/courses/tools/intro')
 
-  // 依順序前兩課(序章、第 0 課)可以直接預覽,第三課(第 1 課)起就要登入
-  for (const free of ['/courses/tools/intro', '/courses/tools/0']) {
-    await page.goto(free)
-    await expect(page.locator('.vp').first()).toBeVisible()
-    await expect(gateLogin).toHaveCount(0)
-    await expect(loginDialog(page)).toHaveCount(0)
+  // 免費預覽的課可以直接看,要登入的課跳登入視窗
+  for (const l of lessons.filter((x) => x.status === 'open')) {
+    await page.goto(pathOf(l.id))
+    if (l.access === 'free') {
+      await expect(page.locator('.vp').first()).toBeVisible()
+      await expect(gateLogin).toHaveCount(0)
+      await expect(loginDialog(page)).toHaveCount(0)
+    } else {
+      await expect(loginDialog(page)).toBeVisible()
+    }
   }
-  await page.goto('/courses/tools/1')
-  await expect(loginDialog(page)).toBeVisible()
 
   // 在視窗裡登入:還是同一個網址,視窗消失、課程內容出現
   await page.goto('/courses/ai-tools/3-3')

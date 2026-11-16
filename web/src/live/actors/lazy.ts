@@ -8,6 +8,7 @@ import { ACTORS } from './index'
 const LAZY: Record<string, () => Promise<{ default: AnyActor }>> = {
   'agent-office': () => import('./agent-office/actor'),
   'manual-office': () => import('./manual-office/actor'),
+  'file-ai': () => import('./file-ai/actor'),
 }
 
 /** 延遲載入的演員名稱(演員展示頁要列出,即使還沒載入) */

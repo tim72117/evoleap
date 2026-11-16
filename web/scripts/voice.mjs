@@ -185,7 +185,94 @@ function upload(buf, object) {
   }
 }
 
-const hashOf = (text, cfg) => createHash('sha1').update([cfg.model, cfg.voice, cfg.style, text].join('\n')).digest('hex').slice(0, 12)
+// cfg.trim(腳本 voice 欄位寫 "trim": true):修掉每段語音頭尾的靜音,句和句之間不會有多餘的空檔。沒開的腳本雜湊不變(舊音檔照用)
+const hashOf = (text, cfg) => createHash('sha1').update([cfg.model, cfg.voice, cfg.style, text, ...(cfg.trim ? ['trim'] : []), ...(cfg.take ? ['take'] : [])].join('\n')).digest('hex').slice(0, 12)
+
+/** 去掉頭尾的靜音:每 20ms 一格,振幅低於門檻的視為靜音,頭尾各留 60ms 氣口 */
+function trimSilence(pcm, rate) {
+  const win = Math.round(rate * 0.02)
+  const loud = (i) => {
+    let m = 0
+    for (let k = i; k < Math.min(i + win, pcm.length); k++) m = Math.max(m, Math.abs(pcm[k]))
+    return m > 700
+  }
+  let a = 0
+  while (a < pcm.length && !loud(a)) a += win
+  let b = pcm.length
+  while (b > a && !loud(b - win)) b -= win
+  const keep = Math.round(rate * 0.06)
+  return pcm.subarray(Math.max(0, a - keep), Math.min(pcm.length, b + keep))
+}
+
+/**
+ * 整段一次錄(--whole):把所有旁白一次合成,語氣與節奏連貫,再依句間的靜音切回一句一個音檔(舞台仍用每句的長度排時間)。
+ * 每個切點從「句間靜音」裡挑:依字數推算這個切點大約在整段的哪裡,取離它最近的靜音(≥ 120ms),並且要照順序。
+ * 回傳每句的 pcm(已修掉頭尾靜音)。
+ */
+function splitTake(pcm, rate, texts, prior = []) {
+  const win = Math.round(rate * 0.02)
+  const frames = Math.floor(pcm.length / win)
+  const quiet = new Array(frames).fill(false)
+  for (let f = 0; f < frames; f++) {
+    let m = 0
+    for (let k = f * win; k < (f + 1) * win; k++) m = Math.max(m, Math.abs(pcm[k]))
+    quiet[f] = m <= 700
+  }
+  // 找出首尾有聲音的範圍與中間的靜音區間
+  let a = 0
+  while (a < frames && quiet[a]) a++
+  let b = frames
+  while (b > a && quiet[b - 1]) b--
+  const gaps = []
+  for (let f = a; f < b; ) {
+    if (!quiet[f]) { f++; continue }
+    let g = f
+    while (g < b && quiet[g]) g++
+    if ((g - f) * 20 >= 120) gaps.push({ from: f, to: g, mid: (f + g) / 2, len: (g - f) * 20 })
+    f = g
+  }
+  // 每句的預期長度:有逐句合成的舊長度就用它(最準),沒有就用字數
+  const chars = texts.map((t, i) => prior[i] || [...t.replace(/[\s，。、：；？！,.?!:;「」]/g, '')].length)
+  const total = chars.reduce((n, c) => n + c, 0)
+  // 動態規劃:挑 n-1 個停頓當切點,讓每一句的長度盡量符合字數比例(每個字約佔 rate 毫秒),同時偏好較長的停頓(句號比逗號停得久)
+  const n = texts.length
+  const perChar = ((b - a) * 20) / total
+  const G = gaps.length
+  if (G < n - 1) die(`整段一次錄:只找到 ${G} 個停頓,不夠切成 ${n} 句,請改用逐句合成`)
+  const segCost = (i, from, to) => (((to - from) * 20 - perChar * chars[i]) / (perChar * Math.max(chars[i], 1))) ** 2
+  const INF = 1e18
+  // best[i][g]:前 i+1 句,第 i 句結束在第 g 個停頓
+  const best = Array.from({ length: n - 1 }, () => new Array(G).fill(INF))
+  const prev = Array.from({ length: n - 1 }, () => new Array(G).fill(-1))
+  const bonus = (g) => Math.min(gaps[g].len, 400) / 400
+  for (let g = 0; g < G; g++) best[0][g] = segCost(0, a, gaps[g].from) - 0.6 * bonus(g)
+  for (let i = 1; i < n - 1; i++)
+    for (let g = i; g < G; g++)
+      for (let h = i - 1; h < g; h++) {
+        if (best[i - 1][h] >= INF) continue
+        const c = best[i - 1][h] + segCost(i, gaps[h].to, gaps[g].from) - 0.6 * bonus(g)
+        if (c < best[i][g]) { best[i][g] = c; prev[i][g] = h }
+      }
+  let end = -1
+  let endCost = INF
+  for (let g = n - 2; g < G; g++) {
+    const c = best[n - 2][g] + segCost(n - 1, gaps[g].to, b)
+    if (c < endCost) { endCost = c; end = g }
+  }
+  const cuts = []
+  for (let i = n - 2, g = end; i >= 0; i--) { cuts.unshift(gaps[g]); g = prev[i][g] }
+  const keep = Math.round(rate * 0.06)
+  const out = []
+  let from = a
+  for (let i = 0; i < texts.length; i++) {
+    const to = i < cuts.length ? cuts[i].from : b
+    const next = i < cuts.length ? cuts[i].to : b
+    out.push(pcm.subarray(Math.max(0, from * win - keep), Math.min(pcm.length, to * win + keep)))
+    from = next
+  }
+  console.log('  切點(句間停頓毫秒):' + cuts.map((c) => c.len).join('、'))
+  return out
+}
 
 // ---------- 試聽 ----------
 async function sample() {
@@ -284,6 +371,21 @@ async function build(rel, audio) {
     const line = `  ${rel} [${'█'.repeat(filled)}${'░'.repeat(w - filled)}] ${done}/${todo}${eta == null ? '' : done < todo ? ` 預估剩 ${eta} 秒` : ''}`
     process.stdout.write(process.stdout.isTTY ? `\r${line}\x1b[K${done >= todo ? '\n' : ''}` : `${line}\n`)
   }
+  if (flag('whole')) {
+    const cfgT = { ...cfg, take: true }
+    const raw = await audio(texts.map((t) => t.replace(/[，,]$/, '。')).join('\n\n'), cfgT, `${prefix}/whole.mp3`)
+    const pcm = decodePcm(raw)
+    const parts = splitTake(pcm.pcm, pcm.rate, texts, texts.map((t) => (old.clips?.[t]?.ms ?? 0)))
+    texts.forEach((text, i) => {
+      const file = `${prefix}/${hashOf(text, cfgT)}.mp3`
+      upload(toMp3({ pcm: parts[i], rate: pcm.rate }), file)
+      clips[text] = { file, ms: Math.round((parts[i].length / pcm.rate) * 1000) }
+      console.log(`  ${(clips[text].ms / 1000).toFixed(2)} 秒  ${text.slice(0, 20)}`)
+    })
+    fs.writeFileSync(manifestPath, JSON.stringify({ model: cfg.model, voice: cfg.voice, style: cfg.style, take: true, clips }, null, 2) + '\n')
+    console.log(`${rel}:整段一次錄,切成 ${texts.length} 句,共 ${(Object.values(clips).reduce((n, c) => n + c.ms, 0) / 1000).toFixed(0)} 秒`)
+    return
+  }
   let made = 0
   // 批次模式送出時(plan):只記下缺的段落,不畫進度、不寫清單
   const plan = !!audio.plan
@@ -298,6 +400,7 @@ async function build(rel, audio) {
     const raw = await audio(text, cfg, file)
     if (!raw) continue
     const pcm = decodePcm(raw)
+    if (cfg.trim) pcm.pcm = trimSilence(pcm.pcm, pcm.rate)
     upload(toMp3(pcm), file)
     clips[text] = { file, ms: Math.round((pcm.pcm.length / pcm.rate) * 1000) }
     made++

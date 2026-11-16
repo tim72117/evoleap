@@ -1,6 +1,7 @@
 // vite build 之後執行(npm run build):依 src/seo/pages.ts 產生
 //   dist/<路由>/index.html(各頁的 <title>、description、canonical、og:*、JSON-LD)
-//   dist/404.html、dist/sitemap.xml、dist/robots.txt
+//   dist/404.html、dist/sitemap-pages.json(可收錄的頁面清單)、dist/robots.txt
+// /sitemap.xml 由 Go server 即時產生:依資料庫裡每一課的狀態決定課頁收不收(server/cmd/server/sitemap.go)
 // 讓爬蟲與連結預覽不執行 JS 也看得到每頁的資料。Go server(server/cmd/server/static.go)
 // 依路徑回傳對應的 index.html,找不到就以 404 狀態回傳 404.html。
 //
@@ -50,7 +51,7 @@ const write = async (file, content) => {
 for (const page of [...seo.PAGES, seo.NOT_FOUND]) {
   await write(seo.outputFile(page), seo.renderPage(template, page))
 }
-await write('sitemap.xml', seo.sitemapXml())
+await write('sitemap-pages.json', JSON.stringify(seo.sitemapPages()))
 await write('robots.txt', seo.robotsTxt())
 
-console.log(`seo: ${seo.PAGES.length} 頁 + 404.html、sitemap.xml、robots.txt`)
+console.log(`seo: ${seo.PAGES.length} 頁 + 404.html、sitemap-pages.json、robots.txt`)

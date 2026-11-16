@@ -17,6 +17,7 @@ import { answerLabel, answersOnActor, expandAnswers, INTERACTIVE_ICON, momentsOf
 import { useAutoAspect } from '../../site/useAutoAspect'
 import { CaptionToggle, ControlPanel, RateMenu } from './ControlPanel'
 import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer } from './portrait'
+import { ClaudePractice } from '../../courses/ClaudePractice'
 import styles from './InteractiveScenePage.module.css'
 
 // 互動教學場景(試做):整個視窗都是舞台,播放條是浮動的膠囊,右側在「步驟」與「互動」之間切換。
@@ -177,6 +178,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   } | null>(null)
   const [lesson, setLesson] = useState('')
   const [loaded, setLoaded] = useState<StageScript | null>(null)
+  // 腳本有 practice 時,右上角有「動手試試」:打開靜態的 Claude Code 練習(courses/ClaudePractice.tsx)
+  const [practiceOpen, setPracticeOpen] = useState(false)
   const [hintSlot, setHintSlot] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
@@ -521,6 +524,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     <div ref={pageRef} className={classes} lang="zh-Hant">
       <div ref={boxRef} className={styles.box} />
 
+      {loaded?.practice && practiceOpen && <ClaudePractice props={loaded.practice.props} onClose={() => setPracticeOpen(false)} />}
+
       {/* 在標題列之前:標題列才會在靜態舞台的上面 */}
       {staticActor}
 
@@ -537,6 +542,18 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
         {/* 右上角:播放速度、字幕鈕(手機)與章節膠囊 */}
         <div className={styles.topRight}>
+          {loaded?.practice && (
+            <button
+              type="button"
+              className={styles.practiceTop}
+              onClick={() => {
+                ctrl.current?.shell.pause()
+                setPracticeOpen(true)
+              }}
+            >
+              {t.courses.live.practice.open}
+            </button>
+          )}
           <div className={styles.topTools}>
             <RateMenu box={boxRef} shell={() => ctrl.current?.shell} className={styles.rateTop} menuClassName={styles.rateMenu} />
             <CaptionToggle box={boxRef} className={styles.ccTop} />

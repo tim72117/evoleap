@@ -153,5 +153,23 @@ export const courses = {
   // ---------- 即時教學畫面(LivePlayer) ----------
   live: {
     cannotPlay: '無法播放：',
+    practice: {
+      open: '動手試試',
+      title: '練習：Claude Code',
+      note: '這是模擬畫面，不會真的動到你的檔案。點下面的標籤按鈕練習，做錯了可以按「重來」。',
+      reset: '重來',
+      close: '關閉',
+      moreTitle: '試試看',
+      createFile: '請 AI 建立 hello.txt',
+      createFileUser: '幫我建立 hello.txt，內容是「你好」',
+      createFileQ: '要建立這個檔案嗎？',
+      allowed: '好，已建立 hello.txt。',
+      denied: '好，我不會建立這個檔案。',
+      replyToTyped: '這是練習用的畫面，不會真的執行。試試看上面的按鈕，或請 AI 建立 hello.txt。',
+      modes: { auto: '自動允許', ask: '動手前先問', plan: '先規劃', accept: '自動接受修改' },
+      mode: '權限模式：{mode}',
+      send: '送出',
+      error: '這個操作現在做不了：',
+    },
   },
 }
