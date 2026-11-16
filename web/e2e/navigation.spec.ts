@@ -494,6 +494,7 @@ const PAGES = [
   '/studio/vibe-coding/4-2',
   '/studio/vibe-coding/4-3',
   '/studio/portrait',
+  '/studio/practice',
   '/studio/scenes',
   '/studio/fable-trial',
   '/studio/kids-family',

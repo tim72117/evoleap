@@ -56,6 +56,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/kids-web/xray', '兒童網頁課 X 光眼鏡草稿'],
     ['/studio/visuals', '即時教學影像'],
     ['/studio/portrait', '直式舞台'],
+    ['/studio/practice', '動手練習'],
     ['/studio/fable-trial', '畫面試作：本機與網路上'],
     ['/studio/scenes', '場景'],
     ['/studio/actor-interaction/scene', '互動教學場景'],
