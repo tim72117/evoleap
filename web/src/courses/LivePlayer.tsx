@@ -12,6 +12,7 @@ import { useGuestView } from './guestActivity'
 import '../live/shell.css'
 import type { PlayerHandle } from './playerHandle'
 import { ClaudePractice } from './ClaudePractice'
+import { useFeature } from '../site/features'
 import styles from './LivePlayer.module.css'
 
 // 即時教學畫面:不是影片檔,而是 src/live 的舞台依腳本(src/content/live/)即時畫出,由播放器外殼負責播放。
@@ -43,7 +44,9 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
   onCuesRef.current = onCues
   const [error, setError] = useState<string | null>(null)
   // 腳本有 practice 時,播放中提供「動手試試」(靜態的 Claude Code 練習,見 ClaudePractice.tsx)
-  const [practice, setPractice] = useState<{ props?: Record<string, unknown> } | null>(null)
+  // 功能旗標 practice 沒開時不顯示(見 site/features.ts)
+  const [practiceData, setPractice] = useState<{ props?: Record<string, unknown> } | null>(null)
+  const practice = useFeature('practice') ? practiceData : null
   const [practiceOpen, setPracticeOpen] = useState(false)
   const t = useT()
   // 換語言時重建播放器(控制列的文字在建立時決定),從原本的時間接著播

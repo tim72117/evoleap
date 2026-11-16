@@ -66,6 +66,7 @@ jobs:
         if: github.event.inputs.skip_build != 'true'
         run: |
           docker build \
+            --build-arg VITE_FEATURES=${{ vars.FEATURES }} \
             --build-arg VITE_GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID }} \
             --build-arg VITE_ADSENSE_CLIENT=${{ vars.ADSENSE_CLIENT }} \
             --build-arg VITE_ADSENSE_SLOT=${{ vars.ADSENSE_SLOT }} \

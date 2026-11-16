@@ -24,6 +24,9 @@ COPY web/ ./
 COPY server/internal/store/courses_seed.json /repo/server/internal/store/courses_seed.json
 # GA4 評估 ID(Vite 於 build 時內嵌):docker build --build-arg VITE_GA_MEASUREMENT_ID=G-XXXX。
 # 未傳或留空時前端完全不載入 Google Analytics。
+# 功能旗標(全站開啟的功能,逗號分隔,如 practice;留空則正式站預設關閉,見 web/src/site/features.ts)。
+ARG VITE_FEATURES=""
+ENV VITE_FEATURES=$VITE_FEATURES
 ARG VITE_GA_MEASUREMENT_ID=""
 ENV VITE_GA_MEASUREMENT_ID=$VITE_GA_MEASUREMENT_ID
 # AdSense 發布商 ID 與廣告單元 ID(Vite 於 build 時內嵌);任一個留空時前端完全不載入 AdSense。

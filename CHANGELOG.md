@@ -6,11 +6,19 @@
 
 ## [0.42.1] - 2026-11-17
 
-修正 0.42.0 的部署失敗（0.42.0 沒有部署成功）。沒有其他變動。
+修正 0.42.0 的部署失敗（0.42.0 沒有部署成功），並替「動手試試」加上功能旗標。沒有資料表或 API 變動。
 
 ### 修正
 
 - **Docker 前端建置失敗**：0.42.0 把 Dockerfile 複製 `courses_seed.json` 的那行拿掉，但前端 build 的 `tsc -b` 會型別檢查 `courseMap.test.ts`（它讀這份種子），Docker 裡找不到檔案就失敗。加回複製，註解說明用途（執行時的程式不讀種子）。
+
+### 新增
+
+- **功能旗標**（`web/src/site/features.ts`，`useFeature`）：「動手試試」按鈕預設在正式站關閉（本機開發預設開）。全站開：建置時設 `VITE_FEATURES=practice`（Dockerfile 的 build arg、部署的 GitHub 變數 `FEATURES`，沒設就是關）；個別測試：網址加 `?feature=practice`（記在瀏覽器的 localStorage），`?feature=-practice` 關掉。新增 e2e `practice.spec.ts`。
+
+### 部署注意
+
+要讓正式站出現「動手試試」，除了把 `l0/0.0-tools.json` 用 `evoleap script push` 推上去（腳本要有 `practice` 欄位），還要打開功能旗標（GitHub 變數 `FEATURES=practice` 後重新部署，或用網址參數個別測試）。
 
 ## [0.42.0] - 2026-11-17
 
