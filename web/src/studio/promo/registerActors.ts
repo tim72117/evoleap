@@ -15,9 +15,10 @@ import kidLife from './actors/kid-life/actor'
 import kidReel from './actors/kid-reel/actor'
 import kidReelCards from './actors/kid-reel/learn'
 import archifyReel from './actors/archify-reel/actor'
+import sheetsReel from './actors/sheets-reel/actor'
 import aiToolsReel from './actors/ai-tools-reel/actor'
 
-for (const def of [kidLife, kidHub, kidDayScene, kidReel, kidReelCards, archifyReel, aiToolsReel]) ACTORS[def.name] = def
+for (const def of [kidLife, kidHub, kidDayScene, kidReel, kidReelCards, archifyReel, sheetsReel, aiToolsReel]) ACTORS[def.name] = def
 
 /** 宣傳片的場景(格式同 fable/registerActors.ts 的 SCENES,由那裡併進「開發 › 場景」的清單) */
 export const PROMO_SCENES: { name: string; title: string; script: string; summary: string }[] = [

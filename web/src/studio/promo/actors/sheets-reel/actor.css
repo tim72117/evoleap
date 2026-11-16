@@ -1,0 +1,9 @@
+.A-sheets-reel {
+  background: #f4efe8;
+  overflow: hidden;
+}
+.A-sheets-reel .sr-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
