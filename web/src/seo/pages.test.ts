@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { routes } from '../App'
 import { internalRoutes } from '../studio/StudioApp'
 import { isInternalPath } from '../site/internalPaths'
+import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { SITE_ORIGIN } from '../site/siteInfo'
 import { PAGES, robotsTxt, sitemapPages } from './build'
 import { findInternalPage } from './internalPages'
@@ -75,15 +76,16 @@ describe('兒童課(給孩子的網頁程式)', () => {
     expect(pages.find((p) => p.loc === absoluteUrl('/topics/kids/0-1'))?.lesson).toEqual({ course: 'kids', id: '0.1' })
   })
 
-  it('主題頁的結構化資料列出每一課,可以上的課附網址;課程頁的麵包屑掛在主題底下', () => {
-    const list = topic.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { name: string; url?: string }[] }
-    expect(list.itemListElement.find((x) => x.name.startsWith('0.1'))?.url).toBe(absoluteUrl('/topics/kids/0-1'))
-    expect(list.itemListElement.find((x) => x.name.startsWith('0.2'))?.url).toBe(absoluteUrl('/topics/kids/0-2'))
-    expect(list.itemListElement.find((x) => x.name.startsWith('0.3'))?.url).toBe(absoluteUrl('/topics/kids/0-3'))
-    expect(list.itemListElement.find((x) => x.name.startsWith('1.1'))?.url).toBe(absoluteUrl('/topics/kids/1-1'))
-    expect(list.itemListElement.find((x) => x.name.startsWith('2.1'))?.url).toBe(absoluteUrl('/topics/kids/2-1'))
-    // 草稿的課(3.1 起,管理員才看得到)不附網址
-    expect(list.itemListElement.find((x) => x.name.startsWith('3.1'))?.url).toBeUndefined()
+  it('主題頁的結構化資料列出每一課,有課程頁的課標出網址(附不附 url 由 server 依資料庫決定);課程頁的麵包屑掛在主題底下', () => {
+    type Item = { name: string; url?: string; evoleapLesson?: { course: string; id: string; url: string } }
+    const list = topic.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: Item[] }
+    const item = (id: string) => list.itemListElement.find((x) => x.name.startsWith(id))!
+    // build 不判斷開放與否:不直接寫 url,只標這一課與課程頁網址
+    for (const x of list.itemListElement) expect(x.url, x.name).toBeUndefined()
+    expect(item('0.1').evoleapLesson).toEqual({ course: 'kids', id: '0.1', url: absoluteUrl('/topics/kids/0-1') })
+    expect(item('3.1').evoleapLesson).toEqual({ course: 'kids', id: '3.1', url: absoluteUrl('/topics/kids/3-1') })
+    // 每一個有課程頁(KIDS_LESSON_PAGES)的課都有標記
+    expect(list.itemListElement.filter((x) => x.evoleapLesson).length).toBe(Object.keys(KIDS_LESSON_PAGES).length)
     expect(JSON.stringify(lesson.jsonLd?.find((x) => x['@type'] === 'BreadcrumbList'))).toContain('/topics/kids')
     expect(lesson.jsonLd?.some((x) => x['@type'] === 'Course')).toBe(true)
   })

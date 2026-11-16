@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { COURSES, lessonPath } from '../content/catalog'
 import type { CourseMap } from '../content/courseMap'
-import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
+import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { launchLessonPath, launchScriptKey } from '../content/launchCourse'
-import { WEB_OPEN_LESSONS } from '../content/webCourse'
+import { WEB_LESSON_PAGES } from '../content/webCourse'
 import { buildLessonIndex } from './lessonIndex'
 import { isFinished, startedCourses } from './memberCourses'
 
@@ -19,9 +19,9 @@ const map = (id: string, lessons: { id: string; script?: string; status?: 'open'
 describe('buildLessonIndex', () => {
   it('沒有課程地圖時,上線課、網頁課、兒童課沒有對照(不用前端寫死的路徑頂替);課程目錄裡的課照樣認得', () => {
     const lookup = buildLessonIndex()
-    const web = Object.values(WEB_OPEN_LESSONS)[0]
+    const web = Object.values(WEB_LESSON_PAGES)[0]
     expect(lookup(`live:${web.script}`)).toBeUndefined()
-    const kids = Object.values(KIDS_OPEN_LESSONS)[0]
+    const kids = Object.values(KIDS_LESSON_PAGES)[0]
     expect(lookup(`kids:${kids.script}`)).toBeUndefined()
     expect(lookup(launchScriptKey('0.1'))).toBeUndefined()
     const course = COURSES.find((c) => c.lessons.some((l) => l.videos.some((v) => v.live)))!
@@ -31,8 +31,8 @@ describe('buildLessonIndex', () => {
   })
 
   it('上線課、網頁課、兒童課照課程地圖的腳本對,改了腳本路徑也對得上', () => {
-    const [webId, web] = Object.entries(WEB_OPEN_LESSONS)[0]
-    const [kidsId, kids] = Object.entries(KIDS_OPEN_LESSONS)[0]
+    const [webId, web] = Object.entries(WEB_LESSON_PAGES)[0]
+    const [kidsId, kids] = Object.entries(KIDS_LESSON_PAGES)[0]
     const lookup = buildLessonIndex({
       launch: map('launch', [{ id: '0.1' }, { id: '0.2', script: 'launch/v2/0.2.json' }, { id: 'nopage', script: 'launch/x.json' }]),
       web: map('web', [{ id: webId, script: 'web/renamed.json' }]),
@@ -61,7 +61,7 @@ describe('buildLessonIndex', () => {
 })
 
 describe('startedCourses', () => {
-  const kidsLesson = Object.entries(KIDS_OPEN_LESSONS)[0]
+  const kidsLesson = Object.entries(KIDS_LESSON_PAGES)[0]
   const lookup = buildLessonIndex({
     launch: map('launch', [{ id: '0.1', script: 'launch/0.1.json' }, { id: '0.2', script: 'launch/0.2.json' }]),
     kids: map('kids', [{ id: kidsLesson[0], script: kidsLesson[1].script }]),
@@ -69,7 +69,7 @@ describe('startedCourses', () => {
 
   it('一門課一筆,最近看的課程在前,點進去是最近看的那一課', () => {
     const [a, b] = ['0.1', '0.2'].map(launchScriptKey)
-    const kids = Object.values(KIDS_OPEN_LESSONS)[0]
+    const kids = Object.values(KIDS_LESSON_PAGES)[0]
     const list = startedCourses(
       [
         p(a, 60_000, 60_000, '2026-11-01T00:00:00Z'),
@@ -89,7 +89,7 @@ describe('startedCourses', () => {
 
   it('依實際時間排序,不受小數位數或時區寫法影響', () => {
     const [a, b] = ['0.1', '0.2'].map(launchScriptKey)
-    const kids = Object.values(KIDS_OPEN_LESSONS)[0]
+    const kids = Object.values(KIDS_LESSON_PAGES)[0]
     // 字串比較會把 b(…T09:00:00-03:00)排最後,實際上它是 12:00Z,三筆裡最新
     const list = startedCourses(
       [p(a, 1, 10, '2026-11-10T10:00:00.5Z'), p(b, 1, 10, '2026-11-10T09:00:00-03:00'), p(`kids:${kids.script}`, 1, 10, '2026-11-10T10:30:00Z')],

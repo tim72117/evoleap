@@ -31,7 +31,7 @@ func (s *Server) handleCourseMap(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
-	// 課程地圖只在部署時改變(種子資料),短暫快取即可。有草稿的課時內容依看的人不同(管理員登入前後也不同),一律不快取
+	// 課程地圖只在部署或管理員用 CLI 修改時改變,短暫快取即可。有草稿的課時內容依看的人不同(管理員登入前後也不同),一律不快取
 	if m.HasDrafts() {
 		w.Header().Set("Cache-Control", "private, no-store")
 	} else {

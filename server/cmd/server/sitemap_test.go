@@ -73,34 +73,17 @@ func TestSitemapFollowsDatabase(t *testing.T) {
 	}
 }
 
-// 查詢失敗時用上一次成功的結果;還沒成功過才回 503。頁面清單檔本身不對外提供。
-func TestSitemapStaleOnErrorAndHiddenPagesFile(t *testing.T) {
+// 頁面清單檔本身不對外提供;資料庫查不到又沒有快取時 sitemap 回 503
+func TestSitemapUnavailableAndHiddenPagesFile(t *testing.T) {
 	dist := fstest.MapFS{
 		"index.html":         {Data: []byte("<title>home</title>")},
 		"sitemap-pages.json": {Data: []byte(`[{"loc":"https://evoleap.io/"}]`)},
 	}
-	fail := false
-	h := sitemapHandler(dist, func(context.Context) (map[string]bool, error) {
-		if fail {
-			return nil, context.DeadlineExceeded
-		}
-		return map[string]bool{}, nil
-	})
-	get := func() *httptest.ResponseRecorder {
-		rec := httptest.NewRecorder()
-		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/sitemap.xml", nil))
-		return rec
-	}
-	if rec := get(); rec.Code != 200 {
-		t.Fatalf("first: %d", rec.Code)
-	}
-	fail = true
-	// 快取還有效時不查資料庫;這裡直接驗證「失敗且沒有快取」的情況用新的 handler
 	bad := sitemapHandler(dist, func(context.Context) (map[string]bool, error) { return nil, context.DeadlineExceeded })
 	rec := httptest.NewRecorder()
 	bad.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/sitemap.xml", nil))
 	if rec.Code != http.StatusServiceUnavailable {
-		t.Errorf("沒有快取又查不到資料庫: %d", rec.Code)
+		t.Errorf("查不到資料庫: %d", rec.Code)
 	}
 
 	static := newStaticHandler(dist, openAccess)

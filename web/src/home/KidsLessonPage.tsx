@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { KIDS_OPEN_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
+import { KIDS_LESSON_PAGES, kidsLessonTitle } from '../content/kidsCourse'
 import { KIDS_TOPIC, kidsLessonDocTitle } from '../content/topics'
 import { KidsPlayer } from '../kids/KidsPlayer'
 import { useKidsMode } from '../kidsMode/KidsModeContext'
@@ -15,8 +15,8 @@ import { TopicLessonGate } from './TopicLessonGate'
 
 // 兒童課的一課:整個視窗都是兒童版的互動播放器(沒有網站標頭與頁尾),給孩子自己上:大按鈕、不能跳過還沒回答的題目。
 // 參考一般版的互動課程頁:「回課程地圖」浮在左上角,課名、「給家長」(打開一個說明框)與切換段落浮在右上角的側欄,可以收起來(手機、平板也一樣收在右上角);按鈕放大給孩子用。配色沿用網站的 --site-* 變數(套上 SiteLayout 的 .site)。
-// 能不能上、播哪個腳本、要不要登入都照資料庫(TopicLessonGate);課名在 kidsCourse.ts,給家長的說明在 KIDS_OPEN_LESSONS。
-// 有頁面的課(路由與 SEO)由 KIDS_OPEN_LESSONS 產生(routes.tsx、seo/pages.ts)。
+// 能不能上、播哪個腳本、要不要登入都照資料庫(TopicLessonGate);課名在 kidsCourse.ts,給家長的說明在 KIDS_LESSON_PAGES。
+// 有頁面的課(路由與 SEO)由 KIDS_LESSON_PAGES 產生(routes.tsx、seo/pages.ts)。
 
 export function KidsLessonPage({ id }: { id: string }) {
   const { mode } = useKidsMode()
@@ -62,7 +62,7 @@ export function KidsLessonPage({ id }: { id: string }) {
           </p>
           <h1>{m.locked}</h1>
           <p>{next ? m.finishFirst(kidsLessonTitle(next)) : m.checkMap}</p>
-          <Link className={own.closedBack} to={next ? KIDS_OPEN_LESSONS[next].path : KIDS_TOPIC.path}>
+          <Link className={own.closedBack} to={next ? KIDS_LESSON_PAGES[next].path : KIDS_TOPIC.path}>
             {next ? m.goTo(kidsLessonTitle(next)) : m.backToMyLessons}
           </Link>
         </section>
@@ -72,7 +72,7 @@ export function KidsLessonPage({ id }: { id: string }) {
   return (
     <TopicLessonGate
       course="kids"
-      pages={Object.keys(KIDS_OPEN_LESSONS)}
+      pages={Object.keys(KIDS_LESSON_PAGES)}
       topic={KIDS_TOPIC}
       id={id}
       title={kidsLessonTitle(id)}
@@ -85,7 +85,7 @@ export function KidsLessonPage({ id }: { id: string }) {
 }
 
 function KidsLesson({ id, script }: { id: string; script: string }) {
-  const parentsNotes = KIDS_OPEN_LESSONS[id]?.parents ?? []
+  const parentsNotes = KIDS_LESSON_PAGES[id]?.parents ?? []
   const [parents, setParents] = useState(false)
   // 切換段落放在右上角的側欄(各種寬度都一樣,手機、平板也收在右上角)
   const [side, setSide] = useState<HTMLElement | null>(null)

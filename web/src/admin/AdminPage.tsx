@@ -5,9 +5,9 @@ import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
 import { adminApi, type SchemaReport, type AdminOverview, type AdminUser, type Count, type AdminRange, type GuestVisit, type HomePath, type HomeStay, type LessonStat, type LoginStats, type UserProgress } from './api'
 import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
-import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
+import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { LAUNCH_LESSON_PAGES, launchLessonPath, launchScriptKey } from '../content/launchCourse'
-import { WEB_OPEN_LESSONS } from '../content/webCourse'
+import { WEB_LESSON_PAGES } from '../content/webCourse'
 import { ADMIN_PATH } from './paths'
 import { formatDateTime, formatDuration, percentOf } from './format'
 import { isGate, isHomeShowcase, isPage } from '../courses/guestActivity'
@@ -387,8 +387,8 @@ const PAGE_NAME: Record<string, string> = {
   ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [launchLessonPath(id), `上線課 ${id}（還沒開放）`])),
 }
 const LESSON_NAME: Record<string, string> = {
-  ...Object.fromEntries(Object.entries(WEB_OPEN_LESSONS).map(([id, l]) => [`live:${l.script}`, `網頁課 ${id}`])),
-  ...Object.fromEntries(Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => [`kids:${l.script}`, `兒童課 ${id}`])),
+  ...Object.fromEntries(Object.entries(WEB_LESSON_PAGES).map(([id, l]) => [`live:${l.script}`, `網頁課 ${id}`])),
+  ...Object.fromEntries(Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => [`kids:${l.script}`, `兒童課 ${id}`])),
   ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [launchScriptKey(id), `上線課 ${id}`])),
 }
 

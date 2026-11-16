@@ -2,7 +2,7 @@
 // 2026-11-06 提出，大綱草稿；堂數、時長都是暫定。0.1–0.3 已上線（主題開放中），1.1–4.5 已有腳本、是草稿（管理員才看得到），還沒有語音。
 // 方向：不強調語法（AI 能處理大部分語法），教重要概念、正確的名詞與說清楚目標；前面先教運作概念，單元 4 才加入 AI。
 // 單元與課程(KIDS_UNITS)在公開的 content/kidsCourse.ts,公開的主題頁也用同一份。
-import { KIDS_OPEN_LESSONS, KIDS_UNITS, type KidsLesson, type KidsUnit } from '../../content/kidsCourse'
+import { KIDS_LESSON_PAGES, KIDS_UNITS, type KidsLesson, type KidsUnit } from '../../content/kidsCourse'
 
 export { KIDS_UNITS, type KidsLesson, type KidsUnit }
 
@@ -11,7 +11,7 @@ export const KIDS_DEMOS: Record<string, string> = {
   '0.1': '/studio/kids-web/0-1',
   '0.2': '/studio/kids-web/0-2/live',
   '0.3': '/studio/kids-web/0-3/live',
-  ...Object.fromEntries(Object.entries(KIDS_OPEN_LESSONS).filter(([id]) => !id.startsWith('0.')).map(([id, l]) => [id, l.path])),
+  ...Object.fromEntries(Object.entries(KIDS_LESSON_PAGES).filter(([id]) => !id.startsWith('0.')).map(([id, l]) => [id, l.path])),
 }
 
 export const KIDS_POSITIONING: [string, string][] = [

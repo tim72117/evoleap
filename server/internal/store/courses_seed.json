@@ -969,7 +969,7 @@
             "id": "3.1",
             "title": "按下去會發生事",
             "summary": "說好「點了什麼」就「做什麼」。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/3.1.json",
             "files": [
               "kids/3.1-say.json"
@@ -979,7 +979,7 @@
             "id": "3.2",
             "title": "出現和藏起來",
             "summary": "網頁上的東西可以出現，也可以藏起來。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/3.2.json",
             "files": [
               "kids/3.2-card.json"
@@ -989,7 +989,7 @@
             "id": "3.3",
             "title": "會記數字的盒子",
             "summary": "網頁可以用貼著名字的盒子記住數字。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/3.3.json",
             "files": [
               "kids/3.3-change.json",
@@ -1000,7 +1000,7 @@
             "id": "3.4",
             "title": "如果……就……",
             "summary": "說清楚「如果什麼時候」，網頁才知道要不要做。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/3.4.json",
             "files": [
               "kids/3.4-surprise.json"
@@ -1010,7 +1010,7 @@
             "id": "3.5",
             "title": "擲骰子",
             "summary": "網頁也可以每次都不一樣。",
-            "status": "draft",
+            "status": "open",
             "script": "kids/3.5.json",
             "files": [
               "kids/3.5-roll.json"

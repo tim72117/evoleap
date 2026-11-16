@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/tim72117/evoleap/internal/api"
@@ -51,6 +52,12 @@ type page struct {
 	etag     string
 	noindex  bool
 	internal bool
+	// dynamic:頁面的結構化資料裡有依資料庫決定的課程連結(seo_ld.go),回傳時才處理;
+	// 處理後的頁面依已開放的課(mapID)記著,沒變就不重做
+	dynamic bool
+	mu      sync.Mutex
+	patched *page
+	patchID uintptr
 }
 
 func newPage(body []byte, internal bool) *page {
@@ -60,6 +67,7 @@ func newPage(body []byte, internal bool) *page {
 		etag:     `"` + hex.EncodeToString(sum[:8]) + `"`,
 		noindex:  bytes.Contains(body, []byte(noindexMarker)),
 		internal: internal,
+		dynamic:  hasLessonLinks(body),
 	}
 }
 
@@ -85,6 +93,12 @@ func distFS(distDir string) fs.FS {
 //   - 有副檔名的路徑是靜態檔:/assets/*(檔名含 hash)長期快取,其他短期快取;
 //     找不到回 404,不回 HTML——否則瀏覽器會把 HTML 當成 JS/CSS 解析,錯誤更難查。
 func newStaticHandler(dist fs.FS, access accessFunc) http.Handler {
+	return newStaticHandlerWithOpen(dist, access, nil)
+}
+
+// newStaticHandlerWithOpen 同 newStaticHandler;open 回傳已開放的課,頁面結構化資料裡的課程連結(seo_ld.go)依它處理,
+// 沒接資料庫(nil)時所有課都不附連結。
+func newStaticHandlerWithOpen(dist fs.FS, access accessFunc, open openLessons) http.Handler {
 	pages := map[string]*page{}
 	err := fs.WalkDir(dist, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || path.Base(p) != "index.html" {
@@ -130,6 +144,9 @@ func newStaticHandler(dist fs.FS, access accessFunc) http.Handler {
 			if pg == nil {
 				serveNotFound(w, r, notFound)
 				return
+			}
+			if pg.dynamic {
+				pg = dynamicPage(r, pg, open)
 			}
 			servePage(w, r, pg)
 			return
@@ -217,4 +234,25 @@ func serveNotFound(w http.ResponseWriter, r *http.Request, pg *page) {
 	if r.Method != http.MethodHead {
 		w.Write(pg.body)
 	}
+}
+
+// dynamicPage 依資料庫處理頁面的課程連結(seo_ld.go),回傳這次要用的頁面(etag 依處理後的內容)。
+// 查不到資料庫(或沒接資料庫)時所有課都不附連結。已開放的課沒變就沿用上一次處理好的頁面。
+func dynamicPage(r *http.Request, pg *page, open openLessons) *page {
+	var opened map[string]bool
+	if open != nil {
+		if got, err := open(r.Context()); err == nil {
+			opened = got
+		}
+	}
+	id := mapID(opened)
+	pg.mu.Lock()
+	defer pg.mu.Unlock()
+	if pg.patched != nil && pg.patchID == id {
+		return pg.patched
+	}
+	out := newPage(patchLessonLinks(pg.body, opened), pg.internal)
+	out.dynamic = false
+	pg.patched, pg.patchID = out, id
+	return out
 }

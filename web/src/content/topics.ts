@@ -1,10 +1,10 @@
 // 首頁的主題。一個主題是一組不同目標的課程:「做出自己的軟體」(levels.ts 的 LEVELS)與「打造 AI 互動軟體」(AI_APP_LEVELS)各有課程地圖頁。
 // 規劃中的主題只放暫定的名稱、標語與預計做出的成果;不要寫未確認的事實(價格、日期、收入、學員數等)。
 import { messages } from '../i18n/current'
-import { KIDS_OPEN_LESSONS, kidsLessonTitle } from './kidsCourse'
+import { KIDS_LESSON_PAGES, kidsLessonTitle } from './kidsCourse'
 import { launchLessonPath } from './launchCourse'
 import { AI_APP_LEVELS, SOFTWARE_LEDE } from './levels'
-import { WEB_OPEN_LESSONS, webLesson } from './webCourse'
+import { WEB_LESSON_PAGES, webLesson } from './webCourse'
 
 /** 主題卡片「開始第一課」這顆固定按鈕的文字:資料只存這一份中文,畫面依目前語言換成字典的 home.startFirstLesson(topicStartLabel) */
 export const START_FIRST_LESSON = '開始第一課'
@@ -45,7 +45,7 @@ export const CLAUDE_CODE_TOPIC = {
   description: '整理使用 Claude Code 時的常見情境：換手機接著做、同時試好幾版、接回昨天的對話、把規則寫下來。遇到哪個情況就看哪一個。內容規劃中。',
 }
 
-/** 主題「從做好到上線」:開放中(序章三課可以上,其他課規劃中),課程地圖在 /topics/launch(home/LaunchTopicPage.tsx),大綱在 content/launchCourse.ts;首頁放在「做出自己的軟體」下方 */
+/** 主題「從做好到上線」:課程地圖在 /topics/launch(home/LaunchTopicPage.tsx),大綱在 content/launchCourse.ts;首頁放在「做出自己的軟體」下方 */
 export const LAUNCH_TOPIC = {
   name: '從做好到上線',
   slogan: '繁雜的上線流程交給 AI，輕鬆讓作品變成服務',
@@ -137,7 +137,7 @@ export type PlannedTopic = {
 }
 
 /**
- * 主題「給孩子的網頁程式」:開放中(課程陸續開放),首頁單獨放在「更多主題課程」上方;課程地圖在 /topics/kids(home/KidsTopicPage.tsx)。
+ * 主題「給孩子的網頁程式」:首頁單獨放在「更多主題課程」上方;課程地圖在 /topics/kids(home/KidsTopicPage.tsx)。
  * 單元與課程在 content/kidsCourse.ts;研發中的大綱與試做在研發基地 /studio/kids-web。這裡只寫大綱裡已有的內容。
  */
 export const KIDS_TOPIC = {
@@ -147,12 +147,12 @@ export const KIDS_TOPIC = {
   seoTitle: '給孩子的網頁程式課：用積木認識 HTML、CSS、JavaScript',
   description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程陸續開放中，第一課可以免費預覽。',
   open: true,
-  start: { label: START_FIRST_LESSON, path: KIDS_OPEN_LESSONS['0.1'].path },
+  start: { label: START_FIRST_LESSON, path: KIDS_LESSON_PAGES['0.1'].path },
   flow: ['用積木蓋網頁', '幫網頁換衣服', '讓網頁動起來', '說清楚，請 AI 幫忙做'],
   outcomes: ['說得出網頁每個部分的名字', '一張自己的寵物名片網頁', '請 AI 做出自己的小網站'],
   // 這張卡片是給家長看的:環節說明寫孩子會做什麼;段落名稱要和 content/live/kids/0.1.json 的 chapter 一致
   preview: {
-    script: KIDS_OPEN_LESSONS['0.1'].script,
+    script: KIDS_LESSON_PAGES['0.1'].script,
     intro: '這堂課可以互動：標著「可互動」的環節會停下來，等孩子自己點畫面上的網頁和積木。點下面的環節可以直接跳過去看。',
     sections: {
       網頁有背面: { note: '跟著旁白看：網頁翻到背面，原來是一塊一塊印著名字的積木。' },
@@ -167,7 +167,7 @@ export const KIDS_TOPIC = {
 export const kidsLessonDocTitle = (id: string): string => `${kidsLessonTitle(id)}｜${KIDS_TOPIC.name}`
 
 /**
- * 主題「網頁怎麼運作」:開放中(序章、單元 1 的 1.1、1.2 可以上,其他課規劃中),課程地圖在 /topics/web(home/WebTopicPage.tsx)。
+ * 主題「網頁怎麼運作」:課程地圖在 /topics/web(home/WebTopicPage.tsx)。
  * 單元與課程在 content/webCourse.ts;研發中的構想在研發基地 /studio/web-basics。第一課(0.1)不用登入就能預覽,其他開放的課要登入(訂閱制上線後改成訂閱才能看)。
  */
 export const WEB_TOPIC = {
@@ -177,7 +177,7 @@ export const WEB_TOPIC = {
   seoTitle: '網頁怎麼運作：AI 時代的網頁基礎課',
   description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。第一課可以免費預覽。',
   open: true,
-  start: { label: START_FIRST_LESSON, path: WEB_OPEN_LESSONS['0.1'].path },
+  start: { label: START_FIRST_LESSON, path: WEB_LESSON_PAGES['0.1'].path },
   tag: 'AI 寫程式，我還需要知道什麼？',
   intro: 'AI 已經能寫出大部分的程式碼，但寫得出來，不代表你看得懂、說得準。這門課不教語法，教網頁怎麼運作：瀏覽器怎麼畫出畫面、樣式和資料各歸誰管、網站怎麼放上網路。',
   learn: ['用對名詞，把想要的畫面和功能跟 AI 說清楚', '看懂 AI 改了哪裡、為什麼這樣改', '畫面壞掉時，知道該往哪裡找問題'],

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchCourseMap, type CourseMap } from '../content/courseMap'
-import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
+import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { progressApi } from '../courses/progress'
 import { isFinished } from '../member/memberCourses'
 
@@ -23,7 +23,7 @@ export const kidsProgressOf = (finished: Set<string>, released: string[]): KidsP
 
 /** 課程地圖裡已開放、前端也有課程頁的課(依課程順序);草稿只有管理員拿得到,也不算 */
 export const releasedOf = (map: CourseMap): string[] =>
-  map.units.flatMap((u) => u.lessons).filter((l) => l.status === 'open' && l.id in KIDS_OPEN_LESSONS).map((l) => l.id)
+  map.units.flatMap((u) => u.lessons).filter((l) => l.status === 'open' && l.id in KIDS_LESSON_PAGES).map((l) => l.id)
 
 // 同一次瀏覽只讀一次;讀不到時丟出錯誤(下次再試)
 let releasedReq: Promise<string[]> | null = null
@@ -71,7 +71,7 @@ export function useKidsProgress(enabled = true): KidsProgress | null {
     const finished = progressApi.list().then(
       (list) => {
         const done = new Set<string>()
-        for (const [id, l] of Object.entries(KIDS_OPEN_LESSONS)) {
+        for (const [id, l] of Object.entries(KIDS_LESSON_PAGES)) {
           const p = list.find((x) => x.lesson === `kids:${l.script}`)
           if (p && isFinished(p)) done.add(id)
         }

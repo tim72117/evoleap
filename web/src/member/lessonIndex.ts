@@ -5,10 +5,10 @@
 // - 地圖讀不到:沒有對照(呼叫端把讀不到當成讀取失敗,見 CoursesSection),不用前端寫死的腳本路徑頂替。
 import { COURSES, coursePath, lessonLabel, lessonPath } from '../content/catalog'
 import type { CourseMap, MapLesson } from '../content/courseMap'
-import { KIDS_OPEN_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
+import { KIDS_LESSON_PAGES, kidsLessonTitle } from '../content/kidsCourse'
 import { LAUNCH_LESSON_PAGES, launchLesson, launchLessonPath } from '../content/launchCourse'
 import { KIDS_TOPIC, LAUNCH_TOPIC, WEB_TOPIC } from '../content/topics'
-import { WEB_OPEN_LESSONS, webLesson } from '../content/webCourse'
+import { WEB_LESSON_PAGES, webLesson } from '../content/webCourse'
 import { messages } from '../i18n/current'
 
 export interface IndexedLesson {
@@ -49,15 +49,15 @@ const SPECS: Record<MappedCourse, MappedSpec> = {
   web: {
     prefix: 'live:',
     entry: (id) =>
-      WEB_OPEN_LESSONS[id]
-        ? { course: 'web', courseName: WEB_TOPIC.name, coursePath: WEB_TOPIC.path, title: `${id} ${webLesson(id)?.title ?? ''}`.trim(), path: WEB_OPEN_LESSONS[id].path }
+      WEB_LESSON_PAGES[id]
+        ? { course: 'web', courseName: WEB_TOPIC.name, coursePath: WEB_TOPIC.path, title: `${id} ${webLesson(id)?.title ?? ''}`.trim(), path: WEB_LESSON_PAGES[id].path }
         : undefined,
   },
   kids: {
     prefix: 'kids:',
     entry: (id) =>
-      KIDS_OPEN_LESSONS[id]
-        ? { course: 'kids', courseName: KIDS_TOPIC.name, coursePath: KIDS_TOPIC.path, title: kidsLessonTitle(id), path: KIDS_OPEN_LESSONS[id].path }
+      KIDS_LESSON_PAGES[id]
+        ? { course: 'kids', courseName: KIDS_TOPIC.name, coursePath: KIDS_TOPIC.path, title: kidsLessonTitle(id), path: KIDS_LESSON_PAGES[id].path }
         : undefined,
   },
 }

@@ -7,9 +7,9 @@ import { WebTopicPage } from './WebTopicPage'
 import { lazyPage } from '../site/lazyPage'
 import { SHOWCASE_PATH } from './paths'
 import { AiAppsTopicPage, SoftwareTopicPage } from './SoftwareTopicPage'
-import { KIDS_OPEN_LESSONS } from '../content/kidsCourse'
+import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { LAUNCH_LESSON_PAGES, launchLessonPath } from '../content/launchCourse'
-import { WEB_OPEN_LESSONS } from '../content/webCourse'
+import { WEB_LESSON_PAGES } from '../content/webCourse'
 import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 import { PageView } from '../courses/guestActivity'
 
@@ -27,7 +27,7 @@ export const homeRoutes: { path: string; element: JSX.Element }[] = [
   { path: CLAUDE_CODE_TOPIC.path, element: <PageView><ClaudeCodeTopicPage /></PageView> },
   { path: KIDS_TOPIC.path, element: <PageView><KidsTopicPage /></PageView> },
   // 兒童課已經可以上的課,一課一頁
-  ...Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => ({ path: l.path, element: <KidsLessonPage key={id} id={id} /> })),
+  ...Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => ({ path: l.path, element: <KidsLessonPage key={id} id={id} /> })),
   { path: WEB_TOPIC.path, element: <PageView><WebTopicPage /></PageView> },
   // 序章開放中,首頁放在「做出自己的軟體」下方
   { path: LAUNCH_TOPIC.path, element: <PageView><LaunchTopicPage /></PageView> },
@@ -36,5 +36,5 @@ export const homeRoutes: { path: string; element: JSX.Element }[] = [
   // 展示頁:首頁拿掉的影片預覽,當獨立的行銷頁(站內沒有連結連過來,只列在 sitemap)
   { path: SHOWCASE_PATH, element: <PageView><ShowcasePage /></PageView> },
   // 網頁怎麼運作已經可以上的課,一課一頁
-  ...Object.entries(WEB_OPEN_LESSONS).map(([id, l]) => ({ path: l.path, element: <WebLessonPage key={id} id={id} /> })),
+  ...Object.entries(WEB_LESSON_PAGES).map(([id, l]) => ({ path: l.path, element: <WebLessonPage key={id} id={id} /> })),
 ]

@@ -1,6 +1,6 @@
 // 主題「從做好到上線」(主題頁 /topics/launch,home/LaunchTopicPage.tsx):課程說明與單元大綱。
-// 2026-11-09 提出,序章與 1.1、1.2 開放中,1.3 起(含單元 2)草稿,其他課規劃中;首頁放在「做出自己的軟體」下方(home/HomePage.tsx)。課程地圖也在資料庫(server/internal/store/courses_seed.json 的 launch),兩邊一致由 content/courseMap.test.ts 檢查。
-// 哪些課可以上、播哪個腳本,看資料庫裡每一課的 status 與 script:序章三課與 1.1、1.2 已開放(open);1.3 起(含單元 2)是草稿(draft,種子照正式機的狀態),只有管理員看得到、點得進去。
+// 2026-11-09 提出;首頁放在「做出自己的軟體」下方(home/HomePage.tsx)。課程地圖也在資料庫(server/internal/store/courses_seed.json 的 launch 是建立資料庫時用的),課名與課程內容兩邊一致由 content/courseMap.test.ts 檢查。
+// 哪些課開放、播哪個腳本、要不要登入,一律看資料庫裡每一課的 status、script 與 access,這裡不寫;草稿(draft)只有管理員看得到、點得進去。
 // 序章是上線前的準備:觀念(0.1、0.2)與推上 GitHub 前要排除的檔案(0.3),不做平台與帳號的設定;設定從單元 1 開始。
 // from 是研發中的全環節課程清單的環節編號(例如 16.1),之後可以沿用那邊的試做腳本;序章的觀念課沒有。
 // 和「網頁怎麼運作」單元 5 的分工:那邊教上線的觀念與名詞,這門課實際把自己的作品放上線、讓別人使用。
@@ -114,9 +114,6 @@ export const LAUNCH_UNITS: LaunchUnit[] = [
  * 和種子資料裡有 script 的課一致,由 content/courseMap.test.ts 檢查。
  */
 export const LAUNCH_LESSON_PAGES = ['0.1', '0.2', '0.3', '1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8', '2.9']
-
-/** 已開放的課:SEO 與 sitemap(建置時產生)用,畫面照資料庫;和種子資料的 status open 一致,由 content/courseMap.test.ts 檢查 */
-export const LAUNCH_OPEN_LESSONS = ['0.1', '0.2', '0.3', '1.1', '1.2']
 
 /** 課號 → 課程頁網址 */
 export const launchLessonPath = (id: string): string => `/topics/launch/${id.replace('.', '-')}`

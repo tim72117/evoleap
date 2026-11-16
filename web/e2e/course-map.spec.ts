@@ -1,4 +1,4 @@
-// 主題頁的課程地圖從資料庫讀(GET /api/courses/{id}/map;資料是 server/internal/store/courses_seed.json):
+// 主題頁的課程地圖從資料庫讀(GET /api/courses/{id}/map;資料在資料庫,測試用的資料庫由 server/internal/store/courses_seed.json 建立):
 // 未登入時第一課免費預覽、其他開放的課登入後學習、還沒開放的規劃中;開放的課連到課程頁。
 import { expect, test } from '@playwright/test'
 import { GATED, collectErrors, desktopOnly, expectLabel, loginAsNewStudent, mapLessons } from './support'
@@ -14,22 +14,22 @@ test('兒童課程地圖由資料庫讀取', async ({ page }) => {
   await expect(row('0.1').getByRole('link', { name: '翻到網頁的背面' })).toHaveAttribute('href', '/topics/kids/0-1')
   // 每一課的標示(免費預覽、登入後學習、規劃中)依資料庫的課程地圖
   for (const l of await mapLessons(page.request, 'kids', gated)) await expectLabel(row(l.id), l)
-  // 單元 1、單元 2 已開放(種子照正式機):訪客看到可以點的課
+  // 單元 1、單元 2 的課有課程頁:開放的課(上面依資料庫的標示)訪客看到可以點的課
   await expect(row('1.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/1-1')
   await expect(row('2.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/2-1')
-  // 3.1 起是草稿:訪客看到規劃中、沒有連結,直接打開課程頁是「還沒開放」
-  await expect(row('3.1')).toContainText('規劃中')
-  await expect(row('3.1').getByRole('link')).toHaveCount(0)
-  await page.goto(`${gated}/topics/kids/3-1`)
+  // 4.1 起是草稿:訪客看到規劃中、沒有連結,直接打開課程頁是「還沒開放」
+  await expect(row('4.1')).toContainText('規劃中')
+  await expect(row('4.1').getByRole('link')).toHaveCount(0)
+  await page.goto(`${gated}/topics/kids/4-1`)
   await expect(page.getByText('這一課還沒開放')).toBeVisible()
 
   // 管理員看到草稿,整列連到課程頁(等 API 回來再看:前端內建的備援地圖一開始也畫了草稿,不等就測不到伺服器)
   const adminMap = page.waitForResponse((r) => r.url().endsWith('/api/courses/kids/map'))
   await page.goto('/topics/kids#map')
   const body = (await (await adminMap).json()) as { units: { lessons: { id: string; status: string }[] }[] }
-  expect(body.units.flatMap((u) => u.lessons).find((l) => l.id === '3.1')?.status).toBe('draft')
-  await expect(row('3.1')).toContainText('草稿')
-  await expect(row('3.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/3-1')
+  expect(body.units.flatMap((u) => u.lessons).find((l) => l.id === '4.1')?.status).toBe('draft')
+  await expect(row('4.1')).toContainText('草稿')
+  await expect(row('4.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/4-1')
 })
 
 test('網頁怎麼運作的課程地圖由資料庫讀取', async ({ page }) => {

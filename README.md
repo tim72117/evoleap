@@ -69,13 +69,13 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 - 單元的 `subtitle` 是課程地圖上單元標題下的小字（兒童課是比喻，網頁怎麼運作是這個單元回答的問題）。
 - 公開 API `GET /api/courses/{id}/map` 回傳課程地圖（不用登入，登入功能沒開也能讀，只有沒接資料庫時回 503）。讀它的頁面：
   - 主題的課程地圖：兒童課（`/topics/kids#map`）、網頁怎麼運作（`/topics/web#map`）、從做好到上線（`/topics/launch#map`），網頁怎麼運作、從做好到上線用 `web/src/home/TopicCourseMap.tsx`（和課程總覽頁同一個清單元件 `web/src/courses/LessonGroup.tsx`），兒童版用自己的畫法 `web/src/home/CourseMapUnits.tsx`。**課程資訊不做前端備援**：讀取中顯示佔位卡，讀不到顯示「無法讀取課程資訊」。
-  - 這三個主題的單課頁：能不能上、播哪個腳本、要不要登入都照資料庫（`web/src/home/TopicLessonGate.tsx`）；有頁面的課（路由與 SEO）仍由前端的 `KIDS_OPEN_LESSONS`、`WEB_OPEN_LESSONS`、`LAUNCH_LESSON_PAGES` 決定。
+  - 這三個主題的單課頁：能不能上、播哪個腳本、要不要登入都照資料庫（`web/src/home/TopicLessonGate.tsx`）；有頁面的課（路由與 SEO）仍由前端的 `KIDS_LESSON_PAGES`、`WEB_LESSON_PAGES`、`LAUNCH_LESSON_PAGES` 決定。
   - 所有課程的課程總覽（`/courses/...`）：每一課的一句話、時間、開放與否、免費預覽；所有 `/courses/...` 單課頁要不要登入也照每一課的 `access`（資料庫裡沒有的課顯示規劃中）。
   - 首頁、課程列表（`/courses`）、軟體課程地圖頁等級卡片的「已開放」與課數；會員空間「課程」分頁與兒童模式的進度、這週的課。讀不到時這些地方不標開放狀態或顯示讀取失敗，不用前端資料頂替。
-- 還在前端的：課程與主題的介紹（`levels.ts`、`topics.ts`）、單課頁的內容（步驟、提示詞，`l0Lessons.ts` 等）、規劃中課程的章節頁。課名、單課頁的路由與 SEO（建置時產生）仍用前端清單（`WEB_OPEN_LESSONS`、`KIDS_RELEASED_LESSONS` 等），畫面不用它們；`web/src/content/courseMap.test.ts` 檢查這些清單和種子一致。
+- 還在前端的：課程與主題的介紹（`levels.ts`、`topics.ts`）、單課頁的內容（步驟、提示詞，`l0Lessons.ts` 等）、規劃中課程的章節頁。課名、單課頁的路由與 SEO 頁面（建置時產生）仍用前端清單（`WEB_LESSON_PAGES`、`KIDS_LESSON_PAGES`、`LAUNCH_LESSON_PAGES`，只表示「這一課有頁面」，不表示開放與否）；開放與否一律看資料庫：單課存取、課程清單標示、`/sitemap.xml`、頁面結構化資料的課程連結（`server/cmd/server/seo_ld.go`）都是。`web/src/content/courseMap.test.ts` 檢查這些清單和種子裡有腳本的課一致。
 - 腳本檔：補課程資料時（`-live`，預設 `../web/src/content/live`，映像裡是 `/app/live`）把每一課的 `script`、`files` 與同名的 `.voice.json`、`.mix.json` 讀進 `lesson_files`（一個檔一列，記著屬於哪門課的哪一課），其餘的 `.json`（研發基地的 `lab/`、`promo/` 與草稿）讀進 `studio_files`，同樣只補資料庫還沒有的檔；種子寫到的檔不存在、或兩課寫到同一個檔時失敗（正式環境就是部署失敗）。上線後改腳本內容用 `evoleap script push`。程式在 `server/internal/store/lessonfiles.go`。
-- `GET /api/scripts/{path}` 依所屬那一課把關：免費預覽誰都拿得到、登入後免費要登入（401）、訂閱課程等訂閱功能上線前不給（403）、草稿與規劃中的課只給管理員（其他人 404）；研發基地的檔只給管理員。`GET /api/scripts` 列出所有腳本路徑（只給管理員）。程式在 `server/internal/api/scripts.go`。本機開發時直接讀磁碟上最新的檔案（把關仍照資料庫），改既有的腳本不用重啟；本機新增檔案要重啟後端。沒接資料庫時照內嵌的種子直接讀檔，只有免登入的課拿得到。
-- sitemap 只列已開放的課（`web/src/seo/build.ts` 在建置時讀種子，所以用 CLI 改了開放狀態後，sitemap 要等種子也改了、下次部署才會跟上）；草稿與規劃中的課頁面仍可收錄，只是不列入。
+- `GET /api/scripts/{path}` 依所屬那一課把關：免費預覽誰都拿得到、登入後免費要登入（401）、訂閱課程等訂閱功能上線前不給（403）、草稿與規劃中的課只給管理員（其他人 404）；研發基地的檔只給管理員。`GET /api/scripts` 列出所有腳本路徑（只給管理員）。程式在 `server/internal/api/scripts.go`。本機開發時直接讀磁碟上最新的檔案（把關仍照資料庫），改既有的腳本不用重啟；本機新增檔案要重啟後端。沒接資料庫時沒有種子備援：腳本回 503（選用的旁白、章節音軌清單回 `null`）。
+- `/sitemap.xml` 由後端依資料庫每一課的狀態即時產生（`server/cmd/server/sitemap.go`；前端 build 只輸出可收錄的頁面清單 `dist/sitemap-pages.json`，該檔不對外提供），只列已開放的課，所以用 CLI 改了開放狀態後最多 1 分鐘（程序內快取）就會跟上；草稿與規劃中的課頁面仍可收錄，只是不列入。主題頁結構化資料的課程連結同樣依資料庫（`seo_ld.go`）。
 
 ## 課程 CLI（`evoleap`）
 

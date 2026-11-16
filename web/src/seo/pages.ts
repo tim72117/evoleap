@@ -9,13 +9,20 @@ import { AI_AGENT_COURSE_PATH, COURSE } from '../content/aiAgent'
 import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath } from '../content/catalog'
 import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
-import { KIDS_OPEN_LESSONS, KIDS_RELEASED_LESSONS, KIDS_UNITS, kidsLessonTitle } from '../content/kidsCourse'
+import { KIDS_LESSON_PAGES, KIDS_UNITS, kidsLessonTitle } from '../content/kidsCourse'
 import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, kidsLessonDocTitle, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC, webLessonDocTitle } from '../content/topics'
 import { LAUNCH_LESSON_PAGES, launchLesson, launchLessonPath } from '../content/launchCourse'
-import { WEB_OPEN_LESSONS, WEB_UNITS, webLesson } from '../content/webCourse'
+import { WEB_LESSON_PAGES, WEB_UNITS, webLesson } from '../content/webCourse'
 import { MEMBER_SECTIONS, memberSectionTitle } from '../member/sections'
 
 type JsonLd = Record<string, unknown>
+
+/**
+ * 結構化資料裡課程清單的一課:標出課程頁網址,但開放了沒有不在 build 判斷(不讀種子)。
+ * server 回傳頁面時(server/cmd/server/seo_ld.go)依資料庫:那一課已開放就把 url 寫成 ListItem 的 "url",
+ * 並一律拿掉 evoleapLesson,所以這個欄位不會出現在回應裡。
+ */
+const lessonLink = (course: string, id: string, path: string) => ({ evoleapLesson: { course, id, url: absoluteUrl(path) } })
 
 export interface PageMeta {
   /** 站內路徑,不含結尾斜線(首頁為 /) */
@@ -26,7 +33,7 @@ export interface PageMeta {
   /** 不收錄的頁面(登入、後台、研發基地):noindex,且不列入 sitemap */
   noindex?: boolean
   ogType?: 'website' | 'article'
-  /** 這一頁是哪一課(courses_seed.json 的課程 id 與課號);課還沒開放時仍可收錄,但不列入 sitemap(判斷在 build.ts,只在建置時讀種子) */
+  /** 這一頁是哪一課(courses_seed.json 的課程 id 與課號);課還沒開放時仍可收錄,但不列入 sitemap(server 依資料庫決定,見 server/cmd/server/sitemap.go) */
   lesson?: { course: string; id: string }
   /** sitemap 的 <priority>(0–1);不填則不輸出,搜尋引擎視為 0.5 */
   sitemapPriority?: number
@@ -154,20 +161,19 @@ const KIDS_TOPIC_PAGE: PageMeta = {
     ld({
       '@type': 'ItemList',
       name: KIDS_TOPIC.name,
-      // 已經可以上的課附上課程頁網址
+      // 有課程頁的課標出課程頁網址,附不附 url 由 server 依資料庫那一課開放了沒有決定(lessonLink)
       itemListElement: KIDS_UNITS.flatMap((u) => u.lessons).map((l, i) => ({
         '@type': 'ListItem',
         position: i + 1,
         name: `${l.id} ${l.title}`,
-        // 草稿的課(管理員才看得到)不附網址
-        ...(KIDS_RELEASED_LESSONS.includes(l.id) && { url: absoluteUrl(KIDS_OPEN_LESSONS[l.id].path) }),
+        ...(KIDS_LESSON_PAGES[l.id] && lessonLink('kids', l.id, KIDS_LESSON_PAGES[l.id].path)),
       })),
     }),
   ],
 }
 
 /** 兒童課已經可以上的課:一課一頁 */
-const KIDS_LESSON_PAGES: PageMeta[] = Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => {
+const KIDS_LESSON_METAS: PageMeta[] = Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => {
   const learn = KIDS_UNITS.flatMap((u) => u.lessons).find((x) => x.id === id)?.learn
   // 課程地圖上的一句話有些太短,接上主題與課名
   const description = learn ? (learn.length >= 20 ? learn : `${learn}${KIDS_TOPIC.name}：${kidsLessonTitle(id)}。`) : KIDS_TOPIC.description
@@ -191,19 +197,19 @@ const WEB_TOPIC_PAGE: PageMeta = {
     ld({
       '@type': 'ItemList',
       name: WEB_TOPIC.name,
-      // 已經可以上的課附上課程頁網址
+      // 有課程頁的課標出課程頁網址,附不附 url 由 server 依資料庫那一課開放了沒有決定(lessonLink)
       itemListElement: WEB_UNITS.flatMap((u) => u.lessons).map((l, i) => ({
         '@type': 'ListItem',
         position: i + 1,
         name: `${l.id} ${l.title}`,
-        ...(WEB_OPEN_LESSONS[l.id] && { url: absoluteUrl(WEB_OPEN_LESSONS[l.id].path) }),
+        ...(WEB_LESSON_PAGES[l.id] && lessonLink('web', l.id, WEB_LESSON_PAGES[l.id].path)),
       })),
     }),
   ],
 }
 
 /** 網頁怎麼運作已經可以上的課:一課一頁 */
-const WEB_LESSON_PAGES: PageMeta[] = Object.entries(WEB_OPEN_LESSONS).map(([id, l]) => {
+const WEB_LESSON_METAS: PageMeta[] = Object.entries(WEB_LESSON_PAGES).map(([id, l]) => {
   const lesson = webLesson(id)
   const title = lesson?.title ?? id
   const description = lesson?.learn ?? WEB_TOPIC.description
@@ -321,7 +327,7 @@ const ADMIN_PAGE: PageMeta = {
   noindex: true,
 }
 
-/** 主題「從做好到上線」(序章開放中):課程地圖頁與有課程頁的課;課還是草稿時訪客看到「還沒開放」 */
+/** 主題「從做好到上線」:課程地圖頁與有課程頁的課;課還沒開放時訪客看到「還沒開放」 */
 const LAUNCH_PAGES: PageMeta[] = [
   {
     path: LAUNCH_TOPIC.path,
@@ -360,9 +366,9 @@ export const PAGES: PageMeta[] = [
   COURSE_LIST_PAGE,
   CLAUDE_CODE_TOPIC_PAGE,
   KIDS_TOPIC_PAGE,
-  ...KIDS_LESSON_PAGES,
+  ...KIDS_LESSON_METAS,
   WEB_TOPIC_PAGE,
-  ...WEB_LESSON_PAGES,
+  ...WEB_LESSON_METAS,
   ...LAUNCH_PAGES,
   SHOWCASE_PAGE,
   AI_AGENT_COURSE,
@@ -397,7 +403,7 @@ export type HeadTag =
   | { tag: 'link'; attrs: Record<string, string> }
   | { tag: 'script'; attrs: Record<string, string>; text: string }
 
-export function headTags(page: PageMeta): HeadTag[] {
+export function headTags(page: PageMeta, opts: { keepLessonLinks?: boolean } = {}): HeadTag[] {
   const isNotFound = page === NOT_FOUND
   const url = absoluteUrl(page.path)
   const image = absoluteUrl(OG_IMAGE.path)
@@ -426,7 +432,7 @@ export function headTags(page: PageMeta): HeadTag[] {
   )
   for (const data of page.jsonLd ?? []) {
     // 避免內容裡的 "</script>" 提早結束 script 元素。
-    tags.push({ tag: 'script', attrs: { type: 'application/ld+json' }, text: JSON.stringify(data).replace(/</g, '\\u003c') })
+    tags.push({ tag: 'script', attrs: { type: 'application/ld+json' }, text: JSON.stringify(data, opts.keepLessonLinks === false ? (k, v) => (k === 'evoleapLesson' ? undefined : v) : undefined).replace(/</g, '\\u003c') })
   }
   return tags
 }

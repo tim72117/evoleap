@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { KIDS_OPEN_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
+import { KIDS_LESSON_PAGES, kidsLessonTitle } from '../content/kidsCourse'
 import type { KidsMode } from './api'
 import { planWeek, taipeiNow } from './plan'
 import { useKidsProgress, useKidsReleasedState } from './progress'
@@ -62,7 +62,7 @@ export function KidsSchedulePanel({ mode }: { mode: Extract<KidsMode, { active: 
                 </span>
                 {/* 正在上課的那一列:開始上課就放在這一列上 */}
                 {p.state === 'now' && schedule.open && p.lessonId ? (
-                  <Link className={styles.go} to={KIDS_OPEN_LESSONS[p.lessonId].path}>
+                  <Link className={styles.go} to={KIDS_LESSON_PAGES[p.lessonId].path}>
                     {k.startClass}
                   </Link>
                 ) : k.state[p.state] ? (

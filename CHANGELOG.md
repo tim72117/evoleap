@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+## [0.42.2] - 2026-11-17
+
+兒童課單元 3（JavaScript：讓網頁動起來，3.1–3.5）開放；SEO 的開放資訊（頁面結構化資料的課程連結）也改由資料庫決定。沒有資料表或 API 變動；移除前端符號 `KIDS_RELEASED_LESSONS`。
+
+### 變更
+
+- **兒童課 3.1–3.5 開放**：種子 `courses_seed.json` 的狀態從草稿改成開放；4.1 起仍是草稿。測試與 e2e 裡「3.1 是草稿」的斷言改成 4.1。
+  - **正式機已改好**：`evoleap script push` 推了 `kids/3.*` 的 11 支腳本與 11 份語音清單（逐一比對與本機一致），再用 `evoleap lesson set -course kids -lesson 3.x -status open` 開放 5 課；訪客的課程地圖看到 3.1–3.5 是開放（腳本要登入，回 401），4.1 仍是規劃中。種子只補新的課，既有課的狀態不會被種子改。
+- **SEO 的開放資訊由資料庫決定**：主題頁（兒童、網頁怎麼運作）結構化資料（JSON-LD）的課程清單，原本由前端寫死的清單決定哪些課附課程頁網址。現在 build 只在有課程頁的課上標 `evoleapLesson: {course, id, url}`（`seo/pages.ts` 的 `lessonLink`），`server/cmd/server/seo_ld.go` 在回傳頁面時依資料庫：已開放的課把 url 寫成 `ListItem.url`，標記一律拿掉；沒接資料庫或查不到時都不附。已開放的課的查詢（`cachedOpenLessons`）與 sitemap 共用，程序內快取 1 分鐘，查詢失敗用上一次的結果。
+  - **移除的符號**：`KIDS_RELEASED_LESSONS`（`content/kidsCourse.ts`）、`LAUNCH_OPEN_LESSONS`（`content/launchCourse.ts`，只剩測試在用）；`courseMap.test.ts` 不再比對它們，也不再用寫死的課號斷言種子的開放／草稿狀態。
+  - **改名**（名稱誤導：它們只表示「這一課有頁面」，不表示開放）：`KIDS_OPEN_LESSONS` → `KIDS_LESSON_PAGES`、`WEB_OPEN_LESSONS` → `WEB_LESSON_PAGES`；網頁課的測試改成和「有腳本的課」比，不再和「開放的課」比（`seo/pages.ts` 內的頁面中繼資料清單同時改名為 `KIDS_LESSON_METAS`、`WEB_LESSON_METAS`）。
+  - 新增 Go 測試（`seo_ld_test.go`）與 e2e（`seo.spec.ts`：兒童、網頁主題頁的課程連結依課程地圖 API）。
+
 ## [0.42.1] - 2026-11-17
 
 修正 0.42.0 的部署失敗（0.42.0 沒有部署成功），並替「動手試試」加上功能旗標。沒有資料表或 API 變動。

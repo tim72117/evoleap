@@ -113,6 +113,41 @@ test('sitemap 的課頁依資料庫:課開放才收錄', async ({ request }) => 
   expect(outCount, '資料裡要有還沒開放的課').toBeGreaterThan(0)
 })
 
+// 主題頁的結構化資料(JSON-LD)裡,課程清單的一課附不附 url 由 server 依資料庫決定:開放(open)的附、沒開放的不附,標記欄位不出現在回應裡
+for (const { course, path } of [
+  { course: 'kids', path: '/topics/kids' },
+  { course: 'web', path: '/topics/web' },
+]) {
+  test(`${path} 的結構化資料:課程連結依資料庫`, async ({ request }) => {
+    const html = await (await request.get(path)).text()
+    expect(html).not.toContain('evoleapLesson')
+    const blocks = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]) as { '@type': string })
+    const list = blocks.find((b) => b['@type'] === 'ItemList') as unknown as { itemListElement: { name: string; url?: string }[] }
+    const lessons = await mapLessons(request, course)
+    const withUrl = new Set(list.itemListElement.filter((x) => x.url).map((x) => x.name.split(' ')[0]))
+    // 有 url 的一定是資料庫裡開放的課(開放但還沒有課程頁的課不附,所以不要求每個開放的課都有)
+    for (const id of withUrl) expect(lessons.find((l) => l.id === id)?.status, `${id} 附了 url`).toBe('open')
+    expect(withUrl.size, '至少有一個開放的課附了 url').toBeGreaterThan(0)
+    // 沒開放的課都沒有 url
+    const notOpen = lessons.filter((l) => l.status !== 'open')
+    expect(notOpen.length, '資料裡要有沒開放的課').toBeGreaterThan(0)
+    for (const l of notOpen) expect(withUrl.has(l.id), `${l.id} 沒開放卻附了 url`).toBe(false)
+  })
+}
+
+// 瀏覽器執行 JS 之後(爬蟲轉譯後的 DOM)結構化資料還是 server 依資料庫處理過的版本:開放的課有 url、沒有內部標記
+test('/topics/kids 轉譯後的結構化資料仍附資料庫開放的課的 url', async ({ page, request }) => {
+  await page.goto('/topics/kids')
+  await expect(page.locator('h1').first()).toBeVisible()
+  await page.waitForLoadState('networkidle')
+  const texts = await page.locator('script[type="application/ld+json"][data-seo]').allTextContents()
+  expect(texts.join('')).not.toContain('evoleapLesson')
+  const list = texts.map((t) => JSON.parse(t) as { '@type': string }).find((b) => b['@type'] === 'ItemList') as unknown as { itemListElement: { url?: string }[] }
+  const open = (await mapLessons(request, 'kids')).filter((l) => l.status === 'open')
+  expect(open.length).toBeGreaterThan(0)
+  expect(list.itemListElement.filter((x) => x.url).length, '轉譯後仍有開放的課的 url').toBeGreaterThan(0)
+})
+
 test('所有 /studio 頁都是 noindex', async ({ request }) => {
   const proposal = distPagePaths().filter((p) => p === '/studio' || p.startsWith('/studio/'))
   expect(proposal.length).toBeGreaterThanOrEqual(9)

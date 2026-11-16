@@ -4,7 +4,7 @@ import { ProposalLayout } from '../proposal/ProposalLayout'
 import ui from '../proposal/proposal.module.css'
 
 // 兒童網頁課 0.2「網頁是一棵樹」的試做:kid-tree 演員(橫向樹狀圖、照樹畫網頁、移動節點)+ 主腳本與拖拉子腳本 + 兒童版播放器的拖曳。
-// 還沒放上公開的課程地圖(content/kidsCourse.ts 的 KIDS_OPEN_LESSONS),看過再決定。語音還沒產生,目前用瀏覽器語音念。
+// 還沒放上公開的課程地圖(content/kidsCourse.ts 的 KIDS_LESSON_PAGES),看過再決定。語音還沒產生,目前用瀏覽器語音念。
 
 export function KidsLesson02LivePage() {
   return (

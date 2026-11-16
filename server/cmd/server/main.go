@@ -105,14 +105,14 @@ func main() {
 		access = openAccess
 	}
 	dist := distFS(*distDir)
-	var open openLessons // 沒接資料庫時為 nil:sitemap 只列非課頁
+	var open openLessons // 沒接資料庫時為 nil:sitemap 只列非課頁、頁面結構化資料不附課程連結
 	if cfg.Store != nil {
-		open = cfg.Store.OpenLessonKeys
+		open = cachedOpenLessons(cfg.Store.OpenLessonKeys, time.Minute)
 	}
 	if h := sitemapHandler(dist, open); h != nil {
 		mux.Handle("GET /sitemap.xml", h)
 	}
-	mux.Handle("/", newStaticHandler(dist, access))
+	mux.Handle("/", newStaticHandlerWithOpen(dist, access, open))
 
 	log.Printf("listening on %s", *addr)
 	if err := http.ListenAndServe(*addr, mux); err != nil {

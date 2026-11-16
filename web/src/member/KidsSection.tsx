@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { KIDS_OPEN_LESSONS, kidsLessonTitle } from '../content/kidsCourse'
+import { KIDS_LESSON_PAGES, kidsLessonTitle } from '../content/kidsCourse'
 import { dateLabel, parentWeek } from '../kidsMode/plan'
 import { kidsApi, type Child } from '../kidsMode/api'
 import { KIDS_MODE_HOME, useKidsMode } from '../kidsMode/KidsModeContext'
@@ -17,7 +17,7 @@ import kids from './KidsSection.module.css'
 type Finished = { lessonId: string; at: Date }
 
 /** 上課紀錄的 kids:<腳本> 換成課號 */
-const LESSON_BY_KEY = new Map(Object.entries(KIDS_OPEN_LESSONS).map(([id, l]) => [`kids:${l.script}`, id]))
+const LESSON_BY_KEY = new Map(Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => [`kids:${l.script}`, id]))
 
 export function KidsSection() {
   const [children, setChildren] = useState<Child[] | null>(null)
@@ -300,7 +300,7 @@ function WeekList({ child, records }: { child: Child; records: Finished[] }) {
   if (child.slots.length === 0 || !released) return null
   const rows = parentWeek(child.slots, child.minutes, new Date(), released, records)
   const lesson = (id: string) => (
-    <Link to={KIDS_OPEN_LESSONS[id].path}>
+    <Link to={KIDS_LESSON_PAGES[id].path}>
       {id} {kidsLessonTitle(id)}
     </Link>
   )

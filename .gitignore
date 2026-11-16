@@ -6,6 +6,7 @@
 # ---- Go server ----
 *.exe
 server/server
+server/cmd/server/server
 # go test 產物
 *.test
 *.out

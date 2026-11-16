@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 )
 
 // sitemap.xml 由資料庫決定哪些課頁要收錄:前端 build 只輸出「可收錄的頁面清單」(dist/sitemap-pages.json,
@@ -42,33 +41,26 @@ func sitemapHandler(dist fs.FS, open openLessons) http.Handler {
 	if err := json.Unmarshal(body, &pages); err != nil {
 		panic("sitemap-pages.json: " + err.Error())
 	}
-	// 公開端點:結果在程序內記 1 分鐘,爬蟲連續請求不會每次都查資料庫。查詢時不握著鎖(不然資料庫慢時全部排隊),
-	// 查詢失敗就用上一次成功的結果;還沒有成功過才回 503。
+	// 公開端點:已開放的課的查詢由呼叫端包快取(cachedOpenLessons);組好的 XML 依已開放的課(mapID)記著,沒變就不重組
 	var mu sync.Mutex
-	var cached string
-	var cachedAt time.Time
+	var cachedXML string
+	var cachedID uintptr
+	var haveXML bool
 	render := func(ctx context.Context) (string, error) {
-		mu.Lock()
-		body, at := cached, cachedAt
-		mu.Unlock()
-		if body != "" && time.Since(at) < time.Minute {
-			return body, nil
-		}
 		var opened map[string]bool
 		if open != nil {
 			var err error
 			if opened, err = open(ctx); err != nil {
-				if body != "" {
-					return body, nil
-				}
 				return "", err
 			}
 		}
-		body = sitemapXML(pages, opened)
+		id := mapID(opened)
 		mu.Lock()
-		cached, cachedAt = body, time.Now()
-		mu.Unlock()
-		return body, nil
+		defer mu.Unlock()
+		if !haveXML || cachedID != id {
+			cachedXML, cachedID, haveXML = sitemapXML(pages, opened), id, true
+		}
+		return cachedXML, nil
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		xmlBody, err := render(r.Context())
