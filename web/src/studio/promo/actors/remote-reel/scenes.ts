@@ -1,7 +1,7 @@
 // remote-reel 的各段畫面:全是純函式(時間進來、SVG 字串出去),不用亂數、不讀時鐘。
 // 辦公室電腦 = 左上的螢幕(藍),家裡的手機 = 手機外框(綠);兩邊是同一個 session,用虛線與移動的點連起來。
 // 版面在直式 Reels 安全區內(x 70–940、y 250–1500)。畫面裡的專案、指令都是示意。
-import { INK, MONO, SANS, clamp, cursor, esc, lerp, mix, n2, outBack, path2, seg, type SceneOut } from '../archify-reel/draw'
+import { INK, MONO, SANS, clamp, cursor, esc, lerp, mix, n2, outBack, outCubic, path2, seg, type SceneOut } from '../archify-reel/draw'
 import { follow } from '../sessions-reel/scenes'
 
 export { follow }
@@ -85,6 +85,54 @@ const WORK: Line[] = [
 ]
 
 // ---------- 各段 ----------
+/** 結尾前:想看詳細的操作步驟,下方拉出 evoleap 的網頁預覽(示意:畫面是畫出來的,不是真的連結) */
+export function guide(l: number, D: number): SceneOut {
+  void D
+  let s = txt(CX, 380, '想看完整的操作步驟？', 58, INK, { anchor: 'middle', weight: 800, op: seg(l, 0, 450) })
+  s += txt(CX, 470, '網頁上有更詳細的做法', 44, ACCENT, { anchor: 'middle', weight: 700, op: seg(l, 250, 750) })
+  // 面板從下方拉出來,停在安全區內(底部約 340 的位置會被平台介面蓋住,所以停在 y=640~1560)
+  const up = outCubic(seg(l, 900, 1900))
+  const top = lerp(1920, 640, up)
+  const x = 70
+  const w = 870
+  const h = 920
+  s += `<g transform="translate(0 ${n2(top - 640)})">`
+  s += `<rect x="${x}" y="640" width="${w}" height="${h}" rx="44" fill="#ffffff"/><rect x="${x}" y="640" width="${w}" height="${h}" rx="44" fill="none" stroke="#e3dccf" stroke-width="3"/>`
+  s += `<rect x="${CX - 50}" y="660" width="100" height="10" rx="5" fill="#d8d1c3"/>`
+  // 網址列
+  s += `<rect x="${x + 40}" y="700" width="${w - 80}" height="76" rx="38" fill="#f1ece2"/>`
+  s += txt(x + 80, 750, '🔒', 28, MUTED, { weight: 500 })
+  s += txt(x + 130, 750, 'evoleap.io/topics/claude-code#remote', 30, INK, { font: MONO, weight: 600 })
+  // 頁面
+  s += txt(x + 50, 850, 'Claude Code 工作術', 40, INK, { weight: 800 })
+  s += txt(x + 50, 896, '遇到哪個情況就看哪一個，不用照順序', 26, MUTED, { weight: 500 })
+  const rows: [string, string, boolean][] = [
+    ['拿不定主意，想同時試好幾版', '/fork', false],
+    ['出門了，想用手機接著做', '/remote-control', true],
+    ['好幾件事想同時做', '多個 session', false],
+  ]
+  rows.forEach(([title, tool, hit], i) => {
+    const y = 940 + i * 190
+    const glow = hit ? seg(l, 2200, 2700) : 0
+    s += `<rect x="${x + 36}" y="${y}" width="${w - 72}" height="164" rx="22" fill="${hit ? mix('#ffffff', '#fbe7d9', glow) : '#faf8f3'}" stroke="${hit ? ACCENT : '#ece6da'}" stroke-width="${hit ? 4 : 2}" opacity="${hit ? 1 : 0.8}"/>`
+    s += `<polygon points="${x + 72},${y + 50} ${x + 72},${y + 82} ${x + 98},${y + 66}" fill="${hit ? ACCENT : '#b9b2a4'}"/>`
+    s += txt(x + 122, y + 78, title, 34, INK, { weight: hit ? 800 : 600, op: hit ? 1 : 0.7 })
+    s += `<rect x="${x + 122}" y="${y + 100}" width="${n2(textW(tool, 24) + 28)}" height="42" rx="12" fill="#efe9dc"/>${txt(x + 136, y + 130, tool, 24, MUTED, { font: MONO, weight: 600 })}`
+    s += txt(x + w - 72 - 20, y + 130, hit ? '影片 · 約 2 分鐘' : '影片', 24, hit ? ACCENT : MUTED, { anchor: 'end', weight: 700 })
+  })
+  s += '</g>'
+  // 手指點下那一列
+  const tap = seg(l, 2300, 2900)
+  if (l > 1900) {
+    const [cx, cy] = path2(l, [
+      { at: 1900, x: 760, y: 1560 },
+      { at: 2300, x: 520, y: 1330 },
+    ])
+    s += cursor(cx, cy, tap > 0.5 ? 1 : 0, seg(l, 1900, 2200))
+  }
+  return { bg: BG, body: s }
+}
+
 /** 開場:下班了,辦公室電腦上的 Claude Code 還在跑,你先回家 */
 export function hook(l: number): SceneOut {
   let s = txt(CX, 400, '下班了，', 58, MUTED, { anchor: 'middle', weight: 800, op: seg(l, 0, 450) })

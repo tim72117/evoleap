@@ -136,6 +136,21 @@ function devStudioGate(): Plugin {
       const token = studioDevToken(import.meta.dirname)
       server.middlewares.use(async (req, res, next) => {
         const url = req.url ?? '/'
+        // 錄影(scripts/record-live.mjs)帶本機 token 時,腳本直接讀 src/content/live 的檔案:不經資料庫,也不需要管理員登入
+        const scriptPath = url.split('?')[0].match(/^\/api\/scripts\/(.+\.json)$/)?.[1]
+        if (scriptPath && !scriptPath.includes('..') && (req.headers.cookie ?? '').split(/;\s*/).includes(`${STUDIO_TOKEN_COOKIE}=${token}`)) {
+          const file = path.join(import.meta.dirname, 'src/content/live', scriptPath)
+          res.setHeader('Cache-Control', 'no-store')
+          res.setHeader('Content-Type', 'application/json')
+          if (fs.existsSync(file)) res.end(fs.readFileSync(file))
+          // 沒有的旁白清單、章節音軌清單回 null(同伺服器);其他沒有的腳本回 404
+          else if (/\.(voice|mix)\.json$/.test(scriptPath)) res.end('null\n')
+          else {
+            res.statusCode = 404
+            res.end()
+          }
+          return
+        }
         const kind = gatedKind(url.split('?')[0])
         if (!kind) return next()
         const cookie = req.headers.cookie ?? ''

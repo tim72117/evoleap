@@ -1,0 +1,87 @@
+{
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Sulafat",
+  "style": "台灣華語，語氣溫暖親切、咬字清楚，像老師在旁邊帶著學員一步一步操作，語速適中",
+  "clips": {
+    "嗨，我是 Lena。": {
+      "file": "claude-code/a6611b610921.mp3",
+      "ms": 1600
+    },
+    "今天要來介紹 Remote Control：出門之後，用手機接著做電腦上的工作。": {
+      "file": "claude-code/4fa0322fdd41.mp3",
+      "ms": 6720
+    },
+    "任務才剛交代下去，你卻得出門了。能不能用手機接著做？可以，靠的是 Remote Control。": {
+      "file": "claude-code/d4af3f4dec8e.mp3",
+      "ms": 8640
+    },
+    "先在電腦上交代一件事：幫 formatPrice 補上單元測試。": {
+      "file": "claude-code/baf9b8d520df.mp3",
+      "ms": 5720
+    },
+    "測試才剛開始寫，你卻得出門了。": {
+      "file": "claude-code/317e4dfea9c2.mp3",
+      "ms": 3760
+    },
+    "出門前，先按標題列右邊的圖示，打開右側窗欄。": {
+      "file": "claude-code/7c2171de1777.mp3",
+      "ms": 5560
+    },
+    "在 Environment 裡，按 Remote Control，把它打開。": {
+      "file": "claude-code/fb13aa270706.mp3",
+      "ms": 4280
+    },
+    "Remote Control 變成 On，這個 session 就連上你的 Claude 帳號了。": {
+      "file": "claude-code/f721819d431e.mp3",
+      "ms": 5000
+    },
+    "用同一個帳號登入手機的 Claude，或打開 claude.ai/code，就會看到這個 session。": {
+      "file": "claude-code/0c8007907857.mp3",
+      "ms": 8480
+    },
+    "人已經在路上，拿出手機。": {
+      "file": "claude-code/bc1ecac21baf.mp3",
+      "ms": 2840
+    },
+    "手機上看得到同一個對話，Claude 說測試跑完了，有一項失敗。": {
+      "file": "claude-code/3c58b5551762.mp3",
+      "ms": 6360
+    },
+    "它想執行修正指令，等你允許。": {
+      "file": "claude-code/549a1bfda543.mp3",
+      "ms": 3640
+    },
+    "在手機上按允許，辦公室的電腦就繼續做。": {
+      "file": "claude-code/1d5153ebdb1a.mp3",
+      "ms": 4400
+    },
+    "過一會兒，修正完成。": {
+      "file": "claude-code/8d189fbe7935.mp3",
+      "ms": 2680
+    },
+    "Claude 回報，全部通過。": {
+      "file": "claude-code/4624546138c5.mp3",
+      "ms": 2560
+    },
+    "進度、回覆、允許要執行的操作，都在手機上完成。": {
+      "file": "claude-code/9388c80d5319.mp3",
+      "ms": 5520
+    },
+    "要注意，程式與檔案都還在原本那台電腦上，手機只是遙控。": {
+      "file": "claude-code/3967cb3142cd.mp3",
+      "ms": 6160
+    },
+    "所以電腦要開著、不能睡眠，連線才會一直在。": {
+      "file": "claude-code/d65f9bebe73c.mp3",
+      "ms": 4280
+    },
+    "結束這個 session，遠端連線也會跟著斷掉。": {
+      "file": "claude-code/979de41cc338.mp3",
+      "ms": 3600
+    },
+    "想在外面用手機接著做，出門前，先打開 Remote Control，電腦記得開著。": {
+      "file": "claude-code/4767b82116ab.mp3",
+      "ms": 7080
+    }
+  }
+}

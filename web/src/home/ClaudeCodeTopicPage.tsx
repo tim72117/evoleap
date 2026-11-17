@@ -1,5 +1,5 @@
-import { useId, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useId, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useT } from '../i18n/I18nProvider'
 import { lazyPage } from '../site/lazyPage'
 import { SiteLayout } from '../site/SiteLayout'
@@ -15,17 +15,29 @@ const LivePlayer = lazyPage(() => import('../courses/LivePlayer').then((m) => m.
 /** 開頭是空白的字卡前奏,封面改用 Fork 的選單畫面 */
 const FORK_POSTER = { chapter: '用 Fork 分出去', after: 2500 }
 
+/** 這段影片的錨點:腳本檔名去掉資料夾與副檔名(claude-code/remote.json → remote),網址加 #remote 就定位到這一段並展開 */
+export const scenarioAnchor = (s: Scenario): string | null => s.video?.script.replace(/^.*\//, '').replace(/\.json$/, '') ?? null
+
 function ScenarioRow({ scenario: s, visible }: { scenario: Scenario; visible: boolean }) {
   const [open, setOpen] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const playerId = useId()
   const t = useT()
+  const anchor = scenarioAnchor(s)
+  const { hash } = useLocation()
+  // 網址帶著這段影片的錨點(開頁或同頁切換)就展開播放器;捲動由頁面的 useHashScroll 做
+  useEffect(() => {
+    if (anchor && decodeURIComponent(hash.slice(1)) === anchor) {
+      setOpen(true)
+      setLoaded(true)
+    }
+  }, [anchor, hash])
   const toggle = () => {
     setOpen(!open)
     setLoaded(true)
   }
   return (
-    <li>
+    <li id={anchor ?? undefined} className={styles.rowItem}>
       <div className={s.video ? `${styles.row} ${styles.rowPlayable}` : styles.row}>
         <span className={styles.rowIcon} aria-hidden="true">
           {s.video ? (
@@ -41,9 +53,14 @@ function ScenarioRow({ scenario: s, visible }: { scenario: Scenario; visible: bo
         <div className={styles.rowText}>
           <h4>
             {s.video ? (
-              <button type="button" className={styles.rowButton} aria-expanded={open} aria-controls={playerId} onClick={toggle}>
-                {s.title}
-              </button>
+              <>
+                <button type="button" className={styles.rowButton} aria-expanded={open} aria-controls={playerId} onClick={toggle}>
+                  {s.title}
+                </button>
+                <Link className={styles.rowAnchor} to={{ hash: `#${anchor}` }} aria-label={t.home.claudeCode.linkToVideo(s.title)} title={t.home.claudeCode.linkToVideo(s.title)}>
+                  #
+                </Link>
+              </>
             ) : (
               s.title
             )}

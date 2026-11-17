@@ -30,11 +30,14 @@
 //       目前的 session(或 "in" 指定的)傳訊息出去。照真的桌面版:對話裡只是一行灰色的活動摘要
 //       (這邊「Messaged @對象 ›」,對方「Received a message ›」),之後 Claude 用一般的 say 說明;
 //       open 是把那一行展開,看得到訊息內容。送達後對方的狀態燈變成 run。回覆就是對方再 send 回來。
+//   新版的右側窗欄(只有腳本用到 panel、remote 才會出現,其他腳本的畫面不變):
+//   { "panel": true }                           (滑鼠)按標題列右邊的窗欄圖示,打開右側窗欄(Environment、Context、Changes、背景工作)
+//   { "remote": true }                          (滑鼠)按窗欄 Environment 裡的 Remote Control 那一列,把這個 session 的遠端控制打開(要先 panel)
 //   上面的 user、say、tool 等動作可以加 "in": "名稱":瞬間記到那個背景 session,不切畫面,不佔時間(pause 要自己寫 0)。
 //   名稱對不上、沒開選單就 fork 時,載入就報錯並指出第幾步。
 //
 // 目標(給鏡頭、聚光燈、滑鼠用,腳本裡寫成「演員代號:目標」,例如 claude:ask):
-//   composer、input、send、mode、model、head、sidebar、log、latest(對話最底下那一帶)、ask(最後一個確認提示)、
+//   composer、input、send、mode、model、head、panel(右側窗欄)、remote(窗欄裡的 Remote Control 那一列)、sidebar、log、latest(對話最底下那一帶)、ask(最後一個確認提示)、
 //   option:N(待選提示的第 N 個選項)、user(最後一則使用者訊息)、say、tool、edit、todos、
 //   new(新增 session 按鈕)、sessions(側欄整份清單)、session:名稱(側欄那一列)、more:名稱(那一列的 ⋯)、menu(選單)、menuitem:項目(例如 menuitem:Fork)、
 //   sent(最後一張傳出的訊息卡)、inbox(最後一則收到的訊息)
@@ -105,9 +108,11 @@ export type ClaudeStep = CommonStepFields & { in?: string } &
     | { fork: string; branch?: string | null }
     | { state: SessionState }
     | { tell: string; message: string; open?: boolean }
+    | { panel: true }
+    | { remote: true }
   )
-type ClaudeKind = 'user' | 'thinking' | 'say' | 'tool' | 'edit' | 'todos' | 'ask' | 'choose' | 'mode' | 'newSession' | 'session' | 'menu' | 'fork' | 'state' | 'tell'
-const KINDS: readonly ClaudeKind[] = ['user', 'thinking', 'say', 'tool', 'edit', 'todos', 'ask', 'choose', 'mode', 'newSession', 'session', 'menu', 'fork', 'state', 'tell']
+type ClaudeKind = 'user' | 'thinking' | 'say' | 'tool' | 'edit' | 'todos' | 'ask' | 'choose' | 'mode' | 'newSession' | 'session' | 'menu' | 'fork' | 'state' | 'tell' | 'panel' | 'remote'
+const KINDS: readonly ClaudeKind[] = ['user', 'thinking', 'say', 'tool', 'edit', 'todos', 'ask', 'choose', 'mode', 'newSession', 'session', 'menu', 'fork', 'state', 'tell', 'panel', 'remote']
 type StepOf<K extends ClaudeKind> = Extract<ClaudeStep, Record<K, unknown>>
 type Ev<K extends ClaudeKind = ClaudeKind> = ActorEvent<ClaudeStep, K>
 
@@ -116,7 +121,7 @@ export type ClaudeTarget =
   | 'composer' | 'input' | 'send' | 'mode' | 'model' | 'head' | 'sidebar' | 'log' | 'latest'
   | 'ask' | 'user' | 'say' | 'tool' | 'edit' | 'todos'
   | `option:${number}`
-  | 'new' | 'menu' | 'sessions' | `session:${string}` | `more:${string}` | `menuitem:${string}`
+  | 'panel' | 'panelbtn' | 'remote' | 'new' | 'menu' | 'sessions' | `session:${string}` | `more:${string}` | `menuitem:${string}`
   | 'sent' | 'inbox'
 
 interface Labels { new: string; recent: string; placeholder: string; thinking: string }
@@ -220,6 +225,8 @@ const clickTarget = (kind: ClaudeKind, step: ClaudeStep): string | null => {
     case 'session': return `session:${(step as StepOf<'session'>).session}`
     case 'menu': return `more:${(step as StepOf<'menu'>).menu}`
     case 'fork': return 'menuitem:Fork'
+    case 'panel': return 'panelbtn'
+    case 'remote': return 'remote'
     default: return null
   }
 }
@@ -237,6 +244,8 @@ interface Check {
   active: string
   /** 等待選擇的確認提示有哪些選項 */
   asking: string[] | null
+  /** 右側窗欄打開了(remote 要先 panel) */
+  panel: boolean
   /** 介面文字(互動熱點的標籤用) */
   ui: ClaudeUi
 }
@@ -258,6 +267,7 @@ interface SessionLog {
   branch: string | null
   mode: Mode
   state: SessionState
+  remote: boolean
   blocks: (string | null)[]
   asks: AskState[]
   todos: StepOf<'todos'>['todos'] | null
@@ -267,7 +277,7 @@ interface SessionLog {
   status: string
 }
 const emptyLog = (title: string, branch: string | null, mode: Mode, parent: string | null = null): SessionLog => ({
-  title, parent, branch, mode, state: 'idle', blocks: [], asks: [], todos: null, todosAt: -1, typed: '', typing: false, status: '',
+  title, parent, branch, mode, state: 'idle', remote: false, blocks: [], asks: [], todos: null, todosAt: -1, typed: '', typing: false, status: '',
 })
 
 const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarget>({
@@ -292,7 +302,7 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
 
   init(props) {
     const c = conf(props)
-    return { names: [c.title, ...c.sessions], menu: null, active: c.title, asking: null, ui: c.ui }
+    return { names: [c.title, ...c.sessions], menu: null, active: c.title, asking: null, panel: false, ui: c.ui }
   },
 
   apply(st, kind, step) {
@@ -327,6 +337,11 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
         fresh(name)
         return { ...st, names: [...st.names, name], menu: null, active: name }
       }
+      case 'panel':
+        return { ...st, panel: true }
+      case 'remote':
+        if (!st.panel) throw new Error('remote 之前要先用 panel 打開右側窗欄')
+        return st
       case 'ask':
         return (step as StepOf<'ask'>).select == null ? { ...st, asking: askOptions(step as StepOf<'ask'>, st.ui) } : st
       case 'choose':
@@ -421,6 +436,7 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
               <header class="cd-head">
                 <div class="cd-sessTitle"></div>
                 <div class="cd-sessMeta"></div>
+                <span class="cd-panelBtn" hidden title="Panel">▤</span>
               </header>
               <div class="cd-scroll"><div class="cd-log"><div class="cd-blocks"></div><div class="cd-status"></div><div class="cd-tail"></div></div></div>
               <div class="cd-composer">
@@ -435,6 +451,23 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
                 </div>
               </div>
             </main>
+            <aside class="cd-panel" hidden>
+              <div class="pn-sec">Environment</div>
+              <div class="pn-row"><span class="pn-ic">▭</span><span>This computer</span><u>Save</u></div>
+              <div class="pn-row"><span class="pn-ic">▣</span><span>${esc(c.folder.split('/').pop())}</span></div>
+              <div class="pn-row"${c.branch ? '' : ' hidden'}><span class="pn-ic">⑂</span><span>${esc(c.branch || '')}</span></div>
+              <div class="pn-row cd-remote"><span class="pn-ic">◫</span><span>Remote Control</span><b class="rc-state">Off</b></div>
+              <div class="pn-line"></div>
+              <div class="pn-row"><span>Context ›</span><em>19%<i class="pn-bar"><i></i></i></em></div>
+              <div class="pn-line"></div>
+              <div class="pn-row"><span>Outputs ›</span><em>1</em></div>
+              <div class="pn-line"></div>
+              <div class="pn-sec">Changes</div>
+              <div class="pn-row"><span class="pn-ic">±</span><span><s class="pn-add">+262</s> <s class="pn-del">−8</s></span><u class="pn-btn">Create PR</u></div>
+              <div class="pn-line"></div>
+              <div class="pn-sec">Background tasks</div>
+              <div class="pn-row"><span class="pn-ic">▸</span><span>39 finished</span></div>
+            </aside>
           </div>
         </div>`
     const $ = (sel: string): HTMLElement => root.querySelector<HTMLElement>(sel)!
@@ -454,6 +487,9 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
       title: $('.cd-sessTitle'),
       meta: $('.cd-sessMeta'),
       branch: $('.cd-branch'),
+      remote: $('.cd-remote'),
+      panel: $('.cd-panel'),
+      panelBtn: $('.cd-panelBtn'),
     }
 
     // ---------- 各種區塊 ----------
@@ -529,6 +565,9 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
         let active = logs[0]
         let hoverRow = ''
         let hoverNew = false
+        let hoverRemote = false
+        let hoverPanelBtn = false
+        let panelOpen = false
         let menuOf = ''
         let menuHover = ''
         const star = `<span class="star" style="--r:${(ms * 0.25) % 360}deg">✻</span>`
@@ -615,6 +654,14 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
             }
             case 'mode':
               log.mode = (ev.step as StepOf<'mode'>).mode
+              break
+            case 'panel':
+              if (local >= CLICK.commit) panelOpen = true
+              else hoverPanelBtn = local >= CLICK.arrive
+              break
+            case 'remote':
+              if (local >= CLICK.commit) log.remote = true
+              else hoverRemote = local >= CLICK.arrive
               break
             case 'state':
               log.state = (ev.step as StepOf<'state'>).state
@@ -703,6 +750,13 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
         kit.setIf(el.branch, 'text', `⑂ ${active.branch || ''}`)
         el.branch.hidden = !active.branch
         el.newBtn.classList.toggle('hov', hoverNew)
+        // 右側窗欄:只有腳本用到 panel、remote 動作時才有圖示,按了才展開(其他腳本的畫面不變)
+        el.panelBtn.hidden = !events.some((e) => e.kind === 'panel' || e.kind === 'remote')
+        el.panelBtn.classList.toggle('hov', hoverPanelBtn)
+        el.panel.hidden = !panelOpen
+        el.remote.classList.toggle('on', active.remote)
+        el.remote.classList.toggle('hov', hoverRemote)
+        kit.setIf(el.remote.querySelector<HTMLElement>('.rc-state')!, 'text', active.remote ? 'On' : 'Off')
 
         // 只有一個 session 的腳本:燈號照舊,跟著最後一個動作;有多個 session 時每個 session 自己記狀態
         const multi = events.some((e) => e.step.in || e.kind === 'state' || e.kind === 'tell' || clickTarget(e.kind, e.step))
@@ -737,6 +791,9 @@ const actor = defineActor<ClaudeKind, ClaudeStep, ClaudeProps, Check, ClaudeTarg
         if (item) return [...root.querySelectorAll<HTMLElement>('.cd-menu [data-item]')].find((x) => x.dataset.item === item[1]) || null
         switch (name as ClaudeTarget) {
           case 'new': return el.newBtn
+          case 'panel': return el.panel
+          case 'panelbtn': return el.panelBtn
+          case 'remote': return el.remote
           case 'sessions': return el.sessions
           case 'menu': return root.querySelector<HTMLElement>('.cd-menu')
           case 'composer': return $('.cd-composer')

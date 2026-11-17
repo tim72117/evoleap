@@ -13,6 +13,12 @@ describe('claude-desktop 的 session 操作', () => {
     expect(() => actor.apply!(st, 'session', { session: 'A (fork)' })).not.toThrow()
   })
 
+  it('remote 要先 panel 打開右側窗欄', () => {
+    expect(() => actor.apply!(start(), 'remote', { remote: true })).toThrow('panel')
+    const st = actor.apply!(start(), 'panel', { panel: true })
+    expect(() => actor.apply!(st, 'remote', { remote: true })).not.toThrow()
+  })
+
   it('名稱對不上、名稱重複時報錯', () => {
     expect(() => actor.apply!(start(), 'session', { session: '沒有' })).toThrow('沒有叫')
     expect(() => actor.apply!(start(), 'newSession', { newSession: 'B' })).toThrow('已經有')

@@ -81,6 +81,7 @@ export const home: Messages['home'] = {
     allScenarios: 'All scenarios',
     count: (n) => `${n} ${n === 1 ? 'scenario' : 'scenarios'}`,
     video: 'Video',
+    linkToVideo: (title) => `Link to this video: ${title}`,
   },
 
   lesson: {

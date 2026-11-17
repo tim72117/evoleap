@@ -82,6 +82,7 @@ export const home = {
     allScenarios: '全部情境',
     count: (n: number) => `${n} 個情境`,
     video: '影片',
+    linkToVideo: (title: string) => `直接連到影片：${title}`,
   },
 
   lesson: {

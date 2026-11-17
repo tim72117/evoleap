@@ -127,6 +127,28 @@ test('Claude Code 工作術:首頁卡片進入主題頁,列出情境,沒有等�
   expect(errors).toEqual([])
 })
 
+test('Claude Code 工作術:每段影片有錨點,網址帶 #錨點就展開並定位到那一段', async ({ page }) => {
+  const errors = collectErrors(page)
+  await page.goto('/topics/claude-code')
+  // 錨點取自頁面上有影片的那幾列(列上的 id),不寫死哪幾段有影片
+  const ids = await page.locator('#scenarios ul > li[id]').evaluateAll((els) => els.map((el) => el.id))
+  expect(ids.length).toBeGreaterThan(0)
+  for (const id of ids) {
+    await page.goto(`/topics/claude-code#${id}`)
+    const li = page.locator(`#scenarios li#${id}`)
+    await expect(li.locator('button[aria-expanded="true"]')).toBeVisible()
+    await expect(li.locator('.vp')).toBeVisible()
+    await expect(li).toBeInViewport()
+  }
+  // 標題旁的錨點連結:點了網址帶上錨點,並展開那一段
+  await page.goto('/topics/claude-code')
+  const first = page.locator('#scenarios li[id]').first()
+  await first.getByRole('link', { name: /直接連到影片/ }).click()
+  await expect(page).toHaveURL(new RegExp(`#${await first.getAttribute('id')}$`))
+  await expect(first.locator('.vp')).toBeVisible()
+  expect(errors).toEqual([])
+})
+
 test('舊的首頁錨點導到主題頁:/#map、/#level-tools', async ({ page }) => {
   await page.goto('/#map')
   await expect(page).toHaveURL('/topics/software#map')

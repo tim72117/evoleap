@@ -1,0 +1,70 @@
+/* 演員 claude-mobile:仿 Claude 手機版(Code 分頁)。選擇器都以 .A-claude-mobile 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-claude-mobile {
+  --bg: #faf9f5; --panel: #ffffff; --ink: #1f1e1b; --faint: #8a877f; --line: #e6e3da; --user: #efece3; --accent: #d97757; --ok: #2f8a4b;
+  width: 100%; height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 22px; line-height: 1.5; color: var(--ink);
+}
+.A-claude-mobile.dark { --bg: #262624; --panel: #30302e; --ink: #ecebe6; --faint: #9a978e; --line: #3b3a37; --user: #3a3936; }
+.A-claude-mobile *, .A-claude-mobile *::before, .A-claude-mobile *::after { box-sizing: border-box; }
+.A-claude-mobile { display: flex; justify-content: center; align-items: center; }
+/* iPhone 的比例(19.5:9),依槽的高度縮放、水平置中;外框是鈦金屬色的邊,內側黑色邊框,螢幕圓角比邊框小 */
+.A-claude-mobile .cm-body {
+  position: relative; height: 100%; max-width: 100%; aspect-ratio: 9 / 19.5;
+  padding: 0.28em; border-radius: 3.1em;
+  background: linear-gradient(145deg, #8c8f94, #4a4d52 45%, #7b7e83);
+  box-shadow: 0 1.2em 3em rgba(0, 0, 0, 0.35);
+}
+.A-claude-mobile .cm-btn-side { position: absolute; width: 0.22em; background: #5b5e63; border-radius: 0.1em; }
+.A-claude-mobile .cm-btn-side.a { left: -0.2em; top: 10%; height: 2.2%; }
+.A-claude-mobile .cm-btn-side.b { left: -0.2em; top: 15%; height: 4.5%; }
+.A-claude-mobile .cm-btn-side.c { left: -0.2em; top: 21%; height: 4.5%; }
+.A-claude-mobile .cm-btn-side.d { right: -0.2em; top: 17%; height: 7.5%; }
+.A-claude-mobile .cm-phone {
+  position: relative; width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  border: 0.22em solid #0a0b0d; border-radius: 2.85em;
+  overflow: hidden;
+}
+.A-claude-mobile .cm-island { position: absolute; top: 0.55em; left: 50%; width: 32%; height: 1.5em; margin-left: -16%; border-radius: 999px; background: #000; z-index: 2; }
+.A-claude-mobile .cm-status { display: flex; justify-content: space-between; align-items: center; padding: 0.7em 1.5em 0 1.7em; height: 2.7em; font-size: 0.72em; font-weight: 600; }
+.A-claude-mobile .cm-icons { display: flex; align-items: center; gap: 0.45em; fill: currentColor; color: var(--ink); }
+.A-claude-mobile .cm-icons svg { display: block; }
+.A-claude-mobile .cm-home { align-self: center; width: 36%; height: 0.28em; border-radius: 999px; background: var(--ink); opacity: 0.85; margin: 0.15em 0 0.55em; flex: none; }
+.A-claude-mobile .cm-head { display: flex; align-items: center; gap: 0.6em; padding: 0.4em 1em 0.7em; border-bottom: 1px solid var(--line); }
+.A-claude-mobile .cm-back { color: var(--faint); font-size: 1.6em; line-height: 1; }
+.A-claude-mobile .cm-titles { min-width: 0; }
+.A-claude-mobile .cm-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.A-claude-mobile .cm-device { font-size: 0.7em; color: var(--faint); display: flex; align-items: center; gap: 0.5em; }
+.A-claude-mobile .cm-dot { width: 0.6em; height: 0.6em; border-radius: 50%; background: var(--ok); display: inline-block; }
+.A-claude-mobile .cm-scroll { flex: 1; position: relative; overflow: hidden; }
+.A-claude-mobile .cm-log { position: absolute; left: 0; right: 0; padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.8em; }
+.A-claude-mobile .cm-user { align-self: flex-end; max-width: 85%; background: var(--user); border-radius: 1.1em; padding: 0.5em 0.9em; }
+.A-claude-mobile .cm-say { max-width: 96%; }
+.A-claude-mobile .code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.88em; background: var(--user); border-radius: 0.3em; padding: 0.05em 0.35em; }
+.A-claude-mobile .cm-tool { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4em 0.6em; font-size: 0.78em; color: var(--faint); border: 1px solid var(--line); border-radius: 0.7em; padding: 0.45em 0.7em; }
+.A-claude-mobile .cm-tname { color: var(--ink); font-weight: 600; }
+.A-claude-mobile .cm-targ { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+.A-claude-mobile .cm-tres { margin-left: auto; color: var(--ok); }
+.A-claude-mobile .cm-ask { border: 1px solid var(--line); background: var(--panel); border-radius: 1em; padding: 0.8em 0.9em; display: flex; flex-direction: column; gap: 0.6em; }
+.A-claude-mobile .cm-q { font-weight: 600; }
+.A-claude-mobile .cm-cmd { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.85em; background: var(--bg); border-radius: 0.6em; padding: 0.5em 0.7em; }
+.A-claude-mobile .cm-btns { display: flex; gap: 0.6em; }
+.A-claude-mobile .cm-btn { flex: 1; text-align: center; padding: 0.5em 0; border-radius: 0.8em; border: 1px solid var(--line); font-weight: 600; }
+.A-claude-mobile .cm-btn.allow { background: var(--accent); border-color: var(--accent); color: #fff; }
+.A-claude-mobile .cm-btn.hov { filter: brightness(1.08); }
+.A-claude-mobile .cm-btn.press { transform: scale(0.96); }
+.A-claude-mobile .cm-btn.dim { opacity: 0.35; }
+.A-claude-mobile .cm-ask.done .cm-btn.picked { box-shadow: 0 0 0 2px var(--ok); }
+.A-claude-mobile .cm-status-line { display: flex; align-items: center; gap: 0.5em; color: var(--accent); font-size: 0.85em; }
+.A-claude-mobile .cm-star { display: inline-block; transform: rotate(var(--r, 0deg)); }
+.A-claude-mobile .cm-composer { display: flex; align-items: center; gap: 0.5em; margin: 0.5em 0.8em 0.4em; padding: 0.55em 0.6em 0.55em 1em; background: var(--panel); border: 1px solid var(--line); border-radius: 1.4em; }
+.A-claude-mobile .cm-typed { white-space: pre-wrap; }
+.A-claude-mobile .cm-caret { width: 2px; height: 1.1em; background: var(--ink); }
+.A-claude-mobile .cm-caret.off { opacity: 0; }
+.A-claude-mobile .cm-placeholder { color: var(--faint); flex: 1; }
+.A-claude-mobile .cm-typed + .cm-caret + .cm-placeholder:empty { flex: 0; }
+.A-claude-mobile .cm-send { margin-left: auto; width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; background: var(--line); color: var(--faint); font-weight: 700; }
+.A-claude-mobile .cm-send.on { background: var(--accent); color: #fff; }

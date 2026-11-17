@@ -10,15 +10,16 @@
 //   { "scene": "link" }      轉折:辦公室電腦上的 session,在家用手機接著操作(同一個 session)
 //   { "scene": "phone" }     手機操作:看到同一個對話,按「允許」,辦公室電腦立刻繼續做
 //   { "scene": "benefits" }  三個好處:手機看進度、手機按允許、程式與檔案留在原本那台電腦
+//   { "scene": "guide" }    詳細步驟:下方拉出 evoleap 網頁預覽(Claude Code 工作術的這一段影片;示意動畫,不是真的連結)
 //   { "scene": "follow" }    結尾:追蹤 evoleap 粉絲團,定期提供 AI 資訊(沿用 sessions-reel 的結尾)
 //
 // 目標:window
 import { defineActor, type CommonStepFields } from '../../../../live/types'
 import { H, W, clamp, n2, type SceneOut } from '../archify-reel/draw'
-import { benefits, follow, hook, link, pain, phoneUse } from './scenes'
+import { benefits, follow, guide, hook, link, pain, phoneUse } from './scenes'
 import './actor.css'
 
-export const SCENES = ['hook', 'pain', 'link', 'phone', 'benefits', 'follow'] as const
+export const SCENES = ['hook', 'pain', 'link', 'phone', 'benefits', 'guide', 'follow'] as const
 export type Scene = (typeof SCENES)[number]
 export type ReelStep = CommonStepFields & { scene?: Scene }
 export interface ReelState {
@@ -27,9 +28,9 @@ export interface ReelState {
 }
 export type Target = 'window'
 
-export const DRAW: Record<Scene, (l: number, D: number) => SceneOut> = { hook, pain, link, phone: phoneUse, benefits, follow }
+export const DRAW: Record<Scene, (l: number, D: number) => SceneOut> = { hook, pain, link, phone: phoneUse, benefits, guide, follow }
 /** 各段的預設長度(毫秒;腳本通常自己寫 ms) */
-export const T: Record<Scene, number> = { hook: 4800, pain: 4400, link: 4400, phone: 7000, benefits: 5200, follow: 3600 }
+export const T: Record<Scene, number> = { hook: 4800, pain: 4400, link: 4400, phone: 7000, benefits: 5200, guide: 5200, follow: 3600 }
 /** 換景時的交叉淡化(毫秒) */
 export const FADE = 320
 

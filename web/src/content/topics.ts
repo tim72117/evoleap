@@ -84,7 +84,12 @@ export const CLAUDE_CODE_SCENARIOS: {
     tools: ['/fork', '/branch', 'Worktree'],
     video: { script: 'claude-code/fork.json', title: 'Fork：帶著對話另開一條路', duration: '約 1 分鐘' },
   },
-  { title: '出門了，想用手機接著做', summary: 'AI 繼續在電腦上做，你在路上也能看進度、接著下指令。', tools: ['/remote-control'] },
+  {
+    title: '出門了，想用手機接著做',
+    summary: 'AI 繼續在電腦上做，你在路上也能看進度、接著下指令。',
+    tools: ['/remote-control'],
+    video: { script: 'claude-code/remote.json', title: 'Remote Control：出門了，用手機接著做', duration: '約 2 分鐘' },
+  },
   { title: '好幾件事想同時做', summary: '把互不相干的事分給不同的對話，自己只負責檢查與決定。', tools: ['多個 session', 'Worktree'] },
   { title: '昨天做到一半，今天想接著做', summary: '找回之前的對話接著做，不用重新交代一次。', tools: ['/resume', 'claude --continue'] },
   { title: '對話越聊越長', summary: '把目前的對話濃縮成摘要繼續，或開一段乾淨的新對話。', tools: ['/compact', '/clear'] },

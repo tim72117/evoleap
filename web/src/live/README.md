@@ -178,9 +178,10 @@ export default defineActor({
 
 | 演員 | 動作 | 目標 |
 |---|---|---|
-| `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode、newSession、session、menu、fork、state、tell（跨 session 傳訊息；多個 session 見 `actor.ts` 開頭；介面語言用 `props.lang` 選 `lang/<語言>.json`，目前有 `zh-TW`（預設）與 `en`，新增語言就加一個檔案） | composer、input、send、mode、model、head、sidebar、log、ask、option:N、user、say、tool、edit、todos、new、sessions、session:名稱、more:名稱、menu、menuitem:項目、sent、inbox |
+| `claude-desktop` | user、thinking、say、tool、edit、todos、ask、choose、mode、newSession、session、menu、fork、state、tell（跨 session 傳訊息；remote（按標題列的 Remote Control 開關）；多個 session 見 `actor.ts` 開頭；介面語言用 `props.lang` 選 `lang/<語言>.json`，目前有 `zh-TW`（預設）與 `en`，新增語言就加一個檔案） | composer、input、send、mode、model、head、remote、sidebar、log、ask、option:N、user、say、tool、edit、todos、new、sessions、session:名稱、more:名稱、menu、menuitem:項目、sent、inbox |
 | `finder` | open、mkdir、create、delete、rename、select、drag、drop、highlight（有狀態，見 2A.5） | window、file:名稱（或 item:名稱） |
 | `browser` | site、width、scroll、go、click、fill、reload（有狀態；網頁放在 Shadow DOM，寬度條件由腳本指定的寬度判斷，素材在 `content/live/<課程>/site/<版本>/`，版本名稱不能重複；fill 逐字填表單欄位，填完觸發 input／change；表單送出不會離開頁面） | window、tab、addressbar、content、viewport、section:id、sel:css選擇器 |
+| `claude-mobile` | user、thinking、say、tool、ask（跳出需要允許的操作）、allow（手指點「允許」或「拒絕」；有狀態；仿 Claude 手機版，遠端控制中的 session，props：title、device、dark、labels、cps） | window、header、device、ask、allow、deny、composer、latest、user、say、tool |
 | `chat` | receive（帶 from）、reply（有狀態；通用手機聊天畫面，情境開場用） | window、msg:N、msg:last |
 | `person` | say（帶 mood：calm、tired、worried、happy、busy；SVG 插畫半身像＋對話泡泡，props.look：boss、staff、teacher（課程老師 Lena）、customer；情境開場用） | window、face、bubble |
 | `notes` | jot、lose（有狀態；桌上的便條紙，掉落的便條移到桌面下方，情境開場用） | window、note:N、note:last、floor |

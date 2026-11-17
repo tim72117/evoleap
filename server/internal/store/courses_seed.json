@@ -1342,7 +1342,9 @@
             "id": "2",
             "title": "出門了，想用手機接著做",
             "summary": "AI 繼續在電腦上做，你在路上也能看進度、接著下指令。",
-            "status": "planned"
+            "status": "open",
+            "script": "claude-code/remote.json",
+            "minutes": 2
           },
           {
             "id": "3",

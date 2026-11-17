@@ -107,6 +107,35 @@
 }
 .A-claude-desktop .cd-sessTitle { font-weight: 600; }
 .A-claude-desktop .cd-sessMeta { color: var(--faint); font-size: 0.8em; font-family: var(--mono); }
+/* 右側窗欄(新版):標題列右邊的圖示按下去展開 */
+.A-claude-desktop .cd-panelBtn {
+  margin-left: auto; align-self: center; cursor: default;
+  padding: 0.15em 0.5em; border-radius: 0.5em; color: var(--faint);
+}
+.A-claude-desktop .cd-panelBtn[hidden] { display: none; }
+.A-claude-desktop .cd-panelBtn.hov { background: var(--user-bg); color: inherit; }
+.A-claude-desktop .cd-panel {
+  width: 26%; flex: none; border-left: 1px solid var(--line);
+  padding: calc(var(--u) * 1.2) calc(var(--u) * 1.4);
+  display: flex; flex-direction: column; gap: 0.15em; font-size: 0.82em; overflow: hidden;
+}
+.A-claude-desktop .cd-panel[hidden] { display: none; }
+.A-claude-desktop .pn-sec { color: var(--faint); font-size: 0.9em; margin: 0.3em 0; }
+.A-claude-desktop .pn-row { display: flex; align-items: center; gap: 0.6em; padding: 0.4em 0.5em; border-radius: 0.5em; }
+.A-claude-desktop .pn-row[hidden] { display: none; }
+.A-claude-desktop .pn-row > span:not(.pn-ic) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.A-claude-desktop .pn-ic { color: var(--faint); width: 1.2em; text-align: center; }
+.A-claude-desktop .pn-row u { color: var(--faint); }
+.A-claude-desktop .pn-row b, .A-claude-desktop .pn-row em { font-style: normal; font-weight: 400; color: var(--faint); }
+.A-claude-desktop .pn-line { border-top: 1px solid var(--line); margin: 0.5em 0; }
+.A-claude-desktop .pn-bar { display: inline-block; width: 2em; height: 0.4em; border-radius: 999px; background: var(--line); margin-left: 0.5em; vertical-align: middle; overflow: hidden; }
+.A-claude-desktop .pn-bar i { display: block; width: 19%; height: 100%; background: #3b82f6; }
+.A-claude-desktop .pn-add { color: #2f8a4b; text-decoration: none; }
+.A-claude-desktop .pn-del { color: #d1495b; text-decoration: none; }
+.A-claude-desktop .pn-btn { border: 1px solid var(--line); border-radius: 0.5em; padding: 0.15em 0.6em; text-decoration: none; }
+.A-claude-desktop .cd-remote { cursor: default; }
+.A-claude-desktop .cd-remote.hov { background: var(--user-bg); }
+.A-claude-desktop .cd-remote.on .rc-state { color: #2f8a4b; font-weight: 600; }
 
 .A-claude-desktop .cd-scroll { flex: 1; overflow: hidden; position: relative; }
 .A-claude-desktop .cd-log {
