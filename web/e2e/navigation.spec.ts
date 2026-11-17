@@ -134,11 +134,16 @@ test('Claude Code 工作術:每段影片有錨點,網址帶 #錨點就展開並�
   const ids = await page.locator('#scenarios ul > li[id]').evaluateAll((els) => els.map((el) => el.id))
   expect(ids.length).toBeGreaterThan(0)
   for (const id of ids) {
+    // 從別的網址直接開(整頁載入,不是同一頁換錨點)
+    await page.goto('about:blank')
     await page.goto(`/topics/claude-code#${id}`)
     const li = page.locator(`#scenarios li#${id}`)
     await expect(li.locator('button[aria-expanded="true"]')).toBeVisible()
     await expect(li.locator('.vp')).toBeVisible()
     await expect(li).toBeInViewport()
+    // 定位在這一段的開頭(標題在畫面上方,不是捲過頭只看到播放器的下半部)
+    await expect.poll(async () => li.evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeGreaterThanOrEqual(0)
+    await expect.poll(async () => li.evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeLessThan(200)
   }
   // 標題旁的錨點連結:點了網址帶上錨點,並展開那一段
   await page.goto('/topics/claude-code')
