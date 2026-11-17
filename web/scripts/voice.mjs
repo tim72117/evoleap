@@ -381,8 +381,11 @@ async function build(rel, audio) {
     const pcm = decodePcm(raw)
     const parts = splitTake(pcm.pcm, pcm.rate, group, group.map((t) => (old.clips?.[t]?.ms ?? 0)))
     group.forEach((text, i) => {
-      const file = `${prefix}/${hashOf(text, cfgT)}.mp3`
-      upload(toMp3({ pcm: parts[i], rate: pcm.rate }), file)
+      // 整段錄每次的切法與聲音都不同,但檔名只由文字與設定決定:同名覆蓋會被瀏覽器的長期快取(immutable)吃掉,聽到舊的(切到一半的)版本。
+      // 檔名加上音檔內容的雜湊,每次產生的結果都是新網址
+      const mp3 = toMp3({ pcm: parts[i], rate: pcm.rate })
+      const file = `${prefix}/${hashOf(text, cfgT)}-${createHash('sha1').update(mp3).digest('hex').slice(0, 8)}.mp3`
+      upload(mp3, file)
       clips[text] = { file, ms: Math.round((parts[i].length / pcm.rate) * 1000) }
       console.log(`  ${(clips[text].ms / 1000).toFixed(2)} 秒  ${text.slice(0, 20)}`)
     })
