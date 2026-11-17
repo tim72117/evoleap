@@ -5,6 +5,7 @@
 //   npm run voice -- --all                      所有腳本
 //   npm run voice -- l0/0.0-tools.json --max-sec 20   只產生開頭約 20 秒的旁白(試做用,依字數估算)
 //   npm run voice -- l0/0.0-tools.json --limit 10     只產生前 10 段旁白(試做用)
+//   npm run voice -- 腳本 --whole           整段一次錄再依停頓切句(連貫);腳本 voice.solo 列出的句子各自單獨錄(可跨影片復用)
 //   npm run voice -- --sample "一句旁白" --voices Sulafat,Kore,Charon   試聽:各聲音念同一句,輸出到 recordings/voice-samples/
 //   npm run voice -- --sample "一句旁白" --profile kids   用兒童版的語氣試聽(kids/ 底下的腳本自動用兒童版)
 //   npm run voice -- --sample "一句旁白" --profile news   用科技新聞播報版試聽(科技新知、週報、快訊;腳本寫 "voice": { "profile": "news" } 套用)
@@ -372,18 +373,35 @@ async function build(rel, audio) {
     process.stdout.write(process.stdout.isTTY ? `\r${line}\x1b[K${done >= todo ? '\n' : ''}` : `${line}\n`)
   }
   if (flag('whole')) {
+    // voice.solo:這幾句不放進整段一次錄,各自單獨錄成一個音檔(例如每支宣傳片結尾的「追蹤粉絲團」,雜湊不含 take,別支影片念同一句可直接沿用)
+    const solo = new Set(script.voice?.solo || [])
+    const group = texts.filter((t) => !solo.has(t))
     const cfgT = { ...cfg, take: true }
-    const raw = await audio(texts.map((t) => t.replace(/[，,]$/, '。')).join('\n\n'), cfgT, `${prefix}/whole.mp3`)
+    const raw = await audio(group.map((t) => t.replace(/[，,]$/, '。')).join('\n\n'), cfgT, `${prefix}/whole.mp3`)
     const pcm = decodePcm(raw)
-    const parts = splitTake(pcm.pcm, pcm.rate, texts, texts.map((t) => (old.clips?.[t]?.ms ?? 0)))
-    texts.forEach((text, i) => {
+    const parts = splitTake(pcm.pcm, pcm.rate, group, group.map((t) => (old.clips?.[t]?.ms ?? 0)))
+    group.forEach((text, i) => {
       const file = `${prefix}/${hashOf(text, cfgT)}.mp3`
       upload(toMp3({ pcm: parts[i], rate: pcm.rate }), file)
       clips[text] = { file, ms: Math.round((parts[i].length / pcm.rate) * 1000) }
       console.log(`  ${(clips[text].ms / 1000).toFixed(2)} 秒  ${text.slice(0, 20)}`)
     })
+    for (const text of texts.filter((t) => solo.has(t))) {
+      const prev = cachedOf(text)
+      if (prev) {
+        clips[text] = prev
+        console.log(`  ${(prev.ms / 1000).toFixed(2)} 秒  ${text.slice(0, 20)}(單獨錄,沿用)`)
+        continue
+      }
+      const file = `${prefix}/${hashOf(text, cfg)}.mp3`
+      const one = decodePcm(await audio(text, cfg, file))
+      if (cfg.trim) one.pcm = trimSilence(one.pcm, one.rate)
+      upload(toMp3(one), file)
+      clips[text] = { file, ms: Math.round((one.pcm.length / one.rate) * 1000) }
+      console.log(`  ${(clips[text].ms / 1000).toFixed(2)} 秒  ${text.slice(0, 20)}(單獨錄)`)
+    }
     fs.writeFileSync(manifestPath, JSON.stringify({ model: cfg.model, voice: cfg.voice, style: cfg.style, take: true, clips }, null, 2) + '\n')
-    console.log(`${rel}:整段一次錄,切成 ${texts.length} 句,共 ${(Object.values(clips).reduce((n, c) => n + c.ms, 0) / 1000).toFixed(0)} 秒`)
+    console.log(`${rel}:整段一次錄 ${group.length} 句、單獨錄 ${texts.length - group.length} 句,共 ${(Object.values(clips).reduce((n, c) => n + c.ms, 0) / 1000).toFixed(0)} 秒`)
     return
   }
   let made = 0
