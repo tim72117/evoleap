@@ -11,3 +11,7 @@
 .tools > div[role="group"] { display: flex; gap: 6px; }
 .pathform { display: flex; gap: 6px; flex: 1; min-width: 280px; }
 .pathform input { flex: 1; min-width: 0; padding: 6px 10px; border: 1px solid #c9c5ba; border-radius: 6px; font: inherit; }
+
+.picker { display: flex; flex-direction: column; gap: 6px; margin: 0 0 16px; }
+.picker label { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.picker select { flex: 1; min-width: 280px; max-width: 100%; padding: 6px 10px; border: 1px solid #c9c5ba; border-radius: 6px; font: inherit; background: #fff; }

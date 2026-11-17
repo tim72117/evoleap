@@ -126,13 +126,15 @@ function ScriptInput({ value, onSubmit }: { value: string; onSubmit: (path: stri
 /** 腳本本身(不是旁白清單、章節音軌清單) */
 const isScript = (p: string): boolean => !/\.(voice|mix)\.json$/.test(p)
 
-function ScriptList({ selected, aspect, onSelect }: { selected: string | null; aspect: Aspect; onSelect: (path: string) => void }) {
+/** 選單:列出 promo/ 底下的宣傳片(旁白清單、章節音軌清單不算),選一支就播;量到標題與長度之後選項文字會補上 */
+function ScriptList({ selected, aspect, onSelect }: { selected: string | null; aspect: Aspect; onSelect: (path: string | null) => void }) {
   const [infos, setInfos] = useState<Record<string, Info | string>>({})
   const all = useScriptPaths()
   const promoScriptPaths = (all ?? []).filter((p) => p.startsWith('promo/') && isScript(p))
   const key = promoScriptPaths.join('|')
   useEffect(() => {
     let cancelled = false
+    setInfos({})
     void (async () => {
       // 一支一支量(舞台載入會掛 DOM,不要同時進行)
       for (const p of key ? key.split('|') : []) {
@@ -148,37 +150,30 @@ function ScriptList({ selected, aspect, onSelect }: { selected: string | null; a
 
   if (!all) return <p className={ui.lead}>讀取腳本清單中…</p>
   if (!promoScriptPaths.length) return <p className={ui.lead}>web/src/content/live/promo/ 底下還沒有腳本。</p>
+  const label = (p: string): string => {
+    const info = infos[p]
+    const name = p.replace(/^promo\//, '').replace(/\.json$/, '')
+    if (typeof info === 'object') return `${name} · ${info.title} · ${sec(info.duration)}`
+    return typeof info === 'string' ? `${name} · 腳本有誤` : name
+  }
+  const info = selected ? infos[selected] : undefined
   return (
-    <div>
-      {promoScriptPaths.map((p) => {
-        const info = infos[p]
-        return (
-          <section className={ui.card} key={p} data-testid="promo-item">
-            <div className={ui['card-head']}>
-              <div className={ui['head-left']}>
-                <div>
-                  <h3>{typeof info === 'object' ? info.title : p}</h3>
-                  <div className={ui.meta}>
-                    {info === undefined ? '量測中…' : typeof info === 'string' ? `腳本有誤：${info}` : `長度 ${sec(info.duration)} · 旁白 ${info.chars} 字 · ${info.voice ? '已有旁白語音' : '尚無旁白語音（只有字幕）'}`}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className={ui['card-body']}>
-              <p className={ui['kv-lead']}>
-                <span className={ui['repo-path']}>web/src/content/live/{p}</span>
-              </p>
-            </div>
-            <div className={ui['card-foot']}>
-              <div className={ui.links}>
-                <button type="button" className={selected === p ? `${ui.btn} ${ui.ghost}` : ui.btn} onClick={() => onSelect(p)}>
-                  {selected === p ? '播放中' : '播放這支'}
-                </button>
-              </div>
-            </div>
-          </section>
-        )
-      })}
+    <div className={styles.picker}>
+      <label>
+        宣傳影片
+        <select value={selected && promoScriptPaths.includes(selected) ? selected : ''} onChange={(e) => onSelect(e.target.value || null)} aria-label="選擇宣傳影片" data-testid="promo-select">
+          <option value="">選一支宣傳影片…</option>
+          {promoScriptPaths.map((p) => (
+            <option key={p} value={p}>{label(p)}</option>
+          ))}
+        </select>
+      </label>
+      {selected && promoScriptPaths.includes(selected) && (
+        <p className={ui.meta}>
+          web/src/content/live/{selected} ·{' '}
+          {info === undefined ? '量測中…' : typeof info === 'string' ? `腳本有誤：${info}` : `長度 ${sec(info.duration)} · 旁白 ${info.chars} 字 · ${info.voice ? '已有旁白語音' : '尚無旁白語音（只有字幕）'}`}
+        </p>
+      )}
     </div>
   )
 }

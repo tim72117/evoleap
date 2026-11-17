@@ -1,0 +1,9 @@
+.A-remote-reel {
+  background: #f4efe8;
+  overflow: hidden;
+}
+.A-remote-reel .rr-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

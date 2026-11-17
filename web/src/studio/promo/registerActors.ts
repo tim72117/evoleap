@@ -5,11 +5,12 @@
 //   kid-day-scene:場景,把 kid-life 與 kid-hub 包在同一個世界裡,背景依狀態連續變化(規則表在 actor.ts 的 RULES)
 //   kid-reel     :兒童課宣傳片的場景(開場、平板外框與亮點、側後方的書桌鏡頭),真正的兒童課演員疊在平板螢幕上
 //   kid-reel-cards:兒童課宣傳片的浮空字卡(這一課學會什麼),排在演員表最後,壓在課程演員上面
+//   remote-reel  :「在家用手機遠端使用辦公室電腦上的 Claude Code session」宣傳片(直式 FB Reels;辦公室電腦與手機都用圖形示意,動作 scene)
 //   archify-reel :Archify 與 Diagram Design 開源專案宣傳片(直式 FB Reels;全部用圖形模擬專案畫面,動作 scene)
 //   ai-tools-reel:「文組也能用 AI 寫工具」宣傳片(直式 FB Reels;全部用 SVG 插畫模擬人物與四個自製工具,動作 scene)
 //   sheets-reel  :Claude Sheets 三大特色宣傳片(直式 FB Reels,動作 scene)
 //   sessions-reel:Claude Code 跨 session 通訊宣傳片(直式 FB Reels;兩個終端機視窗互傳訊息,動作 scene)
-// 腳本:content/live/promo/claude-code-sessions-reel.json、claude-sheets-reel.json、ai-for-everyone-reel.json、content/live/promo/archify-reel.json、content/live/promo/kid-life.json、kids-free-reel.json(直式為主)
+// 腳本:content/live/promo/claude-code-remote-reel.json、content/live/promo/claude-code-sessions-reel.json、claude-sheets-reel.json、ai-for-everyone-reel.json、content/live/promo/archify-reel.json、content/live/promo/kid-life.json、kids-free-reel.json(直式為主)
 import { ACTORS } from '../../live/actors'
 import kidDayScene from './actors/kid-day-scene/actor'
 import kidHub from './actors/kid-hub/actor'
@@ -18,10 +19,11 @@ import kidReel from './actors/kid-reel/actor'
 import kidReelCards from './actors/kid-reel/learn'
 import archifyReel from './actors/archify-reel/actor'
 import sheetsReel from './actors/sheets-reel/actor'
+import remoteReel from './actors/remote-reel/actor'
 import sessionsReel from './actors/sessions-reel/actor'
 import aiToolsReel from './actors/ai-tools-reel/actor'
 
-for (const def of [kidLife, kidHub, kidDayScene, kidReel, kidReelCards, archifyReel, sheetsReel, sessionsReel, aiToolsReel]) ACTORS[def.name] = def
+for (const def of [kidLife, kidHub, kidDayScene, kidReel, kidReelCards, archifyReel, sheetsReel, sessionsReel, remoteReel, aiToolsReel]) ACTORS[def.name] = def
 
 /** 宣傳片的場景(格式同 fable/registerActors.ts 的 SCENES,由那裡併進「開發 › 場景」的清單) */
 export const PROMO_SCENES: { name: string; title: string; script: string; summary: string }[] = [
