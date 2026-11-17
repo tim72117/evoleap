@@ -50,7 +50,7 @@ const LEVELS: LevelBlock[] = [
       '工具例：Claude Code、Codex CLI、Gemini CLI、Cursor Agent',
       '四課都是互動版即時教學畫面（播放中有「選一選、想一想」），旁白語音都已產生',
     ],
-    next: ['決定主示範的 AI 工具與形式（與 L2 主力 AI 程式助手一起決定）', '實測 0.2 全部提示詞（參考成品與腳本已完成）', '找零基礎試看者從序章跟做到第 2 課，記錄卡關點', '決定 L1 是否改用同一個工具、L2 如何處理重疊'],
+    next: ['決定主示範的 AI 工具與形式（與 L2 主力 AI 程式助手一起決定）', '實測 0.3 全部提示詞（參考成品與腳本已完成）', '找零基礎試看者從序章跟做到第 3 課，記錄卡關點', '決定 L1 是否改用同一個工具、L2 如何處理重疊'],
     questions: questionsOf('L0'),
     links: [{ to: '/studio/tools', label: 'L0 大綱' }],
   },
@@ -281,7 +281,7 @@ export function ProposalIndexPage() {
           <div className={ui['head-left']}>
             <div>
               <h3>AI 工具技巧</h3>
-              <div className={ui.meta}>適用：L0 第 2 課之後</div>
+              <div className={ui.meta}>適用：L0 第 3 課之後</div>
             </div>
           </div>
           <div className={ui.chips}>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { COURSES, coursePath, lessonNumber, lessonPath, plannedChapterPath } from './catalog'
+import { COURSES, coursePath, lessonNumber, lessonPath, nextCourse, plannedChapterPath } from './catalog'
 import type { CourseLesson } from './lessonTypes'
 import { ALL_LEVELS as LEVELS } from './levels'
 import { AI_AGENT_COURSE_PATH } from './aiAgent'
@@ -134,5 +134,13 @@ describe('LEVELS ↔ COURSES', () => {
   it('every course takes its title from a level', () => {
     const titles = new Set(LEVELS.map((l) => l.title))
     for (const c of COURSES) expect(titles.has(c.title), c.slug).toBe(true)
+  })
+})
+
+describe('nextCourse', () => {
+  const bySlug = (slug: string) => COURSES.find((c) => c.slug === slug)!
+  it('跳過先不公開(hidden)的課程:AI 工具介紹的下一章是 Vibe Coding 入門', () => {
+    expect(nextCourse(bySlug('tools'))?.slug).toBe('vibe-coding')
+    expect(COURSES.filter((c) => c.hidden).every((h) => COURSES.every((c) => nextCourse(c) !== h))).toBe(true)
   })
 })

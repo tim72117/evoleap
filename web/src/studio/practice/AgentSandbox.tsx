@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { applyOp, basename, commandOf, get, inside, plan, relative, scopeOf, type Dir, type Plan } from './sim'
 import styles from './practice.module.css'
 
-// 第 0、1 課共用的練習:左邊是仿 Finder 的檔案樹,右邊是仿 AI 工具的對話視窗。
+// 第 1、2 課共用的練習:左邊是仿 Finder 的檔案樹,右邊是仿 AI 工具的對話視窗。
 // 學員自己打字(或點提示詞晶片、把檔案拖到資料夾),AI 動手前跳出確認提示,允許或拒絕後檔案樹立刻變化。
 // 沒有對錯與分數;做了危險的事就讓人看到後果,「重來」可以還原整個練習。
 
@@ -11,9 +11,9 @@ type Msg = { who: 'user' | 'ai' | 'tool' | 'note'; text: string; output?: string
 type Props = {
   initialRoot: Dir
   initialCwd: string
-  /** 第 1 課:可以自己選工具開在哪個資料夾 */
+  /** 第 2 課:可以自己選工具開在哪個資料夾 */
   cwdPickable?: boolean
-  /** 第 0 課:可以切換「每次詢問／自動允許」 */
+  /** 第 1 課:可以切換「每次詢問／自動允許」 */
   modeToggle?: boolean
   hints: string[]
 }

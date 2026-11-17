@@ -20,8 +20,8 @@ func openSeeded(t *testing.T) *Store {
 	return st
 }
 
-// 管理員改一課:檢查規則、記一筆修改紀錄;種子再同步一次也不會蓋掉(資料庫為準)
-func TestUpdateLessonKeptAcrossSeed(t *testing.T) {
+// 管理員改一課:檢查規則、記一筆修改紀錄;種子再同步一次會蓋回種子的內容(課程結構以種子為準)
+func TestUpdateLessonOverwrittenBySeed(t *testing.T) {
 	st := openSeeded(t)
 	ctx := context.Background()
 	minutes := 12
@@ -36,6 +36,9 @@ func TestUpdateLessonKeptAcrossSeed(t *testing.T) {
 	if err := st.UpdateLesson(ctx, "boss@example.com", "kids", "0.1", LessonPatch{Status: &draft, Minutes: &minutes}); err != nil {
 		t.Fatal(err)
 	}
+	if m, err := st.CourseMapOf(ctx, "kids", true); err != nil || m.Units[0].Lessons[0].Status != LessonDraft || m.Units[0].Lessons[0].Minutes != 12 {
+		t.Fatalf("改了之後: %+v %v", m.Units[0].Lessons[0], err)
+	}
 	if err := st.SeedCourses(ctx); err != nil {
 		t.Fatal(err)
 	}
@@ -43,12 +46,75 @@ func TestUpdateLessonKeptAcrossSeed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if l := m.Units[0].Lessons[0]; l.Status != LessonDraft || l.Minutes != 12 {
-		t.Errorf("種子不能蓋掉管理員改過的課: %+v", l)
+	if l := m.Units[0].Lessons[0]; l.Status != LessonOpen || l.Minutes == 12 {
+		t.Errorf("同步後要是種子的內容: %+v", l)
 	}
 	changes, err := st.CourseChanges(ctx, 10)
 	if err != nil || len(changes) == 0 || changes[0].Action != "lesson.update" || changes[0].Target != "kids 0.1" || changes[0].User != "boss@example.com" {
 		t.Errorf("修改紀錄: %+v %v", changes, err)
+	}
+}
+
+// 管理員改一門課自己的存取方式與課名:檢查規則、沒寫 access 的課跟著變、記一筆修改紀錄;種子再同步一次會蓋回種子的內容
+func TestUpdateCourseOverwrittenBySeed(t *testing.T) {
+	st := openSeeded(t)
+	ctx := context.Background()
+	if err := st.ReplaceUnitsJSON("kids", `[{"id":"u","title":"U","lessons":[
+		{"id":"1","title":"一","status":"open","access":"free"},
+		{"id":"2","title":"二","status":"open"}]}]`); err != nil {
+		t.Fatal(err)
+	}
+	if err := st.PutScript(ctx, "boss@example.com", "kids/course-set.json", "kids", "2", []byte(`{}`)); err != nil {
+		t.Fatal(err)
+	}
+	bad, inherit, empty := "hidden", "", "  "
+	if err := st.UpdateCourse(ctx, "boss@example.com", "kids", CoursePatch{Access: &bad}); !errors.Is(err, ErrInvalidCourseData) {
+		t.Errorf("不認得的 access: %v", err)
+	}
+	if err := st.UpdateCourse(ctx, "boss@example.com", "kids", CoursePatch{Access: &inherit}); !errors.Is(err, ErrInvalidCourseData) {
+		t.Errorf("課程不能沒有 access: %v", err)
+	}
+	if err := st.UpdateCourse(ctx, "boss@example.com", "kids", CoursePatch{Title: &empty}); !errors.Is(err, ErrInvalidCourseData) {
+		t.Errorf("空的課名: %v", err)
+	}
+	sub := "subscription"
+	if err := st.UpdateCourse(ctx, "boss@example.com", "nope", CoursePatch{Access: &sub}); !errors.Is(err, ErrCourseNotFound) {
+		t.Errorf("沒有這門課: %v", err)
+	}
+	title := "兒童課(改)"
+	if err := st.UpdateCourse(ctx, "boss@example.com", "kids", CoursePatch{Access: &sub, Title: &title}); err != nil {
+		t.Fatal(err)
+	}
+	m, err := st.CourseMapOf(ctx, "kids", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m.Access != AccessSubscription || m.Title != title {
+		t.Errorf("改了之後的課程: %s %s", m.Access, m.Title)
+	}
+	if ls := m.Units[0].Lessons; ls[0].Access != AccessFree || ls[1].Access != AccessSubscription {
+		t.Errorf("自己寫了 access 的課不變,沒寫的跟著課程: %+v", ls)
+	}
+	if a, _, err := st.CourseAccess(ctx, "kids"); err != nil || a != AccessSubscription {
+		t.Errorf("CourseAccess: %s %v", a, err)
+	}
+	// 腳本的把關(GET /api/scripts)每次都讀資料庫,改了立刻生效
+	if f, err := st.LessonFileOf(ctx, "kids/course-set.json"); err != nil || f.Access != AccessSubscription {
+		t.Errorf("腳本照課程的存取方式: %+v %v", f.Access, err)
+	}
+	changes, err := st.CourseChanges(ctx, 10)
+	if err != nil || len(changes) == 0 || changes[0].Action != "course.update" || changes[0].Target != "kids" || changes[0].User != "boss@example.com" ||
+		!strings.Contains(string(changes[0].Detail), `"access":"subscription"`) {
+		t.Errorf("修改紀錄: %+v %v", changes, err)
+	}
+	if len(changes) != 2 {
+		t.Errorf("不合規則的修改不該留紀錄(腳本一筆、課程一筆): %d 筆", len(changes))
+	}
+	if err := st.SeedCourses(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if m, err := st.CourseMapOf(ctx, "kids", true); err != nil || m.Access == AccessSubscription || m.Title == title {
+		t.Errorf("同步後要是種子的內容: %s %s %v", m.Access, m.Title, err)
 	}
 }
 
@@ -107,8 +173,8 @@ func TestUpdateLessonScriptMustExist(t *testing.T) {
 	}
 }
 
-// 種子中間插入新課:既有的課內容不動,順序照種子重排,不會撞號
-func TestInsertMissingUnitsReorders(t *testing.T) {
+// 種子中間插入新課:順序照種子重排,不會撞號;既有的課內容也照種子
+func TestUpsertUnitsReorders(t *testing.T) {
 	st := openSeeded(t)
 	lesson := func(id string) lessonSeed { return lessonSeed{ID: id, Title: id, Status: LessonPlanned} }
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
@@ -120,7 +186,7 @@ func TestInsertMissingUnitsReorders(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return insertMissingUnits(tx, "tools", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("b"), lesson("c")}}})
+		return upsertUnits(tx, "tools", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("b"), lesson("c")}}})
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -132,8 +198,8 @@ func TestInsertMissingUnitsReorders(t *testing.T) {
 	for _, l := range m.Units[0].Lessons {
 		got = append(got, l.ID+":"+l.Title)
 	}
-	if strings.Join(got, ",") != "a:a,b:b,c:改過的" {
-		t.Errorf("順序照種子、內容不動: %v", got)
+	if strings.Join(got, ",") != "a:a,b:b,c:c" {
+		t.Errorf("順序與內容照種子: %v", got)
 	}
 }
 
@@ -145,8 +211,8 @@ func TestPutScriptRefusesPlannedLesson(t *testing.T) {
 	}
 }
 
-// 種子把課搬到別的單元:課跟著搬(結構照種子),內容不動
-func TestInsertMissingUnitsMovesLesson(t *testing.T) {
+// 種子把課搬到別的單元:課跟著搬(結構照種子)
+func TestUpsertUnitsMovesLesson(t *testing.T) {
 	st := openSeeded(t)
 	lesson := func(id string) lessonSeed { return lessonSeed{ID: id, Title: id, Status: LessonPlanned} }
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
@@ -155,7 +221,7 @@ func TestInsertMissingUnitsMovesLesson(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return insertMissingUnits(tx, "tools", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a")}}, {ID: "2", Title: "u2", Lessons: []lessonSeed{lesson("b")}}})
+		return upsertUnits(tx, "tools", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a")}}, {ID: "2", Title: "u2", Lessons: []lessonSeed{lesson("b")}}})
 	}); err != nil {
 		t.Fatal(err)
 	}

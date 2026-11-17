@@ -12,7 +12,7 @@ import { lazyPage } from '../site/lazyPage'
 import { SiteLayout } from '../site/SiteLayout'
 import { LessonListStatus } from './LessonGroup'
 import { LoginGate } from './LoginGate'
-import { PlannedChapterPage, PlannedCourseOverviewPage } from './PlannedPages'
+import { PlannedChapterPage } from './PlannedPages'
 
 // 上課頁(播放器、舞台引擎與演員)用到才下載,不放進課程總覽、課程地圖就要下載的主程式
 const InteractiveLessonPage = lazyPage(() => import('./InteractiveLessonPage').then((m) => m.InteractiveLessonPage))
@@ -46,7 +46,7 @@ function LessonInfoStatus({ state }: { state: 'loading' | 'error' }) {
 const lessonInMap = (map: { map: { units: { lessons: MapLesson[] }[] } }, id: string) => map.map.units.flatMap((u) => u.lessons).find((l) => l.id === id)
 
 /**
- * 要不要登入照資料庫(課程地圖 API 的這一課 access,和伺服器把關腳本的規則同一份;用 evoleap lesson set -access 改了就跟著變):
+ * 要不要登入照資料庫(課程地圖 API 的這一課 access,和伺服器把關腳本的規則同一份;資料庫部署時照種子同步,用 evoleap lesson set -access 臨時改了也跟著變):
  * free 直接給看,其他(登入後免費、訂閱)要登入(LoginGate)。讀取中顯示佔位卡、讀不到顯示「無法讀取」;
  * 地圖裡沒有這一課(資料庫沒有)當成還沒開放,顯示規劃中的章節頁。沒有前端的備援規則。
  */
@@ -108,12 +108,7 @@ export const courseRoutes: { path: string; element: JSX.Element }[] = [
     : [
         {
           path: coursePath(course),
-          element:
-            course.lessons.length > 0 ? (
-              <CourseOverviewPage course={course} />
-            ) : (
-              <PlannedCourseOverviewPage course={course} />
-            ),
+          element: <CourseOverviewPage course={course} />,
         },
       ]),
   ...course.lessons.map((lesson) => ({

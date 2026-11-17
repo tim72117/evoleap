@@ -11,8 +11,8 @@ import (
 )
 
 // 一門課(courses)底下分單元(course_units),單元底下是一堂一堂的課(lessons)。
-// 正式環境以資料庫為準(管理員用 evoleap CLI 修改);courses_seed.json 只補資料庫還沒有的單元與課(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時),
-// 已經有的不動,種子拿掉的也不會從資料庫刪除。
+// 課程結構以 courses_seed.json 為準:同步時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)種子有的單元與課新增或用種子的內容更新,
+// 種子裡的課程中種子已經沒有的單元與課從資料庫刪除(見 SeedCourses)。管理員用 evoleap CLI 改的欄位,下次同步會被種子蓋回去。
 // 一堂課的存取方式(access)空的就照這門課,只有例外才填(例如依課程順序前五課免費預覽;存取規則由 api 的 TestLessonFileGateFollowsData 依資料判斷)。
 // 狀態 draft(草稿)是公開與否的閘口:只有管理員看得到它是草稿、拿得到腳本路徑,其他人看到的是規劃中。
 
@@ -133,23 +133,46 @@ func syncUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 	return nil
 }
 
-// insertMissingUnits 新增資料庫還沒有的單元與課;已經有的內容不動(正式環境以資料庫為準,見 SeedCourses),
-// 只有結構跟著種子:順序(position)與課屬於哪個單元(unit_id)。CLI 不能調結構,種子中間插入新課或把課搬到別的單元時才不會撞號、放錯單元。
-func insertMissingUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
+// upsertUnits 把種子的單元與課寫進資料庫:沒有的新增,已經有的用種子的內容更新(課程結構以種子為準,見 SeedCourses),
+// 再刪掉這門課在資料庫裡、種子已經沒有的單元與課。課號改了(例如中間插入新的一課、後面的課號往後挪)時,同一個課號的內容跟著種子換。
+func upsertUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 	us, ls, err := unitRows(courseID, units)
 	if err != nil {
 		return err
 	}
 	key := []clause.Column{{Name: "course_id"}, {Name: "id"}}
 	if len(us) > 0 {
-		if err := tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"position"})}).Create(&us).Error; err != nil {
+		if err := tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"title", "subtitle", "position"})}).Create(&us).Error; err != nil {
 			return err
 		}
 	}
 	if len(ls) > 0 {
-		return tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"position", "unit_id"})}).Create(&ls).Error
+		if err := tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"unit_id", "title", "summary", "position", "access", "status", "script", "minutes"})}).Create(&ls).Error; err != nil {
+			return err
+		}
 	}
-	return nil
+	unitIDs := make([]string, len(us))
+	for i, u := range us {
+		unitIDs[i] = u.ID
+	}
+	lessonIDs := make([]string, len(ls))
+	for i, l := range ls {
+		lessonIDs[i] = l.ID
+	}
+	if err := deleteOthers(tx, &lessonRow{}, courseID, lessonIDs); err != nil {
+		return err
+	}
+	return deleteOthers(tx, &unitRow{}, courseID, unitIDs)
+}
+
+// deleteOthers 刪掉一門課在這張表(單元或課)裡 id 不在 keep 的列;keep 是空的就整門課的都刪
+// (NOT IN 空清單在 SQL 裡不會成立,不能直接交給 NOT IN)。
+func deleteOthers(tx *gorm.DB, model any, courseID string, keep []string) error {
+	q := tx.Where("course_id = ?", courseID)
+	if len(keep) > 0 {
+		q = q.Where("id NOT IN ?", keep)
+	}
+	return q.Delete(model).Error
 }
 
 // CourseMap 是一門課的課程地圖:課程、單元與每一堂課(依順序)。

@@ -4,7 +4,7 @@
 // 新增一門課：在這裡加一筆，routes.tsx 與 seo/pages.ts 會自動產生路由與 SEO；課程結構也要寫進 server/internal/store/courses_seed.json（content/courseMap.test.ts 檢查一致）。
 // 課程總覽的每一課（一句話、時間、開放與否）從資料庫讀，這裡的資料是單課頁的內容與讀到之前的備用資料。
 import { ALL_LEVELS, LEVELS, type CourseLevel } from './levels'
-import { L2_MODULES } from './l2Outline'
+import { l2OutlineLessons } from './l2Outline'
 import { UNITS } from './aiAgent'
 import type { CourseLesson } from './lessonTypes'
 import { L0_LESSONS } from './l0Lessons'
@@ -22,6 +22,8 @@ export interface PlannedChapter {
   summary: string
   /** 完成後會做出的成果 */
   result?: string
+  /** 資料庫(courses_seed.json)裡的課號;沒填就是 label */
+  id?: string
 }
 
 export interface Course {
@@ -36,6 +38,8 @@ export interface Course {
   planned: PlannedChapter[]
   /** 課程總覽頁另有專屬頁面（不由 CourseOverviewPage 產生） */
   customOverview?: boolean
+  /** 先不公開（照 levels.ts 的 hidden）：列表與 sitemap 都不列，網址還打得開（noindex） */
+  hidden?: boolean
 }
 
 function level(id: string): CourseLevel {
@@ -44,9 +48,9 @@ function level(id: string): CourseLevel {
   return l
 }
 
-function fromLevel(id: string, slug: string, levelLabel: string): Pick<Course, 'slug' | 'level' | 'title' | 'summary'> {
+function fromLevel(id: string, slug: string, levelLabel: string): Pick<Course, 'slug' | 'level' | 'title' | 'summary' | 'hidden'> {
   const l = level(id)
-  return { slug, level: levelLabel, title: l.title, summary: l.summary }
+  return { slug, level: levelLabel, title: l.title, summary: l.summary, ...(l.hidden ? { hidden: true } : {}) }
 }
 
 export const COURSES: Course[] = [
@@ -67,15 +71,9 @@ export const COURSES: Course[] = [
     status: 'planned',
     // 寫好內容的課(l2Lessons.ts)放進 lessons,其餘照大綱(l2Outline.ts)是規劃中的章節
     lessons: L2_LESSONS,
-    planned: L2_MODULES.flatMap((m) =>
-      m.lessons.map((l, i) => ({
-        slug: `${m.num}-${i + 1}`,
-        label: `${m.num}.${i + 1}`,
-        title: l.title,
-        summary: l.objective,
-        result: l.result,
-      })),
-    ).filter((ch) => !L2_LESSONS.some((l) => l.id === ch.label)),
+    planned: l2OutlineLessons()
+      .map(({ id, lesson: l }) => ({ slug: id.replace('.', '-'), label: id, title: l.title, summary: l.objective, result: l.result }))
+      .filter((ch) => !L2_LESSONS.some((l) => l.id === ch.label)),
   },
   {
     ...fromLevel('ai-agent', 'ai-agent', 'AI 互動軟體 中階'),
@@ -111,7 +109,8 @@ export function coursePath(course: Course): string {
 export function nextCourse(course: Course): Course | undefined {
   const lv = ALL_LEVELS.find((l) => l.link === coursePath(course))
   if (!lv) return undefined
-  const group = LEVELS.includes(lv) ? LEVELS : ALL_LEVELS.filter((l) => !LEVELS.includes(l))
+  // 先不公開(hidden)的等級跳過,不當成下一章
+  const group = (LEVELS.includes(lv) ? LEVELS : ALL_LEVELS.filter((l) => !LEVELS.includes(l))).filter((l) => l === lv || !l.hidden)
   const nextLevel = group[group.indexOf(lv) + 1]
   return nextLevel && COURSES.find((c) => coursePath(c) === nextLevel.link)
 }

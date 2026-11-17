@@ -23,13 +23,13 @@ test('兒童課程地圖由資料庫讀取', async ({ page }) => {
   await page.goto(`${gated}/topics/kids/4-1`)
   await expect(page.getByText('這一課還沒開放')).toBeVisible()
 
-  // 管理員看到草稿,整列連到課程頁(等 API 回來再看:前端內建的備援地圖一開始也畫了草稿,不等就測不到伺服器)
+  // 4.1 起課程頁與腳本寫好了,但正式機是規劃中(種子沒有掛腳本):管理員看到的也是規劃中,不連到課程頁
   const adminMap = page.waitForResponse((r) => r.url().endsWith('/api/courses/kids/map'))
   await page.goto('/topics/kids#map')
   const body = (await (await adminMap).json()) as { units: { lessons: { id: string; status: string }[] }[] }
-  expect(body.units.flatMap((u) => u.lessons).find((l) => l.id === '4.1')?.status).toBe('draft')
-  await expect(row('4.1')).toContainText('草稿')
-  await expect(row('4.1').getByRole('link')).toHaveAttribute('href', '/topics/kids/4-1')
+  expect(body.units.flatMap((u) => u.lessons).find((l) => l.id === '4.1')?.status).toBe('planned')
+  await expect(row('4.1')).toContainText('規劃中')
+  await expect(row('4.1').getByRole('link')).toHaveCount(0)
 })
 
 test('網頁怎麼運作的課程地圖由資料庫讀取', async ({ page }) => {

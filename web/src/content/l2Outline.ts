@@ -21,6 +21,17 @@ export type OutlineModule = {
   lessons: OutlineLesson[]
 }
 
+/**
+ * 不再列在這門課的章節(課號照 L2_MODULES 的位置算,所以留在大綱裡、只在這裡排除,後面的課號才不會跟著變):
+ * 4.2 搬到「AI 工具介紹」第 0 課(l0Lessons.ts 的 0.0);4.1、4.4、5.1 拿掉。研發基地的提案頁仍照完整大綱
+ */
+export const L2_DROPPED: ReadonlySet<string> = new Set(['4.1', '4.2', '4.4', '5.1'])
+
+/** 這門課還列著的章節:課號(例如 4.3)、所在單元與大綱 */
+export function l2OutlineLessons(): { id: string; module: OutlineModule; lesson: OutlineLesson }[] {
+  return L2_MODULES.flatMap((m) => m.lessons.map((lesson, i) => ({ id: `${m.num}.${i + 1}`, module: m, lesson }))).filter((x) => !L2_DROPPED.has(x.id))
+}
+
 export const L2_MODULES: OutlineModule[] = [
   {
     num: '4',

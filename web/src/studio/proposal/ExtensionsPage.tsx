@@ -19,9 +19,9 @@ const FORMS: [string, string][] = [
 ]
 
 const EXAMPLES: [string, string, string][] = [
-  ['起步 · 第 2 課：做出一頁式網站', '網頁怎麼運作 · 序章 0.2「HTML、CSS、JavaScript 的分工」', 'AI 一次做出 index.html、styles.css、script.js，看完分工比較知道要請它改哪一個檔案。'],
+  ['起步 · 第 3 課：做出一頁式網站', '網頁怎麼運作 · 序章 0.2「HTML、CSS、JavaScript 的分工」', 'AI 一次做出 index.html、styles.css、script.js，看完分工比較知道要請它改哪一個檔案。'],
   ['零基礎 · 1.0 訂購單：送出前檢查', '網頁怎麼運作 · 序章 0.1「輸入網址之後發生的事」', '說明為什麼「每天最多 8 個蛋糕」前端擋不住：資料要送到伺服器才知道別人訂了多少。'],
-  ['起步 · 第 2 課：改太多時，比對並還原', 'AI 工具技巧 · Claude Code「Fork：帶著對話另開一條路」', '想試另一種改法又怕改壞時，可以另開一條路，不影響原本的對話。'],
+  ['起步 · 第 3 課：改太多時，比對並還原', 'AI 工具技巧 · Claude Code「Fork：帶著對話另開一條路」', '想試另一種改法又怕改壞時，可以另開一條路，不影響原本的對話。'],
 ]
 
 const DATA_NOTES = [

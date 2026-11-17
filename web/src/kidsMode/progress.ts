@@ -5,7 +5,7 @@ import { progressApi } from '../courses/progress'
 import { isFinished } from '../member/memberCourses'
 
 // 兒童模式的進度(播放進度 GET /api/progress;兒童模式時伺服器回這個孩子自己的進度 child_progress):看完了哪幾課、接下來要上哪一課。
-// 哪幾課已開放照資料庫的課程地圖(和伺服器同一份,用 evoleap CLI 開課後不用重新部署);讀不到時沒有開放的課(進度與這週的課先不顯示),不用前端寫死的清單頂替。
+// 哪幾課已開放照資料庫的課程地圖(和伺服器同一份,用 evoleap CLI 開課後不用重新部署;但下次部署會照種子同步,種子也要一起改);讀不到時沒有開放的課(進度與這週的課先不顯示),不用前端寫死的清單頂替。
 // 「這週的課」(KidsSchedulePanel)排最近一次的課、課程頁擋還沒到的課(KidsLessonPage)都用這一份;伺服器的 store.KidsLessonOpen 是同一套規則。
 
 export type KidsProgress = {

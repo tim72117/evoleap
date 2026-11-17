@@ -18,7 +18,7 @@ export function KidsLesson03LivePage() {
       <KidsPlayer script="kids/0.3.json" scrub />
 
       <h2>這一課怎麼演</h2>
-      <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>已開放 · 公開課程頁 /topics/kids/0-3（登入後學習）</span>
+      <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>已開放 · 公開課程頁 /topics/kids/0-3（免費預覽）</span>
       <section className={ui.card}>
         <ul>
           <li>

@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -66,19 +65,37 @@ func lessonFilePaths(dir string, l lessonSeed) []string {
 }
 
 // SyncLessonFiles 依 courses_seed.json 把每一課的腳本檔從 dir(web/src/content/live)讀進 lesson_files,其餘的 .json 讀進 studio_files。
-// 只新增資料庫還沒有的檔,已經有的不動:上線後腳本以資料庫為準,改腳本用 evoleap script push(見 coursesadmin.go)。
-// 種子寫到的檔案不存在時回傳錯誤(啟動失敗),免得上線後課程頁才發現少了腳本。
+// 哪個檔屬於哪一課以種子為準:種子寫到的檔,資料庫沒有就新增(內容讀檔案),已經有的改掛到種子寫的那一課,但內容不動
+// (腳本內容以資料庫為準,上線後改腳本用 evoleap script push,見 coursesadmin.go)。
+// 種子裡的課程底下、種子已經不再指定的檔,從 lesson_files 移到 studio_files(帶著資料庫裡的內容),變成研發基地的檔。
+// 種子寫到的檔案不存在,或一個檔寫在兩課底下時回傳錯誤(啟動失敗),免得上線後課程頁才發現少了腳本。
 func (s *Store) SyncLessonFiles(ctx context.Context, dir string) error {
 	return s.SyncLessonFilesJSON(ctx, courseSeed, dir)
 }
 
 // SyncLessonFilesJSON 同 SyncLessonFiles,但種子用給定的 JSON(格式同 courses_seed.json);測試用,不依賴真正的腳本目錄。
 func (s *Store) SyncLessonFilesJSON(ctx context.Context, seed []byte, dir string) error {
-	var seeds []courseSeedRow
-	if err := json.Unmarshal(seed, &seeds); err != nil {
-		return fmt.Errorf("parse course seed: %w", err)
+	seeds, err := parseCourseSeed(seed)
+	if err != nil {
+		return err
 	}
-	var rows []lessonFileRow
+	files, err := readLessonFiles(seeds, dir)
+	if err != nil {
+		return err
+	}
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error { return syncLessonFiles(tx, seeds, files) })
+}
+
+// seedFiles 是從腳本目錄讀出來、要寫進資料庫的檔:種子指定給各課的(lessons)與其餘的 .json(others,研發基地的候選)。
+type seedFiles struct {
+	lessons []lessonFileRow
+	others  []studioFileRow
+}
+
+// readLessonFiles 讀出種子指定給各課的腳本檔與目錄裡其餘的 .json,並檢查一個檔只能屬於一課、種子寫到的檔要存在。
+// 只讀檔案、不碰資料庫,讓 syncLessonFiles 的交易不用等讀檔。
+func readLessonFiles(seeds []courseSeedRow, dir string) (seedFiles, error) {
+	var out seedFiles
 	owner := map[string]string{} // 路徑 → 哪一課(一個檔只能屬於一課)
 	for _, c := range seeds {
 		for _, u := range c.Units {
@@ -89,57 +106,108 @@ func (s *Store) SyncLessonFilesJSON(ctx context.Context, seed []byte, dir string
 						if prev == who {
 							continue // 同一課寫了兩次(例如 files 又寫了會自動加上的 .voice.json)
 						}
-						return fmt.Errorf("腳本 %s 同時寫在課程 %s 和 %s,一個檔只能屬於一課", p, prev, who)
+						return seedFiles{}, fmt.Errorf("腳本 %s 同時寫在課程 %s 和 %s,一個檔只能屬於一課", p, prev, who)
 					}
 					owner[p] = who
 					b, err := os.ReadFile(filepath.Join(dir, p))
 					if err != nil {
-						return fmt.Errorf("課程 %s 的 %s:讀不到腳本 %s:%w", c.ID, l.ID, p, err)
+						return seedFiles{}, fmt.Errorf("課程 %s 的 %s:讀不到腳本 %s:%w", c.ID, l.ID, p, err)
 					}
-					rows = append(rows, lessonFileRow{Path: p, CourseID: c.ID, LessonID: l.ID, Content: string(b)})
+					out.lessons = append(out.lessons, lessonFileRow{Path: p, CourseID: c.ID, LessonID: l.ID, Content: string(b)})
 				}
 			}
 		}
 	}
-	owned := map[string]bool{}
-	for _, r := range rows {
-		owned[r.Path] = true
-	}
-	// 資料庫裡已經掛在某一課底下的檔(例如管理員用 evoleap script push -course -lesson 從研發基地搬過去的),不再當成研發基地的檔補一份
-	var inLessons []string
-	if err := s.db.WithContext(ctx).Model(&lessonFileRow{}).Pluck("path", &inLessons).Error; err != nil {
-		return err
-	}
-	for _, p := range inLessons {
-		owned[p] = true
-	}
-	var studio []studioFileRow
 	err := filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() || filepath.Ext(p) != ".json" {
 			return err
 		}
 		rel, err := filepath.Rel(dir, p)
-		if err != nil || owned[filepath.ToSlash(rel)] {
+		if err != nil {
 			return err
 		}
+		rel = filepath.ToSlash(rel)
+		if _, ok := owner[rel]; ok {
+			return nil
+		}
 		b, err := os.ReadFile(p)
-		studio = append(studio, studioFileRow{Path: filepath.ToSlash(rel), Content: string(b)})
+		out.others = append(out.others, studioFileRow{Path: rel, Content: string(b)})
 		return err
 	})
 	if err != nil {
-		return fmt.Errorf("讀取研發基地的腳本:%w", err)
+		return seedFiles{}, fmt.Errorf("讀取研發基地的腳本:%w", err)
 	}
-	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if len(rows) > 0 {
-			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(rows, 20).Error; err != nil {
+	return out, nil
+}
+
+// syncLessonFiles 把讀好的檔寫進資料庫(在呼叫端的交易裡),順序要緊:
+//  1. 種子指定的檔寫進 lesson_files:沒有的新增;已經有的只改掛到種子寫的課(course_id、lesson_id),內容不動。
+//  2. 種子裡的課程底下、種子已經不指定的檔移出 lesson_files,帶著資料庫裡的內容放進 studio_files(已經有同路徑的就不動)。
+//  3. 目錄裡其餘的 .json 補進 studio_files(已經有的不動,所以第 2 步移過去的內容不會被檔案蓋掉);
+//     還掛在某一課底下的(例如種子沒寫單元的課程,或種子以外的課程裡用 evoleap script push 掛上的)跳過。
+func syncLessonFiles(tx *gorm.DB, seeds []courseSeedRow, files seedFiles) error {
+	if len(files.lessons) > 0 {
+		err := tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "path"}},
+			DoUpdates: clause.AssignmentColumns([]string{"course_id", "lesson_id"}),
+		}).CreateInBatches(files.lessons, 20).Error
+		if err != nil {
+			return err
+		}
+	}
+	var courses []string
+	for _, c := range seeds {
+		if c.Units != nil {
+			courses = append(courses, c.ID)
+		}
+	}
+	if len(courses) > 0 {
+		q := tx.Where("course_id IN ?", courses)
+		if len(files.lessons) > 0 {
+			paths := make([]string, len(files.lessons))
+			for i, r := range files.lessons {
+				paths[i] = r.Path
+			}
+			q = q.Where("path NOT IN ?", paths)
+		}
+		var dropped []lessonFileRow
+		if err := q.Find(&dropped).Error; err != nil {
+			return err
+		}
+		if len(dropped) > 0 {
+			moved := make([]studioFileRow, len(dropped))
+			paths := make([]string, len(dropped))
+			for i, r := range dropped {
+				moved[i] = studioFileRow{Path: r.Path, Content: r.Content}
+				paths[i] = r.Path
+			}
+			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(moved, 20).Error; err != nil {
+				return err
+			}
+			if err := tx.Where("path IN ?", paths).Delete(&lessonFileRow{}).Error; err != nil {
 				return err
 			}
 		}
-		if len(studio) > 0 {
-			return tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(studio, 20).Error
+	}
+	// 資料庫裡還掛在某一課底下的檔,不再當成研發基地的檔補一份
+	var inLessons []string
+	if err := tx.Model(&lessonFileRow{}).Pluck("path", &inLessons).Error; err != nil {
+		return err
+	}
+	owned := map[string]bool{}
+	for _, p := range inLessons {
+		owned[p] = true
+	}
+	var studio []studioFileRow
+	for _, f := range files.others {
+		if !owned[f.Path] {
+			studio = append(studio, f)
 		}
-		return nil
-	})
+	}
+	if len(studio) > 0 {
+		return tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(studio, 20).Error
+	}
+	return nil
 }
 
 // LessonFileOf 回傳一個腳本檔與它那一課的狀態、存取方式;沒有這個檔回 ErrLessonFileNotFound。

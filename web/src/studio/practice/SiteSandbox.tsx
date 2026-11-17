@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { adjust, firstDraft, SECTION_NAME, STYLE_NAME, type Section, type Site } from './siteSim'
 import styles from './practice.module.css'
 
-// 第 2 課練習:左邊寫需求、對話調整,右邊是小森烘焙網頁的即時預覽。
+// 第 3 課練習:左邊寫需求、對話調整,右邊是小森烘焙網頁的即時預覽。
 // 預覽的區塊可以直接點選(再對 AI 說「卡片改兩欄」),寬度可以拖,每一次修改都能還原。
 
 type Target = Section | 'nav' | 'title'

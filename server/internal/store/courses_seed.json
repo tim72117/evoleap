@@ -15,38 +15,47 @@
             "summary": "為什麼不用學寫程式，也能做出軟體",
             "access": "free",
             "status": "open",
-            "script": "l0/0.intro.json",
-            "minutes": 10
+            "minutes": 10,
+            "script": "l0/0.intro.json"
           },
           {
             "id": "0.0",
+            "title": "準備工具：安裝 AI 程式助手並設定權限",
+            "summary": "安裝並登入 AI 程式助手，看懂確認提示再決定允許或拒絕。",
+            "access": "free",
+            "status": "open",
+            "minutes": 30,
+            "script": "vibe-coding/4.2.json"
+          },
+          {
+            "id": "0.1",
             "title": "工具介紹：會操作檔案的 AI 工具",
             "summary": "安裝會操作檔案的 AI 工具，學會安全地允許與拒絕",
             "access": "free",
             "status": "open",
+            "minutes": 15,
             "script": "l0/0.0-tools.json",
             "files": [
               "l0/0.0-tools.en.json"
-            ],
-            "minutes": 15
-          },
-          {
-            "id": "0.1",
-            "title": "認識專案：工作目錄與檔案操作",
-            "summary": "認識專案與工作目錄，讓 AI 幫你建立、搬移檔案",
-            "status": "open",
-            "script": "l0/0.1-project.json",
-            "minutes": 20,
-            "access": "free"
+            ]
           },
           {
             "id": "0.2",
+            "title": "認識專案：工作目錄與檔案操作",
+            "summary": "認識專案與工作目錄，讓 AI 幫你建立、搬移檔案",
+            "access": "free",
+            "status": "open",
+            "minutes": 20,
+            "script": "l0/0.1-project.json"
+          },
+          {
+            "id": "0.3",
             "title": "提出需求：做出一頁式網站並精確調整",
             "summary": "一段話描述，做出一頁式網站，再精確調整到滿意",
+            "access": "free",
             "status": "open",
-            "script": "l0/0.2-site.json",
             "minutes": 45,
-            "access": "free"
+            "script": "l0/0.2-site.json"
           }
         ]
       }
@@ -162,7 +171,7 @@
   {
     "id": "vibe-coding-basics",
     "title": "Vibe Coding 入門：用 AI 做出你的第一個小工具",
-    "access": "subscription",
+    "access": "login-free",
     "tier": "basic",
     "units": [
       {
@@ -171,37 +180,12 @@
         "subtitle": "",
         "lessons": [
           {
-            "id": "4.1",
-            "title": "AI 程式助手的三種形式",
-            "summary": "分辨聊天視窗、編輯器內建補全與對話（例如 GitHub Copilot）、終端機代理（例如 Claude Code）的差異與適用情境。",
-            "access": "free",
-            "status": "planned",
-            "minutes": 25
-          },
-          {
-            "id": "4.2",
-            "title": "安裝、登入與權限",
-            "summary": "依官方說明安裝並登入選定的助手（這時還沒學終端機，優先用安裝程式或桌面 App 的版本），理解它讀檔、改檔、執行指令前的確認機制。",
-            "access": "free",
-            "status": "draft",
-            "minutes": 30,
-            "script": "vibe-coding/4.2.json"
-          },
-          {
             "id": "4.3",
             "title": "請 AI 程式助手安裝 Node.js",
             "summary": "說明 Node.js 讓 JavaScript 在瀏覽器外執行、npm 負責安裝套件；請 AI 程式助手依你的作業系統，用官方的方式安裝 LTS 版本：每個安裝指令先看懂確認提示再允許，需要輸入電腦密碼的步驟自己來，最後請它執行 node -v 與 npm -v 驗證。",
             "access": "free",
             "status": "planned",
             "minutes": 30
-          },
-          {
-            "id": "4.4",
-            "title": "第一次和 AI 一起改程式",
-            "summary": "描述需求 → 看助手改了哪些檔案、哪幾行 → 接受或要求修改；看不懂的步驟或訊息，請它用白話解釋。",
-            "status": "planned",
-            "minutes": 30,
-            "access": "free"
           }
         ]
       },
@@ -211,26 +195,20 @@
         "subtitle": "",
         "lessons": [
           {
-            "id": "5.1",
-            "title": "檔案、資料夾與路徑",
-            "summary": "顯示副檔名與隱藏檔，分辨絕對路徑與相對路徑，知道專案資料夾為什麼不要放在雲端同步資料夾或含空白的路徑。",
-            "status": "planned",
-            "minutes": 25,
-            "access": "free"
-          },
-          {
             "id": "5.2",
             "title": "終端機入門（Windows 與 macOS）",
             "summary": "打開終端機（Windows：Windows Terminal／PowerShell；macOS：終端機／zsh），使用 pwd、ls、cd、mkdir 移動與建立資料夾。",
             "status": "planned",
-            "minutes": 30
+            "minutes": 30,
+            "access": "free"
           },
           {
             "id": "5.3",
             "title": "指令從哪來：PATH 與環境變數",
             "summary": "理解輸入指令時系統如何在 PATH 中尋找程式，這是「找不到指令」最常見的原因。",
             "status": "planned",
-            "minutes": 25
+            "minutes": 25,
+            "access": "free"
           }
         ]
       },
@@ -244,14 +222,16 @@
             "title": "VS Code：編輯器與內建終端機",
             "summary": "安裝 VS Code（可選裝繁體中文語言套件），用「開啟資料夾」打開專案，使用內建終端機。",
             "status": "planned",
-            "minutes": 25
+            "minutes": 25,
+            "access": "free"
           },
           {
             "id": "6.2",
             "title": "Git 與 GitHub：程式的存檔點",
             "summary": "安裝 Git、設定 user.name 與 user.email、註冊 GitHub 帳號，理解 commit 與 push 的差別；請 AI 程式助手改完檔案後先看差異（diff）再 commit，改壞時退回上一個版本。",
             "status": "planned",
-            "minutes": 35
+            "minutes": 35,
+            "access": "free"
           },
           {
             "id": "6.3",
@@ -533,7 +513,7 @@
   {
     "id": "ai-agent",
     "title": "打造你的第一個 AI Agent 整合應用",
-    "access": "subscription",
+    "access": "login-free",
     "tier": "advanced",
     "units": [
       {
@@ -559,7 +539,7 @@
   {
     "id": "advanced",
     "title": "進階 AI Agent 應用",
-    "access": "subscription",
+    "access": "login-free",
     "tier": "advanced",
     "units": [
       {
@@ -1027,53 +1007,31 @@
             "id": "4.1",
             "title": "叫對名字，AI 才聽得懂",
             "summary": "叫對名字，別人和 AI 才知道我說的是哪一個。",
-            "status": "draft",
-            "script": "kids/4.1.json",
-            "files": [
-              "kids/4.1-cards.json"
-            ]
+            "status": "planned"
           },
           {
             "id": "4.2",
             "title": "說清楚：要什麼、在哪裡、長什麼樣",
             "summary": "說得越清楚，AI 越能做出我想要的。",
-            "status": "draft",
-            "script": "kids/4.2.json",
-            "files": [
-              "kids/4.2-build.json"
-            ]
+            "status": "planned"
           },
           {
             "id": "4.3",
             "title": "檢查和修正",
             "summary": "做出來要檢查，不一樣就把描述改清楚。",
-            "status": "draft",
-            "script": "kids/4.3.json",
-            "files": [
-              "kids/4.3-find.json",
-              "kids/4.3-fix.json"
-            ]
+            "status": "planned"
           },
           {
             "id": "4.4",
             "title": "先畫草圖，拆成幾句話",
             "summary": "大目標先拆成幾句小描述。",
-            "status": "draft",
-            "script": "kids/4.4.json",
-            "files": [
-              "kids/4.4-sketch.json"
-            ]
+            "status": "planned"
           },
           {
             "id": "4.5",
             "title": "作品：我的小網站",
             "summary": "我可以把想法說清楚，請 AI 做成網站。",
-            "status": "draft",
-            "script": "kids/4.5.json",
-            "files": [
-              "kids/4.5-build.json",
-              "kids/4.5-play.json"
-            ]
+            "status": "planned"
           }
         ]
       }

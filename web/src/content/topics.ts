@@ -25,6 +25,11 @@ export const SOFTWARE_TOPIC = {
   /** 搜尋結果的標題與描述:寫學員會搜尋的說法,不要寫未確認的事實 */
   seoTitle: '不會寫程式也能做軟體：零基礎 AI 開發課程地圖',
   description: `${SOFTWARE_LEDE}。零基礎也能開始，用 AI 做出網站與小工具，再學會串接自動化流程，免費從入門課開始。`,
+  /** 首頁卡片的「你會學到什麼」:依等級(levels.ts 的 LEVELS)各一項 */
+  learn: [
+    { level: '起步', text: '讓 AI 在你的電腦上建好專案，用一段話做出一頁式網站，再調整到滿意' },
+    { level: '基礎', text: '和 AI 一起寫程式、除錯，把作品部署上線，並用測試確保不被改壞' },
+  ],
 }
 
 /** 主題「打造 AI 互動軟體」：中階、進階兩門課（levels.ts 的 AI_APP_LEVELS），都還在規劃中 */
@@ -51,7 +56,7 @@ export const LAUNCH_TOPIC = {
   slogan: '繁雜的上線流程交給 AI，輕鬆讓作品變成服務',
   path: '/topics/launch',
   seoTitle: '從做好到上線：用 AI 處理繁雜流程，輕鬆把作品放上線',
-  description: '部署、網域、資料與登入、收費、監控，這些繁雜的上線流程，學會用 AI 處理，輕鬆把做好的網站與工具變成別人能用的服務。序章開放中，第一課可以免費預覽。',
+  description: '部署、網域、資料與登入、收費、監控，這些繁雜的上線流程，學會用 AI 處理，輕鬆把做好的網站與工具變成別人能用的服務。序章開放中，前五課可以預覽。',
   open: true,
   start: { label: START_FIRST_LESSON, path: launchLessonPath('0.1') },
   pains: [
@@ -145,7 +150,7 @@ export const KIDS_TOPIC = {
   slogan: '用積木蓋網頁，陪 9 歲的孩子做出自己的小網站',
   path: '/topics/kids',
   seoTitle: '給孩子的網頁程式課：用積木認識 HTML、CSS、JavaScript',
-  description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程陸續開放中，第一課可以免費預覽。',
+  description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程陸續開放中，前五課可以預覽。',
   open: true,
   start: { label: START_FIRST_LESSON, path: KIDS_LESSON_PAGES['0.1'].path },
   flow: ['用積木蓋網頁', '幫網頁換衣服', '讓網頁動起來', '說清楚，請 AI 幫忙做'],
@@ -168,14 +173,14 @@ export const kidsLessonDocTitle = (id: string): string => `${kidsLessonTitle(id)
 
 /**
  * 主題「網頁怎麼運作」:課程地圖在 /topics/web(home/WebTopicPage.tsx)。
- * 單元與課程在 content/webCourse.ts;研發中的構想在研發基地 /studio/web-basics。第一課(0.1)不用登入就能預覽,其他開放的課要登入(訂閱制上線後改成訂閱才能看)。
+ * 單元與課程在 content/webCourse.ts;研發中的構想在研發基地 /studio/web-basics。前五課不用登入就能預覽,其他開放的課要登入(訂閱制上線後改成訂閱才能看)。
  */
 export const WEB_TOPIC = {
   name: '網頁怎麼運作',
   slogan: '語法交給 AI，看懂原理才能跟 AI 說清楚',
   path: '/topics/web',
   seoTitle: '網頁怎麼運作：AI 時代的網頁基礎課',
-  description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。第一課可以免費預覽。',
+  description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。前五課可以預覽。',
   open: true,
   start: { label: START_FIRST_LESSON, path: WEB_LESSON_PAGES['0.1'].path },
   tag: 'AI 寫程式，我還需要知道什麼？',

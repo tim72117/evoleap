@@ -48,7 +48,7 @@ export const courses = {
   overview: {
     start: '開始學習',
     content: '課程內容',
-    freePreview: '免費預覽',
+    freePreview: '預覽',
     signInToLearn: '登入後學習',
     interactive: '互動',
     listLoading: '正在讀取課程資訊…',
@@ -57,9 +57,6 @@ export const courses = {
 
   // ---------- 規劃中的課程與章節(PlannedPages) ----------
   plannedPages: {
-    chapters: '章節',
-    chaptersPlannedOpen: '（',
-    chaptersPlannedClose: '）',
     chapterGoal: '這一章的目標',
     afterDone: (result: string) => `完成後：${result}`,
     comingSoon: '這一章的影片與操作步驟製作中，完成後會在這裡上架。',
@@ -138,7 +135,7 @@ export const courses = {
     checkFailed: '暫時無法確認登入狀態，請重新整理再試一次。',
     reload: '重新整理',
     signInOrUp: '登入或註冊',
-    note: '序章可以直接預覽；第 0 課登入後免費觀看，之後的課程需要訂閱。登入後也會記錄你的播放進度。',
+    note: '前五課可以直接預覽；其他課程登入後免費觀看。登入後也會記錄你的播放進度。',
   },
 
   // ---------- 模擬播放器(MockPlayer) ----------

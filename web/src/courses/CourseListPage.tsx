@@ -83,7 +83,7 @@ export function CourseListPage() {
               </Link>
             </div>
             <ul className={styles.grid}>
-              {COURSES.filter((c) => topicOfCourse(coursePath(c)).path === topic.path).map((c) => (
+              {COURSES.filter((c) => !c.hidden && topicOfCourse(coursePath(c)).path === topic.path).map((c) => (
                 <CourseCard key={c.slug} course={c} />
               ))}
             </ul>

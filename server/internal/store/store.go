@@ -30,7 +30,7 @@ type Store struct {
 	db *gorm.DB
 }
 
-// Open 依 dsn 開啟資料庫、同步 schema,並把 courses_seed.json 的課程寫進資料表(本機開發與測試用)。
+// Open 依 dsn 開啟資料庫、同步 schema,並把 courses_seed.json 的課程、單元與課寫進資料表(測試用,不含腳本檔;本機的後端用 Connect 加 SyncCourses)。
 // postgres:// 或 postgresql:// 開頭用 Postgres,其他視為 SQLite 檔案路徑。
 func Open(dsn string) (*Store, error) {
 	s, err := Connect(dsn)
@@ -69,12 +69,28 @@ func Connect(dsn string) (*Store, error) {
 	return &Store{db: db}, nil
 }
 
-// SyncCourses 把 courses_seed.json 裡資料庫還沒有的課程、單元、課,以及每一課的腳本檔(dir 是 web/src/content/live)補進資料庫;已經有的不動。
+// SyncCourses 把 courses_seed.json 的課程、單元、課(見 SeedCourses),以及每一課的腳本檔(dir 是 web/src/content/live,見 SyncLessonFiles)
+// 在同一個交易裡寫進資料庫:課程結構與腳本檔屬於哪一課以種子為準(種子拿掉的課會被刪),腳本內容以資料庫為準。中途失敗整批不寫。
 func (s *Store) SyncCourses(ctx context.Context, dir string) error {
-	if err := s.SeedCourses(ctx); err != nil {
-		return fmt.Errorf("seed courses: %w", err)
+	return s.syncCoursesJSON(ctx, courseSeed, dir)
+}
+
+// syncCoursesJSON 是 SyncCourses 的實作,種子由參數給(測試用)。
+func (s *Store) syncCoursesJSON(ctx context.Context, seed []byte, dir string) error {
+	seeds, err := parseCourseSeed(seed)
+	if err != nil {
+		return err
 	}
-	return s.SyncLessonFiles(ctx, dir)
+	files, err := readLessonFiles(seeds, dir)
+	if err != nil {
+		return err
+	}
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := seedCourses(tx, seeds); err != nil {
+			return fmt.Errorf("seed courses: %w", err)
+		}
+		return syncLessonFiles(tx, seeds, files)
+	})
 }
 
 func isPostgres(dsn string) bool {

@@ -86,6 +86,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("DELETE /api/admin/cli-tokens/{id}", s.requireAdmin(s.handleCliTokenRevoke))
 	mux.HandleFunc("GET /api/admin/courses", s.requireAdmin(s.handleAdminCourses))
 	mux.HandleFunc("GET /api/admin/courses/{id}", s.requireAdmin(s.handleAdminCourse))
+	mux.HandleFunc("PATCH /api/admin/courses/{id}", s.requireAdmin(s.handleAdminCourseUpdate))
 	mux.HandleFunc("PATCH /api/admin/courses/{id}/lessons/{lesson}", s.requireAdmin(s.handleAdminLessonUpdate))
 	mux.HandleFunc("PUT /api/admin/scripts/{path...}", s.requireAdmin(s.handleAdminScriptPut))
 	mux.HandleFunc("GET /api/admin/course-changes", s.requireAdmin(s.handleAdminCourseChanges))

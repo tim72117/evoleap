@@ -65,6 +65,8 @@ test('og:image 檔案存在', async ({ request }) => {
 })
 
 // 一課或一章的頁面:/courses/<課程>/<課號或章節>、/topics/<主題>/<課號>
+// 先不公開的課程(levels.ts 的 hidden)
+const HIDDEN_COURSE_PREFIXES = ['/courses/ai-tools']
 const LESSON_PAGE = /^\/(courses|topics)\/[^/]+\/[^/]+$/
 
 test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁(還沒開放的課除外)', async ({ request }) => {
@@ -82,6 +84,11 @@ test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁(�
       const h = parseHead(await r.text())
       expect.soft(h.meta('robots'), `${path}:meta robots`).toEqual(['noindex, nofollow'])
       expect.soft(h.titles.length, `${path}:<title> 數量`).toBe(1)
+    } else if (HIDDEN_COURSE_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))) {
+      // 先不公開(levels.ts 的 hidden)的課程:網址打得開,但不收錄、不進 sitemap
+      expect.soft(sitemap.has(path), `${path}:先不公開的課不可在 sitemap`).toBe(false)
+      const h = parseHead(await (await request.get(path)).text())
+      expect.soft(h.meta('robots'), `${path}:先不公開的課要 noindex`).toEqual(['noindex, nofollow'])
     } else if (!sitemap.has(path)) {
       // 還沒開放的課(資料庫裡不是 open)可以收錄但不放進 sitemap;其他公開頁都要在 sitemap
       expect.soft(LESSON_PAGE.test(path), `${path}:公開頁應在 sitemap(或改為內部頁)`).toBe(true)

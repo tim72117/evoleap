@@ -21,7 +21,7 @@ const DONE: [string, string][] = [
   ['位置', 'place 與 move.to 可寫成 { landscape, portrait };語意名稱在直式自動換算:left 是上半部、right 是下半部、center 垂直置中、window 留邊滿版、full 滿版。'],
   ['字卡與鏡頭', '字卡、說明框的字級在直式另外調整,字幕可折行;鏡頭的下緣安全線橫式 68%、直式 84%。'],
   ['自動直式', '視窗 ≤600px 且直拿時自動用直式(site/useAutoAspect.ts);網址 ?aspect=portrait|landscape 優先。互動課程頁的側欄改成底部抽屜,工具列有「橫/直」切換鈕。'],
-  ['調度', '幾位演員共用同一塊位置、輪流到前景(live/blocking.ts):序章、L0 第 0–2 課、網頁課 0.2 兩種方向都用。'],
+  ['調度', '幾位演員共用同一塊位置、輪流到前景(live/blocking.ts):序章、L0 第 1–3 課、網頁課 0.2 兩種方向都用。'],
   ['兒童課', 'KidsPlayer 依方向換舞台尺寸;kid-web 在直的外框裡加寬、分開時上下排,kid-tree 改成網頁在上、樹在下。'],
   ['預覽與錄製', '/materials/promo?script=…&aspect=portrait 看任何腳本的直式;npm run record:live -- … --aspect portrait 輸出 1080×1920 的 mp4。'],
 ]
@@ -58,7 +58,7 @@ const TRIALS: { script: string; label: string }[] = [
   { script: 'promo/portrait-demo.json', label: '直式示範' },
   { script: 'lab/blocking-demo.json', label: '調度：前後景輪替' },
   { script: 'l0/0.intro.json', label: '序章（調度）' },
-  { script: 'l0/0.0-tools.json', label: '第 0 課（調度）' },
+  { script: 'l0/0.0-tools.json', label: '第 1 課（調度）' },
 ]
 
 /** 試做:按下才載入播放器(舞台載入較重),可換腳本與方向 */
@@ -134,7 +134,7 @@ export function PortraitPage() {
       </section>
 
       <h2>試做</h2>
-      <p className={ui.lead}>選一支腳本，切換橫式和直式比較。序章與第 0 課是課程本身的腳本，兩種方向都用調度。「調度」是兩位演員共用同一塊位置、輪流到前景：依序示範縱深構圖（depth）、子母畫面（pip）、單人鏡頭（single），規格見 web/src/live/blocking.ts。</p>
+      <p className={ui.lead}>選一支腳本，切換橫式和直式比較。序章與第 1 課是課程本身的腳本，兩種方向都用調度。「調度」是兩位演員共用同一塊位置、輪流到前景：依序示範縱深構圖（depth）、子母畫面（pip）、單人鏡頭（single），規格見 web/src/live/blocking.ts。</p>
       <PortraitTrial />
       <div className={ui.links}>
         <Link className={`${ui.btn} ${ui.ghost}`} to="/courses/tools/intro?aspect=portrait">

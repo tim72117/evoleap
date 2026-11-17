@@ -11,7 +11,7 @@ import own from './KidsTopicPage.module.css'
 // 其他主題(網頁怎麼運作、launch)與課程總覽頁用另一種畫法,同一個元件(TopicCourseMap、courses/LessonGroup.tsx);這裡只留兒童版的畫法。
 // 讀取中顯示佔位卡、讀不到(伺服器沒接資料庫、網路錯誤)顯示「無法讀取」,不用前端寫死的資料頂替。
 // 已開放的課(status open)整列連到課程頁(課號 0.1 → {topicPath}/0-1)。狀態:登入後是「開始學習」;
-// 沒登入時 access 是 free 的標「免費預覽」,其他開放的只放鎖頭(登入後學習);還沒開放的標「規劃中」。
+// 沒登入時 access 是 free 的標「預覽」,其他開放的只放鎖頭(登入後學習);還沒開放的標「規劃中」。
 // 草稿(status draft,只有管理員會拿到)也整列連到課程頁,標「草稿」。
 
 /** 一堂課的課程頁網址(課號 0.1 → /topics/kids/0-1) */
@@ -57,7 +57,7 @@ export function CourseMapUnits({ course, topicPath }: { course: string; topicPat
                       <p>{l.summary}</p>
                     </div>
                     <div className={styles.rowMeta}>
-                      {/* 開始學習與免費預覽(綠)、登入後學習(單色鎖頭)、規劃中(淡色)、草稿(虛線強調色) */}
+                      {/* 開始學習與預覽(綠)、登入後學習(單色鎖頭)、規劃中(淡色)、草稿(虛線強調色) */}
                       {state === 'login' ? (
                         <LockIcon label={t.home.map.signInToLearn} />
                       ) : (

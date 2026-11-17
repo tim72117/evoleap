@@ -68,7 +68,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          The Prologue of each course can be watched without signing in; other lessons require you to sign in (Lesson 0 is free once you are signed in, and later lessons require a subscription). Once you are signed in, we record your playback progress. There are two ways to sign up and sign in:
+          The Prologue of each course can be watched without signing in; other lessons require you to sign in (they are free once you are signed in). Once you are signed in, we record your playback progress. There are two ways to sign up and sign in:
         </p>
         <h3>Signing up with an email address and password</h3>
         <ul>
@@ -483,7 +483,7 @@ export function PrivacyEn() {
     <LegalDoc
       title={t.legal.privacyTitle}
       updated={PRIVACY_UPDATED}
-      intro="In short: you can watch the Prologue of each course without signing up; other lessons require you to sign in (lessons after Lesson 0 require a subscription). If you sign up or sign in, we keep your email address, name, and either a hash of your password (not the password itself) or your Google account ID. This data is stored in Google Cloud's data centers in Taiwan, and we use a cookie to remember that you are signed in. If you open a lesson without signing in, we use a random guest ID (a cookie) to record which lesson you opened, how long it played, your device type, and which website you came from, and we keep this for 180 days. We use Google Analytics to measure how the Site is used, but we do not send it your email address or account; the Google sign-in button is handled by Google under its own policies; and payments for paid subscriptions are processed by Paddle, so we never see your full card number. We do not sell your data, and you can email us at any time to ask to access, correct, or delete it. The full policy follows below."
+      intro="In short: you can watch the Prologue of each course without signing up; other lessons are free once you sign in. If you sign up or sign in, we keep your email address, name, and either a hash of your password (not the password itself) or your Google account ID. This data is stored in Google Cloud's data centers in Taiwan, and we use a cookie to remember that you are signed in. If you open a lesson without signing in, we use a random guest ID (a cookie) to record which lesson you opened, how long it played, your device type, and which website you came from, and we keep this for 180 days. We use Google Analytics to measure how the Site is used, but we do not send it your email address or account; the Google sign-in button is handled by Google under its own policies; and payments for paid subscriptions are processed by Paddle, so we never see your full card number. We do not sell your data, and you can email us at any time to ask to access, correct, or delete it. The full policy follows below."
       sections={sections}
     />
   )

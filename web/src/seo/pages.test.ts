@@ -4,6 +4,7 @@ import { internalRoutes } from '../studio/StudioApp'
 import { isInternalPath } from '../site/internalPaths'
 import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { SITE_ORIGIN } from '../site/siteInfo'
+import { COURSES, coursePath } from '../content/catalog'
 import { PAGES, robotsTxt, sitemapPages } from './build'
 import { findInternalPage } from './internalPages'
 import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES } from './pages'
@@ -11,6 +12,9 @@ import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES } fro
 const indexable = PAGES.filter((p) => !p.noindex)
 const INTERNAL_PREFIXES = ['/studio', '/docs', '/materials', '/login', '/admin', '/member']
 const isInternal = (path: string) => INTERNAL_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))
+// 先不公開(hidden)的課:網址打得開但 noindex
+const HIDDEN_COURSE_PATHS = COURSES.filter((c) => c.hidden).map(coursePath)
+const isHiddenCourse = (path: string) => HIDDEN_COURSE_PATHS.some((p) => path === p || path.startsWith(p + '/'))
 
 describe('全部課程', () => {
   it('有 SEO 資料,結構化資料列出每一門有課程頁的課', () => {
@@ -122,7 +126,7 @@ describe('PAGES', () => {
   })
 
   it('internal prefixes are noindex, public pages are indexable', () => {
-    for (const p of PAGES) expect(!!p.noindex, p.path).toBe(isInternal(p.path))
+    for (const p of PAGES) expect(!!p.noindex, p.path).toBe(isInternal(p.path) || isHiddenCourse(p.path))
   })
 
   it('home and the course pages are indexable', () => {
@@ -196,8 +200,15 @@ describe('sitemap 頁面清單(sitemap-pages.json)', () => {
     expect(lessons.length).toBeGreaterThan(0)
     for (const p of lessons) expect(p.lesson, p.loc).toEqual({ course: expect.any(String), id: expect.any(String) })
     expect(PAGES.find((p) => p.path === '/topics/launch/2-1')?.noindex).toBeFalsy()
-    // Vibe Coding 入門 4.2(單課頁,不是規劃中章節頁)標著是哪一課
-    expect(PAGES.find((p) => p.path === '/courses/vibe-coding/4-2')?.lesson).toEqual({ course: 'vibe-coding-basics', id: '4.2' })
+    // AI 工具介紹第 0 課(原 Vibe Coding 入門 4.2)已上架;原本的第 0～2 課往後成為第 1～3 課,沒有第 4 課
+    expect(PAGES.find((p) => p.path === '/courses/tools/0')?.lesson).toEqual({ course: 'tools', id: '0.0' })
+    expect(PAGES.find((p) => p.path === '/courses/tools/3')?.lesson).toEqual({ course: 'tools', id: '0.3' })
+    expect(PAGES.some((p) => p.path === '/courses/tools/4')).toBe(false)
+    // Vibe Coding 入門拿掉的章節沒有頁面
+    expect(['/courses/vibe-coding/4-1', '/courses/vibe-coding/4-2', '/courses/vibe-coding/4-4', '/courses/vibe-coding/5-1'].map((p) => PAGES.some((x) => x.path === p))).toEqual([false, false, false, false])
+    // 兒童課 4.1 起課程頁寫好了、正式機是規劃中:頁面標著是哪一課,本身不加 noindex(收不收由後端依資料庫決定)
+    expect(PAGES.find((p) => p.path === '/topics/kids/4-1')?.lesson).toEqual({ course: 'kids', id: '4.1' })
+    expect(PAGES.find((p) => p.path === '/topics/kids/4-1')?.noindex).toBeFalsy()
   })
 
   it('priorities are within 0–1', () => {

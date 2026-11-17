@@ -61,7 +61,7 @@ export const courses: Messages['courses'] = {
   overview: {
     start: 'Start learning',
     content: 'Course content',
-    freePreview: 'Free preview',
+    freePreview: 'Preview',
     signInToLearn: 'Sign in to watch',
     interactive: 'Interactive',
     listLoading: 'Loading course information…',
@@ -69,9 +69,6 @@ export const courses: Messages['courses'] = {
   },
 
   plannedPages: {
-    chapters: 'Chapters',
-    chaptersPlannedOpen: ' (',
-    chaptersPlannedClose: ')',
     chapterGoal: 'Goal of this chapter',
     afterDone: (result) => `When you're done: ${result}`,
     comingSoon: "The videos and steps for this chapter are in the works. They'll appear here once they're ready.",
@@ -144,7 +141,7 @@ export const courses: Messages['courses'] = {
     checkFailed: "We couldn't confirm whether you're signed in. Please refresh and try again.",
     reload: 'Refresh',
     signInOrUp: 'Sign in or sign up',
-    note: 'You can preview the Prologue right away. Lesson 0 is free once you sign in, and later lessons need a subscription. Signing in also saves your progress.',
+    note: 'You can preview the first five lessons right away. Other lessons are free once you sign in. Signing in also saves your progress.',
   },
 
   mock: {

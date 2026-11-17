@@ -178,12 +178,12 @@ export interface MapLesson {
   script?: string
   /** 這一課實際的存取方式:課沒寫就照整門課 */
   access: string
-  label: '免費預覽' | '登入後學習' | '規劃中' | '草稿'
+  label: '預覽' | '登入後學習' | '規劃中' | '草稿'
 }
 
 /**
  * 讀課程地圖(GET /api/courses/{id}/map),依順序回傳每一課。標示由資料決定,不寫死課號或「前幾課」:
- * 開放的課 access 是 free 標「免費預覽」,其他標「登入後學習」;還沒開放的標「規劃中」(管理員看到草稿標「草稿」)。
+ * 開放的課 access 是 free 標「預覽」,其他標「登入後學習」;還沒開放的標「規劃中」(管理員看到草稿標「草稿」)。
  * base 是要測的 server(預設測試的 server;訪客的畫面用 GATED)。
  */
 export async function mapLessons(request: APIRequestContext, courseId: string, base = ''): Promise<MapLesson[]> {
@@ -193,7 +193,7 @@ export async function mapLessons(request: APIRequestContext, courseId: string, b
   return map.units.flatMap((u) =>
     u.lessons.map((l) => {
       const access = l.access || map.access
-      const label = l.status === 'open' ? (access === 'free' ? '免費預覽' : '登入後學習') : l.status === 'draft' ? '草稿' : '規劃中'
+      const label = l.status === 'open' ? (access === 'free' ? '預覽' : '登入後學習') : l.status === 'draft' ? '草稿' : '規劃中'
       return { id: l.id, title: l.title, status: l.status, script: l.script, access, label } as MapLesson
     }),
   )

@@ -14,7 +14,7 @@ const liveVideos = [...L0_LESSONS, ...L1_LESSONS].flatMap((l) =>
 )
 
 describe('即時教學畫面腳本', () => {
-  it('至少有三支即時影片(L0 第 0、1、2 課)', () => {
+  it('至少有三支即時影片(L0 第 1、2、3 課)', () => {
     expect(liveVideos.length).toBeGreaterThanOrEqual(3)
   })
 

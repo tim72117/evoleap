@@ -22,16 +22,10 @@ export const home: Messages['home'] = {
   home: {
     facts: {
       free: { pre: '', strong: 'Free', post: ' to start' },
-      open: (n) => ({ pre: '', strong: `${n} ${n === 1 ? 'lesson' : 'lessons'}`, post: ' available' }),
       noCode: { pre: 'No ', strong: 'coding', post: ' experience needed' },
     },
     ladderLabel: 'Course order',
-    resultTitle: 'Build this website by Lesson 2',
-    resultIntro: 'To start, all you tell the AI is this:',
-    resultOutro: 'Then refine it one section at a time, and you’re done.',
-    resultAlt: 'The one-page Komori Bakery website built in the course, with navigation, a hero image and this week’s products',
-    resultCaption: 'Sample result for Komori Bakery (a fictional example from the course)',
-    collapse: 'Show less',
+    learnTitle: 'What you’ll learn',
     moreTopics: 'More topics',
   },
 
@@ -64,19 +58,19 @@ export const home: Messages['home'] = {
 
   web: {
     pitch: (slogan) => `${slogan}. No syntax drills: learn how web pages work and what everything is called.`,
-    mapLead: 'New lessons are on the way; ones not open yet are marked “Coming soon”. Preview the first lesson without signing in, then sign in to take the rest.',
+    mapLead: 'New lessons are on the way; ones not open yet are marked “Coming soon”. Preview the first five lessons without signing in, then sign in to take the rest.',
   },
 
   launch: {
     pitch: (slogan) => `${slogan}. From deployment, domains, data and sign-in to payments and monitoring after launch.`,
-    mapLead: 'The Prologue and Unit 1 are open. Preview the first lesson without signing in, then sign in to take the rest. Lessons not open yet are marked “Coming soon”, and their content and order may change.',
+    mapLead: 'The Prologue and Unit 1 are open. Preview the first five lessons without signing in, then sign in to take the rest. Lessons not open yet are marked “Coming soon”, and their content and order may change.',
   },
 
   kidsTopic: {
     pitch: (slogan) => `${slogan}. No typing code: just click and drag blocks to build web pages. We recommend a parent learns alongside.`,
     howTitle: 'How the kids’ course works',
     howLead: 'In the Member area, a parent sets class times and turns on Kids Mode. Your child then sees only the kids’ course, can start only at class time, and goes through the lessons one by one.',
-    mapLead: 'New lessons are on the way; ones not open yet are marked “Coming soon”. Preview the first lesson without signing in, then sign in to take the rest.',
+    mapLead: 'New lessons are on the way; ones not open yet are marked “Coming soon”. Preview the first five lessons without signing in, then sign in to take the rest.',
   },
 
   claudeCode: {
@@ -96,8 +90,8 @@ export const home: Messages['home'] = {
     next: (id) => `Next: ${id} →`,
     navLabel: 'Previous and next lessons',
     resumeAfterSignIn: ' to save your place and pick up where you left off.',
-    loginNote: 'You can preview the first lesson right away. Sign in to watch the rest; we’ll also save your progress.',
-    kidsLoginNote: 'You can preview the first lesson right away. Sign in to take the rest; we’ll also save how far your child has gotten.',
+    loginNote: 'You can preview the first five lessons right away. Sign in to watch the rest; we’ll also save your progress.',
+    kidsLoginNote: 'You can preview the first five lessons right away. Sign in to take the rest; we’ll also save how far your child has gotten.',
     draft: (title) => `${title} (draft)`,
     docTitle: (title, topic) => `${title} | ${topic}`,
   },
@@ -131,7 +125,7 @@ export const home: Messages['home'] = {
   map: {
     signInToLearn: 'Sign in to learn',
     start: 'Start',
-    freePreview: 'Free preview',
+    freePreview: 'Preview',
     planned: 'Coming soon',
     draft: 'Draft',
   },

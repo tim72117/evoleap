@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
 import { AI_APPS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
-import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, type CourseLevel } from '../content/levels'
+import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, shownLevels, type CourseLevel } from '../content/levels'
 import { COURSES, coursePath, lessonLabel, lessonPath } from '../content/catalog'
 import { useCourseMaps, type CourseMap } from '../content/courseMap'
 import { useT } from '../i18n/I18nProvider'
@@ -121,10 +121,12 @@ type TopicMap = {
 }
 
 /** 主題「做出自己的軟體」:L0 起步到 L2 基礎 */
-export const SoftwareTopicPage = () => <TopicMapPage topic={SOFTWARE_TOPIC} intro={MAP_INTRO} levels={LEVELS} first={0} />
+// 先不公開(hidden)的等級不列,後面的等級編號接著往下排
+const SOFTWARE_LEVELS = shownLevels(LEVELS)
+export const SoftwareTopicPage = () => <TopicMapPage topic={SOFTWARE_TOPIC} intro={MAP_INTRO} levels={SOFTWARE_LEVELS} first={0} />
 
 /** 主題「打造 AI 互動軟體」:中階、進階(都還在規劃中) */
-export const AiAppsTopicPage = () => <TopicMapPage topic={AI_APPS_TOPIC} intro={AI_APPS_INTRO} levels={AI_APP_LEVELS} first={3} />
+export const AiAppsTopicPage = () => <TopicMapPage topic={AI_APPS_TOPIC} intro={AI_APPS_INTRO} levels={shownLevels(AI_APP_LEVELS)} first={SOFTWARE_LEVELS.length} />
 
 /** 主題的課程地圖頁:由淺入深列出等級 */
 function TopicMapPage({ topic, intro, levels, first }: TopicMap) {

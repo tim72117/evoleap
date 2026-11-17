@@ -22,9 +22,10 @@ import { clearGuestProgress, memberProgress } from './progress'
 
 /** 有互動點的課:課號 → 把互動點加進課程腳本的函式。放在這裡(不在 routes.tsx),才會跟著上課頁用到才下載 */
 const INTERACTIVE_LESSONS: Record<string, (script: StageScript) => StageScript> = {
-  '0.0': withL0Moments,
-  '0.1': withL01Moments,
-  '0.2': withL02Moments,
+  // 函式名稱與檔名照腳本(l0/0.0-tools.json 等);課號在插入 0.0(準備工具)後往後移了一號
+  '0.1': withL0Moments,
+  '0.2': withL01Moments,
+  '0.3': withL02Moments,
   '0.intro': withL0IntroMoments,
 }
 const asIs = (script: StageScript) => script

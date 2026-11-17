@@ -70,17 +70,11 @@ func main() {
 	if dsn == "" {
 		log.Print("未設定 DATABASE_URL:登入功能停用,課程地圖與課程腳本也不提供(只讀資料庫,沒有種子備援)")
 	} else {
-		// Cloud Run 上只讀:課程資料由部署時的同步工作補進去(cmd/sync)。本機每次啟動補一次種子新加的課程、單元、課與腳本檔;
-		// 已經有的不會被種子蓋掉(資料庫為準),要整份換成種子的內容就刪掉 shuttle.db 再啟動
-		var st *store.Store
-		var err error
-		if onCloudRun {
-			st, err = store.Connect(dsn)
-		} else {
-			st, err = store.Open(dsn)
-			if err == nil {
-				err = st.SyncLessonFiles(context.Background(), *liveDir)
-			}
+		// Cloud Run 上只讀:課程資料由部署時的同步工作寫入(cmd/sync)。本機每次啟動同步一次(同 cmd/sync):
+		// 課程結構與腳本檔屬於哪一課照種子(種子拿掉的課會被刪),腳本內容已經在資料庫的不動;要整份換成檔案的內容就刪掉 shuttle.db 再啟動
+		st, err := store.Connect(dsn)
+		if err == nil && !onCloudRun {
+			err = st.SyncCourses(context.Background(), *liveDir)
 		}
 		if err != nil {
 			log.Fatal(err)

@@ -169,7 +169,7 @@ describe('前置的互動點與示範', () => {
   })
 })
 
-describe('L0 第 0 課的互動版', () => {
+describe('L0 第 1 課(0.1)的互動版', () => {
   const base = l00 as unknown as StageScript
   const scene = withL0Moments(base)
 
@@ -192,7 +192,7 @@ describe('L0 第 0 課的互動版', () => {
   })
 })
 
-describe('L0 第 1 課的互動版', () => {
+describe('L0 第 2 課(0.2)的互動版', () => {
   const base = l01 as unknown as StageScript
   const scene = withL01Moments(base)
   const ids = ['workdir', 'files', 'path', 'move', 'remove']
@@ -215,7 +215,7 @@ describe('L0 第 1 課的互動版', () => {
   })
 })
 
-describe('L0 第 2 課的互動版', () => {
+describe('L0 第 3 課(0.3)的互動版', () => {
   const base = l02 as unknown as StageScript
   const scene = withL02Moments(base)
   const said = (s: StageScript) => s.steps.map((x) => (x as { narration?: string }).narration).filter(Boolean)

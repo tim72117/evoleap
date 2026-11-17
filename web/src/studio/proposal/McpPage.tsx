@@ -24,7 +24,7 @@ const TOOLS: { name: string; does: string; note: string }[] = [
 const FLOW = [
   '學員在課程網站登入，在「我的帳號」產生連線用的金鑰或完成 OAuth 授權。',
   '依課程提供的一行設定，把課程 MCP server 加進自己的 AI 工具。',
-  '上課時對 AI 說「我在上 0.2，給我練習範本」→ AI 呼叫 get_exercise，把起始檔案放進練習資料夾。',
+  '上課時對 AI 說「我在上 0.3，給我練習範本」→ AI 呼叫 get_exercise，把起始檔案放進練習資料夾。',
   '做完後說「幫我檢查」→ check_work 回傳檢核清單，AI 對照學員的檔案逐項檢查。',
   '說「交作業」→ AI 先列出要上傳的檔案讓學員確認，再呼叫 submit_assignment。',
   '之後說「作業有回饋了嗎」→ get_feedback。',
@@ -47,7 +47,7 @@ const OPEN_QUESTIONS: { title: string; body: string }[] = [
 ]
 
 const TODOS = [
-  '挑一課（建議 L0 0.2 或 L1 3.3）寫出完整的範本、檢核清單與提交格式，當作試做範例。',
+  '挑一課（建議 L0 0.3 或 L1 3.3）寫出完整的範本、檢核清單與提交格式，當作試做範例。',
   '在兩到三個主要 AI 工具實測連接遠端 MCP server 的步驟與畫面。',
   '估算唯讀工具（第一階段）與提交／回饋（第二階段）的實作工時。',
 ]

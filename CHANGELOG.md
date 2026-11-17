@@ -4,6 +4,24 @@
 
 ## [Unreleased]
 
+## [0.43.0] - 2026-11-17
+
+課程結構改以種子為準（部署時的同步會蓋回種子、刪掉種子已經沒有的課）、新增 `evoleap course set`；種子照正式機狀態並套用全站規則（依課程順序前五課預覽、其餘登入後免費）；「AI 工具介紹」插入新的第 0 課、原本的第 0–2 課成為第 1–3 課；首頁、課程頁與法律頁文案跟著更新。沒有資料表變動；有行為變更（部署後會刪課、蓋回欄位）與前端符號移除，見下。
+
+### 變更
+
+- **課程結構以種子為準**（`server/internal/store/courses.go`、`lessons.go`、`lessonfiles.go`、`store.go`）：課程同步（部署時的 `cmd/sync`、本機後端啟動）不再只補新的。種子有的課程（名稱、存取方式、方案）、單元與課（課名、說明、狀態、存取方式、時間、腳本、順序、所屬單元）已經在資料庫的會用種子的內容更新；種子裡的課程中種子已經沒有的單元與課會被**刪除**（種子沒有的課程整門不動）。腳本檔屬於哪一課也照種子：已經在 `lesson_files` 的改掛到種子寫的那一課，種子不再指定的移到 `studio_files`（帶著資料庫裡的內容）。**腳本內容仍以資料庫為準**：已經在資料庫的檔內容不會被檔案蓋掉（`evoleap script push` 的修改保留），只有新的檔讀檔案內容。整個同步在同一個交易裡。
+  - **正式機下次部署會發生**：用 `evoleap lesson set` 改過、和種子不同的欄位會被蓋回種子的內容；這次種子的工具課重新編號（新的 0.0「準備工具」已開放、舊的 0.0–0.2 變成 0.1–0.3）會照種子換內容，`vibe-coding-basics` 4.1、4.2、4.4、5.1 會從資料庫刪除，它們不再被指定的腳本檔移到研發基地的腳本。`vibe-coding-basics`、`ai-agent`、`advanced` 的課程存取方式從訂閱改成登入後免費（全站規則：依課程順序前五課免費預覽，其餘登入後可看）；兒童課 4.1–4.5 照正式機是規劃中，種子不再掛腳本，腳本檔移到研發基地。
+- **新增 `evoleap course set -course ID [-access free|login-free|subscription] [-title 文字]`**（`cmd/evoleap`、`PATCH /api/admin/courses/{id}`、`store.UpdateCourse`）：改一門課自己的存取方式或課名，只有管理員能改，記一筆 `course.update` 修改紀錄；沒寫 `access` 的課跟著課程變。種子有的課程下次部署會被種子蓋回去，CLI 在 stderr 提醒。
+- `evoleap lesson set` 成功後在 stderr 提醒下次部署會用種子蓋掉改的欄位；`evoleap script push -course -lesson` 提醒檔案屬於哪一課以種子為準。
+- **全站存取規則文案**：依課程順序前五課不用登入就能「預覽」，其餘課程登入後免費；畫面標籤由「免費預覽」改成「預覽」；`vibe-coding-basics`、`ai-agent`、`advanced` 不再是訂閱課程（種子 `access` 改 `login-free`，`tier` 保留）。服務條款與隱私權政策的相關描述同步更新（`legal/updated.ts` 兩份日期都改成 2026-11-17）。
+- **「AI 工具介紹」新增第 0 課「準備工具：安裝 AI 程式助手並設定權限」**（腳本 `vibe-coding/4.2.json`，已開放）：原本的 0.0–0.2 成為 0.1–0.3（網址 `/courses/tools/1`–`3`，腳本檔名不變）；`vibe-coding-basics` 的 4.1、4.2、4.4、5.1 拿掉（`l2Outline.ts` 的 `L2_DROPPED`）。**使用者的舊進度不遷移**（進度以課號為鍵，重新編號後會對到別的課）。
+- **兒童課 4.1–4.5 照正式機是規劃中**：種子不再掛腳本（規劃中的課不能掛腳本），腳本檔移到研發基地；前端的課程頁與家長說明保留，上架時改種子成 `draft` 並加回 `script`。
+- **先不公開的等級**（`levels.ts` 的 `hidden`、`catalog.ts` 的 `Course.hidden`）：目前是「AI 工具入門」；首頁、課程地圖、全部課程、sitemap 都不列，網址打得開但 `noindex`。
+- **首頁**：「第 2 課就能做出這個網站」的範例區塊換成「你會學到什麼」（`SOFTWARE_TOPIC.learn`），移除 `bakery-site.jpg` 的引用（檔案還在，沒有地方用到）；課程總覽頁對只規劃到單元的課程（進階）把單元當規劃中項目列出。
+- **移除的前端符號**：`PlannedPages.tsx` 的 `ChapterList`、`PlannedCourseOverviewPage`（課程總覽一律是 `CourseOverviewPage`）；`web/src/content/access.ts` 沿用 0.42.0 的移除。
+- 測試：e2e 的 tools 課號、標籤（「預覽」）、先不公開的課程與兒童課 4.x 狀態同步調整；新增 Go 測試 `seedsync_test.go`（種子為準的同步、檔案移轉、不重複）。
+
 ## [0.42.2] - 2026-11-17
 
 兒童課單元 3（JavaScript：讓網頁動起來，3.1–3.5）開放；SEO 的開放資訊（頁面結構化資料的課程連結）也改由資料庫決定。沒有資料表或 API 變動；移除前端符號 `KIDS_RELEASED_LESSONS`。

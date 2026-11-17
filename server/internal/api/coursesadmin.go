@@ -14,6 +14,7 @@ import (
 //
 //	GET   /api/admin/courses                          課程清單與各狀態的課數
 //	GET   /api/admin/courses/{id}                     一門課的課程地圖(含草稿、腳本、時間)
+//	PATCH /api/admin/courses/{id}                     改一門課自己的:access、title
 //	PATCH /api/admin/courses/{id}/lessons/{lesson}    改一課:status、access、minutes、title、summary、script
 //	PUT   /api/admin/scripts/{path...}?course=&lesson= 寫入一個腳本檔(新增或取代);讀取用 GET /api/scripts/{path}
 //	GET   /api/admin/course-changes?limit=            最近的修改紀錄
@@ -44,16 +45,31 @@ func (s *Server) handleAdminCourse(w http.ResponseWriter, r *http.Request, _ sto
 	writeJSON(w, http.StatusOK, m)
 }
 
-// writeCourseDataError 把修改課程資料的錯誤轉成回應:不合規則 400(訊息寫明原因)、找不到 404。
+// writeCourseDataError 把修改課程資料的錯誤轉成回應:不合規則 400(訊息寫明原因)、找不到課程或課 404。
 func writeCourseDataError(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, store.ErrInvalidCourseData):
 		writeError(w, http.StatusBadRequest, "invalid", err.Error())
+	case errors.Is(err, store.ErrCourseNotFound):
+		writeError(w, http.StatusNotFound, "not_found", "找不到這門課")
 	case errors.Is(err, store.ErrNotFound):
 		writeError(w, http.StatusNotFound, "not_found", "找不到這一課")
 	default:
 		internalError(w, err)
 	}
+}
+
+func (s *Server) handleAdminCourseUpdate(w http.ResponseWriter, r *http.Request, user store.User) {
+	var p store.CoursePatch
+	if json.NewDecoder(r.Body).Decode(&p) != nil {
+		writeError(w, http.StatusBadRequest, "bad_request", "格式錯誤")
+		return
+	}
+	if err := s.cfg.Store.UpdateCourse(r.Context(), user.Email, r.PathValue("id"), p); err != nil {
+		writeCourseDataError(w, err)
+		return
+	}
+	s.handleAdminCourse(w, r, user)
 }
 
 func (s *Server) handleAdminLessonUpdate(w http.ResponseWriter, r *http.Request, user store.User) {

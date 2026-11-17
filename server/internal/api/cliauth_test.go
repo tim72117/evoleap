@@ -71,10 +71,22 @@ func TestCliLoginAndCourseAdmin(t *testing.T) {
 	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids/lessons/0.1", `{"status":"hidden"}`); code != http.StatusBadRequest {
 		t.Errorf("不合規則: %d %s", code, body)
 	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", `{"access":"subscription"}`); code != http.StatusOK || !strings.Contains(body, `"access":"subscription"`) {
+		t.Errorf("改一門課: %d %s", code, body)
+	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", `{"access":"inherit"}`); code != http.StatusBadRequest {
+		t.Errorf("課程不認得的 access: %d %s", code, body)
+	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/nope", `{"access":"free"}`); code != http.StatusNotFound || !strings.Contains(body, "找不到這門課") {
+		t.Errorf("沒有這門課: %d %s", code, body)
+	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", `{"access":"login-free"}`); code != http.StatusOK || !strings.Contains(body, `"access":"login-free"`) {
+		t.Errorf("改回來: %d %s", code, body)
+	}
 	if code, body := withBearer(http.MethodPut, "/api/admin/scripts/kids/new.json?course=kids&lesson=0.1", `{"a":1}`); code != http.StatusOK {
 		t.Errorf("上傳腳本: %d %s", code, body)
 	}
-	if code, body := withBearer(http.MethodGet, "/api/admin/course-changes?limit=5", ""); code != http.StatusOK || !strings.Contains(body, "script.put") || !strings.Contains(body, "boss@example.com") {
+	if code, body := withBearer(http.MethodGet, "/api/admin/course-changes?limit=5", ""); code != http.StatusOK || !strings.Contains(body, "script.put") || !strings.Contains(body, "course.update") || !strings.Contains(body, "boss@example.com") {
 		t.Errorf("修改紀錄: %d %s", code, body)
 	}
 	if code, body := withBearer(http.MethodGet, "/api/admin/schema-check", ""); code != http.StatusOK || !strings.Contains(body, `"ok":true`) {
@@ -105,5 +117,8 @@ func TestCliLoginAndCourseAdmin(t *testing.T) {
 	// Bearer 換成一般會員的 cookie:不能改
 	if rec := call(env.h, http.MethodPatch, "/api/admin/courses/kids/lessons/0.1", `{"minutes":1}`, amy); rec.Code != http.StatusForbidden {
 		t.Errorf("一般會員不能改: %d", rec.Code)
+	}
+	if rec := call(env.h, http.MethodPatch, "/api/admin/courses/kids", `{"access":"free"}`, amy); rec.Code != http.StatusForbidden {
+		t.Errorf("一般會員不能改課程: %d", rec.Code)
 	}
 }

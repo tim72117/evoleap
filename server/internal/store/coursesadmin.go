@@ -12,8 +12,10 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// 管理員改課程資料(evoleap CLI 經 /api/admin/courses/*、/api/admin/scripts/*):正式環境的課程資料以資料庫為準,
-// 種子(courses_seed.json)只補資料庫還沒有的課程、單元、課與腳本檔(見 SeedCourses、SyncLessonFiles)。
+// 管理員改課程資料(evoleap CLI 經 /api/admin/courses/*、/api/admin/scripts/*)。
+// 課程結構以種子(courses_seed.json)為準:每次同步(部署、本機啟動)會把種子寫到的欄位(課名、說明、狀態、存取方式、時間、腳本)蓋回去,
+// 種子裡的課程中種子已經沒有的課會被刪,腳本檔屬於哪一課也照種子(見 SeedCourses、SyncLessonFiles);用這裡改的只撐到下次同步,要長期保留得同時改種子。
+// 腳本內容例外,以資料庫為準:用 script push 換的內容,同步不會蓋掉。
 // 每次修改都記一筆 course_changes:誰、什麼時候、改了什麼。
 
 // courseChangeRow 是一筆課程資料的修改紀錄。
@@ -89,6 +91,46 @@ func (s *Store) AdminCourses(ctx context.Context) ([]CourseSummary, error) {
 		FROM courses c LEFT JOIN lessons l ON l.course_id = c.id
 		GROUP BY c.id, c.title, c.access, c.tier, c.created_at ORDER BY c.created_at, c.id`).Scan(&out).Error
 	return out, err
+}
+
+// CoursePatch 是一門課要改的欄位;nil 代表不改。
+type CoursePatch struct {
+	Access *string `json:"access,omitempty"`
+	Title  *string `json:"title,omitempty"`
+}
+
+// UpdateCourse 改一門課自己的存取方式或課名並記一筆修改紀錄(course.update);課程不存在時回 ErrCourseNotFound。
+// 沒有自己寫 access 的課照這門課的(見 effectiveAccess),所以改了課程的 access,那些課也跟著變。
+func (s *Store) UpdateCourse(ctx context.Context, user, courseID string, p CoursePatch) error {
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var c courseRow
+		err := tx.First(&c, "id = ?", courseID).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrCourseNotFound
+		}
+		if err != nil {
+			return err
+		}
+		if p.Access != nil {
+			c.Access = strings.TrimSpace(*p.Access)
+		}
+		if p.Title != nil {
+			c.Title = strings.TrimSpace(*p.Title)
+		}
+		switch Access(c.Access) {
+		case AccessFree, AccessLoginFree, AccessSubscription:
+		default:
+			return invalid("不認得的 access %q(課程要是 free、login-free 或 subscription)", c.Access)
+		}
+		if c.Title == "" {
+			return invalid("title 不能是空的")
+		}
+		if err := tx.Model(&courseRow{}).Where("id = ?", courseID).
+			Select("access", "title", "updated_at").Updates(&courseRow{Access: c.Access, Title: c.Title, UpdatedAt: now()}).Error; err != nil {
+			return err
+		}
+		return s.recordChange(tx, user, "course.update", courseID, p)
+	})
 }
 
 // LessonPatch 是要改的欄位;nil 代表不改。Access 給空字串代表照這門課的。

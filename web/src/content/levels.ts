@@ -32,7 +32,12 @@ export type CourseLevel = {
   link?: string
   /** 建議的先備條件 */
   prerequisite?: string
+  /** 先不公開:首頁等級順序、課程地圖、全部課程、sitemap 都不列;直接打網址還看得到(noindex) */
+  hidden?: boolean
 }
+
+/** 去掉先不公開(hidden)的等級 */
+export const shownLevels = (levels: CourseLevel[]): CourseLevel[] => levels.filter((l) => !l.hidden)
 
 export const ACCESS_LABEL: Record<CourseAccess, string | null> = {
   free: '免費',
@@ -60,9 +65,10 @@ export const LEVELS: CourseLevel[] = [
     summary: '不用先學寫程式，第一堂課就讓 AI 在你的電腦上建好專案、做出一頁式網站。學會把想要的畫面說清楚，一步步調整到你滿意。',
     lessons: [
       { id: '0.intro', text: '為什麼不用學寫程式，也能做出軟體' },
-      { id: '0.0', text: '安裝會操作檔案的 AI 工具，學會安全地允許與拒絕' },
-      { id: '0.1', text: '認識專案與工作目錄，讓 AI 幫你建立、搬移檔案' },
-      { id: '0.2', text: '一段話描述，做出一頁式網站，再精確調整到滿意' },
+      { id: '0.0', text: '安裝並登入 AI 程式助手，看懂確認提示再允許或拒絕' },
+      { id: '0.1', text: '安裝會操作檔案的 AI 工具，學會安全地允許與拒絕' },
+      { id: '0.2', text: '認識專案與工作目錄，讓 AI 幫你建立、搬移檔案' },
+      { id: '0.3', text: '一段話描述，做出一頁式網站，再精確調整到滿意' },
     ],
     status: 'planned',
     access: 'login-free',
@@ -86,6 +92,7 @@ export const LEVELS: CourseLevel[] = [
     access: 'login-free',
     art: 'chat',
     link: '/courses/ai-tools',
+    hidden: true,
     prerequisite: '不需要任何程式背景；建議先完成「AI 工具介紹」',
   },
   {
@@ -100,7 +107,7 @@ export const LEVELS: CourseLevel[] = [
       '用自動化測試，確保 AI 不會改壞既有功能',
     ],
     status: 'planned',
-    access: 'subscription',
+    access: 'login-free',
     art: 'build',
     link: '/courses/vibe-coding',
     prerequisite: '會使用 AI 工具，願意開始動手寫程式',

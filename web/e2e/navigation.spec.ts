@@ -39,17 +39,17 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
   await expectHeadMatches(page, request, '/courses/tools')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
-  // 課程總覽 → 第 1 課(清單裡的連結)
-  await page.locator('main ol a[href="/courses/tools/1"]').click()
-  await expectHeadMatches(page, request, '/courses/tools/1')
+  // 課程總覽 → 第 2 課(清單裡的連結)
+  await page.locator('main ol a[href="/courses/tools/2"]').click()
+  await expectHeadMatches(page, request, '/courses/tools/2')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('認識專案：工作目錄與檔案操作')
 
   // 下一課(側欄預設收合,先點右上角的章節膠囊打開)
   await openCoursePanel(page)
   await page.getByRole('navigation', { name: '上一課與下一課' }).getByRole('link', { name: /下一課/ }).click()
-  await expectHeadMatches(page, request, '/courses/tools/2')
+  await expectHeadMatches(page, request, '/courses/tools/3')
 
-  // 第 1、2 課都是互動版,沒有網站頁首與麵包屑:從左上角「← 課程」回課程總覽,再從頁首回首頁
+  // 第 2、3 課都是互動版,沒有網站頁首與麵包屑:從左上角「← 課程」回課程總覽,再從頁首回首頁
   await page.getByRole('link', { name: /^← 課程|^課程$/ }).first().click()
   await expectHeadMatches(page, request, '/courses/tools')
   const back = '/courses/tools'
@@ -85,7 +85,8 @@ test('全部課程:導覽列可以進入,每張卡片的連結都能開啟(不�
   await expectHeadMatches(page, request, '/courses')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('全部課程')
   const links = await page.locator('main li a[href^="/courses/"]').evaluateAll((els) => els.map((e) => e.getAttribute('href')!))
-  expect(links.length).toBe(5)
+  // 先不公開(levels.ts 的 hidden)的 AI 工具入門不列,所以是 4 門
+  expect(links.length).toBe(4)
   for (const href of links) {
     await page.goto('/courses')
     await page.locator(`main li a[href="${href}"]`).click()
@@ -166,7 +167,7 @@ test('網頁怎麼運作:首頁卡片連到主題,課程清單的標示依資料
   // 每一課的標示(免費預覽、登入後學習、規劃中)依資料庫的課程地圖
   const lessons = await mapLessons(page.request, 'web')
   for (const l of lessons) await expectLabel(row(l.title), l)
-  expect(lessons[0]).toMatchObject({ id: '0.1', label: '免費預覽' })
+  expect(lessons[0]).toMatchObject({ id: '0.1', label: '預覽' })
 
   // 第一課不用登入:直接進到互動舞台,側欄有下一課
   await row('輸入網址之後發生的事').getByRole('link').click()
@@ -415,15 +416,15 @@ test('把演員推到主畫面:側欄讓開,直接在 Claude 上選指令與按�
   expect(errors).toEqual([])
 })
 
-test('L0 第 0 課是互動版:用原本的腳本,在 Claude 上回答後接著演,側欄有下一課與提示詞', async ({ page, context }) => {
+test('L0 第 1 課是互動版:用原本的腳本,在 Claude 上回答後接著演,側欄有下一課與提示詞', async ({ page, context }) => {
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
-  await page.goto(landscape('/courses/tools/0'))
+  await page.goto(landscape('/courses/tools/1'))
   const panel = await openCoursePanel(page)
   // 原本的章節都在
   await expect(panel.getByRole('button', { name: /安裝並登入/ })).toBeVisible()
-  await expect(panel.getByRole('link', { name: /第 1 課/ })).toHaveAttribute('href', '/courses/tools/1')
+  await expect(panel.getByRole('link', { name: /第 2 課/ })).toHaveAttribute('href', '/courses/tools/2')
   // 課程的提示詞可以複製到自己的工具
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await expect(panel.getByText('刪除 hello.txt', { exact: true })).toBeVisible()
@@ -438,11 +439,11 @@ test('L0 第 0 課是互動版:用原本的腳本,在 Claude 上回答後接著�
   expect(errors).toEqual([])
 })
 
-test('L0 第 1 課是互動版:選錯路徑時 Claude 會提醒,接著回到正確的指令', async ({ page }) => {
+test('L0 第 2 課是互動版:選錯路徑時 Claude 會提醒,接著回到正確的指令', async ({ page }) => {
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
-  await page.goto(landscape('/courses/tools/1'))
+  await page.goto(landscape('/courses/tools/2'))
   const panel = await openCoursePanel(page)
   await expect(panel.getByRole('button', { name: /建立專案資料夾/ })).toBeVisible()
   await expect(panel.getByText('目前的工作目錄是哪裡？', { exact: true })).toBeVisible()
@@ -454,11 +455,11 @@ test('L0 第 1 課是互動版:選錯路徑時 Claude 會提醒,接著回到正�
   expect(errors).toEqual([])
 })
 
-test('L0 第 2 課是互動版:播到響應式的互動點會停下,選手機後瀏覽器縮成手機寬度並說明,再繼續', async ({ page }) => {
+test('L0 第 3 課是互動版:播到響應式的互動點會停下,選手機後瀏覽器縮成手機寬度並說明,再繼續', async ({ page }) => {
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
-  await page.goto(landscape('/courses/tools/2'))
+  await page.goto(landscape('/courses/tools/3'))
   const panel = await openCoursePanel(page)
   await expect(page.locator('.vp')).toBeVisible()
   await expect(panel.getByRole('button', { name: /商品卡片的排列/ })).toBeVisible({ timeout: 15000 })

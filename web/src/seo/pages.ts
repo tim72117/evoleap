@@ -7,7 +7,7 @@
 // 新增其他類型的頁面時,在下方 PAGES 加一筆(內部頁加在 internalPages.ts)。
 import { AI_AGENT_COURSE_PATH, COURSE } from '../content/aiAgent'
 import { COURSES, coursePath, lessonLabel, lessonPath, plannedChapterPath } from '../content/catalog'
-import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, type CourseLevel } from '../content/levels'
+import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, shownLevels, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
 import { KIDS_LESSON_PAGES, KIDS_UNITS, kidsLessonTitle } from '../content/kidsCourse'
 import { AI_APPS_TOPIC, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, kidsLessonDocTitle, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC, webLessonDocTitle } from '../content/topics'
@@ -120,7 +120,7 @@ function topicPage(topic: { name: string; path: string; seoTitle: string; descri
       ld({
         '@type': 'ItemList',
         name: topic.name,
-        itemListElement: levels
+        itemListElement: shownLevels(levels)
           .filter((level) => level.link)
           .map((level, i) => ({ '@type': 'ListItem', position: i + 1, name: level.title, url: absoluteUrl(level.link!) })),
       }),
@@ -265,12 +265,14 @@ const COURSE_PAGES: PageMeta[] = COURSES.flatMap((c) => {
       path: plannedChapterPath(c, ch),
       title: documentTitle(name),
       description: ch.summary,
-      lesson: { course: seedId, id: ch.label },
+      lesson: { course: seedId, id: ch.id ?? ch.label },
       ogType: 'article' as const,
       jsonLd: [breadcrumb(topicCrumb, [courseName, coursePath(c)], [name, plannedChapterPath(c, ch)])],
     }
   })
-  return [...overview, ...lessons, ...planned]
+  // 先不公開的課:網址還打得開,但不收錄、不列入 sitemap
+  const pages = [...overview, ...lessons, ...planned]
+  return c.hidden ? pages.map((p) => ({ ...p, noindex: true })) : pages
 })
 
 // 法律頁:公開、可收錄,但在 sitemap 標為低優先。

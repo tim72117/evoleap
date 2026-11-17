@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
-import { coursePath, lessonNumber, lessonPath, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
+import { coursePath, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
 import styles from './Lesson.module.css'
 import { topicOfCourse } from '../content/topics'
 
-// 規劃中的課程總覽與章節頁：只有標題與簡述，內容完成後章節改由 LessonPage 呈現。
+// 規劃中的章節頁：只有標題與簡述，內容完成後章節改由 LessonPage 呈現。課程總覽一律是 CourseOverviewPage(照資料庫的課程地圖)。
 
 function Crumb({ course, current }: { course: Course; current?: string }) {
   const t = useT()
@@ -22,51 +22,6 @@ function Crumb({ course, current }: { course: Course; current?: string }) {
         </>
       )}
     </nav>
-  )
-}
-
-/** 章節清單：已有內容的章節連到上課頁，規劃中的連到章節頁 */
-export function ChapterList({ course }: { course: Course }) {
-  const t = useT()
-  return (
-    <ol className={styles.lessonList}>
-      {course.lessons.map((l) => (
-        <li key={l.id}>
-          <Link to={lessonPath(course, l)}>
-            <span className={styles.lessonNum}>{t.courses.lessonN(lessonNumber(l))}</span>
-            <span className={styles.lessonTitle}>{l.title}</span>
-            <span className={styles.lessonGoal}>{l.goal}</span>
-          </Link>
-        </li>
-      ))}
-      {course.planned.map((c) => (
-        <li key={c.slug}>
-          <Link to={plannedChapterPath(course, c)}>
-            <span className={styles.lessonNum}>{t.courses.chapterName(c.label)} · <span aria-hidden="true">🌱 </span>{t.courses.planned}</span>
-            <span className={styles.lessonTitle}>{c.title}</span>
-            <span className={styles.lessonGoal}>{c.summary}</span>
-          </Link>
-        </li>
-      ))}
-    </ol>
-  )
-}
-
-export function PlannedCourseOverviewPage({ course }: { course: Course }) {
-  const t = useT()
-  return (
-    <SiteLayout title={course.title}>
-      <div className={styles.page}>
-        <Crumb course={course} />
-        <header className={styles.head}>
-          <p className={styles.kicker}>{t.courses.levelName(course.level)} · <span aria-hidden="true">🌱 </span>{t.courses.planned}</p>
-          <h1>{course.title}</h1>
-          <p className={styles.lead}>{course.summary}</p>
-        </header>
-        <h2>{t.courses.plannedPages.chapters}{t.courses.plannedPages.chaptersPlannedOpen}<span aria-hidden="true">🌱 </span>{t.courses.planned}{t.courses.plannedPages.chaptersPlannedClose}</h2>
-        <ChapterList course={course} />
-      </div>
-    </SiteLayout>
   )
 }
 

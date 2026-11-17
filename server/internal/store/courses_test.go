@@ -21,8 +21,8 @@ func TestCoursesSeededOnOpen(t *testing.T) {
 	}{
 		{"tools", AccessLoginFree, ""},
 		{"ai-tools", AccessLoginFree, ""},
-		{"vibe-coding-basics", AccessSubscription, "basic"},
-		{"ai-agent", AccessSubscription, "advanced"},
+		{"vibe-coding-basics", AccessLoginFree, "basic"},
+		{"ai-agent", AccessLoginFree, "advanced"},
 	}
 	for _, c := range cases {
 		access, tier, err := st.CourseAccess(ctx, c.id)

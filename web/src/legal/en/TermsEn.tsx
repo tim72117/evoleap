@@ -22,7 +22,7 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          The Site offers AI courses for complete beginners, including course maps, video lessons, written explanations, and prompt examples you can copy. The Prologue of each course can be watched without signing in; Lesson 0 requires you to sign up and sign in, and is free once you are signed in; later lessons are included in the paid subscription.
+          The Site offers AI courses for complete beginners, including course maps, video lessons, written explanations, and prompt examples you can copy. The Prologue of each course can be watched without signing in; other lessons require you to sign up and sign in, and are free once you are signed in.
         </p>
         <ul>
           <li>Once you sign up and sign in, we record your playback progress (see "Accounts" below for account rules).</li>

@@ -1,24 +1,22 @@
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { COURSES, coursePath, courseMapId, isPreviewLesson, lessonPath, openLessonCount } from '../content/catalog'
+import { COURSES, coursePath, courseMapId, isPreviewLesson, lessonPath } from '../content/catalog'
 import { useCourseMaps } from '../content/courseMap'
 import { LEVELS } from '../content/levels'
 import { KIDS_TOPIC, LAUNCH_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, topicStartLabel, type PlannedTopic } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
-import bakerySite from './assets/bakery-site.jpg'
 import styles from './HomePage.module.css'
 
-// 首頁:先列出主題,再進入各主題。有內容的主題佔整排,直接看得到做出來的成品(首頁不放影片預覽);
-// 規劃中的主題縮小,只寫預計做出的成果。課數、連結與示範提示詞都取自課程資料,主題文案在 content/topics.ts。
+// 首頁:先列出主題,再進入各主題。有內容的主題佔整排,列出各等級能學到什麼(首頁不放影片預覽);
+// 規劃中的主題縮小,只寫預計做出的成果。連結取自課程資料,主題文案在 content/topics.ts。
 
 const tools = COURSES.find((c) => c.slug === 'tools')!
 // 「開始第一課」從序章開始(不用登入就能看)
 const introLesson = tools.lessons.find(isPreviewLesson)!
-const sitePrompt = tools.lessons.find((l) => l.id === '0.2')!.steps[0].prompt!
 
 // 這個主題的等級(起步、零基礎、基礎);中階、進階在主題「打造 AI 互動軟體」。已開放與否照資料庫的課程地圖
-const LADDER_COURSES = COURSES.filter((c) => LEVELS.some((l) => l.link === coursePath(c)))
+const LADDER_COURSES = COURSES.filter((c) => !c.hidden && LEVELS.some((l) => l.link === coursePath(c)))
 const LADDER_MAP_IDS = LADDER_COURSES.map(courseMapId)
 
 const TOPIC_ICONS = {
@@ -34,13 +32,11 @@ const TOPIC_ICONS = {
 export function HomePage() {
   // 課程地圖以前在首頁:舊連結(/#map、/#level-tools)導到主題頁的同一個位置
   const { hash } = useLocation()
-  const [resultOpen, setResultOpen] = useState(false)
   const t = useT()
   const maps = useCourseMaps(LADDER_MAP_IDS)
-  // 已開放與否照資料庫的課程地圖;還在讀、讀不到時等級不亮、不顯示開放課數(不用前端的課程資料頂替)
+  // 已開放與否照資料庫的課程地圖;還在讀、讀不到時等級不亮(不用前端的課程資料頂替)
   const ladder = LADDER_COURSES.map((c) => ({ name: c.level, open: Boolean(maps[courseMapId(c)]?.units.some((u) => u.lessons.some((l) => l.status === 'open'))) }))
-  const toolsLessons = maps[courseMapId(tools)]?.units.flatMap((u) => u.lessons)
-  const facts = [t.home.home.facts.free, ...(toolsLessons ? [t.home.home.facts.open(openLessonCount(tools, toolsLessons))] : []), t.home.home.facts.noCode]
+  const facts = [t.home.home.facts.free, t.home.home.facts.noCode]
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
   return (
@@ -86,36 +82,18 @@ export function HomePage() {
             </div>
           </div>
 
-          <div id="home-result" className={styles.result} data-open={resultOpen}>
-            <div className={styles.resultPrompt}>
-              <h3>{t.home.home.resultTitle}</h3>
-              <p className={styles.resultNote}>{t.home.home.resultIntro}</p>
-              <blockquote>{sitePrompt}</blockquote>
-              <p className={styles.resultNote}>{t.home.home.resultOutro}</p>
-            </div>
-            <figure className={styles.resultShot}>
-              <img src={bakerySite} alt={t.home.home.resultAlt} width={1520} height={1040} loading="lazy" />
-              <figcaption>{t.home.home.resultCaption}</figcaption>
-            </figure>
+          {/* 這個主題能學到什麼:依等級各一項 */}
+          <div className={styles.learn}>
+            <h3>{t.home.home.learnTitle}</h3>
+            <ul>
+              {SOFTWARE_TOPIC.learn.map((l) => (
+                <li key={l.level}>
+                  <span className={styles.learnLevel}>{t.home.levelName(l.level)}</span>
+                  {l.text}
+                </li>
+              ))}
+            </ul>
           </div>
-          {/* 手機版預設收起「第 2 課就能做出這個網站」:卡片下緣的展開條,展開後內容出現在上方、這條變成「收起」;桌機不顯示 */}
-          <button
-            type="button"
-            className={styles.resultToggle}
-            aria-expanded={resultOpen}
-            aria-controls="home-result"
-            onClick={(e) => {
-              const bar = e.currentTarget
-              setResultOpen((o) => !o)
-              // 收起時上方內容消失、展開條往上跳:收起後把展開條捲回畫面中,不會突然看到下一個區塊
-              if (resultOpen) requestAnimationFrame(() => bar.scrollIntoView({ block: 'nearest' }))
-            }}
-          >
-            {resultOpen ? t.home.home.collapse : t.home.home.resultTitle}
-            <svg className={styles.resultChevron} viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </button>
         </article>
 
         {/* 接在「做出自己的軟體」後面:做好之後的下一步 */}

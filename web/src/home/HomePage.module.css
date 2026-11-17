@@ -194,81 +194,39 @@
   order: 2;
 }
 
-/* 這個主題的成果:和上面同一張卡片、同一個底色,不要看起來像另一個主題 */
-.result {
-  display: grid;
-  grid-template-columns: minmax(280px, 5fr) 7fr;
-  gap: 28px;
-  align-items: start;
+/* 這個主題能學到什麼:和上面同一張卡片、同一個底色,不要看起來像另一個主題 */
+.learn {
   padding: 0 28px 28px;
 }
 
-/* 手機版「第 2 課就能做出這個網站」的展開條:貼在卡片下緣,跟著卡片的下緣圓角(桌機不顯示,見下方 @media) */
-.resultToggle {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 14px 20px;
-  font: inherit;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--site-text);
-  background: var(--site-surface-2);
-  border: 0;
-  border-top: 1px solid var(--site-border);
-  cursor: pointer;
-}
-
-.resultChevron {
-  flex: none;
-  color: var(--site-muted);
-  transition: transform 0.15s;
-}
-
-.resultToggle[aria-expanded='true'] .resultChevron {
-  transform: rotate(180deg);
-}
-
-.resultPrompt h3 {
-  margin: 0 0 8px;
+.learn h3 {
+  margin: 0 0 10px;
   font-size: 16px;
 }
 
-.resultNote {
+.learn ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   margin: 0;
-  color: var(--site-muted);
-  font-size: 14px;
+  padding: 0;
+  list-style: none;
 }
 
-.resultPrompt blockquote {
-  margin: 10px 0;
-  padding: 12px 14px;
+.learn li {
+  padding: 14px 16px;
   background: var(--site-surface-2);
   border: 1px solid var(--site-border);
-  border-left: 3px solid var(--site-accent);
-  border-radius: 8px;
-  font-size: 15px;
-}
-
-.resultShot {
-  margin: 0;
-  min-width: 0;
-}
-
-.resultShot img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border: 1px solid var(--site-border);
   border-radius: 10px;
+  font-size: 14.5px;
 }
 
-.resultShot figcaption {
-  margin-top: 6px;
-  color: var(--site-muted);
-  font-size: 12.5px;
+.learnLevel {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--site-accent);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 /* ---------- 規劃中的主題 ---------- */
@@ -495,7 +453,7 @@
 @media (max-width: 820px) {
   /* :has(.player) 要寫出來,權重才蓋得過上面展示頁的兩欄 */
   .featuredMain:has(.player),
-  .result,
+  .learn ul,
   .nextGrid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -504,16 +462,8 @@
     padding: 20px;
   }
 
-  .result {
+  .learn {
     padding: 0 20px 20px;
-  }
-
-  .resultToggle {
-    display: flex;
-  }
-
-  .result[data-open='false'] {
-    display: none;
   }
 }
 

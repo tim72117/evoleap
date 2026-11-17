@@ -4,7 +4,7 @@ import { KIDS_LESSON_PAGES, KIDS_UNITS } from './kidsCourse'
 import { LAUNCH_LESSON_PAGES, LAUNCH_UNITS, launchScriptKey } from './launchCourse'
 import { WEB_LESSON_PAGES, WEB_UNITS } from './webCourse'
 import { COURSES, coursePath } from './catalog'
-import { L2_MODULES } from './l2Outline'
+import { L2_MODULES, l2OutlineLessons } from './l2Outline'
 import { L2_LESSONS } from './l2Lessons'
 import { minutesOf } from '../courses/CourseOverviewPage'
 import { UNITS as AI_AGENT_UNITS } from './aiAgent'
@@ -32,7 +32,9 @@ describe('兒童課的課程地圖(資料庫種子)和前端課程資料一致',
 
   it('有腳本的課(開放與草稿)和課程頁(KIDS_LESSON_PAGES)相同、腳本相同', () => {
     const lessons = kids.units!.flatMap((u) => u.lessons)
-    expect(lessons.filter((l) => l.script).map((l) => [l.id, l.script])).toEqual(Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => [id, l.script]))
+    // 4.1~4.5 的課程頁與腳本已寫好,但正式機是規劃中(規劃中的課不能掛腳本):種子沒有腳本,課程頁照資料庫顯示規劃中
+    const planned = new Set(lessons.filter((l) => l.status === 'planned').map((l) => l.id))
+    expect(lessons.filter((l) => l.script).map((l) => [l.id, l.script])).toEqual(Object.entries(KIDS_LESSON_PAGES).filter(([id]) => !planned.has(id)).map(([id, l]) => [id, l.script]))
     expect(lessons.filter((l) => l.script && l.status !== 'open' && l.status !== 'draft')).toEqual([])
     expect(kids.access).toBe('login-free')
   })
@@ -91,16 +93,21 @@ describe.each([
   const course = COURSES.find((c) => coursePath(c) === path)!
   const lessons = seed.units!.flatMap((u) => u.lessons)
 
-  it('每一課的課號、名稱、順序與學習時間相同', () => {
-    expect(lessons.map((l) => [l.id, l.title, l.minutes])).toEqual(course.lessons.map((l) => [l.id, l.title, minutesOf(l.length)]))
+  // 規劃中的章節(course.planned,例如 tools 的 0.3)只有標題,種子裡照課號排在寫好的課之間
+  it('每一課的課號、名稱與學習時間相同,寫好的課順序相同', () => {
+    const planned = course.planned.map((ch) => ch.id ?? ch.label)
+    expect([...lessons.map((l) => l.id)].sort()).toEqual([...course.lessons.map((l) => l.id), ...planned].sort())
+    expect(lessons.filter((l) => !planned.includes(l.id)).map((l) => [l.id, l.title, l.minutes])).toEqual(course.lessons.map((l) => [l.id, l.title, minutesOf(l.length)]))
+    for (const ch of course.planned) expect(lessons.find((l) => l.id === (ch.id ?? ch.label))!.title).toBe(ch.title)
   })
 
-  it('有影片的課是開放、腳本和第一支影片相同,其他是規劃中', () => {
+  it('有影片的課是開放(草稿是 draft)、腳本和第一支影片相同,規劃中的章節是 planned', () => {
     for (const l of course.lessons) {
       const s = lessons.find((x) => x.id === l.id)!
       const live = l.videos[0]?.live
-      expect([l.id, s.status, s.script]).toEqual([l.id, live ? 'open' : 'planned', live])
+      expect([l.id, s.status, s.script]).toEqual([l.id, live ? (l.draft ? 'draft' : 'open') : 'planned', live])
     }
+    for (const ch of course.planned) expect(lessons.find((l) => l.id === (ch.id ?? ch.label))!.status).toBe('planned')
   })
 
   it('整門課登入後免費', () => {
@@ -119,13 +126,9 @@ describe('還在規劃的課程(資料庫種子)和前端的規劃一致', () =>
       const l = L2_LESSONS.find((x) => x.id === id)
       return l ? (l.draft ? 'draft' : 'open') : 'planned'
     }
+    // 搬走、拿掉的章節(L2_DROPPED)不在種子裡
     expect(vc.units!.flatMap((u) => u.lessons.map((l) => [l.id, l.title, l.summary, l.status, l.minutes, l.script]))).toEqual(
-      L2_MODULES.flatMap((m) =>
-        m.lessons.map((l, i) => {
-          const id = `${m.num}.${i + 1}`
-          return [id, l.title, l.objective, status(id), minutesOf(l.length), L2_LESSONS.find((x) => x.id === id)?.videos[0].live]
-        }),
-      ),
+      l2OutlineLessons().map(({ id, lesson: l }) => [id, l.title, l.objective, status(id), minutesOf(l.length), L2_LESSONS.find((x) => x.id === id)?.videos[0].live]),
     )
     // 課程頁的課名、時間和大綱相同
     for (const l of L2_LESSONS) {
@@ -178,7 +181,8 @@ describe('種子寫到的每一課的腳本檔都存在', () => {
     // 旁白清單、章節音軌清單跟著同名的腳本
     const base = (p: string) => p.replace(/(\.voice|\.mix)?\.json$/, '')
     const owned = new Set(files.map(([, p]) => base(p)))
-    const studioOnly = /^(lab\/|promo\/|kids\/xray)/
+    // kids/4.x:4.1~4.5 在正式機是規劃中、不能掛腳本,檔案先放研發基地(上架時改種子加回 script)
+    const studioOnly = /^(lab\/|promo\/|kids\/xray|kids\/4\.)/
     const orphan = [...LIVE].filter((p) => !studioOnly.test(p) && !owned.has(base(p)))
     expect(orphan).toEqual([])
   })

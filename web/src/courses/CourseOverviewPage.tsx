@@ -3,8 +3,8 @@ import { messages } from '../i18n/current'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { ACCESS_LABEL, ALL_LEVELS } from '../content/levels'
-import { coursePath, courseMapId, lessonLabel, lessonPath, nextCourse, type Course } from '../content/catalog'
-import { useCourseMap } from '../content/courseMap'
+import { coursePath, courseMapId, lessonLabel, lessonPath, nextCourse, plannedChapterPath, type Course } from '../content/catalog'
+import { useCourseMap, type MapLesson } from '../content/courseMap'
 import { useAuth } from '../auth/AuthContext'
 import { topicOfCourse } from '../content/topics'
 import { LevelArt } from '../home/LevelArt'
@@ -15,7 +15,7 @@ import styles from './CourseOverview.module.css'
 // 每一課(課號、名稱、一句話、時間、開放與否、要不要登入)從資料庫讀(GET /api/courses/{id}/map);讀取中顯示佔位卡、讀不到顯示「無法讀取」,
 // 不用前端寫死的課程資料頂替。課程介紹(標題、簡述、插圖)沒有存在資料庫,還在前端。
 // 清單每一列:播放圖示、課名(還沒開放的課標「🌱 規劃中」)、一句話、形式(有腳本的是互動)與時長。
-// 未登入時,開放的課在右側標「免費預覽」或鎖頭(登入後學習);確認登入狀態前不標,已登入的人不會閃過標籤。
+// 未登入時,開放的課在右側標「預覽」或鎖頭(登入後學習);確認登入狀態前不標,已登入的人不會閃過標籤。
 
 /** 「約 15 分」「約 1 小時 20 分」→ 分鐘;看不懂的回傳 0 */
 export function minutesOf(length: string): number {
@@ -45,6 +45,13 @@ export function CourseOverviewPage({ course }: { course: Course }) {
   // 課程清單只用資料庫的課程地圖:讀取中顯示佔位卡、讀不到顯示「無法讀取」,不用前端寫死的課程資料頂替
   const ready = map.status === 'ready'
   const lessons = map.status === 'ready' ? map.map.units.flatMap((u) => u.lessons) : []
+  // 資料庫裡只規劃到單元(主題)、還沒有課的課程(例如進階):單元當成規劃中的項目列出,連到同順序的規劃中章節頁(catalog 的 planned)
+  const topics: MapLesson[] =
+    map.status === 'ready' && lessons.length === 0
+      ? map.map.units.map((u) => ({ id: u.id, title: u.title, summary: u.subtitle, access: map.map.access, status: 'planned' as const }))
+      : []
+  const chapterOf = (l: MapLesson) => course.planned[topics.indexOf(l)]
+  const items = topics.length > 0 ? topics : lessons
   const total = lessons.reduce((n, l) => n + (l.minutes ?? 0), 0)
   const guest = useAuth().status === 'guest'
   // 開始學習:第一個已經能看的課(都還沒有就從第一課);沒登入時先找不用登入就能看的課,免得一點就是登入畫面
@@ -78,7 +85,7 @@ export function CourseOverviewPage({ course }: { course: Course }) {
               {ready && (
                 <span>
                   <Icon d={BOOK} size={22} />
-                  {c.lessonCount(lessons.length)}
+                  {c.lessonCount(items.length)}
                 </span>
               )}
             </p>
@@ -104,9 +111,9 @@ export function CourseOverviewPage({ course }: { course: Course }) {
         {map.status === 'ready' ? (
           <LessonGroup
             title={course.title}
-            lessons={lessons}
-            pathOf={(l) => lessonPath(course, l)}
-            labelOf={(l) => lessonLabel(course.lessons.find((x) => x.id === l.id) ?? l)}
+            lessons={items}
+            pathOf={(l) => (topics.length > 0 ? (chapterOf(l) ? plannedChapterPath(course, chapterOf(l)) : null) : lessonPath(course, l))}
+            labelOf={(l) => (topics.length > 0 ? (chapterOf(l)?.label ?? l.id) : lessonLabel(course.lessons.find((x) => x.id === l.id) ?? l))}
             guest={guest}
           />
         ) : (

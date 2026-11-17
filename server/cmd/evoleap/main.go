@@ -1,7 +1,8 @@
 // Command evoleap 是管理員改課程資料的 CLI(仿照 tripace 的 tripace-cli),給人或 Claude Code 直接操作。
 //
 // 一律走伺服器的 HTTP API(/api/admin/*、/api/scripts),不直連資料庫:權限、規則檢查與修改紀錄都在伺服器。
-// 正式環境的課程資料以資料庫為準,courses_seed.json 只補資料庫還沒有的課程、單元、課與腳本檔。
+// 課程結構以 courses_seed.json 為準:每次部署的同步會把種子寫到的欄位蓋回去、刪掉種子已經沒有的課,所以 course set、lesson set 改的只撐到下次部署,
+// 要長期保留得同時改種子。腳本內容以資料庫為準:script push 換的內容同步不會蓋掉,但檔案屬於哪一課照種子。
 //
 // 先登入一次:evoleap login(打開瀏覽器,在 evoleap.io 的核准頁按核准,只有管理員能核准),
 // token 依 -api 的主機分開存在使用者設定目錄(見 token.go),之後的指令自動帶上。token 有效期 7 天,可以撤銷。
@@ -15,6 +16,7 @@
 //	whoami                          目前登入的帳號
 //	course list                     課程清單與各狀態的課數
 //	course show -course ID          一門課的單元與每一課(含草稿、腳本、時間)
+//	course set -course ID [-access free|login-free|subscription] [-title 文字]   改一門課自己的存取方式或課名(沒寫 access 的課跟著這門課)
 //	lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title 文字] [-summary 文字] [-script 路徑]
 //	script get -path 路徑 [-out 檔案]
 //	script push -file 檔案 [-path 路徑] [-course ID -lesson ID]
@@ -55,6 +57,7 @@ var resources = []resource{
 	{name: "course", commands: []command{
 		{verb: "list", usage: "evoleap course list", run: cmdCourseList},
 		{verb: "show", usage: "evoleap course show -course ID", run: cmdCourseShow},
+		{verb: "set", usage: "evoleap course set -course ID [-access free|login-free|subscription] [-title 文字]", run: cmdCourseSet},
 	}},
 	{name: "lesson", commands: []command{
 		{verb: "set", usage: "evoleap lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title 文字] [-summary 文字] [-script 路徑]", run: cmdLessonSet},
@@ -221,6 +224,27 @@ func cmdCourseShow(c *client, args []string) {
 	printJSON(out)
 }
 
+func cmdCourseSet(c *client, args []string) {
+	fs := flag.NewFlagSet("course set", flag.ExitOnError)
+	course := fs.String("course", "", "課程 id")
+	access := fs.String("access", "", "free、login-free 或 subscription(沒寫 access 的課跟著這門課)")
+	title := fs.String("title", "", "課程名稱")
+	set := parse(fs, args, "course")
+	patch := map[string]any{}
+	for name, v := range map[string]any{"access": *access, "title": *title} {
+		if set[name] {
+			patch[name] = v
+		}
+	}
+	if len(patch) == 0 {
+		fatal("沒有要改的欄位(-access、-title)")
+	}
+	var out any
+	mustDo(c.do("PATCH", "/api/admin/courses/"+url.PathEscape(*course), patch, &out))
+	printJSON(out)
+	warnSeedOverwrites("種子裡有這門課的話,下次部署的同步會用 courses_seed.json 蓋掉這門課的 title、access、tier;要長期保留請同時改種子。")
+}
+
 func cmdLessonSet(c *client, args []string) {
 	fs := flag.NewFlagSet("lesson set", flag.ExitOnError)
 	course := fs.String("course", "", "課程 id")
@@ -250,6 +274,12 @@ func cmdLessonSet(c *client, args []string) {
 	var out any
 	mustDo(c.do("PATCH", "/api/admin/courses/"+url.PathEscape(*course)+"/lessons/"+url.PathEscape(*lesson), patch, &out))
 	printJSON(out)
+	warnSeedOverwrites("下次部署的同步會用 courses_seed.json 蓋掉這次改的欄位(title、summary、status、access、minutes、script);要長期保留請同時改種子。")
+}
+
+// warnSeedOverwrites 提醒(寫到 stderr,不影響 JSON 輸出):課程結構以種子為準,每次部署(與本機啟動)的同步會把種子的內容寫回資料庫。
+func warnSeedOverwrites(msg string) {
+	fmt.Fprintln(os.Stderr, "注意:"+msg)
 }
 
 func cmdScriptGet(c *client, args []string) {
@@ -297,6 +327,9 @@ func cmdScriptPush(c *client, args []string) {
 	var out any
 	mustDo(c.doBody("PUT", target, body, &out))
 	printJSON(out)
+	if *course != "" {
+		warnSeedOverwrites("內容會保留,但檔案屬於哪一課以 courses_seed.json 為準:種子沒把這個檔寫在這一課底下的話,下次部署的同步會把它移回研發基地的腳本。")
+	}
 }
 
 // livePath 把 web/src/content/live/ 底下的檔案轉成腳本路徑(例如 …/live/l0/0.0-tools.json → l0/0.0-tools.json)

@@ -65,7 +65,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 ## 課程資料庫
 
 - 一門課 `courses`（存取方式 `access`：`free`／`login-free`／`subscription`，訂閱課程的最低方案 `tier`）→ 單元 `course_units` → 一堂課 `lessons`（`status`：`open`／`draft`／`planned`；`access` 空的就照這門課，只有例外才填，例如序章免費預覽；`script` 是課程頁要播的腳本、`files` 是這一課其他的腳本檔（子腳本、開場、試做）；`minutes` 是預估學習時間，0 代表還沒估）。草稿（`draft`）只有管理員看得到狀態與腳本，其他人看到的是規劃中。
-- 網站上的 9 門課（AI 工具介紹、AI 工具入門、Vibe Coding 入門、AI Agent 整合應用、進階 AI Agent 應用、網頁怎麼運作、給孩子的網頁程式、從做好到上線、Claude Code 工作術）都在資料庫。**課程資料以資料庫為準**：上線後由管理員用 `evoleap` CLI 修改（見下方「課程 CLI」）；`server/internal/store/courses_seed.json` 只補資料庫還沒有的課程、單元、課與腳本檔，已經有的不動、種子拿掉的也不會刪。補的時機：正式環境是每次部署時執行一次的課程同步工作（Cloud Run Job `shuttle-course-sync`，執行 `server/cmd/sync`；image 是 Dockerfile 的 `course-sync` 目標，只有這支程式與腳本目錄，不建置前端；失敗就不部署網站），Cloud Run 上的網站伺服器只讀；本機是後端每次啟動時補。本機要整份換成種子的內容，刪掉 `server/shuttle.db` 再啟動。程式在 `server/internal/store/courses.go`、`lessons.go`。
+- 網站上的 9 門課（AI 工具介紹、AI 工具入門、Vibe Coding 入門、AI Agent 整合應用、進階 AI Agent 應用、網頁怎麼運作、給孩子的網頁程式、從做好到上線、Claude Code 工作術）都在資料庫。**課程結構以種子為準**：`server/internal/store/courses_seed.json` 每次同步時寫進資料庫，種子有的課程、單元、課沒有就新增、已經有的用種子的內容更新（課程的名稱、存取方式、方案，單元與每一課的各欄位）；種子裡的課程中種子已經沒有的單元與課會從資料庫**刪除**（種子沒有的課程整門不動）。管理員用 `evoleap` CLI 改的課程欄位只撐到下次同步，要長期保留得同時改種子（見下方「課程 CLI」）。同步的時機：正式環境是每次部署時執行一次的課程同步工作（Cloud Run Job `shuttle-course-sync`，執行 `server/cmd/sync`；image 是 Dockerfile 的 `course-sync` 目標，只有這支程式與腳本目錄，不建置前端；失敗就不部署網站），Cloud Run 上的網站伺服器只讀；本機是後端每次啟動時同步（同 `cmd/sync`）。本機要連腳本內容都整份換成檔案的內容，刪掉 `server/shuttle.db` 再啟動。程式在 `server/internal/store/courses.go`、`lessons.go`。
 - 單元的 `subtitle` 是課程地圖上單元標題下的小字（兒童課是比喻，網頁怎麼運作是這個單元回答的問題）。
 - 公開 API `GET /api/courses/{id}/map` 回傳課程地圖（不用登入，登入功能沒開也能讀，只有沒接資料庫時回 503）。讀它的頁面：
   - 主題的課程地圖：兒童課（`/topics/kids#map`）、網頁怎麼運作（`/topics/web#map`）、從做好到上線（`/topics/launch#map`），網頁怎麼運作、從做好到上線用 `web/src/home/TopicCourseMap.tsx`（和課程總覽頁同一個清單元件 `web/src/courses/LessonGroup.tsx`），兒童版用自己的畫法 `web/src/home/CourseMapUnits.tsx`。**課程資訊不做前端備援**：讀取中顯示佔位卡，讀不到顯示「無法讀取課程資訊」。
@@ -73,9 +73,9 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
   - 所有課程的課程總覽（`/courses/...`）：每一課的一句話、時間、開放與否、免費預覽；所有 `/courses/...` 單課頁要不要登入也照每一課的 `access`（資料庫裡沒有的課顯示規劃中）。
   - 首頁、課程列表（`/courses`）、軟體課程地圖頁等級卡片的「已開放」與課數；會員空間「課程」分頁與兒童模式的進度、這週的課。讀不到時這些地方不標開放狀態或顯示讀取失敗，不用前端資料頂替。
 - 還在前端的：課程與主題的介紹（`levels.ts`、`topics.ts`）、單課頁的內容（步驟、提示詞，`l0Lessons.ts` 等）、規劃中課程的章節頁。課名、單課頁的路由與 SEO 頁面（建置時產生）仍用前端清單（`WEB_LESSON_PAGES`、`KIDS_LESSON_PAGES`、`LAUNCH_LESSON_PAGES`，只表示「這一課有頁面」，不表示開放與否）；開放與否一律看資料庫：單課存取、課程清單標示、`/sitemap.xml`、頁面結構化資料的課程連結（`server/cmd/server/seo_ld.go`）都是。`web/src/content/courseMap.test.ts` 檢查這些清單和種子裡有腳本的課一致。
-- 腳本檔：補課程資料時（`-live`，預設 `../web/src/content/live`，映像裡是 `/app/live`）把每一課的 `script`、`files` 與同名的 `.voice.json`、`.mix.json` 讀進 `lesson_files`（一個檔一列，記著屬於哪門課的哪一課），其餘的 `.json`（研發基地的 `lab/`、`promo/` 與草稿）讀進 `studio_files`，同樣只補資料庫還沒有的檔；種子寫到的檔不存在、或兩課寫到同一個檔時失敗（正式環境就是部署失敗）。上線後改腳本內容用 `evoleap script push`。程式在 `server/internal/store/lessonfiles.go`。
+- 腳本檔：補課程資料時（`-live`，預設 `../web/src/content/live`，映像裡是 `/app/live`）把每一課的 `script`、`files` 與同名的 `.voice.json`、`.mix.json` 讀進 `lesson_files`（一個檔一列，記著屬於哪門課的哪一課），其餘的 `.json`（研發基地的 `lab/`、`promo/` 與草稿）讀進 `studio_files`。檔案屬於哪一課以種子為準（改掛到種子寫的那一課；種子裡的課程底下、種子不再指定的檔移到 `studio_files`），**腳本內容以資料庫為準**：已經在資料庫的檔內容不蓋，只有新的檔讀檔案內容，`studio_files` 也只補還沒有的檔；種子寫到的檔不存在、或兩課寫到同一個檔時失敗（正式環境就是部署失敗）。上線後改腳本內容用 `evoleap script push`。程式在 `server/internal/store/lessonfiles.go`。
 - `GET /api/scripts/{path}` 依所屬那一課把關：免費預覽誰都拿得到、登入後免費要登入（401）、訂閱課程等訂閱功能上線前不給（403）、草稿與規劃中的課只給管理員（其他人 404）；研發基地的檔只給管理員。`GET /api/scripts` 列出所有腳本路徑（只給管理員）。程式在 `server/internal/api/scripts.go`。本機開發時直接讀磁碟上最新的檔案（把關仍照資料庫），改既有的腳本不用重啟；本機新增檔案要重啟後端。沒接資料庫時沒有種子備援：腳本回 503（選用的旁白、章節音軌清單回 `null`）。
-- `/sitemap.xml` 由後端依資料庫每一課的狀態即時產生（`server/cmd/server/sitemap.go`；前端 build 只輸出可收錄的頁面清單 `dist/sitemap-pages.json`，該檔不對外提供），只列已開放的課，所以用 CLI 改了開放狀態後最多 1 分鐘（程序內快取）就會跟上；草稿與規劃中的課頁面仍可收錄，只是不列入。主題頁結構化資料的課程連結同樣依資料庫（`seo_ld.go`）。
+- `/sitemap.xml` 由後端依資料庫每一課的狀態即時產生（`server/cmd/server/sitemap.go`；前端 build 只輸出可收錄的頁面清單 `dist/sitemap-pages.json`，該檔不對外提供），只列已開放的課，所以用 CLI 改了開放狀態後最多 1 分鐘（程序內快取）就會跟上（課程結構以種子為準，下次部署會蓋回種子的狀態）；草稿與規劃中的課頁面仍可收錄，只是不列入。主題頁結構化資料的課程連結同樣依資料庫（`seo_ld.go`）。
 
 ## 課程 CLI（`evoleap`）
 
@@ -87,7 +87,8 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
   - `evoleap whoami`；`evoleap logout`（先在伺服器撤銷這個 token，再刪本機的）
   - `evoleap token list`、`evoleap token revoke -id ID`：列出、撤銷還有效的 CLI 登入（例如遺失的電腦）
   - `evoleap course list`、`evoleap course show -course ID`
-  - `evoleap lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title …] [-summary …] [-script 路徑]`（`-script` 要先用 `script push` 上傳到這一課）
+  - `evoleap course set -course ID [-access free|login-free|subscription] [-title …]`：改一門課自己的存取方式或課名（沒寫 `access` 的課跟著這門課；種子有這門課的話，下次部署會被種子蓋回去，CLI 會在 stderr 提醒）
+  - `evoleap lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title …] [-summary …] [-script 路徑]`（`-script` 要先用 `script push` 上傳到這一課；種子寫到的欄位下次部署會被種子蓋回去，CLI 會在 stderr 提醒）
   - `evoleap script get -path 路徑 [-out 檔案]`、`evoleap script push -file 檔案 [-path 路徑] [-course ID -lesson ID]`（檔案在 `web/src/content/live/` 底下時可以省略 `-path`）
   - `evoleap change list [-n 20]`：最近的修改紀錄（誰、什麼時候、改了什麼）
   - `evoleap schema check`：資料庫結構檢查（仿照 tripace 的 schema-check）：程式的資料表定義和資料庫實際的欄位、主鍵是否一致，有沒有遺留表（AutoMigrate 不會處理欄位改名、刪欄位、改主鍵，也不會刪表）；有問題時結束碼 1。研發基地的「會員」標籤也有同樣的檢查（`GET /api/admin/schema-check`）。
@@ -115,7 +116,7 @@ git tag -a v0.1.0 -m "..." && git push origin v0.1.0
 ```
 
 - 打 `v*` tag 觸發 `.github/workflows/deploy-cloudrun.yml`：先跑完整測試（`test.yml`），通過才 build、執行課程同步工作（寫入課程資料），再部署到 Cloud Run。
-- 只補新的課程資料（`courses_seed.json` 新加的課程、單元、課，或新的腳本檔）不用打 tag：在 GitHub Actions 選 `dev` 分支手動執行 `sync-courses.yml`（或 `gh workflow run sync-courses.yml --ref dev`；只能從 `dev` 分支執行，其他分支會直接失敗），只跑和課程資料有關的測試（Go 測試、課程一致性測試），用 `dev` 分支 build 課程同步工作的小 image（`shuttle-course-sync:<commit>`），只執行課程同步工作，不部署網站。同步只補資料庫還沒有的資料；改已經有的課（開放狀態、時間、腳本內容）用 `evoleap` CLI。新增課程頁（前端路由、SEO、課程內容）與程式的修改仍要打 tag 部署。兩個 workflow 共用 `.github/scripts/run-course-sync.sh`，也共用一個執行序，不會同時寫資料庫。
+- 只補新的課程資料（`courses_seed.json` 新加的課程、單元、課，或新的腳本檔）不用打 tag：在 GitHub Actions 選 `dev` 分支手動執行 `sync-courses.yml`（或 `gh workflow run sync-courses.yml --ref dev`；只能從 `dev` 分支執行，其他分支會直接失敗），只跑和課程資料有關的測試（Go 測試、課程一致性測試），用 `dev` 分支 build 課程同步工作的小 image（`shuttle-course-sync:<commit>`），只執行課程同步工作，不部署網站。同步會照種子更新已經有的課、刪掉種子拿掉的課；腳本內容以資料庫為準（改內容用 `evoleap script push`），課的欄位（開放狀態、時間等）要改種子。新增課程頁（前端路由、SEO、課程內容）與程式的修改仍要打 tag 部署。兩個 workflow 共用 `.github/scripts/run-course-sync.sh`，也共用一個執行序，不會同時寫資料庫。
 - GitHub repo secrets：`WIF_PROVIDER`、`WIF_SERVICE_ACCOUNT`（Workload Identity Federation，provider `github-provider-vibing` 只允許 `tim72117/evoleap`；repo 改名時要同步更新 provider 的 attribute condition 與 service account 的 workloadIdentityUser 綁定，否則部署會在驗證步驟失敗）；repo variable `GA_MEASUREMENT_ID`（選填，未設定不載入 GA）、`ADSENSE_CLIENT` 與 `ADSENSE_SLOT`（選填，兩個都設定才在課程頁放廣告；AdSense 後台的自動廣告要保持關閉）。
 - 登入功能需要資料庫：Cloud Run 上沒有 `DATABASE_URL` 時伺服器自動停用登入，網站其他部分照常運作（課程只有免登入的課能播，課程地圖改用前端內建的資料）。
   - Cloud SQL：與 tripace 共用實例 `onagent-prod:asia-east1:onagent-db`，資料庫 `evoleap`、使用者 `evoleap_app`。實例上的 `shuttle`、`shuttle_app` 是 tripace 的正式資料，不可使用。

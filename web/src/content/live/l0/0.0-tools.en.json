@@ -1,6 +1,6 @@
 {
   "title": "AI tools that work with your files (English voice trial)",
-  "lesson": "起步 · 第 0 課",
+  "lesson": "起步 · 第 1 課",
   "camera": "auto",
   "blocking": {
     "cast": [
@@ -70,7 +70,7 @@
   "steps": [
     {
       "card": "會操作檔案的 AI 工具",
-      "eyebrow": "起步 · 第 0 課 · 影片 1",
+      "eyebrow": "起步 · 第 1 課 · 影片 1",
       "sub": "認識工具、安裝登入、準備練習資料夾，再讓 AI 建立第一個檔案",
       "narration": "In this lesson we'll do four things: see what this kind of AI tool can do with your files, install it and sign in, create a folder just for it to practice in, and finally have it create its first file in that folder — and practice saying no."
     },

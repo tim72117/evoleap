@@ -22,16 +22,10 @@ export const home = {
   home: {
     facts: {
       free: { pre: '', strong: '免費', post: '開始' } as Rich,
-      open: (n: number): Rich => ({ pre: '已開放 ', strong: `${n} 課`, post: '' }),
       noCode: { pre: '不用先學', strong: '程式', post: '' } as Rich,
     },
     ladderLabel: '課程順序',
-    resultTitle: '第 2 課就能做出這個網站',
-    resultIntro: '一開始，你只要這樣告訴 AI：',
-    resultOutro: '再一個區塊一個區塊調整，就完成了。',
-    resultAlt: '課程做出的小森烘焙一頁式網站，有導覽、主視覺與本週商品',
-    resultCaption: '小森烘焙（課程虛構案例）的參考成品',
-    collapse: '收起',
+    learnTitle: '你會學到什麼',
     moreTopics: '更多主題課程',
   },
 
@@ -65,19 +59,19 @@ export const home = {
 
   web: {
     pitch: (slogan: string) => `${slogan}。不教語法，教網頁怎麼運作、每個東西叫什麼。`,
-    mapLead: '課程陸續開放中，還沒開放的課標「規劃中」。第一課不用登入就能預覽，其他課登入後就能學習。',
+    mapLead: '課程陸續開放中，還沒開放的課標「規劃中」。前五課不用登入就能預覽，其他課登入後就能學習。',
   },
 
   launch: {
     pitch: (slogan: string) => `${slogan}。從部署、網域、資料與登入，到收費和上線後的監控。`,
-    mapLead: '序章與單元 1 開放中，第一課不用登入就能預覽，其他課登入後就能學習；還沒開放的課標「規劃中」，內容與順序可能調整。',
+    mapLead: '序章與單元 1 開放中，前五課不用登入就能預覽，其他課登入後就能學習；還沒開放的課標「規劃中」，內容與順序可能調整。',
   },
 
   kidsTopic: {
     pitch: (slogan: string) => `${slogan}。不用打程式碼，點一點、拖一拖積木就能做出網頁；建議家長在旁陪學。`,
     howTitle: '怎麼使用兒童課程',
     howLead: '家長在會員空間替孩子排好上課時間、開啟兒童模式，孩子就只看得到兒童課程，時間到了才能上課，一課一課照進度往下上。',
-    mapLead: '課程陸續開放中，還沒開放的課標「規劃中」。第一課不用登入就能預覽，之後的課登入後就能學習。',
+    mapLead: '課程陸續開放中，還沒開放的課標「規劃中」。前五課不用登入就能預覽，之後的課登入後就能學習。',
   },
 
   claudeCode: {
@@ -98,8 +92,8 @@ export const home = {
     navLabel: '上一課與下一課',
     /** 接在「登入」連結後面 */
     resumeAfterSignIn: '後會記住你看到哪裡，下次從這裡接著看。',
-    loginNote: '第一課可以直接預覽，之後的課程要登入才能觀看。登入後也會記錄你的播放進度。',
-    kidsLoginNote: '第一課可以直接預覽，之後的課登入後就能學習，也會記錄孩子上到哪裡。',
+    loginNote: '前五課可以直接預覽，之後的課程要登入才能觀看。登入後也會記錄你的播放進度。',
+    kidsLoginNote: '前五課可以直接預覽，之後的課登入後就能學習，也會記錄孩子上到哪裡。',
     draft: (title: string) => `${title}（草稿）`,
     docTitle: (title: string, topic: string) => `${title}｜${topic}`,
   },
@@ -133,7 +127,7 @@ export const home = {
   map: {
     signInToLearn: '登入後學習',
     start: '開始學習',
-    freePreview: '免費預覽',
+    freePreview: '預覽',
     planned: '規劃中',
     draft: '草稿',
   },
