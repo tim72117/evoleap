@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import actor, { apply, frameSvg, SCENES, T, type ReelState } from './actor'
+import actor, { apply, drawFit, frameSvg, SCENES, T, type ReelState } from './actor'
 
 const init = actor.init!({}) as ReelState
 const at = (scene: ReelState['scene'], l: number) => frameSvg({ scene, prev: null }, l, 9000)
@@ -54,5 +54,11 @@ describe('remote-reel 內容', () => {
     const b = at('benefits', 100000)
     for (const t of ['手機看進度', '手機按允許', '留在原本那台電腦']) expect(b).toContain(t)
     expect(at('follow', 3000)).toContain('點左下角追蹤')
+  })
+  it('段落比設計長度短時動畫等比例加快:在實際長度內演完,和設計長度的最後一格相同', () => {
+    for (const scene of SCENES) {
+      const D = Math.round(T[scene] * 0.6)
+      expect(drawFit(scene, D, D)).toEqual(drawFit(scene, T[scene], T[scene]))
+    }
   })
 })

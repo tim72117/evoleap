@@ -30,7 +30,7 @@ export type Target = 'window'
 
 export const DRAW: Record<Scene, (l: number, D: number) => SceneOut> = { hook, pain, link, phone: phoneUse, benefits, guide, follow }
 /** 各段的預設長度(毫秒;腳本通常自己寫 ms) */
-export const T: Record<Scene, number> = { hook: 4800, pain: 4400, link: 4400, phone: 7000, benefits: 5200, guide: 5200, follow: 3600 }
+export const T: Record<Scene, number> = { hook: 4800, pain: 4400, link: 4400, phone: 7000, benefits: 5200, guide: 4200, follow: 3600 }
 /** 換景時的交叉淡化(毫秒) */
 export const FADE = 320
 
@@ -40,10 +40,16 @@ export function apply(st: ReelState, kind: 'scene', s: ReelStep): ReelState {
   return { scene: s.scene, prev: st.scene }
 }
 
+/** 這一段的實際長度 D 比設計長度 T 短時(旁白比較短,腳本把 ms 縮短),把整段動畫等比例加快,在 D 內演完;D 比 T 長就停在最後的樣子 */
+export function drawFit(scene: Scene, l: number, D: number): SceneOut {
+  const k = D > 0 && D < T[scene] ? T[scene] / D : 1
+  return DRAW[scene](l * k, D * k)
+}
+
 /** 某一刻整張畫面的 SVG(純函式:同樣的輸入一定同樣的字串) */
 export function frameSvg(st: ReelState, l: number, D: number): string {
   if (!st.scene) return ''
-  const cur = DRAW[st.scene](l, D)
+  const cur = drawFit(st.scene, l, D)
   const f = clamp(l / FADE)
   let s = ''
   if (st.prev && f < 1) {
