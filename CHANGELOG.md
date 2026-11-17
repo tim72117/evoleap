@@ -4,13 +4,21 @@
 
 ## [Unreleased]
 
+## [0.44.0] - 2026-11-17
+
+Claude Code 工作術 0.2「出門了，想用手機接著做」開放（示範影片含旁白）；主題頁每段影片有錨點；新增手機版 Claude 演員與桌面版右側窗欄；新的遠端使用宣傳片。沒有資料表或 API 變動，沒有移除公開符號。
+
 ### 新增
 
-- **Claude Code 工作術頁每段影片有錨點**：網址加 `#remote`、`#fork`（影片腳本檔名）就定位到那一段並展開播放器，標題旁有 `#` 連結可複製；新增 e2e（錨點取自頁面上有影片的列）。宣傳片 `claude-code-remote-reel` 新增 `guide` 畫面：結尾前下方拉出 evoleap 網頁預覽（示意動畫，不是真的連結），提到網站有更詳細的做法（旁白語音已重新產生，這支改成逐句錄：整段一次錄再依停頓切句，切點連續幾次都對不上）。
-- **Claude Code 工作術 0.2「出門了，想用手機接著做」的示範腳本**（`claude-code/remote.json`）：開場用人物動畫（不用字卡），接著在電腦上交代任務、用滑鼠按標題列的 Remote Control 開關、手機上接著做（看進度、回覆、允許），最後講注意事項。種子把 0.2 設成開放並掛上腳本、旁白語音已產生（只影響新資料庫，正式機要用 `evoleap lesson set` 與 `script push`，要先推腳本再部署，否則前端寫死的影片列會顯示找不到腳本）。
+- **Claude Code 工作術 0.2「出門了，想用手機接著做」**（`claude-code/remote.json`、`remote.voice.json`）：開場用人物動畫（不用字卡），在電腦上交代任務、打開右側窗欄按 Remote Control、在手機上接著做（看進度、按允許），最後講注意事項；約 2 分鐘，旁白逐句錄。種子把 0.2 設成開放並掛上腳本。
+  - **正式機部署時自動生效**：部署的同步以種子為準（0.43.0 起），0.2 會變開放；`remote.json` 與 `remote.voice.json` 正式機還沒有，同步會從檔案讀進來，不需要先 `script push`。
+- **Claude Code 工作術頁每段影片有錨點**：網址加 `#remote`、`#fork`（影片腳本檔名）就定位到那一段並展開播放器，標題旁有 `#` 連結；新增 e2e（錨點取自頁面上有影片的列）。
 - **claude-desktop 演員新增右側窗欄**（新版桌面版）：`panel` 動作按標題列圖示打開窗欄（Environment、Context、Changes、背景工作），`remote` 動作按 Environment 裡的 Remote Control 那一列（Off 變綠色 On）；沒用到這兩個動作的腳本畫面不變。
-- **新增演員 `claude-mobile`**（仿 Claude 手機版，遠端控制中的 session）：`user`、`thinking`、`say`、`tool`、`ask`（需要允許的操作）、`allow`（手指點允許／拒絕）。`remote.json` 的手機段改用它，取代通用聊天畫面。
-- **宣傳片 `promo/claude-code-remote-reel`**（直式 FB Reels，約 30 秒，語音整段一次錄再切句）：辦公室電腦上的 session，在家用手機遠端接著操作；新演員 `remote-reel`（研發基地專用，內容在安全區 x 70–940、y 250–1500 內）。
+- **新增演員 `claude-mobile`**（iPhone 樣式的 Claude 手機版，遠端控制中的 session）：`user`、`thinking`、`say`、`tool`、`ask`（需要允許的操作）、`allow`（手指點允許／拒絕）。
+- **宣傳片 `promo/claude-code-remote-reel`**（直式 FB Reels，約 30 秒）：辦公室電腦上的 session，在家用手機遠端接著操作；新演員 `remote-reel`（研發基地專用，內容在安全區 x 70–940、y 250–1500 內）。結尾前的 `guide` 畫面從下方拉出 evoleap 網頁預覽（示意動畫，不是真的連結）。
+  - 旁白前 6 句整段一次錄、依停頓切句（逐句語音辨識核對過），結尾「追蹤 evoleap 粉絲團」單獨錄（腳本 `voice.solo`，可給別支影片沿用）；各段長度等於該句語音長度，`remote-reel` 的 `drawFit` 讓動畫等比例加快在段落內演完。
+- **`voice.mjs --whole` 支援 `voice.solo`**：列出的句子不放進整段一次錄，各自單獨錄。整段錄的音檔檔名加上內容雜湊：同名覆蓋會被 `immutable` 的長期快取吃掉，聽到舊的切法。
+- **開發伺服器**：帶本機研發基地 token 的 `/api/scripts/*.json` 直接讀 `src/content/live` 的檔（錄影不需要管理員登入；不存在的腳本回 404，旁白與章節音軌清單回 `null`）；只在 `npm run dev`，不影響正式環境。
 
 ### 變更
 
