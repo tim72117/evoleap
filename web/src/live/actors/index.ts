@@ -1,32 +1,10 @@
-// 舞台可用的演員(腳本 cast 裡的 "actor" 名稱 → 演員定義)。新增演員:在 actors/<名稱>/ 寫好 actor.ts、actor.css(用 defineActor 宣告),再在這裡登記(體積大、少數課才用的在 lazy.ts 登記,動態載入)。
+// 舞台可用的演員(腳本 cast 裡的 "actor" 名稱 → 演員定義)。一開始是空的:演員都在用到時才下載,
+// 由 lazy.ts 的 ensureActors 依腳本的 cast 載入並登記進來(舞台的 load 會先呼叫)。
+// 新增演員:建 actors/<名稱>/actor.ts、actor.css(用 defineActor 宣告,資料夾名稱 = 演員的 name),不用在這裡登記。
+// 研發基地的試作演員(studio/*/registerActors.ts)直接寫進這個物件。
 import type { AnyActor } from '../types'
-import browser from './browser/actor'
-import chat from './chat/actor'
-import claudeMobile from './claude-mobile/actor'
-import claudeDesktop from './claude-desktop/actor'
-import desk from './desk/actor'
-import devtools from './devtools/actor'
-import domTree from './dom-tree/actor'
-import editor from './editor/actor'
-import fc1Terminal from './fc1-terminal/actor'
-import fc2Git from './fc2-git/actor'
-import fc3Flow from './fc3-flow/actor'
-import finder from './finder/actor'
-import fx from './fx/actor'
-import kidMail from './kid-mail/actor'
-import kidTree from './kid-tree/actor'
-import kidWeb from './kid-web/actor'
-import lt10Magic from './lt10-magic/actor'
-import lt11Helper from './lt11-helper/actor'
-import lt8KidPage from './lt8-kid-page/actor'
-import lt9Wear from './lt9-wear/actor'
-import macbook from './macbook/actor'
-import netTrip from './net-trip/actor'
-import notes from './notes/actor'
-import person from './person/actor'
 
-export const ACTORS: Record<string, AnyActor> = Object.fromEntries([claudeDesktop, claudeMobile, finder, browser, chat, person, notes, editor, macbook, kidWeb, kidTree, kidMail, lt8KidPage, lt9Wear, lt10Magic, lt11Helper, netTrip, devtools, domTree, fx, fc1Terminal, fc2Git, fc3Flow, desk].map((def) => [def.name, def]))
-
+export const ACTORS: Record<string, AnyActor> = {}
 
 // 開發時引擎的程式一改就整頁重新載入:舞台、外殼、演員是掛上去就一直在跑的物件,不是 React 元件,
 // 交給 LivePlayer 熱更新的話它的 effect 不會重跑,畫面仍是舊程式建出來的舊物件,看起來像沒有熱重載。

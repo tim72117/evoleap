@@ -1,7 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, beforeAll } from 'vitest'
 import { ACTORS } from '../live/actors'
+import { ensureActors, LAZY_ACTOR_NAMES } from '../live/actors/lazy'
 import type { StageScript } from '../live/types'
 import { expandAnswers, momentsOf, type Answers } from '../studio/interactive/scene'
+
+// 演員是用到時才載入(live/actors/lazy.ts),這裡直接查 ACTORS,先全部載好
+beforeAll(() => ensureActors(LAZY_ACTOR_NAMES))
 
 // 「從做好到上線」的腳本(content/live/launch/,不含 .voice.json、.mix.json):每一種回答組合都照順序交給演員的 init/apply 推算一遍,
 // 寫錯的操作在這裡就會丟錯,不用等到畫面播到才發現。這裡只推算狀態,沒有真的載入舞台,鏡頭與版面要看畫面才知道。

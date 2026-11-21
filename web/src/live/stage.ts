@@ -52,6 +52,7 @@ import { blockingAt, blockingFor, blockPreroll, checkBlocking, planBlocking, sch
 import { cameraPoseAt, planCameraKeys, prerollOf, scheduleCameraKeys, type CameraCue } from './camera'
 import { kit, type Rect, type Styles } from './kit'
 import { ACTORS } from './actors'
+import { castActorNames, ensureActors } from './actors/lazy'
 import { movesOf, placeOf, stageSize } from './place'
 import type {
   ActorEvent,
@@ -132,6 +133,7 @@ let stageSeq = 0
 // 這幾種疊加畫面有旁白時直接延長到講完,不讓畫面空等
 const STRETCH_KINDS: readonly string[] = ['card', 'callout', 'show']
 const NARRATION_DELAY = 150 // 字幕與旁白語音在這一步開始後多久出現
+const LINE_DELAY = 300 // 角色台詞的配音在這一步開始後多久出現(對話泡泡冒出來之後)
 // 還沒有語音時估算旁白長度:中文約每秒 4.2 字(與 record.mjs 相同);沒有中文的旁白(英文語音試做)約每秒 2.6 個字(word),
 // 都再留一點換氣
 const speakMs = (text: string): number => {
@@ -261,7 +263,13 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
   const stageKindOf = (s: Step): StageKind | undefined => STAGE_KINDS.find((k) => k in s)
 
   // ---------- 載入腳本 ----------
+  let loadGen = 0
   async function load(script: StageScript, opts: { voice?: Record<string, number>; aspect?: Aspect; cursor?: boolean } = {}): Promise<number> {
+    // 腳本用到的演員都是用到時才下載(actors/lazy.ts),先載好再排時間。
+    // 等下載的時候可能又有新的 load(換腳本、改答案):只有最後一次 load 會繼續,舊的直接回傳,不蓋掉新的
+    const gen = ++loadGen
+    await ensureActors(castActorNames(script))
+    if (gen !== loadGen) return total
     const voice = opts.voice || {}
     showCursor = opts.cursor !== false
     if (opts.aspect && opts.aspect !== aspect) setAspect(opts.aspect)
@@ -358,11 +366,22 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       x.dur = x.s.ms ?? stageDuration(x)
       x.pause = x.s.pause ?? (x.kind === 'parts' ? 0 : 250)
     }
+    // 角色的台詞(演員的 say)有自己的配音時(.voice.json 裡有這句,由 voice.mjs 依腳本的 voice.speakers 產生):
+    // 台詞從這一步開始後 LINE_DELAY 毫秒念,這一步至少要念得完;它也算一段旁白的邊界,旁白和台詞不會疊在一起
+    // 只有腳本 voice.speakers 列出的演員的台詞才算(和旁白同一句話時,不會把旁白的音檔當成台詞再播一次)
+    const speakers = (script as { voice?: { speakers?: Record<string, unknown> } }).voice?.speakers ?? {}
+    const lineOf = (x: (typeof steps)[number]): string | null =>
+      x.kind === 'say' && x.actor && speakers[x.actor] && typeof x.s.say === 'string' && voice[x.s.say] != null ? (x.s.say as string) : null
+    for (const x of steps) {
+      const line = lineOf(x)
+      if (line && x.s.narration) throw new Error(`${where(x.n, x.s)}:角色台詞有配音時,同一步不能再寫 narration(兩段聲音會疊在一起)`)
+      if (line && x.s.ms == null) x.dur = Math.max(x.dur, LINE_DELAY + voice[line] + 300)
+    }
 
     // 旁白要講得完:從這一步到下一段旁白(或練習點)之前的長度不夠,就補在最後一步的停頓(最後是退場時補在退場前);
     // 帶旁白的這一步本身是章節卡、聚光燈、出場這類畫面時,直接延長它(例如 show 之後接 hide,Finder 會留到講完才退場)
     const bound = (i: number): number => {
-      for (let k = i + 1; k < steps.length; k++) if (steps[k].s.narration || steps[k].kind === 'checkpoint') return k
+      for (let k = i + 1; k < steps.length; k++) if (steps[k].s.narration || steps[k].kind === 'checkpoint' || lineOf(steps[k])) return k
       return steps.length
     }
     const narr = steps.map((x, i) => (x.s.narration ? i : -1)).filter((i) => i >= 0)
@@ -442,6 +461,12 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
         c += l
       }
     }
+    // 角色台詞的配音(不另外出字幕,畫面上有對話泡泡)
+    steps.forEach((x, i) => {
+      const line = lineOf(x)
+      if (line) narrations.push({ at: timeline[i].start + LINE_DELAY, text: line })
+    })
+    narrations.sort((a, b) => a.at - b.at)
     chapters = timeline
       .filter((ev) => ev.s.chapter || ev.kind === 'card')
       .map((ev) => ({ at: ev.start, label: (ev.s.chapter || (ev.s as StageStepOf<'card'>).card) as string, ...(ev.s.lessonStep ? { step: ev.s.lessonStep } : {}) }))

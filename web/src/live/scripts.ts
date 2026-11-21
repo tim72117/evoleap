@@ -86,7 +86,8 @@ export async function loadVoice(path: string): Promise<ScriptVoice | null> {
   const files: Record<string, string> = {}
   for (const [text, clip] of Object.entries(manifest.clips)) {
     durations[text] = clip.ms
-    urls[text] = VOICE_BASE + clip.file
+    // 以 / 開頭的是網站自己的檔案(例如 public/ 底下只在本機用的錄音),其他是 GCS 上的路徑
+    urls[text] = clip.file.startsWith('/') ? clip.file : VOICE_BASE + clip.file
     files[text] = clip.file
   }
   return { durations, urls, files }

@@ -1,0 +1,33 @@
+/* 演員 bobo:兒童繪本的小熊波波。選擇器都以 .A-bobo 開頭。
+   動畫一律由 actor.ts 依時間設定屬性,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-bobo {
+  position: relative;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #fff8ec;
+  --bb-fur: #b97c4c;
+  font-family: "Avenir Next", "PingFang TC", "Noto Sans TC", sans-serif;
+}
+.A-bobo .bb-svg { display: block; width: 100%; height: 100%; }
+.A-bobo .bb-fur { fill: var(--bb-fur); }
+.A-bobo .bb-bubble {
+  position: absolute;
+  transform-origin: 50% 100%;
+  max-width: 14em;
+  padding: 0.45em 0.8em;
+  border-radius: 1.1em;
+  background: #ffffff;
+  color: #3b2a20;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  box-shadow: 0 0.25em 0.8em rgba(60, 40, 20, 0.18);
+  border: 0.12em solid #f0dcc4;
+}
+.A-bobo .bb-bubble::after {
+  content: "";
+  position: absolute; left: 50%; bottom: -0.55em;
+  border: 0.55em solid transparent; border-top-color: #ffffff; border-bottom: 0;
+  transform: translateX(-50%);
+}
+.A-bobo .bb-proxy { position: absolute; pointer-events: none; visibility: hidden; }

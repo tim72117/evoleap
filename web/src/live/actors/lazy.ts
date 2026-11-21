@@ -1,31 +1,30 @@
-// 體積大、只有少數課用到的演員:不放進 actors/index.ts 的靜態 import(會被打進每一課都載入的播放器區塊),
-// 改成用到時才動態 import 並登記進 ACTORS。腳本載入完、交給舞台之前要先 await ensureActors(腳本的 cast);
-// scripts.ts 的 loadScript 已經做了,自己組腳本(不經 loadScript)的地方要自己呼叫。
-// 演員的 CSS 隨演員模組一起動態載入;舞台要等這裡 resolve 才開始,所以不會有沒套樣式的畫面。
+// 演員都是用到時才下載:import.meta.glob 在建置時找出 actors/<名稱>/actor.ts,每個演員各自打包成一個小檔,
+// 但不會預先下載。腳本載入後依 cast 用到的演員名稱呼叫 ensureActors,只下載那幾個並登記進 ACTORS。
+// 新增演員只要建 actors/<名稱>/actor.ts(資料夾名稱 = 演員的 name),不用改任何清單。
+// 舞台的 load 會先呼叫 ensureActors;不經舞台、直接用 ACTORS 的地方(演員展示、互動練習)要自己先呼叫。
 import type { AnyActor } from '../types'
 import { ACTORS } from './index'
 
-const LAZY: Record<string, () => Promise<{ default: AnyActor }>> = {
-  'agent-office': () => import('./agent-office/actor'),
-  'manual-office': () => import('./manual-office/actor'),
-  'file-ai': () => import('./file-ai/actor'),
-}
+const LOADERS = import.meta.glob<{ default: AnyActor }>('./*/actor.ts')
+const nameOf = (key: string): string => key.slice(2, -'/actor.ts'.length)
+const BY_NAME: Record<string, () => Promise<{ default: AnyActor }>> = Object.fromEntries(Object.entries(LOADERS).map(([k, load]) => [nameOf(k), load]))
 
-/** 延遲載入的演員名稱(演員展示頁要列出,即使還沒載入) */
-export const LAZY_ACTOR_NAMES: string[] = Object.keys(LAZY)
+/** 可以載入的演員名稱(演員展示頁要列出,即使還沒載入) */
+export const LAZY_ACTOR_NAMES: string[] = Object.keys(BY_NAME)
 
 const pending = new Map<string, Promise<void>>()
 
-/** 把腳本 cast 用到的延遲演員載入並登記進 ACTORS;已登記的直接略過,同一個演員只載入一次 */
+/** 把用到的演員載入並登記進 ACTORS;已登記的(含研發基地自己登記的)直接略過,同一個演員只載入一次 */
 export async function ensureActors(names: Iterable<string>): Promise<void> {
   const jobs: Promise<void>[] = []
   for (const name of names) {
-    const load = LAZY[name]
+    const load = BY_NAME[name]
     if (!load || ACTORS[name]) continue
     let p = pending.get(name)
     if (!p) {
       p = load().then((m) => {
-        ACTORS[m.default.name] = m.default
+        if (m.default.name !== name) throw new Error(`演員資料夾「${name}」裡的演員名稱是「${m.default.name}」,兩者要一樣`)
+        ACTORS[name] = m.default
       })
       // 失敗不記住,下次還能重試
       p.catch(() => pending.delete(name))

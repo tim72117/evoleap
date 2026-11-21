@@ -1,8 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, beforeAll } from 'vitest'
 import { ACTORS } from '../../live/actors'
+import { ensureActors, LAZY_ACTOR_NAMES } from '../../live/actors/lazy'
 import type { StageScript } from '../../live/types'
 import { expandAnswers, momentsOf, type Answers } from '../interactive/scene'
 import script from '../../content/live/web/0.2.json'
+
+// 演員是用到時才載入(live/actors/lazy.ts),這裡直接查 ACTORS,先全部載好
+beforeAll(() => ensureActors(LAZY_ACTOR_NAMES))
 
 // 網頁運作知識 0.2 的試做腳本(content/live/web/0.2.json):
 // 每一步交給會這個動作的演員,照順序用 init/apply 推算一遍;互動點的每個選項(與略過)組合都演一次,

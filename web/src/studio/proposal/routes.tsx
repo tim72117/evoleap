@@ -25,6 +25,7 @@ import { MemberPage } from './MemberPage'
 import { KidsFamilyPage } from './KidsFamilyPage'
 import { NewsFeedPage } from './NewsFeedPage'
 import { ExtensionsPage } from './ExtensionsPage'
+import { PictureBookPage } from './PictureBookPage'
 import { PortraitPage } from './PortraitPage'
 import { PracticePage } from '../practice/PracticePage'
 import { DocsPage } from './DocsPage'
@@ -86,6 +87,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/kids-web/xray', element: <KidsXrayLivePage /> },
   { path: '/studio/visuals', element: <VisualsPage /> },
   { path: '/studio/portrait', element: <PortraitPage /> },
+  { path: '/studio/picture-book', element: <PictureBookPage /> },
   { path: '/studio/practice', element: <PracticePage /> },
   // 畫面試作:從做好到上線 0.1 不用字卡、全用場景與動畫演(演員只登記給這一頁,腳本在 content/live/lab/fable/)
   { path: '/studio/fable-trial', element: <FableTrialPage /> },

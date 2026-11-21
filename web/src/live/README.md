@@ -198,6 +198,7 @@ export default defineActor({
 | `desk` | open、close、install、launch、signin、user、read、edit、run、ask、answer（有狀態；寫實情境「你自己的電腦」：房間、木頭桌、螢幕上的桌面與 AI 程式助手視窗，演出沒有對應介面的觀念：讀檔、改檔、執行指令、確認提示與允許／拒絕的結果，也演安裝與登入；場景 16:9，props.close 為只拍螢幕的近景；用法見 `actor.ts` 開頭，用在 `content/live/vibe-coding/4.2.json`） | window、screen、app、dialog、option:deny\|once\|always、folder、item:路徑、dock、launcher、installer、signin、result |
 | `manual-office` | write、run、hunt、patch、slump、call、enter、handoff（有狀態；「手寫程式的年代」：明亮的辦公室裡穿西裝的人手打 HTML，打錯一個符號、找錯、改了又壞，時鐘一天天過去，最後舉手求助、機器人坐辦公椅滑進來；結束畫面和 `agent-office` 第一格相同，可用 show/hide 無縫接；place 用 `full`；共用繪圖在 `live/art/`；用在 `content/live/l0/0.intro.json`） | window、human、head、monitor、screen、code、preview、clock、circle、robot、say |
 | `file-ai` | scene（`four`、`read`、`write`、`run`、`direct`、`tools`；「會操作檔案的 AI 工具」的情境動畫：四件事、讀取、建立修改、執行指令、與聊天工具的差別（動手前先問你）、常見工具；SVG 純函式、延遲載入；place 用 `full`；用在 `content/live/l0/0.0-tools.json`） | window |
+| `bobo` | go、play、eat、say、sleep、toss、getup、tidy、mirror、undress、wash、brush、dress（有狀態；兒童繪本的主角小熊波波：公園、餐桌、浴室、臥室四個場景，身上的泥巴、沙子、牙齒上黏黏的那層、泡泡都是狀態；不用字卡，全用動畫說故事；place 用 `full`，直式只看中間一條；延遲載入；用法見 `actor.ts` 開頭，用在 `content/live/lab/book/bobo-bath.json`） | window、bear、face、mouth、bubble、puddle、sandbox、table、tub、sink、mirror、basket、bed |
 | `agent-office` | need、plan、ask、allow、build、check、fix、done（有狀態；「AI Agent 自己動手做事」：同一間辦公室，機器人操作電腦，人只說需求、回答權限提示；推近／拉遠的鏡位由狀態決定；place 用 `full`；用在 `content/live/l0/0.intro.json`） | window、robot、head、human、monitor、screen、code、plan、need、ask、allow、deny、dash、issue |
 
 **`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。
@@ -708,6 +709,8 @@ packs/<name>/
 | 4 | 繪製層、素材包、腳本驗證工具（第 3–5 節） | 待做 |
 
 ### 旁白語音
+
+- 角色自己的聲音:腳本頂層 `"voice": { "speakers": { "<演員代號>": { "voice": "Puck", "style": "…" } } }`,`npm run voice` 會把那位演員的 `say` 台詞用這組聲音另外錄進同一份 `.voice.json`。舞台在台詞那一步開始後 300ms 播(不另出字幕,畫面上有對話泡泡),這一步至少延長到念得完;台詞也算旁白的邊界,旁白與台詞不會疊在一起,所以同一步不要同時寫 `say` 與 `narration`。目前只支援一般模式(不含 `--whole`、`--batch`)。用在 `content/live/lab/book/bobo-bath.json`。
 
 - **產生**：`npm run voice -- l0/0.0-tools.json`（在 `web/` 執行，`--all` 全部、`--max-sec 20` 只產生開頭、`--limit 10` 只產生前 10 段、`--sample "一句" --voices A,B` 試聽）。每段 `narration` 送 Gemini TTS（`gemini-3.8-flash-tts`，聲音 Sulafat），轉成 48 kbps MP3 上傳到 GCS `gs://shuttle-voice/<腳本資料夾>/<雜湊>.mp3`（公開讀取、永久快取）。金鑰放 `web/.env.local` 的 `GEMINI_API_KEY`，只在本機用。
 - **批次模式**（一次補齊整門課，不急著聽）：`npm run voice -- --batch web/1.1.json web/1.2.json`（或 `--all --batch`）把缺的旁白整包送 Gemini Batch API（約一半價格，24 小時內完成，通常快很多），送出的批次記在 `web/recordings/voice-batch.json`（不進版控）；之後跑 `npm run voice -- --collect` 查狀態，完成就下載、轉 MP3、上傳並寫進各腳本的 `.voice.json`，和一般模式產生的一樣。同一個音檔（例如共用的老師招呼語）只送一次；一次只能有一批在跑；加 `--dry-run` 只列出要送的段落與第一筆請求，不呼叫 API。批次只支援 generateContent，請求的寫法和一般模式（Interactions API）不同，第一次正式送出時要確認回來的聲音和語氣一樣。

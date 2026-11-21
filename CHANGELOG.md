@@ -4,6 +4,30 @@
 
 ## [Unreleased]
 
+## [0.45.0] - 2026-11-21
+
+網站載入加速（Lighthouse 手機版）：伺服器 gzip、演員改成用到才下載、修手機版面位移；研發基地新增兒童繪本與英文跟讀試做。沒有資料表或 API 變動。
+
+### 不相容變更
+
+- **`live/actors` 的 `ACTORS` 一開始是空的**：演員不再靜態打包，改由 `live/actors/lazy.ts` 的 `ensureActors(名稱)` 依腳本的 cast 下載並登記（`stage.load` 會先呼叫）。直接查 `ACTORS` 的程式要先 `await ensureActors(...)`；`LAZY` 對照表拿掉，新增演員只要建 `actors/<名稱>/actor.ts`（資料夾名稱 = 演員 name）。
+
+### 新增
+
+- **伺服器 gzip**（`server/cmd/server/gzip.go`）：前端的 JS、CSS、HTML、SVG、JSON 等文字檔啟動時先壓好，瀏覽器支援就送壓縮版（`Content-Encoding: gzip`、`Vary: Accept-Encoding`，Range 請求送原檔，頁面的壓縮版用另一個 ETag）；請求當下才產生的頁面用較快的等級。模擬手機慢速 4G：傳輸量 1,590 → 485 KB、LCP 7.8 → 2.8 秒。
+- **研發基地「開發 › 兒童繪本」**（`/studio/picture-book`）：
+  - 《波波今天不想洗澡》（`lab/book/bobo-bath.json`）：新演員 `bobo`（小熊波波，公園、餐桌、浴室、臥室，身上的泥巴、沙、牙齒、泡泡都是狀態），全用動畫不用字卡；旁白大姊姊聲音，波波的台詞有自己的聲音。
+  - *My Favorite Foods* 英文跟讀（`lab/read-along/u8-foods.json`）：新演員 `read-along`（餐桌一次放一個時段、太陽月亮與天空轉場、逐字螢光筆），對齊使用者上傳的原始錄音；錄音放在 `web/public/local/`（只在本機，不進版控）。
+- **角色配音**（`voice.mjs`、`stage.ts`）：腳本 `voice.speakers` 指定演員的聲音，那位演員的 `say` 另外錄音，舞台在台詞那一步播、延長到念完，旁白不會和台詞疊在一起；台詞與旁白同文字、同一步兩者都有、多位演員沒寫 `on` 時報錯。
+- 語音清單與錄影支援網站自己的音檔（路徑 `/` 開頭）。
+
+### 修正
+
+- **手機版課程頁的版面位移**（CLS 0.31 → 0）：步驟清單載好之前，先不顯示下一課與登入提示。
+- `stage.load` 等演員下載時又有新的 load，舊的不再蓋掉新的。
+- 演員展示頁名單去重。
+- 直式位置：`claude-code/remote.json` 開場人物、`vibe-coding/4.2.json` 拒絕／允許兩台電腦與 Lena、`launch/1.5.json`（草稿）的人物。
+
 ## [0.44.0] - 2026-11-17
 
 Claude Code 工作術 0.2「出門了，想用手機接著做」開放（示範影片含旁白）；主題頁每段影片有錨點；新增手機版 Claude 演員與桌面版右側窗欄；新的遠端使用宣傳片。沒有資料表或 API 變動，沒有移除公開符號。

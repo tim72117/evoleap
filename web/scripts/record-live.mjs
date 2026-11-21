@@ -108,6 +108,12 @@ function toSrt(captions, from, to) {
 }
 
 async function clipFile(file) {
+  // 以 / 開頭的是網站自己的檔案(public/ 底下,例如只在本機用的錄音),直接讀本機檔案
+  if (file.startsWith('/')) {
+    const local = path.join(WEB, 'public', file)
+    if (!fs.existsSync(local)) die(`找不到本機音檔 ${file}(應該在 web/public${file})`)
+    return local
+  }
   const dest = path.join(CACHE, file.replace(/\//g, '_'))
   if (fs.existsSync(dest)) return dest
   const res = await fetch(VOICE_BASE + file)

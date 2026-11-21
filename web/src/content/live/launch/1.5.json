@@ -11,7 +11,7 @@
     "mei": {
       "actor": "person",
       "props": { "name": "花店的美玲", "look": "customer" },
-      "place": { "x": 560, "y": 380, "w": 800, "h": 320 },
+      "place": { "landscape": { "x": 560, "y": 380, "w": 800, "h": 320 }, "portrait": { "x": 140, "y": 800, "w": 800, "h": 320 } },
       "hidden": true
     },
     "flow": {
@@ -44,7 +44,7 @@
     "me": {
       "actor": "person",
       "props": { "name": "你", "look": "customer" },
-      "place": { "x": 560, "y": 380, "w": 800, "h": 320 },
+      "place": { "landscape": { "x": 560, "y": 380, "w": 800, "h": 320 }, "portrait": { "x": 140, "y": 800, "w": 800, "h": 320 } },
       "hidden": true
     }
   },

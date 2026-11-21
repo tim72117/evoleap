@@ -7,3 +7,6 @@ tsconfig.tsbuildinfo
 # Playwright 測試輸出
 test-results
 playwright-report
+
+# 只在本機用的錄音(例如使用者上傳的朗讀),不進版控、不公開
+public/local/

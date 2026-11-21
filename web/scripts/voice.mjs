@@ -335,6 +335,25 @@ async function build(rel, audio) {
   const limit = Number(flag('limit'))
   if (limit > 0) texts = texts.slice(0, limit)
   const cfg = configOf(rel, script)
+  // 角色自己的聲音:腳本 voice.speakers 寫 { "<演員代號>": { "voice": "…", "style": "…" } },那位演員的 say 台詞用這組聲音另外錄
+  // (舞台在台詞那一步播,見 live/stage.ts 的 lineOf);只有一位演員時 say 不用寫 on
+  const lineCfg = new Map()
+  const speakers = script.voice?.speakers || {}
+  const castIds = Object.keys(script.cast || {})
+  const narrationTexts = new Set(texts)
+  for (const [i, s] of (script.steps || []).entries()) {
+    if (typeof s.say !== 'string' || !Object.keys(speakers).length) continue
+    // 沒寫 on 又有好幾位演員時猜不出是誰說的:要求寫 on,不默默略過
+    if (!s.on && castIds.length > 1) die(`${rel} 第 ${i + 1} 步:有角色配音(voice.speakers)時,say 要寫 on 指定是誰說的`)
+    const who = s.on ?? castIds[0]
+    if (!speakers[who]) continue
+    if (s.narration) die(`${rel} 第 ${i + 1} 步:角色台詞有配音時,同一步不能再寫 narration(兩段聲音會疊在一起),把旁白移到前後另一步`)
+    // 音檔以文字對應,和旁白同一句話時分不出是誰念的
+    if (narrationTexts.has(s.say)) die(`${rel} 第 ${i + 1} 步:台詞「${s.say}」和某段旁白的文字一樣,請改其中一句`)
+    lineCfg.set(s.say, { ...cfg, ...speakers[who] })
+  }
+  if (!maxSec && !limit) for (const line of lineCfg.keys()) if (!texts.includes(line)) texts.push(line)
+  const cfgFor = (text) => lineCfg.get(text) ?? cfg
   const manifestPath = scriptPath.replace(/\.json$/, '.voice.json')
   const old = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : { clips: {} }
   // GCS 上的路徑照腳本的資料夾(例如 l0/0.0-tools.json → l0/<hash>.mp3)
@@ -352,7 +371,7 @@ async function build(rel, audio) {
     for (const c of Object.values(other.clips || {})) shared[c.file] = c
   }
   const cachedOf = (text) => {
-    const file = `${prefix}/${hashOf(text, cfg)}.mp3`
+    const file = `${prefix}/${hashOf(text, cfgFor(text))}.mp3`
     const prev = old.clips?.[text]
     return prev && prev.file === file ? prev : shared[file]
   }
@@ -417,11 +436,12 @@ async function build(rel, audio) {
       clips[text] = prev
       continue
     }
-    const file = `${prefix}/${hashOf(text, cfg)}.mp3`
-    const raw = await audio(text, cfg, file)
+    const c = cfgFor(text)
+    const file = `${prefix}/${hashOf(text, c)}.mp3`
+    const raw = await audio(text, c, file)
     if (!raw) continue
     const pcm = decodePcm(raw)
-    if (cfg.trim) pcm.pcm = trimSilence(pcm.pcm, pcm.rate)
+    if (c.trim) pcm.pcm = trimSilence(pcm.pcm, pcm.rate)
     upload(toMp3(pcm), file)
     clips[text] = { file, ms: Math.round((pcm.pcm.length / pcm.rate) * 1000) }
     made++

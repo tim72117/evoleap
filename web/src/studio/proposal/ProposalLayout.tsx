@@ -26,6 +26,7 @@ const DEV: Tab[] = [
   { to: '/studio/visuals', label: '即時教學影像' },
   { to: '/studio/actor-interaction', label: '演員互動', match: '/studio/actor-interaction' },
   { to: '/studio/portrait', label: '直式舞台' },
+  { to: '/studio/picture-book', label: '兒童繪本' },
   { to: '/studio/practice', label: '動手練習' },
   { to: '/studio/scenes', label: '場景' },
 ]

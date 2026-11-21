@@ -50,6 +50,7 @@ func openAccess(*http.Request) api.Access { return api.AccessAllowed }
 type page struct {
 	body     []byte
 	etag     string
+	gz       []byte // body 的 gzip 壓縮版(太小時是 nil)
 	noindex  bool
 	internal bool
 	// dynamic:頁面的結構化資料裡有依資料庫決定的課程連結(seo_ld.go),回傳時才處理;
@@ -60,11 +61,15 @@ type page struct {
 	patchID uintptr
 }
 
-func newPage(body []byte, internal bool) *page {
+func newPage(body []byte, internal bool) *page { return newPageWith(body, internal, gzipBytes) }
+
+// newPageWith 同 newPage,compress 決定壓縮版怎麼產生(請求當下才產生的頁面用較快的等級)。
+func newPageWith(body []byte, internal bool, compress func([]byte) []byte) *page {
 	sum := sha256.Sum256(body)
 	return &page{
 		body:     body,
 		etag:     `"` + hex.EncodeToString(sum[:8]) + `"`,
+		gz:       compress(body),
 		noindex:  bytes.Contains(body, []byte(noindexMarker)),
 		internal: internal,
 		dynamic:  hasLessonLinks(body),
@@ -123,6 +128,7 @@ func newStaticHandlerWithOpen(dist fs.FS, access accessFunc, open openLessons) h
 		notFound = newPage(body, false)
 	}
 	fileServer := http.FileServer(http.FS(dist))
+	gzFiles := gzipAssets(dist)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := path.Clean("/" + r.URL.Path)
@@ -177,6 +183,11 @@ func newStaticHandlerWithOpen(dist fs.FS, access accessFunc, open openLessons) h
 		} else {
 			w.Header().Set("Cache-Control", "public, max-age=3600")
 		}
+		if useGzip(w, r, gzFiles[name]) {
+			w.Header().Set("Content-Type", contentTypes[path.Ext(name)])
+			http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(gzFiles[name]))
+			return
+		}
 		fileServer.ServeHTTP(w, r)
 	})
 }
@@ -220,6 +231,11 @@ func setPageHeaders(w http.ResponseWriter, pg *page) {
 
 func servePage(w http.ResponseWriter, r *http.Request, pg *page) {
 	setPageHeaders(w, pg)
+	if useGzip(w, r, pg.gz) {
+		w.Header().Set("ETag", gzipETag(pg.etag))
+		http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(pg.gz))
+		return
+	}
 	w.Header().Set("ETag", pg.etag)
 	http.ServeContent(w, r, "", time.Time{}, bytes.NewReader(pg.body))
 }
@@ -230,9 +246,13 @@ func serveNotFound(w http.ResponseWriter, r *http.Request, pg *page) {
 		return
 	}
 	setPageHeaders(w, pg)
+	body := pg.body
+	if useGzip(w, r, pg.gz) {
+		body = pg.gz
+	}
 	w.WriteHeader(http.StatusNotFound)
 	if r.Method != http.MethodHead {
-		w.Write(pg.body)
+		w.Write(body)
 	}
 }
 
@@ -251,7 +271,7 @@ func dynamicPage(r *http.Request, pg *page, open openLessons) *page {
 	if pg.patched != nil && pg.patchID == id {
 		return pg.patched
 	}
-	out := newPage(patchLessonLinks(pg.body, opened), pg.internal)
+	out := newPageWith(patchLessonLinks(pg.body, opened), pg.internal, gzipFast)
 	out.dynamic = false
 	pg.patched, pg.patchID = out, id
 	return out

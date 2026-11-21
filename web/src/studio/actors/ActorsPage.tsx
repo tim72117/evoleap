@@ -18,7 +18,7 @@ import styles from './ActorsPage.module.css'
 // 兩種都能勾選區塊看關掉之後的樣子,並產生可以貼進腳本 cast 的設定。
 // 網址 ?actor=<名稱> 直接開某一位,&mode=static 開靜態展示。
 
-const NAMES = [...Object.keys(ACTORS), ...LAZY_ACTOR_NAMES].filter((n) => !SCENES.some((s) => s.name === n))
+const NAMES = [...new Set([...Object.keys(ACTORS), ...LAZY_ACTOR_NAMES])].filter((n) => !SCENES.some((s) => s.name === n))
 const CAST_ID = 'a'
 type Mode = 'dynamic' | 'static'
 const MODES: { id: Mode; label: string }[] = [

@@ -31,7 +31,7 @@ const EMBED_LEAD_MS = 15000
 const AT_MOMENT_MS = 50
 
 type Tab = 'steps' | 'interact'
-type Timeline = { chapters: StageChapter[]; momentAt: Record<string, number> }
+type Timeline = { chapters: StageChapter[]; momentAt: Record<string, number>; /** 腳本載好、時間軸排好了 */ loaded?: boolean }
 type Controller = {
   shell: Shell
   /** 依回答重新載入舞台,回傳各互動點的時間 */
@@ -314,7 +314,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         // 有語音的旁白才播(合成過章節音軌的用章節音軌);學員選其他選項時新寫的旁白還沒有語音,只顯示字幕,回到主線的旁白接著用原本的語音
         clips: narrationClips(stage.narrations, voice, mix),
       })
-      if (!cancelled) setTimeline({ chapters: stage.chapters, momentAt })
+      if (!cancelled) setTimeline({ chapters: stage.chapters, momentAt, loaded: true })
       return momentAt
     }
     ctrl.current = { shell, sync }
@@ -607,8 +607,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
               {pendingCount > 0 && <span className={styles.count}>{pendingCount}</span>}
             </button>
           )}
-          {/* 下一課與登入提示(其他版面在側欄底部) */}
-          {course?.footer}
+          {/* 下一課與登入提示(其他版面在側欄底部)。步驟清單載好之前先不放:不然清單載進來時會把它們往下推,造成版面位移(CLS) */}
+          {(timeline.loaded || !!error) && course?.footer}
         </PhoneInfo>
       )}
 
