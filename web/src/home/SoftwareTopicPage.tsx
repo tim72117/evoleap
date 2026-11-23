@@ -1,28 +1,33 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
 import { AI_APPS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
 import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, shownLevels, type CourseLevel } from '../content/levels'
-import { COURSES, coursePath, lessonLabel, lessonPath } from '../content/catalog'
+import { courseOfLevel, levelMapId, levelMapLessons, lessonLabel, lessonUrl } from '../content/catalog'
+import { SOFTWARE_LESSON_IDS } from '../content/softwareOutline'
 import { useCourseMaps, type CourseMap } from '../content/courseMap'
 import { useT } from '../i18n/I18nProvider'
+import { AiAgentIntro } from './AiAgentIntro'
 import { LevelArt } from './LevelArt'
 import styles from './SoftwareTopicPage.module.css'
 
 /** 資料庫課程地圖裡已開放(status open)的課號;還在讀、讀不到時是 undefined */
-const openIdsOf = (map?: CourseMap) => (map ? new Set(map.units.flatMap((u) => u.lessons).filter((l) => l.status === 'open').map((l) => l.id)) : undefined)
+const openIdsOf = (map: CourseMap | undefined, level: CourseLevel) => {
+  const lessons = levelMapLessons(map, level)
+  return lessons ? new Set(lessons.filter((l) => l.status === 'open').map((l) => l.id)) : undefined
+}
 
-/** 等級的單課清單:對到課程目錄裡的單課,附上網址與是否已開放。
+/** 等級的單課清單:對到課程種子裡的單課,附上網址與是否已開放。
  *  對不到的項目直接略過(不在 render 中 throw,免得整個首頁空白);資料一致性由 catalog.test.ts 檢查 */
 /** (lessonLabel 依目前語言,呼叫的元件用 useT() 訂閱語言,換語言時會重算) */
 function levelLessons(level: CourseLevel, openIds: Set<string> | undefined) {
-  const course = COURSES.find((c) => coursePath(c) === level.link)
+  const course = courseOfLevel(level)
   if (!course) return []
+  const seedIds = new Set(course.slug === 'software' ? SOFTWARE_LESSON_IDS : [])
   return (level.lessons ?? []).flatMap((item) => {
-    const lesson = course.lessons.find((l) => l.id === item.id)
-    if (!lesson) return []
-    return [{ ...item, label: lessonLabel(lesson), to: lessonPath(course, lesson), open: openIds?.has(lesson.id) ?? false }]
+    if (!seedIds.has(item.id)) return []
+    return [{ ...item, label: lessonLabel(item), to: lessonUrl(course.slug, item.id), open: openIds?.has(item.id) ?? false }]
   })
 }
 
@@ -118,6 +123,8 @@ type TopicMap = {
   levels: CourseLevel[]
   /** 第一個等級的編號(做出自己的軟體從 Level 0 起算) */
   first: number
+  /** 課程地圖下方的課程介紹(外觀文案,不進資料庫) */
+  after?: ReactNode
 }
 
 /** 主題「做出自己的軟體」:L0 起步到 L2 基礎 */
@@ -125,18 +132,18 @@ type TopicMap = {
 const SOFTWARE_LEVELS = shownLevels(LEVELS)
 export const SoftwareTopicPage = () => <TopicMapPage topic={SOFTWARE_TOPIC} intro={MAP_INTRO} levels={SOFTWARE_LEVELS} first={0} />
 
-/** 主題「打造 AI 互動軟體」:中階、進階(都還在規劃中) */
-export const AiAppsTopicPage = () => <TopicMapPage topic={AI_APPS_TOPIC} intro={AI_APPS_INTRO} levels={shownLevels(AI_APP_LEVELS)} first={SOFTWARE_LEVELS.length} />
+/** 主題「打造 AI 互動軟體」:中階、進階(都還在規劃中);課程地圖下方是中階課的課程介紹(AiAgentIntro) */
+export const AiAppsTopicPage = () => <TopicMapPage topic={AI_APPS_TOPIC} intro={AI_APPS_INTRO} levels={shownLevels(AI_APP_LEVELS)} first={SOFTWARE_LEVELS.length} after={<AiAgentIntro />} />
 
 /** 主題的課程地圖頁:由淺入深列出等級 */
-function TopicMapPage({ topic, intro, levels, first }: TopicMap) {
+function TopicMapPage({ topic, intro, levels, first, after }: TopicMap) {
   useHashScroll()
   const t = useT()
   const m = t.home.software
   // 主視覺的次要按鈕:連到第一個已有課程可看的等級(都還在規劃中時不顯示)
   // 哪些課開放了照資料庫的課程地圖(讀不到時卡片不標開放狀態)
-  const maps = useCourseMaps(levels.map((l) => l.id))
-  const openIds = (l: CourseLevel) => openIdsOf(maps[l.id])
+  const maps = useCourseMaps([...new Set(levels.map(levelMapId))])
+  const openIds = (l: CourseLevel) => openIdsOf(maps[levelMapId(l)], l)
   const featured = levels.find((l) => l.link && (l.status === 'available' || levelLessons(l, openIds(l)).some((x) => x.open)))
 
   return (
@@ -189,6 +196,7 @@ function TopicMapPage({ topic, intro, levels, first }: TopicMap) {
           </ol>
         </div>
       </section>
+      {after}
     </SiteLayout>
   )
 }

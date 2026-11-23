@@ -81,7 +81,7 @@ test('一般會員在站內切到內部網址:拿不到內容,顯示找不到頁
 })
 
 test('公開課程頁沒有連到內部文件的連結', async ({ page }) => {
-  await page.goto('/courses/ai-agent')
+  await page.goto('/topics/ai-apps')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(page.locator('a[href^="/docs"], a[href^="/studio"], a[href^="/materials"]')).toHaveCount(0)
 })

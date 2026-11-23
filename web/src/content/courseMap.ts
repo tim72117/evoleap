@@ -24,9 +24,35 @@ export type MapUnit = {
   title: string
   /** 單元標題下的小字(兒童課是比喻,網頁怎麼運作是這個單元回答的問題) */
   subtitle: string
+  /** 簡短名稱(「做出自己的軟體」的階段:起步、零基礎、基礎);沒有就用 title */
+  label?: string
+  /** 先不公開:課程總覽、課程地圖、sitemap 不列這個單元,單元裡各課的網址還打得開(noindex) */
+  hidden?: boolean
   lessons: MapLesson[]
 }
-export type CourseMap = { id: string; title: string; access: CourseAccess; tier?: string; units: MapUnit[] }
+export type CourseArtKind = 'tools' | 'chat' | 'build' | 'agent' | 'advanced'
+export type CourseMap = {
+  id: string
+  title: string
+  access: CourseAccess
+  tier?: string
+  /** 課程資訊(課程總覽頁顯示的內容,資料庫的 courses 表):簡介、說明段落、搜尋結果的標題與描述、插圖樣式 */
+  summary?: string
+  about?: string[]
+  seoTitle?: string
+  description?: string
+  art?: CourseArtKind
+  /** 課程簡介影片的腳本路徑(src/content/live/ 底下,任何訪客都拿得到);沒有就沒有簡介影片 */
+  introScript?: string
+  /** 所屬主題(伺服器也在 /map 帶上) */
+  topicId?: string
+  topic?: string
+  topicSlogan?: string
+  topicPath?: string
+  /** false 表示這門課沒有自己的總覽頁 */
+  overview?: boolean
+  units: MapUnit[]
+}
 
 export async function fetchCourseMap(id: string): Promise<CourseMap> {
   const res = await fetch(`/api/courses/${encodeURIComponent(id)}/map`, { credentials: 'same-origin' })
@@ -111,4 +137,19 @@ export function useCourseMaps(ids: string[]): Record<string, CourseMap | undefin
     }
   }, [idsKey, who])
   return maps
+}
+
+/** 一課在課程地圖裡的資料(任何單元);地圖沒有這一課是 undefined */
+export function mapLessonOf(map: CourseMap | undefined, id: string): MapLesson | undefined {
+  return map?.units.flatMap((u) => u.lessons).find((l) => l.id === id)
+}
+
+/**
+ * 一門課各課的課名(資料庫的課程地圖,和課程總覽同一份、同一份快取):回傳「課號 → 課名」的函式。
+ * 地圖還在讀、讀不到、或地圖裡沒有這一課時,回傳課號本身(不用前端寫死的課名頂替)。
+ */
+export function useLessonTitle(courseId: string): (id: string) => string {
+  const state = useCourseMap(courseId)
+  const map = state.status === 'ready' ? state.map : undefined
+  return useMemo(() => (id: string) => mapLessonOf(map, id)?.title ?? id, [map])
 }

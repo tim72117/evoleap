@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { COURSES, lessonPath } from '../content/catalog'
+import { seedCourse } from '../content/courseSeed'
 import type { CourseMap } from '../content/courseMap'
 import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { launchLessonPath, launchScriptKey } from '../content/launchCourse'
@@ -17,17 +17,25 @@ const map = (id: string, lessons: { id: string; script?: string; status?: 'open'
 })
 
 describe('buildLessonIndex', () => {
-  it('沒有課程地圖時,上線課、網頁課、兒童課沒有對照(不用前端寫死的路徑頂替);課程目錄裡的課照樣認得', () => {
+  it('沒有課程地圖時,軟體課、上線課、網頁課、兒童課都沒有對照(不用前端寫死的路徑頂替)', () => {
     const lookup = buildLessonIndex()
     const web = Object.values(WEB_LESSON_PAGES)[0]
     expect(lookup(`live:${web.script}`)).toBeUndefined()
     const kids = Object.values(KIDS_LESSON_PAGES)[0]
     expect(lookup(`kids:${kids.script}`)).toBeUndefined()
     expect(lookup(launchScriptKey('0.1'))).toBeUndefined()
-    const course = COURSES.find((c) => c.lessons.some((l) => l.videos.some((v) => v.live)))!
-    const lesson = course.lessons.find((l) => l.videos.some((v) => v.live))!
-    expect(lookup(`live:${lesson.videos.find((v) => v.live)!.live}`)?.path).toBe(lessonPath(course, lesson))
     expect(lookup('live:nope/unknown.json')).toBeUndefined()
+  })
+
+  it('做出自己的軟體照課程地圖的腳本對:列在 software 底下(網址 /courses/software/<課號>),先不公開的單元不列', () => {
+    const seed = seedCourse('software')
+    const intro = seed.units.flatMap((u) => u.lessons).find((l) => l.id === '0.intro')!
+    const hiddenLesson = seed.units.find((u) => u.hidden)!.lessons.find((l) => l.script)!
+    const lookup = buildLessonIndex({ software: seed as unknown as CourseMap })
+    expect(lookup(`live:${intro.script}`)).toMatchObject({ course: 'course:software', coursePath: '/courses/software', path: '/courses/software/intro', title: `序章 ${intro.title}` })
+    expect(lookup(`live:${hiddenLesson.script}`)).toBeUndefined()
+    // 沒有地圖時沒有對照
+    expect(buildLessonIndex()(`live:${intro.script}`)).toBeUndefined()
   })
 
   it('上線課、網頁課、兒童課照課程地圖的腳本對,改了腳本路徑也對得上', () => {
@@ -41,6 +49,9 @@ describe('buildLessonIndex', () => {
     expect(lookup('live:launch/v2/0.2.json')?.path).toBe(launchLessonPath('0.2'))
     expect(lookup('live:web/renamed.json')?.path).toBe(web.path)
     expect(lookup('kids:kids/renamed.json')?.path).toBe(kids.path)
+    // 課名取自地圖(測試地圖的課名 = 課號)
+    expect(lookup('live:launch/v2/0.2.json')?.title).toBe('0.2 0.2')
+    expect(lookup('kids:kids/renamed.json')?.title).toBe(kidsId)
     // 沒有單課頁的課不列
     expect(lookup('live:launch/x.json')).toBeUndefined()
     // 以地圖的腳本為準:地圖上沒給腳本的課、換腳本之前的舊腳本都不對照(不用前端寫死的路徑補)

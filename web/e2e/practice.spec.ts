@@ -2,7 +2,7 @@
 // 腳本要有 practice 欄位(l0/0.0-tools.json)按鈕才會出現。
 import { expect, test } from '@playwright/test'
 
-const PAGE = '/courses/tools/1?aspect=landscape'
+const PAGE = '/courses/software/1?aspect=landscape'
 const button = (page: import('@playwright/test').Page) => page.getByRole('button', { name: '動手試試' })
 
 test('動手試試:預設不顯示;網址 ?feature=practice 打開並記住,?feature=-practice 關掉', async ({ page }) => {

@@ -4,6 +4,57 @@
 
 ## [Unreleased]
 
+「AI 工具介紹」「AI 工具入門」「Vibe Coding 入門」三門課合併成一門「做出自己的軟體」（`software`），原本的三門課是它的三個階段（起步、零基礎、基礎；零基礎先不公開）。課號、單課腳本、存取方式都沒變。
+
+### 不相容變更
+
+- **課程 id 與網址**：資料庫的課程 `tools`、`ai-tools`、`vibe-coding-basics` 併成一門課 `software`，三門課是它的三個單元（單元 id 與舊課程 id 相同）。`/courses/software` 是課程頁（每個階段一組課，`#stage-<階段>` 指到該階段），單課網址 `/courses/software/<課號>`（`0.0` → `/0`、`1.0` → `/1-0`、`5.2` → `/5-2`）。
+- **舊網址 301 轉址**（`server/cmd/server/static.go` 的 `legacyCourseRedirects`；前端另有同樣的 `Navigate` 路由，給站內舊連結）：`/courses/tools` → `/courses/software#stage-tools`、`/courses/ai-tools` → `…#stage-ai-tools`、`/courses/vibe-coding` → `…#stage-vibe-coding-basics`；`/courses/<tools|ai-tools|vibe-coding>/<slug>` → `/courses/software/<slug>`（slug 沒變）。sitemap 只列新網址。
+- **「網頁怎麼運作」「從做好到上線」「Claude Code 工作術」搬到 `/courses/<課程>`，共用課程總覽頁**：不再有 `/topics/web`、`/topics/launch`、`/topics/claude-code` 這三個主題頁（`WebTopicPage`、`LaunchTopicPage`、`ClaudeCodeTopicPage`、`TopicCourseMap` 刪除），課程總覽改成和「做出自己的軟體」同一個 `CourseOverviewPage`（單元一組、課程內容清單照資料庫課程地圖 `GET /api/courses/<id>/map`；`#map` 仍可定位到清單）。catalog 的 `Course` 多了 `pagePaths`（課號 → 課頁網址，課頁在別處產生）、`seoTitle`、`description`、`art`。課頁網址：`/courses/web/<課號>`（`0.1` → `/0-1`）、`/courses/launch/<課號>`、`/courses/claude-code/<情境序號 1–7>`（有示範影片的情境才有頁面，規劃中的沒有連結）。Claude Code 的每個情境改成單課頁（`home/ClaudeCodeLessonPage.tsx`，影片仍不記進度）；影片錨點 `#fork`、`#remote` 搬到課頁的影片區塊。麵包屑：這三門課的主題就是課程自己，所以總覽頁的麵包屑接「全部課程」，不連回自己；全部課程頁也改成一般課程卡片（網頁、上線、Claude Code 不再是「獨立主題」卡片）。
+- **舊網址 301 轉址**（`static.go` 的 `legacyTopicRedirects`，前端 `legacyCourseRoutes` 同樣轉址，查詢字串保留）：`/topics/web` → `/courses/web`、`/topics/web/<課號>` → `/courses/web/<課號>`、`/topics/launch`、`/topics/launch/<課號>` 同樣、`/topics/claude-code` → `/courses/claude-code`，帶舊影片錨點的（`/topics/claude-code#remote`）前端再轉到 `/courses/claude-code/2#remote`（`#fork` → `/1#fork`），其他錨點留在總覽頁。sitemap 只列新網址。後台「從首頁進來的路徑」仍認得舊的 `page:/topics/…` 紀錄（標「舊網址」）。刪掉只有舊頁面用的文案（`home.web`、`home.launch`、`home.claudeCode`、`home.aboutCourse`、`courses.list.demoVideosN/viewScenarios`）與樣式。
+- **部署時清掉舊課程**：課程同步（`SyncCourses`）在腳本檔都改掛到 `software` 之後，刪除 `tools`、`ai-tools`、`vibe-coding-basics` 三門課的課、單元與課程本身；還掛在舊課程底下沒人認領的腳本檔帶著內容移到研發基地。腳本內容（含用 `evoleap script push` 改過的）、學員進度（用腳本路徑當鍵）都不受影響。
+- **CLI 改用 `-course software`**：`evoleap course show/set`、`lesson set`、`script push -course … -lesson …` 的課程 id 用 `software`（舊的三個 id 部署後就不存在了）。vibe-coding-basics 原本的 `tier: basic` 沒有帶到 `software`（只有存著、沒有任何地方用它判斷權限）。
+
+- **AI Agent 中階課沒有自己的頁面**：`/courses/ai-agent` 與底下章節 301 到 `/topics/ai-apps`（`static.go`、前端 `legacyCourseRoutes`）；介紹搬到 `home/AiAgentIntro`，`Course.customOverview`、`AiAgentCoursePage` 移除。
+- **兒童課搬到 `/courses/kids`**：`/topics/kids` 與底下單課頁 301 到 `/courses/kids`、`/courses/kids/<課號>`，保留查詢字串。
+- **移除單課頁的「預覽大綱」模擬播放器**：`LessonPage`、`MockPlayer`、`lessonTiming` 刪除，影片分頁、`?video=`、▶ 跳轉鈕、跨影片左右鍵一併移除；沒有腳本的課改顯示規劃中的章節頁。
+- **移除研發基地「待辦」頁籤**（`/studio/todo`）。
+- **部署注意（順序）**：先部署新版（只加欄位與新表），再跑課程同步（`cmd/sync`）。同步前 `GET /api/courses` 與 `GET /api/topics` 是空的，「全部課程」頁會暫時空白；同步後舊三門課清掉（見上）。正式機用 CLI 改過、與種子不同的值（含課程的主題、總覽設定）會被種子蓋掉。CLI 的 `course set` 旗標 `-topic`、`-topic-slogan`、`-topic-path` 已改為 `-topic-id`、`-overview`；主題的標語、網址改用 `evoleap topic set`。
+
+### 新增
+
+- **課程資訊欄位**：課程總覽頁與全部課程頁顯示的內容改由資料庫提供（前端怎麼讀見「變更」）。`courses` 新增 `summary`（簡介）、`about`（說明段落，空行分隔）、`seo_title`、`description`、`art`（插圖樣式）、`intro_script`（簡介影片腳本）；`course_units` 新增 `label`（簡短名稱）、`hidden`（先不公開，預設 false）。資料庫欄位由 AutoMigrate 自動新增，不需要手動遷移。種子（`courses_seed.json`）新增 `summary`、`about[]`、`seoTitle`、`description`、`art`、`introScript` 與單元的 `label`、`hidden`，已填入目前前端的文案；`GET /api/courses/{id}/map` 回傳這些欄位（空的省略）；`PATCH /api/admin/courses/{id}` 與 `evoleap course set` 可改（`-summary -about -seo-title -description -art -intro-script`），規則不合時整筆不改（`validateCourseInfo`）。
+- **主題（`topics` 表）與 `GET /api/topics`**：主題資料（首頁卡片、主題頁、全部課程頁的分組）改存資料庫，種子 `topics_seed.json` 有 8 個主題。`GET /api/topics` 公開；`GET /api/admin/topics`、`PATCH /api/admin/topics/{id}` 給管理員；CLI 新增 `evoleap topic list|show|set`。`courses` 另新增 `topic_id`（所屬主題）、`overview`（總覽頁是否就是課程頁）、`position`（排序）；`evoleap course set` 新增 `-topic-id`、`-overview`。更新規則：主題 path 拒絕反斜線與控制字元、about 段落去除前後空白，並更正主題更新的大小訊息。
+- **`GET /api/courses`（公開）**：回傳全部課程與所屬主題，「全部課程」頁依它分組。目前**前端只有「全部課程」頁改讀它**；首頁、主題頁、SEO 靜態頁仍讀前端內建的主題資料，尚未改讀 `GET /api/topics`。
+- **共用單課把關 `LessonGate`**（`courses/LessonGate.tsx`）：取代 `TopicLessonGate`、`AccessLessonGate`、`DraftLessonGate`；網頁與上線的單課頁合併為 `TopicScenePage`。共用函式 `lessonDisplay`（課名、標籤、分頁標題、kicker）與 `safeDecodeURIComponent`（`site/safeDecode.ts`）。
+- **主題頁「AI 應用」多一個 AI Agent 介紹區塊**（`home/AiAgentIntro.tsx`）。
+- **課程簡介影片**：種子 `introScript` 指到的腳本屬於這門課（`lesson_files`，課號空白），不受上課時段把關、任何訪客都拿得到；兒童課的 `guide/kids.json` 從 0.1 的 `files` 移到兒童課的 `introScript`（取得規則不變：免登入）。
+
+### 變更
+
+- **課程總覽頁與課程列表的內容全部改讀資料庫**（ISS-16.7）：`/courses/<課程>` 的標題（文件標題用 `seoTitle`，沒有就課名）、簡介、說明段落（新的「課程說明」區塊）、插圖（沒設定用預設）、單元與每一課都來自 `GET /api/courses/{id}/map`，`CourseOverviewPage` 只剩一條畫法（原本的 `stages`、`pagePaths`、只有主題三條分支刪掉；版面邏輯抽到 `courses/overviewModel.ts` 並有測試）：每個單元一組、標題是「簡短名稱・標題」（單元 `label`，例如「起步・AI 工具介紹」）、每個單元都有 `#stage-<單元 id>` 錨點、`hidden` 的單元不列；公開單元底下都沒有課（進階）時單元列成規劃中的項目；課程有 `introScript` 時頁面上方多一個「課程簡介」小播放器（不記進度；目前只有兒童課設定，兒童課仍用自己的頁面）。課的連結改看資料：有腳本而且開放（管理員另有草稿）才連到 `/courses/<課程>/<課號>`（`lessonUrl`，網址和原本完全一樣）。`/courses` 的卡片課名、簡介、存取方式、階段名稱、已開放課數、首頁階梯的階段名稱同樣讀地圖的單元。
+- **前端刪掉重複的課程資料**：catalog 的 `Course.pagePaths`、`summary`、`seoTitle`、`description`、`art`，`LAUNCH_PITCH`、`WEB_TOPIC.intro`，課程總覽用的階段、插圖判斷；暫時的「種子 ↔ 前端課程資訊」橋接測試（`courseMap.test.ts`）一併刪除，改成檢查種子本身的欄位規則，以及 `levels.ts`、catalog 課名和種子一致。階段名稱與先不公開（單課頁的上一課、下一課、noindex 用）改由種子的單元 `label`、`hidden` 決定（`content/courseSeed.ts`）。
+- **SEO 靜態頁讀種子**：build 時沒有 API，課程總覽頁的搜尋標題（`seoTitle`，沒有就課名）、描述、麵包屑課名、課程清單（`ItemList`，有腳本的課帶課頁網址）都讀 `server/internal/store/courses_seed.json`（資料庫就是從它同步的），先不公開單元底下的課 noindex；執行時畫面讀 API，是同一份資料。前端 build 要能讀到這個檔（Dockerfile 已複製）。「做出自己的軟體」主題頁（`/topics/software`）的搜尋標題改成「做出自己的軟體課程地圖：不會寫程式也能用 AI 打造軟體」，避免和課程總覽頁（種子的 `seoTitle`）重複。
+
+- 種子對齊正式機：每門課前五課免費預覽（做出自己的軟體是每個階段各前五課；網頁、兒童、上線課是整門課依順序的前五課），其他課登入後免費；兒童課 3.1–3.5 開放（4.x 仍是規劃中）。前端文案與測試（courseMap.test.ts 檢查種子的免費課與兒童課頁面）、e2e 跟著對齊。
+- 課程頁、首頁課程順序、主題頁、課程列表、會員課程清單、SEO、研發基地課程編排都改成一門課的三個階段；零基礎階段的各課網址仍打得開（noindex）、不列在清單與 sitemap。
+- 「第一堂正課沒有廣告」改成整門課只有 0.0（原本零基礎、基礎的第一課也是各自課程的第一堂）；也就是軟體課整門只有 0.0 免廣告，其餘每課都有廣告。
+- **軟體課單課頁路由由種子產生**：種子的每一課都有路由，課狀態為 `open` 或 `draft` 且有腳本才顯示課，其餘顯示規劃中章節頁；CLI 改課狀態不用重新 build。SEO 標題從「第 N 課 課名」改成「課名｜做出自己的軟體」。
+- **所有課的標題規則統一**：畫面標題只放課名，分頁標題一律「課名｜課程名稱」，上一課／下一課連結文字用標籤（第 N 課）；課名改讀課程地圖（`useLessonTitle`）或種子。課程標籤「免費預覽」改稱「試看」。
+- **Claude Code 工作術改成「課程總覽加一個情境一頁」**（`/courses/claude-code/<N>`）：舊錨點 `#fork`、`#remote` 轉到對應的情境頁。
+- **兒童模式的家長面板移到 `/courses/kids`**；「全部課程」頁卡片連結依資料庫 `overview` 欄位。
+- **課程同步容忍主題移除**：種子移除某主題、但仍有種子以外的課程引用它時，改成警告（log）並保留該主題，不再整批同步失敗。
+- 後台 `AdminPage` 的來源名稱對照加入新網址。
+
+### 修正
+
+- 壞掉的百分比編碼網址（例如 `#%E0%A4%A`）不再讓頁面白屏（`safeDecodeURIComponent`）。
+- 舊網址 `/courses/tools`、`/courses/ai-tools`、`/courses/vibe-coding` 的前端轉址補上查詢字串與錨點；`/topics/claude-code#scenarios` 轉址改成 `#map`。
+
+### 測試
+
+- 刪除 `e2e/lesson.spec.ts`（模擬播放器已移除）；新增 `e2e/software-course.spec.ts`，以及 `CourseOverviewPage`、`CourseListPage`、`legacyRoutes`、`overviewModel`、`lessonDisplay`、`safeDecode`、後端 topics（`topics_test.go`、`topics_prune_test.go`）相關測試。
+
 ## [0.45.0] - 2026-11-21
 
 網站載入加速（Lighthouse 手機版）：伺服器 gzip、演員改成用到才下載、修手機版面位移；研發基地新增兒童繪本與英文跟讀試做。沒有資料表或 API 變動。

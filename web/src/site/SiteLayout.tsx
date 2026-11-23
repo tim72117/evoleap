@@ -128,7 +128,7 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
           </div>
           <nav className={styles.footerNav} aria-label={t.site.nav.footer}>
             <Link to={`${SOFTWARE_TOPIC.path}#map`}>{t.site.footer.courseMap}</Link>
-            <Link to="/courses/ai-agent">{t.site.footer.aiAgent}</Link>
+            <Link to="/topics/ai-apps">{t.site.footer.aiAgent}</Link>
           </nav>
           <div className={styles.domain}>
             <Link className={styles.devLink} to="/privacy">

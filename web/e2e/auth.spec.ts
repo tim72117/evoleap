@@ -14,6 +14,17 @@ const userMenu = (page: Page, name: string) => page.locator('header').getByRole(
 const loginDialog = (page: Page) => page.getByRole('dialog', { name: '登入' })
 const headerLogin = (page: Page) => page.locator('header').getByRole('link', { name: '登入', exact: true })
 
+/** 起步第 3 課(0.3)改成登入後免費:種子裡整門課都是免費預覽,沒有要登入的課,所以攔課程地圖回應(單課頁、課程清單都照這份) */
+const GATED_LESSON = '0.3'
+async function gateLesson(page: Page) {
+  await page.route('**/api/courses/software/map', async (route) => {
+    const res = await route.fetch()
+    const body = (await res.json()) as { units: { lessons: { id: string; access: string }[] }[] }
+    for (const l of body.units.flatMap((u) => u.lessons)) if (l.id === GATED_LESSON) l.access = 'login-free'
+    await route.fulfill({ response: res, json: body })
+  })
+}
+
 async function register(page: Page, email: string, name: string, password = PASSWORD) {
   await page.getByRole('tab', { name: '註冊' }).click()
   await form(page).getByLabel(/名稱/).fill(name)
@@ -116,15 +127,16 @@ test('?next= 登入後回到原頁;頁首「登入」連結帶上目前頁面', 
   await registerViaApi(page, email)
   await page.request.post('/api/auth/logout')
 
-  await page.goto('/courses/ai-tools/3-3')
+  await gateLesson(page)
+  await page.goto('/courses/software/3')
   // 先關掉門檻彈出的登入視窗(視窗開著時背景不能點);頁首的「登入」仍是連到登入頁的連結
   await expect(loginDialog(page)).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(loginDialog(page)).toBeHidden()
-  await expect(headerLogin(page)).toHaveAttribute('href', '/login?next=%2Fcourses%2Fai-tools%2F3-3')
+  await expect(headerLogin(page)).toHaveAttribute('href', '/login?next=%2Fcourses%2Fsoftware%2F3')
   await headerLogin(page).click()
   await login(page, email)
-  await expect(page).toHaveURL(/\/courses\/ai-tools\/3-3$/)
+  await expect(page).toHaveURL(/\/courses\/software\/3$/)
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
   // 已登入時帶 next:顯示「繼續前往」
@@ -138,44 +150,47 @@ test('登入後免費的課程:未登入彈出小登入視窗,登入後在同一
   await registerViaApi(page, email)
   await page.request.post('/api/auth/logout')
 
-  // 這一課要登入(資料庫的存取方式不是免費預覽),否則底下「彈出登入視窗」的檢查沒有意義
-  expect((await mapLessons(page.request, 'ai-tools', GATED)).find((l) => l.id === '3.3')?.access).not.toBe('free')
+  // 這一課要登入(攔下的課程地圖把它改成登入後免費),否則底下「彈出登入視窗」的檢查沒有意義
+  await gateLesson(page)
 
   // 不轉頁:網址不變,原頁面上彈出登入視窗,課程內容還沒有
-  await page.goto('/courses/ai-tools/3-3')
+  await page.goto('/courses/software/3')
   await expect(loginDialog(page)).toBeVisible()
-  await expect(page).toHaveURL(/\/courses\/ai-tools\/3-3$/)
-  await expect(page.locator('li[id^="step-"]')).toHaveCount(0)
+  await expect(page).toHaveURL(/\/courses\/software\/3$/)
+  await expect(page.locator('.vp')).toHaveCount(0)
 
   // 關掉視窗(Esc)後頁面上還有「登入或註冊」:仍是連到登入頁的連結,按下去再打開視窗,不轉頁
   await page.keyboard.press('Escape')
   await expect(loginDialog(page)).toBeHidden()
   const gateLogin = page.locator('main').getByRole('link', { name: '登入或註冊' })
-  await expect(gateLogin).toHaveAttribute('href', '/login?next=%2Fcourses%2Fai-tools%2F3-3')
+  await expect(gateLogin).toHaveAttribute('href', '/login?next=%2Fcourses%2Fsoftware%2F3')
   await gateLogin.click()
   await expect(loginDialog(page)).toBeVisible()
-  await expect(page).toHaveURL(/\/courses\/ai-tools\/3-3$/)
+  await expect(page).toHaveURL(/\/courses\/software\/3$/)
   // 右上角的 ✕ 也能關
   await loginDialog(page).getByRole('button', { name: '關閉' }).click()
   await expect(loginDialog(page)).toBeHidden()
 
   // 總覽公開
   await page.locator('main').getByRole('link', { name: '回課程總覽' }).click()
-  await expect(page).toHaveURL(/\/courses\/ai-tools$/)
+  await expect(page).toHaveURL(/\/courses\/software$/)
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(gateLogin).toHaveCount(0)
 
   // 課程內容清單:未登入時,免費預覽的課標「免費預覽」,其他開放的課標「登入後學習」(依資料庫的課程地圖,用照正式設定跑的 server 讀)
-  const lessons = await mapLessons(page.request, 'tools', GATED)
+  // 起步階段(tools 單元)的課;零基礎階段先不公開、基礎階段都是規劃中
+  const lessons = (await mapLessons(page.request, 'software', GATED, ['tools'])).map((l) =>
+    l.id === GATED_LESSON ? { ...l, access: 'login-free', label: (l.status === 'open' ? '登入後學習' : l.label) as typeof l.label } : l,
+  )
   // 課程頁的名稱:序章是 0.intro,第 N 課是 0.N
   const nameOf = (id: string) => (id === '0.intro' ? '序章' : `第 ${id.slice(2)} 課`)
-  const pathOf = (id: string) => `/courses/tools/${id.slice(2)}`
-  await page.goto('/courses/tools')
-  const rows = page.locator('#course-content ~ details li')
+  const pathOf = (id: string) => `/courses/software/${id.slice(2)}`
+  await page.goto('/courses/software')
+  const rows = page.locator('#stage-tools li')
   for (const l of lessons) await expectLabel(rows.filter({ hasText: new RegExp(`${nameOf(l.id)}(?!\\d)`) }), l)
-  await expect(page.getByText('預覽', { exact: true })).toHaveCount(lessons.filter((l) => l.label === '預覽').length)
+  await expect(page.getByText('試看', { exact: true })).toHaveCount(lessons.filter((l) => l.label === '試看').length)
   // 「開始學習」連到序章(不用登入就能看)
-  await expect(page.getByRole('link', { name: '開始學習' })).toHaveAttribute('href', '/courses/tools/intro')
+  await expect(page.getByRole('link', { name: '開始學習' })).toHaveAttribute('href', '/courses/software/intro')
 
   // 免費預覽的課可以直接看,要登入的課跳登入視窗
   for (const l of lessons.filter((x) => x.status === 'open')) {
@@ -190,25 +205,26 @@ test('登入後免費的課程:未登入彈出小登入視窗,登入後在同一
   }
 
   // 在視窗裡登入:還是同一個網址,視窗消失、課程內容出現
-  await page.goto('/courses/ai-tools/3-3')
+  await page.goto('/courses/software/3')
   await login(page, email)
-  await expect(page).toHaveURL(/\/courses\/ai-tools\/3-3$/)
-  await expect(page.locator('li[id^="step-"]').first()).toBeVisible()
+  await expect(page).toHaveURL(/\/courses\/software\/3$/)
+  await expect(page.locator('.vp').first()).toBeVisible()
   await expect(loginDialog(page)).toHaveCount(0)
   await expect(gateLogin).toHaveCount(0)
 
   // 登入後清單不再標示
-  await page.goto('/courses/tools')
-  await expect(page.locator('#course-content ~ details li').first()).toBeVisible()
+  await page.goto('/courses/software')
+  await expect(page.locator('#stage-tools li').first()).toBeVisible()
   await expect(page.getByRole('img', { name: '登入後學習' })).toHaveCount(0)
-  await expect(page.getByText('預覽', { exact: true })).toHaveCount(0)
+  await expect(page.getByText('試看', { exact: true })).toHaveCount(0)
   expect(errors).toEqual([])
 })
 
 test('登入視窗:登入失敗留在視窗裡顯示訊息、輸入的內容還在;在視窗裡註冊新帳號也直接看到課', async ({ page }, info) => {
   const errors = collectErrors(page)
   const email = randomEmail('gate-dialog')
-  await page.goto('/courses/ai-tools/3-3')
+  await gateLesson(page)
+  await page.goto('/courses/software/3')
   await expect(loginDialog(page)).toBeVisible()
   // 有滑鼠的桌面版:一打開就停在 Email 欄(焦點不在 ✕ 上)
   if (!desktopOnly(info)) await expect(emailInput(page)).toBeFocused()
@@ -232,16 +248,17 @@ test('登入視窗:登入失敗留在視窗裡顯示訊息、輸入的內容還�
 
   // 切到註冊、建立帳號:同一頁看到課,視窗消失,帳號選單出現
   await register(page, email, '視窗註冊')
-  await expect(page.locator('li[id^="step-"]').first()).toBeVisible()
+  await expect(page.locator('.vp').first()).toBeVisible()
   await expect(loginDialog(page)).toHaveCount(0)
-  await expect(page).toHaveURL(/\/courses\/ai-tools\/3-3$/)
-  await expect(userMenu(page, '視窗註冊')).toBeVisible()
+  await expect(page).toHaveURL(/\/courses\/software\/3$/)
+  // 單課頁是滿版的播放器(沒有頁首的帳號選單),用 API 確認已登入
+  expect((await (await page.request.get('/api/me')).json()).user.name).toBe('視窗註冊')
   expect(errors.filter((e) => !/401/.test(e))).toEqual([])
 })
 
 test('單課頁要不要登入照課程地圖(資料庫)的設定,不是寫死在前端', async ({ page }) => {
   // 把課程地圖回應的存取設定對調:第 0 課(0.0)改成登入後免費、第 1 課(0.1)改成免費預覽
-  await page.route('**/api/courses/tools/map', async (route) => {
+  await page.route('**/api/courses/software/map', async (route) => {
     const res = await route.fetch()
     const body = (await res.json()) as { units: { lessons: { id: string; access: string }[] }[] }
     for (const l of body.units.flatMap((u) => u.lessons)) {
@@ -250,24 +267,25 @@ test('單課頁要不要登入照課程地圖(資料庫)的設定,不是寫死�
     }
     await route.fulfill({ response: res, json: body })
   })
-  await page.goto('/courses/tools/0')
+  await page.goto('/courses/software/0')
   await expect(loginDialog(page)).toBeVisible()
-  await page.goto('/courses/tools/1')
+  await page.goto('/courses/software/1')
   await expect(page.locator('.vp').first()).toBeVisible()
   await expect(loginDialog(page)).toHaveCount(0)
 })
 
 test('登入檢查失敗:已登入的會員看到重新整理,不是登入提示;恢復後看得到課程', async ({ page }) => {
   await registerViaApi(page, randomEmail('checkfail'))
+  await gateLesson(page)
   await page.route('**/api/me', (route) => route.abort())
-  await page.goto('/courses/ai-tools/3-3')
+  await page.goto('/courses/software/3')
   const reload = page.locator('main').getByRole('button', { name: '重新整理' })
   await expect(reload).toBeVisible()
   await expect(page.locator('main').getByRole('link', { name: '登入或註冊' })).toHaveCount(0)
 
   await page.unroute('**/api/me')
   await reload.click()
-  await expect(page.locator('li[id^="step-"]').first()).toBeVisible()
+  await expect(page.locator('.vp').first()).toBeVisible()
 })
 
 for (const evil of ['//evil.com', '/\\evil.com', 'https://evil.com', '//evil.com/courses']) {

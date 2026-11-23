@@ -20,7 +20,8 @@ WORKDIR /repo/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
-# 前端 build 的 tsc -b 會型別檢查 courseMap.test.ts,它讀這份種子(執行時的程式不讀,存取與開放狀態都由資料庫決定)。
+# 前端 build 讀這份種子:build 時產生的 SEO 靜態頁沒有 API,課程總覽頁的搜尋標題、描述與課程清單讀它(seo/pages.ts),tsc -b 也型別檢查讀它的測試;
+# 執行期主程式不含這份種子(只有 seo/pages.ts 的獨立 chunk 有);畫面執行時讀 API,存取與開放狀態都由資料庫決定。
 COPY server/internal/store/courses_seed.json /repo/server/internal/store/courses_seed.json
 # GA4 評估 ID(Vite 於 build 時內嵌):docker build --build-arg VITE_GA_MEASUREMENT_ID=G-XXXX。
 # 未傳或留空時前端完全不載入 Google Analytics。

@@ -83,6 +83,68 @@ func TestCliLoginAndCourseAdmin(t *testing.T) {
 	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", `{"access":"login-free"}`); code != http.StatusOK || !strings.Contains(body, `"access":"login-free"`) {
 		t.Errorf("改回來: %d %s", code, body)
 	}
+	// 課程資訊:簡介、說明段落、搜尋標題與描述、插圖;不合規則 400;清掉用空字串、空陣列
+	info := `{"summary":"簡介","about":["第一段","第二段"],"seoTitle":"搜尋標題","description":"搜尋描述","art":"build"}`
+	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", info); code != http.StatusOK ||
+		!strings.Contains(body, `"summary":"簡介"`) || !strings.Contains(body, `"about":["第一段","第二段"]`) || !strings.Contains(body, `"seoTitle":"搜尋標題"`) ||
+		!strings.Contains(body, `"description":"搜尋描述"`) || !strings.Contains(body, `"art":"build"`) {
+		t.Errorf("改課程資訊: %d %s", code, body)
+	}
+	if rec := call(env.h, http.MethodGet, "/api/courses/kids/map", "", nil); !strings.Contains(rec.Body.String(), `"about":["第一段","第二段"]`) || !strings.Contains(rec.Body.String(), `"art":"build"`) {
+		t.Errorf("公開的課程地圖要有課程資訊: %s", rec.Body)
+	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", `{"art":"pink"}`); code != http.StatusBadRequest {
+		t.Errorf("不認得的 art: %d %s", code, body)
+	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", `{"introScript":"lab/x.json"}`); code != http.StatusBadRequest {
+		t.Errorf("不合規則的 introScript: %d %s", code, body)
+	}
+	code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", `{"summary":"","about":[],"seoTitle":"","description":"","art":"","introScript":""}`)
+	var top map[string]any
+	if json.Unmarshal([]byte(body), &top) != nil || code != http.StatusOK {
+		t.Fatalf("清掉課程資訊: %d %s", code, body)
+	}
+	for _, k := range []string{"summary", "about", "seoTitle", "description", "art", "introScript"} {
+		if _, ok := top[k]; ok {
+			t.Errorf("清掉之後不該有 %s: %s", k, body)
+		}
+	}
+	// 主題:管理員清單與更新(content 要是 JSON 物件,整包換掉);一般會員不能看管理清單
+	if code, body := withBearer(http.MethodGet, "/api/admin/topics", ""); code != http.StatusOK || !strings.Contains(body, `"id":"kids"`) {
+		t.Errorf("主題清單: %d %s", code, body)
+	}
+	if rec := call(env.h, http.MethodGet, "/api/admin/topics", "", amy); rec.Code != http.StatusForbidden {
+		t.Errorf("一般會員不能看主題管理清單: %d", rec.Code)
+	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/topics/kids", `{"slogan":"新標語","content":{"learn":["a","b"]}}`); code != http.StatusOK || !strings.Contains(body, `"slogan":"新標語"`) || !strings.Contains(body, `"content":{"learn":["a","b"]}`) {
+		t.Errorf("改主題: %d %s", code, body)
+	}
+	if rec := call(env.h, http.MethodGet, "/api/topics", "", nil); !strings.Contains(rec.Body.String(), `"slogan":"新標語"`) {
+		t.Errorf("公開的主題清單要看到更新: %s", rec.Body)
+	}
+	for _, bad := range []string{`{"content":[1]}`, `{"content":"x"}`, `{"name":""}`, `{"path":"nope"}`, `{"path":"/a\\b"}`, `{"path":""}`} {
+		if code, body := withBearer(http.MethodPatch, "/api/admin/topics/kids", bad); code != http.StatusBadRequest {
+			t.Errorf("主題 %s 該被拒絕: %d %s", bad, code, body)
+		}
+	}
+	// 請求超過 128KB:明確的「內容太大」,和 content 超過 64KB 的訊息不同
+	huge := `{"content":{"x":"` + strings.Repeat("a", 129<<10) + `"}}`
+	if code, body := withBearer(http.MethodPatch, "/api/admin/topics/kids", huge); code != http.StatusBadRequest || !strings.Contains(body, "內容太大") {
+		t.Errorf("請求太大: %d %s", code, body)
+	}
+	mid := `{"content":{"x":"` + strings.Repeat("a", 70<<10) + `"}}`
+	if code, body := withBearer(http.MethodPatch, "/api/admin/topics/kids", mid); code != http.StatusBadRequest || !strings.Contains(body, "content 超過 64KB") {
+		t.Errorf("content 太大: %d %s", code, body)
+	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/topics/nope", `{"name":"x"}`); code != http.StatusNotFound || !strings.Contains(body, "找不到這個主題") {
+		t.Errorf("不存在的主題: %d %s", code, body)
+	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", `{"topicId":"nope"}`); code != http.StatusBadRequest {
+		t.Errorf("不存在的 topicId: %d %s", code, body)
+	}
+	if code, body := withBearer(http.MethodPatch, "/api/admin/courses/kids", `{"overview":false}`); code != http.StatusOK || !strings.Contains(body, `"overview":false`) {
+		t.Errorf("overview=false: %d %s", code, body)
+	}
 	if code, body := withBearer(http.MethodPut, "/api/admin/scripts/kids/new.json?course=kids&lesson=0.1", `{"a":1}`); code != http.StatusOK {
 		t.Errorf("上傳腳本: %d %s", code, body)
 	}
@@ -96,7 +158,7 @@ func TestCliLoginAndCourseAdmin(t *testing.T) {
 		t.Errorf("一般會員不能看資料庫結構: %d", rec.Code)
 	}
 	// CLI 登入清單、撤銷:撤銷後同一個 token 立刻失效
-	code, body := withBearer(http.MethodGet, "/api/admin/cli-tokens", "")
+	code, body = withBearer(http.MethodGet, "/api/admin/cli-tokens", "")
 	var list struct{ Tokens []struct{ ID, User string } }
 	if code != http.StatusOK || json.Unmarshal([]byte(body), &list) != nil || len(list.Tokens) != 1 || list.Tokens[0].User != "boss@example.com" {
 		t.Fatalf("CLI 登入清單: %d %s", code, body)

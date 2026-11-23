@@ -6,7 +6,7 @@ import ui from './proposal.module.css'
 type Tab = { to: string; label: string; code?: string; match?: string; also?: string[]; /** 相鄰、同一個 group 的頁籤框在一起,前面標群組名稱 */ group?: string }
 
 /** 一級頁籤:每一個對應一個區塊,第二排再列出該區塊裡的頁面。 */
-type Section = { id: 'overview' | 'todo' | 'members' | 'levels' | 'dev' | 'ideas' | 'docs' | 'tools'; label: string; to: string; tabs?: Tab[]; wrapTabs?: boolean }
+type Section = { id: 'overview' | 'members' | 'levels' | 'dev' | 'ideas' | 'docs' | 'tools'; label: string; to: string; tabs?: Tab[]; wrapTabs?: boolean }
 
 /** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級，再接不屬於等級的課程（AI 工具技巧、兒童網頁課、網頁運作知識）。 */
 const LEVELS: Tab[] = [
@@ -51,7 +51,6 @@ const DOCS: Tab[] = [
 
 const SECTIONS: Section[] = [
   { id: 'overview', label: '總覽', to: '/studio' },
-  { id: 'todo', label: '待辦', to: '/studio/todo' },
   { id: 'members', label: '會員', to: '/studio/members' },
   { id: 'levels', label: '課程', to: '/studio/tools', tabs: LEVELS },
   { id: 'dev', label: '開發', to: '/studio/visuals', tabs: DEV },
@@ -100,7 +99,6 @@ const tabActive = (t: Tab, pathname: string): boolean =>
 /** 目前的頁面屬於哪個區塊 */
 function sectionOf(pathname: string): Section['id'] | null {
   if (pathname === '/studio') return 'overview'
-  if (pathname === '/studio/todo') return 'todo'
   if (pathname === '/studio/members') return 'members'
   if (DOCS.some((t) => tabActive(t, pathname))) return 'docs'
   if (LEVELS.some((t) => tabActive(t, pathname))) return 'levels'

@@ -74,7 +74,11 @@ func main() {
 		// 課程結構與腳本檔屬於哪一課照種子(種子拿掉的課會被刪),腳本內容已經在資料庫的不動;要整份換成檔案的內容就刪掉 shuttle.db 再啟動
 		st, err := store.Connect(dsn)
 		if err == nil && !onCloudRun {
-			err = st.SyncCourses(context.Background(), *liveDir)
+			var warnings []string
+			warnings, err = st.SyncCourses(context.Background(), *liveDir)
+			for _, w := range warnings {
+				log.Printf("警告:%s", w)
+			}
 		}
 		if err != nil {
 			log.Fatal(err)

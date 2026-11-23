@@ -2,6 +2,7 @@
 // 這份資料是「編排草稿」,存在 course-map.json:課程內容的正本仍是 src/content/ 的單課資料,
 // 拖曳不會改到正本;確定後由 Claude 依 JSON 的 changes 改寫單課資料。
 import type { Course as CatalogCourse } from '../../content/catalog'
+import { SOFTWARE_STAGE_CONTENT } from '../../content/softwareStages'
 
 export type MapSegment = {
   /** 「課號#步驟序號」,對應單課資料的 steps(1 起算) */
@@ -48,21 +49,24 @@ export function buildSeed(courses: CatalogCourse[]): CourseMap {
     note: NOTE,
     updatedAt: '',
     changes: [],
-    levels: courses.map((c) => ({
-      id: c.slug,
-      label: c.level,
-      title: c.title,
-      courses: [
-        ...c.lessons.map((l) => ({
-          id: l.id,
-          code: l.id,
-          title: l.title,
-          from: c.slug,
-          segments: l.steps.map((s, i) => ({ id: `${l.id}#${i + 1}`, title: s.title, from: l.id })),
-        })),
-        ...c.planned.map((p) => ({ id: `${c.slug}/${p.slug}`, code: p.label, title: p.title, from: c.slug, segments: [] })),
-      ],
-    })),
+    // 分階段的課(做出自己的軟體):每個階段是一個程度,id 是階段 id(tools、ai-tools、vibe-coding-basics)
+    levels: courses.flatMap((c) =>
+      (c.stages?.map((st) => ({ ...st, ...SOFTWARE_STAGE_CONTENT.find((x) => x.id === st.id)! })) ?? [{ id: c.slug, label: c.level, lessons: [], planned: c.planned }]).map((st) => ({
+        id: st.id,
+        label: st.label,
+        title: c.stages ? `${c.title}・${st.label}` : c.title,
+        courses: [
+          ...st.lessons.map((l) => ({
+            id: l.id,
+            code: l.id,
+            title: l.title,
+            from: st.id,
+            segments: l.steps.map((s, i) => ({ id: `${l.id}#${i + 1}`, title: s.title, from: l.id })),
+          })),
+          ...st.planned.map((p) => ({ id: `${st.id}/${p.slug}`, code: p.label, title: p.title, from: st.id, segments: [] })),
+        ],
+      })),
+    ),
   }
 }
 

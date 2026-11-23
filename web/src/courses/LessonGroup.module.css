@@ -9,6 +9,7 @@
 }
 
 .group {
+  scroll-margin-top: 80px; /* 課程頁的 #stage-… 錨點捲到時留出頂端空間 */
   border: 1px solid var(--site-border);
   border-radius: var(--site-radius);
   background: var(--site-surface);

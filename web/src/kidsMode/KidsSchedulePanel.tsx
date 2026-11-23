@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { KIDS_LESSON_PAGES, kidsLessonTitle } from '../content/kidsCourse'
+import { useLessonTitle } from '../content/courseMap'
+import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import type { KidsMode } from './api'
 import { planWeek, taipeiNow } from './plan'
 import { useKidsProgress, useKidsReleasedState } from './progress'
@@ -22,6 +23,7 @@ const hhmm = (iso?: string): string =>
 
 export function KidsSchedulePanel({ mode }: { mode: Extract<KidsMode, { active: true }> }) {
   const progress = useKidsProgress()
+  const titleOf = useLessonTitle('kids')
   const releasedState = useKidsReleasedState()
   const released = Array.isArray(releasedState) ? releasedState : null
   const k = useT().kidsMode
@@ -58,7 +60,7 @@ export function KidsSchedulePanel({ mode }: { mode: Extract<KidsMode, { active: 
                   {slotLabel({ day: p.slot.day, time: p.slot.time as never })}
                 </span>
                 <span className={styles.lesson}>
-                  {p.lessonId ? `${p.lessonId} ${kidsLessonTitle(p.lessonId)}` : p.state === 'done' ? '—' : p.state === 'later' ? k.laterByProgress : k.allDone}
+                  {p.lessonId ? [p.lessonId, titleOf(p.lessonId)].filter((x, i, a) => a.indexOf(x) === i).join(' ') : p.state === 'done' ? '—' : p.state === 'later' ? k.laterByProgress : k.allDone}
                 </span>
                 {/* 正在上課的那一列:開始上課就放在這一列上 */}
                 {p.state === 'now' && schedule.open && p.lessonId ? (

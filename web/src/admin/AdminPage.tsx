@@ -379,11 +379,17 @@ const PAGE_NAME: Record<string, string> = {
   '/showcase': '展示頁',
   [SOFTWARE_TOPIC.path]: `${SOFTWARE_TOPIC.name}（地圖）`,
   [AI_APPS_TOPIC.path]: `${AI_APPS_TOPIC.name}（地圖）`,
-  [CLAUDE_CODE_TOPIC.path]: `${CLAUDE_CODE_TOPIC.name}（地圖）`,
+  [CLAUDE_CODE_TOPIC.path]: `${CLAUDE_CODE_TOPIC.name}（課程總覽）`,
   [KIDS_TOPIC.path]: `${KIDS_TOPIC.name}（地圖）`,
-  [WEB_TOPIC.path]: `${WEB_TOPIC.name}（地圖）`,
-  [LAUNCH_TOPIC.path]: `${LAUNCH_TOPIC.name}（地圖）`,
-  // 這幾課還沒開放時,訪客看到的是提示頁(LaunchLessonPage 的 Notice),記成 page:<網址>
+  [WEB_TOPIC.path]: `${WEB_TOPIC.name}（課程總覽）`,
+  [LAUNCH_TOPIC.path]: `${LAUNCH_TOPIC.name}（課程總覽）`,
+  // 課程搬到 /courses/<課程> 之前(2026-11)的舊網址:舊的訪客紀錄仍存著 page:/topics/…,後台照樣讀得懂
+  '/topics/web': `${WEB_TOPIC.name}（地圖，舊網址）`,
+  '/topics/launch': `${LAUNCH_TOPIC.name}（地圖，舊網址）`,
+  '/topics/claude-code': `${CLAUDE_CODE_TOPIC.name}（情境，舊網址）`,
+  ...Object.fromEntries(Object.keys(WEB_LESSON_PAGES).map((id) => [`/topics/web/${id.replace('.', '-')}`, `網頁課 ${id}（舊網址）`])),
+  ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [`/topics/launch/${id.replace('.', '-')}`, `上線課 ${id}（還沒開放，舊網址）`])),
+  // 這幾課還沒開放時,訪客看到的是提示頁(home/TopicBlocked 的提示頁),記成 page:<網址>
   ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [launchLessonPath(id), `上線課 ${id}（還沒開放）`])),
 }
 const LESSON_NAME: Record<string, string> = {

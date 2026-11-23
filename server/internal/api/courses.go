@@ -39,3 +39,34 @@ func (s *Server) handleCourseMap(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, m)
 }
+
+// handleCourseList 回傳公開的課程清單(全部課程頁用):依 position 排序,所有單元都先不公開的課不列。不用登入;沒接資料庫時 503(前端改用內建的課程資料)。
+func (s *Server) handleCourseList(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Store == nil {
+		writeError(w, http.StatusServiceUnavailable, "no_store", "課程資料庫尚未設定")
+		return
+	}
+	courses, err := s.cfg.Store.ListCourses(r.Context())
+	if err != nil {
+		internalError(w, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "public, max-age=60")
+	writeJSON(w, http.StatusOK, map[string]any{"courses": courses})
+}
+
+// handleTopicList 回傳所有主題(首頁卡片、主題頁、全部課程頁的分組標題),依 position 排序;content 是各主題整包的其餘內容(JSON 物件)。
+// 公開資料,不用登入;沒接資料庫時 503(前端改用內建的內容)。
+func (s *Server) handleTopicList(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Store == nil {
+		writeError(w, http.StatusServiceUnavailable, "no_store", "課程資料庫尚未設定")
+		return
+	}
+	topics, err := s.cfg.Store.ListTopics(r.Context())
+	if err != nil {
+		internalError(w, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "public, max-age=60")
+	writeJSON(w, http.StatusOK, map[string]any{"topics": topics})
+}

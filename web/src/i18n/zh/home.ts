@@ -14,7 +14,6 @@ export const home = {
   startFirstLesson: '開始第一課',
   planned: '規劃中',
   openNow: '開放中',
-  aboutCourse: '課程說明',
   /** 課的顯示名稱:序章、第 N 課 */
   /** 等級名稱(起步、零基礎、基礎、中階、進階);課程資料裡是中文,英文版照表換 */
   levelName: (label: string) => label,
@@ -57,46 +56,12 @@ export const home = {
     levelsLead: '由上往下依難度排列。標示「規劃中」的課程名稱與內容仍在規劃，可能調整。',
   },
 
-  web: {
-    pitch: (slogan: string) => `${slogan}。不教語法，教網頁怎麼運作、每個東西叫什麼。`,
-    mapLead: '課程陸續開放中，還沒開放的課標「規劃中」。前五課不用登入就能預覽，其他課登入後就能學習。',
-  },
-
-  launch: {
-    pitch: (slogan: string) => `${slogan}。從部署、網域、資料與登入，到收費和上線後的監控。`,
-    mapLead: '序章與單元 1 開放中，前五課不用登入就能預覽，其他課登入後就能學習；還沒開放的課標「規劃中」，內容與順序可能調整。',
-  },
 
   kidsTopic: {
     pitch: (slogan: string) => `${slogan}。不用打程式碼，點一點、拖一拖積木就能做出網頁；建議家長在旁陪學。`,
     howTitle: '怎麼使用兒童課程',
     howLead: '家長在會員空間替孩子排好上課時間、開啟兒童模式，孩子就只看得到兒童課程，時間到了才能上課，一課一課照進度往下上。',
     mapLead: '課程陸續開放中，還沒開放的課標「規劃中」。前五課不用登入就能預覽，之後的課登入後就能學習。',
-  },
-
-  claudeCode: {
-    pitch: (slogan: string) => `${slogan}。遇到哪個情況就看哪一個，不用照順序。`,
-    viewAll: '查看所有情境',
-    scenariosTitle: '使用情境',
-    scenariosLead: '內容還在規劃，可能調整；功能名稱會隨工具改版。',
-    allScenarios: '全部情境',
-    count: (n: number) => `${n} 個情境`,
-    video: '影片',
-    linkToVideo: (title: string) => `直接連到影片：${title}`,
-  },
-
-  lesson: {
-    backToMap: '← 課程地圖',
-    mapNext: '課程地圖 →',
-    prev: (id: string) => `← 上一課：${id}`,
-    next: (id: string) => `下一課：${id} →`,
-    navLabel: '上一課與下一課',
-    /** 接在「登入」連結後面 */
-    resumeAfterSignIn: '後會記住你看到哪裡，下次從這裡接著看。',
-    loginNote: '前五課可以直接預覽，之後的課程要登入才能觀看。登入後也會記錄你的播放進度。',
-    kidsLoginNote: '前五課可以直接預覽，之後的課登入後就能學習，也會記錄孩子上到哪裡。',
-    draft: (title: string) => `${title}（草稿）`,
-    docTitle: (title: string, topic: string) => `${title}｜${topic}`,
   },
 
   gate: {
@@ -128,7 +93,7 @@ export const home = {
   map: {
     signInToLearn: '登入後學習',
     start: '開始學習',
-    freePreview: '預覽',
+    freePreview: '試看',
     planned: '規劃中',
     draft: '草稿',
   },

@@ -142,6 +142,10 @@ func newStaticHandlerWithOpen(dist fs.FS, access accessFunc, open openLessons) h
 		}
 
 		if path.Ext(name) == "" {
+			if to, ok := legacyCourseTarget(name); ok {
+				redirect(w, r, to)
+				return
+			}
 			pg := pages[name]
 			if pg != nil && name != r.URL.Path {
 				redirect(w, r, name)
@@ -209,10 +213,75 @@ func denyInternal(w http.ResponseWriter, r *http.Request, name string, a api.Acc
 	http.NotFound(w, r)
 }
 
+// legacyCourseRedirects:tools(起步)、ai-tools(零基礎)、vibe-coding(基礎)三門課
+// 合併成 /courses/software 一門課,原本的課成為其中的階段(課程頁的 #stage-<階段 id>)。
+// 課程根網址導向對應的階段;單課網址的 slug 在合併後的課程內不重複,/courses/<舊>/<rest> 直接對應 /courses/software/<rest>。
+var legacyCourseRedirects = map[string]string{
+	"/courses/tools":       "/courses/software#stage-tools",
+	"/courses/ai-tools":    "/courses/software#stage-ai-tools",
+	"/courses/vibe-coding": "/courses/software#stage-vibe-coding-basics",
+}
+
+const softwareCourse = "/courses/software"
+
+// AI Agent 本身的頁面換成主題頁(打造 AI 互動軟體)。
+const (
+	aiAgentCourse = "/courses/ai-agent"
+	aiAppsTopic   = "/topics/ai-apps"
+)
+
+// legacyCourseTarget 回傳舊課程網址(name 已 path.Clean,含結尾斜線的變體也會命中)對應的新網址;不是舊網址時回傳 false。
+func legacyCourseTarget(name string) (string, bool) {
+	// AI Agent 沒有自己的課程頁了:課程頁與底下的章節頁都改用主題頁
+	if name == aiAgentCourse || strings.HasPrefix(name, aiAgentCourse+"/") {
+		return aiAppsTopic, true
+	}
+	for old, root := range legacyCourseRedirects {
+		if name == old {
+			return root, true
+		}
+		if rest, ok := strings.CutPrefix(name, old+"/"); ok {
+			return softwareCourse + "/" + rest, true
+		}
+	}
+	for old, root := range legacyTopicRedirects {
+		if name == old {
+			return root, true
+		}
+		if rest, ok := strings.CutPrefix(name, old+"/"); ok && legacyTopicLessons[old] {
+			return root + "/" + rest, true
+		}
+	}
+	return "", false
+}
+
+// legacyTopicRedirects:網頁怎麼運作、從做好到上線、Claude Code 工作術、給孩子的網頁程式原本是 /topics/<主題> 的主題頁,
+// 現在和其他課共用課程總覽頁(/courses/<課程>),一課一頁在 /courses/<課程>/<課號>。
+// 單課網址(/topics/web/1-2、/topics/launch/0-1、/topics/kids/0-1)的課號段沒變;Claude Code 的舊錨點(#remote、#fork)由前端轉到各情境的課頁(瀏覽器轉址會保留 #錨點)。
+var legacyTopicRedirects = map[string]string{
+	"/topics/web":         "/courses/web",
+	"/topics/launch":      "/courses/launch",
+	"/topics/claude-code": "/courses/claude-code",
+	"/topics/kids":        "/courses/kids",
+}
+
+// legacyTopicLessons:舊主題底下有單課頁的(Claude Code 的舊網址只有主題頁本身)。
+var legacyTopicLessons = map[string]bool{
+	"/topics/web":    true,
+	"/topics/launch": true,
+	"/topics/kids":   true,
+}
+
+// redirect 以 301 導向 to,保留查詢字串;to 可帶 #fragment(查詢字串會插在 fragment 之前)。
 func redirect(w http.ResponseWriter, r *http.Request, to string) {
+	frag := ""
+	if i := strings.IndexByte(to, '#'); i >= 0 {
+		to, frag = to[:i], to[i:]
+	}
 	if r.URL.RawQuery != "" {
 		to += "?" + r.URL.RawQuery
 	}
+	to += frag
 	http.Redirect(w, r, to, http.StatusMovedPermanently)
 }
 

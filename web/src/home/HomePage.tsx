@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { COURSES, coursePath, courseMapId, isPreviewLesson, lessonPath } from '../content/catalog'
+import { COURSES, courseMapId, lessonUrl, PREVIEW_LESSON_ID } from '../content/catalog'
 import { useCourseMaps } from '../content/courseMap'
-import { LEVELS } from '../content/levels'
 import { KIDS_TOPIC, LAUNCH_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, topicStartLabel, type PlannedTopic } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
@@ -11,13 +10,13 @@ import styles from './HomePage.module.css'
 // 首頁:先列出主題,再進入各主題。有內容的主題佔整排,列出各等級能學到什麼(首頁不放影片預覽);
 // 規劃中的主題縮小,只寫預計做出的成果。連結取自課程資料,主題文案在 content/topics.ts。
 
-const tools = COURSES.find((c) => c.slug === 'tools')!
+const software = COURSES.find((c) => c.slug === 'software')!
 // 「開始第一課」從序章開始(不用登入就能看)
-const introLesson = tools.lessons.find(isPreviewLesson)!
+const introPath = lessonUrl(software.slug, PREVIEW_LESSON_ID)
 
-// 這個主題的等級(起步、零基礎、基礎);中階、進階在主題「打造 AI 互動軟體」。已開放與否照資料庫的課程地圖
-const LADDER_COURSES = COURSES.filter((c) => !c.hidden && LEVELS.some((l) => l.link === coursePath(c)))
-const LADDER_MAP_IDS = LADDER_COURSES.map(courseMapId)
+// 這個主題的階段(起步、基礎;先不公開的零基礎不列),就是「做出自己的軟體」這門課的階段;中階、進階在主題「打造 AI 互動軟體」。階段名稱與已開放與否照資料庫課程地圖的單元(label、hidden;讀到之前先用種子的階段名稱)
+const LADDER_STAGES = software.stages!.filter((st) => !st.hidden)
+const LADDER_MAP_IDS = [courseMapId(software)]
 
 const TOPIC_ICONS = {
   terminal: (
@@ -35,7 +34,11 @@ export function HomePage() {
   const t = useT()
   const maps = useCourseMaps(LADDER_MAP_IDS)
   // 已開放與否照資料庫的課程地圖;還在讀、讀不到時等級不亮(不用前端的課程資料頂替)
-  const ladder = LADDER_COURSES.map((c) => ({ name: c.level, open: Boolean(maps[courseMapId(c)]?.units.some((u) => u.lessons.some((l) => l.status === 'open'))) }))
+  // 階段名稱與先不公開照資料庫課程地圖的單元(label、hidden);讀到之前先用同一份種子的階段名稱(不亮),版面不位移
+  const softwareMap = maps[courseMapId(software)]
+  const ladder = softwareMap
+    ? softwareMap.units.filter((u) => !u.hidden && u.label).map((u) => ({ name: u.label!, open: u.lessons.some((l) => l.status === 'open') }))
+    : LADDER_STAGES.map((st) => ({ name: st.label, open: false }))
   const facts = [t.home.home.facts.free, t.home.home.facts.noCode]
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
 
@@ -72,7 +75,7 @@ export function HomePage() {
                 ))}
               </ol>
               <div className={styles.ctas}>
-                <Link className={styles.primary} to={lessonPath(tools, introLesson)}>
+                <Link className={styles.primary} to={introPath}>
                   {t.home.startFirstLesson}
                 </Link>
                 <Link className={styles.secondary} to={{ pathname: SOFTWARE_TOPIC.path, hash: 'map' }}>

@@ -12,26 +12,26 @@ import (
 )
 
 const topicHTML = `<title>t</title><script type="application/ld+json" data-seo>{"@type":"ItemList","itemListElement":[` +
-	`{"@type":"ListItem","position":1,"name":"0.1 a","evoleapLesson":{"course":"kids","id":"0.1","url":"https://evoleap.io/topics/kids/0-1"}},` +
-	`{"@type":"ListItem","position":2,"name":"3.1 b","evoleapLesson":{"course":"kids","id":"3.1","url":"https://evoleap.io/topics/kids/3-1"}},` +
+	`{"@type":"ListItem","position":1,"name":"0.1 a","evoleapLesson":{"course":"kids","id":"0.1","url":"https://evoleap.io/courses/kids/0-1"}},` +
+	`{"@type":"ListItem","position":2,"name":"3.1 b","evoleapLesson":{"course":"kids","id":"3.1","url":"https://evoleap.io/courses/kids/3-1"}},` +
 	`{"@type":"ListItem","position":3,"name":"9.9 沒有課程頁"}]}</script><script type="application/ld+json" data-seo>{"@type":"BreadcrumbList"}</script>`
 
 // 頁面結構化資料的課程連結依資料庫:開放的課附 url,沒開放的不附,evoleapLesson 一律不出現在回應裡
 func TestLessonLinksFollowOpenSet(t *testing.T) {
-	dist := fstest.MapFS{"index.html": {Data: []byte(topicHTML)}, "topics/kids/index.html": {Data: []byte(topicHTML)}}
+	dist := fstest.MapFS{"index.html": {Data: []byte(topicHTML)}, "courses/kids/index.html": {Data: []byte(topicHTML)}}
 	get := func(open openLessons) string {
 		rec := httptest.NewRecorder()
-		newStaticHandlerWithOpen(dist, openAccess, open).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/topics/kids", nil))
+		newStaticHandlerWithOpen(dist, openAccess, open).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/courses/kids", nil))
 		if rec.Code != 200 {
 			t.Fatalf("%d", rec.Code)
 		}
 		return rec.Body.String()
 	}
 	body := get(func(context.Context) (map[string]bool, error) { return map[string]bool{"kids/0.1": true}, nil })
-	if !strings.Contains(body, `"url":"https://evoleap.io/topics/kids/0-1"`) {
+	if !strings.Contains(body, `"url":"https://evoleap.io/courses/kids/0-1"`) {
 		t.Errorf("開放的課要附網址: %s", body)
 	}
-	if strings.Contains(body, "topics/kids/3-1") || strings.Contains(body, lessonLinkKey) {
+	if strings.Contains(body, "courses/kids/3-1") || strings.Contains(body, lessonLinkKey) {
 		t.Errorf("沒開放的課不附網址,也不留標記: %s", body)
 	}
 	if !strings.Contains(body, `"@type":"BreadcrumbList"`) || !strings.Contains(body, "沒有課程頁") {
@@ -42,7 +42,7 @@ func TestLessonLinksFollowOpenSet(t *testing.T) {
 		"nil": nil,
 		"查不到": func(context.Context) (map[string]bool, error) { return nil, errors.New("db down") },
 	} {
-		if b := get(open); strings.Contains(b, "topics/kids/0-1") || strings.Contains(b, lessonLinkKey) {
+		if b := get(open); strings.Contains(b, "courses/kids/0-1") || strings.Contains(b, lessonLinkKey) {
 			t.Errorf("%s: %s", name, b)
 		}
 	}
@@ -95,14 +95,14 @@ func TestDynamicPageReusedWhileOpenSetUnchanged(t *testing.T) {
 	pg := newPage([]byte(topicHTML), false)
 	set := map[string]bool{"kids/0.1": true}
 	open := func(context.Context) (map[string]bool, error) { return set, nil }
-	r := httptest.NewRequest(http.MethodGet, "/topics/kids", nil)
+	r := httptest.NewRequest(http.MethodGet, "/courses/kids", nil)
 	a := dynamicPage(r, pg, open)
 	if b := dynamicPage(r, pg, open); a != b {
 		t.Error("開放的課沒變,應該沿用上一次處理好的頁面")
 	}
 	set = map[string]bool{"kids/0.1": true, "kids/3.1": true}
 	c := dynamicPage(r, pg, open)
-	if c == a || !strings.Contains(string(c.body), "topics/kids/3-1") {
+	if c == a || !strings.Contains(string(c.body), "courses/kids/3-1") {
 		t.Errorf("開放的課變了要重做: %s", c.body)
 	}
 }

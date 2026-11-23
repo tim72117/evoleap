@@ -20,7 +20,7 @@ func testDist() fstest.MapFS {
 	file := func(s string) *fstest.MapFile { return &fstest.MapFile{Data: []byte(s)} }
 	return fstest.MapFS{
 		"index.html":                          file(`<title>home</title>`),
-		"courses/tools/index.html":            file(`<title>tools</title>`),
+		"courses/software/index.html":         file(`<title>software</title>`),
 		"studio/index.html":                   file(`<title>studio</title><meta name="robots" content="noindex, nofollow" data-seo>`),
 		"404.html":                            file(`<title>not found</title><meta name="robots" content="noindex, nofollow" data-seo>`),
 		"assets/index-abc123.js":              file(`console.log(1)`),
@@ -52,17 +52,44 @@ func TestStaticHandler(t *testing.T) {
 		noindex  bool
 	}{
 		{path: "/", status: 200, body: "<title>home</title>", cache: "no-cache"},
-		{path: "/courses/tools", status: 200, body: "<title>tools</title>", cache: "no-cache"},
+		{path: "/courses/software", status: 200, body: "<title>software</title>", cache: "no-cache"},
 		{path: "/studio", status: 200, body: "<title>studio</title>", noindex: true},
 		// 結尾斜線、實際檔名 → 導向頁面網址(不會出現 FileServer 的目錄斜線導向)
-		{path: "/courses/tools/", status: 301, location: "/courses/tools"},
-		{path: "/courses/tools/?x=1", status: 301, location: "/courses/tools?x=1"},
-		{path: "/courses/tools/index.html", status: 301, location: "/courses/tools"},
+		{path: "/courses/software/", status: 301, location: "/courses/software"},
+		{path: "/courses/software/?x=1", status: 301, location: "/courses/software?x=1"},
+		{path: "/courses/software/index.html", status: 301, location: "/courses/software"},
 		{path: "/index.html", status: 301, location: "/"},
 		// 沒有對應頁面的路由:404 + 404.html
 		{path: "/nope", status: 404, body: "<title>not found</title>", noindex: true},
 		{path: "/courses", status: 404, body: "<title>not found</title>", noindex: true}, // 目錄存在但不是頁面
-		{path: "/courses/tools/99", status: 404, body: "<title>not found</title>", noindex: true},
+		// 三門課合併成 software 之前的舊網址:301 到新網址(單課網址 slug 不變,課程頁帶階段錨點)
+		{path: "/courses/tools", status: 301, location: "/courses/software#stage-tools"},
+		{path: "/courses/tools/", status: 301, location: "/courses/software#stage-tools"},
+		{path: "/courses/tools?x=1", status: 301, location: "/courses/software?x=1#stage-tools"},
+		{path: "/courses/ai-agent", status: 301, location: "/topics/ai-apps"},
+		{path: "/courses/ai-agent/unit-0?x=1", status: 301, location: "/topics/ai-apps?x=1"},
+		{path: "/courses/tools/intro", status: 301, location: "/courses/software/intro"},
+		{path: "/courses/tools/3?x=1", status: 301, location: "/courses/software/3?x=1"},
+		{path: "/courses/ai-tools", status: 301, location: "/courses/software#stage-ai-tools"},
+		{path: "/courses/ai-tools/3-3", status: 301, location: "/courses/software/3-3"},
+		{path: "/courses/vibe-coding", status: 301, location: "/courses/software#stage-vibe-coding-basics"},
+		{path: "/courses/vibe-coding/5-2/", status: 301, location: "/courses/software/5-2"},
+		// 網頁怎麼運作、從做好到上線、Claude Code 工作術搬到 /courses/<課程>:主題頁與單課頁 301(查詢字串保留、單課的課號段不變)
+		{path: "/topics/web", status: 301, location: "/courses/web"},
+		{path: "/topics/web/", status: 301, location: "/courses/web"},
+		{path: "/topics/web?x=1", status: 301, location: "/courses/web?x=1"},
+		{path: "/topics/web/1-2", status: 301, location: "/courses/web/1-2"},
+		{path: "/topics/web/0-1?aspect=landscape", status: 301, location: "/courses/web/0-1?aspect=landscape"},
+		{path: "/topics/launch", status: 301, location: "/courses/launch"},
+		{path: "/topics/launch/2-3/", status: 301, location: "/courses/launch/2-3"},
+		{path: "/topics/claude-code", status: 301, location: "/courses/claude-code"},
+		{path: "/topics/claude-code?x=1", status: 301, location: "/courses/claude-code?x=1"},
+		// 前綴相近的、Claude Code 底下沒有的舊單課網址不轉
+		{path: "/topics/web-x", status: 404, body: "<title>not found</title>", noindex: true},
+		{path: "/topics/claude-code/1", status: 404, body: "<title>not found</title>", noindex: true},
+		// 不是舊課程的網址不轉(前綴相近的也不轉)
+		{path: "/courses/tools-x", status: 404, body: "<title>not found</title>", noindex: true},
+		{path: "/courses/software/99", status: 404, body: "<title>not found</title>", noindex: true},
 		{path: "/assets", status: 404, body: "<title>not found</title>", noindex: true},
 		// 靜態檔
 		{path: "/assets/index-abc123.js", status: 200, cache: "public, max-age=31536000, immutable"},
@@ -138,7 +165,7 @@ func TestStaticHandlerInternalAccess(t *testing.T) {
 
 	// 公開頁與公開檔不受影響
 	for _, h := range []http.Handler{guest, denied} {
-		for _, path := range []string{"/", "/courses/tools", "/assets/index-abc123.js", "/robots.txt"} {
+		for _, path := range []string{"/", "/courses/software", "/assets/index-abc123.js", "/robots.txt"} {
 			if rec := get(h, http.MethodGet, path, nil); rec.Code != http.StatusOK {
 				t.Errorf("公開路徑 %s: status = %d, want 200", path, rec.Code)
 			}
@@ -158,12 +185,12 @@ func TestStaticHandlerInternalAccess(t *testing.T) {
 
 func TestStaticHandlerETag(t *testing.T) {
 	h := newStaticHandler(testDist(), openAccess)
-	first := get(h, http.MethodGet, "/courses/tools", nil)
+	first := get(h, http.MethodGet, "/courses/software", nil)
 	etag := first.Header().Get("ETag")
 	if etag == "" {
 		t.Fatal("page response has no ETag")
 	}
-	again := get(h, http.MethodGet, "/courses/tools", map[string]string{"If-None-Match": etag})
+	again := get(h, http.MethodGet, "/courses/software", map[string]string{"If-None-Match": etag})
 	if again.Code != http.StatusNotModified {
 		t.Errorf("conditional GET: status = %d, want 304", again.Code)
 	}

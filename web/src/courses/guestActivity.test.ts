@@ -21,7 +21,7 @@ describe('startGuestView', () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] })
     const doc = Object.assign(new EventTarget(), { visibilityState: 'visible' })
     vi.stubGlobal('document', doc)
-    vi.stubGlobal('location', { pathname: '/topics/web/0-1', origin: 'http://x', href: 'http://x/topics/web/0-1' })
+    vi.stubGlobal('location', { pathname: '/courses/web/0-1', origin: 'http://x', href: 'http://x/courses/web/0-1' })
     vi.stubGlobal('window', Object.assign(new EventTarget(), { setInterval, clearInterval }))
   })
   afterEach(() => {
@@ -143,10 +143,10 @@ describe('startGuestView', () => {
     vi.advanceTimersByTime(3000)
     playing = false
     vi.advanceTimersByTime(1000)
-    ;(location as { pathname: string }).pathname = '/topics/web'
+    ;(location as { pathname: string }).pathname = '/courses/web'
     stop()
     const events = api.watch.mock.calls.at(-1)![2]!.events!.map((x) => x.e)
-    expect(events).toEqual(['ready', 'click:畫面', 'play', 'pause', 'leave:/topics/web'])
+    expect(events).toEqual(['ready', 'click:畫面', 'play', 'pause', 'leave:/courses/web'])
   })
 
   it('心跳:沒有播放也每 10 秒送一次新的前景時間與足跡(關掉分頁時掉的資料不超過 10 秒)', async () => {

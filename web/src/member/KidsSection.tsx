@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { KIDS_LESSON_PAGES, kidsLessonTitle } from '../content/kidsCourse'
+import { useLessonTitle } from '../content/courseMap'
+import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { dateLabel, parentWeek } from '../kidsMode/plan'
 import { kidsApi, type Child } from '../kidsMode/api'
 import { KIDS_MODE_HOME, useKidsMode } from '../kidsMode/KidsModeContext'
@@ -295,13 +296,14 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
 /** 這週的課(照已儲存的時段):每一次上課的實際日期,上完的課與最近一次要上的課,點課名打開那一課 */
 function WeekList({ child, records }: { child: Child; records: Finished[] }) {
   const k = useT().member.kids
+  const titleOf = useLessonTitle('kids')
   const { locale } = useLocale()
   const released = useKidsReleased()
   if (child.slots.length === 0 || !released) return null
   const rows = parentWeek(child.slots, child.minutes, new Date(), released, records)
   const lesson = (id: string) => (
     <Link to={KIDS_LESSON_PAGES[id].path}>
-      {id} {kidsLessonTitle(id)}
+      {[id, titleOf(id)].filter((x, i, a) => a.indexOf(x) === i).join(' ')}
     </Link>
   )
   return (

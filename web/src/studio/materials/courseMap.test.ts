@@ -13,7 +13,7 @@ describe('課程編排', () => {
   const seed = buildSeed(COURSES)
 
   it('初始資料涵蓋每個等級、單課與步驟,id 不重複', () => {
-    expect(seed.levels.map((l) => l.id)).toEqual(COURSES.map((c) => c.slug))
+    expect(seed.levels.map((l) => l.id)).toEqual(COURSES.flatMap((c) => c.stages?.map((st) => st.id) ?? [c.slug]))
     expect(segments(seed, '0.1')).toEqual(['0.1#1', '0.1#2', '0.1#3', '0.1#4', '0.1#5'])
     const ids = seed.levels.flatMap((l) => l.courses.flatMap((c) => [c.id, ...c.segments.map((s) => s.id)]))
     expect(new Set(ids).size).toBe(ids.length)

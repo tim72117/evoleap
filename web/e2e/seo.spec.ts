@@ -66,7 +66,9 @@ test('og:image 檔案存在', async ({ request }) => {
 
 // 一課或一章的頁面:/courses/<課程>/<課號或章節>、/topics/<主題>/<課號>
 // 先不公開的課程(levels.ts 的 hidden)
-const HIDDEN_COURSE_PREFIXES = ['/courses/ai-tools']
+// 「做出自己的軟體」的零基礎階段(ai-tools,課號 1.x～3.x,網址 /courses/software/1-0…3-3)先不公開;課程頁本身照常收錄
+const HIDDEN_COURSE_PREFIXES: string[] = []
+const HIDDEN_PAGE = /^\/courses\/software\/[1-3]-\d$/
 const LESSON_PAGE = /^\/(courses|topics)\/[^/]+\/[^/]+$/
 
 test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁(還沒開放的課除外)', async ({ request }) => {
@@ -84,7 +86,7 @@ test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁(�
       const h = parseHead(await r.text())
       expect.soft(h.meta('robots'), `${path}:meta robots`).toEqual(['noindex, nofollow'])
       expect.soft(h.titles.length, `${path}:<title> 數量`).toBe(1)
-    } else if (HIDDEN_COURSE_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))) {
+    } else if (HIDDEN_PAGE.test(path) || HIDDEN_COURSE_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))) {
       // 先不公開(levels.ts 的 hidden)的課程:網址打得開,但不收錄、不進 sitemap
       expect.soft(sitemap.has(path), `${path}:先不公開的課不可在 sitemap`).toBe(false)
       const h = parseHead(await (await request.get(path)).text())
@@ -122,8 +124,10 @@ test('sitemap 的課頁依資料庫:課開放才收錄', async ({ request }) => 
 
 // 主題頁的結構化資料(JSON-LD)裡,課程清單的一課附不附 url 由 server 依資料庫決定:開放(open)的附、沒開放的不附,標記欄位不出現在回應裡
 for (const { course, path } of [
-  { course: 'kids', path: '/topics/kids' },
-  { course: 'web', path: '/topics/web' },
+  { course: 'kids', path: '/courses/kids' },
+  { course: 'web', path: '/courses/web' },
+  { course: 'launch', path: '/courses/launch' },
+  { course: 'claude-code', path: '/courses/claude-code' },
 ]) {
   test(`${path} 的結構化資料:課程連結依資料庫`, async ({ request }) => {
     const html = await (await request.get(path)).text()
@@ -143,8 +147,8 @@ for (const { course, path } of [
 }
 
 // 瀏覽器執行 JS 之後(爬蟲轉譯後的 DOM)結構化資料還是 server 依資料庫處理過的版本:開放的課有 url、沒有內部標記
-test('/topics/kids 轉譯後的結構化資料仍附資料庫開放的課的 url', async ({ page, request }) => {
-  await page.goto('/topics/kids')
+test('/courses/kids 轉譯後的結構化資料仍附資料庫開放的課的 url', async ({ page, request }) => {
+  await page.goto('/courses/kids')
   await expect(page.locator('h1').first()).toBeVisible()
   await page.waitForLoadState('networkidle')
   const texts = await page.locator('script[type="application/ld+json"][data-seo]').allTextContents()
@@ -175,7 +179,7 @@ test('robots.txt 有 Sitemap、沒有封鎖全站', async ({ request }) => {
   expect(body).not.toMatch(/^Disallow:\s*\/\s*$/m)
 })
 
-for (const path of ['/nope', '/courses/nope', '/courses/tools/999', '/docs/nope', '/studio/nope']) {
+for (const path of ['/nope', '/courses/nope', '/courses/software/999', '/docs/nope', '/studio/nope']) {
   test(`不存在的頁面回 404 + noindex:${path}`, async ({ request }) => {
     const r = await request.get(path, { maxRedirects: 0 })
     expect(r.status()).toBe(404)
@@ -190,12 +194,12 @@ for (const path of ['/nope', '/courses/nope', '/courses/tools/999', '/docs/nope'
 
 test('結尾斜線與 /index.html 以 301 導向正式網址(保留 query)', async ({ request }) => {
   const cases: [string, string][] = [
-    ['/courses/tools/', '/courses/tools'],
+    ['/courses/software/', '/courses/software'],
     ['/studio/', '/studio'],
-    ['/courses/tools/1/', '/courses/tools/1'],
+    ['/courses/software/1/', '/courses/software/1'],
     ['/index.html', '/'],
-    ['/courses/tools/index.html', '/courses/tools'],
-    ['/courses/tools/?a=1', '/courses/tools?a=1'],
+    ['/courses/software/index.html', '/courses/software'],
+    ['/courses/software/?a=1', '/courses/software?a=1'],
   ]
   for (const [from, to] of cases) {
     const r = await request.get(from, { maxRedirects: 0 })
@@ -215,7 +219,7 @@ test('靜態檔:找不到回 404 而不是 HTML;/assets 長期快取、頁面 no
   const home = await request.get('/')
   expect(home.headers()['cache-control']).toBe('no-cache')
   expect(home.headers()['etag']).toBeTruthy()
-  expect((await request.get('/courses/tools')).headers()['cache-control']).toBe('no-cache')
+  expect((await request.get('/courses/software')).headers()['cache-control']).toBe('no-cache')
   expect((await request.get('/nope')).headers()['cache-control']).toBe('no-cache')
 
   const html = await home.text()
@@ -232,13 +236,13 @@ test('靜態檔:找不到回 404 而不是 HTML;/assets 長期快取、頁面 no
 })
 
 test('條件式請求:帶 ETag 回 304', async ({ request }) => {
-  const etag = (await request.get('/courses/tools')).headers()['etag']
-  const r = await request.get('/courses/tools', { headers: { 'If-None-Match': etag } })
+  const etag = (await request.get('/courses/software')).headers()['etag']
+  const r = await request.get('/courses/software', { headers: { 'If-None-Match': etag } })
   expect(r.status()).toBe(304)
 })
 
 test('HEAD 請求:頁面 200、找不到 404,都沒有 body', async ({ request }) => {
-  const ok = await request.head('/courses/tools')
+  const ok = await request.head('/courses/software')
   expect(ok.status()).toBe(200)
   expect(ok.headers()['content-type']).toContain('text/html')
   expect((await ok.body()).length).toBe(0)

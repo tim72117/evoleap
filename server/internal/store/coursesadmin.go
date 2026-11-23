@@ -97,6 +97,16 @@ func (s *Store) AdminCourses(ctx context.Context) ([]CourseSummary, error) {
 type CoursePatch struct {
 	Access *string `json:"access,omitempty"`
 	Title  *string `json:"title,omitempty"`
+	// 課程資訊(見 courseRow):簡介、說明段落、搜尋結果的標題與描述、插圖樣式;給空字串(About 給空陣列)代表清掉
+	Summary     *string   `json:"summary,omitempty"`
+	About       *[]string `json:"about,omitempty"`
+	SEOTitle    *string   `json:"seoTitle,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Art         *string   `json:"art,omitempty"`
+	IntroScript *string   `json:"introScript,omitempty"`
+	// 所屬主題(topics 表的 id,見 courseRow;給空字串清掉,該課就不列在全部課程)與有沒有課程總覽頁
+	TopicID  *string `json:"topicId,omitempty"`
+	Overview *bool   `json:"overview,omitempty"`
 }
 
 // UpdateCourse 改一門課自己的存取方式或課名並記一筆修改紀錄(course.update);課程不存在時回 ErrCourseNotFound。
@@ -117,6 +127,41 @@ func (s *Store) UpdateCourse(ctx context.Context, user, courseID string, p Cours
 		if p.Title != nil {
 			c.Title = strings.TrimSpace(*p.Title)
 		}
+		about := splitAbout(c.About)
+		if p.Summary != nil {
+			c.Summary = strings.TrimSpace(*p.Summary)
+		}
+		if p.About != nil {
+			about = make([]string, len(*p.About))
+			for i, para := range *p.About {
+				about[i] = strings.TrimSpace(para)
+			}
+		}
+		if p.SEOTitle != nil {
+			c.SEOTitle = strings.TrimSpace(*p.SEOTitle)
+		}
+		if p.Description != nil {
+			c.Description = strings.TrimSpace(*p.Description)
+		}
+		if p.Art != nil {
+			c.Art = strings.TrimSpace(*p.Art)
+		}
+		if p.IntroScript != nil {
+			c.IntroScript = strings.TrimSpace(*p.IntroScript)
+		}
+		if p.TopicID != nil {
+			c.TopicID = strings.TrimSpace(*p.TopicID)
+		}
+		if p.Overview != nil {
+			c.Overview = *p.Overview
+		}
+		if err := validateCourseTopicID(tx, c.TopicID); err != nil {
+			return err
+		}
+		if err := validateCourseInfo(c.Art, c.Summary, c.Description, c.SEOTitle, c.IntroScript, about); err != nil {
+			return err
+		}
+		c.About = joinAbout(about)
 		switch Access(c.Access) {
 		case AccessFree, AccessLoginFree, AccessSubscription:
 		default:
@@ -126,7 +171,8 @@ func (s *Store) UpdateCourse(ctx context.Context, user, courseID string, p Cours
 			return invalid("title 不能是空的")
 		}
 		if err := tx.Model(&courseRow{}).Where("id = ?", courseID).
-			Select("access", "title", "updated_at").Updates(&courseRow{Access: c.Access, Title: c.Title, UpdatedAt: now()}).Error; err != nil {
+			Select("access", "title", "summary", "about", "seo_title", "description", "art", "intro_script", "topic_id", "overview", "updated_at").
+			Updates(&courseRow{Access: c.Access, Title: c.Title, Summary: c.Summary, About: c.About, SEOTitle: c.SEOTitle, Description: c.Description, Art: c.Art, IntroScript: c.IntroScript, TopicID: c.TopicID, Overview: c.Overview, UpdatedAt: now()}).Error; err != nil {
 			return err
 		}
 		return s.recordChange(tx, user, "course.update", courseID, p)

@@ -178,19 +178,19 @@ func TestUpsertUnitsReorders(t *testing.T) {
 	st := openSeeded(t)
 	lesson := func(id string) lessonSeed { return lessonSeed{ID: id, Title: id, Status: LessonPlanned} }
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return syncUnits(tx, "tools", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("c")}}})
+		return syncUnits(tx, "software", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("c")}}})
 	}); err != nil {
 		t.Fatal(err)
 	}
-	if err := st.db.Model(&lessonRow{}).Where("course_id = ? AND id = ?", "tools", "c").Update("title", "改過的").Error; err != nil {
+	if err := st.db.Model(&lessonRow{}).Where("course_id = ? AND id = ?", "software", "c").Update("title", "改過的").Error; err != nil {
 		t.Fatal(err)
 	}
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return upsertUnits(tx, "tools", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("b"), lesson("c")}}})
+		return upsertUnits(tx, "software", []unitSeed{{ID: "0", Title: "u", Lessons: []lessonSeed{lesson("a"), lesson("b"), lesson("c")}}})
 	}); err != nil {
 		t.Fatal(err)
 	}
-	m, err := st.CourseMapOf(context.Background(), "tools", true)
+	m, err := st.CourseMapOf(context.Background(), "software", true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -216,16 +216,16 @@ func TestUpsertUnitsMovesLesson(t *testing.T) {
 	st := openSeeded(t)
 	lesson := func(id string) lessonSeed { return lessonSeed{ID: id, Title: id, Status: LessonPlanned} }
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return syncUnits(tx, "tools", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a"), lesson("b")}}, {ID: "2", Title: "u2"}})
+		return syncUnits(tx, "software", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a"), lesson("b")}}, {ID: "2", Title: "u2"}})
 	}); err != nil {
 		t.Fatal(err)
 	}
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
-		return upsertUnits(tx, "tools", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a")}}, {ID: "2", Title: "u2", Lessons: []lessonSeed{lesson("b")}}})
+		return upsertUnits(tx, "software", []unitSeed{{ID: "1", Title: "u1", Lessons: []lessonSeed{lesson("a")}}, {ID: "2", Title: "u2", Lessons: []lessonSeed{lesson("b")}}})
 	}); err != nil {
 		t.Fatal(err)
 	}
-	m, err := st.CourseMapOf(context.Background(), "tools", true)
+	m, err := st.CourseMapOf(context.Background(), "software", true)
 	if err != nil {
 		t.Fatal(err)
 	}

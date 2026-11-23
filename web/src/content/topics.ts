@@ -1,10 +1,10 @@
 // 首頁的主題。一個主題是一組不同目標的課程:「做出自己的軟體」(levels.ts 的 LEVELS)與「打造 AI 互動軟體」(AI_APP_LEVELS)各有課程地圖頁。
 // 規劃中的主題只放暫定的名稱、標語與預計做出的成果;不要寫未確認的事實(價格、日期、收入、學員數等)。
 import { messages } from '../i18n/current'
-import { KIDS_LESSON_PAGES, kidsLessonTitle } from './kidsCourse'
+import { KIDS_LESSON_PAGES } from './kidsCourse'
 import { launchLessonPath } from './launchCourse'
-import { AI_APP_LEVELS, SOFTWARE_LEDE } from './levels'
-import { WEB_LESSON_PAGES, webLesson } from './webCourse'
+import { AI_APP_LEVELS, SOFTWARE_LEDE, levelPath } from './levels'
+import { WEB_LESSON_PAGES } from './webCourse'
 
 /** 主題卡片「開始第一課」這顆固定按鈕的文字:資料只存這一份中文,畫面依目前語言換成字典的 home.startFirstLesson(topicStartLabel) */
 export const START_FIRST_LESSON = '開始第一課'
@@ -23,6 +23,7 @@ export const SOFTWARE_TOPIC = {
   /** 課程地圖所在的頁面 */
   path: '/topics/software',
   /** 搜尋結果的標題與描述:寫學員會搜尋的說法,不要寫未確認的事實 */
+  // 課程總覽頁 /courses/software 的搜尋標題讀資料庫種子(courses_seed.json),原本是這一句;兩頁的標題不能一樣,主題頁改成課程地圖的說法
   seoTitle: '不會寫程式也能做軟體：零基礎 AI 開發課程地圖',
   description: `${SOFTWARE_LEDE}。零基礎也能開始，用 AI 做出網站與小工具，再學會串接自動化流程，免費從入門課開始。`,
   /** 首頁卡片的「你會學到什麼」:依等級(levels.ts 的 LEVELS)各一項 */
@@ -41,20 +42,20 @@ export const AI_APPS_TOPIC = {
   description: '學會打造會動手做事的 AI 軟體：寫出工具、讓 AI 自己判斷要呼叫哪一個，做成打字提問就能用的介面，並穩定上線。課程規劃中。',
 }
 
-/** 主題「Claude Code 工作術」:只整理使用情境、沒有實作,不分等級,還在規劃中 */
+/** 主題「Claude Code 工作術」:只整理使用情境、沒有實作,不分等級。課程總覽頁 /courses/claude-code(和其他課共用),有示範影片的情境一個情境一頁 /courses/claude-code/<課號> */
 export const CLAUDE_CODE_TOPIC = {
   name: 'Claude Code 工作術',
   slogan: '遇到這些情況時，該怎麼用',
-  path: '/topics/claude-code',
+  path: '/courses/claude-code',
   seoTitle: 'Claude Code 使用技巧：常見情境與對應做法',
   description: '整理使用 Claude Code 時的常見情境：換手機接著做、同時試好幾版、接回昨天的對話、把規則寫下來。遇到哪個情況就看哪一個。內容規劃中。',
 }
 
-/** 主題「從做好到上線」:課程地圖在 /topics/launch(home/LaunchTopicPage.tsx),大綱在 content/launchCourse.ts;首頁放在「做出自己的軟體」下方 */
+/** 主題「從做好到上線」:課程地圖就是課程總覽頁 /courses/launch(courses/CourseOverviewPage.tsx,和其他課共用),一課一頁 /courses/launch/<課號>,大綱在 content/launchCourse.ts;首頁放在「做出自己的軟體」下方 */
 export const LAUNCH_TOPIC = {
   name: '從做好到上線',
   slogan: '繁雜的上線流程交給 AI，輕鬆讓作品變成服務',
-  path: '/topics/launch',
+  path: '/courses/launch',
   seoTitle: '從做好到上線：用 AI 處理繁雜流程，輕鬆把作品放上線',
   description: '部署、網域、資料與登入、收費、監控，這些繁雜的上線流程，學會用 AI 處理，輕鬆把做好的網站與工具變成別人能用的服務。序章開放中，前五課可以預覽。',
   open: true,
@@ -105,9 +106,13 @@ export const COURSE_LIST = {
   description: '依主題列出所有 AI 課程：從零基礎做出自己的網站與小工具、看懂網頁怎麼運作、給孩子的網頁程式課，到打造會查資料、跑分析的 AI 互動軟體，也整理 Claude Code 的常見使用情境。可以看到每門課目前開放與規劃中的狀態。',
 }
 
-/** 課程所在的主題(依課程頁路徑判斷):麵包屑、「課程地圖」連結用 */
+/** 課程所在的主題(依課程頁路徑判斷):麵包屑、「課程地圖」連結用。網頁怎麼運作的主題就是這門課自己(WEB_TOPIC.path = 課程總覽頁) */
 export function topicOfCourse(coursePath: string): { name: string; path: string } {
-  return AI_APP_LEVELS.some((l) => l.link === coursePath) ? AI_APPS_TOPIC : SOFTWARE_TOPIC
+  if (coursePath === WEB_TOPIC.path) return WEB_TOPIC
+  if (coursePath === LAUNCH_TOPIC.path) return LAUNCH_TOPIC
+  if (coursePath === CLAUDE_CODE_TOPIC.path) return CLAUDE_CODE_TOPIC
+  if (coursePath === KIDS_TOPIC.path) return KIDS_TOPIC
+  return AI_APP_LEVELS.some((l) => levelPath(l) === coursePath) ? AI_APPS_TOPIC : SOFTWARE_TOPIC
 }
 
 export type PlannedTopic = {
@@ -147,13 +152,13 @@ export type PlannedTopic = {
 }
 
 /**
- * 主題「給孩子的網頁程式」:首頁單獨放在「更多主題課程」上方;課程地圖在 /topics/kids(home/KidsTopicPage.tsx)。
+ * 主題「給孩子的網頁程式」:首頁單獨放在「更多主題課程」上方;課程總覽在 /courses/kids(courses/CourseOverviewPage.tsx,和其他課共用)。
  * 單元與課程在 content/kidsCourse.ts;研發中的大綱與試做在研發基地 /studio/kids-web。這裡只寫大綱裡已有的內容。
  */
 export const KIDS_TOPIC = {
   name: '給孩子的網頁程式',
   slogan: '用積木蓋網頁，陪 9 歲的孩子做出自己的小網站',
-  path: '/topics/kids',
+  path: '/courses/kids',
   seoTitle: '給孩子的網頁程式課：用積木認識 HTML、CSS、JavaScript',
   description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程陸續開放中，前五課可以預覽。',
   open: true,
@@ -173,28 +178,37 @@ export const KIDS_TOPIC = {
   },
 } satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
 
-/** 兒童課課程頁的標題(頁面的 document.title 與 seo/pages.ts 共用) */
-export const kidsLessonDocTitle = (id: string): string => `${kidsLessonTitle(id)}｜${KIDS_TOPIC.name}`
-
 /**
- * 主題「網頁怎麼運作」:課程地圖在 /topics/web(home/WebTopicPage.tsx)。
+ * 主題「網頁怎麼運作」:課程地圖就是課程總覽頁 /courses/web(courses/CourseOverviewPage.tsx,和其他課共用),一課一頁在 /courses/web/<課號>。
  * 單元與課程在 content/webCourse.ts;研發中的構想在研發基地 /studio/web-basics。前五課不用登入就能預覽,其他開放的課要登入(訂閱制上線後改成訂閱才能看)。
  */
 export const WEB_TOPIC = {
   name: '網頁怎麼運作',
   slogan: '語法交給 AI，看懂原理才能跟 AI 說清楚',
-  path: '/topics/web',
+  path: '/courses/web',
   seoTitle: '網頁怎麼運作：AI 時代的網頁基礎課',
   description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。前五課可以預覽。',
   open: true,
   start: { label: START_FIRST_LESSON, path: WEB_LESSON_PAGES['0.1'].path },
   tag: 'AI 寫程式，我還需要知道什麼？',
-  intro: 'AI 已經能寫出大部分的程式碼，但寫得出來，不代表你看得懂、說得準。這門課不教語法，教網頁怎麼運作：瀏覽器怎麼畫出畫面、樣式和資料各歸誰管、網站怎麼放上網路。',
   learn: ['用對名詞，把想要的畫面和功能跟 AI 說清楚', '看懂 AI 改了哪裡、為什麼這樣改', '畫面壞掉時，知道該往哪裡找問題'],
 } satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
 
-/** 網頁怎麼運作課程頁的標題(頁面的 document.title 與 seo/pages.ts 共用) */
-export const webLessonDocTitle = (id: string): string => `${webLesson(id)?.title ?? id}｜${WEB_TOPIC.name}`
+/** Claude Code 工作術的課號:情境的順序(資料庫課程地圖的課號 1–7,單元 0「使用情境」) */
+export const claudeCodeScenarioId = (index: number): string => String(index + 1)
+
+/** 這段影片的錨點:腳本檔名去掉資料夾與副檔名(claude-code/remote.json → remote)。舊網址 /topics/claude-code#remote 轉到這一課的頁面 */
+export const scenarioAnchor = (script: string): string => script.replace(/^.*\//, '').replace(/\.json$/, '')
+
+/** 已經有課程頁的情境(有示範影片的):課號 → 課程頁網址、腳本、錨點。規劃中的情境沒有頁面。腳本要和種子一致(content/courseMap.test.ts) */
+export const CLAUDE_CODE_LESSON_PAGES: Record<string, { path: string; script: string; anchor: string }> = Object.fromEntries(
+  CLAUDE_CODE_SCENARIOS.flatMap((s, i) =>
+    s.video ? [[claudeCodeScenarioId(i), { path: `${CLAUDE_CODE_TOPIC.path}/${claudeCodeScenarioId(i)}`, script: s.video.script, anchor: scenarioAnchor(s.video.script) }]] : [],
+  ),
+)
+
+/** 課號 → 情境 */
+export const claudeCodeScenario = (id: string): (typeof CLAUDE_CODE_SCENARIOS)[number] | undefined => CLAUDE_CODE_SCENARIOS[Number(id) - 1]
 
 export const PLANNED_TOPICS: PlannedTopic[] = [
   WEB_TOPIC,

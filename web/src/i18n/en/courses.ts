@@ -52,16 +52,16 @@ export const courses: Messages['courses'] = {
   list: {
     intro: 'All courses, grouped by topic. Courses marked “Coming soon” are still being planned, so their names and content may change.',
     openN: (n) => `${n} ${Number(n) === 1 ? 'lesson' : 'lessons'} available`,
-    demoVideosN: (n) => `${n} demo ${Number(n) === 1 ? 'video' : 'videos'}`,
     otherPlanned: 'More coming soon',
     viewMap: 'View course map',
-    viewScenarios: 'View all scenarios',
   },
 
   overview: {
     start: 'Start learning',
     content: 'Course content',
-    freePreview: 'Preview',
+    intro: 'Course introduction',
+    about: 'About this course',
+    freePreview: 'Try it',
     signInToLearn: 'Sign in to watch',
     interactive: 'Interactive',
     listLoading: 'Loading course information…',
@@ -76,8 +76,6 @@ export const courses: Messages['courses'] = {
   },
 
   aiAgent: {
-    features: 'Course highlights',
-    viewUnits: 'See course units',
     outcomesEyebrow: 'Outcomes',
     outcomesTitle: "What you'll learn",
     outcomesLead: "By the end of this course, you'll be able to:",
@@ -126,15 +124,18 @@ export const courses: Messages['courses'] = {
     pager: 'Previous and next lesson',
     finishCourse: 'Course complete',
     backToMap: 'Back to the course map',
-  },
 
-  interactive: {
     back: '← Course',
-    guestHint: " and we'll remember where you left off so you can pick up from there next time.",
+    backToCourseMap: '← Course map',
     prev: (label) => `← Previous: ${label}`,
     next: (label) => `Next: ${label} →`,
     nextChapter: (level) => `Next course: ${level} →`,
-    courseMap: 'Course map →',
+    courseMapNext: 'Course map →',
+    resumeAfterSignIn: " and we'll remember where you left off so you can pick up from there next time.",
+    loginNote: 'You can preview the first five lessons right away. Sign in to watch the rest; we’ll also save your progress.',
+    kidsLoginNote: 'You can preview the first five lessons right away. Sign in to take the rest; we’ll also save how far your child has gotten.',
+    draft: (title) => `${title} (draft)`,
+    docTitle: (title, course) => `${title} | ${course}`,
   },
 
   gate: {

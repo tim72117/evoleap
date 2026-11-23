@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { COURSES, isPreviewLesson, lessonPath } from '../content/catalog'
+import { lessonUrl, PREVIEW_LESSON_ID } from '../content/catalog'
+import { mapLessonOf, useCourseMap } from '../content/courseMap'
 import { KIDS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
 import { KidsPlayer } from '../kids/KidsPlayer'
 import { useT } from '../i18n/I18nProvider'
@@ -14,15 +15,15 @@ import styles from './HomePage.module.css'
 // 播放器的 track="home":按下播放才記一筆展示影片的紀錄(home:…,後台標成「展示影片」),和打開課程分開算。版面沿用首頁的樣式(HomePage.module.css)。
 
 
-const tools = COURSES.find((c) => c.slug === 'tools')!
-// 展示影片一律播序章(不用登入就能看),從頭開始;「開始第一課」也從序章開始
-const introLesson = tools.lessons.find(isPreviewLesson)!
+// 展示影片一律播序章(不用登入就能看),從頭開始;「開始第一課」也從序章開始。序章的腳本與課名照課程地圖 API(讀到之前不放播放器)
 
 export function ShowcasePage() {
   const [shrinkSlot, setShrinkSlot] = useState<HTMLElement | null>(null)
   /** 兒童主題預覽的環節選單放在卡片左欄的這個位置(窄螢幕時左欄排在預覽上面,一樣顯示) */
   const [kidsMenu, setKidsMenu] = useState<HTMLElement | null>(null)
   const t = useT()
+  const softwareMap = useCourseMap('software')
+  const introLesson = mapLessonOf(softwareMap.status === 'ready' ? softwareMap.map : undefined, PREVIEW_LESSON_ID)
 
   return (
     <SiteLayout title={t.home.showcase.title}>
@@ -41,7 +42,7 @@ export function ShowcasePage() {
               <p className={styles.slogan}>{SOFTWARE_TOPIC.slogan}</p>
               <p className={styles.lede}>{SOFTWARE_TOPIC.lede}</p>
               <div className={styles.ctas}>
-                <Link className={styles.primary} to={lessonPath(tools, introLesson)}>
+                <Link className={styles.primary} to={lessonUrl('software', PREVIEW_LESSON_ID)}>
                   {t.home.startFirstLesson}
                 </Link>
                 <Link className={styles.secondary} to={{ pathname: SOFTWARE_TOPIC.path, hash: 'map' }}>
@@ -51,15 +52,17 @@ export function ShowcasePage() {
               </div>
             </div>
             <div className={styles.player}>
-              <InteractiveScenePage
-                key={introLesson.id}
-                script={introLesson.videos[0].live!}
-                pageTitle={introLesson.title}
-                interaction="static"
-                embed
-                track="home"
-                shrinkSlot={shrinkSlot}
-              />
+              {introLesson?.script && (
+                <InteractiveScenePage
+                  key={introLesson.id}
+                  script={introLesson.script}
+                  pageTitle={introLesson.title}
+                  interaction="static"
+                  embed
+                  track="home"
+                  shrinkSlot={shrinkSlot}
+                />
+              )}
             </div>
           </div>
         </article>

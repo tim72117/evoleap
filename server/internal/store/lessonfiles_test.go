@@ -30,16 +30,16 @@ func TestSyncLessonFiles(t *testing.T) {
 	write("x/0.1-sub.json", `{"b":2}`)
 	write("lab/demo.json", `{"c":3}`)
 	units := `[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","access":"free","status":"open","script":"x/0.1.json","files":["x/0.1-sub.json"]}]}]`
-	if err := st.ReplaceUnitsJSON("tools", units); err != nil {
+	if err := st.ReplaceUnitsJSON("software", units); err != nil {
 		t.Fatal(err)
 	}
 	ctx := context.Background()
-	if err := st.SyncLessonFilesJSON(ctx, []byte(`[{"id":"tools","title":"t","access":"login-free","units":`+units+`}]`), dir); err != nil {
+	if err := st.SyncLessonFilesJSON(ctx, []byte(`[{"id":"software","title":"t","access":"login-free","units":`+units+`}]`), dir); err != nil {
 		t.Fatal(err)
 	}
 	for _, p := range []string{"x/0.1.json", "x/0.1.voice.json", "x/0.1-sub.json"} {
 		f, err := st.LessonFileOf(ctx, p)
-		if err != nil || f.CourseID != "tools" || f.LessonID != "0.1" || f.Status != LessonOpen || f.Access != AccessFree {
+		if err != nil || f.CourseID != "software" || f.LessonID != "0.1" || f.Status != LessonOpen || f.Access != AccessFree {
 			t.Errorf("%s: %+v %v", p, f, err)
 		}
 	}
@@ -54,7 +54,7 @@ func TestSyncLessonFiles(t *testing.T) {
 		t.Errorf("課程的腳本不該在研發基地的表: %v", err)
 	}
 	// 種子寫到的檔案不存在:啟動要失敗
-	if err := st.SyncLessonFilesJSON(ctx, []byte(`[{"id":"tools","title":"t","access":"free","units":[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"open","script":"x/nope.json"}]}]}]`), dir); err == nil {
+	if err := st.SyncLessonFilesJSON(ctx, []byte(`[{"id":"software","title":"t","access":"free","units":[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"open","script":"x/nope.json"}]}]}]`), dir); err == nil {
 		t.Error("缺檔應該報錯")
 	}
 }
@@ -73,15 +73,15 @@ func TestLessonFilesOwnership(t *testing.T) {
 		}
 	}
 	ctx := context.Background()
-	twice := `[{"id":"tools","title":"t","access":"free","units":[{"id":"0","title":"序章","lessons":[{"id":"9.9","title":"一","status":"open","script":"a.json","files":["a.voice.json"]}]}]}]`
+	twice := `[{"id":"software","title":"t","access":"free","units":[{"id":"0","title":"序章","lessons":[{"id":"9.9","title":"一","status":"open","script":"a.json","files":["a.voice.json"]}]}]}]`
 	if err := st.SyncLessonFilesJSON(ctx, []byte(twice), dir); err != nil {
 		t.Errorf("同一課寫兩次應該略過: %v", err)
 	}
-	shared := `[{"id":"tools","title":"t","access":"free","units":[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"open","script":"a.json"},{"id":"0.2","title":"二","status":"open","files":["a.json"]}]}]}]`
-	if err := st.SyncLessonFilesJSON(ctx, []byte(shared), dir); err == nil || !strings.Contains(err.Error(), "tools 0.1") || !strings.Contains(err.Error(), "tools 0.2") {
+	shared := `[{"id":"software","title":"t","access":"free","units":[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"open","script":"a.json"},{"id":"0.2","title":"二","status":"open","files":["a.json"]}]}]}]`
+	if err := st.SyncLessonFilesJSON(ctx, []byte(shared), dir); err == nil || !strings.Contains(err.Error(), "software 0.1") || !strings.Contains(err.Error(), "software 0.2") {
 		t.Errorf("兩課共用一個檔要報出兩課: %v", err)
 	}
-	// 資料庫的 tools 沒有 9.9 這一課:檔案在,課不在
+	// 資料庫的 software 沒有 9.9 這一課:檔案在,課不在
 	if err := st.SyncLessonFilesJSON(ctx, []byte(twice), dir); err != nil {
 		t.Fatal(err)
 	}

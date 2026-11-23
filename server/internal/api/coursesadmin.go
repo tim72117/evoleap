@@ -14,7 +14,9 @@ import (
 //
 //	GET   /api/admin/courses                          課程清單與各狀態的課數
 //	GET   /api/admin/courses/{id}                     一門課的課程地圖(含草稿、腳本、時間)
-//	PATCH /api/admin/courses/{id}                     改一門課自己的:access、title
+//	PATCH /api/admin/courses/{id}                     改一門課自己的:access、title、summary、about、seoTitle、description、art、introScript、topicId、overview
+//	GET   /api/admin/topics                           主題清單(含 content)
+//	PATCH /api/admin/topics/{id}                      改一個主題:name、slogan、path、seoTitle、description、content(JSON 物件,整包換掉)
 //	PATCH /api/admin/courses/{id}/lessons/{lesson}    改一課:status、access、minutes、title、summary、script
 //	PUT   /api/admin/scripts/{path...}?course=&lesson= 寫入一個腳本檔(新增或取代);讀取用 GET /api/scripts/{path}
 //	GET   /api/admin/course-changes?limit=            最近的修改紀錄
@@ -52,6 +54,8 @@ func writeCourseDataError(w http.ResponseWriter, err error) {
 		writeError(w, http.StatusBadRequest, "invalid", err.Error())
 	case errors.Is(err, store.ErrCourseNotFound):
 		writeError(w, http.StatusNotFound, "not_found", "找不到這門課")
+	case errors.Is(err, store.ErrTopicNotFound):
+		writeError(w, http.StatusNotFound, "not_found", "找不到這個主題")
 	case errors.Is(err, store.ErrNotFound):
 		writeError(w, http.StatusNotFound, "not_found", "找不到這一課")
 	default:
@@ -70,6 +74,39 @@ func (s *Server) handleAdminCourseUpdate(w http.ResponseWriter, r *http.Request,
 		return
 	}
 	s.handleAdminCourse(w, r, user)
+}
+
+func (s *Server) handleAdminTopics(w http.ResponseWriter, r *http.Request, _ store.User) {
+	topics, err := s.cfg.Store.ListTopics(r.Context())
+	if err != nil {
+		internalError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"topics": topics})
+}
+
+func (s *Server) handleAdminTopicUpdate(w http.ResponseWriter, r *http.Request, user store.User) {
+	var p store.TopicPatch
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 128<<10)).Decode(&p); err != nil {
+		var tooBig *http.MaxBytesError
+		if errors.As(err, &tooBig) {
+			writeError(w, http.StatusBadRequest, "bad_request", "內容太大(請求最多 128KB)")
+			return
+		}
+		writeError(w, http.StatusBadRequest, "bad_request", "格式錯誤")
+		return
+	}
+	id := r.PathValue("id")
+	if err := s.cfg.Store.UpdateTopic(r.Context(), user.Email, id, p); err != nil {
+		writeCourseDataError(w, err)
+		return
+	}
+	t, err := s.cfg.Store.TopicOf(r.Context(), id)
+	if err != nil {
+		writeCourseDataError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, t)
 }
 
 func (s *Server) handleAdminLessonUpdate(w http.ResponseWriter, r *http.Request, user store.User) {

@@ -102,7 +102,7 @@ export function guide(l: number, D: number): SceneOut {
   // 網址列
   s += `<rect x="${x + 40}" y="700" width="${w - 80}" height="76" rx="38" fill="#f1ece2"/>`
   s += txt(x + 80, 750, '🔒', 28, MUTED, { weight: 500 })
-  s += txt(x + 130, 750, 'evoleap.io/topics/claude-code#remote', 30, INK, { font: MONO, weight: 600 })
+  s += txt(x + 130, 750, 'evoleap.io/courses/claude-code/2', 30, INK, { font: MONO, weight: 600 })
   // 頁面
   s += txt(x + 50, 850, 'Claude Code 工作術', 40, INK, { weight: 800 })
   s += txt(x + 50, 896, '遇到哪個情況就看哪一個，不用照順序', 26, MUTED, { weight: 500 })

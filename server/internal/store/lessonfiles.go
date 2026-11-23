@@ -98,6 +98,20 @@ func readLessonFiles(seeds []courseSeedRow, dir string) (seedFiles, error) {
 	var out seedFiles
 	owner := map[string]string{} // 路徑 → 哪一課(一個檔只能屬於一課)
 	for _, c := range seeds {
+		// 課程簡介影片:屬於這門課(課號是空的),和各課的檔一樣一個檔只能屬於一處
+		if c.IntroScript != "" {
+			for _, p := range lessonFilePaths(dir, lessonSeed{Script: c.IntroScript}) {
+				if prev, ok := owner[p]; ok {
+					return seedFiles{}, fmt.Errorf("腳本 %s 同時屬於 %s 與課程 %s 的簡介影片,一個檔只能屬於一處", p, prev, c.ID)
+				}
+				owner[p] = c.ID + " 簡介影片"
+				b, err := os.ReadFile(filepath.Join(dir, filepath.FromSlash(p)))
+				if err != nil {
+					return seedFiles{}, fmt.Errorf("課程 %s 的簡介影片:讀不到腳本 %s:%w", c.ID, p, err)
+				}
+				out.lessons = append(out.lessons, lessonFileRow{Path: p, CourseID: c.ID, LessonID: "", Content: string(b)})
+			}
+		}
 		for _, u := range c.Units {
 			for _, l := range u.Lessons {
 				for _, p := range lessonFilePaths(dir, l) {
@@ -223,10 +237,21 @@ func (s *Store) LessonFileOf(ctx context.Context, path string) (LessonFile, erro
 	// 檔案所屬的課或課程已經不在(例如部署交替時另一版的種子拿掉了這一課):當作沒有這個檔
 	var l lessonRow
 	var c courseRow
-	if err := db.First(&l, "course_id = ? AND id = ?", f.CourseID, f.LessonID).Error; err != nil {
+	if err := db.First(&c, "id = ?", f.CourseID).Error; err != nil {
 		return LessonFile{}, notFoundAs(err)
 	}
-	if err := db.First(&c, "id = ?", f.CourseID).Error; err != nil {
+	// 課號是空的:課程簡介影片(課程層級的檔),公開給所有訪客,狀態視為 open、免費;檔案要還是這門課現在指定的簡介影片(或它的旁白、音軌)
+	if f.LessonID == "" {
+		base := strings.TrimSuffix(strings.TrimSuffix(path, ".voice.json"), ".mix.json")
+		if base == path {
+			base = strings.TrimSuffix(path, ".json")
+		}
+		if strings.TrimSuffix(c.IntroScript, ".json") != base {
+			return LessonFile{}, ErrLessonFileNotFound
+		}
+		return LessonFile{CourseID: f.CourseID, LessonID: "", Status: LessonOpen, Access: AccessFree, Content: f.Content}, nil
+	}
+	if err := db.First(&l, "course_id = ? AND id = ?", f.CourseID, f.LessonID).Error; err != nil {
 		return LessonFile{}, notFoundAs(err)
 	}
 	return LessonFile{CourseID: f.CourseID, LessonID: f.LessonID, Status: l.Status, Access: effectiveAccess(l.Access, c.Access), Content: f.Content}, nil

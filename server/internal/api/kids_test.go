@@ -18,20 +18,24 @@ import (
 func TestKidsModeFlow(t *testing.T) {
 	env := newAdminEnv(t, "boss@example.com")
 	dir := t.TempDir()
-	for _, p := range []string{"kid.json", "kid2.json", "tool.json"} {
+	for _, p := range []string{"kid.json", "kid2.json", "tool.json", "intro.json"} {
 		if err := os.WriteFile(filepath.Join(dir, p), []byte(`{"from":"`+p+`"}`), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
 	kidsUnits := `[{"id":"0","title":"序章","lessons":[{"id":"0.2","title":"二","status":"open","script":"kid.json"},{"id":"0.3","title":"三","status":"open","script":"kid2.json"}]}]`
 	toolUnits := `[{"id":"0","title":"序章","lessons":[{"id":"0.1","title":"一","status":"open","script":"tool.json"}]}]`
-	for id, units := range map[string]string{"kids": kidsUnits, "tools": toolUnits} {
+	for id, units := range map[string]string{"kids": kidsUnits, "software": toolUnits} {
 		if err := env.st.ReplaceUnitsJSON(id, units); err != nil {
 			t.Fatal(err)
 		}
 	}
-	seed := `[{"id":"kids","title":"k","access":"login-free","units":` + kidsUnits + `},{"id":"tools","title":"t","access":"login-free","units":` + toolUnits + `}]`
+	seed := `[{"id":"kids","title":"k","access":"login-free","introScript":"intro.json","units":` + kidsUnits + `},{"id":"software","title":"t","access":"login-free","units":` + toolUnits + `}]`
 	if err := env.st.SyncLessonFilesJSON(context.Background(), []byte(seed), dir); err != nil {
+		t.Fatal(err)
+	}
+	intro := "intro.json"
+	if err := env.st.UpdateCourse(context.Background(), "boss@example.com", "kids", store.CoursePatch{IntroScript: &intro}); err != nil {
 		t.Fatal(err)
 	}
 	// 2026-11-10 是週二,台灣時間 15:30
@@ -100,6 +104,13 @@ func TestKidsModeFlow(t *testing.T) {
 				t.Errorf("兒童模式狀態: %s", mode)
 			}
 
+			// 課程簡介影片:兒童模式時段外也看得到(課程地圖頁的小播放器),沒登入的訪客也行
+			if rec := do(http.MethodGet, "/api/scripts/intro.json", "", kc); rec.Code != http.StatusOK {
+				t.Errorf("時段外的課程簡介影片: %d %s", rec.Code, rec.Body)
+			}
+			if rec := serve(env.h, newReq(http.MethodGet, "/api/scripts/intro.json", "")); rec.Code != http.StatusOK {
+				t.Errorf("訪客的課程簡介影片: %d %s", rec.Code, rec.Body)
+			}
 			// 時段外:兒童課也打不開,訊息附下一堂;不是兒童課一律不給
 			if rec := do(http.MethodGet, "/api/scripts/kid.json", "", kc); rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "週二 16:00") {
 				t.Errorf("時段外的兒童課: %d %s", rec.Code, rec.Body)

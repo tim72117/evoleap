@@ -59,7 +59,10 @@ export function LessonGroup({
   labelOf,
   guest,
   open = true,
+  id,
 }: {
+  /** 頁內位置(#stage-… 這類錨點) */
+  id?: string
   title: string
   /** 標題下的小字(單元回答的問題、比喻) */
   subtitle?: string
@@ -75,7 +78,7 @@ export function LessonGroup({
   const t = useT()
   const c = t.courses
   return (
-    <details className={styles.group} open={open}>
+    <details className={styles.group} open={open} id={id}>
       <summary>
         <svg className={`${styles.icon} ${styles.chevron}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d={CHEVRON} />

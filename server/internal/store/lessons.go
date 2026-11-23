@@ -23,6 +23,10 @@ type unitRow struct {
 	// Subtitle 是課程地圖上單元標題下的小字(兒童課是解釋概念的比喻,網頁怎麼運作是這個單元回答的問題)
 	Subtitle string `gorm:"size:500"`
 	Position int    `gorm:"not null"`
+	// Label 是單元的簡短名稱(「做出自己的軟體」的階段:起步、零基礎、基礎),空的用 Title
+	Label string `gorm:"size:32"`
+	// Hidden 先不公開:課程總覽、課程地圖與 sitemap 不列這個單元,單元裡各課的網址還打得開(noindex)
+	Hidden bool `gorm:"not null;default:false"`
 }
 
 func (unitRow) TableName() string { return "course_units" }
@@ -60,6 +64,8 @@ type unitSeed struct {
 	ID       string       `json:"id"`
 	Title    string       `json:"title"`
 	Subtitle string       `json:"subtitle"`
+	Label    string       `json:"label,omitempty"`
+	Hidden   bool         `json:"hidden,omitempty"`
 	Lessons  []lessonSeed `json:"lessons"`
 }
 
@@ -99,7 +105,7 @@ func unitRows(courseID string, units []unitSeed) ([]unitRow, []lessonRow, error)
 	var us []unitRow
 	var ls []lessonRow
 	for i, u := range units {
-		us = append(us, unitRow{CourseID: courseID, ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Position: i})
+		us = append(us, unitRow{CourseID: courseID, ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Label: u.Label, Hidden: u.Hidden, Position: i})
 		for _, l := range u.Lessons {
 			if err := validateLesson(l.Status, l.Access, l.Script != "" || len(l.Files) > 0); err != nil {
 				return nil, nil, fmt.Errorf("課程 %s 的 %s:%s", courseID, l.ID, err)
@@ -142,7 +148,7 @@ func upsertUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 	}
 	key := []clause.Column{{Name: "course_id"}, {Name: "id"}}
 	if len(us) > 0 {
-		if err := tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"title", "subtitle", "position"})}).Create(&us).Error; err != nil {
+		if err := tx.Clauses(clause.OnConflict{Columns: key, DoUpdates: clause.AssignmentColumns([]string{"title", "subtitle", "label", "hidden", "position"})}).Create(&us).Error; err != nil {
 			return err
 		}
 	}
@@ -177,20 +183,35 @@ func deleteOthers(tx *gorm.DB, model any, courseID string, keep []string) error 
 
 // CourseMap 是一門課的課程地圖:課程、單元與每一堂課(依順序)。
 type CourseMap struct {
-	ID     string    `json:"id"`
-	Title  string    `json:"title"`
-	Access Access    `json:"access"`
-	Tier   string    `json:"tier,omitempty"`
-	Units  []MapUnit `json:"units"`
+	ID     string `json:"id"`
+	Title  string `json:"title"`
+	Access Access `json:"access"`
+	Tier   string `json:"tier,omitempty"`
+	// 課程資訊:課程總覽頁顯示的簡介、說明段落、搜尋結果的標題與描述、插圖樣式(見 courseRow)
+	Summary     string    `json:"summary,omitempty"`
+	About       []string  `json:"about,omitempty"`
+	SEOTitle    string    `json:"seoTitle,omitempty"`
+	Description string    `json:"description,omitempty"`
+	Art         string    `json:"art,omitempty"`
+	IntroScript string    `json:"introScript,omitempty"`
+	TopicID     string    `json:"topicId,omitempty"`
+	Topic       string    `json:"topic,omitempty"`
+	TopicSlogan string    `json:"topicSlogan,omitempty"`
+	TopicPath   string    `json:"topicPath,omitempty"`
+	Overview    *bool     `json:"overview,omitempty"`
+	Units       []MapUnit `json:"units"`
 	// hasDrafts:這門課有沒有草稿的課(不論看的人能不能看到)
 	hasDrafts bool
 }
 
 type MapUnit struct {
-	ID       string      `json:"id"`
-	Title    string      `json:"title"`
-	Subtitle string      `json:"subtitle"`
-	Lessons  []MapLesson `json:"lessons"`
+	ID       string `json:"id"`
+	Title    string `json:"title"`
+	Subtitle string `json:"subtitle"`
+	// Label 是單元的簡短名稱(階段名稱);Hidden 是先不公開的單元(前端不列,各課網址還打得開)
+	Label   string      `json:"label,omitempty"`
+	Hidden  bool        `json:"hidden,omitempty"`
+	Lessons []MapLesson `json:"lessons"`
 }
 
 type MapLesson struct {
@@ -225,11 +246,23 @@ func (s *Store) CourseMapOf(ctx context.Context, id string, drafts bool) (Course
 	if err := db.Where("course_id = ?", id).Order("position").Find(&lessons).Error; err != nil {
 		return CourseMap{}, err
 	}
-	m := CourseMap{ID: c.ID, Title: c.Title, Access: Access(c.Access), Tier: c.Tier, Units: make([]MapUnit, 0, len(units))}
+	m := CourseMap{ID: c.ID, Title: c.Title, Access: Access(c.Access), Tier: c.Tier, Summary: c.Summary, About: splitAbout(c.About), SEOTitle: c.SEOTitle, Description: c.Description, Art: c.Art, IntroScript: c.IntroScript, TopicID: c.TopicID, Units: make([]MapUnit, 0, len(units))}
+	if !c.Overview {
+		f := false
+		m.Overview = &f
+	}
+	if c.TopicID != "" {
+		var t topicRow
+		if err := db.First(&t, "id = ?", c.TopicID).Error; err == nil {
+			m.Topic, m.TopicSlogan, m.TopicPath = t.Name, t.Slogan, t.Path
+		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return CourseMap{}, err
+		}
+	}
 	index := map[string]int{}
 	for _, u := range units {
 		index[u.ID] = len(m.Units)
-		m.Units = append(m.Units, MapUnit{ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Lessons: []MapLesson{}})
+		m.Units = append(m.Units, MapUnit{ID: u.ID, Title: u.Title, Subtitle: u.Subtitle, Label: u.Label, Hidden: u.Hidden, Lessons: []MapLesson{}})
 	}
 	for _, l := range lessons {
 		i, ok := index[l.UnitID]

@@ -35,8 +35,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := st.SyncCourses(context.Background(), *liveDir); err != nil {
+	warnings, err := st.SyncCourses(context.Background(), *liveDir)
+	if err != nil {
 		log.Fatal(err)
+	}
+	for _, w := range warnings {
+		log.Printf("警告:%s", w)
 	}
 	log.Print("課程資料已寫入資料庫")
 }

@@ -16,7 +16,12 @@
 //	whoami                          目前登入的帳號
 //	course list                     課程清單與各狀態的課數
 //	course show -course ID          一門課的單元與每一課(含草稿、腳本、時間)
-//	course set -course ID [-access free|login-free|subscription] [-title 文字]   改一門課自己的存取方式或課名(沒寫 access 的課跟著這門課)
+//	course set -course ID [-access free|login-free|subscription] [-title 文字] [-summary 文字] [-about 段落||段落] [-seo-title 文字] [-description 文字] [-art 樣式] [-intro-script 路徑] [-topic-id 主題ID] [-overview=true|false]
+//	                                改一門課自己的存取方式、課名與課程資訊(簡介、說明段落用 || 分隔、搜尋結果標題與描述、插圖 tools|chat|build|agent|advanced);給空字串清掉(沒寫 access 的課跟著這門課)
+//	topic list                      主題清單(首頁卡片、主題頁、全部課程頁的分組;含 content)
+//	topic show -topic ID            一個主題
+//	topic set -topic ID [-name 文字] [-slogan 文字] [-path 網址] [-seo-title 文字] [-description 文字] [-content-file 路徑]
+//	                                改一個主題;-content-file 是整包換掉的 JSON 物件檔(其餘內容:lede、learn、flow、outcomes、preview…)
 //	lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title 文字] [-summary 文字] [-script 路徑]
 //	script get -path 路徑 [-out 檔案]
 //	script push -file 檔案 [-path 路徑] [-course ID -lesson ID]
@@ -57,7 +62,12 @@ var resources = []resource{
 	{name: "course", commands: []command{
 		{verb: "list", usage: "evoleap course list", run: cmdCourseList},
 		{verb: "show", usage: "evoleap course show -course ID", run: cmdCourseShow},
-		{verb: "set", usage: "evoleap course set -course ID [-access free|login-free|subscription] [-title 文字]", run: cmdCourseSet},
+		{verb: "set", usage: "evoleap course set -course ID [-access free|login-free|subscription] [-title 文字] [-summary 文字] [-about 段落||段落] [-seo-title 文字] [-description 文字] [-art tools|chat|build|agent|advanced] [-intro-script 路徑] [-topic-id 主題ID] [-overview=true|false]", run: cmdCourseSet},
+	}},
+	{name: "topic", commands: []command{
+		{verb: "list", usage: "evoleap topic list", run: cmdTopicList},
+		{verb: "show", usage: "evoleap topic show -topic ID", run: cmdTopicShow},
+		{verb: "set", usage: "evoleap topic set -topic ID [-name 文字] [-slogan 文字] [-path 網址] [-seo-title 文字] [-description 文字] [-content-file 路徑]", run: cmdTopicSet},
 	}},
 	{name: "lesson", commands: []command{
 		{verb: "set", usage: "evoleap lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title 文字] [-summary 文字] [-script 路徑]", run: cmdLessonSet},
@@ -229,20 +239,111 @@ func cmdCourseSet(c *client, args []string) {
 	course := fs.String("course", "", "課程 id")
 	access := fs.String("access", "", "free、login-free 或 subscription(沒寫 access 的課跟著這門課)")
 	title := fs.String("title", "", "課程名稱")
+	summary := fs.String("summary", "", "課程簡介(最多 500 字);給空字串清掉")
+	about := fs.String("about", "", "課程說明,段落之間用 || 分隔;給空字串清掉")
+	seoTitle := fs.String("seo-title", "", "搜尋結果的標題(最多 200 字)")
+	description := fs.String("description", "", "搜尋結果的描述(最多 500 字)")
+	art := fs.String("art", "", "插圖樣式:tools、chat、build、agent、advanced,或空字串用預設")
+	introScript := fs.String("intro-script", "", "課程簡介影片的腳本路徑(live/ 底下,例如 guide/kids.json;檔案要先由種子掛在這門課上);空字串拿掉")
+	topicID := fs.String("topic-id", "", "課程所屬主題的 id(見 evoleap topic list,例如 software、kids);給空字串清掉(該課就不列在全部課程)")
+	overview := fs.Bool("overview", true, "這門課有沒有自己的課程總覽頁 /courses/<id>(-overview=false 代表沒有)")
 	set := parse(fs, args, "course")
 	patch := map[string]any{}
-	for name, v := range map[string]any{"access": *access, "title": *title} {
+	for name, v := range map[string]any{"access": *access, "title": *title, "summary": *summary, "description": *description, "art": *art} {
 		if set[name] {
 			patch[name] = v
 		}
 	}
+	if set["seo-title"] {
+		patch["seoTitle"] = *seoTitle
+	}
+	if set["intro-script"] {
+		patch["introScript"] = *introScript
+	}
+	if set["topic-id"] {
+		patch["topicId"] = *topicID
+	}
+	if set["overview"] {
+		patch["overview"] = *overview
+	}
+	if set["about"] {
+		paras := []string{}
+		if strings.TrimSpace(*about) != "" {
+			for _, p := range strings.Split(*about, "||") {
+				paras = append(paras, strings.TrimSpace(p))
+			}
+		}
+		patch["about"] = paras
+	}
 	if len(patch) == 0 {
-		fatal("沒有要改的欄位(-access、-title)")
+		fatal("沒有要改的欄位(-access、-title、-summary、-about、-seo-title、-description、-art、-intro-script、-topic-id、-overview)")
 	}
 	var out any
 	mustDo(c.do("PATCH", "/api/admin/courses/"+url.PathEscape(*course), patch, &out))
 	printJSON(out)
-	warnSeedOverwrites("種子裡有這門課的話,下次部署的同步會用 courses_seed.json 蓋掉這門課的 title、access、tier;要長期保留請同時改種子。")
+	warnSeedOverwrites("種子裡有這門課的話,下次部署的同步會用 courses_seed.json 蓋掉這門課的 title、access、tier、summary、about、seoTitle、description、art、introScript、topicId、overview;要長期保留請同時改種子。")
+}
+
+func cmdTopicList(c *client, args []string) {
+	parse(flag.NewFlagSet("topic list", flag.ExitOnError), args)
+	var out any
+	mustDo(c.do("GET", "/api/admin/topics", nil, &out))
+	printJSON(out)
+}
+
+func cmdTopicShow(c *client, args []string) {
+	fs := flag.NewFlagSet("topic show", flag.ExitOnError)
+	topic := fs.String("topic", "", "主題 id,例如 software")
+	parse(fs, args, "topic")
+	var out struct {
+		Topics []json.RawMessage `json:"topics"`
+	}
+	mustDo(c.do("GET", "/api/admin/topics", nil, &out))
+	for _, raw := range out.Topics {
+		var head struct {
+			ID string `json:"id"`
+		}
+		if json.Unmarshal(raw, &head) == nil && head.ID == *topic {
+			printJSON(raw)
+			return
+		}
+	}
+	fatal("找不到主題 %q(用 evoleap topic list 看有哪些)", *topic)
+}
+
+func cmdTopicSet(c *client, args []string) {
+	fs := flag.NewFlagSet("topic set", flag.ExitOnError)
+	topic := fs.String("topic", "", "主題 id")
+	name := fs.String("name", "", "主題名稱")
+	slogan := fs.String("slogan", "", "主題的一句話(最多 200 字);給空字串清掉")
+	path := fs.String("path", "", "主題頁的網址(/ 開頭,例如 /topics/software;單一課程的主題是課程總覽,例如 /courses/web)")
+	seoTitle := fs.String("seo-title", "", "搜尋結果的標題(最多 200 字)")
+	description := fs.String("description", "", "搜尋結果的描述(最多 500 字)")
+	contentFile := fs.String("content-file", "", "主題其餘內容的 JSON 物件檔(整包換掉,先用 topic show 取得現在的內容再改)")
+	set := parse(fs, args, "topic")
+	patch := map[string]any{}
+	for flagName, f := range map[string]struct{ key, val string }{"name": {"name", *name}, "slogan": {"slogan", *slogan}, "path": {"path", *path}, "seo-title": {"seoTitle", *seoTitle}, "description": {"description", *description}} {
+		if set[flagName] {
+			patch[f.key] = f.val
+		}
+	}
+	if set["content-file"] {
+		body, err := os.ReadFile(*contentFile)
+		if err != nil {
+			fatal("讀不到 %s:%v", *contentFile, err)
+		}
+		if !json.Valid(body) {
+			fatal("%s 不是有效的 JSON", *contentFile)
+		}
+		patch["content"] = json.RawMessage(body)
+	}
+	if len(patch) == 0 {
+		fatal("沒有要改的欄位(-name、-slogan、-path、-seo-title、-description、-content-file)")
+	}
+	var out any
+	mustDo(c.do("PATCH", "/api/admin/topics/"+url.PathEscape(*topic), patch, &out))
+	printJSON(out)
+	warnSeedOverwrites("種子裡有這個主題的話,下次部署的同步會用 topics_seed.json 蓋掉這個主題的 name、slogan、path、seoTitle、description、content;要長期保留請同時改種子。")
 }
 
 func cmdLessonSet(c *client, args []string) {

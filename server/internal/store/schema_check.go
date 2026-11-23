@@ -17,7 +17,7 @@ import (
 func models() []any {
 	return []any{
 		&userRow{}, &progressRow{}, &guestViewRow{},
-		&courseRow{}, &unitRow{}, &lessonRow{}, &lessonFileRow{}, &studioFileRow{},
+		&topicRow{}, &courseRow{}, &unitRow{}, &lessonRow{}, &lessonFileRow{}, &studioFileRow{},
 		&cliAuthSessionRow{}, &cliTokenRow{}, &courseChangeRow{},
 		&childRow{}, &childProgressRow{}, &childLessonRow{},
 	}

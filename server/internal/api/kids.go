@@ -171,6 +171,9 @@ func (s *Server) kidsGate(w http.ResponseWriter, r *http.Request, user store.Use
 	if !ok {
 		return false
 	}
+	if f.CourseID == "kids" && f.LessonID == "" {
+		return false // 課程簡介影片(課程地圖頁的小播放器):不受上課時段與進度把關
+	}
 	if f.CourseID != "kids" {
 		writeError(w, http.StatusForbidden, "kids_only", "兒童模式只能看兒童課程")
 		return true

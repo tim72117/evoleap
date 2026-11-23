@@ -36,23 +36,23 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
   // 課程地圖的 L0 卡片
   const card = page.locator('#level-tools')
   await card.getByRole('link', { name: /查看課程內容/ }).click()
-  await expectHeadMatches(page, request, '/courses/tools')
+  await expectHeadMatches(page, request, '/courses/software')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
   // 課程總覽 → 第 2 課(清單裡的連結)
-  await page.locator('main ol a[href="/courses/tools/2"]').click()
-  await expectHeadMatches(page, request, '/courses/tools/2')
+  await page.locator('main ol a[href="/courses/software/2"]').click()
+  await expectHeadMatches(page, request, '/courses/software/2')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('認識專案：工作目錄與檔案操作')
 
   // 下一課(側欄預設收合,先點右上角的章節膠囊打開)
   await openCoursePanel(page)
   await page.getByRole('navigation', { name: '上一課與下一課' }).getByRole('link', { name: /下一課/ }).click()
-  await expectHeadMatches(page, request, '/courses/tools/3')
+  await expectHeadMatches(page, request, '/courses/software/3')
 
   // 第 2、3 課都是互動版,沒有網站頁首與麵包屑:從左上角「← 課程」回課程總覽,再從頁首回首頁
   await page.getByRole('link', { name: /^← 課程|^課程$/ }).first().click()
-  await expectHeadMatches(page, request, '/courses/tools')
-  const back = '/courses/tools'
+  await expectHeadMatches(page, request, '/courses/software')
+  const back = '/courses/software'
   await page.locator('header').getByRole('link', { name: '首頁', exact: true }).click()
   await expectHeadMatches(page, request, '/')
 
@@ -72,7 +72,8 @@ test('課程地圖每張卡片的連結都能開啟(不是 404)', async ({ page,
   for (const href of links) {
     await page.goto('/topics/software')
     await page.locator(`#map a[href="${href}"]`).first().click()
-    await expectHeadMatches(page, request, href)
+    // 連結可以帶階段錨點(/courses/software#stage-tools),頁面本身的網址不含錨點
+    await expectHeadMatches(page, request, href.split('#')[0])
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('找不到頁面')
   }
   expect(errors).toEqual([])
@@ -84,73 +85,96 @@ test('全部課程:導覽列可以進入,每張卡片的連結都能開啟(不�
   await page.locator('header').getByRole('link', { name: '全部課程', exact: true }).click()
   await expectHeadMatches(page, request, '/courses')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('全部課程')
-  const links = await page.locator('main li a[href^="/courses/"]').evaluateAll((els) => els.map((e) => e.getAttribute('href')!))
-  // 先不公開(levels.ts 的 hidden)的 AI 工具入門不列,所以是 4 門
-  expect(links.length).toBe(4)
+  const links = await page.locator('main li h3 a').evaluateAll((els) => els.map((e) => e.getAttribute('href')!))
+  // 起步・零基礎・基礎合併成一門「做出自己的軟體」(一張卡片,先不公開的零基礎階段不另外列),加上 AI Agent 兩門(ai-agent 沒有自己的總覽頁(overview:false),卡片連到主題頁 /topics/ai-apps;進階課連 /courses/advanced),
+  // 以及網頁怎麼運作、從做好到上線、給孩子的網頁程式、Claude Code 工作術(都是一般課程卡片,和其他課共用課程總覽頁),所以是 7 門
+  expect(links.length).toBe(7)
+  for (const href of ['/courses/software', '/courses/web', '/courses/launch', '/courses/kids', '/courses/claude-code', '/topics/ai-apps', '/courses/advanced']) expect(links).toContain(href)
   for (const href of links) {
     await page.goto('/courses')
-    await page.locator(`main li a[href="${href}"]`).click()
+    await page.locator(`main li h3 a[href="${href}"]`).first().click()
     await expectHeadMatches(page, request, href)
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('找不到頁面')
   }
   expect(errors).toEqual([])
 })
 
-test('Claude Code 工作術:首頁卡片進入主題頁,列出情境,沒有等級', async ({ page, request }) => {
+test('Claude Code 工作術:首頁卡片進入課程總覽(共用的總覽頁),列出 7 個情境,沒有等級', async ({ page, request }) => {
   const errors = collectErrors(page)
   await page.goto('/')
   await page.getByRole('article').filter({ hasText: 'Claude Code 工作術' }).getByRole('link', { name: /看課程規劃/ }).click()
-  await expectHeadMatches(page, request, '/topics/claude-code')
+  await expectHeadMatches(page, request, '/courses/claude-code')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Claude Code 工作術')
-  const rows = page.locator('#scenarios ul > li h4')
-  await expect(rows).toHaveCount(7)
+  // 總覽頁的麵包屑接全部課程,不連回自己
+  await expect(page.getByRole('navigation', { name: '麵包屑' }).getByRole('link')).toHaveAttribute('href', '/courses')
+  await expect(page.locator('#map li')).toHaveCount(7)
   await expect(page.locator('#main')).not.toContainText('Level')
-  // Fork 的示範影片是公開的腳本,未登入也能載入
-  await expect(page.locator('#scenarios .vp')).toHaveCount(0)
-  const row = page.getByRole('button', { name: '拿不定主意，想同時試好幾版' })
-  await expect(row).toHaveAttribute('aria-expanded', 'false')
-  await row.click()
-  await expect(row).toHaveAttribute('aria-expanded', 'true')
-  await expect(page.locator('#scenarios .vp')).toBeVisible()
+  // 這門課整門免費:存取標示是「免費」
+  await expect(page.locator('#main').getByText('免費', { exact: true }).first()).toBeVisible()
+  // 有示範影片的情境整列連到課頁,規劃中的沒有連結
+  const rows = page.locator('#map li')
+  await expect(rows.filter({ hasText: '拿不定主意，想同時試好幾版' }).getByRole('link')).toHaveAttribute('href', '/courses/claude-code/1')
+  await expect(rows.filter({ hasText: '好幾件事想同時做' })).toContainText('規劃中')
+  await expect(rows.filter({ hasText: '好幾件事想同時做' }).getByRole('link')).toHaveCount(0)
+  // 開始學習 → 第一個有影片的情境
+  await page.getByRole('link', { name: '開始學習' }).click()
+  await expect(page).toHaveURL(/\/courses\/claude-code\/1$/)
+  await expectHeadMatches(page, request, '/courses/claude-code/1')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('拿不定主意，想同時試好幾版')
+  // Fork 的示範影片是公開的腳本,未登入也能載入;下一課是第 2 個情境
+  await expect(page.locator('.vp')).toBeVisible()
   await expect(page.getByText('找不到即時教學畫面的腳本')).toHaveCount(0)
-  // 收合影片列:播放器隱藏但不卸載,再展開時不會重新載入
-  await page.locator('#scenarios .vp').evaluate((el) => el.setAttribute('data-e2e-same', '1'))
-  await row.click()
-  await expect(page.locator('#scenarios .vp')).toBeHidden()
-  await row.click()
-  await expect(page.locator('#scenarios .vp[data-e2e-same]')).toBeVisible()
-  // 收合整組:同樣只是隱藏
-  await page.getByRole('button', { name: /全部情境/ }).click()
-  await expect(rows.first()).toBeHidden()
-  await page.getByRole('button', { name: /全部情境/ }).click()
-  await expect(page.locator('#scenarios .vp[data-e2e-same]')).toBeVisible()
+  await expect(page.getByRole('link', { name: /下一課：第 2 課/ })).toHaveAttribute('href', '/courses/claude-code/2')
   expect(errors).toEqual([])
 })
 
-test('Claude Code 工作術:每段影片有錨點,網址帶 #錨點就展開並定位到那一段', async ({ page }) => {
+// 影片錨點:舊網址 /topics/claude-code#<錨點>(錨點 = 腳本檔名,fork、remote)是一頁列出全部情境、展開那一段。
+// 現在一個情境一頁:舊錨點轉到那個情境的課頁並保留錨點,網址帶 #錨點就定位到影片開頭
+test('Claude Code 工作術:舊的影片錨點轉到情境的課頁,課頁的影片定位在開頭', async ({ page }) => {
   const errors = collectErrors(page)
-  await page.goto('/topics/claude-code')
-  // 錨點取自頁面上有影片的那幾列(列上的 id),不寫死哪幾段有影片
-  const ids = await page.locator('#scenarios ul > li[id]').evaluateAll((els) => els.map((el) => el.id))
-  expect(ids.length).toBeGreaterThan(0)
-  for (const id of ids) {
-    // 從別的網址直接開(整頁載入,不是同一頁換錨點)
+  const anchors = [
+    ['fork', '/courses/claude-code/1'],
+    ['remote', '/courses/claude-code/2'],
+  ] as const
+  for (const [id, to] of anchors) {
+    // 整頁載入(伺服器 301 到 /courses/claude-code,保留 #錨點,再由前端轉到課頁)
     await page.goto('about:blank')
     await page.goto(`/topics/claude-code#${id}`)
-    const li = page.locator(`#scenarios li#${id}`)
-    await expect(li.locator('button[aria-expanded="true"]')).toBeVisible()
-    await expect(li.locator('.vp')).toBeVisible()
-    await expect(li).toBeInViewport()
-    // 定位在這一段的開頭(標題在畫面上方,不是捲過頭只看到播放器的下半部)
-    await expect.poll(async () => li.evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeGreaterThanOrEqual(0)
-    await expect.poll(async () => li.evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeLessThan(200)
+    await expect(page).toHaveURL(new RegExp(`${to.replace(/\//g, '\/')}#${id}$`))
+    const player = page.locator(`#${id}`)
+    await expect(player.locator('.vp')).toBeVisible()
+    await expect(player).toBeInViewport()
+    // 定位在影片的開頭(上緣在畫面上方,不是捲過頭只看到下半部)
+    await expect.poll(async () => player.evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeGreaterThanOrEqual(0)
+    await expect.poll(async () => player.evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBeLessThan(200)
   }
-  // 標題旁的錨點連結:點了網址帶上錨點,並展開那一段
-  await page.goto('/topics/claude-code')
-  const first = page.locator('#scenarios li[id]').first()
-  await first.getByRole('link', { name: /直接連到影片/ }).click()
-  await expect(page).toHaveURL(new RegExp(`#${await first.getAttribute('id')}$`))
-  await expect(first.locator('.vp')).toBeVisible()
+  // 沒有影片的錨點(#scenarios)留在總覽頁
+  await page.goto('/topics/claude-code#scenarios')
+  await expect(page).toHaveURL(/\/courses\/claude-code#map$/)
+  await expect(page.locator('#map li')).toHaveCount(7)
+  expect(errors).toEqual([])
+})
+
+// 主題頁搬到 /courses/<課程>:舊網址轉址(伺服器 301,前端也有轉址路由,查詢字串保留)
+test('舊網址 /topics/web、/topics/web/1-2、/topics/launch 轉到 /courses/…', async ({ page }) => {
+  const errors = collectErrors(page)
+  for (const [from, to] of [
+    ['/topics/web', '/courses/web'],
+    ['/topics/web/1-2?aspect=landscape', '/courses/web/1-2?aspect=landscape'],
+    ['/topics/launch', '/courses/launch'],
+    ['/topics/launch/0-1', '/courses/launch/0-1'],
+  ] as const) {
+    await page.goto('about:blank')
+    await page.goto(from)
+    await expect(page).toHaveURL(to)
+  }
+  // 站內導覽(不經伺服器)的舊連結也轉過去
+  await page.goto('/')
+  await page.evaluate(() => {
+    history.pushState({}, '', '/topics/web/1-2')
+    dispatchEvent(new PopStateEvent('popstate'))
+  })
+  await expect(page).toHaveURL('/courses/web/1-2')
   expect(errors).toEqual([])
 })
 
@@ -169,39 +193,44 @@ test('首頁:不放影片預覽,開始第一課連到序章', async ({ page }) =
   // 首頁不放播放器(主打主題的展示影片、兒童課的預覽都拿掉了)
   await expect(page.locator('.vp')).toHaveCount(0)
   // 主打主題與兒童主題各有一個「開始第一課」;主打主題的連到可以免費預覽的序章
-  await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/intro')
+  await expect(page.getByRole('article', { name: '做出自己的軟體' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/software/intro')
   const kids = page.getByRole('region', { name: '給孩子的網頁程式' })
-  await expect(kids.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/topics/kids/0-1')
-  await expect(kids.getByRole('link', { name: '課程地圖' })).toHaveAttribute('href', '/topics/kids#map')
+  await expect(kids.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/kids/0-1')
+  await expect(kids.getByRole('link', { name: '課程地圖' })).toHaveAttribute('href', '/courses/kids#map')
   // 首頁不標「開放中」,只有規劃中的主題標「規劃中」
   await expect(page.getByText('開放中', { exact: true })).toHaveCount(0)
   await expect(page.getByText('規劃中').first()).toBeVisible()
   expect(errors).toEqual([])
 })
 
-test('網頁怎麼運作:首頁卡片連到主題,課程清單的標示依資料庫,第一課不用登入就能上', async ({ page }) => {
+test('網頁怎麼運作:首頁卡片連到主題,課程清單的標示依資料庫,前五課不用登入就能上', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/')
   const card = page.locator('article').filter({ has: page.getByRole('heading', { name: '網頁怎麼運作', exact: true }) })
   await expect(card.getByText('AI 寫程式，我還需要知道什麼？')).toBeVisible()
   await expect(card.getByText('開放中')).toHaveCount(0)
-  await expect(card.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/topics/web/0-1')
+  await expect(card.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/web/0-1')
 
-  await page.goto('/topics/web')
+  // 課程總覽是和其他課共用的頁面(課程內容清單,一個單元一組)
+  await page.goto('/courses/web')
   await expect(page.locator('h1')).toHaveText('網頁怎麼運作')
+  await expect(page.getByRole('heading', { name: '課程內容' })).toBeVisible()
+  await expect(page.locator('#map details')).toHaveCount(6)
+  // 課程說明(資料庫的 about 段落),每個單元都有 #stage-<單元 id> 錨點
   await expect(page.getByRole('heading', { name: '課程說明' })).toBeVisible()
+  await expect(page.locator('details#stage-0, details#stage-5')).toHaveCount(2)
   const row = (title: string) => page.locator('#map li').filter({ hasText: title })
   // 每一課的標示(免費預覽、登入後學習、規劃中)依資料庫的課程地圖
   const lessons = await mapLessons(page.request, 'web')
   for (const l of lessons) await expectLabel(row(l.title), l)
-  expect(lessons[0]).toMatchObject({ id: '0.1', label: '預覽' })
+  expect(lessons[0]).toMatchObject({ id: '0.1', label: '試看' })
 
   // 第一課不用登入:直接進到互動舞台,側欄有下一課
   await row('輸入網址之後發生的事').getByRole('link').click()
-  await expect(page).toHaveURL(/\/topics\/web\/0-1$/)
+  await expect(page).toHaveURL(/\/courses\/web\/0-1$/)
   await expect(page.locator('.vp')).toBeVisible()
   await openCoursePanel(page)
-  await expect(page.getByRole('link', { name: '下一課：0.2 →' })).toHaveAttribute('href', '/topics/web/0-2')
+  await expect(page.getByRole('link', { name: '下一課：第 0.2 課 →' })).toHaveAttribute('href', '/courses/web/0-2')
   await expect(page.locator('main').getByRole('link', { name: '登入或註冊' })).toHaveCount(0)
   expect(errors).toEqual([])
 })
@@ -220,7 +249,7 @@ test('展示頁:播序章、從頭開始;開始播放後播放器和卡片同寬
   await expect(page.locator('.vp-time')).toHaveText(/^0:00 /)
   await expect(lede).toBeVisible()
   await expect(shrink).toHaveCount(0)
-  await expect(card.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/tools/intro')
+  await expect(card.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/software/intro')
   const small = (await page.locator('.vp').boundingBox())!
 
   // 開始播放:播放器和卡片內容同寬、在最上面,標題與按鈕在播放器下面;其他說明收起來
@@ -447,11 +476,11 @@ test('L0 第 1 課是互動版:用原本的腳本,在 Claude 上回答後接著�
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
-  await page.goto(landscape('/courses/tools/1'))
+  await page.goto(landscape('/courses/software/1'))
   const panel = await openCoursePanel(page)
   // 原本的章節都在
   await expect(panel.getByRole('button', { name: /安裝並登入/ })).toBeVisible()
-  await expect(panel.getByRole('link', { name: /第 2 課/ })).toHaveAttribute('href', '/courses/tools/2')
+  await expect(panel.getByRole('link', { name: /第 2 課/ })).toHaveAttribute('href', '/courses/software/2')
   // 課程的提示詞可以複製到自己的工具
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await expect(panel.getByText('刪除 hello.txt', { exact: true })).toBeVisible()
@@ -470,7 +499,7 @@ test('L0 第 2 課是互動版:選錯路徑時 Claude 會提醒,接著回到正�
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
-  await page.goto(landscape('/courses/tools/2'))
+  await page.goto(landscape('/courses/software/2'))
   const panel = await openCoursePanel(page)
   await expect(panel.getByRole('button', { name: /建立專案資料夾/ })).toBeVisible()
   await expect(panel.getByText('目前的工作目錄是哪裡？', { exact: true })).toBeVisible()
@@ -486,7 +515,7 @@ test('L0 第 3 課是互動版:播到響應式的互動點會停下,選手機後
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
-  await page.goto(landscape('/courses/tools/3'))
+  await page.goto(landscape('/courses/software/3'))
   const panel = await openCoursePanel(page)
   await expect(page.locator('.vp')).toBeVisible()
   await expect(panel.getByRole('button', { name: /商品卡片的排列/ })).toBeVisible({ timeout: 15000 })
@@ -513,7 +542,6 @@ const PAGES = [
   '/login',
   '/docs/live',
   '/studio',
-  '/studio/todo',
   '/studio/kids-web',
   '/studio/web-basics',
   '/studio/ops-course',
@@ -532,11 +560,11 @@ const PAGES = [
   '/studio/kids-web/0-2/live',
   '/studio/kids-web/0-3/live',
   '/studio/kids-web/xray',
-  // 兒童課草稿(這台 server 把每個人當管理員,看得到):新演員 lt8–lt11 的課各挑一課
-  '/topics/kids/1-1',
-  '/topics/kids/2-1',
-  '/topics/kids/3-1',
-  '/topics/kids/4-5',
+  // 兒童課(3.1 已開放,4.x 是規劃中但這台 server 把每個人當管理員,看得到):新演員 lt8–lt11 的課各挑一課
+  '/courses/kids/1-1',
+  '/courses/kids/2-1',
+  '/courses/kids/3-1',
+  '/courses/kids/4-5',
   '/studio/docs',
   '/materials',
   '/studio/actor-interaction/scene',
@@ -566,10 +594,10 @@ for (const path of new Set(PAGES)) {
     await expect(page.locator('h1')).toHaveCount(1)
     await expect(page.getByRole('heading', { level: 1, name: '找不到頁面' })).toHaveCount(0)
 
-    // 單課頁:h1 只放課名(課號、時長放在旁邊);title 是「第 N 課 <課名> · 站名」
-    if (/^\/courses\/(tools|ai-tools)\/\d/.test(path)) {
+    // 單課頁:h1 只放課名(課號、時長放在旁邊);title 是「<課名>｜做出自己的軟體 · 站名」
+    if (/^\/courses\/software\/(\d|[1-3]-\d)$/.test(path)) {
       const title = await serverTitle(request, path)
-      const lessonTitle = title.match(/^第 [\d.]+ 課 (.+) · /)?.[1]
+      const lessonTitle = title.match(/^(.+)｜做出自己的軟體 · /)?.[1]
       expect(lessonTitle, `title 格式:${title}`).toBeTruthy()
       await expect(page.locator('h1')).toHaveText(lessonTitle!)
     }

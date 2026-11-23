@@ -20,7 +20,6 @@ const DOCS_PAGES: PageMeta[] = [
 const PROPOSAL_PAGES: PageMeta[] = (
   [
     ['/studio', '總覽'],
-    ['/studio/todo', '待辦'],
     ['/studio/members', '會員'],
     ['/studio/docs', '文件'],
     ['/studio/tools', 'L0 AI 工具介紹'],

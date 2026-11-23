@@ -203,7 +203,7 @@ func TestGuestFunnel(t *testing.T) {
 	idle, c := open(phone, c)
 	report(idle, `{"watchedMs":0,"visibleMs":4000,"readyMs":800}`, c)
 	report(idle, `{"watchedMs":0,"visibleMs":3000,"readyMs":9999}`, c) // 舊值晚到:前景時間不變小、載入時間只記第一次
-	report(idle, `{"watchedMs":0,"visibleMs":4000,"events":[{"t":900,"e":"ready"},{"t":2500,"e":"click:段落"},{"t":4000,"e":"leave:/topics/kids"}]}`, c)
+	report(idle, `{"watchedMs":0,"visibleMs":4000,"events":[{"t":900,"e":"ready"},{"t":2500,"e":"click:段落"},{"t":4000,"e":"leave:/courses/kids"}]}`, c)
 	report(idle, `{"watchedMs":0,"visibleMs":4000,"events":[{"t":900,"e":"ready"}]}`, c) // 較短的舊足跡晚到,不蓋掉
 	failed, c := open(phone, c)
 	report(failed, `{"watchedMs":0,"visibleMs":20000,"error":"找不到腳本"}`, c)
@@ -227,7 +227,7 @@ func TestGuestFunnel(t *testing.T) {
 	for _, want := range []string{
 		`"guestBots":1,"guestTracked":3,"guestReady":2,"guestFailed":1,"guestPlayed":1,"guestIdleVisibleMs":12000,"guestReadyAvgMs":1000`,
 		`"errors":[{"name":"找不到腳本","count":1}]`,
-		`"events":[{"t":900,"e":"ready"},{"t":2500,"e":"click:段落"},{"t":4000,"e":"leave:/topics/kids"}]`,
+		`"events":[{"t":900,"e":"ready"},{"t":2500,"e":"click:段落"},{"t":4000,"e":"leave:/courses/kids"}]`,
 		`"sources":[{"name":"google.com","count":3}]`,
 		`"idleVisible":[{"name":"under10s","count":1},{"name":"10to60s","count":1},{"name":"over60s","count":0}]`,
 	} {
@@ -319,7 +319,7 @@ func TestGuestLoginOutcome(t *testing.T) {
 	}
 	// 訪客甲:從第 1 課被擋下來 → 登入頁,密碼打錯一次,再註冊成功(伺服器記下 register)
 	view, a := open("page:/login", nil)
-	report(view, `{"watchedMs":0,"readyMs":1200,"events":[{"t":10,"e":"next:/courses/tools/1"},{"t":900,"e":"fail:Email 或密碼不正確"}]}`, a)
+	report(view, `{"watchedMs":0,"readyMs":1200,"events":[{"t":10,"e":"next:/courses/software/1"},{"t":900,"e":"fail:Email 或密碼不正確"}]}`, a)
 	if rec := call(h, http.MethodPost, "/api/auth/register", `{"email":"guest-a@example.com","password":"secret123"}`, a); rec.Code != http.StatusOK {
 		t.Fatalf("register: %d %s", rec.Code, rec.Body)
 	}
@@ -336,7 +336,7 @@ func TestGuestLoginOutcome(t *testing.T) {
 		`{"name":"register","count":1}`,
 		`{"name":"failed","count":1}`,
 		`{"name":"left","count":1}`,
-		`{"name":"/courses/tools/1","count":1}`,
+		`{"name":"/courses/software/1","count":1}`,
 		`"fails":[{"name":"Email 或密碼不正確","count":2}]`,
 		`"googleReady":1,"googleReadyAvgMs":1200,"googleFailed":1,"googleErrors":[{"name":"Google 登入程式載入失敗","count":1}]`,
 	} {

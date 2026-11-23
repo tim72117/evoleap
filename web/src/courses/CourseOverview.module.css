@@ -186,3 +186,51 @@
 .nextCourse:hover {
   border-color: var(--site-accent);
 }
+
+/* ---------- 課程簡介影片、課程說明(課程內容上方,和課程內容同寬) ---------- */
+.block {
+  max-width: var(--site-max);
+  margin: 0 auto;
+  padding: 44px 20px 0;
+}
+
+.block h2 {
+  margin: 0 0 20px;
+  font-size: 26px;
+}
+
+/* 簡介影片的小播放器(橫的 16:9,直的 9:16) */
+.introPlayer {
+  position: relative;
+  max-width: 560px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #000;
+}
+
+.introPlayer:has([data-aspect='portrait']) {
+  aspect-ratio: 9 / 16;
+  max-width: 320px;
+}
+
+.about {
+  max-width: 44em;
+}
+
+.about p {
+  margin: 0 0 14px;
+  font-size: 17px;
+  line-height: 1.9;
+  color: var(--site-text);
+}
+
+.about p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .block {
+    padding: 32px 16px 0;
+  }
+}

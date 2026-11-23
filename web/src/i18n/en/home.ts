@@ -16,7 +16,6 @@ export const home: Messages['home'] = {
   startFirstLesson: 'Start the first lesson',
   planned: 'Coming soon',
   openNow: 'Open now',
-  aboutCourse: 'About this course',
   levelName: (label) => LEVEL_NAMES[label] ?? label,
 
   home: {
@@ -56,45 +55,12 @@ export const home: Messages['home'] = {
     levelsLead: 'Ordered from easiest to hardest. Courses marked “Coming soon” are still being planned, and their names and content may change.',
   },
 
-  web: {
-    pitch: (slogan) => `${slogan}. No syntax drills: learn how web pages work and what everything is called.`,
-    mapLead: 'New lessons are on the way; ones not open yet are marked “Coming soon”. Preview the first five lessons without signing in, then sign in to take the rest.',
-  },
-
-  launch: {
-    pitch: (slogan) => `${slogan}. From deployment, domains, data and sign-in to payments and monitoring after launch.`,
-    mapLead: 'The Prologue and Unit 1 are open. Preview the first five lessons without signing in, then sign in to take the rest. Lessons not open yet are marked “Coming soon”, and their content and order may change.',
-  },
 
   kidsTopic: {
     pitch: (slogan) => `${slogan}. No typing code: just click and drag blocks to build web pages. We recommend a parent learns alongside.`,
     howTitle: 'How the kids’ course works',
     howLead: 'In the Member area, a parent sets class times and turns on Kids Mode. Your child then sees only the kids’ course, can start only at class time, and goes through the lessons one by one.',
     mapLead: 'New lessons are on the way; ones not open yet are marked “Coming soon”. Preview the first five lessons without signing in, then sign in to take the rest.',
-  },
-
-  claudeCode: {
-    pitch: (slogan) => `${slogan}. Jump to whichever situation you’re in; no need to go in order.`,
-    viewAll: 'See all scenarios',
-    scenariosTitle: 'Scenarios',
-    scenariosLead: 'Still being planned and may change. Feature names may change as the tool updates.',
-    allScenarios: 'All scenarios',
-    count: (n) => `${n} ${n === 1 ? 'scenario' : 'scenarios'}`,
-    video: 'Video',
-    linkToVideo: (title) => `Link to this video: ${title}`,
-  },
-
-  lesson: {
-    backToMap: '← Course map',
-    mapNext: 'Course map →',
-    prev: (id) => `← Previous: ${id}`,
-    next: (id) => `Next: ${id} →`,
-    navLabel: 'Previous and next lessons',
-    resumeAfterSignIn: ' to save your place and pick up where you left off.',
-    loginNote: 'You can preview the first five lessons right away. Sign in to watch the rest; we’ll also save your progress.',
-    kidsLoginNote: 'You can preview the first five lessons right away. Sign in to take the rest; we’ll also save how far your child has gotten.',
-    draft: (title) => `${title} (draft)`,
-    docTitle: (title, topic) => `${title} | ${topic}`,
   },
 
   gate: {
@@ -126,7 +92,7 @@ export const home: Messages['home'] = {
   map: {
     signInToLearn: 'Sign in to learn',
     start: 'Start',
-    freePreview: 'Preview',
+    freePreview: 'Try it',
     planned: 'Coming soon',
     draft: 'Draft',
   },

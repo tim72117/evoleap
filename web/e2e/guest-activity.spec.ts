@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test'
 import { GATED, desktopOnly, expectLabel, loginAsNewStudent, mapLessons } from './support'
 
 // 訪客能直接看的只有序章
-const LESSON = '/courses/tools/intro?aspect=landscape'
+const LESSON = '/courses/software/intro?aspect=landscape'
 
 test.describe('訪客上課紀錄', () => {
   test.beforeEach(({}, info) => {
@@ -53,9 +53,9 @@ test.describe('訪客上課紀錄', () => {
     const loginCourse = (await Promise.all(['launch', 'kids', 'web'].map(async (c) => [c, c === 'launch' ? lessons : await mapLessons(page.request, c, gated)] as const))).find(([, ls]) => ls.some((l) => l.status === 'open' && l.access !== 'free'))!
     const needLogin = loginCourse[1].find((l) => l.status === 'open' && l.access !== 'free')!
     const notOpen = lessons.find((l) => l.status !== 'open')!
-    const pathOf = (id: string) => `/topics/launch/${id.replace('.', '-')}`
-    const map = opened('page:/topics/launch')
-    await page.goto(`${gated}/topics/launch#map`)
+    const pathOf = (id: string) => `/courses/launch/${id.replace('.', '-')}`
+    const map = opened('page:/courses/launch')
+    await page.goto(`${gated}/courses/launch#map`)
     await map
     const rows = page.locator('#map li')
     // 每一課的標示依資料庫的課程地圖(免費預覽、登入後學習、規劃中)
@@ -64,7 +64,7 @@ test.describe('訪客上課紀錄', () => {
     await page.goto(`${gated}${pathOf(free.id)}`)
     await lesson
     // 要登入的開放課:訪客看到登入視窗
-    await page.goto(`${gated}/topics/${loginCourse[0]}/${needLogin.id.replace('.', '-')}`)
+    await page.goto(`${gated}${loginCourse[0] === 'kids' ? '/courses/kids' : `/courses/${loginCourse[0]}`}/${needLogin.id.replace('.', '-')}`)
     // 登入視窗彈出來
     await expect(page.getByRole('dialog', { name: '登入' })).toBeVisible()
     // 還沒開放的課(草稿對訪客是規劃中):提示頁也記一筆

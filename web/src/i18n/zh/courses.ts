@@ -38,17 +38,17 @@ export const courses = {
   list: {
     intro: '依主題列出所有課程。標示「規劃中」的課程名稱與內容仍在規劃，可能調整。',
     openN: (n: number) => `已開放 ${n} 課`,
-    demoVideosN: (n: number) => `${n} 支示範影片`,
     otherPlanned: '其他規劃中',
     viewMap: '看課程地圖',
-    viewScenarios: '看全部情境',
   },
 
   // ---------- 課程總覽(CourseOverviewPage) ----------
   overview: {
     start: '開始學習',
     content: '課程內容',
-    freePreview: '預覽',
+    intro: '課程簡介',
+    about: '課程說明',
+    freePreview: '試看',
     signInToLearn: '登入後學習',
     interactive: '互動',
     listLoading: '正在讀取課程資訊…',
@@ -63,10 +63,8 @@ export const courses = {
     pager: '上一章與下一章',
   },
 
-  // ---------- AI 互動軟體中階(AiAgentCoursePage) ----------
+  // ---------- AI 互動軟體中階(主題頁的課程介紹 home/AiAgentIntro) ----------
   aiAgent: {
-    features: '課程特色',
-    viewUnits: '查看課程單元',
     outcomesEyebrow: '學習成果',
     outcomesTitle: '你會學到什麼',
     outcomesLead: '完成這堂課後，你將能夠：',
@@ -117,17 +115,25 @@ export const courses = {
     pager: '上一課與下一課',
     finishCourse: '完成這門課',
     backToMap: '回到課程地圖',
-  },
 
-  // ---------- 互動版單課頁(InteractiveLessonPage) ----------
-  interactive: {
+    // ---- 所有課的單課頁共用(軟體課、網頁、上線、兒童、Claude Code;標籤與標題的規則見 content/lessonDisplay.ts) ----
+    /** 互動版:左上角回課程總覽 */
     back: '← 課程',
-    /** 「登入」連結後面接的說明 */
-    guestHint: '後會記住你看到哪裡，下次從這裡接著看。',
+    /** 浮在左上角、頁面上的「回課程地圖」 */
+    backToCourseMap: '← 課程地圖',
+    /** 上一課 / 下一課連結:label 是課的標籤(第 N 課、序章) */
     prev: (label: string) => `← 上一課：${label}`,
     next: (label: string) => `下一課：${label} →`,
     nextChapter: (level: string) => `下一章：${level} →`,
-    courseMap: '課程地圖 →',
+    /** 沒有下一課時連回課程地圖 */
+    courseMapNext: '課程地圖 →',
+    /** 接在「登入」連結後面 */
+    resumeAfterSignIn: '後會記住你看到哪裡，下次從這裡接著看。',
+    loginNote: '前五課可以直接預覽，之後的課程要登入才能觀看。登入後也會記錄你的播放進度。',
+    kidsLoginNote: '前五課可以直接預覽，之後的課登入後就能學習，也會記錄孩子上到哪裡。',
+    draft: (title: string) => `${title}（草稿）`,
+    /** 瀏覽器分頁標題(document.title 的頁名):課名｜課程名稱 */
+    docTitle: (title: string, course: string) => `${title}｜${course}`,
   },
 
   // ---------- 要登入的單課頁(LoginGate、routes.tsx) ----------

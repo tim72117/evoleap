@@ -132,5 +132,5 @@ export function useKidsMode(): KidsModeState {
 }
 
 /** 兒童模式中可以停留的網址:兒童課的課程地圖與每一課(其他網址都帶回課程地圖) */
-export const KIDS_MODE_HOME = '/topics/kids'
+export const KIDS_MODE_HOME = '/courses/kids'
 export const isKidsModePath = (pathname: string): boolean => pathname === KIDS_MODE_HOME || pathname.startsWith(`${KIDS_MODE_HOME}/`)

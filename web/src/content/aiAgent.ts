@@ -1,12 +1,10 @@
-// 「AI Agent 整合應用」課程頁(/courses/ai-agent)的內容。全部取自 repo 內既有資料,不要在這裡新增未確認的事實
+// 「AI Agent 整合應用」(中階課)的介紹內容,顯示在「打造 AI 互動軟體」主題頁(/topics/ai-apps,home/AiAgentIntro.tsx);中階課沒有自己的頁面,/courses/ai-agent 轉到主題頁。
+// 這是外觀文案,不進資料庫(資料庫只有課名、單元、課;UNITS 與種子的單元由 courseMap.test.ts 檢查一致)。全部取自 repo 內既有資料,不要在這裡新增未確認的事實
 // (價格、日期、講師介紹、評價等):
 // - 標題、描述、適合對象、學習成果、背景知識:課程目標文章(src/studio/articles/pages/CourseGoalsPage.tsx)
 //   (同 web/src/studio/proposal/FieldsPage.tsx)
 // - 課程單元:web/src/studio/proposal/StructurePage.tsx(只列「保留」的單元與期末專案)
 // - 教學方式:研究報告文章(src/studio/articles/pages/ResearchReportPage.tsx)的製作建議清單
-
-/** 課程頁的路徑;課程地圖(src/content/levels.ts)的中階卡片連到這裡。 */
-export const AI_AGENT_COURSE_PATH = '/courses/ai-agent'
 
 export const COURSE = {
   /** 在課程地圖中的等級(與 src/content/levels.ts 對應) */

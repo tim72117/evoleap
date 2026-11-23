@@ -1,7 +1,7 @@
 // 課程地圖的資料。由上往下 = 由淺入深。LEVELS 是主題「做出自己的軟體」，AI_APP_LEVELS 是主題「打造 AI 互動軟體」（見 topics.ts）。
 // 規劃中('planned')的課程只放暫定名稱、簡述與暫定的課程內容主題;不要在這裡寫未確認的事實
 // (價格、日期、堂數、講師、評價等)。要新增 / 調整等級,直接編輯 LEVELS 陣列即可。
-import { AI_AGENT_COURSE_PATH, COURSE } from './aiAgent'
+import { COURSE } from './aiAgent'
 
 export type CourseStatus = 'available' | 'planned'
 
@@ -28,7 +28,8 @@ export type CourseLevel = {
   status: CourseStatus
   access: CourseAccess
   art: CourseArt
-  /** 課程頁連結(站內路徑);沒有就不顯示按鈕 */
+  /** 課程頁連結(站內路徑);沒有就不顯示按鈕。「做出自己的軟體」的三個等級是同一門課(software)的三個階段(資料庫的三個單元),
+   *  連結帶 #stage-<單元 id> 指到課程頁上那個階段;要比對課程頁路徑用 levelPath */
   link?: string
   /** 建議的先備條件 */
   prerequisite?: string
@@ -38,6 +39,12 @@ export type CourseLevel = {
 
 /** 去掉先不公開(hidden)的等級 */
 export const shownLevels = (levels: CourseLevel[]): CourseLevel[] => levels.filter((l) => !l.hidden)
+
+/** 等級連結的頁面路徑(去掉 #stage-… 這類頁內位置):用來對到 catalog.ts 的課程 */
+export const levelPath = (level: Pick<CourseLevel, 'link'>): string | undefined => level.link?.split('#')[0]
+
+/** 階段在課程頁上的位置:課程頁每個單元的 id */
+export const stageAnchor = (id: string): string => `stage-${id}`
 
 export const ACCESS_LABEL: Record<CourseAccess, string | null> = {
   free: '免費',
@@ -73,7 +80,7 @@ export const LEVELS: CourseLevel[] = [
     status: 'planned',
     access: 'login-free',
     art: 'tools',
-    link: '/courses/tools',
+    link: '/courses/software#stage-tools',
     prerequisite: '會用電腦開資料夾、用瀏覽器上網即可；需要一台可以安裝軟體的電腦',
   },
   {
@@ -91,7 +98,7 @@ export const LEVELS: CourseLevel[] = [
     status: 'planned',
     access: 'login-free',
     art: 'chat',
-    link: '/courses/ai-tools',
+    link: '/courses/software#stage-ai-tools',
     hidden: true,
     prerequisite: '不需要任何程式背景；建議先完成「AI 工具介紹」',
   },
@@ -109,7 +116,7 @@ export const LEVELS: CourseLevel[] = [
     status: 'planned',
     access: 'login-free',
     art: 'build',
-    link: '/courses/vibe-coding',
+    link: '/courses/software#stage-vibe-coding-basics',
     prerequisite: '會使用 AI 工具，願意開始動手寫程式',
   },
 ]
@@ -138,7 +145,8 @@ export const AI_APP_LEVELS: CourseLevel[] = [
     status: 'planned',
     access: 'tbd',
     art: 'agent',
-    link: AI_AGENT_COURSE_PATH,
+    // 課程介紹在同一個主題頁(home/AiAgentIntro),連到課程單元那一段
+    link: '/topics/ai-apps#units',
     prerequisite: '熟悉 JavaScript / TypeScript 與基礎 Web 前端開發，會使用終端機與 Git',
   },
   {

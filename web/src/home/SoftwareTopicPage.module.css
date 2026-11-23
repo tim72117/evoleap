@@ -545,38 +545,6 @@
   font-size: inherit;
 }
 
-.groupToggle {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 16px 20px;
-  border: 0;
-  background: var(--site-surface-2);
-  color: var(--site-text);
-  font: inherit;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-}
-
-.chevron {
-  flex: none;
-  color: var(--site-muted);
-  transition: transform 0.15s;
-}
-
-.groupToggle[aria-expanded='true'] .chevron {
-  transform: rotate(90deg);
-}
-
-.groupCount {
-  margin-left: auto;
-  color: var(--site-muted);
-  font-size: 14px;
-  font-weight: 400;
-}
-
 .rows {
   margin: 0;
   padding: 8px;
@@ -657,27 +625,6 @@
   outline-offset: -2px;
 }
 
-/* 定位到特定影片時,留出頁首的高度 */
-.rowItem {
-  scroll-margin-top: 96px;
-}
-
-/* 影片標題旁的錨點連結:平常淡淡的,滑過或鍵盤聚焦才明顯;要疊在整列可點的範圍(.rowButton::after)上面 */
-.rowAnchor {
-  position: relative;
-  z-index: 1;
-  margin-left: 6px;
-  color: var(--site-muted);
-  text-decoration: none;
-  opacity: 0.45;
-}
-
-.rowAnchor:hover,
-.rowAnchor:focus-visible {
-  opacity: 1;
-  color: var(--site-accent-strong);
-}
-
 .rowText p {
   margin: 2px 0 0;
   color: var(--site-muted);
@@ -720,11 +667,6 @@
   border-radius: 6px;
   color: var(--site-text);
   white-space: nowrap;
-}
-
-.tagPlanned {
-  color: var(--site-muted);
-  border-style: dashed;
 }
 
 .rowPlayer {

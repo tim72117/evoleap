@@ -1,4 +1,4 @@
-/* Uses the --site-* tokens defined by SiteLayout.module.css. */
+/* 「打造 AI 互動軟體」主題頁的課程介紹(學習成果、適合對象、課程單元、教學方式)。Uses the --site-* tokens defined by SiteLayout.module.css. */
 
 .container {
   max-width: var(--site-max);
@@ -59,124 +59,6 @@
 .card p {
   margin: 0;
   color: var(--site-muted);
-}
-
-/* ---------- hero ---------- */
-.hero {
-  background:
-    radial-gradient(circle at 85% 10%, color-mix(in srgb, var(--site-accent) 6%, transparent), transparent 45%),
-    linear-gradient(var(--site-bg), var(--site-surface-2));
-  border-bottom: 1px solid var(--site-border);
-}
-
-.heroInner {
-  max-width: var(--site-max);
-  margin: 0 auto;
-  padding: 64px 20px 72px;
-}
-
-.heroText {
-  max-width: 760px;
-}
-
-.crumbs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 16px;
-  color: var(--site-muted);
-  font-size: 14px;
-}
-
-.crumbs a {
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.kicker {
-  display: inline-block;
-  margin: 0 0 18px;
-  padding: 4px 14px;
-  border-radius: 999px;
-  background: var(--site-accent-solid);
-  color: var(--site-accent-contrast);
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-}
-
-.heroText h1 {
-  margin: 0;
-  font-size: clamp(32px, 4.6vw, 52px);
-  line-height: 1.25;
-  letter-spacing: 0.02em;
-  font-weight: 800;
-}
-
-.titleLine {
-  display: inline-block;
-}
-
-.titleLine + .titleLine {
-  color: var(--site-accent-strong);
-}
-
-.pitch {
-  margin: 20px 0 0;
-  font-size: 18px;
-  color: var(--site-muted);
-  max-width: 34em;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 22px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.tags li {
-  padding: 2px 12px;
-  border: 1px solid var(--site-border);
-  border-radius: 999px;
-  background: var(--site-surface);
-  font-size: 14px;
-  color: var(--site-text);
-}
-
-.ctas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 30px;
-}
-
-.ctas a {
-  display: inline-flex;
-  align-items: center;
-  padding: 12px 22px;
-  border-radius: 12px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
-}
-
-.ctas a:hover {
-  transform: translateY(-1px);
-}
-
-.ctas a.primary {
-  background: var(--site-accent-solid);
-  color: var(--site-accent-contrast);
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--site-accent) 35%, transparent);
-}
-
-.ctas a.secondary {
-  border: 1px solid var(--site-border);
-  background: var(--site-surface);
-  color: var(--site-text);
 }
 
 /* ---------- outcomes ---------- */
@@ -319,10 +201,6 @@
 
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
-  .heroInner {
-    padding: 40px 20px 48px;
-  }
-
   .teaching {
     grid-template-columns: 1fr 1fr;
   }
@@ -336,10 +214,6 @@
   .section {
     padding: 48px 0;
     scroll-margin-top: 96px;
-  }
-
-  .pitch {
-    font-size: 16px;
   }
 
   .card {
@@ -360,13 +234,6 @@
     height: 48px;
     font-size: 22px;
     border-radius: 12px;
-  }
-
-
-
-  .arrow {
-    grid-row: 1;
-    grid-column: 2;
   }
 }
 

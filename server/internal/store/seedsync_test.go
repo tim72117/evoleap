@@ -214,3 +214,122 @@ func TestSyncCoursesAtomic(t *testing.T) {
 		t.Errorf("失敗時不能寫一半: %+v", m)
 	}
 }
+
+// 三門課(tools、ai-tools、vibe-coding-basics)併成一門 software:舊資料庫(三門課各自有課與腳本檔)照新種子同步後,
+// 課與腳本檔都掛在 software 底下、腳本內容(含線上改過的)不變,舊課程的課、單元、課程本身刪掉,
+// 還掛在舊課程底下沒人認領的檔移到研發基地,再同步一次什麼都不變
+func TestSyncCoursesRetiresMergedCourses(t *testing.T) {
+	st := openEmpty(t)
+	ctx := context.Background()
+	dir := t.TempDir()
+	writeFiles(t, dir, map[string]string{"l0/0.0.json": `{"disk":"0.0"}`, "l1/1.0.json": `{"disk":"1.0"}`, "l0/0.1.json": `{"disk":"0.1"}`})
+	old := `[
+	 {"id":"tools","title":"AI 工具介紹","access":"login-free","units":[{"id":"0","title":"序章","lessons":[
+	   {"id":"0.0","title":"工具","status":"open","script":"l0/0.0.json"},{"id":"0.1","title":"檔案","status":"draft","script":"l0/0.1.json"}]}]},
+	 {"id":"ai-tools","title":"AI 工具入門","access":"login-free","units":[{"id":"1","title":"需求","lessons":[
+	   {"id":"1.0","title":"開場","status":"open","script":"l1/1.0.json"}]}]},
+	 {"id":"vibe-coding-basics","title":"Vibe Coding 入門","access":"login-free","tier":"basic","units":[{"id":"4","title":"助手","lessons":[
+	   {"id":"4.3","title":"規劃中","status":"planned"}]}]},
+	 {"id":"kids","title":"兒童","access":"free","units":[{"id":"0","title":"u","lessons":[{"id":"0.1","title":"K","status":"planned"}]}]}
+	]`
+	if err := st.syncCoursesJSON(ctx, []byte(old), dir); err != nil {
+		t.Fatal(err)
+	}
+	// 舊種子裡還有這三門課:不會被清掉
+	if _, _, err := st.CourseAccess(ctx, "tools"); err != nil {
+		t.Fatalf("種子還有 tools 時不刪: %v", err)
+	}
+	// 線上用 push 改過腳本內容;另有一個舊課程底下沒人認領的檔(種子沒指定給任何課)
+	if err := st.db.Model(&lessonFileRow{}).Where("path = ?", "l0/0.0.json").Update("content", `{"edited":"online"}`).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := st.db.Create(&lessonFileRow{Path: "l0/leftover.json", CourseID: "tools", LessonID: "0.9", Content: `{"left":1}`}).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	merged := `[
+	 {"id":"software","title":"做出自己的軟體","access":"login-free","units":[
+	  {"id":"tools","title":"起步・AI 工具介紹","lessons":[
+	   {"id":"0.0","title":"工具","status":"open","script":"l0/0.0.json"},{"id":"0.1","title":"檔案","status":"draft","script":"l0/0.1.json"}]},
+	  {"id":"ai-tools","title":"零基礎・AI 工具入門","lessons":[{"id":"1.0","title":"開場","status":"open","script":"l1/1.0.json"}]},
+	  {"id":"vibe-coding-basics","title":"基礎・Vibe Coding 入門","lessons":[{"id":"4.3","title":"規劃中","status":"planned"}]}]},
+	 {"id":"kids","title":"兒童","access":"free","units":[{"id":"0","title":"u","lessons":[{"id":"0.1","title":"K","status":"planned"}]}]}
+	]`
+	if err := st.syncCoursesJSON(ctx, []byte(merged), dir); err != nil {
+		t.Fatal(err)
+	}
+	count := func(model any, where string, args ...any) int64 {
+		var n int64
+		if err := st.db.Model(model).Where(where, args...).Count(&n).Error; err != nil {
+			t.Fatal(err)
+		}
+		return n
+	}
+	snapshot := func() string {
+		return lessonSummary(t, st, "software") + " | " + lessonSummary(t, st, "kids")
+	}
+	want := "tools:起步・AI 工具介紹[0.0=工具(open,l0/0.0.json) 0.1=檔案(draft,l0/0.1.json)] ai-tools:零基礎・AI 工具入門[1.0=開場(open,l1/1.0.json)] vibe-coding-basics:基礎・Vibe Coding 入門[4.3=規劃中(planned,)] | 0:u[0.1=K(planned,)]"
+	if got := snapshot(); got != want {
+		t.Fatalf("合併後: %s", got)
+	}
+	// 舊課程、它們的單元與課都刪掉;別的課程不動
+	for _, old := range []string{"tools", "ai-tools", "vibe-coding-basics"} {
+		if _, _, err := st.CourseAccess(ctx, old); !errors.Is(err, ErrCourseNotFound) {
+			t.Errorf("舊課程 %s 要刪掉: %v", old, err)
+		}
+		if n := count(&lessonRow{}, "course_id = ?", old) + count(&unitRow{}, "course_id = ?", old) + count(&lessonFileRow{}, "course_id = ?", old); n != 0 {
+			t.Errorf("舊課程 %s 底下還有 %d 筆資料", old, n)
+		}
+	}
+	if _, _, err := st.CourseAccess(ctx, "kids"); err != nil {
+		t.Errorf("別的課程不動: %v", err)
+	}
+	// 腳本檔改掛 software,內容以資料庫為準(線上改過的沒被磁碟蓋掉)
+	for path, want := range map[string]struct{ lesson, content string }{
+		"l0/0.0.json": {"0.0", `{"edited":"online"}`},
+		"l0/0.1.json": {"0.1", `{"disk":"0.1"}`},
+		"l1/1.0.json": {"1.0", `{"disk":"1.0"}`},
+	} {
+		f, err := st.LessonFileOf(ctx, path)
+		if err != nil || f.CourseID != "software" || f.LessonID != want.lesson || f.Content != want.content {
+			t.Errorf("%s: %+v %v", path, f, err)
+		}
+	}
+	// 沒人認領的檔帶著內容移到研發基地
+	if c, err := st.StudioFileOf(ctx, "l0/leftover.json"); err != nil || c != `{"left":1}` {
+		t.Errorf("leftover 要移到研發基地: %q %v", c, err)
+	}
+	if _, err := st.LessonFileOf(ctx, "l0/leftover.json"); !errors.Is(err, ErrLessonFileNotFound) {
+		t.Errorf("leftover 不該還是課的腳本: %v", err)
+	}
+
+	// 再同步一次:什麼都不變
+	files, studio := count(&lessonFileRow{}, "1 = 1"), count(&studioFileRow{}, "1 = 1")
+	if err := st.syncCoursesJSON(ctx, []byte(merged), dir); err != nil {
+		t.Fatal(err)
+	}
+	if got := snapshot(); got != want {
+		t.Errorf("第二次同步: %s", got)
+	}
+	if f, s2 := count(&lessonFileRow{}, "1 = 1"), count(&studioFileRow{}, "1 = 1"); f != files || s2 != studio {
+		t.Errorf("第二次同步檔案數變了: lesson_files %d→%d, studio_files %d→%d", files, f, studio, s2)
+	}
+	if f, _ := st.LessonFileOf(ctx, "l0/0.0.json"); f.Content != `{"edited":"online"}` {
+		t.Errorf("第二次同步改到線上內容: %s", f.Content)
+	}
+}
+
+// 新種子裡又出現同 id 的課程時(retiredCourses 的 id 被拿來當別的課)不刪
+func TestSyncCoursesRetireSkipsCoursesInSeed(t *testing.T) {
+	st := openEmpty(t)
+	ctx := context.Background()
+	seed := `[{"id":"tools","title":"還在種子裡","access":"free","units":[{"id":"0","title":"u","lessons":[{"id":"0.1","title":"A","status":"planned"}]}]}]`
+	for i := 0; i < 2; i++ {
+		if err := st.syncCoursesJSON(ctx, []byte(seed), t.TempDir()); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if got := lessonSummary(t, st, "tools"); got != "0:u[0.1=A(planned,)]" {
+		t.Errorf("種子裡有的課程不能被當成舊課程刪掉: %s", got)
+	}
+}

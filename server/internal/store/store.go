@@ -69,28 +69,58 @@ func Connect(dsn string) (*Store, error) {
 	return &Store{db: db}, nil
 }
 
-// SyncCourses 把 courses_seed.json 的課程、單元、課(見 SeedCourses),以及每一課的腳本檔(dir 是 web/src/content/live,見 SyncLessonFiles)
+// SyncCourses 把 topics_seed.json 的主題、courses_seed.json 的課程、單元、課(見 SeedCourses),以及每一課的腳本檔(dir 是 web/src/content/live,見 SyncLessonFiles)
 // 在同一個交易裡寫進資料庫:課程結構與腳本檔屬於哪一課以種子為準(種子拿掉的課會被刪),腳本內容以資料庫為準。中途失敗整批不寫。
-func (s *Store) SyncCourses(ctx context.Context, dir string) error {
-	return s.syncCoursesJSON(ctx, courseSeed, dir)
+// 回傳的警告(例如種子已經沒有、但還有種子以外的課程引用的主題,保留不刪)不影響同步結果,由呼叫端印出。
+func (s *Store) SyncCourses(ctx context.Context, dir string) ([]string, error) {
+	return s.syncSeeds(ctx, topicSeed, courseSeed, dir)
 }
 
 // syncCoursesJSON 是 SyncCourses 的實作,種子由參數給(測試用)。
 func (s *Store) syncCoursesJSON(ctx context.Context, seed []byte, dir string) error {
+	_, err := s.syncSeeds(ctx, topicSeed, seed, dir)
+	return err
+}
+
+// syncSeeds 把主題種子與課程種子由參數給(測試用)寫進資料庫。
+func (s *Store) syncSeeds(ctx context.Context, topicSeedJSON, seed []byte, dir string) ([]string, error) {
 	seeds, err := parseCourseSeed(seed)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	topics, err := parseTopicSeed(topicSeedJSON)
+	if err != nil {
+		return nil, err
 	}
 	files, err := readLessonFiles(seeds, dir)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	var warnings []string
+	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		warnings = nil
+		// 主題先於課程(課程引用主題),種子沒有的主題在課程之後刪(見 pruneTopics)
+		if err := seedTopics(tx, topics); err != nil {
+			return err
+		}
 		if err := seedCourses(tx, seeds); err != nil {
 			return fmt.Errorf("seed courses: %w", err)
 		}
-		return syncLessonFiles(tx, seeds, files)
+		if err := syncLessonFiles(tx, seeds, files); err != nil {
+			return err
+		}
+		// 腳本檔都改掛到合併後的課程之後,才清掉舊課程(順序不能反)
+		if err := deleteRetiredCourses(tx, retiredIn(seeds)); err != nil {
+			return err
+		}
+		w, err := pruneTopics(tx, topics)
+		warnings = w
+		return err
 	})
+	if err != nil {
+		return nil, err
+	}
+	return warnings, nil
 }
 
 func isPostgres(dsn string) bool {

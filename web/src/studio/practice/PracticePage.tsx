@@ -6,7 +6,7 @@ import { IntroCompare } from './IntroCompare'
 import { SiteSandbox } from './SiteSandbox'
 import { dir, file } from './sim'
 
-// 開發 › 動手練習:起步課(courses/tools)可以自由操作介面的練習試作。
+// 開發 › 動手練習:起步階段(courses/software)可以自由操作介面的練習試作。
 // 現有課程的互動點是「選一個選項」;這裡改成自己打字、點選、拖曳,畫面即時回應。全部是模擬環境(規則比對),不接真的 AI。
 
 const L0_ROOT = dir({
