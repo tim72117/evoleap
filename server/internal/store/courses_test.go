@@ -352,9 +352,13 @@ func TestUpdateCourseInfo(t *testing.T) {
 
 // 課程簡介影片(introScript):種子指到的檔屬於這門課(課號是空的),公開、狀態 open;不再是簡介影片的檔當作不存在
 func TestIntroScriptFile(t *testing.T) {
+	dir := filepath.Join("..", "..", "..", "web", "src", "content", "live")
+	if _, err := os.Stat(dir); err != nil {
+		t.Skip("沒有腳本目錄(Docker 建置後端時只有 server/)")
+	}
 	st := openSeeded(t)
 	ctx := context.Background()
-	if _, err := st.SyncCourses(ctx, filepath.Join("..", "..", "..", "web", "src", "content", "live")); err != nil {
+	if _, err := st.SyncCourses(ctx, dir); err != nil {
 		t.Fatal(err)
 	}
 	f, err := st.LessonFileOf(ctx, "guide/kids.json")
