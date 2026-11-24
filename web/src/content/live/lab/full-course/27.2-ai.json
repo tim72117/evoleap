@@ -1,0 +1,105 @@
+{
+  "title": "自動化信件流程",
+  "lesson": "全環節 · 單元 27 · 27.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "寄給自己，看過再修",
+    "line": "今天請 AI 設計一套自動化信件，寫好每一封，先全部寄給你自己。你用訂閱者的眼睛看，挑出問題，再請它修。"
+  },
+  "blocking": { "cast": ["claude", "mail"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "新訂閱者信件流程", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "mail": { "actor": "browser", "props": { "site": "fc27-2-inbox", "width": "desktop", "url": "https://mail.example/inbox" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "自動化信件流程",
+      "eyebrow": "全環節 · 單元 27 · 27.2 用 AI 完成",
+      "sub": "設計流程 → 寫信 → 寄給自己 → 指出問題 → 修",
+      "chapter": "第一輪：設計與寫信",
+      "narration": "信寄出去就收不回來。所以每一封都要先寄給自己，用訂閱者的眼睛看過。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫新訂閱者設計一套自動信件：歡迎信（馬上，附 30 元折價券）、介紹信（第 2 天）、提醒信（第 7 天，只寄給還沒用折價券的人）、回流信（30 天沒開信）。寫好每一封，用測試模式全部寄到我的信箱 me@example.com。",
+      "narration": "把上一堂的四封信和時機告訴它，最後一句：全部寄給我自己。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "todos": [
+        ["在電子報服務建立流程：4 封信與條件", "done"],
+        ["寫 4 封信（共用版型）", "done"],
+        ["測試模式寄到 me@example.com", "done"]
+      ],
+      "narration": "它建好流程、寫好四封信，也寄出了。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "node scripts/flow.mjs send-test --to me@example.com", "result": "已寄出 4 封", "out": "歡迎信 ✓  介紹信 ✓  提醒信 ✓  回流信 ✓" },
+    { "show": "mail", "chapter": "用訂閱者的眼睛看", "narration": "打開自己的信箱，看第一封歡迎信。" },
+    { "callout": "mail:sel:#bad-name", "text": "名字沒有換掉", "narration": "第一個問題：開頭寫著「嗨，大括號 first name」，名字沒有換成真的名字。" },
+    { "callout": "mail:sel:#bad-img", "text": "圖片顯示不出來", "narration": "第二個，圖片顯示不出來。" },
+    { "callout": "mail:sel:#bad-link", "text": "按鈕連到 /undefined", "narration": "第三個，最嚴重：預約按鈕連到一個叫 undefined 的網址，點了會找不到頁面。" },
+    { "on": "mail", "click": "#mail1", "narration": "提醒信也有一樣的問題。" },
+    {
+      "on": "claude",
+      "user": "［截圖］三個問題：1. 開頭顯示 {{first_name}}，沒換成名字；2. 圖片破圖；3. 按鈕連到 /undefined。提醒信也一樣。",
+      "chapter": "第二輪：指出問題",
+      "narration": "把看到的問題，一條一條告訴它，附上截圖。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "say": "找到原因了：\n1. 電子報服務的變數叫 `{{firstName}}`，我寫成 `{{first_name}}`\n2. 圖片用了相對路徑，信件裡要寫完整網址\n3. 按鈕的網址變數我沒有傳進去\n三個都在共用版型，改一次四封信都會好。",
+      "narration": "AI 找到三個原因，而且發現都在共用的版型，改一個地方，四封信都好。"
+    },
+    {
+      "on": "claude",
+      "edit": "emails/layout.html",
+      "lines": [
+        [5, "-", "<p>嗨 {{first_name}}，</p>"],
+        [5, "+", "<p>嗨 {{firstName | default: \"朋友\"}}，</p>"],
+        [8, "-", "<img src=\"/img/welcome.jpg\">"],
+        [8, "+", "<img src=\"https://komori-bakery.example/img/welcome.jpg\" alt=\"剛出爐的可頌\">"],
+        [12, "-", "<a class=\"cta\" href=\"{{cta_url}}\">"],
+        [12, "+", "<a class=\"cta\" href=\"https://komori-bakery.example{{ctaPath}}\">"]
+      ],
+      "narration": "沒有名字的人，會顯示「朋友」；圖片改成完整網址；按鈕補上網址。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/check-emails.mjs",
+      "result": "4 封通過",
+      "out": "沒有換掉的 {{ }}：0\n圖片：4/4 可以載入\n連結：7/7 回應 200\n退訂連結：4/4",
+      "narration": "這次它還多做一件事：寫了一個檢查程式，寄出前自動找出沒換掉的變數、破圖和壞連結。以後改信也能用。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "node scripts/flow.mjs send-test --to me@example.com", "result": "已寄出 4 封" },
+    { "show": "mail", "site": "fc27-2-inbox2", "chapter": "再看一次", "narration": "再打開信箱看一次。" },
+    { "callout": "mail:sel:#ok-link", "text": "名字、圖片、連結都對了", "narration": "名字、圖片、按鈕都對了。" },
+    { "on": "mail", "click": "#mail1", "narration": "看提醒信。功能都對了，可是讀起來有點像在催。" },
+    {
+      "on": "claude",
+      "user": "提醒信語氣太像催繳，改得像朋友提醒，例如「怕你忘記」。其他信不要動。",
+      "chapter": "第三輪：語氣",
+      "narration": "最後一輪，調語氣。一樣只改一封，其他不要動。"
+    },
+    { "on": "claude", "say": "已改提醒信：「怕你忘記～你的 30 元折價券還剩 3 天，這週末的栗子可頌剛好可以用。」其他三封沒動，已重新寄一封給你。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 設計你的新訂閱者信件流程，用測試模式全部寄給自己。逐封檢查名字、圖片、連結和語氣，把問題截圖告訴它，修到每一封都滿意。"
+    },
+    {
+      "card": "每一封先寄給自己\n截圖指出問題，AI 找原因\n請它做寄前檢查，以後也能用",
+      "eyebrow": "學會",
+      "sub": "功能對了，再調語氣",
+      "chapter": "學會",
+      "narration": "每一封先寄給自己，用訂閱者的眼睛看。問題截圖給 AI，讓它找原因，再請它做一個寄前檢查。功能都對了，最後再調語氣。"
+    }
+  ]
+}

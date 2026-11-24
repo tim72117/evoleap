@@ -1,0 +1,157 @@
+{
+  "title": "照截圖或設計稿做畫面",
+  "lesson": "全環節 · 單元 5 · 5.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天照設計稿做畫面",
+    "line": "今天要把設計稿直接交給 AI，請它做出畫面，再自己截圖和設計稿比對，一輪一輪修到幾乎一樣。"
+  },
+  "blocking": { "cast": ["claude", "design", "report"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "照設計稿做名片頁",
+        "folder": "~/projects/card",
+        "branch": null,
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "design": {
+      "actor": "browser",
+      "props": { "site": "fc5-3-design", "width": "desktop", "url": "file:///projects/card/design.png" },
+      "place": "window",
+      "hidden": true
+    },
+    "report": {
+      "actor": "browser",
+      "props": { "site": "fc5-3-compare", "width": "desktop", "url": "file:///projects/card/compare-report.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "照截圖或設計稿做畫面",
+      "eyebrow": "全環節 · 單元 5 · 5.3 用 AI 完成",
+      "sub": "給圖 → AI 做 → AI 自己截圖比對 → 修 → 再比對",
+      "chapter": "把設計稿交給 AI",
+      "narration": "這一課是來回好幾輪的。每一輪 AI 都會拍一張照片，和設計稿比，告訴你還差多少。"
+    },
+    {
+      "show": "design",
+      "narration": "這是設計稿 design.png，先放進專案資料夾。"
+    },
+    {
+      "show": "claude",
+      "narration": "打開 AI 程式助手。在對話裡附上這張圖，或是說出它在資料夾裡的檔名。"
+    },
+    {
+      "on": "claude",
+      "user": "照資料夾裡的 design.png 做出 card.html 和 card.css。\n做完請你用瀏覽器截圖，和 design.png 比對，列出差在哪裡，再修。一直修到差異小於 2% 為止，每一輪都告訴我差異多少、改了什麼。",
+      "narration": "交代三件事：照哪張圖做、怎麼檢查、修到什麼程度才停。「差異小於 2%」就是這次的完成標準。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "design.png",
+      "result": "760 × 360 的名片卡片",
+      "narration": "它先把圖讀進來看。"
+    },
+    {
+      "on": "claude",
+      "say": "從設計稿看到：\n- 白色卡片，頭像在左、文字在右\n- 橘色漸層的圓形頭像\n- 名字粗體，下面一行灰色說明\n- 三個淡橘色底的標籤\n- 兩個按鈕左右並排：實心橘色、橘色外框\n\n我先做第一版，再截圖比對。",
+      "narration": "它把看到的東西列出來。你可以對照一下，有沒有它沒看到的。"
+    },
+    { "on": "claude", "tool": "Write", "arg": "card.html", "result": "已建立" },
+    { "on": "claude", "tool": "Write", "arg": "card.css", "result": "已建立" },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "compare.mjs",
+      "result": "已建立",
+      "narration": "它還寫了一個比對的小程式：把兩張圖疊在一起，算出有多少地方不一樣，並把不一樣的地方框起來。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright screenshot card.html shot-1.png && node compare.mjs design.png shot-1.png",
+      "result": "完成",
+      "out": "差異 18.4%　已輸出 compare-report.html",
+      "chapter": "第一輪：差 18%",
+      "narration": "第一輪，拍照、比對，差了 18.4%。"
+    },
+    {
+      "show": "report",
+      "narration": "打開它產生的比對報告。左邊是設計稿，右邊是它做的，紅框是不一樣的地方。"
+    },
+    {
+      "callout": "report:sel:.l1",
+      "text": "頭像太小、名字太大、按鈕上下排",
+      "narration": "頭像太小，名字太大，按鈕排成上下兩排，顏色也不對。"
+    },
+    {
+      "on": "claude",
+      "edit": "card.css",
+      "lines": [[3, "-", ".pc { flex-direction: column; text-align: center; }"], [3, "+", ".pc { display: flex; gap: 20px; padding: 40px; }"], [9, "-", ".av { width: 72px; height: 72px; }"], [9, "+", ".av { width: 120px; height: 120px; }"], [14, "-", ".nm { font-size: 48px; }"], [14, "+", ".nm { font-size: 36px; }"], [22, "-", ".acts { flex-direction: column; }"], [22, "+", ".acts { display: flex; gap: 12px; }"]],
+      "narration": "它照著差異清單改：卡片改成左右排、頭像放大到 120、名字改成 36、按鈕改成並排。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright screenshot card.html shot-2.png && node compare.mjs design.png shot-2.png",
+      "result": "完成",
+      "out": "差異 5.1%　已輸出 compare-report.html",
+      "chapter": "第二輪：差 5%",
+      "narration": "第二輪，剩下 5.1%。"
+    },
+    { "show": "report", "click": "#r2", "narration": "大方向對了，剩下細節。" },
+    {
+      "callout": "report:sel:.l2",
+      "text": "間距少了 12 像素、標籤沒有底色",
+      "narration": "頭像和文字的間距是 20，設計稿是 32；標籤也少了淡橘色的底。這些用眼睛很難發現，比對工具一下就抓到。"
+    },
+    {
+      "on": "claude",
+      "user": "另外，設計稿的按鈕字是粗體，你的好像比較細，也一起改。",
+      "narration": "你自己也看看。數字沒抓到、但你看得出來的地方，直接補充給它。"
+    },
+    {
+      "on": "claude",
+      "edit": "card.css",
+      "lines": [[3, "-", ".pc { display: flex; gap: 20px; padding: 40px; }"], [3, "+", ".pc { display: flex; gap: 32px; padding: 40px; }"], [18, "+", ".tags span { background: #fff1e6; color: #b45309; }"], [24, "+", ".b1, .b2 { font-weight: 700; }"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright screenshot card.html shot-3.png && node compare.mjs design.png shot-3.png",
+      "result": "完成",
+      "out": "差異 0.9%　已輸出 compare-report.html",
+      "chapter": "第三輪：差不到 1%",
+      "narration": "第三輪，0.9%，低於你訂的 2%。"
+    },
+    { "show": "report", "click": "#r3", "narration": "兩邊幾乎一模一樣，只剩陰影深淺的小差異。" },
+    {
+      "on": "claude",
+      "say": "差異降到 **0.9%**，低於 2%，完成。\n三輪改了：\n1. 改成左右排版、頭像 120、名字 36、按鈕並排\n2. 間距 20 → 32、標籤加底色、按鈕字改粗體\n3. 只剩陰影深淺的小差異，不影響畫面",
+      "narration": "它停下來的理由很清楚：達到你訂的標準了。每一輪改了什麼，也都列出來。"
+    },
+    { "hide": "report" },
+    {
+      "checkpoint": "換你試試",
+      "body": "找一張你喜歡的網頁截圖或設計稿，放進專案資料夾。請 AI 照著做，並要求它「自己截圖比對、列出差異、修到差異小於 2%，每一輪告訴我改了什麼」。看比對結果時，也說出你自己看到的差別。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "給圖，不要只給形容詞\n請 AI 自己截圖比對\n訂好「差多少以內」才停",
+      "eyebrow": "學會",
+      "sub": "數字抓不到的細節，你看到就直接補充",
+      "chapter": "學會",
+      "narration": "給圖，不要只給形容詞；請 AI 自己截圖比對；先訂好差多少以內才停。數字抓不到的細節，你看到了就直接補充。下一課，我們讓畫面在手機上也不跑版。"
+    }
+  ]
+}

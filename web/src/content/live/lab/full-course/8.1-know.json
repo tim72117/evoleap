@@ -1,0 +1,177 @@
+{
+  "title": "點一下按鈕之後：前端、後端與 API",
+  "lesson": "全環節 · 單元 8 · 8.1 基礎知識",
+  "teacher": {
+    "say": "今天跟著一筆請求跑一趟",
+    "line": "今天我們跟著一筆請求跑一趟：你在網頁上按下按鈕之後，資料怎麼從瀏覽器跑到伺服器、再跑到資料庫，又怎麼回來。"
+  },
+  "cast": {
+    "cafe": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "先想像一間餐廳",
+        "nodes": {
+          "guest": { "label": "客人", "sub": "坐在外場", "icon": "user", "x": 14, "y": 52 },
+          "waiter": { "label": "服務生", "sub": "收單、送餐", "icon": "store", "x": 40, "y": 52 },
+          "kitchen": { "label": "廚房", "sub": "照單做菜", "icon": "gear", "x": 66, "y": 52 },
+          "fridge": { "label": "冰箱", "sub": "放食材", "icon": "db", "x": 88, "y": 52 }
+        },
+        "links": [["guest", "waiter"], ["waiter", "kitchen"], ["kitchen", "fridge"]]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "小森烘焙的網站",
+        "log": "這次的往來",
+        "nodes": {
+          "browser": { "label": "瀏覽器", "sub": "前端：你看到的網頁", "icon": "browser", "x": 14, "y": 50 },
+          "server": { "label": "伺服器", "sub": "後端：照規則處理", "icon": "server", "x": 42, "y": 50 },
+          "db": { "label": "資料庫", "sub": "存商品與訂單", "icon": "db", "x": 66, "y": 50 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc8-1-status", "url": "https://learn.example/http-status" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "點一下按鈕之後",
+      "eyebrow": "全環節 · 單元 8 · 8.1 基礎知識",
+      "sub": "前端、後端與 API：資料怎麼來回跑",
+      "chapter": "先想像一間餐廳",
+      "narration": "你在網站按下「看菜單」，一秒內菜單就出現了。這一秒裡發生了好幾件事。我們先用一間餐廳來想像。"
+    },
+    { "show": "cafe", "narration": "客人坐在外場，不會自己走進廚房。他把想要的東西告訴服務生。" },
+    { "on": "cafe", "send": ["guest", "waiter"], "label": "我要看菜單", "narration": "客人說：我要看菜單。" },
+    { "on": "cafe", "send": ["waiter", "kitchen"], "label": "一號桌要菜單", "narration": "服務生照固定的格式，把單子遞進廚房。" },
+    { "on": "cafe", "send": ["kitchen", "fridge"], "label": "今天有什麼？", "tone": "data", "narration": "廚房去冰箱看看，今天有哪些食材。" },
+    { "on": "cafe", "send": ["fridge", "kitchen"], "label": "可頌、肉桂捲", "tone": "data" },
+    { "on": "cafe", "send": ["kitchen", "waiter"], "label": "菜單在這", "tone": "ok" },
+    { "on": "cafe", "send": ["waiter", "guest"], "label": "菜單送到", "tone": "ok", "narration": "最後，菜單一路送回客人手上。網站運作的方式，幾乎一模一樣。" },
+    { "hide": "cafe" },
+    {
+      "show": "flow",
+      "chapter": "換成網站",
+      "narration": "換成網站：客人是瀏覽器，也就是前端，你在畫面上看到、按到的都是它。廚房是伺服器，也叫後端，它照規則處理事情。冰箱就是資料庫，負責把資料存起來。"
+    },
+    {
+      "on": "flow",
+      "spawn": "api",
+      "label": "API",
+      "sub": "約好的點餐單格式",
+      "icon": "file",
+      "x": 28,
+      "y": 18,
+      "tone": "key",
+      "narration": "那服務生呢？前端和後端之間，事先約好「要怎麼點、會拿到什麼」，這份約定就叫 API。"
+    },
+    {
+      "on": "flow",
+      "send": ["browser", "server"],
+      "label": "GET /api/menu",
+      "note": "GET：我要拿資料",
+      "narration": "瀏覽器照約定送出一個請求。GET 是方法，意思是「我要拿資料」；後面的 /api/menu 是要去哪一個地方拿。"
+    },
+    { "on": "flow", "send": ["server", "db"], "label": "查商品", "tone": "data", "note": "伺服器自己去資料庫查" },
+    { "on": "flow", "send": ["db", "server"], "label": "3 筆商品", "tone": "data" },
+    {
+      "on": "flow",
+      "send": ["server", "browser"],
+      "label": "200 OK＋商品清單",
+      "tone": "ok",
+      "note": "回應：狀態碼＋資料",
+      "narration": "伺服器把結果裝進回應送回來。回應的第一行有個數字，200 代表成功。瀏覽器拿到資料，才把菜單畫在畫面上。"
+    },
+    {
+      "callout": "flow:node:db",
+      "text": "瀏覽器不會直接碰資料庫，一定經過伺服器",
+      "narration": "注意，瀏覽器從頭到尾都沒有直接碰資料庫。誰能看、誰能改，都由伺服器把關。"
+    },
+    { "on": "flow", "tidy": true, "chapter": "HTTP 方法：要做什麼" },
+    {
+      "on": "flow",
+      "send": ["browser", "server"],
+      "label": "POST /api/orders",
+      "tone": "warn",
+      "note": "POST：新增一筆（送出訂單）",
+      "narration": "除了 GET，還有幾個常用的方法。送出訂單用 POST，意思是「新增一筆」。"
+    },
+    {
+      "on": "flow",
+      "send": ["browser", "server"],
+      "label": "PATCH /api/orders/42",
+      "tone": "warn",
+      "note": "PATCH：修改一部分（改取貨時間）",
+      "narration": "改取貨時間用 PATCH，只改其中一部分。"
+    },
+    {
+      "on": "flow",
+      "send": ["browser", "server"],
+      "label": "DELETE /api/orders/42",
+      "tone": "bad",
+      "note": "DELETE：刪除（取消訂單）",
+      "narration": "取消訂單用 DELETE。方法說「做什麼」，網址說「對哪一筆」。"
+    },
+    {
+      "callout": "flow:log",
+      "text": "GET 拿、POST 新增、PATCH 修改、DELETE 刪除",
+      "narration": "右邊的紀錄就是這次的往來。之後你請 AI 做功能，它說的這些字，你都看得懂了。"
+    },
+    { "hide": "flow" },
+    {
+      "show": "web",
+      "chapter": "狀態碼：回應的第一行",
+      "narration": "最後看回應的第一行：狀態碼。看第一個數字就知道大方向：2 開頭成功，4 開頭是請求有問題，5 開頭是伺服器出錯。"
+    },
+    { "on": "web", "click": "#c200", "narration": "200，成功，資料在這裡。" },
+    { "on": "web", "click": "#c201", "narration": "201，成功建立了一筆新資料，例如訂單送出成功。" },
+    { "on": "web", "click": "#c401", "narration": "401，你還沒登入，或通行證無效。" },
+    { "on": "web", "click": "#c404", "narration": "404，找不到這個網址，常常是網址打錯。" },
+    { "on": "web", "click": "#c500", "narration": "500，伺服器的程式自己出錯了，這時候要看的是後端，不是你的輸入。" },
+    { "on": "web", "click": "#c400" },
+    {
+      "callout": "web:sel:.codes",
+      "text": "4 開頭：請求有問題　5 開頭：伺服器出錯",
+      "narration": "以後網站出錯，先看狀態碼是 4 開頭還是 5 開頭，就知道該從哪一邊查起。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "客人按下「送出訂單」，結果畫面顯示失敗，狀態碼是 500。問題比較可能出在哪？",
+      "body": "選一個。",
+      "id": "status500",
+      "options": [
+        {
+          "label": "客人填錯資料",
+          "steps": [
+            { "card": "填錯資料通常是 400", "eyebrow": "再想想", "sub": "4 開頭是請求有問題；500 是伺服器的程式出錯", "narration": "客人填錯資料，伺服器通常會回 400。500 代表伺服器的程式自己出錯了。" }
+          ]
+        },
+        {
+          "label": "伺服器的程式",
+          "steps": [
+            { "card": "答對了：5 開頭是伺服器出錯", "eyebrow": "想一想", "sub": "去看後端的錯誤紀錄，或請 AI 看伺服器的 log", "narration": "答對了。5 開頭代表伺服器出錯，要看的是後端的錯誤紀錄。" }
+          ]
+        }
+      ]
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "前端：你看到的網頁\n後端：照規則處理\nAPI：兩邊約好的格式",
+      "eyebrow": "學會",
+      "sub": "方法：GET、POST、PATCH、DELETE　狀態碼：2xx 成功、4xx 請求問題、5xx 伺服器出錯",
+      "chapter": "學會",
+      "narration": "今天的重點：前端送出請求，後端照規則處理、需要時去資料庫拿資料，再把回應送回來。方法說要做什麼，狀態碼告訴你結果。下一堂，我們請 AI 把你自己專案的請求畫成流程圖。"
+    }
+  ]
+}

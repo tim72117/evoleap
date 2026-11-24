@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>安裝說明 · AI 程式助手</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-pick="mac">
+<div class="top"><span class="logo">◆</span> 官方說明文件 <span class="muted">/ 快速開始 / 安裝</span></div>
+<div class="ttl">安裝 Claude Code</div>
+<div class="sub">選你的作業系統，複製一行指令貼到終端機</div>
+<div class="tabs">
+  <button class="tab cur" id="os-mac" data-pick="mac"> macOS</button>
+  <button class="tab" id="os-win" data-pick="win">⊞ Windows</button>
+</div>
+<div class="cmd mono os-mac" id="cmd-mac"><span class="muted">$</span> curl -fsSL https://claude.ai/install.sh | bash<span class="copy">複製</span></div>
+<div class="cmd mono os-win" id="cmd-win"><span class="muted">PS&gt;</span> irm https://claude.ai/install.ps1 | iex<span class="copy">複製</span></div>
+<ol class="steps">
+  <li>貼上指令、按 Enter，等它跑完</li>
+  <li>輸入 <span class="mono">claude</span> 開始使用</li>
+  <li><b>第一次會打開瀏覽器請你登入</b>（帳號與付費方案由你自己決定）</li>
+</ol>
+<div class="note">💡 安裝前先確認來源是官方網站，不要用別人轉貼的指令。</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

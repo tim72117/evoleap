@@ -1,0 +1,155 @@
+{
+  "title": "先寫測試再改",
+  "lesson": "全環節 · 單元 29 · 29.2 用 AI 完成",
+  "teacher": {
+    "say": "今天請 AI 先亮紅燈",
+    "line": "這一堂請 AI 修好運費。規矩只有一條：先寫一個會失敗的測試，看它亮紅燈，再改程式到綠燈。"
+  },
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "shop"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "修運費", "folder": "~/projects/bakery", "branch": "fix-shipping", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "shop": {
+      "actor": "browser",
+      "props": { "site": "fc29-2-cart-bad", "url": "http://localhost:5173/cart" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "先寫測試再改",
+      "eyebrow": "全環節 · 單元 29 · 29.2 用 AI 完成",
+      "sub": "紅燈 → 改程式 → 綠燈",
+      "chapter": "問題長這樣",
+      "narration": "先看問題。"
+    },
+    {
+      "show": "shop",
+      "narration": "購物車小計 1200 元，運費還是收了 60。"
+    },
+    { "callout": "shop:section:ship", "text": "滿 1000 應該免運", "narration": "滿 1000 應該免運。" },
+    {
+      "show": "claude",
+      "chapter": "交代：先紅再綠",
+      "narration": "交代任務時，把順序講清楚。"
+    },
+    {
+      "on": "claude",
+      "user": "購物車滿 1000 元應該免運，現在還收 60。\n請先寫一個會失敗的測試，跑給我看它失敗，\n再改程式到測試通過；最後跑全部測試。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "三個關鍵：先失敗、再通過、最後全部跑",
+      "narration": "三個關鍵字：先失敗、再通過、最後全部跑一次。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "Read", "arg": "src/shipping.js", "result": "3 行" },
+    {
+      "on": "claude",
+      "ask": "tests/shipping.test.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "test('滿 1000 免運', () => {\n  expect(shipping(1200)).toBe(0)\n})\ntest('未滿 1000 收 60', () => {\n  expect(shipping(800)).toBe(60)\n})",
+      "chapter": "第一步：寫測試",
+      "narration": "它先寫測試，還沒碰運費的程式。它多寫了一個：未滿 1000 還是要收 60，免得改過頭。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "tests/shipping.test.js", "result": "6 行" },
+    {
+      "on": "claude",
+      "ask": "npx vitest run tests/shipping.test.js",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "只跑運費的測試",
+      "chapter": "第二步：亮紅燈"
+    },
+    { "on": "claude", "choose": 2, "narration": "跑測試只是檢查，選一律允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx vitest run tests/shipping.test.js",
+      "result": "1 失敗、1 通過",
+      "out": "✕ 滿 1000 免運\n  預期 0，實際得到 60\n✓ 未滿 1000 收 60",
+      "narration": "紅燈。預期 0，實際 60，和客人遇到的一模一樣。"
+    },
+    {
+      "on": "claude",
+      "say": "測試如預期失敗：`shipping(1200)` 回傳 60。這證明測試抓得到問題，接下來改程式。",
+      "narration": "它特別說明：失敗是預期的，代表這個測試抓得到問題。"
+    },
+    {
+      "on": "claude",
+      "ask": "src/shipping.js",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "if (total >= 1000) return 0\nreturn 60",
+      "chapter": "第三步：改程式"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "edit": "src/shipping.js",
+      "lines": [[1, " ", "export function shipping(total) {"], [2, "+", "  if (total >= 1000) return 0"], [3, " ", "  return 60"], [4, " ", "}"]],
+      "narration": "改的地方只有一行：滿 1000 就回 0。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx vitest run tests/shipping.test.js",
+      "result": "2 通過",
+      "out": "✓ 滿 1000 免運\n✓ 未滿 1000 收 60",
+      "chapter": "第四步：綠燈",
+      "narration": "再跑一次，綠燈。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx vitest run",
+      "result": "24 通過",
+      "out": "Test Files  6 passed\nTests  24 passed",
+      "narration": "最後把全部 24 個測試都跑一遍，沒有改壞別的地方。"
+    },
+    {
+      "diff": "這次的修正",
+      "lines": [["+", "tests/shipping.test.js　新增 2 個測試"], ["+", "　紅燈：預期 0，實際 60"], [" ", "src/shipping.js"], ["+", "　if (total >= 1000) return 0"], ["+", "　綠燈：24 個測試全部通過"]],
+      "narration": "整理一下：先有一個亮紅燈的測試，才有一行修正，最後全部綠燈。"
+    },
+    { "clear": true },
+    {
+      "show": "shop",
+      "site": "fc29-2-cart-ok",
+      "chapter": "親眼確認",
+      "narration": "打開購物車看一眼：運費 0，合計 1200。"
+    },
+    {
+      "on": "claude",
+      "user": "很好，幫我 commit，訊息寫清楚先寫了測試"
+    },
+    {
+      "on": "claude",
+      "ask": "git add src/shipping.js tests/shipping.test.js && git commit -m \"修正滿千免運：先加測試再修\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "只提交這兩個檔案"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "git commit -m \"修正滿千免運：先加測試再修\"", "result": "已提交", "out": "[fix-shipping 3f2a9c1] 修正滿千免運：先加測試再修\n 2 files changed, 7 insertions(+)" },
+    {
+      "on": "claude",
+      "say": "已提交。之後如果有人把免運的規則改壞，`滿 1000 免運` 這個測試會先亮紅燈。",
+      "narration": "這個測試會留在專案裡。以後不管是你、還是 AI 改壞了，它都會先亮紅燈。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "找一個你網站上的小錯，用同一句話交代 AI：「先寫一個會失敗的測試，跑給我看它失敗，再改到通過，最後跑全部測試。」確認你真的看到了紅燈。",
+      "narration": "換你試試。找一個小錯，用同樣的順序交代 AI，而且一定要親眼看到那個紅燈。"
+    }
+  ]
+}

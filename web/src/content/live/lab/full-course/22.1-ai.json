@@ -1,0 +1,192 @@
+{
+  "title": "備份與還原演練",
+  "lesson": "全環節 · 單元 22 · 22.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做一次還原演練",
+    "line": "這一課請 AI 把資料庫還原到一個複本，再寫一支比對腳本，確認資料完整。全程不碰正式的資料庫。"
+  },
+  "blocking": { "cast": ["claude", "plan"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "還原演練",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "plan": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "演練計畫",
+        "nodes": [
+          { "id": "prod", "label": "正式資料庫 shop-db", "sub": "只讀，不改", "icon": "🗄", "shape": "db", "x": 18, "y": 30, "w": 12, "tone": "ok" },
+          { "id": "bk", "label": "時間點還原", "sub": "今天 14:00", "icon": "⏱", "x": 18, "y": 75, "w": 10 },
+          { "id": "clone", "label": "複本 shop-db-drill", "sub": "演練用，結束就刪", "icon": "🗄", "shape": "db", "x": 52, "y": 75, "w": 12 },
+          { "id": "cmp", "label": "比對腳本", "sub": "每張表：筆數 + 內容雜湊", "icon": "⚖", "x": 84, "y": 52, "w": 11 }
+        ],
+        "edges": [
+          { "from": "prod", "to": "bk" },
+          { "from": "bk", "to": "clone", "label": "還原到新的資料庫" },
+          { "from": "prod", "to": "cmp", "label": "讀" },
+          { "from": "clone", "to": "cmp", "label": "讀" }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "備份與還原演練",
+      "eyebrow": "全環節 · 單元 22 · 22.1 用 AI 完成",
+      "sub": "還原到複本 → 做比對工具 → 確認完整 → 收拾乾淨",
+      "narration": "演練最重要的原則：正式資料庫只讀不改，所有還原都做在複本上。"
+    },
+    {
+      "show": "claude",
+      "chapter": "交代演練範圍",
+      "narration": "交代的時候，把這條界線講清楚。"
+    },
+    {
+      "on": "claude",
+      "user": "做一次還原演練：用時間點還原，把 shop-db 今天 14:00 的狀態還原到一個新的複本，不能動正式資料庫。寫一支比對腳本，比較複本和正式資料庫每張表的筆數和內容。演練完刪掉複本，寫一份演練紀錄。開新資料庫和刪除前都先問我。",
+      "narration": "還原到哪個時間、還原到哪裡、怎麼比對、結束後收拾，以及兩個要先問的時機。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "show": "plan",
+      "chapter": "AI 的計畫",
+      "narration": "它先畫出計畫：正式資料庫只讀；從時間點還原到一個叫 drill 的複本；最後用比對腳本，兩邊各讀一次來比。"
+    },
+    { "send": "bk>clone", "label": "14:00" },
+    { "send": "prod>cmp", "label": "讀" },
+    { "send": "clone>cmp", "label": "讀" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud sql instances describe shop-db --format='value(settings.backupConfiguration)'",
+      "result": "每日備份 03:00 · 時間點還原：開啟（保留 7 天）",
+      "chapter": "還原到複本",
+      "narration": "它先確認時間點還原有開，保留七天。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud sql instances clone shop-db shop-db-drill --point-in-time=2026-11-09T14:00:00+08:00",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "從 shop-db 14:00 的狀態，建立新的資料庫 shop-db-drill（會產生費用，演練完刪除）"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "clone：建立新的資料庫，不會改到 shop-db",
+      "narration": "看清楚指令是 clone，複製出一個新的。正式的 shop db 不會被改，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud sql instances clone shop-db shop-db-drill --point-in-time=…",
+      "result": "完成，花了 12 分鐘",
+      "narration": "還原花了十二分鐘。這個數字很重要：真的出事時，網站至少要停這麼久。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/compare-db.ts",
+      "lines": [
+        [1, "+", "// 用法：npx tsx scripts/compare-db.ts <正式> <複本>"],
+        [2, "+", "for (const table of await listTables(a)) {"],
+        [3, "+", "  const [ca, cb] = [await count(a, table), await count(b, table)]"],
+        [4, "+", "  const [ha, hb] = [await hash(a, table), await hash(b, table)]  // 內容雜湊"],
+        [5, "+", "  report(table, ca === cb && ha === hb, ca, cb)"],
+        [6, "+", "}"]
+      ],
+      "chapter": "做工具：比對腳本",
+      "narration": "接著寫比對腳本。每張表比兩件事：筆數，和內容雜湊。雜湊就是把整張表算成一串指紋，內容差一個字，指紋就不同。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx tsx scripts/compare-db.ts shop-db shop-db-drill",
+      "result": "4 張表相符，1 張不符",
+      "out": "products   128 = 128   ✓\nmembers    842 = 842   ✓\norders    5431 ≠ 5428  ✕\ncoupons     12 = 12    ✓\nsettings     3 = 3     ✓",
+      "narration": "第一次跑：訂單表差了三筆。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql shop-db -c \"select id, created_at from orders where created_at > '14:00'\"",
+      "result": "3 筆，14:05、14:21、14:40 建立",
+      "narration": "它去查那三筆：都是兩點以後才建立的。複本停在兩點，本來就不會有。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/compare-db.ts",
+      "lines": [
+        [1, "+", "// 用法：npx tsx scripts/compare-db.ts <正式> <複本> --until=<還原時間>"],
+        [3, "-", "  const [ca, cb] = [await count(a, table), await count(b, table)]"],
+        [3, "+", "  const [ca, cb] = [await count(a, table, until), await count(b, table, until)]  // 只比還原時間以前"]
+      ],
+      "narration": "所以比對要只看還原時間以前的資料。它把時間加成參數，工具就更準了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx tsx scripts/compare-db.ts shop-db shop-db-drill --until=14:00",
+      "result": "5 張表全部相符 ✓",
+      "out": "products ✓  members ✓  orders ✓  coupons ✓  settings ✓",
+      "narration": "再跑一次：五張表全部相符。"
+    },
+    { "on": "plan", "light": "clone", "tone": "ok", "sub": "與 14:00 的正式資料一致 ✓", "narration": "複本和兩點的正式資料完全一致，還原演練成功。" },
+    {
+      "on": "claude",
+      "ask": "gcloud sql instances delete shop-db-drill",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "刪除演練用的複本 shop-db-drill",
+      "chapter": "收拾與紀錄",
+      "narration": "演練完要收拾。複本放著每天都要錢。照交代，刪除前先問。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "名字要是 shop-db-drill，不是 shop-db",
+      "narration": "這一步一定要看清楚：刪的是 shop db drill，不是 shop db。差一個字，就是真的事故。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud sql instances delete shop-db-drill", "result": "已刪除" },
+    {
+      "on": "claude",
+      "edit": "docs/drills/2026-11-09-restore.md",
+      "lines": [
+        [1, "+", "# 還原演練 2026-11-09"],
+        [2, "+", "還原點：14:00（時間點還原）→ 複本 shop-db-drill"],
+        [3, "+", "花費時間：12 分鐘"],
+        [4, "+", "結果：5 張表筆數與內容相符（scripts/compare-db.ts --until=14:00）"],
+        [5, "+", "發現：商品圖片放在 Cloud Storage，不在資料庫備份裡 → 要另外開啟版本保留"],
+        [6, "+", "下次演練：2027-02"]
+      ],
+      "narration": "最後寫演練紀錄。注意第五行：它發現商品圖片不在資料庫裡，資料庫備份救不回來。這就是演練的價值。"
+    },
+    {
+      "on": "claude",
+      "say": "還原演練成功：14:00 的資料 12 分鐘內還原到複本，5 張表全部相符，複本已刪除。另外發現商品圖片沒有備份，建議開啟儲存空間的版本保留，要我現在設定嗎？",
+      "narration": "它回報結果，也把演練中發現的問題提出來，問你要不要處理。"
+    },
+    {
+      "checkpoint": "換你演練",
+      "body": "請 AI 在複本上做一次還原演練：交代不能動正式資料庫、建立和刪除前先問你。請它寫比對腳本確認資料完整，記下還原花了多久，寫一份演練紀錄。",
+      "narration": "換你演練一次。記得兩條界線：不碰正式資料庫，建立和刪除前先問你。"
+    },
+    {
+      "card": "一次成功的還原演練",
+      "eyebrow": "這一課的成果",
+      "sub": "還原到複本 · 比對腳本 · 還原要多久 · 發現沒備份到的東西",
+      "narration": "這一課的成果：一次成功的還原演練，還有一支以後每次演練都能用的比對腳本。下一課，我們來讀懂雲端帳單。"
+    }
+  ]
+}

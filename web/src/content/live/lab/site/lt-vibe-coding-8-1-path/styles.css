@@ -1,0 +1,54 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; color: #1f2937; background: #f6f7f9; font-size: 17px; line-height: 1.5; }
+.wrap { padding: 26px 40px; }
+h1 { font-size: 28px; margin: 0 0 4px; }
+.muted { color: #6b7280; margin: 0 0 18px; }
+code { font-family: ui-monospace, Menlo, monospace; background: #eef2ff; padding: 1px 6px; border-radius: 6px; }
+.stage { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 22px; }
+.col { display: flex; flex-direction: column; gap: 16px; }
+.lt { font-weight: 800; font-size: 15px; color: #4b5563; margin-bottom: 8px; }
+.term { background: #1e2127; color: #e5e7eb; border-radius: 12px; overflow: hidden; font-family: ui-monospace, Menlo, monospace; font-size: 16px; }
+.tbar { display: flex; gap: 6px; align-items: center; padding: 8px 12px; background: #2c3038; }
+.tbar i { width: 11px; height: 11px; border-radius: 50%; background: #4a4f57; display: inline-block; }
+.tname { margin-left: 8px; font-size: 13px; color: #9ca3af; font-family: -apple-system, "PingFang TC", sans-serif; }
+.tline { padding: 6px 14px; }
+.tline:last-child { padding-bottom: 14px; }
+.pr { color: #7fd1a8; }
+.res { display: none; }
+.bad { color: #fca5a5; }
+.ok { color: #86efac; }
+.memo { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 16px; }
+.mt { font-weight: 800; font-size: 15px; color: #4b5563; margin-bottom: 6px; }
+.mold, .mnew { padding: 8px 12px; border-radius: 9px; font-size: 15px; }
+.mold { background: #fef3c7; color: #92400e; }
+.mnew { display: none; background: #dcfce7; color: #166534; }
+.dirs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.dirs li { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 2px solid #e5e7eb; border-radius: 12px; padding: 11px 16px; font-family: ui-monospace, Menlo, monospace; font-size: 16px; }
+.dirs .r { font-family: -apple-system, "PingFang TC", sans-serif; font-weight: 700; font-size: 14px; display: none; }
+.r.no { color: #b91c1c; }
+.r.yes { color: #15803d; }
+.newdir { display: none !important; }
+.box { background: #fff; border: 2px dashed #a5b4fc; border-radius: 12px; padding: 14px 16px; }
+.folder { font-family: ui-monospace, Menlo, monospace; font-weight: 700; margin-bottom: 10px; }
+.files { display: flex; gap: 10px; }
+.files span { padding: 6px 12px; border-radius: 8px; background: #f3f4f6; font-family: ui-monospace, Menlo, monospace; }
+.files .hl { background: #e0e7ff; color: #3730a3; font-weight: 700; }
+.cfg { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 16px; opacity: 0.35; }
+.cline { font-size: 14px; color: #4b5563; }
+.cline.code { font-family: ui-monospace, Menlo, monospace; color: #1f2937; background: #f3f4f6; padding: 6px 10px; border-radius: 8px; margin-top: 4px; font-size: 13.5px; }
+.steps { display: flex; gap: 12px; margin-top: 22px; }
+.steps button { font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 999px; border: 2px solid #c7d2fe; background: #fff; color: #3730a3; cursor: pointer; }
+.steps button.on { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+/* ① 找一遍:舊清單每個都沒有 */
+[data-s="1"] .dirs .r.no, [data-s="2"] .dirs .r.no { display: inline; }
+[data-s="1"] .dirs li:not(.newdir), [data-s="2"] .dirs li:not(.newdir) { border-color: #fecaca; background: #fff7f7; }
+[data-s="1"] .res.bad, [data-s="2"] .res.bad { display: block; }
+/* ② 設定檔改了,但這個視窗還是舊清單 */
+[data-s="2"] .cfg, [data-s="3"] .cfg { opacity: 1; border-color: #a5b4fc; box-shadow: 0 0 0 3px #e0e7ff; }
+/* ③ 重開:讀到新清單,第一個就找到 */
+[data-s="3"] .newdir { display: flex !important; order: -1; border-color: #86efac; background: #f0fdf4; }
+[data-s="3"] .newdir .r.yes { display: inline; }
+[data-s="3"] .res.ok { display: block; }
+[data-s="3"] .mold { display: none; }
+[data-s="3"] .mnew { display: block; }

@@ -1,0 +1,153 @@
+{
+  "title": "無障礙與多國語系",
+  "lesson": "全環節 · 單元 5 · 5.5 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天先做工具，再修問題",
+    "line": "今天要請 AI 先寫一個掃描小工具，把無障礙問題一次找出來；再請它逐項修好，最後把文字抽成語系檔，讓網頁可以切換成英文。"
+  },
+  "blocking": { "cast": ["claude", "files", "page"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "無障礙與語系",
+        "folder": "~/projects/profile",
+        "branch": null,
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": { "tree": { "profile": { "index.html": "", "styles.css": "", "script.js": "" } }, "open": "profile" },
+      "place": "window",
+      "hidden": true
+    },
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc5-5-done", "width": "desktop", "url": "file:///projects/profile/index.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "無障礙與多國語系",
+      "eyebrow": "全環節 · 單元 5 · 5.5 用 AI 完成",
+      "sub": "先請 AI 做掃描工具 → 用工具找問題 → 逐項修 → 抽出語系檔",
+      "chapter": "先做一個掃描工具",
+      "narration": "問題可能藏在每一頁、每一張圖。與其一個一個用眼睛找，不如先請 AI 做一個掃描工具，以後每次改完都能再掃一次。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "先寫一個掃描腳本 a11y-check.mjs，檢查 index.html 的無障礙問題：圖片沒有替代文字、文字對比低於 4.5:1、按鈕和連結沒有焦點框。用表格列出問題、位置、嚴重程度。這一步只掃描，先不要改。",
+      "narration": "交代清楚要檢查哪幾種問題、結果要怎麼列，還有「這一步只掃描，先不要改」。先看清楚問題，再決定怎麼修。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "ask": "npm install --save-dev axe-core playwright",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "安裝兩個開發用的工具：axe-core 是常用的無障礙檢查規則，playwright 用來打開網頁",
+      "narration": "它想安裝兩個工具。axe-core 是很多人在用的無障礙檢查規則，playwright 用來打開網頁。加了 save-dev，代表只在開發時用，不會放進網站。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "npm install --save-dev axe-core playwright", "result": "已安裝 2 個套件" },
+    { "on": "claude", "tool": "Write", "arg": "a11y-check.mjs", "result": "已建立 36 行", "narration": "掃描腳本寫好了。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node a11y-check.mjs index.html",
+      "result": "找到 3 個問題",
+      "out": "嚴重  圖片沒有替代文字        .avatar（頭像）\n嚴重  文字對比 3.2:1，低於 4.5  .tagline（簡介）\n中等  按鈕和連結沒有焦點框    #hi、.nav a\n共 3 個問題：嚴重 2、中等 1",
+      "chapter": "用工具找出問題",
+      "narration": "跑一次，找到三個問題：頭像沒有替代文字、簡介的字太淡、按鈕和連結沒有焦點框。"
+    },
+    {
+      "on": "claude",
+      "say": "掃描結果：\n1. **嚴重**　頭像沒有替代文字，螢幕閱讀器念不出是誰\n2. **嚴重**　簡介的字顏色太淡，對比只有 3.2:1\n3. **中等**　用 Tab 鍵移動時，看不出現在在哪個按鈕\n\n要我逐項修正嗎？",
+      "narration": "它把表格翻成白話，還先問你要不要修，沒有自己動手，因為你剛才說「先不要改」。"
+    },
+    {
+      "on": "claude",
+      "user": "好，逐項修正，每修一項就再掃一次。修完把畫面上的文字抽到 locales/zh-TW.json，再做一份英文的 en.json，右上角加一個切換語言的按鈕。完成標準：掃描沒有嚴重和中等問題、按下切換會變成英文。",
+      "chapter": "逐項修正",
+      "narration": "接著一次交代完：怎麼修、修完做語系檔、還有完成標準。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["頭像加上替代文字", "doing"],
+        ["簡介文字加深到對比 4.5 以上", "pending"],
+        ["按鈕和連結加上焦點框", "pending"],
+        ["文字抽到 locales/zh-TW.json、en.json，加切換按鈕", "pending"],
+        ["重新掃描，並檢查切換語言", "pending"]
+      ]
+    },
+    { "on": "claude", "edit": "index.html", "lines": [[5, "-", "    <div class=\"avatar\">安</div>"], [5, "+", "    <div class=\"avatar\" role=\"img\" aria-label=\"林小安的大頭貼\">安</div>"]] },
+    { "on": "claude", "tool": "Bash", "arg": "node a11y-check.mjs index.html", "result": "剩 2 個問題", "out": "嚴重  文字對比 3.2:1，低於 4.5  .tagline（簡介）\n中等  按鈕和連結沒有焦點框    #hi、.nav a" },
+    { "on": "claude", "edit": "styles.css", "lines": [[8, "-", ".tagline { color: #8a5a3c; }"], [8, "+", ".tagline { color: #6e3f22; }"]] },
+    { "on": "claude", "tool": "Bash", "arg": "node a11y-check.mjs index.html", "result": "剩 1 個問題", "out": "中等  按鈕和連結沒有焦點框    #hi、.nav a" },
+    { "on": "claude", "edit": "styles.css", "lines": [[40, "+", "a:focus-visible, button:focus-visible {"], [41, "+", "  outline: 3px solid #1d4ed8;"], [42, "+", "  outline-offset: 3px;"], [43, "+", "}"]] },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node a11y-check.mjs index.html",
+      "result": "沒有問題",
+      "out": "共 0 個問題 ✓",
+      "narration": "每修一項就掃一次，問題一個一個減少，最後是零。這就是先做工具的好處：檢查變成一個指令。"
+    },
+    {
+      "show": "files",
+      "mkdir": "locales",
+      "chapter": "抽出語系檔",
+      "narration": "接著做語系檔。它在專案裡建了一個 locales 資料夾。"
+    },
+    { "on": "files", "open": "locales" },
+    { "on": "files", "create": "zh-TW.json", "narration": "一個中文的語系檔，" },
+    { "on": "files", "create": "en.json", "narration": "一個英文的語系檔。" },
+    { "on": "claude", "tool": "Write", "arg": "locales/zh-TW.json", "result": "17 個詞條" },
+    { "on": "claude", "tool": "Write", "arg": "locales/en.json", "result": "17 個詞條" },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [[6, "-", "    <h1>林小安</h1>"], [6, "+", "    <h1 data-i18n=\"name\">林小安</h1>"], [7, "-", "    <p class=\"tagline\">喜歡烘焙的設計新手</p>"], [7, "+", "    <p class=\"tagline\" data-i18n=\"tagline\">喜歡烘焙的設計新手</p>"], [3, "+", "    <button id=\"lang\" class=\"lang\">English</button>"]],
+      "narration": "頁面上的每一段字，都加上一個代號，對到語系檔裡的詞條。右上角多了切換按鈕。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "node a11y-check.mjs index.html", "result": "沒有問題", "out": "共 0 個問題 ✓", "chapter": "最後驗證" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node check-lang.mjs",
+      "result": "完成",
+      "out": "切換前  標題：林小安\n按下 English 之後  標題：Lin Hsiao-an\n✓ 17 個詞條都有英文",
+      "narration": "最後再掃一次，加上新按鈕後還是零個問題；也檢查了切換語言，17 個詞條都有英文。"
+    },
+    {
+      "on": "claude",
+      "say": "完成，照你的標準檢查過：\n✓ 掃描結果 0 個問題（修了替代文字、對比、焦點框）\n✓ 按右上角 **English** 會切成英文，再按一次切回中文\n\n以後改完頁面，跑 `node a11y-check.mjs index.html` 就能再檢查一次。",
+      "narration": "它留下了掃描工具，以後每次改完都能自己再跑一次。"
+    },
+    { "show": "page", "narration": "打開來看看。" },
+    { "on": "page", "click": "#lang", "narration": "按下 English，整頁變成英文。" },
+    { "on": "page", "click": "#lang", "narration": "再按一次，回到中文。" },
+    { "hide": "page" },
+    {
+      "checkpoint": "換你試試",
+      "body": "1. 請 AI 寫一個無障礙掃描腳本，先只掃描、不要改。2. 看懂結果後，請它逐項修正、每修一項再掃一次。3. 請它把文字抽成 zh-TW.json 和 en.json，加上切換按鈕。最後自己用 Tab 鍵走一遍、按切換語言試試。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "先做工具，再用工具找問題\n每修一項就再掃一次\n文字抽進語系檔",
+      "eyebrow": "學會",
+      "sub": "工具留下來，以後每次改完都能再檢查",
+      "chapter": "學會",
+      "narration": "會重複做的檢查，先請 AI 做成工具；每修一項就再掃一次；文字抽進語系檔，就能切換語言。單元五到這裡結束，下一個單元，我們學用 Git 把每一步存下來。"
+    }
+  ]
+}

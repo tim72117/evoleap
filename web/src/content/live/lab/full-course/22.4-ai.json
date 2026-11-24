@@ -1,0 +1,154 @@
+{
+  "title": "個資匯出與刪除請求",
+  "lesson": "全環節 · 單元 22 · 22.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做個資管理工具",
+    "line": "這一課請 AI 照上一堂畫的資料地圖，做一個匯出與刪除的管理工具，再用測試帳號從頭演練一次。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "個資管理工具",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": {
+        "tree": { "shop": { "exports": {}, "scripts": { "privacy.ts": "" }, "src": {} } },
+        "open": "shop/exports"
+      },
+      "place": "right",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "個資匯出與刪除請求",
+      "eyebrow": "全環節 · 單元 22 · 22.4 用 AI 完成",
+      "sub": "先做工具：export、delete · 再用測試帳號演練",
+      "narration": "請求來了才臨時處理，很容易漏。所以先做好工具，平常就演練過。"
+    },
+    {
+      "show": "claude",
+      "chapter": "照地圖做工具",
+      "narration": "把資料地圖和每個地方的處理方式，一起交給它。"
+    },
+    {
+      "on": "claude",
+      "user": "做個資管理工具 scripts/privacy.ts。export <email>：把會員、訂單、電子報、錯誤追蹤裡這個人的資料整理成一個 JSON。delete <email>：刪會員和電子報、依使用者 ID 刪錯誤追蹤的資料，訂單拿掉姓名電話地址後保留。預設只列出會做什麼，加 --yes 才真的做。只在測試環境、用測試帳號 test-amy@example.com 演練。",
+      "narration": "兩個功能、每個地方怎麼處理，還有一個安全設計：預設只列出來，加上 yes 才真的動手。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "email|phone|address",
+      "result": "members、orders、newsletter 服務、errors 回報的使用者 ID",
+      "narration": "它先在程式裡找哪些地方存了個資，和你的地圖對一對。"
+    },
+    {
+      "on": "claude",
+      "say": "程式裡的位置和你的地圖一致，另外我找到 `contact_messages`（聯絡表單的留言）也有 Email，地圖上沒有。要一起處理嗎？",
+      "narration": "它多找到一個地圖上沒有的地方：聯絡表單的留言。這就是讓 AI 讀程式的好處。"
+    },
+    { "on": "claude", "user": "要，留言也刪掉。" },
+    {
+      "on": "claude",
+      "edit": "scripts/privacy.ts",
+      "lines": [
+        [1, "+", "// 用法：npx tsx scripts/privacy.ts export|delete <email> --env=staging [--yes]"],
+        [2, "+", "const user = await findMember(email)"],
+        [3, "+", "if (cmd === 'export') writeJson(`exports/${slug}.json`, await collectAll(user))"],
+        [4, "+", "if (cmd === 'delete') {"],
+        [5, "+", "  const plan = [deleteMember, deleteMessages, unsubscribe, deleteErrorsById, anonymizeOrders]"],
+        [6, "+", "  if (!args.yes) return printPlan(plan, user)   // 預設只列出來"],
+        [7, "+", "  for (const step of plan) log(await step(user))"],
+        [8, "+", "}"]
+      ],
+      "chapter": "工具寫好了",
+      "narration": "工具寫好了。第五行是刪除要做的五件事；第六行，沒加 yes 就只列出計畫，不動資料。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx tsx scripts/seed-test-user.ts test-amy@example.com --env=staging",
+      "result": "測試帳號：會員 1、訂單 2、留言 1、電子報 1、錯誤回報 3",
+      "chapter": "用測試帳號演練：匯出",
+      "narration": "演練開始。它先在測試環境建立一個測試帳號，各個地方都放一點資料。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx tsx scripts/privacy.ts export test-amy@example.com --env=staging",
+      "result": "已寫入 exports/test-amy.json",
+      "out": "{ member: {…}, orders: [2 筆], messages: [1 筆], newsletter: { subscribed: true }, errors: [3 筆] }"
+    },
+    {
+      "show": "files",
+      "create": "test-amy.json",
+      "narration": "匯出的檔案出現了，五個地方的資料都在。這就是可以給陳先生的那一份複製本。"
+    },
+    { "hide": "files" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx tsx scripts/privacy.ts delete test-amy@example.com --env=staging",
+      "result": "（只列出計畫，沒有改資料）",
+      "out": "1. 刪除會員 test-amy（1 筆）\n2. 刪除聯絡留言（1 筆）\n3. 電子報退訂並刪除\n4. 刪除錯誤回報（使用者 ID u_test_02，3 筆）\n5. 訂單匿名化：拿掉姓名、電話、地址（2 筆，保留金額與日期）",
+      "chapter": "演練：刪除",
+      "narration": "接著刪除。先不加 yes，它只列出會做的五件事和筆數。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "先看計畫：對象對不對？筆數合不合理？",
+      "narration": "這時候檢查兩件事：對象是不是測試帳號，筆數合不合理。真的來信時，這一步可以避免刪錯人。"
+    },
+    {
+      "on": "claude",
+      "ask": "npx tsx scripts/privacy.ts delete test-amy@example.com --env=staging --yes",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "在測試環境真的刪除測試帳號的資料（不能復原）"
+    },
+    { "on": "claude", "choose": 1, "narration": "測試環境、測試帳號，確認後允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx tsx scripts/privacy.ts delete test-amy@example.com --env=staging --yes",
+      "result": "5 個步驟都完成"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx tsx scripts/privacy.ts export test-amy@example.com --env=staging",
+      "result": "找不到這位會員",
+      "out": "訂單：2 筆仍在，姓名／電話／地址皆為空 ✓\n電子報：查無 ✓　錯誤回報：查無 ✓",
+      "chapter": "確認刪乾淨了",
+      "narration": "最後用匯出功能反過來檢查：會員找不到了，訂單只剩金額和日期，其他地方都查不到。刪乾淨了。"
+    },
+    {
+      "on": "claude",
+      "say": "演練完成：匯出 5 個地方的資料、刪除後再查一次都已清除，訂單匿名保留。我也起草了一封回信範本 `docs/privacy-reply.md`，說明刪除了什麼、訂單為何保留、備份會在 7 天後到期。",
+      "narration": "它還起草了回信範本，說明刪了什麼、什麼依法保留、備份什麼時候到期。"
+    },
+    {
+      "checkpoint": "換你演練",
+      "body": "把你畫的資料地圖交給 AI，請它做 export 與 delete（預設只列計畫，加 --yes 才執行），讓它讀程式找有沒有地圖漏掉的地方。在測試環境建立測試帳號，從匯出、刪除到再查一次，完整演練。",
+      "narration": "換你演練一次。記得讓它讀程式找漏掉的地方，刪除後再查一次確認。"
+    },
+    {
+      "card": "可以依請求匯出或刪除資料",
+      "eyebrow": "這一課的成果",
+      "sub": "export 與 delete 工具 · 預設只列計畫 · 測試帳號演練過",
+      "narration": "這一課的成果：一個可以依請求匯出或刪除資料的工具。下一個單元，我們來看懂網站的數據。"
+    }
+  ]
+}

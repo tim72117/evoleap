@@ -1,0 +1,512 @@
+{
+  "title": "逐頁驗證並更新 README",
+  "lesson": "基礎 · 單元 10 · 10.4 試做",
+  "teacher": {
+    "say": "今天逐頁驗證，再更新 README",
+    "line": "檔案搬好、路徑也改了，但還不能宣布完成。今天請 AI 把每一頁打開截圖，你來找找看哪裡不對；修好之後，再讓 README 跟上新的結構，最後 commit 收尾。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "整理專案結構",
+        "folder": "~/projects/my-site",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "shots": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-vibe-coding-10-4-shots",
+        "width": "desktop",
+        "url": "file:///projects/my-site/screenshots/"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "readme": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-vibe-coding-10-4-readme",
+        "width": "desktop",
+        "url": "file:///projects/my-site/README.md"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "card": "build 成功，不等於每一頁都正常",
+      "eyebrow": "基礎 · 單元 10 · 10.4",
+      "sub": "型別檢查和 build 只看程式碼；圖片破掉、背景不見、連結點不開，要打開來看",
+      "chapter": "為什麼要逐頁看",
+      "narration": "上一課我們只打開了作品頁。型別檢查和 build 只看程式碼，圖片破掉、背景不見、連結點不開，這些要真的打開每一頁才看得到。"
+    },
+    {
+      "card": "每一頁看四件事",
+      "eyebrow": "逐頁檢查",
+      "sub": "樣式正常 · 圖片都在 · 連結點得開 · Console 沒有紅字",
+      "narration": "每一頁看四件事：樣式正常、圖片都在、連結點得開、Console 沒有紅字。頁面少的話自己點一遍就好；頁面多，就請 AI 幫你跑。"
+    },
+    {
+      "show": "claude",
+      "chapter": "請 AI 逐頁截圖",
+      "narration": "我們在單元 6 讓 AI 連上了瀏覽器，現在就用得到。"
+    },
+    {
+      "on": "claude",
+      "user": "網站在 localhost:8000 跑著。用瀏覽器自動化工具依序打開 index、about、projects 三頁，每頁截圖存到 screenshots/，點過導覽列的連結，記下 Console 的訊息。只檢查，不要修改程式",
+      "narration": "請它一頁一頁打開、截圖、點連結、記下 Console。一樣加上：只檢查，不要修改。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "打開 index.html，截圖、點連結",
+          "doing"
+        ],
+        [
+          "打開 about.html，截圖、點連結",
+          "pending"
+        ],
+        [
+          "打開 projects.html，截圖、點連結",
+          "pending"
+        ],
+        [
+          "整理 Console 訊息",
+          "pending"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "browser_navigate",
+      "arg": "http://localhost:8000/index.html",
+      "result": "已開啟"
+    },
+    {
+      "on": "claude",
+      "tool": "browser_screenshot",
+      "arg": "screenshots/index.png",
+      "result": "已存檔"
+    },
+    {
+      "on": "claude",
+      "tool": "browser_navigate",
+      "arg": "http://localhost:8000/about.html",
+      "result": "已開啟"
+    },
+    {
+      "on": "claude",
+      "tool": "browser_screenshot",
+      "arg": "screenshots/about.png",
+      "result": "已存檔"
+    },
+    {
+      "on": "claude",
+      "tool": "browser_navigate",
+      "arg": "http://localhost:8000/projects.html",
+      "result": "已開啟"
+    },
+    {
+      "on": "claude",
+      "tool": "browser_screenshot",
+      "arg": "screenshots/projects.png",
+      "result": "已存檔",
+      "narration": "它一頁一頁打開，截圖存起來。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "打開 index.html，截圖、點連結",
+          "done"
+        ],
+        [
+          "打開 about.html，截圖、點連結",
+          "done"
+        ],
+        [
+          "打開 projects.html，截圖、點連結",
+          "done"
+        ],
+        [
+          "整理 Console 訊息",
+          "done"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "三頁都截好了，存在 `screenshots/`。導覽列的連結都打得開。Console 的訊息整理在每張截圖下方。",
+      "narration": "三頁都截好了。報告先別看，我們先用眼睛找找看。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "shots",
+      "chapter": "找找看哪裡不對",
+      "narration": "這是三頁的截圖。首頁、關於我、作品。仔細比一比。"
+    },
+    {
+      "checkpoint": "哪一頁看起來不太對？",
+      "body": "提示：比一比首頁和關於我上方那一塊。點一張截圖。",
+      "id": "spot",
+      "stage": {
+        "focus": "shots:viewport"
+      },
+      "options": [
+        {
+          "label": "index.html 首頁",
+          "target": "shots:sel:#shot-index",
+          "steps": [
+            {
+              "card": "首頁沒問題",
+              "eyebrow": "找找看",
+              "sub": "再看看「關於我」上方那一塊：圓點花紋的背景不見了",
+              "narration": "首頁是正常的。再看看關於我：上方那一塊，本來有圓點花紋的背景，現在只剩一個灰色的框。"
+            }
+          ]
+        },
+        {
+          "label": "about.html 關於我",
+          "target": "shots:sel:#shot-about",
+          "steps": [
+            {
+              "card": "眼力很好！",
+              "eyebrow": "找找看",
+              "sub": "上方那一塊本來有圓點花紋的背景，現在只剩灰色的框",
+              "narration": "眼力很好。關於我上方那一塊，本來有圓點花紋的背景，現在只剩一個灰色的框。"
+            }
+          ]
+        },
+        {
+          "label": "projects.html 作品",
+          "target": "shots:sel:#shot-projects",
+          "steps": [
+            {
+              "card": "作品頁上一課修好了",
+              "eyebrow": "找找看",
+              "sub": "再看看「關於我」上方那一塊：圓點花紋的背景不見了",
+              "narration": "作品頁上一課已經修好了。再看看關於我：上方那一塊，本來有圓點花紋的背景，現在只剩一個灰色的框。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "答案：about.html 關於我",
+            "eyebrow": "找找看",
+            "sub": "上方那一塊本來有圓點花紋的背景，現在只剩灰色的框",
+            "narration": "答案是關於我。上方那一塊，本來有圓點花紋的背景，現在只剩一個灰色的框。"
+          }
+        ]
+      }
+    },
+    {
+      "on": "shots",
+      "click": "#shot-about",
+      "narration": "打開它的報告，Console 有一行 404。"
+    },
+    {
+      "callout": "shots:sel:#shot-about .err",
+      "text": "assets/ 出現了兩次",
+      "narration": "仔細看路徑：assets、assets、images。assets 出現了兩次。"
+    },
+    {
+      "hide": "shots"
+    },
+    {
+      "on": "fx",
+      "diff": "assets/style.css",
+      "lines": [
+        [
+          " ",
+          ".about-hero {"
+        ],
+        [
+          "-",
+          "  background: url(\"assets/images/bg.svg\");"
+        ],
+        [
+          "+",
+          "  background: url(\"images/bg.svg\");"
+        ],
+        [
+          " ",
+          "}"
+        ]
+      ],
+      "chapter": "CSS 的路徑從哪裡算",
+      "narration": "問題出在上一課改的 CSS。CSS 裡的路徑，是從 CSS 檔自己的位置算起。style.css 已經在 assets 裡了，再寫 assets/images，就變成 assets 裡面的 assets。正確的寫法是 images/bg.svg。"
+    },
+    {
+      "on": "fx",
+      "clear": true
+    },
+    {
+      "card": "HTML 的路徑從頁面算，CSS 的路徑從 CSS 檔算",
+      "eyebrow": "CSS 的路徑從哪裡算",
+      "sub": "about.html 寫 assets/images/bg.svg；assets/style.css 裡寫 images/bg.svg，指的是同一張圖",
+      "narration": "記一個規則：HTML 裡的路徑從頁面的位置算，CSS 裡的路徑從 CSS 檔的位置算。所以同一張圖，兩邊的寫法不一樣。"
+    },
+    {
+      "show": "claude",
+      "narration": "把錯誤交給 AI，請它先說原因再改。"
+    },
+    {
+      "on": "claude",
+      "user": "about 頁的 Console 有 GET /assets/assets/images/bg.svg 404。先說明原因，再修好，修完重新截 about 這一頁"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "say": "原因是 CSS 裡的路徑從 CSS 檔自己的位置算起。`style.css` 搬到 `assets/` 之後，背景圖應該寫 `images/bg.svg`，我上一次寫成了 `assets/images/bg.svg`。"
+    },
+    {
+      "on": "claude",
+      "edit": "assets/style.css",
+      "lines": [
+        [
+          40,
+          "-",
+          "  background: url(\"assets/images/bg.svg\");"
+        ],
+        [
+          40,
+          "+",
+          "  background: url(\"images/bg.svg\");"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "browser_screenshot",
+      "arg": "screenshots/about.png",
+      "result": "已存檔，Console 沒有錯誤"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "shots",
+      "site": "lt-vibe-coding-10-4-shots-ok",
+      "narration": "重新看一次截圖。"
+    },
+    {
+      "on": "shots",
+      "click": "#shot-index"
+    },
+    {
+      "on": "shots",
+      "click": "#shot-about",
+      "narration": "關於我的圓點背景回來了。"
+    },
+    {
+      "on": "shots",
+      "click": "#shot-projects",
+      "narration": "三頁都正常，Console 都沒有紅字。"
+    },
+    {
+      "hide": "shots"
+    },
+    {
+      "show": "readme",
+      "chapter": "讓 README 跟上",
+      "narration": "網站沒問題了，但還有一個地方停在搬家前：README。左邊是 README 寫的目錄結構，右邊是實際的資料夾。"
+    },
+    {
+      "on": "readme",
+      "click": "#compare",
+      "narration": "對照一下，四處對不上。README 還說 style.css、作品資料、圖片都在最上層。"
+    },
+    {
+      "callout": "readme:sel:.v1",
+      "text": "文件和程式不一致，比沒有文件還糟",
+      "narration": "文件和程式不一致，比沒有文件還糟。下次 AI 讀到這份 README，會照舊的結構去找檔案，或把新照片放回最上層。"
+    },
+    {
+      "hide": "readme"
+    },
+    {
+      "show": "claude",
+      "narration": "請 AI 依照現在的結構更新 README。"
+    },
+    {
+      "on": "claude",
+      "user": "依照現在的目錄結構，更新 README 的「目錄結構」段落：畫出目錄樹，寫上每個資料夾放什麼、新檔案該放哪裡。其他段落不要動",
+      "narration": "提示詞說清楚改哪一段：目錄樹、每個資料夾的用途，還有新檔案該放哪裡；其他段落不要動。"
+    },
+    {
+      "on": "claude",
+      "edit": "README.md",
+      "lines": [
+        [
+          12,
+          "-",
+          "├── style.css       全站樣式"
+        ],
+        [
+          13,
+          "-",
+          "├── projects.json   作品資料"
+        ],
+        [
+          12,
+          "+",
+          "├── assets/         網頁會用到的資源（樣式、images/ 圖片）"
+        ],
+        [
+          13,
+          "+",
+          "├── content/        內容資料（projects.json：改作品只改這裡）"
+        ],
+        [
+          14,
+          "+",
+          "└── tools/          自己用的小工具，網站不會載入"
+        ]
+      ]
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "readme",
+      "narration": "再對照一次。"
+    },
+    {
+      "on": "readme",
+      "click": "#update",
+      "narration": "新的 README 和實際的資料夾一致了，每個資料夾都寫了用途。"
+    },
+    {
+      "callout": "readme:sel:.new",
+      "text": "寫上「新檔案放哪裡」，AI 和以後的你都會照著放",
+      "narration": "特別是新檔案該放哪裡這件事。寫進 README 之後，AI 和以後的你，都會照著同一套規則放。"
+    },
+    {
+      "hide": "readme"
+    },
+    {
+      "show": "claude",
+      "chapter": "commit 收尾",
+      "narration": "最後，把整理的成果存成一個 commit。"
+    },
+    {
+      "on": "claude",
+      "user": "我看過 diff 了。把這次整理的變更 commit 起來，訊息寫清楚做了什麼、為什麼"
+    },
+    {
+      "on": "claude",
+      "ask": "git add -A && git commit -m \"整理專案結構：資源移到 assets/、資料移到 content/、工具移到 tools/，更新所有引用與 README\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "把搬移、路徑修改與 README 存成一個 commit",
+      "narration": "訊息一看就知道做了什麼：搬到哪裡、引用和 README 都更新了。允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git commit",
+      "result": "完成",
+      "out": "[main 7c2e9a1] 整理專案結構：資源移到 assets/、資料移到 content/、工具移到 tools/，更新所有引用與 README\n 13 files changed, 18 insertions(+), 14 deletions(-)",
+      "narration": "整理專案結構，正式完成。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "之後要在作品頁加一張新的封面圖 cover-3.jpg，該放哪裡？",
+      "body": "想想 README 剛寫的規則。",
+      "id": "where",
+      "options": [
+        {
+          "label": "assets/images/",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "圖片放 assets/images/，再到 content/projects.json 加上它的路徑",
+              "narration": "答對了。圖片放 assets/images，再到 content 裡的 projects.json 加上它的路徑。請 AI 加的時候，它讀了 README 也會這樣放。"
+            }
+          ]
+        },
+        {
+          "label": "專案最上層，和頁面放一起",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "最上層只放頁面；圖片放回來，結構又亂了",
+              "narration": "最上層只放頁面。圖片放回來，結構又慢慢亂掉了。"
+            },
+            {
+              "card": "答案：assets/images/",
+              "eyebrow": "判斷看看",
+              "sub": "圖片放 assets/images/，再到 content/projects.json 加上它的路徑",
+              "narration": "圖片放 assets/images，再到 content 裡的 projects.json 加上它的路徑。"
+            }
+          ]
+        },
+        {
+          "label": "tools/",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "tools/ 放的是自己用的小工具，網站不會載入",
+              "narration": "tools 放的是自己用的小工具，網站不會載入那裡的東西。"
+            },
+            {
+              "card": "答案：assets/images/",
+              "eyebrow": "判斷看看",
+              "sub": "圖片放 assets/images/，再到 content/projects.json 加上它的路徑",
+              "narration": "圖片放 assets/images，再到 content 裡的 projects.json 加上它的路徑。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "動手做：逐頁驗證、更新 README、commit",
+      "eyebrow": "練習",
+      "sub": "請 AI 逐頁截圖並記下 Console → 自己看過每張截圖 → 修好問題 → 更新 README 的目錄結構 → commit",
+      "chapter": "動手做",
+      "narration": "換你試試看。請 AI 把每一頁截圖、記下 Console，你自己看過每一張。有問題就修好，再請它更新 README 的目錄結構，最後 commit 收尾。"
+    },
+    {
+      "card": "每一頁都打開來看\nCSS 的路徑從 CSS 檔算起\nREADME 跟著結構一起更新",
+      "eyebrow": "學會",
+      "sub": "整理完成，用一個說清楚的 commit 收尾",
+      "chapter": "學會",
+      "narration": "build 成功之後，還是要每一頁打開來看；CSS 的路徑從 CSS 檔自己的位置算起；結構改了，README 也要一起更新，讓文件和程式一致。單元十到這裡完成了。"
+    }
+  ]
+}

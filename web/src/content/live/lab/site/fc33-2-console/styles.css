@@ -1,0 +1,31 @@
+/* fc8 圖解共用底稿(複製到各版本的 styles.css 開頭) */
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; color: #1f2733; background: #f6f4ef; }
+.wrap { padding: 36px 48px; box-sizing: border-box; min-height: 640px; }
+.ttl { font-size: 30px; font-weight: 700; margin: 0 0 6px; }
+.sub { font-size: 18px; color: #5b6575; margin: 0 0 22px; }
+[data-at] { opacity: .13; }
+[data-at].on { opacity: 1; }
+[data-go] { cursor: pointer; }
+.box { background: #fff; border: 2px solid #d9d4c7; border-radius: 14px; padding: 14px 18px; box-sizing: border-box; }
+.tag { display: inline-block; font-size: 14px; padding: 3px 10px; border-radius: 999px; background: #ece7db; color: #4a5260; }
+.ok { color: #1f8a4c; } .bad { color: #c2412d; } .warn { color: #b7791f; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+body { background: #f3f5f8; }
+.app { display: grid; grid-template-columns: 200px 1fr; min-height: 640px; }
+.side { background: #24303f; color: #c9d3e0; padding: 18px 0; }
+.logo { color: #fff; font-weight: 800; font-size: 18px; padding: 0 18px 16px; }
+.nav { padding: 10px 18px; font-size: 15px; } .nav.cur { background: #34465c; color: #fff; border-left: 4px solid #6fa3ff; }
+.main { padding: 22px 34px; }
+.crumb { font-size: 14px; color: #6b7684; } .env { background: #fde3d5; color: #a3461b; border-radius: 6px; padding: 2px 8px; font-weight: 700; margin-left: 4px; }
+.h { font-size: 26px; margin: 6px 0 14px; }
+.tbl { width: 100%; border-collapse: collapse; background: #fff; font-size: 15px; }
+.tbl th, .tbl td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #e3e7ec; }
+.tbl th { background: #f7f8fa; color: #4c5866; }
+.rw { color: #a3461b; font-weight: 700; } .ro { color: #1f6feb; font-weight: 700; }
+.form { margin-top: 16px; background: #fff; border: 1px solid #dfe4ea; border-radius: 10px; padding: 14px 18px; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 14px; align-items: end; }
+.ft { grid-column: 1 / -1; font-weight: 700; font-size: 17px; }
+.form label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: #4c5866; }
+.form input, .form select { font: inherit; font-size: 15px; padding: 8px 10px; border: 1px solid #c9d0d8; border-radius: 6px; }
+#create { font: inherit; font-size: 15px; padding: 9px 16px; border: 0; border-radius: 6px; background: #2f6fe0; color: #fff; font-weight: 700; }
+.done { display: none; margin-top: 14px; background: #e7f6ec; border: 1px solid #8fd0a6; border-radius: 8px; padding: 10px 14px; font-size: 15px; }
+.done.on { display: block; }

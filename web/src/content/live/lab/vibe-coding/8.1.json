@@ -1,0 +1,317 @@
+{
+  "title": "常見安裝錯誤：PATH、權限、Proxy",
+  "lesson": "基礎 · 單元 8 · 8.1 試做",
+  "teacher": {
+    "say": "今天來看安裝出錯怎麼辦",
+    "line": "今天不教新工具，我們來看安裝出錯的時候怎麼辦。你會看到三種最常見的錯誤，學會從錯誤訊息判斷是哪一種，再照對的方法處理。"
+  },
+  "cast": {
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects" },
+      "place": "window",
+      "hidden": true
+    },
+    "win": {
+      "actor": "fc1-terminal",
+      "props": { "os": "win", "cwd": "~/projects" },
+      "place": "window",
+      "hidden": true
+    },
+    "path": {
+      "actor": "browser",
+      "props": { "site": "lt-vibe-coding-8-1-path", "width": "desktop", "url": "https://learn.example/diagram/path" },
+      "place": "window",
+      "hidden": true
+    },
+    "table": {
+      "actor": "browser",
+      "props": { "site": "lt-vibe-coding-8-1-table", "width": "desktop", "url": "https://learn.example/cheatsheet/install-errors" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "show": "term",
+      "chapter": "剛裝好，卻找不到",
+      "narration": "先看一個很常見的畫面。你剛裝好 Node.js，想確認一下 npm 的版本。"
+    },
+    {
+      "on": "term",
+      "type": "npm -v",
+      "out": "zsh: command not found: npm",
+      "tone": "err",
+      "narration": "結果終端機說：找不到 npm 這個指令。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "command not found：終端機找不到這個指令",
+      "narration": "明明剛裝好，怎麼會找不到？先別急著重裝。安裝出錯是常態，重要的是看懂錯誤訊息在說什麼。"
+    },
+    {
+      "hide": "term"
+    },
+    {
+      "card": "安裝錯誤，大多是這三種",
+      "eyebrow": "基礎 · 單元 8 · 8.1",
+      "sub": "找不到指令（PATH）· 權限不夠 · 網路被擋（Proxy）",
+      "narration": "大部分的安裝錯誤，可以分成三種：找不到指令、權限不夠、網路被擋。我們一種一種看。"
+    },
+    {
+      "show": "path",
+      "chapter": "找不到指令：PATH",
+      "narration": "先看找不到指令。你在終端機打 npm，它要去哪裡找這個程式？答案寫在一張叫 PATH 的清單裡。"
+    },
+    {
+      "callout": "path:sel:.dirs",
+      "text": "PATH：終端機找指令時，依序翻找的資料夾清單",
+      "narration": "PATH 是一個環境變數，也就是電腦替每個程式準備好的一項設定。裡面列著幾個資料夾，終端機會照順序一個一個找。"
+    },
+    {
+      "on": "path",
+      "click": "#s1",
+      "narration": "我們照清單找一遍：第一個沒有、第二個沒有，全部找完都沒有，所以它說找不到。"
+    },
+    {
+      "callout": "path:sel:.box",
+      "text": "npm 其實已經裝好了，只是放在清單沒列到的資料夾",
+      "narration": "可是 npm 明明裝好了。例如用 nvm 這類工具安裝時，npm 會放在家目錄裡的一個資料夾，這個資料夾原本不在清單上。"
+    },
+    {
+      "on": "path",
+      "click": "#s2",
+      "narration": "安裝程式其實有處理：它在設定檔裡加了幾行，把這個資料夾加進 PATH。"
+    },
+    {
+      "callout": "path:sel:.memo",
+      "text": "終端機只在打開的那一刻讀一次 PATH",
+      "narration": "問題在這裡：終端機只在打開的那一刻讀一次設定檔。你這個視窗是安裝前就開的，手上拿的還是舊清單。"
+    },
+    {
+      "on": "path",
+      "click": "#s3",
+      "narration": "所以第一招最簡單：把終端機關掉，再打開。新視窗讀到新的清單，一下就找到了。"
+    },
+    {
+      "hide": "path"
+    },
+    {
+      "show": "term",
+      "narration": "回到終端機實際試一次。"
+    },
+    {
+      "on": "term",
+      "restart": true,
+      "narration": "關掉，再打開一個新的視窗。"
+    },
+    {
+      "on": "term",
+      "type": "npm -v",
+      "out": "11.6.2",
+      "tone": "ok",
+      "narration": "同一個指令，這次印出版本號了。"
+    },
+    {
+      "on": "term",
+      "type": "echo $PATH",
+      "out": "/Users/you/.nvm/versions/node/v24.11.1/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
+      "narration": "想親眼看看清單，可以打 echo 錢字號 PATH。資料夾之間用冒號隔開，剛加進去的就在最前面。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "重開還是找不到：請 AI 查這個工具裝在哪、有沒有加進 PATH",
+      "narration": "如果重開還是找不到，可能是安裝沒成功，或資料夾真的沒加進去。這時把錯誤訊息交給 AI 程式助手，請它查工具裝在哪裡。Windows 也一樣，裝完記得關掉 PowerShell 重開。"
+    },
+    {
+      "on": "term",
+      "clear": true,
+      "chapter": "權限不夠：不要用 sudo 硬裝"
+    },
+    {
+      "on": "term",
+      "type": "npm install -g serve",
+      "out": "npm error code EACCES\nnpm error syscall mkdir\nnpm error path /usr/local/lib/node_modules/serve\nnpm error Error: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/serve'",
+      "tone": "err",
+      "narration": "第二種是權限不夠。用官方安裝檔裝的 Node.js，全域安裝一個工具時，可能看到這一串。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "EACCES、permission denied：想寫進系統資料夾，但你的帳號沒有權限",
+      "narration": "關鍵字是 EACCES 和 permission denied。npm 想把檔案寫進系統的資料夾，可是你的帳號沒有權限寫那裡。"
+    },
+    {
+      "card": "不要加 sudo 硬裝",
+      "eyebrow": "權限不夠",
+      "sub": "sudo 是用管理員身分執行：裝出來的檔案變成管理員的，之後更多權限錯誤；也等於把整台電腦的權限交給安裝程式",
+      "narration": "網路上常有人說，前面加 sudo 就好。sudo 是用管理員的身分執行，這次會過，但裝出來的檔案變成管理員的，之後反而冒出更多權限錯誤；也等於把整台電腦的權限交給一個安裝程式。"
+    },
+    {
+      "card": "改成不需要管理員的裝法",
+      "eyebrow": "權限不夠",
+      "sub": "請 AI 程式助手說明做法再動手，例如改用 nvm 安裝 Node.js，全域工具就會裝在你自己的家目錄",
+      "narration": "比較好的做法，是改成不需要管理員的裝法。例如改用 nvm 安裝 Node.js，全域工具就會裝在你自己的家目錄裡。請 AI 程式助手先說明做法，你看懂了再讓它動手。"
+    },
+    {
+      "hide": "term"
+    },
+    {
+      "show": "win",
+      "narration": "Windows 有另一種很像權限問題的錯誤。"
+    },
+    {
+      "on": "win",
+      "type": "npm -v",
+      "out": "npm : 因為這個系統上已停用指令碼執行，所以無法載入 C:\\Program Files\\nodejs\\npm.ps1 檔案。",
+      "tone": "err",
+      "narration": "在 PowerShell 打 npm，它說系統已停用指令碼執行。這是 PowerShell 的執行原則，預設不讓指令碼檔案執行。"
+    },
+    {
+      "on": "win",
+      "type": "Set-ExecutionPolicy -Scope CurrentUser RemoteSigned",
+      "narration": "解法是只替你自己的帳號放寬一點：允許電腦上的指令碼，從網路下載的則要有簽章。"
+    },
+    {
+      "on": "win",
+      "type": "npm -v",
+      "out": "11.6.2",
+      "tone": "ok",
+      "narration": "再打一次，就印出版本號了。"
+    },
+    {
+      "callout": "win:cmd:2",
+      "text": "-Scope CurrentUser：只改你自己的帳號，不用系統管理員",
+      "narration": "注意 dash Scope CurrentUser 這一段，代表只改你自己的帳號，不用打開系統管理員，也不會影響電腦上的其他人。"
+    },
+    {
+      "hide": "win"
+    },
+    {
+      "show": "term",
+      "chapter": "網路被擋：Proxy"
+    },
+    {
+      "on": "term",
+      "clear": true
+    },
+    {
+      "on": "term",
+      "type": "npm install",
+      "out": "npm error code ETIMEDOUT\nnpm error network request to https://registry.npmjs.org/serve failed, reason: connect ETIMEDOUT 104.16.1.35:443",
+      "tone": "err",
+      "narration": "第三種是網路被擋。在公司或學校的網路下載套件，可能等了很久，最後出現 ETIMEDOUT，意思是連線逾時。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "ETIMEDOUT、ECONNRESET、self-signed certificate：連不出去，或連線被攔下來檢查",
+      "narration": "很多公司的網路，對外連線都要經過一台叫 Proxy 的代理伺服器，沒設定就連不出去。看到逾時、連線被重設，或憑證相關的錯誤，多半是這一類。"
+    },
+    {
+      "card": "先換手機熱點試一次",
+      "eyebrow": "網路被擋",
+      "sub": "熱點就好了，代表是網路的問題：向公司 IT 要 Proxy 設定；不要照網路文章關掉憑證檢查",
+      "narration": "最快的判斷方法：改用手機熱點再試一次。熱點下就好了，代表是公司網路的問題，請 IT 給你 Proxy 的設定。網路上有些文章教你關掉憑證檢查，那會讓連線失去保護，不要這樣做。"
+    },
+    {
+      "hide": "term"
+    },
+    {
+      "show": "table",
+      "chapter": "錯誤訊息對照表",
+      "narration": "把今天看到的整理成一張對照表。左邊是類別，右邊是錯誤訊息裡會出現的關鍵字。"
+    },
+    {
+      "on": "table",
+      "click": "#r-path",
+      "narration": "找不到指令：先重開終端機，還不行就請 AI 查安裝位置和 PATH。"
+    },
+    {
+      "on": "table",
+      "click": "#r-perm",
+      "narration": "權限不夠：不要加 sudo，改成不需要管理員的裝法。"
+    },
+    {
+      "on": "table",
+      "click": "#r-ps",
+      "narration": "PowerShell 擋指令碼：只替自己的帳號放寬執行原則。"
+    },
+    {
+      "on": "table",
+      "click": "#r-net",
+      "narration": "網路被擋：換熱點確認，再向 IT 要 Proxy 設定。"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "看到這個錯誤，它是哪一類？\nError: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/serve'",
+      "body": "找錯誤訊息裡的關鍵字，點對照表上的類別。",
+      "id": "kind",
+      "stage": { "focus": "table:viewport" },
+      "options": [
+        {
+          "label": "找不到指令",
+          "target": "table:sel:#r-path",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "找不到指令會說 command not found；這裡的關鍵字是 EACCES 和 permission denied",
+              "narration": "找不到指令的關鍵字是 command not found。這裡出現的是 EACCES 和 permission denied，是權限不夠。不要加 sudo，改成不需要管理員的裝法。"
+            }
+          ]
+        },
+        {
+          "label": "權限不夠",
+          "target": "table:sel:#r-perm",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "EACCES、permission denied：想寫進系統資料夾，但沒有權限",
+              "narration": "答對了。EACCES 和 permission denied 是權限不夠。記得，不要加 sudo 硬裝，請 AI 改成不需要管理員的裝法。"
+            }
+          ]
+        },
+        {
+          "label": "網路被擋",
+          "target": "table:sel:#r-net",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "網路問題會說 ETIMEDOUT、ECONNRESET；這裡的關鍵字是 EACCES 和 permission denied",
+              "narration": "網路被擋通常是 ETIMEDOUT、ECONNRESET 這類字。這裡是 EACCES 和 permission denied，是權限不夠。不要加 sudo，改成不需要管理員的裝法。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "答案：權限不夠",
+            "eyebrow": "判斷看看",
+            "sub": "EACCES、permission denied：想寫進系統資料夾，但沒有權限",
+            "narration": "答案是權限不夠。關鍵字是 EACCES 和 permission denied。不要加 sudo 硬裝，請 AI 改成不需要管理員的裝法。"
+          }
+        ]
+      }
+    },
+    {
+      "hide": "table"
+    },
+    {
+      "card": "動手做：故意製造一次「找不到指令」",
+      "eyebrow": "練習",
+      "sub": "先開一個終端機視窗 → 請 AI 安裝一個小工具 → 在舊視窗和新視窗各打一次，比較差別",
+      "chapter": "動手做",
+      "narration": "換你試試看。先開一個終端機視窗放著，再請 AI 程式助手幫你安裝一個小工具。裝好後，在舊的視窗和新開的視窗各打一次這個指令，比較看看，再對照表格說出原因。"
+    },
+    {
+      "card": "先看錯誤訊息的關鍵字\n找不到指令：重開終端機\n權限不夠：不用 sudo 硬裝\n網路被擋：先換熱點確認",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：PATH、環境變數、sudo、執行原則、Proxy",
+      "chapter": "學會",
+      "narration": "安裝出錯時，先找錯誤訊息裡的關鍵字。找不到指令，先重開終端機；權限不夠，不要用 sudo 硬裝；網路被擋，先換熱點確認。下一課，我們學怎麼把問題描述清楚，向 AI 和社群求助。"
+    }
+  ]
+}

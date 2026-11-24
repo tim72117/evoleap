@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>AI 碰得到嗎</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">這件事，AI 碰得到嗎？</div>
+ <div class="row">
+  <div class="zone col z1"><div class="h">AI 可以自己做</div><div class="d">有 CLI、API 或 MCP</div>
+   <div class="chip" data-s="1">改程式、跑測試</div><div class="chip" data-s="2">部署（用 CLI）</div><div class="chip" data-s="3">查 DNS 有沒有生效</div></div>
+  <div class="zone col z2"><div class="h">只有你能做</div><div class="d">要本人、或沒有 API</div>
+   <div class="chip" data-s="4">輸入付款資料</div><div class="chip" data-s="5">手機簡訊驗證碼、兩步驟驗證</div><div class="chip" data-s="6">只有網頁、沒有 API 的後台設定</div></div>
+ </div>
+ <div class="card pat" data-s="7"><b>碰不到的時候</b>：AI 寫步驟 → 你做一步 → 截圖回報 → AI 判斷下一步</div>
+ <div class="stepbar"><button class="btn" id="next">下一張 ▶</button></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -52,7 +52,8 @@ const write = async (file, content) => {
   await writeFile(target, content)
 }
 
-for (const page of [...seo.PAGES, ...seo.EN_PAGES, seo.NOT_FOUND]) {
+// 帶參數的路由(例如 /studio/full-course/:item/:kind)沒有固定網址,不預先產生 HTML:伺服器對內部頁沒有對應 HTML 的網址回研發基地首頁的 HTML,由前端路由處理
+for (const page of [...seo.PAGES.filter((p) => !p.path.includes('/:')), ...seo.EN_PAGES, seo.NOT_FOUND]) {
   await write(seo.outputFile(page), seo.renderPage(template, page))
 }
 for (const entry of [...seo.COURSE_PAGES, ...seo.EN_COURSE_PAGES]) {

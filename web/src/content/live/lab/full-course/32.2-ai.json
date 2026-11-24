@@ -1,0 +1,109 @@
+{
+  "title": "背景執行與通知",
+  "lesson": "全環節 · 單元 32 · 32.2 用 AI 完成",
+  "teacher": {
+    "say": "長任務丟背景，跑完再回報",
+    "line": "這一堂請 AI 把完整測試和部署放到背景跑，說好跑完要回報什麼。等它跑的時候，我們繼續做別的事。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "部署到測試網站", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "ping": { "actor": "chat", "props": { "title": "通知" }, "place": { "x": 1320, "y": 90, "w": 500, "h": 460 }, "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "背景執行與通知",
+      "eyebrow": "全環節 · 單元 32 · 32.2 用 AI 完成",
+      "sub": "說好回報什麼，然後去做別的事",
+      "chapter": "交代背景任務",
+      "narration": "今天要把網站部署到測試網站。完整測試加部署，大約二十分鐘。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "在背景跑完整測試，全部通過才部署到測試網站（npm run deploy:staging）。不要部署正式網站。跑完回報三件事：測試過了幾個、有沒有失敗（失敗的話是哪個、錯誤原文）、測試網站的網址並用 curl 確認回 200。跑的時候我會繼續請你做別的事。",
+      "narration": "交代時說好四件事：在背景跑、什麼條件才部署、不能碰正式網站，還有跑完回報哪三件事。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "ask": "npm run test:all && npm run deploy:staging",
+      "q": "Claude 想要在背景執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "測試全部通過才會部署；目標是測試網站 staging",
+      "narration": "它要在背景執行。看清楚：兩個指令用「而且」連起來，前一個失敗，後一個就不會跑；部署的是 staging，測試網站。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "（背景）npm run test:all && npm run deploy:staging",
+      "result": "已在背景執行 · 工作編號 bg-1",
+      "narration": "它回報：已經在背景執行。對話框馬上空出來了。"
+    },
+    {
+      "on": "claude",
+      "say": "已在背景執行（bg-1）。跑完我會照你說的三件事回報。現在可以繼續交代別的事。",
+      "chapter": "等的時候做別的事",
+      "narration": "不用等，我們繼續做別的。"
+    },
+    {
+      "on": "claude",
+      "user": "趁這段時間，幫我把首頁的標語改成「每天清晨六點出爐」"
+    },
+    {
+      "on": "claude",
+      "ask": "src/pages/Home.tsx",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "<p className=\"slogan\">每天清晨六點出爐</p>"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "edit": "src/pages/Home.tsx",
+      "lines": [[14, "-", "<p className=\"slogan\">手作的溫度</p>"], [14, "+", "<p className=\"slogan\">每天清晨六點出爐</p>"]],
+      "narration": "標語改好了。背景的測試照樣在跑。"
+    },
+    {
+      "on": "claude",
+      "say": "標語已更新。這個修改不在這次部署裡，下次部署才會上去。",
+      "narration": "它還提醒你：這個修改是部署開始之後才做的，不在這一次部署裡。"
+    },
+    {
+      "show": "ping",
+      "receive": "背景工作 bg-1 完成：測試 46/46 通過，已部署到測試網站",
+      "from": "Claude",
+      "chapter": "完成通知",
+      "narration": "二十分鐘後，通知來了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}' https://staging.bakery.example",
+      "result": "200",
+      "narration": "它照你說的，再用 curl 確認測試網站回 200。"
+    },
+    {
+      "on": "claude",
+      "say": "bg-1 跑完了，三件事：\n1. 測試 **46 個全部通過**\n2. 沒有失敗\n3. 測試網站 `https://staging.bakery.example`，curl 回 **200**\n正式網站沒有動。",
+      "narration": "回報就是你一開始要的三件事，一眼就看完。最後一句也很重要：正式網站沒有動。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "先說好回報什麼，通知來了一眼就知道下一步",
+      "narration": "因為一開始就說好要回報什麼，通知一來，你就知道下一步：去測試網站看一眼，沒問題再決定要不要上正式網站。"
+    },
+    { "hide": "ping" },
+    {
+      "checkpoint": "換你丟一個到背景",
+      "body": "請 AI 把一個長任務放到背景跑，交代清楚：什麼條件才繼續、什麼不能碰、跑完回報哪三件事。跑的時候，交代它另一件小事。",
+      "narration": "換你試試。丟一個長任務到背景，說好條件、界線和回報內容，跑的時候再交代它一件小事。"
+    }
+  ]
+}

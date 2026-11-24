@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>AI 怎麼找檔案</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap">
+  <div class="ask">你說：「把<b>關於我</b>那一頁的標題改大一點」</div>
+  <div class="cols">
+    <div id="messy" class="col">
+      <h2>亂放的專案</h2>
+      <ul class="files">
+        <li>final.html</li><li>final2.html</li><li>新增資料夾/index copy.html</li><li>test.js</li><li>main.js</li><li>style-old.css</li><li>新增資料夾/a.html</li><li>page3.html</li><li class="hit">final2-改.html</li><li>untitled.js</li>
+      </ul>
+      <button id="run-messy" type="button">讓 AI 找找看</button>
+      <p class="res">一個一個打開來看，<b>讀了 9 個檔案</b>才猜到是 final2-改.html，還不確定 final2.html 是不是也要改</p>
+    </div>
+    <div id="tidy" class="col">
+      <h2>整理好的專案</h2>
+      <ul class="files tree">
+        <li class="dir">src/</li><li class="dir in">pages/</li><li class="in2">home.html</li><li class="in2 hit">about.html</li><li class="in2">works.html</li><li class="dir in">styles/</li><li class="in2">base.css</li><li class="dir in">scripts/</li><li class="in2">hello.js</li><li>README.md</li>
+      </ul>
+      <button id="run-tidy" type="button">讓 AI 找找看</button>
+      <p class="res">看資料夾名稱就知道：src/pages/about.html。<b>讀 1 個檔案</b>就動手</p>
+    </div>
+  </div>
+</div>
+</body></html>

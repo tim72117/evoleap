@@ -1,0 +1,28 @@
+<!doctype html><html><head><title>測試報告</title></head><body>
+<div class="top"><b>Playwright 測試報告</b><span class="pass">10 通過</span><span class="fail">2 失敗</span><span>· 手機（iPhone 尺寸）</span></div>
+<div class="main">
+  <div class="list">
+    <div class="t">✓ 首頁看得到商品<small>1.2s</small></div>
+    <div class="t">✓ 註冊新帳號<small>3.4s</small></div>
+    <div class="t">✓ 登入與登出<small>2.1s</small></div>
+    <button class="t" id="t4">✗ 手機：加入購物車<small>30.0s</small></button>
+    <div class="t">✓ 桌面：加入購物車<small>1.8s</small></div>
+    <button class="t" id="t6">✗ 結帳後看到訂單完成<small>5.0s</small></button>
+    <div class="t">✓ 重設密碼信寄出<small>2.6s</small></div>
+    <div class="t">✓ 只看得到自己的訂單<small>2.2s</small></div>
+  </div>
+  <div class="shot" id="shot">
+    <div class="empty">點一個失敗的測試，看截圖與錯誤</div>
+    <div class="hint" id="h4">失敗的那一刻（自動截圖）
+      <div class="err">TimeoutError: 點不到「加入購物車」
+元素被另一個元素蓋住：&lt;div class="cookie-banner"&gt;</div>
+      <div class="phone"><div class="ph">小森選物　🛒 0</div><div class="im"></div><div class="nm">手工皂 NT$ 280</div><div class="bt">加入購物車</div>
+        <div class="ck">我們使用 Cookie 改善你的瀏覽體驗。<br><span>知道了</span></div></div>
+    </div>
+    <div class="hint" id="h6">失敗的那一刻（自動截圖）
+      <div class="err">expect(getByText('訂單完成')).toBeVisible()
+等了 5000ms，畫面上還是「處理中…」</div>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,110 @@
+{
+  "title": "電話簿要搬家",
+  "lesson": "全環節 · 單元 17 · 17.6 基礎知識",
+  "teacher": {
+    "say": "搬家不斷線的祕訣",
+    "line": "很多人會把 DNS 交給 Cloudflare 管理，因為它快、免費、還能讓 AI 用 API 操作。今天先懂 nameserver 是什麼，還有搬家時為什麼可能中斷、怎麼避免。"
+  },
+  "cast": {
+    "map": {
+      "actor": "browser",
+      "props": { "site": "fc17-6-ns", "width": "desktop", "url": "https://learn.example/diagram/nameserver" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "電話簿要搬家",
+      "eyebrow": "全環節 · 單元 17 · 17.6 基礎知識",
+      "sub": "nameserver 是什麼，搬移時為什麼可能中斷",
+      "chapter": "誰在保管電話簿？",
+      "narration": "前幾堂我們一直在改電話簿。可是，這本電話簿到底放在哪裡？"
+    },
+    {
+      "show": "map",
+      "narration": "答案是 nameserver，名稱伺服器，也就是保管你電話簿的那台主機。現在它在網域商乙。"
+    },
+    {
+      "callout": "map:sel:.ns",
+      "text": "總名冊只記一件事：你的電話簿放在哪",
+      "narration": "上面這個是點 com 的總名冊。它不記你的 A、MX，只記一件事：xiaosen-bakery 點 com 的電話簿，放在哪一台 nameserver。"
+    },
+    {
+      "on": "map",
+      "click": "#b1",
+      "chapter": "搬家三步驟",
+      "narration": "要把 DNS 交給 Cloudflare，就是電話簿搬家。第一步：在 Cloudflare 開一本新的，把每一筆紀錄都抄過去。這時總名冊還指著舊的，什麼都沒變。"
+    },
+    {
+      "on": "map",
+      "click": "#b2",
+      "narration": "第二步：到網域商，把 nameserver 改成 Cloudflare 給你的兩個名字。總名冊就改指向新的電話簿。"
+    },
+    {
+      "on": "map",
+      "click": "#b3",
+      "narration": "第三步是等。總名冊的答案也會被各地記住，常常要一兩天。這段過渡期，有人問舊的、有人問新的。"
+    },
+    {
+      "callout": "map:sel:.expl",
+      "text": "兩本內容一樣 → 問到哪一本都對 → 不會中斷",
+      "narration": "所以搬家不中斷的祕訣只有一個：兩本電話簿的內容要一模一樣。問到哪一本，答案都對。"
+    },
+    {
+      "on": "map",
+      "click": "#b4",
+      "chapter": "少抄一筆會怎樣",
+      "narration": "如果新電話簿漏抄了一筆，例如 MX 呢？"
+    },
+    {
+      "callout": "map:sel:.miss",
+      "text": "問到新電話簿的人，找不到收信的郵局",
+      "narration": "問到新電話簿的人，就找不到收信的郵局，客人的信會寄丟，而且你不會馬上發現。網站可能也是一樣。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "搬家前，怎樣確認新舊兩本電話簿一模一樣？",
+      "body": "選一個你覺得最可靠的做法。",
+      "id": "compare",
+      "options": [
+        {
+          "label": "用眼睛看兩邊的後台",
+          "steps": [
+            {
+              "card": "容易看漏",
+              "eyebrow": "再想想",
+              "sub": "紀錄一多，一個字母打錯就看不出來",
+              "narration": "紀錄一多，用眼睛很容易看漏，一個字母打錯也看不出來。"
+            },
+            {
+              "card": "用 dig 分別問兩本，逐筆比對",
+              "eyebrow": "更可靠",
+              "sub": "dig 可以指定問哪一台 nameserver",
+              "narration": "更可靠的是用 dig 分別去問新舊兩台 nameserver，逐筆比對。下一堂，請 AI 寫成一個腳本來做。"
+            }
+          ]
+        },
+        {
+          "label": "用 dig 分別問兩本，逐筆比對",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "想一想",
+              "sub": "dig 可以指定問哪一台 nameserver，一筆一筆比",
+              "narration": "答對了。dig 可以指定去問哪一台 nameserver，一筆一筆比對。下一堂，請 AI 寫成一個腳本來做。"
+            }
+          ]
+        }
+      ]
+    },
+    { "hide": "map" },
+    {
+      "card": "先抄 → 比對一致 → 才換 nameserver",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：nameserver、總名冊、過渡期",
+      "chapter": "學會",
+      "narration": "電話簿搬家的順序：先把紀錄抄過去，比對完全一致，最後才換 nameserver。下一堂，請 AI 用 Cloudflare 的 API 匯入紀錄、自動比對，你再照步驟換 nameserver。"
+    }
+  ]
+}

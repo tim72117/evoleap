@@ -1,0 +1,91 @@
+{
+  "title": "選金流服務",
+  "lesson": "全環節 · 單元 11 · 11.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 比較金流",
+    "line": "今天請 AI 依小森烘焙的商品和所在地比較金流服務，選一家，並列出開通要準備的資料。費率會變，所以要它去查現在的官網，不能憑記憶。"
+  },
+  "cast": {
+    "boss": {
+      "actor": "person",
+      "props": { "name": "店長", "look": "boss" },
+      "place": "center",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "選金流", "folder": "~/projects/bakery", "branch": "main", "mode": "plan", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc11-1-plan", "url": "file:///projects/bakery/docs/payments-plan.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "選金流服務",
+      "eyebrow": "全環節 · 單元 11 · 11.1 用 AI 完成",
+      "sub": "說清楚你的情況 → AI 查現在的官網比較 → 列出開通清單",
+      "chapter": "店長的新點子",
+      "narration": "先聽聽店長想做什麼。"
+    },
+    { "show": "boss" },
+    { "on": "boss", "say": "除了單買，我想做「每月麵包箱」，每個月自動扣款。", "mood": "happy", "narration": "店長想做每月自動扣款的麵包箱。這會影響選哪一家：不是每家都支援定期扣款。" },
+    { "hide": "boss" },
+    { "show": "claude", "chapter": "把情況說清楚" },
+    {
+      "on": "claude",
+      "user": "幫我選金流服務。情況：台灣的個人工作室，賣實體麵包，客人在台灣，收台幣；要單筆付款，也要每月自動扣款的訂閱；付款後要開電子發票。請查各家現在的官網比較，不要憑記憶，並列出開通要準備的資料。",
+      "narration": "把會影響選擇的條件一次說完：你是誰、賣什麼、客人在哪、收什麼幣、要不要訂閱、發票。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "WebSearch",
+      "arg": "台灣 金流 信用卡 定期定額 手續費 2026",
+      "result": "找到 4 家的官方費率頁",
+      "chapter": "AI 查現在的官網",
+      "narration": "它去查現在的官方資料。費率和規定常常改，憑記憶的答案很可能已經過時。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "各家官網：費率、定期定額、發票串接、申請文件",
+      "result": "讀完 4 家",
+      "out": "A 家：信用卡定期定額 ✓，可串電子發票 ✓，個人可申請 ✓\nB 家：定期定額 ✓，發票需另找服務\nC 家（海外）：訂閱 ✓，收台幣撥款 ✗\nD 家（海外代收代付）：手續費較高，台灣發票需確認",
+      "narration": "四家逐一對照你的條件：能不能定期扣款、能不能串發票、個人能不能申請。"
+    },
+    {
+      "on": "claude",
+      "say": "建議 **A 家（台灣金流）**：\n- 收台幣、撥款到台灣帳戶\n- 支援信用卡**定期定額**，可以做每月麵包箱\n- 可串電子發票，付款後自動開\n\n海外服務在「收台幣撥款」或「台灣發票」上不符合。費率我標了查詢日期，**開通前請再確認一次**。\n\n另外有兩件事我無法替你決定：要不要辦稅籍登記、發票怎麼開，建議問記帳士或國稅局。",
+      "narration": "它的建議扣住你的條件，標出查詢日期；也老實說出它不能替你決定的事：稅籍和發票的規定，要問專業的人。"
+    },
+    { "on": "claude", "mode": "ask" },
+    { "on": "claude", "user": "好，寫成 docs/payments-plan.md，開通清單列清楚。" },
+    { "on": "claude", "ask": "docs/payments-plan.md", "q": "Claude 想要建立這個檔案", "where": "~/projects/bakery", "preview": "# 小森烘焙：金流選擇與開通清單\n條件：台灣個人工作室 …\n## 開通要準備（由你自己申請）" },
+    { "on": "claude", "choose": 1 },
+    { "hide": "claude" },
+    { "show": "web", "focus": false, "chapter": "你的開通清單", "narration": "打開它寫的計畫。上面是選擇與理由，下面是開通清單。" },
+    { "callout": "web:sel:.todo", "text": "這份清單由你自己準備、自己申請", "narration": "開通要用到你的身分和銀行資料，所以這份清單是你的待辦，不是 AI 的。" },
+    { "click": "#i3", "narration": "有些項目，現在就能先準備：網站上的商品與價格頁、退換貨說明。" },
+    { "click": "#i4" },
+    { "callout": "web:sel:#i5", "text": "稅務與發票：問記帳士或國稅局", "narration": "稅務與發票的規定，AI 可以幫你整理問題，但答案要問專業的人。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "把你的情況告訴 AI：你是誰、賣什麼、客人在哪、收什麼幣、要不要訂閱、要不要開發票。請它查現在的官網比較，並列出開通清單。"
+    },
+    { "hide": "web" },
+    {
+      "card": "條件說清楚，要它查現在的官網",
+      "eyebrow": "學會",
+      "sub": "建議要扣住你的條件；開通與稅務由你本人處理",
+      "chapter": "學會",
+      "narration": "這一堂的重點：把會影響選擇的條件說清楚，要 AI 查現在的官網再比較。開通要用你的身分和帳戶，稅務規定要問專業的人，這些都由你本人處理。"
+    }
+  ]
+}

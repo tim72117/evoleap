@@ -1,0 +1,27 @@
+/* fc8 圖解共用底稿(複製到各版本的 styles.css 開頭) */
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; color: #1f2733; background: #f6f4ef; }
+.wrap { padding: 36px 48px; box-sizing: border-box; min-height: 640px; }
+.ttl { font-size: 30px; font-weight: 700; margin: 0 0 6px; }
+.sub { font-size: 18px; color: #5b6575; margin: 0 0 22px; }
+[data-at] { opacity: .13; }
+[data-at].on { opacity: 1; }
+[data-go] { cursor: pointer; }
+.box { background: #fff; border: 2px solid #d9d4c7; border-radius: 14px; padding: 14px 18px; box-sizing: border-box; }
+.tag { display: inline-block; font-size: 14px; padding: 3px 10px; border-radius: 999px; background: #ece7db; color: #4a5260; }
+.ok { color: #1f8a4c; } .bad { color: #c2412d; } .warn { color: #b7791f; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.wrap { position: relative; }
+.cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.card { background: #fff; border: 2px solid #cfc8b8; border-radius: 12px; padding: 12px; font-size: 17px; font-weight: 700; min-height: 84px; display: flex; flex-direction: column; justify-content: space-between; }
+.card small { font-weight: 400; font-size: 13px; color: #6b7280; }
+.card.done { opacity: .35; border-style: dashed; }
+.bins { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+.bin { border-radius: 16px; padding: 14px 16px; min-height: 160px; box-sizing: border-box; }
+.bin.yes { background: #e7f6ec; border: 3px solid #6cc08b; } .bin.no { background: #f1efea; border: 3px solid #c9c2b2; }
+.bh { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+.chip { display: inline-block; margin: 0 8px 8px 0; padding: 8px 12px; background: #fff; border-radius: 10px; font-size: 16px; border: 1px solid #ddd; }
+.why { margin-top: 6px; font-size: 15px; color: #374151; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 16px; font-size: 16px; }
+.two > div { background: #eef4ff; border: 2px solid #9db8f2; border-radius: 12px; padding: 10px 14px; }
+.two b { display: block; font-size: 18px; margin-bottom: 4px; }
+.more { position: absolute; right: 48px; top: 40px; font: inherit; font-size: 16px; padding: 8px 14px; border-radius: 10px; border: 2px solid #9db8f2; background: #fff; }

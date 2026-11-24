@@ -1,0 +1,179 @@
+{
+  "title": "子網域、轉址與網域信箱",
+  "lesson": "全環節 · 單元 17 · 17.5 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "一次規劃好所有門牌",
+    "line": "這一堂請 AI 一次規劃好 www 轉址、shop 子網域和網域信箱要的紀錄。你照它的清單在後台填好，最後由 AI 一項一項驗證。"
+  },
+  "blocking": { "cast": ["claude", "panel"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "子網域與信箱",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "panel": {
+      "actor": "browser",
+      "props": { "site": "fc17-5-dns-panel", "width": "desktop", "url": "https://registrar-b.example/domains/xiaosen-bakery.com/dns" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "子網域、轉址與網域信箱",
+      "eyebrow": "全環節 · 單元 17 · 17.5 用 AI 完成",
+      "sub": "AI 規劃 → 你照填 → AI 驗證",
+      "chapter": "請 AI 先規劃",
+      "narration": "這次要改的紀錄比較多，所以先請 AI 規劃成一張清單，你照著填，就不會漏。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我規劃 DNS：1. www 轉到 xiaosen-bakery.com；2. shop.xiaosen-bakery.com 指到 Cloudflare Pages 的 bakery 專案；3. 用信箱服務收 hello@xiaosen-bakery.com 的信（我已經註冊好，服務說 MX 是 mx1.mail.example 和 mx2.mail.example）。列出要改的每一筆紀錄，我填完你再驗證。",
+      "narration": "三個目標一次講清楚。信箱服務的註冊是你自己做的，把它給的 MX 主機名稱一起告訴 AI。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +noall +answer xiaosen-bakery.com MX TXT; dig +noall +answer www.xiaosen-bakery.com",
+      "result": "完成",
+      "out": "xiaosen-bakery.com. 3600 IN MX 10 mx.forward.registrar-b.example.\nxiaosen-bakery.com. 3600 IN TXT \"v=spf1 include:forward.registrar-b.example ~all\"\nwww.xiaosen-bakery.com. 300 IN CNAME xiaosen-dev.github.io.",
+      "narration": "規劃之前，它先查一次現在的紀錄，才知道哪些要刪。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["www：已經是 CNAME → xiaosen-dev.github.io，GitHub 會自動 301 轉到正式網址，不用改", "done"],
+        ["Cloudflare Pages：在 bakery 專案「自訂網域」加上 shop.xiaosen-bakery.com（網頁上做）", "pending"],
+        ["新增 shop CNAME → bakery-7ka.pages.dev", "pending"],
+        ["刪除舊的 MX（mx.forward…）和舊的 SPF", "pending"],
+        ["新增 MX 10 mx1.mail.example、MX 20 mx2.mail.example", "pending"],
+        ["新增 TXT v=spf1 include:_spf.mail.example ~all", "pending"]
+      ],
+      "chapter": "規劃清單"
+    },
+    {
+      "on": "claude",
+      "say": "清單如上。重點：**舊的 MX 和 SPF 一定要刪**，不然信會分散到舊的轉寄服務。A 紀錄和 www 不要動。"
+    },
+    {
+      "callout": "claude:todos",
+      "text": "www 不用改；舊的 MX、SPF 要刪",
+      "narration": "AI 查過現況，發現 www 已經設好，不用再改；也提醒你舊的 MX 和 SPF 一定要刪。這就是先查再規劃的好處。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）Cloudflare Pages 的自訂網域已經加好 shop.xiaosen-bakery.com，畫面顯示「等待 DNS 紀錄」。",
+      "chapter": "你照清單填",
+      "narration": "清單第二項在 Cloudflare 的網頁上，你照做完截圖回報。畫面寫著等待 DNS 紀錄，接下來就去網域商填。"
+    },
+    {
+      "show": "panel",
+      "narration": "打開網域商的 DNS 紀錄頁，先刪掉舊的 MX 和 SPF。"
+    },
+    { "on": "panel", "click": "#del-mx0" },
+    { "on": "panel", "click": "#del-spf0" },
+    {
+      "on": "panel",
+      "fill": { "#type": "CNAME", "#name": "shop", "#value": "bakery-7ka.pages.dev", "#ttl": "300" },
+      "narration": "新增 shop 的別名，指向 Cloudflare Pages。"
+    },
+    { "on": "panel", "click": "#add" },
+    {
+      "on": "panel",
+      "fill": { "#type": "MX", "#name": "@", "#value": "10 mx1.mail.example", "#ttl": "3600" },
+      "narration": "兩筆 MX。前面的 10 和 20 是優先順序，10 先送，20 是備援。"
+    },
+    { "on": "panel", "click": "#add" },
+    { "on": "panel", "fill": { "#type": "MX", "#name": "@", "#value": "20 mx2.mail.example", "#ttl": "3600" } },
+    { "on": "panel", "click": "#add" },
+    {
+      "on": "panel",
+      "fill": { "#type": "TXT", "#name": "@", "#value": "v=spf1 include:_spf.mail.example ~all", "#ttl": "3600" },
+      "narration": "最後是 SPF。這串字容易打錯，直接從 AI 的清單複製貼上最安全。"
+    },
+    { "on": "panel", "click": "#add" },
+    { "on": "panel", "click": "#save" },
+    {
+      "on": "claude",
+      "user": "（附上截圖）都填好儲存了。",
+      "chapter": "AI 一項一項驗證"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +short xiaosen-bakery.com MX; dig +short xiaosen-bakery.com TXT; dig +short shop.xiaosen-bakery.com CNAME",
+      "result": "完成",
+      "out": "10 mx1.mail.example.\n20 mx2.mail.example.\n\"v=spf1 include:_spf.mail.example ~all\"\nbakery-7ka.pages.dev.",
+      "narration": "先查紀錄：兩筆 MX、新的 SPF、shop 的別名都查得到了，舊的已經不見。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -sI https://www.xiaosen-bakery.com | grep -i -E 'HTTP/|location'",
+      "result": "完成",
+      "out": "HTTP/2 301\nlocation: https://xiaosen-bakery.com/",
+      "narration": "www 打開會 301，轉到正式網址。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}\\n' https://shop.xiaosen-bakery.com",
+      "result": "完成",
+      "out": "curl: (35) SSL connect error\n000",
+      "narration": "shop 還打不開，出現憑證的錯誤。"
+    },
+    {
+      "on": "claude",
+      "say": "shop 的 DNS 已經生效，但 HTTPS 憑證還在發，這是正常的。我每分鐘再查一次。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "until [ \"$(curl -s -o /dev/null -w '%{http_code}' https://shop.xiaosen-bakery.com)\" = 200 ]; do sleep 60; done; echo 'shop: 200 ✓'",
+      "result": "完成",
+      "out": "shop: 200 ✓"
+    },
+    {
+      "on": "claude",
+      "say": "網站都驗證好了。信箱我沒辦法替你收信：請用手機寄一封信到 **hello@xiaosen-bakery.com**，收到後截圖給我。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "收信要你的信箱：AI 請你寄一封測試信",
+      "narration": "最後一項，AI 碰不到你的信箱。它請你自己寄一封測試信，看收不收得到。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）收到了，寄件人是我的手機信箱。"
+    },
+    {
+      "on": "claude",
+      "say": "全部完成 ✓\n- `www` → 301 轉到 `xiaosen-bakery.com`\n- `shop.xiaosen-bakery.com` → Cloudflare Pages（200）\n- `hello@xiaosen-bakery.com` 收得到信，MX、SPF 都正確"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：規劃你的子網域與信箱",
+      "body": "告訴 AI 你要的 www、子網域與信箱，請它先查現況再列出要刪、要加的每一筆。照填、截圖，最後請它驗證，並自己寄一封測試信。"
+    },
+    { "hide": "panel" },
+    {
+      "card": "先查現況再規劃\n照清單填，AI 一項一項驗證",
+      "eyebrow": "學會",
+      "sub": "換信箱服務時，舊的 MX 和 SPF 要刪；收信由你自己測",
+      "chapter": "學會",
+      "narration": "請 AI 先查現況再規劃，你照清單填，最後讓它一項一項驗證。收信的測試由你自己來。現在你有 www 轉址、shop 子網域和網域信箱了。"
+    }
+  ]
+}

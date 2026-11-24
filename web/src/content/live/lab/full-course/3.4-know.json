@@ -1,0 +1,105 @@
+{
+  "title": "MCP：給 AI 一個轉接頭",
+  "camera": "auto",
+  "teacher": {
+    "say": "讓 AI 自己看網頁",
+    "line": "上一堂是你操作開發者工具，再把錯誤貼給 AI。如果 AI 能自己打開網頁、自己看錯誤呢？今天認識 MCP，讓 AI 接上外部工具的方式。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc3-4-mcp", "url": "https://course.example/explain/mcp" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "MCP 預告", "folder": "~/projects/shop", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "AI 本來看不到網頁",
+      "eyebrow": "全環節 · 單元 3 · 3.4 基礎知識",
+      "sub": "它只會讀寫檔案、跑指令",
+      "chapter": "AI 少了什麼",
+      "narration": "AI 程式助手會讀寫檔案、會跑指令，可是它沒有眼睛：網頁打開長什麼樣、按了按鈕有沒有反應，它看不到。所以上一堂，是你當它的眼睛。"
+    },
+    {
+      "show": "web",
+      "chapter": "轉接頭",
+      "narration": "MCP 就像一個轉接頭。電腦本來沒有某個插孔，插上轉接頭，就能接上新的裝置。"
+    },
+    {
+      "on": "web",
+      "click": "#g1",
+      "narration": "插上一個叫 chrome-devtools 的 MCP 連接器，AI 就接上了一個瀏覽器。"
+    },
+    {
+      "callout": "web:sel:.plug",
+      "text": "MCP 連接器：一個小程式，負責翻譯",
+      "narration": "連接器是一個小程式，負責翻譯：把 AI 說的話，變成瀏覽器聽得懂的操作。"
+    },
+    {
+      "on": "web",
+      "click": "#g2",
+      "narration": "AI 說：打開這個網址。連接器就讓瀏覽器打開它。"
+    },
+    {
+      "on": "web",
+      "click": "#g3",
+      "narration": "瀏覽器把 Console 的錯誤、畫面的截圖，再經由連接器送回給 AI。AI 看得到結果，就能自己判斷下一步。"
+    },
+    {
+      "callout": "web:sel:.win",
+      "text": "AI 操作的是「另一個」瀏覽器視窗",
+      "chapter": "它碰得到哪裡",
+      "narration": "很重要的一點：AI 操作的是另外開的一個瀏覽器視窗，乾淨的，沒有登入你的任何帳號。"
+    },
+    {
+      "callout": "web:sel:.mine",
+      "text": "你平常的瀏覽器不在這條線上",
+      "narration": "你平常用的瀏覽器，登入著信箱、銀行，不在這條線上，AI 碰不到。也因為這樣，要它測試需要登入的頁面時，得另外處理，不要把你的密碼交給它。"
+    },
+    { "hide": "web" },
+    {
+      "show": "claude",
+      "chapter": "接上之後長什麼樣",
+      "narration": "接上之後，你會在對話裡看到 AI 呼叫這些工具。"
+    },
+    {
+      "on": "claude",
+      "tool": "navigate_page",
+      "arg": "http://localhost:5173",
+      "result": "已打開"
+    },
+    {
+      "on": "claude",
+      "tool": "list_console_messages",
+      "result": "1 個錯誤",
+      "out": "Uncaught TypeError: Cannot read properties of null (reading 'addEventListener')"
+    },
+    {
+      "on": "claude",
+      "tool": "take_screenshot",
+      "result": "已截圖"
+    },
+    {
+      "callout": "claude:log",
+      "text": "打開網頁、讀 Console、截圖：都是它自己做",
+      "narration": "打開網頁、讀 Console、截圖，原本都是你在做的事，現在 AI 自己來。"
+    },
+    {
+      "checkpoint": "想一想：AI 透過 MCP 打開的瀏覽器，看得到你 Gmail 的信嗎？",
+      "body": "看不到。它操作的是另外開的乾淨視窗，沒有登入你的帳號。你平常用的瀏覽器，不在它的連線上。"
+    },
+    {
+      "card": "MCP：讓 AI 接上外部工具",
+      "eyebrow": "3.4 重點",
+      "sub": "瀏覽器、資料庫、設計稿……都有各自的連接器",
+      "narration": "總結：MCP 是讓 AI 接上外部工具的轉接頭。除了瀏覽器，資料庫、設計稿也都有各自的連接器。下一堂，實際接上一個，讓它自己修好按鈕。"
+    }
+  ]
+}

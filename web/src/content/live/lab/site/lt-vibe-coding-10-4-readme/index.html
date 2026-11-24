@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>README 對照</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap" data-s="0">
+  <div class="head">
+    <h1>README 說的，和實際的一樣嗎？</h1>
+    <div class="btns"><button id="compare">對照</button><button id="update">換成新版 README</button></div>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <div class="ct">README.md ·「目錄結構」段落</div>
+      <pre class="md old"><span class="h">## 目錄結構</span>
+my-site/
+├── index.html      首頁
+├── about.html      關於我
+├── projects.html   作品
+<span class="x" id="m1">├── style.css       全站樣式</span>
+<span class="x" id="m2">├── projects.json   作品資料</span>
+<span class="x" id="m3">├── photo.jpg、cover-*.jpg、bg.svg</span>
+<span class="x" id="m4">└── resize-photos.js  縮圖工具</span></pre>
+      <pre class="md new"><span class="h">## 目錄結構</span>
+my-site/
+├── index.html、about.html、projects.html
+│                   頁面（放最上層，GitHub Pages 才找得到）
+<span class="y">├── assets/         網頁會用到的資源
+│   ├── style.css   全站樣式
+│   └── images/     照片、封面、背景圖
+├── content/        內容資料
+│   └── projects.json  作品清單（改作品只改這裡）
+└── tools/          自己用的小工具，網站不會載入
+    └── resize-photos.js</span></pre>
+    </div>
+    <div class="col">
+      <div class="ct">實際的資料夾</div>
+      <pre class="md real">my-site/
+├── index.html
+├── about.html
+├── projects.html
+├── README.md
+<span class="z">├── assets/
+│   ├── style.css
+│   └── images/
+│       ├── photo.jpg、cover-1.jpg
+│       └── cover-2.jpg、bg.svg
+├── content/
+│   └── projects.json
+└── tools/
+    └── resize-photos.js</span></pre>
+    </div>
+  </div>
+  <div class="verdict v1">4 處對不上：README 還是搬家前的樣子</div>
+  <div class="verdict v2">✓ README 和實際的資料夾一致</div>
+</div>
+<script src="script.js"></script>
+</body></html>

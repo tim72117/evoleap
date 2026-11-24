@@ -1,0 +1,123 @@
+{
+  "title": "做內部小工具頁",
+  "lesson": "全環節 · 單元 31 · 31.2 用 AI 完成",
+  "teacher": {
+    "say": "請 AI 做一個訂單看板",
+    "line": "這一堂請 AI 做一個只給自己看的訂單頁：讀現有的訂單檔，列出今天要處理的事，再改一輪，變成每天會打開的工具。"
+  },
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "page"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "訂單看板", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc31-2-tool1", "url": "http://localhost:5173/admin/orders" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "做內部小工具頁",
+      "eyebrow": "全環節 · 單元 31 · 31.2 用 AI 完成",
+      "sub": "讀現有資料，做一個每天會打開的頁面",
+      "chapter": "交代工具要做什麼",
+      "narration": "店裡的訂單都記在一個 C S V 檔，就是用逗號分隔的表格檔。每天要從裡面找出今天要做的事，很花時間。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我做一個只給自己看的內部頁面 /admin/orders：讀 data/orders.csv，用表格列出單號、客人、品項、取貨時間、付款狀態。外觀不用講究，用預設樣式就好。只在本機開發時能打開，不要加到正式網站的選單。做完打開給我看。",
+      "narration": "交代時說清楚：資料在哪、要哪幾欄、外觀不用講究。還有一個限制：只在本機能打開，不要放上正式網站。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "data/orders.csv",
+      "result": "4 筆訂單、5 個欄位",
+      "out": "id,name,item,pickup,paid\nA101,王小姐,生日蛋糕 6 吋,2026-11-10 15:00,no\nA102,陳先生,可頌 x6,2026-11-09 09:00,yes\n…",
+      "narration": "它先讀訂單檔，確認欄位的名稱和格式。"
+    },
+    {
+      "on": "claude",
+      "ask": "src/admin/OrdersPage.tsx",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "// 內部工具：只在開發模式載入\nexport function OrdersPage() {\n  const rows = parseCsv(ordersCsv)\n  return <table>…單號、客人、品項、取貨、狀態…</table>\n}",
+      "chapter": "第一版",
+      "narration": "它要建立一個新頁面。註解寫著只在開發模式載入，符合你的限制。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "edit": "src/routes.tsx",
+      "lines": [[30, "+", "if (import.meta.env.DEV) routes.push({ path: '/admin/orders', element: <OrdersPage /> })"]],
+      "narration": "路由只在開發模式加上，所以正式網站打不開這一頁。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}' localhost:5173/admin/orders",
+      "result": "200",
+      "narration": "它自己用 curl 敲一下這一頁，回 200，表示打得開。"
+    },
+    {
+      "show": "page",
+      "narration": "打開來看。四筆訂單都在，陽春，但資料是對的。"
+    },
+    {
+      "callout": "page:sel:.tb",
+      "text": "資料正確，可是還要自己一列列看",
+      "narration": "用了一下會發現：還是要自己一列一列看，哪些是今天、哪些還沒付款。"
+    },
+    {
+      "on": "claude",
+      "user": "可以用了，但我每天其實只想看兩件事：今天要取貨的、還沒付款的。加兩個篩選按鈕，最上面直接寫數量。今天的訂單排最前面。",
+      "chapter": "改一輪，變成真的好用",
+      "narration": "回去跟 AI 說你真正想看的：今天要取貨、還沒付款。加兩個篩選，上面直接寫數量。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "edit": "src/admin/OrdersPage.tsx",
+      "lines": [[4, "+", "  const [only, setOnly] = useState<'all' | 'today' | 'unpaid'>('all')"], [5, "+", "  const sorted = sortBy(rows, (r) => r.pickup)"], [9, "+", "  <p>今天要取貨 {today.length} 筆 · 未付款 {unpaid.length} 筆</p>"], [10, "+", "  <button onClick={() => setOnly('today')}>只看今天取貨</button>"], [11, "+", "  <button onClick={() => setOnly('unpaid')}>只看未付款</button>"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- admin",
+      "result": "3 passed",
+      "out": "✓ 今天取貨的篩選只留 11/09 的訂單\n✓ 未付款的篩選只留 paid=no\n✓ 依取貨時間排序",
+      "narration": "它還替篩選寫了三個小測試，確定篩出來的是對的。"
+    },
+    {
+      "show": "page",
+      "site": "fc31-2-tool2",
+      "narration": "重新打開。最上面直接寫：今天要取貨兩筆、未付款兩筆。今天的訂單排在最前面。"
+    },
+    { "on": "page", "click": "#fToday", "narration": "按「只看今天取貨」，剩下今天的兩筆。" },
+    { "on": "page", "click": "#fUnpaid", "narration": "再按「只看未付款」，就是今天要先打電話提醒的那一位。" },
+    {
+      "callout": "page:sel:.tb",
+      "text": "一頁回答「今天要做什麼」",
+      "narration": "現在一打開，就知道今天要做什麼。外觀還是很陽春，但你每天都會打開它。"
+    },
+    {
+      "on": "claude",
+      "say": "完成：`/admin/orders` 只在本機開發時能打開，正式網站沒有這個路由。資料直接讀 `data/orders.csv`，檔案更新後重新整理就好。篩選有 3 個測試保護。",
+      "chapter": "確認範圍",
+      "narration": "最後它整理一下：頁面只在本機、資料從哪裡讀、有測試保護。"
+    },
+    {
+      "checkpoint": "換你做一個",
+      "body": "拿上一堂寫下的小麻煩，請 AI 做成內部頁：說清楚資料在哪、要哪幾欄、外觀不用講究、只在本機能開。用一天之後，再請它改一輪。",
+      "narration": "換你做一個。說清楚資料在哪、要哪幾欄、外觀不用講究、只在本機能打開。用一天之後，再回來請它改一輪。"
+    }
+  ]
+}

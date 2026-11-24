@@ -1,0 +1,183 @@
+{
+  "title": "寄信服務與寄件網域驗證",
+  "lesson": "全環節 · 單元 12 · 12.1 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "teacher": {
+    "say": "今天讓你的信穩穩進收件匣",
+    "line": "這一堂請 AI 產生寄件網域要加的 DNS 紀錄。網域商後台 AI 碰不到，由你照步驟填；填完再請 AI 用 dig 驗證，有錯它會指出來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "寄件網域驗證", "folder": "~/projects/shop", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc12-1-registrar", "width": "desktop", "url": "https://registrar.example/domains/shop.example/dns" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "寄信服務與寄件網域驗證",
+      "eyebrow": "全環節 · 單元 12 · 12.1 用 AI 完成",
+      "sub": "AI 產生紀錄 → 你在網域商填 → AI 用 dig 驗證",
+      "chapter": "交代清楚",
+      "narration": "這次的分工很清楚：AI 產生紀錄、寫步驟；你在網域商後台照著填；最後 AI 用 dig 這個查 DNS 的指令驗證。"
+    },
+    { "show": "claude", "narration": "打開 AI 程式助手，專案是你的網站 shop。" },
+    {
+      "on": "claude",
+      "user": "我要用寄信服務 mailsvc.example，從 noreply@shop.example 寄信。請產生 SPF、DKIM、DMARC 要加的 DNS 紀錄，寫成我在網域商後台照著填的步驟。我填好之後，你用 dig 驗證三筆都查得到才算完成。",
+      "narration": "交代三件事：用哪個寄信服務、從哪個地址寄、怎樣算完成。完成的標準是：三筆紀錄都用 dig 查得到。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "ask": "dig +short TXT shop.example",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "查詢網域目前的 TXT 紀錄，只讀取、不改動",
+      "narration": "它先查一下網域現在有哪些紀錄，避免重複或衝突。dig 只是查詢，可以允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +short TXT shop.example",
+      "result": "沒有任何 TXT 紀錄",
+      "out": "(沒有輸出)"
+    },
+    {
+      "on": "claude",
+      "say": "目前沒有 TXT 紀錄，可以直接新增。請到網域商的 DNS 設定，新增這三筆：\n\n1. **SPF**　類型 `TXT`，名稱 `@`，內容 `v=spf1 include:mailsvc.example ~all`\n2. **DKIM**　類型 `CNAME`，名稱 `mail._domainkey`，內容 `mail.dkim.mailsvc.example`\n3. **DMARC**　類型 `TXT`，名稱 `_dmarc`，內容 `v=DMARC1; p=quarantine`\n\n注意：名稱欄只填前綴，網域商會自動接上 `.shop.example`。填好截圖給我。",
+      "narration": "它列出三筆紀錄，還提醒一個常見的坑：名稱欄只填前綴，網域商會自動接上網域。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "網域商後台 AI 碰不到：這段由你照步驟操作",
+      "narration": "網域商後台要登入你的帳號，AI 碰不到，也不該替你登入。這一段你自己來。"
+    },
+    {
+      "show": "web",
+      "chapter": "你照步驟填",
+      "narration": "登入網域商，打開 shop.example 的 DNS 設定。已經有兩筆紀錄，是之前讓網站上線用的。"
+    },
+    {
+      "on": "web",
+      "fill": { "#type": "TXT", "#name": "@", "#value": "v=spf1 include:mailsvc.example ~all" },
+      "narration": "第一筆 SPF：類型選 TXT，名稱填小老鼠，內容照抄。"
+    },
+    { "on": "web", "click": "#add" },
+    {
+      "on": "web",
+      "fill": { "#type": "CNAME", "#name": "mail._domainkey.shop.example", "#value": "mail.dkim.mailsvc.example" },
+      "narration": "第二筆 DKIM。這裡你順手把完整的網域也打了進去，先不管它，看看等一下會怎樣。"
+    },
+    { "on": "web", "click": "#add" },
+    {
+      "on": "web",
+      "fill": { "#type": "TXT", "#name": "_dmarc", "#value": "v=DMARC1; p=quarantine" },
+      "narration": "第三筆 DMARC，新增。"
+    },
+    { "on": "web", "click": "#add" },
+    {
+      "on": "claude",
+      "user": "三筆都填好了，截圖在這裡：[網域商 DNS 設定.png]",
+      "chapter": "AI 用 dig 驗證",
+      "narration": "回到 AI，說填好了，附上截圖。截圖讓它看到你實際填了什麼。"
+    },
+    {
+      "on": "claude",
+      "ask": "dig +short TXT shop.example; dig +short CNAME mail._domainkey.shop.example; dig +short TXT _dmarc.shop.example",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "逐一查詢三筆紀錄",
+      "narration": "它一次查三筆。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +short …（三筆）",
+      "result": "SPF、DMARC 查得到；DKIM 查不到",
+      "out": "\"v=spf1 include:mailsvc.example ~all\"\n(DKIM:沒有輸出)\n\"v=DMARC1; p=quarantine\"",
+      "narration": "SPF 和 DMARC 查得到，DKIM 查不到。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +short CNAME mail._domainkey.shop.example.shop.example",
+      "result": "找到了",
+      "out": "mail.dkim.mailsvc.example.",
+      "narration": "它沒有停在查不到，而是對照截圖，猜到名稱被接了兩次網域，再查一次證實。"
+    },
+    {
+      "on": "claude",
+      "say": "找到原因了：DKIM 的名稱填成了 `mail._domainkey.shop.example`，網域商又自動接上一次，變成 `…shop.example.shop.example`。\n\n請刪掉這一筆，重新新增：名稱只填 `mail._domainkey`。",
+      "narration": "它說出原因，也告訴你怎麼改：刪掉重填，名稱只寫前綴。"
+    },
+    {
+      "on": "web",
+      "click": "#rows tr:nth-child(4) .del",
+      "narration": "回到網域商，刪掉那一筆。"
+    },
+    {
+      "on": "web",
+      "fill": { "#type": "CNAME", "#name": "mail._domainkey", "#value": "mail.dkim.mailsvc.example" },
+      "narration": "重新新增，這次名稱只填前綴。"
+    },
+    { "on": "web", "click": "#add" },
+    { "on": "claude", "user": "改好了，再查一次", "narration": "跟 AI 說改好了。" },
+    {
+      "on": "claude",
+      "ask": "dig +short CNAME mail._domainkey.shop.example",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "再查一次 DKIM"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dig +short CNAME mail._domainkey.shop.example",
+      "result": "查得到",
+      "out": "mail.dkim.mailsvc.example.",
+      "narration": "這次查到了，三筆都到位。"
+    },
+    {
+      "on": "claude",
+      "say": "三筆紀錄都查得到了 ✓\n\n最後確認一次：我會從 noreply@shop.example 寄一封測試信到你的信箱。請打開信，選「顯示原始郵件」，把 `Authentication-Results` 那一行貼給我。",
+      "chapter": "寄一封信確認",
+      "narration": "查得到還不夠，真的寄一封才算數。AI 看不到你的信箱，所以請你打開原始郵件，把檢查結果那一行貼回來。"
+    },
+    {
+      "on": "claude",
+      "user": "Authentication-Results: spf=pass dkim=pass dmarc=pass，而且在收件匣",
+      "narration": "三個都是 pass，信也在收件匣。"
+    },
+    {
+      "on": "claude",
+      "say": "三項都通過，寄件網域驗證完成 🎉\n\n之後若換寄信服務，SPF 的 `include` 和 DKIM 都要跟著換。",
+      "narration": "完成了。它還提醒，之後換寄信服務，紀錄也要跟著換。"
+    },
+    { "hide": "claude" },
+    { "hide": "web" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：為你的網域加上寄件驗證",
+      "body": "請 AI 產生三筆紀錄與步驟，在網域商後台照著填，截圖給 AI，請它用 dig 驗證，最後寄一封測試信看 Authentication-Results。"
+    },
+    {
+      "card": "AI 產生紀錄、你來填、AI 驗證\n名稱欄只填前綴\n寄一封信看三個 pass",
+      "eyebrow": "學會",
+      "sub": "AI 碰不到的後台，用截圖讓它看見",
+      "chapter": "學會",
+      "narration": "這一課的分工是：AI 產生紀錄和步驟，你在後台照填，AI 用 dig 驗證。名稱欄只填前綴；最後寄一封信，看到三個 pass 才算完成。"
+    }
+  ]
+}

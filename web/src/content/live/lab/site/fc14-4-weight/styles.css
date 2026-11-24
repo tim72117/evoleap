@@ -1,0 +1,29 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#eef0f3;display:flex;align-items:center;justify-content:center}
+.app{width:1200px;padding:16px 0}
+.grid{display:grid;grid-template-columns:.7fr 1.6fr;gap:18px}
+.card{background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 4px 16px rgba(0,0,0,.05);opacity:.45;border:3px solid transparent}
+h3{font-size:19px;margin-bottom:10px}
+.score{text-align:center;position:relative}.score svg{width:130px}
+.bg{fill:none;stroke:#f1e3e1;stroke-width:12}.fg{fill:none;stroke:#d6453d;stroke-width:12;stroke-linecap:round;transform:rotate(-90deg);transform-origin:60px 60px}
+.num{position:absolute;top:58px;left:0;right:0;font-size:40px;font-weight:700;color:#d6453d}
+.score b{display:block;font-size:20px}.score small{color:#6b7478;font-size:14px}
+.lcp{margin-top:8px;font-size:16px}.lcp b{display:inline;color:#d6453d}
+.f{display:grid;grid-template-columns:200px 1fr 80px;align-items:center;gap:10px;font-size:16px;margin:8px 0}
+.f i{display:block;height:20px;border-radius:5px;background:#9fb2b8}.f em{font-style:normal;text-align:right;color:#525c68}
+.road{margin-top:16px}
+.tl{position:relative;height:20px;margin-left:120px;font-size:13px;color:#8a9296}.t{position:absolute;transform:translateX(-50%)}
+.bars .b{position:relative;height:26px;margin:4px 0}
+.bars .b span{position:absolute;left:0;width:115px;font-size:15px;line-height:26px}
+.bars .b i{position:absolute;top:4px;height:18px;border-radius:5px;background:#9fb2b8;margin-left:120px;max-width:calc(100% - 120px)}
+.phones{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:10px;margin-left:120px}
+.ph{height:60px;border:2px solid #d5dbe0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#6b7478}
+.p2{background:linear-gradient(#fff 50%,#eef1f4 50%)}.p3{background:#fff8ec}.p4{background:#eaf7f0;color:#1e7a4a}
+.chips{display:flex;gap:14px;margin-top:14px;justify-content:center}
+.chips button{font:inherit;font-size:19px;border:2px solid #c3cbd3;background:#fff;border-radius:999px;padding:8px 22px;color:#1f2a2e}
+.s1 #b1,.s2 #b2,.s3 #b3{background:#1f3b44;color:#fff;border-color:#1f3b44}
+.s0 .card{opacity:1}
+.s1 #score{opacity:1;border-color:#d6453d}
+.s2 #score,.s3 #score,.s3 #files{opacity:1}
+.s2 #files{opacity:1;border-color:#e08a1e}.s2 #fHero i,.s3 #fHero i{background:#e08a1e}.s2 #fHero{font-weight:700}
+.s3 #road{opacity:1;border-color:#e08a1e}.s3 .hero i{background:#e08a1e}

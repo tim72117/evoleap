@@ -1,0 +1,141 @@
+{
+  "title": "把固定流程做成技能",
+  "lesson": "全環節 · 單元 31 · 31.3 用 AI 完成",
+  "teacher": {
+    "say": "把發版流程寫成技能",
+    "line": "這一堂請 AI 把發版的流程寫成技能，然後開一個全新的對話，只說「幫我發版」，看它會不會照著做。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "寫發版技能", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": { "tree": { "bakery": { ".claude": { "CLAUDE.md": "" }, "src": {}, "CHANGELOG.md": "", "package.json": "" } }, "open": "bakery/.claude" },
+      "place": "right",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "把固定流程做成技能",
+      "eyebrow": "全環節 · 單元 31 · 31.3 用 AI 完成",
+      "sub": "寫一次，以後一句話就照做",
+      "chapter": "請 AI 寫技能",
+      "narration": "你已經發過好幾次版。每次都要交代：先跑測試、改版號、寫更新紀錄、打標籤。這次把它變成技能。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我們每次發版都照這個流程：1 跑 npm test，沒過就停；2 依這次的改動決定版號（修錯字、小修正加第三碼，新功能加第二碼）；3 在 CHANGELOG.md 最上面寫這版改了什麼；4 改 package.json 的版號；5 打 git tag，推上去之前先問我。幫我寫成一個技能，我說「發版」時就用。",
+      "narration": "你把流程講一次，越具體越好：步驟、版號怎麼決定、哪一步要先問你。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "CHANGELOG.md",
+      "result": "最新版 v1.4.2",
+      "narration": "它先看看現有的更新紀錄長什麼樣子，技能裡的格式才會跟它一致。"
+    },
+    {
+      "on": "claude",
+      "ask": ".claude/skills/release/SKILL.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "---\nname: release\ndescription: 使用者說「發版」「上版號」「release」時使用\n---\n1. 跑 npm test；沒過就停下來回報，不要繼續\n2. 看上一個 tag 之後的 commit 決定版號：\n   修正 → 第三碼 +1；新功能 → 第二碼 +1\n3. CHANGELOG.md 最上面加「## v版號（日期）」與改動條列\n4. package.json 的 version 改成同一個版號\n5. git tag v版號；git push 前一定先問使用者",
+      "narration": "這就是技能檔。最上面兩行是名字和「什麼時候用」，下面是步驟。注意第一步和第五步：沒過就停、推上去前要問你，這些規矩都寫進去了。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "description：AI 靠這一句決定什麼時候用",
+      "narration": "description 這一行最重要。AI 是看這一句，判斷你說的話要不要用這個技能，所以把你平常會怎麼說都寫進去。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "show": "files", "mkdir": "skills", "narration": "點 claude 資料夾裡多了 skills。" },
+    { "on": "files", "open": "skills" },
+    { "on": "files", "mkdir": "release" },
+    { "on": "files", "open": "release" },
+    { "on": "files", "create": "SKILL.md", "narration": "一個流程一個資料夾，裡面一份 SKILL 點 md。" },
+    { "hide": "files" },
+    {
+      "on": "claude",
+      "say": "技能寫好了：`.claude/skills/release/SKILL.md`。下次在新的對話說「發版」就會用到它。要不要現在開一個新對話試一次？",
+      "narration": "寫好不算完成，要真的用一次才知道它有沒有用。"
+    },
+    {
+      "on": "claude",
+      "newSession": "發版 v1.5.0",
+      "branch": "main",
+      "chapter": "在新對話裡用一次",
+      "narration": "開一個全新的對話。這個對話完全不知道剛剛聊過什麼。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我發版",
+      "narration": "你只說四個字：幫我發版。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Skill",
+      "arg": "release",
+      "result": "載入發版流程（5 步）",
+      "narration": "它自己找到 release 技能，載入那五個步驟。"
+    },
+    {
+      "on": "claude",
+      "todos": [["跑 npm test", "doing"], ["決定版號", "pending"], ["寫 CHANGELOG", "pending"], ["改 package.json", "pending"], ["打 tag，推之前先問", "pending"]]
+    },
+    { "on": "claude", "ask": "npm test", "q": "Claude 想要執行這個指令", "where": "~/projects/bakery", "note": "發版流程第 1 步" },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "45 passed", "narration": "測試全部通過，才往下走。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log v1.4.2..HEAD --oneline",
+      "result": "3 個 commit",
+      "out": "a1c9 新增：訂單看板的篩選\n7be2 修正：頁尾電話號碼\n03f1 新增：預約取貨時段",
+      "narration": "它看上一版之後有哪些改動：有兩個新功能，所以照技能的規則，版號第二碼加一，變成 1.5.0。"
+    },
+    {
+      "on": "claude",
+      "edit": "CHANGELOG.md",
+      "lines": [[1, "+", "## v1.5.0（2026-11-09）"], [2, "+", "- 新增：預約取貨時段、訂單看板的篩選"], [3, "+", "- 修正：頁尾電話號碼"], [4, " ", "## v1.4.2（2026-10-28）"]]
+    },
+    { "on": "claude", "edit": "package.json", "lines": [[3, "-", "  \"version\": \"1.4.2\","], [3, "+", "  \"version\": \"1.5.0\","]] },
+    {
+      "on": "claude",
+      "todos": [["跑 npm test", "done"], ["決定版號", "done"], ["寫 CHANGELOG", "done"], ["改 package.json", "done"], ["打 tag，推之前先問", "doing"]]
+    },
+    {
+      "on": "claude",
+      "ask": "git tag v1.5.0 && git push --tags",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "技能規定：推上去之前先問你",
+      "narration": "最後一步，它停下來問你。這就是技能裡寫的規矩，它記得。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "git tag v1.5.0 && git push --tags", "result": "已推上 v1.5.0" },
+    {
+      "on": "claude",
+      "say": "v1.5.0 發好了：測試 45 個通過、CHANGELOG 與 package.json 已更新、tag 已推上去。",
+      "narration": "五個步驟，一句話就照順序做完。"
+    },
+    {
+      "callout": "claude:todos",
+      "text": "新的對話也照同一套流程：這就是技能",
+      "narration": "重點是：這是一個全新的對話，你沒有再教一次。下次哪裡不對，直接改技能檔，以後每次都跟著變好。"
+    },
+    {
+      "checkpoint": "換你做一個技能",
+      "body": "拿上一堂寫的食譜卡，請 AI 寫成技能；然後開一個新對話，只用一句話叫它，看它有沒有照步驟做、有沒有守規矩。",
+      "narration": "換你試試。把上一堂的食譜卡交給 AI 寫成技能，再開一個新對話，只用一句話叫它。"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>小森烘焙｜本週商品</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="top" style="--brand:#b45309"><div class="logo"><i></i>小森烘焙</div><span class="sp"></span><span class="who">本週商品</span></header>
+<div class="wrap">
+  <h1>本週商品</h1>
+  <p class="muted">這一區的資料來自 <span class="mono">GET /api/menu</span>，不是寫死在網頁裡。</p>
+  <div class="err note" id="err">讀不到商品資料（伺服器回 404）。<button class="btn small" id="retry">重新整理</button></div>
+  <div class="items hide" id="items">
+    <div class="item card"><div class="pic p1"></div><b>可頌</b><span>NT$ 65</span></div>
+    <div class="item card"><div class="pic p2"></div><b>肉桂捲</b><span>NT$ 80</span></div>
+    <div class="item card"><div class="pic p3"></div><b>鄉村麵包</b><span>NT$ 120</span></div>
+  </div>
+  <div class="src mono hide" id="src">來源：http://localhost:3000/api/menu → 200 OK，3 筆</div>
+</div>
+</body></html>

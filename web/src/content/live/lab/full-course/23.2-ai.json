@@ -1,0 +1,169 @@
+{
+  "title": "自訂追蹤事件與漏斗",
+  "lesson": "全環節 · 單元 23 · 23.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天實作一條漏斗",
+    "line": "這一課把上一堂設計的問題交給 AI，請它設計事件並實作。然後你自己走一次流程，看事件有沒有記對；不對就來回修，直到漏斗完整。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "追蹤事件",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc23-2-debug-1", "url": "https://analytics.example/debugview" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "自訂追蹤事件與漏斗",
+      "eyebrow": "全環節 · 單元 23 · 23.2 用 AI 完成",
+      "sub": "從問題設計事件 → 實作 → 你走一次 → 看有沒有記對 → 修",
+      "narration": "這次是來回幾輪：AI 實作，你實際走一次，兩邊一起看結果。"
+    },
+    {
+      "show": "claude",
+      "chapter": "第一輪：從問題設計事件",
+      "narration": "交代的不是「記這些事件」，而是你想回答的問題。"
+    },
+    {
+      "on": "claude",
+      "user": "我想知道：來看商品的人，卡在哪一步沒下單。請依這個問題設計 GA4 事件（用標準名稱），列表給我看，再實作。",
+      "narration": "讓它從問題出發，先列出設計給你看。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "建議記 5 個事件，排成漏斗：\n\n1. `page_view`：進站（已經有）\n2. `view_item`：打開商品頁，帶商品名稱與價格\n3. `add_to_cart`：按「加入購物車」\n4. `begin_checkout`：按「去結帳」，帶金額\n5. `purchase`：付款成功頁，帶訂單編號與金額\n\n其他動作（捲動、停留時間）回答不了這個問題，先不記。",
+      "narration": "它列出五個事件，每個什麼時候記、帶什麼資料，還說明哪些不記、為什麼。"
+    },
+    { "on": "claude", "user": "好，照這樣做。" },
+    {
+      "on": "claude",
+      "edit": "src/analytics.ts",
+      "lines": [
+        [6, "+", "export const track = {"],
+        [7, "+", "  viewItem: (p) => gtag('event', 'view_item', { items: [p], value: p.price }),"],
+        [8, "+", "  addToCart: (p) => gtag('event', 'add_to_cart', { items: [p] }),"],
+        [9, "+", "  beginCheckout: (cart) => gtag('event', 'begin_checkout', { value: cart.total }),"],
+        [10, "+", "  purchase: (o) => gtag('event', 'purchase', { transaction_id: o.id, value: o.total }),"],
+        [11, "+", "}"]
+      ],
+      "narration": "四個新事件寫在同一個檔案，再到各個頁面的按鈕上呼叫。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm test && npm run deploy:staging", "result": "✓ 已部署到測試環境" },
+    {
+      "on": "claude",
+      "say": "已部署到測試環境，偵錯模式已開啟。請你用手機走一次：打開首頁 → 看草莓蛋糕 → 加入購物車 → 去結帳 → 用測試卡付款。走完告訴我，我去查收到的事件。",
+      "narration": "接著換你：用手機實際走一次，從進站走到付款完成。付款用的是金流的測試卡，不會真的扣錢。"
+    },
+    {
+      "show": "web",
+      "chapter": "你走一次，看收到什麼",
+      "narration": "走完之後，打開 GA4 的偵錯檢視，看剛剛收到哪些事件。"
+    },
+    {
+      "callout": "web:section:dup",
+      "text": "begin_checkout 收到兩次",
+      "narration": "有兩個問題。第一，開始結帳記了兩次。這樣漏斗的人數會被灌水。"
+    },
+    {
+      "callout": "web:section:miss",
+      "text": "purchase 沒有收到",
+      "narration": "第二，最重要的完成訂單，沒有收到。漏斗少了最後一層。"
+    },
+    {
+      "on": "claude",
+      "user": "我走完了。偵錯檢視裡 begin_checkout 出現兩次，purchase 沒有收到。",
+      "chapter": "第二輪：找原因、修",
+      "narration": "把看到的告訴 AI。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "beginCheckout",
+      "result": "CartPage.tsx:42（按鈕 onClick）、CheckoutPage.tsx:18（頁面載入時）",
+      "narration": "它查到原因：按鈕按下時記一次，結帳頁打開時又記一次。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "src/pages/PaymentDone.tsx",
+      "result": "付款後由金流導回 /done?order=…；GA 在導回前尚未載入就呼叫 purchase",
+      "narration": "完成訂單沒收到，是因為付款後從金流頁導回來，GA 還沒準備好，程式就先送了。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/CheckoutPage.tsx",
+      "lines": [[18, "-", "  useEffect(() => track.beginCheckout(cart), [])"]],
+      "narration": "第一個問題：只留按鈕那一次。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/PaymentDone.tsx",
+      "lines": [
+        [12, "-", "  track.purchase(order)"],
+        [12, "+", "  whenAnalyticsReady(() => track.purchase(order))   // 等 GA 載入好再送"],
+        [13, "+", "  // 同一張訂單只送一次（重新整理不重複）"],
+        [14, "+", "  onceForOrder(order.id)"]
+      ],
+      "narration": "第二個問題：等 GA 準備好再送，而且同一張訂單只送一次，客人重新整理也不會重複。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm test && npm run deploy:staging", "result": "✓ 已部署" },
+    {
+      "on": "claude",
+      "say": "兩個問題都修好並部署了。請再走一次同樣的流程，這次付款完成後，也按一次重新整理。",
+      "narration": "它請你再走一次，而且多加一個考驗：付款完成後重新整理一次。"
+    },
+    {
+      "on": "web",
+      "site": "fc23-2-debug-2",
+      "chapter": "再走一次",
+      "narration": "你又走了一次。這次五個事件都在，每個剛好一次，重新整理也沒有重複。"
+    },
+    {
+      "callout": "web:section:side",
+      "text": "五個事件，各一次 ✓",
+      "narration": "漏斗需要的事件，全部到齊。"
+    },
+    {
+      "on": "claude",
+      "user": "這次五個都有，各一次。幫我建一條從進站到完成訂單的漏斗。",
+      "chapter": "建出漏斗",
+      "narration": "事件確定都記對了，才請它建漏斗。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/ga-funnel.mjs --steps=page_view,view_item,add_to_cart,begin_checkout,purchase --env=staging",
+      "result": "已建立漏斗「進站到完成訂單」",
+      "out": "page_view 2 → view_item 2 → add_to_cart 2 → begin_checkout 2 → purchase 2（測試資料）",
+      "narration": "漏斗建好了。現在只有你測試的兩次，正式上線一週後，就能看到真正卡在哪一步。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "把你設計的問題交給 AI，請它設計事件並實作到測試環境。你自己走一次流程，到偵錯檢視看事件有沒有少、有沒有重複；有問題就告訴它、再走一次，直到每個事件剛好一次。",
+      "narration": "換你做做看。重點是自己走一次，看事件有沒有少、有沒有重複，來回修到每個剛好一次。"
+    },
+    {
+      "card": "一條從進站到完成目標的漏斗",
+      "eyebrow": "這一課的成果",
+      "sub": "從問題設計事件 · 自己走一次檢查 · 不對就來回修",
+      "narration": "這一課的成果：一條從進站到完成訂單的漏斗。下一課，做一個只有管理員看得到的後台報表。"
+    }
+  ]
+}

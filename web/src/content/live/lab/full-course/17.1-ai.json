@@ -1,0 +1,155 @@
+{
+  "title": "網域是什麼、怎麼挑",
+  "lesson": "全環節 · 單元 17 · 17.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "請 AI 幫你做功課",
+    "line": "這一堂請 AI 幫你做買網域前的功課：查名字有沒有被註冊、比較幾家網域商的價格，整理成一張表讓你選。"
+  },
+  "blocking": { "cast": ["claude", "report"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "挑網域",
+        "folder": "~/Documents/practice/bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "report": {
+      "actor": "browser",
+      "props": { "site": "fc17-1-report", "width": "desktop", "url": "file:///Documents/practice/bakery/domain-report.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "網域是什麼、怎麼挑",
+      "eyebrow": "全環節 · 單元 17 · 17.1 用 AI 完成",
+      "sub": "查名字、比價格，最後由你決定",
+      "chapter": "交代：查什麼、比什麼",
+      "narration": "買網域之前，有兩件功課：名字有沒有人用了，以及在哪一家買比較划算。這兩件都可以交給 AI。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我要幫小森烘焙買網域。請幫我：1. 查 xiaosen.com、xiaosen-bakery.com、xiaosenbakery.com、xiaosen.tw 有沒有被註冊；2. 比較三家網域商的第一年價格、續約價、WHOIS 隱私保護要不要錢。整理成 domain-report.html 給我看，並推薦一個。",
+      "narration": "把候選名字和要比較的項目都列出來，最後請它整理成一頁報告。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "todos": [
+        ["用 whois 查四個名字", "doing"],
+        ["查三家網域商的價格與隱私保護", "pending"],
+        ["整理成 domain-report.html", "pending"]
+      ],
+      "narration": "它先列出要做的事。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "whois xiaosen.com | grep -i -E 'Creation Date|Registrar:'",
+      "result": "完成",
+      "out": "Registrar: Example Registrar, Inc.\nCreation Date: 2014-03-02",
+      "chapter": "查名字",
+      "narration": "whois 是查網域登記資料的指令。xiaosen 點 com，二〇一四年就有人註冊了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for d in xiaosen-bakery.com xiaosenbakery.com xiaosen.tw; do echo \"$d: $(whois $d | grep -c -i -E 'No match|NOT FOUND|No Found')\"; done",
+      "result": "完成",
+      "out": "xiaosen-bakery.com: 1\nxiaosenbakery.com: 1\nxiaosen.tw: 1",
+      "narration": "另外三個都查無登記，代表還沒人註冊，可以買。"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["用 whois 查四個名字", "done"],
+        ["查三家網域商的價格與隱私保護", "doing"],
+        ["整理成 domain-report.html", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "WebSearch",
+      "arg": ".com 網域 註冊 續約 價格 WHOIS 隱私",
+      "result": "完成",
+      "chapter": "比價格",
+      "narration": "接著上網查各家網域商的價格頁。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "三家網域商的 .com 價格頁",
+      "result": "完成",
+      "out": "甲：首年 330／續約 360／隱私免費\n乙：首年 350／續約 350／隱私免費／DNS API\n丙：首年 99／續約 690／隱私每年 +300"
+    },
+    {
+      "on": "claude",
+      "ask": "domain-report.html",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/bakery",
+      "preview": "<h1>小森烘焙：網域候選與網域商比較</h1>\n<h2>① 名稱查詢</h2>\n<table>…"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "domain-report.html",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "todos": [
+        ["用 whois 查四個名字", "done"],
+        ["查三家網域商的價格與隱私保護", "done"],
+        ["整理成 domain-report.html", "done"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "報告做好了，推薦 **xiaosen-bakery.com** ＋ **網域商乙**：和店名一致；乙的續約價不漲、隱私保護免費，還能用 API 管 DNS，之後交給我設定比較方便。\n價格是今天查到的，結帳前請再看一次金額。"
+    },
+    {
+      "show": "report",
+      "chapter": "看報告，你來決定",
+      "narration": "打開報告看看。上面是名字查詢，綠色是可以註冊的。"
+    },
+    {
+      "on": "report",
+      "scroll": "vendors",
+      "narration": "下面是網域商比較。"
+    },
+    {
+      "callout": "report:sel:.warn",
+      "text": "丙第一年 99 元，續約 690 元，隱私還要另外付",
+      "narration": "注意網域商丙：第一年只要九十九元，可是續約六百九十元，隱私保護每年還要再加三百。三年下來最貴。"
+    },
+    {
+      "callout": "report:sel:#vendors .pick",
+      "text": "AI 推薦乙：續約不漲、隱私免費、可用 API",
+      "narration": "AI 推薦乙，理由也寫得很清楚。不過最後決定的是你：如果你更喜歡別的名字，就請它照你的選擇調整。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：請 AI 幫你挑網域",
+      "body": "列出三到四個你喜歡的名字，請 AI 用 whois 查有沒有被註冊，並比較三家網域商的第一年、續約價與隱私保護，整理成一頁報告。最後由你決定名字和網域商。"
+    },
+    { "hide": "report" },
+    {
+      "card": "AI 查資料、整理比較\n你決定名字和網域商",
+      "eyebrow": "學會",
+      "sub": "whois 查有沒有被註冊；比續約價與隱私保護",
+      "chapter": "學會",
+      "narration": "AI 用 whois 查名字、上網比價格，整理成一頁報告；你看過後決定名字和網域商。下一堂，就去把它買下來。"
+    }
+  ]
+}

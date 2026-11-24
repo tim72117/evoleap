@@ -1,0 +1,21 @@
+<!doctype html><html><head><title>紀錄查詢</title></head><body>
+<div class="bar"><span class="lg"></span>示意雲端主控台<span class="crumb">/ 紀錄查詢</span></div>
+<div class="pg">
+<div class="q" id="query"><span class="ql">查詢</span><code id="qtext">resource.type="cloud_run_revision"</code></div>
+<div class="chips" id="chips"><span class="chip on" id="f-all">全部</span><span class="chip c-info">INFO 資訊</span><span class="chip c-warn">WARNING 警告</span><span class="chip c-err" id="f-error">ERROR 錯誤</span><span class="chip" id="f-path">只看 /api/checkout</span><span class="count" id="count">顯示 12 筆</span></div>
+<div class="rows" id="rows">
+<div class="r info"><b>INFO</b><time>20:14:02</time><span>GET / 200 · 38ms</span></div>
+<div class="r info"><b>INFO</b><time>20:14:05</time><span>GET /menu 200 · 41ms</span></div>
+<div class="r warn"><b>WARN</b><time>20:14:09</time><span>圖片 cake-07.jpg 超過 2MB，載入較慢</span></div>
+<div class="r err co" id="e1"><b>ERROR</b><time>20:14:11</time><span>POST /api/checkout 500 · TypeError: 無法讀取 delivery.fee</span></div>
+<div class="r info"><b>INFO</b><time>20:14:12</time><span>GET /about 200 · 35ms</span></div>
+<div class="r info co"><b>INFO</b><time>20:14:15</time><span>POST /api/checkout 200 · 210ms</span></div>
+<div class="r err"><b>ERROR</b><time>20:14:20</time><span>寄送訂單確認信失敗：郵件服務逾時</span></div>
+<div class="r info"><b>INFO</b><time>20:14:22</time><span>GET /menu 200 · 40ms</span></div>
+<div class="r err co"><b>ERROR</b><time>20:14:31</time><span>POST /api/checkout 500 · TypeError: 無法讀取 delivery.fee</span></div>
+<div class="r warn"><b>WARN</b><time>20:14:33</time><span>登入嘗試失敗 3 次（同一個 IP）</span></div>
+<div class="r info"><b>INFO</b><time>20:14:40</time><span>GET / 200 · 36ms</span></div>
+<div class="r err co"><b>ERROR</b><time>20:14:52</time><span>POST /api/checkout 500 · TypeError: 無法讀取 delivery.fee</span></div>
+</div>
+<div class="keep" id="keep"><b>保留期限</b><div class="tl"><div class="seg s1">30 天：可以查</div><div class="seg s2">之後自動刪除</div></div><span class="kn">預設 30 天；要留更久要另外設定，也會多花錢</span></div>
+</div></body></html>

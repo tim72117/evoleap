@@ -1,0 +1,172 @@
+{
+  "title": "上線前請 AI 做安全審查",
+  "lesson": "全環節 · 單元 15 · 15.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "請一個沒看過程式的 AI 來驗",
+    "line": "這一堂開兩個 AI 工作階段：一個是寫程式的，一個是新開的審查者，沒看過實作。審查者找問題、分級，寫程式的負責修，來回幾輪，直到審查通過。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "shop 開發", "folder": "~/projects/shop", "branch": "release/1.0", "mode": "auto", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "上線前請 AI 做安全審查",
+      "eyebrow": "全環節 · 單元 15 · 15.4 用 AI 完成",
+      "sub": "新開審查者（只讀）→ 報告 → 原本的 AI 修 → 審查者複查",
+      "chapter": "開一個新的審查者",
+      "narration": "原本的工作階段，是一路陪你寫網站的 AI。它知道你「打算」怎麼做，所以也最容易看不到實際的漏洞。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "newSession": "安全審查",
+      "branch": "release/1.0",
+      "narration": "新開一個工作階段，叫安全審查。它沒有看過之前的對話，就像請外面的驗屋師來。"
+    },
+    {
+      "on": "claude",
+      "mode": "plan",
+      "narration": "把它切成規劃模式，只能讀、不能改。審查者只負責找問題，不動手修。"
+    },
+    {
+      "on": "claude",
+      "user": "你是安全審查者，沒看過這個專案的實作。請照這份清單審查整個專案：登入與權限、輸入（XSS、SQL 注入、上傳）、機密、套件、錯誤訊息、設定（HTTPS、Cookie、管理後台）、個資。每個問題寫出：在哪個檔案、怎麼重現、風險等級（嚴重／高／中／低，依影響 × 可能性）、建議怎麼修。只讀，不要改任何檔案。",
+      "chapter": "第一輪審查",
+      "narration": "交代審查者：照清單看，每個問題寫出在哪裡、怎麼重現、風險等級、建議怎麼修。而且只讀不改。"
+    },
+    { "on": "claude", "tool": "Glob", "arg": "src/**/*", "result": "找到 61 個檔案", "narration": "它從頭讀起整個專案。" },
+    { "on": "claude", "tool": "Read", "arg": "src/api/orders.ts", "result": "已讀取 88 行" },
+    { "on": "claude", "tool": "Read", "arg": "src/server.ts", "result": "已讀取 142 行" },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "res\\.status\\(500\\)",
+      "result": "3 處",
+      "out": "src/server.ts:120   res.status(500).json({ error: err.message, stack: err.stack })\nsrc/api/upload.ts:31 res.status(500).send(err.stack)\nsrc/api/orders.ts:70 res.status(500).json({ error: err.message })"
+    },
+    {
+      "on": "claude",
+      "say": "安全審查報告（第 1 輪）\n\n1. **嚴重**：`GET /api/orders/:id` 沒有檢查訂單是不是登入者的。重現：用 A 帳號登入，打開 B 的訂單編號 → 看得到 B 的姓名、地址\n2. **高**：錯誤時回傳 `err.stack`（server.ts:120、upload.ts:31），洩漏程式結構\n3. **高**：管理後台 `/admin` 只有密碼，沒有兩步驟驗證\n4. **低**：登入 Cookie 少了 `secure`（目前全站 HTTPS，可能性低）\n\n建議：1–3 上線前修；4 記錄，順手修。",
+      "narration": "第一輪報告：一個嚴重、兩個高、一個低，每一個都有位置和重現方法。注意第一個：前面加過「只看自己的訂單」，可是單看一筆訂單的入口漏了。寫程式的 AI 以為已經處理過了。"
+    },
+    {
+      "on": "claude",
+      "session": "shop 開發",
+      "chapter": "交給原本的 AI 修",
+      "narration": "切回原本寫程式的工作階段。"
+    },
+    {
+      "on": "claude",
+      "user": "另一個審查者的報告如下，請存成 docs/security-review.md，並修正 1–3（嚴重與高），第 4 項順手修。每一項都加一個測試，照報告裡的重現方法寫。\n\n（貼上第 1 輪報告）",
+      "narration": "把報告貼過來，請它存檔、修正，而且每一項都照報告的重現方法寫成測試。"
+    },
+    {
+      "on": "claude",
+      "todos": [["1 嚴重：單筆訂單檢查擁有者", "doing"], ["2 高：錯誤不回傳 stack", "pending"], ["3 高：後台兩步驟驗證", "pending"], ["4 低：Cookie secure", "pending"]]
+    },
+    {
+      "on": "claude",
+      "edit": "src/api/orders.ts",
+      "lines": [[22, " ", "  const order = await db.orders.find(req.params.id)"], [23, "+", "  if (!order || order.userId !== req.user.id) return res.sendStatus(404)"]]
+    },
+    {
+      "on": "claude",
+      "edit": "src/server.ts",
+      "lines": [[120, "-", "  res.status(500).json({ error: err.message, stack: err.stack })"], [120, "+", "  log.error(err) // 細節只寫進紀錄"], [121, "+", "  res.status(500).json({ error: '系統忙碌，請稍後再試' })"]]
+    },
+    {
+      "on": "claude",
+      "edit": "src/admin/auth.ts",
+      "lines": [[9, "+", "router.use(requireTwoFactor) // 後台登入後要再輸入驗證碼"]]
+    },
+    {
+      "on": "claude",
+      "todos": [["1 嚴重：單筆訂單檢查擁有者", "done"], ["2 高：錯誤不回傳 stack", "done"], ["3 高：後台兩步驟驗證", "done"], ["4 低：Cookie secure", "done"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test && npx playwright test tests/security",
+      "result": "全部通過",
+      "out": " ✓ A 帳號打開 B 的訂單 → 404\n ✓ 伺服器錯誤時不回傳 stack\n ✓ /admin 沒有驗證碼 → 導向兩步驟驗證\n ✓ 登入 Cookie 有 secure、httpOnly\n Tests  50 passed",
+      "narration": "四項都改好，測試也照重現方法寫好、通過了。"
+    },
+    {
+      "on": "claude",
+      "session": "安全審查",
+      "chapter": "第二輪：複查",
+      "narration": "回到審查者。不要相信「修好了」，請它複查。"
+    },
+    {
+      "on": "claude",
+      "user": "開發者說 1–4 都修好了。請複查：每一項照你的重現方法再試一次，也看看修改有沒有帶來新的問題。一樣只讀不改。",
+      "narration": "請它照自己的重現方法再試一次，也看看修改有沒有帶來新問題。"
+    },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "err\\.stack",
+      "result": "還有 1 處",
+      "out": "src/api/upload.ts:31  res.status(500).send(err.stack)"
+    },
+    {
+      "on": "claude",
+      "say": "複查結果（第 2 輪）\n- 1 ✓ 已修好\n- 2 ✗ **只修了一半**：server.ts 已修，`upload.ts:31` 上傳失敗時還是回傳 stack\n- 3 ✓ 已修好\n- 4 ✓ 已修好\n- 新問題：無",
+      "narration": "審查者抓到：第二項只修了一半。報告裡寫了兩個位置，開發者只改了一個。這就是複查的價值。"
+    },
+    { "on": "claude", "session": "shop 開發", "chapter": "第三輪" },
+    {
+      "on": "claude",
+      "user": "複查說第 2 項只修了一半：upload.ts:31 上傳失敗時還會回傳 stack。請修好，並讓測試也涵蓋上傳的錯誤。",
+      "narration": "把複查結果交回去。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/api/upload.ts",
+      "lines": [[31, "-", "  res.status(500).send(err.stack)"], [31, "+", "  next(err) // 交給統一的錯誤處理，不回傳細節"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright test tests/security",
+      "result": "通過",
+      "out": " ✓ 伺服器錯誤時不回傳 stack（一般請求、上傳）\n 5 passed"
+    },
+    {
+      "on": "claude",
+      "edit": "docs/security-review.md",
+      "lines": [[30, "+", "## 修正紀錄"], [31, "+", "- 第 1 輪：發現 嚴重 1、高 2、低 1"], [32, "+", "- 第 2 輪複查：第 2 項只修了一半（upload.ts）"], [33, "+", "- 第 3 輪：全部修正，複查通過，各項皆有測試"]],
+      "narration": "它把修正紀錄寫進報告：每一輪發現了什麼、改了什麼。"
+    },
+    { "on": "claude", "session": "安全審查" },
+    {
+      "on": "claude",
+      "user": "upload.ts 也修了，請最後複查一次。",
+      "narration": "最後一次複查。"
+    },
+    {
+      "on": "claude",
+      "say": "複查結果（第 3 輪）：1–4 全部修好，重現方法都已失效，沒有發現新問題。**審查通過**，可以上線。",
+      "narration": "審查通過。報告和修正紀錄，都留在專案裡。"
+    },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：請另一個 AI 審查",
+      "body": "新開一個工作階段，切成只讀的模式，請它照清單審查並分級；把報告貼給原本的 AI 修正並加測試；再回到審查者複查，直到通過。"
+    },
+    {
+      "card": "寫的人不審自己\n審查者只讀、分級\n修完一定要複查",
+      "eyebrow": "學會",
+      "sub": "報告與修正紀錄留在專案裡，下次審查有依據",
+      "chapter": "學會",
+      "narration": "上線前的安全審查：寫的人不審自己；審查者只讀、分級；修完一定要複查。報告和修正紀錄留在專案裡，下次審查就有依據。"
+    }
+  ]
+}

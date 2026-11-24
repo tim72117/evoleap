@@ -1,0 +1,125 @@
+{
+  "title": "網域：網站的門牌",
+  "lesson": "全環節 · 單元 17 · 17.1 基礎知識",
+  "teacher": {
+    "say": "幫網站取個好名字",
+    "line": "想讓客人記得你的網站，就需要一個自己的網域。今天看懂網域的每一段在說什麼，還有買之前最容易忽略的：續約價。"
+  },
+  "cast": {
+    "map": {
+      "actor": "browser",
+      "props": { "site": "fc17-1-anatomy", "width": "desktop", "url": "https://learn.example/diagram/domain" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "網域：網站的門牌",
+      "eyebrow": "全環節 · 單元 17 · 17.1 基礎知識",
+      "sub": "網域、頂級網域、網域商與續約價",
+      "chapter": "數字太難記",
+      "narration": "先考考你的記憶力。"
+    },
+    {
+      "on": "fx",
+      "shimmer": "185.199.108.153",
+      "sub": "這是網站主機的地址。記得住嗎？",
+      "narration": "網路上每台主機都有一個地址，叫 IP 位址，長得像這樣一串數字。要客人記住這個，太難了。",
+      "pause": 600
+    },
+    { "on": "fx", "clear": true },
+    {
+      "show": "map",
+      "chapter": "從右邊讀到左邊",
+      "narration": "所以我們幫這串數字取一個好記的名字，就是網域，像網站的門牌。讀網域要從右邊讀到左邊，越右邊越大。"
+    },
+    {
+      "on": "map",
+      "click": "#b1",
+      "narration": "最右邊是頂級網域。點 com 最常見，台灣的有點 tw、點 com 點 tw，也有點 shop、點 app 這些新的。"
+    },
+    {
+      "on": "map",
+      "click": "#b2",
+      "narration": "中間是你取的名字。名字加上頂級網域，例如 xiaosen-bakery 點 com，就是你要買的網域。全世界只有一個人能擁有它。"
+    },
+    {
+      "on": "map",
+      "click": "#b3",
+      "narration": "買了之後，最左邊還能自己加子網域，例如 shop、www，不用再花錢。之後的課會用到。"
+    },
+    {
+      "on": "map",
+      "click": "#b4",
+      "chapter": "去哪裡買？",
+      "narration": "網域要去哪裡買？每個頂級網域，都有一個管理機構保管總名冊；你不會直接跟它買，而是透過網域商，像代售的店家。"
+    },
+    {
+      "callout": "map:sel:.wide",
+      "text": "網域不是買斷，是按年租用",
+      "narration": "要特別記得：網域不是一次買斷，是按年租用。每年都要續約，不續約，名字就會被收回。"
+    },
+    {
+      "on": "map",
+      "click": "#b5",
+      "chapter": "看續約價",
+      "narration": "所以挑網域時，要看兩個價格：第一年，和續約。"
+    },
+    {
+      "callout": "map:sel:.bars .row:nth-child(2)",
+      "text": "第一年特價 60 元，續約要 1,200 元",
+      "narration": "看這一行：第一年只要六十元，很吸引人，可是續約要一千兩百元。你會用很多年，真正要比的是續約價。"
+    },
+    {
+      "chapter": "挑一個名字",
+      "checkpoint": "小森烘焙要挑網域，下面哪一個最適合？",
+      "body": "想想：好不好記、好不好唸給別人聽、會不會打錯。",
+      "id": "name",
+      "options": [
+        {
+          "label": "xiaosen-bakery.com",
+          "steps": [
+            {
+              "card": "好選擇！",
+              "eyebrow": "挑一個名字",
+              "sub": "和店名一致、常見的 .com、唸給別人聽也不容易打錯",
+              "narration": "好選擇。和店名一致，用常見的點 com，唸給別人聽也不容易打錯。"
+            }
+          ]
+        },
+        {
+          "label": "xs-bkry-2026.shop",
+          "steps": [
+            {
+              "card": "太難記了",
+              "eyebrow": "再想想",
+              "sub": "縮寫、數字、加上續約價可能很貴的頂級網域",
+              "narration": "縮寫加數字很難記，點 shop 的續約價也可能很貴。名字要讓客人聽一次就記得。"
+            }
+          ]
+        },
+        {
+          "label": "xiaosenbakeryshoptaiwan.com",
+          "steps": [
+            {
+              "card": "太長了",
+              "eyebrow": "再想想",
+              "sub": "越長越容易打錯，名片也放不下",
+              "narration": "太長了，越長越容易打錯，名片也放不下。短一點、和店名一致比較好。"
+            }
+          ]
+        }
+      ]
+    },
+    { "hide": "map" },
+    {
+      "card": "短、好唸、和店名一致\n比續約價，不只比第一年",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：IP 位址、網域、頂級網域、子網域、網域商、續約",
+      "chapter": "學會",
+      "narration": "名字要短、好唸、和店名一致；價格要比續約價，不只比第一年。下一堂，請 AI 幫你查名字有沒有被註冊，並比較幾家網域商。"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#f5f6f8;color:#1f2933}
+.top{display:flex;align-items:center;gap:14px;padding:14px 28px;background:#24292f;color:#fff;font-weight:700}
+.top .logo{width:30px;height:30px;border-radius:8px;background:#6e7681;display:grid;place-items:center;font-size:16px}
+.top .repo{opacity:.85;font-weight:600}
+.tabs{display:flex;gap:26px;padding:0 28px;background:#fff;border-bottom:1px solid #d8dee4;font-size:15px}
+.tabs span{padding:14px 0;color:#57606a}
+.tabs .on{color:#1f2933;font-weight:700;border-bottom:3px solid #fd8c73}
+.wrap{display:grid;grid-template-columns:300px 1fr;gap:24px;padding:24px 28px}
+.side{background:#fff;border:1px solid #d8dee4;border-radius:10px;padding:14px}
+.side h3{margin:4px 6px 12px;font-size:14px;color:#57606a}
+.job{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer}
+.job.sel{background:#eef2f7}
+.st{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800}
+.ok{background:#2da44e}.bad{background:#cf222e}.skip{background:#afb8c1}.run{background:#bf8700}
+.main{background:#fff;border:1px solid #d8dee4;border-radius:10px;padding:20px 24px}
+.head{display:flex;align-items:center;gap:14px}
+.head h1{font-size:24px;margin:0}
+.tag{font-family:Menlo,monospace;background:#ddf4ff;color:#0969da;padding:3px 10px;border-radius:20px;font-size:14px}
+.meta{color:#57606a;font-size:14px;margin:8px 0 18px}
+.graph{display:flex;align-items:center;gap:0;margin:8px 0 20px}
+.box{border:2px solid #d8dee4;border-radius:10px;padding:12px 18px;display:flex;gap:10px;align-items:center;font-weight:700;background:#fff}
+.box.b-bad{border-color:#cf222e;background:#fff5f5}.box.b-ok{border-color:#2da44e;background:#f3fbf5}.box.b-skip{opacity:.55}
+.line{width:56px;height:3px;background:#d8dee4}
+.log{display:none;background:#0d1117;color:#c9d1d9;font-family:Menlo,monospace;font-size:14px;line-height:1.7;border-radius:8px;padding:14px 18px}
+.log.open{display:block}
+.log .e{color:#ff7b72}.log .d{color:#8b949e}.log .g{color:#7ee787}
+.hint{color:#57606a;font-size:14px}

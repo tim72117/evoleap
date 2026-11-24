@@ -1,0 +1,97 @@
+{
+  "title": "聊太久，AI 會忘記前面說好的事",
+  "lesson": "全環節 · 單元 30 · 30.4 基礎知識",
+  "teacher": {
+    "say": "今天聊「AI 為什麼會忘記」",
+    "line": "你有沒有遇過，跟 AI 聊了很久之後，它突然忘了前面說好的事？這一課看看為什麼，還有怎麼用一張摘要解決。"
+  },
+  "camera": "auto",
+  "cast": {
+    "pile": { "actor": "notes", "props": { "label": "今天和 AI 說好的事" }, "place": "window", "hidden": true },
+    "web": { "actor": "browser", "props": { "site": "fc30-4-window", "url": "https://notes.example/ai-desk" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "聊太久，AI 會忘記前面說好的事",
+      "eyebrow": "全環節 · 單元 30 · 30.4 基礎知識",
+      "sub": "對話太長時：摘要與接續",
+      "chapter": "一疊越來越高的便條",
+      "narration": "先用一疊便條紙來想像。"
+    },
+    {
+      "show": "pile",
+      "narration": "早上你和 AI 開始改網站，先說好幾件事。"
+    },
+    { "on": "pile", "jot": "主色用深綠", "narration": "主色用深綠。" },
+    { "on": "pile", "jot": "不要改到結帳頁", "narration": "不要改到結帳頁。" },
+    { "on": "pile", "jot": "修 header 間距" },
+    { "on": "pile", "jot": "貼了一大段錯誤訊息", "narration": "接著你們修東修西，貼錯誤訊息、讀檔案、改檔案，" },
+    { "on": "pile", "jot": "讀了 12 個檔案" },
+    { "on": "pile", "jot": "又貼一段錯誤訊息", "narration": "便條越疊越高。" },
+    {
+      "on": "pile",
+      "lose": "不要改到結帳頁",
+      "narration": "然後，最早那張「不要改到結帳頁」，從桌邊滑下去了。"
+    },
+    {
+      "callout": "pile:floor",
+      "text": "最早說好的事，最容易被擠掉",
+      "narration": "對話越長，AI 越容易忘記前面的決定。它不是故意的，是它一次能看的東西有限。"
+    },
+    { "hide": "pile" },
+    {
+      "show": "web",
+      "chapter": "AI 的工作桌",
+      "narration": "把它畫成一張工作桌。AI 每次回答，都要把整段對話攤在這張桌上看。桌子大小是固定的。"
+    },
+    {
+      "callout": "web:section:m1",
+      "text": "黃色便條：你們做過的決定",
+      "narration": "黃色這兩張，是你們做過的決定。"
+    },
+    { "on": "web", "click": "#more1", "narration": "再聊一陣子，桌上多了東西。" },
+    { "on": "web", "click": "#more2", "narration": "再聊更久，最左邊那張決定，被擠到邊邊，快看不清楚了。" },
+    { "on": "web", "click": "#more3", "narration": "聊到很長，兩張決定都快看不見了。這時候你說「順便調一下結帳頁」，AI 已經想不起來，你早上說過不准動它。" },
+    {
+      "callout": "web:sel:.fall",
+      "text": "不是 AI 變笨，是桌子滿了",
+      "narration": "要記住：這不是 AI 變笨，是桌子滿了。"
+    },
+    {
+      "on": "web",
+      "click": "#fix",
+      "chapter": "摘要＋新對話",
+      "narration": "怎麼辦？在桌子滿之前，請 AI 把重要的東西寫成一張摘要，然後開一個新對話，從乾淨的桌子帶著摘要繼續。"
+    },
+    { "hide": "web" },
+    {
+      "diff": "PROGRESS.md（進度摘要）",
+      "lines": [["+", "## 目前進度：header 改好了，商品頁做一半"], ["+", "## 決定：主色深綠 #2f5d46；不要改結帳頁"], ["+", "## 待辦：商品頁的價格排版、手機版檢查"], ["+", "## 注意：npm test 有一個舊測試本來就會失敗"]],
+      "narration": "一張好的摘要有四塊：目前做到哪、做過哪些決定、還有什麼待辦、要注意的地方。"
+    },
+    {
+      "arrow": { "from": [1500, 300], "to": [1260, 420] },
+      "label": "最容易忘的是「決定」",
+      "narration": "最重要的是決定這一塊，因為那是最容易被忘掉、又最難從程式碼看出來的。"
+    },
+    { "clear": true },
+    {
+      "card": "什麼時候該換新對話？",
+      "eyebrow": "三個訊號",
+      "sub": "AI 開始重複問過的問題 · 違反說好的事 · 一件事做完要換下一件",
+      "narration": "什麼時候該換？三個訊號：AI 開始重複問你答過的問題、違反你們說好的事，或者一件事做完、要換下一件。"
+    },
+    {
+      "checkpoint": "想想看",
+      "body": "回想你最近一次和 AI 的長對話：裡面有哪些「決定」，如果開新對話，你會想寫進摘要？",
+      "narration": "想想看，你最近一次跟 AI 的長對話裡，有哪些決定，你會想寫進摘要？"
+    },
+    {
+      "card": "下一堂：請 AI 寫摘要、開新對話接著做",
+      "eyebrow": "30.4 用 AI 完成",
+      "sub": "摘要存成檔案，新對話一讀就接上",
+      "narration": "下一堂，我們請 AI 把摘要寫成檔案，開新對話，看它能不能無縫接上。"
+    }
+  ]
+}

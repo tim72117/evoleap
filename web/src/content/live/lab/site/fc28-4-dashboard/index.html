@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>金流後台 · Webhook</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>金流後台<span class="sp"></span><span class="mode" id="mode">測試模式</span><span class="who">小森烘焙</span></div>
+<div class="shell">
+ <div class="side"><div class="it">付款</div><div class="it">客戶</div><div class="it act" id="m-dev">開發者 › Webhook</div></div>
+ <div class="main">
+  <div class="sw"><span>環境：</span><span class="tb act" id="env-test">測試</span><span class="tb" id="env-live">正式</span></div>
+  <div class="ttl s">Webhook 端點</div>
+  <table class="t card" id="list"><tr><th>網址</th><th>事件</th><th>狀態</th></tr><tr id="empty"><td colspan="3" class="muted">還沒有端點</td></tr></table>
+  <button class="btn" id="add" data-show="form">＋ 新增端點</button>
+  <div id="form" class="card gone">
+   <label class="field"><span>端點網址</span><input id="url" class="mono"></label>
+   <label class="field"><span>要接收的事件</span><select id="ev"><option value="">選擇事件</option><option>payment.succeeded</option><option>payment.failed</option><option>subscription.canceled</option></select></label>
+   <button class="btn green" id="save">儲存</button>
+  </div>
+  <div id="secret" class="card gone"><b>簽章密鑰</b>：<span class="mono">whsec_••••••••••••</span> <span class="btn ghost sm" id="reveal">顯示</span><div class="muted">這把鑰匙請自己貼進 .env，不要貼到對話裡</div></div>
+  <div id="test" class="gone"><button class="btn ghost" id="send">傳送測試事件</button> <span id="tres" class="pill"></span></div>
+ </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+{
+  "title": "明明裝好了，為什麼找不到指令",
+  "camera": "auto",
+  "teacher": {
+    "say": "電腦去哪裡找指令？",
+    "line": "你打一個指令，電腦是去哪裡把那個程式找出來的？今天認識 PATH，順便破解最常見的錯誤：找不到指令。"
+  },
+  "cast": {
+    "term": {
+      "actor": "fc1-terminal",
+      "props": {
+        "os": "mac",
+        "cwd": "~"
+      },
+      "place": {
+        "x": 260,
+        "y": 160,
+        "w": 1400,
+        "h": 700
+      },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "fc2-3-path",
+        "url": "https://course.example/explain/path"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "明明裝好了，為什麼找不到？",
+      "eyebrow": "全環節 · 單元 2 · 2.3 基礎知識",
+      "sub": "PATH：電腦找指令的清單",
+      "chapter": "一個熟悉的錯誤",
+      "narration": "先看一個你很可能遇過的情況。"
+    },
+    {
+      "show": "term"
+    },
+    {
+      "on": "term",
+      "type": "node -v",
+      "out": "zsh: command not found: node",
+      "tone": "err",
+      "narration": "剛裝好 Node.js，馬上打 node -v，它卻說找不到指令。明明裝好了啊？"
+    },
+    {
+      "hide": "term"
+    },
+    {
+      "show": "web",
+      "chapter": "PATH 是一張抽屜清單",
+      "narration": "要懂這件事，先看電腦怎麼找指令。"
+    },
+    {
+      "callout": "web:sel:.grow",
+      "text": "PATH：要去翻的資料夾，有先後順序",
+      "narration": "你打的指令，其實是某個資料夾裡的一個程式。電腦手上有一張清單，叫做 PATH，列著要去哪幾個資料夾找，像一排抽屜，從上往下翻。"
+    },
+    {
+      "on": "web",
+      "click": "#f-node",
+      "narration": "打 node：電腦翻第一個抽屜，找到了，就執行它。"
+    },
+    {
+      "on": "web",
+      "click": "#f-foo",
+      "chapter": "找不到的三個原因",
+      "narration": "原因一，打錯字。打成 nodee，每個抽屜都翻過了，都沒有，就說找不到。"
+    },
+    {
+      "on": "web",
+      "click": "#f-new",
+      "narration": "原因二，剛裝好、還沒重開。終端機在打開的那一刻，就把 PATH 抄了一份帶在身上。裝好新工具之前就開著的終端機，手上的還是舊清單。"
+    },
+    {
+      "callout": "web:sel:.r-new",
+      "text": "關掉終端機重開，就會重新讀一次",
+      "narration": "解法很簡單：關掉終端機重開，它就會重新讀一次 PATH。"
+    },
+    {
+      "card": "原因三：裝了，但裝在清單外面",
+      "sub": "程式放的資料夾不在 PATH 上 → 要把那個資料夾加進設定檔（例如 ~/.zshrc）",
+      "narration": "原因三，程式裝在 PATH 清單以外的資料夾。這時要把那個資料夾加進設定檔，這件事下一堂交給 AI 檢查。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "show": "term",
+      "chapter": "親眼看看你的 PATH",
+      "narration": "回到終端機，看看你自己的 PATH。"
+    },
+    {
+      "on": "term",
+      "type": "echo $PATH",
+      "out": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+      "narration": "echo 錢字號 PATH，印出這個終端機手上的清單。資料夾之間用冒號隔開，從左邊開始找。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "清單裡沒有 /opt/homebrew/bin",
+      "narration": "仔細看，Node.js 裝在 /opt/homebrew/bin，可是這份清單裡沒有它。因為這個終端機是在安裝之前打開的。"
+    },
+    {
+      "on": "term",
+      "restart": true,
+      "narration": "現在把終端機關掉，重開一個。"
+    },
+    {
+      "on": "term",
+      "type": "echo $PATH",
+      "out": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+      "narration": "新的終端機重新讀了一次設定，清單最前面多了 /opt/homebrew/bin。"
+    },
+    {
+      "on": "term",
+      "type": "node -v",
+      "out": "v24.11.1",
+      "tone": "ok",
+      "narration": "再打一次 node -v，這次找到了。"
+    },
+    {
+      "on": "term",
+      "type": "which node",
+      "out": "/opt/homebrew/bin/node",
+      "narration": "想知道它在哪個抽屜，就打 which node。Windows 用 where node。"
+    },
+    {
+      "checkpoint": "想一想：剛用安裝程式裝好 git，終端機卻說 command not found: git。先做什麼？",
+      "body": "先檢查有沒有打錯字，然後把終端機關掉重開，再試一次。還是不行，就用 which（Windows 用 where）查，並請 AI 檢查 PATH。"
+    },
+    {
+      "card": "找不到指令：打錯字？沒重開？不在 PATH？",
+      "eyebrow": "2.3 重點",
+      "sub": "which／where 查指令在哪；echo $PATH 看清單",
+      "narration": "找不到指令時問三件事：有沒有打錯字、終端機重開了沒、程式在不在 PATH 上。which 或 where 查位置，echo 錢字號 PATH 看清單。"
+    }
+  ]
+}

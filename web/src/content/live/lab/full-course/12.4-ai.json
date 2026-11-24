@@ -1,0 +1,131 @@
+{
+  "title": "排程工作",
+  "lesson": "全環節 · 單元 12 · 12.4 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "teacher": {
+    "say": "設好鬧鐘，還要看到它真的響",
+    "line": "這一堂請 AI 設定一個每天早上九點寄日報的雲端排程。設好不算完成，要在紀錄裡看到它真的執行過，才算數。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "每日訂單日報", "folder": "~/projects/shop", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc12-4-logs", "width": "desktop", "url": "https://console.example-cloud.com/scheduler?project=shop-prod" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "排程工作",
+      "eyebrow": "全環節 · 單元 12 · 12.4 用 AI 完成",
+      "sub": "設定排程 → 立刻手動跑一次 → 在紀錄裡確認",
+      "chapter": "交代：怎樣算完成",
+      "narration": "排程最怕的是：設好了，以為會跑，其實從來沒跑過。所以這次的完成標準，是在紀錄裡親眼看到它執行。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "每天台灣時間早上 9 點，寄昨天的訂單日報到我的信箱。用雲端排程（Cloud Scheduler）呼叫網站，只有排程能呼叫，別人不能。設好後立刻手動跑一次，在紀錄裡確認成功才算完成。",
+      "narration": "說清楚時間和時區、誰可以呼叫，還有完成標準：手動跑一次，在紀錄裡看到成功。"
+    },
+    {
+      "on": "claude",
+      "todos": [["網站加上 /jobs/daily-report", "doing"], ["只允許排程的服務帳號呼叫", "pending"], ["建立排程：0 9 * * *，Asia/Taipei", "pending"], ["手動跑一次並查紀錄", "pending"]]
+    },
+    {
+      "on": "claude",
+      "edit": "src/jobs/dailyReport.ts",
+      "lines": [[1, "+", "app.post('/jobs/daily-report', requireScheduler, async (req, res) => {"], [2, "+", "  const orders = await db.orders.from(yesterday())"], [3, "+", "  await mail.send(OWNER, `昨天 ${orders.length} 筆訂單`, report(orders))"], [4, "+", "  log.info(`寄出日報：昨天 ${orders.length} 筆訂單`)"], [5, "+", "  res.sendStatus(200)"], [6, "+", "})"]],
+      "narration": "它在網站加上一個「寄日報」的入口，並且只讓排程服務呼叫。每次執行都寫一行紀錄，之後才查得到。"
+    },
+    {
+      "on": "claude",
+      "todos": [["網站加上 /jobs/daily-report", "done"], ["只允許排程的服務帳號呼叫", "done"], ["建立排程：0 9 * * *，Asia/Taipei", "doing"], ["手動跑一次並查紀錄", "pending"]]
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud scheduler jobs create http daily-report --schedule=\"0 9 * * *\" --time-zone=\"Asia/Taipei\" --uri=https://shop.example/jobs/daily-report --oidc-service-account-email=scheduler@shop-prod.iam",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "在雲端建立排程：每天 9:00（台灣時間）",
+      "chapter": "AI 設定排程",
+      "narration": "建立排程的指令。先看三個地方：0 9 星號星號星號是每天九點；時區是 Asia Taipei；最後是用排程專用的帳號呼叫。都對，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud scheduler jobs create http daily-report …",
+      "result": "已建立",
+      "out": "name: daily-report\nschedule: 0 9 * * *\ntimeZone: Asia/Taipei\nstate: ENABLED"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud scheduler jobs run daily-report",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "不等到明天，現在就手動執行一次（會真的寄一封日報給你）",
+      "chapter": "立刻跑一次",
+      "narration": "不用等到明天早上，現在就手動跑一次。這會真的寄一封日報給你，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud scheduler jobs run daily-report", "result": "已觸發" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud logging read 'resource.type=cloud_run_revision AND httpRequest.requestUrl:\"/jobs/daily-report\"' --freshness=10m --limit=3",
+      "result": "找到 1 筆",
+      "out": "2026-11-09 14:12:03  POST /jobs/daily-report  200\n2026-11-09 14:12:03  INFO 寄出日報：昨天 37 筆訂單",
+      "narration": "接著它自己去查紀錄：剛剛那一次，回應 200，代表成功，寄出了昨天三十七筆訂單的日報。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}' -X POST https://shop.example/jobs/daily-report",
+      "result": "403",
+      "out": "403",
+      "narration": "它還多驗證一件事：別人直接呼叫這個網址，會被拒絕，回 403。只有排程能叫得動。"
+    },
+    {
+      "on": "claude",
+      "todos": [["網站加上 /jobs/daily-report", "done"], ["只允許排程的服務帳號呼叫", "done"], ["建立排程：0 9 * * *，Asia/Taipei", "done"], ["手動跑一次並查紀錄", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- 排程：每天 09:00（Asia/Taipei），下次是明天 09:00\n- 手動執行一次：200，紀錄寫著「寄出日報：昨天 37 筆訂單」\n- 別人直接呼叫：403 被拒絕\n\n請看一下信箱有沒有收到日報。之後在主控台的排程頁點「查看紀錄」，就能看到每次執行。",
+      "narration": "它對照標準回報，也告訴你之後去哪裡看紀錄。"
+    },
+    {
+      "show": "web",
+      "chapter": "幾天後，你去看紀錄",
+      "narration": "幾天後，你打開雲端主控台的排程頁。上次執行、結果、下次執行，一眼就看得到。"
+    },
+    { "on": "web", "click": "#showlogs", "narration": "點查看紀錄，每天早上九點一行。" },
+    {
+      "callout": "web:sel:#logs",
+      "text": "每次執行都留下紀錄；失敗的那天也看得到原因",
+      "narration": "注意十一月六號那一行：資料庫連線逾時，失敗了，一分鐘後自動重試成功。有紀錄，出事時才知道發生了什麼。"
+    },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：設一個排程，並親眼看到它執行",
+      "body": "交代時間、時區與誰可以呼叫，請 AI 設定後立刻手動跑一次，再請它查紀錄給你看。"
+    },
+    {
+      "card": "寫明時區 · 立刻跑一次 · 查紀錄",
+      "eyebrow": "學會",
+      "sub": "看到紀錄裡的成功，才算排程設好了",
+      "chapter": "學會",
+      "narration": "設排程三件事：寫明時區、設好立刻跑一次、到紀錄裡確認。看到成功那一行，才算真的設好。"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "title": "Git：程式的存檔點",
+  "camera": "auto",
+  "teacher": {
+    "say": "改壞了也不怕",
+    "line": "玩遊戲之前會先存檔，打輸了就讀檔重來。今天認識 Git 和 GitHub：commit 是存檔點，push 是把存檔放到雲端。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc3-2-git", "url": "https://course.example/explain/git" },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/hello" },
+      "place": { "x": 260, "y": 160, "w": 1400, "h": 700 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "打王之前，先存檔",
+      "eyebrow": "全環節 · 單元 3 · 3.2 基礎知識",
+      "sub": "commit：存檔點　·　push：上傳到雲端",
+      "chapter": "存檔點",
+      "narration": "玩遊戲打大魔王之前，你一定會先存檔。輸了，就讀檔回到存檔的地方。寫程式也需要存檔點，尤其是讓 AI 大改之前。"
+    },
+    {
+      "show": "web",
+      "narration": "上面這條線是你的電腦，下面是 GitHub，一個放程式碼的雲端服務。"
+    },
+    {
+      "on": "web",
+      "click": "#c1",
+      "narration": "首頁做好了，存一個檔。這個動作叫 commit，中文常說提交。"
+    },
+    {
+      "on": "web",
+      "click": "#c2",
+      "narration": "加了營業時間，再存一個。每個存檔點都記著：改了什麼、什麼時候、為什麼。"
+    },
+    {
+      "callout": "web:sel:.lane",
+      "text": "commit 的存檔點，只在你的電腦上",
+      "narration": "注意，到目前為止，這些存檔點都只在你的電腦上。存檔點的整本紀錄，叫做 repository，常簡稱 repo。"
+    },
+    {
+      "on": "web",
+      "click": "#push",
+      "chapter": "push：放到雲端",
+      "narration": "接著按 push，把存檔點複製到 GitHub 上的 repository。"
+    },
+    {
+      "callout": "web:sel:.safe",
+      "text": "電腦壞了，GitHub 上還有",
+      "narration": "現在電腦壞了、被偷了，存檔點都還在雲端。換一台電腦，抓下來就能接著做。"
+    },
+    {
+      "on": "web",
+      "click": "#oops",
+      "chapter": "改壞了就退回",
+      "narration": "某天 AI 幫你改完，網頁整個壞掉了。"
+    },
+    {
+      "on": "web",
+      "click": "#revert",
+      "narration": "沒關係，退回到第二個存檔點。退回本身也會記成一個新的存檔點，所以連「改壞了」這段歷史都留著，隨時查得到。"
+    },
+    { "hide": "web" },
+    {
+      "show": "term",
+      "chapter": "在終端機長什麼樣",
+      "narration": "這些動作在終端機長這樣。"
+    },
+    {
+      "on": "term",
+      "type": "git commit -m \"加營業時間\"",
+      "out": "[main 3f2a1c9] 加營業時間\n 1 file changed, 4 insertions(+)",
+      "narration": "git commit，後面引號裡是這個存檔點的說明。它回報：改了一個檔案，加了四行。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "3f2a1c9：這個存檔點的編號",
+      "narration": "中括號裡那串英數字，是這個存檔點的編號，退回時就用得到。"
+    },
+    {
+      "on": "term",
+      "type": "git push",
+      "out": "To github.com:you/hello.git\n   a1b2c3d..3f2a1c9  main -> main",
+      "narration": "git push，把它送上 GitHub。"
+    },
+    {
+      "checkpoint": "考考你：你 commit 了三次，但一次都沒 push。電腦突然壞了，GitHub 上有這三個存檔點嗎？",
+      "body": "沒有。commit 只存在你的電腦上，要 push 才會到 GitHub。所以做完一段工作，記得 push。"
+    },
+    {
+      "card": "commit 存在電腦，push 才到雲端",
+      "eyebrow": "3.2 重點",
+      "sub": "repository：存檔點的整本紀錄　·　改壞了就退回",
+      "narration": "總結：commit 是存檔點，只在你的電腦；push 才會放上 GitHub。改壞了，就退回上一個存檔點。下一堂請 AI 幫你設定好。"
+    }
+  ]
+}

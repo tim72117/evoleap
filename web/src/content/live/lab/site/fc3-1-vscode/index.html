@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>編輯器的三個區域</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-pick="none">
+<div class="tabs">
+  <button class="tab" id="z1" data-pick="files">① 資料夾（工作區）</button>
+  <button class="tab" id="z2" data-pick="edit">② 編輯區</button>
+  <button class="tab" id="z3" data-pick="term">③ 內建終端機</button>
+</div>
+<div class="ide">
+  <div class="act">📄<br>🔍<br>🧩</div>
+  <div class="zone files" id="zf"><div class="zh">HELLO</div><div class="f">📄 index.html</div><div class="f">🎨 style.css</div><div class="f">📝 notes.md</div></div>
+  <div class="mainz">
+    <div class="zone edit" id="ze"><div class="tabbar"><span class="ftab">index.html</span></div><div class="mono code"><span class="ln">1</span>&lt;!DOCTYPE html&gt;<br><span class="ln">2</span>&lt;h1&gt;Hello！&lt;/h1&gt;<br><span class="ln">3</span>&lt;p&gt;我是新手&lt;/p&gt;</div></div>
+    <div class="zone term" id="zt"><div class="zh">終端機</div><div class="mono">you@mac hello % pwd<br>/Users/you/projects/hello<br>you@mac hello % <span class="cur">▌</span></div></div>
+  </div>
+  <div class="tip t-none">點上面的按鈕，一區一區看</div>
+  <div class="tip t-files">打開的是<b>一整個資料夾</b>：左邊列出裡面所有檔案，這就是工作區</div>
+  <div class="tip t-edit">點左邊的檔案，在這裡打開、修改、存檔</div>
+  <div class="tip t-term">終端機一打開，<b>就站在這個資料夾裡</b>（看 pwd）</div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+{
+  "title": "多個 AI 同時做不同的事",
+  "lesson": "全環節 · 單元 32 · 32.1 用 AI 完成",
+  "teacher": {
+    "say": "開兩個 AI 一起做事",
+    "line": "這一堂開兩個工作階段：一個改菜單頁，一個修頁尾，各用自己的 worktree。兩件都做完，再合併回來。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "bakery", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "多個 AI 同時做不同的事",
+      "eyebrow": "全環節 · 單元 32 · 32.1 用 AI 完成",
+      "sub": "兩個工作階段、兩個 worktree、最後合併",
+      "chapter": "第一個：改菜單頁",
+      "narration": "今天有兩件不相干的事：菜單頁要加三款新品，頁尾的電話號碼要更新。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "newSession": "改菜單頁",
+      "branch": "feat-menu",
+      "narration": "先開一個新的工作階段，給它自己的分支 feat menu。"
+    },
+    {
+      "on": "claude",
+      "user": "在新的 worktree 裡工作，分支 feat-menu。菜單頁加三款新品：檸檬塔 120、肉桂捲 85、抹茶司康 70。只改 src/pages/Menu.tsx 和 data/menu.json，不要碰頁尾。完成條件：npm test 通過、菜單頁看得到三款新品。",
+      "narration": "交代時多一句很重要：只改哪兩個檔案、不要碰頁尾。這樣兩個 AI 就不會改到同一個地方。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git worktree add ../bakery-menu -b feat-menu",
+      "result": "建立工作桌 ../bakery-menu",
+      "narration": "它先拉出一張自己的工作桌，就是另一個資料夾。之後的修改都在那裡。"
+    },
+    {
+      "on": "claude",
+      "todos": [["加三款新品到 menu.json", "doing"], ["菜單頁顯示新品", "pending"], ["跑測試", "pending"]],
+      "narration": "它開始工作。我們不用等它，"
+    },
+    {
+      "on": "claude",
+      "newSession": "修頁尾",
+      "branch": "fix-footer",
+      "chapter": "第二個：修頁尾",
+      "narration": "直接再開第二個工作階段。"
+    },
+    {
+      "on": "claude",
+      "user": "在新的 worktree 裡工作，分支 fix-footer。頁尾的電話改成 02-2345-6789，營業時間改成 8:00–18:00。只改 src/components/Footer.tsx。完成條件：npm test 通過。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git worktree add ../bakery-footer -b fix-footer",
+      "result": "建立工作桌 ../bakery-footer",
+      "narration": "第二位也拉出自己的工作桌。現在兩個 AI 同時在做事。"
+    },
+    { "on": "claude", "in": "改菜單頁", "edit": "data/menu.json", "lines": [[12, "+", "{ \"name\": \"檸檬塔\", \"price\": 120 },"], [13, "+", "{ \"name\": \"肉桂捲\", \"price\": 85 },"], [14, "+", "{ \"name\": \"抹茶司康\", \"price\": 70 }"]], "pause": 0 },
+    {
+      "on": "claude",
+      "edit": "src/components/Footer.tsx",
+      "lines": [[6, "-", "<p>電話 02-2222-0000 · 9:00–17:00</p>"], [6, "+", "<p>電話 02-2345-6789 · 8:00–18:00</p>"]],
+      "narration": "頁尾這邊改了一行。"
+    },
+    { "on": "claude", "in": "改菜單頁", "tool": "Bash", "arg": "npm test", "result": "46 passed", "pause": 0 },
+    { "on": "claude", "in": "改菜單頁", "say": "菜單頁完成：三款新品已加入，測試 46 個通過。只改了 Menu.tsx 與 menu.json。", "pause": 0 },
+    { "on": "claude", "in": "改菜單頁", "state": "ok", "pause": 0 },
+    {
+      "callout": "claude:sessions",
+      "text": "「改菜單頁」的燈變綠：它在背景做完了",
+      "narration": "注意側欄：改菜單頁的燈變綠了。它在背景把事情做完，正在等你看。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "45 passed" },
+    {
+      "on": "claude",
+      "say": "頁尾完成：電話與營業時間已更新，測試 45 個通過。只改了 Footer.tsx。",
+      "narration": "頁尾這邊也做完了。"
+    },
+    {
+      "on": "claude",
+      "session": "改菜單頁",
+      "chapter": "看結果、合併",
+      "narration": "切回去看菜單頁的結果。它說只改了兩個檔案，和你交代的一樣。"
+    },
+    {
+      "on": "claude",
+      "session": "bakery",
+      "narration": "兩件都確認過，回到主要的工作階段，請它合併。"
+    },
+    {
+      "on": "claude",
+      "user": "把 feat-menu 和 fix-footer 合併回 main，合併後跑一次完整測試，再把兩個 worktree 清掉。"
+    },
+    {
+      "on": "claude",
+      "ask": "git merge feat-menu && git merge fix-footer",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "把兩個分支合併回 main"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git merge feat-menu && git merge fix-footer",
+      "result": "兩個都合併成功，沒有衝突",
+      "out": "Merge made by the 'ort' strategy.\n data/menu.json        | 3 +++\n src/pages/Menu.tsx    | 4 ++--\nMerge made by the 'ort' strategy.\n src/components/Footer.tsx | 2 +-",
+      "narration": "兩個分支都合併成功，沒有衝突，因為它們改的是不同檔案。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "46 passed", "narration": "合併後再跑一次完整測試：四十六個全部通過。" },
+    { "on": "claude", "tool": "Bash", "arg": "git worktree remove ../bakery-menu && git worktree remove ../bakery-footer", "result": "工作桌已清掉" },
+    {
+      "on": "claude",
+      "say": "完成：菜單新品與頁尾更新都在 main 上，測試 46 個通過，兩個 worktree 已移除。",
+      "narration": "兩件事同時做完，也合併好了。工作桌用完就收掉。"
+    },
+    {
+      "checkpoint": "換你開兩個",
+      "body": "用上一堂挑的兩件事，各開一個工作階段，交代時寫清楚「只改哪些檔案」與完成條件。兩個都做完、你看過之後，再請 AI 合併並跑一次完整測試。",
+      "narration": "換你試試：兩件事各開一個工作階段，寫清楚只改哪些檔案。都看過之後，再合併、跑完整測試。"
+    }
+  ]
+}

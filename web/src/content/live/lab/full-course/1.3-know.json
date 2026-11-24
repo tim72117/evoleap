@@ -1,0 +1,107 @@
+{
+  "title": "Node.js 和 npm：開發工具的地基",
+  "camera": "auto",
+  "teacher": {
+    "say": "為什麼大家都叫你先裝 Node.js",
+    "line": "很多教學的第一步都是「先裝 Node.js」。今天來看它到底是什麼、跟它一起來的 npm 又負責什麼，還有該選哪一個版本。"
+  },
+  "cast": {
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects" },
+      "place": { "x": 260, "y": 160, "w": 1400, "h": 680 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc1-3-node", "url": "https://course.example/explain/node-npm" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "Node.js 和 npm",
+      "eyebrow": "全環節 · 單元 1 · 1.3 基礎知識",
+      "sub": "從一個常見的錯誤開始",
+      "chapter": "一個常見的錯誤",
+      "narration": "我們從一個很常見的錯誤開始。"
+    },
+    {
+      "show": "term",
+      "narration": "你照著網路上的教學，在終端機打了第一行指令。"
+    },
+    {
+      "on": "term",
+      "type": "npm create vite@latest",
+      "out": "zsh: command not found: npm",
+      "tone": "err",
+      "narration": "結果它說：找不到 npm 這個指令。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "電腦還沒有 npm —— 它跟著 Node.js 一起來",
+      "narration": "意思是電腦上還沒有 npm。而 npm 是跟著 Node.js 一起裝的，所以教學才總是叫你先裝 Node.js。"
+    },
+    { "hide": "term" },
+    {
+      "show": "web",
+      "chapter": "Node.js：讓 JavaScript 離開瀏覽器",
+      "narration": "先說 Node.js。"
+    },
+    {
+      "callout": "web:sel:.br",
+      "text": "以前：JavaScript 只能在瀏覽器裡跑",
+      "narration": "JavaScript 本來是寫給瀏覽器的程式語言，只能在網頁裡跑，因為瀏覽器裡面有一個執行它的引擎。"
+    },
+    {
+      "callout": "web:sel:.nd",
+      "text": "Node.js：把引擎搬到你的電腦上",
+      "narration": "Node.js 把這個引擎搬出來，裝在你的電腦上。於是 JavaScript 可以讀寫檔案、開伺服器、跑各種開發工具。很多開發工具本身就是用它寫的。"
+    },
+    {
+      "on": "web",
+      "click": "#g2",
+      "chapter": "npm：搬工具進來的人",
+      "narration": "再來是 npm。"
+    },
+    {
+      "callout": "web:sel:.reg",
+      "text": "npm 套件倉庫：別人寫好、分享出來的工具",
+      "narration": "網路上有一個很大的倉庫，放著兩百多萬個別人寫好的工具，叫做套件。"
+    },
+    {
+      "callout": "web:sel:.tree",
+      "text": "package.json 是清單；node_modules 是搬回來的東西",
+      "narration": "你的專案裡有一份 package.json，像購物清單，寫著要用哪些套件。執行 npm install，npm 就照清單把套件搬進 node_modules 這個資料夾。"
+    },
+    {
+      "on": "web",
+      "click": "#g3",
+      "chapter": "LTS：長期維護版",
+      "narration": "最後一個問題：官網上有好幾個版本，要選哪個？"
+    },
+    {
+      "callout": "web:sel:.tl",
+      "text": "雙數版本會變成 LTS，維護很久",
+      "narration": "Node.js 大約每半年出一個新版本。單數版本像嘗鮮版，半年就不維護了；雙數版本會變成 LTS，修錯誤修好幾年，工具也都支援它。"
+    },
+    {
+      "shimmer": "選標著 LTS 的那個",
+      "sub": "Long Term Support · 長期維護版",
+      "narration": "LTS 是長期維護的意思。新手只要記一句：選標著 LTS 的那個。"
+    },
+    { "on": "fx", "clear": true },
+    {
+      "checkpoint": "想一想：官網同時有「24 LTS」和「25 Current」，你選哪個？",
+      "body": "選 24 LTS。Current 是最新但還在變動的版本，給想嘗鮮的人；LTS 穩定、維護時間長，工具也最相容。"
+    },
+    {
+      "card": "Node.js 跑程式，npm 搬工具",
+      "eyebrow": "1.3 重點",
+      "sub": "兩個一起裝；版本選 LTS",
+      "narration": "總結：Node.js 讓 JavaScript 在你的電腦上跑；npm 跟著一起來，負責把別人寫好的工具搬進專案。版本選 LTS。下一堂，請 AI 幫你裝。"
+    }
+  ]
+}

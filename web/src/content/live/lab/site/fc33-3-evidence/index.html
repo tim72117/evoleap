@@ -1,0 +1,24 @@
+<!doctype html><html><head><title>檢查 AI 工作的三份證據</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">AI 說「做完了」，你看哪裡確認？</h1>
+  <p class="sub">三份證據，各回答一個問題</p>
+  <div class="cols">
+    <div class="col" id="e1" data-go="e1">
+      <div class="ch">diff<small>改了什麼</small></div>
+      <div class="pic diff"><div class="l m">- .price { font-size: 22px; }</div><div class="l p">+ .price { font-size: 18px; }</div><div class="l p">+ .badge { color: red; }</div></div>
+      <div class="ans" data-at="e1">每一行的增減都在這裡。<b>沒要求的改動</b>（例如多出來的 .badge）一眼就看到。</div>
+    </div>
+    <div class="col" id="e2" data-go="e2">
+      <div class="ch">指令紀錄<small>做了什麼</small></div>
+      <div class="pic log"><div>$ npm test</div><div class="ok">12 passed</div><div>$ rm -rf dist</div><div>$ npm run build</div></div>
+      <div class="ans" data-at="e2">它真的跑過測試嗎？有沒有執行<b>刪除</b>之類的指令？紀錄不會說謊。</div>
+    </div>
+    <div class="col" id="e3" data-go="e3">
+      <div class="ch">commit<small>什麼時候、為什麼</small></div>
+      <div class="pic git"><div><span class="dot"></span>a41c2e 調整價格字級</div><div><span class="dot"></span>9be771 主色改成深綠</div><div><span class="dot"></span>5d02aa 新增訂購表單</div></div>
+      <div class="ans" data-at="e3">每次改動存一個點。出問題可以<b>退回</b>到前一個點。</div>
+    </div>
+  </div>
+  <div class="gap" data-at="e3"><b>但三份證據都看不到的：</b>它<u>沒做</u>什麼、<u>沒驗證</u>什麼 → 請 AI 自己在結尾寫出來</div>
+</div>
+</body></html>

@@ -1,0 +1,188 @@
+{
+  "title": "把網域接到網站",
+  "lesson": "全環節 · 單元 17 · 17.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "用自己的網域打開網站",
+    "line": "這一堂把 xiaosen-bakery.com 接到你的網站。AI 給你要填的值，你在網域商後台照填；接著 AI 寫一個檢查腳本，反覆確認到真的生效為止。"
+  },
+  "blocking": { "cast": ["claude", "panel", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "接上網域",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "panel": {
+      "actor": "browser",
+      "props": { "site": "fc17-4-dns-panel", "width": "desktop", "url": "https://registrar-b.example/domains/xiaosen-bakery.com/dns" },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "https://xiaosen-bakery.com" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "把網域接到網站",
+      "eyebrow": "全環節 · 單元 17 · 17.4 用 AI 完成",
+      "sub": "AI 給值 → 你在後台填 → AI 的檢查腳本確認到生效",
+      "chapter": "交代：給值、等我填、再檢查",
+      "narration": "這次有三段：AI 給你要填的值，你在網域商後台填，最後 AI 做一個檢查工具，確認到生效為止。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "把 xiaosen-bakery.com 和 www 接到我的 GitHub Pages 網站。網域商後台你碰不到，請逐筆告訴我要刪哪些、新增哪些紀錄（類型、名稱、值）。我填好後，請寫一個檢查腳本，每分鐘查一次，直到網域打得開、HTTPS 憑證也好了才停。",
+      "narration": "一樣先講清楚分工：後台你自己填；檢查交給 AI，而且要做成腳本，自己反覆查。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "say": "先在 GitHub 這邊設定自訂網域，這一步我用 gh 就能做。"
+    },
+    {
+      "on": "claude",
+      "ask": "gh api -X PUT repos/xiaosen-dev/bakery/pages -f cname=xiaosen-bakery.com",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gh api -X PUT repos/xiaosen-dev/bakery/pages -f cname=xiaosen-bakery.com"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh api -X PUT repos/xiaosen-dev/bakery/pages -f cname=xiaosen-bakery.com",
+      "result": "完成"
+    },
+    {
+      "on": "claude",
+      "say": "接著請你到網域商乙的 **DNS 紀錄**頁面：\n**刪除** 2 筆停放頁：`@ A 203.0.113.10`、`www CNAME parking…`\n**新增** 5 筆（TTL 選 300）：\n- `@` A `185.199.108.153`\n- `@` A `185.199.109.153`\n- `@` A `185.199.110.153`\n- `@` A `185.199.111.153`\n- `www` CNAME `xiaosen-dev.github.io`\nMX、TXT 是信件用的，**不要動**。填完按「儲存變更」，截圖給我。",
+      "chapter": "AI 給要填的值"
+    },
+    {
+      "callout": "claude:say",
+      "text": "刪哪些、加哪些、哪些不要動，逐筆列出",
+      "narration": "注意它連「哪些不要動」都寫了。MX 和 TXT 是信件用的，誤刪了信就收不到。"
+    },
+    {
+      "show": "panel",
+      "chapter": "你在後台照填",
+      "narration": "打開網域商的 DNS 紀錄頁。先刪掉兩筆停放頁。"
+    },
+    { "on": "panel", "click": "#del-park" },
+    { "on": "panel", "click": "#del-wwwp" },
+    {
+      "on": "panel",
+      "fill": { "#type": "A", "#name": "@", "#value": "185.199.108.153", "#ttl": "300" },
+      "narration": "再一筆一筆新增。類型 A，名稱填小老鼠，代表網域本身，值是第一個 IP。"
+    },
+    { "on": "panel", "click": "#add" },
+    {
+      "on": "panel",
+      "fill": { "#type": "A", "#name": "@", "#value": "185.199.109.153", "#ttl": "300" },
+      "narration": "四個 IP 是 GitHub 的四台主機，一台出問題還有別台，所以四筆都要填。"
+    },
+    { "on": "panel", "click": "#add" },
+    { "on": "panel", "fill": { "#type": "A", "#name": "@", "#value": "185.199.110.153", "#ttl": "300" } },
+    { "on": "panel", "click": "#add" },
+    { "on": "panel", "fill": { "#type": "A", "#name": "@", "#value": "185.199.111.153", "#ttl": "300" } },
+    { "on": "panel", "click": "#add" },
+    {
+      "on": "panel",
+      "fill": { "#type": "CNAME", "#name": "www", "#value": "xiaosen-dev.github.io", "#ttl": "300" },
+      "narration": "最後一筆，www 設成別名，指向你的 GitHub Pages。"
+    },
+    { "on": "panel", "click": "#add" },
+    { "on": "panel", "click": "#save", "narration": "全部填完，按儲存變更。" },
+    {
+      "on": "claude",
+      "user": "（附上截圖）已經刪掉兩筆、加了五筆，也按了儲存。",
+      "chapter": "截圖給 AI 確認"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "say": "截圖確認：四筆 A、一筆 www CNAME 都對，MX、TXT 還在 ✓\n現在開始等生效。我寫一個 `check-domain.sh`，每分鐘查 DNS 和 HTTPS，兩個都好了才停。"
+    },
+    {
+      "on": "claude",
+      "ask": "check-domain.sh",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/bakery",
+      "preview": "#!/bin/bash\n# 每分鐘檢查 DNS 與 HTTPS，直到都生效",
+      "chapter": "AI 做檢查工具"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "edit": "check-domain.sh",
+      "lines": [
+        [1, "+", "#!/bin/bash"],
+        [2, "+", "# 每分鐘檢查 DNS 與 HTTPS，直到都生效"],
+        [3, "+", "D=xiaosen-bakery.com; WANT=185.199.108.153; i=0"],
+        [4, "+", "while true; do i=$((i+1))"],
+        [5, "+", "  ip=$(dig +short $D A @1.1.1.1 | sort | head -1)"],
+        [6, "+", "  code=$(curl -s -o /dev/null -w '%{http_code}' https://$D)"],
+        [7, "+", "  echo \"[$i] DNS: $ip  HTTPS: $code\""],
+        [8, "+", "  [ \"$ip\" = \"$WANT\" ] && [ \"$code\" = 200 ] && break"],
+        [9, "+", "  sleep 60"],
+        [10, "+", "done; echo \"全部生效 ✓\""]
+      ],
+      "narration": "腳本做的事很單純：查 DNS 拿到的 IP 對不對、HTTPS 打不打得開，兩個都對才停，不然等一分鐘再查。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bash check-domain.sh",
+      "result": "完成",
+      "out": "[1] DNS: 203.0.113.10  HTTPS: 000\n[2] DNS: 203.0.113.10  HTTPS: 000\n[6] DNS: 185.199.108.153  HTTPS: 000\n[7] DNS: 185.199.108.153  HTTPS: 000\n[18] DNS: 185.199.108.153  HTTPS: 200\n全部生效 ✓",
+      "chapter": "反覆檢查到生效",
+      "narration": "跑起來了。前幾分鐘還是舊的停放頁；第六分鐘，DNS 換成新的，可是 HTTPS 還打不開，因為憑證還在申請。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "先 DNS 生效，再等憑證：和上一堂說的一樣",
+      "narration": "第十八分鐘，HTTPS 也好了。順序就和上一堂說的一樣：先 DNS 生效，憑證才發得下來。這段時間你什麼都不用做，讓腳本去等。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh api -X PUT repos/xiaosen-dev/bakery/pages -F https_enforced=true && curl -sI http://xiaosen-bakery.com | head -2",
+      "result": "完成",
+      "out": "HTTP/1.1 301 Moved Permanently\nLocation: https://xiaosen-bakery.com/",
+      "narration": "最後它打開強制 HTTPS，確認打 http 也會轉到 https。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ `https://xiaosen-bakery.com` 打得開（200），憑證已生效，http 會 301 轉到 https。`check-domain.sh` 留著，之後改 DNS 可以再用。"
+    },
+    { "show": "web", "narration": "打開你自己的網域看看。網址列是 xiaosen-bakery.com 了。" },
+    { "on": "web", "scroll": "products", "pause": 600 },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：接上你的網域",
+      "body": "請 AI 逐筆列出要刪、要加、不要動的紀錄；在網域商後台照填、儲存、截圖給它確認。再請它寫一個檢查腳本，反覆查到 DNS 和 HTTPS 都生效為止。"
+    },
+    { "hide": "web" },
+    {
+      "card": "AI 給值、你填後台\nAI 的腳本等到生效",
+      "eyebrow": "學會",
+      "sub": "要等的事交給腳本反覆檢查，不用一直按重新整理",
+      "chapter": "學會",
+      "narration": "AI 給值，你填後台，截圖確認；要等的事，交給 AI 寫的檢查腳本反覆查。現在，客人用你自己的網域就能打開網站。"
+    }
+  ]
+}

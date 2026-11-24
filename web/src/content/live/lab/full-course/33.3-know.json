@@ -1,0 +1,95 @@
+{
+  "title": "看懂 AI 交出來的工作",
+  "lesson": "全環節 · 單元 33 · 33.3 基礎知識",
+  "teacher": {
+    "say": "今天學怎麼檢查 AI 的工作",
+    "line": "AI 說做完了，你要怎麼確認？這一課先看一份好的結尾報告，再拆開來看，它背後靠的是哪三份證據。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "修價格排版", "folder": "~/projects/bakery", "branch": "fix-price", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc33-3-evidence", "url": "https://notes.example/three-evidence" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "看懂 AI 交出來的工作",
+      "eyebrow": "全環節 · 單元 33 · 33.3 基礎知識",
+      "sub": "看 AI 做了什麼",
+      "chapter": "先看一份好報告",
+      "narration": "先看成果。這是一份 AI 工作結束時交出來的報告。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "say": "**做了什麼**\n- `products.css`：價格改成 18px、不換行\n- 新增測試 `price.test.js`\n\n**沒做什麼**\n- 結帳頁的價格沒有動（你說先不改）\n\n**哪裡沒驗證**\n- 只在 Chrome 截圖，Safari 沒有試\n\n已 commit：`a41c2e 調整價格字級`",
+      "narration": "它分成三段：做了什麼、沒做什麼、哪裡沒驗證，最後還附上 commit 編號。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "「沒做」和「沒驗證」最有價值",
+      "narration": "最有價值的是後面兩段。做了什麼，你看改動就知道；可是沒做、沒驗證的，不說出來，你永遠看不到。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "web",
+      "chapter": "三份證據",
+      "narration": "那報告裡寫的「做了什麼」，要怎麼確認是真的？靠三份證據。"
+    },
+    {
+      "on": "web",
+      "click": "#e1",
+      "narration": "第一份，diff，中文叫差異。它把每一行被刪掉、被加上的地方標出來。看這裡：多了一行 badge，紅色字。這是沒要求的改動，一眼就看到。"
+    },
+    {
+      "on": "web",
+      "click": "#e2",
+      "narration": "第二份，指令紀錄。AI 執行過的每個指令都留著。它說跑過測試，紀錄裡就該有 npm test；有沒有執行刪除之類的指令，也都看得到。"
+    },
+    {
+      "on": "web",
+      "click": "#e3",
+      "narration": "第三份，commit，就是存檔點。每次改動存一個點，寫上為什麼改。出問題，可以退回前一個點。"
+    },
+    {
+      "callout": "web:sel:.gap",
+      "text": "證據只看得到「做了的」",
+      "narration": "但三份證據有一個共同的盲點：它們只記錄做了的事。沒做的、沒驗證的，要請 AI 自己寫出來。"
+    },
+    { "hide": "web" },
+    {
+      "diff": "對照：報告 vs diff",
+      "lines": [[" ", "報告說：只改了價格字級"], ["+", ".price { font-size: 18px; white-space: nowrap; }"], ["+", ".badge { color: red; }"]],
+      "chapter": "對照報告與證據",
+      "narration": "檢查的方法很簡單：拿報告和 diff 對照。報告說只改了價格，diff 卻多了一行 badge。"
+    },
+    {
+      "circle": { "x": 640, "y": 560, "w": 640, "h": 90 },
+      "seed": 3,
+      "narration": "對不上的地方，就是要問 AI 的地方：這行是什麼？誰要的？"
+    },
+    { "clear": true },
+    {
+      "card": "三分鐘檢查法",
+      "eyebrow": "每次工作結束",
+      "sub": "讀報告 → 對照 diff → 看有沒有跑測試 → 看「沒驗證」那段要不要自己試",
+      "narration": "每次 AI 收工，花三分鐘：讀報告、對照 diff、看指令紀錄有沒有跑測試，最後看沒驗證的那段，要不要自己補試。"
+    },
+    {
+      "checkpoint": "想想看",
+      "body": "你上一次請 AI 做的工作，你知道它「沒做什麼」「沒驗證什麼」嗎？如果不知道，下次可以怎麼問？",
+      "narration": "想想看：你上一次請 AI 做的事，你知道它沒做什麼、沒驗證什麼嗎？"
+    },
+    {
+      "card": "下一堂：讓 AI 每次都交結尾報告",
+      "eyebrow": "33.3 用 AI 完成",
+      "sub": "做了什麼、沒做什麼、哪裡沒驗證",
+      "narration": "下一堂，我們讓 AI 每次工作結束，都自動交出這樣的結尾報告。"
+    }
+  ]
+}

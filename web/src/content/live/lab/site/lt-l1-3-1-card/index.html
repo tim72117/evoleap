@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>任務卡</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" id="card">
+      <div class="card-head"><span class="pin"></span><h1>任務卡：客戶訊息 → 需求清單 → 工作項目<small>每接到一個新需求，照這張卡走一次</small></h1></div>
+      <div class="flow"><b>客戶訊息</b><i>→</i><b>需求清單</b><i>→</i><b>工作項目</b></div>
+      <div class="grid">
+        <section class="sec" id="sec-input">
+          <h2><span class="ico">入</span>輸入</h2>
+          <div class="blank">？</div>
+          <ul class="body">
+            <li>客戶傳來的需求訊息（貼上前把姓名、電話換成代稱）</li>
+            <li>有會議筆記就一起帶上</li>
+
+          </ul>
+        </section>
+        <section class="sec" id="sec-steps">
+          <h2><span class="ico">步</span>步驟</h2>
+          <div class="blank">？</div>
+          <ol class="body">
+            <li>整理成需求清單，標出原文和推測</li>
+            <li>分成「一定要有」和「之後再說」</li>
+            <li>列出要問客戶的問題</li>
+            <li>把「一定要有」轉成工作項目，每項附驗收條件</li>
+          </ol>
+        </section>
+        <section class="sec" id="sec-output">
+          <h2><span class="ico">出</span>輸出</h2>
+          <div class="blank">？</div>
+          <ul class="body">
+            <li>需求清單（有原文／推測標註）</li>
+            <li>工作項目清單（每項有驗收條件）</li>
+            <li>待確認問題</li>
+          </ul>
+        </section>
+        <section class="sec" id="sec-check">
+          <h2><span class="ico">檢</span>檢查點</h2>
+          <div class="blank">？</div>
+          <ul class="body">
+            <li>清單看起來完整</li>
+            <li>每個工作項目都對得到需求</li>
+
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

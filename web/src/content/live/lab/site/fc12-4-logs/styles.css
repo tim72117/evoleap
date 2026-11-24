@@ -1,0 +1,17 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#202124;background:#f5f6f8}
+.top{display:flex;gap:24px;align-items:center;background:#3c4a5c;color:#dfe5ee;padding:14px 26px;font-size:17px}
+.logo{color:#fff;font-weight:700;font-size:19px}
+.main{display:flex}
+.side{width:200px;padding:18px 0;font-size:17px;color:#555}.side div{padding:10px 24px}.side .cur{background:#e6edf8;color:#2b4fa8;font-weight:700;border-left:4px solid #2b4fa8}
+.body{flex:1;padding:24px 30px}
+h2{font-size:26px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;font-size:17px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+th{text-align:left;background:#eef1f5;color:#555;font-size:15px;padding:10px 14px}td{padding:12px 14px;border-top:1px solid #eee}
+code{font-family:ui-monospace,Menlo,monospace;background:#f2f4f7;padding:2px 6px;border-radius:5px}
+.ok{color:#1e8e3e;font-weight:700}.bad{color:#d93025;font-weight:700}
+.tab{font:inherit;font-size:16px;margin-top:16px;border:1px solid #b8c3d3;background:#fff;color:#2b4fa8;border-radius:8px;padding:7px 16px}
+.logs{display:none;margin-top:14px;background:#fff;border-radius:10px;padding:10px 16px;box-shadow:0 1px 6px rgba(0,0,0,.06);font-family:ui-monospace,Menlo,monospace;font-size:15px}
+.logs.on{display:block}
+.lh{font-family:"PingFang TC",sans-serif;font-weight:700;font-size:16px;margin-bottom:6px}
+.l{padding:7px 0;border-top:1px solid #f0f0f0;display:flex;gap:16px}.l span:first-child{color:#777}

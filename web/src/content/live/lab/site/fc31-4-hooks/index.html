@@ -1,0 +1,16 @@
+<!doctype html><html><head><title>Hooks：自動的檢查站</title></head><body><div class="wrap">
+<h1 class="ttl">Hooks：AI 每改一次檔，就自動經過檢查站</h1>
+<p class="sub">不用記得叫它檢查，時間到了就會跑</p>
+<div class="line">
+ <div class="stn box" id="s1" data-go="e1"><b>AI 改檔</b><small class="mono">Edit order.ts</small></div>
+ <div class="pipe"></div>
+ <div class="stn box hook" id="s2" data-go="e2" data-at="e1"><b>改檔之後</b><small class="mono">PostToolUse</small></div>
+ <div class="pipe"></div>
+ <div class="stn box" id="s3" data-go="e3" data-at="e2"><b>自動執行</b><small class="mono">prettier · tsc</small></div>
+ <div class="pipe"></div>
+ <div class="stn box" id="s4" data-at="e3"><b>結果交回 AI</b><small class="bad mono">order.ts:8 型別錯誤</small></div>
+</div>
+<div class="loop" data-at="e3">AI 看到錯誤 → 自己再修 → 再經過檢查站，直到乾淨</div>
+<div class="also" data-at="e4"><b>另一個時間點：</b>AI 說「做完了」準備結束時（Stop）→ 跑一次完整測試</div>
+<button id="s5" data-go="e4" class="small">還有哪些時間點</button>
+</div></body></html>

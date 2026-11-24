@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>小步修改的迴圈</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="w" data-n="0" data-view="big">
+  <div class="cmp">
+    <div class="big"><b>一次叫 AI 做完「會員系統」</b><div class="nums"><span><i>37</i>個檔案</span><span><i>+2,140</i>行</span></div><p>出錯了不知道是哪一段；diff 長到看不完，只好整包接受或整包丟掉</p></div>
+    <div class="small"><b>拆成小步</b><div class="nums"><span><i>3</i>個檔案</span><span><i>+40</i>行</span></div><p>每一步看得懂、測得到；壞了只要退一步</p></div>
+  </div>
+  <div class="loop">
+    <svg viewBox="0 0 400 400"><circle cx="200" cy="200" r="150" class="ring"/></svg>
+    <div class="nd n1"><b>1</b>先看方案</div>
+    <div class="nd n2"><b>2</b>只改一小步</div>
+    <div class="nd n3"><b>3</b>看 diff</div>
+    <div class="nd n4"><b>4</b>跑測試</div>
+    <div class="nd n5"><b>5</b>commit</div>
+    <div class="mid"><span>完成的小步</span><strong class="c0">0</strong><strong class="c1">1</strong></div>
+  </div>
+  <div class="note"><b>CLAUDE.md</b><code>## 改程式的流程<br>1. 先列方案，等我確認<br>2. 一次只做一小步<br>3. 給我看 diff<br>4. 跑 npm test，過了才 commit</code></div>
+  <div class="btns"><button id="go-loop" type="button">改成小步</button><button id="next" type="button">下一步</button><button id="rules" type="button">寫成規則</button></div>
+</div>
+</body></html>

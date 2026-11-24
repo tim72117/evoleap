@@ -1,0 +1,148 @@
+{
+  "title": "DNS：網路的電話簿",
+  "lesson": "全環節 · 單元 17 · 17.3 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "翻開網域的電話簿",
+    "line": "買了網域之後，你會一直聽到 DNS 和各種紀錄。今天翻開網域的電話簿，看懂 A、AAAA、CNAME、MX、TXT，還有 TTL 是什麼。"
+  },
+  "cast": {
+    "net": {
+      "actor": "net-trip",
+      "props": {
+        "domain": "xiaosen-bakery.com",
+        "ip": "185.199.108.153",
+        "pages": { "/": { "title": "小森烘焙", "heading": "每天現烤的手作麵包", "text": "先預約，再來取貨。" } }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "book": {
+      "actor": "browser",
+      "props": { "site": "fc17-3-records", "width": "desktop", "url": "https://learn.example/diagram/dns-records" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "DNS：網路的電話簿",
+      "eyebrow": "全環節 · 單元 17 · 17.3 基礎知識",
+      "sub": "A、AAAA、CNAME、TXT、MX 紀錄與 TTL",
+      "chapter": "輸入網址的那一秒",
+      "narration": "先看看，你在網址列輸入網域、按下 Enter 的那一秒，發生了什麼事。"
+    },
+    { "show": "net", "type": "xiaosen-bakery.com", "narration": "輸入 xiaosen-bakery 點 com。" },
+    { "on": "net", "enter": true },
+    {
+      "on": "net",
+      "lookup": true,
+      "narration": "瀏覽器不認得名字，只認得 IP 位址。所以它先去問 DNS：這個網域的 IP 是多少？"
+    },
+    {
+      "on": "net",
+      "answer": true,
+      "narration": "DNS 查電話簿，回覆 IP。DNS 就是網路的電話簿：把好記的名字，換成機器認得的號碼。"
+    },
+    { "on": "net", "request": true, "narration": "拿到 IP，瀏覽器才把請求送到那台主機。" },
+    { "on": "net", "respond": true },
+    { "on": "net", "render": true, "narration": "主機回傳網頁，畫出來。整個過程不到一秒。" },
+    {
+      "callout": "net:dns",
+      "text": "你買了網域，就能決定電話簿裡寫什麼",
+      "narration": "重點來了：你買了網域，就有權決定這本電話簿裡寫什麼。電話簿裡的每一行，叫做一筆 DNS 紀錄。"
+    },
+    { "hide": "net" },
+    {
+      "show": "book",
+      "chapter": "電話簿裡的每一行",
+      "narration": "這是 xiaosen-bakery 點 com 的電話簿。每一行有名稱、類型和值：問的是誰、問哪一種資訊、答案是什麼。"
+    },
+    {
+      "on": "book",
+      "click": "#b1",
+      "narration": "A 紀錄，是地址：這個名字的 IP 位址。剛剛 DNS 回答的，就是這一行。"
+    },
+    {
+      "on": "book",
+      "click": "#b2",
+      "narration": "AAAA 紀錄，四個 A，一樣是地址，只是新版、比較長的 IPv6。"
+    },
+    {
+      "on": "book",
+      "click": "#b3",
+      "narration": "CNAME 是別名。它不直接寫 IP，而是說：www 的地址，去問 xiaosen-dev 點 github 點 io。對方換了主機，你也不用改。"
+    },
+    {
+      "on": "book",
+      "click": "#b4",
+      "chapter": "信件和告示",
+      "narration": "MX 是收信的郵局。寄到小森烘焙信箱的信，要送去哪一台郵件主機，就看這一行。"
+    },
+    {
+      "on": "book",
+      "click": "#b5",
+      "narration": "TXT 是貼在門上的告示，一段給其他服務看的文字。常用來證明網域是你的，或聲明誰可以替你寄信。"
+    },
+    {
+      "on": "book",
+      "click": "#b6",
+      "chapter": "TTL：記住多久",
+      "narration": "最後一欄 TTL，是別人查到答案後可以記住幾秒。三千六百秒，就是一小時內不會再來問。"
+    },
+    {
+      "callout": "book:sel:.side",
+      "text": "改紀錄前先把 TTL 調小，改完別人比較快看到",
+      "narration": "所以你改了紀錄，別人可能還記著舊答案，最久要等一個 TTL 才會更新。要改之前先把 TTL 調小，就能縮短等待。"
+    },
+    {
+      "chapter": "配對看看",
+      "checkpoint": "你想讓客人寄到 hello@xiaosen-bakery.com 的信收得到，要設哪一種紀錄？",
+      "body": "選一個。",
+      "id": "mx",
+      "options": [
+        {
+          "label": "A",
+          "steps": [
+            {
+              "card": "A 是網站的地址",
+              "eyebrow": "再想想",
+              "sub": "信件看的是「收信的郵局」那一行",
+              "narration": "A 是網站的地址。信件要看的，是收信的郵局那一行：MX。"
+            }
+          ]
+        },
+        {
+          "label": "MX",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "配對看看",
+              "sub": "MX＝收信的郵局，寄來的信送去哪台郵件主機",
+              "narration": "答對了。MX 就是收信的郵局，寄來的信要送去哪台郵件主機。"
+            }
+          ]
+        },
+        {
+          "label": "CNAME",
+          "steps": [
+            {
+              "card": "CNAME 是別名",
+              "eyebrow": "再想想",
+              "sub": "信件看的是 MX 紀錄",
+              "narration": "CNAME 是別名，常用在 www 這種子網域。信件看的是 MX 紀錄。"
+            }
+          ]
+        }
+      ]
+    },
+    { "hide": "book" },
+    {
+      "card": "A／AAAA：地址　CNAME：別名\nMX：收信　TXT：告示　TTL：記住多久",
+      "eyebrow": "學會",
+      "sub": "DNS 把名字換成號碼；你買了網域，就能決定電話簿裡寫什麼",
+      "chapter": "學會",
+      "narration": "A 和 AAAA 是地址，CNAME 是別名，MX 是收信的郵局，TXT 是告示，TTL 是記住多久。下一堂，請 AI 用 dig 把你網域的電話簿整本讀出來。"
+    }
+  ]
+}

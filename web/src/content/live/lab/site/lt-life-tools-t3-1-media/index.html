@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>列印樣式</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="ttl">同一個網頁，兩種樣子</div>
+    <div class="tabs"><button class="tab" data-go="1">在螢幕上</button><button class="tab" data-go="2">印出來</button><button class="tab" data-go="3">背後的一句話</button></div>
+  </div>
+  <div class="stage">
+    <div class="side">
+      <div class="lab">🖥 螢幕</div>
+      <div class="scr">
+        <div class="ctl"><div class="t">名單</div><div class="ta"></div><div class="b">清空</div></div>
+        <div class="mini"><i>陳怡君</i><i>林家豪</i><i>王佩珊</i><i>張志明</i><i>李欣怡</i><i>黃俊傑</i><i>吳雅雯</i><i>劉建宏</i></div>
+      </div>
+      <div class="cap">要貼名單、按按鈕，輸入區得在</div>
+    </div>
+    <div class="arrow r2">⟶<span>按 ⌘＋P</span></div>
+    <div class="side r2">
+      <div class="lab">🖨 紙上</div>
+      <div class="paper">
+        <div class="ghost r2">輸入區、按鈕<br><b>不印</b></div>
+        <div class="mini big"><i>陳怡君</i><i>林家豪</i><i>王佩珊</i><i>張志明</i><i>李欣怡</i><i>黃俊傑</i><i>吳雅雯</i><i>劉建宏</i></div>
+      </div>
+      <div class="cap">紙上只要名牌</div>
+    </div>
+  </div>
+  <div class="code r3"><span class="mono">@media print { .輸入區, .按鈕 { display: none; } }</span><span class="say">意思是：「印出來的時候，把輸入區和按鈕藏起來」。這叫<b>列印樣式</b>，AI 會幫你寫。</span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

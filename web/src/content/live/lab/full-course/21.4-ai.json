@@ -1,0 +1,162 @@
+{
+  "title": "AI 每日營運摘要",
+  "lesson": "全環節 · 單元 21 · 21.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做每日摘要信",
+    "line": "這一課請 AI 寫一個排程任務：每天早上讀紀錄和數據，整理成摘要寄給你。先試跑看內容，再設定成每天自動執行。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "每日營運摘要",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "收件匣" },
+      "place": { "x": 1250, "y": 120, "w": 540, "h": 840 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "AI 每日營運摘要",
+      "eyebrow": "全環節 · 單元 21 · 21.4 用 AI 完成",
+      "sub": "先做工具：摘要腳本 · 試跑看內容 · 再交給排程每天跑",
+      "narration": "這次的工具是一支摘要腳本。先在你的電腦上試跑，內容滿意了，再交給雲端每天執行。"
+    },
+    {
+      "show": "claude",
+      "chapter": "說清楚摘要要什麼",
+      "narration": "把上一堂設計好的摘要內容，原原本本交代給它。"
+    },
+    {
+      "on": "claude",
+      "user": "寫一個每天早上 8 點（台北時間）寄營運摘要給我的排程任務。資料：雲端紀錄的錯誤、GA4 的昨日訪客、資料庫的昨日訂單與營收，都和上週同一天比。信的格式：第一句是結論、4 個數字、需要我處理的事（同一種錯誤超過 3 次、訂單比上週少 30% 以上），沒有就寫「沒有」。先在本機試跑印出來給我看，再設定排程。",
+      "narration": "資料從哪來、和什麼比、信的格式、什麼算要處理，還有「先試跑給我看」，都講到了。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "todos": [
+        ["寫摘要腳本（讀三個來源）", "doing"],
+        ["本機試跑，給你看內容", "pending"],
+        ["部署成雲端任務", "pending"],
+        ["設定每天 08:00 的排程", "pending"],
+        ["手動觸發一次，確認收到信", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/daily-digest.ts",
+      "lines": [
+        [1, "+", "const day = yesterday('Asia/Taipei'), last = sameDayLastWeek(day)"],
+        [2, "+", "const errors = await countErrors(day)        // scripts/errors.sh 的查詢"],
+        [3, "+", "const visitors = await ga4Users(day, last)"],
+        [4, "+", "const orders = await ordersOf(day, last)     // 訂單數、營收"],
+        [5, "+", "const todo = needsYou(errors, orders)        // 錯誤 >3 次、訂單少 30%"],
+        [6, "+", "const mail = render({ headline(…), kpis, todo })"],
+        [7, "+", "if (DRY_RUN) console.log(mail); else await send(mail)"]
+      ],
+      "chapter": "做工具：摘要腳本",
+      "narration": "腳本寫好了。第二行直接沿用前一課寫的查錯誤指令；第五行是「什麼算要你處理」的規則；最後一行，試跑時只印出來，不寄信。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "DRY_RUN：試跑只印出來，不真的寄",
+      "narration": "這種「只演一遍、不真的做」的模式很好用。先看內容對不對，再讓它真的寄。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "DRY_RUN=1 npx tsx scripts/daily-digest.ts",
+      "result": "（預覽，沒有寄出）",
+      "out": "👍 昨天一切正常：37 筆訂單，比上週一多 6 筆。有 1 件事要你處理。\n訂單 37 ▲6 · 營收 $21,460 ▲12% · 訪客 1,204 — · 錯誤 6 ▼206\n需要你處理：確認信寄送逾時 5 次",
+      "chapter": "試跑，看內容",
+      "narration": "試跑的結果：第一句結論、四個數字和比較，還有一件要處理的事。和我們設計的一樣。"
+    },
+    {
+      "on": "claude",
+      "user": "很好。需要處理的那一項，請附上查紀錄的連結。",
+      "narration": "看了之後還想加一點：待辦附上連結，點了就能去看。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/daily-digest.ts",
+      "lines": [
+        [5, "-", "const todo = needsYou(errors, orders)"],
+        [5, "+", "const todo = needsYou(errors, orders).map(withLogLink)  // 附上紀錄查詢的連結"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run jobs deploy daily-digest --source . --region=asia-east1",
+      "result": "已部署雲端任務 daily-digest",
+      "chapter": "交給排程每天跑",
+      "narration": "內容確定了，它把腳本部署成雲端上的一個任務。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud scheduler jobs create http daily-digest --schedule=\"0 8 * * *\" --time-zone=\"Asia/Taipei\" --uri=…/jobs/daily-digest:run",
+      "result": "已建立排程：每天 08:00（台北時間）",
+      "narration": "再建立排程：零、八、三個星號，每天八點。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "time-zone 一定要寫：不然可能是別的時區的 8 點",
+      "narration": "注意它寫了時區。雲端預設的時區不一定是台灣，沒寫的話，信可能半夜才到。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud scheduler jobs run daily-digest",
+      "result": "已手動觸發一次",
+      "chapter": "手動觸發一次確認",
+      "narration": "最後不等明天，它手動觸發一次，確認信真的寄得出去。"
+    },
+    { "show": "phone" },
+    {
+      "on": "phone",
+      "receive": "每日營運摘要 · 11/09\n👍 昨天一切正常：37 筆訂單，比上週一多 6 筆。\n訂單 37 ▲6｜營收 $21,460 ▲12%\n訪客 1,204 —｜錯誤 6 ▼206\n需要你處理：確認信寄送逾時 5 次 → 看紀錄",
+      "from": "shop 排程任務",
+      "narration": "收到了。和試跑的內容一樣，待辦也附上了連結。"
+    },
+    { "hide": "phone" },
+    {
+      "on": "claude",
+      "todos": [
+        ["寫摘要腳本（讀三個來源）", "done"],
+        ["本機試跑，給你看內容", "done"],
+        ["部署成雲端任務", "done"],
+        ["設定每天 08:00 的排程", "done"],
+        ["手動觸發一次，確認收到信", "done"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "完成。每天 08:00（台北時間）會寄出摘要；剛才手動觸發的那封已寄到你的信箱。想改內容，改 `scripts/daily-digest.ts` 後重新部署就好。",
+      "narration": "它回報完成，也說了之後要改內容去改哪裡。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "把你設計好的摘要內容交給 AI：資料來源、比較對象、信的格式、什麼算要你處理。先試跑看內容，再設定排程（記得時區），最後手動觸發一次確認收到。",
+      "narration": "換你做做看。先試跑看內容，再設定排程，記得時區，最後手動觸發一次。"
+    },
+    {
+      "card": "每天收到營運摘要",
+      "eyebrow": "這一課的成果",
+      "sub": "試跑 → 部署 → 排程 → 手動觸發確認",
+      "narration": "這一課的成果：每天早上收到一封營運摘要。下一個單元，我們來顧好資料：備份與還原。"
+    }
+  ]
+}

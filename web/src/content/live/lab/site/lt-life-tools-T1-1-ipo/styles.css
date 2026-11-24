@@ -1,0 +1,19 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #f6f1e8; color: #2b2a28; font-family: "Noto Sans TC", "PingFang TC", system-ui, sans-serif; }
+.board { padding: 56px 48px; text-align: center; }
+h1 { font-size: 40px; margin: 0 0 8px; }
+.lead { color: #6b665e; font-size: 20px; margin: 0 0 44px; }
+.row { display: flex; align-items: stretch; justify-content: center; gap: 14px; }
+.box { width: 300px; border: 3px dashed #cfc5b5; background: #fffdf9; border-radius: 22px; padding: 26px 20px; font: inherit; color: #9a9184; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.box .ico { width: 70px; height: 70px; }
+.box b { font-size: 32px; }
+.box .q { font-size: 18px; }
+.box .a { margin-top: 10px; font-size: 22px; font-weight: 700; min-height: 64px; visibility: hidden; }
+.box.on { border-style: solid; color: #2b2a28; box-shadow: 0 10px 24px rgba(60, 40, 20, 0.12); }
+.box.on .a { visibility: visible; }
+.box.in.on { border-color: #3b82c4; } .box.in.on .ico, .box.in.on b { color: #3b82c4; }
+.box.proc.on { border-color: #d0892b; } .box.proc.on .ico, .box.proc.on b { color: #d0892b; }
+.box.out.on { border-color: #2f7d6d; } .box.out.on .ico, .box.out.on b { color: #2f7d6d; }
+.arrow { width: 60px; color: #b9ad9b; align-self: center; }
+.foot { margin-top: 44px; font-size: 22px; color: #6b665e; visibility: hidden; }
+.foot.on { visibility: visible; color: #2f7d6d; font-weight: 700; }

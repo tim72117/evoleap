@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>搜尋機器人逛網站</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">搜尋引擎的機器人，怎麼逛你的網站</div>
+ <svg viewBox="0 0 1200 470" class="map">
+  <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#9aa5b8"/></marker></defs>
+  <g class="lines" stroke="#c4ccd9" stroke-width="4" fill="none" marker-end="url(#ah)">
+   <path d="M150 235 L300 235"/><path d="M420 235 L560 120"/><path d="M420 235 L560 235"/><path d="M420 235 L560 350"/><path d="M700 120 L850 120"/><path d="M700 350 L850 350"/>
+  </g>
+  <g class="node" data-k="1"><rect x="300" y="190" width="120" height="90" rx="14" fill="#fff4dc" stroke="#f0b440" stroke-width="3"/><text x="360" y="230" text-anchor="middle" font-size="20" font-weight="800">robots.txt</text><text x="360" y="258" text-anchor="middle" font-size="16" fill="#7a5a10">門口的告示</text></g>
+  <g class="node" data-k="2"><rect x="560" y="80" width="140" height="80" rx="14" fill="#e8efff" stroke="#5b7ff0" stroke-width="3"/><text x="630" y="115" text-anchor="middle" font-size="20" font-weight="800">sitemap.xml</text><text x="630" y="141" text-anchor="middle" font-size="16" fill="#2b4170">頁面清單</text></g>
+  <g class="node"><rect x="560" y="195" width="140" height="80" rx="14" fill="#fff" stroke="#c4ccd9" stroke-width="3"/><text x="630" y="242" text-anchor="middle" font-size="20" font-weight="700">首頁 /</text></g>
+  <g class="node" data-k="3"><rect x="560" y="310" width="140" height="80" rx="14" fill="#fff" stroke="#c4ccd9" stroke-width="3"/><text x="630" y="345" text-anchor="middle" font-size="20" font-weight="700">/cart</text><text x="630" y="371" text-anchor="middle" font-size="16" fill="#b42318">noindex</text></g>
+  <g class="node"><rect x="850" y="80" width="150" height="80" rx="14" fill="#fff" stroke="#c4ccd9" stroke-width="3"/><text x="925" y="127" text-anchor="middle" font-size="20" font-weight="700">/menu</text></g>
+  <g class="node" data-k="4"><rect x="850" y="310" width="150" height="80" rx="14" fill="#fff" stroke="#c4ccd9" stroke-width="3"/><text x="925" y="345" text-anchor="middle" font-size="20" font-weight="700">/old-news</text><text x="925" y="371" text-anchor="middle" font-size="16" fill="#b42318">已刪除</text></g>
+  <g class="stamp s3"><rect x="580" y="398" width="100" height="34" rx="8" fill="#fde8e8"/><text x="630" y="421" text-anchor="middle" font-size="17" font-weight="800" fill="#b42318">不收錄</text></g>
+  <g class="stamp s4"><rect x="1010" y="315" width="170" height="70" rx="10" fill="#26344d"/><text x="1095" y="345" text-anchor="middle" font-size="19" font-weight="800" fill="#ffb4b4">404 Not Found</text><text x="1095" y="370" text-anchor="middle" font-size="15" fill="#d6deeb">從索引移除</text></g>
+  <g class="bot"><circle cx="0" cy="0" r="38" fill="#2f6fed"/><rect x="-22" y="-14" width="44" height="26" rx="8" fill="#fff"/><circle cx="-9" cy="-1" r="5" fill="#2f6fed"/><circle cx="9" cy="-1" r="5" fill="#2f6fed"/><path d="M0 -38 L0 -52" stroke="#2f6fed" stroke-width="4"/><circle cx="0" cy="-55" r="6" fill="#ffb020"/></g>
+ </svg>
+ <div class="stepbar"><button class="btn" id="next">下一步 ▶</button><span class="cap" data-t0="機器人從一個連結進來，一頁一頁往下逛" data-t1="先看門口的 robots.txt：哪些地方不要進來" data-t2="再拿 sitemap.xml：這個網站有哪些頁面" data-t3="頁面寫了 noindex：可以看，但不要放進搜尋結果" data-t4="頁面不見了：伺服器要回 404，機器人才會把它拿掉"></span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

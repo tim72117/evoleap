@@ -1,0 +1,25 @@
+<!doctype html><html><head><title>AI 的工作桌</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">AI 的工作桌只有這麼大</h1>
+  <p class="sub">對話越長，最早放上桌的東西越容易被擠到邊邊、看不清楚</p>
+  <div class="desk">
+    <div class="edge">桌子邊緣</div>
+    <div class="msg key" id="m1">決定：主色用深綠<span class="blur" data-at="m4">快看不清了</span></div>
+    <div class="msg key" id="m2">決定：不要改到結帳頁<span class="blur" data-at="m5">快看不清了</span></div>
+    <div class="msg">修 header 的間距</div>
+    <div class="msg">貼了一大段錯誤訊息</div>
+    <div class="msg" data-at="m3">又貼一段錯誤訊息</div>
+    <div class="msg" data-at="m4">讀了 12 個檔案</div>
+    <div class="msg" data-at="m5">改了 6 個檔案</div>
+    <div class="msg now" data-at="m5">現在：「幫我順便調一下結帳頁」</div>
+  </div>
+  <div class="row">
+    <button class="add" id="more1" data-go="m3">再聊一陣子</button>
+    <button class="add" id="more2" data-go="m4">再聊更久</button>
+    <button class="add" id="more3" data-go="m5">聊到很長</button>
+    <div class="fall" data-at="m5"><b>被擠掉了：</b>主色用深綠、不要改結帳頁</div>
+  </div>
+  <div class="note" data-at="sum" id="sumcard"><b>解法：</b>把決定寫成一張摘要，帶到一張乾淨的新桌子</div>
+  <button class="add tiny" id="fix" data-go="sum">怎麼辦？</button>
+</div>
+</body></html>

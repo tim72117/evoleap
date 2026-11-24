@@ -1,0 +1,38 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>容器、映像檔與 Dockerfile</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · Docker</p>
+<h1>把網站裝進便當盒</h1>
+<div class="tabs"><button id="b0" data-go="0">我電腦可以跑啊</button><button id="b1" data-go="1">Dockerfile＝食譜</button><button id="b2" data-go="2">映像檔＝封好的便當</button><button id="b3" data-go="3">容器＝打開來吃</button><button id="b4" data-go="4">到哪都一樣</button></div>
+<div data-only="0" class="two">
+<div class="pc ok"><b>你的電腦</b><span class="mono">Node 22 ✓　套件 ✓　設定 ✓</span><p class="r">網站跑得好好的</p></div>
+<div class="pc bad"><b>雲端的電腦</b><span class="mono">Node 18 ✗　少了套件 ✗　沒有設定 ✗</span><p class="r">💥 打不開</p></div>
+</div>
+<div data-only="1" class="recipe">
+<pre class="df mono"><span class="c"># Dockerfile：照著做，就做出一模一樣的便當</span>
+<b>FROM</b> node:22-slim          <span class="c">← 底下墊什麼（作業系統＋Node）</span>
+<b>WORKDIR</b> /app
+<b>COPY</b> package*.json ./      <span class="c">← 先放套件清單</span>
+<b>RUN</b> npm ci                 <span class="c">← 裝好套件</span>
+<b>COPY</b> . .                   <span class="c">← 放進你的程式</span>
+<b>CMD</b> ["node", "server.js"]  <span class="c">← 打開時要做什麼</span></pre>
+</div>
+<div data-only="2" class="stack">
+<div class="bento">
+<div class="ly l4" data-at="2">你的程式（server.js、網頁）</div>
+<div class="ly l3" data-at="2">套件（npm ci 裝好的）</div>
+<div class="ly l2" data-at="2">Node 22</div>
+<div class="ly l1" data-at="2">精簡的作業系統</div>
+</div>
+<p class="side">照食譜一層一層疊好、封起來，就是<b>映像檔</b>（image）。封好之後內容不會變，可以複製、上傳。</p>
+</div>
+<div data-only="3" class="run">
+<div class="img">📦 映像檔</div><div class="arr">docker run ▶</div>
+<div class="ctrs"><div class="ctr">🍱 容器 1<small>localhost:8080</small></div><div class="ctr">🍱 容器 2</div><div class="ctr">🍱 容器 3</div></div>
+<p class="side wide">把映像檔「打開來跑」，就是<b>容器</b>（container）。同一個映像檔可以同時開好幾個，每個都一模一樣。</p>
+</div>
+<div data-only="4" class="any">
+<div class="img">📦 同一個映像檔</div>
+<div class="dests"><div>💻 你的電腦 ✓</div><div>☁ Cloud Run ✓</div><div>🖥 朋友的電腦 ✓</div></div>
+<p class="side wide">便當裡什麼都帶齊了，所以<b>在哪裡打開都一樣</b>。下一堂上雲端，就是把這個便當送過去。</p>
+</div>
+</div></body></html>

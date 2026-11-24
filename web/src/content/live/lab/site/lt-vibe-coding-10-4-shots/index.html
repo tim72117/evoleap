@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>截圖 · 逐頁檢查</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap ">
+  <h1>screenshots/：每一頁的截圖</h1>
+  <p class="muted">AI 用瀏覽器自動化工具依序打開每一頁、截圖，並記下 Console 的訊息。點一張看報告。</p>
+  <div class="grid">
+    <button class="shot" id="shot-index"><div class="cap"><span>index.html</span><span>首頁</span></div>
+      <div class="mini"><div class="mnav"><i></i><i></i><i></i><i></i></div><div class="hero plain"><div class="face"></div><div class="lines"><i></i><i></i></div></div><div class="rows"><i></i><i></i><i></i></div></div>
+      <div class="report"><span class="ok">✓ Console 沒有錯誤 · 3 個連結都打得開</span></div></button>
+    <button class="shot bad" id="shot-about"><div class="cap"><span>about.html</span><span>關於我</span></div>
+      <div class="mini"><div class="mnav"><i></i><i></i><i></i><i></i></div><div class="hero nobg"><div class="face"></div><div class="lines"><i></i><i></i></div></div><div class="rows"><i></i><i></i><i></i></div></div>
+      <div class="report"><span class="err">✕ GET /assets/assets/images/bg.svg 404 (Not Found)</span><span class="ok fixok">✓ Console 沒有錯誤 · 背景圖正常</span></div></button>
+    <button class="shot" id="shot-projects"><div class="cap"><span>projects.html</span><span>作品</span></div>
+      <div class="mini"><div class="mnav"><i></i><i></i><i></i><i></i></div><div class="cards"><b></b><b></b></div><div class="rows"><i></i><i></i></div></div>
+      <div class="report"><span class="ok">✓ Console 沒有錯誤 · 2 張封面正常</span></div></button>
+  </div>
+</div>
+<script src="script.js"></script>
+</body></html>

@@ -1,0 +1,125 @@
+{
+  "title": "同一份程式，兩套設定：本機與正式環境",
+  "lesson": "全環節 · 單元 8 · 8.4 基礎知識",
+  "teacher": {
+    "say": "今天把設定和程式分開",
+    "line": "今天我們看為什麼金鑰、網址這些設定，不能直接寫在程式裡，還有本機和正式網站為什麼要用兩套不同的設定。"
+  },
+  "cast": {
+    "an": {
+      "actor": "person",
+      "props": { "name": "小安", "look": "customer" },
+      "place": "center",
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "同一份程式，跑在兩個地方",
+        "nodes": {
+          "code": { "label": "程式碼", "sub": "放在 GitHub", "icon": "code", "x": 50, "y": 15 },
+          "local": { "label": "本機", "sub": "你的電腦", "icon": "browser", "x": 20, "y": 48 },
+          "prod": { "label": "正式環境", "sub": "雲端伺服器", "icon": "cloud", "x": 80, "y": 48 },
+          "envlocal": { "label": ".env", "sub": "本機的設定", "icon": "file", "x": 10, "y": 82 },
+          "localdb": { "label": "測試資料庫", "icon": "db", "x": 31, "y": 82 },
+          "proddb": { "label": "正式資料庫", "sub": "真的訂單", "icon": "db", "x": 69, "y": 82 },
+          "secrets": { "label": "正式的設定", "sub": "存在雲端", "icon": "lock", "x": 90, "y": 82 }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": { "project": "bakery", "files": {} },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "同一份程式，兩套設定",
+      "eyebrow": "全環節 · 單元 8 · 8.4 基礎知識",
+      "sub": "本機與正式環境為什麼要分開設定",
+      "chapter": "一張嚇人的帳單",
+      "narration": "先聽一個常見的故事。"
+    },
+    { "show": "an" },
+    { "on": "an", "say": "我把天氣服務的金鑰直接寫在程式裡，推上 GitHub……", "mood": "calm" },
+    { "on": "an", "say": "隔天收到一封信：你的額度用完了，帳單好幾千塊。", "mood": "worried", "narration": "金鑰寫在程式裡，程式一上傳，金鑰就跟著公開了。網路上有程式專門在搜這種東西，幾分鐘內就會被拿去用。" },
+    { "hide": "an" },
+    {
+      "show": "flow",
+      "chapter": "程式和設定分開",
+      "narration": "解法是把程式和設定分開。程式只有一份，跑在兩個地方：你的電腦，叫本機；客人用的網站，叫正式環境。"
+    },
+    { "send": ["code", "local"], "label": "同一份程式", "keep": false },
+    { "send": ["code", "prod"], "label": "同一份程式", "keep": false, "narration": "兩邊跑的是同一份程式。" },
+    {
+      "send": ["envlocal", "local"],
+      "label": "DB=測試庫　KEY=測試金鑰",
+      "tone": "key",
+      "narration": "不一樣的是設定。本機讀一個叫 .env 的檔案：連測試資料庫、用測試金鑰。"
+    },
+    { "send": ["local", "localdb"], "label": "亂試也沒關係", "tone": "data", "narration": "所以你在本機怎麼試、怎麼刪資料，都不會動到客人。" },
+    {
+      "send": ["secrets", "prod"],
+      "label": "DB=正式庫　KEY=正式金鑰",
+      "tone": "key",
+      "narration": "正式環境的設定，存在雲端服務的設定區，只有伺服器讀得到。"
+    },
+    { "send": ["prod", "proddb"], "label": "真的客人訂單", "tone": "data" },
+    {
+      "callout": "flow:node:code",
+      "text": "程式碼裡只寫「去讀設定」，不寫真正的值",
+      "narration": "重點在這裡：程式碼裡只寫「去讀某個設定」，不寫真正的金鑰和網址。這種設定叫環境變數。"
+    },
+    { "tidy": true },
+    { "pulse": "code", "text": "如果金鑰寫死在這裡……", "tone": "bad", "narration": "反過來，如果金鑰寫死在程式裡呢？" },
+    { "spawn": "stranger", "label": "陌生人", "sub": "搜尋公開的程式碼", "icon": "user", "x": 50, "y": 50, "tone": "bad" },
+    { "send": ["code", "stranger"], "label": "金鑰被複製", "tone": "bad", "narration": "程式碼放到哪裡，金鑰就跟到哪裡。這就是小安遇到的事。" },
+    { "vanish": "stranger" },
+    { "pulse": "code", "text": "", "tone": "none" },
+    { "hide": "flow" },
+    {
+      "show": "code",
+      "open": "server.js",
+      "chapter": "程式裡長什麼樣",
+      "narration": "看程式裡的差別。這是寫死的寫法。"
+    },
+    { "on": "code", "type": "const KEY = 'wx_live_9f3a…'\nconst DB = 'postgres://admin:pass@db.example/bakery'\n", "narration": "金鑰、資料庫的帳號密碼，全都寫在程式裡。" },
+    { "on": "code", "open": "server.fixed.js", "narration": "改成讀環境變數：" },
+    { "on": "code", "type": "const KEY = process.env.WEATHER_API_KEY\nconst DB = process.env.DATABASE_URL\n", "narration": "程式只說「去讀 WEATHER_API_KEY 這個設定」。值是什麼，交給每個環境自己決定。" },
+    { "on": "code", "open": ".env", "narration": "本機的值寫在 .env。" },
+    { "on": "code", "type": "WEATHER_API_KEY=wx_test_…\nDATABASE_URL=postgres://localhost/bakery_dev\n" },
+    { "on": "code", "open": ".gitignore", "narration": "然後在 .gitignore 寫上 .env，它就永遠不會被上傳。" },
+    { "on": "code", "type": ".env\n" },
+    { "on": "code", "open": ".env.example", "narration": "最後留一份 .env.example：只有名稱、沒有值，讓別人知道要設定哪些東西。這份可以上傳。" },
+    { "on": "code", "type": "WEATHER_API_KEY=\nDATABASE_URL=\n" },
+    { "callout": "code:window", "text": ".env：真的值，不上傳　.env.example：只有名稱，可以上傳", "narration": "記住這兩個檔案的分工。" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你想讓 AI 幫忙看設定有沒有寫對。該把哪個檔案給它看？",
+      "body": "選一個。",
+      "id": "envshare",
+      "options": [
+        {
+          "label": ".env",
+          "steps": [{ "card": ".env 裡是真的金鑰", "eyebrow": "再想想", "sub": "給它看 .env.example，或請它只檢查「有沒有值」而不印出來", "narration": ".env 裡是真的金鑰，不要貼出來。給它看 .env.example，或請它只檢查每一項有沒有值，不要印出內容。" }]
+        },
+        {
+          "label": ".env.example",
+          "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": ".env.example 只有名稱，沒有真的值", "narration": "答對了。.env.example 只有名稱，可以放心給別人和 AI 看。" }]
+        }
+      ]
+    },
+    { "hide": "code" },
+    {
+      "card": "程式只有一份，設定每個環境各一套",
+      "eyebrow": "學會",
+      "sub": "環境變數 · .env 不上傳 · .env.example 給別人看 · 正式環境的設定存在雲端",
+      "chapter": "學會",
+      "narration": "今天的重點：程式只有一份，設定每個環境各一套。本機用 .env，並且不上傳；正式環境的設定存在雲端。下一堂，請 AI 把你專案裡寫死的金鑰和網址，全部搬進 .env。"
+    }
+  ]
+}

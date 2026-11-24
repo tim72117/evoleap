@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>需求分三堆</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+<div class="ttl">把想法分成三堆</div>
+<div class="pool card">
+  <span class="muted lbl">想法（點一張，放到它該去的地方）</span>
+  <div class="cards">
+    <button class="k" id="k1" data-col="fn">客人在手機上點餐</button>
+    <button class="k" id="k2" data-col="fn">店家看到今天的訂單</button>
+    <button class="k" id="k3" data-col="lim">每月花費 300 元內</button>
+    <button class="k" id="k4" data-col="no">會員集點</button>
+    <button class="k" id="k5" data-col="lim">兩週內要上線</button>
+    <button class="k" id="k6" data-col="no">外送</button>
+    <button class="k" id="k7" data-col="fn">選取貨時間</button>
+  </div>
+</div>
+<div class="row cols">
+  <div class="col card fn"><div class="ch">✅ 功能需求<br><span class="muted">它要能做什麼</span></div><div class="slot" id="col-fn"></div></div>
+  <div class="col card lim"><div class="ch">📏 限制<br><span class="muted">錢、時間、裝置</span></div><div class="slot" id="col-lim"></div></div>
+  <div class="col card no"><div class="ch">🚫 這一版不做<br><span class="muted">先寫下來，以後再說</span></div><div class="slot" id="col-no"></div></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

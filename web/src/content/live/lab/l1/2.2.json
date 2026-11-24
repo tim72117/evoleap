@@ -1,0 +1,621 @@
+{
+  "title": "把需求變成工作項目",
+  "lesson": "零基礎 · AI 工具入門 2.2",
+  "camera": "auto",
+  "blocking": {
+    "landscape": {
+      "cast": [
+        "claude",
+        "board"
+      ],
+      "shot": "single"
+    },
+    "portrait": {
+      "cast": [
+        "claude",
+        "board"
+      ],
+      "shot": "depth"
+    }
+  },
+  "cast": {
+    "desk": {
+      "actor": "notes",
+      "props": {
+        "label": "需求清單第 3 版"
+      },
+      "place": {
+        "landscape": {
+          "x": 220,
+          "y": 100,
+          "w": 640,
+          "h": 840
+        },
+        "portrait": {
+          "x": 140,
+          "y": 110,
+          "w": 800,
+          "h": 880
+        }
+      },
+      "hidden": true
+    },
+    "eng": {
+      "actor": "person",
+      "props": {
+        "name": "工程師C",
+        "look": "customer"
+      },
+      "place": {
+        "landscape": {
+          "x": 1080,
+          "y": 260,
+          "w": 640,
+          "h": 500
+        },
+        "portrait": {
+          "x": 140,
+          "y": 1040,
+          "w": 800,
+          "h": 480
+        }
+      },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "整理老闆的訊息",
+        "folder": "~/Documents/小森烘焙",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "輸入訊息…"
+        }
+      },
+      "parts": {
+        "folder": false,
+        "branch": false,
+        "mode": false
+      },
+      "place": {
+        "landscape": "full",
+        "portrait": "window"
+      },
+      "hidden": true
+    },
+    "board": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-l1-2-2-yesno",
+        "width": "desktop",
+        "url": "https://board.example/xiaosen"
+      },
+      "place": {
+        "landscape": "full",
+        "portrait": "window"
+      },
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "teacher": {
+    "say": "交給工程師之前",
+    "line": "需求清單已經夠清楚了。今天要把它變成工程師拿到就能開工、做完能檢查的工作項目。"
+  },
+  "steps": [
+    {
+      "card": "把需求變成工作項目",
+      "eyebrow": "零基礎 · AI 工具入門 2.2",
+      "sub": "轉成工作項目 → 具體回饋 → 對照來源 → 整理摘要",
+      "narration": "這一課，先換個位置，站到拿到清單的那個人旁邊。"
+    },
+    {
+      "show": "desk",
+      "chapter": "站在工程師的位置",
+      "narration": "你把需求清單交給工程師C。上面寫著："
+    },
+    {
+      "jot": "後台要很簡單"
+    },
+    {
+      "jot": "通知要方便"
+    },
+    {
+      "jot": "生日蛋糕有上限"
+    },
+    {
+      "show": "eng"
+    },
+    {
+      "on": "eng",
+      "say": "簡單是多簡單？",
+      "mood": "worried",
+      "narration": "C 看著清單，皺起眉頭。"
+    },
+    {
+      "on": "eng",
+      "say": "通知是哪幾種？什麼時候發？",
+      "mood": "worried"
+    },
+    {
+      "on": "eng",
+      "say": "所以我要做什麼？做到怎樣算完成？",
+      "mood": "tired",
+      "narration": "清單是寫給老闆確認的；工程師要的，是一件件具體、做完能檢查的工作。這張清單上，沒有一條能打勾。"
+    },
+    {
+      "hide": "eng"
+    },
+    {
+      "hide": "desk"
+    },
+    {
+      "card": "把需求變成一件件工作項目",
+      "eyebrow": "這一課的任務",
+      "sub": "每一項都寫清楚：做完怎麼檢查",
+      "narration": "這一課的任務：把需求變成一件件工作項目，每一項都寫清楚做完怎麼檢查。"
+    },
+    {
+      "show": "claude",
+      "chapter": "需求 → 工作項目",
+      "lessonStep": 1,
+      "narration": "接著 2.1 的對話。如果開了新對話，先貼上需求清單第 3 版。"
+    },
+    {
+      "user": "把「一定要有」的需求轉成交給工程師的工作項目，每項附上做完怎麼檢查的驗收條件。",
+      "narration": "把一定要有的需求轉成工作項目，每項附上做完怎麼檢查的驗收條件。"
+    },
+    {
+      "thinking": true,
+      "ms": 1400
+    },
+    {
+      "on": "claude",
+      "say": "**工作項目**\n1. **取貨日期與時段選擇**　驗收：已滿 15 筆的時段無法選擇\n2. **今日取貨清單**　驗收：後台要很簡單\n3. **簡訊通知**　驗收：通知要方便\n4. **生日蛋糕上限**　驗收：當天已滿上限時，那一天不能再選生日蛋糕\n5. **取消訂單**　驗收：取貨前一天中午過後，取消按鈕不能按\n6. **會員登入與註冊**　驗收：客人能用手機號碼註冊\n…"
+    },
+    {
+      "callout": "claude:say",
+      "text": "驗收條件：做完怎麼檢查",
+      "narration": "工作項目，是交給製作的人、一件一件去做的事；驗收條件，是做完之後怎麼檢查算完成。AI 可能還會加上優先順序、大小，有沒有都可以。"
+    },
+    {
+      "show": "board",
+      "narration": "把驗收條件放進檢查機。規則只有一條：能回答是或否，才算能檢查。"
+    },
+    {
+      "checkpoint": "哪幾條驗收條件能用「是／否」檢查？",
+      "id": "yesno",
+      "body": "點每一條驗收條件，看檢查機怎麼判斷。至少點三條，再按「看完了，繼續」。",
+      "stage": {
+        "focus": "board:sel:.tbl"
+      },
+      "interact": {
+        "cast": [
+          "board"
+        ],
+        "spots": [
+          {
+            "target": "board:sel:#a1",
+            "id": "a1",
+            "label": "時段滿 15 筆",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#a1"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#a2",
+            "id": "a2",
+            "label": "後台要很簡單",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#a2"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#a3",
+            "id": "a3",
+            "label": "通知要方便",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#a3"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#a4",
+            "id": "a4",
+            "label": "蛋糕上限",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#a4"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#a5",
+            "id": "a5",
+            "label": "取消期限",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#a5"
+              }
+            ]
+          }
+        ],
+        "until": {
+          "picked": 3
+        },
+        "keep": false
+      },
+      "options": [
+        {
+          "label": "看完了，繼續",
+          "steps": []
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": []
+      }
+    },
+    {
+      "click": "#runAll",
+      "narration": "全部檢查一次。已滿 15 筆的時段無法選擇：選得到，還是選不到？可以回答。"
+    },
+    {
+      "callout": "board:sel:#a2",
+      "text": "「簡單」沒辦法回答是或否",
+      "narration": "可是「後台要很簡單」，多簡單才算簡單？C 和老闆可能想的完全不一樣。"
+    },
+    {
+      "callout": "board:sel:#a3",
+      "text": "「方便」也是",
+      "narration": "「通知要方便」也一樣：哪幾種通知、什麼時候發，都沒說。"
+    },
+    {
+      "card": "工作項目有了",
+      "eyebrow": "先停一下",
+      "sub": "但有些驗收條件，沒辦法檢查",
+      "narration": "工作項目有了，但有兩條驗收條件沒辦法檢查。"
+    },
+    {
+      "hide": "board",
+      "chapter": "把「不好」說成「哪裡不好」",
+      "lessonStep": 2
+    },
+    {
+      "user": "不好，再改改。",
+      "narration": "這時最常見的反應，是回一句：不好，再改改。"
+    },
+    {
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "on": "claude",
+      "say": "好的，我調整了用詞，讓工作項目更清楚：\n1. **取貨日期與時段選擇**　驗收：系統應妥善處理已滿的時段\n2. **今日取貨清單**　驗收：介面直覺、操作簡便\n3. **簡訊通知**　驗收：通知及時且方便\n…"
+    },
+    {
+      "callout": "claude:say",
+      "text": "改了，但不是你要的",
+      "narration": "它真的改了，可是越改越模糊，連本來能檢查的第一條都變了。它不知道你覺得哪裡不好。"
+    },
+    {
+      "user": "兩個地方要改：「方便」「簡單」這類詞改成能檢查的說法；簡訊通知拆成「訂單確認」和「取貨前一天提醒」。其他不要動。",
+      "narration": "換個說法：說出哪裡、改成怎樣。兩個地方要改，其他不要動。如果前一步已經被改亂，先請它回到再改改之前的版本。"
+    },
+    {
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "已修改兩處，其他項目不變：\n- **今日取貨清單**　驗收：店員在平板上 3 步內看到今天要取貨的訂單\n- **簡訊通知** 拆成兩項：\n　- 訂單確認簡訊　驗收：下單後收到訂單確認簡訊\n　- 取貨前一天提醒　驗收：取貨前一天收到提醒簡訊"
+    },
+    {
+      "show": "board",
+      "narration": "放回檢查機。"
+    },
+    {
+      "click": "#fix",
+      "narration": "「簡單」變成：店員在平板上三步內看到今天要取貨的訂單。數一數步數，就能回答是或否。"
+    },
+    {
+      "callout": "board:sel:#a3b",
+      "text": "通知拆成兩條",
+      "narration": "通知拆成訂單確認和前一天提醒兩條。沒被點名的項目，一個字都沒動。"
+    },
+    {
+      "callout": "board:sel:.tbl",
+      "text": "一次改一兩件事",
+      "narration": "「不好」「再改改」很難照著改。說出哪裡、改成怎樣，一次改一兩件事。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "送出第 1 步，把需求轉成工作項目；找出沒辦法用是或否檢查的驗收條件，再用第 2 步的方式具體指出要改的地方。"
+    },
+    {
+      "card": "驗收條件能檢查了",
+      "eyebrow": "先停一下",
+      "sub": "可是，每一項都是需求清單裡有的嗎？",
+      "narration": "驗收條件都能檢查了。可是，每一項都是需求清單裡有的嗎？"
+    },
+    {
+      "show": "board",
+      "site": "lt-l1-2-2-trace",
+      "chapter": "對照來源",
+      "lessonStep": 3,
+      "narration": "左邊是一定要有的需求，右邊是工作項目。"
+    },
+    {
+      "click": "#link",
+      "narration": "把每一個工作項目，連回它來自哪一條需求。"
+    },
+    {
+      "checkpoint": "點一個工作項目，看它從哪條需求來",
+      "id": "trace",
+      "body": "點右邊的工作項目，會亮出它連到的需求。找找看，有沒有哪一項連不回去？看完按「看完了，繼續」。",
+      "stage": {
+        "focus": "board:sel:.map"
+      },
+      "interact": {
+        "cast": [
+          "board"
+        ],
+        "spots": [
+          {
+            "target": "board:sel:#W1",
+            "id": "W1",
+            "label": "商品清單頁",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#W1"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#W1"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#W2",
+            "id": "W2",
+            "label": "日期與時段選擇",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#W2"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#W2"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#W3",
+            "id": "W3",
+            "label": "蛋糕上限設定",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#W3"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#W3"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#W4",
+            "id": "W4",
+            "label": "訂單確認簡訊",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#W4"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#W4"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#W5",
+            "id": "W5",
+            "label": "取貨前一天提醒簡訊",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#W5"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#W5"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#W6",
+            "id": "W6",
+            "label": "今日取貨清單",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#W6"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#W6"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#W7",
+            "id": "W7",
+            "label": "會員登入與註冊",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#W7"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#W7"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#W8",
+            "id": "W8",
+            "label": "沒來取貨紀錄",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#W8"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#W8"
+              }
+            ]
+          }
+        ],
+        "until": {
+          "picked": 2
+        },
+        "keep": false
+      },
+      "options": [
+        {
+          "label": "看完了，繼續",
+          "steps": []
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": []
+      }
+    },
+    {
+      "click": "#orphan",
+      "narration": "會員登入與註冊，連不回任何一條需求。老闆說過會員集點不急，這一項是 AI 自己加的。"
+    },
+    {
+      "callout": "board:sel:#W7",
+      "text": "沒有來源：刪掉或放待確認",
+      "narration": "沒有來源的項目，刪掉或放進待確認，不要默默留著。"
+    },
+    {
+      "click": "#gap",
+      "narration": "反過來看，左邊也有一條沒被任何工作項目涵蓋：取貨前一天中午前可以取消。"
+    },
+    {
+      "callout": "board:sel:#R6",
+      "text": "漏掉的需求",
+      "narration": "需求漏掉了，做完才發現，就要重來。"
+    },
+    {
+      "hide": "board"
+    },
+    {
+      "user": "每個工作項目都對得到需求嗎？找出沒有來源的項目，和沒被任何項目涵蓋的「一定要有」需求。",
+      "narration": "請 AI 也檢查一次。"
+    },
+    {
+      "thinking": true,
+      "ms": 1300
+    },
+    {
+      "on": "claude",
+      "say": "檢查結果：\n- **沒有來源**：「會員登入與註冊」對不到需求清單（會員集點在「有了更好」）。建議刪除或放進待確認。\n- **沒被涵蓋**：「取貨前一天中午前可以取消」目前沒有對應的工作項目。\n\n要我補上取消訂單、移除會員登入嗎？"
+    },
+    {
+      "callout": "claude:say",
+      "text": "兩個方向都要查",
+      "narration": "兩個方向都要查：每一項找得到來源，每一條一定要有的需求，都至少有一個工作項目。"
+    },
+    {
+      "user": "把目前的成果整理成摘要，讓我貼到新對話繼續做。",
+      "chapter": "對話太長時：整理摘要、開新對話",
+      "lessonStep": 4,
+      "narration": "來回這麼多輪，對話已經很長。AI 開始忘記前面的內容時，請它整理一份摘要。"
+    },
+    {
+      "thinking": true,
+      "ms": 1300
+    },
+    {
+      "on": "claude",
+      "say": "**專案摘要：小森烘焙線上預約取貨系統**\n- **背景**：客人用 LINE、電話訂蛋糕常漏單，要做線上預約取貨\n- **需求清單第 3 版**：品項與時段選擇（每時段 15 筆）、蛋糕提前 2 天、生日蛋糕上限（後台可改）、簡訊確認與提醒、平板取貨清單、取消期限、沒來取貨處理\n- **工作項目**：8 項，每項有驗收條件\n- **還沒確認**：生日蛋糕平日 8、週末 12（待老闆確認）"
+    },
+    {
+      "callout": "claude:say",
+      "text": "背景、清單、工作項目、待確認",
+      "narration": "摘要裡至少要有：專案背景、最新的需求清單、工作項目，和還沒確認的問題。貼過去之前，自己先看一次有沒有漏。"
+    },
+    {
+      "newSession": "預約系統（續）",
+      "narration": "開一個新對話。"
+    },
+    {
+      "user": "這是目前的專案摘要，接著做下一步。\n\n【貼上摘要】",
+      "narration": "把摘要貼上，新的對話就能接著做下一課。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "送出第 3 步做來源檢查，處理沒有來源和沒被涵蓋的項目；再用第 4 步整理摘要，開新對話貼上，確認能接著做。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "shimmer": "工作項目清單第 1 版",
+      "sub": "每項有驗收條件 · 對得到需求 · 附專案摘要",
+      "chapter": "回顧"
+    },
+    {
+      "clear": true,
+      "ms": 300
+    },
+    {
+      "card": "回顧",
+      "eyebrow": "2.2 完成",
+      "sub": "驗收條件要能回答是或否 · 回饋說出哪裡、改成怎樣 · 每一項都要有來源。下一課：拆分、排序，決定第一版。",
+      "narration": "回顧一下：驗收條件要能回答是或否；回饋要說出哪裡、改成怎樣；每一個工作項目都要找得到來源。對話太長，就整理摘要開新對話。下一課，有些工作項目太大，我們來拆開、排順序。"
+    }
+  ]
+}

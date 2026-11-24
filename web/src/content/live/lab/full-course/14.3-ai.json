@@ -1,0 +1,148 @@
+{
+  "title": "只在手機或某個瀏覽器才壞",
+  "lesson": "全環節 · 單元 14 · 14.3 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "teacher": {
+    "say": "AI 模擬，你拿真的手機",
+    "line": "這一堂分兩段：先請 AI 模擬各種裝置逐一截圖、修版面；真的手機才有的問題，請它寫好重現步驟，你拿手機試，再回報給它。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "手機版問題", "folder": "~/projects/shop", "branch": null, "mode": "auto", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc14-3-devices", "width": "phone", "url": "http://localhost:3000/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "只在手機或某個瀏覽器才壞",
+      "eyebrow": "全環節 · 單元 14 · 14.3 用 AI 完成",
+      "sub": "AI 模擬裝置截圖、修版面 → 寫真機步驟 → 你試 → 回報 → 再修",
+      "chapter": "第一輪：AI 模擬裝置",
+      "narration": "客人說，用手機看首頁怪怪的。我們分兩段處理。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "客人說首頁在手機上怪怪的。請用 Playwright 模擬 iPhone、Android 手機、iPad 和桌面，逐一截圖首頁和結帳頁，找出版面問題並修好，修完再截一次比較。只有真的手機才測得出來的部分（觸控、iPhone 的 Safari），寫成步驟給我，我拿手機試。",
+      "narration": "交代兩件事：模擬得出來的，你自己截圖、修好、再截圖比較；模擬不出來的，寫步驟給我。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/shots.mjs --devices \"iPhone 15,Pixel 8,iPad,Desktop\" --pages /,/checkout",
+      "result": "已截 8 張圖",
+      "out": "shots/iPhone-15_home.png\nshots/Pixel-8_home.png\nshots/iPad_home.png\nshots/Desktop_home.png\n…（共 8 張）",
+      "narration": "它寫了一個小腳本，用四種裝置的尺寸，各截首頁和結帳頁，一共八張。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "shots/iPhone-15_home.png",
+      "result": "已讀取截圖",
+      "narration": "然後一張一張看截圖。"
+    },
+    { "show": "web", "narration": "這是 iPhone 尺寸的截圖。" },
+    {
+      "on": "claude",
+      "say": "手機上找到 3 個問題：\n1. 冬季新品橫幅寫死 900px 寬，被切掉一半\n2. 優惠訊息的 × 只有 16px，手指很難按到\n3. 「分類」選單要滑鼠移上去才展開，手機沒辦法開\n\niPad 與桌面正常。我來修。",
+      "narration": "它找到三個問題：橫幅被切掉、關閉鈕太小、選單只能用滑鼠展開。平板和桌面都正常。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/styles/home.css",
+      "lines": [[18, "-", ".banner { width: 900px; }"], [18, "+", ".banner { max-width: 900px; width: 100%; }"], [24, "-", ".promo .close { width: 16px; height: 16px; }"], [24, "+", ".promo .close { width: 44px; height: 44px; }"], [31, "-", ".menu:hover .drop { display: block; }"], [31, "+", ".menu.open .drop { display: block; } /* 點一下就展開，手機也能用 */"]],
+      "narration": "橫幅改成最寬九百、但不超過螢幕；關閉鈕放大到四十四像素；選單改成點一下就展開。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/shots.mjs --devices \"iPhone 15,Pixel 8,iPad,Desktop\" --pages /,/checkout --compare",
+      "result": "手機 3 處改善，平板與桌面沒有變化",
+      "out": "iPhone-15_home  修正前 ↔ 修正後：3 處不同\nPixel-8_home    修正前 ↔ 修正後：3 處不同\niPad_home       沒有變化\nDesktop_home    沒有變化",
+      "narration": "修完再截一次，跟修正前比較：手機有三處不同；平板和桌面沒有變化，代表沒有改壞其他尺寸。"
+    },
+    {
+      "on": "web",
+      "site": "fc14-3-fixed",
+      "narration": "新的手機截圖：橫幅完整了，關閉鈕變大了。"
+    },
+    {
+      "on": "claude",
+      "say": "版面修好了。下面這些要用**真的 iPhone** 測，模擬看不出來：\n\n1. 用 Safari 打開 http://192.168.1.20:3000\n2. 點「分類」，選單有沒有展開、能不能再點一下收起來？\n3. 點優惠訊息的 ×，好不好按？\n4. 點「訂閱新品通知」的 Email 欄位，畫面有沒有怪怪的？\n\n每一步都截圖，有問題就告訴我是哪一步。",
+      "chapter": "第二輪：你拿真的手機",
+      "narration": "接著它寫好真機測試的步驟：用哪個瀏覽器、開哪個網址、一步一步點什麼、要注意什麼。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "AI 碰不到你的手機：照步驟做、每步截圖",
+      "narration": "AI 碰不到你的手機，這段由你來。照步驟一步一步做，每一步截圖。"
+    },
+    {
+      "on": "web",
+      "click": "#menu",
+      "narration": "你在 iPhone 上點分類，選單展開了。"
+    },
+    { "on": "web", "click": "#menu" },
+    {
+      "on": "web",
+      "click": "#email",
+      "narration": "點 Email 欄位的時候，整個畫面突然放大，要用兩根手指縮回來。"
+    },
+    {
+      "on": "claude",
+      "user": "照步驟試完：1 OK、2 選單可以開和收、3 好按。第 4 步點 Email 欄位，整個畫面會自動放大，要手動縮回來。截圖：[iPhone-步驟4.png]",
+      "narration": "回報給 AI：哪幾步正常，哪一步有問題，附上截圖。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "這是 iPhone 的 Safari 特有的行為：**輸入框的字小於 16px，點下去就會自動放大**。訂閱欄位目前是 14px。改成 16px 就不會放大。",
+      "chapter": "第三輪：修好再試",
+      "narration": "AI 認出這是 iPhone 上 Safari 的行為：輸入框的字小於十六像素，就會自動放大。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/styles/forms.css",
+      "lines": [[3, "-", "input, select, textarea { font-size: 14px; }"], [3, "+", "input, select, textarea { font-size: 16px; } /* 小於 16px 時 iPhone 會自動放大畫面 */"]],
+      "narration": "全站的輸入框都改成十六像素，結帳頁的欄位也一起解決。"
+    },
+    {
+      "on": "claude",
+      "say": "改好了。請在 iPhone 上重新整理，再做一次第 4 步，也試一下結帳頁的欄位。",
+      "narration": "修好之後，請你用同樣的步驟再試一次。"
+    },
+    {
+      "on": "claude",
+      "user": "重新試了，點 Email 和結帳欄位都不會放大了。",
+      "narration": "這次不會放大了。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- 模擬裝置：手機的 3 個版面問題已修好，平板與桌面沒有變化\n- 真機：iPhone 輸入框自動放大已修好\n\n我把第 4 步加進測試清單，提醒以後新增欄位時字要 ≥ 16px。",
+      "narration": "完成。模擬得到的 AI 自己修；模擬不到的，靠你的真機回報。"
+    },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：模擬截圖 + 真機回報",
+      "body": "請 AI 模擬幾種裝置逐一截圖、修好再比較；再請它寫真機測試步驟。你拿手機照做、每步截圖，把有問題的那一步回報給它。"
+    },
+    {
+      "card": "模擬得到的：AI 截圖、修、再比較\n模擬不到的：AI 寫步驟，你拿手機試",
+      "eyebrow": "學會",
+      "sub": "回報時說清楚：哪一步、看到什麼、附截圖",
+      "chapter": "學會",
+      "narration": "模擬得到的問題，讓 AI 自己截圖、修、再比較；模擬不到的，請它寫步驟，你拿真的手機試。回報時說清楚是哪一步、看到什麼，再附上截圖。"
+    }
+  ]
+}

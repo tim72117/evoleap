@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>我的提問範本</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page" id="page">
+    <h1>「需求 → 工作項目」提問範本</h1>
+    <div class="meta">我的文件 · 第 1 版 · 加上檢查</div>
+    <div class="tpl">
+      <p>我在整理 <span class="slot" id="s-project">【專案名稱】</span> 的需求。以下是客戶的訊息：</p>
+      <p><span class="slot" id="s-msg">【貼上客戶訊息（姓名、電話先換成代稱）】</span></p>
+      <p>請幫我：</p>
+      <ol>
+        <li>整理成需求清單，分成「一定要有」和「之後再說」</li>
+        <li>把「一定要有」的需求轉成工作項目，每項附上做完怎麼檢查的驗收條件</li>
+        <li>列出要向客戶確認的問題</li>
+      </ol>
+      <p>其他限制：<span class="slot">【其他限制（沒有就刪掉）】</span></p>
+      <div class="checks" id="checks">
+        <h2>交出去之前，每次都要做的檢查<span class="new-badge">新加</span></h2>
+        <ul>
+          <li>每條需求標出【原文】或【推測】</li>
+          <li>每個工作項目都要對得到某一條需求；對不到的放進待確認</li>
+          <li>最後列出要向客戶確認的事</li>
+        </ul>
+      </div>
+    </div>
+    <div class="legend"><span class="l-slot">每次要換的地方</span></div>
+  </div>
+
+</body>
+</html>

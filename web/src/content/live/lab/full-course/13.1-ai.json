@@ -1,0 +1,104 @@
+{
+  "title": "為什麼需要測試：AI 改 A 壞 B",
+  "lesson": "全環節 · 單元 13 · 13.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "先列出絕不能壞的事",
+    "line": "這一堂還不寫測試，先請 AI 讀過你的專案，列出「絕不能壞」的清單。之後寫測試，就照這份清單一條一條來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "絕不能壞的清單", "folder": "~/projects/shop", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "board": {
+      "actor": "notes",
+      "props": { "label": "絕不能壞" },
+      "place": "center",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "絕不能壞的清單",
+      "eyebrow": "全環節 · 單元 13 · 13.1 用 AI 完成",
+      "sub": "讓 AI 讀專案、排優先順序、寫出怎麼檢查",
+      "chapter": "交代",
+      "narration": "測試不可能一次寫完全部。所以先決定：哪些事壞了會最慘？這份清單，請 AI 讀過專案後幫你列。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "讀過整個專案，列出「絕不能壞」的清單：壞了會讓客人買不了東西、資料外洩、或收不到錢的功能排前面。每一條寫出：怎樣算壞、要用單元測試還是端對端測試檢查。存成 docs/must-not-break.md。",
+      "narration": "說清楚排序的標準：買不了、外洩、收不到錢的排前面。每一條還要寫怎樣算壞、用哪一種測試檢查。"
+    },
+    {
+      "on": "claude",
+      "tool": "Glob",
+      "arg": "src/**/*.ts",
+      "result": "找到 48 個檔案",
+      "chapter": "AI 讀專案",
+      "narration": "它先把專案的檔案找出來。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "src/routes/checkout.ts", "result": "已讀取 186 行" },
+    { "on": "claude", "tool": "Read", "arg": "src/auth/login.ts", "result": "已讀取 94 行" },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "discount\\(",
+      "result": "4 個檔案用到",
+      "out": "src/cart/total.ts\nsrc/routes/checkout.ts\nsrc/emails/receipt.ts\nsrc/admin/report.ts",
+      "narration": "它還查了哪些地方用到計算折扣：購物車、結帳、收據信、後台報表都有。上一課說的改 A 壞 B，就藏在這種地方。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1400 },
+    {
+      "on": "claude",
+      "ask": "docs/must-not-break.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/shop",
+      "preview": "# 絕不能壞的清單\n1. 結帳付款成功、訂單建立（端對端）\n2. 登入與重設密碼（端對端）\n3. 折扣與總金額計算正確（單元）\n4. 會員只看得到自己的訂單（單元＋端對端）\n5. 付款通知與訂單確認信寄出（單元）\n6. 後台只有管理員能進（端對端）",
+      "narration": "它寫好了清單，建立檔案前先讓你看內容。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "每一條都寫了用哪種測試；用到很多地方的「折扣計算」也列進去了",
+      "narration": "看一下排序：結帳、登入在最前面；被很多地方用到的折扣計算也在裡面。合理，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "docs/must-not-break.md", "result": "已建立" },
+    {
+      "on": "claude",
+      "say": "清單完成，存在 `docs/must-not-break.md`。我依「壞了的損失」排序：\n\n1. **結帳付款**：壞了就沒有收入\n2. **登入與重設密碼**：壞了客人進不來\n3. **折扣與總金額**：被 4 個地方用到，最容易改 A 壞 B\n4. **只看得到自己的訂單**：壞了會資料外洩\n\n下一步可以從第 3 條開始寫第一個單元測試，最快見效。",
+      "narration": "它解釋排序的理由，也建議從哪裡開始：折扣計算被用到最多次，最容易改 A 壞 B，寫測試最快見效。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "board",
+      "jot": "結帳付款成功、訂單建立",
+      "chapter": "貼在看得到的地方",
+      "narration": "把清單的前幾條，貼在你看得到的地方。"
+    },
+    { "on": "board", "jot": "登入與重設密碼" },
+    { "on": "board", "jot": "折扣與總金額計算正確" },
+    {
+      "on": "board",
+      "jot": "會員只看得到自己的訂單",
+      "narration": "以後每次請 AI 改東西，都問自己一句：這次會不會碰到牆上這幾條？"
+    },
+    { "hide": "board" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：請 AI 列出你的專案絕不能壞的清單",
+      "body": "說清楚排序標準（買不了、外洩、收不到錢排前面），每一條寫怎樣算壞、用哪種測試，存成檔案。"
+    },
+    {
+      "card": "先列清單，再寫測試\n損失越大，排越前面",
+      "eyebrow": "學會",
+      "sub": "下一課：從清單第一條，讓 AI 寫第一個測試",
+      "chapter": "學會",
+      "narration": "測試從清單開始：損失越大的排越前面，每一條寫清楚怎樣算壞。下一課，就從清單上的一條，讓 AI 寫第一個測試。"
+    }
+  ]
+}

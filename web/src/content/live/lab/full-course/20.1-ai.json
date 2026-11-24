@@ -1,0 +1,188 @@
+{
+  "title": "推送標籤才部署",
+  "lesson": "全環節 · 單元 20 · 20.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 寫部署流程",
+    "line": "這一課請 AI 寫出 GitHub Actions 的部署流程，推一次標籤看結果。失敗也沒關係，我們就讓它讀紀錄、自己修。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "自動部署",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc20-1-run-fail", "url": "https://code.example/komori/shop/actions/runs/1" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "推送標籤才部署",
+      "eyebrow": "全環節 · 單元 20 · 20.1 用 AI 完成",
+      "sub": "寫工作流程 → 推標籤 → 讀紀錄修 → 再推一次",
+      "narration": "目標很清楚：推送標籤之後，網站自動更新。我們一來一回，直到它真的成功。"
+    },
+    {
+      "show": "claude",
+      "chapter": "第一輪：交代清楚，讓它寫",
+      "narration": "打開專案，先把要的結果和「怎樣算完成」一起講清楚。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我寫 GitHub Actions：推送 v 開頭的標籤時，先跑 npm test，通過才部署到 Cloud Run 的 shop 服務。完成的標準：推一個標籤後，網站回應 200，而且是新版本。",
+      "narration": "觸發條件、先測試、部署到哪裡、怎樣算完成，四件事都講到了。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    { "on": "claude", "tool": "Read", "arg": "package.json", "result": "有 test、build 指令" },
+    { "on": "claude", "tool": "Glob", "arg": ".github/workflows/*", "result": "沒有檔案", "narration": "它先看專案裡有什麼：有測試指令，還沒有任何工作流程。" },
+    {
+      "on": "claude",
+      "edit": ".github/workflows/deploy.yml",
+      "lines": [
+        [1, "+", "on:"],
+        [2, "+", "  push:"],
+        [3, "+", "    tags: ['v*']"],
+        [4, "+", "jobs:"],
+        [5, "+", "  test:"],
+        [6, "+", "    steps: [checkout, npm ci, npm test]"],
+        [7, "+", "  deploy:"],
+        [8, "+", "    needs: test"],
+        [9, "+", "    steps: [auth, gcloud run deploy shop --source .]"]
+      ],
+      "narration": "它寫出工作流程。第三行是觸發條件：v 開頭的標籤。第八行 needs test，意思是測試通過才部署。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "needs: test → 測試沒過，deploy 不會開始",
+      "narration": "看不懂每一行沒關係，記得找這兩個重點：什麼時候觸發、部署有沒有排在測試後面。"
+    },
+    {
+      "on": "claude",
+      "say": "工作流程寫好了。要驗證它，需要推送一個標籤 `v1.0.0`，我會等執行結果再回報。",
+      "narration": "它說要推一個標籤來驗證。"
+    },
+    {
+      "on": "claude",
+      "ask": "git tag v1.0.0 && git push origin main v1.0.0",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "推送程式與標籤 v1.0.0，會觸發部署"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "推送會觸發部署：確認是你要的再允許",
+      "narration": "推送標籤會真的觸發部署，所以它先問你。確認是你要的，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gh run watch", "result": "✕ deploy 失敗(52 秒)", "narration": "它在等執行結果……失敗了。" },
+    {
+      "show": "web",
+      "chapter": "失敗了：讀紀錄",
+      "narration": "我們也打開 GitHub 的 Actions 頁面看看。測試通過了，是部署這一步失敗。"
+    },
+    { "on": "web", "click": "#j-deploy", "narration": "點開部署的紀錄。" },
+    {
+      "callout": "web:sel:#log",
+      "text": "PERMISSION_DENIED：部署用的帳號沒有更新服務的權限",
+      "narration": "紅字寫著 PERMISSION DENIED，權限不足。看不懂也沒關係，這正是要交給 AI 的部分。"
+    },
+    {
+      "on": "claude",
+      "user": "部署失敗了。你自己讀失敗的紀錄，找出原因修好，再推一次。",
+      "chapter": "第二輪：讓它讀紀錄修",
+      "narration": "回到 Claude，不用自己解讀，請它自己去讀紀錄。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh run view --log-failed",
+      "result": "Permission 'run.services.update' denied",
+      "out": "deployer@komori-shop.iam 缺少 Cloud Run 開發人員角色"
+    },
+    {
+      "on": "claude",
+      "say": "原因：部署用的帳號 `deployer` 沒有 Cloud Run 的部署權限。我要幫它加上 **Cloud Run 開發人員** 角色，只給這一個服務需要的權限。",
+      "narration": "它找到原因：部署用的帳號少了一個權限。而且它只打算給剛好夠用的那一個。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud projects add-iam-policy-binding komori-shop --member=serviceAccount:deployer@… --role=roles/run.developer",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "替部署帳號加上 Cloud Run 開發人員角色"
+    },
+    { "on": "claude", "choose": 1, "narration": "改權限是會留下來的設定，看清楚角色名稱再允許。" },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud projects add-iam-policy-binding …", "result": "已更新權限" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git tag v1.0.1 && git push origin v1.0.1 && gh run watch",
+      "result": "✓ test ✓ deploy(1 分 38 秒)",
+      "narration": "它推了新的標籤 v1.0.1，再等一次結果。這次兩步都打勾了。"
+    },
+    { "on": "web", "site": "fc20-1-run-ok", "narration": "網頁上也是綠色的。紀錄最後一行，就是網站的網址。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s https://shop.example.app/version",
+      "result": "200 OK",
+      "out": "{\"version\":\"1.0.1\"}",
+      "chapter": "照完成標準驗證",
+      "narration": "最後，它照我們給的完成標準自己驗證：網站回應 200，版本是 1.0.1。這才算真的完成。"
+    },
+    {
+      "on": "claude",
+      "say": "完成：推送 `v1.0.1` 後網站已自動更新，回應 200、版本 1.0.1。之後只要推送新標籤就會部署；測試沒過會停在部署之前。",
+      "narration": "它回報做了什麼、怎麼驗證的、之後怎麼用。"
+    },
+    {
+      "on": "claude",
+      "user": "再改一點：平常推送 main 也要跑測試，但只有推標籤才部署。",
+      "chapter": "第三輪：再調整一次",
+      "narration": "用了一下，你想再改一點：平常推送也想跑測試，早點知道有沒有壞，但還是只有標籤才部署。"
+    },
+    {
+      "on": "claude",
+      "edit": ".github/workflows/deploy.yml",
+      "lines": [
+        [2, " ", "  push:"],
+        [3, "+", "    branches: [main]"],
+        [4, " ", "    tags: ['v*']"],
+        [8, " ", "    needs: test"],
+        [9, "+", "    if: startsWith(github.ref, 'refs/tags/v')"]
+      ],
+      "narration": "它加了兩行：推送 main 也觸發，但部署這一步多一個條件，只有標籤才做。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git push origin main && gh run watch",
+      "result": "✓ test　⊘ deploy 略過",
+      "narration": "推一次 main 驗證：測試跑了，部署被略過，正是我們要的。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 為你的專案寫部署用的工作流程，說清楚觸發條件、先測試、部署到哪裡、怎樣算完成。推一個標籤；失敗就請它讀紀錄修，直到網站回應新版本。",
+      "narration": "換你做做看。說清楚四件事，推一個標籤。失敗了別急，請它讀紀錄修，直到網站真的更新。"
+    },
+    {
+      "card": "推送標籤後，網站自動更新",
+      "eyebrow": "這一課的成果",
+      "sub": "失敗不可怕：讓 AI 讀紀錄、修好、再推一次",
+      "narration": "這一課的成果：推送標籤後，網站自動更新。下一課，我們把部署用的權限換成更安全、不用存金鑰的做法。"
+    }
+  ]
+}

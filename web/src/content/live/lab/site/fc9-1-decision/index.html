@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>decisions/database.md</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="doc">
+  <span class="file mono">docs/decisions/database.md</span>
+  <h1>小森烘焙要用哪一種資料庫</h1>
+  <p class="muted">依專案現況：網站放在 Cloud Run、預計每天 50 筆訂單、之後要會員登入與線上付款。</p>
+  <table class="cmp">
+    <tr><th>需求</th><th>檔案</th><th>SQLite</th><th>Postgres</th><th>Firestore</th></tr>
+    <tr><td>Cloud Run 重新啟動後資料還在</td><td class="x">✗</td><td class="x">✗ 檔案會不見</td><td class="o">✓</td><td class="o">✓</td></tr>
+    <tr><td>好幾個人同時下單不會蓋掉</td><td class="x">✗</td><td class="m">△</td><td class="o">✓</td><td class="o">✓</td></tr>
+    <tr><td>月底統計營收（加總、分組）</td><td class="x">✗</td><td class="o">✓</td><td class="o">✓</td><td class="m">△</td></tr>
+    <tr><td>訂單、會員、付款之間的關聯</td><td class="x">✗</td><td class="o">✓</td><td class="o">✓</td><td class="m">△</td></tr>
+    <tr><td>每月費用</td><td>0</td><td>0</td><td>約 NT$300 起</td><td>小量免費</td></tr>
+  </table>
+  <div class="rec card" id="rec"><b>建議：Postgres（雲端代管的資料庫服務）</b>
+    <ul class="hide" id="why"><li>Cloud Run 的容器隨時會被換掉，SQLite 檔案留不住。</li><li>訂單、會員、付款要互相對得上，關聯式資料庫最穩。</li><li>本機開發先用 Docker 跑一份 Postgres，不碰正式資料。</li></ul>
+    <button class="btn small ghost" id="more">看理由</button></div>
+</div>
+</body></html>

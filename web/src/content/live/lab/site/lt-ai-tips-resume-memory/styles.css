@@ -1,0 +1,32 @@
+* { box-sizing: border-box; }
+#app { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif; color: #1f2328; background: #f6f4ef; min-height: 100%; font-size: 20px; line-height: 1.5; }
+button { font: inherit; cursor: pointer; }
+.btn { border: 0; background: #2f6fde; color: #fff; border-radius: 10px; padding: 8px 18px; font-weight: 700; font-size: 18px; }
+.btn.ghost { background: #fff; color: #2f6fde; border: 2px solid #2f6fde; }
+.muted { color: #6b7480; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.r1, .r2, .r3, .r4, .r5, .r6 { visibility: hidden; }
+.on1 .r1, .on2 .r2, .on3 .r3, .on4 .r4, .on5 .r5, .on6 .r6 { visibility: visible; }
+.tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+.tab { border: 2px solid #cfd6df; background: #fff; border-radius: 999px; padding: 6px 18px; font-size: 18px; color: #33404d; }
+.tab.cur { background: #1f2328; color: #fff; border-color: #1f2328; }
+#app { padding: 22px 40px; min-height: 720px; }
+.top { display: flex; flex-direction: column; gap: 12px; }
+.ttl { font-size: 32px; font-weight: 800; }
+.desk { position: relative; height: 520px; margin-top: 20px; }
+.book { position: absolute; top: 20px; width: 400px; min-height: 300px; background: #fffdf3; border-radius: 6px 16px 16px 6px; box-shadow: 0 6px 18px rgba(0,0,0,.12); padding: 18px 22px 18px 34px; border-left: 14px solid #b5733d; }
+.bt { font-weight: 800; font-size: 22px; margin-bottom: 8px; }
+.book ul { margin: 0; padding-left: 20px; font-size: 19px; line-height: 1.8; }
+.old { left: 20px; }
+.new { left: 520px; border-left-color: #6b7480; }
+.emp { color: #9aa3ad; font-size: 20px; margin-top: 60px; text-align: center; }
+.ai { position: absolute; left: 960px; top: 90px; font-size: 22px; text-align: center; background: #eef4ff; border-radius: 16px; padding: 14px 18px; }
+.ai b { color: #2f6fde; }
+[data-s="2"] .old { opacity: .35; }
+[data-s="3"] .new, [data-s="4"] .new { opacity: .35; }
+[data-s="3"] .old, [data-s="4"] .old { box-shadow: 0 0 0 5px #2f6fde, 0 6px 18px rgba(0,0,0,.12); }
+[data-s="3"] .ai, [data-s="4"] .ai { left: 960px; }
+.sum { position: absolute; left: 20px; top: 360px; right: 20px; background: #fff8e6; border: 2px solid #f2c14e; border-radius: 14px; padding: 12px 18px; display: flex; gap: 24px; align-items: center; }
+.sum .bt { margin: 0; }
+.mini { background: #fff; border-radius: 8px; padding: 4px 12px; font-size: 18px; }
+.arr { color: #a8720c; font-weight: 800; font-size: 20px; }

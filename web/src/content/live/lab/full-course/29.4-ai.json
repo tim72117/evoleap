@@ -1,0 +1,166 @@
+{
+  "title": "AI 卡住時怎麼辦",
+  "lesson": "全環節 · 單元 29 · 29.4 用 AI 完成",
+  "teacher": {
+    "say": "今天帶卡住的 AI 走出來",
+    "line": "這一堂，我們從一個已經卡住的對話開始。你要叫它停下來、整理已知和未知、換方法，最後把這套做法存成一份清單。"
+  },
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "phone"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "手機選單", "folder": "~/projects/bakery", "branch": "fix-menu", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "phone": {
+      "actor": "browser",
+      "props": { "site": "fc29-4-menu-bad", "width": "phone", "url": "http://localhost:5173/" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "AI 卡住時怎麼辦",
+      "eyebrow": "全環節 · 單元 29 · 29.4 用 AI 完成",
+      "sub": "停下來、整理、換方法、縮小問題",
+      "chapter": "已經卡住了",
+      "narration": "這個對話已經進行一陣子了。"
+    },
+    { "show": "claude" },
+    { "on": "claude", "user": "手機版的選單按鈕點了沒反應，幫我修" },
+    { "on": "claude", "edit": "src/style.css", "lines": [[42, "-", "  z-index: 10;"], [42, "+", "  z-index: 100;"]] },
+    { "on": "claude", "say": "我把按鈕的 z-index 調高了，應該可以點了。" },
+    { "on": "claude", "user": "還是不行" },
+    { "on": "claude", "edit": "src/style.css", "lines": [[42, "-", "  z-index: 100;"], [42, "+", "  z-index: 9999;"], [43, "+", "  position: relative;"]] },
+    {
+      "on": "claude",
+      "say": "我再調整一下樣式，這次應該可以了。如果還是不行，我可以重寫整個頁首。",
+      "narration": "同一招用了兩次，它還說「應該」，接著想重寫整個頁首。三個訊號都到齊了。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "同一招、「應該」、想改更大",
+      "narration": "這時候不要說「再試試看」。"
+    },
+    {
+      "on": "claude",
+      "user": "先停下來，不要再改檔案。\n列出：1. 你已經確定的事 2. 還不確定的事 3. 一個不一樣的方法，先找證據",
+      "chapter": "第一輪：停下來整理",
+      "narration": "我們請它停，並且列出三件事。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "say": "**已確定**：按鈕在畫面上看得到；桌面版選單正常。\n**不確定**：點下去時，點到的是不是按鈕本身？我一直假設是。\n**新方法**：在手機寬度下，查「按鈕位置上最上層的元素是誰」，不再改 z-index。",
+      "narration": "一整理，它自己發現了：它一直假設點到的是按鈕，但從來沒確認過。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "「不確定」那一行，就是一直猜錯的地方",
+      "narration": "列出不確定的事，往往就找到它一直在猜的地方。"
+    },
+    {
+      "on": "claude",
+      "user": "好，照新方法查，先不要改",
+      "chapter": "第二輪：換方法找證據"
+    },
+    {
+      "on": "claude",
+      "ask": "npx playwright evaluate --viewport 390x844 http://localhost:5173 \"document.elementFromPoint(340, 40).className\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "用手機尺寸打開網頁，查按鈕位置上最上層的元素",
+      "narration": "它用手機尺寸打開網頁，問瀏覽器：按鈕那個位置，最上層的元素到底是誰？"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "npx playwright evaluate … elementFromPoint(340, 40)", "result": "promo", "out": "\"promo\"" },
+    {
+      "on": "claude",
+      "say": "找到原因了：最上層是 `.promo`，一塊透明的促銷橫幅，蓋在按鈕上面。點到的是它，不是按鈕。改 z-index 沒用，是因為橫幅在另一層。",
+      "narration": "答案出來了：最上面是一塊透明的促銷橫幅。點到的一直是它。"
+    },
+    {
+      "show": "phone",
+      "narration": "我們用手機寬度看看。"
+    },
+    {
+      "callout": "phone:section:promo",
+      "text": "看不見的橫幅，蓋住了右上角",
+      "narration": "就是這一塊。看不見，卻擋在按鈕上面。"
+    },
+    {
+      "on": "phone",
+      "click": "#menuBtn",
+      "narration": "點下去，沒反應。"
+    },
+    {
+      "on": "claude",
+      "user": "先把前面兩次 z-index 的修改還原，再用最小的改法修",
+      "chapter": "第三輪：還原，再小小地修",
+      "narration": "知道原因後，先把前面亂試的修改還原，再用最小的改法修。"
+    },
+    {
+      "on": "claude",
+      "ask": "git checkout -- src/style.css",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "放棄 style.css 還沒提交的修改，回到上一次提交的樣子"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "git checkout -- src/style.css", "result": "已還原" },
+    {
+      "on": "claude",
+      "ask": "src/style.css",
+      "q": "Claude 想要修改這個檔案",
+      "where": "~/projects/bakery",
+      "preview": ".promo { pointer-events: none; }"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "edit": "src/style.css",
+      "lines": [[88, " ", ".promo {"], [89, "+", "  pointer-events: none; /* 橫幅只是裝飾，不接收點擊 */"], [90, " ", "}"]],
+      "narration": "只加一行：讓橫幅不接收點擊。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright evaluate … elementFromPoint(340, 40)",
+      "result": "menuBtn",
+      "out": "\"menuBtn\"",
+      "narration": "再查一次，最上層變成按鈕了。"
+    },
+    { "show": "phone", "site": "fc29-4-menu-ok" },
+    { "on": "phone", "click": "#menuBtn", "narration": "點下去，選單打開了。前後只改了一行。" },
+    {
+      "on": "claude",
+      "user": "把這次「卡住時怎麼處理」整理成 docs/when-stuck.md，以後我直接貼給你",
+      "chapter": "存成處理清單",
+      "foreground": "claude"
+    },
+    {
+      "on": "claude",
+      "ask": "docs/when-stuck.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "# 卡住時\n訊號：同一招試兩次、越改越多、說「應該」\n1. 停：不要再改檔案\n2. 列出已確定／不確定\n3. 換方法：先找證據再改\n4. 縮小：做最小的例子\n5. 還原亂試的修改，用最小改法修\n6. 還是不行：寫摘要，開新對話"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "docs/when-stuck.md", "result": "14 行" },
+    {
+      "diff": "docs/when-stuck.md",
+      "lines": [["+", "訊號：同一招試兩次、越改越多、說「應該」"], ["+", "1. 停：不要再改檔案"], ["+", "2. 列出已確定／不確定"], ["+", "3. 換方法：先找證據再改"], ["+", "4. 縮小問題、還原亂試的修改"], ["+", "5. 還是不行：寫摘要，開新對話"]],
+      "narration": "這份清單以後隨時能用。看到訊號，就把它貼給 AI。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "換你試試",
+      "body": "下次 AI 同一招試了兩次還沒好，貼出 docs/when-stuck.md，請它先列出已確定和不確定的事。比較一下：整理之後，它找到原因快了多少？",
+      "narration": "換你試試。下次看到卡住的訊號，就貼出這份清單，請它先整理再動手。"
+    }
+  ]
+}

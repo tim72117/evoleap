@@ -1,0 +1,533 @@
+{
+  "title": "加入會議筆記：補齊並更新需求清單",
+  "lesson": "零基礎 · AI 工具入門 1.2",
+  "camera": "auto",
+  "blocking": {
+    "landscape": {
+      "cast": [
+        "claude",
+        "board"
+      ],
+      "shot": "single"
+    },
+    "portrait": {
+      "cast": [
+        "claude",
+        "board"
+      ],
+      "shot": "depth"
+    }
+  },
+  "cast": {
+    "boss": {
+      "actor": "person",
+      "props": {
+        "name": "老闆A",
+        "look": "boss"
+      },
+      "place": {
+        "landscape": {
+          "x": 90,
+          "y": 220,
+          "w": 560,
+          "h": 460
+        },
+        "portrait": {
+          "x": 40,
+          "y": 110,
+          "w": 1000,
+          "h": 520
+        }
+      },
+      "hidden": true
+    },
+    "staff": {
+      "actor": "person",
+      "props": {
+        "name": "店員B",
+        "look": "staff"
+      },
+      "place": {
+        "landscape": {
+          "x": 680,
+          "y": 220,
+          "w": 560,
+          "h": 460
+        },
+        "portrait": {
+          "x": 40,
+          "y": 670,
+          "w": 1000,
+          "h": 520
+        }
+      },
+      "hidden": true
+    },
+    "eng": {
+      "actor": "person",
+      "props": {
+        "name": "工程師C",
+        "look": "customer"
+      },
+      "place": {
+        "landscape": {
+          "x": 1270,
+          "y": 220,
+          "w": 560,
+          "h": 460
+        },
+        "portrait": {
+          "x": 40,
+          "y": 1230,
+          "w": 1000,
+          "h": 520
+        }
+      },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "整理老闆的訊息",
+        "folder": "~/Documents/小森烘焙",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "輸入訊息…"
+        }
+      },
+      "parts": {
+        "folder": false,
+        "branch": false,
+        "mode": false
+      },
+      "place": {
+        "landscape": "full",
+        "portrait": "window"
+      },
+      "hidden": true
+    },
+    "board": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-l1-1-2-merge",
+        "width": "desktop",
+        "url": "https://board.example/xiaosen"
+      },
+      "place": {
+        "landscape": "full",
+        "portrait": "window"
+      },
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "teacher": {
+    "say": "把會議筆記併進來",
+    "line": "上一課你整理好了需求清單。後來老闆他們開了一次會，這次要把會議筆記併進你的清單。"
+  },
+  "steps": [
+    {
+      "card": "加入會議筆記：補齊並更新需求清單",
+      "eyebrow": "零基礎 · AI 工具入門 1.2",
+      "sub": "找出新增 → 找出不一致 → 輸出標明來源的最新版",
+      "narration": "清單整理好了，事情還沒完。真實的案子，需求會一直補進來。"
+    },
+    {
+      "show": "boss",
+      "chapter": "會議上冒出的新說法",
+      "narration": "這是小森烘焙的討論會議：老闆A、店員B，還有負責做系統的工程師C。"
+    },
+    {
+      "show": "staff"
+    },
+    {
+      "show": "eng"
+    },
+    {
+      "on": "boss",
+      "say": "蛋糕要提前 2 天訂，麵包前一天就可以。",
+      "mood": "calm"
+    },
+    {
+      "on": "staff",
+      "say": "後台想用平板看，每天早上看今天要取貨的，最好能印出來。",
+      "mood": "calm"
+    },
+    {
+      "on": "boss",
+      "say": "生日蛋糕平日 8 個、週末 12 個。週日傍晚不營業。",
+      "mood": "busy",
+      "narration": "等一下。你的清單上寫的是「大概 8 個」，現在變成平日 8 個、週末 12 個。"
+    },
+    {
+      "on": "eng",
+      "say": "要不要讓客人取消訂單？",
+      "mood": "calm"
+    },
+    {
+      "on": "boss",
+      "say": "可以，但要在取貨前一天中午前。",
+      "mood": "happy",
+      "narration": "上一課放在待確認的「取消訂單」，會議上有了答案。"
+    },
+    {
+      "on": "eng",
+      "say": "通知要用簡訊還是 LINE？",
+      "mood": "calm"
+    },
+    {
+      "on": "staff",
+      "say": "嗯……這個還沒決定。",
+      "mood": "worried",
+      "narration": "最後一個問題懸在那裡：通知要用簡訊還是 LINE？還沒決定。"
+    },
+    {
+      "hide": "boss"
+    },
+    {
+      "hide": "staff"
+    },
+    {
+      "hide": "eng"
+    },
+    {
+      "card": "把會議筆記併進需求清單",
+      "eyebrow": "這一課的任務",
+      "sub": "找出前後說法不一樣的地方，交給老闆決定",
+      "narration": "開完會，筆記一大堆，有些說法和老闆原本講的不一樣。這一課的任務：把會議筆記併進需求清單，找出不一樣的地方，交給老闆決定。"
+    },
+    {
+      "show": "claude",
+      "chapter": "會議筆記裡的新需求",
+      "lessonStep": 1,
+      "narration": "回到上一課的那段對話，接著貼上會議筆記。如果開了新對話，先把 1.1 的需求清單貼上。"
+    },
+    {
+      "user": "這是後來的會議筆記，找出新增的需求，加進剛才的需求清單。\n\n【貼上會議筆記】",
+      "narration": "這是後來的會議筆記，找出新增的需求，加進剛才的需求清單。"
+    },
+    {
+      "thinking": true,
+      "ms": 1300
+    },
+    {
+      "on": "claude",
+      "say": "會議筆記裡新增的需求：\n- 蛋糕需提前 2 天預訂，麵包前一天即可\n- 店員可用平板查看當日取貨清單，並能列印\n- 客人可在取貨前一天中午前取消訂單\n\n已加進需求清單。「客人能取消訂單」原本是推測，現在筆記裡有了出處。"
+    },
+    {
+      "show": "board",
+      "narration": "把兩份放在一起看：左邊是你的清單，右邊是會議筆記。"
+    },
+    {
+      "click": "#markNew",
+      "narration": "先標出新增的：預訂期限、平板看清單、取消的期限，這三條是清單上原本沒有的。"
+    },
+    {
+      "callout": "board:sel:#m2",
+      "text": "每一條新需求都要找得到出處",
+      "narration": "AI 說新增的，你也要能在筆記裡指出是哪一句。"
+    },
+    {
+      "callout": "board:sel:.notes",
+      "text": "人名換成代稱",
+      "narration": "用你自己的會議筆記時，人名換成同事A，公司換成廠商B，金額和聯絡方式刪掉。公司如果有 AI 使用規定，以公司的規定為準。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "接著 1.1 的對話，送出第 1 步的提示詞和會議筆記，找出新增的需求。對照筆記，確認每一條都找得到出處。"
+    },
+    {
+      "card": "新需求加進來了",
+      "eyebrow": "先停一下",
+      "sub": "但有些說法，和老闆原本講的不一樣",
+      "narration": "新需求加進來了。但有些說法，和老闆原本講的不一樣。"
+    },
+    {
+      "checkpoint": "筆記裡哪幾句和你的清單說法不一樣？",
+      "id": "spot",
+      "chapter": "找出不一致的地方",
+      "lessonStep": 2,
+      "body": "點右邊會議筆記的每一句，看看它是新增、更具體、不一致，還是還沒決定。至少點三句，再按「看完了，繼續」。",
+      "stage": {
+        "focus": "board:viewport"
+      },
+      "interact": {
+        "cast": [
+          "board"
+        ],
+        "spots": [
+          {
+            "target": "board:sel:#m1",
+            "id": "m1",
+            "label": "蛋糕提前 2 天訂",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#m1"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#m1"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#m2",
+            "id": "m2",
+            "label": "平板看取貨清單",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#m2"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#m2"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#m3",
+            "id": "m3",
+            "label": "取貨時段",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#m3"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#m3"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#m4",
+            "id": "m4",
+            "label": "生日蛋糕上限",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#m4"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#m4"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#m5",
+            "id": "m5",
+            "label": "取消訂單",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#m5"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#m5"
+              }
+            ]
+          },
+          {
+            "target": "board:sel:#m6",
+            "id": "m6",
+            "label": "通知方式",
+            "steps": [
+              {
+                "on": "board",
+                "click": "#m6"
+              }
+            ],
+            "again": [
+              {
+                "on": "board",
+                "click": "#m6"
+              }
+            ]
+          }
+        ],
+        "until": {
+          "picked": 3
+        },
+        "keep": false
+      },
+      "options": [
+        {
+          "label": "看完了，繼續",
+          "steps": []
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": []
+      }
+    },
+    {
+      "click": "#markDiff",
+      "narration": "一次全部標出來。紅色這條，是真正的不一致：訊息說大概 8 個，筆記說平日 8 個、週末 12 個。"
+    },
+    {
+      "callout": "board:sel:#l1",
+      "text": "第 1 版：大概 8 個",
+      "narration": "同一件事，兩個說法。"
+    },
+    {
+      "callout": "board:sel:#m4",
+      "text": "筆記：平日 8、週末 12"
+    },
+    {
+      "callout": "board:sel:#m3",
+      "text": "更具體，不算衝突",
+      "narration": "黃色的取貨時段，筆記補上了具體的時間，比原本更清楚。"
+    },
+    {
+      "hide": "board"
+    },
+    {
+      "user": "筆記和老闆原本的訊息有哪些地方不一致？列出來就好，不要替我決定。",
+      "narration": "請 AI 也找一次。注意最後一句：列出來就好，不要替我決定。"
+    },
+    {
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "say": "不一致的地方：\n1. **生日蛋糕上限**：訊息說「大概 8 個」，筆記說「平日 8 個、週末 12 個」\n2. **取貨時段**：訊息只說上午、下午、傍晚；筆記有具體時間，並說週日傍晚不營業\n\n另外，通知要用簡訊還是 LINE，筆記寫「還沒決定」。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "只列出來，沒有替你選",
+      "narration": "它只列出兩邊的說法，沒有自己挑一個。"
+    },
+    {
+      "checkpoint": "8 個還是週末 12 個，該聽誰的？",
+      "id": "who",
+      "body": "選一個你會怎麼處理。",
+      "stage": {
+        "focus": "claude:say"
+      },
+      "options": [
+        {
+          "label": "讓 AI 選一個就好",
+          "steps": [
+            {
+              "card": "衝突要由人決定",
+              "eyebrow": "不要讓 AI 選",
+              "sub": "AI 不知道週末的人手夠不夠，只有老闆知道",
+              "narration": "AI 不知道週末的人手和烤箱夠不夠，只有老闆知道。衝突要由人決定。"
+            }
+          ]
+        },
+        {
+          "label": "用筆記的，因為比較新",
+          "steps": [
+            {
+              "card": "比較新，不一定是定案",
+              "eyebrow": "先用，但要註明",
+              "sub": "可以先照筆記寫，標上「待老闆確認」",
+              "narration": "比較新，不一定就是定案。可以先照筆記的說法寫，但要標上待老闆確認，最後由老闆拍板。"
+            }
+          ]
+        },
+        {
+          "label": "先用筆記的，標「待老闆確認」",
+          "steps": [
+            {
+              "card": "對，先寫下來，再問老闆",
+              "eyebrow": "衝突由人決定",
+              "sub": "清單照常往下做，最後跟老闆確認",
+              "narration": "對。清單可以先照筆記的說法往下做，標上待老闆確認，最後跟老闆確認。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "card": "先用筆記的說法，標「待老闆確認」",
+            "eyebrow": "衝突由人決定",
+            "narration": "先用筆記的說法，標上待老闆確認，最後跟老闆確認。不要讓 AI 自己選。"
+          }
+        ]
+      }
+    },
+    {
+      "user": "輸出最新版需求清單，標出每條來自老闆訊息還是會議筆記。有衝突的先用筆記的說法，註明「待老闆確認」。",
+      "chapter": "輸出標明來源的最新版",
+      "lessonStep": 3,
+      "narration": "最後請它輸出最新版：每一條標出來源，有衝突的先用筆記的說法，註明待老闆確認。"
+    },
+    {
+      "thinking": true,
+      "ms": 1300
+    },
+    {
+      "on": "claude",
+      "say": "**需求清單第 2 版**\n- 客人看到本週品項，選數量、日期與時段（訊息）\n- 蛋糕提前 2 天訂，麵包前一天（筆記）\n- 時段 10–12、2–5、5–8，週日傍晚不營業（筆記）\n- 生日蛋糕平日 8 個、週末 12 個（筆記，**待老闆確認**）\n- 店員用平板看當日取貨清單，可列印（筆記）\n- 取貨前一天中午前可以取消（筆記）\n- 確認通知與前一天提醒（訊息）\n\n**待確認**：通知用簡訊還是 LINE（筆記：還沒決定）"
+    },
+    {
+      "show": "board",
+      "narration": "兩疊便條，合成一份清單。"
+    },
+    {
+      "click": "#merge",
+      "narration": "每一條旁邊都有小標籤：訊息，或筆記。哪一句是誰說的，一眼就看得出來。"
+    },
+    {
+      "callout": "board:sel:.vi.hot",
+      "text": "衝突：待老闆確認",
+      "narration": "8 個和 12 個那條，標著待老闆確認。"
+    },
+    {
+      "callout": "board:sel:.vi.open",
+      "text": "還沒決定的，留在待確認",
+      "narration": "會議上還沒決定的通知方式，也留在待確認。沒有人替老闆做決定。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "送出第 2、3 步的提示詞，輸出需求清單第 2 版。檢查：衝突都列出來了、沒有被 AI 自己決定，「還沒決定」的事都在待確認。"
+    },
+    {
+      "hide": "board"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "shimmer": "需求清單第 2 版",
+      "sub": "每條標出來源 · 衝突註明「待老闆確認」",
+      "chapter": "回顧"
+    },
+    {
+      "clear": true,
+      "ms": 300
+    },
+    {
+      "card": "回顧",
+      "eyebrow": "1.2 完成",
+      "sub": "新需求要有出處 · 衝突列出來交給人決定。下一單元：清單裡還有很多待確認，要怎麼問老闆。",
+      "narration": "回顧一下：新加的需求，每一條都要找得到出處；說法不一樣的地方，列出來交給人決定。下一單元，清單裡還有好幾個待確認，我們來想想要怎麼問老闆。"
+    }
+  ]
+}

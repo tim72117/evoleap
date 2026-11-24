@@ -1,0 +1,114 @@
+{
+  "title": "把網站裝進便當盒",
+  "lesson": "全環節 · 單元 19 · 19.1 基礎知識",
+  "teacher": {
+    "say": "認識 Docker 與容器",
+    "line": "要把有後端的網站搬上雲端，第一步是把它打包好。今天用便當盒來看懂容器、映像檔和 Dockerfile。"
+  },
+  "cast": {
+    "dev": {
+      "actor": "person",
+      "props": { "name": "工程師小林", "look": "staff" },
+      "place": { "x": 560, "y": 380, "w": 800, "h": 320 },
+      "hidden": true
+    },
+    "map": {
+      "actor": "browser",
+      "props": { "site": "fc19-1-container", "width": "desktop", "url": "https://learn.example/diagram/docker" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "把網站裝進便當盒",
+      "eyebrow": "全環節 · 單元 19 · 19.1 基礎知識",
+      "sub": "容器、映像檔與 Dockerfile",
+      "chapter": "工程師最常說的一句話",
+      "narration": "先聽一句工程師最常說的話。"
+    },
+    { "show": "dev" },
+    {
+      "on": "dev",
+      "say": "奇怪，在我電腦上明明可以跑啊！",
+      "mood": "worried",
+      "narration": "程式在自己電腦上好好的，放到別台電腦就壞了。這句話常常是因為兩台電腦的環境不一樣。"
+    },
+    { "hide": "dev" },
+    {
+      "show": "map",
+      "narration": "你的電腦裝了 Node 22、裝好了套件、設定也都在。雲端那台電腦可能是舊版 Node，少了套件，也沒有你的設定。"
+    },
+    {
+      "on": "map",
+      "click": "#b1",
+      "chapter": "Dockerfile：食譜",
+      "narration": "解法是：把網站連同它需要的一切，裝進一個便當盒。第一步是寫食譜，叫 Dockerfile。"
+    },
+    {
+      "callout": "map:sel:.df",
+      "text": "每一行一個步驟：墊什麼、放什麼、怎麼開",
+      "narration": "食譜每一行是一個步驟：底下墊什麼作業系統和 Node、先放套件清單、裝好套件、放進程式，最後寫打開時要執行什麼。"
+    },
+    {
+      "on": "map",
+      "click": "#b2",
+      "chapter": "映像檔：封好的便當",
+      "narration": "照食譜一層一層疊好、封起來，就是映像檔，英文叫 image。"
+    },
+    {
+      "callout": "map:sel:.bento",
+      "text": "作業系統、Node、套件、程式，全部帶齊",
+      "narration": "便當裡什麼都帶齊了：作業系統、Node、套件、你的程式。封好之後內容不會再變，可以複製、上傳到雲端。"
+    },
+    {
+      "on": "map",
+      "click": "#b3",
+      "chapter": "容器：打開來吃",
+      "narration": "把映像檔打開來跑，就是容器，container。同一個映像檔可以同時開好幾個，每個都一模一樣。"
+    },
+    {
+      "on": "map",
+      "click": "#b4",
+      "narration": "最重要的是：便當在哪裡打開都一樣。你的電腦、朋友的電腦、雲端，跑出來的結果都相同。"
+    },
+    {
+      "chapter": "配對看看",
+      "checkpoint": "「照著做，就能做出一模一樣的東西」的那份說明，叫什麼？",
+      "body": "選一個。",
+      "id": "df",
+      "options": [
+        {
+          "label": "Dockerfile",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "配對看看",
+              "sub": "Dockerfile＝食譜；映像檔＝封好的便當；容器＝打開來吃",
+              "narration": "答對了。Dockerfile 是食譜，映像檔是封好的便當，容器是打開來吃的那一份。"
+            }
+          ]
+        },
+        {
+          "label": "容器",
+          "steps": [
+            {
+              "card": "容器是「打開來跑」的那一份",
+              "eyebrow": "再想想",
+              "sub": "食譜叫 Dockerfile",
+              "narration": "容器是打開來跑的那一份。照著做的說明，也就是食譜，叫 Dockerfile。"
+            }
+          ]
+        }
+      ]
+    },
+    { "hide": "map" },
+    {
+      "card": "Dockerfile（食譜）→ 映像檔（便當）→ 容器（打開來跑）",
+      "eyebrow": "學會",
+      "sub": "在哪裡打開都一樣，不再「我電腦可以跑」",
+      "chapter": "學會",
+      "narration": "Dockerfile 是食譜，映像檔是封好的便當，容器是打開來跑。下一堂，請 AI 寫 Dockerfile，建置失敗就讀錯誤修，直到在你的電腦上用容器跑起來。"
+    }
+  ]
+}

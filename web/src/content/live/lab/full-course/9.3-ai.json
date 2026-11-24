@@ -1,0 +1,168 @@
+{
+  "title": "改資料表結構不掉資料",
+  "lesson": "全環節 · 單元 9 · 9.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天先做檢查工具再搬家",
+    "line": "今天請 AI 寫一份搬移腳本，再寫一個檢查工具，自動比對搬移前後的筆數和內容。有了工具，在複本上試幾次都不怕，確定沒問題才動正式資料。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "會員欄位搬移", "folder": "~/projects/bakery", "branch": "rename-nickname", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "db": {
+      "actor": "fc3-table",
+      "props": {
+        "title": "複本資料庫 bakery_copy（取其中 4 列看）",
+        "tables": [
+          {
+            "name": "members",
+            "label": "複本",
+            "key": "id",
+            "cols": ["id", "name", "phone"],
+            "rows": [[12, "王小姐", "0912-111-222"], [37, "陳先生", "+886 933 444 555"], [52, "林小姐", "0955-123-456"], [88, "張先生", "+886-918-000-777"]]
+          }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "改資料表結構不掉資料",
+      "eyebrow": "全環節 · 單元 9 · 9.3 用 AI 完成",
+      "sub": "先做檢查工具，再用它把關每一次搬移",
+      "chapter": "交代：腳本＋檢查工具",
+      "narration": "這一堂的做法是：先請 AI 做一個檢查工具，之後每一次搬移，都交給工具來判斷對不對。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "會員表要改：name 改名為 nickname；phone 統一成只有數字的 09 開頭格式。請寫 migration，另外寫一個檢查工具，比對搬移前後：筆數一樣、每個人的名字一樣、電話數字一樣。先在複本上跑，工具全部通過才可以碰正式資料庫，碰之前先問我。",
+      "narration": "交代兩樣東西：搬移腳本，和比對前後的檢查工具。還有規矩：先在複本上跑，工具通過、問過你，才能碰正式資料庫。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "todos": [["寫 migration 003", "doing"], ["寫檢查工具 scripts/check-migration.js", "pending"], ["建複本、在複本上跑、用工具檢查", "pending"], ["問過你之後：備份、跑正式資料庫、再檢查", "pending"]]
+    },
+    {
+      "on": "claude",
+      "edit": "migrations/003_member_nickname_phone.sql",
+      "lines": [
+        [1, "+", "ALTER TABLE members RENAME COLUMN name TO nickname;"],
+        [2, "+", "UPDATE members SET phone = regexp_replace(phone, '[^0-9]', '', 'g');"]
+      ],
+      "chapter": "做腳本，也做工具",
+      "narration": "搬移腳本兩行：欄位改名，電話只留數字。"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/check-migration.js",
+      "lines": [
+        [1, "+", "// 用法:node scripts/check-migration.js <搬移前的快照> <資料庫>"],
+        [2, "+", "const before = loadSnapshot(argv[2]), after = await query(argv[3], 'SELECT * FROM members')"],
+        [3, "+", "check('筆數', before.length === after.length)"],
+        [4, "+", "for (const b of before) {"],
+        [5, "+", "  const a = after.find(x => x.id === b.id)"],
+        [6, "+", "  check(`#${b.id} 名字`, a?.nickname === b.name)"],
+        [7, "+", "  check(`#${b.id} 電話`, a?.phone === toLocal(b.phone))  // +886 9… 要變成 09…"],
+        [8, "+", "}"],
+        [9, "+", "report()  // 列出沒通過的每一筆"]
+      ],
+      "narration": "檢查工具一筆一筆比：筆數、名字、電話。注意第七行，它把「+886 開頭要換成 09」寫進了檢查標準。"
+    },
+    {
+      "on": "claude",
+      "todos": [["寫 migration 003", "done"], ["寫檢查工具 scripts/check-migration.js", "done"], ["建複本、在複本上跑、用工具檢查", "doing"], ["問過你之後：備份、跑正式資料庫、再檢查", "pending"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "createdb bakery_copy && pg_dump $PROD_READONLY_URL | psql -q bakery_copy && node scripts/snapshot.js bakery_copy > /tmp/before.json",
+      "result": "複本 120 筆、快照完成",
+      "out": "members：120 筆已複製到 bakery_copy\n快照：/tmp/before.json",
+      "narration": "它用唯讀帳號把正式資料複製到複本，並先拍一張搬移前的快照。"
+    },
+    { "hide": "claude" },
+    { "show": "db", "focus": false, "chapter": "第一次：工具抓到問題", "narration": "這是複本裡其中四位會員。看電話：有人寫成 +886 開頭。" },
+    { "on": "db", "rename": "members", "from": "name", "to": "nickname", "narration": "在複本上跑搬移：name 改名成 nickname，名字都還在。" },
+    { "on": "db", "cell": "members", "row": 1, "col": "phone", "value": "0912111222" },
+    { "on": "db", "cell": "members", "row": 2, "col": "phone", "value": "886933444555" },
+    { "on": "db", "cell": "members", "row": 3, "col": "phone", "value": "0955123456" },
+    { "on": "db", "cell": "members", "row": 4, "col": "phone", "value": "886918000777", "narration": "電話只留下數字。看起來都很整齊，對嗎？" },
+    { "hide": "db" },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/check-migration.js /tmp/before.json bakery_copy",
+      "result": "2 筆沒通過",
+      "out": "✓ 筆數 120 → 120\n✓ 名字 120 / 120\n✗ 電話 118 / 120\n  #37  +886 933 444 555 → 886933444555（應為 0933444555）\n  #88  +886-918-000-777 → 886918000777（應為 0918000777）",
+      "narration": "交給工具判斷：筆數、名字都對，可是有兩支電話變成 886 開頭，打不出去。光用眼睛看很容易漏掉，工具一筆一筆比就抓到了。"
+    },
+    {
+      "on": "claude",
+      "edit": "migrations/003_member_nickname_phone.sql",
+      "lines": [
+        [2, " ", "UPDATE members SET phone = regexp_replace(phone, '[^0-9]', '', 'g');"],
+        [3, "+", "UPDATE members SET phone = '0' || substr(phone, 4) WHERE phone LIKE '886%';"]
+      ],
+      "chapter": "修好，重來一次",
+      "narration": "它補一行：886 開頭的，換成 0 開頭。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "dropdb bakery_copy && createdb bakery_copy && pg_dump $PROD_READONLY_URL | psql -q bakery_copy && psql bakery_copy -f migrations/003_member_nickname_phone.sql && node scripts/check-migration.js /tmp/before.json bakery_copy",
+      "result": "全部通過",
+      "out": "✓ 筆數 120 → 120\n✓ 名字 120 / 120\n✓ 電話 120 / 120",
+      "narration": "然後丟掉舊複本，重新複製一份，從頭再跑一次。這次三項全部通過。複本可以一直重來，這就是先在複本上跑的好處。"
+    },
+    { "hide": "claude" },
+    { "show": "db", "focus": false },
+    { "on": "db", "cell": "members", "row": 2, "col": "phone", "value": "0933444555" },
+    { "on": "db", "cell": "members", "row": 4, "col": "phone", "value": "0918000777" },
+    { "on": "db", "stamp": "members", "text": "120 / 120 ✓", "tone": "ok", "narration": "四位會員的名字和電話都對了。" },
+    { "hide": "db" },
+    { "show": "claude", "chapter": "問過你，才動正式資料" },
+    {
+      "on": "claude",
+      "todos": [["寫 migration 003", "done"], ["寫檢查工具 scripts/check-migration.js", "done"], ["建複本、在複本上跑、用工具檢查", "done"], ["問過你之後：備份、跑正式資料庫、再檢查", "doing"]]
+    },
+    {
+      "on": "claude",
+      "ask": "pg_dump $PROD_URL > backups/2026-11-09.sql && psql $PROD_URL -f migrations/003_member_nickname_phone.sql",
+      "q": "Claude 想要對正式資料庫執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "先備份，再執行已在複本通過檢查的 migration 003",
+      "narration": "要動正式資料庫了，它停下來問你。看清楚：先備份，跑的是剛剛在複本通過的同一份腳本。"
+    },
+    { "on": "claude", "choose": 1, "narration": "允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/check-migration.js /tmp/before.json $PROD_READONLY_URL",
+      "result": "全部通過",
+      "out": "✓ 筆數 120 → 120\n✓ 名字 120 / 120\n✓ 電話 120 / 120",
+      "narration": "跑完正式資料庫，再用同一個工具檢查一次。全部通過。"
+    },
+    { "on": "claude", "say": "完成：正式資料庫已搬移，120 筆的名字與電話都完整。備份在 `backups/2026-11-09.sql`；檢查工具留著，下次搬移可以再用。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "下次要改資料表時，先請 AI 寫一個比對前後的檢查工具，在複本上跑到全部通過，再讓它問你要不要上正式資料庫。"
+    },
+    { "hide": "claude" },
+    {
+      "card": "先有檢查工具，搬移才放心",
+      "eyebrow": "學會",
+      "sub": "複本可以一直重來；工具通過、問過你、先備份，才動正式資料",
+      "chapter": "學會",
+      "narration": "這一堂的重點：先請 AI 做檢查工具，搬移對不對交給工具判斷。複本可以一直重來，工具通過、先備份、問過你，才動正式資料。"
+    }
+  ]
+}

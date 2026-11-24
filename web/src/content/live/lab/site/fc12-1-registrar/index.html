@@ -1,0 +1,21 @@
+<!doctype html><html><head><title>網域管理 · shop.example</title></head><body>
+<div class="top"><span class="logo">◆ 網域商</span><span>我的網域</span><span class="cur">DNS 設定</span><span>帳單</span><span class="me">帳號 ▾</span></div>
+<div class="wrap">
+  <h2>shop.example 的 DNS 紀錄</h2>
+  <p class="hint">修改後通常幾分鐘內生效，最久可能要數小時。</p>
+  <table>
+    <thead><tr><th>類型</th><th>名稱</th><th>內容</th><th></th></tr></thead>
+    <tbody id="rows">
+      <tr><td><span class="t">A</span></td><td>@</td><td>34.120.8.15</td><td></td></tr>
+      <tr><td><span class="t">CNAME</span></td><td>www</td><td>shop.example</td><td></td></tr>
+    </tbody>
+  </table>
+  <form id="form" class="add">
+    <div class="f"><label>類型</label><select id="type"><option value="TXT">TXT</option><option value="CNAME">CNAME</option><option value="A">A</option><option value="MX">MX</option></select></div>
+    <div class="f"><label>名稱</label><input id="name" placeholder="@ 或前綴"></div>
+    <div class="f grow"><label>內容</label><input id="value" placeholder="紀錄的值"></div>
+    <button id="add" type="submit">＋ 新增紀錄</button>
+  </form>
+  <p class="saved" id="saved"></p>
+</div>
+</body></html>

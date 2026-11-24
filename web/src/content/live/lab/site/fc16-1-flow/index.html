@@ -1,0 +1,57 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>push 之後發生什麼事</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · 靜態網站託管</p>
+<h1>按下 push，網站就更新</h1>
+<p class="lead">你的網頁檔案從自己的電腦，一路走到任何人都打得開的網址。</p>
+<div class="tabs">
+<button id="b0" data-go="0">① 只在你電腦</button><button id="b1" data-go="1">② push 上去</button><button id="b2" data-go="2">③ Pages 發布</button><button id="b3" data-go="3">④ 誰都看得到</button><button id="b4" data-go="4">⑤ 再改一次</button>
+</div>
+<svg class="flow" viewBox="0 0 1120 330" width="1120" height="330">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2563eb"/></marker></defs>
+<g>
+<rect x="20" y="70" width="210" height="150" rx="16" fill="#fff" stroke="#c9d4e3" stroke-width="2"/>
+<rect x="55" y="95" width="140" height="80" rx="6" fill="#1f2a37"/><rect x="63" y="103" width="124" height="64" rx="3" fill="#dbeafe"/>
+<rect x="40" y="178" width="170" height="10" rx="4" fill="#9aa8bb"/>
+<text x="125" y="140" text-anchor="middle" font-size="15" fill="#1e3a8a">index.html</text>
+<text x="125" y="250" text-anchor="middle" font-size="18" fill="#13213a" font-weight="700">你的電腦</text>
+<text x="125" y="274" text-anchor="middle" font-size="14" fill="#6b7a90">file:///…/index.html</text>
+</g>
+<g data-at="1">
+<line x1="240" y1="145" x2="318" y2="145" stroke="#2563eb" stroke-width="4" marker-end="url(#ah)"/>
+<text x="279" y="128" text-anchor="middle" font-size="15" fill="#2563eb" font-weight="700">git push</text>
+<rect x="330" y="70" width="210" height="150" rx="16" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+<path d="M395 105h80v80h-80z" fill="#eef3ff" stroke="#7ea2e8"/><path d="M405 120h60M405 138h60M405 156h40" stroke="#7ea2e8" stroke-width="5"/>
+<text x="435" y="250" text-anchor="middle" font-size="18" fill="#13213a" font-weight="700">GitHub 儲存庫</text>
+<text x="435" y="274" text-anchor="middle" font-size="14" fill="#6b7a90">檔案的雲端備份</text>
+</g>
+<g data-at="2">
+<line x1="550" y1="145" x2="628" y2="145" stroke="#2563eb" stroke-width="4" marker-end="url(#ah)"/>
+<text x="589" y="128" text-anchor="middle" font-size="15" fill="#2563eb" font-weight="700">自動發布</text>
+<rect x="640" y="70" width="210" height="150" rx="16" fill="#fff" stroke="#16a34a" stroke-width="2"/>
+<rect x="700" y="96" width="90" height="26" rx="5" fill="#dcf5e6" stroke="#16a34a"/><rect x="700" y="128" width="90" height="26" rx="5" fill="#dcf5e6" stroke="#16a34a"/><rect x="700" y="160" width="90" height="26" rx="5" fill="#dcf5e6" stroke="#16a34a"/>
+<circle cx="776" cy="109" r="4" fill="#16a34a"/><circle cx="776" cy="141" r="4" fill="#16a34a"/><circle cx="776" cy="173" r="4" fill="#16a34a"/>
+<text x="745" y="250" text-anchor="middle" font-size="18" fill="#13213a" font-weight="700">GitHub Pages</text>
+<text x="745" y="274" text-anchor="middle" font-size="14" fill="#6b7a90">幫你把檔案放上網路</text>
+</g>
+<g data-at="3">
+<line x1="860" y1="145" x2="900" y2="145" stroke="#2563eb" stroke-width="4" marker-end="url(#ah)"/>
+<circle cx="1000" cy="130" r="62" fill="#eef3ff" stroke="#2563eb" stroke-width="2"/>
+<ellipse cx="1000" cy="130" rx="26" ry="62" fill="none" stroke="#7ea2e8" stroke-width="2"/><path d="M940 110h120M940 150h120" stroke="#7ea2e8" stroke-width="2"/>
+<text x="1000" y="230" text-anchor="middle" font-size="18" fill="#13213a" font-weight="700">公開網址</text>
+<text x="1000" y="254" text-anchor="middle" font-size="13" fill="#2563eb" class="mono">xiaosen-dev.github.io/bakery</text>
+<text x="1000" y="290" text-anchor="middle" font-size="22">📱 💻 📱</text>
+</g>
+<g data-only="4">
+<path d="M125 60 C 300 0, 640 0, 745 60" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#ah)"/>
+<text x="435" y="30" text-anchor="middle" font-size="16" fill="#b45309" font-weight="700">改 → 存檔 → push，約一分鐘後網址上就是新版</text>
+</g>
+</svg>
+<div class="box expl">
+<p data-only="0">網頁現在只存在你的電腦裡。網址開頭是 <b class="mono">file:///</b>，意思是「打開這台電腦上的檔案」，別人的手機打不開。</p>
+<p data-only="1"><b>push</b> 就是把電腦上的修改送上 GitHub。檔案到了雲端，但這時還只是「存起來」，還不是網站。</p>
+<p data-only="2"><b>靜態網站託管</b>：平台幫你把 HTML、CSS、圖片這些「不用伺服器計算」的檔案放上網路。GitHub Pages 是免費的託管服務。</p>
+<p data-only="3">發布完成就有一個 <b>https:// 開頭的公開網址</b>，任何人用手機、電腦都打得開。</p>
+<p data-only="4">之後每次 push，Pages 會自動重新發布。<b>沒有 push，網址上就還是舊版。</b></p>
+</div>
+</div>
+</body></html>

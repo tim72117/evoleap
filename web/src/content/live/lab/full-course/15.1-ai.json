@@ -1,0 +1,147 @@
+{
+  "title": "機密不外洩",
+  "lesson": "全環節 · 單元 15 · 15.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "翻遍整本相簿找金鑰",
+    "line": "這一堂請 AI 掃描你的程式，還有整個 Git 紀錄，看有沒有金鑰外洩；再請它先寫好萬一外洩時的更換步驟。換金鑰要登入各服務的後台，那一步你自己來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "機密掃描", "folder": "~/projects/shop", "branch": "main", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": { "tree": { "shop": { ".env": "", ".env.example": "", ".gitignore": "", "docs": { "must-not-break.md": "" }, "src": {}, "package.json": "" } }, "open": "shop" },
+      "place": "right",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "機密不外洩",
+      "eyebrow": "全環節 · 單元 15 · 15.1 用 AI 完成",
+      "sub": "掃描現在的程式 + 整個 Git 紀錄 → 處理找到的 → 寫好更換步驟",
+      "chapter": "交代",
+      "narration": "上一堂說過，Git 紀錄像相簿，舊照片也要檢查。所以這次要掃的，是現在的程式加上整個紀錄。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "請掃描這個專案有沒有金鑰、密碼外洩：現在的程式和整個 Git 紀錄都要掃。找到的話告訴我是哪個服務、在哪一次提交、現在還在不在程式裡，但不要把金鑰的值印出來。另外寫一份 docs/secret-rotation.md：每個服務萬一外洩時，要去哪裡撤銷、怎麼換新的、換完要更新哪些設定。",
+      "narration": "交代清楚掃描範圍，也交代：找到了不要把值印出來。再請它寫好外洩時的更換步驟。"
+    },
+    {
+      "on": "claude",
+      "ask": "npx gitleaks detect --source . --log-opts=\"--all\" --redact",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "掃描目前的檔案與所有 Git 紀錄；--redact 會把找到的值遮起來",
+      "chapter": "AI 掃描",
+      "narration": "它用 gitleaks 這個掃描工具，掃全部的紀錄。注意 redact 這個參數：找到的值會被遮起來，不會印在畫面上。只讀取，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx gitleaks detect --source . --log-opts=\"--all\" --redact",
+      "result": "找到 1 筆",
+      "out": "Finding:  MAIL_API_KEY = \"REDACTED\"\nFile:     src/mail.ts\nCommit:   3b9e1aa（8 月 12 日：先寫死測試寄信）\n\n1 leak found（目前的檔案：0 筆；Git 紀錄：1 筆）",
+      "narration": "找到一筆：寄信服務的金鑰。現在的程式裡沒有，可是八月的一次提交裡，曾經直接寫在程式裡。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git check-ignore -v .env && git ls-files | grep -E '^\\.env' ",
+      "result": ".env 已被忽略",
+      "out": ".gitignore:1:.env\t.env\n.env.example",
+      "narration": "它也檢查了預防的設定：.env 有被 gitignore 擋住，Git 裡只有不含值的範例檔。"
+    },
+    {
+      "show": "files",
+      "narration": "專案資料夾裡就是這樣：.env 留在你的電腦上，.env.example 才進 Git。"
+    },
+    { "on": "files", "highlight": ".env" },
+    { "hide": "files" },
+    {
+      "on": "claude",
+      "say": "掃描結果：\n- **目前的程式**：乾淨，0 筆\n- **Git 紀錄**：1 筆，寄信服務的 `MAIL_API_KEY`，在 8/12 的提交 `3b9e1aa` 裡，之後已從程式刪掉\n\n刪掉不夠：這個專案在 GitHub 上是公開的，這把金鑰要當作已經外洩。請照 `docs/secret-rotation.md` 第 1 節撤銷並換新，我先把文件寫好。",
+      "narration": "它的判斷是對的：專案是公開的，就算現在刪掉了，這把金鑰也要當作已經外洩，必須換掉。"
+    },
+    {
+      "on": "claude",
+      "ask": "docs/secret-rotation.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/shop",
+      "preview": "# 金鑰外洩時的更換步驟\n## 1. 寄信服務 MAIL_API_KEY\n1. 登入寄信服務後台 → API Keys → 撤銷舊金鑰\n2. 產生新金鑰（權限只開「寄信」）\n3. 雲端主控台 → 機密 → 更新 MAIL_API_KEY\n4. 本機 .env 更新\n5. 請 AI 重新部署並寄一封測試信\n## 2. 付款服務 PAYMENT_KEY …\n## 3. 雲端服務帳號 …",
+      "chapter": "寫好更換步驟",
+      "narration": "更換步驟的文件，每個服務一節：去哪裡撤銷、新金鑰只開需要的權限、換完更新哪些設定、最後怎麼確認。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "docs/secret-rotation.md", "result": "已建立" },
+    {
+      "card": "登入寄信服務後台，撤銷舊金鑰、產生新的",
+      "eyebrow": "你自己來",
+      "sub": "新金鑰你自己貼進雲端的「機密」和本機 .env，不貼進對話",
+      "chapter": "你自己換鎖",
+      "narration": "這一步你自己來：登入寄信服務的後台，撤銷舊金鑰、產生新的。新金鑰你自己貼到雲端的機密設定和本機的 .env，不要貼進和 AI 的對話。"
+    },
+    {
+      "on": "claude",
+      "user": "舊的寄信金鑰已經撤銷，新的貼到雲端機密和 .env 了",
+      "chapter": "確認",
+      "narration": "換好了，告訴 AI。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run services update shop --update-secrets=MAIL_API_KEY=MAIL_API_KEY:latest && npm run mail:test -- --to me@mail.example",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "重新部署讀取新金鑰，並寄一封測試信",
+      "narration": "它重新部署，讓網站讀到新金鑰，再寄一封測試信。允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services update shop … && npm run mail:test",
+      "result": "已部署，測試信寄出",
+      "out": "Revision shop-00043 is serving 100% of traffic\n✓ 測試信 → me@mail.example"
+    },
+    {
+      "on": "claude",
+      "edit": ".gitleaksignore",
+      "lines": [[1, "+", "# 3b9e1aa 的 MAIL_API_KEY 已於 11/09 撤銷並更換（見 docs/secret-rotation.md）"], [2, "+", "3b9e1aa:src/mail.ts:generic-api-key:14"]],
+      "narration": "紀錄裡那一筆，已經是一把打不開門的舊鑰匙。它把這件事記下來：哪一天撤銷、照哪份文件換的。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx gitleaks detect --source . --log-opts=\"--all\" --redact",
+      "result": "沒有發現",
+      "out": "no leaks found",
+      "narration": "再掃一次，乾淨了。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- 掃描：目前程式與 Git 紀錄都乾淨（唯一一筆舊金鑰已撤銷並記錄）\n- 處理步驟：`docs/secret-rotation.md`\n\n建議再加一個提交前的自動掃描，在金鑰進 Git 之前就擋下來。要加嗎？",
+      "narration": "它還建議加上提交前的自動掃描，金鑰在進 Git 之前就被擋下來。"
+    },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：掃描程式與整個 Git 紀錄",
+      "body": "請 AI 用遮住值的方式掃描目前程式和所有 Git 紀錄，並寫好每個服務的金鑰更換步驟。找到的金鑰由你自己到後台撤銷、換新。"
+    },
+    {
+      "card": "掃現在，也掃紀錄\n找到了：當作已外洩，換掉\n步驟先寫好",
+      "eyebrow": "學會",
+      "sub": "掃描時遮住值；新金鑰你自己貼，不進對話",
+      "chapter": "學會",
+      "narration": "掃描要掃現在的程式，也掃整個紀錄。找到了就當作已經外洩，換掉。更換步驟先寫好，真的出事時照著做就好。"
+    }
+  ]
+}

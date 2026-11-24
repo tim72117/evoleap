@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>docs/login.md</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="doc">
+  <span class="file mono">docs/login.md</span>
+  <h1>登入流程與安全要求</h1>
+  <div class="steps" id="flow">
+    <div class="st"><i>1</i><b>輸入 email 與密碼</b><span>只走 HTTPS</span></div>
+    <div class="st"><i>2</i><b>伺服器比對雜湊</b><span>bcrypt，不存原始密碼</span></div>
+    <div class="st"><i>3</i><b>建立 session</b><span>隨機 ID，存在資料庫</span></div>
+    <div class="st"><i>4</i><b>回傳 cookie</b><span>HttpOnly · Secure · SameSite</span></div>
+    <div class="st"><i>5</i><b>之後的請求自動帶上</b><span>伺服器查 session 認人</span></div>
+    <div class="st"><i>6</i><b>登出</b><span>伺服器刪掉 session</span></div>
+  </div>
+  <h2>安全要求（實作時逐條測試）</h2>
+  <div class="reqs">
+    <div class="rq" id="r1"><span class="bx"></span>密碼用 bcrypt 雜湊後才存，資料庫看不到原文</div>
+    <div class="rq" id="r2"><span class="bx"></span>密碼至少 8 個字，常見密碼直接擋掉</div>
+    <div class="rq" id="r3"><span class="bx"></span>登入失敗只說「帳號或密碼錯誤」，不透露是哪一個</div>
+    <div class="rq" id="r4"><span class="bx"></span>同一個 email 連錯 5 次，先等 15 分鐘</div>
+    <div class="rq" id="r5"><span class="bx"></span>session cookie 設 HttpOnly、Secure、SameSite=Lax</div>
+    <div class="rq" id="r6"><span class="bx"></span>登入後換一組新的 session ID</div>
+    <div class="rq" id="r7"><span class="bx"></span>登出時伺服器端刪除 session，不只清 cookie</div>
+    <div class="rq" id="r8"><span class="bx"></span>session 30 天沒用自動失效</div>
+  </div>
+</div>
+</body></html>

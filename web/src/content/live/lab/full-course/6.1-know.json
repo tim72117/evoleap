@@ -1,0 +1,129 @@
+{
+  "title": "存檔點的三個位置：工作區、暫存區、commit",
+  "lesson": "全環節 · 單元 6 · 6.1 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天學會幫專案存檔",
+    "line": "今天要認識 Git 存檔的三個位置：工作區、暫存區和 commit，還有為什麼一個 commit 只放一件事。"
+  },
+  "cast": {
+    "git": {
+      "actor": "fc2-git",
+      "props": { "commits": ["建立介紹頁"] },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "幫專案存檔",
+      "eyebrow": "全環節 · 單元 6 · 6.1 基礎知識",
+      "sub": "工作區、暫存區、commit；一個 commit 只放一件事",
+      "chapter": "像打包寄包裹",
+      "narration": "玩遊戲打王之前會先存檔，打輸了可以回到存檔點。Git 就是幫專案存檔的工具，每一個存檔點叫做一個 commit。"
+    },
+    {
+      "show": "git",
+      "narration": "Git 存檔有三個位置。你可以把它想成寄包裹：左邊的工作區，是你的桌面；中間的暫存區，是準備寄出的箱子；右邊的儲存庫，是已經封箱、寄出去的包裹。"
+    },
+    {
+      "callout": "git:graph",
+      "text": "每個點是一個 commit；目前只有一個：建立介紹頁",
+      "narration": "下面這條線是存檔紀錄，每個點是一個 commit。現在只有一個：建立介紹頁。"
+    },
+    {
+      "on": "git",
+      "change": "index.html",
+      "chapter": "改了檔案：放在工作區",
+      "narration": "你請 AI 在介紹頁加了作品集，index.html 改了。它出現在工作區，標著修改。"
+    },
+    {
+      "on": "git",
+      "change": "styles.css",
+      "narration": "你又順手把名字改成綠色，styles.css 也改了。"
+    },
+    {
+      "on": "git",
+      "create": "notes.txt",
+      "narration": "還有一個你自己隨手記的 notes.txt，是新檔案。現在桌上有三樣東西。"
+    },
+    {
+      "diff": "index.html",
+      "lines": [[" ", "  </section>"], ["+", "  <section id=\"works\" class=\"block\">"], ["+", "    <h2>作品集</h2>"], ["+", "  </section>"], [" ", "  <footer>"]],
+      "chapter": "先看清楚改了什麼",
+      "narration": "存檔之前，先看清楚改了什麼。這叫 diff：綠色是新增的行，紅色是刪掉的行。git status 告訴你哪些檔案變了，git diff 告訴你每個檔案裡變了什麼。"
+    },
+    { "clear": true },
+    {
+      "on": "git",
+      "add": "index.html",
+      "chapter": "挑進箱子：暫存區",
+      "narration": "作品集是一件事，所以只把 index.html 放進箱子。這個動作叫 git add。"
+    },
+    {
+      "callout": "git:stage",
+      "text": "暫存區：這一次要存的，自己挑",
+      "narration": "暫存區的用處，就是讓你挑：這一次要存哪些。桌上的東西不用一次全部塞進去。"
+    },
+    {
+      "on": "git",
+      "commit": "加上作品集區塊",
+      "chapter": "封箱寄出：commit",
+      "narration": "封箱，寫上標籤：加上作品集區塊。這就是 git commit。紀錄多了一個點。"
+    },
+    { "on": "git", "add": "styles.css", "narration": "接著處理第二件事，名字改成綠色。放進箱子，" },
+    { "on": "git", "commit": "名字改成綠色", "narration": "再封一箱：名字改成綠色。" },
+    {
+      "callout": "git:file:notes.txt",
+      "text": "不想存的，就留在桌上",
+      "narration": "你的筆記 notes.txt 不想存進專案，就一直留在工作區，不要 add 它。"
+    },
+    {
+      "callout": "git:graph",
+      "text": "一個 commit 只放一件事",
+      "chapter": "一個 commit 只放一件事",
+      "narration": "為什麼要分兩次？如果哪天發現綠色不好看，想退回去，只要退掉「名字改成綠色」那一個，作品集還在。兩件事混在同一個 commit，就只能一起退，或一起留。"
+    },
+    {
+      "card": "✕ update\n✕ 改了一些東西\n✓ 加上作品集區塊\n✓ 修正手機上導覽列被切掉",
+      "eyebrow": "commit 訊息怎麼寫",
+      "sub": "一句話說「這次做了什麼」，半年後的你也看得懂",
+      "narration": "commit 訊息就是箱子上的標籤。update、改了一些東西，半年後誰也看不懂。好的訊息，用一句話說清楚這次做了什麼。"
+    },
+    {
+      "checkpoint": "你這次改了兩件事：修好手機版的導覽列、在頁尾加上 Email。怎麼存最好？",
+      "body": "選一個。",
+      "id": "one-thing",
+      "options": [
+        {
+          "label": "一個 commit：「修正與更新」",
+          "steps": [
+            { "card": "再想想", "eyebrow": "考考你", "sub": "兩件事混在一起，訊息也看不出做了什麼", "narration": "兩件事混在一起，以後只能一起退；訊息也看不出到底做了什麼。" },
+            { "card": "答案：分成兩個 commit", "eyebrow": "考考你", "sub": "「修正手機版導覽列被切掉」、「頁尾加上 Email」", "narration": "最好分成兩個 commit，各寫一句清楚的訊息。" }
+          ]
+        },
+        {
+          "label": "兩個 commit，各寫一句清楚的訊息",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "一件事一個 commit，訊息說清楚做了什麼", "narration": "答對了。一件事一個 commit，以後要退哪一件，就退哪一件。" }
+          ]
+        },
+        {
+          "label": "先不要存，等全部做完再一次存",
+          "steps": [
+            { "card": "再想想", "eyebrow": "考考你", "sub": "存檔點越久才存一次，出事時能退的地方就越少", "narration": "越久才存一次，出事時能回去的地方就越少。" },
+            { "card": "答案：分成兩個 commit", "eyebrow": "考考你", "sub": "做完一件就存一件", "narration": "做完一件就存一件，分成兩個 commit。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "工作區：改了還沒挑\n暫存區：這次要存的\ncommit：存好的存檔點",
+      "eyebrow": "學會",
+      "sub": "存之前先看 status 和 diff；一個 commit 只放一件事",
+      "chapter": "學會",
+      "narration": "工作區是改了還沒挑的，暫存區是這次要存的，commit 是存好的存檔點。存之前先看 status 和 diff，一個 commit 只放一件事。下一堂，請 AI 幫你列出變更、寫 commit 訊息。"
+    }
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "title": "建立帳號與專案",
+  "lesson": "全環節 · 單元 18 · 18.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "註冊你來，專案交給 AI",
+    "line": "這一堂開始用 Google Cloud。註冊帳號和綁信用卡，一定是你自己做，AI 幫你寫步驟；註冊好之後，建立專案就交給 AI 用 gcloud 完成。"
+  },
+  "blocking": {
+    "cast": [
+      "claude",
+      "gc"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "雲端專案",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "gc": {
+      "actor": "browser",
+      "props": {
+        "site": "fc18-1-signup",
+        "width": "desktop",
+        "url": "https://console.example-cloud.com/freetrial"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "me": {
+      "actor": "person",
+      "props": {
+        "name": "你",
+        "look": "customer"
+      },
+      "place": {
+        "x": 560,
+        "y": 380,
+        "w": 800,
+        "h": 320
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "建立帳號與專案",
+      "eyebrow": "全環節 · 單元 18 · 18.1 用 AI 完成",
+      "sub": "註冊、綁卡：你自己做；建立專案：AI 用 gcloud",
+      "chapter": "AI 寫註冊步驟",
+      "narration": "註冊和綁卡牽涉你的身分和信用卡，一定是你自己做。AI 可以先幫你寫好步驟，讓你知道每一步會看到什麼。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "我要開始用 Google Cloud。註冊和綁卡我自己來，請寫逐步操作，每一步寫我會看到什麼。我做完之後，請你用 gcloud 建立正式網站用的專案，並連上帳單帳戶。",
+      "narration": "一樣先說清楚分工。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1000
+    },
+    {
+      "on": "claude",
+      "say": "**註冊步驟（你自己做）：**\n1. 用你的 Google 帳號登入主控台，按「開始免費試用」\n2. 國家選台灣，**自己讀過條款**再勾選同意\n3. 付款資訊：帳戶類型「個人」，**信用卡由你輸入**\n4. 看到「試用已開始」和帳單帳戶編號，截圖給我\n\n綁卡是確認身分用的；試用期不會自動扣款，升級付費要你另外確認。"
+    },
+    {
+      "show": "gc",
+      "chapter": "你照步驟註冊",
+      "narration": "打開主控台，照第一步，按開始免費試用。"
+    },
+    {
+      "on": "gc",
+      "click": "#start"
+    },
+    {
+      "show": "me"
+    },
+    {
+      "on": "me",
+      "say": "條款我自己看過了，我來勾同意。",
+      "narration": "同意條款是你和雲端公司之間的約定，要你自己看、自己勾。"
+    },
+    {
+      "hide": "me"
+    },
+    {
+      "on": "gc",
+      "click": "#agree"
+    },
+    {
+      "on": "gc",
+      "click": "#next1"
+    },
+    {
+      "callout": "gc:sel:.box.you",
+      "text": "信用卡：你自己輸入，AI 不看也不碰",
+      "narration": "付款資訊，信用卡號由你自己輸入。AI 不會看到，也不該碰。"
+    },
+    {
+      "show": "me"
+    },
+    {
+      "on": "me",
+      "say": "卡號我自己填好了，按開始試用。",
+      "mood": "calm"
+    },
+    {
+      "hide": "me"
+    },
+    {
+      "on": "gc",
+      "click": "#next2"
+    },
+    {
+      "callout": "gc:sel:.ok",
+      "text": "試用開始，拿到帳單帳戶編號",
+      "narration": "試用開始了，也建立好帳單帳戶。截圖給 AI。"
+    },
+    {
+      "on": "claude",
+      "user": "（附上截圖）試用開始了，帳單帳戶是「我的帳單帳戶」。gcloud 我也照你給的步驟裝好、登入了。",
+      "chapter": "交給 AI：建立專案",
+      "narration": "回報時一起說：gcloud 也先照 AI 的步驟裝好、登入了。gcloud 是 Google Cloud 的命令列工具，怎麼安裝、怎麼讓 AI 安全地用，後面會有一堂專門講。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud billing accounts list",
+      "result": "完成",
+      "out": "ACCOUNT_ID            NAME        OPEN\n0X1A2B-3C4D5E-6F7A8B  我的帳單帳戶  True",
+      "narration": "它先列出帳單帳戶，和你截圖上的一樣。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud projects create xiaosen-bakery-prod --name=\"小森烘焙正式站\"",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud projects create xiaosen-bakery-prod --name=\"小森烘焙正式站\"\n# 建立專案不收費"
+    },
+    {
+      "on": "claude",
+      "choose": 1,
+      "narration": "建立專案本身不收費，允許。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud projects create xiaosen-bakery-prod --name=\"小森烘焙正式站\"",
+      "result": "失敗",
+      "out": "ERROR: The project ID you specified is already in use by another project.",
+      "narration": "失敗了：這個專案編號已經被別人用了。專案編號全世界不能重複。"
+    },
+    {
+      "on": "claude",
+      "say": "`xiaosen-bakery-prod` 已經被別人用掉了。我在後面加上日期，改用 `xiaosen-bakery-prod-2611`，顯示名稱一樣是「小森烘焙正式站」。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud projects create xiaosen-bakery-prod-2611 --name=\"小森烘焙正式站\"",
+      "result": "完成",
+      "out": "Create in progress for [projects/xiaosen-bakery-prod-2611]… done."
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud billing projects link xiaosen-bakery-prod-2611 --billing-account=0X1A2B-3C4D5E-6F7A8B",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud billing projects link xiaosen-bakery-prod-2611 \\\n  --billing-account=0X1A2B-3C4D5E-6F7A8B\n# 連上帳單後，這個專案開始用服務才會計費"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud billing projects link xiaosen-bakery-prod-2611 --billing-account=0X1A2B-3C4D5E-6F7A8B && gcloud config set project xiaosen-bakery-prod-2611",
+      "result": "完成",
+      "out": "billingEnabled: true\nUpdated property [core/project]."
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud projects describe xiaosen-bakery-prod-2611 --format='value(name,lifecycleState)' && gcloud billing projects describe xiaosen-bakery-prod-2611 --format='value(billingEnabled)'",
+      "result": "完成",
+      "out": "小森烘焙正式站  ACTIVE\nTrue",
+      "chapter": "AI 確認",
+      "narration": "最後確認：專案是啟用狀態，帳單也連上了。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 專案 `xiaosen-bakery-prod-2611`（小森烘焙正式站）已建立、連上帳單帳戶，也設成 gcloud 預設專案。\n下一步建議：**先設預算警示**，再開始用任何服務。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：建立你的雲端專案",
+      "body": "請 AI 寫註冊步驟；註冊、同意條款、綁信用卡都由你自己做，截圖回報。之後請它用 gcloud 建立專案、連上帳單帳戶並確認。"
+    },
+    {
+      "hide": "gc"
+    },
+    {
+      "card": "身分、條款、信用卡：你自己\n建立專案、連帳單：AI 用 gcloud",
+      "eyebrow": "學會",
+      "sub": "專案編號全世界不能重複；被用掉就換一個",
+      "chapter": "學會",
+      "narration": "身分、條款、信用卡由你自己處理；建立專案和連帳單交給 AI。現在你有一個專用的雲端專案了。下一堂，第一件事：設預算警示。"
+    }
+  ]
+}

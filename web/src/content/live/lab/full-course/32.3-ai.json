@@ -1,0 +1,119 @@
+{
+  "title": "用手機看進度與核准",
+  "lesson": "全環節 · 單元 32 · 32.3 用 AI 完成",
+  "teacher": {
+    "say": "在手機上按一次允許",
+    "line": "這一堂在電腦上交代任務，然後出門，用手機看進度、核准下一步。"
+  },
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "remote"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "上架新菜單", "folder": "~/projects/bakery", "branch": "feat-menu", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "remote": {
+      "actor": "browser",
+      "props": { "site": "fc32-3-remote", "width": "phone", "url": "https://remote.example-ai.app/s/bakery" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用手機看進度與核准",
+      "eyebrow": "全環節 · 單元 32 · 32.3 用 AI 完成",
+      "sub": "在電腦上交代，在手機上核准",
+      "chapter": "出門前交代清楚",
+      "narration": "你等一下要出門。出門前，先在電腦上把任務交代好。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "上架三款新品：加到菜單、更新價格、跑測試、檢查測試網站在手機和桌面的畫面。全部沒問題就部署到測試網站，部署前問我。我要出門，會用手機看，回報請寫短一點。正式網站今天不要動。",
+      "narration": "出門前多交代兩句：我會用手機看，回報寫短一點；還有今天不能動正式網站。"
+    },
+    {
+      "card": "打開遠端控制",
+      "eyebrow": "出門前的一步",
+      "sub": "在這個工作階段開啟遠端控制，用手機登入同一個帳號",
+      "narration": "接著在這個工作階段打開遠端控制，手機用同一個帳號登入。登入時的密碼和驗證碼，你自己在手機上輸入。"
+    },
+    {
+      "on": "claude",
+      "todos": [["加三款新品到菜單", "done"], ["更新價格", "done"], ["跑測試", "done"], ["檢查手機與桌面畫面", "done"], ["部署到測試網站（要先問）", "doing"]],
+      "chapter": "在路上看進度",
+      "narration": "你出門了。電腦上的 AI 照著清單，一項項做完。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "42 passed" },
+    {
+      "on": "claude",
+      "ask": "npm run deploy:staging",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "部署到測試網站，不是正式網站",
+      "narration": "做到部署這一步，它停下來等你允許。"
+    },
+    {
+      "show": "remote",
+      "narration": "你的手機上，同一個工作階段的畫面跳了出來。"
+    },
+    {
+      "callout": "remote:sel:.msg",
+      "text": "先看進度：做了什麼、測試過了沒",
+      "narration": "先看上面的進度：新品加了、測試四十二個通過、手機和桌面的畫面都檢查過了。"
+    },
+    {
+      "callout": "remote:section:ask",
+      "text": "再看指令：deploy:staging＝測試網站",
+      "chapter": "在手機上核准",
+      "narration": "再看它要執行的指令：deploy 冒號 staging，部署到測試網站。和你出門前交代的一樣，正式網站沒有被碰到。"
+    },
+    {
+      "on": "remote",
+      "click": "#allow",
+      "narration": "確認沒問題，在手機上按「允許一次」。"
+    },
+    {
+      "on": "claude",
+      "choose": 1,
+      "narration": "電腦上的確認提示，同時變成已允許。AI 接著做。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run deploy:staging",
+      "result": "已部署 https://staging.bakery.example"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}' https://staging.bakery.example/menu",
+      "result": "200",
+      "narration": "部署完，它自己用 curl 確認菜單頁回 200。"
+    },
+    {
+      "on": "claude",
+      "say": "完成：測試網站已更新，菜單頁回 200。正式網站沒動。",
+      "narration": "回報寫得很短，因為你說了要在手機上看。"
+    },
+    {
+      "callout": "remote:sel:.res",
+      "text": "人在外面，事情照樣往前走",
+      "narration": "手機上也看到完成了。你人在外面，事情照樣往前走。"
+    },
+    {
+      "card": "回到電腦前再做的事",
+      "eyebrow": "自己來",
+      "sub": "打開測試網站親眼看一次，再決定要不要上正式網站",
+      "narration": "回家之後，打開測試網站親眼看一次。要不要上正式網站，等你在電腦前看清楚再決定。"
+    },
+    {
+      "checkpoint": "換你在手機上核准一次",
+      "body": "交代一個有確認步驟的任務，告訴 AI 你會用手機看、回報寫短一點。打開遠端控制後離開電腦，在手機上看清楚指令再按允許。",
+      "narration": "換你試試：交代一個需要確認的任務，打開遠端控制，離開電腦，在手機上看清楚再允許。"
+    }
+  ]
+}

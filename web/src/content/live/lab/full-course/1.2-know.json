@@ -1,0 +1,119 @@
+{
+  "title": "AI 動手之前，為什麼要先問你",
+  "camera": "auto",
+  "teacher": {
+    "say": "那個「允許」按鈕很重要",
+    "line": "AI 程式助手要讀檔、改檔、執行指令之前，常常會停下來問你。今天來看它為什麼要問，還有幾種權限模式差在哪。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "整理資料夾", "folder": "~/projects/bakery", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc1-2-modes", "url": "https://course.example/explain/permissions" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "AI 動手之前，為什麼要先問你",
+      "eyebrow": "全環節 · 單元 1 · 1.2 基礎知識",
+      "sub": "一句模糊的話，可能刪掉你不想刪的東西",
+      "chapter": "一句模糊的話",
+      "narration": "我們先看一個差點出事的例子。"
+    },
+    {
+      "show": "claude",
+      "narration": "假設你隨口說了一句："
+    },
+    { "on": "claude", "user": "把舊的檔案清一清" },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "ask": "rm -rf old/ build/ images/2023/",
+      "where": "~/projects/bakery",
+      "note": "rm -rf 會直接刪除，不會進垃圾桶",
+      "narration": "它想執行一個刪除指令，一次刪三個資料夾。可是 images/2023 裡面，可能有你還要用的照片。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "它停下來問你：要執行什麼、在哪裡",
+      "narration": "還好它停下來問了。畫面上寫著要執行的指令，還有在哪個資料夾執行。這就是你踩煞車的機會。"
+    },
+    {
+      "on": "claude",
+      "choose": 0,
+      "hover": [1],
+      "narration": "看不懂、或覺得不對，就按拒絕。拒絕不會弄壞任何東西。"
+    },
+    {
+      "on": "claude",
+      "say": "好的，我不刪。要我先列出這三個資料夾裡有什麼，讓你決定嗎？",
+      "narration": "拒絕之後，它會換個比較安全的做法。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "web",
+      "chapter": "三種動作，三種風險",
+      "narration": "AI 會做的事，大致分三種。"
+    },
+    {
+      "callout": "web:sel:.ladder",
+      "text": "讀 → 改 → 執行，越往右越要小心",
+      "narration": "讀檔，只是看一看，最安全；改檔，會動到你的檔案；執行指令最有力，可以安裝、上網，也可以刪東西。越往右，出錯的代價越大。"
+    },
+    {
+      "on": "web",
+      "click": "#m-ask",
+      "chapter": "四種權限模式",
+      "narration": "權限模式，就是決定哪些事它可以直接做、哪些要先問你。第一種，每次都問：讀檔自動，改檔、執行指令都先問。新手先用這個。"
+    },
+    {
+      "on": "web",
+      "click": "#m-accept",
+      "narration": "第二種，自動接受修改：改檔不再問，執行指令還是會問。等你看得懂它改了什麼，再切過來。"
+    },
+    {
+      "on": "web",
+      "click": "#m-plan",
+      "narration": "第三種，先規劃：它只讀、不動手，先寫一份計畫給你看。大改動之前很好用。"
+    },
+    {
+      "on": "web",
+      "click": "#m-auto",
+      "narration": "第四種，自動：大部分都不問，危險的動作仍會擋下來。速度最快，但你要很清楚它在做什麼。"
+    },
+    {
+      "callout": "web:sel:.grid",
+      "text": "越往下，越放手",
+      "narration": "從上到下，你放手的程度越來越大。可以隨時切換，不是選了就不能改。"
+    },
+    { "hide": "web" },
+    {
+      "show": "claude",
+      "on": "claude",
+      "mode": "plan",
+      "narration": "模式就在輸入框旁邊切換。"
+    },
+    {
+      "callout": "claude:mode",
+      "text": "隨時可以換模式",
+      "narration": "例如要做比較大的修改前，先切到先規劃，看完計畫再切回來。"
+    },
+    {
+      "checkpoint": "想一想：你剛開始用，想看清楚 AI 每一步在做什麼，該選哪個模式？",
+      "body": "選「每次都問」。改檔、執行指令前它都會停下來，你可以一步一步看懂。熟了之後，再換成自動接受修改。"
+    },
+    {
+      "card": "先問，是為了讓你看懂",
+      "eyebrow": "1.2 重點",
+      "sub": "看清楚指令和資料夾再允許；看不懂就拒絕，請它解釋",
+      "narration": "記住：它先問，是給你看懂的機會。看清楚指令和資料夾再允許；看不懂就拒絕，請它解釋給你聽。"
+    }
+  ]
+}

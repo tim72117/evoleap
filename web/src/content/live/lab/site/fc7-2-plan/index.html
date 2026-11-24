@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>搬家計畫</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="plan" data-step="0">
+  <ol class="steps"><li class="s1">1　先看方案</li><li class="s2">2　存檔點</li><li class="s3">3　搬檔</li><li class="s4">4　build 檢查</li></ol>
+  <table>
+    <thead><tr><th>現在的位置</th><th></th><th>搬到</th><th>要跟著改的地方</th></tr></thead>
+    <tbody>
+      <tr><td>final2-改.html</td><td>→</td><td>src/pages/about.html</td><td>index.html 的連結</td></tr>
+      <tr><td>main.js</td><td>→</td><td>src/scripts/hello.js</td><td>about.html 的 &lt;script&gt;</td></tr>
+      <tr><td>style-old.css</td><td>→</td><td>src/styles/base.css</td><td>3 個頁面的 &lt;link&gt;</td></tr>
+      <tr><td>utils.js</td><td>→</td><td>src/scripts/utils/format.js</td><td>hello.js 的 import</td></tr>
+      <tr class="del"><td>新增資料夾/</td><td>✕</td><td>刪除（裡面是舊的副本）</td><td>無</td></tr>
+    </tbody>
+  </table>
+  <div class="save"><b>存檔點</b><code>git commit -m "搬檔前的存檔點"</code><span>搬壞了，隨時能回到這裡</span></div>
+  <div class="btns"><button id="next" type="button">下一步</button></div>
+</div>
+</body></html>

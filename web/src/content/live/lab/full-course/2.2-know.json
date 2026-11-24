@@ -1,0 +1,152 @@
+{
+  "title": "終端機：用打字開資料夾",
+  "camera": "auto",
+  "teacher": {
+    "say": "四個指令就夠你走遍電腦",
+    "line": "終端機看起來很嚇人，其實你平常在 Finder 點來點去的事，它都能用打字做到。今天學四個指令：pwd、ls、cd、mkdir。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc2-2-cmds", "url": "https://course.example/explain/terminal" },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~" },
+      "place": { "x": 40, "y": 160, "w": 1080, "h": 740 },
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": { "tree": { "you": { "Desktop": {}, "Documents": {}, "Downloads": {}, "projects": { "hello": { "hello.html": "" } } } }, "open": "you" },
+      "place": { "x": 1160, "y": 200, "w": 720 },
+      "hidden": true
+    },
+    "win": {
+      "actor": "fc1-terminal",
+      "props": { "os": "win", "cwd": "~" },
+      "place": { "x": 1160, "y": 160, "w": 720, "h": 740 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "同一件事：用點的，用打的",
+      "eyebrow": "全環節 · 單元 2 · 2.2 基礎知識",
+      "sub": "pwd · ls · cd · mkdir",
+      "chapter": "四個指令",
+      "narration": "終端機是用打字操作電腦的地方。AI 程式助手執行的指令，大部分也是在這裡跑。我們先認識四個指令。"
+    },
+    {
+      "show": "web",
+      "narration": "pwd 問我在哪；ls 看這裡有什麼；cd 走進一個資料夾；mkdir 建立新資料夾。每個名字都是英文的縮寫。"
+    },
+    {
+      "callout": "web:sel:.line",
+      "text": "誰 · 在哪個資料夾 · 等你打字 · 你打的指令",
+      "narration": "終端機的一行這樣讀：最前面是誰，再來是你在哪個資料夾，接著一個百分比符號，表示它在等你打字，後面才是你打的指令。"
+    },
+    { "hide": "web" },
+    {
+      "show": "term",
+      "chapter": "邊打邊看 Finder",
+      "narration": "我們把終端機和 Finder 放在一起，一邊打，一邊看對應的畫面。"
+    },
+    { "show": "finder" },
+    {
+      "on": "term",
+      "type": "pwd",
+      "out": "/Users/you",
+      "narration": "打 pwd。它印出 /Users/you，也就是你的家目錄。"
+    },
+    {
+      "callout": "finder:window",
+      "text": "就是 Finder 開著的這個地方",
+      "narration": "就是右邊 Finder 現在開著的地方。"
+    },
+    {
+      "on": "term",
+      "type": "ls",
+      "out": "Desktop    Documents    Downloads    projects",
+      "narration": "打 ls，列出這裡有什麼。和 Finder 裡看到的一模一樣。"
+    },
+    {
+      "on": "term",
+      "type": "cd projects",
+      "narration": "打 cd projects，走進 projects。注意提示字元裡的資料夾名稱，從波浪號變成 projects。"
+    },
+    { "on": "finder", "open": "projects" },
+    {
+      "on": "term",
+      "type": "mkdir notes",
+      "narration": "mkdir notes，建立一個叫 notes 的資料夾。成功的話，終端機什麼都不會說。"
+    },
+    {
+      "on": "finder",
+      "mkdir": "notes",
+      "narration": "沒有消息就是好消息。Finder 裡，notes 出現了。"
+    },
+    {
+      "on": "term",
+      "type": "cd notes",
+      "narration": "走進去。"
+    },
+    { "on": "finder", "open": "notes" },
+    {
+      "on": "term",
+      "type": "pwd",
+      "out": "/Users/you/projects/notes",
+      "narration": "再 pwd 一次，確認位置。"
+    },
+    {
+      "on": "term",
+      "type": "cd ..",
+      "narration": "cd 空格兩個點，退回上一層。"
+    },
+    { "on": "finder", "open": ".." },
+    {
+      "on": "term",
+      "type": "cd hellp",
+      "out": "cd: no such file or directory: hellp",
+      "tone": "err",
+      "chapter": "讀懂錯誤",
+      "narration": "打錯字會怎樣？我們把 hello 打成 hellp。"
+    },
+    {
+      "callout": "term:out:last",
+      "text": "讀最後一段：它找不到「hellp」",
+      "narration": "錯誤訊息從後面讀：no such file or directory，找不到這個檔案或資料夾，後面就是你打的名字。對一下，原來是打錯字。"
+    },
+    { "on": "term", "type": "cd hello", "narration": "改正就好。" },
+    { "hide": "finder" },
+    {
+      "show": "win",
+      "chapter": "Windows 也一樣",
+      "narration": "用 Windows 的話，打開 PowerShell。提示字元長得不一樣，路徑用反斜線。"
+    },
+    {
+      "on": "win",
+      "type": "pwd",
+      "out": "\nPath\n----\nC:\\Users\\you",
+      "narration": "同樣打 pwd，它印出 C 槽、Users、you。"
+    },
+    {
+      "on": "win",
+      "type": "ls",
+      "out": "    Directory: C:\\Users\\you\n\nMode    Name\n----    ----\nd----   Desktop\nd----   Documents\nd----   projects",
+      "narration": "ls 也認得，只是排成表格。cd 和 mkdir 的用法一樣。"
+    },
+    {
+      "checkpoint": "想一想：你在 /Users/you/projects 打了 mkdir shop，接著要進去，該打什麼？",
+      "body": "打 cd shop。進去之後可以用 pwd 確認，應該印出 /Users/you/projects/shop。"
+    },
+    {
+      "card": "pwd 在哪 · ls 有什麼 · cd 走進去 · mkdir 新增",
+      "eyebrow": "2.2 重點",
+      "sub": "錯誤訊息從最後一段讀起",
+      "narration": "四個指令：pwd 在哪、ls 有什麼、cd 走進去、mkdir 新增。看到錯誤，從最後一段讀起。"
+    }
+  ]
+}

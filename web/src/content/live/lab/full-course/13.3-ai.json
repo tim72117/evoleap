@@ -1,0 +1,151 @@
+{
+  "title": "端對端測試",
+  "lesson": "全環節 · 單元 13 · 13.3 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "report"], "shot": "depth" },
+  "teacher": {
+    "say": "失敗了，讓 AI 自己看截圖",
+    "line": "這一堂請 AI 寫全站的端對端測試。第一次跑一定會有失敗，這次不用你去查，讓它自己讀截圖和錯誤、自己修，來回幾輪直到全部通過。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "全站測試", "folder": "~/projects/shop", "branch": null, "mode": "auto", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "report": {
+      "actor": "browser",
+      "props": { "site": "fc13-3-report1", "width": "desktop", "url": "http://localhost:9323/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "端對端測試",
+      "eyebrow": "全環節 · 單元 13 · 13.3 用 AI 完成",
+      "sub": "寫全站測試 → 跑 → 讀截圖與錯誤 → 修 → 再跑",
+      "chapter": "交代",
+      "narration": "目標是：以後一個指令，就能把全站重要的路走一遍。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "照 docs/must-not-break.md，用 Playwright 寫全站的端對端測試，手機和桌面尺寸都要跑。跑完有失敗的話，自己讀截圖和錯誤訊息找原因、修好再跑，直到全部通過。\n規則：如果是網站本身的問題就修網站，不可以為了通過而放寬測試。最後做成 npm run test:e2e 一個指令。",
+      "narration": "交代清楚：照清單寫、手機和桌面都跑、失敗自己修。最重要的一條規則：是網站的問題就修網站，不可以為了通過而把測試改鬆。"
+    },
+    {
+      "on": "claude",
+      "todos": [["安裝 Playwright", "done"], ["依清單寫 8 條路（手機＋桌面）", "done"], ["第一次執行", "doing"], ["修到全部通過", "pending"], ["加上 npm run test:e2e", "pending"]],
+      "narration": "它裝好工具、依清單寫好八條路，開始第一次執行。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright test",
+      "result": "10 通過、2 失敗",
+      "out": "  ✗ [手機] 加入購物車  TimeoutError: 點不到「加入購物車」\n  ✗ [手機] 結帳後看到訂單完成  等了 5000ms 看不到「訂單完成」\n  10 passed, 2 failed",
+      "chapter": "第一輪：讀截圖",
+      "narration": "第一次跑：十個通過，兩個失敗，都在手機尺寸。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "test-results/手機-加入購物車/failure.png",
+      "result": "已讀取截圖",
+      "narration": "它沒有猜，而是直接去讀失敗那一刻的截圖。"
+    },
+    {
+      "show": "report",
+      "narration": "我們也打開測試報告，看看它看到了什麼。"
+    },
+    { "on": "report", "click": "#t4", "narration": "點開第一個失敗。" },
+    {
+      "callout": "report:sel:#h4",
+      "text": "Cookie 提示蓋住了按鈕：真的客人在手機上也按不到",
+      "narration": "截圖裡，Cookie 提示蓋住了整個下半部，加入購物車按鈕被擋住。這不是測試寫錯，真的客人用手機也按不到。"
+    },
+    {
+      "on": "claude",
+      "say": "第一個失敗是**網站本身的問題**：手機上 Cookie 提示太高，蓋住了「加入購物車」。真的客人也會按不到，所以我改網站，不改測試：把提示改成貼底的一條，不擋內容。",
+      "narration": "AI 的判斷也一樣：這是網站的問題，所以修網站，不去改測試。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/styles/cookie.css",
+      "lines": [[3, "-", "  padding: 14px 12px 120px;"], [3, "+", "  padding: 10px 12px;"], [4, "+", "  max-height: 72px; /* 只佔底部一條，不蓋住內容 */"]]
+    },
+    { "on": "report", "click": "#t6", "chapter": "第二輪：等的方式不對", "narration": "再看第二個失敗：等了五秒，畫面還是處理中。" },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "tests/checkout.spec.ts",
+      "result": "已讀取 42 行",
+      "narration": "它去讀這個測試，發現測試寫的是「固定等五秒」。測試環境的付款模擬第一次比較慢，五秒不夠。"
+    },
+    {
+      "on": "claude",
+      "edit": "tests/checkout.spec.ts",
+      "lines": [[28, "-", "  await page.waitForTimeout(5000)"], [28, "+", "  await page.waitForResponse((r) => r.url().includes('/api/orders') && r.ok())"]],
+      "narration": "這次是測試寫得不好：不該固定等幾秒，而是等「訂單送出成功」這件事發生。檢查的內容沒有變鬆，只是等對的東西。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright test",
+      "result": "11 通過、1 失敗",
+      "out": "  ✓ [手機] 加入購物車\n  ✓ [手機] 結帳後看到訂單完成\n  ✗ [桌面] 只看得到自己的訂單  看到了別人的訂單 #A0998\n  11 passed, 1 failed",
+      "chapter": "第三輪：抓到真的漏洞",
+      "narration": "再跑一次，剛剛兩個都過了，卻冒出一個新的失敗：測試帳號看到了別人的訂單。"
+    },
+    {
+      "on": "claude",
+      "say": "這是一個**真的漏洞**：`/api/orders` 沒有依登入者篩選，任何會員都看得到所有訂單。我已經修好：只回傳自己的訂單。",
+      "narration": "這是真的漏洞，任何會員都看得到所有人的訂單。剛好是清單上「絕不能壞」的一條。測試替你在上線前抓到了。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/api/orders.ts",
+      "lines": [[12, "-", "  const orders = await db.orders.all()"], [12, "+", "  const orders = await db.orders.where({ userId: req.user.id })"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run test:e2e",
+      "result": "12 項全部通過",
+      "out": "Running 12 tests using 4 workers\n  12 passed (38.0s)",
+      "narration": "第三次，十二個全部通過，三十八秒跑完。"
+    },
+    {
+      "on": "report",
+      "site": "fc13-3-report2",
+      "narration": "報告全部是綠色的。"
+    },
+    {
+      "on": "claude",
+      "user": "這三輪你改了哪些是網站、哪些是測試？",
+      "chapter": "你來把關",
+      "narration": "最後你問一個把關的問題：哪些改的是網站，哪些改的是測試？"
+    },
+    {
+      "on": "claude",
+      "say": "改網站 2 處：Cookie 提示不再蓋住按鈕、訂單 API 只回傳自己的訂單。\n改測試 1 處：結帳後改成等「訂單送出成功」，取代固定等 5 秒；檢查的內容沒有放寬。\n\n以後執行 `npm run test:e2e` 就會跑完全站檢查。",
+      "narration": "兩處改網站，一處改測試，而且說明測試沒有放寬。這個問題，每次都值得問。"
+    },
+    { "hide": "report" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：一個指令跑完全站檢查",
+      "body": "請 AI 依清單寫端對端測試，手機與桌面都跑，失敗時自己讀截圖修好；規定不能為了通過而放寬測試。完成後問它：哪些改了網站、哪些改了測試？"
+    },
+    {
+      "card": "讓 AI 自己讀截圖、自己修\n網站的問題修網站\n不准放寬測試",
+      "eyebrow": "學會",
+      "sub": "最後問一句：你改的是網站還是測試？",
+      "chapter": "學會",
+      "narration": "失敗時讓 AI 自己讀截圖和錯誤、自己修。規則是：網站的問題修網站，不准為了通過而放寬測試。最後問它一句，改的是網站還是測試。"
+    }
+  ]
+}

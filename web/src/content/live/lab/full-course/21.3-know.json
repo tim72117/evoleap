@@ -1,0 +1,140 @@
+{
+  "title": "客人瀏覽器裡的錯誤，你看得到嗎？",
+  "lesson": "全環節 · 單元 21 · 21.3 基礎知識",
+  "teacher": {
+    "say": "今天認識錯誤追蹤",
+    "line": "有些錯誤發生在客人的手機或電腦上，雲端紀錄根本看不到。這一課來看錯誤追蹤服務會收集什麼，以及哪些個人資料不該收。"
+  },
+  "blocking": { "cast": ["flow", "web"], "shot": "depth" },
+  "cast": {
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "錯誤發生在哪裡",
+        "nodes": [
+          { "id": "phone", "label": "客人的手機", "sub": "瀏覽器裡跑著你的網頁", "icon": "📱", "x": 16, "y": 46, "w": 10 },
+          { "id": "server", "label": "你的伺服器", "sub": "雲端紀錄在這裡", "icon": "🖥", "x": 50, "y": 22, "w": 10 },
+          { "id": "track", "label": "錯誤追蹤服務", "icon": "◎", "x": 50, "y": 74, "w": 10, "hidden": true },
+          { "id": "you", "label": "你", "icon": "🙂", "shape": "person", "x": 85, "y": 74, "w": 7, "hidden": true }
+        ],
+        "edges": [
+          { "from": "phone", "to": "server" },
+          { "from": "phone", "to": "track", "label": "錯誤報告", "hidden": true },
+          { "from": "track", "to": "you", "label": "通知", "hidden": true }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc21-3-event", "url": "https://errors.example.io/shop-web/issues/128" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "客人瀏覽器裡的錯誤，你看得到嗎？",
+      "eyebrow": "全環節 · 單元 21 · 21.3 基礎知識",
+      "sub": "錯誤追蹤會收集什麼 · 要注意哪些個資",
+      "narration": "上一堂我們查雲端紀錄。但有一種錯誤，雲端紀錄完全看不到。"
+    },
+    {
+      "show": "flow",
+      "chapter": "看不到的錯誤",
+      "narration": "你的網頁，其實是在客人的瀏覽器裡跑。"
+    },
+    { "send": "phone>server", "label": "載入網頁", "tone": "ok" },
+    {
+      "light": "phone",
+      "tone": "bad",
+      "sub": "按下加入購物車 → 當掉",
+      "narration": "網頁載入成功，伺服器記下一筆正常的紀錄。但客人按下加入購物車時，按鈕在他的手機上壞了。"
+    },
+    {
+      "callout": "flow:node:server",
+      "text": "伺服器沒收到任何請求：紀錄裡一切正常",
+      "narration": "這個錯誤發生在客人的手機裡，根本沒送到伺服器。你的雲端紀錄一片祥和，客人卻默默離開了。"
+    },
+    {
+      "appear": ["track", "phone>track"],
+      "chapter": "錯誤追蹤服務",
+      "narration": "錯誤追蹤服務就是為了這個。你在網頁裡放一小段它的程式，"
+    },
+    {
+      "send": "phone>track",
+      "label": "錯誤報告",
+      "tone": "bad",
+      "narration": "瀏覽器裡一出錯，它就把錯誤整理成一份報告，送到追蹤服務。"
+    },
+    { "appear": ["you", "track>you"] },
+    { "send": "track>you", "label": "新問題 #128", "narration": "你就會收到通知。" },
+    {
+      "show": "web",
+      "chapter": "一份錯誤報告裡有什麼",
+      "narration": "打開這份報告看看，裡面有什麼。"
+    },
+    {
+      "callout": "web:section:title",
+      "text": "錯誤訊息 + 發生幾次、影響幾個人",
+      "narration": "最上面是錯誤訊息，還有發生了三十七次、影響二十一個人。同樣的錯誤會合併成一個問題，不會洗版。"
+    },
+    {
+      "callout": "web:section:stack",
+      "text": "出錯的位置：cart.js 第 88 行",
+      "narration": "再來是出錯的位置：哪個檔案、第幾行。把這段交給 AI，它很快就能找到原因。"
+    },
+    {
+      "callout": "web:section:crumbs",
+      "text": "出錯前的步驟：照著做就能重現",
+      "narration": "這一段最好用：出錯前客人做了什麼。照著做一次，你就能親眼看到錯誤。"
+    },
+    {
+      "callout": "web:section:env",
+      "text": "瀏覽器、裝置、網站版本",
+      "narration": "還有環境：什麼瀏覽器、什麼手機、網站是哪一版。很多錯誤只在某種瀏覽器才會發生。"
+    },
+    {
+      "callout": "web:section:user",
+      "text": "黃色的都是個人資料：Email、IP、電話",
+      "chapter": "要注意的個資",
+      "narration": "但是注意黃色的部分：Email、IP 位址、表單裡填的電話。這些都是個人資料，跟著錯誤一起送到別人家的服務了。"
+    },
+    {
+      "callout": "web:section:env",
+      "text": "連網址裡都可能夾帶 Email",
+      "narration": "連網址裡都可能夾帶。這些資料不是修錯誤需要的，收了反而是風險：服務被入侵，或你忘了在隱私權政策寫清楚。"
+    },
+    {
+      "on": "web",
+      "click": "#scrub",
+      "narration": "好的做法是送出前先遮蔽：Email 拿掉、IP 只留前面、表單內容一律不收。"
+    },
+    {
+      "callout": "web:section:user",
+      "text": "只留匿名的使用者 ID：夠用來數「影響幾個人」",
+      "narration": "只留一個匿名的使用者編號，就夠用來算影響了幾個人。修錯誤需要的資訊，一樣都沒少。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "收夠修錯誤的，不多收",
+      "sub": "要：錯誤、位置、步驟、環境 · 不要：Email、電話、表單內容、完整 IP",
+      "chapter": "重點整理",
+      "narration": "原則是：收夠修錯誤用的，不多收。錯誤、位置、步驟、環境要；Email、電話、表單內容不要。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "判斷看看",
+      "body": "下面哪些應該從錯誤報告裡拿掉？① 出錯的檔案和行號　② 客人的姓名　③ 瀏覽器版本　④ 結帳表單裡的地址　⑤ 網站版本",
+      "narration": "判斷看看：檔案行號、客人姓名、瀏覽器版本、結帳地址、網站版本，哪些要拿掉？"
+    },
+    {
+      "card": "拿掉 ② 和 ④",
+      "eyebrow": "答案",
+      "sub": "姓名、地址是個資，修錯誤用不到；其他三項是找原因的線索",
+      "narration": "要拿掉的是姓名和地址，它們是個資，修錯誤也用不到。下一堂，你申請帳號，AI 負責串接與測試。"
+    }
+  ]
+}

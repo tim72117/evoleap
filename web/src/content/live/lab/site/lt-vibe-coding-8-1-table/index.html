@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>錯誤訊息對照表</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap">
+  <h1>錯誤訊息對照表</h1>
+  <p class="muted">先找錯誤訊息裡的關鍵字，判斷是哪一類，再照那一類的方法處理。</p>
+  <div class="rows">
+    <button class="row path" id="r-path">
+      <span class="kind"><b>找不到指令</b><small>PATH</small></span>
+      <span class="keys"><code>command not found</code><code>不是內部或外部命令</code><code>無法辨識 'npm' 詞彙</code></span>
+      <span class="fix">先關掉終端機再打開；還是不行，請 AI 程式助手查這個工具裝在哪裡、有沒有加進 PATH。</span>
+    </button>
+    <button class="row perm" id="r-perm">
+      <span class="kind"><b>權限不夠</b><small>Permission</small></span>
+      <span class="keys"><code>EACCES</code><code>permission denied</code><code>Operation not permitted</code></span>
+      <span class="fix">不要加 sudo 硬裝。請 AI 改成不需要管理員權限的裝法，例如用 nvm 安裝 Node.js。</span>
+    </button>
+    <button class="row ps" id="r-ps">
+      <span class="kind"><b>PowerShell 擋指令碼</b><small>執行原則</small></span>
+      <span class="keys"><code>已停用指令碼執行</code><code>running scripts is disabled</code></span>
+      <span class="fix">只對自己的帳號放寬：<code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code></span>
+    </button>
+    <button class="row net" id="r-net">
+      <span class="kind"><b>網路被擋</b><small>Proxy</small></span>
+      <span class="keys"><code>ETIMEDOUT</code><code>ECONNRESET</code><code>self-signed certificate</code></span>
+      <span class="fix">換手機熱點試一次：好了，就是公司網路擋住，向 IT 要 Proxy 設定，不要自己關掉憑證檢查。</span>
+    </button>
+  </div>
+</div>
+<script src="script.js"></script>
+</body></html>

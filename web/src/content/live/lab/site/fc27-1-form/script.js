@@ -1,0 +1,1 @@
+document.getElementById('f').addEventListener('submit',function(){document.getElementById('to').textContent=document.getElementById('email').value;document.getElementById('msg').classList.remove('gone')});

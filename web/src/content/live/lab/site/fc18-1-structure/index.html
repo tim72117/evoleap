@@ -1,0 +1,22 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>雲端帳號的結構</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · Google Cloud 的帳號結構</p>
+<h1>帳號、帳單帳戶、專案</h1>
+<div class="tabs"><button id="b0" data-go="0">帳號</button><button id="b1" data-go="1">帳單帳戶</button><button id="b2" data-go="2">專案</button><button id="b3" data-go="3">服務</button><button id="b4" data-go="4">免費額度</button></div>
+<div class="nest">
+<div class="acc lv"><div class="lb">👤 Google 帳號　<span class="mono">you@gmail.com</span><small>你是誰：登入用</small></div>
+<div class="bill lv" data-at="1"><div class="lb">💳 帳單帳戶<small>誰付錢：綁一張信用卡</small></div>
+<div class="projs">
+<div class="proj lv" data-at="2"><div class="lb">📁 專案 <span class="mono">xiaosen-bakery-prod</span><small>正式網站用</small></div>
+<div class="svcs" data-at="3"><span>Cloud Run</span><span>Cloud SQL</span><span>Secret Manager</span></div></div>
+<div class="proj lv" data-at="2"><div class="lb">📁 專案 <span class="mono">xiaosen-sandbox</span><small>練習用，隨時可以刪</small></div>
+<div class="svcs" data-at="3"><span>Cloud Run</span></div></div>
+</div></div></div></div>
+<div class="box expl">
+<p data-only="0"><b>帳號</b>就是你登入用的 Google 帳號，代表「你是誰」。</p>
+<p data-only="1"><b>帳單帳戶</b>代表「誰付錢」，上面綁一張信用卡。用了多少，就從這裡扣。</p>
+<p data-only="2"><b>專案</b>像一個資料夾，裝一組相關的東西。正式網站和練習分成兩個專案，練習的刪掉也不影響正式的。</p>
+<p data-only="3">雲端<b>服務</b>（放網站、資料庫、密碼保險箱…）都開在某個專案裡，費用算到那個專案的帳單帳戶上。</p>
+<div data-only="4" class="free"><div><b>新帳號試用金</b><div class="gauge"><i style="width:100%"></i></div><small>一筆試用額度，有使用期限，用完或到期就結束</small></div><div><b>每月免費用量</b><div class="gauge g2"><i style="width:35%"></i></div><small>部分服務每個月有固定免費的量，超過才計費</small></div><p class="note">詳細的金額和期限常常調整，開始前請 AI 查最新說明。綁卡是為了確認身分與之後計費。</p></div>
+</div>
+</div></body></html>

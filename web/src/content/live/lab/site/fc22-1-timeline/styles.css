@@ -1,0 +1,28 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#f4f6f9;color:#1d2733}
+.bar{display:flex;align-items:center;gap:12px;padding:14px 26px;background:#fff;border-bottom:1px solid #dde3ea;font-weight:700}
+.bar .lg{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#7aa7e8,#4d7fd0)}
+.bar .crumb{color:#5b6774;font-weight:600}
+.pg{padding:26px 40px}
+h1{font-size:28px;margin:0 0 22px}
+.tl{position:relative;height:260px;background:#fff;border-radius:16px;box-shadow:0 0 0 1px #dde3ea}
+.axis{position:absolute;left:3%;right:3%;top:150px;height:6px;border-radius:3px;background:#cfd8e3}
+.lbl{position:absolute;top:172px;font-size:14px;color:#6b7785}
+.pitr{position:absolute;left:3%;right:3%;top:196px;height:34px;border-radius:8px;background:repeating-linear-gradient(90deg,#dcebdf,#dcebdf 6px,#cfe4d4 6px,#cfe4d4 7px);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#22804a}
+.dot{position:absolute;top:136px;width:34px;height:34px;margin-left:-17px;border-radius:50%;border:5px solid #fff;background:#2f6fd6;box-shadow:0 0 0 2px #2f6fd6;padding:0}
+.dot span{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:15px;font-weight:700;color:#2f6fd6;background:#eef4ff;padding:4px 10px;border-radius:8px;line-height:1.3}
+.dot.alt{background:#2e9a5b;box-shadow:0 0 0 2px #2e9a5b}
+.dot.alt span{color:#22804a;background:#ecf8f0;bottom:-2px;left:auto;right:30px;transform:none}
+.dot.sel{box-shadow:0 0 0 6px #ffd479}
+.boom{position:absolute;top:22px;transform:translateX(-10%);text-align:left;background:#fdeeec;border:2px solid #d2453a;border-radius:10px;padding:6px 12px;color:#c0392b}
+.boom b{display:block}.boom span{font-size:14px}
+.boom::after{content:"";position:absolute;left:12px;top:100%;width:3px;height:64px;background:#d2453a}
+.res{margin-top:22px;background:#fff;border-radius:16px;box-shadow:0 0 0 1px #dde3ea;padding:20px 26px;min-height:120px;font-size:19px}
+.res .r1,.res .r2{display:none}
+.res[data-r="1"] .r0,.res[data-r="2"] .r0{display:none}
+.res[data-r="1"] .r1,.res[data-r="2"] .r2{display:block}
+.r0{color:#6b7785}
+.res p{margin:6px 0 12px}
+.res em{font-style:normal;font-weight:800;color:#c0392b}
+.lose{height:18px;background:#eef1f4;border-radius:9px;overflow:hidden;margin-bottom:6px}
+.lose div{height:100%;background:#d2453a}
+.res span{font-size:15px;color:#6b7785}

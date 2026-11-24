@@ -1,0 +1,30 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; background: #f4f6f9; color: #1f2933; }
+.w { padding: 26px 36px; }
+.bar { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
+.t-single { display: none; color: #2f7a4b; } .w[data-mode="single"] .t-single { display: inline; } .w[data-mode="single"] .t-copies { display: none; }
+.area { position: relative; height: 420px; }
+.src { display: none; position: absolute; left: 50%; top: 0; transform: translateX(-50%); padding: 14px 22px; border-radius: 14px; background: #1e2430; color: #e6edf3; text-align: center; }
+.src b { display: block; font-size: 16px; color: #9fb3c8; margin-bottom: 6px; }
+.src code { font: 20px ui-monospace, Menlo, monospace; } .src em { font-style: normal; color: #ffd166; }
+.links { display: none; position: absolute; inset: 0; width: 100%; height: 100%; }
+.links path { stroke: #94a3b8; stroke-width: 3; stroke-dasharray: 6 6; vector-effect: non-scaling-stroke; fill: none; }
+.w[data-mode="single"] .src, .w[data-mode="single"] .links { display: block; }
+.w[data-mode="single"][data-done="1"] .links path { stroke: #10b981; stroke-dasharray: none; }
+.pages { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.w[data-mode="copies"] .pages { top: 0; bottom: auto; }
+.pg { background: #fff; border-radius: 14px; padding: 16px; border: 3px solid #e4e7eb; display: flex; flex-direction: column; gap: 8px; min-height: 160px; }
+.pg b { font-size: 16px; }
+.ln { height: 10px; border-radius: 5px; background: #e5e7eb; } .ln.s { width: 60%; }
+.ph { margin-top: auto; font-size: 17px; padding: 6px 10px; border-radius: 8px; background: #f3f4f6; }
+.ph .new, .src .new { display: none; }
+.w[data-done="1"] .pg .new, .w[data-done="1"] .src .new { display: inline; }
+.w[data-done="1"] .pg .old, .w[data-done="1"] .src .old { display: none; }
+.w[data-done="1"] .pg { border-color: #10b981; }
+.w[data-mode="copies"][data-done="1"] .miss .new { display: none; }
+.w[data-mode="copies"][data-done="1"] .miss .old { display: inline; }
+.w[data-mode="copies"][data-done="1"] .miss { border-color: #ef4444; }
+.w[data-mode="copies"][data-done="1"] .miss .ph { background: #fee2e2; color: #b42318; font-weight: 700; }
+.w[data-mode="copies"][data-done="1"] .miss .ph::after { content: "　漏改了！"; }
+.btns { display: flex; gap: 12px; justify-content: center; margin-top: 18px; }
+.btns button { font: inherit; font-size: 16px; font-weight: 700; padding: 8px 18px; border-radius: 999px; border: 2px solid #1f2933; background: #fff; }

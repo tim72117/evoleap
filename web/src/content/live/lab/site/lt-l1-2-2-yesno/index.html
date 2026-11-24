@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>驗收條件檢查機</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="head">
+    <div class="ttl">驗收條件檢查機</div>
+    <span class="muted rule">能回答「是」或「否」，才算能檢查</span>
+    <div class="tools">
+      <button class="btn" id="runAll">全部檢查</button>
+      <button class="btn" id="fix">照回饋修改</button>
+    </div>
+  </div>
+  <div class="tbl card">
+    <div class="th"><span>工作項目</span><span>驗收條件</span><span>能檢查嗎？</span></div>
+    <button class="tr" id="a1" data-ok="1"><span>取貨日期與時段選擇</span><span>已滿 15 筆的時段無法選擇</span><span class="res"></span></button>
+    <button class="tr" id="a2" data-ok="0" data-why="多簡單才算簡單？"><span>今日取貨清單</span><span class="t"><span class="old">後台要很簡單</span><span class="new">店員在平板上 3 步內看到今天要取貨的訂單</span></span><span class="res"></span></button>
+    <button class="tr" id="a3" data-ok="0" data-why="哪幾種通知？什麼時候發？"><span>簡訊通知</span><span class="t"><span class="old">通知要方便</span><span class="new">下單後收到訂單確認簡訊</span></span><span class="res"></span></button>
+    <div class="tr add" id="a3b"><span>簡訊通知（拆出來）</span><span>取貨前一天收到提醒簡訊</span><span class="res2"><span class="tag g">✓ 是／否</span><span class="tag b">新拆出</span></span></div>
+    <button class="tr" id="a4" data-ok="1"><span>生日蛋糕上限</span><span>當天已滿上限時，那一天不能再選生日蛋糕</span><span class="res"></span></button>
+    <button class="tr" id="a5" data-ok="1"><span>取消訂單</span><span>取貨前一天中午過後，取消按鈕不能按</span><span class="res"></span></button>
+  </div>
+  <div class="foot muted"><span class="n">0</span> 條能檢查 · <span class="m">0</span> 條要改</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

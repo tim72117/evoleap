@@ -1,0 +1,72 @@
+/* 演員 fc3-table:資料表圖解。選擇器都以 .A-fc3-table 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-fc3-table {
+  position: relative;
+  width: 100%; height: 100%;
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
+  font-size: 26px;
+  color: #1e293b;
+}
+.A-fc3-table *, .A-fc3-table *::before, .A-fc3-table *::after { box-sizing: border-box; }
+.A-fc3-table .tb-board {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; gap: 18px;
+  padding: 26px 30px;
+  background: linear-gradient(180deg, #f8fafc, #eef2f7);
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16), inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+.A-fc3-table .tb-title { font-weight: 800; color: #475569; font-size: 0.95em; letter-spacing: 0.04em; }
+.A-fc3-table .tb-sql {
+  display: flex; align-items: flex-start; gap: 14px;
+  min-height: 2.6em;
+  padding: 12px 18px;
+  background: #0f172a; color: #e2e8f0;
+  border-radius: 14px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace, "PingFang TC";
+  font-size: 0.85em; line-height: 1.45;
+  white-space: pre-wrap;
+}
+.A-fc3-table .tb-sql-k { flex: none; padding: 2px 10px; border-radius: 8px; background: #38bdf8; color: #0c4a6e; font-weight: 800; font-size: 0.8em; }
+.A-fc3-table .tb-sql code { font: inherit; color: #fde68a; }
+.A-fc3-table .tb-wrap { position: relative; flex: 1; min-height: 0; }
+.A-fc3-table .tb-links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: 2; pointer-events: none; }
+.A-fc3-table .tb-links path { fill: none; stroke: #7c3aed; stroke-width: 4; stroke-linecap: round; }
+.A-fc3-table .tb-links circle { fill: #7c3aed; }
+.A-fc3-table .tb-tables { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 70px 90px; height: 100%; align-content: center; }
+.A-fc3-table .tb {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
+  overflow: visible;
+  min-width: 300px;
+}
+.A-fc3-table .tb-h {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 18px;
+  background: #1e293b; color: #f8fafc;
+  border-radius: 16px 16px 0 0;
+}
+.A-fc3-table .tb-h b { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 1em; }
+.A-fc3-table .tb-h .lb { font-size: 0.78em; color: #cbd5e1; }
+.A-fc3-table .tb-h .cnt { margin-left: auto; padding: 2px 12px; border-radius: 999px; background: #38bdf8; color: #0c4a6e; font-weight: 800; font-size: 0.75em; }
+.A-fc3-table .tb-h .stamp { margin-left: auto; padding: 4px 14px; border-radius: 10px; border: 3px solid #22c55e; color: #bbf7d0; font-weight: 800; font-size: 0.78em; }
+.A-fc3-table .tb-h .stamp[data-tone="bad"] { border-color: #f87171; color: #fecaca; }
+.A-fc3-table .tb-h .stamp[data-tone="warn"] { border-color: #fbbf24; color: #fde68a; }
+.A-fc3-table .grid { display: flex; flex-direction: column; padding: 4px 0 8px; }
+.A-fc3-table .tr { display: grid; grid-template-columns: repeat(var(--n), minmax(5.2em, auto)); border-bottom: 1px solid #e2e8f0; }
+.A-fc3-table .tr:last-child { border-bottom: 0; }
+.A-fc3-table .tr.empty { grid-template-columns: 1fr; color: #94a3b8; font-style: italic; }
+.A-fc3-table .th, .A-fc3-table .td { padding: 9px 16px; white-space: nowrap; }
+.A-fc3-table .th {
+  display: flex; align-items: center; gap: 8px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace, "PingFang TC";
+  font-weight: 800; font-size: 0.85em; color: #334155;
+  background: #f1f5f9;
+}
+.A-fc3-table .td { font-size: 0.85em; font-variant-numeric: tabular-nums; }
+.A-fc3-table .th i { font-style: normal; font-size: 0.7em; padding: 1px 6px; border-radius: 6px; font-family: -apple-system, sans-serif; }
+.A-fc3-table .th i.pk { background: #fde68a; color: #78350f; }
+.A-fc3-table .th i.fk { background: #ddd6fe; color: #4c1d95; }

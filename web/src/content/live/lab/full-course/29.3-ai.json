@@ -1,0 +1,154 @@
+{
+  "title": "請另一個 AI 審查",
+  "lesson": "全環節 · 單元 29 · 29.3 用 AI 完成",
+  "teacher": {
+    "say": "今天一個寫、一個審",
+    "line": "這一堂開兩個工作階段：一個負責寫優惠碼功能，另一個只拿到 diff，專門找問題。我們來回兩輪，修到審查的 AI 說沒問題。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "優惠碼", "folder": "~/projects/bakery", "branch": "coupon", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "請另一個 AI 審查",
+      "eyebrow": "全環節 · 單元 29 · 29.3 用 AI 完成",
+      "sub": "一個寫、一個審，來回修到沒問題",
+      "chapter": "寫的那一個",
+      "narration": "第一個工作階段，叫做「優惠碼」，它已經把功能寫好、測過了。"
+    },
+    { "show": "claude" },
+    { "on": "claude", "user": "結帳時加一個優惠碼欄位，輸入 FALL10 打九折" },
+    {
+      "on": "claude",
+      "edit": "src/checkout.js",
+      "lines": [[30, "+", "function applyCoupon(code, total) {"], [31, "+", "  const c = COUPONS[code]"], [32, "+", "  if (!c) return total"], [33, "+", "  return total - c.amount"], [34, "+", "}"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成了。輸入 FALL10 後合計從 1200 變成 1080，測試通過。",
+      "narration": "它說完成了，也測過了。看起來沒問題，對吧？"
+    },
+    {
+      "on": "claude",
+      "user": "把這次的改動存成 review.diff，不用說明",
+      "narration": "我們請它把改動存成一個檔案。注意，只要 diff，不要它的說明，免得把它的想法也帶過去。"
+    },
+    {
+      "on": "claude",
+      "ask": "git diff main > review.diff",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "把和 main 的差異存成檔案"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "git diff main > review.diff", "result": "已存檔", "out": "review.diff（2 個檔案，+41 行）" },
+    {
+      "on": "claude",
+      "newSession": "審查",
+      "branch": "coupon",
+      "chapter": "第一輪審查",
+      "narration": "接著按新增，開第二個工作階段，叫「審查」。它沒看過剛剛的對話。"
+    },
+    {
+      "on": "claude",
+      "user": "讀 review.diff，這是結帳優惠碼的改動。請只找問題，不用誇獎：\n會算錯錢、能被濫用、漏掉的情況。每個問題附上檔名和行號。",
+      "narration": "我們只叫它讀 diff，而且明確說：只找問題，特別是會算錯錢、會被濫用、漏掉的情況。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "review.diff", "result": "41 行" },
+    { "on": "claude", "thinking": true, "ms": 1300 },
+    {
+      "on": "claude",
+      "say": "找到 3 個問題：\n1. **會被濫用**：`checkout.js:31` 沒記錄優惠碼用過了，同一個碼可以一直用。\n2. **會算錯錢**：`checkout.js:33` 用減的：`FALL10` 設定是固定減 120 元，只有買 1200 元時剛好是九折，買 500 元也減 120。\n3. **漏掉的情況**：合計扣到小於 0 時沒有擋。",
+      "narration": "它找出三個問題。第二個最有趣：寫的那一個說「打九折」，可是程式其實是固定減 120 元。它剛好只測了 1200 元，結果看起來對，就沒發現。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "寫的 AI 測過一次，卻看不見這三個",
+      "narration": "這三個，寫程式的 AI 都沒發現。"
+    },
+    {
+      "on": "claude",
+      "session": "優惠碼",
+      "chapter": "交回去修",
+      "narration": "回到寫程式的那個工作階段，把審查結果貼給它。"
+    },
+    {
+      "on": "claude",
+      "user": "另一個 AI 審查了你的改動，找到 3 個問題：\n1. 優惠碼沒記錄用過，可以一直用\n2. 固定減 120 元不是九折\n3. 合計可能小於 0\n請逐一修正，每個問題加一個測試，先看它失敗再修。"
+    },
+    {
+      "on": "claude",
+      "todos": [["測試：同一個碼第二次用要被擋", "done"], ["測試：1000 元用 FALL10 要變 900", "done"], ["測試：合計不能小於 0", "done"], ["修正三個問題", "doing"]],
+      "narration": "它照上一課的做法：每個問題先寫一個會失敗的測試。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/checkout.js",
+      "lines": [[31, " ", "  const c = COUPONS[code]"], [32, "-", "  if (!c) return total"], [32, "+", "  if (!c || used.has(code)) return total"], [33, "-", "  return total - c.amount"], [33, "+", "  used.add(code)"], [34, "+", "  return Math.max(0, Math.round(total * c.rate))"]]
+    },
+    {
+      "on": "claude",
+      "ask": "npm test",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "執行全部測試"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "全部通過", "out": "✓ 同一個碼第二次用要被擋\n✓ 1000 元用 FALL10 要變 900\n✓ 合計不能小於 0\nTests  27 passed" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git diff main > review.diff",
+      "result": "已更新",
+      "narration": "修好之後，再存一份新的 diff。"
+    },
+    {
+      "on": "claude",
+      "session": "審查",
+      "chapter": "第二輪審查",
+      "narration": "再回到審查的工作階段，請它看新的版本。"
+    },
+    {
+      "on": "claude",
+      "user": "review.diff 更新了，請再審一次，同樣只找問題。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "review.diff", "result": "58 行" },
+    {
+      "on": "claude",
+      "say": "上次的 3 個問題都修好了，也都有測試。\n還有 1 個小建議：`used` 只存在記憶體裡，伺服器重新啟動就忘了，正式上線前要存到資料庫。",
+      "narration": "三個問題都修好了。它又提了一個建議：用過的優惠碼只記在記憶體裡，伺服器一重開就忘了。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "建議不一定要現在做：由你決定",
+      "narration": "這種建議不一定要現在處理。審查的人提出來，要不要做，由你決定。這次我們先記下來，上線前再做。"
+    },
+    {
+      "on": "claude",
+      "session": "優惠碼"
+    },
+    {
+      "on": "claude",
+      "user": "第二輪審查通過。記憶體的問題寫進 TODO.md，上線前處理。"
+    },
+    { "on": "claude", "tool": "Edit", "arg": "TODO.md", "result": "+1 行", "out": "- [ ] 用過的優惠碼改存資料庫（審查建議，上線前）" },
+    {
+      "diff": "這次的審查結果",
+      "lines": [["-", "第一輪：3 個問題（被濫用、算錯錢、可能小於 0）"], ["+", "修正：3 個測試先紅後綠，27 個測試全過"], ["+", "第二輪：沒有問題，1 個建議記進 TODO.md"]],
+      "narration": "整理一下：第一輪三個問題，修好並加了測試；第二輪沒有問題，建議記進待辦。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "換你試試",
+      "body": "在你的專案做完一個改動後：存成 review.diff，開一個新的工作階段，只給它 diff，請它「只找問題」。把結果貼回原本的工作階段修，再審一次。",
+      "narration": "換你試試。做完一個改動，存成 diff，開新的工作階段只給它 diff，請它只找問題。修完再審一次。"
+    }
+  ]
+}

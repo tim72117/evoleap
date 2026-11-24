@@ -1,0 +1,166 @@
+{
+  "title": "你的信為什麼進了垃圾郵件",
+  "lesson": "全環節 · 單元 12 · 12.1 基礎知識",
+  "teacher": {
+    "say": "信寄到了，卻進了垃圾郵件？",
+    "line": "這一課先弄懂一件事：同樣一封信，為什麼有的進收件匣、有的進垃圾郵件。關鍵是三個英文縮寫，SPF、DKIM、DMARC。"
+  },
+  "cast": {
+    "customer": {
+      "actor": "person",
+      "props": {
+        "name": "客人",
+        "look": "customer"
+      },
+      "place": {
+        "x": 560,
+        "y": 380,
+        "w": 800,
+        "h": 320
+      },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "fc12-1-mailcheck",
+        "width": "desktop",
+        "url": "https://learn.example/mail-check"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "你的信為什麼進了垃圾郵件",
+      "eyebrow": "全環節 · 單元 12 · 12.1 基礎知識",
+      "sub": "寄件網域驗證：SPF、DKIM、DMARC",
+      "chapter": "一封找不到的確認信",
+      "narration": "先從一個很常見的狀況開始。"
+    },
+    {
+      "show": "customer"
+    },
+    {
+      "on": "customer",
+      "say": "我註冊了，可是一直沒收到確認信耶？",
+      "mood": "worried",
+      "narration": "客人註冊完，說沒收到確認信。你請他翻一下垃圾郵件，果然在那裡。"
+    },
+    {
+      "on": "customer",
+      "say": "找到了，在垃圾郵件裡……這封信安全嗎？",
+      "mood": "worried",
+      "narration": "信其實寄到了，只是被收件的信箱當成可疑的信。客人看到垃圾郵件裡的信，也會開始懷疑你的網站。"
+    },
+    {
+      "hide": "customer"
+    },
+    {
+      "card": "收件信箱不認識你",
+      "eyebrow": "問題出在哪裡",
+      "sub": "任何人都可以在信上寫「寄件人：shop.example」",
+      "narration": "問題在於，寄件人這一欄誰都能亂填。詐騙信也可以寫寄件人是你的網域。所以收件的信箱，要先確認這封信真的是你寄的，才放進收件匣。"
+    },
+    {
+      "show": "web",
+      "chapter": "三道檢查",
+      "narration": "我們把信的旅程畫出來。左邊是幫你寄信的服務，右邊是收件匣和垃圾郵件，中間有三道檢查。"
+    },
+    {
+      "click": "#b1",
+      "narration": "第一道是 SPF。你在網域的 DNS，也就是網域的公開設定裡，公布一份名單：哪些伺服器可以代表我寄信。寄信服務在名單上，就過關。"
+    },
+    {
+      "callout": "web:sel:#spf",
+      "text": "SPF = 授權名單：誰可以代表這個網域寄信",
+      "narration": "你可以把它想成公司櫃台的名冊，上面寫著哪幾家快遞是我們找的。"
+    },
+    {
+      "click": "#b2",
+      "narration": "第二道是 DKIM。寄出的時候，寄信服務幫每封信蓋上一個封蠟，也就是數位簽章。印章只有你有，印模公開放在 DNS 上。"
+    },
+    {
+      "callout": "web:sel:#dkim",
+      "text": "DKIM = 封蠟簽章：證明信是你寄的、途中沒被改過",
+      "narration": "收件方拿印模一比，封蠟對得上，就知道信是你寄的，而且路上沒被人改過。"
+    },
+    {
+      "click": "#b3",
+      "narration": "第三道是 DMARC。它不是新的檢查，而是一條規則：前兩關沒過的信，要怎麼處理。"
+    },
+    {
+      "callout": "web:sel:#dmarc",
+      "text": "DMARC = 處理規則：沒過的信放行、進垃圾郵件，還是退回",
+      "narration": "可以放行、可以丟進垃圾郵件、也可以直接退回。三關都設好，你的信就會被放進收件匣。"
+    },
+    {
+      "click": "#b4",
+      "chapter": "冒充的信會怎樣",
+      "narration": "再看一封冒充你的詐騙信。它不在名單上，也沒有你的封蠟，DMARC 的規則就把它送進垃圾郵件。"
+    },
+    {
+      "callout": "web:sel:#spam",
+      "text": "冒充的信被擋下來，客人不會被騙",
+      "narration": "所以這三樣設定不只讓你的信不進垃圾郵件，也保護你的客人，不被冒充你的信騙。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "三樣都是 DNS 紀錄",
+      "eyebrow": "要做的事其實很少",
+      "sub": "寄信服務會給你幾行紀錄，加到網域商的 DNS 設定裡",
+      "narration": "好消息是，這三樣都只是 DNS 上的幾行紀錄。寄信服務會告訴你要加什麼，你到網域商的後台加上去就好。下一堂，我們請 AI 產生紀錄，再幫你驗證。"
+    },
+    {
+      "chapter": "考考你",
+      "checkpoint": "哪一道檢查負責「證明信在途中沒被改過」？",
+      "body": "選一個。",
+      "id": "which",
+      "options": [
+        {
+          "label": "DKIM",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "考考你",
+              "sub": "DKIM 是封蠟簽章：印章只有你有，印模公開在 DNS",
+              "narration": "答對了。DKIM 就是封蠟，對得上，代表信是你寄的，也沒被改過。"
+            }
+          ]
+        },
+        {
+          "label": "SPF",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "考考你",
+              "sub": "SPF 是授權名單，只管「誰可以代表你寄信」",
+              "narration": "SPF 是名單，只確認寄信的伺服器有沒有被你授權。證明信沒被改過的是 DKIM 的封蠟。"
+            }
+          ]
+        },
+        {
+          "label": "DMARC",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "考考你",
+              "sub": "DMARC 是規則：前兩關沒過要怎麼處理",
+              "narration": "DMARC 決定沒過關的信怎麼處理，本身不檢查內容。證明信沒被改過的是 DKIM。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "SPF：誰可以代寄\nDKIM：封蠟沒被動過\nDMARC：沒過怎麼辦",
+      "eyebrow": "學會",
+      "sub": "三樣都設好，自己網域寄的信才不會進垃圾郵件",
+      "chapter": "學會",
+      "narration": "記住這三句：SPF 是誰可以代寄，DKIM 是封蠟沒被動過，DMARC 是沒過關怎麼辦。三樣都設好，信才會穩穩進收件匣。"
+    }
+  ]
+}

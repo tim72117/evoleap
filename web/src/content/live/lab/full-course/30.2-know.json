@@ -1,0 +1,120 @@
+{
+  "title": "先看設計圖，再敲牆壁",
+  "lesson": "全環節 · 單元 30 · 30.2 基礎知識",
+  "teacher": {
+    "say": "今天聊「先看方案」",
+    "line": "做大任務前，先請 AI 出方案，你看過、改過，它才動手。這一課看看為什麼這樣會少走很多回頭路。"
+  },
+  "camera": "auto",
+  "cast": {
+    "owner": {
+      "actor": "person",
+      "props": { "name": "屋主", "look": "customer" },
+      "place": { "x": 140, "y": 200, "w": 620, "h": 720 },
+      "hidden": true
+    },
+    "worker": {
+      "actor": "person",
+      "props": { "name": "裝潢師傅", "look": "boss" },
+      "place": { "x": 1160, "y": 200, "w": 620, "h": 720 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc30-2-roads", "url": "https://notes.example/two-roads" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "取貨時段", "folder": "~/projects/bakery", "branch": null, "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "先看設計圖，再敲牆壁",
+      "eyebrow": "全環節 · 單元 30 · 30.2 基礎知識",
+      "sub": "大任務先看方案再動手",
+      "chapter": "裝潢的故事",
+      "narration": "想像你要重新裝潢廚房。"
+    },
+    { "show": "owner" },
+    { "show": "worker" },
+    { "on": "owner", "say": "廚房幫我弄大一點", "mood": "calm" },
+    {
+      "on": "worker",
+      "say": "好！牆已經打掉了！",
+      "mood": "happy",
+      "narration": "師傅很勤快，隔天就把牆打掉了。"
+    },
+    {
+      "on": "owner",
+      "say": "等等！那面牆後面是我的書房……",
+      "mood": "worried",
+      "narration": "可是那面牆不能打。牆打掉了，要再砌回去，又貴又慢。"
+    },
+    {
+      "on": "worker",
+      "say": "下次我先畫設計圖給你看。",
+      "mood": "calm",
+      "narration": "如果先看一張設計圖，在紙上把那面牆劃掉，只要三秒鐘。"
+    },
+    { "hide": "owner" },
+    { "hide": "worker" },
+    {
+      "show": "web",
+      "chapter": "兩條路",
+      "narration": "AI 做大任務也一樣。任務：讓客人訂購時可以選取貨時段。"
+    },
+    { "on": "web", "click": "#a1", "narration": "上面這條，直接動手。它改了六個檔，你一看才想到：時段只要上午、下午兩種就好。" },
+    { "on": "web", "click": "#a2", "narration": "改完又發現，它新增了一張資料表，你不想要。再改一次。回頭兩次，改了十四個檔。" },
+    { "on": "web", "click": "#b1", "narration": "下面這條，先請它出方案：只寫打算怎麼做，一個檔都不改。" },
+    { "on": "web", "click": "#b2", "narration": "你看方案的時候，就把「上午下午就好」「不要加資料表」寫上去。" },
+    { "on": "web", "click": "#b3", "narration": "方案確定了，它才照著做，一次到位。" },
+    {
+      "callout": "web:sel:.note",
+      "text": "改方案一句話 ＜ 改程式十個檔",
+      "narration": "在方案上改一句話，比在程式上改十個檔便宜得多。"
+    },
+    { "hide": "web" },
+    {
+      "show": "claude",
+      "chapter": "規劃模式",
+      "narration": "AI 程式助手通常有一個規劃模式。打開它，AI 只能讀檔案、寫方案，不能改任何東西。"
+    },
+    { "on": "claude", "mode": "plan" },
+    {
+      "callout": "claude:mode",
+      "text": "規劃模式：只讀、只出方案，不改檔",
+      "narration": "在這裡切換。切成規劃模式，你就可以放心讓它想，不怕它先動手。"
+    },
+    { "hide": "claude" },
+    {
+      "stream": "1. 要改哪些檔案、各改什麼\n2. 分幾步做，先做哪一步\n3. 它不確定、想問你的問題\n4. 怎麼驗證做好了",
+      "prompt": "一份好的方案裡應該有什麼？",
+      "chapter": "看方案時看什麼",
+      "narration": "看方案時，看四件事：要改哪些檔案；分幾步做；它有什麼想問你的；做完怎麼驗證。第三點最重要，它的問題，就是它原本會自己猜的地方。"
+    },
+    { "clear": true },
+    {
+      "card": "什麼時候需要先看方案？",
+      "eyebrow": "判斷方法",
+      "sub": "會改三個以上的檔、會動到資料、你自己也還沒想清楚",
+      "narration": "小修改不用這麼麻煩。會改三個以上的檔案、會動到資料，或者你自己也還沒想清楚的時候，就先看方案。"
+    },
+    {
+      "checkpoint": "想一想",
+      "body": "下面哪些任務你會先看方案？1. 改一個錯字 2. 加會員登入 3. 把商品資料搬到資料庫 4. 按鈕換顏色",
+      "narration": "想一想：改錯字、加會員登入、把商品搬進資料庫、按鈕換顏色，哪些要先看方案？"
+    },
+    {
+      "card": "答案：2 和 3",
+      "eyebrow": "下一堂",
+      "sub": "實際用規劃模式，做「選取貨時段」",
+      "narration": "答案是二和三，它們會改很多檔，也會動到資料。下一堂，我們就用規劃模式，實際做出選取貨時段。"
+    }
+  ]
+}

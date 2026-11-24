@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>需求便條板</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="head">
+    <div class="ttl">需求便條板</div>
+    <span class="muted hint">點一張便條，看它從哪裡來</span>
+    <div class="tools">
+      <button class="btn" id="tagAll">標出原文／推測</button>
+      <button class="btn" id="sortMust">一定要有</button>
+      <button class="btn" id="sortNice">有了更好</button>
+      <button class="btn" id="sortTbd">待確認</button>
+    </div>
+  </div>
+  <div class="desk" id="desk">
+    <button class="n" id="n1" data-col="must" data-src="o" data-q="「這週有哪些蛋糕和麵包可以預訂」">客人看到本週可預訂的品項</button>
+    <button class="n" id="n2" data-col="must" data-src="o" data-q="「選數量、選取貨日期和時段」">選數量、取貨日期和時段</button>
+    <button class="n" id="n3" data-col="must" data-src="o" data-q="「我們這邊要能看到所有訂單」">店家看到所有訂單</button>
+    <button class="n" id="n4" data-col="must" data-src="o" data-q="「每天能做的生日蛋糕有上限，大概 8 個」">生日蛋糕每天上限 8 個</button>
+    <button class="n" id="n5" data-col="must" data-src="o" data-q="「取貨前一天再提醒一次」">確認通知＋取貨前一天提醒</button>
+    <button class="n" id="n6" data-col="must" data-src="o" data-q="「店員B 不太會用電腦，後台要很簡單」">後台要很簡單</button>
+    <button class="n" id="n7" data-col="nice" data-src="o" data-q="「之後再看要不要線上付」">線上付款</button>
+    <button class="n" id="n8" data-col="nice" data-src="o" data-q="「會員集點，不過不急」">會員集點</button>
+    <button class="n" id="n9" data-col="tbd" data-src="g" data-q="訊息裡沒有提到">店員能修改訂單</button>
+    <button class="n" id="n10" data-col="tbd" data-src="g" data-q="訊息裡沒有提到">客人能自己取消訂單</button>
+  </div>
+  <div class="row cols">
+    <div class="col card must"><div class="ch">一定要有 <span class="muted">解決漏單、記錯時間</span></div><div class="slot" id="col-must"></div></div>
+    <div class="col card nice"><div class="ch">有了更好 <span class="muted">老闆說「之後」「不急」</span></div><div class="slot" id="col-nice"></div></div>
+    <div class="col card tbd"><div class="ch">待確認 <span class="muted">推測的先放這裡</span></div><div class="slot" id="col-tbd"></div></div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

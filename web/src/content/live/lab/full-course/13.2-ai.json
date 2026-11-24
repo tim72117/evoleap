@@ -1,0 +1,135 @@
+{
+  "title": "讓 AI 寫第一個測試",
+  "lesson": "全環節 · 單元 13 · 13.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "寫測試，再故意改壞它",
+    "line": "這一堂請 AI 寫第一個測試。寫完不急著高興，要它故意把程式改壞，確認測試真的會失敗，再改回來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "第一個測試", "folder": "~/projects/shop", "branch": null, "mode": "auto", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "讓 AI 寫第一個測試",
+      "eyebrow": "全環節 · 單元 13 · 13.2 用 AI 完成",
+      "sub": "寫測試 → 通過 → 故意改壞 → 失敗 → 還原 → 通過",
+      "chapter": "交代流程",
+      "narration": "這次照上一堂的流程走：寫測試、看它通過、故意改壞、看它失敗、改回來、再通過。整個流程，一次交代給 AI。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "照 docs/must-not-break.md 第 3 條，幫折扣計算寫單元測試：一般會員、VIP、滿千免運、折扣碼過期。寫完執行一次。接著故意把 discount 改壞，確認測試會失敗並給我看失敗訊息，最後還原、再跑一次通過。",
+      "narration": "從上一堂的清單挑一條，列出要測的情況，再把「故意改壞、確認失敗、還原」寫進交代裡。"
+    },
+    {
+      "on": "claude",
+      "todos": [["寫折扣計算的測試（4 種情況）", "doing"], ["執行：應該通過", "pending"], ["故意改壞 discount：應該失敗", "pending"], ["還原並再跑一次", "pending"]]
+    },
+    {
+      "on": "claude",
+      "edit": "src/cart/discount.test.ts",
+      "lines": [[1, "+", "test('一般會員不打折', () => expect(discount(1000, 'member')).toBe(1000))"], [2, "+", "test('VIP 打九折', () => expect(discount(1000, 'VIP')).toBe(900))"], [3, "+", "test('滿 1000 免運', () => expect(shipping(1000)).toBe(0))"], [4, "+", "test('過期的折扣碼不能用', () => expect(() => applyCode('FALL', OCT_31)).toThrow('折扣碼已過期'))"]],
+      "chapter": "寫測試、看它通過",
+      "narration": "四個測試，每個都檢查一個明確的數字或錯誤訊息，不是只檢查「有值」。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx vitest run src/cart/discount.test.ts",
+      "result": "4 項通過",
+      "out": " ✓ 一般會員不打折\n ✓ VIP 打九折\n ✓ 滿 1000 免運\n ✓ 過期的折扣碼不能用\n\n Tests  4 passed (4)",
+      "narration": "全部通過。可是記得偵煙器：全部通過還不夠。"
+    },
+    {
+      "on": "claude",
+      "todos": [["寫折扣計算的測試（4 種情況）", "done"], ["執行：應該通過", "done"], ["故意改壞 discount：應該失敗", "doing"], ["還原並再跑一次", "pending"]]
+    },
+    {
+      "on": "claude",
+      "edit": "src/cart/discount.ts",
+      "lines": [[8, "-", "  if (level === 'VIP') return Math.round(price * 0.9)"], [8, "+", "  if (level === 'VIP') return Math.round(price * 0.8) // 故意改壞：確認測試抓得到"]],
+      "chapter": "故意改壞",
+      "narration": "AI 故意把九折改成八折，模擬一次「不小心改壞」。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx vitest run src/cart/discount.test.ts",
+      "result": "1 項失敗",
+      "out": " ✓ 一般會員不打折\n ✗ VIP 打九折\n   expected 800 to be 900\n ✓ 滿 1000 免運\n ✓ 過期的折扣碼不能用\n\n Tests  1 failed | 3 passed (4)",
+      "narration": "測試變紅了：VIP 打九折失敗，預期九百，實際算出八百。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "失敗訊息直接說出：哪一條、預期多少、實際多少",
+      "narration": "看失敗訊息：它說出是哪一條、預期是多少、實際是多少。這就是偵煙器真的會響。"
+    },
+    {
+      "on": "claude",
+      "todos": [["寫折扣計算的測試（4 種情況）", "done"], ["執行：應該通過", "done"], ["故意改壞 discount：應該失敗", "done"], ["還原並再跑一次", "doing"]]
+    },
+    {
+      "on": "claude",
+      "edit": "src/cart/discount.ts",
+      "lines": [[8, "-", "  if (level === 'VIP') return Math.round(price * 0.8) // 故意改壞：確認測試抓得到"], [8, "+", "  if (level === 'VIP') return Math.round(price * 0.9)"]],
+      "chapter": "還原",
+      "narration": "改回九折。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx vitest run src/cart/discount.test.ts && git diff --stat src/cart/discount.ts",
+      "result": "4 項通過，discount.ts 沒有變動",
+      "out": " Tests  4 passed (4)\n(git diff 沒有輸出：discount.ts 已經完全還原)",
+      "narration": "再跑一次，全部通過。它還用 git diff 確認，discount 這個檔案已經完全還原，沒有留下故意改壞的痕跡。"
+    },
+    {
+      "on": "claude",
+      "todos": [["寫折扣計算的測試（4 種情況）", "done"], ["執行：應該通過", "done"], ["故意改壞 discount：應該失敗", "done"], ["還原並再跑一次", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 4 個測試都通過；故意把 VIP 改成八折時，「VIP 打九折」會失敗，證明測試真的在檢查。程式已還原。\n\n以後只要執行 `npm test`，折扣算錯就會被抓到。",
+      "narration": "它回報：測試會在該失敗的時候失敗，程式也還原了。以後只要一個指令，折扣算錯就會被抓到。"
+    },
+    {
+      "on": "claude",
+      "user": "這個月加一個全館八折的活動，改完跑測試",
+      "chapter": "一週後",
+      "narration": "一週後，你請 AI 做全館八折活動。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test",
+      "result": "1 項失敗",
+      "out": " ✗ VIP 打九折\n   expected 720 to be 900\n   VIP 在活動期間被打了兩次折扣（0.8 × 0.9）",
+      "narration": "AI 改完自己跑測試，測試抓到了：VIP 被打了兩次折。沒有測試，這個錯會直接上線。"
+    },
+    {
+      "on": "claude",
+      "say": "測試抓到一個問題：活動期間 VIP 會被打兩次折。請問你要的是「VIP 也只打八折」，還是「VIP 再多打九折」？確認後我再改，並更新測試。",
+      "narration": "而且它沒有自己猜，而是回來問你想要哪一種。這就是一次被測試抓到的錯誤。"
+    },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：寫測試，再故意改壞",
+      "body": "從你的清單挑一條，請 AI 寫測試並執行；再請它故意改壞、給你看失敗訊息、還原並確認沒有留下痕跡。"
+    },
+    {
+      "card": "通過 → 故意改壞 → 失敗 → 還原",
+      "eyebrow": "學會",
+      "sub": "看過它失敗一次，才知道它會保護你",
+      "chapter": "學會",
+      "narration": "每寫一個測試，都走一次：通過、故意改壞、失敗、還原。看過它失敗一次，你才知道它真的會保護你。"
+    }
+  ]
+}

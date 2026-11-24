@@ -1,0 +1,18 @@
+<!doctype html><html><head><title>errors-week.md</title></head><body>
+<div class="doc">
+<div class="eb">reports/errors-week.md</div>
+<h1>錯誤摘要：11/03–11/09</h1>
+<p class="lead">共 247 筆錯誤，3 種。第 1 種占 86%，修好它就解決大部分問題。</p>
+<div class="chart" id="chart">
+<div class="row"><span class="nm">結帳：delivery.fee 讀不到</span><div class="bar"><div class="fill f1" style="width:86%"></div></div><b>212</b></div>
+<div class="row"><span class="nm">確認信：郵件服務逾時</span><div class="bar"><div class="fill f2" style="width:13%"></div></div><b>31</b></div>
+<div class="row"><span class="nm">上傳頭像：檔案太大</span><div class="bar"><div class="fill f3" style="width:2%"></div></div><b>4</b></div>
+</div>
+<h2>每一種錯誤</h2>
+<table id="detail"><tr><th>錯誤</th><th>第一次</th><th>最後一次</th><th>建議</th></tr>
+<tr><td>delivery.fee 讀不到</td><td>11/08 19:42</td><td>11/08 20:30</td><td>已退版；修好前先補測試</td></tr>
+<tr><td>郵件服務逾時</td><td>11/04</td><td>11/09</td><td>每天固定發生幾次，加上重試</td></tr>
+<tr><td>頭像檔案太大</td><td>11/06</td><td>11/07</td><td>前端先縮圖，提示上限</td></tr>
+</table>
+<p class="src">資料來源：scripts/errors.sh 7（Cloud Logging，severity ≥ ERROR）</p>
+</div></body></html>

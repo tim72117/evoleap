@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>Node.js 與 npm</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-start="1">
+<div class="tabs">
+  <button class="tab cur" id="g1" data-go="1">① Node.js 是什麼</button>
+  <button class="tab" id="g2" data-go="2">② npm 是什麼</button>
+  <button class="tab" id="g3" data-go="3">③ 為什麼選 LTS</button>
+</div>
+<div class="p1">
+  <div class="row two">
+    <div class="card half">
+      <div class="h">🌐 以前：JavaScript 只能在瀏覽器裡跑</div>
+      <div class="box br"><div class="mono">alert("你好")</div><div class="eng">瀏覽器內建的引擎</div></div>
+    </div>
+    <div class="big-arrow">→</div>
+    <div class="card half">
+      <div class="h">🖥 有了 Node.js：在你的電腦上直接跑</div>
+      <div class="box nd"><div class="mono">node hello.js</div><div class="eng">Node.js 引擎</div></div>
+      <div class="muted cap">讀寫檔案、開伺服器、跑工具（很多開發工具都靠它）</div>
+    </div>
+  </div>
+</div>
+<div class="p2">
+  <div class="row two">
+    <div class="card half reg">
+      <div class="h">☁️ npm 套件倉庫</div>
+      <div class="pkgs"><span>📦 vite</span><span>📦 express</span><span>📦 dayjs</span><span>📦 …兩百多萬個</span></div>
+    </div>
+    <div class="big-arrow">→<div class="mono small">npm install</div></div>
+    <div class="card half">
+      <div class="h">📁 你的專案</div>
+      <div class="mono tree">package.json <span class="muted">← 購物清單</span><br>node_modules/ <span class="muted">← 買回來的東西</span><br>&nbsp;&nbsp;vite/<br>&nbsp;&nbsp;dayjs/</div>
+    </div>
+  </div>
+  <div class="muted cap c">npm 跟著 Node.js 一起裝好，負責「把別人寫好的工具搬進來」</div>
+</div>
+<div class="p3">
+  <div class="card">
+    <div class="h">版本時間軸</div>
+    <div class="tl">
+      <div class="now" style="left:56%"><span>今天</span></div>
+      <div class="bar odd" style="left:30%;width:22%">23 版 · 嘗鮮，半年就停</div>
+      <div class="bar lts" style="left:4%;width:58%;top:66px">22 版 LTS · 長期維護</div>
+      <div class="bar lts" style="left:38%;width:58%;top:122px">24 版 LTS · 長期維護 ⭐ 選這個</div>
+      <div class="bar odd" style="left:62%;width:20%;top:178px">25 版 · 嘗鮮</div>
+    </div>
+    <div class="cap">LTS = Long Term Support，<b>長期維護版</b>：修 bug 修很久、工具都支援。新手選標著 LTS 的那個。</div>
+  </div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!doctype html><html><head><title>兩個世界</title></head><body>
+<div class="app s0">
+  <div class="head"><div class="h l">💻 你的電腦（本機）</div><div class="h mid"></div><div class="h r">☁ 正式環境</div></div>
+  <div class="row" id="r1"><div class="c l">設定（環境變數）：<code>.env</code> 裡都填好了</div><div class="k">設定</div><div class="c r">雲端上的設定少了一個 <code>PAYMENT_KEY</code></div></div>
+  <div class="row" id="r2"><div class="c l">資料：10 筆測試訂單，都是你建的</div><div class="k">資料</div><div class="c r">3 萬筆真實訂單，有人名字是 emoji 😺</div></div>
+  <div class="row" id="r3"><div class="c l">使用者：只有你，用最新的 Chrome</div><div class="k">使用者</div><div class="c r">幾百人同時用，各種手機、舊瀏覽器</div></div>
+  <div class="row" id="r4"><div class="c l">機器：一台，一直開著</div><div class="k">機器</div><div class="c r">好幾台，隨時開新的、關舊的</div></div>
+  <div class="row" id="r5"><div class="c l">時區：台灣時間</div><div class="k">時區</div><div class="c r">預設 UTC，慢 8 小時</div></div>
+  <div class="box" id="box">
+    <svg viewBox="0 0 80 60"><rect x="8" y="10" width="64" height="44" rx="6" class="bx"/><rect x="18" y="20" width="44" height="6" rx="3" class="ln"/><rect x="18" y="32" width="30" height="6" rx="3" class="ln"/><rect x="18" y="44" width="38" height="4" rx="2" class="ln"/></svg>
+    <div><b>紀錄（logs）＝正式環境的黑盒子</b><br>你看不到客人的畫面，但程式可以在每次出事時寫下：幾點、哪一頁、什麼錯、當時的設定。<br><code>14:02:11 ERROR 付款失敗：缺少設定 PAYMENT_KEY　/checkout/confirm</code></div>
+  </div>
+  <div class="chips">
+    <button id="b1" data-s="1">設定</button><button id="b2" data-s="2">資料</button><button id="b3" data-s="3">使用者</button><button id="b4" data-s="4">機器與時區</button><button id="b5" data-s="5">紀錄</button>
+  </div>
+</div>
+</body></html>

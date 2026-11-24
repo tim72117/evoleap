@@ -1,0 +1,79 @@
+{
+  "title": "接著昨天的對話",
+  "lesson": "AI 工具技巧 · 試做",
+  "teacher": { "say": "今天接著昨天做", "line": "今天要來學，怎麼接著昨天的對話繼續做，還有什麼時候該接舊的、什麼時候該開新的。" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "新的 session", "folder": "~/Documents/practice/bakery", "branch": null, "mode": "ask", "sessions": ["小森烘焙：營業時間"] },
+      "place": "window",
+      "hidden": true
+    },
+    "board": { "actor": "browser", "props": { "site": "lt-ai-tips-resume-memory", "url": "示意圖" }, "place": "window", "hidden": true },
+    "web": { "actor": "browser", "props": { "site": "lt-ai-tips-resume-wrong" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    { "card": "昨天做到一半，今天接著做", "eyebrow": "AI 工具技巧 · 接著昨天的對話", "sub": "打開工具，直接開始打字，會發生什麼事？", "chapter": "隔天打開，AI 不記得了", "narration": "昨天幫小森烘焙做網站，做到一半就關掉了。今天打開工具，想接著做。" },
+    { "show": "claude" },
+    { "on": "claude", "in": "小森烘焙：營業時間", "user": "幫小森烘焙做網站，溫暖手作風，只用 index.html 和 styles.css", "pause": 0 },
+    { "on": "claude", "in": "小森烘焙：營業時間", "say": "好的，我會用溫暖手作風做首頁，只用 `index.html` 和 `styles.css`。", "pause": 0 },
+    { "on": "claude", "in": "小森烘焙：營業時間", "user": "價格和營業時間先留空，等老闆確認，不要自己編", "pause": 0 },
+    { "on": "claude", "in": "小森烘焙：營業時間", "say": "了解，價格和營業時間都先寫「待老闆確認」，不會自己編。", "pause": 0 },
+    { "on": "claude", "in": "小森烘焙：營業時間", "user": "接著做營業時間區塊", "pause": 0 },
+    { "on": "claude", "in": "小森烘焙：營業時間", "say": "營業時間區塊做了一半：標題和外框好了，時段還沒填。", "pause": 0 },
+    { "on": "claude", "in": "小森烘焙：營業時間", "state": "ok", "pause": 0 },
+    { "on": "claude", "user": "接著把營業時間區塊做完", "narration": "一打開就是一段新的對話。你直接打：接著把營業時間區塊做完。" },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    { "on": "claude", "say": "好的，我幫營業時間區塊補上內容：週一至週日 08:00–22:00，並加上電話和本週特價。" },
+    { "on": "claude", "edit": "index.html", "lines": [[30, "+", "<div>週一至週日 08:00–22:00</div>"], [31, "+", "<div>電話 02-1234-5678</div>"], [32, "+", "<div>本週特價 全品項 NT$99</div>"]] },
+    { "hide": "claude" },
+    { "show": "web", "narration": "打開網頁一看。" },
+    { "callout": "web:sel:#hours", "text": "時間、電話、特價，全是 AI 編的", "narration": "營業時間、電話、特價，全是它自己編的。昨天明明說好，價格和營業時間先留空，等老闆確認。" },
+    { "callout": "web:sel:.ht", "text": "風格也不一樣了", "narration": "連風格也跟其他區塊不一樣。它不記得昨天講好的事。" },
+    { "hide": "web" },
+
+    { "show": "board", "chapter": "每段對話是一本筆記本", "narration": "為什麼會這樣？把每一段對話，想成一本筆記本。" },
+    { "on": "board", "click": "[data-go=\"1\"]", "narration": "昨天那本，記著所有講好的事：溫暖手作風、只用兩個檔案、價格和營業時間先留空，還有做到哪裡。" },
+    { "on": "board", "click": "[data-go=\"2\"]", "narration": "今天一打開，是新的一本，一片空白。AI 只看得到你打開的這一本，所以它不知道昨天的約定，只好自己猜。" },
+    { "on": "board", "click": "[data-go=\"3\"]", "narration": "要接著做，就翻回昨天那一本。" },
+    { "hide": "board" },
+
+    { "show": "claude", "chapter": "找回昨天的對話" },
+    { "callout": "claude:sessions", "text": "昨天的對話還在左邊的清單裡", "focus": { "target": "claude:sessions", "zoom": 1.5 }, "narration": "昨天的對話沒有消失，就在左邊的清單裡。" },
+    { "on": "claude", "session": "小森烘焙：營業時間", "focus": false, "narration": "點它，切回去。" },
+    { "callout": "claude:log", "text": "昨天講好的事都在", "narration": "昨天講好的事都在：溫暖手作風、只用兩個檔案、價格和營業時間先留空。" },
+    { "on": "claude", "user": "剛才在另一個對話改了營業時間，內容是編的。請照我們說好的改回來，再把營業時間區塊做完", "narration": "在這裡接著說。剛才新對話改過檔案，也一併請它照說好的改回來。" },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    { "on": "claude", "tool": "Read", "arg": "index.html", "result": "48 行" },
+    { "on": "claude", "edit": "index.html", "lines": [[30, "-", "<div>週一至週日 08:00–22:00</div>"], [31, "-", "<div>電話 02-1234-5678</div>"], [32, "-", "<div>本週特價 全品項 NT$99</div>"], [30, "+", "<div>平日（待老闆確認）</div>"], [31, "+", "<div>週末（待老闆確認）</div>"], [32, "+", "<div>公休日（待老闆確認）</div>"]] },
+    { "on": "claude", "say": "已改回來：營業時間照昨天說好的，先寫「待老闆確認」，拿掉自己編的電話和特價；風格沿用溫暖手作風。" },
+    { "hide": "claude" },
+    { "show": "web", "site": "lt-ai-tips-resume-right", "narration": "再打開網頁：留空等老闆確認，風格也和其他區塊一致。" },
+    { "callout": "web:sel:#hours", "text": "照昨天的約定：待老闆確認", "narration": "接著舊的對話，AI 就照著昨天的約定做。" },
+    { "hide": "web" },
+
+    { "show": "board", "site": "lt-ai-tips-resume-when", "chapter": "接舊的，還是開新的" },
+    { "on": "board", "click": "[data-go=\"1\"]", "narration": "什麼時候接舊的？同一件事昨天沒做完、前面講好的規則還要用、要 AI 記得剛才改過哪裡。" },
+    { "on": "board", "click": "[data-go=\"2\"]", "narration": "什麼時候開新的？換一件不相干的事；或是對話太長，AI 開始忘記前面的規則、回答變慢。這時先請它整理摘要，帶著摘要開新的。" },
+    { "on": "board", "click": "[data-go=\"3\"]", "narration": "舊對話在哪裡找，每個工具不一樣：桌面 App 通常在左側清單，網頁版在對話紀錄，終端機可以用繼續的指令。" },
+    { "hide": "board" },
+    {
+      "checkpoint": "今天想請 AI 整理下週的進貨清單，和網站無關。接舊的，還是開新的？", "body": "選一個。", "id": "stock",
+      "options": [
+        { "label": "接網站那段舊對話", "steps": [{ "card": "開新的比較好", "eyebrow": "再想想", "sub": "不相干的事放進同一段，網站的規則和進貨清單會混在一起", "narration": "開新的比較好。不相干的事放在同一段對話，網站的規則和進貨清單會混在一起。" }] },
+        { "label": "開新的對話", "steps": [{ "card": "沒錯", "eyebrow": "開新的", "sub": "一件事一段對話，各自的規則不會互相干擾", "narration": "沒錯。一件事一段對話，各自的規則不會互相干擾。" }] }
+      ]
+    },
+    {
+      "checkpoint": "網站那段對話已經聊了好幾天，AI 開始忘記「價格不要亂編」。怎麼辦？", "body": "選一個。", "id": "long",
+      "options": [
+        { "label": "繼續在同一段，多講幾次", "steps": [{ "card": "會越來越難用", "eyebrow": "再想想", "sub": "對話太長，前面的事更容易被忘記；整理摘要、開新的", "narration": "對話越長，前面的事越容易被忘記。比較好的做法是：先整理摘要，再開新的。" }] },
+        { "label": "請 AI 整理摘要，帶著摘要開新的", "steps": [{ "card": "沒錯", "eyebrow": "整理摘要", "sub": "規則、進度、下一步，帶進新的對話", "narration": "沒錯。請它把規則、進度和下一步整理成摘要，帶著摘要開一段新的對話。" }] }
+      ]
+    },
+    { "show": "board", "site": "lt-ai-tips-resume-memory" },
+    { "on": "board", "click": "[data-go=\"4\"]", "narration": "筆記本寫滿了，就把重點抄成一頁摘要，帶到新的一本。" },
+    { "hide": "board" },
+    { "card": "同一件事：翻回舊的那本\n不相干的事：開新的一本\n太長了：整理摘要，再開新的", "eyebrow": "學會", "sub": "每段對話只記得自己的內容；接著做之前，先找回昨天那一段", "chapter": "學會", "narration": "每一段對話，只記得自己的內容。同一件事要接著做，先找回昨天那一段；不相干的事，開新的；對話太長了，整理摘要，再開新的。" }
+  ]
+}

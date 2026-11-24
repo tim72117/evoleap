@@ -1,0 +1,54 @@
+{
+  "title": "客人是從哪張傳單來的",
+  "lesson": "全環節 · 單元 27 · 27.3 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "給網址貼來源標籤",
+    "line": "今天學一個小技巧：在網址後面加上來源標籤，就能知道每個客人是從哪裡來的，還有功勞該算給誰。"
+  },
+  "cast": {
+    "pad": { "actor": "notes", "props": { "label": "三種傳單" }, "place": { "x": 560, "y": 160, "w": 800, "h": 760 }, "hidden": true },
+    "web": { "actor": "browser", "props": { "site": "fc27-3-utm", "width": "desktop", "url": "https://whiteboard.example/utm" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "客人是從哪張傳單來的",
+      "eyebrow": "全環節 · 單元 27 · 27.3 基礎知識",
+      "sub": "UTM 參數與歸因",
+      "chapter": "印了不同代碼的傳單",
+      "narration": "想像你在三個地方發傳單。"
+    },
+    { "show": "pad", "on": "pad", "jot": "車站發的：折扣碼 STATION", "narration": "車站發的傳單，印折扣碼 STATION。" },
+    { "on": "pad", "jot": "市集發的：折扣碼 MARKET" },
+    { "on": "pad", "jot": "學校發的：折扣碼 SCHOOL", "narration": "市集的印 MARKET，學校的印 SCHOOL。客人結帳時報代碼，你就知道哪個地方發得最值得。" },
+    { "callout": "pad:window", "text": "網路上的「折扣碼」，就是網址後面的 UTM", "narration": "網路上也有一樣的做法，而且客人什麼都不用報。秘密就在網址後面。" },
+    { "hide": "pad" },
+    { "show": "web", "chapter": "拆開一個網址", "narration": "這是一個放在 LINE 貼文裡的網址。問號後面那一串，就是 UTM 參數。參數是加在網址後面的附加資訊，不會改變打開的頁面。" },
+    { "on": "web", "click": "#next", "narration": "utm source，從哪裡來，這裡是 LINE。" },
+    { "on": "web", "click": "#next", "narration": "utm medium，哪一種管道。社群是 social，電子報是 email，付費廣告是 cpc。" },
+    { "on": "web", "click": "#next", "narration": "utm campaign，哪一次活動，這次是栗子季。" },
+    { "callout": "web:sel:.url", "text": "拼法要一致：line 和 LINE 會被當成兩個來源", "narration": "要注意，拼法要完全一致。小寫的 line 和大寫的 LINE，報表會當成兩個不同的來源。" },
+    { "on": "web", "click": "#next", "chapter": "功勞算給誰", "narration": "再看一個問題。小美買之前，碰過你三次：先看到 IG 貼文，後來搜尋你，最後點了電子報才預約。" },
+    { "on": "web", "click": "#next", "narration": "如果把功勞算給第一次接觸，就是 IG，因為是它讓小美認識你。" },
+    { "on": "web", "click": "#next", "narration": "如果算給最後一次接觸，就是電子報，因為是它最後推了一把。多數報表預設用最後一次。這種「功勞算給誰」的規則，叫做歸因。" },
+    { "callout": "web:sel:.att", "text": "歸因沒有對錯，看報表前先知道它用哪一種", "narration": "歸因沒有對錯，只是看法不同。看報表之前，先知道它用的是哪一種，就不會誤會。" },
+    { "hide": "web" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "電子報裡的連結，utm_medium 應該填什麼？",
+      "body": "選一個。",
+      "id": "medium",
+      "options": [
+        { "label": "email", "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "source 寫 newsletter，medium 寫 email", "narration": "答對了。來源寫 newsletter，管道寫 email。" }] },
+        { "label": "newsletter", "steps": [{ "card": "差一點", "eyebrow": "想一想", "sub": "newsletter 是來源（source），管道（medium）是 email", "narration": "差一點。newsletter 是來源，管道要寫 email。" }] }
+      ]
+    },
+    {
+      "card": "source：從哪裡來\nmedium：哪一種管道\ncampaign：哪一次活動\n歸因：功勞算給誰",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 做 UTM 網址產生器，再整理各管道成效",
+      "chapter": "學會",
+      "narration": "source 是從哪裡來，medium 是哪種管道，campaign 是哪次活動，拼法要一致。下一堂，請 AI 做一個網址產生器，讓拼法永遠不會錯。"
+    }
+  ]
+}

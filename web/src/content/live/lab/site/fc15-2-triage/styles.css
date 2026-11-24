@@ -1,0 +1,15 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#f3f4f2;display:flex;align-items:center;justify-content:center}
+.app{width:1200px;padding:20px 0}
+h2{font-size:28px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.05);font-size:17px}
+th{background:#e9ecea;text-align:left;padding:10px 12px;font-size:15px;color:#525c68}
+td{padding:12px;border-top:1px solid #eef0ee;vertical-align:top}td small{display:block;color:#8a9296;font-size:13px}
+td:first-child{font-family:ui-monospace,Menlo,monospace}
+.lv{border-radius:999px;padding:2px 12px;color:#fff;font-weight:700;font-size:15px}
+.crit{background:#d6453d}.high{background:#e0761b}.mod{background:#e0b21b}.low{background:#9fb2b8}
+.d.now{color:#b4382f;font-weight:700}.d.later{color:#6b7478}
+.res{display:none}.app.on th.res,.app.on td.res{display:table-cell}
+td.res{color:#1e7a4a;font-weight:700}
+.sum{display:flex;gap:30px;margin-top:14px;font-size:20px}.sum .a{display:none;color:#1e7a4a;font-weight:700}.app.on .sum .a{display:inline}
+button{font:inherit;font-size:18px;margin-top:14px;border:2px solid #c3cbc8;background:#fff;border-radius:999px;padding:8px 22px}

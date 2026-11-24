@@ -1,0 +1,233 @@
+{
+  "title": "把最新文件交給 AI",
+  "lesson": "全環節 · 單元 28 · 28.5 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "先讀文件，再動手",
+    "line": "今天同一件事做兩次：第一次直接請 AI 做，第二次請它先讀官方最新的文件和更新紀錄。比較兩次的做法，你就知道這一句話有多值得。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "直接做",
+        "folder": "~/projects/komori-bakery",
+        "branch": null,
+        "mode": "accept",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": {
+      "actor": "fx",
+      "props": {},
+      "place": "full"
+    }
+  },
+  "steps": [
+    {
+      "card": "把最新文件交給 AI",
+      "eyebrow": "全環節 · 單元 28 · 28.5 用 AI 完成",
+      "sub": "直接做 vs 先讀最新文件再做",
+      "chapter": "第一次：直接做",
+      "narration": "任務：幫網站裝上 Tailwind CSS，一個很常用的樣式工具。先直接請 AI 做。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "幫我在這個 Vite 專案裝 Tailwind CSS，裝好讓首頁的標題變成藍色確認有效。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 800
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm install -D tailwindcss postcss autoprefixer && npx tailwindcss init -p",
+      "result": "失敗",
+      "out": "added 3 packages\nnpm error could not determine executable to run",
+      "narration": "它用了印象中的做法：裝三個套件，再執行初始化指令。初始化失敗了。"
+    },
+    {
+      "on": "claude",
+      "edit": "tailwind.config.js",
+      "lines": [
+        [
+          1,
+          "+",
+          "module.exports = { content: ['./src/**/*.{html,js}'], theme: { extend: {} } }"
+        ]
+      ],
+      "narration": "它沒有停下來，改成手動寫設定檔，還是舊版的寫法。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run build",
+      "result": "有警告",
+      "out": "warn: The `content` option in your Tailwind CSS configuration is missing or empty.\n✓ built in 1.2s\n（標題沒有變成藍色）",
+      "narration": "建置出現警告，標題也沒有變藍。它開始一個一個猜原因。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git stash -u",
+      "result": "已還原",
+      "out": "Saved working directory and index state WIP on main"
+    },
+    {
+      "on": "claude",
+      "newSession": "先讀文件再做",
+      "chapter": "第二次：先讀最新文件",
+      "narration": "我們把剛才的改動還原，開一段新的對話，加上一句話。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我在這個 Vite 專案裝 Tailwind CSS。動手之前，先讀官方最新的安裝文件和最近的更新紀錄，告訴我跟舊版有什麼不同、你打算怎麼做，再開始。裝好讓首頁標題變藍確認有效。",
+      "narration": "多的就是這一句：先讀官方最新的文件和更新紀錄，說出不同之處和打算，再開始。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "https://tailwindcss.com/docs/installation/using-vite",
+      "result": "已讀取",
+      "narration": "它先讀官方的安裝頁。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "https://github.com/tailwindlabs/tailwindcss/releases",
+      "result": "已讀取",
+      "narration": "再讀更新紀錄。"
+    },
+    {
+      "on": "claude",
+      "say": "讀完了，新版有三個不同：\n1. 不用 postcss、autoprefixer，改裝 `@tailwindcss/vite` 外掛\n2. 不需要 `tailwind.config.js`，也沒有 `init` 指令了\n3. CSS 只要一行 `@import \"tailwindcss\";`\n\n我打算照官方 Vite 的步驟做。",
+      "narration": "它說出新版的三個不同，正好是剛才失敗的原因：init 指令已經沒有了，設定檔也不需要了。"
+    },
+    {
+      "on": "claude",
+      "user": "好，開始"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm install tailwindcss @tailwindcss/vite",
+      "result": "完成"
+    },
+    {
+      "on": "claude",
+      "edit": "vite.config.js",
+      "lines": [
+        [
+          1,
+          "+",
+          "import tailwindcss from '@tailwindcss/vite'"
+        ],
+        [
+          4,
+          "+",
+          "  plugins: [tailwindcss()],"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "edit": "src/style.css",
+      "lines": [
+        [
+          1,
+          "+",
+          "@import \"tailwindcss\";"
+        ]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run build && grep -c 'text-blue-600' dist/assets/*.css",
+      "result": "完成",
+      "out": "✓ built in 0.9s\n1",
+      "chapter": "驗證",
+      "narration": "建置成功，沒有警告。它還確認藍色的樣式真的出現在產生的檔案裡。"
+    },
+    {
+      "on": "claude",
+      "say": "完成。依官方最新的 Vite 安裝方式：裝了 2 個套件、改了 2 個檔案，沒有設定檔。首頁標題已是藍色。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "diff": "比較：直接做 vs 先讀文件",
+      "lines": [
+        [
+          "-",
+          "npm install -D tailwindcss postcss autoprefixer"
+        ],
+        [
+          "-",
+          "npx tailwindcss init -p      ← 這個指令已經不存在"
+        ],
+        [
+          "-",
+          "tailwind.config.js（舊寫法）"
+        ],
+        [
+          "+",
+          "npm install tailwindcss @tailwindcss/vite"
+        ],
+        [
+          "+",
+          "vite.config.js 加上 tailwindcss()"
+        ],
+        [
+          "+",
+          "@import \"tailwindcss\";"
+        ]
+      ],
+      "chapter": "比一比",
+      "narration": "兩次的做法放在一起比：紅色是照舊知識的做法，綠色是讀了最新文件之後的做法。差別只在那一句話。"
+    },
+    {
+      "clear": true
+    },
+    {
+      "show": "claude",
+      "on": "claude",
+      "user": "把「用到外部工具或雲端服務時，先讀官方最新文件與更新紀錄再動手」寫進專案的 CLAUDE.md。",
+      "chapter": "變成習慣"
+    },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [
+        [
+          12,
+          "+",
+          "- 安裝或設定外部工具、雲端服務前，先讀官方最新文件與更新紀錄，說明與舊版的差異再動手。"
+        ]
+      ],
+      "narration": "最後，把這句話寫進專案的說明檔 CLAUDE.md。AI 每次開始工作都會讀它，以後不用每次提醒。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "找一個你要裝或要設定的工具。先直接請 AI 做，記下它的做法；再開新對話，請它先讀官方最新文件和更新紀錄、說出差異再做。比較兩次，最後把這個習慣寫進專案的 CLAUDE.md。"
+    },
+    {
+      "card": "動手前：讀官方最新文件與更新紀錄\n先說差異和打算，再開始\n寫進 CLAUDE.md，變成習慣",
+      "eyebrow": "學會",
+      "sub": "看到 unknown、deprecated、not found，先懷疑版本",
+      "chapter": "學會",
+      "narration": "動手前先讀官方最新的文件和更新紀錄，說出差異再開始，再把它寫進 CLAUDE.md 變成習慣。看到不認得、已淘汰、找不到的訊息，先懷疑是版本問題。"
+    }
+  ]
+}

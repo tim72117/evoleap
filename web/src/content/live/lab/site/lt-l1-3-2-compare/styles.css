@@ -1,0 +1,31 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; color: #2c2f36; background: #e9ecf1; }
+.app { padding: 22px 26px; }
+.bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.bar h1 { margin: 0; font-size: 21px; }
+.bar .sub { font-size: 13px; color: #7a8090; }
+.btn { margin-left: auto; font: inherit; font-size: 15px; padding: 8px 18px; border: 0; border-radius: 8px; background: #3f6fd8; color: #fff; font-weight: 700; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.res { background: #fff; border-radius: 10px; box-shadow: 0 4px 16px rgba(30, 40, 60, .1); overflow: hidden; }
+.res header { padding: 12px 18px; font-weight: 700; font-size: 17px; color: #fff; display: flex; align-items: center; gap: 10px; }
+.bake header { background: #8a5a35; }
+.flower header { background: #c2507a; }
+.res header .ico { font-size: 22px; }
+.res .in { padding: 12px 18px 16px; font-size: 14.5px; line-height: 1.65; }
+.res h3 { margin: 12px 0 4px; font-size: 14px; color: #555b68; letter-spacing: .03em; border-bottom: 1px solid #eceef2; padding-bottom: 3px; }
+.res h3:first-child { margin-top: 0; }
+.res ul { margin: 0; padding-left: 20px; }
+.t { font-size: 11.5px; padding: 0 6px; border-radius: 4px; margin-left: 4px; vertical-align: 1px; }
+.t.o { background: #e3eefc; color: #2457b3; }
+.t.g { background: #fff0d9; color: #a35c00; }
+.miss { border: 2px dashed #e5534b; color: #b3261e; border-radius: 6px; padding: 4px 10px; background: #fff6f5; font-size: 14px; }
+.diff { background: #fde2e1; box-shadow: 0 0 0 2px #e5534b; border-radius: 4px; }
+.extra { background: #fde2e1; box-shadow: 0 0 0 2px #e5534b; border-radius: 4px; }
+.fixbox { display: none; margin-top: 16px; background: #fff; border-left: 5px solid #3f9d6d; border-radius: 0 10px 10px 0; padding: 12px 18px; box-shadow: 0 4px 16px rgba(30, 40, 60, .1); }
+.fixbox h2 { margin: 0 0 6px; font-size: 16px; color: #2e7a53; }
+.fixbox ul { margin: 0; padding-left: 22px; font-size: 15px; line-height: 1.7; }
+.fixed .fixbox { display: block; }
+.fixed .diff { background: #e3f4ea; box-shadow: 0 0 0 2px #3f9d6d; }
+.fixed .diff .was { display: none; }
+.diff .now { display: none; }
+.fixed .diff .now { display: inline; }

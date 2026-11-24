@@ -1,0 +1,90 @@
+{
+  "title": "給 AI 眼睛：瀏覽器與截圖",
+  "lesson": "全環節 · 單元 28 · 28.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "同一個問題，比兩次",
+    "line": "今天用同一個畫面問題，比較兩種做法：一次只用嘴巴描述，一次讓 AI 自己開瀏覽器看。你會看到差別有多大。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "口頭描述", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc28-1-bug", "width": "phone", "url": "http://localhost:4321/chestnut" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "給 AI 眼睛：瀏覽器與截圖",
+      "eyebrow": "全環節 · 單元 28 · 28.1 用 AI 完成",
+      "sub": "第一次只描述，第二次讓它自己看",
+      "chapter": "問題長這樣",
+      "narration": "先看問題。"
+    },
+    { "show": "web", "narration": "這是手機上的栗子季頁面。最下面的預約按鈕，被 Cookie 提示蓋住了，點不到。" },
+    { "callout": "web:sel:#cookie", "text": "預約按鈕被這條提示蓋住", "narration": "但假設你沒看出是被蓋住，只覺得「按鈕怪怪的」。" },
+    { "show": "claude", "chapter": "做法一：只用嘴巴描述", "narration": "第一次，只用文字描述。" },
+    { "on": "claude", "user": "手機上預約按鈕怪怪的，按不太到，幫我修", "narration": "跟平常一樣，描述得很模糊。" },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "edit": "src/styles/chestnut.css",
+      "lines": [
+        [40, "-", ".cta { padding: 16px; }"],
+        [40, "+", ".cta { padding: 24px; font-size: 26px; }"]
+      ],
+      "narration": "AI 猜是按鈕太小，把它放大了。"
+    },
+    { "on": "claude", "say": "我把預約按鈕加大了，在手機上應該比較好按。", "narration": "注意它說的是「應該」。它沒有看過畫面。" },
+    { "show": "web", "narration": "實際打開，按鈕還是被蓋住。放大也沒用。" },
+    { "on": "claude", "user": "還是不行" },
+    { "on": "claude", "say": "可能是顏色對比不夠，我調深一點？或是 z-index 的問題？能告訴我你看到什麼嗎？", "narration": "它開始一個一個猜，最後只能反問你。就像上一堂的電話。" },
+    {
+      "on": "claude",
+      "newSession": "讓 AI 自己看",
+      "chapter": "做法二：讓 AI 自己開瀏覽器",
+      "narration": "第二次，開一段新的對話。這次多一句話：自己開瀏覽器看。"
+    },
+    {
+      "on": "claude",
+      "user": "手機上預約按鈕怪怪的。請你自己用瀏覽器打開 localhost:4321/chestnut，寬度設成 390（手機），截圖看看問題在哪。修好後再截一次圖給我確認。",
+      "narration": "描述一樣模糊，但多了三件事：自己打開、用手機寬度截圖、修好後再截一次。"
+    },
+    { "on": "claude", "tool": "Browser", "arg": "open localhost:4321/chestnut · 390×844", "result": "已開啟", "narration": "它自己打開網頁，寬度設成手機。" },
+    { "on": "claude", "tool": "Screenshot", "arg": "390×844", "result": "已截圖", "narration": "截圖。" },
+    {
+      "on": "claude",
+      "say": "從截圖看到了：底部的 Cookie 提示（`.cookie`，z-index 10）蓋住了預約按鈕（`.cta`，z-index 5）。不是按鈕大小的問題。我在手機寬度把 Cookie 提示移到頂端。",
+      "narration": "一看截圖就知道：不是太小，是被蓋住了。它還說出是哪兩個元素在打架。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/styles/chestnut.css",
+      "lines": [
+        [52, "+", "@media (max-width: 699px) {"],
+        [53, "+", "  .cookie { top: 0; bottom: auto; padding: 10px 16px; }"],
+        [54, "+", "  .cta { z-index: 20; }"],
+        [55, "+", "}"]
+      ]
+    },
+    { "on": "claude", "tool": "Screenshot", "arg": "390×844（修改後）", "result": "已截圖", "chapter": "AI 自己截圖確認", "narration": "改完，它沒有說「應該好了」，而是再截一次。" },
+    { "show": "web", "site": "fc28-1-fixed", "narration": "這是它看到的畫面：提示移到上面，預約按鈕露出來了。" },
+    { "callout": "web:sel:#cta", "text": "AI 自己截圖確認：按鈕完整露出", "narration": "按鈕完整露出來了。" },
+    { "on": "web", "width": "desktop", "narration": "它還順便檢查了桌面寬度，確定沒有改壞。" },
+    { "on": "claude", "say": "已修好。手機與桌面寬度的截圖都確認過：預約按鈕沒有被蓋住，Cookie 提示仍然看得到。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "找一個你網站上的畫面小問題。先只用文字描述請 AI 修，看它怎麼猜；再開一段新對話，請它自己用瀏覽器打開、用手機寬度截圖，修好後再截一次給你看。"
+    },
+    {
+      "card": "描述再清楚，都比不上讓它自己看\n指令加一句：打開、截圖、修完再截\n手機和桌面都要確認",
+      "eyebrow": "學會",
+      "sub": "AI 說「應該好了」時，請它截圖",
+      "chapter": "學會",
+      "narration": "描述得再清楚，都比不上讓 AI 自己看。指令裡加一句：自己打開、截圖、修完再截一次。AI 說「應該好了」的時候，請它截圖給你看。"
+    }
+  ]
+}

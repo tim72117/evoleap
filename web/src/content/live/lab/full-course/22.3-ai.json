@@ -1,0 +1,148 @@
+{
+  "title": "套件與執行環境更新",
+  "lesson": "全環節 · 單元 22 · 22.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天設定自動更新",
+    "line": "這一課請 AI 設定每週自動開更新的 Pull Request，並請它在每個 Pull Request 讀更新說明、跑測試，告訴你該不該合併。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "自動更新",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc22-3-pr", "url": "https://code.example/komori/shop/pulls" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "套件與執行環境更新",
+      "eyebrow": "全環節 · 單元 22 · 22.3 用 AI 完成",
+      "sub": "設定每週自動更新 → AI 審每個 Pull Request → 你決定合併",
+      "narration": "機器人負責開 Pull Request，AI 負責讀說明、跑測試、給建議，最後由你按合併。"
+    },
+    {
+      "show": "claude",
+      "chapter": "設定每週自動更新",
+      "narration": "先請它設定自動更新。"
+    },
+    {
+      "on": "claude",
+      "user": "設定自動更新：每週一檢查 npm 套件和 GitHub Actions 有沒有新版，自動開 Pull Request，修訂號和次版號合成一個。另外 Node.js 現在是 20，也檢查要不要升級。",
+      "narration": "說清楚檢查什麼、多久一次，還有把小更新合在一起，免得一週收到二十個 Pull Request。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "edit": ".github/dependabot.yml",
+      "lines": [
+        [1, "+", "version: 2"],
+        [2, "+", "updates:"],
+        [3, "+", "  - package-ecosystem: npm"],
+        [4, "+", "    schedule: { interval: weekly, day: monday }"],
+        [5, "+", "    groups:"],
+        [6, "+", "      small: { update-types: [minor, patch] }   # 小更新合成一個"],
+        [7, "+", "  - package-ecosystem: github-actions"],
+        [8, "+", "    schedule: { interval: weekly, day: monday }"]
+      ],
+      "narration": "它寫了自動更新的設定：每週一檢查，第六行把次版號和修訂號的更新合成一組。"
+    },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "nodejs.org/en/about/previous-releases",
+      "result": "Node.js 20 將於 2026-04 停止維護；22 是長期支援版"
+    },
+    {
+      "on": "claude",
+      "edit": "package.json",
+      "lines": [
+        [12, "-", "  \"engines\": { \"node\": \"20\" }"],
+        [12, "+", "  \"engines\": { \"node\": \"22\" }"]
+      ],
+      "narration": "執行環境它也查了：Node 20 已經停止維護，改成長期支援的 22。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "nvm use 22 && npm ci && npm test && npm run build",
+      "result": "✓ 42 項測試通過 ✓ 打包成功",
+      "narration": "換了執行環境，它立刻跑測試和打包，確認沒壞。"
+    },
+    {
+      "on": "claude",
+      "user": "以後每週一，自動更新的 Pull Request 開好後，你幫我看每一個：讀更新說明、在那個分支跑測試和打包，告訴我建議合併還是先別合，以及原因。現在先看這週的三個。",
+      "chapter": "AI 審每個 Pull Request",
+      "narration": "接著請它當審核員：每個 Pull Request 都讀說明、跑測試，給建議和原因。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "gh pr list --author app/dependabot", "result": "#51 vite 6.2.4 · #52 react-router 7.3 · #53 tailwindcss 4.0" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh pr view 51 --json body | 讀更新說明 && gh pr checkout 51 && npm test && npm run build",
+      "result": "修訂號 · 安全性修正 · ✓ 測試 ✓ 打包"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh pr checkout 52 && npm test && npm run build && npm run preview & 檢查 /menu /cart",
+      "result": "次版號 · 新增功能 · ✓ 測試 ✓ 打包 · 頁面正常"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh pr checkout 53 && npm run build",
+      "result": "✕ 打包失敗：找不到 tailwind.config.js",
+      "narration": "三個都檢查了。前兩個通過，第三個打包失敗。"
+    },
+    {
+      "on": "claude",
+      "say": "這週的建議：\n\n**#51 vite 6.2.4** → ✅ 建議合併。修訂號，含安全性修正，測試與打包都通過。\n**#52 react-router 7.3** → ✅ 建議合併。次版號，只有新增功能，測試通過，主要頁面正常。\n**#53 tailwindcss 4.0** → ⛔ 先別合。主版號有破壞性變更：設定檔要改寫在 CSS 裡，打包失敗。需要另外改程式，約 10 個檔案，要我開一個分支處理嗎？",
+      "chapter": "建議與原因",
+      "narration": "它給每一個都下了建議，而且有原因：版號、更新說明的重點、測試結果。第三個它不只說別合，還估了要改多少。"
+    },
+    {
+      "show": "web",
+      "narration": "你可以自己對照一下 GitHub 上的 Pull Request。"
+    },
+    {
+      "on": "web",
+      "click": "#pr-3",
+      "narration": "第三個，打包確實失敗了。和 AI 的判斷一樣。"
+    },
+    {
+      "callout": "web:section:checks3",
+      "text": "合併按鈕由你按：AI 給建議，決定是你的",
+      "narration": "合併還是由你來按。AI 讀說明、跑測試，給你有根據的建議，最後的決定是你的。"
+    },
+    {
+      "on": "claude",
+      "user": "#51 和 #52 我合併了。#53 先開一個分支處理，改好再給我看。",
+      "narration": "前兩個合併，第三個交給它另外處理。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 為你的專案設定每週自動更新（小更新合成一組），檢查執行環境的版本。等第一批 Pull Request 開出來，請它逐一讀更新說明、跑測試，給你建議與原因，再由你決定合併。",
+      "narration": "換你做做看。設定好自動更新，等第一批 Pull Request 出來，請它幫你一個一個看。"
+    },
+    {
+      "card": "每週的更新 Pull Request",
+      "eyebrow": "這一課的成果",
+      "sub": "機器人開 · AI 審（說明、測試、建議）· 你合併",
+      "narration": "這一課的成果：每週固定收到更新的 Pull Request，還有 AI 的審核建議。下一課，來處理使用者要求匯出或刪除個人資料。"
+    }
+  ]
+}

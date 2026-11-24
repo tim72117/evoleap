@@ -1,0 +1,280 @@
+{
+  "title": "照片批次縮小：上傳、寄信不再嫌太大",
+  "lesson": "生活小工具 · T2.2 試做",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做照片批次縮小工具",
+    "line": "今天要來做一個照片批次縮小工具。一次把好幾張照片縮小，寄信、上傳不再被擋，順便把照片裡的拍攝位置去掉。"
+  },
+  "blocking": { "cast": ["claude", "tool"], "shot": "depth" },
+  "cast": {
+    "mail": {
+      "actor": "browser",
+      "props": { "site": "lt-life-tools-T2-2-mail", "width": "desktop", "url": "郵件 · 新郵件" },
+      "place": "window",
+      "hidden": true
+    },
+    "info": {
+      "actor": "browser",
+      "props": { "site": "lt-life-tools-T2-2-info", "width": "desktop", "url": "檔案資訊 · photo-01.jpg" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "照片批次縮小",
+        "folder": "~/Documents/practice/photo-resize",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "tool": {
+      "actor": "browser",
+      "props": { "site": "lt-life-tools-T2-2-resize-v1", "width": "desktop", "url": "file:///Documents/practice/photo-resize/index.html" },
+      "place": "window",
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "practice": { "split-bill": {}, "shopping-list": {}, "id-watermark": {} },
+          "下載": {
+            "photo-01.jpg": "", "photo-02.jpg": "", "photo-03.jpg": "", "photo-04.jpg": "", "photo-05.jpg": "",
+            "photo-06.jpg": "", "photo-07.jpg": "", "photo-08.jpg": "", "photo-09.jpg": "", "photo-10.jpg": "",
+            "photo-big.jpg": "", "IMG_0042.HEIC": "", "notes.txt": ""
+          }
+        },
+        "open": "practice"
+      },
+      "place": { "x": 1100, "y": 380, "w": 760, "h": 520 },
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "照片批次縮小",
+      "eyebrow": "生活小工具 · T2.2",
+      "sub": "上傳、寄信不再嫌太大",
+      "chapter": "寄不出去的信",
+      "narration": "先從一封寄不出去的信開始。"
+    },
+    { "show": "mail", "narration": "你要把週末活動的照片寄給同事，一口氣選了十張。" },
+    { "on": "mail", "click": "#send", "narration": "按下寄出。" },
+    {
+      "callout": "mail:sel:#alert",
+      "text": "十張加起來 48 MB，超過上限",
+      "narration": "跳出附件超過大小上限。手機照片一張就四、五 MB，十張加起來四十八 MB。"
+    },
+    { "hide": "mail" },
+    {
+      "card": "一次把多張照片縮小",
+      "eyebrow": "這一課的任務",
+      "sub": "設定最長邊與品質，逐張下載，原檔不變",
+      "narration": "這一課，做一個工具，一次把多張照片縮小。不過，照片裡還藏著一件事，我們等一下就會看到。"
+    },
+    {
+      "show": "finder",
+      "chapter": "建立專案、看懂照片資訊",
+      "lessonStep": 1,
+      "narration": "先在 practice 裡建一個新資料夾 photo-resize。"
+    },
+    { "on": "finder", "mkdir": "photo-resize" },
+    { "on": "finder", "open": "../下載", "narration": "課程提供的範例照片放在「下載」。自己的照片也一樣，不放進專案資料夾，也不交給 AI 讀。" },
+    { "on": "finder", "highlight": "photo-01.jpg" },
+    { "hide": "finder" },
+    {
+      "show": "info",
+      "lessonStep": 2,
+      "narration": "打開 photo-01 的檔案資訊。在 Windows 是按右鍵、內容、詳細資料；在 Mac 是用預覽程式打開，工具、顯示檢閱器。"
+    },
+    {
+      "checkpoint": "猜猜看：一張照片檔案裡，除了畫面還藏了什麼？",
+      "body": "點每一列，打開看看。",
+      "id": "info",
+      "stage": { "focus": "info:viewport" },
+      "interact": {
+        "cast": ["info"],
+        "spots": [
+          { "target": "info:sel:[data-row=size]", "id": "size", "label": "檔案大小", "steps": [{ "on": "info", "click": "[data-row=size]" }] },
+          { "target": "info:sel:[data-row=dim]", "id": "dim", "label": "尺寸", "steps": [{ "on": "info", "click": "[data-row=dim]" }] },
+          { "target": "info:sel:[data-row=camera]", "id": "camera", "label": "相機型號", "steps": [{ "on": "info", "click": "[data-row=camera]" }] },
+          { "target": "info:sel:[data-row=time]", "id": "time", "label": "拍攝時間", "steps": [{ "on": "info", "click": "[data-row=time]" }] },
+          { "target": "info:sel:[data-row=gps]", "id": "gps", "label": "拍攝位置", "steps": [{ "on": "info", "click": "[data-row=gps]" }] }
+        ],
+        "until": { "picked": 5 },
+        "done": [{ "on": "info", "click": "#all" }],
+        "keep": false
+      },
+      "options": [{ "label": "看完了，繼續", "steps": [] }],
+      "skip": { "label": "看示範", "steps": [] }
+    },
+    { "on": "info", "click": "#all", "narration": "檔案大小四點八 MB，尺寸四千多乘三千多。還有相機型號、拍攝時間，" },
+    {
+      "callout": "info:sel:[data-row=gps]",
+      "text": "拍攝位置：地圖上的一根圖釘",
+      "narration": "甚至有拍攝位置，精確到地圖上的一根圖釘。直接分享原檔，等於告訴別人你在哪裡拍的。先把這些數字記下來，等一下要比對。"
+    },
+    { "hide": "info" },
+    {
+      "show": "claude",
+      "chapter": "產生第一版",
+      "lessonStep": 3,
+      "narration": "從 photo-resize 開啟 AI 工具，一次說清楚需求。"
+    },
+    {
+      "on": "claude",
+      "user": "做一個照片批次縮小工具：一次選多張照片，設定最長邊和品質，縮小壓縮後逐張下載。只用 index.html、styles.css、script.js",
+      "narration": "最長邊，就是照片比較長的那一邊有幾個像素。一次選多張、設定最長邊和品質、逐張下載，只用三個檔案。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1600 },
+    { "on": "claude", "say": "好的。要一次下載多張，我建議安裝一個打包套件，把照片壓成一個 zip 檔。" },
+    {
+      "on": "claude",
+      "ask": "npm install jszip",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/Documents/practice/photo-resize",
+      "note": "安裝套件 jszip"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "想裝套件打包 zip → 拒絕",
+      "narration": "它想安裝套件把照片打包成 zip。拒絕，逐張下載就好，這門課不裝套件。"
+    },
+    { "on": "claude", "choose": 0 },
+    { "on": "claude", "say": "了解，不裝套件，改成逐張下載，只用三個檔案。" },
+    { "on": "claude", "ask": "index.html", "q": "Claude 想要建立這個檔案", "where": "~/Documents/practice/photo-resize", "select": 1 },
+    { "on": "claude", "tool": "Write", "arg": "index.html", "result": "已建立" },
+    { "on": "claude", "ask": "styles.css", "q": "Claude 想要建立這個檔案", "where": "~/Documents/practice/photo-resize", "select": 1 },
+    { "on": "claude", "tool": "Write", "arg": "styles.css", "result": "已建立" },
+    {
+      "on": "claude",
+      "ask": "script.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/Documents/practice/photo-resize",
+      "preview": "const scale = Math.min(1, edge / Math.max(img.width, img.height));\ncanvas.width = img.width * scale;\ncanvas.height = img.height * scale;\ncanvas.toBlob(download, 'image/jpeg', quality);"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "canvas 重畫一次，只留下畫面",
+      "narration": "它的做法是把照片畫到網頁的畫布上，也就是 canvas，縮小後再存成新檔。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Write", "arg": "script.js", "result": "已建立" },
+    { "on": "claude", "user": "打開網頁", "chapter": "縮小範例照片", "lessonStep": 4 },
+    { "on": "claude", "ask": "open index.html", "q": "Claude 想要執行這個指令", "where": "~/Documents/practice/photo-resize", "note": "用預設瀏覽器打開 index.html", "select": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "open index.html", "result": "完成" },
+    { "show": "tool", "narration": "網頁打開了。按選擇照片，選十張範例照片。" },
+    { "on": "tool", "click": "#pick" },
+    { "on": "tool", "click": "[data-set=photos]" },
+    { "callout": "tool:sel:.panel", "text": "最長邊 1600、品質中等", "narration": "最長邊設一千六百，品質中等。" },
+    { "on": "tool", "click": "#go", "narration": "按縮小並下載。" },
+    {
+      "callout": "tool:sel:#out",
+      "text": "下載的張數和選的一樣",
+      "narration": "十張都下載了。瀏覽器可能會問是否允許下載多個檔案，這是你自己做的工具，可以允許。"
+    },
+    { "show": "finder", "create": "photo-01-small.jpg", "narration": "下載資料夾多了縮小後的照片，原本的照片還在。" },
+    { "hide": "finder" },
+    {
+      "on": "claude",
+      "user": "每張照片列出縮小前後的檔案大小",
+      "chapter": "縮了多少",
+      "lessonStep": 5,
+      "narration": "縮了多少看不出來。請它列出每張縮小前後的大小。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    { "on": "claude", "say": "已在結果裡列出每張照片縮小前、後的檔案大小與尺寸。" },
+    { "on": "tool", "site": "lt-life-tools-T2-2-resize-v2" },
+    { "on": "tool", "click": "#pick" },
+    { "on": "tool", "click": "[data-set=photos]" },
+    { "on": "tool", "click": "#go" },
+    {
+      "callout": "tool:sel:#out .row",
+      "text": "4.8 MB → 426 KB",
+      "narration": "四點八 MB 變成四百多 KB，十張加起來四 MB 多。挑一張到 Finder 對照，大小要一致。"
+    },
+    { "hide": "tool" },
+    { "hide": "claude" },
+    {
+      "show": "info",
+      "chapter": "親眼比對拍攝資訊",
+      "lessonStep": 6,
+      "narration": "最重要的一步：用剛才同樣的方法，打開縮小後的照片資訊。"
+    },
+    { "on": "info", "click": "#tab-after" },
+    {
+      "callout": "info:sel:[data-row=gps]",
+      "text": "拍攝位置不見了",
+      "narration": "最長邊一千六百，相機型號、拍攝時間、拍攝位置都不見了。canvas 重新輸出只留下畫面，這些資訊就一起去掉了。"
+    },
+    { "on": "info", "click": "#tab-portrait", "narration": "再看直式的那一張。" },
+    {
+      "callout": "info:sel:#thumb",
+      "text": "直式照片還是直的",
+      "narration": "還是直的，沒有轉向。不要只聽 AI 說已移除，一定要自己打開檔案資訊比對。照片轉向了，就請它修正。"
+    },
+    { "hide": "info" },
+    { "show": "tool", "chapter": "自己測試", "lessonStep": 7, "narration": "最後自己搗蛋：一次選一張超大的照片、一個文字檔，還有一張 iPhone 的 HEIC 照片。" },
+    { "on": "tool", "click": "#pick" },
+    { "on": "tool", "click": "[data-set=mixed]" },
+    { "on": "tool", "click": "#go" },
+    { "callout": "tool:sel:#out", "text": "一個檔案讀不到，全部停住", "narration": "一個檔案讀不到，整批停住，一張都沒下載。" },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "選到不是圖片的檔案時跳過，顯示檔名提醒，其他照片照常處理",
+      "narration": "說清楚什麼情況下、應該怎樣。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    { "on": "claude", "say": "已修正：不是圖片的檔案會跳過並列出檔名；HEIC 會提示先轉成 JPG。也加上最長邊的檢查，比原圖大時不放大。" },
+    { "on": "tool", "site": "lt-life-tools-T2-2-resize-v3" },
+    { "on": "tool", "click": "#pick" },
+    { "on": "tool", "click": "[data-set=mixed]" },
+    { "on": "tool", "click": "#go" },
+    {
+      "callout": "tool:sel:#out",
+      "text": "跳過有問題的檔案，其他照常處理",
+      "narration": "這次文字檔跳過了，HEIC 有清楚的提示，二十多 MB 的大照片也縮好了。"
+    },
+    { "on": "tool", "fill": { "#edge": "0" }, "narration": "最長邊填零呢？" },
+    { "on": "tool", "click": "#go" },
+    { "callout": "tool:sel:#out", "text": "最長邊要大於 0", "narration": "會提醒你最長邊要大於零。" },
+    { "on": "tool", "fill": { "#edge": "9000" }, "narration": "填得比原圖還大，九千。" },
+    { "on": "tool", "click": "#go" },
+    {
+      "callout": "tool:sel:#out",
+      "text": "比原圖大：維持原尺寸，不放大",
+      "narration": "比原圖大的照片維持原尺寸，不會硬是放大。如果 AI 修改時順手改了別的功能，請它只保留這次要求的修改。"
+    },
+    {
+      "checkpoint": "換你做做看",
+      "body": "做出自己的批次縮小工具：一次選多張範例照片，下載張數相同、最長邊符合設定、顯示前後大小；在檔案資訊裡親眼確認沒有拍攝位置、直式沒有轉向。再試很大的照片、一次 20 張、混入 .txt 或 PDF、最長邊 0 或負數、比原圖大。"
+    },
+    { "hide": "tool" },
+    { "hide": "claude" },
+    { "show": "mail", "narration": "回到那封信，換成縮小後的照片。" },
+    { "on": "mail", "click": "#use-small" },
+    { "on": "mail", "click": "#send" },
+    { "callout": "mail:sel:#sent", "text": "十張一封信寄出", "narration": "十張加起來四 MB 多，一封信就寄出去了，而且照片裡不再帶著拍攝位置。" },
+    { "hide": "mail" },
+    { "on": "fx", "shimmer": "輸出新檔、原檔不變、親眼比對", "sub": "檔案只在自己的瀏覽器裡處理" },
+    {
+      "on": "fx",
+      "clear": true,
+      "narration": "回顧這個單元：檔案只在自己的瀏覽器裡處理，輸出新檔、原檔不變，每次都親眼比對。"
+    },
+    {
+      "card": "下一個單元：辦活動用得到的工具",
+      "eyebrow": "下一課",
+      "sub": "名單變名牌：貼上名單就能列印",
+      "narration": "下一個單元，做辦活動用得到的工具。"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>新增商家資訊</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>商家資訊平台<span class="sp"></span><span class="who">新增商家</span></div>
+<div class="wrap row">
+ <div class="card col">
+  <label class="field"><span>商家名稱</span><input id="name"></label>
+  <label class="field"><span>類別</span><select id="cat"><option value="">請選擇</option><option>麵包店</option><option>咖啡廳</option><option>甜點店</option></select></label>
+  <label class="field"><span>簡介（750 字以內，不可包含網址與電話）</span><textarea id="desc"></textarea></label>
+  <button class="btn" id="send">送出</button>
+  <div id="err" class="msg bad gone">⚠ 簡介不可包含網址或電話號碼，請移除後再送出。</div>
+  <div id="ok" class="msg good gone">✓ 已送出。我們會在 5 個工作天內寄一張附驗證碼的明信片到店家地址。</div>
+ </div>
+ <div class="card side2"><div class="ttl s">預覽</div><div class="pv"><b id="pn">商家名稱</b><div class="muted" id="pc">類別</div><p id="pd">簡介</p></div></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

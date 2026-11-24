@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>新郵件</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main class="mail">
+  <div class="bar"><b>新郵件</b><span class="spacer"></span><button id="send" class="btn">寄出</button></div>
+  <div class="field"><span>收件人</span>同事 小周</div>
+  <div class="field"><span>主旨</span>週末活動照片</div>
+  <div class="body">附上週末活動的照片，請收～</div>
+  <div class="att big" id="att-big">
+    <div class="chip">🖼 photo-01.jpg<small>4.8 MB</small></div>
+    <div class="chip">🖼 photo-02.jpg<small>5.3 MB</small></div>
+    <div class="chip">🖼 photo-03.jpg<small>4.1 MB</small></div>
+    <div class="chip">🖼 photo-04.jpg<small>4.6 MB</small></div>
+    <div class="chip">🖼 photo-05.jpg<small>4.9 MB</small></div>
+    <div class="chip">🖼 photo-06.jpg<small>5.1 MB</small></div>
+    <div class="chip">🖼 photo-07.jpg<small>4.4 MB</small></div>
+    <div class="chip">🖼 photo-08.jpg<small>5.0 MB</small></div>
+    <div class="chip">🖼 photo-09.jpg<small>4.7 MB</small></div>
+    <div class="chip">🖼 photo-10.jpg<small>5.2 MB</small></div>
+  </div>
+  <div class="att small gone" id="att-small">
+    <div class="chip ok">🖼 photo-01-small.jpg<small>426 KB</small></div>
+    <div class="chip ok">🖼 photo-02-small.jpg<small>470 KB</small></div>
+    <div class="chip ok">🖼 photo-03-small.jpg<small>364 KB</small></div>
+    <div class="chip ok">🖼 photo-04-small.jpg<small>408 KB</small></div>
+    <div class="chip ok">🖼 photo-05-small.jpg<small>435 KB</small></div>
+    <div class="chip ok">🖼 photo-06-small.jpg<small>452 KB</small></div>
+    <div class="chip ok">🖼 photo-07-small.jpg<small>390 KB</small></div>
+    <div class="chip ok">🖼 photo-08-small.jpg<small>443 KB</small></div>
+    <div class="chip ok">🖼 photo-09-small.jpg<small>417 KB</small></div>
+    <div class="chip ok">🖼 photo-10-small.jpg<small>461 KB</small></div>
+  </div>
+  <div class="sum" id="sum-big">附件共 10 個，48.1 MB</div>
+  <div class="sum gone" id="sum-small">附件共 10 個，4.2 MB</div>
+  <div class="alert gone" id="alert">⚠ 附件超過大小上限（25 MB），無法寄出</div>
+  <div class="sent gone" id="sent">✓ 已寄出</div>
+  <button id="use-small" class="gone" aria-hidden="true">換成縮小後的照片</button>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

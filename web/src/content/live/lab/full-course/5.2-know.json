@@ -1,0 +1,163 @@
+{
+  "title": "程式碼只有三種樣子",
+  "lesson": "全環節 · 單元 5 · 5.2 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天學會讀程式碼",
+    "line": "今天要來讀懂 AI 寫出來的程式碼。不用背，你只要認得三種樣子：HTML 的一層包一層、CSS 的先選誰再改什麼、JavaScript 的等它發生再做事。"
+  },
+  "cast": {
+    "tree": {
+      "actor": "dom-tree",
+      "props": {
+        "nodes": [
+          {
+            "id": "about",
+            "tag": "section",
+            "children": [
+              { "id": "title", "tag": "h2", "text": "我的興趣" },
+              { "id": "intro", "tag": "p", "text": "下班後最常做的三件事" },
+              { "id": "l1", "tag": "div", "text": "烘焙" },
+              { "id": "l2", "tag": "div", "text": "散步" },
+              { "id": "l3", "tag": "div", "text": "做網站" }
+            ]
+          }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "diag": {
+      "actor": "browser",
+      "props": { "site": "fc5-2-anatomy", "width": "desktop", "url": "https://diagram.example/code-shapes" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "程式碼只有三種樣子",
+      "eyebrow": "全環節 · 單元 5 · 5.2 基礎知識",
+      "sub": "一層包一層・先選誰再改什麼・等它發生再做事",
+      "chapter": "HTML：一層包一層",
+      "narration": "AI 寫出來的程式碼，第一眼看起來像一堆符號。其實網頁的程式碼，幾乎都是這三種樣子的組合。"
+    },
+    {
+      "show": "tree",
+      "narration": "先看 HTML。我把「我的興趣」這一區，畫成一個一個方框。"
+    },
+    { "on": "tree", "grow": true, "narration": "最外面是 section，代表一個區塊。裡面有標題 h2、一段文字 p，還有三個興趣。" },
+    {
+      "on": "tree",
+      "anatomy": "title",
+      "narration": "拆開一個來看：前面是開頭標籤，中間是內容，後面多一條斜線的是結尾標籤。開頭和結尾成對，把內容包起來。"
+    },
+    { "on": "tree", "anatomy": false },
+    {
+      "on": "tree",
+      "wrap": ["l1", "l3"],
+      "into": { "id": "cards", "tag": "div" },
+      "narration": "如果想讓三個興趣排成一排，就先用一個 div 把它們包起來，當成一組。程式碼裡縮排越深，就是被包在越裡面。"
+    },
+    {
+      "callout": "tree:node:cards",
+      "text": "看 HTML 先找「誰包住誰」",
+      "narration": "所以讀 HTML 的訣竅只有一個：先找誰包住誰。"
+    },
+    { "hide": "tree" },
+    {
+      "show": "diag",
+      "narration": "同樣的結構寫成程式碼，就是左邊這樣。顏色一樣的開頭和結尾是一對，右邊是它們包住的樣子。"
+    },
+    {
+      "callout": "diag:section:p-html",
+      "text": "一對標籤 = 一個方框",
+      "narration": "左邊一對標籤，就是右邊一個方框。"
+    },
+    {
+      "on": "diag",
+      "click": "#t-css",
+      "chapter": "CSS：先選誰，再改什麼",
+      "narration": "第二種樣子是 CSS。每一條規則都分成兩半。"
+    },
+    {
+      "callout": "diag:sel:.sel",
+      "text": "前半：選擇器，要改誰",
+      "narration": "前半叫選擇器，說要改誰。這裡寫 .card 空格 b，意思是 class 叫 card 的方塊裡面的 b。"
+    },
+    {
+      "callout": "diag:sel:.decl",
+      "text": "後半：屬性和值，改哪一點、改成多少",
+      "narration": "大括號裡是後半：冒號前面是要改哪一點，叫屬性，例如字的大小；冒號後面是改成多少，叫值，例如 18 像素。"
+    },
+    {
+      "callout": "diag:sel:.preview",
+      "text": "一條規則，三張卡片的標題一起變",
+      "narration": "一條規則，三張卡片的標題一起被選到。所以想改樣式時，先找到選擇器，就知道會影響哪些地方。"
+    },
+    {
+      "on": "diag",
+      "click": "#t-js",
+      "chapter": "JavaScript：等它發生，再做事",
+      "narration": "第三種是 JavaScript 的事件處理。事件就是「發生了一件事」，例如按鈕被按下。"
+    },
+    {
+      "callout": "diag:sel:.js",
+      "text": "1 找到它　2 等它被按　3 按了就做事",
+      "narration": "這幾行照順序讀：第一行找到按鈕；第二行說，等它被按下；大括號裡面，就是按下去要做的事，把文字換掉。"
+    },
+    {
+      "on": "diag",
+      "click": "#demo",
+      "narration": "按一下示範的按鈕，三個步驟依序發生，文字就換了。"
+    },
+    {
+      "callout": "diag:sel:.flow",
+      "text": "addEventListener = 「等這件事發生」",
+      "narration": "看到 addEventListener，就翻譯成「等這件事發生」。後面寫的是哪件事，大括號裡寫的是發生後要做什麼。"
+    },
+    { "hide": "diag" },
+    {
+      "diff": "styles.css",
+      "lines": [[" ", ".card b {"], ["-", "  font-size: 18px;"], ["+", "  font-size: 24px;"], [" ", "}"]],
+      "chapter": "讀得懂，就敢自己改",
+      "narration": "認得這三種樣子，你就能自己改小地方。例如想讓興趣的標題大一點，找到 .card b，把 18 改成 24，就好了。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "這條規則會改到誰？ .card b { color: green; }",
+      "body": "選一個。",
+      "id": "selector",
+      "options": [
+        {
+          "label": "頁面上所有的 b",
+          "steps": [
+            { "card": "再想想", "eyebrow": "考考你", "sub": "前面還有 .card，代表只看 card 裡面的", "narration": "前面還有 .card，代表只選 card 方塊裡面的 b，外面的不算。" },
+            { "card": "答案：class 是 card 的方塊裡面的 b", "eyebrow": "考考你", "sub": "空格代表「裡面的」", "narration": "答案是 card 方塊裡面的 b。選擇器中間的空格，就是「裡面的」。" }
+          ]
+        },
+        {
+          "label": "class 是 card 的方塊裡面的 b",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "空格代表「裡面的」", "narration": "答對了。選擇器中間的空格，就是「裡面的」。" }
+          ]
+        },
+        {
+          "label": "整張 card 都變綠色",
+          "steps": [
+            { "card": "再想想", "eyebrow": "考考你", "sub": "最後一個字才是真正被選到的", "narration": "選擇器最後一個字，才是真正被選到的。這裡最後是 b，所以只有 b 變綠。" },
+            { "card": "答案：class 是 card 的方塊裡面的 b", "eyebrow": "考考你", "sub": "空格代表「裡面的」", "narration": "答案是 card 方塊裡面的 b。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "HTML：誰包住誰\nCSS：選擇器 { 屬性: 值 }\nJavaScript：等它發生，再做事",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 逐段解釋，自己改一處，再請它加一個區塊",
+      "chapter": "學會",
+      "narration": "HTML 看誰包住誰，CSS 看選擇器和屬性、值，JavaScript 看它在等什麼事發生。下一堂，我們請 AI 逐段解釋，你自己動手改一處。"
+    }
+  ]
+}

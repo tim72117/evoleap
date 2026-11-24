@@ -1,0 +1,160 @@
+{
+  "title": "哪些檔案絕不能 commit",
+  "lesson": "全環節 · 單元 6 · 6.2 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天認識四種危險檔案",
+    "line": "今天要來看四種絕對不能存進版控的檔案：.env、資料庫、build 產物和 node_modules，還有用 .gitignore 把它們擋在外面。"
+  },
+  "cast": {
+    "zhe": { "actor": "person", "props": { "name": "阿哲", "look": "staff" }, "place": "center", "hidden": true },
+    "files": {
+      "actor": "finder",
+      "props": {
+        "tree": { "shop": { "src": {}, "dist": {}, "node_modules": {}, ".env": "", "data.db": "", "package.json": "", "README.md": "" } },
+        "open": "shop"
+      },
+      "place": "center",
+      "hidden": true
+    },
+    "why": {
+      "actor": "browser",
+      "props": { "site": "fc6-2-why", "width": "desktop", "url": "https://diagram.example/never-commit" },
+      "place": "window",
+      "hidden": true
+    },
+    "git": {
+      "actor": "fc2-git",
+      "props": { "commits": ["建立專案"], "view": "areas" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "哪些檔案絕不能 commit",
+      "eyebrow": "全環節 · 單元 6 · 6.2 基礎知識",
+      "sub": ".env、資料庫、build 產物、node_modules",
+      "chapter": "一個會發生的故事",
+      "narration": "先聽一個故事。"
+    },
+    {
+      "show": "zhe",
+      "on": "zhe",
+      "say": "我把整個專案推上 GitHub，隔天就收到雲端帳單，多了三萬多塊……",
+      "mood": "worried",
+      "narration": "阿哲把專案整個推上 GitHub，隔天雲端帳單爆了。原因是資料夾裡有一個 .env 檔，裡面寫著雲端服務的金鑰。"
+    },
+    {
+      "on": "zhe",
+      "say": "我根本沒注意到那個檔案也被傳上去了。",
+      "mood": "tired",
+      "narration": "網路上有程式整天在掃公開的程式碼，專門找金鑰。找到了，就拿你的帳號去開機器、挖礦，帳單算你的。"
+    },
+    { "hide": "zhe" },
+    {
+      "show": "files",
+      "chapter": "專案裡的四種危險檔案",
+      "narration": "打開一個典型的專案資料夾。src 是你寫的程式，package.json 記錄用了哪些套件，這些都該存。可是有四樣東西不該。"
+    },
+    { "on": "files", "highlight": ".env", "narration": "第一個，.env。" },
+    { "on": "files", "highlight": "data.db", "narration": "第二個，資料庫檔案。" },
+    { "on": "files", "highlight": "dist", "narration": "第三個，dist，build 出來的成品。" },
+    { "on": "files", "highlight": "node_modules", "narration": "第四個，node_modules，下載來的套件。" },
+    { "hide": "files" },
+    { "show": "why", "narration": "一個一個翻開來看為什麼。" },
+    {
+      "on": "why",
+      "click": "#env",
+      "narration": ".env 裡是密碼和金鑰。推上去，就像把家裡鑰匙貼在公布欄。要分享給隊友的，是另一個只寫欄位名稱、不寫值的 .env.example。"
+    },
+    {
+      "on": "why",
+      "click": "#db",
+      "narration": "資料庫檔案裡是使用者的真實資料，而且一直在變。存進去，個資可能外洩，檔案也越存越大。"
+    },
+    {
+      "on": "why",
+      "click": "#dist",
+      "narration": "build 產物是從原始碼產生出來的，需要時重新 build 就有。兩份都存，改了原始碼卻忘了重新 build，就會對不上。"
+    },
+    {
+      "on": "why",
+      "click": "#nm",
+      "narration": "node_modules 動不動上萬個檔案、好幾百 MB，而且都是別人的程式。package.json 已經記下要用哪些，npm install 就能全部裝回來。"
+    },
+    { "hide": "why" },
+    {
+      "show": "git",
+      "chapter": ".gitignore：不要追蹤的清單",
+      "narration": "怎麼擋？用一個叫 .gitignore 的檔案，列出 Git 要假裝沒看到的東西。看看它怎麼運作。"
+    },
+    { "on": "git", "create": ".env", "narration": "你建立了 .env，它出現在工作區，等著被 add。這很危險，一個 git add 點，就全部進去了。" },
+    { "on": "git", "create": "data.db" },
+    {
+      "callout": "git:work",
+      "text": "git add . 會把這兩個也一起加進去",
+      "narration": "git add 點，意思是「全部加進去」，很方便，也最容易出事。"
+    },
+    {
+      "on": "git",
+      "ignore": ".env",
+      "narration": "在 .gitignore 寫一行 .env。它馬上被移到「忽略」那一格，Git 不再理它。.gitignore 自己則變成有修改。"
+    },
+    { "on": "git", "ignore": "data.db", "narration": "再寫一行 data.db。" },
+    { "on": "git", "ignore": "dist/", "narration": "資料夾的寫法是名字後面加斜線，例如 dist 斜線，整個資料夾裡的東西都算。" },
+    { "on": "git", "ignore": "node_modules/" },
+    {
+      "on": "git",
+      "create": "dist/index.js",
+      "narration": "之後 build 產生的檔案，一出現就直接被忽略，不會跑到工作區。"
+    },
+    {
+      "on": "git",
+      "add": ".",
+      "narration": "現在 git add 點也安全了，只有 .gitignore 本身進入暫存區。"
+    },
+    { "on": "git", "commit": "加上 .gitignore", "narration": ".gitignore 本身要存起來，這樣每個拿到專案的人都有同一份清單。" },
+    {
+      "card": ".gitignore 只擋「還沒存進去」的檔案",
+      "eyebrow": "要特別注意",
+      "sub": "已經 commit 過的 .env，要另外從紀錄移除，而且金鑰一定要換掉",
+      "chapter": "已經存進去了怎麼辦",
+      "narration": "要特別注意：.gitignore 只擋還沒存進去的檔案。如果 .env 早就 commit 過，光是加進 .gitignore 沒有用，舊紀錄裡還看得到。這時要另外把它從版控移除，而且裡面的金鑰一定要到服務後台換掉，因為你不知道誰已經看過。"
+    },
+    {
+      "checkpoint": "下面哪一個「應該」存進版控？",
+      "body": "選一個。",
+      "id": "should-commit",
+      "options": [
+        {
+          "label": "package.json",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "它記錄用了哪些套件，別人靠它 npm install", "narration": "答對了。package.json 記錄用了哪些套件，別人拿到專案，就靠它把 node_modules 裝回來。" }
+          ]
+        },
+        {
+          "label": ".env",
+          "steps": [
+            { "card": "不行！", "eyebrow": "考考你", "sub": "裡面是密碼和金鑰；要存的是 .env.example", "narration": ".env 裡是密碼和金鑰，絕對不能存。可以存的是只寫欄位名稱的 .env.example。" },
+            { "card": "答案：package.json", "eyebrow": "考考你", "sub": "它記錄用了哪些套件", "narration": "應該存的是 package.json。" }
+          ]
+        },
+        {
+          "label": "node_modules/",
+          "steps": [
+            { "card": "不需要", "eyebrow": "考考你", "sub": "npm install 就能依 package.json 裝回來", "narration": "node_modules 不用存，npm install 會照 package.json 全部裝回來。" },
+            { "card": "答案：package.json", "eyebrow": "考考你", "sub": "它記錄用了哪些套件", "narration": "應該存的是 package.json。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": ".env：鑰匙\ndata.db：別人的資料\ndist/：可以重做\nnode_modules/：可以重裝",
+      "eyebrow": "學會",
+      "sub": "寫進 .gitignore，而且 .gitignore 本身要 commit",
+      "chapter": "學會",
+      "narration": "鑰匙、別人的資料、可以重做的、可以重裝的，這四種都寫進 .gitignore，而 .gitignore 本身要存起來。下一堂，請 AI 幫你檢查有沒有漏網之魚。"
+    }
+  ]
+}

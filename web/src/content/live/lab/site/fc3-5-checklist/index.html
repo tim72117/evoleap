@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>帳號安全清單</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+<div class="doc card">
+  <div class="muted mono">security-checklist.md · AI 依你會用到的帳號整理</div>
+  <div class="ttl">帳號安全清單 <span class="prog"><span data-count>0</span> / 4 完成</span></div>
+  <div class="barw"><div class="bar" data-bar="4"></div></div>
+  <div class="it" id="c-gh" data-toggle><span class="box">☐</span><span class="done-mark chk">☑</span><div><b>GitHub</b>：Settings → Password and authentication → 啟用雙重驗證<br><span class="muted">放程式碼；被盜會被刪 repo、植入惡意程式</span></div></div>
+  <div class="it" id="c-google" data-toggle><span class="box">☐</span><span class="done-mark chk">☑</span><div><b>Google 帳號</b>：安全性 → 兩步驟驗證<br><span class="muted">很多服務用它登入，最重要</span></div></div>
+  <div class="it" id="c-cloud" data-toggle><span class="box">☐</span><span class="done-mark chk">☑</span><div><b>雲端平台</b>：帳號綁了信用卡，被盜會被拿去挖礦<br><span class="muted">另外設定預算警示</span></div></div>
+  <div class="it" id="c-ai" data-toggle><span class="box">☐</span><span class="done-mark chk">☑</span><div><b>AI 助手帳號</b>：用 Google 登入，或另外開雙重驗證</div></div>
+  <div class="rule">🛑 驗證碼、恢復碼、密碼：<b>只放在你的密碼管理器</b>，不要貼給 AI、不要存在專案資料夾</div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

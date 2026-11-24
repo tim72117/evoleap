@@ -1,0 +1,111 @@
+{
+  "title": "用 CLI 取代網頁後台",
+  "lesson": "全環節 · 單元 28 · 28.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "這次交給 AI 用指令做",
+    "line": "今天把一件原本在雲端主控台點的設定，交給 AI 用 CLI 完成。最後再請它整理一份清單：哪些事以後都能這樣交給它。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "用 CLI 調整服務", "folder": "~/projects/komori-bakery", "branch": null, "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用 CLI 取代網頁後台",
+      "eyebrow": "全環節 · 單元 28 · 28.2 用 AI 完成",
+      "sub": "一次交代：先查現況、再改、再查一次確認",
+      "chapter": "交代任務",
+      "narration": "栗子季流量變大，網站變慢了。以前你要到主控台調整記憶體、加環境變數。這次交給 AI。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "用 gcloud 幫我調整 Cloud Run 的 komori-web：記憶體改成 1 GiB，最少保持 1 個執行個體，加上環境變數 SALE_MODE=chestnut。改之前先查目前的設定給我看，改完再查一次，確認三項都生效。",
+      "narration": "說清楚要改哪三項，還有完成的標準：改前查一次、改後再查一次。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud auth list",
+      "result": "沒有登入",
+      "out": "No credentialed accounts.",
+      "chapter": "登入你來",
+      "narration": "它先確認 gcloud 有沒有登入。結果還沒有。"
+    },
+    {
+      "on": "claude",
+      "say": "gcloud 還沒登入。登入要在瀏覽器用你的帳號完成，我不能替你做。請在終端機執行：\n`gcloud auth login`\n照瀏覽器的畫面登入後告訴我。",
+      "narration": "登入要開瀏覽器、用你的帳號，這一步交給你。"
+    },
+    {
+      "card": "在終端機執行 gcloud auth login",
+      "eyebrow": "你自己來",
+      "sub": "瀏覽器跳出登入頁 → 選你的帳號 → 允許",
+      "narration": "在終端機貼上這行，瀏覽器會跳出登入頁。選你的帳號、按允許，就好了。密碼只輸入在登入頁上。"
+    },
+    { "on": "claude", "user": "登入好了" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services describe komori-web --format='value(spec.template.spec.containers[0].resources.limits.memory, spec.template.metadata.annotations[\"autoscaling.knative.dev/minScale\"])'",
+      "result": "完成",
+      "out": "memory: 512Mi\nminScale: 0\nenv: (無)",
+      "chapter": "改之前先查",
+      "narration": "改之前，它先查目前的設定：記憶體 512MB、最少 0 個、沒有環境變數。這是之後比對用的。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run services update komori-web --memory 1Gi --min-instances 1 --update-env-vars SALE_MODE=chestnut",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/komori-bakery",
+      "note": "更新正式網站的服務設定，會部署一個新版本",
+      "chapter": "看清楚再允許",
+      "narration": "這一行會改到正式網站。看清楚：服務名稱對、三項設定和你說的一樣。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "min-instances 1 會一直有一台在跑：每月會多一點費用",
+      "narration": "要知道一件事：最少保持一個，代表永遠有一台在跑，每個月會多一點費用。確定要，就允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud run services update komori-web …", "result": "已部署", "out": "Deploying new revision… Done.\nRevision komori-web-00043 is serving 100% of traffic." },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services describe komori-web --format=…",
+      "result": "完成",
+      "out": "memory: 1Gi ✓\nminScale: 1 ✓\nenv: SALE_MODE=chestnut ✓",
+      "chapter": "改完再查一次",
+      "narration": "改完再查一次，三項都生效了。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "curl -s -o /dev/null -w '%{http_code} %{time_total}s' https://komori-bakery.example", "result": "完成", "out": "200 0.31s", "narration": "最後再打開網站確認：回應正常，速度也變快了。" },
+    {
+      "on": "claude",
+      "user": "很好。幫我整理一份清單 docs/cli-checklist.md：我們這個專案常做的設定，哪些可以用 CLI 交給你、用哪個指令，哪些還是只能在網頁做。",
+      "chapter": "整理成清單"
+    },
+    { "on": "claude", "tool": "Write", "arg": "docs/cli-checklist.md", "result": "已建立" },
+    {
+      "on": "claude",
+      "say": "| 事情 | 能用 CLI 嗎 | 指令 |\n|---|---|---|\n| 部署、調記憶體、環境變數 | ✓ | `gcloud run` |\n| 看錯誤記錄 | ✓ | `gcloud logging read` |\n| DNS 紀錄 | ✓ | `wrangler` / 網域商 API |\n| GitHub 的 Issue、PR、密鑰 | ✓ | `gh` |\n| 帳單與付款方式 | ✗ | 只能網頁，你來 |\n| 第一次登入、兩步驟驗證 | ✗ | 只能你本人 |",
+      "narration": "清單整理好了。能交給 AI 的，附上指令；只能網頁或只能本人的，也清楚標出來。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "找一件你常在雲端主控台或 GitHub 網頁上點的設定。自己完成 CLI 的登入，請 AI 用 CLI 做：改前查一次、改後再查一次。最後請它整理一份「哪些事可以用 CLI 做」的清單。"
+    },
+    {
+      "card": "登入你來，指令 AI 來\n改前查、改後查\n整理一份 CLI 清單，下次直接用",
+      "eyebrow": "學會",
+      "sub": "改正式環境的指令，看清楚再允許",
+      "chapter": "學會",
+      "narration": "登入你來，指令交給 AI，改前查一次、改後再查一次。最後留下一份清單，下次直接交給它。"
+    }
+  ]
+}

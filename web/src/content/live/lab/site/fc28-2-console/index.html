@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>雲端主控台</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>雲端主控台<span class="sp"></span><span class="who">komori-project</span></div>
+<div class="shell">
+ <div class="side"><div class="it" id="m-run" data-show="svc">☰ 執行服務</div><div class="it">資料庫</div><div class="it">儲存空間</div><div class="it">帳單</div></div>
+ <div class="main">
+  <div id="svc" class="gone"><div class="ttl s">服務</div><div class="card row1" id="s-web" data-show="detail">komori-web <span class="pill ok">運作中</span></div></div>
+  <div id="detail" class="gone card"><div class="ttl s">komori-web</div><div class="tabs"><span class="tb" id="b-edit" data-show="edit">編輯並部署新版本</span><span class="tb">記錄</span><span class="tb">指標</span></div></div>
+  <div id="edit" class="gone card"><div class="tabs"><span class="tb">容器</span><span class="tb" id="b-vars" data-show="vars">變數與密鑰</span><span class="tb">網路</span></div>
+   <div id="vars" class="gone"><button class="btn ghost" id="b-add" data-show="row">＋ 新增變數</button>
+    <div id="row" class="gone row"><label class="field col"><span>名稱</span><input id="k"></label><label class="field col"><span>值</span><input id="v"></label></div>
+    <button class="btn" id="b-deploy" data-show="dep">部署</button> <span id="dep" class="pill ok gone">新版本部署中…</span></div>
+  </div>
+  <div class="count" id="count">點了 0 下</div>
+ </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

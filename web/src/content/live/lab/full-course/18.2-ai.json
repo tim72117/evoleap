@@ -1,0 +1,137 @@
+{
+  "title": "先設預算警示",
+  "lesson": "全環節 · 單元 18 · 18.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "設好預算，安心用雲端",
+    "line": "這一堂請 AI 用 gcloud 建立每月預算，花到一半就寄信給你；再看一次帳單，請它解釋每一項費用是什麼。"
+  },
+  "blocking": { "cast": ["claude", "bill"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "預算警示",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "bill": {
+      "actor": "browser",
+      "props": { "site": "fc18-2-bill", "width": "desktop", "url": "https://console.example-cloud.com/billing/reports" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "先設預算警示",
+      "eyebrow": "全環節 · 單元 18 · 18.2 用 AI 完成",
+      "sub": "gcloud 建立預算與通知，再看懂帳單",
+      "chapter": "交代：金額與通知門檻",
+      "narration": "開任何服務之前，先把預算設好。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我替帳單帳戶建立每月預算 NT$300，用到 50%、90%、100% 都寄信通知我。做完列出預算設定確認。",
+      "narration": "要給的資訊只有兩個：每月多少錢、幾成時通知。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "我要執行 `gcloud billing budgets create`。**這個指令不會花錢**，只是在帳單帳戶上加一條預算線；通知會寄到帳單管理員，也就是你的 Gmail。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "執行前先說：做什麼、會不會花錢",
+      "narration": "注意它的習慣：執行雲端指令之前，先說會做什麼、會不會花錢。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud billing budgets create",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud billing budgets create \\\n  --billing-account=0X1A2B-3C4D5E-6F7A8B \\\n  --display-name=\"每月預算\" --budget-amount=300TWD \\\n  --threshold-rule=percent=0.5 \\\n  --threshold-rule=percent=0.9 \\\n  --threshold-rule=percent=1.0"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud billing budgets create --billing-account=0X1A2B-3C4D5E-6F7A8B --display-name=\"每月預算\" --budget-amount=300TWD --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0",
+      "result": "失敗",
+      "out": "ERROR: Billing Budget API has not been used in project xiaosen-bakery-prod-2611 before or it is disabled.",
+      "chapter": "遇到錯誤，自己處理",
+      "narration": "第一次失敗了：預算功能的 API 還沒開。API 的開關下一個環節會細講，這裡 AI 讀懂錯誤，自己處理。"
+    },
+    {
+      "on": "claude",
+      "say": "要先啟用「預算 API」才能用指令建立預算。啟用 API 本身不收費。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud services enable billingbudgets.googleapis.com && gcloud billing budgets create --billing-account=0X1A2B-3C4D5E-6F7A8B --display-name=\"每月預算\" --budget-amount=300TWD --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0",
+      "result": "完成",
+      "out": "Operation finished successfully.\nCreated budget [每月預算]."
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud billing budgets list --billing-account=0X1A2B-3C4D5E-6F7A8B --format=\"yaml(displayName,amount,thresholdRules)\"",
+      "result": "完成",
+      "out": "displayName: 每月預算\namount:\n  specifiedAmount: { currencyCode: TWD, units: '300' }\nthresholdRules:\n- thresholdPercent: 0.5\n- thresholdPercent: 0.9\n- thresholdPercent: 1.0",
+      "chapter": "AI 確認設定",
+      "narration": "建好之後，它再把設定讀出來確認：三百元，三個門檻都在。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 每月預算 NT$300，用到 **150、270、300 元**時寄信給你。\n提醒：預算**只通知、不會自動停掉服務**，收到信請截圖帳單給我，我幫你看是什麼在花錢。"
+    },
+    {
+      "card": "一個月後……",
+      "eyebrow": "看懂帳單",
+      "sub": "網站已經搬上雲端，你收到第一份帳單",
+      "chapter": "看懂帳單",
+      "narration": "時間快轉。網站已經搬上雲端，你打開帳單頁，看到四個看不太懂的項目。"
+    },
+    { "show": "bill", "narration": "這個月到目前八十六元，是預算的百分之二十九。" },
+    {
+      "on": "claude",
+      "user": "（附上帳單截圖）這四項各是什麼？哪一項可以省？"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "say": "逐項說明：\n1. **Cloud SQL 執行時間 NT$38**：資料庫一直開著就計費，就算沒人用。最大宗。\n2. **Cloud Run CPU、記憶體 NT$26**：有人打開網站時才計費，沒人用幾乎是 0。\n3. **Artifact Registry NT$14**：存放網站映像檔的空間。舊版本越積越多，可以設定只留最近 5 版。\n4. **網路流量 NT$8**：網頁傳給台灣以外的訪客。\n可以省的：第 3 項，我幫你設定自動清掉舊映像檔，大約省一半。"
+    },
+    {
+      "callout": "bill:sel:#i1",
+      "text": "資料庫一直開著就計費，就算沒人用",
+      "narration": "最大的一項是資料庫：它一直開著，就一直計費。這就是阿哲那張帳單的原因，練習完忘了關。"
+    },
+    {
+      "callout": "bill:sel:#i3",
+      "text": "舊映像檔越積越多：可以設定自動清理",
+      "narration": "AI 還找到可以省的地方：舊的映像檔越積越多。要不要清，由你決定。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：設定你的預算警示",
+      "body": "請 AI 先說明指令會不會花錢，再用 gcloud 建立每月預算與 50%、90%、100% 通知，並把設定讀出來確認。之後收到帳單，截圖請它逐項解釋。"
+    },
+    { "hide": "bill" },
+    {
+      "card": "預算＋三個門檻，開服務前先設\n看不懂的帳單，截圖問 AI",
+      "eyebrow": "學會",
+      "sub": "超過一半就收到通知；預算不會自動停掉服務",
+      "chapter": "學會",
+      "narration": "預算和三個通知門檻，在開服務之前先設好；看不懂的帳單，截圖給 AI 逐項解釋。超過一半，你就會收到通知。"
+    }
+  ]
+}

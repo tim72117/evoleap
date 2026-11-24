@@ -1,0 +1,126 @@
+{
+  "title": "網頁很慢",
+  "lesson": "全環節 · 單元 14 · 14.4 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "teacher": {
+    "say": "改善之前，先量一次",
+    "line": "這一堂請 AI 跑效能檢查、找出最重的東西、動手改善。重點是前後各跑一次，用同樣的條件量，才知道到底快了多少。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "首頁太慢", "folder": "~/projects/shop", "branch": null, "mode": "auto", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc14-4-compare", "width": "desktop", "url": "file:///projects/shop/reports/perf-compare.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "網頁很慢",
+      "eyebrow": "全環節 · 單元 14 · 14.4 用 AI 完成",
+      "sub": "先量 → 找最重的 → 改 → 用同樣條件再量 → 比較",
+      "chapter": "先量一次",
+      "narration": "沒有先量，就不知道改了有沒有用。所以第一步永遠是先量。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "首頁在手機上很慢。請用 Lighthouse 以手機、4G 的條件量首頁，存下結果；找出最拖慢的前三名並改善；改完用一模一樣的條件再量一次，做一份前後比較給我。畫面不能因此變醜或缺東西。",
+      "narration": "交代清楚：用什麼條件量、改完要用一樣的條件再量、做比較表；而且畫面不能變醜或缺東西。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx lighthouse http://localhost:3000 --preset=perf --form-factor=mobile --throttling.cpuSlowdownMultiplier=4 --output=json --output-path=reports/before.json",
+      "result": "效能分數 38",
+      "out": "效能分數: 38\n最大內容出現（LCP）: 6.2 s\n整頁大小: 6.1 MB",
+      "narration": "第一次量：三十八分，最大的內容六點二秒才出現，整頁六點一 MB。結果存成 before 檔。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/top-weight.mjs reports/before.json",
+      "result": "找出前三名",
+      "out": "1. hero.jpg         4.8 MB   首頁大圖，原始尺寸 6000×4000\n2. 字型 ×3          620 KB   其中 2 種只用在頁尾\n3. 商品圖 ×12        240 KB  畫面下方，一開始看不到",
+      "chapter": "找最重的",
+      "narration": "它從報告裡找出最重的前三名：首頁大圖、三種字型、一開始看不到的商品圖。"
+    },
+    {
+      "on": "claude",
+      "todos": [["hero.jpg：縮到 1600px 並轉 webp", "doing"], ["字型：只留 1 種，只含用到的字", "pending"], ["商品圖：捲到才載入", "pending"], ["用同樣條件再量一次", "pending"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx sharp-cli -i public/hero.jpg -o public/hero.webp resize 1600 --format webp --quality 80",
+      "result": "4.8 MB → 180 KB",
+      "chapter": "改善",
+      "narration": "首頁大圖原本六千像素寬，手機根本用不到。縮到一千六百、轉成 webp：四點八 MB 變成一百八十 KB。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/pages/home.html",
+      "lines": [[12, "-", "<img src=\"/hero.jpg\">"], [12, "+", "<img src=\"/hero.webp\" width=\"1600\" height=\"900\" fetchpriority=\"high\" alt=\"冬季新品\">"], [40, "-", "<img src=\"{{product.photo}}\">"], [40, "+", "<img src=\"{{product.thumb}}\" loading=\"lazy\" alt=\"{{product.name}}\">"]],
+      "narration": "首頁大圖標成優先下載；畫面下方的商品圖加上 loading lazy，捲到才載入。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/styles/fonts.css",
+      "lines": [[1, " ", "@font-face { font-family: 'Shop'; src: url(/fonts/shop-subset.woff2); font-display: swap; }"], [2, "-", "@font-face { font-family: 'Fancy'; src: url(/fonts/fancy.ttf); }"], [3, "-", "@font-face { font-family: 'Script'; src: url(/fonts/script.ttf); }"]],
+      "narration": "只用在頁尾的兩種字型拿掉，留下的那種只保留網站用到的字。"
+    },
+    {
+      "on": "claude",
+      "todos": [["hero.jpg：縮到 1600px 並轉 webp", "done"], ["字型：只留 1 種，只含用到的字", "done"], ["商品圖：捲到才載入", "done"], ["用同樣條件再量一次", "doing"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx lighthouse http://localhost:3000 --preset=perf --form-factor=mobile --throttling.cpuSlowdownMultiplier=4 --output=json --output-path=reports/after.json",
+      "result": "效能分數 94",
+      "out": "效能分數: 94\n最大內容出現（LCP）: 1.6 s\n整頁大小: 0.9 MB",
+      "chapter": "用同樣條件再量",
+      "narration": "用一模一樣的指令再量一次：九十四分，一點六秒，零點九 MB。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/shots.mjs --compare before after --devices \"iPhone 15,Desktop\"",
+      "result": "畫面差異只在字型",
+      "out": "iPhone-15_home  差異 0.8%（頁尾字型）\nDesktop_home    差異 0.6%（頁尾字型）",
+      "narration": "它還截圖比對前後的畫面：只有頁尾的字型不同，沒有缺東西。這是你說的「不能變醜」那一條。"
+    },
+    {
+      "on": "claude",
+      "todos": [["hero.jpg：縮到 1600px 並轉 webp", "done"], ["字型：只留 1 種，只含用到的字", "done"], ["商品圖：捲到才載入", "done"], ["用同樣條件再量一次", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓ 前後比較存在 `reports/perf-compare.html`：\n- 分數 38 → **94**\n- 最大內容出現 6.2 秒 → **1.6 秒**\n- 整頁 6.1 MB → **0.9 MB**\n\n畫面只有頁尾字型不同。要保留原本頁尾的字型的話告訴我，大約會多 0.3 秒。",
+      "narration": "它給出比較表，也把取捨說清楚：頁尾字型換掉了，想留的話會慢一點點，讓你決定。"
+    },
+    { "show": "web", "chapter": "看比較", "narration": "打開比較報告。左邊是改善前。" },
+    { "on": "web", "click": "#show", "narration": "右邊是改善後。同樣的手機、同樣的網路，從三十八分到九十四分。" },
+    { "hide": "web" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：前後各量一次",
+      "body": "請 AI 用固定條件（手機、4G）跑 Lighthouse 並存下結果，找出最重的前三名改善，再用同樣條件量一次，做前後比較，並截圖確認畫面沒有缺東西。"
+    },
+    {
+      "card": "先量 → 改最重的 → 同樣條件再量",
+      "eyebrow": "學會",
+      "sub": "條件不同的兩次測量，不能拿來比",
+      "chapter": "學會",
+      "narration": "改善效能三步：先量、改最重的、用同樣的條件再量。條件不同的兩次結果不能拿來比。最後再確認畫面沒有因為變快而缺東西。"
+    }
+  ]
+}

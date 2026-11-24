@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>講義：清單存在哪裡</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main class="board" id="board">
+  <h1>清單存在哪裡？</h1>
+  <p class="lead" id="lead">存在「這台電腦的這個瀏覽器」的小抽屜裡，不會上傳</p>
+  <div class="scene">
+    <div class="pc" id="pc1">
+      <div class="pc-name">你的電腦</div>
+      <div class="br" id="brA"><div class="br-name">瀏覽器 A（平常用的）</div>
+        <div class="drawer" id="drawerA"><span class="dl">抽屜：localStorage</span><span class="chip">牛奶 ✓</span><span class="chip">洗碗精</span><span class="chip">衛生紙</span></div></div>
+      <div class="br" id="brB"><div class="br-name">瀏覽器 B</div>
+        <div class="drawer"><span class="dl">抽屜：localStorage</span><span class="none">（空的）</span></div></div>
+    </div>
+    <div class="side">
+      <div class="cloud" id="cloud"><svg viewBox="0 0 120 70"><path d="M30 60h62a20 20 0 0 0 0-40 28 28 0 0 0-52-6A22 22 0 0 0 30 60z" fill="#fff" stroke="#b9ad9b" stroke-width="4"/><path d="M45 25l30 30M75 25l-30 30" stroke="#c2412d" stroke-width="6" stroke-linecap="round"/></svg><span>不會上傳到雲端</span></div>
+      <div class="pc small" id="pc2"><div class="pc-name">另一台電腦</div><div class="drawer"><span class="dl">抽屜</span><span class="none">（空的）</span></div></div>
+      <div class="file gone" id="file">📄 shopping-list-backup.json<small>備份檔：帶著走、匯入就回來</small></div>
+    </div>
+  </div>
+  <div class="ops">
+    <button class="op" id="op-clear">清除瀏覽資料</button>
+    <button class="op" id="op-switch">換一個瀏覽器</button>
+    <button class="op" id="op-pc">換一台電腦</button>
+    <button class="op" id="op-backup">匯出備份檔</button>
+  </div>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

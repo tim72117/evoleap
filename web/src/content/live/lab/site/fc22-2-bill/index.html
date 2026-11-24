@@ -1,0 +1,29 @@
+<!doctype html><html><head><title>帳單 · 本月費用</title></head><body>
+<div class="bar"><span class="lg"></span>示意雲端主控台<span class="crumb">/ 帳單 / 本月費用明細</span></div>
+<div class="pg">
+<div class="top"><div><h1>本月 NT$2,340</h1><div class="sub">上個月 NT$1,300 · <b class="up">+80%</b></div></div></div>
+<div class="grid">
+<div class="pie" id="pie"><svg viewBox="0 0 220 220"><g transform="rotate(-90 110 110)" fill="none" stroke-width="38">
+<circle cx="110" cy="110" r="80" stroke="#4d7fd0" stroke-dasharray="191 502.65" stroke-dashoffset="0" class="sl" data-k="run"/>
+<circle cx="110" cy="110" r="80" stroke="#2e9a5b" stroke-dasharray="150.8 502.65" stroke-dashoffset="-191" class="sl" data-k="sql"/>
+<circle cx="110" cy="110" r="80" stroke="#d99a1c" stroke-dasharray="70.4 502.65" stroke-dashoffset="-341.8" class="sl" data-k="log"/>
+<circle cx="110" cy="110" r="80" stroke="#8f6fe0" stroke-dasharray="50.3 502.65" stroke-dashoffset="-412.2" class="sl" data-k="net"/>
+<circle cx="110" cy="110" r="80" stroke="#d2453a" stroke-dasharray="40.2 502.65" stroke-dashoffset="-462.5" class="sl" data-k="disk"/>
+</g><text x="110" y="104" text-anchor="middle" class="t1">5 項服務</text><text x="110" y="130" text-anchor="middle" class="t2">NT$2,340</text></svg></div>
+<div class="legend" id="legend">
+<div class="li" id="s-run"><i style="background:#4d7fd0"></i><span>Cloud Run（網站主機）</span><b>NT$889</b><em>38%</em></div>
+<div class="li" id="s-sql"><i style="background:#2e9a5b"></i><span>Cloud SQL（資料庫）</span><b>NT$702</b><em>30%</em></div>
+<div class="li" id="s-log"><i style="background:#d99a1c"></i><span>Logging（紀錄）</span><b>NT$328</b><em>14%</em></div>
+<div class="li" id="s-net"><i style="background:#8f6fe0"></i><span>網路流量</span><b>NT$234</b><em>10%</em></div>
+<div class="li" id="s-disk"><i style="background:#d2453a"></i><span>磁碟（沒有掛在任何主機上）</span><b>NT$187</b><em>8%</em></div>
+</div>
+</div>
+<div class="detail" id="detail" data-k="none">
+<div class="d d-none">點左邊的一項，看這筆錢是怎麼算的</div>
+<div class="d d-run"><b>Cloud Run：</b>按「有請求在處理的時間」計費。但設了<u>最少 1 台一直開著</u>，半夜沒人也在算錢 → 一個月約 NT$620。</div>
+<div class="d d-sql"><b>Cloud SQL：</b>資料庫主機 24 小時開著，按規格計費。現在用的是 2 核心、8GB，實際用量 CPU 只有 6%。</div>
+<div class="d d-log"><b>Logging：</b>每個月前 50GB 免費。這個月寫了 92GB，多的是每一個請求都寫了 DEBUG 等級的紀錄。</div>
+<div class="d d-net"><b>網路流量：</b>資料送出雲端要錢。首頁大圖每張 2MB 沒壓縮，被看了 4 萬次。</div>
+<div class="d d-disk"><b>閒置磁碟：</b>三個月前測試用的主機刪了，但磁碟沒刪，一直在收錢，什麼事都沒做。</div>
+</div>
+</div></body></html>

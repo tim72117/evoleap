@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>0001-tech-choice.md</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+<div class="doc card">
+  <div class="muted mono">docs/decisions/0001-tech-choice.md</div>
+  <div class="ttl">技術選擇紀錄 #1：線上預訂要用什麼</div>
+  <div class="ctx">背景：需求清單要「存訂單、店家登入」→ 需要後端與資料庫；預算每月 300 元內。</div>
+  <table>
+    <tr><th>方案</th><th>做得到需求？</th><th>每月估計</th><th>難度</th></tr>
+    <tr><td>A 只用靜態網站 ＋ Google 表單</td><td>△ 店家看單不方便</td><td>NT$ 0</td><td>低</td></tr>
+    <tr class="pick"><td>B 靜態前端 ＋ Cloud Run ＋ 小型資料庫</td><td>✓</td><td>NT$ 0–150</td><td>中</td></tr>
+    <tr><td>C 租一台虛擬主機自己管</td><td>✓</td><td>NT$ 150–300＋維護</td><td>高</td></tr>
+  </table>
+  <div class="dec"><b>決定：B。</b>理由：做得到全部需求、用量小時幾乎免費、不用自己顧主機。<br><span class="muted">何時重新考慮：每天訂單超過 1,000 張，或要收線上付款。</span></div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

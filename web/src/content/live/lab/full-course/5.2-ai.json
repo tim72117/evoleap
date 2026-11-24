@@ -1,0 +1,152 @@
+{
+  "title": "讀懂 AI 產生的程式碼",
+  "lesson": "全環節 · 單元 5 · 5.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天邊問邊改",
+    "line": "今天要請 AI 當你的家教：一段一段解釋你的介紹頁，你自己動手改一個地方，再請它加一個新區塊。它加得不對的地方，我們指出來請它改。"
+  },
+  "blocking": { "cast": ["claude", "code", "page"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "讀懂介紹頁",
+        "folder": "~/projects/profile",
+        "branch": null,
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": {
+        "project": "profile",
+        "files": {
+          "index.html": "<header class=\"hero\">\n  <div class=\"avatar\">安</div>\n  <h1>林小安</h1>\n  <p class=\"tagline\">喜歡烘焙的設計新手</p>\n</header>\n",
+          "styles.css": ".hero {\n  text-align: center;\n  border-radius: 24px;\n}\nh1 {\n  margin: 0;\n  font-size: 40px;\n}\n"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc5-1-full", "width": "desktop", "url": "file:///projects/profile/index.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "讀懂 AI 產生的程式碼",
+      "eyebrow": "全環節 · 單元 5 · 5.2 用 AI 完成",
+      "sub": "請它解釋 → 自己改一處 → 請它加區塊 → 不對就指出來",
+      "chapter": "第一輪：請 AI 逐段解釋",
+      "narration": "這一課是來回好幾輪的。先問、再自己改、再請它加，每一輪都看結果決定下一步。"
+    },
+    { "show": "claude", "narration": "打開上一課做好的 profile 資料夾。" },
+    {
+      "on": "claude",
+      "user": "請一段一段解釋 index.html。每一段先說它是畫面上的哪裡，再說程式碼在做什麼，用沒學過程式的人聽得懂的話。",
+      "narration": "請它解釋的時候，要它先對到畫面上的位置。這樣你一邊聽，一邊就知道在講哪裡。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "Read", "arg": "index.html", "result": "52 行" },
+    {
+      "on": "claude",
+      "say": "**第 1 段 `<header class=\"hero\">`**：最上面那塊橘色的區域。`header` 是「頁首」，`class=\"hero\"` 是取個名字，讓 CSS 找得到它。\n**第 2 段 `<section id=\"about\">`**：白色的「關於我」卡片。`h2` 是小標題，`p` 是一段文字。\n**第 3 段 `<div class=\"cards\">`**：三張興趣卡片，外面用一個 `div` 包成一組，CSS 才能讓它們並排。\n**第 4 段 `<button id=\"hi\">`**：打招呼的按鈕。`id=\"hi\"` 讓 JavaScript 找到它。",
+      "narration": "它每一段都先講畫面上的位置，再講程式碼。class 和 id 都是取名字，讓 CSS 和 JavaScript 找得到。"
+    },
+    {
+      "on": "claude",
+      "user": "如果我想把名字改成綠色，要改哪個檔案的哪裡？先不要幫我改，我想自己來。",
+      "chapter": "第二輪：問清楚，自己改",
+      "narration": "第二輪，問一個你想改的地方。記得說「先不要幫我改」，這一次你要自己動手。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "say": "改 `styles.css`。名字是 `h1`，目前只設定了大小（`font-size: 40px`），沒有設定顏色。\n在檔案最後加一行就好：\n`h1 { color: #2f6f5e; }`\n`#2f6f5e` 是一種深綠色，你也可以換成喜歡的顏色。",
+      "narration": "它告訴你檔案、位置，還給了一行可以照打的程式碼。"
+    },
+    {
+      "show": "code",
+      "open": "styles.css",
+      "narration": "打開編輯器，切到 styles.css。"
+    },
+    {
+      "on": "code",
+      "type": "h1 { color: #2f6f5e; }\n",
+      "narration": "在最後一行，自己打上這一行，存檔。"
+    },
+    {
+      "show": "page",
+      "site": "fc5-2-mine",
+      "narration": "重新整理瀏覽器，名字變成綠色了。這是你自己改的第一行程式碼。"
+    },
+    { "callout": "page:sel:h1", "text": "你自己加的那一行：h1 { color: #2f6f5e; }" },
+    {
+      "on": "claude",
+      "user": "在「我的興趣」下面加一個「作品集」區塊，列出兩個作品：小森烘焙網站、家庭食譜整理頁。",
+      "chapter": "第三輪：請 AI 加一個區塊",
+      "narration": "第三輪，請 AI 加一個新區塊。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [[40, " ", "  </section>"], [41, "+", "  <section id=\"works\">"], [42, "+", "    <h3>作品集</h3>"], [43, "+", "    <ul><li>小森烘焙一頁式網站</li><li>家庭食譜整理頁</li></ul>"], [44, "+", "  </section>"]]
+    },
+    {
+      "on": "claude",
+      "edit": "styles.css",
+      "lines": [[60, "+", "#works { margin-top: 28px; font-family: Georgia, serif; }"], [61, "+", "#works h3 { font-size: 30px; color: #1d4ed8; }"]]
+    },
+    { "on": "claude", "say": "已在「我的興趣」下面加上「作品集」區塊，列出兩個作品。" },
+    { "show": "page", "site": "fc5-2-added", "narration": "打開來看。" },
+    { "on": "page", "scroll": "works", "narration": "作品集是加上去了，可是跟上面長得不像。" },
+    {
+      "callout": "page:section:works",
+      "text": "藍色標題、不同字體、沒有白底卡片",
+      "narration": "標題是藍色的、字體不一樣、也沒有白色的底。對照它剛才的修改就知道為什麼：它自己新寫了一套 #works 的樣式，沒有用現有的。"
+    },
+    {
+      "on": "claude",
+      "user": "作品集跟上面的區塊長得不一樣：標題是藍色、字體不同、沒有白底。請改成和「我的興趣」同一套樣式，沿用現有的 class，不要新增顏色和字體。",
+      "chapter": "第四輪：指出問題，請它改",
+      "narration": "第四輪，把看到的問題講具體：哪裡不一樣、要跟誰一樣、不要做什麼。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "Read", "arg": "styles.css", "result": "61 行" },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [[41, "-", "  <section id=\"works\">"], [41, "+", "  <section id=\"works\" class=\"block\">"], [42, "-", "    <h3>作品集</h3>"], [42, "+", "    <h2>作品集</h2>"], [43, "-", "    <ul><li>小森烘焙一頁式網站</li><li>家庭食譜整理頁</li></ul>"], [43, "+", "    <div class=\"cards\">…兩張 card…</div>"]]
+    },
+    { "on": "claude", "edit": "styles.css", "lines": [[60, "-", "#works { margin-top: 28px; font-family: Georgia, serif; }"], [61, "-", "#works h3 { font-size: 30px; color: #1d4ed8; }"]] },
+    {
+      "on": "claude",
+      "say": "改好了：作品集改用和其他區塊一樣的 `block`、`h2`、`cards`、`card`，並刪掉我剛才另外加的 `#works` 樣式。\n剛才不一致，是因為我自己新寫了一套樣式，沒有先看現有的 class。",
+      "narration": "它也說了剛才為什麼會不一樣。下次請它加東西，可以先提醒「沿用現有的樣式」。"
+    },
+    { "show": "page", "site": "fc5-2-fixed" },
+    { "on": "page", "scroll": "works", "narration": "這次作品集和上面的區塊是同一套樣式，看起來是同一個網站了。" },
+    { "on": "page", "scroll": "top", "narration": "往上捲，你自己改的綠色名字也還在，AI 沒有動到。" },
+    { "hide": "page" },
+    {
+      "checkpoint": "換你試試",
+      "body": "1. 請 AI 一段一段解釋你的 index.html。2. 問它「想改某個地方要改哪裡，先不要幫我改」，自己動手改一行。3. 請它加一個新區塊，打開檢查；長得不一樣，就具體說出哪裡不同、要跟誰一樣。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "請它對著畫面解釋\n小地方自己改\n不對就說：哪裡不同、要跟誰一樣",
+      "eyebrow": "學會",
+      "sub": "加新東西前提醒它：沿用現有的樣式",
+      "chapter": "學會",
+      "narration": "請 AI 對著畫面解釋，小地方自己改，它做得不對，就具體說出哪裡不同、要跟誰一樣。下一課，我們給它設計稿，請它照著做。"
+    }
+  ]
+}

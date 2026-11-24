@@ -1,0 +1,193 @@
+{
+  "title": "用 Docker 打包",
+  "lesson": "全環節 · 單元 19 · 19.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "失敗了就讀錯誤再修",
+    "line": "這一堂請 AI 寫 Dockerfile，把網站打包成容器。建置失敗沒關係，讓它讀錯誤、修正、再試，來回幾次，直到在你的電腦上跑起來。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "Docker 打包",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "http://localhost:8080" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用 Docker 打包",
+      "eyebrow": "全環節 · 單元 19 · 19.1 用 AI 完成",
+      "sub": "寫 Dockerfile → 建置 → 讀錯誤 → 修 → 再試",
+      "chapter": "交代：怎樣算完成",
+      "narration": "這一堂會失敗好幾次，這是正常的。重點是看 AI 怎麼讀錯誤、一次修一個問題。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫 bakery 寫 Dockerfile，把網站和後端打包成容器。建置失敗就讀錯誤修。完成標準：用 docker run 在本機跑起來，curl http://localhost:8080 回 200。.env 裡的密碼不要包進映像檔。",
+      "narration": "完成標準寫清楚，再加一條：密碼不要包進去。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "package.json",
+      "result": "完成",
+      "narration": "它先讀 package.json，看網站用了哪些套件、怎麼啟動。"
+    },
+    {
+      "on": "claude",
+      "ask": "Dockerfile、.dockerignore",
+      "q": "Claude 想要建立這些檔案",
+      "where": "~/Documents/practice/bakery",
+      "preview": "FROM node:22-slim\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --omit=dev\nCOPY . .\nCMD [\"node\", \"server.js\"]\n\n# .dockerignore\nnode_modules\n.env\n.git"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "edit": "Dockerfile",
+      "lines": [
+        [1, "+", "FROM node:22-slim"],
+        [2, "+", "WORKDIR /app"],
+        [3, "+", "COPY package*.json ./"],
+        [4, "+", "RUN npm ci --omit=dev"],
+        [5, "+", "COPY . ."],
+        [6, "+", "CMD [\"node\", \"server.js\"]"]
+      ],
+      "narration": "第一版 Dockerfile，就是上一堂看到的食譜。另外建了 .dockerignore，告訴 Docker 哪些東西不要裝進便當，.env 就在裡面。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker build -t bakery .",
+      "result": "失敗",
+      "out": "#7 [4/5] RUN npm ci --omit=dev\nnpm ERR! gyp ERR! find Python\nnpm ERR! gyp ERR! stack Error: Could not find any Python installation\nnpm ERR! bcrypt@5.1.1 install: `node-gyp rebuild`\nERROR: failed to solve: process \"npm ci\" did not complete successfully",
+      "chapter": "第一輪：建置失敗",
+      "narration": "第一次建置，失敗了。"
+    },
+    {
+      "on": "claude",
+      "say": "讀錯誤：`bcrypt`（幫密碼加密的套件）安裝時要現場編譯，需要 Python 和編譯工具，可是 `node-gyp` 在精簡版映像檔裡找不到 Python。\n修法：在安裝套件之前，先裝好編譯工具。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "從一長串錯誤裡，找到真正的原因",
+      "narration": "錯誤訊息很長，AI 找出關鍵那一行：找不到 Python。原因是幫密碼加密的套件要現場編譯，精簡版的作業系統裡沒有編譯工具。"
+    },
+    {
+      "on": "claude",
+      "edit": "Dockerfile",
+      "lines": [
+        [3, " ", "COPY package*.json ./"],
+        [4, "+", "RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*"],
+        [5, " ", "RUN npm ci --omit=dev"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker build -t bakery . && docker run -d --name bakery -p 8080:8080 bakery && sleep 2 && curl -s -o /dev/null -w '%{http_code}\\n' http://localhost:8080",
+      "result": "失敗",
+      "out": "Successfully tagged bakery:latest\na41f…\n000\ncurl: (52) Empty reply from server",
+      "chapter": "第二輪：跑起來了，卻連不上",
+      "narration": "建置成功了。容器也開起來了，可是 curl 連不上。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker logs bakery",
+      "result": "完成",
+      "out": "小森烘焙伺服器啟動：http://127.0.0.1:3000",
+      "narration": "AI 去看容器的紀錄：伺服器開在三千號、而且只聽 127 點 0 點 0 點 1。"
+    },
+    {
+      "on": "claude",
+      "say": "兩個問題：\n1. 伺服器開在 **3000**，我們對外接的是 **8080**\n2. `127.0.0.1` 只接受容器**裡面**的連線，外面連不進去\n修法：改成讀 `PORT` 環境變數（預設 8080），並聽 `0.0.0.0`。之後上 Cloud Run 也需要這樣。"
+    },
+    {
+      "on": "claude",
+      "edit": "server.js",
+      "lines": [
+        [42, "-", "app.listen(3000, '127.0.0.1', () => console.log('小森烘焙伺服器啟動：http://127.0.0.1:3000'))"],
+        [42, "+", "const port = process.env.PORT || 8080"],
+        [43, "+", "app.listen(port, '0.0.0.0', () => console.log(`小森烘焙伺服器啟動：port ${port}`))"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker rm -f bakery && docker build -t bakery . && docker run -d --name bakery -p 8080:8080 bakery && sleep 2 && curl -s -o /dev/null -w '%{http_code}\\n' http://localhost:8080",
+      "result": "完成",
+      "out": "Successfully tagged bakery:latest\n200",
+      "narration": "重建、重開，再測一次：兩百。"
+    },
+    {
+      "on": "claude",
+      "say": "容器跑起來了 ✓ `http://localhost:8080` 回 200。請打開看看。"
+    },
+    { "show": "web", "narration": "你打開 localhost 八〇八〇，網站出來了。這個網站現在是從容器裡跑出來的。" },
+    { "on": "web", "scroll": "products", "pause": 500 },
+    {
+      "on": "claude",
+      "user": "首頁正常，可是在訂購頁按送出，出現「伺服器錯誤」。",
+      "chapter": "第三輪：你發現的問題",
+      "narration": "你自己再點點看，發現訂購頁送出時出錯。把看到的情況告訴 AI。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker logs bakery | tail -2",
+      "result": "完成",
+      "out": "Error: 缺少環境變數 DB_PASSWORD\n    at connectDb (db.js:8)"
+    },
+    {
+      "on": "claude",
+      "say": "原因：資料庫密碼在 `.env`，而我們**刻意**沒把 `.env` 包進映像檔。這是對的，密碼不該封在便當裡。\n修法：密碼在**執行時**才給容器：`docker run --env-file .env`。映像檔本身不變。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "密碼不封進映像檔，執行時才給",
+      "narration": "這次不是修程式。密碼本來就不該封在便當裡，AI 的做法是：執行容器時才把 .env 交給它。到雲端時，換成專門放密碼的服務。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "docker rm -f bakery && docker run -d --name bakery --env-file .env -p 8080:8080 bakery && sleep 2 && curl -s -X POST -o /dev/null -w '%{http_code}\\n' -d 'item=可頌&qty=2' http://localhost:8080/api/orders && docker run --rm bakery ls -a | grep -c '^.env$'",
+      "result": "完成",
+      "out": "201\n0",
+      "narration": "重開容器，送出一筆測試訂單：二〇一，建立成功。最後還確認映像檔裡找不到 .env。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- `docker build` 成功，`docker run` 後首頁 200、訂單 API 201\n- 映像檔裡沒有 `.env`，密碼執行時才給\n- 修了 3 個問題：缺編譯工具、port 與 0.0.0.0、密碼改成執行時給"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把你的網站裝進容器",
+      "body": "請 AI 寫 Dockerfile，寫清楚完成標準（例如 curl localhost:8080 回 200）和「密碼不要包進映像檔」。建置失敗讓它讀錯誤修；跑起來後你自己點點看，發現問題就告訴它。"
+    },
+    { "hide": "web" },
+    {
+      "card": "失敗 → 讀錯誤 → 修一個 → 再試",
+      "eyebrow": "學會",
+      "sub": "AI 修程式的問題；你試用、回報它沒測到的地方",
+      "chapter": "學會",
+      "narration": "失敗了就讀錯誤，一次修一個問題，再試。AI 處理建置和程式的問題；你自己試用，回報它沒測到的地方。現在網站已經可以在容器裡跑了，下一堂把它送上 Cloud Run。"
+    }
+  ]
+}

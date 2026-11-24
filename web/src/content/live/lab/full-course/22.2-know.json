@@ -1,0 +1,127 @@
+{
+  "title": "雲端帳單上的錢，花去哪了？",
+  "lesson": "全環節 · 單元 22 · 22.2 基礎知識",
+  "teacher": {
+    "say": "今天拆開一張雲端帳單",
+    "line": "雲端是用多少付多少，但也很容易不知不覺多付。這一課拆開一張帳單，看費用怎麼組成，還有最常見的幾種浪費。"
+  },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "通知" },
+      "place": { "x": 680, "y": 110, "w": 560, "h": 860 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc22-2-bill", "url": "https://console.example-cloud.com/billing/reports" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "show": "phone",
+      "chapter": "帳單變貴了",
+      "narration": "月初，你收到一則通知。"
+    },
+    {
+      "on": "phone",
+      "receive": "本月雲端費用 NT$2,340，比上個月多 80%。",
+      "from": "雲端帳單"
+    },
+    {
+      "on": "phone",
+      "reply": "？？網站流量明明差不多啊",
+      "narration": "流量差不多，錢卻多了八成。錢到底花去哪了？"
+    },
+    { "hide": "phone" },
+    {
+      "card": "雲端帳單上的錢，花去哪了？",
+      "eyebrow": "全環節 · 單元 22 · 22.2 基礎知識",
+      "sub": "費用組成 · 常見的浪費",
+      "narration": "打開帳單的費用明細，一項一項拆開看。"
+    },
+    {
+      "show": "web",
+      "chapter": "費用的組成",
+      "narration": "圓餅圖把總金額分成五塊，每一塊是一項服務。"
+    },
+    {
+      "callout": "web:section:legend",
+      "text": "主機、資料庫、紀錄、網路流量、磁碟",
+      "narration": "網站主機、資料庫、紀錄、網路流量，還有磁碟。雲端的費用，大多就是這幾類。"
+    },
+    {
+      "on": "web",
+      "click": "#s-run",
+      "chapter": "一項一項看",
+      "narration": "最大塊的是網站主機 Cloud Run。"
+    },
+    {
+      "callout": "web:section:detail",
+      "text": "浪費 ①：設了「最少 1 台一直開著」，半夜沒人也在算錢",
+      "narration": "Cloud Run 本來是有人來才算錢，沒人就不算。但這裡設了最少一台一直開著，半夜沒有客人，也照樣在收錢。這是第一種常見的浪費。"
+    },
+    {
+      "on": "web",
+      "click": "#s-sql",
+      "narration": "第二大的是資料庫。"
+    },
+    {
+      "callout": "web:section:detail",
+      "text": "浪費 ②：規格開太大，CPU 只用 6%",
+      "narration": "資料庫二十四小時開著，按規格收費。開了很大的規格，實際只用了百分之六。規格太大，是第二種浪費。"
+    },
+    {
+      "on": "web",
+      "click": "#s-log",
+      "narration": "再來是紀錄。"
+    },
+    {
+      "callout": "web:section:detail",
+      "text": "浪費 ③：寫了太多紀錄，超過免費額度",
+      "narration": "紀錄每個月有一定的免費額度。這個月每個請求都寫了很細的除錯紀錄，超過了。"
+    },
+    {
+      "on": "web",
+      "click": "#s-net",
+      "narration": "網路流量："
+    },
+    {
+      "callout": "web:section:detail",
+      "text": "浪費 ④：大圖沒壓縮，被看一次就送一次",
+      "narration": "資料送出雲端要錢。首頁的大圖沒有壓縮，客人每看一次，就要付一次兩 MB 的錢。"
+    },
+    {
+      "on": "web",
+      "click": "#s-disk",
+      "narration": "最後這一塊最冤枉。"
+    },
+    {
+      "callout": "web:section:detail",
+      "text": "浪費 ⑤：忘了刪的東西，什麼都沒做也在收錢",
+      "narration": "三個月前測試用的主機刪了，但它的磁碟沒刪，什麼事都沒做，每個月照收。忘了刪的資源，是最常見的浪費。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "常見的五種浪費",
+      "sub": "一直開著 · 規格太大 · 紀錄太多 · 檔案沒壓縮 · 忘了刪",
+      "chapter": "重點整理",
+      "narration": "整理一下五種常見的浪費：一直開著、規格太大、紀錄太多、檔案沒壓縮、忘了刪。"
+    },
+    { "clear": true },
+    {
+      "card": "先找最大的那一塊",
+      "eyebrow": "省錢的順序",
+      "sub": "從占比最大的服務開始看；改之前想清楚會不會影響客人（例如最少 0 台，第一個客人會等久一點）",
+      "narration": "省錢要從最大的那一塊開始。改之前也要想一下影響：例如主機改成最少零台，半夜第一個客人要多等一兩秒，大多數小網站可以接受。"
+    },
+    {
+      "checkpoint": "想一想",
+      "body": "你在雲端上有沒有「測試時開的、後來沒在用」的東西？例如測試用的資料庫、舊的儲存空間、沒在用的網域。列出來，下一堂請 AI 幫你找。",
+      "narration": "想一想：你有沒有測試時開的、後來沒在用的東西？下一堂，請 AI 匯出帳單資料，幫你找出花最多的地方。"
+    }
+  ]
+}

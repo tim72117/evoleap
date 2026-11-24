@@ -1,0 +1,121 @@
+{
+  "title": "帳號安全：雙重驗證與密碼管理",
+  "camera": "auto",
+  "teacher": {
+    "say": "AI 列清單，你自己開",
+    "line": "這一堂請 AI 依你會用到的帳號，列一份開雙重驗證的清單。每個平台的操作、驗證碼、恢復碼，全部你自己來，AI 一個都不碰。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "帳號安全清單", "folder": "~/projects", "branch": null, "mode": "ask", "sessions": [] },
+      "place": { "x": 30, "y": 40, "w": 900, "h": 1000 },
+      "parts": { "sidebar": false },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc3-5-checklist", "url": "file:///projects/security-checklist.md" },
+      "place": { "x": 960, "y": 130, "w": 930, "h": 800 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "AI 列清單，你自己開",
+      "eyebrow": "全環節 · 單元 3 · 3.5 用 AI 完成",
+      "sub": "驗證碼、恢復碼、密碼：只有你看得到",
+      "chapter": "請 AI 列清單",
+      "narration": "帳號安全這件事，AI 能幫你的是：想清楚有哪些帳號、每個要點哪裡。真正的操作，全部你自己來。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "這門課我會用到 GitHub、Google、雲端平台、AI 助手帳號。幫我做一份開雙重驗證的清單，每個平台寫出要點哪裡、為什麼重要。我自己操作，驗證碼和恢復碼不會給你。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "先說好：驗證碼、恢復碼不給 AI",
+      "narration": "最後一句先講好：驗證碼和恢復碼不會給它。"
+    },
+    {
+      "on": "claude",
+      "ask": "security-checklist.md",
+      "q": "允許 Claude 建立這個檔案？",
+      "where": "~/projects",
+      "select": 1
+    },
+    {
+      "on": "claude",
+      "edit": "security-checklist.md",
+      "lines": [[1, "+", "# 帳號安全清單"], [2, "+", "- [ ] GitHub：Settings → Password and authentication"], [3, "+", "- [ ] Google：安全性 → 兩步驟驗證"], [4, "+", "- [ ] 雲端平台：帳號綁信用卡，另設預算警示"], [5, "+", "- [ ] AI 助手帳號：用 Google 登入，或另外開"], [6, "+", ""], [7, "+", "驗證碼、恢復碼、密碼只放密碼管理器"]]
+    },
+    {
+      "on": "claude",
+      "say": "清單好了。建議從 **GitHub** 開始：放程式碼，被盜的影響最大。\n1. 先準備好手機上的驗證 App 和密碼管理器\n2. 照清單第一項，進到 GitHub 的設定\n3. 開好之後截圖給我（**把恢復碼遮起來**），我幫你確認\n",
+      "narration": "它還建議了順序，以及回報的方式：截圖時把恢復碼遮起來。"
+    },
+    {
+      "show": "web",
+      "narration": "這是清單打開的樣子，可以一項一項打勾。"
+    },
+    {
+      "on": "web",
+      "site": "fc3-5-settings",
+      "chapter": "你自己開：GitHub",
+      "narration": "接下來的畫面，全部是你自己操作。打開 GitHub 的安全性設定。"
+    },
+    {
+      "on": "web",
+      "click": "#enable",
+      "narration": "按「啟用雙重驗證」。"
+    },
+    {
+      "callout": "web:sel:.qr",
+      "text": "用你的手機掃，AI 不參與",
+      "narration": "用手機的驗證 App 掃這個方塊，App 上就會出現一組六位數。在網頁上輸入它，按驗證。"
+    },
+    { "on": "web", "click": "#verify" },
+    {
+      "callout": "web:sel:.codes",
+      "text": "恢復碼：存進密碼管理器",
+      "narration": "網站給你一組恢復碼。下載下來，存進密碼管理器。不要截圖傳給任何人，也不要放進專案資料夾。"
+    },
+    { "on": "web", "click": "#save" },
+    {
+      "on": "claude",
+      "user": "GitHub 開好了（附上截圖：顯示「已啟用」，恢復碼已遮住）。",
+      "chapter": "截圖回報",
+      "narration": "回到 AI，傳一張遮好恢復碼的截圖。"
+    },
+    {
+      "on": "claude",
+      "say": "看到「已啟用」✓ 恢復碼也遮住了，很好。\n下一個：**Google**，安全性 → 兩步驟驗證。步驟幾乎一樣。",
+      "narration": "它從截圖確認開好了，再告訴你下一個。"
+    },
+    {
+      "on": "web",
+      "site": "fc3-5-checklist",
+      "narration": "回到清單，一項一項打勾。"
+    },
+    { "on": "web", "click": "#c-gh" },
+    { "on": "web", "click": "#c-google", "narration": "Google、" },
+    { "on": "web", "click": "#c-cloud", "narration": "雲端平台、" },
+    { "on": "web", "click": "#c-ai", "narration": "AI 助手帳號，照同樣的方法一個一個開。" },
+    {
+      "callout": "web:sel:.prog",
+      "text": "主要帳號都開了雙重驗證 ✓",
+      "narration": "四個都打勾了。整個過程，驗證碼、恢復碼、密碼，AI 一個都沒看到。"
+    },
+    {
+      "checkpoint": "換你：照清單開雙重驗證",
+      "body": "請 AI 依你會用到的帳號產生清單。每個平台自己進設定、自己掃碼、自己輸入驗證碼，恢復碼存進密碼管理器。完成後截圖給 AI 確認，截圖前先把恢復碼遮起來。"
+    },
+    {
+      "card": "主要帳號都開了雙重驗證 ✓",
+      "eyebrow": "3.5 完成",
+      "sub": "單元 3 完成：環境與帳號都準備好了",
+      "narration": "環境、工具、帳號，都準備好了。下一個單元，我們開始把想法變成規格。"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+<!doctype html><html><head><title>數字會說話，也會騙人</title></head><body>
+<div class="pg" id="pg">
+<section class="card" id="corr"><div class="hd"><h2>試吃影片的觀看數 vs 訂單數（去年 11 月–12 月）</h2><button id="reveal">加上第三條線</button></div>
+<svg viewBox="0 0 900 300" id="svg">
+<rect class="hol" x="610" y="10" width="250" height="250" rx="8"/><text class="holt" x="735" y="40" text-anchor="middle">聖誕節前兩週</text>
+<g class="grid"><line x1="40" y1="260" x2="880" y2="260"/></g>
+<polyline class="l1" points="40,230 120,226 200,222 280,228 360,214 440,218 520,206 600,196 680,120 760,80 840,60"/>
+<polyline class="l2" points="40,240 120,236 200,238 280,232 360,230 440,226 520,222 600,214 680,140 760,96 840,74"/>
+<text class="lg1" x="846" y="56">影片觀看</text><text class="lg2" x="846" y="94">訂單</text>
+</svg>
+<p class="cap" id="cap">兩條線一起往上：是影片讓訂單變多嗎？</p></section>
+<section class="card" id="src"><div class="hd"><h2>上週的訂單，到底有幾筆？</h2><button id="show-gap">比較兩個來源</button></div>
+<div class="bars" id="bars">
+<div class="b"><span>訂單資料庫</span><div><i style="width:100%">256</i></div><em>每一筆都在</em></div>
+<div class="b ga"><span>GA4 的 purchase</span><div><i style="width:83%">212</i></div><em>少了 17%</em></div>
+</div>
+<ul class="why" id="why"><li>有人裝了擋廣告的外掛，GA 被擋掉</li><li>有人在 Cookie 橫幅按了「拒絕」</li><li>付款完沒回到網站就關掉</li></ul></section>
+</div></body></html>

@@ -1,0 +1,24 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>DNS 紀錄</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · DNS 紀錄</p>
+<h1>xiaosen-bakery.com 的電話簿</h1>
+<div class="tabs"><button id="b0" data-go="0">整本</button><button id="b1" data-go="1">A</button><button id="b2" data-go="2">AAAA</button><button id="b3" data-go="3">CNAME</button><button id="b4" data-go="4">MX</button><button id="b5" data-go="5">TXT</button><button id="b6" data-go="6">TTL</button></div>
+<div class="book">
+<table class="rec">
+<tr><th>名稱</th><th>類型</th><th>值</th><th class="ttl">TTL</th></tr>
+<tr class="r1"><td class="mono">@</td><td><span class="ty a">A</span></td><td class="mono">185.199.108.153</td><td class="mono ttl">3600</td></tr>
+<tr class="r2"><td class="mono">@</td><td><span class="ty aaaa">AAAA</span></td><td class="mono">2606:50c0:8000::153</td><td class="mono ttl">3600</td></tr>
+<tr class="r3"><td class="mono">www</td><td><span class="ty cname">CNAME</span></td><td class="mono">xiaosen-dev.github.io</td><td class="mono ttl">3600</td></tr>
+<tr class="r4"><td class="mono">@</td><td><span class="ty mx">MX</span></td><td class="mono">10 mx1.mail.example</td><td class="mono ttl">3600</td></tr>
+<tr class="r5"><td class="mono">@</td><td><span class="ty txt">TXT</span></td><td class="mono">"v=spf1 include:_spf.mail.example ~all"</td><td class="mono ttl">3600</td></tr>
+</table>
+<div class="side box">
+<div data-only="0"><b class="h">一筆紀錄＝一行</b><p><b>名稱</b>：問的是誰（<span class="mono">@</span> 代表網域本身）<br><b>類型</b>：問的是哪一種資訊<br><b>值</b>：答案</p></div>
+<div data-only="1"><b class="h a">A：地址</b><p>這個名字的 <b>IP 位址</b>（舊式、四段數字）。瀏覽器拿到它，才知道網站在哪台主機。</p><div class="ic">🏠 → 185.199.108.153</div></div>
+<div data-only="2"><b class="h aaaa">AAAA：新式地址</b><p>一樣是 IP 位址，只是新版的 IPv6，比較長。有就一起設，沒有也能用。</p></div>
+<div data-only="3"><b class="h cname">CNAME：別名</b><p>「www 的地址，去問 xiaosen-dev.github.io」。像說「我住在他家」，對方搬家你不用改。</p><div class="ic">www ➜ xiaosen-dev.github.io ➜ IP</div></div>
+<div data-only="4"><b class="h mx">MX：收信的郵局</b><p>寄到 <span class="mono">@xiaosen-bakery.com</span> 的信，要送去哪台郵件主機。前面的數字是優先順序，越小越先。</p><div class="ic">✉️ → mx1.mail.example</div></div>
+<div data-only="5"><b class="h txt">TXT：貼在門上的告示</b><p>一段文字，給其他服務看的。常用來證明「這個網域是我的」，或聲明誰可以替你寄信（SPF）。</p></div>
+<div data-only="6"><b class="h">TTL：記住多久</b><p>別人查到答案後可以<b>記住幾秒</b>。3600 秒＝1 小時：一小時內不會再來問。改紀錄前把 TTL 調小，改完別人比較快看到。</p><div class="ic">⏱ 3600 秒 ＝ 1 小時</div></div>
+</div></div>
+</div></body></html>

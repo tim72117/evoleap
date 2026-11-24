@@ -1,0 +1,104 @@
+{
+  "title": "AI 碰不到的頁面：操作步驟與回報",
+  "lesson": "全環節 · 單元 28 · 28.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "你動手，AI 看截圖",
+    "line": "今天設定金流後台的付款通知。這個後台沒有 API，只能你點。AI 寫好步驟，你每做一步就截圖回報，由它判斷下一步、找出設定錯誤。"
+  },
+  "blocking": { "cast": ["claude", "pay"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "設定付款通知", "folder": "~/projects/komori-bakery", "branch": null, "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "pay": { "actor": "browser", "props": { "site": "fc28-4-dashboard", "width": "desktop", "url": "https://dashboard.pay.example/developers/webhooks" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "AI 碰不到的頁面：操作步驟與回報",
+      "eyebrow": "全環節 · 單元 28 · 28.4 用 AI 完成",
+      "sub": "AI 寫步驟 → 你做一步、截一張圖 → AI 判斷",
+      "chapter": "請 AI 寫步驟",
+      "narration": "任務：客人付款成功時，金流要通知我們的網站。這個通知叫 webhook，就是對方的系統主動打給你的網址。設定只能在金流的網頁後台做。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "我要在金流後台設定 webhook，付款成功時通知網站。後台沒有 API，我來操作。請先看程式裡接收通知的網址是什麼，再寫逐步操作給我。我每做一步會截圖給你。",
+      "narration": "請它先看程式，知道網站在哪個網址接通知，再寫步驟。"
+    },
+    { "on": "claude", "tool": "Grep", "arg": "webhooks", "result": "1 個檔案", "out": "src/pages/api/webhooks/pay.js", "narration": "它先在程式裡找到接收通知的地方。" },
+    {
+      "on": "claude",
+      "todos": [
+        ["左側選「開發者 › Webhook」，截圖", "doing"],
+        ["環境切到「正式」（右上角要是綠色的正式模式）", "pending"],
+        ["新增端點：https://komori-bakery.example/api/webhooks/pay，事件 payment.succeeded", "pending"],
+        ["儲存後，簽章密鑰自己貼進 .env 的 PAY_WEBHOOK_SECRET", "pending"],
+        ["按「傳送測試事件」，截圖結果", "pending"]
+      ],
+      "narration": "五個步驟。每一步寫清楚要點哪裡、要看到什麼。"
+    },
+    { "show": "pay", "chapter": "第 1 步：截圖回報", "narration": "打開金流後台，到開發者的 Webhook 頁面。截一張圖給 AI。" },
+    { "on": "claude", "user": "［截圖］到 Webhook 頁了，還沒有端點" },
+    {
+      "on": "claude",
+      "say": "看到了。注意右上角是黃色的「測試模式」：在這裡加的端點，收不到真的付款。請先點上方的「正式」，右上角變成綠色再繼續。",
+      "narration": "AI 從截圖看到你沒注意的地方：現在是測試模式。"
+    },
+    { "on": "pay", "click": "#env-live", "chapter": "第 2、3 步", "narration": "切到正式。右上角變綠了。" },
+    { "on": "pay", "click": "#add" },
+    { "on": "pay", "fill": { "#url": "https://komori-bakery.example/api/webhook/pay", "#ev": "payment.succeeded" }, "narration": "填網址、選事件。這裡你不小心少打了一個字母。" },
+    { "on": "pay", "click": "#save" },
+    {
+      "card": "簽章密鑰：自己貼進 .env",
+      "eyebrow": "你自己來",
+      "sub": "用來確認通知真的是金流寄的；不要貼到對話裡",
+      "chapter": "第 4 步：密鑰你保管",
+      "narration": "儲存後出現一把簽章密鑰，網站用它確認通知真的是金流寄來的。按顯示、複製，自己貼進 .env。截圖時要把它遮住。"
+    },
+    { "on": "pay", "click": "#send", "chapter": "第 5 步：測試，發現錯誤", "narration": "按傳送測試事件。" },
+    { "callout": "pay:sel:#tres", "text": "404：網站找不到這個網址", "narration": "結果是 404，網站找不到這個網址。" },
+    { "on": "claude", "user": "［截圖，密鑰已遮住］測試事件回 404" },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "say": "找到了：截圖裡的網址是 `/api/webhook/pay`，少了一個 **s**。程式裡是 `/api/webhooks/pay`。請按「新增端點」重新填正確的網址儲存（舊的會被取代），再傳一次測試事件。",
+      "narration": "AI 把截圖裡的網址和程式比對，一眼找出少了一個 s。"
+    },
+    { "on": "pay", "click": "#add" },
+    { "on": "pay", "fill": { "#url": "https://komori-bakery.example/api/webhooks/pay" } },
+    { "on": "pay", "click": "#save" },
+    { "on": "pay", "click": "#send" },
+    { "callout": "pay:sel:#tres", "text": "200 OK：網站收到了", "narration": "這次是 200，網站收到了。" },
+    { "on": "claude", "user": "［截圖］200 OK" },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud logging read 'webhooks/pay' --limit 1", "result": "完成", "out": "POST /api/webhooks/pay 200 · 簽章驗證通過 · event=payment.succeeded (test)", "narration": "它也從網站這一邊查記錄：收到了，簽章也驗證通過，代表你貼的密鑰正確。" },
+    {
+      "on": "claude",
+      "user": "幫我把這次的步驟整理成文件，下次換網址或新增事件時可以照做。",
+      "chapter": "留下可以重複用的步驟"
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "docs/steps-payment-webhook.md",
+      "result": "已建立",
+      "narration": "它把五個步驟、每一步該看到的畫面，還有今天踩到的兩個雷，寫進文件。"
+    },
+    { "on": "claude", "say": "已寫進 `docs/steps-payment-webhook.md`：\n- 5 個步驟與每步應該看到的畫面\n- 常見錯誤：還在測試模式、網址少了 s\n- 驗證方法：測試事件回 200，並查網站記錄" },
+    {
+      "checkpoint": "換你試試",
+      "body": "找一個沒有 API、只能在網頁上設定的後台。請 AI 先看程式、寫出逐步操作。你每做一步就截圖（遮住密鑰與個資）回報，讓它判斷下一步。最後請它整理成可以重複用的文件。"
+    },
+    {
+      "card": "AI 先看程式，再寫步驟\n你做一步、截一張圖\n錯誤交給 AI 比對\n最後整理成文件",
+      "eyebrow": "學會",
+      "sub": "密鑰自己保管，截圖前先遮住",
+      "chapter": "學會",
+      "narration": "AI 先看程式再寫步驟，你做一步截一張圖，錯誤交給它比對，最後整理成文件，下次照做。密鑰自己保管，截圖前先遮住。"
+    }
+  ]
+}

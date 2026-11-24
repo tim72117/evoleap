@@ -1,0 +1,121 @@
+{
+  "title": "資料夾就是給 AI 的地圖",
+  "lesson": "全環節 · 單元 7 · 7.1 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天看結構怎麼影響 AI",
+    "line": "今天要來看，為什麼同樣一句話，在亂放的專案裡 AI 常常改錯檔，在整理好的專案裡卻一次就改對。答案是：資料夾和檔名，就是 AI 的地圖。"
+  },
+  "blocking": { "cast": ["messy", "search", "tidy"], "shot": "depth" },
+  "cast": {
+    "messy": {
+      "actor": "finder",
+      "props": {
+        "tree": { "profile": { "final.html": "", "final2.html": "", "final2-改.html": "", "page3.html": "", "main.js": "", "test.js": "", "untitled.js": "", "style-old.css": "", "新增資料夾": { "index copy.html": "", "a.html": "" } } },
+        "open": "profile"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "search": {
+      "actor": "browser",
+      "props": { "site": "fc7-1-search", "width": "desktop", "url": "https://diagram.example/ai-search" },
+      "place": "window",
+      "hidden": true
+    },
+    "tidy": {
+      "actor": "finder",
+      "props": {
+        "tree": { "profile": { "src": { "pages": { "home.html": "", "about.html": "", "works.html": "" }, "styles": { "base.css": "" }, "scripts": { "hello.js": "" } }, "README.md": "", "package.json": "" } },
+        "open": "profile"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "資料夾就是給 AI 的地圖",
+      "eyebrow": "全環節 · 單元 7 · 7.1 基礎知識",
+      "sub": "結構清楚，AI 找得快、改得準",
+      "chapter": "一個亂放的專案",
+      "narration": "AI 程式助手每次接到任務，第一件事是找：要改的東西在哪個檔案。它沒有記憶，每次都是看資料夾和檔名重新找起。"
+    },
+    {
+      "show": "messy",
+      "narration": "這是一個很常見的專案資料夾。final、final2、final2 改，還有一個新增資料夾，裡面是 index copy。"
+    },
+    { "on": "messy", "highlight": "final2-改.html", "narration": "哪一個才是正在用的「關於我」頁面？連你自己都要想一下。" },
+    {
+      "show": "search",
+      "chapter": "AI 怎麼找檔案",
+      "narration": "我們對 AI 說：把「關於我」那一頁的標題改大一點。看看它在兩種專案裡怎麼找。"
+    },
+    {
+      "on": "search",
+      "click": "#run-messy",
+      "narration": "在亂放的專案裡，檔名看不出內容，它只好一個一個打開來讀。讀了九個檔案，才猜是 final2 改。可是 final2 要不要一起改？它不確定，可能改錯、也可能兩個都改。"
+    },
+    {
+      "on": "search",
+      "click": "#run-tidy",
+      "narration": "在整理好的專案裡，src 底下的 pages 資料夾放頁面，裡面有一個 about。讀一個檔案，就能動手。"
+    },
+    {
+      "callout": "search:section:tidy",
+      "text": "看名字就知道放什麼，AI 不用猜",
+      "narration": "差別不在 AI 聰不聰明，而在地圖清不清楚。"
+    },
+    {
+      "show": "tidy",
+      "chapter": "好地圖的三個特徵",
+      "narration": "仔細看這個整理好的專案。"
+    },
+    { "on": "tidy", "open": "src", "narration": "第一，按用途分資料夾：pages 放頁面、styles 放樣式、scripts 放程式。" },
+    { "on": "tidy", "open": "pages", "narration": "第二，檔名說出內容：home、about、works，一看就知道是哪一頁。沒有 final、沒有 copy、沒有 2。" },
+    { "on": "tidy", "highlight": "about.html" },
+    { "on": "tidy", "open": "../..", "narration": "第三，最上層有一份 README，說明這個專案是什麼、資料夾怎麼分。AI 和新來的人都會先讀它。" },
+    { "on": "tidy", "highlight": "README.md" },
+    {
+      "card": "✕ final2-改.html\n✕ 新增資料夾/\n✕ test.js（其實是正式的程式）\n✓ src/pages/about.html",
+      "eyebrow": "名字就是說明",
+      "sub": "舊版本交給 Git，不要靠複製檔案保存",
+      "chapter": "舊版本交給 Git",
+      "narration": "為什麼會出現 final2 改？因為怕改壞，先複製一份。現在你有 Git 了，舊版本交給 commit 保存，資料夾裡只留現在在用的那一份。"
+    },
+    {
+      "checkpoint": "哪一個檔名，最能幫 AI 一次找到「訂購表單」的程式？",
+      "body": "選一個。",
+      "id": "naming",
+      "options": [
+        {
+          "label": "src/scripts/order-form.js",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "資料夾說用途，檔名說內容", "narration": "答對了。資料夾說明用途，檔名說明內容，AI 不用打開就知道。" }
+          ]
+        },
+        {
+          "label": "new.js",
+          "steps": [
+            { "card": "再想想", "eyebrow": "考考你", "sub": "new 是什麼？下個月它就不新了", "narration": "new 是什麼？下個月它就不新了，AI 只能打開來讀。" },
+            { "card": "答案：src/scripts/order-form.js", "eyebrow": "考考你", "sub": "資料夾說用途，檔名說內容", "narration": "答案是 src scripts order form 點 js。" }
+          ]
+        },
+        {
+          "label": "final2.js",
+          "steps": [
+            { "card": "再想想", "eyebrow": "考考你", "sub": "final2 只說明「這是第二個最終版」", "narration": "final2 只說明這是第二個最終版，看不出做什麼。" },
+            { "card": "答案：src/scripts/order-form.js", "eyebrow": "考考你", "sub": "資料夾說用途，檔名說內容", "narration": "答案是 src scripts order form 點 js。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "按用途分資料夾\n檔名說出內容\nREADME 說明怎麼分",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 列出目錄樹與用途，標出放錯位置的檔案",
+      "chapter": "學會",
+      "narration": "按用途分資料夾，檔名說出內容，README 說明怎麼分。地圖清楚，AI 找得快、改得準。下一堂，我們請 AI 幫你畫出專案的地圖。"
+    }
+  ]
+}

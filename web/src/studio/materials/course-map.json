@@ -512,6 +512,13 @@
           "segments": []
         },
         {
+          "id": "vibe-coding/6-4",
+          "code": "6.4",
+          "title": "讓 AI 連上瀏覽器開發者工具",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
           "id": "vibe-coding/7-1",
           "code": "7.1",
           "title": "用 AI 做出個人介紹頁",
@@ -718,6 +725,34 @@
           "id": "vibe-coding/14-4",
           "code": "14.4",
           "title": "小步修改，把規則寫給 AI",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/15-1",
+          "code": "15.1",
+          "title": "建立 Meta 開發者 App，取得粉專權杖",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/15-2",
+          "code": "15.2",
+          "title": "第一次用程式發文",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/15-3",
+          "code": "15.3",
+          "title": "讓 AI 起草，人核准後才發",
+          "from": "vibe-coding",
+          "segments": []
+        },
+        {
+          "id": "vibe-coding/15-4",
+          "code": "15.4",
+          "title": "排程自動發文，失敗會通知",
           "from": "vibe-coding",
           "segments": []
         }

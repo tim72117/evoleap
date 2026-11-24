@@ -1,0 +1,83 @@
+{
+  "title": "先彩排再上台：測試模式與測試卡號",
+  "lesson": "全環節 · 單元 11 · 11.2 基礎知識",
+  "teacher": {
+    "say": "今天用假錢練習付款",
+    "line": "今天我們看金流服務的測試模式：用假的錢、假的卡號，把付款流程從頭到尾練一遍，確定都對了，才換成真的錢。"
+  },
+  "cast": {
+    "dash": {
+      "actor": "browser",
+      "props": { "site": "fc11-2-dash", "url": "https://dashboard.pay.example/developers" },
+      "place": "window",
+      "hidden": true
+    },
+    "shop": {
+      "actor": "browser",
+      "props": { "site": "fc11-2-checkout", "url": "http://localhost:5173/checkout" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "先彩排，再上台",
+      "eyebrow": "全環節 · 單元 11 · 11.2 基礎知識",
+      "sub": "測試模式與正式模式、測試卡號",
+      "chapter": "兩種模式",
+      "narration": "表演之前要彩排。付款也一樣：金流服務都有一個測試模式，讓你用假的錢把流程走一遍。"
+    },
+    { "show": "dash", "narration": "這是金流服務的後台。右上角有一個開關，現在是測試模式，上面一條橘色的提醒。" },
+    { "callout": "dash:sel:.keys", "text": "測試金鑰：開頭是 test", "narration": "測試模式有自己的一組金鑰，開頭寫著 test。公開金鑰放在網頁，密鑰只放伺服器，跟之前學的一樣。" },
+    { "on": "dash", "click": "#mode", "narration": "切到正式模式看看。" },
+    { "callout": "dash:sel:#live", "text": "正式模式：真的錢，金鑰開頭是 live", "narration": "正式模式是真的錢，金鑰開頭變成 live，而且要等商家審核通過才會有。兩套金鑰、兩套資料，完全分開。" },
+    { "on": "dash", "click": "#mode", "narration": "切回測試模式。開發的時候，一律用測試模式。" },
+    { "hide": "dash" },
+    {
+      "show": "shop",
+      "chapter": "測試卡號",
+      "narration": "接著在你的網站結帳。上方的條紋提醒，這是測試模式。"
+    },
+    {
+      "on": "shop",
+      "fill": { "#card": "4000 0000 0000 0002", "#exp": "12 / 30", "#cvc": "123" },
+      "narration": "測試模式不能用真的卡，要用金流服務公布的測試卡號。不同的號碼會模擬不同的結果，像這一張，模擬「銀行拒絕」。"
+    },
+    { "on": "shop", "click": "#pay" },
+    { "callout": "shop:sel:#msg", "text": "模擬被拒絕：確認你的網站會好好告訴客人", "narration": "被拒絕了。這正好讓你檢查：網站有沒有好好告訴客人發生什麼事，而不是當掉或顯示一堆程式碼。" },
+    {
+      "on": "shop",
+      "fill": { "#card": "4242 4242 4242 4242" },
+      "narration": "換成模擬「付款成功」的測試卡號。到期日填未來任何一天，安全碼隨便三碼。"
+    },
+    { "on": "shop", "click": "#pay" },
+    { "callout": "shop:sel:#done", "text": "測試付款成功：訂單狀態變成 paid", "narration": "付款成功，訂單狀態變成已付款。整個流程都走過了，但沒有任何一塊錢真的被扣。" },
+    { "hide": "shop" },
+    { "show": "dash", "focus": false, "narration": "回到後台的測試模式，剛剛的兩筆都在：一筆成功、一筆被拒絕。" },
+    { "callout": "dash:sel:table", "text": "測試資料只在測試模式看得到", "narration": "這些紀錄只存在測試模式，不會跟真的帳混在一起。" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "網站上線了，可是結帳一直失敗，後台也看不到付款。最可能是哪裡沒換？",
+      "body": "選一個。",
+      "id": "livekey",
+      "options": [
+        {
+          "label": "還在用測試金鑰",
+          "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "上線時要換成 live 金鑰，而且要在正式模式的後台查看", "narration": "答對了。很常見：正式網站還在用測試金鑰，或者你在測試模式的後台找正式的付款。上線時，金鑰和後台都要換成正式模式。" }]
+        },
+        {
+          "label": "客人的卡有問題",
+          "steps": [{ "card": "每一筆都失敗，通常是設定", "eyebrow": "再想想", "sub": "先檢查是不是還在用 test 開頭的金鑰", "narration": "每一筆都失敗，通常是設定問題，不是客人。先檢查正式網站是不是還在用 test 開頭的金鑰。" }]
+        }
+      ]
+    },
+    { "hide": "dash" },
+    {
+      "card": "測試模式：假錢、測試卡號、test 金鑰\n正式模式：真錢、live 金鑰",
+      "eyebrow": "學會",
+      "sub": "不同的測試卡號模擬成功、拒絕等結果；兩種模式的資料完全分開",
+      "chapter": "學會",
+      "narration": "今天的重點：開發一律用測試模式，用測試卡號把成功和失敗都試過；上線時才換成正式金鑰。下一堂，你自己申請商家帳號，串接和測試付款交給 AI。"
+    }
+  ]
+}

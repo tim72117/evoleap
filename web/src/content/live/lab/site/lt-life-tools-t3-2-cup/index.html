@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>紙杯抽籤</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="tabs"><button class="tab" data-go="1">抽一張</button><button class="tab" data-go="2">忘了拿出來</button><button class="tab" data-go="3">又抽到他</button><button class="tab" data-go="4">工具的做法</button></div>
+  <div class="scene">
+    <div class="cupwrap">
+      <svg class="cup" viewBox="0 0 300 300" aria-hidden="true">
+        <path d="M40 60 L260 60 L230 290 L70 290 Z" fill="#f4efe6" stroke="#b9a98f" stroke-width="5"/>
+        <ellipse cx="150" cy="60" rx="110" ry="18" fill="#e9e0cf" stroke="#b9a98f" stroke-width="5"/>
+        <g fill="#fffdf6" stroke="#cdbf9e" stroke-width="2">
+          <rect x="80" y="30" width="44" height="34" rx="4" transform="rotate(-14 102 47)"/>
+          <rect x="120" y="22" width="44" height="34" rx="4" transform="rotate(8 142 39)"/>
+          <rect x="165" y="30" width="44" height="34" rx="4" transform="rotate(-6 187 47)"/>
+          <rect x="100" y="40" width="44" height="34" rx="4" transform="rotate(18 122 57)"/>
+          <rect x="150" y="42" width="44" height="34" rx="4" transform="rotate(-20 172 59)"/>
+        </g>
+      </svg>
+      <div class="cap">紙杯裡 12 張紙條</div>
+    </div>
+    <div class="slip s1 r1">林家豪</div>
+    <div class="say r1 a">🎁 第 1 份禮物：林家豪</div>
+    <div class="back r2">紙條<br>放回杯子了 ↩</div>
+    <div class="say r3 b">🎁 第 2 份禮物：又是林家豪！</div>
+    <div class="crowd r3">台下：「又是他！」😆</div>
+  </div>
+  <div class="tool r4">
+    <div class="col"><div class="ct">還沒抽（11 人）</div><div class="chips"><i>陳怡君</i><i>王佩珊</i><i>張志明</i><i>李欣怡</i><i>黃俊傑</i><i>吳雅雯</i><i>劉建宏</i><i>蔡淑芬</i><i>楊宗翰</i><i>許雅筑</i><i>鄭文彬</i></div></div>
+    <div class="mv">抽中的<br>移到這邊 ⟶</div>
+    <div class="col hit"><div class="ct">已抽中</div><div class="chips"><i>林家豪</i></div></div>
+    <div class="rule">下一次只從「還沒抽」裡抽，<b>不會再抽到同一個人</b></div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

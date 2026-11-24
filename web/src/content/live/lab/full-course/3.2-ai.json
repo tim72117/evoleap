@@ -1,0 +1,183 @@
+{
+  "title": "Git 與 GitHub：程式的存檔點",
+  "camera": "auto",
+  "teacher": {
+    "say": "push 一次，再退回一次",
+    "line": "這一堂請 AI 設定 Git、把 hello 建成 repository 並 push 到 GitHub。接著故意改壞，再請它退回上一版。GitHub 的註冊和授權，你自己來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "hello 上 GitHub", "folder": "~/projects/hello", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~/projects/hello", "title": "你自己的終端機" },
+      "place": { "x": 30, "y": 180, "w": 900, "h": 640 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc3-2-device", "url": "https://github.com/login/device" },
+      "place": { "x": 960, "y": 140, "w": 930, "h": 760 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "push 一次，再退回一次",
+      "eyebrow": "全環節 · 單元 3 · 3.2 用 AI 完成",
+      "sub": "註冊 GitHub、登入授權：你自己來",
+      "chapter": "你先做的事",
+      "narration": "開始前，你要先在 GitHub 網站註冊一個帳號。註冊、設定密碼、驗證信箱，都由你自己完成。"
+    },
+    { "show": "claude", "chapter": "設定 Git" },
+    {
+      "on": "claude",
+      "user": "我已經註冊好 GitHub（帳號 xiaoan）。幫我設定 Git 的名字和信箱，把這個資料夾建成 repository，在 GitHub 建一個私人 repo 並 push。登入授權我自己來。"
+    },
+    {
+      "on": "claude",
+      "ask": "git config --global user.name \"Xiao An\" && git config --global user.email \"xiaoan@users.noreply.github.com\"",
+      "where": "~/projects/hello",
+      "narration": "第一步，告訴 Git 你是誰。每個存檔點都會記上這個名字和信箱。這裡用 GitHub 提供的不公開信箱，避免你的真實信箱被看到。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh auth status",
+      "out": "You are not logged into any GitHub hosts. To log in, run: gh auth login",
+      "chapter": "授權：你自己按",
+      "narration": "接著它檢查有沒有登入 GitHub。還沒有。"
+    },
+    {
+      "on": "claude",
+      "say": "還沒登入 GitHub。請在**你自己的終端機**執行 `gh auth login --web`，它會給你一組代碼，在瀏覽器輸入後按授權。完成後告訴我。",
+      "narration": "登入要在瀏覽器裡按授權，這是你的事。它告訴你怎麼開始。"
+    },
+    { "hide": "claude" },
+    { "show": "term" },
+    {
+      "on": "term",
+      "type": "gh auth login --web",
+      "out": "! First copy your one-time code: 7F3A-91KD\nPress Enter to open github.com in your browser...",
+      "narration": "終端機給你一組一次性的代碼，按 Enter 打開瀏覽器。"
+    },
+    { "show": "web" },
+    {
+      "on": "web",
+      "fill": { "#code": "7F3A-91KD" },
+      "narration": "在 GitHub 的頁面輸入代碼。"
+    },
+    { "on": "web", "click": "#next" },
+    {
+      "callout": "web:sel:.perm",
+      "text": "先看它要什麼權限，再按授權",
+      "narration": "授權之前，看清楚它要什麼權限：讀寫你的 repository、建立 Issues，這門課都會用到。"
+    },
+    { "on": "web", "click": "#auth", "narration": "你自己按下授權。" },
+    {
+      "on": "term",
+      "print": "✓ Authentication complete.\n✓ Logged in as xiaoan",
+      "tone": "ok",
+      "narration": "終端機顯示登入成功。"
+    },
+    { "hide": "web" },
+    { "hide": "term" },
+    { "show": "claude" },
+    { "on": "claude", "user": "授權好了。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh auth status",
+      "out": "✓ Logged in to github.com account xiaoan",
+      "chapter": "建 repo、push",
+      "narration": "它自己確認一次，真的登入了才往下做。"
+    },
+    {
+      "on": "claude",
+      "ask": "git init && git add . && git commit -m \"第一版：hello 頁\"",
+      "where": "~/projects/hello",
+      "select": 1,
+      "narration": "建立 repository，把所有檔案存成第一個存檔點。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git init && git add . && git commit -m \"第一版：hello 頁\"",
+      "out": "Initialized empty Git repository in /Users/you/projects/hello/.git/\n[main (root-commit) a1b2c3d] 第一版：hello 頁\n 2 files changed, 18 insertions(+)"
+    },
+    {
+      "on": "claude",
+      "ask": "gh repo create hello --private --source=. --push",
+      "where": "~/projects/hello",
+      "select": 1,
+      "narration": "在 GitHub 建一個私人的 repository，同時 push 上去。私人的意思是只有你看得到。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gh repo create hello --private --source=. --push",
+      "out": "✓ Created repository xiaoan/hello on github.com\n✓ Added remote https://github.com/xiaoan/hello.git\n✓ Pushed commits to https://github.com/xiaoan/hello.git"
+    },
+    {
+      "on": "claude",
+      "say": "push 成功 ✓ 私人 repo：`github.com/xiaoan/hello`。"
+    },
+    {
+      "on": "claude",
+      "user": "我想練習退回：先故意把標題刪掉並 commit，再請你退回上一版。",
+      "chapter": "故意改壞，再退回",
+      "narration": "接下來練習最重要的一招：改壞了怎麼退回。我們故意弄壞它。"
+    },
+    {
+      "on": "claude",
+      "edit": "hello.html",
+      "lines": [[2, "-", "<h1>Hello！我是小安</h1>"]]
+    },
+    {
+      "on": "claude",
+      "ask": "git commit -am \"刪掉標題（故意改壞）\"",
+      "where": "~/projects/hello",
+      "select": 1
+    },
+    { "on": "claude", "user": "好，現在退回上一版，也同步到 GitHub。" },
+    {
+      "on": "claude",
+      "ask": "git revert --no-edit HEAD && git push",
+      "where": "~/projects/hello",
+      "note": "revert 會新增一個「反向」的存檔點，不刪掉歷史",
+      "narration": "它用 git revert：做一個「反向」的存檔點，把剛才的修改抵銷掉。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log --oneline",
+      "out": "9c8d7e6 Revert \"刪掉標題（故意改壞）\"\n5e4f3a2 刪掉標題（故意改壞）\na1b2c3d 第一版：hello 頁",
+      "narration": "看紀錄：三個存檔點。第一版、改壞的那次，還有退回。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "退回也是一個存檔點，歷史都還在",
+      "narration": "退回不是把歷史擦掉，而是往前多記一筆。哪天想知道當初改壞了什麼，還查得到。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- push 到 `github.com/xiaoan/hello`\n- 刪標題的修改已用 revert 退回，`hello.html` 標題恢復\n- GitHub 上也同步了"
+    },
+    {
+      "checkpoint": "換你：push 一次，再退回一次",
+      "body": "自己註冊 GitHub。請 AI 設定 Git、建 repository、建私人 repo 並 push；要授權時，自己在終端機跑 gh auth login --web、在瀏覽器輸入代碼並按授權。然後故意改壞一處並 commit，再請它用 git revert 退回。"
+    },
+    {
+      "card": "push 成功並退回一次版本 ✓",
+      "eyebrow": "3.2 完成",
+      "sub": "下一堂：瀏覽器開發者工具",
+      "narration": "你的程式有存檔點，也上了雲端。下一堂，認識瀏覽器的開發者工具。"
+    }
+  ]
+}

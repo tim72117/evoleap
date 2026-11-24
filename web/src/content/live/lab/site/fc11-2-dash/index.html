@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>金流後台</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="pg" id="pg" style="--brand:#0f766e">
+<header class="top"><div class="logo"><i></i>金流後台</div><span class="sp"></span><button class="mode" id="mode"><span class="sw"><i></i></span><span id="mlabel">測試模式</span></button><span class="who">小森烘焙 ▾</span></header>
+<div class="banner" id="banner">你正在看測試資料。這裡的付款都不是真的錢。</div>
+<div class="app">
+  <nav class="side"><a>總覽</a><a class="on">開發者 · 金鑰</a><a>付款紀錄</a><a>Webhook</a></nav>
+  <main class="main">
+    <h1>API 金鑰</h1>
+    <div class="card keys">
+      <div class="kv"><span>公開金鑰（放在網頁）</span><b class="mono" id="pk">pk_test_51Nx…a8Qd</b></div>
+      <div class="kv"><span>密鑰（只放伺服器）</span><b class="mono" id="sk">sk_test_••••••••••••••••7Rk2</b></div>
+    </div>
+    <h2 style="margin-top:18px">最近的付款</h2>
+    <div class="card"><table><tr><th>時間</th><th>金額</th><th>狀態</th><th>卡號</th></tr><tr><td>11/09 14:02</td><td>NT$ 65</td><td><span class="tag ok">成功</span></td><td class="mono">•••• 4242</td></tr><tr><td>11/09 14:01</td><td>NT$ 65</td><td><span class="tag bad">被拒絕</span></td><td class="mono">•••• 0002</td></tr></table></div>
+    <div class="note live hide" id="live">正式模式：這裡的付款都是真的錢。正式金鑰要等商家審核通過才會出現。</div>
+  </main>
+</div>
+</div>
+</body></html>

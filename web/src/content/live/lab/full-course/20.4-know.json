@@ -1,0 +1,147 @@
+{
+  "title": "新版壞了，一鍵切回去",
+  "lesson": "全環節 · 單元 20 · 20.4 基礎知識",
+  "teacher": {
+    "say": "今天學退版",
+    "line": "測試再完整，新版上線後還是可能出問題。這一課來看雲端怎麼保存每一個版本、怎麼切換流量，出事時怎麼一下子退回去。"
+  },
+  "cast": {
+    "phone": {
+      "actor": "chat",
+      "props": { "title": "小森烘焙 客服" },
+      "place": { "x": 680, "y": 110, "w": 560, "h": 860 },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "Cloud Run：shop 服務",
+        "nodes": [
+          { "id": "users", "label": "客人", "icon": "👥", "shape": "person", "x": 10, "y": 50, "w": 7 },
+          { "id": "svc", "label": "shop 服務網址", "sub": "決定流量去哪個版本", "icon": "🔀", "x": 36, "y": 50, "w": 10 },
+          { "id": "r12", "label": "shop-00012", "sub": "v1.0.2 · 正常", "icon": "📦", "x": 74, "y": 26, "w": 11, "tone": "ok" },
+          { "id": "r13", "label": "shop-00013", "sub": "v1.1.0 · 剛部署", "icon": "📦", "x": 74, "y": 74, "w": 11, "hidden": true }
+        ],
+        "edges": [
+          { "from": "users", "to": "svc" },
+          { "from": "svc", "to": "r12", "label": "100%" },
+          { "from": "svc", "to": "r13", "label": "0%", "hidden": true }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "show": "phone",
+      "chapter": "週五晚上的訊息",
+      "narration": "週五晚上，你剛發了新版 v1.1.0，客服開始收到訊息。"
+    },
+    { "on": "phone", "receive": "結帳按了沒反應耶？", "from": "客人 A" },
+    { "on": "phone", "receive": "我也是，一直轉圈圈", "from": "客人 B" },
+    {
+      "on": "phone",
+      "receive": "請問今天還能訂嗎？",
+      "from": "客人 C",
+      "narration": "訊息越來越多。這時候你最該做的，不是趕快找哪裡寫錯，而是先讓客人能結帳。"
+    },
+    { "hide": "phone" },
+    {
+      "card": "新版壞了，一鍵切回去",
+      "eyebrow": "全環節 · 單元 20 · 20.4 基礎知識",
+      "sub": "版本 · 流量切換 · 退版",
+      "narration": "做法叫退版：先退回上一個正常的版本，再慢慢修。要懂退版，先懂兩件事：版本和流量。"
+    },
+    {
+      "show": "flow",
+      "chapter": "版本：每次部署都留一份",
+      "narration": "這是你的網站在雲端的樣子。客人連到服務網址，服務再把他們送到某一個版本。"
+    },
+    {
+      "callout": "flow:node:r12",
+      "text": "版本（revision）：一次部署 = 一份完整、不會被改的版本",
+      "narration": "每部署一次，雲端就保存一份完整的版本，有自己的編號，像 shop 零零零一二。舊的不會被覆蓋。"
+    },
+    { "send": "users>svc", "label": "連上網站" },
+    { "send": "svc>r12", "label": "100%", "tone": "ok", "narration": "現在百分之百的流量，都送到 00012。" },
+    {
+      "appear": ["r13", "svc>r13"],
+      "chapter": "流量：決定客人去哪一版",
+      "narration": "你部署了新版，雲端多了一個版本 00013。"
+    },
+    { "light": "svc>r13", "tone": "on", "label": "100%" },
+    {
+      "light": "svc>r12",
+      "tone": "dim",
+      "label": "0%",
+      "narration": "部署完成時，流量切到新版：00013 百分之百，舊版變成零。舊版沒有被刪掉，只是暫時沒有客人。"
+    },
+    { "send": "users>svc", "label": "結帳" },
+    { "send": "svc>r13", "label": "結帳" },
+    {
+      "light": "r13",
+      "tone": "bad",
+      "sub": "v1.1.0 · 結帳錯誤 500",
+      "narration": "新版的結帳壞了。這就是剛才那些訊息。"
+    },
+    {
+      "light": "svc>r12",
+      "tone": "ok",
+      "label": "100%",
+      "chapter": "退版：把流量切回去",
+      "narration": "退版很簡單：把流量切回 00012。"
+    },
+    {
+      "light": "svc>r13",
+      "tone": "dim",
+      "label": "0%",
+      "narration": "因為舊版一直都在，不用重新打包、不用重新部署，幾秒鐘就切好了。"
+    },
+    { "send": "users>svc", "label": "結帳" },
+    {
+      "send": "svc>r12",
+      "label": "結帳",
+      "tone": "ok",
+      "narration": "客人又能結帳了。"
+    },
+    {
+      "callout": "flow:node:r13",
+      "text": "壞掉的版本留著：之後查紀錄、找原因用",
+      "narration": "壞掉的 00013 也還在，只是沒有流量。等一下可以查它的紀錄，找出原因，修好再發一個新版本。"
+    },
+    {
+      "light": "svc>r13",
+      "tone": "warn",
+      "label": "10%",
+      "chapter": "加碼：先切一小部分",
+      "narration": "更小心的做法，是新版先只給百分之十的流量，"
+    },
+    {
+      "light": "svc>r12",
+      "tone": "ok",
+      "label": "90%",
+      "narration": "沒問題再慢慢加到百分之百。就算有問題，也只影響一小部分客人。"
+    },
+    { "hide": "flow" },
+    {
+      "shimmer": "先止血，再找原因",
+      "sub": "退版 → 確認恢復 → 查紀錄 → 修好再發版 → 寫事故紀錄",
+      "chapter": "出事時的順序",
+      "narration": "記住出事時的順序：先退版止血，確認恢復，再查原因、修好再發版。最後寫一份事故紀錄，下次才不會再犯。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "想一想",
+      "body": "退版時，要怎麼知道該切回哪一個版本？只看「上一個」就一定對嗎？",
+      "narration": "想一想：退版時，該切回哪一個版本？一定是上一個嗎？"
+    },
+    {
+      "card": "切回「最後一個正常的版本」",
+      "eyebrow": "答案",
+      "sub": "上一個版本可能也有問題；要看紀錄與錯誤率，找出最後一個確定正常的",
+      "narration": "不一定。上一個版本也可能有問題，要看紀錄和錯誤率，找最後一個確定正常的版本。下一堂，我們請 AI 來找。"
+    }
+  ]
+}

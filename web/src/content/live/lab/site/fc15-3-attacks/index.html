@@ -1,0 +1,32 @@
+<!doctype html><html><head><title>四種常見攻擊</title></head><body>
+<div class="app t1">
+  <div class="tabs"><button id="k1" data-t="1">XSS 塞程式</button><button id="k2" data-t="2">SQL 注入</button><button id="k3" data-t="3">CSRF 借刀</button><button id="k4" data-t="4">暴力登入</button></div>
+  <div class="stage">
+    <div class="p p1" id="p1">
+      <div class="col"><h4>壞人在留言區留下</h4><div class="cm bad">很好吃！<code>&lt;script&gt;把看的人的登入資訊寄給我&lt;/script&gt;</code></div><div class="cm">我也推薦薰衣草款</div></div>
+      <div class="arrowx">→</div>
+      <div class="col"><h4>每個打開這頁的客人</h4><div class="users"><span>🙂</span><span>🙂</span><span>🙂</span><span>🙂</span></div><p class="red">留言被當成程式執行，登入資訊被偷走</p></div>
+      <div class="guard">防護：留言一律當成「文字」顯示，不當成程式（跳脫特殊符號）</div>
+    </div>
+    <div class="p p2" id="p2">
+      <div class="col"><h4>登入框</h4><div class="field">Email：<code>' OR '1'='1</code></div><div class="field">密碼：<code>隨便打</code></div></div>
+      <div class="arrowx">→</div>
+      <div class="col"><h4>程式把輸入直接拼進查詢</h4><pre class="sql">SELECT * FROM users
+WHERE email = '<mark>' OR '1'='1</mark>'</pre><p class="red">「1 等於 1」永遠成立 → 用第一個帳號（管理員）登入了</p></div>
+      <div class="guard">防護：查詢用「參數」帶入輸入，輸入永遠只是資料，不會變成指令</div>
+    </div>
+    <div class="p p3" id="p3">
+      <div class="col"><h4>你登入了 shop.example，然後……</h4><div class="evil">😈 免費抽獎網站<br><small>頁面裡藏著一張看不見的表單：<br>「把 shop.example 的 Email 改成 bad@evil.example」</small></div></div>
+      <div class="arrowx">→</div>
+      <div class="col"><h4>你的瀏覽器自動帶著登入狀態送出</h4><div class="shopbox">shop.example：「是本人送的，照辦」<br><span class="red">帳號 Email 被改掉</span></div></div>
+      <div class="guard">防護：重要的表單附上一次性的 CSRF 權杖；登入狀態的 Cookie 設成 SameSite</div>
+    </div>
+    <div class="p p4" id="p4">
+      <div class="col"><h4>🤖 機器人一直試密碼</h4><div class="tries"><code>123456 ✗</code><code>password ✗</code><code>qwerty ✗</code><code>shop2026 ✗</code><code>iloveyou ✗</code><code>……每分鐘一萬次</code></div></div>
+      <div class="arrowx">→</div>
+      <div class="col"><h4>總有一次猜中</h4><p class="red">用簡單密碼的帳號，幾分鐘就被打開</p></div>
+      <div class="guard">防護：同一帳號或同一 IP 失敗太多次就暫停；提供兩步驟驗證</div>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>分享圖產生器</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>分享圖產生器<span class="sp"></span><span class="who">tools/share-maker</span></div>
+<div class="wrap row">
+ <div class="ctl card">
+  <label class="field"><span>標題</span><input id="title" value=""></label>
+  <label class="field"><span>副標</span><input id="sub" value=""></label>
+  <label class="field"><span>配色</span><select id="theme"><option value="warm">暖色</option><option value="dark">深色</option></select></label>
+  <button class="btn" id="export">輸出 4 張圖</button>
+  <div id="done" class="gone ok">✓ 已輸出到 out/：post-4x5.png、story-9x16.png、link-1200x630.png、square-1x1.png</div>
+ </div>
+ <div class="grid col" id="grid">
+  <div class="pv p45"><div class="pic"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" width="100%" height="100%"><rect width="100" height="100" fill="#f7e3c4"/><ellipse cx="50" cy="60" rx="34" ry="16" fill="#d4934f"/><ellipse cx="50" cy="55" rx="30" ry="12" fill="#e9b170"/></svg></div><div class="tx"><b class="t">標題</b><i class="s">副標</i></div><em>4:5</em></div>
+  <div class="pv p916"><div class="pic"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" width="100%" height="100%"><rect width="100" height="100" fill="#f7e3c4"/><ellipse cx="50" cy="60" rx="34" ry="16" fill="#d4934f"/><ellipse cx="50" cy="55" rx="30" ry="12" fill="#e9b170"/></svg></div><div class="tx"><b class="t">標題</b><i class="s">副標</i></div><em>9:16</em></div>
+  <div class="pv p191"><div class="pic"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" width="100%" height="100%"><rect width="100" height="100" fill="#f7e3c4"/><ellipse cx="50" cy="60" rx="34" ry="16" fill="#d4934f"/><ellipse cx="50" cy="55" rx="30" ry="12" fill="#e9b170"/></svg></div><div class="tx"><b class="t">標題</b><i class="s">副標</i></div><em>1.91:1</em></div>
+  <div class="pv p11"><div class="pic"><svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" width="100%" height="100%"><rect width="100" height="100" fill="#f7e3c4"/><ellipse cx="50" cy="60" rx="34" ry="16" fill="#d4934f"/><ellipse cx="50" cy="55" rx="30" ry="12" fill="#e9b170"/></svg></div><div class="tx"><b class="t">標題</b><i class="s">副標</i></div><em>1:1</em></div>
+ </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

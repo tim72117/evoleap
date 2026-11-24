@@ -1,0 +1,157 @@
+{
+  "title": "讓每個人都能用你的網頁",
+  "lesson": "全環節 · 單元 5 · 5.5 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天從別人的角度看網頁",
+    "line": "今天要換個角度，用四位訪客的眼睛來看你的網頁：看不到畫面的人、看不清楚淺色字的人、只能用鍵盤的人，還有看不懂中文的人。"
+  },
+  "cast": {
+    "ming": { "actor": "person", "props": { "name": "阿明", "look": "customer" }, "place": "center", "hidden": true },
+    "chen": { "actor": "person", "props": { "name": "陳阿姨", "look": "staff" }, "place": "center", "hidden": true },
+    "hua": { "actor": "person", "props": { "name": "小華", "look": "customer" }, "place": "center", "hidden": true },
+    "emma": { "actor": "person", "props": { "name": "Emma", "look": "customer" }, "place": "center", "hidden": true },
+    "diag": {
+      "actor": "browser",
+      "props": { "site": "fc5-5-a11y", "width": "desktop", "url": "https://diagram.example/everyone" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "讓每個人都能用你的網頁",
+      "eyebrow": "全環節 · 單元 5 · 5.5 基礎知識",
+      "sub": "替代文字、對比、鍵盤操作，以及語系檔",
+      "chapter": "看不到畫面的人",
+      "narration": "無障礙，意思是讓有不同限制的人，也都能使用你的網頁。我們先認識第一位訪客。"
+    },
+    {
+      "show": "ming",
+      "on": "ming",
+      "say": "我眼睛看不見，是用螢幕閱讀器「聽」網頁的。",
+      "mood": "calm",
+      "narration": "阿明看不到畫面。他用螢幕閱讀器，一種把網頁內容念出來的軟體。"
+    },
+    { "hide": "ming" },
+    { "show": "diag", "narration": "同一張照片，兩種寫法。" },
+    {
+      "on": "diag",
+      "click": "#say-bad",
+      "narration": "左邊的圖片只有檔名。螢幕閱讀器念出來的是：圖片，IMG 2034 點 jpg。阿明完全不知道這是什麼。"
+    },
+    {
+      "on": "diag",
+      "click": "#say-good",
+      "narration": "右邊多了 alt，也就是替代文字。念出來變成：林小安在廚房烤司康。"
+    },
+    {
+      "callout": "diag:section:alt",
+      "text": "alt：圖片看不到時，用來代替它的一句話",
+      "narration": "替代文字就是「看不到圖片時，用來代替它的一句話」。圖片沒載入的時候，畫面上也會顯示這句話。"
+    },
+    { "hide": "diag" },
+    {
+      "show": "chen",
+      "on": "chen",
+      "say": "那個淺灰色的字，我戴了老花眼鏡也看不清楚。",
+      "mood": "tired",
+      "chapter": "看不清楚淺色字的人",
+      "narration": "陳阿姨有老花，對顏色也比較不敏感。"
+    },
+    { "hide": "chen" },
+    { "show": "diag", "scroll": "contrast" },
+    {
+      "callout": "diag:section:contrast",
+      "text": "對比至少 4.5 : 1，淺灰字配白底通常不夠",
+      "narration": "字和背景的顏色要差得夠多，這叫對比。用一個比值來量，一般文字至少要 4.5 比 1。左邊的淺灰色只有 2 比 1，很多人看起來就是一片模糊。"
+    },
+    { "hide": "diag" },
+    {
+      "show": "hua",
+      "on": "hua",
+      "say": "我手受傷了，只能用鍵盤的 Tab 鍵一格一格跳。",
+      "mood": "worried",
+      "chapter": "只能用鍵盤的人",
+      "narration": "小華這陣子不能用滑鼠，只能按鍵盤。Tab 鍵每按一下，就跳到下一個可以按的東西。"
+    },
+    { "hide": "hua" },
+    { "show": "diag", "scroll": "keys" },
+    { "on": "diag", "click": "#tab", "narration": "按一下 Tab。" },
+    { "on": "diag", "click": "#tab", "narration": "再按一下。" },
+    {
+      "on": "diag",
+      "click": "#tab",
+      "narration": "上面那一排沒有焦點框，按了半天，根本不知道現在跳到哪裡。下面那一排有藍色的框，清清楚楚。"
+    },
+    {
+      "callout": "diag:section:keys",
+      "text": "焦點框：告訴鍵盤使用者「你現在在這裡」",
+      "narration": "這個框叫焦點框。有些網頁為了好看把它拿掉，對小華來說，就像在黑暗裡找路。"
+    },
+    { "hide": "diag" },
+    {
+      "show": "emma",
+      "on": "emma",
+      "say": "I'd love to join the baking class, but I can't read Chinese.",
+      "mood": "worried",
+      "chapter": "看不懂中文的人",
+      "narration": "最後一位是 Emma，她想報名烘焙課，可是看不懂中文。這時候需要多國語系，也就是同一個網頁可以切換語言。"
+    },
+    { "hide": "emma" },
+    { "show": "diag", "scroll": "i18n" },
+    {
+      "callout": "diag:sel:.tpl",
+      "text": "頁面裡不寫死文字，只寫「代號」",
+      "narration": "做法是把文字抽出來。頁面裡不直接寫「林小安」，而是寫一個代號，例如 name。"
+    },
+    {
+      "callout": "diag:sel:.files",
+      "text": "每種語言一個語系檔：代號 → 這種語言的文字",
+      "narration": "每種語言準備一個語系檔，裡面寫「這個代號，在這種語言是什麼字」。中文一個檔、英文一個檔。"
+    },
+    {
+      "on": "diag",
+      "click": "#switch",
+      "narration": "切換語言，頁面換去讀英文的檔，畫面上的字就全部變成英文。頁面本身一行都不用改。"
+    },
+    {
+      "callout": "diag:sel:.out",
+      "text": "要加日文？多一個 ja.json 就好",
+      "narration": "以後想加日文，只要多一個日文的語系檔。"
+    },
+    { "hide": "diag" },
+    {
+      "checkpoint": "哪一個改法，對「只能用鍵盤的人」幫助最大？",
+      "body": "選一個。",
+      "id": "keyboard",
+      "options": [
+        {
+          "label": "把焦點框加回來，看得出現在在哪裡",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "焦點框就是鍵盤使用者的游標", "narration": "答對了。焦點框就是鍵盤使用者的游標，沒有它就不知道自己在哪裡。" }
+          ]
+        },
+        {
+          "label": "把圖片都加上 alt",
+          "steps": [
+            { "card": "這主要幫到看不到畫面的人", "eyebrow": "考考你", "sub": "鍵盤使用者需要的是焦點框", "narration": "alt 主要幫助看不到畫面的人。只能用鍵盤的人，最需要的是焦點框。" }
+          ]
+        },
+        {
+          "label": "加一個英文版",
+          "steps": [
+            { "card": "這主要幫到看不懂中文的人", "eyebrow": "考考你", "sub": "鍵盤使用者需要的是焦點框", "narration": "英文版幫助的是看不懂中文的人。只能用鍵盤的人，最需要的是焦點框。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "圖片有 alt\n字和背景對比夠\n鍵盤看得到焦點框\n文字抽進語系檔",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 寫掃描腳本找出問題，逐項修好並抽出語系檔",
+      "chapter": "學會",
+      "narration": "圖片要有替代文字，字和背景要有足夠對比，鍵盤操作要看得到焦點框，文字抽進語系檔就能切換語言。下一堂，我們請 AI 寫一個掃描工具，一次把這些問題找出來。"
+    }
+  ]
+}

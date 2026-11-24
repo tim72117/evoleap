@@ -1,0 +1,26 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>API 與配額</title></head><body>
+<div id="app">
+<header class="ctop"><span class="logo">☁ 雲端主控台</span><span class="proj">xiaosen-bakery-prod-2611</span><span class="me">你</span></header>
+<main class="wrap">
+<div class="tabs"><button id="b0" data-go="0">API 開關</button><button id="b1" data-go="1">配額</button><button id="b2" data-go="2">用量</button></div>
+<section data-only="0"><h1>API 與服務</h1><p class="lead">每個雲端服務都有一個開關。沒打開，就算有權限也用不了。</p>
+<div class="apis">
+<div class="api"><span class="ic">🚀</span><div><b>Cloud Run</b><small class="mono">run.googleapis.com</small></div><span class="sw" id="t-run" data-toggle><i></i></span></div>
+<div class="api"><span class="ic">🗄</span><div><b>Cloud SQL</b><small class="mono">sqladmin.googleapis.com</small></div><span class="sw" id="t-sql" data-toggle><i></i></span></div>
+<div class="api"><span class="ic">🔐</span><div><b>Secret Manager</b><small class="mono">secretmanager.googleapis.com</small></div><span class="sw" id="t-sec" data-toggle><i></i></span></div>
+<div class="api"><span class="ic">📦</span><div><b>Artifact Registry</b><small class="mono">artifactregistry.googleapis.com</small></div><span class="sw" id="t-ar" data-toggle><i></i></span></div>
+<div class="api"><span class="ic">🔧</span><div><b>Cloud Build</b><small class="mono">cloudbuild.googleapis.com</small></div><span class="sw" id="t-build" data-toggle><i></i></span></div>
+<div class="api"><span class="ic">🗺</span><div><b>地圖 API</b><small class="mono">maps-backend.googleapis.com</small></div><span class="sw" id="t-maps" data-toggle><i></i></span></div>
+</div></section>
+<section data-only="1"><h1>配額：每個服務的「上限」</h1><p class="lead">保護你也保護雲端：一個錯誤的程式不會無限制地用下去。</p>
+<div class="q"><span>Cloud Run：每個地區最多執行個體</span><div class="bar"><i style="width:3%"></i></div><b>3 ／ 100</b></div>
+<div class="q"><span>Cloud SQL：每分鐘管理操作</span><div class="bar"><i style="width:8%"></i></div><b>15 ／ 180</b></div>
+<div class="q"><span>Secret Manager：每分鐘讀取</span><div class="bar"><i style="width:1%"></i></div><b>40 ／ 90,000</b></div>
+<div class="q hot"><span>地圖 API：每天請求（你自己設的上限）</span><div class="bar"><i style="width:92%"></i></div><b>920 ／ 1,000</b></div>
+<p class="note">配額用滿時，服務會回錯誤「超過配額」，而不是無限扣錢。有些配額可以自己調低，當作省錢的保險。</p></section>
+<section data-only="2"><h1>用量：最近 7 天的請求數</h1>
+<svg viewBox="0 0 1000 260" width="1000" height="260" class="use"><line x1="40" y1="220" x2="980" y2="220" stroke="#94a3b8"/>
+<g fill="#2563eb"><rect x="80" y="160" width="80" height="60"/><rect x="210" y="140" width="80" height="80"/><rect x="340" y="150" width="80" height="70"/><rect x="470" y="120" width="80" height="100"/><rect x="600" y="90" width="80" height="130"/><rect x="730" y="40" width="80" height="180"/><rect x="860" y="70" width="80" height="150"/></g>
+<g font-size="14" fill="#64748b" text-anchor="middle"><text x="120" y="244">週一</text><text x="250" y="244">週二</text><text x="380" y="244">週三</text><text x="510" y="244">週四</text><text x="640" y="244">週五</text><text x="770" y="244">週六</text><text x="900" y="244">週日</text></g></svg>
+<p class="note">用量看的是「實際被呼叫了幾次」。週末客人多，請求也多。</p></section>
+</main></div></body></html>

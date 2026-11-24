@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>音效從哪裡來</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="ttl">音效從哪裡來？</div>
+  <div class="tabs"><button class="tab" data-go="1">用音檔</button><button class="tab" data-go="2">瀏覽器自己產生</button></div>
+  <div class="cols">
+    <div class="c bad r1">
+      <div class="h">🎵 下載音檔</div>
+      <div class="files"><span>index.html</span><span>styles.css</span><span>script.js</span><span class="x">tick.mp3</span><span class="x">ding.mp3</span></div>
+      <ul><li>專案多出檔案</li><li>可能連到外部網址</li><li>來源、授權要另外查</li></ul>
+    </div>
+    <div class="c good r2">
+      <div class="h">🔊 瀏覽器內建產生</div>
+      <div class="files"><span>index.html</span><span>styles.css</span><span>script.js</span></div>
+      <svg viewBox="0 0 520 120" class="wave" aria-hidden="true">
+        <g stroke="#2f6fde" stroke-width="4" fill="none" stroke-linecap="round">
+          <path d="M10 60 l6 -22 l6 44 l6 -22"/><path d="M70 60 l6 -22 l6 44 l6 -22"/><path d="M130 60 l6 -22 l6 44 l6 -22"/><path d="M190 60 l6 -22 l6 44 l6 -22"/>
+        </g>
+        <path d="M290 60 q10 -50 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" stroke="#e0622e" stroke-width="5" fill="none"/>
+        <text x="90" y="112" font-size="18" fill="#5b6470" text-anchor="middle">滴答 滴答（短）</text>
+        <text x="390" y="112" font-size="18" fill="#5b6470" text-anchor="middle">叮～（長一點、高一點）</text>
+      </svg>
+      <ul><li>程式現場「做」出聲音</li><li>專案還是只有三個檔案</li><li>多數瀏覽器要先點過頁面才會出聲</li></ul>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

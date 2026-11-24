@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>存檔點與雲端</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+<div class="ttl">commit 是存檔點，push 是上傳到雲端</div>
+<div class="lanes card">
+  <div class="lane"><div class="ln">💻 你的電腦<br><span class="muted">本機 repository</span></div>
+    <div class="track"><span class="dot r1" id="d1">①<em>首頁</em></span><span class="dot r2" id="d2">②<em>加營業時間</em></span><span class="dot r5 bad">③<em>改壞了</em></span><span class="dot r6 back">④<em>退回 ②</em></span></div>
+  </div>
+  <div class="mid"><span class="r3 pushline">⬆ push：把存檔點複製上去</span></div>
+  <div class="lane cloud"><div class="ln">☁️ GitHub<br><span class="muted">雲端 repository</span></div>
+    <div class="track"><span class="dot r3">①</span><span class="dot r3">②</span><span class="r4 safe">電腦壞了也還在 ✓</span></div>
+  </div>
+</div>
+<div class="nav">
+  <button class="btn ghost" id="c1" data-go="1">commit</button>
+  <button class="btn ghost" id="c2" data-go="2">再 commit</button>
+  <button class="btn" id="push" data-go="4">push</button>
+  <button class="btn ghost" id="oops" data-go="5">改壞了</button>
+  <button class="btn ghost" id="revert" data-go="6">退回</button>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

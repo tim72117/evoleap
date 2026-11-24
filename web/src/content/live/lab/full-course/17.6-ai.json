@@ -1,0 +1,200 @@
+{
+  "title": "把 DNS 交給 Cloudflare 管理",
+  "lesson": "全環節 · 單元 17 · 17.6 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "DNS 搬家，一筆都不漏",
+    "line": "這一堂請 AI 做兩個小工具：一個用 Cloudflare 的 API 匯入紀錄，一個比對搬家前後是不是一模一樣。都對了，你再照步驟換 nameserver。"
+  },
+  "blocking": { "cast": ["claude", "nsp"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "DNS 搬家",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "nsp": {
+      "actor": "browser",
+      "props": { "site": "fc17-6-nschange", "width": "desktop", "url": "https://registrar-b.example/domains/xiaosen-bakery.com/nameservers" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "把 DNS 交給 Cloudflare 管理",
+      "eyebrow": "全環節 · 單元 17 · 17.6 用 AI 完成",
+      "sub": "AI 做匯入與比對工具；你換 nameserver",
+      "chapter": "準備：權杖你自己存",
+      "narration": "開始前，你已經在 Cloudflare 的網頁上新增了這個網域，也建立了一把 API 權杖。權杖就像密碼，讓程式可以替你管理 DNS。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "把 xiaosen-bakery.com 的 DNS 搬到 Cloudflare。我已經在 Cloudflare 加好網域，API 權杖我自己存在 .env 的 CF_API_TOKEN，請不要把它印出來。請：1. 寫腳本用 API 匯入目前所有紀錄；2. 寫比對腳本，用 dig 分別問新舊 nameserver，逐筆比對。完全一致了，再告訴我怎麼換 nameserver。",
+      "narration": "注意這句：權杖你自己存進 .env，AI 只從檔案讀，不要印出來。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "權杖＝密碼：你自己存，AI 只讀、不印出來",
+      "narration": "密碼和權杖不要貼進對話裡，也不要讓 AI 替你輸入。你存好，它的程式從檔案讀就好。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "todos": [
+        ["從舊 nameserver 讀出所有紀錄", "doing"],
+        ["寫 cf-import.mjs：用 API 匯入 Cloudflare", "pending"],
+        ["寫 compare-dns.sh：新舊逐筆比對", "pending"],
+        ["你：到網域商換 nameserver", "pending"],
+        ["換完監看：網站與信件都正常", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for n in @ www shop; do for t in A CNAME MX TXT; do dig +noall +answer $n.xiaosen-bakery.com $t @ns1.registrar-b.example; done; done",
+      "result": "完成",
+      "out": "xiaosen-bakery.com.  A     185.199.108.153（共 4 筆）\nwww                  CNAME xiaosen-dev.github.io.\nshop                 CNAME bakery-7ka.pages.dev.\nxiaosen-bakery.com.  MX    10 mx1.mail.example.\nxiaosen-bakery.com.  MX    20 mx2.mail.example.\nxiaosen-bakery.com.  TXT   \"v=spf1 include:_spf.mail.example ~all\"\nxiaosen-bakery.com.  TXT   \"mail-verify=8c1f2e\"",
+      "chapter": "工具一：匯入",
+      "narration": "第一步，直接問舊的 nameserver，把現有紀錄全部讀出來，一共十筆。"
+    },
+    {
+      "on": "claude",
+      "edit": "cf-import.mjs",
+      "lines": [
+        [1, "+", "// 把 records.json 的紀錄用 Cloudflare API 匯入（權杖從 .env 讀，不印出）"],
+        [2, "+", "const token = process.env.CF_API_TOKEN"],
+        [3, "+", "const zone = await getZoneId('xiaosen-bakery.com', token)"],
+        [4, "+", "for (const r of records) {"],
+        [5, "+", "  if (await exists(zone, r)) { console.log('已存在', r.type, r.name); continue }"],
+        [6, "+", "  await create(zone, r); console.log('新增', r.type, r.name, '✓')"],
+        [7, "+", "}"]
+      ],
+      "narration": "接著寫匯入工具。它會跳過已經存在的紀錄，所以重跑也不會重複新增。"
+    },
+    {
+      "on": "claude",
+      "ask": "node --env-file=.env cf-import.mjs",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "node --env-file=.env cf-import.mjs"
+    },
+    { "on": "claude", "choose": 1, "narration": "這會在 Cloudflare 新增紀錄，但總名冊還指著舊的，現在還不影響網站。允許。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node --env-file=.env cf-import.mjs",
+      "result": "完成",
+      "out": "新增 A @ ✓ ×4\n新增 CNAME www ✓\n新增 CNAME shop ✓\n新增 MX @ ✓ ×2\n新增 TXT @ ✓\n共新增 9 筆"
+    },
+    {
+      "on": "claude",
+      "edit": "compare-dns.sh",
+      "lines": [
+        [1, "+", "#!/bin/bash"],
+        [2, "+", "# 分別問新舊 nameserver，逐筆比對"],
+        [3, "+", "OLD=ns1.registrar-b.example; NEW=ada.ns.cloudflare.com"],
+        [4, "+", "for n in @ www shop; do for t in A CNAME MX TXT; do"],
+        [5, "+", "  a=$(dig +short $n.xiaosen-bakery.com $t @$OLD | sort); b=$(dig +short $n.xiaosen-bakery.com $t @$NEW | sort)"],
+        [6, "+", "  [ \"$a\" = \"$b\" ] && echo \"✓ $t $n\" || echo \"✗ $t $n  舊:[$a]  新:[$b]\""],
+        [7, "+", "done; done"]
+      ],
+      "chapter": "工具二：比對",
+      "narration": "第二個工具是比對。dig 後面加小老鼠和 nameserver 的名字，就能指定去問哪一本電話簿。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bash compare-dns.sh",
+      "result": "完成",
+      "out": "✓ A @\n✓ MX @\n✗ TXT @  舊:[\"mail-verify=8c1f2e\" \"v=spf1 …\"]  新:[\"v=spf1 …\"]\n✓ CNAME www\n✓ CNAME shop",
+      "narration": "比對結果，有一行打叉：TXT。舊的有兩筆，新的只有一筆。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "工具抓到漏抄的一筆：信箱服務的驗證碼",
+      "narration": "漏掉的是信箱服務的驗證碼。剛剛匯入時說新增 TXT 一筆，可是同一個名字有兩筆 TXT。這種錯，用眼睛看後台很難發現。"
+    },
+    {
+      "on": "claude",
+      "say": "找到問題：同一個名稱有兩筆 TXT，匯入腳本只取了第一筆。少了 `mail-verify`，信箱服務之後可能判定網域驗證失敗。我修正腳本，讓它處理多筆值，再匯入一次。"
+    },
+    {
+      "on": "claude",
+      "edit": "cf-import.mjs",
+      "lines": [
+        [4, "-", "for (const r of records) {"],
+        [4, "+", "for (const r of records.flatMap(splitValues)) {   // 同名多筆值，逐筆匯入"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node --env-file=.env cf-import.mjs && bash compare-dns.sh",
+      "result": "完成",
+      "out": "已存在 A @ ×4 … 已存在 TXT v=spf1\n新增 TXT @ mail-verify ✓\n✓ A @\n✓ MX @\n✓ TXT @\n✓ CNAME www\n✓ CNAME shop\n全部一致（10/10）",
+      "narration": "重跑匯入，只補上缺的那一筆，再比對一次：全部一致，十筆都對。"
+    },
+    {
+      "on": "claude",
+      "say": "兩本電話簿完全一致 ✓ 現在可以換 nameserver 了：\n1. 到網域商乙 → 我的網域 → **nameserver**\n2. 選「使用自訂的 nameserver」\n3. 填 `ada.ns.cloudflare.com`、`bob.ns.cloudflare.com`\n4. 按儲存，截圖給我\n過渡期最多 1–2 天，這段時間**先不要改任何紀錄**。",
+      "chapter": "你換 nameserver"
+    },
+    { "show": "nsp", "narration": "到網域商乙的 nameserver 設定頁。" },
+    { "on": "nsp", "click": "#custom", "narration": "選使用自訂的 nameserver。" },
+    {
+      "on": "nsp",
+      "fill": { "#ns1": "ada.ns.cloudflare.com", "#ns2": "bob.ns.cloudflare.com" },
+      "narration": "填入 Cloudflare 給你的兩個名字。最好從 AI 的訊息直接複製，不要自己打。"
+    },
+    {
+      "callout": "nsp:sel:.note",
+      "text": "換了之後，網域商這邊的紀錄就不再生效",
+      "narration": "網域商也提醒你：換了之後，這裡的 DNS 紀錄就不再生效。這就是為什麼要先比對一致。"
+    },
+    { "on": "nsp", "click": "#save" },
+    { "on": "claude", "user": "（附上截圖）已經儲存了。", "chapter": "換完監看" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "whois xiaosen-bakery.com | grep -i 'Name Server'",
+      "result": "完成",
+      "out": "Name Server: ADA.NS.CLOUDFLARE.COM\nName Server: BOB.NS.CLOUDFLARE.COM",
+      "narration": "AI 從外面查總名冊：已經指向 Cloudflare。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "for r in 1.1.1.1 8.8.8.8; do echo \"$r → $(dig +short NS xiaosen-bakery.com @$r | head -1)\"; done; curl -s -o /dev/null -w 'https %{http_code}\\n' https://xiaosen-bakery.com; bash compare-dns.sh | tail -1",
+      "result": "完成",
+      "out": "1.1.1.1 → ada.ns.cloudflare.com.\n8.8.8.8 → ns1.registrar-b.example.（還記著舊的）\nhttps 200\n全部一致（10/10）",
+      "narration": "過渡期果然開始了：有的地方已經問新的，有的還記著舊的。但網站是兩百，兩本也一致，所以不管問到哪一本都對。"
+    },
+    {
+      "on": "claude",
+      "say": "搬家順利 ✓ 網站正常、兩邊紀錄一致，信件也不會寄丟。明天我再跑一次 `compare-dns.sh` 確認過渡期結束。之後 DNS 可以直接請我用 Cloudflare API 修改。"
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：把 DNS 搬到 Cloudflare",
+      "body": "權杖你自己建立、自己存進 .env。請 AI 寫匯入和比對兩個工具，比對到全部一致再換 nameserver；換完請它監看網站與紀錄，過渡期不要改紀錄。"
+    },
+    { "hide": "nsp" },
+    {
+      "card": "工具匯入 → 工具比對一致 → 你換 nameserver",
+      "eyebrow": "學會",
+      "sub": "權杖自己存；比對抓得到眼睛看不出的漏抄",
+      "chapter": "學會",
+      "narration": "AI 先做匯入工具，再做比對工具，抓出眼睛很難看到的漏抄；全部一致了，你才換 nameserver。搬家期間，網站和信箱都沒有中斷。"
+    }
+  ]
+}

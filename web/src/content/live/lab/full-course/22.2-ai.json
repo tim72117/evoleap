@@ -1,0 +1,155 @@
+{
+  "title": "讀懂雲端帳單、降低成本",
+  "lesson": "全環節 · 單元 22 · 22.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天請 AI 分析帳單",
+    "line": "這一課請 AI 匯出帳單資料，找出花最多錢的服務和原因，再做一項不影響客人的省錢調整。改之前，一定先看它的預估。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "帳單分析",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc22-2-saving", "url": "file:///projects/shop/reports/cost-2026-11.html" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "讀懂雲端帳單、降低成本",
+      "eyebrow": "全環節 · 單元 22 · 22.2 用 AI 完成",
+      "sub": "匯出資料 → 找出最大的一塊 → 預估影響 → 你同意才改",
+      "narration": "這次一次交代清楚，但有一道關卡：改設定之前，要先看預估。"
+    },
+    {
+      "show": "claude",
+      "chapter": "交代：分析加一項調整",
+      "narration": "打開 Claude。"
+    },
+    {
+      "on": "claude",
+      "user": "匯出上個月的雲端帳單資料，找出花最多的服務和原因。再找一項可以馬上做、又不影響客人的省錢調整。改之前先告訴我預估省多少、有什麼影響，我同意才改。",
+      "narration": "我們要的不只是「哪項最貴」，還要原因，和一項有預估的調整。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bq ls --project_id=komori-shop",
+      "result": "billing_export（帳單匯出，每天更新）",
+      "chapter": "匯出並分析",
+      "narration": "帳單的明細可以每天自動匯出到一個資料表。它先確認匯出有開。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bq query \"select service, sum(cost) from billing_export where month='2026-10' group by 1 order by 2 desc\"",
+      "result": "5 項服務",
+      "out": "Cloud Run   889\nCloud SQL   702\nLogging     328\n網路流量     234\n磁碟         187\n合計       2,340",
+      "narration": "依服務加總：Cloud Run 最多，八百八十九元。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "bq query \"select sku, sum(cost) … where service='Cloud Run' group by 1\"",
+      "result": "閒置的執行個體 620 · 處理請求 269",
+      "narration": "再往下拆 Cloud Run：處理請求只花了兩百多，六百多元花在「閒置的執行個體」。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services describe shop --format='value(spec.template.metadata.annotations)'",
+      "result": "minScale: 1（最少 1 台一直開著）"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud monitoring time-series list … request_count 每小時",
+      "result": "01:00–07:00 平均每小時 2 個請求",
+      "narration": "它查設定：最少一台一直開著。又查流量：半夜一點到七點，每小時只有兩個請求。"
+    },
+    {
+      "on": "claude",
+      "say": "**花最多的**：Cloud Run NT$889，其中 NT$620 是「最少 1 台一直開著」的閒置費用。\n\n**建議**：把最少台數改成 0。\n**預估**：每月省約 NT$619（26%）。\n**影響**：沒人時主機會休息，下一位客人第一次打開要多等約 1–2 秒，之後正常。半夜每小時只有 2 個請求，影響很小。\n\n要我改嗎？",
+      "chapter": "預估與影響",
+      "narration": "它的建議有三個部分：改什麼、省多少、影響是什麼。沒人時主機會休息，下一位客人要多等一兩秒。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "看影響：多等 1–2 秒，你的客人能不能接受？",
+      "narration": "這是你要判斷的。小店的網站，半夜偶爾多等一兩秒，通常可以接受。"
+    },
+    {
+      "on": "claude",
+      "user": "可以，改吧。改完幫我量一下第一次打開要多久。",
+      "narration": "同意，並且請它改完實際量一下。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run services update shop --min-instances=0",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/shop",
+      "note": "把 shop 的最少台數從 1 改成 0"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gcloud run services update shop --min-instances=0", "result": "已更新" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "等主機休息後，curl -w '%{time_total}' https://shop.example.app/ 連續 3 次",
+      "result": "第 1 次 1.4 秒 · 第 2 次 0.04 秒 · 第 3 次 0.04 秒",
+      "chapter": "改完實際量",
+      "narration": "量出來：休息後第一次一點四秒，之後就恢復四十毫秒。和預估一樣。"
+    },
+    {
+      "on": "claude",
+      "edit": "reports/cost-2026-11.md",
+      "lines": [
+        [1, "+", "# 10 月雲端費用分析"],
+        [2, "+", "總計 NT$2,340；Cloud Run 889（閒置 620）"],
+        [3, "+", "已調整：最少台數 1 → 0，預估每月省 NT$619"],
+        [4, "+", "實測：休息後第一次 1.4 秒，之後 0.04 秒"],
+        [5, "+", "其他建議：刪閒置磁碟（187）、資料庫降一級、紀錄只寫 INFO 以上"]
+      ]
+    },
+    {
+      "show": "web",
+      "chapter": "費用明細與調整",
+      "narration": "它把分析寫成一份報告。灰色是上個月的實際費用，綠色是調整後的預估。"
+    },
+    {
+      "callout": "web:section:chart",
+      "text": "只動了一項：Cloud Run 889 → 約 270",
+      "narration": "這次只動一項，效果就很明顯。一次只改一件事，才知道省下的錢是哪裡來的。"
+    },
+    {
+      "callout": "web:section:act",
+      "text": "其他建議先列著，下次一項一項處理",
+      "narration": "其他建議先列著，例如那顆閒置磁碟。刪除之前要先確認裡面沒有要的東西，下次再一項一項處理。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 匯出你上個月的帳單資料，找出花最多的服務和原因，提出一項省錢調整：先給你看預估省多少、會有什麼影響，你同意才改，改完請它實際量測。",
+      "narration": "換你做做看。關鍵是改之前先看預估和影響，改完實際量測。"
+    },
+    {
+      "card": "費用明細與一項省錢調整",
+      "eyebrow": "這一課的成果",
+      "sub": "找最大的一塊 → 預估影響 → 你同意 → 改完量測",
+      "narration": "這一課的成果：一份費用明細和一項省錢調整。下一課，我們來處理套件和執行環境的更新。"
+    }
+  ]
+}

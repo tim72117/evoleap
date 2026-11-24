@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>帳號設定 · 安全性</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-start="1">
+<div class="layout">
+  <div class="nav card"><div>👤 個人資料</div><div class="cur">🔐 密碼與驗證</div><div>🔑 SSH 金鑰</div><div>📧 電子郵件</div></div>
+  <div class="grow">
+    <div class="ttl">雙重驗證</div>
+    <div class="p1 card">
+      <div>目前：<span class="tag r">未啟用</span></div>
+      <p>登入時除了密碼，還要輸入手機驗證 App 上的 6 位數。</p>
+      <button class="btn" id="enable" data-go="2">啟用雙重驗證</button>
+    </div>
+    <div class="p2 card">
+      <div class="row">
+        <div class="qr"></div>
+        <div class="grow">① 用手機的驗證 App 掃描左邊的方塊<br>② 輸入 App 上出現的 6 位數<div class="digits mono">● ● ● ● ● ●</div><span class="muted">（你自己在手機上看、自己輸入）</span><br><button class="btn" id="verify" data-go="3">驗證</button></div>
+      </div>
+    </div>
+    <div class="p3 card">
+      <div class="tag g">已啟用 ✓</div>
+      <p><b>恢復碼</b>：手機不見時的備用鑰匙，每組只能用一次。</p>
+      <div class="codes mono"><span>████-████</span><span>████-████</span><span>████-████</span><span>████-████</span></div>
+      <button class="btn ghost" id="save" data-go="4">下載並存進密碼管理器</button><span class="r4 saved">✓ 已存好</span>
+    </div>
+  </div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+{
+  "title": "第一次用程式發文",
+  "lesson": "基礎 · 單元 15 · 15.2 試做",
+  "teacher": {
+    "say": "今天第一次用程式發文",
+    "line": "上一課拿到了粉專權杖。今天請 AI 寫一支發文腳本：先發一篇只有你看得到的測試貼文，再正式發文。中間遇到錯誤，我們練習看懂它。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "第一次發文",
+        "folder": "~/projects/my-site",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fb": {
+      "actor": "browser",
+      "props": {
+        "site": "fb-sched",
+        "width": "desktop",
+        "url": "https://www.facebook.com/xiaoan.bakery"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "第一次用程式發文",
+      "eyebrow": "基礎 · 單元 15 · 15.2",
+      "sub": "先發測試貼文，再正式發文；遇到錯誤，先看懂再處理",
+      "chapter": "先測試，再正式",
+      "narration": "這一課用程式發出第一篇貼文。發出去的貼文大家都看得到，所以第一篇先用排程發，排程中的貼文只有管理員看得到，確認沒問題再正式發。"
+    },
+    {
+      "show": "claude",
+      "narration": "打開 AI 程式助手，還是在 my site 這個專案。"
+    },
+    {
+      "on": "claude",
+      "user": "寫一支 publish.js，用 .env 的粉專權杖發文。先加一個測試模式：排程到 30 分鐘後，不要直接公開",
+      "narration": "我們說清楚：權杖從 .env 讀，而且先做測試模式，排程到 30 分鐘後，不直接公開。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1200
+    },
+    {
+      "on": "claude",
+      "ask": "publish.js",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/my-site",
+      "preview": "const body = new URLSearchParams({ message, access_token: process.env.FB_PAGE_TOKEN })\nif (test) {\n  body.set('published', 'false')\n  body.set('scheduled_publish_time', String(Math.floor(Date.now() / 1000) + 30 * 60))\n}\nconst res = await fetch('https://graph.facebook.com/me/feed', { method: 'POST', body })\nconsole.log(await res.json())",
+      "narration": "看一下它要寫的程式。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "權杖從環境變數讀；測試模式不公開，排程到 30 分鐘後",
+      "narration": "權杖從環境變數讀，不寫在程式裡；測試模式時設成不公開，排程到 30 分鐘後；最後送到 Facebook 的發文網址。沒問題，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "publish.js",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "ask": "node --env-file=.env publish.js --test \"（測試）這是用程式發的第一篇貼文\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "用測試模式發一篇排程貼文，30 分鐘後才會公開",
+      "narration": "執行時加上 dash dash test，這篇只會進到排程。允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node --env-file=.env publish.js --test …",
+      "result": "完成",
+      "out": "{ id: '1048_2201' }",
+      "narration": "回傳一個貼文編號，代表 Facebook 收到了。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "fb",
+      "chapter": "到粉專確認",
+      "narration": "到粉專的排程中的貼文看看，它就在這裡，還沒公開。確認之後，記得把這篇測試貼文刪掉，不然半小時後就會發出去。"
+    },
+    {
+      "callout": "fb:section:post",
+      "text": "排程中的貼文只有管理員看得到：確認後刪掉",
+      "narration": "先在看不到的地方試，是發文程式最重要的習慣。"
+    },
+    {
+      "hide": "fb"
+    },
+    {
+      "show": "claude",
+      "chapter": "看懂錯誤訊息",
+      "narration": "接著正式發文，這次附上新課的連結。"
+    },
+    {
+      "on": "claude",
+      "user": "加上附連結的功能，正式發一篇：新課上架：手作司康，一次學會三種口味 🎉，連結是課程頁"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "tool": "Edit",
+      "arg": "publish.js",
+      "result": "加上 link 參數"
+    },
+    {
+      "on": "claude",
+      "ask": "node --env-file=.env publish.js --link https://xiaoan-bakery.example/scone \"新課上架…\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "正式發文，附上課程頁連結，發出後所有人都看得到",
+      "narration": "這次沒有 dash dash test。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "沒有 --test：發出後所有人都看得到，先核對內容與連結",
+      "narration": "沒有 dash dash test，發出去所有人都看得到，所以先核對內容和連結。都對，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node --env-file=.env publish.js --link …",
+      "result": "錯誤",
+      "out": "{ error: { message: 'Error validating access token: Session has expired', code: 190 } }",
+      "narration": "這次失敗了。先別急著叫它再試一次，看它怎麼說。"
+    },
+    {
+      "on": "claude",
+      "say": "發文失敗，錯誤代碼 190：**權杖已經過期**，重試也不會成功。\n請到開發者網站重新產生粉專權杖，自己貼進 `.env` 換掉舊的值，再告訴我。",
+      "narration": "錯誤代碼 190，意思是權杖過期了。這種錯誤重試幾次都不會成功，要換一組新的權杖。"
+    },
+    {
+      "callout": "claude:latest",
+      "text": "錯誤訊息交給 AI 判斷原因；權杖一樣由你自己換",
+      "narration": "把錯誤交給 AI 判斷原因，但換權杖這件事，一樣由你自己來，不要把新權杖貼進對話。"
+    },
+    {
+      "on": "claude",
+      "user": "換好了，再發一次"
+    },
+    {
+      "on": "claude",
+      "ask": "node --env-file=.env publish.js --link https://xiaoan-bakery.example/scone \"新課上架…\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "正式發文，附上課程頁連結，發出後所有人都看得到"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node --env-file=.env publish.js --link …",
+      "result": "完成",
+      "out": "{ id: '1048_2207' }",
+      "narration": "這次成功了。"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "fb",
+      "site": "fb-link",
+      "chapter": "附連結與圖片",
+      "narration": "粉專上出現了新貼文，Facebook 自動抓了課程頁的標題，做成連結預覽。"
+    },
+    {
+      "hide": "fb"
+    },
+    {
+      "show": "claude",
+      "narration": "最後試試附圖片。"
+    },
+    {
+      "on": "claude",
+      "user": "再加上附圖片的功能，用 images/scone.jpg 發一篇：司康出爐！這是課程裡的第一種口味：原味奶油司康"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 900
+    },
+    {
+      "on": "claude",
+      "tool": "Edit",
+      "arg": "publish.js",
+      "result": "加上 photo 參數，改送到 me/photos",
+      "narration": "附圖片的貼文要送到另一個網址，它自己查了文件，把程式改好。"
+    },
+    {
+      "on": "claude",
+      "ask": "node --env-file=.env publish.js --photo images/scone.jpg \"司康出爐！…\"",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/my-site",
+      "note": "正式發一篇附圖片的貼文",
+      "narration": "圖片和文字都對，允許。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node --env-file=.env publish.js --photo …",
+      "result": "完成",
+      "out": "{ id: '1048_2213', post_id: '1048_2214' }"
+    },
+    {
+      "hide": "claude"
+    },
+    {
+      "show": "fb",
+      "site": "fb-photo",
+      "narration": "附圖片的貼文也發出去了。純文字、附連結、附圖片，三種都會了。"
+    },
+    {
+      "hide": "fb"
+    },
+    {
+      "chapter": "判斷看看",
+      "checkpoint": "發文時出現「Error validating access token: Session has expired」，你會怎麼做？",
+      "body": "選一個。",
+      "id": "expired",
+      "options": [
+        {
+          "label": "請 AI 一直重試，直到成功",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "權杖過期了，重試幾次都不會成功",
+              "narration": "Session has expired 是權杖過期。權杖沒換，重試幾次都一樣失敗。"
+            },
+            {
+              "card": "答案：重新產生權杖，自己換掉 .env 的值",
+              "eyebrow": "判斷看看",
+              "sub": "錯誤交給 AI 判斷，權杖由你自己換",
+              "narration": "重新產生粉專權杖，自己換掉 .env 裡的值，再請它發一次。"
+            }
+          ]
+        },
+        {
+          "label": "把新權杖貼給 AI，請它幫我換",
+          "steps": [
+            {
+              "card": "再想想",
+              "eyebrow": "判斷看看",
+              "sub": "權杖貼進對話，就留在對話紀錄裡了",
+              "narration": "新權杖貼進對話，就留在對話紀錄裡。權杖一樣由你自己貼進 .env。"
+            },
+            {
+              "card": "答案：重新產生權杖，自己換掉 .env 的值",
+              "eyebrow": "判斷看看",
+              "sub": "錯誤交給 AI 判斷，權杖由你自己換",
+              "narration": "重新產生粉專權杖，自己換掉 .env 裡的值，再請它發一次。"
+            }
+          ]
+        },
+        {
+          "label": "重新產生權杖，自己換掉 .env 的值",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "判斷看看",
+              "sub": "權杖過期就換一組；錯誤交給 AI 判斷，權杖由你自己換",
+              "narration": "答對了。權杖過期，重試沒有用，要重新產生一組，自己換掉 .env 裡的值，再請它發一次。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "先用排程測試，再正式發\n錯誤訊息先看懂，不盲目重試\n權杖過期就自己換一組",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：排程貼文、貼文編號、錯誤代碼、權杖過期",
+      "chapter": "學會",
+      "narration": "第一次發文先用排程測試，確認後刪掉；正式發文前看清楚內容和連結；遇到錯誤，交給 AI 判斷原因，不要盲目重試；權杖過期，就自己換一組。下一課，我們請 AI 幫你起草貼文，你核准了才發。"
+    }
+  ]
+}

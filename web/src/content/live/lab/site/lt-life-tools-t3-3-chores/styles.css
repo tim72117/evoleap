@@ -1,0 +1,29 @@
+* { box-sizing: border-box; }
+#app { font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif; color: #1f2328; background: #f6f4ef; min-height: 100%; font-size: 20px; line-height: 1.5; }
+button { font: inherit; cursor: pointer; }
+.btn { border: 0; background: #2f6fde; color: #fff; border-radius: 10px; padding: 8px 18px; font-weight: 700; font-size: 18px; }
+.btn.ghost { background: #fff; color: #2f6fde; border: 2px solid #2f6fde; }
+.muted { color: #6b7480; }
+.mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.r1, .r2, .r3, .r4, .r5, .r6 { visibility: hidden; }
+.on1 .r1, .on2 .r2, .on3 .r3, .on4 .r4, .on5 .r5, .on6 .r6 { visibility: visible; }
+.tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+.tab { border: 2px solid #cfd6df; background: #fff; border-radius: 999px; padding: 6px 18px; font-size: 18px; color: #33404d; }
+.tab.cur { background: #1f2328; color: #fff; border-color: #1f2328; }
+#app { padding: 24px 40px; min-height: 720px; }
+.cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 22px; }
+.cd { background: #fff; border-radius: 16px; padding: 18px; min-height: 150px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.07); border-top: 6px solid #9ab3e0; }
+.cd b { font-size: 24px; }
+.cd span { color: #5b6470; font-size: 17px; }
+.cd.drink { border-top-color: #e0622e; }
+.cd.blank { border: 3px dashed #e0622e; background: #fff8f2; align-items: center; justify-content: center; text-align: center; }
+.cd.blank b { font-size: 44px; color: #e0622e; }
+.sentence { margin-top: 22px; font-size: 26px; font-weight: 800; text-align: center; background: #fff; border-radius: 14px; padding: 14px; }
+.checks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+.ck { background: #e3f5ec; color: #1f6e49; border-radius: 12px; padding: 12px; font-weight: 700; font-size: 19px; text-align: center; }
+.shrink { display: grid; grid-template-columns: 1fr 140px 1fr; gap: 14px; align-items: center; margin-top: 18px; }
+.shrink > div { border-radius: 14px; padding: 14px 18px; font-size: 22px; font-weight: 800; text-align: center; }
+.shrink small { display: block; font-size: 16px; font-weight: 400; margin-top: 4px; }
+.big { background: #fde8e8; color: #9b2c2c; }
+.small { background: #e3f5ec; color: #1f6e49; }
+.to { color: #2f6fde; font-size: 22px; }

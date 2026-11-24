@@ -1,0 +1,33 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>Secret Manager</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · 機密管理</p>
+<h1>密碼的保險箱</h1>
+<div class="tabs"><button id="b0" data-go="0">放錯地方</button><button id="b1" data-go="1">保險箱</button><button id="b2" data-go="2">版本</button><button id="b3" data-go="3">誰能打開</button></div>
+<div data-only="0" class="wrong">
+<div class="w"><b>寫在程式碼裡</b><p>push 到 GitHub，任何看得到儲存庫的人都拿得到。</p></div>
+<div class="w"><b>git 的歷史紀錄</b><p>就算之後刪掉，<b>舊的 commit 裡還在</b>。一旦 push 過，就當作已經外洩。</p></div>
+<div class="w"><b>Cloud Run 環境變數</b><p>能進主控台的人都看得到，改密碼要重新部署。</p></div>
+</div>
+<div data-only="1 2 3" class="vault">
+<div class="safe"><div class="door">🔐 Secret Manager</div>
+<div class="sec"><b class="mono">db-password</b>
+<div class="vers">
+<span class="v old" data-only="2 3">v1 已停用</span>
+<span class="v old" data-only="2 3">v2 已停用</span>
+<span class="v cur">v3 <small>latest</small></span>
+</div></div>
+<div class="sec"><b class="mono">payment-key</b><div class="vers"><span class="v cur">v1 <small>latest</small></span></div></div>
+</div>
+<div class="who" data-only="3">
+<div class="k ok">🤖 網站的服務帳號<small>Secret 存取者：只能「讀」這兩個</small></div>
+<div class="k no">🤖 deployer<small>沒有權限：部署的機器人不需要看密碼</small></div>
+<div class="k no">👀 其他人<small>沒有權限</small></div>
+</div>
+</div>
+<div class="box expl">
+<p data-only="0">機密＝密碼、API 金鑰、權杖這些「被別人拿到就糟了」的東西。上面這三個地方都不適合放。</p>
+<p data-only="1"><b>Secret Manager</b> 是雲端的保險箱。每個機密一格，加密存放；網站執行時才去拿，程式碼和 git 裡都不會有。</p>
+<p data-only="2">每次換密碼，就存一個<b>新版本</b>。網站讀 <span class="mono">latest</span>（最新版），舊版本可以停用。換密碼不用改程式。</p>
+<p data-only="3">誰能打開保險箱，也用 IAM 管：只給網站的服務帳號「讀取」這個角色。</p>
+</div>
+</div></body></html>

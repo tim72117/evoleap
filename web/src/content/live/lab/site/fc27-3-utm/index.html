@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>UTM 參數</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">一個網址，後面多了一張「來源標籤」</div>
+ <div class="url mono card"><span class="base">komori-bakery.example/reserve</span><span class="q">?</span><span class="p s" data-k="1">utm_source=line</span><span class="q">&amp;</span><span class="p m" data-k="2">utm_medium=social</span><span class="q">&amp;</span><span class="p c" data-k="3">utm_campaign=chestnut</span></div>
+ <div class="row exp">
+  <div class="card col" data-k="1"><b class="s">utm_source</b>從哪裡來：line、ig、newsletter</div>
+  <div class="card col" data-k="2"><b class="m">utm_medium</b>哪一種管道：social、email、cpc（付費廣告）</div>
+  <div class="card col" data-k="3"><b class="c">utm_campaign</b>哪一次活動：chestnut（栗子季）</div>
+ </div>
+ <div class="att card" data-s="4">
+  <div class="ttl s">小美買之前，碰過三次</div>
+  <div class="path"><span class="tp" data-k="5">① IG 貼文</span><span class="ar">→</span><span class="tp">② 搜尋</span><span class="ar">→</span><span class="tp" data-k="6">③ 電子報</span><span class="ar">→</span><span class="tp buy">💰 預約</span></div>
+  <div class="who" data-t4="功勞要算給誰？這叫歸因" data-t5="第一次接觸：算給 IG（讓她認識你的）" data-t6="最後一次接觸：算給電子報（最後推她一把的）。多數報表預設用這個">功勞要算給誰？這叫歸因</div>
+ </div>
+ <div class="stepbar"><button class="btn" id="next">下一步 ▶</button></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

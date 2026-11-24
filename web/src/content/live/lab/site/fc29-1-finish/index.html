@@ -1,0 +1,24 @@
+<!doctype html><html><head><title>完成條件：終點線</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">AI 什麼時候會停下來？</h1>
+  <p class="sub">同一個任務：「把訂購表單的送出按鈕修好」</p>
+  <div class="lane" id="laneA">
+    <div class="lab">沒說怎樣算完成</div>
+    <div class="track">
+      <div class="runner" id="bot" data-go="a1">AI</div>
+      <div class="stop" id="said" data-at="a1" data-go="a2"><b>「改好了！」</b><span>它覺得差不多，就停了</span></div>
+      <div class="hole" data-at="a2">按下去還是沒反應 <span class="bad">✕</span></div>
+    </div>
+  </div>
+  <div class="lane" id="laneB">
+    <div class="lab">先說好怎樣算完成</div>
+    <div class="track">
+      <div class="flag" data-go="b1" id="f1"><i>1</i>測試通過<small class="mono">npm test ✓</small></div>
+      <div class="flag" data-go="b2" id="f2"><i>2</i>截圖一致<small>和設計圖比對</small></div>
+      <div class="flag" data-go="b3" id="f3"><i>3</i>網址回 200<small class="mono">curl → 200 OK</small></div>
+      <div class="goal" data-at="b3">終點：三個都過，才回報「完成」</div>
+    </div>
+    <div class="marks"><span data-at="b1" class="ok">✓ 測試</span><span data-at="b2" class="ok">✓ 截圖</span><span data-at="b3" class="ok">✓ 200</span></div>
+  </div>
+</div>
+</body></html>

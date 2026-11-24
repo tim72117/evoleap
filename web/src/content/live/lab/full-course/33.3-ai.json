@@ -1,0 +1,142 @@
+{
+  "title": "看 AI 做了什麼",
+  "lesson": "全環節 · 單元 33 · 33.3 用 AI 完成",
+  "teacher": {
+    "say": "今天讓 AI 每次交結尾報告",
+    "line": "這一課，我們把「結尾報告」寫進專案規則，再交代一個小任務，看 AI 收工時交出的報告，然後拿證據對照。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "結尾報告", "folder": "~/projects/bakery", "branch": "main", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "看 AI 做了什麼",
+      "eyebrow": "全環節 · 單元 33 · 33.3 用 AI 完成",
+      "sub": "寫進規則 → 做一個任務 → 對照報告與證據",
+      "chapter": "把報告格式寫進規則",
+      "narration": "先把報告的格式寫進規則，這樣每個新對話都會照做。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "在 CLAUDE.md 加一條：每次工作結束時，寫結尾報告，分三段：做了什麼（列檔案）、沒做什麼、哪裡沒驗證。最後附上 commit 編號",
+      "narration": "三段要點名，還要附 commit 編號，方便你對照。"
+    },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [[14, "+", "## 工作結束時"], [15, "+", "寫結尾報告：**做了什麼**（列出檔案）、**沒做什麼**、**哪裡沒驗證**；最後附 commit 編號。"]]
+    },
+    {
+      "on": "claude",
+      "newSession": "加營業時間",
+      "chapter": "交代一個任務",
+      "narration": "開新對話，給它一個真的任務。"
+    },
+    {
+      "on": "claude",
+      "user": "在頁尾加上營業時間：週二到週日 10:00–19:00，週一公休。完成條件：npm test 通過",
+      "narration": "在頁尾加上營業時間。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "index.html",
+      "result": "86 行"
+    },
+    {
+      "on": "claude",
+      "edit": "index.html",
+      "lines": [[78, " ", "<footer>"], [79, "+", "  <p class=\"hours\">營業時間：週二至週日 10:00–19:00（週一公休）</p>"], [80, " ", "  <p>© 小森烘焙</p>"]]
+    },
+    {
+      "on": "claude",
+      "edit": "styles.css",
+      "lines": [[42, "+", ".hours { font-weight: 600; margin-bottom: 4px; }"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test",
+      "result": "12 項全部通過",
+      "out": "Tests  12 passed (12)"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git add index.html styles.css && git commit -m \"頁尾加上營業時間\"",
+      "result": "已 commit：c7e19b",
+      "narration": "改檔、跑測試、存檔點，都做完了。"
+    },
+    {
+      "on": "claude",
+      "say": "**做了什麼**\n- `index.html`：頁尾加營業時間一行\n- `styles.css`：新增 `.hours` 樣式\n\n**沒做什麼**\n- 「聯絡我們」頁也有營業時間，沒有一起改\n\n**哪裡沒驗證**\n- 沒有用手機寬度看過頁尾會不會換行\n\ncommit：`c7e19b`",
+      "chapter": "讀結尾報告",
+      "narration": "收工時，它照規則交出報告。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "沒做：聯絡頁　沒驗證：手機寬度",
+      "narration": "它說了兩件你可能沒想到的事：聯絡我們頁也有營業時間，沒一起改；手機寬度，還沒看過。"
+    },
+    {
+      "on": "claude",
+      "user": "給我看這次 commit 改了哪些檔案、各幾行",
+      "chapter": "拿證據對照",
+      "narration": "接著拿證據對照。請它把這次存檔點的改動統計給你看。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git show --stat c7e19b",
+      "result": "2 個檔案，+2 行",
+      "out": "頁尾加上營業時間\n index.html | 1 +\n styles.css | 1 +\n 2 files changed, 2 insertions(+)",
+      "narration": "兩個檔案、各加一行，和報告說的一樣，沒有多改別的地方。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "報告 ＝ 證據 ✓",
+      "narration": "報告和證據對得上，這次的工作可以信任。"
+    },
+    {
+      "on": "claude",
+      "user": "聯絡頁也一起改。然後用手機寬度截圖確認頁尾不換行",
+      "narration": "至於沒做和沒驗證的，由你決定要不要補。這次兩個都補上。"
+    },
+    {
+      "on": "claude",
+      "edit": "contact.html",
+      "lines": [[30, "-", "  <p>營業時間：每天 10:00–18:00</p>"], [30, "+", "  <p class=\"hours\">營業時間：週二至週日 10:00–19:00（週一公休）</p>"]],
+      "narration": "它發現聯絡頁寫的還是舊的時間，順便修正。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright screenshot --viewport-size=390,844 http://localhost:5173/ footer.png",
+      "result": "已截圖：頁尾一行顯示完整"
+    },
+    {
+      "on": "claude",
+      "say": "**做了什麼**\n- `contact.html`：營業時間改成新的\n\n**沒做什麼**\n- 無\n\n**哪裡沒驗證**\n- Safari 沒有試，只用 Chrome 截圖\n\ncommit：`d20a4f`",
+      "narration": "第二份報告也照格式。沒做的變成「無」，沒驗證的還誠實寫著：Safari 沒試。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "把結尾報告的三段格式寫進你的 CLAUDE.md，交代一個小任務；收工時拿報告和 git show --stat 對照，再決定「沒做」「沒驗證」的要不要補。",
+      "narration": "換你試試：把報告格式寫進規則，做一個小任務，拿報告和改動統計對照。"
+    },
+    {
+      "card": "每次工作的結尾報告",
+      "eyebrow": "這一課的成果",
+      "sub": "做了什麼 · 沒做什麼 · 哪裡沒驗證 · commit",
+      "narration": "這一課的成果：每次工作都有一份結尾報告，而且你知道怎麼拿證據對照。"
+    }
+  ]
+}

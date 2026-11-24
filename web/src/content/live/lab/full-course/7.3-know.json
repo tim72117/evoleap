@@ -1,0 +1,129 @@
+{
+  "title": "同一件事只放一個地方",
+  "lesson": "全環節 · 單元 7 · 7.3 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天看漏改是怎麼發生的",
+    "line": "今天要來看一個很常見的錯誤：同一個資料寫在好幾個地方，改的時候漏了一處。解法是讓它只放在一個地方，大家都去那裡拿。"
+  },
+  "cast": {
+    "boss": { "actor": "person", "props": { "name": "店長", "look": "boss" }, "place": "center", "hidden": true },
+    "cust": { "actor": "person", "props": { "name": "客人", "look": "customer" }, "place": "center", "hidden": true },
+    "copies": {
+      "actor": "browser",
+      "props": { "site": "fc7-3-copies", "width": "desktop", "url": "https://diagram.example/single-source" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "同一件事只放一個地方",
+      "eyebrow": "全環節 · 單元 7 · 7.3 基礎知識",
+      "sub": "重複的資料與畫面，為什麼會讓修改漏掉",
+      "chapter": "一通改電話的請求",
+      "narration": "先看一個小故事。"
+    },
+    {
+      "show": "boss",
+      "on": "boss",
+      "say": "店裡的電話換了，網站上的電話幫我改一下喔！",
+      "mood": "happy",
+      "narration": "店長說電話換了，請你改網站。聽起來只是改一個號碼。"
+    },
+    { "hide": "boss" },
+    {
+      "show": "copies",
+      "narration": "打開專案一看，電話寫在四個地方：首頁、關於、預約頁，還有頁尾。"
+    },
+    {
+      "on": "copies",
+      "click": "#edit",
+      "narration": "你請 AI 把電話改掉。它搜尋到三個，改好了。"
+    },
+    {
+      "callout": "copies:sel:.miss",
+      "text": "預約頁的電話寫法不一樣，搜尋沒找到",
+      "narration": "可是預約頁的電話中間少了一個橫線，搜尋沒找到，就漏掉了。"
+    },
+    { "hide": "copies" },
+    {
+      "show": "cust",
+      "on": "cust",
+      "say": "我照預約頁上的電話打，一直是空號耶……",
+      "mood": "worried",
+      "chapter": "漏改的代價",
+      "narration": "一個禮拜後，客人打來抱怨。最糟的是，你可能根本不會知道有多少客人默默放棄了。"
+    },
+    { "hide": "cust" },
+    {
+      "show": "copies",
+      "site": "fc7-3-copies",
+      "chapter": "單一來源",
+      "narration": "問題不在 AI 粗心，而在同一件事寫了四次。改的人，不管是你還是 AI，都要記得四個地方。"
+    },
+    {
+      "on": "copies",
+      "click": "#single",
+      "narration": "換一種做法：電話只寫在一個設定檔 site.config.js 裡。四個頁面不再自己寫號碼，而是去設定檔拿。這叫單一來源。"
+    },
+    {
+      "on": "copies",
+      "click": "#edit",
+      "narration": "現在要改電話，只改設定檔一個地方，四個頁面同時更新。不可能漏。"
+    },
+    {
+      "callout": "copies:sel:.src",
+      "text": "只改這裡，四個地方一起變",
+      "narration": "這一個地方，就是這個資料唯一的真相。"
+    },
+    {
+      "diff": "src/pages/booking.html",
+      "lines": [[" ", "<footer>"], ["-", "  <p>電話 02 2345-6789　地址 台中市…</p>"], ["-", "  <p>營業時間 10:00–18:00</p>"], ["+", "  <site-footer></site-footer>"], [" ", "</footer>"]],
+      "chapter": "不只資料，畫面也一樣",
+      "narration": "不只電話這種資料，重複的畫面也一樣。四個頁面各貼一份頁尾，改一次頁尾就要改四份。做成一個共用的頁尾元件，每頁只放一行，改一次就全部變。"
+    },
+    { "clear": true },
+    {
+      "card": "電話、地址、營業時間\n價格、商品清單\n頁首、頁尾、按鈕樣式",
+      "eyebrow": "常見的重複",
+      "sub": "改一個東西，要去好幾個地方改，就是該收斂的訊號",
+      "narration": "常見會重複的，有店家資料、價格和商品清單，還有頁首、頁尾這類每頁都有的畫面。只要「改一件事要去好幾個地方」，就是該收成單一來源的訊號。"
+    },
+    {
+      "checkpoint": "商品價格同時寫在商品頁、購物車和結帳頁。最好的改法是？",
+      "body": "選一個。",
+      "id": "single",
+      "options": [
+        {
+          "label": "價格只放在商品資料檔，三個頁面都去那裡拿",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "單一來源：改一個地方，三頁一起變", "narration": "答對了。價格只放在一個地方，三個頁面都去那裡拿。" }
+          ]
+        },
+        {
+          "label": "每次改價格，都提醒 AI 三頁都要改",
+          "steps": [
+            { "card": "總有一天會忘", "eyebrow": "考考你", "sub": "靠記性，遲早會漏", "narration": "靠每次提醒，總有一天會忘記，或是又多了第四個地方。" },
+            { "card": "答案：收成單一來源", "eyebrow": "考考你", "sub": "價格只放在商品資料檔", "narration": "最好的改法，是讓價格只放在一個地方。" }
+          ]
+        },
+        {
+          "label": "在三個頁面都加註解「改價格時其他兩頁也要改」",
+          "steps": [
+            { "card": "比較好，但還是會漏", "eyebrow": "考考你", "sub": "註解只是提醒，不能保證三份一樣", "narration": "註解只是提醒，三份資料還是可能不一樣。" },
+            { "card": "答案：收成單一來源", "eyebrow": "考考你", "sub": "價格只放在商品資料檔", "narration": "最好的改法，是讓價格只放在一個地方。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "同一件事只放一個地方\n其他地方都去那裡拿",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 找出專案裡的重複，收斂成單一來源",
+      "chapter": "學會",
+      "narration": "同一件事只放一個地方，其他地方都去那裡拿。這樣不管是你還是 AI，改一次就不會漏。下一堂，我們請 AI 找出你專案裡的重複。"
+    }
+  ]
+}

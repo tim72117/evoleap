@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>清單和筆記對一對</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="head">
+    <div class="ttl">清單和筆記，對一對</div>
+    <div class="legend"><span class="tag g">＋ 新增</span><span class="tag r">≠ 不一致</span><span class="tag y">更具體</span><span class="tag">？ 還沒決定</span></div>
+    <div class="tools">
+      <button class="btn" id="markNew">標出新增</button>
+      <button class="btn" id="markDiff">標出不一致</button>
+      <button class="btn" id="merge">合併成第 2 版</button>
+    </div>
+  </div>
+  <div class="row cmp">
+    <div class="card grow list">
+      <div class="lbl"><span class="tag b">需求清單第 1 版 · 來自老闆訊息</span></div>
+      <div class="li" id="l1" data-k="diff">生日蛋糕每天上限<b>大概 8 個</b></div>
+      <div class="li" id="l2" data-k="more">取貨時段：上午、下午、傍晚</div>
+      <div class="li" id="l3" data-k="same">確認通知＋取貨前一天提醒</div>
+      <div class="li" id="l4" data-k="same">後台要很簡單</div>
+      <div class="li" id="l5" data-k="same">店家看到所有訂單</div>
+      <div class="li tbd" id="l6" data-k="same">待確認：客人能取消訂單（推測）</div>
+    </div>
+    <div class="card grow notes">
+      <div class="lbl"><span class="tag">會議筆記 11/6 · 老闆A、店員B、工程師C</span></div>
+      <div class="nl" id="m1" data-k="new">蛋糕提前 2 天訂，麵包前一天<span class="why"></span></div>
+      <div class="nl" id="m2" data-k="new">後台用平板看今天的取貨清單，可列印<span class="why"></span></div>
+      <div class="nl" id="m3" data-k="more">時段：上午 10–12、下午 2–5、傍晚 5–8，週日傍晚不營業<span class="why"></span></div>
+      <div class="nl" id="m4" data-k="diff">生日蛋糕：<b>平日 8 個、週末 12 個</b><span class="why"></span></div>
+      <div class="nl" id="m5" data-k="new">可以取消，但要在取貨前一天中午前<span class="why"></span></div>
+      <div class="nl" id="m6" data-k="open">通知用簡訊還是 LINE？還沒決定<span class="why"></span></div>
+    </div>
+  </div>
+  <div class="card v2">
+    <div class="lbl"><span class="tag g">需求清單第 2 版</span> <span class="muted">每一條都標出來源</span></div>
+    <div class="v2g">
+      <div class="vi"><span class="tag b">訊息</span>客人看到本週品項，選數量、日期、時段</div>
+      <div class="vi"><span class="tag b">訊息</span>店家看到所有訂單</div>
+      <div class="vi"><span class="tag">筆記</span>蛋糕提前 2 天訂，麵包前一天</div>
+      <div class="vi"><span class="tag">筆記</span>店員用平板看今天的取貨清單，可列印</div>
+      <div class="vi"><span class="tag">筆記</span>時段 10–12、2–5、5–8，週日傍晚不營業</div>
+      <div class="vi hot"><span class="tag">筆記</span>生日蛋糕平日 8 個、週末 12 個 <span class="tag r">待老闆確認</span></div>
+      <div class="vi"><span class="tag">筆記</span>取貨前一天中午前可以取消</div>
+      <div class="vi"><span class="tag b">訊息</span>確認通知＋取貨前一天提醒</div>
+      <div class="vi"><span class="tag b">訊息</span>後台要很簡單</div>
+      <div class="vi open"><span class="tag">筆記</span>通知用簡訊還是 LINE <span class="tag y">待確認</span></div>
+    </div>
+    <div class="muted foot">有了更好：線上付款、會員集點（和第 1 版一樣）</div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+{
+  "title": "同一件事，不用講第三次",
+  "lesson": "全環節 · 單元 30 · 30.5 基礎知識",
+  "teacher": {
+    "say": "今天認識專案規則與記憶",
+    "line": "同一件事一直跟 AI 講，很累吧？這一課認識專案說明檔和記憶，看看哪些話該寫下來，哪些不用。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "新的 session", "folder": "~/projects/bakery", "branch": null, "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": { "tree": { "bakery": { "CLAUDE.md": "", "index.html": "", "checkout.html": "", "package.json": "" } }, "open": "bakery" },
+      "place": "center",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc30-5-rules", "url": "https://notes.example/rules-or-not" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "同一件事，不用講第三次",
+      "eyebrow": "全環節 · 單元 30 · 30.5 基礎知識",
+      "sub": "專案規則與記憶",
+      "chapter": "又講了一次",
+      "narration": "先看一個你可能很熟悉的畫面。"
+    },
+    { "show": "claude" },
+    { "on": "claude", "user": "幫我看一下首頁標題為什麼跑版" },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "say": "The heading overflows because `white-space: nowrap` is set on `.hero h1`.",
+      "narration": "它找到原因了，可是用英文回答。"
+    },
+    {
+      "on": "claude",
+      "user": "請用繁體中文回答，我昨天也說過了",
+      "narration": "你只好再說一次：請用繁體中文。而且這是第二次了。"
+    },
+    {
+      "callout": "claude:user",
+      "text": "新對話不記得上一次聊過什麼",
+      "narration": "每開一個新對話，AI 都是從零開始，不記得你昨天說過什麼。所以同樣的話，你得一直講。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "files",
+      "highlight": "CLAUDE.md",
+      "chapter": "專案說明檔",
+      "narration": "解法是寫下來。專案資料夾裡放一個說明檔，叫 CLAUDE.md。AI 每次開新對話，都會先讀它。"
+    },
+    {
+      "callout": "files:file:CLAUDE.md",
+      "text": "每個新對話開始前，AI 都先讀這份",
+      "narration": "就像新同事第一天上班，先讀一份「我們這裡的規矩」。"
+    },
+    { "hide": "files" },
+    {
+      "checkpoint": "先猜猜看",
+      "body": "這六句話：繁體中文回覆、今天先修 header、改完跑 npm test、React 是什麼、結帳頁不能自己改、專案有哪些檔案。哪幾句該寫進規則？",
+      "narration": "先猜猜看：等一下的六句話，哪幾句該寫進規則？想好了再繼續。"
+    },
+    {
+      "show": "web",
+      "chapter": "該寫、不用寫",
+      "narration": "我們一張一張來分。"
+    },
+    { "on": "web", "click": "#c1", "narration": "回覆用繁體中文：你已經糾正兩次了。被糾正兩次的事，就該寫進去。" },
+    { "on": "web", "click": "#c2", "narration": "今天先修 header：只有今天，明天就不對了。一次性的事，直接在對話裡說就好。" },
+    { "on": "web", "click": "#c3", "narration": "改完要跑 npm test：每次都要，寫。" },
+    { "on": "web", "click": "#c4", "narration": "React 是什麼：AI 本來就懂，不用寫。" },
+    { "on": "web", "click": "#c5", "narration": "結帳頁不能自己改：AI 自己猜不到，而且改錯了會收不到錢。代價大的事，一定要寫。" },
+    { "on": "web", "click": "#c6", "narration": "專案有哪些檔案：AI 自己就看得到，寫了反而會過期。" },
+    {
+      "callout": "web:sel:.bin.yes",
+      "text": "每次都適用 · AI 猜不到 · 錯了代價大",
+      "narration": "規則越短越好。只留每次都適用、AI 自己猜不到、錯了代價大的事。寫太多，重要的反而被淹沒。"
+    },
+    {
+      "on": "web",
+      "click": "#memBtn",
+      "chapter": "說明檔和記憶",
+      "narration": "還有一個地方叫記憶。說明檔跟著專案走，是這個專案的規矩；記憶跟著你走，是你個人的習慣，換專案也記得。"
+    },
+    {
+      "callout": "web:section:where",
+      "text": "專案的規矩 → 說明檔；你的習慣 → 記憶",
+      "narration": "像「我喜歡先看方案再動手」，是你的習慣，放記憶；「結帳頁要先問」，是專案的規矩，放說明檔。"
+    },
+    { "hide": "web" },
+    {
+      "diff": "CLAUDE.md",
+      "lines": [["+", "# 專案規則"], ["+", "- 回覆一律用繁體中文"], ["+", "- 改完程式要跑 npm test，通過才回報完成"], ["+", "- checkout.html（結帳）要先問我才能改"]],
+      "narration": "最後寫出來，就是這樣短短幾行。"
+    },
+    {
+      "card": "下一堂：把被糾正兩次的事寫進規則",
+      "eyebrow": "30.5 用 AI 完成",
+      "sub": "寫進去，再觀察 AI 下次有沒有照做",
+      "narration": "下一堂，我們請 AI 把被糾正過的事寫進規則，再開新對話，看它有沒有照做。"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "title": "點來點去，或一行指令",
+  "lesson": "全環節 · 單元 28 · 28.2 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "把後台換成指令",
+    "line": "今天看 CLI：用打字下指令的方式，操作原本只能在網頁後台點來點去的設定。這樣 AI 也碰得到了。"
+  },
+  "blocking": { "cast": ["web", "claude"], "shot": "depth" },
+  "cast": {
+    "web": { "actor": "browser", "props": { "site": "fc28-2-console", "width": "desktop", "url": "https://console.example-cloud.com/run" }, "place": "window", "hidden": true },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "改環境變數", "folder": "~/projects/komori-bakery", "branch": null, "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "點來點去，或一行指令",
+      "eyebrow": "全環節 · 單元 28 · 28.2 基礎知識",
+      "sub": "gh、gcloud 與各平台的 CLI",
+      "chapter": "以前：在主控台點",
+      "narration": "任務很簡單：在雲端的網站服務上，加一個設定值，叫做環境變數。先用網頁主控台做一次。"
+    },
+    { "show": "web", "narration": "右上角在數你點了幾下。" },
+    { "on": "web", "click": "#m-run", "narration": "左邊選「執行服務」。" },
+    { "on": "web", "click": "#s-web", "narration": "找到網站的服務，點進去。" },
+    { "on": "web", "click": "#b-edit", "narration": "編輯並部署新版本。" },
+    { "on": "web", "click": "#b-vars", "narration": "切到變數與密鑰。" },
+    { "on": "web", "click": "#b-add", "narration": "新增變數。" },
+    { "on": "web", "fill": { "#k": "SALE_MODE", "#v": "chestnut" } },
+    { "on": "web", "click": "#b-deploy", "narration": "最後按部署。" },
+    { "callout": "web:sel:#count", "text": "要記得路、一層一層點；AI 碰不到這個網頁", "narration": "點了好幾下，還要記得每個按鈕藏在哪。更麻煩的是：這個網頁，AI 碰不到，只能你來點。" },
+    {
+      "card": "CLI",
+      "eyebrow": "名詞",
+      "sub": "Command Line Interface：用打字下指令的方式操作服務",
+      "chapter": "改用 CLI",
+      "narration": "大部分雲端服務，除了網頁，還有另一種操作方式：CLI，命令列介面。意思是在終端機打一行指令，做到一樣的事。"
+    },
+    { "show": "claude", "narration": "同一件事，用 CLI。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run services update komori-web --update-env-vars SALE_MODE=chestnut",
+      "result": "完成",
+      "out": "Deploying… Done.\nService [komori-web] revision [komori-web-00042] has been deployed",
+      "narration": "一行指令：更新 komori web 這個服務，加上這個環境變數。結果一樣。"
+    },
+    { "callout": "claude:tool", "text": "AI 會打字，所以 CLI 它碰得到", "narration": "最重要的是：AI 會打字下指令，所以 CLI 它碰得到。原本只能你點的事，現在可以交給它，它還能自己再查一次確認。" },
+    {
+      "card": "gh：GitHub（Issue、PR、設定）\ngcloud：Google Cloud\nwrangler：Cloudflare\n各家金流、資料庫也多有自己的 CLI",
+      "eyebrow": "常見的 CLI",
+      "sub": "第一次登入要你本人在瀏覽器完成",
+      "chapter": "常見的 CLI 與登入",
+      "narration": "常見的有：GitHub 的 gh、Google Cloud 的 gcloud、Cloudflare 的 wrangler。很多服務都有自己的 CLI。第一次使用要登入，這個步驟會跳出瀏覽器，由你本人完成。登入之後，AI 就能用你的身分下指令。"
+    },
+    {
+      "card": "權限也一起交出去了",
+      "eyebrow": "要注意",
+      "sub": "刪除、改正式環境的指令，執行前看清楚再允許",
+      "narration": "要注意：AI 用的是你的權限。所以刪東西、改正式環境的指令，執行前一定看清楚再允許。"
+    },
+    {
+      "card": "CLI：用指令操作服務\nAI 會打字，所以碰得到\n登入你來，危險的指令看清楚再允許",
+      "eyebrow": "學會",
+      "sub": "下一堂：把一件原本在主控台點的設定，改成請 AI 用 CLI 完成",
+      "chapter": "學會",
+      "narration": "CLI 是用指令操作服務。AI 會打字，所以碰得到。登入由你來，危險的指令看清楚再允許。下一堂，就把一件主控台的設定，交給 AI 用 CLI 完成。"
+    }
+  ]
+}

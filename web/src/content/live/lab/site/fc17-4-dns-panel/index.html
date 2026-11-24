@@ -1,0 +1,23 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>網域商乙 · DNS 管理</title></head><body>
+<div id="app" class="reg">
+<header class="top" style="background:#14532d;color:#dcfce7"><span class="logo">◎ 網域商乙</span><nav>搜尋網域　我的網域　說明</nav><span class="me">登入中：你</span></header>
+<main class="wrap">
+<p class="kicker">我的網域 ／ xiaosen-bakery.com ／ DNS 紀錄</p>
+<h1>DNS 紀錄</h1>
+<div id="saved" class="saved">✓ 已儲存。變更可能需要一段時間才會在各地生效。</div>
+<div id="dirty" class="dirty">有尚未儲存的變更</div>
+<table class="rec" id="rec"><tr><th>名稱</th><th>類型</th><th>值</th><th>TTL</th><th></th></tr>
+<tr id="row-park"><td class="mono">@</td><td><span class="ty">A</span></td><td class="mono v">203.0.113.10</td><td class="mono">3600</td><td><button class="del" id="del-park">刪除</button></td></tr>
+<tr id="row-wwwp"><td class="mono">www</td><td><span class="ty">CNAME</span></td><td class="mono v">parking.registrar-b.example</td><td class="mono">3600</td><td><button class="del" id="del-wwwp">刪除</button></td></tr>
+<tr id="row-mx0"><td class="mono">@</td><td><span class="ty">MX</span></td><td class="mono v">10 mx.forward.registrar-b.example</td><td class="mono">3600</td><td><button class="del" id="del-mx0">刪除</button></td></tr>
+<tr id="row-spf0"><td class="mono">@</td><td><span class="ty">TXT</span></td><td class="mono v">v=spf1 include:forward.registrar-b.example ~all</td><td class="mono">3600</td><td><button class="del" id="del-spf0">刪除</button></td></tr>
+</table>
+<div class="form box" id="form">
+<label>類型<select id="type"><option>A</option><option>AAAA</option><option>CNAME</option><option>MX</option><option>TXT</option></select></label>
+<label class="n">名稱<input id="name" placeholder="@ 或 www"></label>
+<label class="vv">值<input id="value" placeholder="IP 位址或主機名稱"></label>
+<label class="t">TTL<select id="ttl"><option>300</option><option>3600</option></select></label>
+<button id="add" class="ghost">＋ 新增紀錄</button>
+</div>
+<button id="save" class="primary">儲存變更</button>
+</main></div></body></html>

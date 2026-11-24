@@ -1,0 +1,75 @@
+{
+  "title": "三扇門：註冊、登入、登出各檢查什麼",
+  "lesson": "全環節 · 單元 10 · 10.2 基礎知識",
+  "teacher": {
+    "say": "今天實際按按看登入",
+    "line": "今天我們直接在一個登入頁上按按看：註冊、登入、登出這三扇門，伺服器在背後各要檢查哪些事。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc10-2-forms", "url": "http://localhost:3000/account" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "三扇門",
+      "eyebrow": "全環節 · 單元 10 · 10.2 基礎知識",
+      "sub": "註冊、登入、登出各要檢查什麼",
+      "chapter": "第一扇門：註冊",
+      "narration": "左邊是小森烘焙的會員頁，右邊會顯示伺服器每一次做了哪些檢查。我們一扇門一扇門來。"
+    },
+    { "show": "web" },
+    { "fill": { "#rEmail": "an@example", "#rPw": "123" }, "narration": "先故意填錯：email 少了後面的點什麼，密碼只有三個字。" },
+    { "click": "#rGo" },
+    { "callout": "web:sel:#chk", "text": "格式不對、密碼太短：直接擋下", "narration": "伺服器先檢查格式：email 格式不對就擋下。就算網頁上已經檢查過，伺服器也要再檢查一次，因為網頁的檢查可以被繞過。" },
+    { "fill": { "#rEmail": "an@example.com", "#rPw": "croissant88" }, "narration": "改成正確的格式，但這個 email 已經有人註冊過了。" },
+    { "click": "#rGo", "narration": "伺服器告訴你已經註冊過，請直接登入。" },
+    { "fill": { "#rEmail": "mei@example.com", "#rPw": "baguette2026" }, "narration": "換一個新的 email。" },
+    { "click": "#rGo" },
+    { "callout": "web:sel:#chk", "text": "通過檢查：密碼雜湊後才存、寄出驗證信", "narration": "全部通過：密碼雜湊後才存進資料庫，再寄一封驗證信，確認 email 真的是這個人的。" },
+    { "click": "#tLogin", "chapter": "第二扇門：登入" },
+    { "fill": { "#lEmail": "an@example.com", "#lPw": "croissant00" }, "narration": "登入，密碼故意打錯。" },
+    { "click": "#lGo" },
+    {
+      "callout": "web:sel:#lMsg",
+      "text": "只說「帳號或密碼錯誤」",
+      "narration": "注意錯誤訊息：只說帳號或密碼錯誤，不說是哪一個錯。如果說「密碼錯誤」，壞人就知道這個 email 有註冊。伺服器也偷偷記一次失敗，連錯太多次就要等一下。"
+    },
+    { "fill": { "#lPw": "croissant88" }, "narration": "這次打對。" },
+    { "click": "#lGo" },
+    { "callout": "web:sel:#chk", "text": "換發新的號碼牌，cookie 設 HttpOnly", "narration": "登入成功：伺服器換發一張新的號碼牌，放進設了 HttpOnly 的 cookie。上一堂學過的，都用在這裡了。" },
+    { "click": "#out", "chapter": "第三扇門：登出" },
+    {
+      "callout": "web:sel:#chk",
+      "text": "伺服器刪 session，不只是清 cookie",
+      "narration": "登出時，伺服器要把那張號碼牌作廢。如果只叫瀏覽器丟掉紙條，萬一號碼牌之前被偷了，偷的人還能繼續用。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "朋友說：「網頁上已經檢查過 email 格式了，伺服器不用再檢查。」對嗎？",
+      "body": "選一個。",
+      "id": "servercheck",
+      "options": [
+        {
+          "label": "對，檢查一次就好",
+          "steps": [{ "card": "網頁的檢查可以被繞過", "eyebrow": "再想想", "sub": "有人可以不經過網頁、直接送請求給伺服器", "narration": "網頁的檢查可以被繞過，有人可以不經過網頁、直接送請求給伺服器。網頁的檢查是為了方便，伺服器的檢查才是把關。" }]
+        },
+        {
+          "label": "不對，伺服器一定要再檢查",
+          "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "網頁檢查是為了方便；伺服器檢查才是把關", "narration": "答對了。網頁的檢查讓客人馬上知道填錯，伺服器的檢查才是真正的把關。" }]
+        }
+      ]
+    },
+    { "hide": "web" },
+    {
+      "card": "註冊：格式、重複、雜湊後才存\n登入：模糊的錯誤訊息、限制次數、換新號碼牌\n登出：伺服器作廢號碼牌",
+      "eyebrow": "學會",
+      "sub": "網頁檢查是方便，伺服器檢查才是把關",
+      "chapter": "學會",
+      "narration": "今天的重點：三扇門各有該檢查的事，而且都要在伺服器上檢查。下一堂，把這些要求交給 AI 實作，再請它自己寫測試，證明每一條都做到了。"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>複合式搜尋結果</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">同樣是第一名，哪一個你會想點？</div>
+ <div class="row">
+  <div class="col card r">
+   <div class="lbl">一般的結果</div>
+   <div class="url">komori-bakery.example › croissant</div>
+   <div class="stitle">奶油可頌｜小森烘焙</div>
+   <div class="sdesc">使用法國奶油，每天早上出爐。</div>
+  </div>
+  <div class="col card r">
+   <div class="lbl">複合式結果</div>
+   <div class="url">komori-bakery.example › croissant</div>
+   <div class="stitle">奶油可頌｜小森烘焙</div>
+   <div class="stars" data-k="2">★★★★★ <b>4.8</b> · 126 則評論</div>
+   <div class="price" data-k="3">NT$65 · <span class="ok">有現貨</span></div>
+   <div class="sdesc">使用法國奶油，每天早上出爐。</div>
+  </div>
+ </div>
+ <div class="card code mono" data-s="1">
+  <div class="c">&lt;script type="application/ld+json"&gt;</div>
+  <div class="ln">{</div>
+  <div class="ln" data-k="1">  "@type": "Product",  "name": "奶油可頌",</div>
+  <div class="ln" data-k="2">  "aggregateRating": { "ratingValue": 4.8, "reviewCount": 126 },</div>
+  <div class="ln" data-k="3">  "offers": { "price": 65, "priceCurrency": "TWD", "availability": "InStock" }</div>
+  <div class="ln">}</div>
+  <div class="c">&lt;/script&gt;</div>
+ </div>
+ <div class="stepbar"><button class="btn" id="next">下一步 ▶</button><span class="cap" data-t0="右邊多了星星和價格，眼睛會先看到它" data-t1="這些資訊來自頁面裡一段給機器看的資料：JSON-LD" data-t2="評分寫在 aggregateRating" data-t3="價格和庫存寫在 offers"></span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

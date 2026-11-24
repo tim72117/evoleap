@@ -1,0 +1,137 @@
+{
+  "title": "只有你看得到的後台",
+  "lesson": "全環節 · 單元 23 · 23.3 基礎知識",
+  "teacher": {
+    "say": "今天聊後台報表",
+    "line": "訂單、營收這些數字，只能給你自己看。這一課要聊兩件事：管理員權限要怎麼擋才擋得住，以及一張後台報表該放哪些數字。"
+  },
+  "blocking": { "cast": ["flow", "web"], "shot": "depth" },
+  "cast": {
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "有人打開 /admin",
+        "nodes": [
+          { "id": "guest", "label": "沒登入的人", "icon": "👤", "shape": "person", "x": 10, "y": 18, "w": 9 },
+          { "id": "member", "label": "一般會員", "icon": "🙂", "shape": "person", "x": 10, "y": 50, "w": 9 },
+          { "id": "boss", "label": "老闆（管理員）", "icon": "👑", "shape": "person", "x": 10, "y": 82, "w": 10 },
+          { "id": "check", "label": "伺服器檢查", "sub": "登入了嗎？是管理員嗎？", "icon": "🛡", "x": 45, "y": 50, "w": 11 },
+          { "id": "login", "label": "請先登入", "icon": "↪", "x": 82, "y": 18, "w": 9 },
+          { "id": "deny", "label": "403 沒有權限", "icon": "⛔", "x": 82, "y": 50, "w": 9 },
+          { "id": "admin", "label": "後台報表", "icon": "📊", "x": 82, "y": 82, "w": 9 }
+        ],
+        "edges": [
+          { "from": "guest", "to": "check" },
+          { "from": "member", "to": "check" },
+          { "from": "boss", "to": "check" },
+          { "from": "check", "to": "login" },
+          { "from": "check", "to": "deny" },
+          { "from": "check", "to": "admin" }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc23-3-admin", "url": "https://shop.example.app/admin" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "只有你看得到的後台",
+      "eyebrow": "全環節 · 單元 23 · 23.3 基礎知識",
+      "sub": "管理員權限 · 報表該放哪些數字",
+      "narration": "後台，是網站裡只給管理的人用的頁面。先講怎麼擋住別人。"
+    },
+    {
+      "show": "flow",
+      "chapter": "管理員權限：伺服器說了算",
+      "narration": "有三種人可能打開後台的網址 admin。"
+    },
+    { "send": "guest>check", "label": "/admin" },
+    {
+      "send": "check>login",
+      "label": "沒登入",
+      "tone": "warn",
+      "narration": "沒登入的人，請他先登入。"
+    },
+    { "send": "member>check", "label": "/admin" },
+    {
+      "send": "check>deny",
+      "label": "不是管理員",
+      "tone": "bad",
+      "narration": "登入了但只是一般會員，回答 403：你沒有權限。"
+    },
+    { "send": "boss>check", "label": "/admin" },
+    {
+      "send": "check>admin",
+      "label": "管理員 ✓",
+      "tone": "ok",
+      "narration": "老闆登入、而且帳號被標記成管理員，才看得到報表。這個「是不是管理員」的標記，叫角色。"
+    },
+    {
+      "callout": "flow:node:check",
+      "text": "檢查一定要在伺服器做",
+      "narration": "最重要的是：這個檢查一定要在伺服器做。"
+    },
+    {
+      "card": "只把按鈕藏起來，擋不住人",
+      "eyebrow": "常見的錯誤",
+      "sub": "網頁上不顯示「後台」按鈕，但有人直接打網址、或直接呼叫資料的網址，還是拿得到訂單資料",
+      "narration": "常見的錯誤，是只把「後台」按鈕藏起來。但網址誰都能打，資料的網址也能直接呼叫。真正的門要裝在伺服器：每一次拿資料，都檢查一次是不是管理員。"
+    },
+    {
+      "show": "web",
+      "chapter": "報表該放哪些數字",
+      "narration": "門裝好了，裡面要放什麼？看一張整理好的後台報表。"
+    },
+    {
+      "callout": "web:section:kpis",
+      "text": "最上面：4 個最重要的數字，都和前 7 天比",
+      "narration": "最上面只放四個最重要的數字：營收、訂單、客單價、轉換率。每一個都和前七天比，才知道是變好還是變壞。"
+    },
+    {
+      "callout": "web:section:trend",
+      "text": "趨勢：每天的變化，灰線是前 7 天",
+      "narration": "再來是趨勢，看每天的起伏。週六最多，備料就知道要多準備。"
+    },
+    {
+      "callout": "web:section:funnel",
+      "text": "漏斗：上一課做的那一條",
+      "narration": "漏斗就是上一課做的，紅色那一層是掉最多的地方。"
+    },
+    {
+      "callout": "web:section:todo",
+      "text": "需要處理：數字背後要你動手的事",
+      "narration": "最後是需要處理的事：未出貨的訂單、快沒庫存的商品。報表不只是看，還要告訴你今天該做什麼。"
+    },
+    {
+      "callout": "web:sel:.role",
+      "text": "後台只顯示必要的個資：報表看總數，不列客人電話",
+      "narration": "還有一點：報表看的是總數，不需要列出每個客人的電話地址。需要看單筆訂單時，再點進去。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "門裝在伺服器，數字要能行動",
+      "sub": "每次拿資料都檢查角色 · 少數重要數字 + 比較 + 待處理",
+      "chapter": "重點整理",
+      "narration": "整理一下：門要裝在伺服器，每次都檢查角色；報表放少數重要的數字，有比較，有待處理的事。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "想一想",
+      "body": "後台的網址改成很難猜的 /x9k2-admin，不做登入檢查，這樣安全嗎？",
+      "narration": "想一想：把後台網址改成很難猜的一串字，不做登入檢查，這樣安全嗎？"
+    },
+    {
+      "card": "不安全",
+      "eyebrow": "答案",
+      "sub": "網址可能出現在瀏覽紀錄、分享的截圖、網頁原始碼裡；藏起來不等於鎖起來",
+      "narration": "不安全。網址會出現在瀏覽紀錄、截圖、原始碼裡，藏起來不等於鎖起來。下一堂，請 AI 做一個只有管理員看得到的後台。"
+    }
+  ]
+}

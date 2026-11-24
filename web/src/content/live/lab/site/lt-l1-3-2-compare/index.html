@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>同一個範本，兩個案子</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="bar"><h1>同一個範本，兩個案子</h1><span class="sub">範本第 1 版的測試結果（課程範例，內容虛構）</span><button class="btn" id="apply">修正範本</button></div>
+    <div class="cols">
+      <div class="res bake">
+        <header><span class="ico">🍰</span>小森烘焙 預約系統</header>
+        <div class="in">
+          <h3>需求清單 · 一定要有</h3>
+          <ul>
+            <li>客人線上預約取貨<span class="t o">原文</span></li>
+            <li>蛋糕要提前 2 天訂<span class="t o">原文</span></li>
+            <li>週日傍晚不能選<span class="t g">推測</span></li>
+          </ul>
+          <h3>需求清單 · 之後再說</h3>
+          <ul><li>線上付款<span class="t o">原文</span></li></ul>
+          <h3>工作項目</h3>
+          <ul>
+            <li>取貨日期與時段選擇 — 驗收：蛋糕只能選 2 天後的日期</li>
+            <li>當日取貨清單 — 驗收：3 步內看到今天的訂單</li>
+          </ul>
+          <h3>待確認事項</h3>
+          <ul><li>週日傍晚是不是完全不營業？</li></ul>
+        </div>
+      </div>
+      <div class="res flower">
+        <header><span class="ico">💐</span>花店 線上訂花</header>
+        <div class="in">
+          <h3 class="diff" id="d-group"><span class="was">需求清單 · 必要功能</span><span class="now">需求清單 · 一定要有</span></h3>
+          <ul>
+            <li>看花束款式和價格<span class="t o">原文</span></li>
+            <li>選送達日期、填卡片內容<span class="t o">原文</span></li>
+            <li>節日前三天不接單<span class="t o">原文</span></li>
+          </ul>
+          <h3>需求清單 · 之後再說</h3>
+          <ul><li>市區以外的外送<span class="t g">推測</span></li></ul>
+          <h3>工作項目</h3>
+          <ul>
+            <li>花束列表 — 驗收：<span class="diff" id="d-vague"><span class="was">頁面美觀、好操作</span><span class="now">每款花束都看得到照片、名稱、價格</span></span></li>
+            <li>停止接單 — 驗收：節日前三天選不到那幾天</li>
+          </ul>
+          <h3>待確認事項</h3>
+          <ul><li>運費固定是多少？</li></ul>
+        </div>
+      </div>
+    </div>
+    <div class="fixbox">
+      <h2>範本第 2 版改了什麼</h2>
+      <ul>
+        <li>分組名稱寫死成「一定要有」「之後再說」，兩個案子才對得起來</li>
+        <li>驗收條件要寫成能用「是／否」回答的句子，不寫「美觀」「好操作」</li>
+      </ul>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

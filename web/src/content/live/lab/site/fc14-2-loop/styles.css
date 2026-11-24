@@ -1,0 +1,25 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#eef0ec;display:flex;align-items:center;justify-content:center}
+.app{width:1180px;padding:20px 0}
+.grid{display:grid;grid-template-columns:.75fr 1.6fr;gap:20px}
+.guess,.loop{background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,.05);position:relative;height:470px}
+.guess{opacity:.4;text-align:center}
+h3{font-size:22px;margin-bottom:12px}
+.g{border:2px dashed #d0cbbd;border-radius:12px;padding:10px;font-size:19px}.ga{color:#aaa;font-size:20px;line-height:30px}
+.g.bad{border-style:solid}
+.loop svg{position:absolute;left:0;top:0;width:100%;height:100%}
+.ring{fill:none;stroke:#d9dfe3;stroke-width:10;stroke-dasharray:4 14;stroke-linecap:round}
+.arrowhead{fill:#d9dfe3}
+.n{position:absolute;width:250px;background:#fbfaf6;border:3px solid #e3ded2;border-radius:14px;padding:10px 14px;text-align:center;opacity:.55}
+.n b{display:block;font-size:22px}.n small{font-size:15px;color:#6b7478}
+.n1{left:50%;top:18px;transform:translateX(-50%)}.n2{right:18px;top:50%;transform:translateY(-50%)}
+.n3{left:50%;bottom:18px;transform:translateX(-50%)}.n4{left:18px;top:50%;transform:translateY(-50%)}
+.center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font-size:19px;color:#6b7478;visibility:hidden}
+.chips{display:flex;gap:14px;margin-top:16px;justify-content:center}
+.chips button{font:inherit;font-size:19px;border:2px solid #c3cbc8;background:#fff;border-radius:999px;padding:8px 22px;color:#1f2a2e}
+.sg #b0,.s1 #b1,.s2 #b2,.s3 #b3,.s4 #b4{background:#1f3b44;color:#fff;border-color:#1f3b44}
+.sg .guess{opacity:1}.sg .g.bad{border-color:#d6453d;color:#d6453d;background:#fdeceb}
+.s1 #n1,.s2 #n1,.s2 #n2,.s3 #n1,.s3 #n2,.s3 #n3,.s4 .n{opacity:1;border-color:#2f9e6a}
+.s1 #n1,.s2 #n2,.s3 #n3,.s4 #n4{background:#eaf7f0}
+.s1 .ring,.s2 .ring,.s3 .ring,.s4 .ring{stroke:#9fd3b7}.s1 .arrowhead,.s2 .arrowhead,.s3 .arrowhead,.s4 .arrowhead{fill:#9fd3b7}
+.s4 .center{visibility:visible;color:#1f3b44;font-weight:700}

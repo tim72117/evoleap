@@ -1,0 +1,144 @@
+{
+  "title": "串接第三方 API",
+  "lesson": "全環節 · 單元 8 · 8.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天串接天氣服務",
+    "line": "今天把天氣服務串進小森烘焙的首頁。AI 負責讀文件、寫程式、測試；申請金鑰的網頁它碰不到，由你照它寫的步驟自己來。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "串接天氣", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "portal": {
+      "actor": "browser",
+      "props": { "site": "fc8-3-keyportal", "url": "https://api.weather.example/dashboard/keys" },
+      "place": "window",
+      "hidden": true
+    },
+    "env": {
+      "actor": "editor",
+      "props": { "project": "bakery", "files": { ".env.example": "WEATHER_API_KEY=\n" } },
+      "place": "window",
+      "hidden": true
+    },
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc8-3-weather", "url": "http://localhost:3000/" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "串接第三方 API",
+      "eyebrow": "全環節 · 單元 8 · 8.3 用 AI 完成",
+      "sub": "AI 讀文件、寫串接；申請金鑰你自己來",
+      "chapter": "AI 先讀文件",
+      "narration": "這一堂分兩手：AI 做它碰得到的，碰不到的由你來，中間用截圖和回報接起來。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "首頁要依台北天氣推薦麵包，用天氣資料平台的 API。先讀官方文件再寫。申請金鑰的網頁你碰不到，請寫逐步操作給我，金鑰我自己貼到 .env，不會貼給你。完成標準：/api/weather 回 200；天氣服務出錯時首頁還是正常，只是改顯示備案。",
+      "narration": "交代時說清楚分工：申請金鑰你自己來，而且金鑰不貼進對話。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "WebFetch",
+      "arg": "https://api.weather.example/docs",
+      "result": "讀完驗證、用量、錯誤三節",
+      "out": "驗證：標頭 X-API-Key\n用量：免費方案每分鐘 60 次，超過回 429\n錯誤：401 金鑰錯誤、503 服務維護",
+      "narration": "它先讀官方文件，抓出三件要知道的事：金鑰放在哪個標頭、用量上限、會回哪些錯誤。"
+    },
+    {
+      "on": "claude",
+      "say": "請照這幾步申請金鑰：\n1. 登入天氣資料平台，左邊選 **API 金鑰**\n2. 按 **＋ 建立金鑰**，名稱填 `bakery-server`\n3. 權限選 **只能讀取天氣資料**，按 **建立**\n4. 按 **複製**，貼到專案的 `.env`：`WEATHER_API_KEY=…`\n5. 完成後截圖這一頁給我（金鑰只露出最後四碼，沒關係）",
+      "chapter": "AI 寫步驟，你照做",
+      "narration": "它寫好逐步操作。權限只給「讀取」，用不到的權限不要給。"
+    },
+    { "hide": "claude" },
+    { "show": "portal", "focus": false, "narration": "換你了。打開天氣平台的後台，照步驟做。" },
+    { "on": "portal", "click": "#new", "narration": "按建立金鑰。" },
+    { "on": "portal", "fill": { "#kname": "bakery-server", "#kscope": "read" }, "narration": "名稱填 bakery-server，權限選只能讀取。" },
+    { "on": "portal", "click": "#create", "narration": "按建立。" },
+    { "callout": "portal:sel:.note", "text": "金鑰只顯示這一次：貼到 .env，不要貼到對話裡", "narration": "金鑰只會完整顯示這一次。" },
+    { "on": "portal", "click": "#copy", "narration": "按複製。" },
+    { "hide": "portal" },
+    { "show": "env", "open": ".env", "focus": false, "narration": "在專案裡打開 .env，貼上。" },
+    { "on": "env", "paste": "WEATHER_API_KEY=wx_live_••••••••3f9a\n", "narration": "這個檔案只留在你的電腦，不會上傳，下一個單元會再講為什麼。" },
+    { "hide": "env" },
+    { "show": "claude", "chapter": "回報，AI 接手" },
+    { "on": "claude", "user": "金鑰建好了，也貼進 .env。截圖附上：bakery-server 已啟用。", "narration": "回到 AI，回報做完了，附上截圖。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "grep -c '^WEATHER_API_KEY=.\\+' .env",
+      "result": "1",
+      "out": "1",
+      "narration": "它只確認 .env 裡有這一行、而且有值，不把金鑰印出來。"
+    },
+    {
+      "on": "claude",
+      "edit": "server.js",
+      "lines": [
+        [30, "+", "let cache = null // 30 分鐘內重用，省用量"],
+        [31, "+", "app.get('/api/weather', async (req, res) => {"],
+        [32, "+", "  if (cache && Date.now() - cache.at < 30 * 60e3) return res.json(cache.data)"],
+        [33, "+", "  try {"],
+        [34, "+", "    const r = await fetch(WX_URL + '?city=taipei', { headers: { 'X-API-Key': process.env.WEATHER_API_KEY }, signal: AbortSignal.timeout(3000) })"],
+        [35, "+", "    if (!r.ok) throw new Error('weather ' + r.status)"],
+        [36, "+", "    cache = { at: Date.now(), data: await r.json() }"],
+        [37, "+", "    res.json(cache.data)"],
+        [38, "+", "  } catch (e) {"],
+        [39, "+", "    res.json({ fallback: true }) // 首頁改顯示招牌商品"],
+        [40, "+", "  }"],
+        [41, "+", "})"]
+      ],
+      "chapter": "AI 串接並驗證",
+      "narration": "它寫串接：金鑰從 .env 讀，放在文件說的標頭；問到的結果暫存三十分鐘；三秒沒回應或出錯，就回備案。"
+    },
+    { "on": "claude", "ask": "npm start &", "q": "Claude 想要執行這個指令", "where": "~/projects/bakery", "note": "在背景啟動本機伺服器" },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -w '\\n→ %{http_code}' localhost:3000/api/weather",
+      "result": "200",
+      "out": "{\"temp\":28,\"sky\":\"晴\",\"rain\":10}\n→ 200",
+      "narration": "打一次自己的 API：200，拿到天氣。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "WX_URL=http://10.255.255.1 npm start & sleep 2; curl -s -w '\\n→ %{http_code}' localhost:3001/api/weather",
+      "result": "備案生效",
+      "out": "{\"fallback\":true}\n→ 200",
+      "narration": "它還故意把天氣服務的網址換成連不上的位址，確認出錯時回的是備案，網站不會壞。"
+    },
+    {
+      "on": "claude",
+      "say": "完成：`/api/weather` 回 **200**；天氣服務連不上時回 `fallback`，首頁改顯示招牌商品。金鑰只從 `.env` 讀，`.env.example` 留了空白範本。"
+    },
+    { "hide": "claude" },
+    { "show": "page", "focus": false, "chapter": "看成果", "narration": "打開首頁：天氣和推薦都出來了，資料經由你的伺服器向天氣服務拿。" },
+    { "on": "page", "click": "#down", "narration": "就算天氣服務掛了，首頁也只是換成備案。" },
+    { "on": "page", "click": "#up" },
+    {
+      "checkpoint": "換你試試",
+      "body": "挑一個你想用的第三方 API。請 AI 先讀官方文件、寫申請金鑰的步驟給你；你自己申請、貼進 .env，再回報給它接手。"
+    },
+    { "hide": "page" },
+    {
+      "card": "AI 碰不到的頁面：它寫步驟，你照做、回報",
+      "eyebrow": "學會",
+      "sub": "金鑰你自己貼進 .env，不貼進對話；權限只給需要的",
+      "chapter": "學會",
+      "narration": "這一堂的重點：AI 讀文件、寫程式、自己測；申請金鑰的頁面由你照步驟操作，金鑰自己貼進 .env，再截圖回報讓它接手。"
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "title": "對話太長時：摘要與接續",
+  "lesson": "全環節 · 單元 30 · 30.4 用 AI 完成",
+  "teacher": {
+    "say": "今天把長對話交接給新對話",
+    "line": "這一課，我們請 AI 把一段很長的對話整理成進度摘要，存成檔案，再開一個新對話接著做，看它能不能接得上。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "改網站（聊很久了）", "folder": "~/projects/bakery", "branch": "main", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": { "tree": { "bakery": { "index.html": "", "checkout.html": "", "products.css": "", "styles.css": "" } }, "open": "bakery" },
+      "place": "center",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "對話太長時：摘要與接續",
+      "eyebrow": "全環節 · 單元 30 · 30.4 用 AI 完成",
+      "sub": "請 AI 寫進度摘要，開新對話接著做",
+      "chapter": "長對話的尾巴",
+      "narration": "這是一段聊了一整個早上的對話。我們先看看它的尾巴。"
+    },
+    { "show": "claude" },
+    { "on": "claude", "user": "順便把結帳頁的按鈕也改成新的樣式" },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "say": "好的，我來修改 `checkout.html` 的按鈕樣式。",
+      "narration": "它準備去改結帳頁。可是早上你們說好了：結帳頁先不要動。它忘了。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "訊號：違反了早上說好的事",
+      "narration": "這就是該換新對話的訊號。先叫它停下來。"
+    },
+    { "on": "claude", "user": "等等，先不要改結帳頁。我們早上說好不動它" },
+    {
+      "on": "claude",
+      "say": "抱歉，我沒注意到這個決定。我不會修改 `checkout.html`。",
+      "narration": "它道歉了。但對話已經很長，類似的事還會再發生。"
+    },
+    {
+      "on": "claude",
+      "user": "對話太長了。請把目前進度寫成 PROGRESS.md：做到哪、做過的決定、待辦、要注意的事。寫完再列出你不確定、需要我補充的地方",
+      "chapter": "請它寫進度摘要",
+      "narration": "我們請它寫進度摘要，四塊都點名；還請它說出自己不確定的地方。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log --oneline -5 && git diff --stat",
+      "result": "5 筆紀錄、3 個檔案有改動",
+      "out": "a41c2e header 間距調整\n9be771 主色改成深綠\n…\n products.css | 18 ++++---\n styles.css   |  6 +-",
+      "narration": "它沒有只靠記憶，先看了改動紀錄，確認今天真的改了哪些檔案。"
+    },
+    {
+      "on": "claude",
+      "edit": "PROGRESS.md",
+      "lines": [
+        [1, "+", "# 進度摘要（11/9 早上）"],
+        [2, "+", "## 做到哪：header 改好；商品頁價格排版做一半"],
+        [3, "+", "## 決定：主色深綠 #2f5d46；結帳頁先不要動"],
+        [4, "+", "## 待辦：商品頁價格排版、手機寬度檢查"],
+        [5, "+", "## 注意：npm test 裡 cart.test 本來就會失敗"]
+      ],
+      "narration": "摘要寫好了，四塊都有。"
+    },
+    {
+      "on": "claude",
+      "say": "已寫好 `PROGRESS.md`。我不確定的地方：**商品卡片要不要顯示原價**，對話裡沒有結論，請你決定。",
+      "narration": "它還說出一件不確定的事：商品卡片要不要顯示原價。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "檢查摘要：決定有沒有寫進去？",
+      "narration": "交接前，你自己看一次摘要。最重要的是「決定」這一行：不要動結帳頁，有寫進去。"
+    },
+    {
+      "on": "claude",
+      "user": "原價不顯示。把這個也寫進決定",
+      "narration": "把它不確定的事補上答案，"
+    },
+    {
+      "on": "claude",
+      "edit": "PROGRESS.md",
+      "lines": [[3, "-", "## 決定：主色深綠 #2f5d46；結帳頁先不要動"], [3, "+", "## 決定：主色深綠 #2f5d46；結帳頁先不要動；不顯示原價"]]
+    },
+    { "hide": "claude" },
+    {
+      "show": "files",
+      "create": "PROGRESS.md",
+      "narration": "摘要是一個檔案，存在專案資料夾裡。它不會跟著對話一起消失。"
+    },
+    { "hide": "files" },
+    {
+      "show": "claude",
+      "chapter": "開新對話接著做"
+    },
+    {
+      "on": "claude",
+      "newSession": "商品頁排版",
+      "narration": "開一個新對話。這是一張乾淨的桌子。"
+    },
+    {
+      "on": "claude",
+      "user": "先讀 PROGRESS.md，用三句話告訴我目前狀況，再接著做商品頁的價格排版。完成條件：手機寬度價格不換行",
+      "narration": "第一句話就請它先讀摘要、說給你聽，再接著做。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "PROGRESS.md",
+      "result": "5 行"
+    },
+    {
+      "on": "claude",
+      "say": "目前狀況：\n1. header 已完成，商品頁價格排版做到一半\n2. 主色深綠、**結帳頁不動**、不顯示原價\n3. `cart.test` 本來就會失敗，不是這次造成的\n\n我接著做價格排版。",
+      "narration": "它用三句話講回來，結帳頁不動，也記得。這就是接上了。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "先讓它複述，確認真的接上",
+      "narration": "請它先複述，是一個很好的檢查：講錯了，你馬上知道摘要哪裡不清楚。"
+    },
+    {
+      "on": "claude",
+      "edit": "products.css",
+      "lines": [[22, "-", ".price { font-size: 22px; }"], [22, "+", ".price { font-size: 18px; white-space: nowrap; }"]],
+      "narration": "它接著改價格的排版，"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright screenshot --viewport-size=390,844 http://localhost:5173/products shot.png",
+      "result": "已截圖",
+      "narration": "再用手機寬度拍一張畫面檢查。"
+    },
+    {
+      "on": "claude",
+      "say": "價格排版完成：手機寬度 390 的截圖裡，價格都在同一行。已把 `PROGRESS.md` 的待辦更新，剩下「手機寬度檢查」的其他頁。",
+      "narration": "做完，它還順手更新了摘要的待辦。下次再換新對話，一樣從這張摘要開始。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "在你自己的長對話裡，請 AI 寫一份進度摘要（做到哪、決定、待辦、注意事項），開新對話先請它讀完複述，再接著做。",
+      "narration": "換你試試：在你自己的長對話裡請 AI 寫摘要，開新對話，先請它複述再接著做。"
+    },
+    {
+      "card": "摘要＋複述＝安心交接",
+      "eyebrow": "這一課的成果",
+      "sub": "一份可以接續工作的進度摘要",
+      "narration": "摘要存成檔案，新對話先複述再動手。這樣不管對話多長，你都可以安心交接。"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>抽籤分組</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-v="2">
+  <aside class="controls">
+    <div class="h">抽籤分組</div>
+    <div class="hint">一行一人：姓名, 單位</div>
+    <div class="box">
+      <textarea id="list" placeholder="把名單貼在這裡"></textarea>
+      <button class="paste" data-paste="p12" aria-label="貼上 12 人名單"></button>
+      <button class="paste" data-paste="p3" aria-label="貼上 3 人名單"></button>
+      <button class="paste" data-paste="dup" aria-label="貼上有同名者的名單"></button>
+    </div>
+    <div class="row"><button id="clear" class="btn ghost">清空</button><span class="count" id="total">共 0 人</span></div>
+  </aside>
+  <main class="main">
+    <section class="draw">
+      <div class="show" id="show">按「抽籤」開始</div>
+      <div class="acts"><button class="btn big" id="draw">🎲 抽籤</button><button class="btn ghost" id="reset">重設</button></div>
+      <div class="msg" id="msg"></div>
+    </section>
+    <section class="drawn" data-need="2">
+      <div class="sh">已抽中 <span class="left" id="left"></span></div>
+      <ol id="drawn"></ol>
+    </section>
+    <section class="grp" data-need="3">
+      <div class="sh">隨機分組 <input id="groups" type="number" value="3" min="1"> 組 <button class="btn" id="split">分組</button></div>
+      <div class="gmsg" id="gmsg"></div>
+      <div class="gout" id="gout"></div>
+    </section>
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

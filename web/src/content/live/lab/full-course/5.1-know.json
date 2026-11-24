@@ -1,0 +1,190 @@
+{
+  "title": "一個網頁，三個分工",
+  "lesson": "全環節 · 單元 5 · 5.1 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天把網頁拆開來看",
+    "line": "今天要來把一個網頁拆開來看：HTML、CSS、JavaScript 這三個名字你可能聽過，我們看看它們各自負責什麼。"
+  },
+  "cast": {
+    "page": {
+      "actor": "browser",
+      "props": { "site": "fc5-1-full", "width": "desktop", "url": "https://lin.example/" },
+      "place": "window",
+      "hidden": true
+    },
+    "house": {
+      "actor": "browser",
+      "props": { "site": "fc5-1-house", "width": "desktop", "url": "https://diagram.example/house" },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": {
+        "project": "profile",
+        "files": {
+          "index.html": "<header class=\"hero\">\n  <h1>林小安</h1>\n  <p class=\"tagline\">喜歡烘焙的設計新手</p>\n</header>\n<button id=\"hi\">打個招呼</button>\n<p id=\"msg\">按一下按鈕，跟我說嗨</p>\n",
+          "styles.css": "h1 {\n  font-size: 40px;\n}\n.btn {\n  background: #c2703d;\n  color: white;\n  border-radius: 999px;\n}\n",
+          "script.js": "const btn = document.getElementById('hi')\nconst msg = document.getElementById('msg')\nbtn.addEventListener('click', () => {\n  msg.textContent = '嗨！謝謝你來看我的頁面'\n})\n"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "一個網頁，三個分工",
+      "eyebrow": "全環節 · 單元 5 · 5.1 基礎知識",
+      "sub": "HTML 是骨架、CSS 是裝潢、JavaScript 是開關",
+      "chapter": "先看成品",
+      "narration": "我們先不看程式碼，先看一個做好的網頁，再把它一層一層拆開。"
+    },
+    {
+      "show": "page",
+      "narration": "這是一個個人介紹頁。上面有名字和一句簡介，中間是關於我和興趣，最下面有一個按鈕。"
+    },
+    { "on": "page", "scroll": "hello", "narration": "我們捲到按鈕這裡，按一下試試。" },
+    { "on": "page", "click": "#hi", "narration": "按下去，下面那行字就換了，還會幫你數有幾個人打過招呼。" },
+    {
+      "callout": "page:section:msg",
+      "text": "這行字是按下去之後才變的",
+      "narration": "記住這個「按了會有反應」的感覺，等一下會用到。"
+    },
+    {
+      "on": "page",
+      "site": "fc5-1-raw",
+      "chapter": "一層一層拆開",
+      "narration": "現在我把 CSS 和 JavaScript 都拿掉，只留下 HTML。"
+    },
+    {
+      "callout": "page:viewport",
+      "text": "只剩 HTML：內容全都在，但沒有顏色、沒有排版",
+      "narration": "名字、簡介、興趣、按鈕，內容一個都沒少，可是變成黑白的一長條。HTML 只負責「有哪些東西、誰在誰前面」。"
+    },
+    {
+      "on": "page",
+      "site": "fc5-1-styled",
+      "narration": "接著把 CSS 加回來。顏色、字的大小、圓角、三張興趣卡片並排，全都回來了。這些都是 CSS 管的。"
+    },
+    { "on": "page", "scroll": "hello" },
+    {
+      "on": "page",
+      "click": "#hi",
+      "narration": "可是你看，按鈕按下去，什麼事都沒發生。因為讓它「有反應」的那一層，還沒加回來。"
+    },
+    {
+      "on": "page",
+      "site": "fc5-1-full",
+      "narration": "最後加回 JavaScript。"
+    },
+    { "on": "page", "scroll": "hello" },
+    {
+      "on": "page",
+      "click": "#hi",
+      "narration": "再按一次，字又會換了。按下去要發生什麼事，是 JavaScript 決定的。"
+    },
+    { "hide": "page" },
+    {
+      "show": "house",
+      "chapter": "用一間房子來記",
+      "narration": "如果記不住，就想像蓋一間房子。"
+    },
+    {
+      "on": "house",
+      "click": "#add-html",
+      "narration": "HTML 是骨架：這裡有屋頂、有牆、有一扇窗、一扇門。它決定有哪些東西、放在哪裡。"
+    },
+    {
+      "on": "house",
+      "click": "#add-css",
+      "narration": "CSS 是裝潢：屋頂刷成紅色、牆是米色、門口種花。東西還是那些，只是變好看了。"
+    },
+    {
+      "on": "house",
+      "click": "#add-js",
+      "narration": "JavaScript 是水電和開關：牆上多了一個開關。"
+    },
+    {
+      "on": "house",
+      "click": "#light",
+      "narration": "按下開關，燈就亮了。按鈕、選單、表單檢查，這些「按了會有反應」的，都是 JavaScript。"
+    },
+    { "hide": "house" },
+    {
+      "show": "code",
+      "open": "index.html",
+      "chapter": "三個檔案長什麼樣",
+      "narration": "回到真的網頁。一個網頁通常就是三種檔案。第一個是 index.html。"
+    },
+    {
+      "callout": "code:code",
+      "text": "HTML：用標籤標出「這是標題」「這是段落」「這是按鈕」",
+      "narration": "尖括號包起來的叫做標籤。h1 是大標題，p 是一段文字，button 是按鈕。它只說這是什麼，不管長什麼樣子。"
+    },
+    {
+      "on": "code",
+      "open": "styles.css",
+      "narration": "第二個是 styles.css。"
+    },
+    {
+      "callout": "code:code",
+      "text": "CSS：先指出要改誰，再寫要改成什麼樣子",
+      "narration": "先寫要改誰，例如 h1；大括號裡寫要改成什麼，例如字的大小 40 像素。像素是螢幕上的一個小點，數字越大，字越大。"
+    },
+    {
+      "on": "code",
+      "open": "script.js",
+      "narration": "第三個是 script.js。"
+    },
+    {
+      "callout": "code:code",
+      "text": "JavaScript：找到按鈕 → 等它被按 → 改掉那行字",
+      "narration": "它在做三件事：找到那個按鈕，等它被按下，按下去就把下面那行字換掉。下一課我們會一行一行讀懂它。"
+    },
+    { "hide": "code" },
+    {
+      "shimmer": "骨架 · 裝潢 · 開關",
+      "sub": "HTML · CSS · JavaScript",
+      "chapter": "考考你",
+      "narration": "骨架、裝潢、開關。用 AI 做網頁的時候，知道你要改的是哪一層，就能講得更準。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "想把按鈕改成方角、換成綠色，主要要改哪一個檔案？",
+      "body": "選一個。",
+      "id": "which-layer",
+      "options": [
+        {
+          "label": "index.html（HTML）",
+          "steps": [
+            { "card": "再想想", "eyebrow": "考考你", "sub": "HTML 只說「這裡有一個按鈕」，不管它長什麼樣", "narration": "HTML 只負責說這裡有一個按鈕。顏色和形狀，是裝潢的事。" },
+            { "card": "答案：styles.css（CSS）", "eyebrow": "考考你", "sub": "顏色、圓角、大小、排列都歸 CSS 管", "narration": "答案是 CSS。顏色、圓角、大小、排列，都歸 CSS 管。" }
+          ]
+        },
+        {
+          "label": "styles.css（CSS）",
+          "steps": [
+            { "card": "答對了！", "eyebrow": "考考你", "sub": "顏色、圓角、大小、排列都歸 CSS 管", "narration": "答對了。顏色和形狀是裝潢，歸 CSS 管。" }
+          ]
+        },
+        {
+          "label": "script.js（JavaScript）",
+          "steps": [
+            { "card": "再想想", "eyebrow": "考考你", "sub": "JavaScript 管的是「按下去之後發生什麼」", "narration": "JavaScript 管的是按下去之後發生什麼事。按鈕平常長什麼樣子，不歸它管。" },
+            { "card": "答案：styles.css（CSS）", "eyebrow": "考考你", "sub": "顏色、圓角、大小、排列都歸 CSS 管", "narration": "答案是 CSS。顏色、圓角、大小、排列，都歸 CSS 管。" }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "HTML：有哪些東西\nCSS：長什麼樣子\nJavaScript：按了會怎樣",
+      "eyebrow": "學會",
+      "sub": "下一堂：用一段話請 AI 做出你自己的介紹頁",
+      "chapter": "學會",
+      "narration": "HTML 決定有哪些東西，CSS 決定長什麼樣子，JavaScript 決定按了會怎樣。下一堂，我們用一段話請 AI 做出你自己的介紹頁。"
+    }
+  ]
+}

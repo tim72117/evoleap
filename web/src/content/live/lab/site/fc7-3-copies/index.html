@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>同一件事放幾個地方</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="w" data-mode="copies" data-done="0">
+  <div class="bar"><span class="t-copies">現在：電話寫在 4 個地方</span><span class="t-single">改成：只寫在 site.config.js 一個地方</span></div>
+  <div class="area">
+    <div class="src"><b>site.config.js</b><code>phone: <em class="old">"02-2345-6789"</em><em class="new">"04-2255-8080"</em></code></div>
+    <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M50 30 L12 70"/><path d="M50 30 L37 70"/><path d="M50 30 L63 70"/><path d="M50 30 L88 70"/></svg>
+    <div class="pages">
+      <div class="pg p1"><b>首頁 index.html</b><div class="ln"></div><div class="ln s"></div><div class="ph">電話 <span class="old">02-2345-6789</span><span class="new">04-2255-8080</span></div></div>
+      <div class="pg p2"><b>關於 about.html</b><div class="ln"></div><div class="ln s"></div><div class="ph">電話 <span class="old">02-2345-6789</span><span class="new">04-2255-8080</span></div></div>
+      <div class="pg p3 miss"><b>預約 booking.html</b><div class="ln"></div><div class="ln s"></div><div class="ph">電話 <span class="old">02-2345-6789</span><span class="new">04-2255-8080</span></div></div>
+      <div class="pg p4"><b>頁尾 footer.html</b><div class="ln"></div><div class="ln s"></div><div class="ph">電話 <span class="old">02-2345-6789</span><span class="new">04-2255-8080</span></div></div>
+    </div>
+  </div>
+  <div class="btns"><button id="edit" type="button">把電話改成 04-2255-8080</button><button id="single" type="button">改成單一來源</button></div>
+</div>
+</body></html>

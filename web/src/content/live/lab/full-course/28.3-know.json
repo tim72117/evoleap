@@ -1,0 +1,117 @@
+{
+  "title": "幫 AI 接上插座",
+  "lesson": "全環節 · 單元 28 · 28.3 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "認識 MCP",
+    "line": "今天認識 MCP：一種讓 AI 接上外部工具的方式。接上之後，它能做的事變多了，所以裝之前，也要先看清楚它拿到哪些權限。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "fc28-3-mcp",
+        "width": "desktop",
+        "url": "https://whiteboard.example/mcp"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "幫 AI 接上插座",
+      "eyebrow": "全環節 · 單元 28 · 28.3 基礎知識",
+      "sub": "MCP 伺服器能給 AI 哪些能力，安裝前要看什麼",
+      "chapter": "一個通用的插座",
+      "narration": "以前，每一種工具要接上 AI，都要特別寫一套。就像每一台電器的插頭都不一樣。"
+    },
+    {
+      "card": "MCP = AI 的通用插座",
+      "eyebrow": "比喻",
+      "sub": "Model Context Protocol：大家約好同一種接法，接上就能用",
+      "narration": "MCP 的全名是模型脈絡協定。不用記全名，把它想成一個通用插座：各家工具約好同一種接法，任何工具只要做成這種插頭，接上 AI 就能用。"
+    },
+    {
+      "show": "web",
+      "narration": "中間是 AI，四周是接上去的 MCP 伺服器。"
+    },
+    {
+      "callout": "web:sel:.p0",
+      "text": "MCP 伺服器：把一個服務的功能，變成 AI 能呼叫的工具",
+      "narration": "每一個 MCP 伺服器，是一個小程式，把一個外部服務的功能，變成 AI 可以呼叫的工具。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "chapter": "能給 AI 哪些能力",
+      "narration": "接上 GitHub，AI 就能列出 Issue、看 Issue 內容，甚至開新的、合併程式碼。能讀還是能寫，看你給它的權杖。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "接上資料庫，AI 能直接查資料。建議給它一個唯讀帳號，它就只能看、改不到。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "接上瀏覽器，AI 能開網頁、點按鈕、截圖，就是上上一堂說的眼睛。要注意它會用你登入的狀態做事。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "接上設計稿工具，AI 能讀到設計師畫的畫面和顏色。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "chapter": "安裝前看三件事",
+      "narration": "能力越多，風險也越多。所以安裝之前，看三件事。"
+    },
+    {
+      "callout": "web:sel:.chk",
+      "text": "誰做的、有哪些工具、權限是不是最小",
+      "narration": "第一，誰做的？是官方或可信任的來源嗎？第二，它有哪些工具？能讀、能寫，還是能刪？第三，你給它的權杖或帳號，權限是不是最小，只給剛好夠用的。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你想讓 AI 幫你查「上週有幾個人註冊」，要給資料庫 MCP 什麼帳號？",
+      "body": "選一個。",
+      "id": "db",
+      "options": [
+        {
+          "label": "管理員帳號，比較方便",
+          "steps": [
+            {
+              "card": "太多了",
+              "eyebrow": "想一想",
+              "sub": "查資料只需要讀；管理員帳號連刪資料表都可以",
+              "narration": "權限太多了。查資料只需要讀，管理員帳號連整張資料表都刪得掉。"
+            }
+          ]
+        },
+        {
+          "label": "只能讀的唯讀帳號",
+          "steps": [
+            {
+              "card": "答對了",
+              "eyebrow": "想一想",
+              "sub": "權限最小：剛好夠用就好",
+              "narration": "答對了。只要查，就給唯讀帳號，剛好夠用就好。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "MCP：AI 的通用插座\n接上就多了工具：讀 Issue、查資料、開網頁\n安裝前：誰做的、有哪些工具、權限最小",
+      "eyebrow": "學會",
+      "sub": "下一堂：加入 GitHub 與資料庫的 MCP，讓 AI 直接查",
+      "chapter": "學會",
+      "narration": "MCP 是 AI 的通用插座，接上就多了工具。安裝前看三件事：誰做的、有哪些工具、權限是不是最小。下一堂，我們實際接上 GitHub 和資料庫。"
+    }
+  ]
+}

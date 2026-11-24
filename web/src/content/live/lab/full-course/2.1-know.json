@@ -1,0 +1,105 @@
+{
+  "title": "檔案的地址：路徑",
+  "camera": "auto",
+  "teacher": {
+    "say": "每個檔案都有地址",
+    "line": "AI 和終端機找檔案，靠的都是路徑，也就是檔案的地址。今天來看絕對路徑、相對路徑、隱藏檔，還有為什麼專案不要放在雲端同步資料夾。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc2-1-paths", "url": "https://course.example/explain/paths" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "「三樓左邊那間」vs「信義路五段 7 號 3 樓」",
+      "eyebrow": "全環節 · 單元 2 · 2.1 基礎知識",
+      "sub": "一個要看你站在哪裡，一個在哪裡說都通",
+      "chapter": "兩種說地址的方法",
+      "narration": "告訴朋友你家在哪，有兩種說法。一種是「三樓左邊那間」，要先站在你家大樓裡才聽得懂；另一種是完整地址，在哪裡說都通。檔案的路徑也是這兩種。"
+    },
+    {
+      "show": "web",
+      "narration": "這是一台電腦的資料夾，一層包一層。最上面那個斜線，是最上層；往下是 Users，再來是你的家目錄。"
+    },
+    {
+      "callout": "web:sel:.here",
+      "text": "現在「站」在 hello 資料夾裡",
+      "narration": "假設你現在站在 hello 這個資料夾裡。終端機、AI 助手工作的時候，都有一個「目前所在的資料夾」。"
+    },
+    {
+      "on": "web",
+      "click": "#abs",
+      "chapter": "絕對路徑",
+      "narration": "第一種，絕對路徑。"
+    },
+    {
+      "callout": "web:sel:.s-abs .path",
+      "text": "從最上層的 / 一路寫到檔案",
+      "narration": "從最上層的斜線開始，一層一層寫到 logo.png。像完整的地址，不管你站在哪裡，指的都是同一個檔案。"
+    },
+    {
+      "on": "web",
+      "click": "#rel",
+      "chapter": "相對路徑",
+      "narration": "第二種，相對路徑。"
+    },
+    {
+      "callout": "web:sel:.s-rel .path",
+      "text": "從「你在這裡」出發",
+      "narration": "從你站的 hello 出發，只要寫 images 斜線 logo.png。短很多，但換個資料夾站，同一串字就指到別的地方，甚至找不到。"
+    },
+    {
+      "on": "web",
+      "click": "#up",
+      "narration": "要往上走一層，就用兩個點。"
+    },
+    {
+      "callout": "web:sel:.s-up .path",
+      "text": ".. = 上一層",
+      "narration": "點點斜線 shop，意思是：先退回上一層 projects，再走進 shop。網頁裡的圖片找不到，常常就是這種相對路徑寫錯。"
+    },
+    {
+      "on": "web",
+      "click": "#hid",
+      "chapter": "隱藏檔",
+      "narration": "再看一個你平常看不到的東西。"
+    },
+    {
+      "callout": "web:sel:.s-hid",
+      "text": "名字用 . 開頭，平常看不到",
+      "narration": "名字用點開頭的檔案，叫做隱藏檔，例如 .git、.env。它們通常是設定或密鑰，所以平常藏起來。Mac 的 Finder 按 Command、Shift、句點，就能顯示。"
+    },
+    {
+      "on": "web",
+      "site": "fc2-1-sync",
+      "chapter": "不要放雲端同步資料夾",
+      "narration": "最後一件事：專案資料夾放哪裡。很多人的「文件」或「桌面」資料夾，會自動同步到 iCloud、OneDrive。把專案放在這裡，會發生什麼事？"
+    },
+    {
+      "callout": "web:sel:.list",
+      "text": "幾萬個小檔一直上傳",
+      "narration": "第一，專案裡的 node_modules 有幾萬個小檔案，同步軟體會一直上傳，電腦變慢。"
+    },
+    { "on": "web", "click": "#n2", "narration": "第二，兩台電腦同時改，會冒出「index 2」這種衝突副本，不知道哪個才是對的。" },
+    { "on": "web", "click": "#n3", "narration": "第三，同步軟體為了省空間，會把檔案移到雲端，程式要用時卻找不到。" },
+    {
+      "on": "web",
+      "click": "#n4",
+      "narration": "所以專案放在家目錄的 projects 裡，不放同步資料夾。備份交給之後要學的 Git 和 GitHub。"
+    },
+    {
+      "checkpoint": "考考你：站在 projects/hello 裡，「../shop/index.html」指的是哪個檔案？",
+      "body": "先用 .. 退回 projects，再進 shop，所以是 projects/shop/index.html。它的絕對路徑是 /Users/you/projects/shop/index.html。"
+    },
+    {
+      "card": "絕對路徑哪裡都通，相對路徑看你站哪",
+      "eyebrow": "2.1 重點",
+      "sub": ". 開頭是隱藏檔　·　專案放 ~/projects，不放同步資料夾",
+      "narration": "記住：絕對路徑在哪裡都通，相對路徑要看你站在哪裡。點開頭的是隱藏檔。專案放在 projects，不放同步資料夾。"
+    }
+  ]
+}

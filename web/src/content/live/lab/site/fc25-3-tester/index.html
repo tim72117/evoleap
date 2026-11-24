@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>結構化資料測試工具</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-top"><div class="logo"></div>結構化資料測試工具<span class="sp"></span><span class="who">示意畫面</span></div>
+<div class="wrap">
+ <div class="bar"><input id="url" class="in mono" placeholder="貼上要測試的網址"><button class="btn" id="run">測試網址</button></div>
+ <div id="idle" class="card muted">貼上網址後按「測試網址」。</div>
+ <div id="res" class="gone">
+ <div class="sum"><div class="card">偵測到 <span class="pill">產品</span> 1 項</div><div class="card" id="errs"><span class="pill bad">1 個錯誤</span> <span class="pill warn">1 個警告</span></div></div>
+ <div class="card">
+  <div class="issue" id="err1"><span class="pill bad">錯誤</span><div><b>缺少欄位「image」</b><div class="muted">產品必須有圖片網址才會顯示複合式結果</div></div></div>
+  <div class="issue" id="warn1"><span class="pill warn">警告</span><div><b>「price」的格式不正確：「NT$65」</b><div class="muted">價格請只填數字，幣別另外寫在 priceCurrency</div></div></div>
+ </div></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

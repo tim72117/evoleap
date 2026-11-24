@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>列印</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-v="c">
+  <div class="preview" id="preview"></div>
+  <aside class="panel">
+    <div class="ph">列印</div>
+    <div class="pc" id="pages">共 2 頁</div>
+    <div class="field"><span>目的地</span><button class="sel" id="dest">印表機</button></div>
+    <div class="field"><span>頁數</span><span class="sel">全部</span></div>
+    <div class="field"><span>縮放</span><span class="sel">100%（實際大小）</span></div>
+    <div class="field"><span>紙張</span><span class="sel">A4</span></div>
+    <div class="acts"><button class="btn ghost">取消</button><button class="btn" id="go">列印</button></div>
+    <div class="toast" id="toast">已儲存：讀書會名牌.pdf</div>
+  </aside>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

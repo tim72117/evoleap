@@ -1,0 +1,95 @@
+{
+  "title": "從來沒響過的偵煙器",
+  "lesson": "全環節 · 單元 13 · 13.2 基礎知識",
+  "teacher": {
+    "say": "一直通過的測試，可能是壞的",
+    "line": "這一課講一個反直覺的道理：從來不會失敗的測試，什麼也證明不了。我們用兩個偵煙器來想。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc13-2-alarm", "width": "desktop", "url": "https://learn.example/smoke-alarm" },
+      "place": "window",
+      "hidden": true
+    },
+    "code": {
+      "actor": "editor",
+      "props": { "project": "shop", "files": { "discount.test.js": "test('VIP 打九折', () => {\n  const total = discount(1000, 'VIP')\n  expect(total).toBeDefined()\n})\n" } },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "從來沒響過的偵煙器",
+      "eyebrow": "全環節 · 單元 13 · 13.2 基礎知識",
+      "sub": "從不失敗的測試證明不了什麼",
+      "chapter": "兩個偵煙器",
+      "narration": "家裡裝了兩個偵煙器，裝好到現在，兩個都從來沒響過。"
+    },
+    {
+      "show": "web",
+      "narration": "這代表兩個都很好嗎？"
+    },
+    {
+      "click": "#tA",
+      "narration": "偵煙器 A，按一下測試鈕，它響了。我們知道，它真的會叫。"
+    },
+    {
+      "click": "#smoke",
+      "narration": "有一天真的冒煙了。A 立刻響，B 一聲都沒有。"
+    },
+    {
+      "click": "#open",
+      "narration": "打開 B 的蓋子：裡面根本沒有電池。它從來沒響過，不是因為家裡安全，而是它根本不會響。"
+    },
+    {
+      "callout": "web:sel:#msg",
+      "text": "「沒響過」分不出是「沒事」還是「壞了」",
+      "narration": "只看「從來沒響過」，你分不出是真的沒事，還是它壞了。測試也是一樣。"
+    },
+    { "hide": "web" },
+    {
+      "show": "code",
+      "chapter": "沒有電池的測試",
+      "narration": "看一個 AI 很容易寫出來的測試。它檢查 VIP 會員買一千元，打九折。"
+    },
+    {
+      "callout": "code:code",
+      "text": "toBeDefined：只檢查「有算出一個值」",
+      "narration": "最後一行只檢查「有算出一個值」。算成九百會通過；算錯成一千，也通過；算成零，還是通過。這個測試，就是沒有電池的偵煙器。"
+    },
+    { "hide": "code" },
+    {
+      "diff": "discount.test.js",
+      "lines": [[" ", "test('VIP 打九折', () => {"], [" ", "  const total = discount(1000, 'VIP')"], ["-", "  expect(total).toBeDefined()"], ["+", "  expect(total).toBe(900)"], [" ", "})"]],
+      "chapter": "裝上電池",
+      "narration": "改成檢查「一定要是九百」。這樣算錯的時候，它就會失敗。"
+    },
+    { "clear": true },
+    {
+      "card": "先看它紅一次",
+      "eyebrow": "怎麼知道測試有電池？",
+      "sub": "故意把程式改壞 → 測試應該失敗（紅）→ 改回來 → 通過（綠）",
+      "narration": "怎麼確定測試真的有用？就像按偵煙器的測試鈕：故意把程式改壞，測試應該變紅、失敗；改回來，再變綠、通過。看過它紅一次，你才知道它會叫。"
+    },
+    {
+      "chapter": "考考你",
+      "checkpoint": "AI 說：「我寫了 20 個測試，全部通過！」你下一句最該說什麼？",
+      "body": "選一個。",
+      "id": "next",
+      "options": [
+        { "label": "故意改壞一個地方，看測試會不會失敗", "steps": [{ "card": "對！", "eyebrow": "考考你", "sub": "全部通過不代表有用；要看它在該失敗時會失敗", "narration": "對。全部通過，可能是每個都沒有電池。故意改壞，看它會不會失敗，才知道它們真的在保護你。" }] },
+        { "label": "太好了，可以上線了", "steps": [{ "card": "先別急", "eyebrow": "考考你", "sub": "全部通過也可能是全部都沒在檢查", "narration": "先別急。二十個全部通過，也可能是二十個都沒在檢查。請它故意改壞一個地方，看測試會不會失敗。" }] }
+      ]
+    },
+    {
+      "card": "從不失敗的測試，證明不了什麼\n故意改壞，看它變紅",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 寫測試、故意改壞、再還原",
+      "chapter": "學會",
+      "narration": "記住：從不失敗的測試，什麼也證明不了。要故意改壞、看它變紅，再改回來。下一堂，我們就請 AI 照這個流程寫第一個測試。"
+    }
+  ]
+}

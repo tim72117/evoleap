@@ -1,0 +1,159 @@
+{
+  "title": "重複三次就寫成腳本",
+  "lesson": "全環節 · 單元 31 · 31.1 用 AI 完成",
+  "teacher": {
+    "say": "請 AI 寫一個部署前檢查",
+    "line": "這一堂請 AI 把部署前的五個檢查寫成一個腳本，加進專案，再真的用它跑一次。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "部署前檢查腳本", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": { "tree": { "bakery": { "src": {}, "package.json": "", ".env.example": "", "README.md": "" } }, "open": "bakery" },
+      "place": "right",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "重複三次就寫成腳本",
+      "eyebrow": "全環節 · 單元 31 · 31.1 用 AI 完成",
+      "sub": "先做工具，再用工具做事",
+      "chapter": "交代要做什麼工具",
+      "narration": "上一堂列出了部署前的五件事。這次不叫 AI 直接去做，而是先請它做一個工具。"
+    },
+    { "show": "claude", "narration": "打開 AI 程式助手，工作資料夾是 bakery。" },
+    {
+      "on": "claude",
+      "user": "我每次部署前都要做這五件事：跑測試、檢查型別、確認 .env 該有的設定都有、打包、看打包後的檔案大小。幫我寫成一個腳本加進專案，用 npm run predeploy 就能跑。哪一步失敗就停下來，用中文說是哪一步。寫完自己跑一次給我看。",
+      "narration": "交代的時候說清楚三件事：有哪五步、要用什麼指令叫它、失敗時要怎樣。最後一句很重要：寫完自己跑一次。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "package.json",
+      "result": "找到 test、build 兩個指令",
+      "narration": "它先看專案裡已經有哪些指令，不重寫已經有的東西。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": ".env.example",
+      "result": "需要 DATABASE_URL、SITE_URL",
+      "narration": "再看點 env 範例檔，知道正式設定需要哪兩個值。"
+    },
+    {
+      "on": "claude",
+      "todos": [["寫 scripts/predeploy.sh", "doing"], ["在 package.json 加 predeploy 指令", "pending"], ["實際跑一次", "pending"]],
+      "narration": "它把工作排成三項。"
+    },
+    {
+      "on": "claude",
+      "ask": "scripts/predeploy.sh",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "#!/bin/sh\nset -e\nstep() { echo \"▶ $1\"; }\nstep \"1/5 跑測試\";      npm test\nstep \"2/5 檢查型別\";    npx tsc --noEmit\nstep \"3/5 確認 .env\";   for k in DATABASE_URL SITE_URL; do grep -q \"^$k=\" .env || { echo \"✕ .env 少了 $k\"; exit 1; }; done\nstep \"4/5 打包\";        npm run build\nstep \"5/5 檔案大小\";    du -sh dist",
+      "chapter": "AI 寫腳本",
+      "narration": "要建立新檔案，它先問你。腳本很短：五個步驟照順序排好，每一步前面印出現在做到哪裡。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "set -e：任何一步失敗就整個停下來",
+      "narration": "第二行的 set dash e，意思是任何一步失敗就停，不會帶著錯誤繼續往下。看懂了，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "show": "files", "mkdir": "scripts", "narration": "專案裡多了一個 scripts 資料夾。" },
+    {
+      "on": "claude",
+      "edit": "package.json",
+      "lines": [[5, " ", "  \"scripts\": {"], [6, " ", "    \"test\": \"vitest run\","], [7, " ", "    \"build\": \"vite build\","], [8, "+", "    \"predeploy\": \"sh scripts/predeploy.sh\""], [9, " ", "  }"]],
+      "narration": "再在 package dot json 加一行，以後打 npm run predeploy 就會跑這個腳本。"
+    },
+    {
+      "on": "claude",
+      "ask": "npm run predeploy",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "執行剛寫好的部署前檢查（不會部署）",
+      "chapter": "第一次跑",
+      "narration": "接著照你說的，自己跑一次。這個指令只檢查，不會真的部署，允許。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run predeploy",
+      "result": "停在第 3 步",
+      "out": "▶ 1/5 跑測試\n  ✓ 42 passed\n▶ 2/5 檢查型別\n  ✓ 沒有錯誤\n▶ 3/5 確認 .env\n✕ .env 少了 SITE_URL",
+      "narration": "前兩步都過，第三步停下來了：點 env 少了 SITE URL。腳本第一次跑，就抓到一個你可能漏掉的設定。"
+    },
+    {
+      "on": "claude",
+      "say": "腳本會動，而且抓到一個問題：你的 `.env` 少了 `SITE_URL`。這是你的正式網址，我不知道正確的值，請你補上，例如 `SITE_URL=https://bakery.example`。補好跟我說，我再跑一次。",
+      "narration": "正式網址是什麼，AI 不該亂猜，所以它請你補上。"
+    },
+    {
+      "card": "設定值你自己填",
+      "eyebrow": "自己來",
+      "sub": "打開 .env，加上 SITE_URL=你的正式網址，存檔",
+      "narration": "打開點 env，把正式網址填上去，存檔。密碼、金鑰這類值也一樣，自己填，不要貼進對話。"
+    },
+    { "on": "claude", "user": "補好了，再跑一次" },
+    {
+      "on": "claude",
+      "ask": "npm run predeploy",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "再執行一次部署前檢查"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run predeploy",
+      "result": "5 步全部通過",
+      "out": "▶ 1/5 跑測試\n  ✓ 42 passed\n▶ 2/5 檢查型別\n  ✓ 沒有錯誤\n▶ 3/5 確認 .env\n  ✓ DATABASE_URL、SITE_URL\n▶ 4/5 打包\n  ✓ dist/ 完成\n▶ 5/5 檔案大小\n  412K dist",
+      "narration": "這次五步全部通過，最後印出打包後的大小。"
+    },
+    {
+      "on": "claude",
+      "todos": [["寫 scripts/predeploy.sh", "done"], ["在 package.json 加 predeploy 指令", "done"], ["實際跑一次", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "完成。以後部署前跑 `npm run predeploy` 就好。我也在 README 的「部署」段落加了一行說明，下次不管是你還是我，都會先跑它。",
+      "chapter": "以後怎麼用",
+      "narration": "最後它把用法寫進 README。這樣下次不管是你、還是另一個 AI 工作階段，都知道部署前要先跑它。"
+    },
+    { "on": "files", "open": "scripts", "narration": "工具就在專案裡，跟著專案一起保存。" },
+    { "on": "files", "create": "predeploy.sh" },
+    { "hide": "files" },
+    {
+      "on": "claude",
+      "user": "要部署了，先幫我檢查",
+      "narration": "過幾天再要部署，你只說一句「先幫我檢查」。"
+    },
+    {
+      "on": "claude",
+      "ask": "npm run predeploy",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "README 寫明部署前先跑這個檢查",
+      "narration": "它不用重新想要檢查什麼，直接用你們做好的工具。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "npm run predeploy", "result": "5 步全部通過" },
+    {
+      "checkpoint": "換你做一個腳本",
+      "body": "拿上一堂列出的重複工作，請 AI 寫成腳本：說清楚有哪幾步、用什麼指令叫它、失敗時要怎樣，並要求它寫完自己跑一次。",
+      "narration": "換你試試。拿上一堂列出的那件事，請 AI 寫成腳本。記得三件事：有哪幾步、怎麼叫它、失敗時怎樣，最後要它自己跑一次。"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#fdf6ec;color:#3a2a20}
+header{display:flex;align-items:center;gap:30px;padding:18px 40px;background:#fff;font-size:20px}
+nav{display:flex;gap:22px;font-size:17px;color:#8a5a35}
+.hero{padding:50px 40px 30px}
+.hero h1{font-size:44px;margin:0}
+.hero p{font-size:20px;color:#7a6550}
+.items{display:flex;gap:20px;padding:0 40px}
+.it{flex:1;background:#fff;border-radius:16px;padding:60px 20px 20px;font-size:19px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.banner{position:absolute;left:40px;right:40px;bottom:30px;display:flex;align-items:center;gap:24px;background:#fff;border-radius:18px;padding:20px 26px;box-shadow:0 14px 40px rgba(0,0,0,.2);border:2px solid #e6d6bf}
+.banner.gone{display:none}
+.txt{flex:1}.txt b{font-size:21px}.txt p{margin:6px 0 0;font-size:16px;color:#6a5544;line-height:1.5}
+.btns{display:flex;gap:12px}
+button{font:inherit;font-size:17px;font-weight:800;padding:12px 20px;border-radius:12px;border:2px solid #8a5a35;background:#fff;color:#8a5a35}
+button.pri{background:#8a5a35;color:#fff}
+.status{position:absolute;right:40px;top:90px;background:#1f2433;color:#fff;border-radius:12px;padding:10px 16px;font-size:15px}
+.status span{display:block;color:#a7b0c4;font-size:13px}
+.status b.off{color:#ff9d93}.status b.on{color:#7ee787}

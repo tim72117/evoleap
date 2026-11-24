@@ -1,0 +1,12 @@
+<!doctype html><html><head><title>錯誤事件 · 追蹤後台</title></head><body>
+<div class="bar"><span class="lg">◎</span>示意錯誤追蹤服務<span class="crumb">/ shop-web / 問題 #128</span><button id="scrub">🛡 套用個資遮蔽</button></div>
+<div class="pg">
+<div class="title" id="title"><span class="tag">TypeError</span><h1>Cannot read properties of undefined (reading 'price')</h1><div class="meta">發生 37 次 · 影響 21 位使用者 · 第一次 11/09 10:12</div></div>
+<div class="grid">
+<div class="card" id="stack"><h3>出錯的位置</h3><pre><b>cart.js:88</b>  total += item.price * item.qty
+cart.js:61  updateTotal()
+app.js:14   onClick(加入購物車)</pre></div>
+<div class="card" id="crumbs"><h3>出錯前做了什麼</h3><ol><li>打開 /menu</li><li>點「草莓蛋糕」</li><li>點「加入購物車」<em>← 出錯</em></li></ol></div>
+<div class="card" id="env"><h3>環境</h3><dl><dt>瀏覽器</dt><dd>Safari 18 · iPhone</dd><dt>網址</dt><dd>/cart?ref=line&amp;<span class="pii">email=amy@example.com</span></dd><dt>版本</dt><dd>v1.1.0</dd></dl></div>
+<div class="card" id="user"><h3>使用者</h3><dl><dt>ID</dt><dd>u_4821</dd><dt>Email</dt><dd class="pii">amy@example.com</dd><dt>IP</dt><dd class="pii">203.0.113.42</dd><dt>表單內容</dt><dd class="pii">電話 0912-345-678</dd></dl></div>
+</div></div></body></html>

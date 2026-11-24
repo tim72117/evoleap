@@ -1,0 +1,164 @@
+{
+  "title": "安裝、登入與權限",
+  "camera": "auto",
+  "teacher": {
+    "say": "裝好它，第一次按允許",
+    "line": "這一堂照官方說明把 AI 程式助手裝起來。登入和選方案你自己來；裝好之後，請它建立 projects 工作區，體驗第一次權限確認。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc1-2-install", "url": "https://docs.example-ai.com/claude-code/install" },
+      "place": "window",
+      "hidden": true
+    },
+    "term": {
+      "actor": "fc1-terminal",
+      "props": { "os": "mac", "cwd": "~" },
+      "place": { "x": 260, "y": 120, "w": 1400, "h": 760 },
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "建立工作區", "folder": "~", "branch": null, "mode": "ask", "sessions": [] },
+      "place": { "x": 40, "y": 50, "w": 1180, "h": 980 },
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": { "tree": { "you": { "Desktop": {}, "Documents": {}, "Downloads": {} } }, "open": "you" },
+      "place": { "x": 1250, "y": 260, "w": 630 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "安裝、登入，第一次按下允許",
+      "eyebrow": "全環節 · 單元 1 · 1.2 用 AI 完成",
+      "sub": "安裝照官方說明；登入和付費你自己來",
+      "chapter": "照官方說明安裝",
+      "narration": "AI 程式助手還沒裝好之前，它沒辦法幫你裝自己。所以第一步，我們照官方說明手動做。"
+    },
+    {
+      "show": "web",
+      "narration": "打開官方說明文件的安裝頁。"
+    },
+    {
+      "callout": "web:sel:#cmd-mac",
+      "text": "只從官方頁面複製指令",
+      "narration": "頁面上有一行安裝指令。只從官方網站複製，不要用別人轉貼的版本，因為這行指令會在你的電腦上執行。"
+    },
+    {
+      "on": "web",
+      "click": "#os-win",
+      "narration": "用 Windows 的話，切到 Windows 分頁，指令不一樣。"
+    },
+    {
+      "on": "web",
+      "click": "#os-mac",
+      "narration": "我們用 Mac 示範，切回來，按複製。"
+    },
+    { "hide": "web" },
+    {
+      "show": "term",
+      "narration": "打開終端機，貼上，按 Enter。"
+    },
+    {
+      "on": "term",
+      "type": "curl -fsSL https://claude.ai/install.sh | bash",
+      "out": "Setting up Claude Code...\n✔ Claude Code successfully installed!\n  Location: ~/.local/bin/claude\n  Next: Run claude --help to get started",
+      "narration": "它會自己下載、裝好，最後告訴你裝在哪裡。"
+    },
+    {
+      "on": "term",
+      "type": "claude",
+      "out": "Welcome to Claude Code!\nOpening browser to sign in…",
+      "narration": "輸入 claude 啟動。第一次啟動，它會打開瀏覽器請你登入。"
+    },
+    { "hide": "term" },
+    {
+      "show": "web",
+      "site": "fc1-2-login",
+      "chapter": "登入與方案：你自己來",
+      "narration": "接下來這一頁，全部由你自己操作。"
+    },
+    {
+      "callout": "web:sel:.box",
+      "text": "帳號、密碼、驗證碼：你自己輸入",
+      "narration": "帳號、密碼、驗證碼，都在這個頁面由你自己輸入。不要把密碼貼給 AI，它也不需要。"
+    },
+    { "on": "web", "click": "#login" },
+    {
+      "callout": "web:sel:.pay",
+      "text": "選方案、付款：AI 不碰這一頁",
+      "narration": "如果要選付費方案，也是你自己看、自己決定、自己填付款資料。這門課用 Pro 方案就夠了。"
+    },
+    { "on": "web", "click": "#paid" },
+    {
+      "callout": "web:viewport",
+      "text": "看到登入成功，就回到終端機",
+      "narration": "看到登入成功，就可以關掉這一頁。"
+    },
+    { "hide": "web" },
+    {
+      "show": "claude",
+      "chapter": "第一個任務：建立 projects",
+      "narration": "登入好了。第一個任務：請它在家目錄建立一個 projects 資料夾，之後所有課程的專案都放在這裡。"
+    },
+    {
+      "on": "claude",
+      "user": "幫我在家目錄建立 projects 資料夾，之後的課程專案都放這裡。做完用 ls 確認給我看。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "ask": "mkdir -p ~/projects",
+      "where": "~",
+      "narration": "它停下來問你了。這就是權限確認。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "mkdir = 建立資料夾；位置：家目錄",
+      "narration": "先看指令：mkdir 是建立資料夾，後面是要建的名字。再看位置，是你的家目錄。不會刪東西、不會改檔案，可以放心。"
+    },
+    {
+      "on": "claude",
+      "choose": 1,
+      "hover": [2],
+      "narration": "按「允許一次」。一律允許的意思是以後同樣的指令都不再問，現在還不需要。"
+    },
+    { "show": "finder" },
+    {
+      "on": "finder",
+      "mkdir": "projects",
+      "narration": "Finder 裡，projects 出現了。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "ls -d ~/projects",
+      "out": "/Users/you/projects",
+      "narration": "它照你說的，自己用 ls 檢查一次。"
+    },
+    {
+      "on": "claude",
+      "say": "完成了：`~/projects` 已建立，`ls` 確認存在。之後的課程專案都放在這裡。",
+      "narration": "這樣才算做完：不只說做好了，還給你看檢查的結果。"
+    },
+    {
+      "callout": "claude:mode",
+      "text": "目前是「每次都問」",
+      "narration": "目前的權限模式是每次都問。剛開始就維持這樣，一步一步看懂。"
+    },
+    {
+      "checkpoint": "換你：安裝、登入，再請它建立 projects",
+      "body": "照官方說明安裝並啟動，登入與方案自己完成。然後輸入：「幫我在家目錄建立 projects 資料夾，做完用 ls 確認。」它問你時，先唸一次指令和位置，再按允許一次。"
+    },
+    {
+      "card": "projects 工作區 ＋ 一次權限確認 ✓",
+      "eyebrow": "1.2 完成",
+      "sub": "下一堂：請它幫你安裝 Node.js",
+      "narration": "工作區建好了，你也親手按過一次允許。下一堂，我們請它幫你安裝 Node.js。"
+    }
+  ]
+}

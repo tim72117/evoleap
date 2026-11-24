@@ -1,0 +1,144 @@
+{
+  "title": "Email 與密碼登入",
+  "lesson": "全環節 · 單元 10 · 10.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天要 AI 拿測試證明",
+    "line": "今天把上一堂的八條安全要求交給 AI 實作。重點不是它說做好了，而是它寫出測試，一條一條證明真的做到了。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "Email 登入", "folder": "~/projects/bakery", "branch": "login", "mode": "accept", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "db": {
+      "actor": "fc3-table",
+      "props": { "title": "本機測試資料庫", "tables": [] },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "Email 與密碼登入",
+      "eyebrow": "全環節 · 單元 10 · 10.2 用 AI 完成",
+      "sub": "把安全要求交給 AI 實作，再請它寫測試證明",
+      "chapter": "交代：照清單做、用測試證明",
+      "narration": "這一堂的驗收方式很簡單：每一條要求都要有一個測試，全部通過才算完成。"
+    },
+    { "show": "claude" },
+    { "callout": "claude:mode", "text": "自動接受修改：讓它放手寫，靠測試把關", "narration": "這次把權限模式設成自動接受修改，讓它放手寫很多檔案。我們靠測試把關，而不是一個一個看。" },
+    {
+      "on": "claude",
+      "user": "照 docs/login.md 實作註冊、登入、登出。每一條安全要求都寫一個自動測試，測試名稱要對得上清單的編號。在本機的測試資料庫跑，全部通過才算完成。最後用 SQL 證明資料庫裡沒有密碼原文。",
+      "narration": "交代：照清單做；每條要求一個測試，名稱對得上編號；最後還要用 SQL 證明資料庫裡沒有密碼原文。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    { "on": "claude", "tool": "Read", "arg": "docs/login.md", "result": "6 步流程、8 條要求", "chapter": "AI 實作" },
+    {
+      "on": "claude",
+      "todos": [["users、sessions 資料表", "doing"], ["註冊、登入、登出 API", "pending"], ["8 條要求各一個測試", "pending"], ["跑測試到全部通過", "pending"]]
+    },
+    { "on": "claude", "edit": "db/migrations/004_users_sessions.sql", "lines": [[1, "+", "CREATE TABLE users (id SERIAL PRIMARY KEY, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL);"], [2, "+", "CREATE TABLE sessions (id TEXT PRIMARY KEY, user_id INT REFERENCES users(id), expires_at TIMESTAMPTZ);"]] },
+    {
+      "on": "claude",
+      "edit": "routes/auth.js",
+      "lines": [
+        [1, "+", "router.post('/login', limitPerEmail(5, '15m'), async (req, res) => {"],
+        [2, "+", "  const user = await findUser(req.body.email)"],
+        [3, "+", "  if (!user || !(await bcrypt.compare(req.body.password, user.password_hash)))"],
+        [4, "+", "    return res.status(401).json({ error: '帳號或密碼錯誤' })"],
+        [5, "+", "  await req.session.regenerate()  // 要求 6:換新的 session ID"],
+        [6, "+", "  req.session.userId = user.id"],
+        [7, "+", "  res.json({ ok: true })"],
+        [8, "+", "})"]
+      ],
+      "narration": "寫登入：比對雜湊、失敗只說帳號或密碼錯誤、限制次數、登入後換新號碼牌。程式裡還標了它對應哪一條要求。"
+    },
+    {
+      "on": "claude",
+      "edit": "tests/auth.test.js",
+      "lines": [
+        [1, "+", "test('要求1 資料庫只存 bcrypt 雜湊', …)"],
+        [2, "+", "test('要求2 密碼少於 8 字回 400', …)"],
+        [3, "+", "test('要求3 錯誤訊息不透露是哪一個錯', …)"],
+        [4, "+", "test('要求4 連錯 5 次回 429', …)"],
+        [5, "+", "test('要求5 cookie 有 HttpOnly、Secure、SameSite', …)"],
+        [6, "+", "test('要求6 登入前後 session ID 不同', …)"],
+        [7, "+", "test('要求7 登出後舊 cookie 失效', …)"],
+        [8, "+", "test('要求8 30 天沒用自動失效', …)"]
+      ],
+      "chapter": "用測試證明",
+      "narration": "接著寫測試。每個測試的名字對得上清單的編號，你一眼就看得出哪一條有沒有被證明。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- tests/auth.test.js",
+      "result": "7 通過、1 失敗",
+      "out": "✓ 要求1 資料庫只存 bcrypt 雜湊\n✓ 要求2 密碼少於 8 字回 400\n✓ 要求3 錯誤訊息不透露是哪一個錯\n✓ 要求4 連錯 5 次回 429\n✓ 要求5 cookie 有 HttpOnly、Secure、SameSite\n✓ 要求6 登入前後 session ID 不同\n✗ 要求7 登出後舊 cookie 失效\n    預期 401，收到 200\n✓ 要求8 30 天沒用自動失效",
+      "narration": "跑測試：七條通過，第七條失敗。登出之後，把舊的 cookie 拿來用，竟然還能看會員資料。"
+    },
+    {
+      "on": "claude",
+      "say": "要求 7 沒做到：登出只清了瀏覽器的 cookie，**伺服器上的 session 還在**。改成登出時刪除 sessions 表裡的那一列。",
+      "narration": "這正是上一堂說的：登出只丟掉紙條，號碼牌沒作廢。沒有測試，這種錯誤看畫面根本看不出來。"
+    },
+    {
+      "on": "claude",
+      "edit": "routes/auth.js",
+      "lines": [
+        [20, " ", "router.post('/logout', async (req, res) => {"],
+        [21, "-", "  res.clearCookie('sid')"],
+        [21, "+", "  await req.session.destroy()  // 要求 7:伺服器端刪除"],
+        [22, "+", "  res.clearCookie('sid')"],
+        [23, " ", "  res.json({ ok: true })"]
+      ]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- tests/auth.test.js",
+      "result": "8 / 8 通過",
+      "out": "✓ 要求1 … ✓ 要求8\n8 passed",
+      "narration": "再跑一次，八條全部通過。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "psql $DATABASE_URL -c \"SELECT email, left(password_hash, 7) AS hash_prefix, password_hash LIKE '%baguette%' AS has_plain FROM users\"",
+      "result": "只有雜湊",
+      "out": " email           | hash_prefix | has_plain\n mei@example.com | $2b$12$     | f",
+      "chapter": "證明沒有密碼原文",
+      "narration": "最後用 SQL 證明：資料庫裡存的是 bcrypt 雜湊，搜尋剛剛測試用的密碼也找不到。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "db",
+      "focus": false,
+      "create": "users",
+      "label": "會員帳號",
+      "key": "id",
+      "cols": ["id", "email", "password_hash"],
+      "rows": [[1, "mei@example.com", "$2b$12$Qm7d…（60 字）"]],
+      "narration": "資料庫裡的樣子：一個 email，一串雜湊。"
+    },
+    { "on": "db", "create": "sessions", "label": "號碼牌", "key": "id", "cols": ["id", "user_id", "expires_at"], "rows": [] },
+    { "on": "db", "relate": ["sessions.user_id", "users.id"] },
+    { "on": "db", "stamp": "users", "text": "沒有密碼原文 ✓", "tone": "ok", "narration": "登出之後，sessions 表是空的，號碼牌都作廢了。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "把你的安全要求清單交給 AI 實作，要它每條寫一個測試、名稱對上編號，跑到全部通過，再用 SQL 證明沒有密碼原文。"
+    },
+    { "hide": "db" },
+    {
+      "card": "「做好了」不算數\n測試全部通過才算",
+      "eyebrow": "學會",
+      "sub": "測試名稱對上要求編號，一眼看出每一條有沒有被證明",
+      "chapter": "學會",
+      "narration": "這一堂的重點：AI 說做好了不算數，測試全部通過才算。測試抓到了登出沒有作廢號碼牌，這種錯誤光看畫面是看不出來的。"
+    }
+  ]
+}

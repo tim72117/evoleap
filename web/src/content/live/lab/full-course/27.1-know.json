@@ -1,0 +1,56 @@
+{
+  "title": "一份乾淨的名單",
+  "lesson": "全環節 · 單元 27 · 27.1 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "名單比人數重要",
+    "line": "今天看電子報的名單：為什麼訂閱要多一步確認，還有退訂為什麼一定要一鍵生效。"
+  },
+  "cast": {
+    "phone": { "actor": "chat", "props": { "title": "信箱通知" }, "place": { "x": 680, "y": 110, "w": 560, "h": 860 }, "hidden": true },
+    "web": { "actor": "browser", "props": { "site": "fc27-1-optin", "width": "desktop", "url": "https://whiteboard.example/newsletter" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "一份乾淨的名單",
+      "eyebrow": "全環節 · 單元 27 · 27.1 基礎知識",
+      "sub": "名單、雙重確認與退訂",
+      "chapter": "名單是什麼",
+      "narration": "電子報的名單，是一群願意收你信的人。重點在「願意」這兩個字。"
+    },
+    { "show": "phone", "narration": "先看一個沒做好的例子。有個網站，填了 Email 就直接加進名單。" },
+    { "on": "phone", "receive": "退信通知：mei@exmaple.com 不存在", "from": "郵件系統", "narration": "有人把 example 打成 exmaple，信寄不到，一直退回來。" },
+    { "on": "phone", "receive": "我沒有訂閱過你們的東西，為什麼一直寄給我？", "from": "陌生人", "narration": "還有人被朋友亂填了信箱，一直收到不想要的信，最後按下「這是垃圾信」。" },
+    {
+      "callout": "phone:msg:last",
+      "text": "被檢舉多了，你寄的信全部會被當成垃圾信",
+      "narration": "被檢舉多了，信箱服務就會認為你在寄垃圾信，連真心訂閱的人都收不到了。"
+    },
+    { "hide": "phone" },
+    { "show": "web", "chapter": "雙重確認", "narration": "所以正確的做法有四步。" },
+    { "on": "web", "click": "#next", "narration": "第一步，填表單。這時候還只是待確認，不會收到電子報。" },
+    { "on": "web", "click": "#next", "narration": "第二步，系統寄一封確認信：「是你本人訂閱的嗎？」打錯的信箱、被亂填的信箱，沒有人會去點，自然就不會加進來。" },
+    { "on": "web", "click": "#next", "narration": "第三步，本人點了確認連結，才正式加入。填一次、再確認一次，所以叫雙重確認。" },
+    { "callout": "web:sel:#r1", "text": "雙重確認：填表單＋點確認信，名單裡都是真的人", "narration": "名單會比較小，但每個人都是真的、願意收信的人。" },
+    { "on": "web", "click": "#next", "chapter": "退訂", "narration": "第四步，退訂。每一封信的最下面，都要有退訂連結。" },
+    { "callout": "web:sel:#r3", "text": "退訂：一鍵生效，不要求登入、不問一堆問題", "narration": "退訂要一鍵就生效，不能要求登入，也不能退訂後還繼續寄。很多地方的法規都這樣要求，而且讓人好走，他們才不會按檢舉。" },
+    { "hide": "web" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你在市集收到 50 張寫著 Email 的名片，可以直接加進電子報名單嗎？",
+      "body": "選一個。",
+      "id": "cards",
+      "options": [
+        { "label": "可以，他們給了我 Email", "steps": [{ "card": "先別急", "eyebrow": "想一想", "sub": "給你名片不等於同意收電子報；先寄一封邀請，讓他們自己確認", "narration": "先別急。給你名片，不等於同意收電子報。可以先寄一封邀請信，讓他們自己點確認。" }] },
+        { "label": "先寄邀請，讓他們自己確認", "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "願意的人自己點確認，名單才乾淨", "narration": "答對了。願意的人自己點確認，名單才會乾淨。" }] }
+      ]
+    },
+    {
+      "card": "名單：願意收信的人\n雙重確認：填表單＋點確認信\n退訂：每封都有、一鍵生效",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 串接電子報服務，並測試訂閱與退訂",
+      "chapter": "學會",
+      "narration": "名單是願意收信的人，用雙重確認把關，退訂要一鍵生效。下一堂，我們請 AI 串好電子報服務，把訂閱和退訂都測一遍。"
+    }
+  ]
+}

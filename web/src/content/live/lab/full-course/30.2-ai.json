@@ -1,0 +1,131 @@
+{
+  "title": "大任務先看方案再動手",
+  "lesson": "全環節 · 單元 30 · 30.2 用 AI 完成",
+  "teacher": {
+    "say": "今天先看方案再動手",
+    "line": "這一堂做「訂購時選取貨時段」。先用規劃模式請 AI 只出方案，我們改兩輪，確定了才讓它執行。"
+  },
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "取貨時段", "folder": "~/projects/bakery", "branch": "pickup-slot", "mode": "plan", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc30-2-slots", "url": "http://localhost:5173/order" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "大任務先看方案再動手",
+      "eyebrow": "全環節 · 單元 30 · 30.2 用 AI 完成",
+      "sub": "規劃 → 修改方案 → 確認 → 執行",
+      "chapter": "只出方案",
+      "narration": "打開 AI 程式助手，左下角已經是規劃模式。"
+    },
+    { "show": "claude" },
+    { "callout": "claude:mode", "text": "規劃模式：這一段它不會改任何檔案", "narration": "這段時間它只會讀和寫方案，不會改任何檔案。" },
+    {
+      "on": "claude",
+      "user": "我想讓客人訂購時可以選取貨時段。先給我方案：要改哪些檔、分幾步、你想問我的問題、怎麼驗證。先不要改檔。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "src/order.js", "result": "64 行" },
+    { "on": "claude", "tool": "Read", "arg": "db/schema.sql", "result": "31 行" },
+    {
+      "on": "claude",
+      "say": "**方案（第 1 版）**\n1. 新增資料表 `pickup_slots`，每 30 分鐘一格\n2. 後台加一頁管理時段\n3. 訂購表單加時段下拉選單\n4. 送出時檢查時段還有沒有名額\n**想問你**：每個時段限幾單？要讓客人選幾天後？\n**驗證**：新增 4 個測試；實際送出一張訂單",
+      "chapter": "第一輪：改方案",
+      "narration": "第一版方案很完整，甚至有點太完整：新資料表、後台管理頁、每 30 分鐘一格、還有名額檢查。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "現在改，只要打一段話",
+      "narration": "如果它直接做，這就是十幾個檔案。現在要改，只要打一段話。"
+    },
+    {
+      "on": "claude",
+      "user": "太大了。改成：\n- 時段只要「上午」「下午」兩種，寫死在程式裡就好\n- 不要新增資料表，存在現有 orders 的新欄位 slot\n- 不要後台頁、不限名額\n回答你的問題：取貨日照舊，不用改。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "say": "**方案（第 2 版）**\n1. `db/migrate-003.sql`：orders 加一個欄位 `slot`（am / pm）\n2. `index.html`：表單加「取貨時段」下拉選單\n3. `src/order.js`：沒選時段不能送出；確認訊息顯示時段\n4. `tests/order.test.js`：加 2 個測試\n**想問你**：舊的訂單沒有時段，要顯示「未指定」可以嗎？",
+      "chapter": "第二輪：補上它的問題",
+      "narration": "第二版小多了，只改四個檔。它還想到一件我們沒想到的事：以前的訂單沒有時段，要怎麼顯示？"
+    },
+    {
+      "callout": "claude:say",
+      "text": "它問的問題＝它原本會自己猜的地方",
+      "narration": "這就是方案裡「想問你」那一段的價值。不問的話，它會自己猜一個。"
+    },
+    {
+      "on": "claude",
+      "user": "顯示「未指定」可以。方案確定，開始做。"
+    },
+    {
+      "on": "claude",
+      "mode": "ask",
+      "chapter": "照方案執行",
+      "narration": "方案確定，把模式切回一般模式，它才可以開始改檔。"
+    },
+    {
+      "on": "claude",
+      "todos": [["orders 加 slot 欄位", "doing"], ["表單加取貨時段", "pending"], ["送出前檢查時段", "pending"], ["加 2 個測試並執行", "pending"]],
+      "narration": "待辦清單，就是剛剛確定的方案。"
+    },
+    {
+      "on": "claude",
+      "ask": "db/migrate-003.sql",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "ALTER TABLE orders ADD COLUMN slot TEXT; -- am / pm，舊訂單為空（顯示未指定）"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "edit": "index.html", "lines": [[18, "+", "<label>取貨時段<select id=\"slot\"><option value=\"\">請選擇</option><option value=\"am\">上午</option><option value=\"pm\">下午</option></select></label>"]] },
+    { "on": "claude", "edit": "src/order.js", "lines": [[22, "+", "  if (!form.slot) return showError('請選擇取貨時段')"], [30, "+", "  const slotText = SLOT_NAMES[order.slot] ?? '未指定'"]] },
+    {
+      "on": "claude",
+      "ask": "npm test",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "執行全部測試"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "全部通過", "out": "✓ 沒選時段不能送出\n✓ 舊訂單顯示「未指定」\nTests  20 passed" },
+    {
+      "on": "claude",
+      "todos": [["orders 加 slot 欄位", "done"], ["表單加取貨時段", "done"], ["送出前檢查時段", "done"], ["加 2 個測試並執行", "done"]]
+    },
+    {
+      "on": "claude",
+      "say": "照第 2 版方案完成，改了 4 個檔，沒有方案以外的修改。測試 20 個全過，可以到 /order 試送一張。",
+      "narration": "它強調：沒有方案以外的修改。方案也成了檢查它的依據。"
+    },
+    {
+      "show": "web",
+      "chapter": "親手試一次",
+      "narration": "我們自己試一次。"
+    },
+    { "on": "web", "click": "#send", "narration": "先不選時段就送出，它擋下來了。" },
+    { "on": "web", "fill": { "#slot": "pm" }, "narration": "選下午，" },
+    { "on": "web", "click": "#send", "narration": "再送出，確認訊息寫著下午的取貨時間。" },
+    {
+      "diff": "方案的兩輪修改",
+      "lines": [["-", "第 1 版：新資料表、後台頁、每 30 分鐘一格、名額檢查"], ["+", "第 2 版：上午／下午、存在 orders、4 個檔"], ["+", "補上：舊訂單顯示「未指定」"], ["+", "執行：一次到位，0 次回頭"]],
+      "narration": "回頭看：兩輪修改都發生在方案上，沒有改壞任何程式，執行時一次到位。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "換你試試",
+      "body": "挑一個會改三個檔以上的功能，切到規劃模式，請 AI 給方案（改哪些檔、分幾步、想問你的問題、怎麼驗證）。至少改一次方案再讓它執行。",
+      "narration": "換你試試。挑一個比較大的功能，先切到規劃模式要方案，至少改一次，再讓它動手。"
+    }
+  ]
+}

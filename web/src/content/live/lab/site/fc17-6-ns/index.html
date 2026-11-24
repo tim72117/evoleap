@@ -1,0 +1,28 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>nameserver 搬家</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · nameserver</p>
+<h1>電話簿要搬家</h1>
+<div class="tabs"><button id="b0" data-go="0">誰在管電話簿</button><button id="b1" data-go="1">先抄一份</button><button id="b2" data-go="2">換 nameserver</button><button id="b3" data-go="3">過渡期</button><button id="b4" data-go="4">少抄一筆</button></div>
+<svg class="ns" viewBox="0 0 1120 420" width="1120" height="420">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#475569"/></marker></defs>
+<rect x="410" y="10" width="300" height="80" rx="14" fill="#1e293b"/><text x="560" y="44" text-anchor="middle" font-size="19" fill="#fff" font-weight="700">.com 總名冊</text>
+<text x="560" y="72" text-anchor="middle" font-size="14" fill="#cbd5e1" data-only="0 1">xiaosen-bakery.com 的電話簿在：網域商乙</text>
+<text x="560" y="72" text-anchor="middle" font-size="14" fill="#fde68a" data-only="2 3 4">xiaosen-bakery.com 的電話簿在：Cloudflare</text>
+<g class="old"><rect x="60" y="160" width="400" height="230" rx="16" fill="#fff" stroke="#16a34a" stroke-width="3"/><text x="260" y="194" text-anchor="middle" font-size="19" font-weight="700">網域商乙的 nameserver</text><text x="260" y="218" text-anchor="middle" font-size="13" fill="#64748b" class="mono">ns1.registrar-b.example</text>
+<text x="90" y="256" font-size="16" class="mono">A    @    185.199.108.153</text><text x="90" y="284" font-size="16" class="mono">CNAME www  xiaosen-dev.github.io</text><text x="90" y="312" font-size="16" class="mono">CNAME shop bakery-7ka.pages.dev</text><text x="90" y="340" font-size="16" class="mono">MX   @    10 mx1.mail.example</text><text x="90" y="368" font-size="16" class="mono">TXT  @    v=spf1 …</text></g>
+<g data-at="1"><rect x="660" y="160" width="400" height="230" rx="16" fill="#fff" stroke="#f59e0b" stroke-width="3"/><text x="860" y="194" text-anchor="middle" font-size="19" font-weight="700">Cloudflare 的 nameserver</text><text x="860" y="218" text-anchor="middle" font-size="13" fill="#64748b" class="mono">ada.ns.cloudflare.com</text>
+<text x="690" y="256" font-size="16" class="mono">A    @    185.199.108.153</text><text x="690" y="284" font-size="16" class="mono">CNAME www  xiaosen-dev.github.io</text><text x="690" y="312" font-size="16" class="mono">CNAME shop bakery-7ka.pages.dev</text>
+<text x="690" y="340" font-size="16" class="mono" data-only="1 2 3">MX   @    10 mx1.mail.example</text><text x="690" y="340" font-size="16" class="mono miss" data-only="4">MX   （漏抄了！）</text>
+<text x="690" y="368" font-size="16" class="mono">TXT  @    v=spf1 …</text>
+<line x1="470" y1="275" x2="650" y2="275" stroke="#f59e0b" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#ah)" data-only="1"/><text x="560" y="262" text-anchor="middle" font-size="15" fill="#b45309" data-only="1">逐筆抄過去</text></g>
+<line x1="500" y1="90" x2="300" y2="155" stroke="#16a34a" stroke-width="4" marker-end="url(#ah)" data-only="0 1 3 4"/>
+<line x1="620" y1="90" x2="820" y2="155" stroke="#f59e0b" stroke-width="4" marker-end="url(#ah)" data-only="2 3 4"/>
+</svg>
+<div class="box expl">
+<p data-only="0"><b>nameserver</b>（名稱伺服器）就是「保管你電話簿的那台主機」。.com 的總名冊只記一件事：你的電話簿放在哪。現在放在網域商乙。</p>
+<p data-only="1">搬家第一步：在 Cloudflare 開一本新電話簿，<b>把每一筆紀錄都抄過去</b>。這時總名冊還指著舊的，什麼都還沒變。</p>
+<p data-only="2">第二步：到網域商把 nameserver 改成 Cloudflare 的。總名冊改指向新電話簿。</p>
+<p data-only="3"><b>過渡期</b>：總名冊的答案也會被各地記住（常常是一兩天）。有人問舊的、有人問新的。<b>兩本內容一樣，就不會中斷。</b></p>
+<p data-only="4">如果新電話簿漏抄了 MX：問到新電話簿的人找不到收信的郵局，<b>信就寄丟了</b>。所以搬家前要逐筆比對。</p>
+</div>
+</div></body></html>

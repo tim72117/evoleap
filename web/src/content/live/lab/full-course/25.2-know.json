@@ -1,0 +1,169 @@
+{
+  "title": "搜尋引擎怎麼找到你的頁面",
+  "lesson": "全環節 · 單元 25 · 25.2 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "跟著機器人逛一圈",
+    "line": "今天跟著搜尋引擎的機器人逛一次你的網站，看它怎麼找到頁面、哪些頁面不收，還有頁面不見時該怎麼告訴它。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "fc25-2-crawl",
+        "width": "desktop",
+        "url": "https://komori-bakery.example/"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "net": {
+      "actor": "net-trip",
+      "props": {
+        "domain": "komori-bakery.example",
+        "ip": "203.0.113.24",
+        "pages": {
+          "/": {
+            "title": "小森烘焙",
+            "heading": "小森烘焙"
+          },
+          "/menu": {
+            "title": "本週菜單",
+            "heading": "本週麵包菜單"
+          }
+        }
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "搜尋引擎怎麼找到你的頁面",
+      "eyebrow": "全環節 · 單元 25 · 25.2 基礎知識",
+      "sub": "robots.txt、sitemap、noindex 與 404",
+      "chapter": "一位會走路的機器人",
+      "narration": "搜尋引擎不會自動知道你有哪些頁面。它派出一種程式，叫爬蟲，也可以想成一位機器人，沿著連結一頁一頁走。"
+    },
+    {
+      "show": "web",
+      "narration": "機器人從別人網站上的一個連結走進來。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "進門前，它先看門口的告示：robots.txt。這是放在網站最上層的一個文字檔，寫著哪些地方請不要進來，例如後台。"
+    },
+    {
+      "callout": "web:sel:.node[data-k=\"1\"]",
+      "text": "robots.txt：網站門口的告示，寫「哪些路不要走」",
+      "narration": "要注意，它只是告示，不是門鎖。有心人照樣看得到，所以不能拿來藏祕密。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "接著，它拿一張頁面清單：sitemap.xml，網站地圖。上面列出這個網站所有想被找到的頁面，機器人就不會漏掉藏得比較深的頁。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "narration": "有些頁面可以看，但不適合出現在搜尋結果，像購物車。在這種頁面寫上 noindex，意思是請不要收錄。"
+    },
+    {
+      "callout": "web:sel:.s3",
+      "text": "noindex：可以看，但不要放進搜尋結果",
+      "narration": "機器人看到 noindex，就不會把它放進搜尋結果。"
+    },
+    {
+      "on": "web",
+      "click": "#next",
+      "chapter": "頁面不見了怎麼辦",
+      "narration": "最後，有一頁已經刪掉了。這時候伺服器要怎麼回答，很重要。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "show": "net",
+      "narration": "我們用另一張圖，看機器人去要那一頁時發生什麼事。"
+    },
+    {
+      "on": "net",
+      "type": "komori-bakery.example/old-news"
+    },
+    {
+      "on": "net",
+      "enter": true
+    },
+    {
+      "on": "net",
+      "lookup": true
+    },
+    {
+      "on": "net",
+      "answer": true,
+      "narration": "先問到伺服器的位址，也就是 IP。"
+    },
+    {
+      "on": "net",
+      "request": true,
+      "narration": "再跟伺服器要 old-news 這一頁。"
+    },
+    {
+      "on": "net",
+      "respond": true,
+      "narration": "伺服器找不到這個檔案，回了 404 Not Found。404 是一個狀態碼，數字的意思是：這頁不存在。"
+    },
+    {
+      "callout": "net:server",
+      "text": "狀態碼：200 = 找到了、404 = 不存在",
+      "narration": "每次回應都帶一個狀態碼。200 是找到了，404 是不存在。機器人看到 404，就會把這頁從搜尋結果拿掉。"
+    },
+    {
+      "hide": "net"
+    },
+    {
+      "card": "小心「假的 404」",
+      "eyebrow": "常見的錯",
+      "sub": "畫面寫著「找不到頁面」，狀態碼卻是 200",
+      "narration": "常見的錯是：畫面上寫著找不到頁面，伺服器卻回 200，說找到了。機器人會以為這是一頁真的內容，把一堆「找不到」收進搜尋結果。這叫假的 404。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "後台管理頁 /admin 不想讓陌生人看到，只要寫進 robots.txt 就安全了嗎？",
+      "body": "選一個。",
+      "id": "robots",
+      "options": [
+        {
+          "label": "安全了",
+          "steps": [
+            {
+              "card": "不安全",
+              "eyebrow": "想一想",
+              "sub": "robots.txt 是告示不是鎖，後台要靠登入保護",
+              "narration": "不安全。robots.txt 只是告示，任何人都看得到它，等於告訴別人後台在哪。後台要靠登入來保護。"
+            }
+          ]
+        },
+        {
+          "label": "不安全，還要登入保護",
+          "steps": [
+            {
+              "card": "答對了",
+              "eyebrow": "想一想",
+              "sub": "robots.txt 是告示不是鎖",
+              "narration": "答對了。robots.txt 只是告示，真正的保護是登入。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "robots.txt：門口的告示\nsitemap.xml：頁面清單\nnoindex：看可以，別收錄\n404：這頁不存在",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 產生這些檔案，再寫測試，確保之後不會壞",
+      "chapter": "學會",
+      "narration": "robots.txt 是告示，sitemap 是清單，noindex 是請它別收錄，404 是告訴它這頁不存在。下一堂，我們請 AI 產生這些檔案，還要寫測試，讓之後改網站也不會弄壞。"
+    }
+  ]
+}

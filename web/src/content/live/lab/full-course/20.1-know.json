@@ -1,0 +1,171 @@
+{
+  "title": "推一下標籤，網站自己更新",
+  "lesson": "全環節 · 單元 20 · 20.1 基礎知識",
+  "teacher": {
+    "say": "今天讓網站自己部署",
+    "line": "這一課要聊持續部署：怎麼讓網站在你推送一個標籤之後，自己測試、自己更新。先聽聽小安遇到的事。"
+  },
+  "cast": {
+    "an": {
+      "actor": "person",
+      "props": { "name": "小安", "look": "customer" },
+      "place": { "x": 560, "y": 360, "w": 800, "h": 340 },
+      "hidden": true
+    },
+    "flow": {
+      "actor": "fc6-flow",
+      "props": {
+        "title": "從你的電腦到網站",
+        "nodes": [
+          { "id": "dev", "label": "你的電腦", "icon": "💻", "x": 9, "y": 46, "w": 8.5 },
+          { "id": "repo", "label": "GitHub", "icon": "⌥", "x": 26, "y": 46, "w": 8.5 },
+          { "id": "ci", "label": "Actions", "sub": "照工作流程做事", "icon": "⚙", "x": 43, "y": 46, "w": 8.5, "hidden": true },
+          { "id": "test", "label": "測試", "icon": "✔", "x": 60, "y": 46, "w": 8, "hidden": true },
+          { "id": "deploy", "label": "部署", "icon": "⇪", "x": 76, "y": 46, "w": 8, "hidden": true },
+          { "id": "site", "label": "網站", "sub": "目前 v1.1.0", "icon": "🌐", "x": 91, "y": 46, "w": 8 }
+        ],
+        "edges": [
+          { "from": "dev", "to": "repo" },
+          { "from": "repo", "to": "ci", "label": "只認 v 開頭的標籤" },
+          { "from": "ci", "to": "test" },
+          { "from": "test", "to": "deploy", "label": "全部通過才往下" },
+          { "from": "deploy", "to": "site" }
+        ]
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "show": "an",
+      "chapter": "手動部署的一個晚上",
+      "narration": "小安的網站，每次改完都要自己部署。"
+    },
+    {
+      "on": "an",
+      "say": "改完要打一串指令，順序還不能錯……",
+      "mood": "tired",
+      "narration": "部署，就是把改好的程式放到網路上，讓客人看到新版。小安每次都要打一長串指令。"
+    },
+    {
+      "on": "an",
+      "say": "昨天太趕，忘了跑測試，結帳壞了一整晚！",
+      "mood": "worried",
+      "narration": "昨天他趕時間，跳過了測試，結果結帳按鈕壞了一整晚，他睡醒才發現。"
+    },
+    { "hide": "an" },
+    {
+      "card": "推一下標籤，網站自己更新",
+      "eyebrow": "全環節 · 單元 20 · 20.1 基礎知識",
+      "sub": "持續部署 · 觸發條件 · 部署前的測試",
+      "narration": "這種「每次都要做、漏一步就出事」的工作，最適合交給機器。這就是持續部署。"
+    },
+    {
+      "show": "flow",
+      "chapter": "持續部署：一條自動的管線",
+      "narration": "先看一條路線：程式從你的電腦，到 GitHub，最後到網站。以前中間這段，全靠你自己動手。"
+    },
+    {
+      "appear": ["ci", "repo>ci", "test", "ci>test", "deploy", "test>deploy", "deploy>site"],
+      "narration": "持續部署，就是在中間放一條自動的管線。GitHub 上有個叫 Actions 的服務，會照你寫好的步驟，自動測試、自動部署。"
+    },
+    {
+      "callout": "flow:node:ci",
+      "text": "工作流程：一份寫好步驟的檔案，放在專案裡",
+      "narration": "要它做哪些事，寫在專案裡的一份檔案，叫工作流程。它就照著這份檔案做，每次都一模一樣。"
+    },
+    {
+      "send": "dev>repo",
+      "label": "推送 main",
+      "chapter": "觸發條件：什麼時候開始跑",
+      "narration": "那它什麼時候開始跑？這叫觸發條件。比如你平常把改到一半的程式推上去，"
+    },
+    {
+      "light": "repo",
+      "tone": "dim",
+      "sub": "沒有標籤 → 不部署",
+      "narration": "這次沒有標籤，管線就不動。你可以放心推，網站不會被半成品蓋掉。"
+    },
+    {
+      "callout": "flow:edge:repo>ci",
+      "text": "觸發條件：推送 v 開頭的標籤，例如 v1.2.0",
+      "narration": "我們設定的觸發條件是：推送一個 v 開頭的標籤。標籤，就像在某一版程式上貼一張「這版要上線」的貼紙。"
+    },
+    {
+      "light": "repo",
+      "tone": "idle",
+      "sub": ""
+    },
+    {
+      "send": "dev>repo",
+      "label": "標籤 v1.2.0",
+      "tone": "ok",
+      "narration": "現在推送標籤 v1.2.0。"
+    },
+    {
+      "send": "repo>ci",
+      "label": "v1.2.0",
+      "tone": "ok",
+      "narration": "條件符合，管線開始跑。"
+    },
+    { "light": "ci", "tone": "on", "sub": "開始執行" },
+    { "send": "ci>test", "label": "v1.2.0" },
+    {
+      "light": "test",
+      "tone": "ok",
+      "sub": "42 項全部通過",
+      "chapter": "部署前一定先測試",
+      "narration": "第一站是測試。測試是一段段檢查程式，例如「按下結帳，金額要對」。四十二項都通過，"
+    },
+    { "send": "test>deploy", "label": "v1.2.0", "tone": "ok" },
+    { "light": "deploy", "tone": "ok", "sub": "上傳完成" },
+    { "send": "deploy>site", "label": "v1.2.0", "tone": "ok" },
+    {
+      "light": "site",
+      "tone": "ok",
+      "sub": "現在 v1.2.0",
+      "narration": "才會部署。網站更新成 v1.2.0，整個過程你只推了一個標籤。"
+    },
+    {
+      "light": "test",
+      "tone": "bad",
+      "sub": "結帳金額錯誤 ✕",
+      "narration": "如果測試沒過呢？假設下一版有人把結帳改壞了，測試會抓到。"
+    },
+    {
+      "cut": "test>deploy",
+      "narration": "這時候管線在這裡停下來，不會往下部署。"
+    },
+    {
+      "send": "test>deploy",
+      "label": "v1.2.1",
+      "narration": "壞掉的版本送不過去，"
+    },
+    {
+      "callout": "flow:node:site",
+      "text": "網站還是上一個好的版本，照常營業",
+      "narration": "網站還是上一個好的版本，客人完全不受影響。你會收到失敗通知，修好再推一次就好。這就是小安那天晚上缺的那一道關卡。"
+    },
+    { "hide": "flow" },
+    {
+      "shimmer": "標籤觸發 → 測試 → 部署",
+      "sub": "測試沒過，就不部署",
+      "chapter": "重點整理",
+      "narration": "整理一下：推送標籤觸發，先測試，全部通過才部署。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "猜猜看：哪一次會部署？",
+      "body": "① 把改到一半的程式推到 main　② 推送標籤 v2.0.0，測試全部通過　③ 推送標籤 v2.0.1，測試有一項失敗。想好答案再繼續。",
+      "narration": "換你想想：推到 main、推標籤且測試通過、推標籤但測試失敗，三次裡哪一次會部署？"
+    },
+    {
+      "card": "答案：只有 ②",
+      "eyebrow": "觸發條件 + 測試把關",
+      "sub": "① 沒有標籤不觸發；③ 測試失敗，管線停在部署之前",
+      "narration": "答案是只有第二次。第一次沒有標籤，不觸發；第三次測試失敗，管線停在部署之前。下一堂，我們請 AI 把這條管線寫出來。"
+    }
+  ]
+}

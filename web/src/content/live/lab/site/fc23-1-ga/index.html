@@ -1,0 +1,18 @@
+<!doctype html><html><head><title>分析工具 · 管理</title></head><body>
+<div class="bar"><span class="lg">📈</span>示意流量分析後台<nav><span id="tab-admin" class="on">管理</span><span id="tab-rt">即時</span></nav></div>
+<div class="pg" id="pg" data-v="1">
+<section class="v v1"><h1>步驟 1　建立資源</h1><p>「資源」是一個網站的數據要存放的地方。</p>
+<label>資源名稱<input id="prop-name" placeholder="例如 我的網站"></label>
+<label>時區<select id="tz"><option>（請選擇）</option><option value="tw">台灣 (GMT+8)</option></select></label>
+<label>幣別<select id="cur"><option>（請選擇）</option><option value="twd">新台幣 TWD</option></select></label>
+<button class="primary" id="create">建立</button></section>
+<section class="v v2"><h1>步驟 2　新增網站資料串流</h1><p>告訴它要收集哪個網站的數據。</p>
+<label>網站網址<input id="stream-url" placeholder="https://"></label>
+<button class="primary" id="stream-create">建立串流</button></section>
+<section class="v v3"><h1>✓ 資料串流建好了</h1><p>把「評估 ID」交給你的網站程式：</p>
+<div class="mid" id="mid">G-K7Q2M9XW4P</div><p class="hint">評估 ID 本來就會出現在網頁原始碼裡，不是密碼。</p></section>
+<section class="v v4"><h1>即時</h1>
+<div class="rt" id="rt"><div class="big"><span>過去 30 分鐘的使用者</span><b>1</b></div>
+<div class="pages"><h3>正在看的網頁</h3><div class="pr"><span>/menu</span><b>1</b></div></div>
+<div class="evs"><h3>事件</h3><div class="pr"><span>page_view</span><b>3</b></div><div class="pr"><span>scroll</span><b>1</b></div></div></div></section>
+</div></body></html>

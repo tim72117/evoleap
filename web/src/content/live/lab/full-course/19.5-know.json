@@ -1,0 +1,111 @@
+{
+  "title": "幫 Cloud Run 換上自己的門牌",
+  "lesson": "全環節 · 單元 19 · 19.5 基礎知識",
+  "teacher": {
+    "say": "認識網域對應與憑證",
+    "line": "Cloud Run 給的網址又長又難記。今天先看看換上自己網域的成果，再拆開來看：網域對應是什麼、Google 怎麼確認網域是你的、憑證怎麼發下來。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "v7", "width": "desktop", "url": "https://app.xiaosen-bakery.com" },
+      "place": "window",
+      "hidden": true
+    },
+    "map": {
+      "actor": "browser",
+      "props": { "site": "fc19-5-mapping", "width": "desktop", "url": "https://learn.example/diagram/domain-mapping" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "幫 Cloud Run 換上自己的門牌",
+      "eyebrow": "全環節 · 單元 19 · 19.5 基礎知識",
+      "sub": "網域對應與憑證",
+      "chapter": "先看成果",
+      "narration": "先看做完的樣子。"
+    },
+    {
+      "show": "web",
+      "narration": "網址列是 app 點 xiaosen-bakery 點 com，前面有鎖頭。內容是 Cloud Run 上那個有後端、能下訂單的網站。"
+    },
+    {
+      "callout": "web:addressbar",
+      "text": "原本是 bakery-5qx3k2-de.a.run.app",
+      "narration": "原本的網址是 bakery 加一串亂碼點 run 點 app，印在名片上沒人記得住。換成自己的子網域，客人一看就知道是你的店。"
+    },
+    { "hide": "web" },
+    {
+      "show": "map",
+      "chapter": "拆開來看",
+      "narration": "這是怎麼接上的？從左到右看。客人打的網址，先查 DNS。"
+    },
+    {
+      "callout": "map:sel:.m",
+      "text": "DNS 帶到 Google 的大門，大門照對應表轉給服務",
+      "narration": "DNS 裡有一筆別名，指向 Google 的大門 ghs 點 googlehosted 點 com。大門收到客人，查一張對應表：app 要送到 bakery 這個服務。這張表上的一行，就叫網域對應。"
+    },
+    {
+      "on": "map",
+      "click": "#b1",
+      "chapter": "先證明網域是你的",
+      "narration": "可是誰都能說「這個網域是我的」。所以登記之前，Google 要你先證明：在 DNS 加一筆它給的 TXT 紀錄。"
+    },
+    {
+      "callout": "map:sel:.expl",
+      "text": "能改 DNS 的人，就是網域的主人",
+      "narration": "道理很簡單：只有網域的主人，才改得了它的 DNS。你貼得出這張告示，就證明網域是你的。"
+    },
+    {
+      "on": "map",
+      "click": "#b2",
+      "chapter": "憑證三個狀態",
+      "narration": "最後是憑證。對應登記好之後，狀態會從等待 DNS，到憑證簽發中，最後變成就緒，出現鎖頭。"
+    },
+    {
+      "callout": "map:sel:.states",
+      "text": "DNS 先生效，憑證才發得下來",
+      "narration": "和之前把網域接到網站時一模一樣：DNS 要先生效，憑證才發得下來。剛設好看到「不安全」，先別慌，等一下就好。"
+    },
+    {
+      "chapter": "想一想",
+      "checkpoint": "你設好網域對應和 DNS 已經五分鐘，打開 app.xiaosen-bakery.com 出現「連線不安全」。最可能是什麼原因？",
+      "body": "選一個。",
+      "id": "cert",
+      "options": [
+        {
+          "label": "憑證還在簽發中",
+          "steps": [
+            {
+              "card": "答對了！",
+              "eyebrow": "想一想",
+              "sub": "等 DNS 生效、憑證發下來；可以請 AI 寫腳本反覆檢查狀態",
+              "narration": "答對了。憑證還在路上，等 DNS 生效、憑證發下來就好。與其一直按重新整理，可以請 AI 寫個腳本反覆檢查狀態。"
+            }
+          ]
+        },
+        {
+          "label": "網站被駭客攻擊了",
+          "steps": [
+            {
+              "card": "先別緊張",
+              "eyebrow": "再想想",
+              "sub": "剛設好時最常見的原因，是憑證還沒發下來",
+              "narration": "先別緊張。剛設好時最常見的原因，是憑證還沒發下來，等一下就好。"
+            }
+          ]
+        }
+      ]
+    },
+    { "hide": "map" },
+    {
+      "card": "DNS 帶到大門 → 對應表轉給服務\n先驗證網域，DNS 生效後才有憑證",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：網域對應、網域驗證、憑證狀態",
+      "chapter": "學會",
+      "narration": "DNS 把客人帶到 Google 的大門，網域對應把他轉給你的服務；要先驗證網域是你的，DNS 生效後才有憑證。下一堂，請 AI 設定網域對應、給出要填的紀錄，你填完後由它驗證憑證生效。"
+    }
+  ]
+}

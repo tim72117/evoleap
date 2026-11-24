@@ -1,0 +1,25 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#1f2a2e;background:#efeee9;display:flex;align-items:center;justify-content:center}
+.app{width:1180px;padding:18px 0}
+.tabs{display:flex;gap:10px}
+.tabs button{flex:1;font:inherit;font-size:21px;border:0;border-radius:14px 14px 0 0;padding:14px;background:#ddd9cd;color:#5b6468}
+.stage{background:#fff;border-radius:0 0 18px 18px;padding:22px;min-height:470px;box-shadow:0 4px 18px rgba(0,0,0,.05)}
+.p{display:none;grid-template-columns:1fr 50px 1fr;gap:16px;align-items:start}
+.t1 .p1,.t2 .p2,.t3 .p3,.t4 .p4{display:grid}
+.t1 #k1,.t2 #k2,.t3 #k3,.t4 #k4{background:#fff;color:#1f2a2e;font-weight:700}
+h4{font-size:20px;margin-bottom:10px}
+.arrowx{font-size:40px;color:#c9c1ad;text-align:center;padding-top:80px}
+.cm{border:2px solid #e3ded2;border-radius:12px;padding:12px;font-size:18px;margin-bottom:10px}
+.cm.bad{border-color:#d6453d;background:#fdf3f2}
+code{font-family:ui-monospace,Menlo,monospace;font-size:16px;background:#fdeceb;color:#b4382f;border-radius:5px;padding:2px 6px;display:inline-block;margin:4px 0}
+.users{display:flex;gap:16px;font-size:52px;filter:grayscale(.2)}
+.users span{background:#fdeceb;border-radius:50%;padding:6px}
+.red{color:#c0392b;font-weight:700;font-size:19px;margin-top:12px}
+.field{border:2px solid #d5dbe0;border-radius:10px;padding:12px;font-size:18px;margin-bottom:10px}
+.sql{font-family:ui-monospace,Menlo,monospace;font-size:19px;background:#1e1e22;color:#e6e6e6;border-radius:12px;padding:16px;line-height:1.6}
+.sql mark{background:#d6453d;color:#fff;border-radius:4px;padding:0 3px}
+.evil{background:#2b1f33;color:#ffd6f0;border-radius:14px;padding:18px;font-size:22px}.evil small{font-size:16px;color:#e8c3dc}
+.shopbox{border:2px solid #d5dbe0;border-radius:14px;padding:18px;font-size:19px}
+.tries{display:flex;flex-direction:column;gap:2px}
+.guard{grid-column:1 / span 3;margin-top:22px;background:#e9f6ee;border:2px solid #9fd3b7;border-radius:12px;padding:14px 18px;font-size:20px;color:#1e5b3f}
+.guard::before{content:"🛡 "}

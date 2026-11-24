@@ -1,0 +1,155 @@
+{
+  "title": "GA4 流量分析",
+  "lesson": "全環節 · 單元 23 · 23.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天把 GA4 裝進網站",
+    "line": "這一課一樣分工：GA4 的資源由你照步驟建立，評估 ID 的設定和換頁時的紀錄交給 AI。最後在即時報表上，看到你自己。"
+  },
+  "blocking": { "cast": ["claude", "web"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "安裝 GA4",
+        "folder": "~/projects/shop",
+        "branch": "main",
+        "mode": "accept",
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc23-1-ga", "url": "https://analytics.example/admin/create" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "GA4 流量分析",
+      "eyebrow": "全環節 · 單元 23 · 23.1 用 AI 完成",
+      "sub": "你：建立資源、拿到評估 ID · AI：設定、換頁記錄、驗證",
+      "narration": "GA4 的後台要用你的 Google 帳號登入，AI 碰不到。所以你建資源，AI 做程式。"
+    },
+    {
+      "show": "claude",
+      "chapter": "先請 AI 寫步驟",
+      "narration": "先問它你要做什麼。"
+    },
+    {
+      "on": "claude",
+      "user": "我要用 GA4 追蹤網站流量。GA4 的資源我自己建，請告訴我步驟，以及做完要交給你什麼。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "say": "請照這幾步做：\n\n1. 用你的 Google 帳號登入 GA4，到「管理」→ 建立資源，名稱填 `小森烘焙`，時區選台灣、幣別選新台幣\n2. 新增「網站」資料串流，網址填 `https://shop.example.app`\n3. 畫面上會出現 **評估 ID**（G- 開頭），貼給我\n\n評估 ID 會出現在網頁原始碼裡，不是密碼；但請不要把你的 Google 密碼給我。",
+      "narration": "三個步驟，連要填什麼都寫好了。最後要交給它的，是 G 開頭的評估 ID。"
+    },
+    {
+      "show": "web",
+      "chapter": "你：照步驟建立",
+      "narration": "接著你自己登入 GA4 的後台，照著做。"
+    },
+    {
+      "on": "web",
+      "fill": { "#prop-name": "小森烘焙", "#tz": "tw", "#cur": "twd" },
+      "narration": "第一步，資源名稱、時區、幣別。時區很重要，選錯了，報表上的「今天」會差八小時。"
+    },
+    { "on": "web", "click": "#create" },
+    {
+      "on": "web",
+      "fill": { "#stream-url": "https://shop.example.app" },
+      "narration": "第二步，新增網站的資料串流，填上網址。"
+    },
+    { "on": "web", "click": "#stream-create" },
+    {
+      "callout": "web:section:mid",
+      "text": "評估 ID：要交給 AI 的東西",
+      "narration": "第三步，評估 ID 出現了。複製下來。"
+    },
+    {
+      "on": "claude",
+      "user": "建好了，評估 ID 是 G-K7Q2M9XW4P",
+      "chapter": "AI：設定評估 ID",
+      "narration": "貼給 AI。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Grep",
+      "arg": "createBrowserRouter",
+      "result": "src/main.tsx：網站用 react-router 換頁",
+      "narration": "它先看網站怎麼換頁。這個網站換頁時不會整頁重新載入，GA4 只會記到第一頁。"
+    },
+    {
+      "on": "claude",
+      "say": "注意：這個網站換頁時不會重新載入整頁，GA4 預設只會記到第一次打開的那一頁。我會在每次換頁時，自己送一個 `page_view`。",
+      "narration": "它主動指出這個陷阱：不處理的話，客人看了五頁，報表只記一頁。"
+    },
+    {
+      "on": "claude",
+      "edit": ".env.production",
+      "lines": [[1, "+", "VITE_GA_ID=G-K7Q2M9XW4P"]],
+      "narration": "評估 ID 放在設定檔裡，不寫死在程式中。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/analytics.ts",
+      "lines": [
+        [1, "+", "gtag('config', import.meta.env.VITE_GA_ID, { send_page_view: false })"],
+        [2, "+", "export function trackPage(path: string) {"],
+        [3, "+", "  gtag('event', 'page_view', { page_path: path })"],
+        [4, "+", "}"],
+        [5, "+", "router.subscribe((s) => trackPage(s.location.pathname))  // 每次換頁"]
+      ],
+      "chapter": "AI：換頁也要記",
+      "narration": "第一行關掉自動記錄，第五行改成每次換頁時自己記一筆，這樣每一頁都只記一次，不會重複也不會漏。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run deploy:staging && node scripts/check-ga.mjs（打開首頁 → 菜單 → 購物車，記下送出的請求）",
+      "result": "3 個 page_view：/、/menu、/cart ✓",
+      "out": "評估 ID：G-K7Q2M9XW4P ✓　重複送出：0",
+      "chapter": "AI：自己驗證",
+      "narration": "它自己驗證：用程式打開三頁，看送出的請求。三頁各一個 page view，評估 ID 正確，沒有重複。"
+    },
+    {
+      "on": "claude",
+      "say": "程式這邊確認了。請你用手機打開 `https://shop-staging.example.app`，點幾頁，然後到 GA4 的「即時」報表截圖給我。",
+      "narration": "但 GA4 有沒有真的收到，要看後台。這一步請你截圖回報。"
+    },
+    {
+      "on": "web",
+      "click": "#tab-rt",
+      "chapter": "你：看即時報表",
+      "narration": "你用手機打開網站，點了幾頁，再切到 GA4 的即時報表。"
+    },
+    {
+      "callout": "web:section:rt",
+      "text": "1 位使用者：就是你自己",
+      "narration": "過去三十分鐘，一位使用者，正在看菜單。這一位就是你自己。截圖貼給 AI。"
+    },
+    { "on": "claude", "user": "（附上截圖）即時報表看到 1 位使用者。" },
+    {
+      "on": "claude",
+      "say": "確認了：即時報表有 1 位使用者，`page_view` 3 次，和你點的頁數一樣，表示換頁也有記到。要我部署到正式網站嗎？",
+      "narration": "它對照截圖：頁數和你點的一樣，換頁也有記到。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 寫出建立 GA4 資源的步驟，你自己照著做，把評估 ID 交給它。請它處理換頁的紀錄並自己驗證；你打開網站點幾頁，到即時報表截圖給它確認。",
+      "narration": "換你做做看。最後在即時報表上看到自己，才算完成。"
+    },
+    {
+      "card": "即時報表看得到自己的造訪",
+      "eyebrow": "這一課的成果",
+      "sub": "你建資源 · AI 設定與換頁記錄 · 截圖確認",
+      "narration": "這一課的成果：即時報表看得到你自己的造訪。下一課，我們來設計自己的追蹤事件和漏斗。"
+    }
+  ]
+}

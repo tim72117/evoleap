@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>我的提問範本</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page" id="page">
+    <h1>「需求 → 工作項目」提問範本</h1>
+    <div class="meta">我的文件 · 第 1 版草稿</div>
+    <div class="tpl">
+      <p>我在整理 <span class="slot" id="s-project">【專案名稱】</span> 的需求。以下是客戶的訊息：</p>
+      <p><span class="slot" id="s-msg">【貼上客戶訊息（姓名、電話先換成代稱）】</span></p>
+      <p>請幫我：</p>
+      <ol>
+        <li>整理成需求清單，分成「一定要有」和「之後再說」</li>
+        <li>把「一定要有」的需求轉成工作項目，每項附上做完怎麼檢查的驗收條件</li>
+        <li>列出要向客戶確認的問題</li>
+      </ol>
+      <p>其他限制：<span class="leftover" id="leftover"><span class="before">每天生日蛋糕上限 8 個</span><span class="after">【其他限制（沒有就刪掉）】</span></span></p>
+
+    </div>
+    <div class="legend"><span class="l-slot">每次要換的地方</span><span class="l-left">留下來的舊案子細節</span></div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>兩種網站</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-start="1">
+<div class="tabs">
+  <button class="tab cur" id="a1" data-go="1">靜態網站</button>
+  <button class="tab" id="a2" data-go="2">有後端的網站</button>
+  <button class="tab" id="a3" data-go="3">費用怎麼估</button>
+</div>
+<div class="p1">
+  <div class="dia"><div class="nd">📱<b>客人的瀏覽器</b></div><div class="ln"><span>要首頁 →</span><span class="bk">← 一模一樣的檔案</span></div><div class="nd host">🗂<b>檔案主機</b><span class="muted">index.html、圖片</span></div></div>
+  <div class="cap card">像<b>發傳單</b>：每個人拿到的都一樣。適合介紹、作品集、菜單。<br><span class="muted">很便宜，常常免費（例如 GitHub Pages、Cloudflare Pages）</span></div>
+</div>
+<div class="p2">
+  <div class="dia"><div class="nd">📱<b>客人的瀏覽器</b></div><div class="ln"><span>送出訂單 →</span><span class="bk">← 你的訂單 A-1024</span></div><div class="nd srv">⚙️<b>伺服器（後端）</b><span class="muted">會算、會記、會檢查</span></div><div class="ln short"><span>存</span></div><div class="nd db">🗄<b>資料庫</b><span class="muted">訂單、會員</span></div></div>
+  <div class="cap card">像<b>開店接單</b>：每個人看到的不一樣，要有人記帳。<br><span class="muted">要登入、存資料、收訂單 → 需要後端（例如 Cloud Run ＋ 資料庫）</span></div>
+</div>
+<div class="p3">
+  <div class="row">
+    <div class="card grow chart">
+      <div class="h">每月大約多少？（小店、每天 50 張訂單）</div>
+      <div class="br"><span class="lb">靜態主機</span><span class="b" style="width:2%"></span><span class="v">NT$ 0</span></div>
+      <div class="br"><span class="lb">雲端平台（後端）</span><span class="b" style="width:18%"></span><span class="v">NT$ 0–50</span></div>
+      <div class="br"><span class="lb">託管資料庫</span><span class="b" style="width:70%"></span><span class="v">NT$ 0–300</span></div>
+      <div class="br"><span class="lb">網域</span><span class="b" style="width:12%"></span><span class="v">約 NT$ 40</span></div>
+    </div>
+    <div class="card side"><div class="h">估費用看三件事</div>① 有沒有<b>免費額度</b><br>② 依<b>用量</b>還是<b>固定月費</b><br>③ 最低每月要付多少<br><span class="muted">數字會變，以官網價目表為準</span></div>
+  </div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

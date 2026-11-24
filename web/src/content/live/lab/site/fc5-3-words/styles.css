@@ -1,0 +1,13 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; background: #eef1f5; color: #1f2933; }
+.canvas { padding: 40px 0; display: flex; justify-content: center; }
+.pc { width: 520px; padding: 20px; text-align: center; background: #fff; border-radius: 6px; border: 1px solid #cbd2d9; }
+.av { width: 70px; height: 70px; margin: 0 auto 8px; border-radius: 50%; background: #3b82f6; color: #fff; font-size: 30px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.nm { font-size: 48px; font-weight: 800; }
+.ti { font-size: 15px; color: #6b7785; }
+.tags { margin: 6px 0; }
+.tags span { margin: 0 4px; font-size: 14px; color: #3b82f6; }
+.acts { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.b1, .b2 { font: inherit; font-size: 15px; padding: 8px; border-radius: 999px; }
+.b1 { background: #3b82f6; color: #fff; border: 0; }
+.b2 { background: #fff; color: #3b82f6; border: 1px solid #3b82f6; }

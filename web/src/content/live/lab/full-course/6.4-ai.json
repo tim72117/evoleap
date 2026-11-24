@@ -1,0 +1,170 @@
+{
+  "title": "分支、Pull Request 與版本標籤",
+  "lesson": "全環節 · 單元 6 · 6.4 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天打出第一個版本",
+    "line": "今天要請 AI 從頭走一遍：開分支做聯絡表單、建 Pull Request、你看過之後合併，最後打出第一個版本標籤 v0.1.0。"
+  },
+  "blocking": { "cast": ["claude", "git", "host"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "聯絡表單與 v0.1.0",
+        "folder": "~/projects/profile",
+        "branch": "main",
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "git": {
+      "actor": "fc2-git",
+      "props": { "commits": ["建立介紹頁", "加上作品集區塊", "打招呼按鈕顯示次數"], "view": "graph" },
+      "place": "window",
+      "hidden": true
+    },
+    "host": {
+      "actor": "browser",
+      "props": { "site": "fc6-4-pr", "width": "desktop", "url": "https://code.example/lin/profile/pull/1" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "打出第一個版本 v0.1.0",
+      "eyebrow": "全環節 · 單元 6 · 6.4 用 AI 完成",
+      "sub": "開分支 → 做功能 → 建 Pull Request → 你看過 → 合併 → 打標籤",
+      "chapter": "一次交代整個流程",
+      "narration": "這次的流程比較長，但只要一開始交代清楚，AI 可以一路做完，只在合併前停下來等你看。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我加一個聯絡表單頁（姓名、Email、留言，沒填 Email 要提示）。請照這個流程：\n1. 開一個分支 feature/contact\n2. 做完分成幾個清楚的 commit，跑 npm test\n3. 推上去，用 gh 建 Pull Request，說明寫做了什麼、怎麼測\n4. 停下來，給我 PR 的網址，等我看過說可以再合併\n5. 合併後回到 main，打標籤 v0.1.0 並推上去",
+      "narration": "流程寫成編號，第四步特別寫「停下來等我」。合併進主線是重要的決定，要你看過才算數。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    {
+      "on": "claude",
+      "todos": [
+        ["開分支 feature/contact", "doing"],
+        ["做聯絡表單，分成清楚的 commit，跑測試", "pending"],
+        ["推上去並建立 Pull Request", "pending"],
+        ["等你看過再合併", "pending"],
+        ["回到 main，打標籤 v0.1.0 並推上去", "pending"]
+      ]
+    },
+    {
+      "on": "claude",
+      "ask": "git switch -c feature/contact",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "開一個新分支並切過去",
+      "chapter": "開分支、做功能"
+    },
+    { "on": "claude", "choose": 1 },
+    { "show": "git", "branch": "feature/contact", "narration": "從 main 岔出一條分支。" },
+    { "on": "claude", "tool": "Write", "arg": "contact.html", "result": "已建立 48 行" },
+    { "on": "claude", "ask": "git add contact.html index.html && git commit -m \"新增聯絡表單頁\"", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "select": 1 },
+    { "on": "git", "create": "contact.html" },
+    { "on": "git", "add": "contact.html" },
+    { "on": "git", "commit": "新增聯絡表單頁", "narration": "第一個 commit：表單頁。" },
+    { "on": "claude", "edit": "styles.css", "lines": [[70, "+", ".form label { display: block; margin-top: 12px; }"], [71, "+", ".form .error { color: #b42318; }"]] },
+    { "on": "claude", "ask": "git commit -am \"聯絡表單樣式與 Email 提示\"", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "select": 1 },
+    { "on": "git", "change": "styles.css" },
+    { "on": "git", "add": "styles.css" },
+    { "on": "git", "commit": "表單樣式與 Email 提示", "narration": "第二個 commit：樣式和提示。" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test",
+      "result": "通過",
+      "out": "✓ 12 個測試通過",
+      "narration": "跑測試，全部通過。"
+    },
+    { "on": "claude", "ask": "git push -u origin feature/contact", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "note": "把分支推上 GitHub", "chapter": "建立 Pull Request" },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "git push -u origin feature/contact", "result": "完成" },
+    {
+      "on": "claude",
+      "ask": "gh pr create --title \"加上聯絡表單\" --body-file pr.md",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "用 GitHub 的命令列工具 gh 建立 Pull Request",
+      "narration": "gh 是 GitHub 的命令列工具，可以直接建立 Pull Request。"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gh pr create --title \"加上聯絡表單\" --body-file pr.md", "result": "已建立", "out": "https://code.example/lin/profile/pull/1" },
+    { "on": "git", "pr": "加上聯絡表單" },
+    {
+      "on": "claude",
+      "say": "Pull Request 建好了：https://code.example/lin/profile/pull/1\n- 2 個 commit，3 個檔案\n- 自動檢查：build 和測試都通過\n\n我先停在這裡。你看過說可以，我再合併。",
+      "narration": "它照約定停下來，給你網址，等你看。"
+    },
+    {
+      "show": "host",
+      "chapter": "你來看過",
+      "narration": "這一段是你的工作。打開 Pull Request。"
+    },
+    { "callout": "host:sel:.checks", "text": "先看：自動檢查都通過", "narration": "先看自動檢查，都是綠色。" },
+    { "on": "host", "click": "#tab-files", "narration": "再看改了哪些檔案：新增一個 contact.html，index.html 只多一行導覽連結，加上一些樣式。和說明對得上，沒有多改別的地方。" },
+    { "on": "host", "click": "#tab-talk" },
+    { "on": "claude", "user": "看過了，可以合併。", "chapter": "合併" },
+    {
+      "on": "claude",
+      "ask": "gh pr merge 1 --merge --delete-branch",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "合併 Pull Request #1，並刪掉已經用完的分支"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "gh pr merge 1 --merge --delete-branch", "result": "已合併" },
+    { "on": "host", "click": "#merge", "narration": "平台上的 Pull Request 變成已合併。" },
+    { "on": "git", "switch": "main" },
+    { "on": "git", "merge": "feature/contact", "narration": "線圖上，分支合回了 main。" },
+    { "on": "claude", "tool": "Bash", "arg": "git switch main && git pull", "result": "完成", "out": "Fast-forward\n 3 files changed, 71 insertions(+)" },
+    {
+      "on": "claude",
+      "ask": "git tag -a v0.1.0 -m \"第一個版本：介紹頁與聯絡表單\" && git push origin v0.1.0",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/profile",
+      "note": "在目前的 commit 打上標籤 v0.1.0，並推上去",
+      "chapter": "打標籤 v0.1.0"
+    },
+    { "on": "claude", "choose": 1 },
+    { "on": "git", "tag": "v0.1.0", "narration": "標籤插上去了。" },
+    { "on": "claude", "tool": "Bash", "arg": "git tag -a v0.1.0 … && git push origin v0.1.0", "result": "完成", "out": "To github.com:lin/profile.git\n * [new tag]  v0.1.0 -> v0.1.0" },
+    {
+      "on": "claude",
+      "todos": [
+        ["開分支 feature/contact", "done"],
+        ["做聯絡表單，分成清楚的 commit，跑測試", "done"],
+        ["推上去並建立 Pull Request", "done"],
+        ["等你看過再合併", "done"],
+        ["回到 main，打標籤 v0.1.0 並推上去", "done"]
+      ]
+    },
+    {
+      "on": "claude",
+      "say": "完成：Pull Request #1 已合併進 `main`，並打出 `v0.1.0`。以後要回到這一版，只要說「v0.1.0」就找得到。",
+      "narration": "五個步驟都完成了。"
+    },
+    { "on": "host", "click": "#tab-tags", "narration": "在平台的標籤頁，看得到你的第一個版本。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "對 AI 說要做的小功能，並交代流程：開分支、分成清楚的 commit、跑測試、推上去建 Pull Request、停下來等你看、合併後回到 main 打標籤 v0.1.0。合併前自己打開 Pull Request 看檢查和變更的檔案。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "流程寫成編號交代\n合併前要它停下來\n你看過檢查和檔案才合併",
+      "eyebrow": "學會",
+      "sub": "標籤 v0.1.0：以後說得出、找得到的版本",
+      "chapter": "學會",
+      "narration": "流程寫成編號交代給 AI，合併前要它停下來，你看過檢查和變更的檔案才合併，最後打標籤。單元六結束了，下一個單元，我們讓專案好維護。"
+    }
+  ]
+}

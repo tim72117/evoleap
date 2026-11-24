@@ -1,0 +1,105 @@
+{
+  "title": "還有哪些平台能放網站？",
+  "lesson": "全環節 · 單元 16 · 16.2 基礎知識",
+  "teacher": {
+    "say": "認識三個熱門平台",
+    "line": "GitHub Pages 之外，還有 Cloudflare Pages、Vercel、Netlify。今天看看它們差在哪裡，特別是一個很好用的功能：預覽網址。"
+  },
+  "cast": {
+    "cmp": {
+      "actor": "browser",
+      "props": { "site": "fc16-2-platforms", "width": "desktop", "url": "https://learn.example/compare/static-hosts" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "還有哪些平台能放網站？",
+      "eyebrow": "全環節 · 單元 16 · 16.2 基礎知識",
+      "sub": "免費額度、預覽網址與自動部署",
+      "chapter": "先想一個情境",
+      "narration": "先想一個情境。"
+    },
+    {
+      "checkpoint": "你想試做一份新菜單，先傳給店長看；可是正式網站上的客人，不能看到還沒定案的版本。你會怎麼做？",
+      "body": "先憑直覺選一個。",
+      "id": "scene",
+      "options": [
+        {
+          "label": "直接改正式網站，看完再改回來",
+          "steps": [
+            {
+              "card": "客人會看到半成品",
+              "eyebrow": "有風險",
+              "sub": "改正式網站的這段時間，所有客人都看得到",
+              "narration": "這樣在你改回來之前，所有客人都會看到半成品。有更好的做法。"
+            }
+          ]
+        },
+        {
+          "label": "給新版另一個網址",
+          "steps": [
+            {
+              "card": "對，這就是「預覽網址」",
+              "eyebrow": "好直覺",
+              "sub": "新版有自己的網址，正式網址不受影響",
+              "narration": "對，新版有自己的網址，正式網址完全不受影響。這叫預覽網址，等一下就會看到。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "show": "cmp",
+      "chapter": "三個平台一張表",
+      "narration": "這三個平台，都能免費放靜態網站，用法也很像：連上 GitHub，push 就上線。"
+    },
+    {
+      "on": "cmp",
+      "click": "#b1",
+      "narration": "第一個差別是免費額度，也就是不付錢能用多少。流量、每個月建置幾次、能不能拿來做生意，各家規定不同。"
+    },
+    {
+      "callout": "cmp:sel:.note",
+      "text": "額度常常改，請 AI 查官網最新說明",
+      "narration": "這些數字常常調整，不用背。要選的時候，請 AI 幫你查官網最新的說明就好。小店網站，免費方案通常都夠用。"
+    },
+    {
+      "on": "cmp",
+      "click": "#b2",
+      "chapter": "預覽網址",
+      "narration": "第二個，就是剛剛的預覽網址。藍色這條是 main，正式版。"
+    },
+    {
+      "focus": { "target": "cmp:viewport", "zoom": 1.15 },
+      "wait": 600,
+      "narration": "你開一條分支試改新菜單，就是黃色這條。平台會替它做一個獨立的網址，可以先傳給店長看。"
+    },
+    {
+      "callout": "cmp:sel:.prev .note",
+      "text": "看過沒問題，合併回 main，正式網址才換成新版",
+      "focus": false,
+      "narration": "店長看過沒問題，再合併回 main，正式網址才會換成新版。"
+    },
+    {
+      "on": "cmp",
+      "click": "#b3",
+      "chapter": "自動部署",
+      "narration": "第三個是自動部署。第一次要把平台和 GitHub 連起來，之後每次 push，平台會自己抓新檔案、重新發布。"
+    },
+    {
+      "callout": "cmp:sel:.r4",
+      "text": "每家都有命令列工具，AI 可以用它幫你部署",
+      "narration": "還有一點很重要：每家都有命令列工具。命令列就是打字下指令的地方，AI 碰得到它，就能幫你部署。只有第一次連帳號，要你自己在網頁上按。"
+    },
+    { "hide": "cmp" },
+    {
+      "card": "選一家當第二個平台，連一次帳號，之後交給 AI",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：免費額度、預覽網址、自動部署、命令列工具",
+      "chapter": "學會",
+      "narration": "三家都能用，挑一家當第二個平台就好。下一堂，你照 AI 的步驟連一次帳號，之後的部署就交給 AI。"
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "title": "小步修改，把規則寫給 AI",
+  "lesson": "全環節 · 單元 7 · 7.5 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天照流程做新功能",
+    "line": "今天要先請 AI 把小步修改的流程寫進 CLAUDE.md，再請它照這個流程做一個新功能：作品集的分類篩選。最後每個 commit 都要能單獨看懂。"
+  },
+  "blocking": { "cast": ["claude", "git"], "shot": "depth" },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "作品集篩選",
+        "folder": "~/projects/profile",
+        "branch": "main",
+        "mode": "accept",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "git": {
+      "actor": "fc2-git",
+      "props": { "commits": ["整理專案結構", "店家資料改成單一來源", "把 app.ts 拆成模組"] },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "小步修改，把規則寫給 AI",
+      "eyebrow": "全環節 · 單元 7 · 7.5 用 AI 完成",
+      "sub": "先把流程寫進 CLAUDE.md → 照流程做新功能 → 每個 commit 都看得懂",
+      "chapter": "先把流程寫成規則",
+      "narration": "這一課分兩段：先把規則寫下來，再看 AI 照規則做事。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "請在 CLAUDE.md 加一節「改程式的流程」：\n1. 先列出方案和步驟，等我確認再動手\n2. 一次只做一小步\n3. 每一步做完給我看 diff 摘要\n4. 跑 npm test，通過才 commit\n5. 一個 commit 只放一件事，訊息用中文寫做了什麼",
+      "narration": "把上一堂整理的流程，請 AI 寫進專案說明。"
+    },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [[6, "+", "## 改程式的流程"], [7, "+", "1. 先列出方案和步驟，等我確認再動手"], [8, "+", "2. 一次只做一小步"], [9, "+", "3. 每一步做完給我看 diff 摘要"], [10, "+", "4. 跑 npm test，通過才 commit"], [11, "+", "5. 一個 commit 只放一件事，訊息用中文寫做了什麼"]]
+    },
+    { "on": "claude", "ask": "git commit -am \"CLAUDE.md 加上改程式的流程\"", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "select": 1 },
+    { "on": "git", "change": "CLAUDE.md" },
+    { "on": "git", "add": "CLAUDE.md" },
+    { "on": "git", "commit": "加上改程式的流程", "narration": "規則本身也是一個 commit。之後每一次新的對話，AI 都會先讀到它。" },
+    {
+      "on": "claude",
+      "newSession": "作品集分類篩選",
+      "chapter": "新的對話，只說要什麼",
+      "narration": "開一個新的對話，證明它真的是讀了 CLAUDE.md，而不是記得剛才的話。"
+    },
+    {
+      "on": "claude",
+      "user": "作品集加上分類篩選：作品分成「網站」和「設計」，上面有按鈕可以只看其中一類。",
+      "narration": "這次只說要什麼，流程一個字都沒提。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    { "on": "claude", "tool": "Read", "arg": "CLAUDE.md", "result": "18 行", "narration": "它先讀了 CLAUDE.md。" },
+    {
+      "on": "claude",
+      "say": "照專案的流程，我先列方案，等你確認：\n1. 作品資料加上 `category` 欄位（網站／設計）\n2. 作品集上方加三個按鈕：全部、網站、設計，按了只顯示那一類\n3. 加測試：按「設計」只剩設計類的作品\n\n每一步做完給你看 diff 摘要，測試通過才 commit。可以開始嗎？",
+      "chapter": "AI 照規則先提方案",
+      "narration": "它沒有直接動手，而是先列出三個步驟，等你確認。這就是規則在發揮作用。"
+    },
+    { "on": "claude", "user": "可以，開始。" },
+    {
+      "on": "claude",
+      "edit": "src/data/works.ts",
+      "lines": [[3, "-", "  { title: '小森烘焙', desc: '一頁式網站' },"], [3, "+", "  { title: '小森烘焙', desc: '一頁式網站', category: 'web' },"], [4, "-", "  { title: '家庭食譜', desc: '可以搜尋的頁面' },"], [4, "+", "  { title: '家庭食譜', desc: '可以搜尋的頁面', category: 'web' },"], [5, "+", "  { title: '烘焙課海報', desc: 'A3 海報', category: 'design' },"]],
+      "chapter": "第一步",
+      "narration": "第一步，只動資料：每個作品加上分類。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "通過", "out": "✓ 20 個測試通過" },
+    {
+      "on": "claude",
+      "say": "**第 1 步 diff 摘要**：`src/data/works.ts` 每個作品加上 `category`，新增一個設計類作品。畫面還沒變。測試通過。",
+      "narration": "做完一步，給你看 diff 摘要、跑測試。"
+    },
+    { "on": "claude", "ask": "git commit -am \"作品資料加上分類\"", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "select": 1 },
+    { "on": "git", "change": "src/data/works.ts" },
+    { "on": "git", "add": "src/data/works.ts" },
+    { "on": "git", "commit": "作品資料加上分類", "narration": "通過才 commit。" },
+    {
+      "on": "claude",
+      "edit": "src/pages/works.html",
+      "lines": [[8, "+", "  <div class=\"filters\">"], [9, "+", "    <button data-cat=\"all\">全部</button>"], [10, "+", "    <button data-cat=\"web\">網站</button>"], [11, "+", "    <button data-cat=\"design\">設計</button>"], [12, "+", "  </div>"]],
+      "chapter": "第二步",
+      "narration": "第二步，加上篩選按鈕和它的程式。"
+    },
+    { "on": "claude", "edit": "src/scripts/works.js", "lines": [[20, "+", "filters.addEventListener('click', (e) => showOnly(e.target.dataset.cat))"]] },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "通過", "out": "✓ 20 個測試通過" },
+    { "on": "claude", "say": "**第 2 步 diff 摘要**：`works.html` 加三個按鈕，`works.js` 加 `showOnly()`。只動這兩個檔案。測試通過。" },
+    { "on": "claude", "ask": "git commit -am \"作品集加上分類篩選按鈕\"", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "select": 1 },
+    { "on": "git", "change": "src/pages/works.html" },
+    { "on": "git", "change": "src/scripts/works.js" },
+    { "on": "git", "add": "." },
+    { "on": "git", "commit": "作品集加上分類篩選按鈕" },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "src/scripts/works.test.js",
+      "result": "已建立",
+      "chapter": "第三步",
+      "narration": "第三步，補上測試：按「設計」之後，只剩設計類的作品。"
+    },
+    { "on": "claude", "tool": "Bash", "arg": "npm test", "result": "通過", "out": "✓ 22 個測試通過（新增 2 個）" },
+    { "on": "claude", "ask": "git add src/scripts/works.test.js && git commit -m \"測試分類篩選\"", "q": "Claude 想要執行這個指令", "where": "~/projects/profile", "select": 1 },
+    { "on": "git", "create": "src/scripts/works.test.js" },
+    { "on": "git", "add": "src/scripts/works.test.js" },
+    { "on": "git", "commit": "測試分類篩選" },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "git log --oneline -4",
+      "result": "完成",
+      "out": "e41c9b2 測試分類篩選\n7aa0d35 作品集加上分類篩選按鈕\n2c5f8e1 作品資料加上分類\n90b3a17 加上改程式的流程",
+      "chapter": "每個 commit 都看得懂",
+      "narration": "最後看紀錄。"
+    },
+    {
+      "show": "git",
+      "narration": "新功能分成三個 commit：資料、畫面、測試。每一個都能單獨看懂；哪天按鈕出問題，只要退掉中間那一個，資料和測試都還在。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "1. 請 AI 在 CLAUDE.md 加一節「改程式的流程」（先列方案等確認、一次一小步、給 diff 摘要、測試通過才 commit、一個 commit 一件事）。2. 開一個新的對話，只說你要的新功能，看它有沒有照流程先提方案。3. 做完用 git log --oneline 檢查每個 commit 是否都看得懂。做完按「完成了，繼續」。"
+    },
+    {
+      "card": "流程寫進 CLAUDE.md\n新的對話也會照做\n每個 commit 都能單獨看懂",
+      "eyebrow": "學會",
+      "sub": "規則寫一次，之後每次都省下提醒的力氣",
+      "chapter": "學會",
+      "narration": "把流程寫進 CLAUDE.md，開新的對話它也會照做，每個 commit 都能單獨看懂。規則寫一次，之後每一次都省下提醒的力氣。單元七到這裡結束。"
+    }
+  ]
+}

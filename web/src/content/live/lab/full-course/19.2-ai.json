@@ -1,0 +1,168 @@
+{
+  "title": "部署到 Cloud Run",
+  "lesson": "全環節 · 單元 19 · 19.2 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "把便當送上雲端",
+    "line": "這一堂請 AI 用 gcloud 把網站部署到 Cloud Run，選好地區和記憶體，最後打開網址確認，還會實際量一次冷啟動。"
+  },
+  "blocking": {
+    "cast": [
+      "claude",
+      "web"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "部署 Cloud Run",
+        "folder": "~/Documents/practice/bakery",
+        "branch": "main",
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "v7",
+        "width": "desktop",
+        "url": "https://bakery-5qx3k2-de.a.run.app"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "部署到 Cloud Run",
+      "eyebrow": "全環節 · 單元 19 · 19.2 用 AI 完成",
+      "sub": "一個指令部署，再用網址驗證",
+      "chapter": "交代：地區、記憶體、完成標準",
+      "narration": "上一堂的容器在你電腦上跑起來了。這次送上雲端。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "把 bakery 部署到 Cloud Run：地區 asia-east1，記憶體 512Mi，任何人都能打開。用 deployer 服務帳號部署。完成標準：網址回 200，首頁看得到「小森烘焙」。執行前先說會不會花錢。",
+      "narration": "把上一堂學的三個選擇寫進去：地區、記憶體、公開。部署用上一個單元建好的 deployer 服務帳號。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "on": "claude",
+      "say": "分兩步：\n1. 把上一堂的便當（映像檔）上傳到 Artifact Registry：`docker build` ＋ `docker push`\n2. `gcloud run deploy --image`：用這個映像檔部署成 Cloud Run 服務\n- 花錢嗎：**會，但很少**。存映像檔有小額費用；網站沒人用時幾乎不收費，有人用才按時間計費，都在你 NT$300 的預算裡\n- 身分：用 `deployer` 服務帳號\n- 最少執行個體設 0：沒人時不收 CPU 費用，代價是偶爾冷啟動"
+    },
+    {
+      "on": "claude",
+      "ask": "建立映像檔倉庫並上傳",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud artifacts repositories create bakery --repository-format=docker --location=asia-east1\ndocker build --platform linux/amd64 -t asia-east1-docker.pkg.dev/…/bakery/web:v1 .\ndocker push asia-east1-docker.pkg.dev/…/bakery/web:v1"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud artifacts repositories create bakery --repository-format=docker --location=asia-east1 && docker build --platform linux/amd64 -t asia-east1-docker.pkg.dev/xiaosen-bakery-prod-2611/bakery/web:v1 . && docker push asia-east1-docker.pkg.dev/xiaosen-bakery-prod-2611/bakery/web:v1",
+      "result": "完成",
+      "out": "Created repository [bakery].\nSuccessfully tagged …/bakery/web:v1\nv1: digest: sha256:4be1… size: 2417",
+      "narration": "先建一個放映像檔的倉庫，再把上一堂的映像檔打包、上傳。雲端的機器是另一種晶片，所以它特別指定平台。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "會花錢，也說清楚花在哪、多少",
+      "narration": "這次的指令會花錢，所以它說清楚花在哪裡、大概多少，也提醒你冷啟動的取捨。"
+    },
+    {
+      "on": "claude",
+      "ask": "gcloud run deploy bakery --image …/bakery/web:v1",
+      "q": "允許 Claude 執行這個指令？",
+      "where": "~/Documents/practice/bakery",
+      "preview": "gcloud run deploy bakery --image asia-east1-docker.pkg.dev/xiaosen-bakery-prod-2611/bakery/web:v1 \\\n  --region asia-east1 --memory 512Mi \\\n  --min-instances 0 --allow-unauthenticated \\\n  --impersonate-service-account deployer@xiaosen-bakery-prod-2611.iam.gserviceaccount.com"
+    },
+    {
+      "on": "claude",
+      "choose": 1,
+      "narration": "地區、記憶體都對，用的是 deployer。允許。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "gcloud run deploy bakery --image asia-east1-docker.pkg.dev/xiaosen-bakery-prod-2611/bakery/web:v1 --region asia-east1 --memory 512Mi --min-instances 0 --allow-unauthenticated --impersonate-service-account deployer@xiaosen-bakery-prod-2611.iam.gserviceaccount.com",
+      "result": "完成",
+      "out": "Deploying container to Cloud Run service [bakery]\n✓ Creating Revision…\n✓ Routing traffic…\nService URL: https://bakery-5qx3k2-de.a.run.app",
+      "chapter": "部署",
+      "narration": "用 deployer 的身分，拿剛上傳的映像檔部署。不到一分鐘，拿到一個網址。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "curl -s -o /dev/null -w '%{http_code}\\n' https://bakery-5qx3k2-de.a.run.app && curl -s https://bakery-5qx3k2-de.a.run.app | grep -o '<title>[^<]*'",
+      "result": "完成",
+      "out": "200\n<title>小森烘焙｜預約取貨",
+      "chapter": "AI 驗證",
+      "narration": "照標準驗證：回應兩百，標題是小森烘焙。"
+    },
+    {
+      "on": "claude",
+      "say": "達到完成標準 ✓ 我再實際量一次冷啟動：先等容器被關掉，再連兩次比較時間。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "sleep 900; for i in 1 2; do curl -s -o /dev/null -w \"第 $i 次：%{time_total} 秒\\n\" https://bakery-5qx3k2-de.a.run.app; done",
+      "result": "完成",
+      "out": "第 1 次：2.31 秒\n第 2 次：0.12 秒",
+      "narration": "等了十五分鐘，沒人用，容器被關掉了。第一次連線二點三秒，這就是冷啟動；第二次只要零點一秒。"
+    },
+    {
+      "callout": "claude:tool",
+      "text": "親眼看到冷啟動：2.31 秒 vs 0.12 秒",
+      "narration": "上一堂講的冷啟動，現在有了真實的數字。要不要花錢避免它，由你決定。"
+    },
+    {
+      "on": "claude",
+      "say": "完成 ✓\n- 網址：`https://bakery-5qx3k2-de.a.run.app`（200）\n- asia-east1、512Mi、最少 0 個執行個體\n- 冷啟動約 2.3 秒，之後 0.1 秒\n注意：訂購功能要連資料庫，現在還連不上，下一步用 Cloud SQL 處理。"
+    },
+    {
+      "show": "web",
+      "narration": "打開網址看看。這個網站現在是從台灣的雲端機房送出來的。"
+    },
+    {
+      "on": "web",
+      "scroll": "products",
+      "pause": 600
+    },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：部署到 Cloud Run",
+      "body": "請 AI 先說明會不會花錢，再用 gcloud 部署到離客人近的地區、選好記憶體；完成標準是網址回 200、首頁內容正確。可以再請它量一次冷啟動。"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "說清楚地區、記憶體、完成標準\nAI 部署、驗證、量冷啟動",
+      "eyebrow": "學會",
+      "sub": "會花錢的指令，先說花在哪、大概多少",
+      "chapter": "學會",
+      "narration": "交代地區、記憶體和完成標準，AI 用一個指令部署，再自己驗證、量冷啟動。現在網站在 Cloud Run 上了。下一堂，把資料庫也搬上雲端。"
+    }
+  ]
+}

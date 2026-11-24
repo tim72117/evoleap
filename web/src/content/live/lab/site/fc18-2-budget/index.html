@@ -1,0 +1,25 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>預算與警示</title></head><body>
+<div id="app" class="wrap">
+<p class="kicker">圖解 · 雲端怎麼收費</p>
+<h1>這個月花了多少？</h1>
+<div class="tabs"><button id="b0" data-go="0">用多少付多少</button><button id="b1" data-go="1">設一條預算線</button><button id="b2" data-go="2">50% 通知</button><button id="b3" data-go="3">超過了呢？</button></div>
+<svg class="chart" viewBox="0 0 1120 380" width="1120" height="380">
+<line x1="80" y1="330" x2="1080" y2="330" stroke="#94a3b8" stroke-width="2"/><line x1="80" y1="30" x2="80" y2="330" stroke="#94a3b8" stroke-width="2"/>
+<text x="80" y="356" font-size="14" fill="#64748b">11/1</text><text x="560" y="356" font-size="14" fill="#64748b" text-anchor="middle">11/15</text><text x="1080" y="356" font-size="14" fill="#64748b" text-anchor="end">11/30</text>
+<text x="70" y="335" font-size="14" fill="#64748b" text-anchor="end">0</text>
+<polyline points="80,330 240,318 400,300 520,282 640,240 720,190 800,120 880,60" fill="none" stroke="#2563eb" stroke-width="5" stroke-linejoin="round"/>
+<text x="890" y="56" font-size="16" fill="#2563eb" font-weight="700">累計花費</text>
+<g data-only="0"><text x="300" y="250" font-size="18" fill="#334155">像水錶：服務開著、有人用，就一直在跑</text></g>
+<g data-at="1"><line x1="80" y1="130" x2="1080" y2="130" stroke="#dc2626" stroke-width="3" stroke-dasharray="10 6"/><text x="1078" y="120" text-anchor="end" font-size="16" fill="#dc2626" font-weight="700">預算 NT$300</text></g>
+<g data-at="2"><line x1="80" y1="230" x2="1080" y2="230" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4 6"/><text x="90" y="222" font-size="14" fill="#b45309">50%＝150</text>
+<line x1="80" y1="160" x2="1080" y2="160" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4 6"/><text x="90" y="152" font-size="14" fill="#b45309">90%＝270</text>
+<circle cx="650" cy="230" r="12" fill="#f59e0b"/><rect x="560" y="246" width="220" height="40" rx="8" fill="#fff7e6" stroke="#f59e0b"/><text x="670" y="272" text-anchor="middle" font-size="15" fill="#8a5a00">✉ 已用 50%，寄信通知你</text></g>
+<g data-at="3"><circle cx="790" cy="130" r="12" fill="#dc2626"/><rect x="820" y="160" width="250" height="64" rx="8" fill="#fde3e3" stroke="#dc2626"/><text x="945" y="186" text-anchor="middle" font-size="15" fill="#a32020">✉ 已超過預算</text><text x="945" y="210" text-anchor="middle" font-size="15" fill="#a32020" font-weight="700">但服務照跑、照扣錢</text></g>
+</svg>
+<div class="box expl">
+<p data-only="0">雲端是<b>用多少付多少</b>：服務開著、流量變多、資料變大，費用就一直往上加，月底一起結帳。</p>
+<p data-only="1"><b>預算</b>是你自己定的一條線，例如一個月 NT$300。</p>
+<p data-only="2"><b>警示</b>是在線的幾成時寄信給你：50%、90%、100%。花到一半就通知，你還有時間去查原因。</p>
+<p data-only="3">⚠ 預算<b>只會通知，不會自動停掉服務</b>。超過了照樣扣錢，所以收到通知要去處理。這就是為什麼要在開始用服務<b>之前</b>先設好。</p>
+</div>
+</div></body></html>

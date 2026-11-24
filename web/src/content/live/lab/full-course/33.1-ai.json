@@ -1,0 +1,130 @@
+{
+  "title": "權限模式：哪些事要先問",
+  "lesson": "全環節 · 單元 33 · 33.1 用 AI 完成",
+  "teacher": {
+    "say": "今天把邊界寫進專案",
+    "line": "這一課，我們請 AI 把「一定要先問」的事寫進專案規則，再設定對應的權限，最後實際試一次，確認真的會被攔下來。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "設定安全邊界", "folder": "~/projects/bakery", "branch": "main", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "files": {
+      "actor": "finder",
+      "props": { "tree": { "bakery": { ".claude": {}, "CLAUDE.md": "", "index.html": "", "package.json": "" } }, "open": "bakery" },
+      "place": "center",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "權限模式：哪些事要先問",
+      "eyebrow": "全環節 · 單元 33 · 33.1 用 AI 完成",
+      "sub": "寫進規則 → 設定權限 → 實際試一次",
+      "chapter": "交代任務",
+      "narration": "這次的任務有兩層：規則是寫給 AI 看的；權限設定是就算 AI 忘了，系統也會攔下來。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "把這四件事寫進 CLAUDE.md：付款、刪除資料、動正式資料庫、對外發送（寄信、發文）都要先問我。再在 .claude/settings.json 設定對應的權限：刪除和強制推送直接禁止，部署和連正式資料庫要先問。完成條件：設定好之後實際試一次，證明會被攔下",
+      "narration": "我們把四道門講清楚，也講好完成條件：要實際試一次，證明真的會被攔下。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "todos": [["把四道門寫進 CLAUDE.md", "doing"], ["在 settings.json 設定禁止與要問的指令", "pending"], ["實際試一次，確認會被攔下", "pending"]],
+      "narration": "它先列出三件待辦。"
+    },
+    {
+      "on": "claude",
+      "edit": "CLAUDE.md",
+      "lines": [
+        [8, "+", "## 一定要先問我的事"],
+        [9, "+", "- 付款：花錢、升級方案、退款"],
+        [10, "+", "- 刪除資料：刪檔、清空資料表、git push --force"],
+        [11, "+", "- 正式資料庫：任何寫入或改結構"],
+        [12, "+", "- 對外發送：寄信、發文、通知客人（「準備」只寫草稿，不送出）"]
+      ],
+      "chapter": "寫進規則",
+      "narration": "規則寫好了。注意最後一行，它把故事裡的教訓也寫進去：「準備」只寫草稿，不送出。"
+    },
+    {
+      "on": "claude",
+      "edit": ".claude/settings.json",
+      "lines": [
+        [1, "+", "{ \"permissions\": {"],
+        [2, "+", "  \"deny\": [\"Bash(rm -rf:*)\", \"Bash(git push --force:*)\"],"],
+        [3, "+", "  \"ask\":  [\"Bash(npm run deploy:*)\", \"Bash(psql:*)\"]"],
+        [4, "+", "} }"]
+      ],
+      "chapter": "設定權限",
+      "narration": "接著是權限設定。deny 是直接禁止：刪除和強制推送。ask 是一定要問：部署和連資料庫。"
+    },
+    {
+      "callout": "claude:edit",
+      "text": "規則靠 AI 自覺；權限設定由系統把關",
+      "narration": "規則是請 AI 自己注意；權限設定是系統層級的鎖。兩層一起，比較安心。"
+    },
+    {
+      "on": "claude",
+      "todos": [["把四道門寫進 CLAUDE.md", "done"], ["在 settings.json 設定禁止與要問的指令", "done"], ["實際試一次，確認會被攔下", "doing"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "rm -rf tmp-check",
+      "result": "被專案設定禁止",
+      "out": "Permission denied by .claude/settings.json: Bash(rm -rf:*)",
+      "chapter": "實際試一次",
+      "narration": "第一個試驗：它故意執行一個刪除指令。結果被設定擋下來了，連問都不問，直接禁止。"
+    },
+    {
+      "on": "claude",
+      "ask": "npm run deploy",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "依專案設定，部署一定要先問你（這是測試，請按拒絕）",
+      "narration": "第二個試驗：部署。這次跳出確認提示，即使現在是自動改檔模式，它也一定要問。"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "模式再放手，設定成要問的就會問",
+      "narration": "它在說明裡寫了：這是測試，請按拒絕。"
+    },
+    { "on": "claude", "choose": 0, "narration": "我們按拒絕。" },
+    {
+      "on": "claude",
+      "say": "完成，兩項試驗都符合預期：\n- `rm -rf` → **被禁止**（沒有執行）\n- `npm run deploy` → **跳出確認**，你拒絕後沒有執行\n\n沒驗證的：寄信、發文目前專案沒有對應指令，只寫在規則裡，靠我遵守。",
+      "narration": "它回報兩項試驗的結果，還誠實說出沒驗證的部分：寄信發文目前只寫在規則裡。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "連「沒驗證到的」都說清楚",
+      "narration": "這種結尾很有價值：你知道哪些有鎖，哪些只靠 AI 自覺。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "files",
+      "open": ".claude",
+      "narration": "設定檔放在專案的 .claude 資料夾裡，跟著專案走。"
+    },
+    { "on": "files", "create": "settings.json" },
+    { "hide": "files" },
+    {
+      "checkpoint": "換你試試",
+      "body": "請 AI 把四道門寫進你的 CLAUDE.md，設定 deny 與 ask，再請它實際試一個會被禁止的指令和一個要先問的指令。記得：要問的那個，你按拒絕。",
+      "narration": "換你試試：寫規則、設權限，再請它實際試一次。要先問的那個，你按拒絕。"
+    },
+    {
+      "card": "AI 不能自己做的事，寫明了也鎖上了",
+      "eyebrow": "這一課的成果",
+      "sub": "CLAUDE.md 的規則 ＋ settings.json 的權限",
+      "narration": "這一課的成果：專案規則寫明 AI 不能自己做的事，權限設定把最危險的指令鎖上。"
+    }
+  ]
+}

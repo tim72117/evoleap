@@ -1,0 +1,300 @@
+{
+  "title": "證件影本浮水印：交出去之前先標明用途",
+  "lesson": "生活小工具 · T2.1 試做",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天做證件浮水印工具",
+    "line": "今天要來做一個浮水印工具。交出證件影本之前，先蓋上「僅供某某用途」和日期，而且圖片從頭到尾不離開你的電腦。"
+  },
+  "blocking": { "cast": ["claude", "tool"], "shot": "depth" },
+  "cast": {
+    "phone": { "actor": "chat", "props": { "title": "房東 陳先生" }, "place": { "x": 160, "y": 110, "w": 560, "h": 860 }, "hidden": true },
+    "me": { "actor": "person", "props": { "name": "主角" }, "place": { "x": 860, "y": 170, "w": 860, "h": 700 }, "hidden": true },
+    "board": {
+      "actor": "browser",
+      "props": { "site": "lt-life-tools-T2-1-path", "width": "desktop", "url": "講義 · 證件圖片去了哪裡" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "證件浮水印",
+        "folder": "~/Documents/practice/id-watermark",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": { "placeholder": "描述你要做的事…" }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "tool": {
+      "actor": "browser",
+      "props": { "site": "lt-life-tools-T2-1-mark-v1", "width": "desktop", "url": "file:///Documents/practice/id-watermark/index.html" },
+      "place": "window",
+      "hidden": true
+    },
+    "finder": {
+      "actor": "finder",
+      "props": {
+        "tree": {
+          "practice": { "split-bill": {}, "shopping-list": {} },
+          "下載": { "虛構證件範例.png": "", "shopping-list-backup.json": "" }
+        },
+        "open": "practice"
+      },
+      "place": { "x": 1100, "y": 380, "w": 760, "h": 520 },
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "證件影本浮水印",
+      "eyebrow": "生活小工具 · T2.1",
+      "sub": "交出去之前，先標明用途",
+      "chapter": "按不下去的傳送鍵",
+      "narration": "先看一個你可能遇過的時刻。"
+    },
+    { "show": "phone", "narration": "你要租房子，房東傳來訊息。" },
+    { "on": "phone", "receive": "方便傳一下身分證正反面嗎？簽約要用。", "from": "房東 陳先生" },
+    { "show": "me", "narration": "證件照片拍好了，手指停在傳送鍵上。" },
+    { "on": "me", "say": "會不會被拿去辦別的東西？", "mood": "worried" },
+    { "on": "me", "say": "萬一外流了怎麼辦？", "mood": "worried", "narration": "會不會被拿去辦別的東西？萬一外流了怎麼辦？傳送鍵就是按不下去。" },
+    { "hide": "me" },
+    { "hide": "phone" },
+    {
+      "show": "tool",
+      "site": "lt-life-tools-T2-1-mark-v5",
+      "chapter": "先看成品",
+      "narration": "先看看這一課做完的樣子。這是課程提供的虛構證件範例，不是真的證件。"
+    },
+    { "on": "tool", "click": "#pick" },
+    { "on": "tool", "click": "[data-file=id]" },
+    { "on": "tool", "fill": { "#text": "僅供租屋申請使用", "#opacity": "40", "#size": "26" }, "narration": "打上這次的用途，後面自動加上日期。" },
+    {
+      "callout": "tool:sel:#stage",
+      "text": "斜向、重複、半透明，蓋過重要欄位",
+      "narration": "整張證件斜斜地蓋滿半透明的字。就算被拿去別的地方，一眼就看得出：這份影本只能拿來租屋。"
+    },
+    { "hide": "tool" },
+    {
+      "card": "選圖 → 蓋字 → 預覽 → 下載新檔",
+      "eyebrow": "拆開來看",
+      "sub": "原圖不變，圖片不離開你的電腦",
+      "narration": "拆開來看，它做四件事：選一張圖、蓋上字、預覽、下載成新圖片。原圖不會被改。"
+    },
+    {
+      "show": "board",
+      "chapter": "圖片交給誰處理",
+      "narration": "在動手之前，有一件比功能更重要的事：這張證件圖片，要交給誰處理？"
+    },
+    {
+      "checkpoint": "哪一種做法，證件圖片不會離開你的電腦？",
+      "body": "點下面其中一條路。",
+      "id": "path",
+      "stage": { "focus": "board:viewport" },
+      "options": [
+        {
+          "label": "A　拖進 AI 對話框",
+          "target": "board:sel:[data-p=ai]",
+          "steps": [
+            { "on": "board", "click": "[data-p=ai]", "narration": "拖進對話框，或請 AI 打開圖片看看，檔案內容就會送到 AI 服務，證件已經離開你的電腦了。" },
+            { "on": "board", "click": "[data-p=local]", "narration": "要選這一條：在網頁上按選擇圖片，圖片只在你的瀏覽器裡處理。" }
+          ]
+        },
+        {
+          "label": "B　在網頁上選擇圖片",
+          "target": "board:sel:[data-p=local]",
+          "steps": [
+            { "on": "board", "click": "[data-p=local]", "narration": "對。在網頁上選檔，圖片只在你的瀏覽器裡處理，交出去的是蓋好浮水印的新檔。" }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看示範",
+        "steps": [
+          { "on": "board", "click": "[data-p=ai]", "narration": "拖進 AI 對話框，檔案內容會送到 AI 服務。" },
+          { "on": "board", "click": "[data-p=local]", "narration": "在網頁上選擇圖片，圖片只在你的瀏覽器裡處理。這一課要走的是這條路。" }
+        ]
+      }
+    },
+    {
+      "callout": "board:sel:#local-box",
+      "text": "AI 負責寫工具，圖片自己在瀏覽器裡選",
+      "narration": "記住分工：AI 幫你寫工具，但不用看你的圖片。圖片由你自己在瀏覽器裡選。"
+    },
+    { "hide": "board" },
+    {
+      "show": "finder",
+      "chapter": "建立專案、產生第一版",
+      "lessonStep": 1,
+      "narration": "在 practice 裡建新資料夾 id-watermark。"
+    },
+    { "on": "finder", "mkdir": "id-watermark" },
+    { "on": "finder", "open": "../下載", "narration": "虛構證件範例圖放在「下載」，不放進專案資料夾。真實證件更是這樣：只在瀏覽器裡選檔。" },
+    { "on": "finder", "highlight": "虛構證件範例.png" },
+    { "hide": "finder" },
+    {
+      "show": "claude",
+      "narration": "從 id-watermark 開啟 AI 工具。"
+    },
+    {
+      "on": "claude",
+      "user": "做一個證件浮水印工具：選一張圖片，加上斜向、重複、半透明的文字浮水印，預覽後下載成新圖片。只用 index.html、styles.css、script.js",
+      "lessonStep": 2,
+      "narration": "一次說清楚：選圖、斜向重複的半透明浮水印、預覽、下載新圖片，只用三個檔案。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1600 },
+    { "on": "claude", "say": "好的，我會用網頁上的選檔按鈕讀取圖片，在畫布上疊上斜向重複的文字，再讓你下載成新圖片。" },
+    { "on": "claude", "ask": "index.html", "q": "Claude 想要建立這個檔案", "where": "~/Documents/practice/id-watermark", "select": 1 },
+    { "on": "claude", "tool": "Write", "arg": "index.html", "result": "已建立" },
+    { "on": "claude", "ask": "styles.css", "q": "Claude 想要建立這個檔案", "where": "~/Documents/practice/id-watermark", "select": 1 },
+    { "on": "claude", "tool": "Write", "arg": "styles.css", "result": "已建立" },
+    { "on": "claude", "ask": "script.js", "q": "Claude 想要建立這個檔案", "where": "~/Documents/practice/id-watermark", "select": 1 },
+    { "on": "claude", "tool": "Write", "arg": "script.js", "result": "已建立" },
+    { "on": "claude", "say": "完成了。要不要我讀取你的範例圖片，確認浮水印的效果？" },
+    {
+      "on": "claude",
+      "ask": "Read ~/Downloads/虛構證件範例.png",
+      "q": "Claude 想要讀取這個檔案",
+      "where": "~/Downloads",
+      "note": "讀取後，檔案內容會送到 AI 服務"
+    },
+    {
+      "callout": "claude:ask",
+      "text": "要讀取圖片 → 拒絕",
+      "narration": "它想讀圖片。就算只是虛構範例，也拒絕，養成習慣：效果自己在瀏覽器看。"
+    },
+    { "on": "claude", "choose": 0 },
+    {
+      "on": "claude",
+      "user": "打開網頁",
+      "chapter": "在瀏覽器打開，預覽",
+      "lessonStep": 3,
+      "narration": "請它打開網頁就好。"
+    },
+    { "on": "claude", "ask": "open index.html", "q": "Claude 想要執行這個指令", "where": "~/Documents/practice/id-watermark", "note": "用預設瀏覽器打開 index.html", "select": 1 },
+    { "on": "claude", "tool": "Bash", "arg": "open index.html", "result": "完成" },
+    { "show": "tool", "site": "lt-life-tools-T2-1-mark-v1", "narration": "打開了。AI 沒辦法開啟的話，自己在 Finder 雙擊 index.html 也可以。" },
+    { "on": "tool", "click": "#pick", "narration": "按網頁上的選擇圖片。" },
+    {
+      "callout": "tool:sel:.sheet",
+      "text": "瀏覽器的選檔：檔案不經過 AI",
+      "narration": "這個選檔視窗是瀏覽器的，你選的檔案只交給這個網頁。"
+    },
+    { "on": "tool", "click": "[data-file=id]" },
+    { "callout": "tool:sel:#stage", "text": "第一版：斜向重複的半透明字", "narration": "預覽出來了，整張圖上有斜向、重複的半透明文字。" },
+    {
+      "on": "claude",
+      "user": "浮水印文字可以自己輸入，後面自動加上今天的日期",
+      "chapter": "自訂文字與日期",
+      "lessonStep": 4,
+      "narration": "文字是固定的，還不夠。請它讓文字可以自己輸入，後面加上今天的日期。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    { "on": "claude", "say": "已加上浮水印文字的輸入框，文字後面會自動接上今天的日期。" },
+    { "on": "tool", "site": "lt-life-tools-T2-1-mark-v2" },
+    { "on": "tool", "click": "#pick" },
+    { "on": "tool", "click": "[data-file=id]" },
+    { "on": "tool", "fill": { "#text": "僅供租屋申請使用" }, "narration": "輸入：僅供租屋申請使用。" },
+    {
+      "callout": "tool:sel:#stage",
+      "text": "用途＋日期",
+      "narration": "預覽立刻更新，後面是今天的日期。對照一下自己電腦的日期，對不對。"
+    },
+    {
+      "on": "claude",
+      "user": "加上調整透明度和字級的滑桿",
+      "chapter": "蓋過重要欄位",
+      "lessonStep": 5,
+      "narration": "接著加上調整透明度和字級的滑桿。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1200 },
+    { "on": "claude", "say": "已加上透明度和字級兩個滑桿，拉動時預覽會跟著變。" },
+    { "on": "tool", "site": "lt-life-tools-T2-1-mark-v3" },
+    { "on": "tool", "click": "#pick" },
+    { "on": "tool", "click": "[data-file=id]" },
+    { "on": "tool", "fill": { "#text": "僅供租屋申請使用", "#opacity": "12", "#size": "16" }, "narration": "先拉得很淡、很小。" },
+    {
+      "callout": "tool:sel:#stage",
+      "text": "太淡太小：一修圖就不見",
+      "narration": "這樣幾乎看不到，別人一修圖就沒了。"
+    },
+    { "on": "tool", "fill": { "#opacity": "40", "#size": "26" }, "narration": "調深一點、大一點。" },
+    {
+      "callout": "tool:sel:#idcard",
+      "text": "壓過姓名、證號、照片，內容仍看得清楚",
+      "narration": "浮水印要壓過姓名、證號、照片這些重要欄位才有用；只在空白處的浮水印，被裁掉一角就沒了。同時證件內容還要看得清楚。"
+    },
+    {
+      "on": "claude",
+      "user": "下載的檔名在原檔名後面加上 -watermark",
+      "chapter": "下載新圖片，原圖不變",
+      "lessonStep": 6,
+      "narration": "下載的檔名，請它在原檔名後面加上 -watermark，才分得出哪個是要交出去的。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    { "on": "claude", "say": "已改成下載為「原檔名-watermark.png」。" },
+    { "on": "tool", "site": "lt-life-tools-T2-1-mark-v4" },
+    { "on": "tool", "click": "#pick" },
+    { "on": "tool", "click": "[data-file=id]" },
+    { "on": "tool", "fill": { "#text": "僅供租屋申請使用", "#opacity": "40", "#size": "26" } },
+    { "on": "tool", "click": "#download", "narration": "按下載。" },
+    { "callout": "tool:sel:#toast", "text": "下載的是新檔", "narration": "下載好了。" },
+    { "show": "finder", "create": "虛構證件範例-watermark.png", "narration": "「下載」資料夾多了一個 -watermark 的新圖片。" },
+    {
+      "on": "finder",
+      "highlight": "虛構證件範例.png",
+      "narration": "旁邊的原圖還在。用看圖程式分別打開兩個檔案：新檔有浮水印，原圖沒有，修改日期也沒變。不要只看網頁上的預覽。"
+    },
+    { "hide": "finder" },
+    {
+      "on": "tool",
+      "click": "#pick",
+      "chapter": "自己測試",
+      "lessonStep": 7,
+      "narration": "最後，自己搗蛋一下。故意選一個不是圖片的檔案。"
+    },
+    { "on": "tool", "click": "[data-file=txt]" },
+    { "callout": "tool:sel:#broken", "text": "選到 .txt：只說無法顯示", "narration": "只寫著無法顯示，不知道哪裡錯了。" },
+    {
+      "on": "claude",
+      "user": "選到不是圖片的檔案時，顯示「請選擇圖片檔」",
+      "narration": "說清楚什麼情況下、應該怎樣，請它修正。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1100 },
+    { "on": "claude", "say": "已修正：選到不是圖片的檔案時，會顯示「請選擇圖片檔」，其他功能不變。" },
+    { "on": "tool", "site": "lt-life-tools-T2-1-mark-v5" },
+    { "on": "tool", "click": "#pick" },
+    { "on": "tool", "click": "[data-file=txt]" },
+    {
+      "callout": "tool:sel:#toast",
+      "text": "清楚的提示",
+      "narration": "這次清楚告訴你要選圖片檔。如果 AI 修改時順手改了版面或其他功能，請它只保留這次要求的修改。"
+    },
+    {
+      "checkpoint": "換你做做看",
+      "body": "做出自己的浮水印工具，用虛構範例圖試：自訂文字帶日期、蓋過重要欄位、下載 -watermark 新檔並確認原圖沒變。再試文字空白、很長的文字、直式與橫式、很小與很大的圖片、選 .txt 或 PDF。"
+    },
+    { "hide": "tool" },
+    { "hide": "claude" },
+    { "show": "phone", "narration": "回到房東的訊息。" },
+    { "on": "phone", "reply": "附上證件影本：虛構證件範例-watermark.png" },
+    { "on": "phone", "receive": "收到，謝謝！", "from": "房東 陳先生", "narration": "交出去的影本上蓋滿「僅供租屋申請使用」和日期，安心按下傳送；電腦裡的原圖還是乾乾淨淨。" },
+    { "hide": "phone" },
+    { "on": "fx", "shimmer": "圖片只在自己的瀏覽器裡", "sub": "輸出新檔、原圖不變，交給 AI 的只有需求" },
+    {
+      "on": "fx",
+      "clear": true,
+      "narration": "回顧：證件圖片只在你的瀏覽器裡處理，不放進專案，也不交給 AI 讀；下載的是新檔，原圖不變，每次都自己打開確認。"
+    },
+    {
+      "card": "下一課：照片批次縮小",
+      "eyebrow": "下一課",
+      "sub": "一次處理多張照片，順便去掉拍攝位置",
+      "narration": "下一課，一次處理好多張照片。"
+    }
+  ]
+}

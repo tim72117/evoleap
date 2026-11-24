@@ -1,0 +1,29 @@
+<!doctype html><html><head><title>哪些該寫進規則</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">這句話，要不要寫進專案規則？</h1>
+  <p class="sub">點一張卡片，看它該放哪裡</p>
+  <div class="cards">
+    <div class="card" id="c1" data-go="c1">回覆一律用繁體中文<small>已經糾正過兩次</small></div>
+    <div class="card" id="c2" data-go="c2">今天先修 header<small>只有今天</small></div>
+    <div class="card" id="c3" data-go="c3">改完程式要跑 npm test<small>每次都要</small></div>
+    <div class="card" id="c4" data-go="c4">React 是什麼<small>AI 本來就懂</small></div>
+    <div class="card" id="c5" data-go="c5">結帳頁不能自己改<small>改錯會收不到錢</small></div>
+    <div class="card" id="c6" data-go="c6">專案有哪些檔案<small>AI 自己看得到</small></div>
+  </div>
+  <div class="bins">
+    <div class="bin yes"><div class="bh">寫進規則</div>
+      <div class="chip" data-at="c1">回覆用繁體中文</div><div class="chip" data-at="c3">改完跑 npm test</div><div class="chip" data-at="c5">結帳頁要先問</div>
+      <div class="why" data-at="c5">每次都適用、AI 自己猜不到、錯了代價大</div>
+    </div>
+    <div class="bin no"><div class="bh">不用寫</div>
+      <div class="chip" data-at="c2">今天先修 header</div><div class="chip" data-at="c4">React 是什麼</div><div class="chip" data-at="c6">檔案清單</div>
+      <div class="why" data-at="c6">一次性的、AI 本來就知道、自己看得到</div>
+    </div>
+  </div>
+  <div class="two" data-at="mem" id="where">
+    <div><b>專案說明檔（CLAUDE.md）</b>跟著專案走：這個專案的規矩，一起做的人都適用</div>
+    <div><b>記憶</b>跟著你走：你個人的習慣與偏好，換專案也記得</div>
+  </div>
+  <button class="more" id="memBtn" data-go="mem">放在哪裡？</button>
+</div>
+</body></html>

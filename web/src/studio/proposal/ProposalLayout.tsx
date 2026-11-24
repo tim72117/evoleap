@@ -41,6 +41,9 @@ const DEV: Tab[] = [
 /** 跨等級構想。 */
 const IDEAS: Tab[] = [
   { to: '/studio/kids-family', label: '兒童課家長模式' },
+  { to: '/studio/ai-scenarios', label: 'AI 自動化情境' },
+  { to: '/studio/full-course', label: '全環節課程清單' },
+  { to: '/studio/trials', label: '課程試做清單' },
 ]
 
 /** 文件清單與每一份文件。 */

@@ -1,0 +1,13 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#222;background:#f6f6f3}
+.top{display:flex;gap:28px;align-items:center;padding:16px 40px;background:#fff;border-bottom:1px solid #e6e4dd;font-size:18px;color:#666}
+.top b{color:#222;font-size:20px}.top .cur{color:#2f7d6d;font-weight:700}
+.wrap{padding:26px 40px}
+.drop{border:3px dashed #c7c2b4;border-radius:16px;padding:22px;text-align:center;font-size:20px;color:#555;background:#fff}
+.drop .up{font-size:30px}.drop small{display:block;color:#888;font-size:15px;margin-top:4px}
+.err{margin-top:14px;background:#fdecea;color:#b4382f;border-radius:10px;padding:10px 16px;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:18px}
+.card{background:#fff;border-radius:14px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.ph{height:170px;border-radius:10px;display:flex;align-items:center;justify-content:center}.ph svg{width:70%}
+.p1{background:linear-gradient(135deg,#f4a259,#c56a2b)}.p2{background:linear-gradient(135deg,#43aa8b,#26735c)}.p3{background:linear-gradient(135deg,#8aa4d6,#4a6fa5)}.p4{background:linear-gradient(135deg,#d68ab0,#a24d78)}
+.card b{display:block;margin-top:8px;font-size:17px}.card small{color:#777;font-size:14px}

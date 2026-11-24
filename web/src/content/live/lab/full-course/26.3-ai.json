@@ -1,0 +1,266 @@
+{
+  "title": "自動更新粉絲專頁",
+  "lesson": "全環節 · 單元 26 · 26.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "AI 起草，你核准",
+    "line": "今天做一條發文流程：AI 起草、你核准、程式發布。開始之前，先自己手動發一次，找出哪些步驟一直在重複。"
+  },
+  "blocking": {
+    "cast": [
+      "claude",
+      "post",
+      "pad",
+      "review"
+    ],
+    "shot": "depth"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": {
+        "title": "粉專自動發文",
+        "folder": "~/projects/komori-bakery",
+        "branch": null,
+        "mode": "ask",
+        "sessions": [],
+        "labels": {
+          "placeholder": "描述你要做的事…"
+        }
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "post": {
+      "actor": "browser",
+      "props": {
+        "site": "fc26-3-post",
+        "width": "desktop",
+        "url": "https://social.example/komori/compose"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "pad": {
+      "actor": "notes",
+      "props": {
+        "label": "手動發文的步驟"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "review": {
+      "actor": "browser",
+      "props": {
+        "site": "fc26-3-approve",
+        "width": "desktop",
+        "url": "http://localhost:5173/admin/drafts"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "自動更新粉絲專頁",
+      "eyebrow": "全環節 · 單元 26 · 26.3 用 AI 完成",
+      "sub": "先手動一次 → 申請權杖 → 做流程 → 你核准",
+      "chapter": "先手動發一次",
+      "narration": "要自動化一件事，最好的起點是自己先做一次，看看哪些步驟在重複。"
+    },
+    {
+      "show": "post",
+      "narration": "網站剛更新了預約功能。打開粉專，建立一則貼文。"
+    },
+    {
+      "on": "post",
+      "fill": {
+        "#text": "新功能上線！網站可以直接預約取貨時段了 🥐",
+        "#link": "https://komori-bakery.example/reserve"
+      }
+    },
+    {
+      "on": "post",
+      "click": "#img"
+    },
+    {
+      "on": "post",
+      "click": "#post",
+      "narration": "附上圖、連結，按發布。"
+    },
+    {
+      "show": "pad",
+      "on": "pad",
+      "jot": "1. 打開 CHANGELOG 找新消息",
+      "narration": "發完，把剛才做的步驟寫下來。"
+    },
+    {
+      "on": "pad",
+      "jot": "2. 改寫成貼文的口吻"
+    },
+    {
+      "on": "pad",
+      "jot": "3. 挑一張圖、貼連結"
+    },
+    {
+      "on": "pad",
+      "jot": "4. 登入粉專、貼上、按發布"
+    },
+    {
+      "callout": "pad:window",
+      "text": "1–3 每次都一樣 → 交給 AI 和程式；發布前加一關你的核准",
+      "narration": "前三步每次都差不多，可以交給 AI 和程式。第四步的發布，改成先經過你的核准。"
+    },
+    {
+      "card": "申請開發者帳號與權杖",
+      "eyebrow": "你自己來",
+      "sub": "在平台的開發者網站建立應用程式，取得粉專權杖，自己存進 .env",
+      "chapter": "權杖由你自己申請、自己保管",
+      "narration": "接下來是你自己的事：到平台的開發者網站，用自己的帳號建立應用程式，取得粉專的權杖，然後自己把它存進專案的 .env 檔。.env 是放祕密設定的檔案，不會上傳到公開的地方。"
+    },
+    {
+      "show": "claude"
+    },
+    {
+      "on": "claude",
+      "user": "我已經把粉專權杖放進 .env 的 PAGE_TOKEN 了。幫我做一條發文流程：1. 從 CHANGELOG 的新版本，起草貼文存成草稿；2. 做一個後台頁面讓我核准或退回；3. 只有我核准過的草稿，才在預定時間用 API 發布。先做好、用測試模式跑過，不要真的發出去。",
+      "narration": "告訴它權杖放在哪裡，但不貼出權杖本身。然後說清楚三段流程，還有一條規則：只發你核准過的。"
+    },
+    {
+      "on": "claude",
+      "thinking": true,
+      "ms": 1100
+    },
+    {
+      "on": "claude",
+      "todos": [
+        [
+          "draft.mjs：讀 CHANGELOG 新版本，起草貼文存進 drafts/",
+          "doing"
+        ],
+        [
+          "後台 /admin/drafts：核准、退回、修改",
+          "pending"
+        ],
+        [
+          "publish.mjs：只發布 status = approved 的草稿",
+          "pending"
+        ],
+        [
+          "測試模式跑一次，確認沒核准就不會發",
+          "pending"
+        ]
+      ],
+      "chapter": "AI 做流程"
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "scripts/draft.mjs",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "tool": "Write",
+      "arg": "src/pages/admin/drafts.astro",
+      "result": "已建立"
+    },
+    {
+      "on": "claude",
+      "edit": "scripts/publish.mjs",
+      "lines": [
+        [
+          8,
+          "+",
+          "const ready = drafts.filter((d) => d.status === 'approved' && d.at <= now)"
+        ],
+        [
+          9,
+          "+",
+          "if (!ready.length) return log('沒有已核准的草稿，不發布')"
+        ],
+        [
+          10,
+          "+",
+          "for (const d of ready) await postToPage(d, process.env.PAGE_TOKEN, { dryRun })"
+        ]
+      ],
+      "narration": "發布程式的關鍵就這幾行：只挑狀態是已核准的草稿。沒核准，就什麼都不發。"
+    },
+    {
+      "on": "claude",
+      "ask": "node scripts/draft.mjs && node scripts/publish.mjs --dry-run",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/komori-bakery",
+      "note": "起草一篇，再用測試模式執行發布（不會真的發文）",
+      "narration": "它要用測試模式跑一次。dry run 的意思是演練，不會真的發出去。"
+    },
+    {
+      "on": "claude",
+      "choose": 1
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/draft.mjs && node scripts/publish.mjs --dry-run",
+      "result": "完成",
+      "out": "已起草：drafts/v1.8.0.json（待核准）\n沒有已核准的草稿，不發布",
+      "narration": "草稿起好了，狀態是待核准。發布程式看到沒有核准過的，就不發。這正是我們要的。"
+    },
+    {
+      "on": "claude",
+      "say": "流程做好了。請到 `/admin/drafts` 看草稿：可以直接修改，確認後按「核准並排程」。核准一定要由你按，我不會替你按。"
+    },
+    {
+      "show": "review",
+      "chapter": "你來核准",
+      "narration": "打開後台的草稿頁。右邊有一份檢查清單。"
+    },
+    {
+      "callout": "review:sel:.side2",
+      "text": "日期、價格、連結、語氣：核准前逐項看",
+      "narration": "對著清單看：日期、價格對不對、連結點不點得開、語氣像不像你。"
+    },
+    {
+      "on": "review",
+      "fill": {
+        "#add": "預約 → komori-bakery.example/reserve"
+      },
+      "narration": "想補一句連結，在最後加上去。"
+    },
+    {
+      "on": "review",
+      "click": "#approve",
+      "narration": "確認沒問題，你自己按下核准。"
+    },
+    {
+      "callout": "review:sel:#st",
+      "text": "已核准，明天 10:00 由程式發布",
+      "narration": "狀態變成已核准，明天十點由程式發布。"
+    },
+    {
+      "on": "claude",
+      "user": "核准了。到時間後幫我確認真的發出去了，內容和我核准的一樣。",
+      "chapter": "發布後確認"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "node scripts/publish.mjs && node scripts/check-post.mjs --latest",
+      "result": "已發布",
+      "out": "已發布：v1.8.0 → 貼文 ID 1783_9921\n比對內容：與核准版本一致 ✓\n連結 /reserve：HTTP 200 ✓",
+      "narration": "時間到，程式發布了。AI 再用 API 把貼文讀回來，比對內容和你核准的一模一樣，連結也點得開。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "先手動發一次，寫下步驟。自己申請權杖、存進 .env。再請 AI 做「起草、核准、發布」三段流程，先用測試模式確認沒核准就不會發，再由你核准第一篇。"
+    },
+    {
+      "card": "先手動一次，找出重複的步驟\n權杖自己申請、自己保管\nAI 起草、你核准、程式發布",
+      "eyebrow": "學會",
+      "sub": "核准的按鈕只有你按",
+      "chapter": "學會",
+      "narration": "先手動做一次，找出重複的步驟。權杖自己申請、自己保管。AI 起草、你核准、程式發布，核准的按鈕只有你按。"
+    }
+  ]
+}

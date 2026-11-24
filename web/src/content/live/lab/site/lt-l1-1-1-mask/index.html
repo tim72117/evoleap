@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>貼上之前先遮蔽</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="head">
+    <div class="ttl">貼上之前，先遮蔽</div>
+    <div class="tools">
+      <button class="btn" id="find">① 找出個資</button>
+      <button class="btn" id="mask">② 換成代稱</button>
+    </div>
+  </div>
+  <div class="row flow">
+    <div class="card msg grow">
+      <div class="lbl"><span class="tag">真實客戶傳來的訊息（示意）</span></div>
+      <p>你好，我是<span class="pii" data-k="店名">晨光麵包坊</span>的老闆<span class="pii" data-k="姓名">林美華</span>，想做一個預約取貨的網站。</p>
+      <p>有問題可以打 <span class="pii" data-k="電話">0912-000-123</span>，或寄信到 <span class="pii" data-k="Email">lin@example.com</span>。</p>
+      <p>店在 <span class="pii" data-k="地址">中山路 100 號</span>，週一公休。</p>
+      <div class="found muted"><span class="n">0</span> 處要先處理：<span class="kinds"></span></div>
+    </div>
+    <div class="arrow"><svg viewBox="0 0 80 40" width="80" height="40"><path d="M4 20 H66 M52 8 L68 20 L52 32" fill="none" stroke="#b9a98f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="card out grow">
+      <div class="lbl"><span class="tag g">貼給 AI 的版本</span></div>
+      <div class="empty muted">還沒處理</div>
+      <div class="safe">
+        <p>你好，我是<b>店家A</b>的老闆<b>老闆A</b>，想做一個預約取貨的網站。</p>
+        <p>有問題可以打 <b>【電話】</b>，或寄信到 <b>【Email】</b>。</p>
+        <p>店在 <b>【地址】</b>，週一公休。</p>
+        <div class="ok"><span class="tag g">✓ 需求的內容都還在</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="tip muted">要整理的是「需求」，不是「誰說的」：名字、電話、Email、地址換掉，AI 一樣整理得出來。</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

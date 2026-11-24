@@ -1,0 +1,28 @@
+<!doctype html><html><head><title>卡住的訊號</title></head><body>
+<div class="wrap">
+  <h1 class="ttl">它是在進步，還是在原地打轉？</h1>
+  <p class="sub">問題：手機版的選單按鈕點了沒反應</p>
+  <div class="grid">
+    <div class="box tries">
+      <div class="t" id="t1" data-go="t1"><b>第 1 次</b>把按鈕的 z-index 調高<span class="bad">✕ 還是不行</span></div>
+      <div class="t" id="t2" data-at="t1" data-go="t2"><b>第 2 次</b>z-index 再調更高<span class="bad">✕ 還是不行</span></div>
+      <div class="t" id="t3" data-at="t2" data-go="t3"><b>第 3 次</b>z-index 9999，再改選單的定位<span class="bad">✕ 還是不行</span></div>
+      <div class="t" id="t4" data-at="t3" data-go="t4"><b>第 4 次</b>重寫整個頁首……<span class="bad">✕ 還多壞了一個地方</span></div>
+    </div>
+    <div class="box chart">
+      <div class="cap">每一次改了幾行</div>
+      <div class="bars">
+        <div class="bar" data-at="t1" style="height:24px"><i>3</i></div>
+        <div class="bar" data-at="t2" style="height:40px"><i>6</i></div>
+        <div class="bar" data-at="t3" style="height:110px"><i>28</i></div>
+        <div class="bar big" data-at="t4" style="height:230px"><i>140</i></div>
+      </div>
+    </div>
+  </div>
+  <div class="signals">
+    <div class="sig" id="s1" data-go="s1"><b>訊號一</b><span data-at="s1">一直重試同一招（z-index 換數字而已）</span></div>
+    <div class="sig" id="s2" data-go="s2"><b>訊號二</b><span data-at="s2">越改越多，還改壞別的地方</span></div>
+    <div class="sig" id="s3" data-go="s3"><b>訊號三</b><span data-at="s3">它開始說「應該」「再試試看」</span></div>
+  </div>
+</div>
+</body></html>

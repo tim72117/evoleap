@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>網頁像一間房子</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap" data-layer="0">
+  <div class="stage">
+    <svg class="house" viewBox="0 0 400 320" aria-label="一間房子的示意圖">
+      <g class="l-html">
+        <polygon points="60,140 200,40 340,140" class="frame"/>
+        <rect x="80" y="140" width="240" height="160" class="frame"/>
+        <rect x="120" y="180" width="60" height="50" class="frame"/>
+        <rect x="230" y="200" width="50" height="100" class="frame"/>
+        <line x1="80" y1="220" x2="320" y2="220" class="beam"/>
+        <line x1="200" y1="140" x2="200" y2="300" class="beam"/>
+      </g>
+      <g class="l-css">
+        <polygon points="60,140 200,40 340,140" fill="#d9734e"/>
+        <rect x="80" y="140" width="240" height="160" fill="#fbe3c2"/>
+        <rect x="120" y="180" width="60" height="50" fill="#9fd3f0" stroke="#fff" stroke-width="5"/>
+        <rect x="230" y="200" width="50" height="100" fill="#8a5a35"/>
+        <circle cx="270" cy="252" r="4" fill="#f4c35b"/>
+        <rect x="100" y="282" width="60" height="18" fill="#7fbf7f"/>
+        <circle cx="110" cy="280" r="10" fill="#e98fa5"/><circle cx="130" cy="276" r="10" fill="#f4c35b"/><circle cx="150" cy="281" r="10" fill="#e98fa5"/>
+      </g>
+      <g class="l-js">
+        <rect x="120" y="180" width="60" height="50" fill="#ffe27a"/>
+        <g stroke="#ffd23f" stroke-width="4" stroke-linecap="round">
+          <line x1="150" y1="168" x2="150" y2="156"/><line x1="112" y1="174" x2="104" y2="166"/><line x1="188" y1="174" x2="196" y2="166"/>
+        </g>
+      </g>
+      <g class="switch">
+        <rect x="292" y="160" width="22" height="34" rx="4" fill="#fff" stroke="#6b5a4a" stroke-width="2"/>
+        <rect class="knob" x="298" y="166" width="10" height="12" rx="2" fill="#6b5a4a"/>
+      </g>
+    </svg>
+    <button id="light" class="light" type="button">開燈</button>
+  </div>
+  <ol class="legend">
+    <li class="lg-html"><b>HTML</b><span>骨架：有哪些東西、放在哪裡</span><code>&lt;h1&gt;、&lt;p&gt;、&lt;button&gt;</code></li>
+    <li class="lg-css"><b>CSS</b><span>裝潢：顏色、大小、排列</span><code>color、font-size、margin</code></li>
+    <li class="lg-js"><b>JavaScript</b><span>水電開關：按下去會有反應</span><code>addEventListener('click', …)</code></li>
+  </ol>
+  <div class="ctrl">
+    <button id="add-html" type="button">蓋骨架</button>
+    <button id="add-css" type="button">上裝潢</button>
+    <button id="add-js" type="button">接水電</button>
+  </div>
+</div>
+</body></html>

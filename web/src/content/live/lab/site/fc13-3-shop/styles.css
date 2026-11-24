@@ -1,0 +1,16 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:#2a2a2a;background:#faf7f2}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;background:#fff;border-bottom:1px solid #eee;font-size:22px}
+.cart em{font-style:normal;background:#c56a2b;color:#fff;border-radius:999px;padding:0 10px;font-size:18px}
+section{padding:28px}
+.item{background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.06);max-width:420px}
+.img{height:200px;border-radius:12px;background:linear-gradient(135deg,#d68ab0,#a24d78);display:flex;align-items:center;justify-content:center}.img svg{width:60%}
+h3{font-size:24px;margin:12px 0 4px}p{font-size:19px;color:#555}
+button{font:inherit;font-size:20px;border:0;background:#2f7d6d;color:#fff;border-radius:12px;padding:12px 22px;margin-top:12px}
+.go{display:inline-block;margin-top:20px;font-size:20px;color:#2f7d6d;font-weight:700;text-decoration:none}
+.pay,.done{display:none}
+label{display:block;margin-top:16px;font-size:18px}
+input{display:block;width:100%;max-width:420px;font:inherit;font-size:19px;padding:12px;border:1px solid #ccc;border-radius:10px;margin-top:6px}
+.done{text-align:center;padding-top:60px}.big{font-size:70px;color:#2f7d6d}
+.app.paying .shop{display:none}.app.paying .pay{display:block}
+.app.ok .shop,.app.ok .pay{display:none}.app.ok .done{display:block}

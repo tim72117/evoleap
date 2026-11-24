@@ -1,0 +1,18 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; background: #f5f3ef; color: #1f2933; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding: 34px 40px; }
+.card { background: #fff; border-radius: 20px; padding: 24px 26px; display: grid; grid-template-columns: 76px 1fr; column-gap: 18px; row-gap: 4px; border: 3px solid #e7e2da; min-height: 150px; }
+.ic { grid-row: span 2; width: 76px; height: 76px; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
+.ic svg { width: 46px; height: 46px; }
+.card b { font: 700 28px ui-monospace, Menlo, monospace; align-self: end; }
+.what { font-size: 18px; color: #6b7785; }
+.why { display: none; grid-column: span 2; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #d6cfc4; }
+.why p { margin: 0 0 10px; font-size: 18px; line-height: 1.6; }
+.why em { font-style: normal; font-size: 16px; font-weight: 700; color: #2f7a4b; }
+.card.open .why { display: block; }
+.card.open { border-color: currentColor; }
+.c-env { color: #b42318; } .c-env .ic { background: #fee4e2; }
+.c-db { color: #7c3aed; } .c-db .ic { background: #ede9fe; }
+.c-dist { color: #b45309; } .c-dist .ic { background: #fef3c7; }
+.c-nm { color: #0369a1; } .c-nm .ic { background: #e0f2fe; }
+.card b, .card .what, .card .why p { color: #1f2933; }

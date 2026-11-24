@@ -1,0 +1,112 @@
+{
+  "title": "金流服務來按門鈴：webhook、簽章與重送",
+  "lesson": "全環節 · 單元 11 · 11.3 基礎知識",
+  "teacher": {
+    "say": "今天認識 webhook",
+    "line": "今天我們看訂閱扣款成功、失敗或取消時，你的網站怎麼知道。答案是 webhook：金流服務主動來按門鈴。還有怎麼確認按門鈴的是真的、沒收到怎麼辦。"
+  },
+  "cast": {
+    "flow": {
+      "actor": "fc3-flow",
+      "props": {
+        "title": "訂閱的狀態，誰先知道？",
+        "log": "收到的事件",
+        "nodes": {
+          "pay": { "label": "金流服務", "sub": "扣款、取消都在這裡發生", "icon": "shield", "x": 14, "y": 40 },
+          "server": { "label": "你的伺服器", "sub": "/api/webhook", "icon": "server", "x": 50, "y": 40 },
+          "db": { "label": "會員資料", "sub": "小安：訂閱中", "icon": "db", "x": 84, "y": 40 }
+        },
+        "links": [["pay", "server"], ["server", "db"]]
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "金流服務來按門鈴",
+      "eyebrow": "全環節 · 單元 11 · 11.3 基礎知識",
+      "sub": "webhook、簽章驗證與重送",
+      "chapter": "誰先知道",
+      "narration": "小安訂了每月麵包箱。某天晚上，他在金流服務的頁面按了取消。這件事發生在金流服務那邊，你的網站怎麼知道？"
+    },
+    { "show": "flow" },
+    { "send": ["server", "pay"], "label": "小安有變化嗎？", "keep": false, "narration": "笨方法是一直去問：有變化嗎？" },
+    { "send": ["pay", "server"], "label": "沒有", "keep": false },
+    { "send": ["server", "pay"], "label": "那現在呢？", "keep": false, "narration": "問太勤浪費，問太少又慢，客人取消了好幾天還在出貨。" },
+    { "send": ["pay", "server"], "label": "沒有", "keep": false },
+    {
+      "send": ["pay", "server"],
+      "label": "POST subscription.canceled",
+      "tone": "warn",
+      "note": "事件：小安取消訂閱",
+      "chapter": "webhook：反過來通知你",
+      "narration": "webhook 反過來：事情一發生，金流服務就主動送一封通知到你事先登記的網址，像按門鈴。"
+    },
+    { "send": ["server", "db"], "label": "小安 → 一般會員", "tone": "data", "narration": "你的伺服器收到，就更新會員資料：小安不再是訂閱會員。" },
+    { "pulse": "db", "sub": "小安：一般會員", "tone": "ok" },
+    { "send": ["server", "pay"], "label": "200 收到了", "tone": "ok", "narration": "最後回一個 200，告訴金流服務：收到了。" },
+    { "tidy": true, "chapter": "簽章：確認是真的" },
+    {
+      "spawn": "fake",
+      "label": "冒充者",
+      "sub": "知道你的 webhook 網址",
+      "icon": "user",
+      "x": 14,
+      "y": 85,
+      "tone": "bad",
+      "narration": "可是 webhook 的網址是公開的，任何人都能送一封假的通知過來。"
+    },
+    { "send": ["fake", "server"], "label": "subscription.created（假的）", "tone": "bad", "note": "假通知：說他付了錢", "narration": "例如冒充者送來：我訂閱了，請給我會員資格。" },
+    {
+      "pulse": "server",
+      "text": "簽章對不上 → 400 拒絕",
+      "tone": "bad",
+      "narration": "所以真的通知都會附上簽章：金流服務用只有你們兩邊知道的密鑰算出來的一串碼。伺服器先驗簽章，對不上就拒絕，什麼都不改。"
+    },
+    { "send": ["server", "fake"], "label": "400 簽章驗證失敗", "tone": "bad" },
+    { "vanish": "fake" },
+    { "pulse": "server", "text": "", "tone": "none" },
+    { "tidy": true, "chapter": "沒收到怎麼辦：重送" },
+    { "pulse": "server", "text": "正在重新部署，暫時沒回應", "tone": "warn", "narration": "如果通知來的時候，你的伺服器剛好在重新部署呢？" },
+    { "send": ["pay", "server"], "label": "invoice.payment_failed", "tone": "bad", "note": "第 1 次：沒有回應" },
+    { "pulse": "pay", "text": "沒收到 200 → 等一下再送", "tone": "warn", "narration": "金流服務沒收到 200，就會隔一段時間再送一次，而且越隔越久，通常會重試好幾天。" },
+    { "pulse": "server", "text": "", "tone": "none" },
+    { "send": ["pay", "server"], "label": "invoice.payment_failed", "tone": "warn", "note": "第 2 次（5 分鐘後）：成功" },
+    { "send": ["server", "pay"], "label": "200", "tone": "ok", "narration": "伺服器恢復後，重送就成功了。不會漏掉。" },
+    { "tidy": true, "chapter": "同一封收到兩次" },
+    { "send": ["pay", "server"], "label": "evt_77 subscription.canceled", "tone": "warn", "note": "evt_77 第 1 次" },
+    { "send": ["pay", "server"], "label": "evt_77 subscription.canceled", "tone": "warn", "note": "evt_77 又來一次", "narration": "重送有一個副作用：同一封通知，可能收到兩次。" },
+    {
+      "pulse": "server",
+      "text": "evt_77 處理過了，略過",
+      "tone": "ok",
+      "narration": "每個事件都有編號。伺服器記下處理過的編號，第二次收到就略過、但一樣回 200。這樣不會重複退款、重複寄信。"
+    },
+    { "callout": "flow:log", "text": "驗簽章、回 200、記住處理過的事件編號", "narration": "看右邊的紀錄，就是一個好的 webhook 要做的三件事。" },
+    {
+      "chapter": "想一想",
+      "checkpoint": "收到 webhook 時，伺服器要先寄一封很慢的確認信，寄完才回 200。可能會發生什麼事？",
+      "body": "選一個。",
+      "id": "slowhook",
+      "options": [
+        {
+          "label": "沒關係，晚一點回而已",
+          "steps": [{ "card": "太慢會被當成沒收到", "eyebrow": "再想想", "sub": "金流服務等太久就重送，於是重複處理", "narration": "金流服務等太久，就當成沒收到而重送，結果你寄了兩封信。好的做法是先記下事件、馬上回 200，慢的事情之後再做。" }]
+        },
+        {
+          "label": "等太久會被重送",
+          "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "先記下事件、馬上回 200，慢的事之後再做", "narration": "答對了。先記下事件、馬上回 200，寄信這種慢的事之後再做；再加上記住事件編號，就不怕重送。" }]
+        }
+      ]
+    },
+    { "hide": "flow" },
+    {
+      "card": "webhook：事情一發生就通知你\n簽章：確認是真的\n重送：記住事件編號",
+      "eyebrow": "學會",
+      "sub": "驗簽章 → 記下事件 → 馬上回 200 → 同一個編號只處理一次",
+      "chapter": "學會",
+      "narration": "今天的重點：webhook 讓金流服務一有變化就通知你；先驗簽章，再處理，馬上回 200；記住事件編號，重送也不會重複處理。下一堂，請 AI 串接 webhook，並用模擬工具一個一個事件測過。"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "title": "用 MCP 連接外部工具",
+  "lesson": "全環節 · 單元 28 · 28.3 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "接上 GitHub 和資料庫",
+    "line": "今天幫 AI 接上兩個 MCP：GitHub 和資料庫。接好之後，它能直接讀專案的 Issue、查網站的資料，不用你再複製貼上。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "接上 MCP", "folder": "~/projects/komori-bakery", "branch": null, "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "用 MCP 連接外部工具",
+      "eyebrow": "全環節 · 單元 28 · 28.3 用 AI 完成",
+      "sub": "你準備最小權限的權杖 → AI 安裝 → 直接查",
+      "chapter": "先準備最小權限的權杖",
+      "narration": "接 MCP 之前，先準備好給它用的權杖，而且權限越小越好。"
+    },
+    {
+      "card": "在 GitHub 建立權杖：只選這個專案、只給 Issue 讀取",
+      "eyebrow": "你自己來",
+      "sub": "存進 .env 的 GITHUB_TOKEN；資料庫另外建一個唯讀帳號，網址存成 DB_READONLY_URL",
+      "narration": "到 GitHub 的設定建立權杖，範圍只選這個專案，權限只勾 Issue 讀取。存進 .env。資料庫也一樣，另外建一個只能讀的帳號，連線網址存進 .env。這兩件事都是你自己做，不要貼進對話。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我加上 GitHub 的 MCP，用官方的伺服器，權杖在 .env 的 GITHUB_TOKEN。再加資料庫的 MCP，用 .env 的 DB_READONLY_URL。加好後確認兩個都連得上，列出它們各有哪些工具。",
+      "narration": "告訴它用官方的伺服器、權杖放在哪，再請它列出工具，讓你知道它多了哪些能力。"
+    },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "ask": "claude mcp add github --env GITHUB_TOKEN -- npx -y @modelcontextprotocol/server-github",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/komori-bakery",
+      "note": "安裝 GitHub 官方的 MCP 伺服器，使用 .env 裡的權杖",
+      "chapter": "安裝",
+      "narration": "安裝指令。看清楚來源：是 Model Context Protocol 官方發布的套件。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "ask": "claude mcp add db --env DB_READONLY_URL -- npx -y @modelcontextprotocol/server-postgres",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/komori-bakery",
+      "note": "安裝資料庫的 MCP 伺服器，用唯讀帳號連線"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "claude mcp list",
+      "result": "2 個已連線",
+      "out": "github  ✓ connected  工具：list_issues, get_issue, search_issues（權杖只有讀取）\ndb      ✓ connected  工具：query, list_tables, describe_table",
+      "chapter": "確認連上了",
+      "narration": "兩個都連上了，也列出了工具。GitHub 這邊只有讀取的工具能用，因為權杖只給了讀取。"
+    },
+    {
+      "on": "claude",
+      "user": "列出還沒處理的 Issue，依急迫程度排，每個用一句話說是什麼問題。",
+      "chapter": "直接讀 Issue",
+      "narration": "以前你要打開 GitHub，一個一個複製給它。現在直接問。"
+    },
+    { "on": "claude", "tool": "mcp__github__list_issues", "arg": "komori/komori-bakery · state=open", "result": "5 筆", "narration": "它直接呼叫 GitHub 的工具，讀到五個還沒關的 Issue。" },
+    {
+      "on": "claude",
+      "say": "1. **#41 預約頁在 Safari 送不出去**（急：影響下單）\n2. **#39 週六名額顯示錯誤**（急：會超賣）\n3. #37 菜單照片載入很慢\n4. #35 頁尾地址打錯一個字\n5. #30 想加英文版（之後再做）",
+      "narration": "它讀完內容，排好順序，每個都用一句話說明。"
+    },
+    {
+      "on": "claude",
+      "user": "#39 說週六名額錯。查一下資料庫，這週六實際被預約了幾個？",
+      "chapter": "直接查資料"
+    },
+    {
+      "on": "claude",
+      "tool": "mcp__db__query",
+      "arg": "SELECT count(*) FROM reservations WHERE pickup_date = '2026-11-14'",
+      "result": "完成",
+      "out": "count: 43",
+      "narration": "它直接查資料庫：這週六已經有四十三筆預約。"
+    },
+    { "on": "claude", "say": "這週六有 43 筆，但名額上限是 40，已經超賣 3 筆。問題在名額的檢查沒有算到「處理中」的預約。要我修嗎？", "narration": "上限是四十，已經超賣了。它把 Issue 和資料對起來，一下就找到原因。" },
+    { "on": "claude", "user": "先把多出來的 3 筆測試預約刪掉", "chapter": "權限最小的好處" },
+    {
+      "on": "claude",
+      "say": "資料庫 MCP 用的是唯讀帳號，我沒辦法刪除資料。這 3 筆是真的客人預約（不是測試資料），建議由你在後台聯絡客人、確認後再處理。",
+      "narration": "AI 刪不了，因為你給的是唯讀帳號。而且它還發現那三筆不是測試資料，是真的客人。權限最小，就是在這種時候保護你。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "自己建立只有讀取權限的 GitHub 權杖和資料庫唯讀帳號，存進 .env。請 AI 用官方的 MCP 伺服器接上，列出工具，再請它直接讀 Issue、查一筆資料。"
+    },
+    {
+      "card": "權杖你來建，權限給最小\n裝官方或可信任的伺服器\n裝好先列出工具，再直接查",
+      "eyebrow": "學會",
+      "sub": "不能做的事，權限會替你擋下來",
+      "chapter": "學會",
+      "narration": "權杖你自己建，權限給最小，裝可信任的伺服器，裝好先列出工具。不該做的事，權限會替你擋下來。"
+    }
+  ]
+}

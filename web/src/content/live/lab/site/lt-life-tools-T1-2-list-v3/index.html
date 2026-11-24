@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>購物清單</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="app-root">
+<main class="wrap" id="app" data-v="3" data-saved='[]'>
+  <h1>購物清單</h1>
+  <p class="sub">想到就記，到了店裡一項項勾掉</p>
+  <section class="card">
+    <div class="add"><input id="item" type="text" placeholder="要買什麼？"><button id="add" class="btn">新增</button></div>
+    <ul id="list"></ul>
+    <div class="saved">✓ 自動存在這個瀏覽器裡</div>
+    <div class="tools"><button id="export" class="btn ghost">匯出備份</button><button id="import" class="btn ghost">匯入備份</button></div>
+    <div id="toast" class="toast gone"></div>
+  </section>
+</main>
+<div class="modal gone" id="modal">
+  <div class="sheet" id="picker">
+    <h2>選擇要匯入的檔案（下載）</h2>
+    <button class="file" data-file="backup">📄 shopping-list-backup.json <small>1 KB</small></button>
+    <button class="file" data-file="hello">📄 hello.txt <small>1 KB</small></button>
+    <button class="file" data-file="photo">🖼 photo-01.jpg <small>4.8 MB</small></button>
+    <div class="row"><button class="btn ghost" id="pick-cancel">取消</button></div>
+  </div>
+  <div class="sheet gone" id="confirm">
+    <h2>要用備份取代目前的清單嗎？</h2>
+    <p>備份裡有 3 個項目。目前清單上的內容會被取代。</p>
+    <div class="row"><button class="btn ghost" id="no">取消</button><button class="btn" id="ok">取代</button></div>
+  </div>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

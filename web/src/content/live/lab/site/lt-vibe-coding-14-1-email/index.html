@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>改一個 email</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="wrap" data-s="0">
+  <div class="head">
+    <h1>小安的網站：同一個 email，出現在三頁</h1>
+    <div class="btns"><button id="edit">改首頁的 email</button><button id="check">看看其他頁</button></div>
+  </div>
+  <div class="pages">
+    <div class="pg" id="pg-index">
+      <div class="pt">index.html · 首頁頁尾</div>
+      <div class="body"><div class="blk"></div><div class="blk s"></div>
+        <div class="foot">聯絡我：<span class="mail"><span class="o">an.lin@mail.com</span><span class="n">hello@an.dev</span></span></div></div>
+      <div class="flag">✓ 改好了</div>
+    </div>
+    <div class="pg stale" id="pg-contact">
+      <div class="pt">contact.html · 聯絡頁</div>
+      <div class="body"><div class="blk s"></div>
+        <div class="line">Email：<span class="mail">an.lin@mail.com</span></div>
+        <div class="mbtn">寄信給我 <small>mailto:an.lin@mail.com</small></div></div>
+      <div class="flag">✕ 還是舊的（2 處）</div>
+    </div>
+    <div class="pg stale" id="pg-about">
+      <div class="pt">about.html · 關於我</div>
+      <div class="body"><div class="blk"></div>
+        <div class="line">想合作的話，寫信到 <span class="mail">an.lin@mail.com</span></div><div class="blk s"></div></div>
+      <div class="flag">✕ 還是舊的</div>
+    </div>
+  </div>
+  <div class="mainjs">
+    <div class="pt">main.js · 420 行，一個檔案管了 5 件事</div>
+    <div class="jobs"><span>導覽列</span><span>作品列表</span><span>文章日期</span><span>聯絡表單 <small>送出成功：「已寄到 an.lin@mail.com」</small></span><span>深色模式</span></div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body></html>

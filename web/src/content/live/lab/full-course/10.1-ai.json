@@ -1,0 +1,96 @@
+{
+  "title": "登入在做什麼：請 AI 畫流程、列安全要求",
+  "lesson": "全環節 · 單元 10 · 10.1 用 AI 完成",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天先畫藍圖再蓋房子",
+    "line": "今天還不寫登入的程式。先請 AI 畫出登入流程、列出安全要求清單，這份清單就是下一堂驗收的標準。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "登入規劃", "folder": "~/projects/bakery", "branch": "login", "mode": "plan", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc10-1-loginflow", "url": "file:///projects/bakery/docs/login.html" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "先畫藍圖，再蓋房子",
+      "eyebrow": "全環節 · 單元 10 · 10.1 用 AI 完成",
+      "sub": "請 AI 畫登入流程、列出可以逐條測試的安全要求",
+      "chapter": "為什麼先列清單",
+      "narration": "登入出錯，代價是客人的帳號被盜。所以這一次，先不寫程式。"
+    },
+    {
+      "stream": "登入功能做好了，可以註冊、登入、登出。",
+      "prompt": "登入做好了嗎？安全嗎？",
+      "narration": "如果直接叫 AI 做登入，它多半會回你「做好了」。可是你怎麼知道安全不安全？"
+    },
+    { "clear": true },
+    { "shimmer": "先有清單，才能驗收", "sub": "每一條都要能測試", "narration": "所以先請它列一份安全要求，而且每一條都要能測試。下一堂，就照這份清單驗收。" },
+    { "clear": true },
+    { "show": "claude", "chapter": "AI 查資料、列要求" },
+    {
+      "on": "claude",
+      "user": "我要做 Email＋密碼登入。先不要寫程式：請畫出登入流程（註冊、登入、之後的請求、登出），並列出安全要求，每一條都要寫成可以測試的句子。請參考目前公認的做法，並看一下這個專案現在用什麼框架。存成 docs/login.md。",
+      "narration": "交代重點：先不寫程式；每一條要求都寫成可以測試的句子；參考公認的做法。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "tool": "WebSearch",
+      "arg": "OWASP authentication password storage session management cheat sheet",
+      "result": "讀了 3 份資安社群的指南",
+      "out": "密碼：用 bcrypt / argon2，不自己發明\n登入失敗訊息不透露帳號存不存在\nsession：登入後換新 ID、cookie 設 HttpOnly / Secure / SameSite",
+      "narration": "它先去查資安社群公認的指南，不憑印象寫。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "package.json", "result": "Express＋Postgres", "out": "\"express\": \"^5.1.0\", \"pg\": \"^8.13.0\"", "narration": "再看專案用什麼框架，之後的建議才接得上。" },
+    {
+      "on": "claude",
+      "say": "登入流程：\n1. 輸入 email 與密碼（只走 HTTPS）\n2. 伺服器用 bcrypt 比對雜湊\n3. 建立 session，隨機 ID 存資料庫\n4. 回傳 cookie：HttpOnly、Secure、SameSite=Lax\n5. 之後的請求自動帶上，伺服器查 session 認人\n6. 登出：伺服器刪掉 session\n\n另有 7 條安全要求，例如「同一個 email 連錯 5 次，要等 15 分鐘才能再試」。",
+      "narration": "它畫出六步的流程，並列出安全要求。注意它的寫法：「連錯 5 次要等 15 分鐘」，這是可以測的，不是「要防暴力破解」這種口號。"
+    },
+    {
+      "on": "claude",
+      "user": "你自己再對一遍：流程裡每一步，清單有沒有對應的要求？",
+      "chapter": "要它自己再對一遍",
+      "narration": "交出來之前，請它自己對一遍：流程的每一步，清單有沒有對應。"
+    },
+    {
+      "on": "claude",
+      "say": "對過了，漏了一條：第 3 步建立 session 時，**要換一組新的 session ID**，不能沿用登入前的（避免有人先塞一個號碼給你）。已補上，共 8 條。",
+      "narration": "它自己找到漏掉的一條：登入後要換一組新的號碼牌。"
+    },
+    { "on": "claude", "mode": "ask" },
+    { "on": "claude", "user": "好，寫進 docs/login.md。" },
+    { "on": "claude", "ask": "docs/login.md", "q": "Claude 想要建立這個檔案", "where": "~/projects/bakery", "preview": "# 登入流程與安全要求\n1. 輸入 email 與密碼 …\n## 安全要求（實作時逐條測試）" },
+    { "on": "claude", "choose": 1 },
+    { "hide": "claude" },
+    { "show": "web", "focus": false, "chapter": "讀懂這份清單", "narration": "打開它寫好的文件。上面是六步的流程，下面是八條安全要求。" },
+    { "on": "web", "click": "#r1", "narration": "你不用全部懂原理，只要確定每一條都看得懂在說什麼。第一條：資料庫看不到密碼原文。" },
+    { "on": "web", "click": "#r3", "narration": "登入失敗只說「帳號或密碼錯誤」，不讓壞人知道哪個 email 有註冊過。" },
+    { "on": "web", "click": "#r5", "narration": "cookie 的三個設定，上一堂學過了。" },
+    { "on": "web", "click": "#r7", "narration": "登出要在伺服器刪掉號碼牌，不只是瀏覽器把紙條丟掉。" },
+    { "callout": "web:sel:.reqs", "text": "下一堂的驗收標準：每一條都要有測試", "narration": "這八條，就是下一堂的驗收標準：每一條都要有一個測試證明它做到了。" },
+    {
+      "checkpoint": "換你試試",
+      "body": "在規劃模式請 AI 畫你的登入流程、列安全要求，要求每一條寫成可以測試的句子，並請它自己對一遍有沒有漏。"
+    },
+    { "hide": "web" },
+    {
+      "card": "先列可以測試的要求\n再請 AI 自己對一遍",
+      "eyebrow": "學會",
+      "sub": "口號不能驗收；「連錯 5 次等 15 分鐘」才能",
+      "chapter": "學會",
+      "narration": "這一堂的重點：重要又容易出錯的功能，先請 AI 列出可以測試的要求，再請它自己對一遍有沒有漏。清單就是之後驗收的標準。"
+    }
+  ]
+}

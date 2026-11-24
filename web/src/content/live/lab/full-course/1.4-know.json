@@ -1,0 +1,111 @@
+{
+  "title": "找不同：看懂 AI 改了什麼",
+  "camera": "auto",
+  "teacher": {
+    "say": "先玩一個找不同",
+    "line": "AI 改完程式，你要怎麼知道它改了哪裡？今天先玩一個找不同，再學怎麼讀它給你的修改紀錄。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc1-4-spot", "url": "https://course.example/explain/spot-the-diff" },
+      "place": "window",
+      "hidden": true
+    },
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "改 hello 頁", "folder": "~/projects/hello", "branch": null, "mode": "ask", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "找不同",
+      "eyebrow": "全環節 · 單元 1 · 1.4 基礎知識",
+      "sub": "AI 改了哪裡？用眼睛找，還是看紀錄？",
+      "chapter": "用眼睛找",
+      "narration": "先來玩一個遊戲。"
+    },
+    {
+      "show": "web",
+      "narration": "左邊是 AI 改之前的網頁，右邊是改之後。"
+    },
+    {
+      "checkpoint": "先暫停：右邊改了幾個地方？",
+      "body": "仔細比一比標題、文字、按鈕和背景。想好了再按繼續看答案。"
+    },
+    {
+      "on": "web",
+      "click": "#ans",
+      "narration": "答案是三個：標題多了名字、按鈕變大、背景變成淺藍色。"
+    },
+    {
+      "callout": "web:sel:.res",
+      "text": "用眼睛找，又慢又容易漏",
+      "narration": "這還只是一個小網頁。如果 AI 一次改了五個檔案，用眼睛比對根本不可能。所以要看另一樣東西：差異。"
+    },
+    { "hide": "web" },
+    {
+      "diff": "hello.html",
+      "lines": [[" ", "<body>"], ["-", "  <h1>Hello！</h1>"], ["+", "  <h1>Hello！我是小安</h1>"], [" ", "  <p>我是新手，正在學做網站。</p>"], [" ", "</body>"]],
+      "chapter": "看差異",
+      "narration": "差異，就是把改之前和改之後的程式碼疊在一起。紅色、前面是減號的，是刪掉的那一行；綠色、前面是加號的，是新加的那一行；沒有顏色的是沒動的部分。"
+    },
+    {
+      "on": "fx",
+      "clear": true
+    },
+    {
+      "show": "claude",
+      "chapter": "AI 的修改卡",
+      "narration": "AI 程式助手每次改檔案，都會給你一張這樣的修改卡。"
+    },
+    { "on": "claude", "user": "標題加上我的名字：小安" },
+    {
+      "on": "claude",
+      "edit": "hello.html",
+      "lines": [[2, "-", "  <h1>Hello！</h1>"], [2, "+", "  <h1>Hello！我是小安</h1>"]]
+    },
+    {
+      "callout": "claude:edit",
+      "text": "① 哪個檔案　② 第幾行　③ 紅刪綠加",
+      "narration": "看三樣東西：上面是哪個檔案，左邊是第幾行，然後是紅色刪掉、綠色加上。"
+    },
+    {
+      "on": "claude",
+      "say": "改好了：`hello.html` 第 2 行，標題加上「我是小安」。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "它說的，要和修改卡對得上",
+      "narration": "再看它的說明：說改了第 2 行的標題，修改卡也確實只改了這一行。說的和做的對得上，就可以接受。"
+    },
+    {
+      "on": "claude",
+      "user": "不錯！名字想要藍色、粗一點。",
+      "chapter": "不滿意就說",
+      "narration": "如果不滿意，不用自己改，直接說要改哪裡就好。"
+    },
+    {
+      "on": "claude",
+      "edit": "hello.html",
+      "lines": [[2, "-", "  <h1>Hello！我是小安</h1>"], [2, "+", "  <h1>Hello！<b style=\"color:#2f6fde\">我是小安</b></h1>"]]
+    },
+    {
+      "on": "claude",
+      "say": "改好了，「我是小安」換成藍色粗體，只動了第 2 行。"
+    },
+    {
+      "checkpoint": "想一想：修改卡上有一行紅色、一行綠色，行號都是 2。這代表什麼？",
+      "body": "代表第 2 行被換掉了：舊的那行刪掉（紅），換成新的那行（綠）。檔案的其他地方都沒動。"
+    },
+    {
+      "card": "看檔名 → 看紅綠 → 對照說明",
+      "eyebrow": "1.4 重點",
+      "sub": "對得上就接受；不滿意就直接說要改哪裡",
+      "narration": "三個步驟：看檔名、看紅綠、對照它的說明。對得上就接受，不滿意就直接說要改哪裡。"
+    }
+  ]
+}

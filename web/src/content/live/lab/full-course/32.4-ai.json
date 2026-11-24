@@ -1,0 +1,121 @@
+{
+  "title": "排程的 AI 任務",
+  "lesson": "全環節 · 單元 32 · 32.4 用 AI 完成",
+  "teacher": {
+    "say": "設定一個每週自動檢查",
+    "line": "這一堂請 AI 先做一個檢查用的小腳本和任務說明，手動試跑一次，沒問題再設成每週一早上自動執行。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "每週檢查", "folder": "~/projects/bakery", "branch": "main", "mode": "ask", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "ping": { "actor": "chat", "props": { "title": "通知" }, "place": { "x": 1300, "y": 90, "w": 520, "h": 560 }, "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "排程的 AI 任務",
+      "eyebrow": "全環節 · 單元 32 · 32.4 用 AI 完成",
+      "sub": "先做工具、試跑一次，再交給時間表",
+      "chapter": "做檢查用的工具",
+      "narration": "上一堂寫好了週一助理的三個部分。這一堂把它做出來。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我設定一個每週一早上 9 點自動執行的 AI 任務：1 檢查套件有沒有可以更新的、特別標出安全更新；2 從 data/analytics/ 整理上週的訂單數與每天流量，標出異常的那天。只讀，不要改任何程式、不要自動更新套件。結果寫成 reports/週報-日期.md 並通知我。先手動跑一次給我看，再設排程。",
+      "narration": "把三個部分都說清楚，再加兩句：只讀不改、先手動跑一次。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "ask": "scripts/weekly-check.sh",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "#!/bin/sh\n# 每週檢查：只讀，不改檔\necho \"## 套件\"\nnpm outdated --json | node scripts/summarize-outdated.js\nnpm audit --json | node scripts/summarize-audit.js\necho \"## 上週數據\"\nnode scripts/weekly-stats.js data/analytics/",
+      "narration": "它先做一個檢查用的腳本。用到的 npm outdated、npm audit 都只是查詢，不會更新任何東西。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "ask": ".claude/tasks/weekly-check.md",
+      "q": "Claude 想要建立這個檔案",
+      "where": "~/projects/bakery",
+      "preview": "# 每週檢查（排程任務的交代）\n1. 執行 sh scripts/weekly-check.sh\n2. 安全更新放最上面，寫出受影響的套件與建議版本\n3. 流量比前四週平均少 30% 以上的日子標成異常\n4. 寫成 reports/週報-YYYY-MM-DD.md\n規則：只讀；不要改程式、不要 npm update、不要 commit",
+      "narration": "再寫一份任務的交代。排程時你不在旁邊，所以規則要寫進去：只讀、不更新、不 commit。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "ask": "sh scripts/weekly-check.sh",
+      "q": "Claude 想要執行這個指令",
+      "where": "~/projects/bakery",
+      "note": "手動試跑一次每週檢查（只讀）",
+      "chapter": "手動試跑",
+      "narration": "接著照你說的，先手動跑一次。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "sh scripts/weekly-check.sh",
+      "result": "完成",
+      "out": "## 套件\n  安全更新：image-size 1.0.1 → 1.2.1（high）\n  一般更新：vite 6.2 → 6.3、vitest 3.1 → 3.2\n## 上週數據\n  訂單 128 筆（+12%）\n  11/05（三）流量 312，前四週平均 690 → 異常",
+      "narration": "試跑的結果：一個安全更新、兩個一般更新；還抓到週三的流量只有平常的一半。"
+    },
+    {
+      "on": "claude",
+      "say": "試跑完成，報告寫在 `reports/週報-2026-11-09.md`。週三流量異常，可能和那天首頁圖片載入失敗有關，建議你看一下。我沒有更新任何套件。可以設排程了嗎？",
+      "narration": "它只寫報告和建議，套件一個都沒更新。試跑沒問題，才問你要不要設排程。"
+    },
+    { "on": "claude", "user": "可以，設成每週一 9 點" },
+    {
+      "on": "claude",
+      "ask": "排程：每週一 09:00 執行 .claude/tasks/weekly-check.md",
+      "q": "Claude 想要建立排程任務",
+      "where": "~/projects/bakery",
+      "note": "到時間會自動開一個工作階段；權限只允許讀檔與這個腳本",
+      "chapter": "交給時間表",
+      "narration": "建立排程也要你允許。注意它的權限：只允許讀檔和執行這個腳本。就算排程的 AI 想做別的事，也做不了。"
+    },
+    { "on": "claude", "choose": 1 },
+    {
+      "on": "claude",
+      "tool": "Schedule",
+      "arg": "weekly-check · 每週一 09:00",
+      "result": "已建立，下次執行 11/10 09:00",
+      "narration": "排程建好了，下次執行是十一月十日週一早上九點。"
+    },
+    {
+      "card": "一週後，週一早上 9 點",
+      "eyebrow": "時間快轉",
+      "sub": "你還在路上，排程的 AI 已經開工了",
+      "narration": "一週後的週一早上。你還在路上。"
+    },
+    {
+      "show": "ping",
+      "receive": "每週檢查（11/10）完成：1 個安全更新、流量正常、訂單 +5%。報告：reports/週報-2026-11-10.md",
+      "from": "排程任務",
+      "narration": "通知來了。排程的 AI 自己開工、自己跑完，報告也寫好了。"
+    },
+    {
+      "on": "ping",
+      "reply": "收到，安全更新我等一下開一個工作階段處理",
+      "narration": "要不要更新、什麼時候更新，由你決定。你再開一個工作階段，自己在旁邊看著它更新。"
+    },
+    {
+      "callout": "ping:msg:1",
+      "text": "排程做檢查與報告；動手的事，你決定",
+      "narration": "這就是排程最好的用法：它固定幫你看，你只要決定要不要動手。"
+    },
+    { "hide": "ping" },
+    {
+      "checkpoint": "換你設一個排程",
+      "body": "請 AI 依上一堂寫的三個部分，做出檢查腳本與任務說明，先手動試跑一次；看過報告沒問題，再設成排程，並確認它只有讀取的權限。",
+      "narration": "換你試試：先做腳本和任務說明，手動跑一次，報告沒問題再設排程。記得確認它只有讀的權限。"
+    }
+  ]
+}

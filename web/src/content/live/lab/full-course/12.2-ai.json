@@ -1,0 +1,179 @@
+{
+  "title": "交易信：註冊確認與重設密碼",
+  "lesson": "全環節 · 單元 12 · 12.2 用 AI 完成",
+  "camera": "auto",
+  "blocking": { "cast": ["claude", "mail"], "shot": "depth" },
+  "teacher": {
+    "say": "寄到自己信箱，看了再改",
+    "line": "這一堂請 AI 寫註冊確認信和重設密碼信，從信件範本到整個流程。寫好就寄到你自己的信箱，用手機打開看，有問題就說，來回幾次改到好。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "確認信與重設密碼", "folder": "~/projects/shop", "branch": null, "mode": "auto", "sessions": [] },
+      "place": "window",
+      "hidden": true
+    },
+    "mail": {
+      "actor": "browser",
+      "props": { "site": "fc12-2-mail1", "width": "phone", "url": "https://mail.example/inbox" },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "交易信：註冊確認與重設密碼",
+      "eyebrow": "全環節 · 單元 12 · 12.2 用 AI 完成",
+      "sub": "寫範本 → 寄給自己 → 用手機看 → 說哪裡不對 → 再改",
+      "chapter": "第一版",
+      "narration": "交易信，指的是因為使用者做了某件事才寄出的信，例如註冊、重設密碼。這種信一定要寄得到、看得懂、按得下去。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "幫我做註冊確認信和重設密碼信：連結用一次性 token，重設密碼 30 分鐘過期、註冊確認 24 小時過期，用過就作廢。做好後各寄一封到我的信箱 me@mail.example，我看過再告訴你要改什麼。",
+      "narration": "把上一堂學的規則說清楚：一次性、各自的期限、用過作廢。再請它寄到你的信箱，你看過再回饋。"
+    },
+    {
+      "on": "claude",
+      "todos": [["建立 token 資料表（用途、期限、是否用過）", "doing"], ["註冊確認信範本與流程", "pending"], ["重設密碼信範本與流程", "pending"], ["寄測試信到 me@mail.example", "pending"]],
+      "narration": "它先列出要做的事。"
+    },
+    {
+      "on": "claude",
+      "edit": "src/auth/tokens.ts",
+      "lines": [[1, "+", "export async function createToken(userId, purpose, minutes) {"], [2, "+", "  const token = randomBytes(32).toString('base64url') // 猜不到"], [3, "+", "  await db.tokens.insert({ token, userId, purpose, expiresAt: addMinutes(now(), minutes), usedAt: null })"], [4, "+", "  return token"], [5, "+", "}"]],
+      "narration": "通行碼用夠長的亂數產生，連同用途、期限、用過了沒，一起存起來。"
+    },
+    {
+      "on": "claude",
+      "todos": [["建立 token 資料表（用途、期限、是否用過）", "done"], ["註冊確認信範本與流程", "done"], ["重設密碼信範本與流程", "done"], ["寄測試信到 me@mail.example", "doing"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run mail:test -- --to me@mail.example",
+      "result": "已寄出 2 封",
+      "out": "✓ 註冊確認信 → me@mail.example\n✓ 重設密碼信 → me@mail.example",
+      "narration": "它自己寄出兩封測試信。"
+    },
+    {
+      "on": "claude",
+      "say": "兩封測試信都寄出了，請用手機打開看看，有任何不對都告訴我。",
+      "narration": "接下來換你看。用手機打開，因為大部分人是在手機上收信的。"
+    },
+    {
+      "show": "mail",
+      "chapter": "你來看：第一輪",
+      "narration": "打開重設密碼信。你發現好幾個問題。"
+    },
+    {
+      "callout": "mail:sel:#subj",
+      "text": "標題是英文，寄件人是看不懂的地址",
+      "narration": "標題是英文，寄件人是一串看不懂的地址，客人可能以為是詐騙信。"
+    },
+    {
+      "callout": "mail:sel:#link",
+      "text": "連結是小小的 click here，手指很難按到",
+      "narration": "連結只是小小的 click here，手機上很難按，也沒寫多久會過期。"
+    },
+    {
+      "on": "claude",
+      "user": "問題：1. 標題和內文改成中文；2. 寄件人顯示 shop.example，地址用 noreply@shop.example；3. 用大按鈕，手機好按；4. 寫出幾分鐘內有效、只能用一次，不是本人申請的話不用理會。",
+      "narration": "一條一條講清楚，AI 就能一次改好。"
+    },
+    {
+      "on": "claude",
+      "edit": "emails/reset-password.html",
+      "lines": [[3, "-", "<p>Someone requested a password reset. <a href=\"{{link}}\">click here</a></p>"], [3, "+", "<p>我們收到重設密碼的要求。如果是你本人，請按下面的按鈕：</p>"], [4, "+", "<a class=\"button\" href=\"{{link}}\">設定新密碼</a>"], [5, "+", "<p>這個連結 30 分鐘內有效，而且只能使用一次。如果不是你申請的，不用理會這封信。</p>"]],
+      "narration": "它改了範本：中文內容、大按鈕、寫出期限。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm run mail:test -- --to me@mail.example",
+      "result": "已寄出 2 封",
+      "out": "✓ 註冊確認信 → me@mail.example\n✓ 重設密碼信 → me@mail.example"
+    },
+    {
+      "on": "mail",
+      "site": "fc12-2-mail2",
+      "chapter": "第二輪",
+      "narration": "新的一封到了。中文、大按鈕、期限都有了，好看多了。可是仔細看最下面那行網址。"
+    },
+    {
+      "callout": "mail:sel:#raw",
+      "text": "網址是 localhost：只有你自己的電腦打得開",
+      "narration": "網址是 localhost，意思是「我自己這台電腦」。客人點了，會連到他自己的電腦，當然打不開。"
+    },
+    {
+      "on": "claude",
+      "user": "信裡的網址是 localhost:3000，客人打不開。正式寄出的信要用 https://shop.example。",
+      "narration": "把你看到的現象說出來。"
+    },
+    { "on": "claude", "thinking": true, "ms": 1000 },
+    {
+      "on": "claude",
+      "edit": "src/auth/links.ts",
+      "lines": [[2, "-", "const base = 'http://localhost:3000'"], [2, "+", "const base = process.env.SITE_URL // 正式環境是 https://shop.example"], [3, "+", "if (!base) throw new Error('沒有設定 SITE_URL，信裡的連結會是錯的')"]],
+      "narration": "它把網址改成從設定讀取：正式環境用 shop.example，而且沒設定就直接報錯，不會默默寄出錯的連結。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "SITE_URL=https://shop.example npm run mail:test -- --to me@mail.example",
+      "result": "已寄出 2 封",
+      "out": "✓ 註冊確認信 → me@mail.example\n✓ 重設密碼信 → me@mail.example"
+    },
+    {
+      "on": "mail",
+      "site": "fc12-2-mail3",
+      "chapter": "第三輪：真的點點看",
+      "narration": "第三版到了，網址也對了。這次要真的點點看。"
+    },
+    {
+      "on": "mail",
+      "click": "#cta",
+      "narration": "按下設定新密碼，出現設定頁。新密碼由你自己輸入，不要交給 AI。"
+    },
+    { "on": "mail", "click": "#save", "narration": "設好新密碼，儲存。回到信件。" },
+    {
+      "on": "mail",
+      "click": "#cta",
+      "narration": "同一封信的按鈕再按一次，出現「這個連結已經用過了」。一次性的規則有做到。"
+    },
+    {
+      "on": "claude",
+      "user": "三輪都看過了：中文、按鈕、網址都對，連結點第二次會顯示已用過。註冊確認信也確認過了。",
+      "narration": "回報結果給 AI。"
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npm test -- tokens",
+      "result": "4 項通過",
+      "out": "✓ 連結用過一次就失效\n✓ 重設密碼 30 分鐘後失效\n✓ 註冊確認 24 小時後失效\n✓ 沒設定 SITE_URL 時拒絕寄信",
+      "narration": "AI 再補上幾個自動檢查，把期限和一次性都測過，之後改程式也不怕改壞。"
+    },
+    {
+      "on": "claude",
+      "say": "確認信與重設密碼信都完成了 ✓ 正式上線前，記得在雲端設定 `SITE_URL=https://shop.example`。",
+      "narration": "完成。它也提醒你：正式環境要設定網址。"
+    },
+    { "hide": "mail" },
+    { "hide": "claude" },
+    {
+      "chapter": "換你試試",
+      "checkpoint": "換你試試：寄到自己的信箱檢查",
+      "body": "請 AI 做好兩種信並寄給你。用手機打開，檢查標題、寄件人、按鈕、期限說明、網址，再真的點兩次。每輪把看到的問題一條一條告訴它。"
+    },
+    {
+      "card": "寄給自己 · 用手機看 · 真的點兩次",
+      "eyebrow": "學會",
+      "sub": "看到的問題一條一條講，AI 就能一次改好",
+      "chapter": "學會",
+      "narration": "交易信要自己收過才算數：寄給自己、用手機看、真的點兩次。看到問題一條一條講清楚，來回幾輪就改好了。"
+    }
+  ]
+}

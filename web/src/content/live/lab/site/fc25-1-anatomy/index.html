@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>一頁的名片</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap" id="app">
+ <div class="ttl">同一頁網址，在兩個地方的樣子</div>
+ <div class="row">
+  <div class="col card serp">
+   <div class="lbl">在搜尋結果</div>
+   <div class="url">komori-bakery.example › menu</div>
+   <div class="stitle" data-k="1">本週麵包菜單｜小森烘焙</div>
+   <div class="sdesc" data-k="2">每天早上七點出爐。可頌、肉桂捲、鄉村麵包，線上預約、到店取貨。</div>
+  </div>
+  <div class="col card share">
+   <div class="lbl">貼到聊天室</div>
+   <div class="ogimg" data-k="3"><svg viewBox="0 0 200 120" width="100%" height="100%"><rect width="200" height="120" fill="#f7e3c4"/><ellipse cx="100" cy="72" rx="70" ry="30" fill="#c98a4b"/><ellipse cx="100" cy="64" rx="62" ry="24" fill="#e0a865"/><path d="M60 58 q10 -10 20 0 M90 54 q10 -10 20 0 M120 58 q10 -10 20 0" stroke="#a8692f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></div>
+   <div class="ogt" data-k="3">本週麵包菜單｜小森烘焙</div>
+   <div class="ogd" data-k="3">每天早上七點出爐，線上預約、到店取貨。</div>
+   <div class="ogu">komori-bakery.example</div>
+  </div>
+ </div>
+ <div class="card code mono">
+  <div class="c">&lt;head&gt;</div>
+  <div class="ln" data-k="1">  &lt;title&gt;本週麵包菜單｜小森烘焙&lt;/title&gt;</div>
+  <div class="ln" data-k="2">  &lt;meta name="description" content="每天早上七點出爐…"&gt;</div>
+  <div class="ln" data-k="4">  &lt;link rel="canonical" href="https://komori-bakery.example/menu"&gt;</div>
+  <div class="ln" data-k="3">  &lt;meta property="og:title" content="本週麵包菜單｜小森烘焙"&gt;</div>
+  <div class="ln" data-k="3">  &lt;meta property="og:image" content="https://…/menu.png"&gt;</div>
+  <div class="c">&lt;/head&gt;</div>
+ </div>
+ <div class="canon" data-s="4">
+  <div class="urls mono"><div>/menu</div><div>/menu?ref=line</div><div>/Menu/</div></div>
+  <svg viewBox="0 0 160 120" class="arr"><path d="M10 20 C90 20 90 60 150 60 M10 60 L150 60 M10 100 C90 100 90 60 150 60" stroke="#2f6fed" stroke-width="4" fill="none"/><path d="M138 50 L152 60 L138 70" stroke="#2f6fed" stroke-width="4" fill="none"/></svg>
+  <div class="one mono">正本：/menu</div>
+ </div>
+ <div class="stepbar"><button class="btn" id="next">下一個 ▶</button><span class="cap" data-t0="四個標籤，決定這頁怎麼被介紹" data-t1="title：分頁與搜尋結果的大標題" data-t2="description：標題下面那兩行說明" data-t3="Open Graph：貼到社群、聊天室時的卡片" data-t4="canonical：好幾個網址其實同一頁時，指定正本"></span></div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

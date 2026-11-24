@@ -1,0 +1,137 @@
+{
+  "title": "AI 的費用與用量",
+  "lesson": "全環節 · 單元 33 · 33.4 用 AI 完成",
+  "teacher": {
+    "say": "今天請 AI 說明用量花在哪",
+    "line": "這一課，我們先用很模糊的方式交代一個任務，請 AI 說明用量花在哪裡；再換個交代方式做一次，比比看差多少。"
+  },
+  "camera": "auto",
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "網站怪怪的", "folder": "~/projects/bakery", "branch": "main", "mode": "accept", "sessions": [], "labels": { "placeholder": "描述你要做的事…" } },
+      "place": "window",
+      "hidden": true
+    },
+    "web": { "actor": "browser", "props": { "site": "fc33-4-report", "url": "https://notes.example/usage-compare" }, "place": "window", "hidden": true }
+  },
+  "steps": [
+    {
+      "card": "AI 的費用與用量",
+      "eyebrow": "全環節 · 單元 33 · 33.4 用 AI 完成",
+      "sub": "模糊交代 → 請 AI 說明用量 → 清楚交代 → 比較",
+      "chapter": "第一次：模糊的交代",
+      "narration": "先用我們以前常見的方式交代任務。"
+    },
+    { "show": "claude" },
+    { "on": "claude", "user": "網站在手機上怪怪的，幫我看看" },
+    { "on": "claude", "thinking": true, "ms": 900 },
+    {
+      "on": "claude",
+      "tool": "Glob",
+      "arg": "**/*.{html,css,js}",
+      "result": "找到 38 個檔案",
+      "narration": "不知道哪裡怪，它只好先把整個專案的檔案找出來，"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "index.html、checkout.html、styles.css…（共 24 個檔）",
+      "result": "已讀取 24 個檔案",
+      "narration": "然後一個一個讀。"
+    },
+    {
+      "on": "claude",
+      "say": "我看了 24 個檔案，可能的問題有：導覽列在小螢幕太擠、圖片沒有限制寬度、價格可能換行……你指的是哪一個？",
+      "narration": "讀了一大圈，最後還是要問你：你指的是哪一個？"
+    },
+    {
+      "on": "claude",
+      "user": "是價格會換行"
+    },
+    {
+      "on": "claude",
+      "edit": "products.css",
+      "lines": [[22, "-", ".price { font-size: 22px; }"], [22, "+", ".price { font-size: 18px; white-space: nowrap; }"]],
+      "narration": "知道是價格之後，真正的修改只有一行。"
+    },
+    {
+      "on": "claude",
+      "user": "說明一下這次工作的用量主要花在哪裡？下次我怎麼交代可以更省？",
+      "chapter": "請 AI 說明用量",
+      "narration": "做完了，請它說明這次的用量花在哪裡，以及下次怎麼交代更省。"
+    },
+    { "on": "claude", "thinking": true, "ms": 800 },
+    {
+      "on": "claude",
+      "say": "這次的用量大部分花在「讀」：\n1. **讀了 24 個檔案**找問題：約佔七成\n2. **來回確認問題**：每一輪我都要重看前面的內容\n3. 真正的修改只有 1 行，佔很少\n\n下次可以：直接說出**哪個檔案、什麼問題、怎樣算完成**，我就不用整個專案翻一遍。",
+      "narration": "它說明：大部分花在讀二十四個檔案和來回確認；真正的修改，只佔很少。"
+    },
+    {
+      "callout": "claude:say",
+      "text": "用量大頭：找問題，不是修問題",
+      "narration": "記住這個結論：用量的大頭是找問題，不是修問題。找問題的線索，你給得越多，它就讀得越少。"
+    },
+    {
+      "on": "claude",
+      "newSession": "價格不換行",
+      "chapter": "第二次：清楚的交代",
+      "narration": "我們用它建議的方式，開新對話，再做一次類似的任務。"
+    },
+    {
+      "on": "claude",
+      "user": "products.css 的 .badge 在 390 寬時會換行。改成不換行。完成條件：390 寬截圖裡標籤在同一行",
+      "narration": "這次直接說：哪個檔案、什麼問題、怎樣算完成。"
+    },
+    {
+      "on": "claude",
+      "tool": "Read",
+      "arg": "products.css",
+      "result": "64 行",
+      "narration": "它只讀了一個檔案。"
+    },
+    {
+      "on": "claude",
+      "edit": "products.css",
+      "lines": [[31, "-", ".badge { padding: 4px 12px; }"], [31, "+", ".badge { padding: 4px 8px; white-space: nowrap; }"]]
+    },
+    {
+      "on": "claude",
+      "tool": "Bash",
+      "arg": "npx playwright screenshot --viewport-size=390,844 http://localhost:5173/products shot.png",
+      "result": "已截圖：標籤在同一行"
+    },
+    {
+      "on": "claude",
+      "say": "完成：`.badge` 不再換行，390 寬截圖已確認。這次只讀了 `products.css` 一個檔案，一輪就完成。",
+      "narration": "一輪就完成，還自己截圖驗證。"
+    },
+    { "hide": "claude" },
+    {
+      "show": "web",
+      "chapter": "比一比",
+      "narration": "把兩次放在一起比。第一次：找了三十八個檔案、讀了二十四個，來回好幾輪。"
+    },
+    {
+      "on": "web",
+      "click": "#afterBtn",
+      "narration": "第二次：只讀一個檔、一輪完成，用量大約只剩五分之一。這裡的數字是示意，你自己的情況會不一樣，但差距通常就是這麼大。"
+    },
+    {
+      "callout": "web:sel:.tips",
+      "text": "省用量的做法，也是交代任務的好方法",
+      "narration": "這幾個省用量的做法，也正是前面學過的交代任務的方法。交代得清楚，又快、又準、又省。"
+    },
+    {
+      "checkpoint": "換你試試",
+      "body": "下一次和 AI 工作結束時，請它說明這次的用量主要花在哪裡、你可以怎麼交代更省；記下一條自己的節省做法，下次照著做。",
+      "narration": "換你試試：下一次工作結束時，請 AI 說明用量花在哪，記下一條你自己的節省做法。"
+    },
+    {
+      "card": "自己的用量觀察與節省做法",
+      "eyebrow": "這一課的成果",
+      "sub": "找問題最耗用量：線索給得越多，AI 讀得越少",
+      "narration": "這一課的成果：你知道用量花在哪裡，也有了自己的節省做法。"
+    }
+  ]
+}

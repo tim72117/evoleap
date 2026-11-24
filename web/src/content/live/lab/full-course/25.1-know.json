@@ -1,0 +1,83 @@
+{
+  "title": "網址的名片：標題、描述與分享預覽",
+  "lesson": "全環節 · 單元 25 · 25.1 基礎知識",
+  "camera": "auto",
+  "teacher": {
+    "say": "今天幫每一頁做名片",
+    "line": "今天來看，為什麼有的網址貼出去很漂亮，有的只剩一串字。差別就藏在每一頁開頭的幾行標籤裡。"
+  },
+  "cast": {
+    "phone": { "actor": "chat", "props": { "title": "烘焙同好群組" }, "place": { "x": 680, "y": 110, "w": 560, "h": 860 }, "hidden": true },
+    "web": { "actor": "browser", "props": { "site": "fc25-1-anatomy", "width": "desktop", "url": "https://komori-bakery.example/menu" }, "place": "window", "hidden": true },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "網址的名片",
+      "eyebrow": "全環節 · 單元 25 · 25.1 基礎知識",
+      "sub": "title、description、canonical 與 Open Graph",
+      "chapter": "一個沒有名片的網址",
+      "narration": "先看一個你一定遇過的場面。"
+    },
+    { "show": "phone", "narration": "你把自己網站的菜單頁，貼到烘焙同好的群組。" },
+    { "on": "phone", "reply": "大家看～我們的新菜單！\nhttps://komori-bakery.example/menu" },
+    { "on": "phone", "receive": "這是什麼網站？只看到一串網址，沒有圖也沒有標題耶", "from": "阿芳", "narration": "結果朋友只看到一串網址。沒有圖、沒有標題，很難讓人想點。" },
+    { "on": "phone", "receive": "我用 Google 搜「小森烘焙」，標題只寫 Home 😅", "from": "小傑", "narration": "另一位朋友說，搜尋結果上的標題只寫了 Home。" },
+    {
+      "callout": "phone:msg:last",
+      "text": "網頁沒有自我介紹，別人只能看到最少的資訊",
+      "narration": "問題不在網頁內容，而在網頁沒有替自己寫一張名片。"
+    },
+    { "hide": "phone" },
+    {
+      "show": "web",
+      "chapter": "名片寫在 head 裡",
+      "narration": "這是同一頁網址，出現在兩個地方的樣子：左邊是搜尋結果，右邊是貼到聊天室的卡片。下面那幾行，是寫在網頁最前面 head 區塊的標籤。"
+    },
+    {
+      "callout": "web:sel:.code",
+      "text": "head：網頁開頭給瀏覽器、搜尋引擎看的區塊，訪客在頁面上看不到",
+      "narration": "head 是網頁開頭的一個區塊，訪客在頁面上看不到，是寫給瀏覽器和搜尋引擎看的。"
+    },
+    { "on": "web", "click": "#next", "narration": "第一個，title。它是瀏覽器分頁上的字，也是搜尋結果裡藍色的大標題。" },
+    { "callout": "web:sel:.stitle", "text": "每一頁的 title 都要不一樣：先寫這頁是什麼，再寫網站名稱", "narration": "每一頁的標題都要不一樣。先寫這一頁是什麼，再接網站名稱，像「本週麵包菜單，小森烘焙」。" },
+    { "on": "web", "click": "#next", "narration": "第二個，description，描述。它是標題下面那兩行說明，用一兩句話告訴人：點進來會看到什麼。" },
+    { "on": "web", "click": "#next", "narration": "第三個，Open Graph，簡稱 OG。它是一組以 og 開頭的標籤，專門給社群平台和聊天軟體看：卡片的標題、說明，還有那張圖。剛才群組裡看不到圖，就是少了它。" },
+    { "callout": "web:sel:.ogimg", "text": "og:image：分享卡片的圖，常用 1200 × 630", "narration": "分享圖常用的尺寸是 1200 乘 630，寬寬的長方形。" },
+    { "on": "web", "click": "#next", "narration": "最後一個，canonical，正本網址。同一頁可能有好幾個網址：多了追蹤參數、大小寫不同、結尾多一個斜線。" },
+    { "callout": "web:sel:.canon", "text": "canonical：告訴搜尋引擎「這幾個都算同一頁，正本是這個」", "narration": "canonical 就是告訴搜尋引擎：這幾個網址其實是同一頁，請把分數都算給正本。" },
+    { "hide": "web" },
+    {
+      "diff": "menu.html",
+      "lines": [
+        [" ", "<head>"],
+        ["-", "  <title>Home</title>"],
+        ["+", "  <title>本週麵包菜單｜小森烘焙</title>"],
+        ["+", "  <meta name=\"description\" content=\"每天早上七點出爐…\">"],
+        ["+", "  <link rel=\"canonical\" href=\"https://komori-bakery.example/menu\">"],
+        ["+", "  <meta property=\"og:image\" content=\"https://…/menu.png\">"],
+        [" ", "</head>"]
+      ],
+      "chapter": "改了哪幾行",
+      "narration": "所以要修的，就是這幾行：把 Home 換成真正的標題，再補上描述、正本網址和分享圖。"
+    },
+    { "clear": true },
+    {
+      "chapter": "想一想",
+      "checkpoint": "網站有首頁、菜單、預約三頁。下面哪一種寫法比較好？",
+      "body": "選一個。",
+      "id": "title",
+      "options": [
+        { "label": "三頁的 title 都寫「小森烘焙」", "steps": [{ "card": "再想想", "eyebrow": "想一想", "sub": "三頁同一個標題，搜尋結果分不出哪一頁是哪一頁", "narration": "再想想。三頁都叫小森烘焙，搜尋結果裡分不出哪一頁是菜單、哪一頁是預約。" }] },
+        { "label": "每頁寫自己的內容，再接網站名稱", "steps": [{ "card": "答對了", "eyebrow": "想一想", "sub": "本週麵包菜單｜小森烘焙、線上預約｜小森烘焙", "narration": "答對了。每一頁先寫自己的內容，再接網站名稱。" }] }
+      ]
+    },
+    {
+      "card": "title：這頁是什麼\ndescription：點進來會看到什麼\nOpen Graph：分享卡片的標題、說明與圖\ncanonical：同一頁的正本網址",
+      "eyebrow": "學會",
+      "sub": "下一堂：請 AI 一次補齊全站，再用指令逐頁檢查",
+      "chapter": "學會",
+      "narration": "記住這四個：title 說這頁是什麼，description 說點進來會看到什麼，Open Graph 決定分享卡片，canonical 指定正本。下一堂，我們請 AI 把全站一次補齊。"
+    }
+  ]
+}

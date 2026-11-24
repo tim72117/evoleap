@@ -1,0 +1,119 @@
+{
+  "title": "畫面草圖與使用流程",
+  "camera": "auto",
+  "teacher": {
+    "say": "做一份可以點的草圖",
+    "line": "這一堂請 AI 照需求清單，做一份可以點的 HTML 草圖。你像客人一樣點一遍，找出卡住的地方，再請它改。"
+  },
+  "cast": {
+    "claude": {
+      "actor": "claude-desktop",
+      "props": { "title": "線框草圖", "folder": "~/projects/bakery-order", "branch": null, "mode": "accept", "sessions": [] },
+      "place": { "x": 30, "y": 40, "w": 900, "h": 1000 },
+      "parts": { "sidebar": false },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc4-2-proto-v1", "url": "file:///projects/bakery-order/wireframe.html" },
+      "place": { "x": 960, "y": 60, "w": 930, "h": 940 },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "做一份可以點的草圖",
+      "eyebrow": "全環節 · 單元 4 · 4.2 用 AI 完成",
+      "sub": "點一遍 → 指出卡住的地方 → 再改",
+      "chapter": "第一版草圖",
+      "narration": "紙上的草圖不能點。請 AI 做成網頁，你就能真的點一遍，像客人一樣走走看。"
+    },
+    { "show": "claude" },
+    {
+      "on": "claude",
+      "user": "照 docs/REQUIREMENTS.md 做一份可以點的 HTML 線框草圖：首頁、選麵包、確認與取貨時間、完成，四個畫面。全部用灰框框，不要顏色和照片。"
+    },
+    { "on": "claude", "tool": "Read", "arg": "docs/REQUIREMENTS.md", "result": "10 行", "narration": "它先讀需求清單。" },
+    {
+      "on": "claude",
+      "edit": "wireframe.html",
+      "lines": [[1, "+", "<!-- 線框草圖 v1：四個畫面，按鈕可以點 -->"], [2, "+", "<section id=\"home\">… <button>開始預訂</button></section>"], [3, "+", "<section id=\"menu\">可頌、吐司、肉桂捲 <button>＋ 加入</button></section>"], [4, "+", "<section id=\"confirm\">取貨時間 <button>送出預訂</button></section>"], [5, "+", "<section id=\"done\">✓ 預訂成功 編號 A-1024</section>"]]
+    },
+    {
+      "on": "claude",
+      "say": "做好了：`wireframe.html`，四個畫面用按鈕串起來。用瀏覽器打開，從「開始預訂」點到最後。"
+    },
+    {
+      "show": "web",
+      "narration": "打開草圖。全部都是灰框框，這是故意的。"
+    },
+    {
+      "on": "web",
+      "click": "#start",
+      "chapter": "像客人一樣點一遍",
+      "narration": "像客人一樣點。開始預訂，"
+    },
+    { "on": "web", "click": "#add", "narration": "加入一個可頌，" },
+    {
+      "callout": "web:sel:.s3",
+      "text": "想買 4 個……數量改不了？",
+      "narration": "到了確認頁。咦，想買四個可頌，數量卻改不了。想換成吐司，也沒有地方回上一頁。"
+    },
+    { "on": "web", "click": "#send", "narration": "先送出看看。" },
+    {
+      "callout": "web:sel:.s4",
+      "text": "完成之後……走不出去",
+      "narration": "完成頁。然後呢？沒有任何按鈕，客人卡在這裡了。"
+    },
+    {
+      "on": "claude",
+      "user": "我點過一輪，有三個問題：\n1. 確認頁不能改數量\n2. 確認頁回不去改品項\n3. 完成頁沒有路可走，加一個「回首頁」",
+      "chapter": "指出問題，再改",
+      "narration": "把點的時候卡住的地方，一條一條告訴 AI。具體說在哪一頁、什麼問題。"
+    },
+    {
+      "on": "claude",
+      "edit": "wireframe.html",
+      "lines": [[4, "-", "<section id=\"confirm\">取貨時間 <button>送出預訂</button></section>"], [4, "+", "<section id=\"confirm\"><button>‹ 改品項</button> 可頌 [－] 1 [＋] 取貨時間 <button>送出預訂</button></section>"], [5, "-", "<section id=\"done\">✓ 預訂成功 編號 A-1024</section>"], [5, "+", "<section id=\"done\">✓ 預訂成功 編號 A-1024 <button>回首頁</button></section>"]]
+    },
+    {
+      "on": "claude",
+      "say": "改好了，三處都在 `wireframe.html`：確認頁加上數量的 ＋／－ 和「‹ 改品項」，完成頁加上「回首頁」。"
+    },
+    {
+      "on": "web",
+      "site": "fc4-2-proto-v2",
+      "narration": "重新整理，再點一遍。"
+    },
+    { "on": "web", "click": "#start" },
+    { "on": "web", "click": "#add" },
+    {
+      "on": "web",
+      "click": "#plus",
+      "narration": "數量可以加了，"
+    },
+    { "on": "web", "click": "#plus" },
+    { "on": "web", "click": "#plus", "narration": "加到四個。" },
+    { "on": "web", "click": "#send" },
+    {
+      "on": "web",
+      "click": "#home",
+      "narration": "完成之後，按回首頁，回到起點。整條路都走得通了。"
+    },
+    {
+      "callout": "web:sel:.s1",
+      "text": "主要畫面的草圖與流程 ✓",
+      "narration": "這就是一份走得通的草圖。還是灰的，但流程對了；顏色和照片，等之後再上。"
+    },
+    {
+      "checkpoint": "換你：做草圖、點一遍、再改",
+      "body": "請 AI 照你的需求清單做一份可以點的 HTML 線框草圖，只用灰框框。像客人一樣從頭點到尾，把卡住、回不去、走不下去的地方一條一條寫下來，請它改，再點一遍。"
+    },
+    {
+      "card": "主要畫面的草圖與流程 ✓",
+      "eyebrow": "4.2 完成",
+      "sub": "下一堂：選技術與服務",
+      "narration": "草圖和流程都有了。下一堂，決定要用什麼技術和服務來做。"
+    }
+  ]
+}

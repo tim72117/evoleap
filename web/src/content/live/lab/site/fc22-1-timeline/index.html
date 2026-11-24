@@ -1,0 +1,17 @@
+<!doctype html><html><head><title>資料庫 · 備份與還原</title></head><body>
+<div class="bar"><span class="lg"></span>示意雲端主控台<span class="crumb">/ 資料庫 shop-db / 備份</span></div>
+<div class="pg">
+<h1>還原到哪個時間點？</h1>
+<div class="tl" id="tl">
+<div class="axis"></div>
+<div class="lbl" style="left:2%">11/08 00:00</div><div class="lbl" style="left:46%">11/08 12:00</div><div class="lbl" style="left:88%">11/09 00:00</div>
+<button class="dot" id="b-day" style="left:12%"><span>每日備份<br>03:00</span></button>
+<div class="pitr" id="pitr-band"><span>時間點還原：最近 7 天，任何一分鐘</span></div>
+<div class="boom" id="boom" style="left:61%"><b>💥 14:32</b><span>商品表被刪除</span></div>
+<button class="dot alt" id="b-pitr" style="left:60.2%"><span>14:31</span></button>
+</div>
+<div class="res" id="res"><div class="r0">點一個還原點，看看會失去多少資料</div>
+<div class="r1"><b>還原到 03:00 的每日備份</b><p>03:00 到 14:32 之間的 <em>29 筆訂單、2 位新會員</em> 會不見。</p><div class="lose"><div style="width:96%"></div></div><span>失去約 11.5 小時的資料</span></div>
+<div class="r2"><b>還原到 14:31（刪除前一分鐘）</b><p>只會失去 <em>最後 1 分鐘</em> 的變更。</p><div class="lose"><div style="width:2%"></div></div><span>失去約 1 分鐘的資料</span></div>
+</div>
+</div></body></html>

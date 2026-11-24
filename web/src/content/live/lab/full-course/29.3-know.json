@@ -1,0 +1,120 @@
+{
+  "title": "自己寫的錯，自己最難看見",
+  "lesson": "全環節 · 單元 29 · 29.3 基礎知識",
+  "teacher": {
+    "say": "今天聊「請另一個 AI 審查」",
+    "line": "這一課想讓你知道：寫程式的 AI，最難看見自己的錯。所以要請一個沒看過實作的 AI 來審查。先從一張公告開始。"
+  },
+  "camera": "auto",
+  "cast": {
+    "staff": {
+      "actor": "person",
+      "props": { "name": "店員小葉", "look": "staff" },
+      "place": { "x": 120, "y": 200, "w": 640, "h": 720 },
+      "hidden": true
+    },
+    "memo": {
+      "actor": "notes",
+      "props": { "label": "門口公告" },
+      "place": { "x": 860, "y": 160, "w": 940, "h": 760 },
+      "hidden": true
+    },
+    "web": {
+      "actor": "browser",
+      "props": { "site": "fc29-3-eyes", "url": "https://notes.example/two-eyes" },
+      "place": "window",
+      "hidden": true
+    },
+    "fx": { "actor": "fx", "props": {}, "place": "full" }
+  },
+  "steps": [
+    {
+      "card": "自己寫的錯，自己最難看見",
+      "eyebrow": "全環節 · 單元 29 · 29.3 基礎知識",
+      "sub": "請另一個 AI 審查",
+      "chapter": "一張公告",
+      "narration": "店員小葉寫了一張公告，要貼在門口。"
+    },
+    { "show": "staff" },
+    { "show": "memo" },
+    { "on": "memo", "jot": "本週六公休，週日照常常營業" },
+    {
+      "on": "staff",
+      "say": "我檢查三遍了，沒問題！",
+      "mood": "happy",
+      "narration": "她說檢查了三遍，沒問題。你看得出哪裡怪嗎？"
+    },
+    {
+      "callout": "memo:note:last",
+      "text": "「照常常營業」多了一個字",
+      "narration": "「照常常營業」，多了一個「常」字。你一眼就看到了，她看三遍都沒看到。"
+    },
+    {
+      "on": "staff",
+      "say": "咦？我怎麼沒看到……",
+      "mood": "worried",
+      "narration": "因為她腦中知道自己想寫什麼，眼睛就自動讀成她想的樣子。"
+    },
+    { "hide": "staff" },
+    { "hide": "memo" },
+    {
+      "show": "web",
+      "chapter": "兩雙眼睛",
+      "narration": "AI 也一樣。換成程式：結帳時可以輸入優惠碼，打九折。"
+    },
+    {
+      "on": "web",
+      "click": "#author",
+      "narration": "寫程式的 AI，腦中記得「我想做九折」，也記得「我測過一次可以用」。所以它回頭看程式時，看到的是它想寫的，不是它真的寫的。"
+    },
+    {
+      "on": "web",
+      "click": "#reviewer",
+      "narration": "另一個 AI 沒看過實作，手上只有改動的內容，也就是 diff。它不知道本來想怎樣，只能看寫了什麼，反而會問出直接的問題。"
+    },
+    {
+      "callout": "web:section:reviewer",
+      "text": "diff＝這次改了哪些行（加了什麼、刪了什麼）",
+      "narration": "diff 這個字你會常看到：就是這次改了哪幾行，加了什麼、刪了什麼。"
+    },
+    {
+      "on": "web",
+      "click": "#hits",
+      "narration": "審查的 AI 圈出兩個地方：優惠碼用過沒有記錄，可以一直用；金額扣過頭，還可能變成負數。"
+    },
+    {
+      "callout": "web:sel:.diff",
+      "text": "寫的人沒發現，看的人一眼就問",
+      "narration": "這兩個問題，寫的 AI 自己測一次時都不會遇到。"
+    },
+    { "hide": "web" },
+    {
+      "shimmer": "為什麼要「另一個」",
+      "sub": "同一個對話裡請它檢查，它還是帶著原本的想法",
+      "chapter": "為什麼不能叫它自己看",
+      "narration": "那在同一個對話裡，叫它自己再檢查一次可以嗎？效果會差很多。它還記得原本的想法，就像小葉看第四遍。"
+    },
+    {
+      "stream": "1. 開一個新的工作階段（新的對話）\n2. 只給它 diff，不給原本的對話\n3. 請它找問題，而不是誇獎\n4. 把找到的問題，交回寫程式的那一個去修",
+      "prompt": "那要怎麼請另一個 AI 審查？",
+      "narration": "做法有四步：開一個新的對話；只給它 diff；請它專門找問題；再把結果交回原本的對話去修。"
+    },
+    {
+      "arrow": { "from": [420, 860], "to": [700, 640] },
+      "label": "重點：只給 diff",
+      "narration": "最關鍵的是第二步：只給 diff，讓它沒有包袱。"
+    },
+    { "clear": true },
+    {
+      "checkpoint": "想一想",
+      "body": "如果你把原本整段對話都貼給審查的 AI，它會比較客觀，還是比較不客觀？為什麼？",
+      "narration": "想一想：如果把整段對話都貼給審查的 AI，它還客觀嗎？"
+    },
+    {
+      "card": "給越少背景，看得越直接",
+      "eyebrow": "下一堂",
+      "sub": "開另一個工作階段，只給 diff，來回兩輪修到沒問題",
+      "narration": "給它越少背景，它看得越直接。下一堂，我們真的開兩個對話，一個寫、一個審，來回修到沒問題。"
+    }
+  ]
+}

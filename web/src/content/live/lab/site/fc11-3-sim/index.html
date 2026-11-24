@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>金流後台｜Webhook 測試</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div style="--brand:#0f766e">
+<header class="top"><div class="logo"><i></i>金流後台</div><span class="tmode">測試模式</span><span class="sp"></span><span class="who">小森烘焙 ▾</span></header>
+<div class="app">
+  <nav class="side"><a>總覽</a><a>開發者 · 金鑰</a><a>付款紀錄</a><a class="on">Webhook</a></nav>
+  <main class="main">
+    <h1>Webhook 測試工具</h1>
+    <p class="muted">送出一個模擬事件到 <span class="mono">https://bakery.example/api/webhook</span>（測試期間轉到你的電腦）。</p>
+    <div class="evs">
+      <button class="ev" id="e-created" data-ev="subscription.created">subscription.created<span>訂閱成立</span></button>
+      <button class="ev" id="e-failed" data-ev="invoice.payment_failed">invoice.payment_failed<span>續訂扣款失敗</span></button>
+      <button class="ev" id="e-canceled" data-ev="subscription.canceled">subscription.canceled<span>取消訂閱</span></button>
+      <button class="ev" id="e-dup" data-ev="subscription.canceled（重送）">再送一次同一個事件<span>模擬重送</span></button>
+      <button class="ev bad" id="e-forged" data-ev="簽章不對的事件" data-code="400">簽章不對的事件<span>模擬有人假冒</span></button>
+    </div>
+    <h2 style="margin-top:16px">送出紀錄</h2>
+    <div class="card"><table id="log"><tr><th>#</th><th>事件</th><th>你的伺服器回應</th></tr></table></div>
+  </main>
+</div>
+</div>
+</body></html>

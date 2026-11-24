@@ -1,0 +1,37 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; background: #fff; color: #1f2933; }
+.repo { display: flex; align-items: center; gap: 12px; padding: 14px 28px; background: #f3f4f6; border-bottom: 1px solid #e5e7eb; font-size: 17px; }
+.logo { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #6366f1, #22d3ee); }
+.repo nav { display: flex; gap: 18px; margin-left: 30px; } .repo nav a { color: #4b5563; font-size: 15px; }
+.repo nav i { font-style: normal; font-size: 12px; padding: 1px 7px; border-radius: 9px; background: #e5e7eb; }
+.pr, .tags { padding: 22px 28px; }
+h1 { margin: 0; font-size: 30px; } .num { color: #9ca3af; font-weight: 400; }
+.meta { display: flex; align-items: center; gap: 8px; margin: 10px 0 18px; font-size: 16px; color: #4b5563; }
+.meta code { padding: 2px 8px; border-radius: 6px; background: #eef2ff; color: #4338ca; font-size: 14px; }
+.st { padding: 4px 12px; border-radius: 999px; color: #fff; font-weight: 700; font-size: 14px; }
+.host[data-state="open"] .st { background: #16a34a; } .host[data-state="open"] .st::before { content: "開啟中"; }
+.host[data-state="merged"] .st { background: #7c3aed; } .host[data-state="merged"] .st::before { content: "已合併"; }
+.subtabs { display: flex; gap: 24px; border-bottom: 1px solid #e5e7eb; margin-bottom: 18px; }
+.subtabs a { padding: 8px 2px; font-size: 16px; color: #4b5563; }
+.subtabs i { font-style: normal; font-size: 12px; padding: 1px 7px; border-radius: 9px; background: #e5e7eb; }
+.host[data-tab="talk"] #tab-talk, .host[data-tab="files"] #tab-files { border-bottom: 3px solid #f97316; color: #111827; font-weight: 700; }
+.talk, .files, .tags { display: none; }
+.host[data-tab="talk"] .talk, .host[data-tab="files"] .files { display: block; }
+.host[data-tab="tags"] .tags { display: block; } .host[data-tab="tags"] .pr { display: none; }
+.desc { padding: 16px 20px; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 16px; }
+.desc ul { margin: 8px 0; padding-left: 22px; line-height: 1.7; } .desc p { margin: 0; color: #6b7280; font-size: 14px; }
+.checks { display: flex; gap: 12px; margin: 16px 0; }
+.ck { padding: 8px 14px; border-radius: 10px; font-size: 15px; font-weight: 700; }
+.ck.ok { background: #dcfce7; color: #166534; }
+.mergebox { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border: 2px solid #86efac; border-radius: 12px; }
+.mergebox p { margin: 0; font-size: 16px; }
+.m-done { display: none; } .host[data-state="merged"] .m-done { display: block; } .host[data-state="merged"] .m-open { display: none; }
+.host[data-state="merged"] .mergebox { border-color: #c4b5fd; }
+#merge { margin-left: auto; font: inherit; font-size: 16px; font-weight: 700; padding: 10px 18px; border: 0; border-radius: 10px; background: #16a34a; color: #fff; }
+.host[data-state="merged"] #merge { background: #e5e7eb; color: #9ca3af; }
+.f { display: flex; gap: 12px; align-items: center; padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 10px; font-size: 16px; }
+.add { color: #16a34a; font-weight: 700; } .del { color: #dc2626; font-weight: 700; }
+.tags h2 { margin: 0 0 14px; font-size: 24px; }
+.tg { display: flex; gap: 16px; align-items: center; padding: 16px 20px; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 16px; }
+.tg b { padding: 4px 12px; border-radius: 8px; background: #fde68a; color: #78350f; font-size: 18px; }
+.tg code { margin-left: auto; color: #9ca3af; }

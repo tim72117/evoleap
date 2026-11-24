@@ -1,0 +1,32 @@
+<!doctype html><html><head><title>金鑰外洩之後</title></head><body>
+<div class="app s0">
+  <div class="tl card" id="tl">
+    <h3>把金鑰推上公開的 GitHub 之後……</h3>
+    <div class="ev e1"><b>00:00</b>你 push 了程式，裡面有 <code>sk_live_9fQ…</code></div>
+    <div class="ev e2"><b>00:04</b>🤖 自動掃描的機器人找到它</div>
+    <div class="ev e3"><b>00:20</b>有人用你的金鑰開了 50 台機器挖礦</div>
+    <div class="ev e4"><b>隔天</b>帳單：<span class="bill">NT$ 48,000</span></div>
+  </div>
+  <div class="hist card" id="hist">
+    <h3>Git 紀錄像一本相簿：每次提交拍一張</h3>
+    <div class="photos">
+      <div class="ph"><small>第 1 張</small>首頁</div>
+      <div class="ph key" id="pk"><small>第 2 張</small>加付款 <em>🔑 金鑰在這張裡</em></div>
+      <div class="ph"><small>第 3 張</small>刪掉金鑰</div>
+    </div>
+    <p class="note n2">刪掉金鑰，只是多拍了第 3 張。第 2 張還在相簿裡，誰都翻得到。</p>
+    <div class="copies"><span>別人 clone 的副本</span><span>fork</span><span>搜尋引擎的快取</span><span>CI 的紀錄</span></div>
+    <p class="note n3">而且相簿早就被複製出去了，你收不回來。</p>
+  </div>
+  <div class="fix card" id="fix">
+    <svg viewBox="0 0 120 80"><rect x="30" y="34" width="60" height="40" rx="8" class="lock"/><path d="M44 34V24a16 16 0 0 1 32 0v10" class="shackle"/><circle cx="60" cy="54" r="6" class="hole"/></svg>
+    <div><b>正確做法：換鎖</b><br>到服務後台「撤銷」舊金鑰、產生新的。舊金鑰立刻失效，相簿裡那張照片就只是一把打不開門的舊鑰匙。<span class="dead">舊金鑰 sk_live_9fQ… 已撤銷 ✗</span></div>
+  </div>
+  <div class="chips">
+    <button id="b1" data-s="1">① 外洩之後</button>
+    <button id="b2" data-s="2">② 刪掉就好？</button>
+    <button id="b3" data-s="3">③ 早被複製了</button>
+    <button id="b4" data-s="4">④ 換鎖</button>
+  </div>
+</div>
+</body></html>

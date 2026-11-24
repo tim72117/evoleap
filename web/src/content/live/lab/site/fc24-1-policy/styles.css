@@ -1,0 +1,11 @@
+body{margin:0;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;background:#fdfaf4;color:#2a2620}
+.draft{background:#fff1c9;color:#7a5a00;font-weight:800;text-align:center;padding:10px;font-size:17px}
+.doc{max-width:1000px;margin:0 auto;padding:22px 48px}
+h1{font-size:34px;margin:6px 0 0}
+.up{color:#8a7f6c;margin:4px 0 14px}
+h2{font-size:22px;margin:18px 0 8px;color:#8a5a35}
+table{width:100%;border-collapse:collapse;font-size:17px;background:#fff}
+th,td{border:1px solid #e6dccb;padding:8px 10px;text-align:left}
+th{background:#f5ede0;font-size:15px}
+p{font-size:18px;line-height:1.7;margin:0}
+mark{background:#ffe48a;padding:0 4px;border-radius:4px}
