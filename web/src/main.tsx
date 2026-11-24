@@ -4,13 +4,14 @@ import { BrowserRouter } from 'react-router-dom'
 import { App } from './App'
 import { AuthProvider } from './auth/AuthContext'
 import { I18nProvider } from './i18n/I18nProvider'
+import { routerBasename } from './i18n/locale'
 import { KidsModeProvider } from './kidsMode/KidsModeContext'
 import { ScrollToTop } from './site/ScrollToTop'
 import './site/global.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={routerBasename()}>
       <ScrollToTop />
       <AuthProvider>
         <I18nProvider>

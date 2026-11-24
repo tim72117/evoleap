@@ -33,3 +33,6 @@ export function formatDate(date: Date | string, locale: Locale = current.locale,
   const d = typeof date === 'string' ? new Date(date) : date
   return new Intl.DateTimeFormat(locale, opts).format(d)
 }
+
+/** 課程資料 API 的語言參數:英文版是 "?lang=en",中文(原文)沒有 */
+export const langQuery = (): string => (current.locale === 'en' ? '?lang=en' : '')

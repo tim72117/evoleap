@@ -7,7 +7,8 @@ import { SITE_ORIGIN } from '../site/siteInfo'
 import { COURSES, courseMapId, coursePath, lessonUrl } from '../content/catalog'
 import { seedCourse } from '../content/courseSeed'
 import { documentTitle } from '../site/siteInfo'
-import { PAGES, robotsTxt, sitemapPages } from './build'
+import { hasEnglishPage, localeTarget } from '../i18n/locale'
+import { EN_PAGES, PAGES, robotsTxt, sitemapPages } from './build'
 import { findInternalPage } from './internalPages'
 import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES } from './pages'
 
@@ -120,7 +121,7 @@ describe('兒童課(給孩子的網頁程式)', () => {
 
   it('sitemap 頁面清單列出主題頁與課頁(課頁標著是哪一課,開放與否由後端依資料庫決定)', () => {
     const pages = sitemapPages()
-    expect(pages).toContainEqual({ loc: absoluteUrl('/courses/kids'), priority: 0.8 })
+    expect(pages).toContainEqual(expect.objectContaining({ loc: absoluteUrl('/courses/kids'), priority: 0.8 }))
     expect(pages.find((p) => p.loc === absoluteUrl('/courses/kids/0-1'))?.lesson).toEqual({ course: 'kids', id: '0.1' })
   })
 
@@ -237,7 +238,7 @@ describe('sitemap 頁面清單(sitemap-pages.json)', () => {
   const pages = sitemapPages()
 
   it('只有可收錄的頁面:不含 noindex 與內部頁,網址不重複', () => {
-    expect(pages.map((p) => p.loc)).toEqual(PAGES.filter((p) => !p.noindex).map((p) => absoluteUrl(p.path)))
+    expect(pages.map((p) => p.loc)).toEqual([...PAGES, ...EN_PAGES].filter((p) => !p.noindex).map((p) => absoluteUrl(p.path)))
     expect(new Set(pages.map((p) => p.loc)).size).toBe(pages.length)
     for (const p of pages) expect(isInternal(new URL(p.loc).pathname), p.loc).toBe(false)
   })
@@ -362,5 +363,34 @@ describe('單課頁的課名與描述讀課程種子', () => {
         expect(p.description, p.path).toContain(s.summary)
       }
     }
+  })
+})
+
+describe('英文版(/en/...)', () => {
+  const en = sitemapPages().filter((p) => p.loc.startsWith(absoluteUrl('/en/')))
+
+  it('課程清單與每門課的總覽有英文頁,各自有 canonical 與 hreflang(中文頁與英文頁互相指)', () => {
+    expect(en.map((p) => p.loc)).toContain(absoluteUrl('/en/courses'))
+    expect(en.map((p) => p.loc)).toContain(absoluteUrl('/en/courses/web'))
+    for (const p of EN_PAGES) {
+      const links = headTags(p).filter((t) => t.tag === 'link' && t.attrs.rel === 'alternate').map((t) => t.attrs.hreflang)
+      expect(links, p.path).toEqual(['zh-Hant', 'en', 'x-default'])
+    }
+    const zh = headTags(findPage('/courses/web')).filter((t) => t.tag === 'link' && t.attrs.rel === 'alternate')
+    expect(zh.map((t) => t.attrs.href)).toContain(absoluteUrl('/en/courses/web'))
+  })
+
+  it('沒有英文版的 /en/... 頁用中文頁的資料並 noindex;英文頁不在中文路由裡', () => {
+    expect(findPage('/en/login').noindex).toBe(true)
+    expect(findPage('/en/nope')).toBe(NOT_FOUND)
+    expect(EN_PAGES.every((p) => p.lang === 'en' && !routes.some((r) => r.path === p.path))).toBe(true)
+  })
+  it('語言切換的判斷(locale.ts)與英文頁清單一致:每個英文頁都換得過去,/en/ 底下不是英文頁的路徑不會被導去', () => {
+    for (const p of EN_PAGES) {
+      const zhPath = p.path.slice('/en'.length)
+      expect(hasEnglishPage(zhPath)).toBe(true)
+      expect(localeTarget('en', zhPath)).toBe(p.path)
+    }
+    expect(localeTarget('en', '/login')).toBeNull()
   })
 })

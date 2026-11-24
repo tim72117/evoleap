@@ -66,11 +66,13 @@ export function CourseOverviewPage({ course }: { course: Course }) {
   const mapState = useCourseMap(courseMapId(course));
   const ready = mapState.status === "ready";
   const map = mapState.status === "ready" ? mapState.map : undefined;
+  // 主題名稱:API 依語言回傳的(英文版是翻譯);還沒讀到時先用前端內建的
+  const topicName = map?.topic || topic.name;
   // 主題就是這門課自己(網頁怎麼運作):麵包屑接全部課程,不連回自己
   const crumb =
     topic.path === coursePath(course)
-      ? { name: COURSE_LIST.name, to: COURSE_LIST.path }
-      : { name: topic.name, to: `${topic.path}#map` };
+      ? { name: t.site.nav.courses, to: COURSE_LIST.path }
+      : { name: topicName, to: `${topic.path}#map` };
   const groups = map ? overviewGroups(map) : [];
   const lessons = groups.flatMap((g) => g.lessons);
   const total = lessons.reduce((n, l) => n + (l.minutes ?? 0), 0);
@@ -108,8 +110,8 @@ export function CourseOverviewPage({ course }: { course: Course }) {
               {access && (
                 <span className={styles.tag}>{c.accessName(access)}</span>
               )}
-              {topic.name !== title && (
-                <span className={styles.tag}>{topic.name}</span>
+              {topicName !== title && (
+                <span className={styles.tag}>{topicName}</span>
               )}
             </p>
             <h1>{title}</h1>

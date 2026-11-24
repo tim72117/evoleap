@@ -93,3 +93,16 @@ func TestSitemapUnavailableAndHiddenPagesFile(t *testing.T) {
 		t.Errorf("頁面清單檔不該公開: %d", rec.Code)
 	}
 }
+
+func TestSitemapAlternates(t *testing.T) {
+	pages := []sitemapPage{{Loc: "https://evoleap.io/courses/web", Alternates: []struct {
+		Lang string `json:"lang"`
+		Loc  string `json:"loc"`
+	}{{"zh-Hant", "https://evoleap.io/courses/web"}, {"en", "https://evoleap.io/en/courses/web"}}}}
+	got := sitemapXML(pages, nil)
+	for _, want := range []string{`xmlns:xhtml="http://www.w3.org/1999/xhtml"`, `<xhtml:link rel="alternate" hreflang="en" href="https://evoleap.io/en/courses/web"/>`} {
+		if !strings.Contains(got, want) {
+			t.Errorf("sitemap 缺 %s:\n%s", want, got)
+		}
+	}
+}

@@ -37,7 +37,14 @@ func (s *Server) handleCourseMap(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Cache-Control", "public, max-age=60")
 	}
+	m.Localize(langOf(r))
 	writeJSON(w, http.StatusOK, m)
+}
+
+// langOf 回傳這個請求要的語言:只看網址的 ?lang=(不看 Accept-Language);不支援的語言回空字串(原文,繁體中文)。
+// 網址帶 ?lang= 才會有英文版,快取以網址為準,所以回應不用 Vary。
+func langOf(r *http.Request) string {
+	return store.NormalizeLang(r.URL.Query().Get("lang"))
 }
 
 // handleCourseList 回傳公開的課程清單(全部課程頁用):依 position 排序,所有單元都先不公開的課不列。不用登入;沒接資料庫時 503(前端改用內建的課程資料)。
@@ -51,6 +58,7 @@ func (s *Server) handleCourseList(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
+	store.LocalizeCourses(courses, langOf(r))
 	w.Header().Set("Cache-Control", "public, max-age=60")
 	writeJSON(w, http.StatusOK, map[string]any{"courses": courses})
 }
@@ -67,6 +75,7 @@ func (s *Server) handleTopicList(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
+	store.LocalizeTopics(topics, langOf(r))
 	w.Header().Set("Cache-Control", "public, max-age=60")
 	writeJSON(w, http.StatusOK, map[string]any{"topics": topics})
 }

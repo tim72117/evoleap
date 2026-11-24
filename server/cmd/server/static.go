@@ -151,6 +151,18 @@ func newStaticHandlerWithOpen(dist fs.FS, access accessFunc, open openLessons) h
 				redirect(w, r, name)
 				return
 			}
+			// 英文網址 /en/...:有預先產生的英文頁(例如 /en/courses)就用它;沒有的(登入、單課、還沒翻譯的頁)
+			// 回對應的中文頁,畫面在瀏覽器端換成英文介面,但標 noindex,不讓搜尋引擎收錄內容還是中文的重複頁面
+			if pg == nil && (name == "/en" || strings.HasPrefix(name, "/en/")) {
+				if base := pages[path.Clean("/"+strings.TrimPrefix(name, "/en"))]; base != nil && !base.internal {
+					if name != r.URL.Path {
+						redirect(w, r, name) // 結尾斜線、大小寫:導到標準網址,不留重複網址
+						return
+					}
+					pg = base
+					w.Header().Set("X-Robots-Tag", "noindex, nofollow")
+				}
+			}
 			if pg == nil {
 				serveNotFound(w, r, notFound)
 				return

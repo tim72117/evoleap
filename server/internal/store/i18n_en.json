@@ -1,0 +1,773 @@
+{
+ "courses": {
+  "software": {
+   "title": "Build Your Own Software",
+   "summary": "An interactive online course: learn to build software that really goes live, just by talking with AI.",
+   "about": [
+    "An interactive online course: learn to build software that really goes live, just by talking with AI. Starting from your very first time using AI, you learn step by step to make your own tools, chain together automated workflows, hand the repetitive chores to your computer, and keep your time for the work that matters. Begin with the free intro lessons and find the starting point that suits you."
+   ],
+   "seoTitle": "Build Your Own Software: AI Development Course for Complete Beginners",
+   "description": "One course in two stages, Starter and Foundations: first have AI build your first website on your own computer, then learn step by step to code with AI and deploy it online. The first five lessons can be previewed; the rest are free after you sign in."
+  },
+  "ai-agent": {
+   "title": "Build Your First AI Agent Application",
+   "summary": "Follow a real open-source project to build an AI assistant you operate in plain language: users type a question, and the agent interprets it, runs the analysis and draws a suitable chart."
+  },
+  "advanced": {
+   "title": "Advanced AI Agent Applications",
+   "summary": "Take an agent from usable to reliable: connect multiple tools for complex tasks, manage permissions and safety, evaluate response quality, and run it steadily in production."
+  },
+  "web": {
+   "title": "How the Web Works",
+   "summary": "AI can already write most of the code, but being able to produce it does not mean you can read it or describe it precisely. This course does not teach syntax. It teaches how the web works: how a browser draws a page, who handles styling and who handles data, and how a site gets onto the internet.",
+   "about": [
+    "AI can already write most of the code. Say \"build a booking form\" and the HTML, CSS and JavaScript appear in seconds. Spending months memorizing syntax is no longer the most efficient way to build a website.",
+    "But AI being able to write it does not mean you can read it or describe it precisely. If you do not know why the layout broke, where the data is stored, or what happens when a button is pressed, all you can say is \"wrong, change it again\", and AI can only guess.",
+    "This course does not teach syntax. It teaches how the web works: how a browser draws a page, how structure and appearance divide the work, how data travels between front end and back end, and how a site gets onto the internet. Once you understand the principles and use the right terms, you can state what you need clearly, understand what AI changed, and tell where things went wrong."
+   ],
+   "seoTitle": "How the Web Works: A Web Fundamentals Course for the AI Era",
+   "description": "AI can already write most of the code. This course does not teach syntax; it teaches how the web works: browsers, HTML and CSS, front end and back end, and going live. Understand the principles and use the right terms so you can tell AI exactly what you want. The first five lessons can be previewed."
+  },
+  "launch": {
+   "title": "From Built to Live",
+   "summary": "After building a website or small tool with AI, the next step is letting others use it. Deployment, domains, DNS, databases, login, billing and monitoring are many and fiddly, and looking up docs and configuring each one by hand makes it easy to get stuck.",
+   "about": [
+    "After building a website or small tool with AI, the next step is letting others use it. Deployment, domains, DNS, databases, login, billing and monitoring are many and fiddly, and looking up docs and configuring each one by hand makes it easy to get stuck.",
+    "This course teaches you to use AI for these tedious processes: have it understand your project, write the configuration and walk you through step by step, and when you get a blank page or lose data, ask it to help find the cause. You can put your work online without first becoming an engineer.",
+    "AI does the work and you make the decisions: where to host, how much to spend, how to protect keys and user data. Every lesson walks through it with your own project, so you know what AI is doing for you and how to check that it did it right."
+   ],
+   "seoTitle": "From Built to Live: Use AI to Handle the Tedious Steps and Put Your Work Online",
+   "description": "Deployment, domains, data and login, billing, monitoring: learn to use AI for these tedious launch steps and turn your website or tool into a service others can use. The prologue is open now, and the first five lessons can be previewed."
+  },
+  "claude-code": {
+   "title": "Working with Claude Code",
+   "summary": "Common situations when using Claude Code: pick up on your phone, try several versions at once, resume yesterday's conversation, write your rules down. Jump to whichever case you run into. Content is being planned.",
+   "seoTitle": "Claude Code Tips: Common Situations and What to Do",
+   "description": "Common situations when using Claude Code: pick up on your phone, try several versions at once, resume yesterday's conversation, write your rules down. Jump to whichever case you run into. Content is being planned."
+  },
+  "kids": {
+   "title": "Web Programming for Kids",
+   "summary": "Build web pages with blocks and help a 9-year-old make their own little website.",
+   "seoTitle": "Web Programming for Kids: Learn HTML, CSS and JavaScript with Blocks",
+   "description": "A web programming course for children around age 9: no typing code, just build pages with blocks, dress them up, and make them move to create a small website of their own. Lessons are opening gradually; the first five can be previewed."
+  }
+ },
+ "units": {
+  "software/tools": {
+   "title": "Starter · AI Tools: Have AI Build Your First Website on Your Computer",
+   "label": "Starter"
+  },
+  "software/ai-tools": {
+   "title": "Beginner · Getting Started with AI Tools: Turn an Idea into Requirements You Can Start On",
+   "label": "Beginner"
+  },
+  "software/vibe-coding-basics": {
+   "title": "Foundations · Intro to Vibe Coding: Build Your First Small Tool with AI",
+   "label": "Foundations"
+  },
+  "ai-agent/0": {
+   "title": "Setup and the Mental Model",
+   "subtitle": "See the whole flow: the developer defines tools, the LLM calls them, and the front end runs the results."
+  },
+  "ai-agent/1": {
+   "title": "Your First Tool",
+   "subtitle": "Understand a tool's three core fields: name, description and parameters (JSON Schema), and how they decide when and how the LLM calls it."
+  },
+  "ai-agent/capstone": {
+   "title": "Capstone: A Natural-Language Analysis Interface",
+   "subtitle": "Build an app where users type a question and the agent interprets it, runs the analysis and draws a suitable chart."
+  },
+  "advanced/1": {
+   "title": "Agent Flows That Chain Multiple Tools and Steps"
+  },
+  "advanced/2": {
+   "title": "Permissions and Safety: Letting an Agent Act Safely"
+  },
+  "advanced/3": {
+   "title": "Testing and Evaluating Agent Response Quality"
+  },
+  "advanced/4": {
+   "title": "Going Live, Monitoring and Operations"
+  },
+  "web/0": {
+   "title": "Prologue: Where a Web Page Comes From",
+   "subtitle": "What happens between pressing Enter in the address bar and seeing the page?"
+  },
+  "web/1": {
+   "title": "Unit 1 Structure: A Page Is a Tree",
+   "subtitle": "How is a page's content organized?"
+  },
+  "web/2": {
+   "title": "Unit 2 Appearance: Same Content, Different Look",
+   "subtitle": "How does CSS decide what a page looks like?"
+  },
+  "web/3": {
+   "title": "Unit 3 Interaction: How a Page Responds to You",
+   "subtitle": "After you press a button, how does the page change?"
+  },
+  "web/4": {
+   "title": "Unit 4 Front End and Back End: Where Data Comes From",
+   "subtitle": "How does a site remember data, and remember you?"
+  },
+  "web/5": {
+   "title": "Unit 5 Going Live: Putting a Site on the Internet",
+   "subtitle": "How do you let others see a finished site, fast and safely?"
+  },
+  "launch/0": {
+   "title": "Prologue: Before You Go Live",
+   "subtitle": "What is the difference between work on your own computer and a service on the internet?"
+  },
+  "launch/1": {
+   "title": "Unit 1 Let Others Open It First",
+   "subtitle": "How do you give your work an address of its own that others can reach?"
+  },
+  "launch/2": {
+   "title": "Unit 2 Services That Remember Data",
+   "subtitle": "Where should user-submitted data be stored so it does not vanish?"
+  },
+  "launch/3": {
+   "title": "Unit 3 Let Others Use It with Confidence",
+   "subtitle": "What can others see? What happens when more people use it?"
+  },
+  "launch/4": {
+   "title": "Unit 4 Billing and Notifications",
+   "subtitle": "How do you collect payment and notify users?"
+  },
+  "launch/5": {
+   "title": "Unit 5 After Launch",
+   "subtitle": "When something breaks, how do you find out and act before your users do?"
+  },
+  "claude-code/0": {
+   "title": "Situations",
+   "subtitle": "What to do when you run into these cases"
+  },
+  "kids/0": {
+   "title": "Prologue: How a Web Page Appears",
+   "subtitle": "A web page is a letter to the browser, full of blocks, and the browser draws the picture by following the blocks."
+  },
+  "kids/1": {
+   "title": "Unit 1 HTML: Build Pages with Blocks",
+   "subtitle": "HTML blocks are the building pieces of a page: each kind holds one kind of content, and you must call it by its right name to pick the right block."
+  },
+  "kids/2": {
+   "title": "Unit 2 CSS: Dress Up the Page",
+   "subtitle": "CSS is a page's clothes: the content stays the same, but a new outfit looks different. Say clearly which block should change to what look."
+  },
+  "kids/3": {
+   "title": "Unit 3 JavaScript: Make the Page Move",
+   "subtitle": "JavaScript is a page's magic: say when to do what, and the page will do it."
+  },
+  "kids/4": {
+   "title": "Unit 4 Ask AI to Help: My Little Website",
+   "subtitle": "The AI helper is great at making pages but only does what you say: call things by the right name and state the goal clearly."
+  }
+ },
+ "lessons": {
+  "software/0.intro": {
+   "title": "Why You Can Build Software Without Learning to Code",
+   "summary": "Why you can build software without learning to code."
+  },
+  "software/0.0": {
+   "title": "Get Ready: Install an AI Coding Assistant and Set Permissions",
+   "summary": "Install and sign in to an AI coding assistant, and learn to read confirmation prompts before allowing or denying."
+  },
+  "software/0.1": {
+   "title": "Meet the Tool: An AI That Works with Your Files",
+   "summary": "Install an AI tool that works with files, and learn to allow and deny actions safely."
+  },
+  "software/0.2": {
+   "title": "Understand Projects: Working Folders and File Operations",
+   "summary": "Learn what a project and a working folder are, and let AI create and move files for you."
+  },
+  "software/0.3": {
+   "title": "Make a Request: Build a One-Page Website and Fine-Tune It",
+   "summary": "Describe a one-page website in a few sentences, then adjust it precisely until you are happy."
+  },
+  "software/1.0": {
+   "title": "Order Form: What to Check Before Submitting",
+   "summary": "Use an order form to learn how to plan and describe requirements."
+  },
+  "software/1.1": {
+   "title": "Your First Task: Turn the Boss's Message into a Requirements List",
+   "summary": "Turn a long, messy message from your boss into a requirements list, marking what is quoted versus AI-inferred, and separating must-haves from nice-to-haves."
+  },
+  "software/1.2": {
+   "title": "Add Meeting Notes: Complete and Update the Requirements List",
+   "summary": "Merge a set of meeting notes into the requirements list."
+  },
+  "software/2.1": {
+   "title": "Find the Gaps and Write Clarifying Questions",
+   "summary": "Find unclear or missing points in the requirements list, write a message your boss can answer easily, then update the list based on the reply."
+  },
+  "software/2.2": {
+   "title": "Turn Requirements into Work Items",
+   "summary": "Convert the must-have requirements into work items, each with checkable acceptance criteria, and confirm every item traces back to a requirement."
+  },
+  "software/2.3": {
+   "title": "Split, Prioritize, and Decide the First Version",
+   "summary": "Break large work items into smaller ones, mark dependencies, set the build order, decide what goes into version one, and export a table you can paste into a spreadsheet."
+  },
+  "software/3.1": {
+   "title": "Spot the Repeated Steps in Requirements Work",
+   "summary": "Review the requirements process you have used so far, find the steps you repeat with every new request, and capture them in a task card (input, steps, output, checkpoints)."
+  },
+  "software/3.2": {
+   "title": "Build a \"Requirements to Work Items\" Template",
+   "summary": "Turn the task card into a reusable prompt template with built-in quoted/inferred and source checks, then test it on a second project and revise it once."
+  },
+  "software/3.3": {
+   "title": "Final Exercise: Run a New Request Through the Whole Process",
+   "summary": "Use your own template to take a new request from your boss (a loyalty points program) all the way to a requirements list and work item table, do a final check, and list the steps that still need manual work."
+  },
+  "software/4.3": {
+   "title": "Ask the AI Coding Assistant to Install Node.js",
+   "summary": "Learn that Node.js lets JavaScript run outside the browser and npm installs packages. Have the AI coding assistant install the LTS version the official way for your operating system: read each confirmation prompt before allowing it, handle any computer-password step yourself, then have it run node -v and npm -v to verify."
+  },
+  "software/5.2": {
+   "title": "Terminal Basics (Windows and macOS)",
+   "summary": "Open the terminal (Windows: Windows Terminal/PowerShell; macOS: Terminal/zsh) and use pwd, ls, cd, and mkdir to move around and create folders."
+  },
+  "software/5.3": {
+   "title": "Where Commands Come From: PATH and Environment Variables",
+   "summary": "Understand how the system searches PATH for a program when you type a command, the most common cause of \"command not found\"."
+  },
+  "software/6.1": {
+   "title": "VS Code: The Editor and Built-In Terminal",
+   "summary": "Install VS Code (optionally with a language pack), open a project with \"Open Folder\", and use the built-in terminal."
+  },
+  "software/6.2": {
+   "title": "Git and GitHub: Save Points for Your Code",
+   "summary": "Install Git, set user.name and user.email, sign up for GitHub, and understand the difference between commit and push. Have the AI coding assistant show the diff before committing, and roll back to the previous version when something breaks."
+  },
+  "software/6.3": {
+   "title": "Browser Developer Tools Basics",
+   "summary": "Use Elements to inspect page structure, Console to read errors and run JavaScript, and Network to see requests."
+  },
+  "software/7.1": {
+   "title": "Build a Personal Intro Page with AI",
+   "summary": "Describe the page in plain language, have the assistant generate HTML, CSS, and a little JavaScript, and preview it in your local browser."
+  },
+  "software/7.2": {
+   "title": "Read the Code AI Generates",
+   "summary": "Recognize HTML structure, CSS selectors, and JavaScript event handlers, so you can point out what to change and then ask AI to change it."
+  },
+  "software/7.3": {
+   "title": "Deploy to GitHub Pages",
+   "summary": "Push the project to GitHub, turn on GitHub Pages, and understand the flow of editing code, pushing, and the site updating."
+  },
+  "software/8.1": {
+   "title": "Common Install Errors: PATH, Permissions, and Proxies",
+   "summary": "Recognize \"command not found\" (PATH or terminal not restarted), permission errors (don't force installs with sudo; PowerShell execution policy), and downloads blocked by a company proxy."
+  },
+  "software/8.2": {
+   "title": "How to Ask AI and Communities for Help",
+   "summary": "Copy the full error message, include your operating system and the command you ran, ask AI to help diagnose, and verify the suggested fix yourself."
+  },
+  "software/8.3": {
+   "title": "Full Environment Check and Next Steps",
+   "summary": "Run through the environment checklist item by item to confirm the tools needed for the upcoming courses on version control, going live, and AI agent integration all work."
+  },
+  "software/9.1": {
+   "title": "Look Before You Save: status, diff, and Commit Messages",
+   "summary": "After each AI edit, use git status and git diff to see which files and lines changed, then have AI write a commit message saying what was done and why. Keep one change per commit."
+  },
+  "software/9.2": {
+   "title": "Files You Must Never Commit: .gitignore",
+   "summary": "Have AI check the project's .gitignore and explain why .env files holding passwords and keys, local databases, build output, and node_modules must stay out of version control, and use git status to confirm they are not tracked. Know that once a secret is pushed you must replace it immediately; deleting it from history is not enough."
+  },
+  "software/9.3": {
+   "title": "Fixing Mistakes: Restore and Revert",
+   "summary": "Use git restore to discard uncommitted changes and git revert to undo a specific commit. Have AI explain which files will be affected before running anything, and avoid history-rewriting commands such as reset --hard and force push."
+  },
+  "software/9.4": {
+   "title": "Branches, Pull Requests, and Version Tags",
+   "summary": "Create a branch to try a new feature, review the diff in a GitHub Pull Request, and merge it back into the main branch. Tag released versions (for example v0.1.0) and have AI set up a GitHub Actions workflow that deploys only when a tag is pushed."
+  },
+  "software/10.1": {
+   "title": "Why Structure Affects How Well AI Works",
+   "summary": "Understand that folders and file names are a map for AI: when data, pages, and tools are mixed together, AI may edit the wrong file or only half of the job. Ask AI to list the current directory tree and explain what each folder holds."
+  },
+  "software/10.2": {
+   "title": "Ask AI to Propose a Reorganization Plan",
+   "summary": "Use a short prompt to ask AI for a new structure (content data, pages, and internal tools kept separate). Review the plan only, without touching files, confirm or revise each item, then execute. Commit before you start moving things."
+  },
+  "software/10.3": {
+   "title": "Move Files and Update Every Reference",
+   "summary": "Have AI move files from the list and update imports and link paths to match. Use git status to confirm the moves are recorded as renames, and use type checking, the build, and the browser console to catch missed paths."
+  },
+  "software/10.4": {
+   "title": "Verify Page by Page and Update the README",
+   "summary": "Click through every page of the site (or have AI screenshot each page with a browser automation tool) to confirm nothing is broken, then have AI update the README's directory notes to match the new structure so the docs and code agree."
+  },
+  "software/11.1": {
+   "title": "Titles, Descriptions, and Share Previews for Every Page",
+   "summary": "Have AI add a unique title, description, canonical URL, and Open Graph tags (including a 1200x630 share image) to every page, then confirm they are correct with curl or the browser's View Source."
+  },
+  "software/11.2": {
+   "title": "Help Search Engines Find the Right Pages: sitemap, robots.txt, and 404",
+   "summary": "Have AI generate sitemap.xml and robots.txt, add noindex to non-public pages, and make nonexistent URLs return a real 404 status code, checking with curl -I. Submit the sitemap to Google Search Console."
+  },
+  "software/11.3": {
+   "title": "Structured Data (JSON-LD)",
+   "summary": "Have AI add JSON-LD structured data (for example website and course types) to the home page and main pages, and check for errors with Google's Rich Results Test."
+  },
+  "software/11.4": {
+   "title": "GA4 Analytics and the Privacy Policy",
+   "summary": "Create a GA4 property, have AI configure the measurement ID through an environment variable and record a page view on each navigation, and confirm data arrives in the realtime report. Update the privacy policy to describe the analytics tools and cookies in use."
+  },
+  "software/12.1": {
+   "title": "What Login Does: Password Hashing and Sessions",
+   "summary": "Have AI diagram the login flow (sign up, store the user, log in, issue a session cookie, then send the cookie with later requests). Understand why passwords must be stored only as hashes and why sessions belong in an HttpOnly cookie that front-end JavaScript cannot read."
+  },
+  "software/12.2": {
+   "title": "Email and Password Login: Backend and Database",
+   "summary": "Have AI build sign-up, login, and logout APIs and a users table to your security requirements (SQLite locally, cloud Postgres in production). Keep keys and database connections in environment variables, keep .env out of version control, and ensure logged-in users can read only their own data."
+  },
+  "software/12.3": {
+   "title": "Sign In with Google",
+   "summary": "Create an OAuth client ID in Google Cloud Console and set the allowed URLs, then have AI verify the ID token returned by Google on the backend before creating a session."
+  },
+  "software/12.4": {
+   "title": "Testing, Going Live, and Legal Pages",
+   "summary": "Have AI write automated tests for the login flow (wrong password, cookie is HttpOnly, no access to personal data when logged out). When going live, store secrets in a cloud secret manager (for example Google Cloud Secret Manager) and update the privacy policy and terms of service to explain what data is collected and why."
+  },
+  "software/13.1": {
+   "title": "Why Testing Matters: When AI Fixes A and Breaks B",
+   "summary": "Understand that when AI changes one thing it can break another without noticing. A test turns \"this feature must work\" into a rule a computer can check automatically. Tell unit tests (checking a small piece of code or data) apart from end-to-end tests (driving the whole site in a browser)."
+  },
+  "software/13.2": {
+   "title": "Have AI Write Your First Test: Watch It Fail, Then Pass",
+   "summary": "Have AI install a unit test tool (for example Vitest), write a test for one item on the list, and run it with npm test. Deliberately break the code to confirm the test fails, restore it and see it pass, and know that a test that never fails proves nothing. When a test fails, make AI fix the code, never change the test just to make it pass."
+  },
+  "software/13.3": {
+   "title": "End-to-End Tests: Let the Browser Click Through Every Page",
+   "summary": "Have AI use Playwright to write end-to-end tests for the built site: open each URL and check for a 200 response, the right title, working main buttons, and a 404 page for wrong URLs. Learn to read the error messages and screenshots when a test fails."
+  },
+  "software/13.4": {
+   "title": "Run Automatically on Every Change: CI and \"Test Before You Finish\"",
+   "summary": "Have AI set up GitHub Actions to run all tests on every push and Pull Request, and read the pass or fail marks on GitHub. Build the habit: after every AI change, have it run the tests first. If a test fails, stop and fix it, with no commit and no deploy. Write this rule into the project notes for AI."
+  },
+  "software/14.1": {
+   "title": "Why Changing One Thing Breaks Another: Check the Blast Radius First",
+   "summary": "Learn the two most common causes: the same thing written in many places, and one file doing too much. Before making changes, have AI list the files and features this change will affect, analysis only with no code edits."
+  },
+  "software/14.2": {
+   "title": "Keep Each Thing in One Place",
+   "summary": "Have AI find duplicated text, data, and UI blocks and consolidate them into one data source or shared component that everything else uses. Tell worthwhile duplication apart from code that merely looks alike but will change separately later."
+  },
+  "software/14.3": {
+   "title": "Split Features Apart: One File, One Job",
+   "summary": "Have AI split oversized files into small single-purpose files, for example separating data, logic, and UI. Use function parameters and TypeScript types to define how the parts interact, and deliberately rename a field to watch type checking point out everything that must change with it."
+  },
+  "software/14.4": {
+   "title": "Small Steps, and Write the Rules for AI",
+   "summary": "Set up a change workflow: one thing at a time, review the plan before acting, check the diff for stray edits, and commit only after tests pass. Write the project's structure and conventions into the project notes so AI follows the same approach every time, then run a new feature through the whole workflow."
+  },
+  "web/0.1": {
+   "title": "What Happens After You Type a URL",
+   "summary": "A web page is requested by the browser from a server, then drawn by the browser itself."
+  },
+  "web/0.2": {
+   "title": "The Roles of HTML, CSS, and JavaScript",
+   "summary": "HTML defines what is there, CSS defines how it looks, and JavaScript defines what it does."
+  },
+  "web/1.1": {
+   "title": "Elements and Tags",
+   "summary": "A web page is made of elements, and tags tell the browser what each one is."
+  },
+  "web/1.2": {
+   "title": "The DOM Tree: Elements Inside Elements",
+   "summary": "Elements can contain other elements, and the browser draws the page from top to bottom following this tree."
+  },
+  "web/1.3": {
+   "title": "Meaningful Sections",
+   "summary": "Organize a page with meaningful sections so both people and machines can understand it more easily."
+  },
+  "web/1.4": {
+   "title": "Attributes: Links, Images, and Alt Text",
+   "summary": "Attributes add detail to an element, such as where a link goes and what an image shows."
+  },
+  "web/1.5": {
+   "title": "Forms: The Gateway for User Input",
+   "summary": "Forms collect what users enter and send it to the server."
+  },
+  "web/2.1": {
+   "title": "Selectors: Who the Style Applies To",
+   "summary": "Select the right element first so styles do not change things they shouldn't."
+  },
+  "web/2.2": {
+   "title": "The Box Model",
+   "summary": "Every element is a box, and its size is set by content, padding, border, and margin."
+  },
+  "web/2.3": {
+   "title": "Layout: Flex and Grid",
+   "summary": "Use Flex for a row of items and Grid for table-like layouts."
+  },
+  "web/2.4": {
+   "title": "Responsive Design: Different Layouts for Phone and Desktop",
+   "summary": "The same page can change its layout based on screen width."
+  },
+  "web/2.5": {
+   "title": "Fonts, Colors, and Consistent Design",
+   "summary": "Organize colors and font sizes into one set of rules so the site looks consistent."
+  },
+  "web/3.1": {
+   "title": "Events: What Just Happened",
+   "summary": "A page knows what the user did through events."
+  },
+  "web/3.2": {
+   "title": "State and Screen Updates",
+   "summary": "The screen is drawn from state, and it changes only when the state changes."
+  },
+  "web/3.3": {
+   "title": "Conditions and Repetition",
+   "summary": "Code uses conditions to decide what to do, and repetition to draw one set of data as many items."
+  },
+  "web/3.4": {
+   "title": "Asynchronous Code: Waiting for Data",
+   "summary": "Requesting data from a server takes time, and users should know when they are waiting."
+  },
+  "web/4.1": {
+   "title": "What the Front End and Back End Each Do",
+   "summary": "The front end handles what you see, and the back end handles data and rules."
+  },
+  "web/4.2": {
+   "title": "APIs and JSON",
+   "summary": "The front end and back end communicate through an API, and data is often sent as JSON."
+  },
+  "web/4.3": {
+   "title": "Databases",
+   "summary": "Data lives in a database, so it is not lost when the page is closed."
+  },
+  "web/4.4": {
+   "title": "How Login Remembers You",
+   "summary": "Login relies on a pass issued by the server to remember you, and sensitive data belongs only on the back end."
+  },
+  "web/5.1": {
+   "title": "Open the Developer Tools",
+   "summary": "Every website's behind-the-scenes can be seen with the developer tools."
+  },
+  "web/5.2": {
+   "title": "Deployment: Putting a Site Online",
+   "summary": "Deployment means putting the site on a server that others can reach."
+  },
+  "web/5.3": {
+   "title": "Domains and HTTPS",
+   "summary": "A domain is the site's name, and HTTPS protects data in transit."
+  },
+  "web/5.4": {
+   "title": "Speed and Search Engines",
+   "summary": "A page should be fast, and search engines should be able to understand it."
+  },
+  "web/5.5": {
+   "title": "Security Basics",
+   "summary": "Keep secrets off the front end, never trust user input directly, and check permissions on every request."
+  },
+  "launch/0.1": {
+   "title": "Local vs. Online",
+   "summary": "Understand the difference between localhost and a URL, and know that right now only you can see your work."
+  },
+  "launch/0.2": {
+   "title": "What to Decide Before Going Live",
+   "summary": "Think through where to host, which URL to use, where to store data, and how to protect secrets before you start."
+  },
+  "launch/0.3": {
+   "title": "Files You Must Never Commit: .gitignore",
+   "summary": "Before pushing to GitHub, exclude keys and any files that shouldn't be public."
+  },
+  "launch/1.1": {
+   "title": "Environment Variables and Configuration",
+   "summary": "Move hard-coded keys and URLs into config files, with separate settings for local and production."
+  },
+  "launch/1.2": {
+   "title": "Deploy to GitHub Pages",
+   "summary": "Get your first public URL to share, and have it update automatically with every push."
+  },
+  "launch/1.3": {
+   "title": "HTTPS and Caching",
+   "summary": "Get the padlock on your URL, and see new versions right after an update."
+  },
+  "launch/1.4": {
+   "title": "What a Domain Is and How to Choose One",
+   "summary": "Compare domain names, registrars, and renewal prices, and pick your own domain."
+  },
+  "launch/1.5": {
+   "title": "Buy a Domain",
+   "summary": "Buy the domain and make sure auto-renewal and privacy protection are turned on."
+  },
+  "launch/1.6": {
+   "title": "DNS Records Basics",
+   "summary": "Understand what each of your domain's DNS records does."
+  },
+  "launch/1.7": {
+   "title": "Connect the Domain to Your Site",
+   "summary": "Open your website using your own domain."
+  },
+  "launch/2.1": {
+   "title": "Front End, Back End, and APIs",
+   "summary": "Tell apart what the screen and the server each handle, and know when you need a back end."
+  },
+  "launch/2.2": {
+   "title": "When You Need a Database",
+   "summary": "Choose a database that fits your project and explain why."
+  },
+  "launch/2.3": {
+   "title": "Create an Account and Project",
+   "summary": "Set up a cloud account and a dedicated project."
+  },
+  "launch/2.4": {
+   "title": "Set a Budget Alert First",
+   "summary": "Get notified when costs pass your budget, so a surprise big bill never catches you."
+  },
+  "launch/2.5": {
+   "title": "Package with Docker",
+   "summary": "Package the back end as a container and run it on your own computer first."
+  },
+  "launch/2.6": {
+   "title": "Deploy to Cloud Run",
+   "summary": "Put the back end in the cloud and get a working URL."
+  },
+  "launch/2.7": {
+   "title": "Cloud Database with Cloud SQL",
+   "summary": "Store production data in a cloud database with automatic backups."
+  },
+  "launch/2.8": {
+   "title": "Keep Secrets in Secret Manager",
+   "summary": "All production keys are held by the cloud, and none appear in the code or on GitHub."
+  },
+  "launch/2.9": {
+   "title": "Sign In with Google",
+   "summary": "Let users sign up and log in with a Google account, so you don't have to store passwords."
+  },
+  "launch/3.1": {
+   "title": "Keep Secrets from Leaking",
+   "summary": "Scan code and history for keys, and prepare the steps for replacing them if they leak."
+  },
+  "launch/3.2": {
+   "title": "Common Attacks and Defenses",
+   "summary": "Block the most common attacks, with a test proving each one."
+  },
+  "launch/3.3": {
+   "title": "Connect Third-Party APIs",
+   "summary": "When using AI or other services, keep keys on the back end and know where the usage limits are."
+  },
+  "launch/3.4": {
+   "title": "Have AI Do a Security Review Before Launch",
+   "summary": "Ask a separate AI to review everything from scratch, then fix issues before going live."
+  },
+  "launch/3.5": {
+   "title": "Privacy Policy and Terms of Service",
+   "summary": "Write a privacy policy and terms of service based on the data your site actually collects."
+  },
+  "launch/4.1": {
+   "title": "Choose a Payment Service",
+   "summary": "Compare payment providers based on your product and location, pick one, and prepare the information needed to activate it."
+  },
+  "launch/4.2": {
+   "title": "Connect Checkout in Test Mode",
+   "summary": "Run the payment flow with test cards first, then switch to live payments."
+  },
+  "launch/4.3": {
+   "title": "Sync Subscription Status with Webhooks",
+   "summary": "After a payment or cancellation, member access updates automatically."
+  },
+  "launch/4.4": {
+   "title": "Email Service and Sender Domain Verification",
+   "summary": "Make sure your emails are not treated as spam."
+  },
+  "launch/4.5": {
+   "title": "Transactional Email: Sign-Up Confirmation and Password Reset",
+   "summary": "Send sign-up confirmation and password reset emails."
+  },
+  "launch/5.1": {
+   "title": "Deploy by Pushing a Tag",
+   "summary": "Push a tag when releasing to run tests and deploy automatically."
+  },
+  "launch/5.2": {
+   "title": "Read Cloud Logs",
+   "summary": "When a user says something is broken, know where to look for recent errors."
+  },
+  "launch/5.3": {
+   "title": "Errors That Only Happen in Production",
+   "summary": "When it works locally but breaks in production, find the difference between the two."
+  },
+  "launch/5.4": {
+   "title": "Get Notified When the Site Goes Down",
+   "summary": "When the site won't open, get an alert within minutes."
+  },
+  "launch/5.5": {
+   "title": "When Something Breaks After Launch: Roll Back",
+   "summary": "When a new version fails, quickly switch back to the last working version."
+  },
+  "launch/5.6": {
+   "title": "Backup and Restore Drill",
+   "summary": "Actually recover your data from a backup once, so you stay calm when something goes wrong."
+  },
+  "claude-code/1": {
+   "title": "Can't Decide, Want to Try Several Versions at Once",
+   "summary": "Branch off from the same conversation, try one direction in each, then look and decide which to keep."
+  },
+  "claude-code/2": {
+   "title": "Out and About, Want to Continue on Your Phone",
+   "summary": "AI keeps working on your computer, while you check progress and give new instructions from anywhere."
+  },
+  "claude-code/3": {
+   "title": "Several Things to Do at the Same Time",
+   "summary": "Hand unrelated tasks to separate conversations, and you only review and decide."
+  },
+  "claude-code/4": {
+   "title": "Left Off Halfway Yesterday, Want to Continue Today",
+   "summary": "Find a previous conversation and pick up where you left off, without explaining everything again."
+  },
+  "claude-code/5": {
+   "title": "The Conversation Keeps Getting Longer",
+   "summary": "Condense the current conversation into a summary and continue, or start a fresh conversation."
+  },
+  "claude-code/6": {
+   "title": "Repeating the Same Rules Every Time",
+   "summary": "Write the project's standing rules into a notes file that every new conversation reads first."
+  },
+  "claude-code/7": {
+   "title": "A Long Task You Don't Want to Watch",
+   "summary": "Send the conversation to the background, go do something else, and come back for the result later."
+  },
+  "kids/0.1": {
+   "title": "Flip a Web Page Over to See the Back",
+   "summary": "A web page is built from blocks, and every block has a name."
+  },
+  "kids/0.2": {
+   "title": "A Web Page Is a Tree",
+   "summary": "The browser draws the tree from top to bottom, layer by layer; when the tree changes, the page changes too."
+  },
+  "kids/0.3": {
+   "title": "A Web Page Is Like a Letter",
+   "summary": "A web page is sent from another computer; changes I make on my own computer can only be seen by me."
+  },
+  "kids/1.1": {
+   "title": "Headings and Paragraphs",
+   "summary": "Headings tell everyone what it's about, and paragraphs finish the thought."
+  },
+  "kids/1.2": {
+   "title": "Lists, One Item at a Time",
+   "summary": "Line up things one by one in a list."
+  },
+  "kids/1.3": {
+   "title": "Pictures Need Descriptions",
+   "summary": "Give every picture a description so people who can't see it know what it is."
+  },
+  "kids/1.4": {
+   "title": "Links Connect Web Pages",
+   "summary": "Links connect web pages together, one after another."
+  },
+  "kids/1.5": {
+   "title": "Project: My Pet Card",
+   "summary": "I can name every part of the web page."
+  },
+  "kids/2.1": {
+   "title": "Text Color and Background Color",
+   "summary": "Text color and background color are two different things, so name them separately."
+  },
+  "kids/2.2": {
+   "title": "Text Size and Boldness",
+   "summary": "Size and boldness make the important things stand out."
+  },
+  "kids/2.3": {
+   "title": "Boxes: Borders and Space",
+   "summary": "Space keeps the page from feeling crowded; say clearly whether the space is inside or outside."
+  },
+  "kids/2.4": {
+   "title": "Line Them Up: Centering and Side by Side",
+   "summary": "The same things can be stacked, placed side by side, or centered."
+  },
+  "kids/2.5": {
+   "title": "Project: Give the Pet Card a Makeover",
+   "summary": "I can say clearly which part should change into what look."
+  },
+  "kids/3.1": {
+   "title": "Something Happens When You Press It",
+   "summary": "Say what was clicked and what should happen."
+  },
+  "kids/3.2": {
+   "title": "Show and Hide",
+   "summary": "Things on a page can appear, and they can also be hidden."
+  },
+  "kids/3.3": {
+   "title": "A Box That Remembers Numbers",
+   "summary": "A page can remember numbers in a box with a name on it."
+  },
+  "kids/3.4": {
+   "title": "If... Then...",
+   "summary": "Say clearly \"if when\", so the page knows whether to act."
+  },
+  "kids/3.5": {
+   "title": "Roll the Dice",
+   "summary": "A page can be different every time."
+  },
+  "kids/4.1": {
+   "title": "Use the Right Name So AI Understands",
+   "summary": "Use the right name so others and AI know which one I mean."
+  },
+  "kids/4.2": {
+   "title": "Be Clear: What, Where, and What It Looks Like",
+   "summary": "The clearer I am, the better AI can make what I imagine."
+  },
+  "kids/4.3": {
+   "title": "Check and Fix",
+   "summary": "Check what you made, and if it's different, make the description clearer."
+  },
+  "kids/4.4": {
+   "title": "Sketch First, Then Break It into a Few Sentences",
+   "summary": "Break a big goal into a few small descriptions first."
+  },
+  "kids/4.5": {
+   "title": "Project: My Little Website",
+   "summary": "I can explain my idea clearly and ask AI to build it into a website."
+  }
+ },
+ "topics": {
+  "software": {
+   "name": "Build Your Own Software",
+   "slogan": "You can build your own software without knowing how to code",
+   "seoTitle": "Build Software Without Coding: A Beginner AI Development Course Map",
+   "description": "An interactive online course: learn to build software that really goes live by talking with AI. Beginners welcome. Build websites and small tools with AI, then connect automated workflows. Start free with the intro lessons."
+  },
+  "launch": {
+   "name": "From Built to Live",
+   "slogan": "Hand the tedious launch steps to AI and turn your work into a service",
+   "seoTitle": "From Built to Live: Use AI to Handle the Tedious Steps and Put Your Work Online",
+   "description": "Deployment, domains, data and login, billing, monitoring: learn to use AI for these tedious launch steps and turn your website or tool into a service others can use. The prologue is open now, and the first five lessons can be previewed."
+  },
+  "kids": {
+   "name": "Web Programming for Kids",
+   "slogan": "Build web pages with blocks and help a 9-year-old make their own little website",
+   "seoTitle": "Web Programming for Kids: Learn HTML, CSS and JavaScript with Blocks",
+   "description": "A web programming course for children around age 9: no typing code, just build pages with blocks, dress them up, and make them move to create a small website of their own. Lessons are opening gradually; the first five can be previewed."
+  },
+  "web": {
+   "name": "How the Web Works",
+   "slogan": "Leave syntax to AI; understand the principles so you can tell AI exactly what you want",
+   "seoTitle": "How the Web Works: A Web Fundamentals Course for the AI Era",
+   "description": "AI can already write most of the code. This course does not teach syntax; it teaches how the web works: browsers, HTML and CSS, front end and back end, and going live. Understand the principles and use the right terms so you can tell AI exactly what you want. The first five lessons can be previewed."
+  },
+  "ai-apps": {
+   "name": "Build Interactive AI Software",
+   "slogan": "More than chat: let AI look things up, run analysis and draw charts",
+   "seoTitle": "Interactive AI Software Course: Let AI Look Up Data, Analyze and Chart",
+   "description": "Learn to build AI software that gets things done: write tools, let the AI decide which to call, turn it into an interface you use by typing a question, and run it reliably in production. Course in planning."
+  },
+  "monetize": {
+   "name": "Making Money with AI",
+   "slogan": "Turn what you can do into a service people will pay for"
+  },
+  "life-data": {
+   "name": "Everyday Data",
+   "slogan": "Bills, photos and spreadsheets: let AI sort them out"
+  },
+  "claude-code": {
+   "name": "Working with Claude Code",
+   "slogan": "What to do when you run into these cases",
+   "seoTitle": "Claude Code Tips: Common Situations and What to Do",
+   "description": "Common situations when using Claude Code: pick up on your phone, try several versions at once, resume yesterday's conversation, write your rules down. Jump to whichever case you run into. Content is being planned."
+  }
+ }
+}

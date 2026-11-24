@@ -15,6 +15,7 @@ import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { AI_APPS_TOPIC, CLAUDE_CODE_LESSON_PAGES, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC } from '../content/topics'
 import { LAUNCH_LESSON_PAGES, launchLessonPath } from '../content/launchCourse'
 import { WEB_LESSON_PAGES } from '../content/webCourse'
+import { EN_ALTERNATES, EN_PAGES, EN_PREFIX } from './enPages'
 import { MEMBER_SECTIONS, memberSectionTitle } from '../member/sections'
 
 type JsonLd = Record<string, unknown>
@@ -37,6 +38,8 @@ export interface PageMeta {
   ogType?: 'website' | 'article'
   /** 這一頁是哪一課(courses_seed.json 的課程 id 與課號);課還沒開放時仍可收錄,但不列入 sitemap(server 依資料庫決定,見 server/cmd/server/sitemap.go) */
   lesson?: { course: string; id: string }
+  /** 頁面語言;英文版(/en/...,見 enPages.ts)是 'en',其餘是中文 */
+  lang?: 'en'
   /** sitemap 的 <priority>(0–1);不填則不輸出,搜尋引擎視為 0.5 */
   sitemapPriority?: number
   jsonLd?: JsonLd[]
@@ -378,12 +381,26 @@ export const NOT_FOUND: PageMeta = {
   noindex: true,
 }
 
-const BY_PATH = new Map(PAGES.map((p) => [p.path, p]))
+const BY_PATH = new Map([...PAGES, ...EN_PAGES].map((p) => [p.path, p]))
 
 /** 依網址找 SEO 資料;結尾斜線視為同一頁。找不到回傳 NOT_FOUND。 */
 export function findPage(pathname: string): PageMeta {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
-  return BY_PATH.get(path) ?? NOT_FOUND
+  const hit = BY_PATH.get(path)
+  if (hit) return hit
+  // 沒有英文版的 /en/... 頁:伺服器回對應的中文頁(標 noindex),meta 也用中文頁的、不收錄
+  if (path === EN_PREFIX || path.startsWith(EN_PREFIX + '/')) {
+    const base = BY_PATH.get(path.slice(EN_PREFIX.length) || '/')
+    if (base) return { ...base, noindex: true }
+  }
+  return NOT_FOUND
+}
+
+/** 這一頁的各語言網址(有英文版的頁才有,含自己;hreflang 與 sitemap 用);沒有就空陣列 */
+export function languageAlternates(page: PageMeta): { lang: string; path: string }[] {
+  const zh = page.lang === 'en' ? page.path.slice(EN_PREFIX.length) : page.path
+  const en = EN_ALTERNATES.get(zh)
+  return en ? [{ lang: 'zh-Hant', path: zh }, { lang: 'en', path: en }, { lang: 'x-default', path: zh }] : []
 }
 
 // ---- <head> 標籤:build 時序列化成 HTML,瀏覽器端由 usePageMeta 套用到 DOM ----
@@ -405,10 +422,11 @@ export function headTags(page: PageMeta, opts: { keepLessonLinks?: boolean } = {
   const tags: HeadTag[] = [meta('name', 'description', page.description)]
   if (page.noindex) tags.push(meta('name', 'robots', 'noindex, nofollow'))
   if (!isNotFound) tags.push({ tag: 'link', attrs: { rel: 'canonical', href: url } })
+  if (!page.noindex) for (const a of languageAlternates(page)) tags.push({ tag: 'link', attrs: { rel: 'alternate', hreflang: a.lang, href: absoluteUrl(a.path) } })
   tags.push(
     meta('property', 'og:type', page.ogType ?? 'website'),
     meta('property', 'og:site_name', SITE_NAME),
-    meta('property', 'og:locale', 'zh_TW'),
+    meta('property', 'og:locale', page.lang === 'en' ? 'en_US' : 'zh_TW'),
     meta('property', 'og:title', page.title),
     meta('property', 'og:description', page.description),
     ...(isNotFound ? [] : [meta('property', 'og:url', url)]),

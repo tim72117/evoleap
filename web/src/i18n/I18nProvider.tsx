@@ -12,7 +12,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { authApi } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { currentLocale, formatDate, loadedEnglish, messages, setCurrent } from './current'
-import { initialLocale, isLocale, storeLocale, type Locale } from './locale'
+import { hasEnPrefix, initialLocale, isLocale, localeTarget, storeLocale, type Locale } from './locale'
 import { zh, type Messages } from './zh'
 
 // React 以外的程式請直接 import './current'(不要經過這裡,避免循環引用);這裡轉出去是給元件用
@@ -74,7 +74,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   // 會員帳號存了偏好:登入(或啟動時確認登入)後照帳號的語言
   const accountLocale = real.status === 'user' ? real.user?.locale : undefined
   useEffect(() => {
-    if (isLocale(accountLocale) && accountLocale !== wanted.current) {
+    // 網址有 /en 時以網址為準(搜尋引擎與分享連結看到的就是這個語言)
+    if (isLocale(accountLocale) && accountLocale !== wanted.current && !hasEnPrefix(location.pathname)) {
       storeLocale(accountLocale)
       void apply(accountLocale)
     }
@@ -93,6 +94,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback(
     (next: Locale) => {
       storeLocale(next)
+      // 中英文是不同網址:這一頁有另一種語言的網址就整頁換過去(先把偏好存進帳號,免得換過去又被帳號的舊偏好蓋回來)
+      const target = localeTarget(next, location.pathname, location.search, location.hash)
+      if (target) {
+        const go = () => location.assign(target)
+        if (loggedIn) void authApi.updateProfile({ locale: next }).then(go, go)
+        else go()
+        return
+      }
       void apply(next)
       // 存不成功(離線、登入過期)就只記在這個瀏覽器
       if (loggedIn) {

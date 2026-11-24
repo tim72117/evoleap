@@ -1,8 +1,9 @@
 // build 時把 pages.ts 的資料轉成檔案內容(只有字串處理,檔案讀寫在 scripts/seo.mjs)。
 import { INTERNAL_PAGES } from './internalPages'
-import { absoluteUrl, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES, type HeadTag, type PageMeta } from './pages'
+import { EN_PAGES } from './enPages'
+import { absoluteUrl, headTags, languageAlternates, NOT_FOUND, PAGES as PUBLIC_PAGES, type HeadTag, type PageMeta } from './pages'
 
-export { NOT_FOUND }
+export { EN_PAGES, NOT_FOUND }
 
 /** 所有頁面(公開頁 + 內部頁);build 要為每一頁產生 HTML */
 export const PAGES: PageMeta[] = [...PUBLIC_PAGES, ...INTERNAL_PAGES]
@@ -20,7 +21,8 @@ function renderTag(t: HeadTag): string {
 /** 把 vite build 產生的 index.html 換成這一頁的 <title> 與 SEO 標籤。 */
 export function renderPage(template: string, page: PageMeta): string {
   const head = [`<title>${escapeHtml(page.title)}</title>`, ...headTags(page).map(renderTag)].join('\n    ')
-  const out = template.replace(/<title>[\s\S]*?<\/title>/, () => head)
+  let out = template.replace(/<title>[\s\S]*?<\/title>/, () => head)
+  if (page.lang === 'en') out = out.replace('<html lang="zh-Hant">', '<html lang="en">')
   if (out === template) throw new Error('index.html 缺少 <title>,無法插入 SEO 標籤')
   return out
 }
@@ -34,14 +36,17 @@ export function outputFile(page: PageMeta): string {
 export interface SitemapPage {
   loc: string
   priority?: number
+  /** 各語言版本(含自己);server 輸出成 xhtml:link hreflang */
+  alternates?: { lang: string; loc: string }[]
   /** 這一頁是哪一課;server 的 /sitemap.xml 依資料庫裡那一課的狀態,只收錄已開放(open)的課 */
   lesson?: { course: string; id: string }
 }
 
 /** 可收錄的頁面(不含內部頁、noindex 的頁);課頁是否收錄由 server 依資料庫決定(server/cmd/server/sitemap.go) */
 export function sitemapPages(): SitemapPage[] {
-  return PAGES.filter((p) => !p.noindex).map((p) => ({
+  return [...PAGES, ...EN_PAGES].filter((p) => !p.noindex).map((p) => ({
     loc: absoluteUrl(p.path),
+    ...(languageAlternates(p).length ? { alternates: languageAlternates(p).map((a) => ({ lang: a.lang, loc: absoluteUrl(a.path) })) } : {}),
     ...(p.sitemapPriority === undefined ? {} : { priority: p.sitemapPriority }),
     ...(p.lesson ? { lesson: p.lesson } : {}),
   }))

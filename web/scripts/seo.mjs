@@ -48,10 +48,10 @@ const write = async (file, content) => {
   await writeFile(target, content)
 }
 
-for (const page of [...seo.PAGES, seo.NOT_FOUND]) {
+for (const page of [...seo.PAGES, ...seo.EN_PAGES, seo.NOT_FOUND]) {
   await write(seo.outputFile(page), seo.renderPage(template, page))
 }
 await write('sitemap-pages.json', JSON.stringify(seo.sitemapPages()))
 await write('robots.txt', seo.robotsTxt())
 
-console.log(`seo: ${seo.PAGES.length} 頁 + 404.html、sitemap-pages.json、robots.txt`)
+console.log(`seo: ${seo.PAGES.length} 頁 + ${seo.EN_PAGES.length} 個英文頁 + 404.html、sitemap-pages.json、robots.txt`)

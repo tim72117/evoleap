@@ -7,6 +7,7 @@ import { homeRoutes } from './home/routes'
 import { isKidsModePath, KIDS_MODE_HOME, useKidsMode } from './kidsMode/KidsModeContext'
 import { legalRoutes } from './legal/routes'
 import { memberRoutes } from './member/routes'
+import { routerBasename } from './i18n/locale'
 import { usePageMeta } from './seo/usePageMeta'
 import { useAnalyticsPageView } from './site/analytics'
 import { isInternalPath } from './site/internalPaths'
@@ -21,7 +22,7 @@ export const routes = [...homeRoutes, ...courseRoutes, ...legalRoutes, ...authRo
 
 // 內部頁的 SEO 資料在 StudioApp 裡,公開的打包內容不包含內部頁清單。
 // 公開頁的資料(seo/pages.ts)含整份課程種子,用到才下載(build 時的靜態頁已經帶好第一次載入的標籤)
-const publicPageMeta = (pathname: string) => (isInternalPath(pathname) ? null : import('./seo/pages').then((m) => m.findPage(pathname)))
+const publicPageMeta = (pathname: string) => (isInternalPath(pathname) ? null : import('./seo/pages').then((m) => m.findPage((routerBasename() ?? '') + pathname)))
 
 /** 下載不到內部 chunk(沒有權限,例如在頁面裡登出後按上一頁):和伺服器一樣顯示找不到頁面。 */
 class StudioBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {

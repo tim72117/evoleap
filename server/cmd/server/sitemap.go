@@ -22,7 +22,12 @@ const sitemapPagesFile = "sitemap-pages.json"
 type sitemapPage struct {
 	Loc      string   `json:"loc"`
 	Priority *float64 `json:"priority,omitempty"`
-	Lesson   *struct {
+	// Alternates 是這一頁的各語言版本(含自己),輸出成 xhtml:link hreflang,讓搜尋引擎知道哪些網址是同一頁的不同語言
+	Alternates []struct {
+		Lang string `json:"lang"`
+		Loc  string `json:"loc"`
+	} `json:"alternates,omitempty"`
+	Lesson *struct {
 		Course string `json:"course"`
 		ID     string `json:"id"`
 	} `json:"lesson,omitempty"`
@@ -79,7 +84,7 @@ func sitemapHandler(dist fs.FS, open openLessons) http.Handler {
 
 func sitemapXML(pages []sitemapPage, opened map[string]bool) string {
 	var b strings.Builder
-	b.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
+	b.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n")
 	for _, p := range pages {
 		if p.Lesson != nil && !opened[p.Lesson.Course+"/"+p.Lesson.ID] {
 			continue
@@ -87,6 +92,12 @@ func sitemapXML(pages []sitemapPage, opened map[string]bool) string {
 		var loc strings.Builder
 		_ = xml.EscapeText(&loc, []byte(p.Loc))
 		b.WriteString("  <url><loc>" + loc.String() + "</loc>")
+		for _, a := range p.Alternates {
+			var href, lang strings.Builder
+			_ = xml.EscapeText(&href, []byte(a.Loc))
+			_ = xml.EscapeText(&lang, []byte(a.Lang))
+			b.WriteString("<xhtml:link rel=\"alternate\" hreflang=\"" + lang.String() + "\" href=\"" + href.String() + "\"/>")
+		}
 		if p.Priority != nil {
 			b.WriteString("<priority>" + strconv.FormatFloat(*p.Priority, 'f', 1, 64) + "</priority>")
 		}

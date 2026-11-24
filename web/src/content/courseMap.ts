@@ -2,6 +2,8 @@
 // 資料來源是 server/internal/store/courses_seed.json,部署時(正式環境的同步工作)或本機後端啟動時同步進資料表;courseMap.test.ts 檢查它和前端的課程內容一致。
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
+import { langQuery } from '../i18n/current'
+import { useLocale } from '../i18n/I18nProvider'
 
 export type CourseAccess = 'free' | 'login-free' | 'subscription'
 
@@ -55,7 +57,7 @@ export type CourseMap = {
 }
 
 export async function fetchCourseMap(id: string): Promise<CourseMap> {
-  const res = await fetch(`/api/courses/${encodeURIComponent(id)}/map`, { credentials: 'same-origin' })
+  const res = await fetch(`/api/courses/${encodeURIComponent(id)}/map${langQuery()}`, { credentials: 'same-origin' })
   if (!res.ok) throw new Error(`課程地圖讀取失敗(${res.status})`)
   return (await res.json()) as CourseMap
 }
@@ -94,7 +96,9 @@ function loadCourseMap(key: string, id: string): Promise<CourseMap> {
 export function useCourseMap(id: string): CourseMapState {
   // 登入的人換了(登入、登出)就重讀:地圖內容依人而不同
   const who = useAuth().user?.id ?? 'guest'
-  const key = `${who}:${id}`
+  // 語言也是 key 的一部分:切換語言(頁面不重載時)要重讀,課程名稱才會換
+  const { locale } = useLocale()
+  const key = `${locale}:${who}:${id}`
   // 結果記著是哪一組(key)讀到的:課程或登入的人換了的那一個 render,不能拿上一組的結果(例如管理員登出後還看到草稿)
   const [res, setRes] = useState<{ key: string; state: CourseMapState } | null>(null)
   const hit = mapCache.get(key)
@@ -120,7 +124,8 @@ export function useCourseMap(id: string): CourseMapState {
  * 呼叫的畫面不顯示開放狀態(不用前端的課程資料頂替)。只看開放狀態,所以不處理模擬身分(草稿本來就不算開放)。
  */
 export function useCourseMaps(ids: string[]): Record<string, CourseMap | undefined> {
-  const who = useAuth().user?.id ?? 'guest'
+  const { locale } = useLocale()
+  const who = `${locale}:${useAuth().user?.id ?? 'guest'}`
   const idsKey = ids.join(',')
   const [maps, setMaps] = useState<Record<string, CourseMap | undefined>>({})
   useEffect(() => {
