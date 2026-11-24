@@ -19,6 +19,11 @@ const LEVELS: Tab[] = [
   { to: '/studio/ai-tips', label: 'AI 工具技巧' },
   { to: '/studio/kids-web', label: '兒童網頁課', also: ['/studio/kids-web/0-1', '/studio/kids-web/0-1/live', '/studio/kids-web/0-2/live', '/studio/kids-web/0-3/live', '/studio/kids-web/xray'] },
   { to: '/studio/web-basics', label: '網頁運作知識', match: '/studio/web-basics' },
+  // 數學與創客:不用字卡、自己動手操作的互動課(試做)
+  { to: '/studio/math-fraction', group: '數學與創客', label: '切披薩：分數' },
+  { to: '/studio/math-area', group: '數學與創客', label: '圍籬與面積' },
+  { to: '/studio/math-share', group: '數學與創客', label: '分食物：公平嗎' },
+  { to: '/studio/print3d', group: '數學與創客', label: '3D 列印' },
 ]
 
 /** 開發中:已有原型或試做、還在做的功能。 */
@@ -33,14 +38,7 @@ const DEV: Tab[] = [
 
 /** 跨等級構想。 */
 const IDEAS: Tab[] = [
-  { to: '/studio/mcp', label: '課程 MCP' },
-  { to: '/studio/live-script-mcp', label: '即時腳本 MCP' },
-  { to: '/studio/member', label: '會員空間' },
   { to: '/studio/kids-family', label: '兒童課家長模式' },
-  { to: '/studio/resources', label: '資源系統' },
-  { to: '/studio/news-feed', label: '科技新知動態牆' },
-  { to: '/studio/extensions', label: '延伸課程' },
-  { to: '/studio/ops-course', label: '從上線到維運' },
 ]
 
 /** 文件清單與每一份文件。 */
@@ -54,7 +52,7 @@ const SECTIONS: Section[] = [
   { id: 'members', label: '會員', to: '/studio/members' },
   { id: 'levels', label: '課程', to: '/studio/tools', tabs: LEVELS },
   { id: 'dev', label: '開發', to: '/studio/visuals', tabs: DEV },
-  { id: 'ideas', label: '構想', to: '/studio/mcp', tabs: IDEAS },
+  { id: 'ideas', label: '構想', to: '/studio/kids-family', tabs: IDEAS },
   { id: 'docs', label: '文件', to: '/studio/docs', tabs: DOCS, wrapTabs: true },
   { id: 'tools', label: '工具', to: '/materials' },
 ]
@@ -177,7 +175,8 @@ export function ProposalLayout({ title, footer, back = true, wide = false, child
             <nav ref={subtabsRef} className={section.wrapTabs ? `${ui.subtabs} ${ui['subtabs-wrap']}` : ui.subtabs} aria-label={`${section.label}頁面`}>
               {groupRuns(section.tabs).map((run) => {
                 // 群組預設收合:只留目前所在的那一課,按群組名稱展開
-                const open = run.group ? openGroups.includes(run.group) : true
+                // 目前所在的群組預設展開(同組的其他頁才選得到),其他群組收合;按群組名稱反轉
+                const open = run.group ? run.tabs.some((t) => tabActive(t, pathname)) !== openGroups.includes(run.group) : true
                 const shown = open ? run.tabs : run.tabs.filter((t) => tabActive(t, pathname))
                 const links = shown.map((t) => (
                   <Link key={t.to} to={t.to} aria-current={tabActive(t, pathname) ? 'page' : undefined} title={t.code ? `${t.code} ${t.label}` : t.label}>

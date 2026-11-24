@@ -535,7 +535,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       {/* 控制面板:標題列、章節膠囊和播放器的控制列一起淡出淡入(ControlPanel.tsx) */}
       <ControlPanel box={boxRef} shell={() => ctrl.current?.shell}>
         <header className={styles.head}>
-          <Link to={course?.back.to ?? back?.to ?? '/studio/mcp'} className={styles.back}>
+          <Link to={course?.back.to ?? back?.to ?? '/studio'} className={styles.back}>
             {course?.back.label ?? back?.label ?? '← 構想'}
           </Link>
           {/* 手機直拿:課程名稱移到播放窗下方的資訊區(那裡的 h1),這裡不放,頁面只有一個標題 */}

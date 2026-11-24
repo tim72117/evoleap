@@ -8,7 +8,6 @@ import { AiToolsPage } from './AiToolsPage'
 import { CoverPage } from './CoverPage'
 import { FieldsPage } from './FieldsPage'
 import { KidsWebPage } from './KidsWebPage'
-import { OpsCoursePage } from './OpsCoursePage'
 import { WebBasicsPage } from './WebBasicsPage'
 import { KidsLesson01Page } from '../kids/KidsLesson01Page'
 import { KidsLesson01LivePage } from '../kids/KidsLesson01LivePage'
@@ -19,18 +18,16 @@ import { FableTrialPage } from '../fable/FableTrialPage'
 import { ScenesPage } from '../fable/ScenesPage'
 import { L1IdeasPage } from './L1IdeasPage'
 import { LifeToolsPage } from './LifeToolsPage'
-import { McpPage } from './McpPage'
-import { LiveScriptMcpPage } from './LiveScriptMcpPage'
-import { MemberPage } from './MemberPage'
 import { KidsFamilyPage } from './KidsFamilyPage'
-import { NewsFeedPage } from './NewsFeedPage'
-import { ExtensionsPage } from './ExtensionsPage'
+import { MathSharePage } from './MathSharePage'
+import { MathAreaPage } from './MathAreaPage'
+import { MathFractionPage } from './MathFractionPage'
+import { Print3dPage } from './print3d/Print3dPage'
 import { PictureBookPage } from './PictureBookPage'
 import { PortraitPage } from './PortraitPage'
 import { PracticePage } from '../practice/PracticePage'
 import { DocsPage } from './DocsPage'
 import { ProposalIndexPage } from './ProposalIndexPage'
-import { ResourcesPage } from './ResourcesPage'
 import { StructurePage } from './StructurePage'
 import { ToolsPage } from './ToolsPage'
 import { VibeCodingPage } from './VibeCodingPage'
@@ -52,13 +49,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/ai-agent/structure', element: <StructurePage /> },
   { path: '/studio/ai-agent/cover', element: <CoverPage /> },
   { path: '/studio/advanced', element: <AdvancedPage /> },
-  { path: '/studio/mcp', element: <McpPage /> },
-  { path: '/studio/live-script-mcp', element: <LiveScriptMcpPage /> },
-  { path: '/studio/member', element: <MemberPage /> },
   { path: '/studio/kids-family', element: <KidsFamilyPage /> },
-  { path: '/studio/resources', element: <ResourcesPage /> },
-  { path: '/studio/news-feed', element: <NewsFeedPage /> },
-  { path: '/studio/extensions', element: <ExtensionsPage /> },
   { path: '/studio/actor-interaction', element: <ActorInteractionPage /> },
   { path: '/studio/actor-interaction/showcase', element: <ActorsPage /> },
   { path: '/studio/actor-interaction/scene', element: <InteractiveScenePage key="bakery" script="lab/interactive-bakery.json" pageTitle="互動教學場景" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
@@ -67,7 +58,6 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
   { path: '/studio/kids-web', element: <KidsWebPage /> },
   { path: '/studio/web-basics', element: <WebBasicsPage /> },
-  { path: '/studio/ops-course', element: <OpsCoursePage /> },
   // 網頁運作知識的試做:單元 5 的 5.1 開發者工具(序章、1.1、1.2 已是正式課,在 /courses/web),腳本在 content/live/lab/web/
   ...(['5.1'] as const).map((id) => ({
     path: `/studio/web-basics/${id.replace('.', '-')}`,
@@ -86,6 +76,10 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/visuals', element: <VisualsPage /> },
   { path: '/studio/portrait', element: <PortraitPage /> },
   { path: '/studio/picture-book', element: <PictureBookPage /> },
+  { path: '/studio/math-fraction', element: <MathFractionPage /> },
+  { path: '/studio/math-area', element: <MathAreaPage /> },
+  { path: '/studio/math-share', element: <MathSharePage /> },
+  { path: '/studio/print3d', element: <Print3dPage /> },
   { path: '/studio/practice', element: <PracticePage /> },
   // 畫面試作:從做好到上線 0.1 不用字卡、全用場景與動畫演(演員只登記給這一頁,腳本在 content/live/lab/fable/)
   { path: '/studio/fable-trial', element: <FableTrialPage /> },
