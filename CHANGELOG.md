@@ -4,6 +4,15 @@
 
 ## [Unreleased]
 
+## [0.48.1] - 2026-11-24
+
+v0.48.0 的部署在 e2e 失敗(沒有發佈到正式機);內容與 0.48.0 相同,只修下面兩處。
+
+### 修正
+
+- **`/en/courses` 的 `<title>` 在頁面載入後變回中文**:全部課程頁讀的是中文常數,改成依語言的字典(`i18n/zh|en/courses.ts` 的 `list.seoTitle`)。
+- **e2e 清單過時**:導覽測試還列著已移除的 `/studio/ops-course`、`/studio/extensions`、`/studio/live-script-mcp`;`seo.spec.ts` 對 sitemap 每個網址都要求 `<html lang="zh-Hant">`,現在 `/en/...` 的英文頁預期 `en`。
+
 ## [0.48.0] - 2026-11-24
 
 ### 新增

@@ -39,6 +39,7 @@ export const courses = {
     intro: '依主題列出所有課程。標示「規劃中」的課程名稱與內容仍在規劃，可能調整。',
     openN: (n: number) => `已開放 ${n} 課`,
     otherPlanned: '其他規劃中',
+    seoTitle: '全部課程：從零基礎到 AI 互動軟體',
     viewMap: '看課程地圖',
   },
 

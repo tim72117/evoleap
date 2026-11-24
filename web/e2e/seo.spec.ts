@@ -28,7 +28,7 @@ test('sitemap 的每個網址:200、head 標籤完整且正確', async ({ reques
     const h = parseHead(await r.text())
     const url = ORIGIN + path
 
-    expect.soft(h.htmlLang, `${path}:<html lang>`).toBe('zh-Hant')
+    expect.soft(h.htmlLang, `${path}:<html lang>`).toBe(path === '/en' || path.startsWith('/en/') ? 'en' : 'zh-Hant')
     expect.soft(h.titles.length, `${path}:<title> 數量`).toBe(1)
     expect.soft(h.titles[0]?.trim().length ?? 0, `${path}:<title> 不可為空`).toBeGreaterThan(0)
     expect.soft(h.meta('description').length, `${path}:meta description 數量`).toBe(1)

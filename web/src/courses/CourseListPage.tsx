@@ -48,7 +48,7 @@ export function CourseListPage() {
   const t = useT()
   const list = useCourseList()
   return (
-    <SiteLayout title={COURSE_LIST.seoTitle}>
+    <SiteLayout title={t.courses.list.seoTitle}>
       <div className={styles.container}>
         <header className={styles.head}>
           <h1>{COURSE_LIST.name}</h1>

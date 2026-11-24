@@ -53,6 +53,7 @@ export const courses: Messages['courses'] = {
     intro: 'All courses, grouped by topic. Courses marked “Coming soon” are still being planned, so their names and content may change.',
     openN: (n) => `${n} ${Number(n) === 1 ? 'lesson' : 'lessons'} available`,
     otherPlanned: 'More coming soon',
+    seoTitle: 'All Courses: From Zero to Interactive AI Software',
     viewMap: 'View course map',
   },
 
