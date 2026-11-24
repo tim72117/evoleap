@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>排版練習</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page" data-scene="cards" data-lay="block">
+    <div class="top">
+      <!-- 過關的目標(只在 nav、album 兩關出現) -->
+      <div class="goal" id="goal">
+        <span class="g-k">目標</span>
+        <span class="g-nav"><span class="gn-logo"></span><span class="gn-sp"></span><span class="gn-l"></span><span class="gn-l"></span><span class="gn-l"></span></span>
+        <span class="g-album"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+        <span class="g-txt g-t-nav">Logo 在左、選單在右，排成一排</span>
+        <span class="g-txt g-t-album">照片排成三欄，一列一列對齊</span>
+      </div>
+      <!-- 外面容器的 CSS -->
+      <code class="css" id="css">
+        <span class="c c-block">/* 沒有設定排版：一個接一個往下排 */</span>
+        <span class="c c-row">display: flex;</span>
+        <span class="c c-between">display: flex;<br>justify-content: space-between;</span>
+        <span class="c c-center">display: flex;<br>justify-content: center;<br>align-items: center;</span>
+        <span class="c c-gap">display: flex;<br>justify-content: center;<br>align-items: center;<br>gap: 24px;</span>
+        <span class="c c-grid2">display: grid;<br>grid-template-columns: 1fr 1fr;<br>gap: 16px;</span>
+        <span class="c c-grid3">display: grid;<br>grid-template-columns: 1fr 1fr 1fr;<br>gap: 16px;</span>
+        <span class="c c-auto">display: grid;<br>grid-template-columns:<br>　repeat(auto-fill, minmax(220px, 1fr));</span>
+        <span class="c c-none">/* 還沒排 */</span>
+        <span class="c c-nav-flex">display: flex;<br>justify-content: space-between;</span>
+        <span class="c c-nav-grid">display: grid;<br>grid-template-columns: 1fr 1fr;</span>
+        <span class="c c-album-flex">display: flex;<br>flex-wrap: wrap;</span>
+        <span class="c c-album-grid">display: grid;<br>grid-template-columns: repeat(3, 1fr);</span>
+      </code>
+    </div>
+
+    <div class="stagebox" id="stagebox">
+      <!-- 三張卡片:Flex -->
+      <div class="box cards" id="cards">
+        <div class="card"><span class="ic i1"></span>拿鐵</div>
+        <div class="card"><span class="ic i2"></span>手沖</div>
+        <div class="card"><span class="ic i3"></span>可頌</div>
+      </div>
+      <!-- 六張卡片:Grid -->
+      <div class="box grid6" id="grid6">
+        <div class="card"><span class="ic i1"></span>拿鐵</div><div class="card"><span class="ic i2"></span>手沖</div><div class="card"><span class="ic i3"></span>可頌</div>
+        <div class="card"><span class="ic i4"></span>司康</div><div class="card"><span class="ic i5"></span>冰滴</div><div class="card"><span class="ic i6"></span>布丁</div>
+      </div>
+      <!-- 第 1 關:導覽列 -->
+      <div class="box navbar" id="navbar">
+        <div class="logo"><span class="dot"></span>小森咖啡</div>
+        <div class="menus"><div class="menu">菜單</div><div class="menu">課程</div><div class="menu">門市</div><div class="menu">預約</div></div>
+      </div>
+      <!-- 第 2 關:相簿 -->
+      <div class="box album" id="album">
+        <div class="ph a1"></div><div class="ph a2"></div><div class="ph a3"></div><div class="ph a4"></div><div class="ph a5"></div><div class="ph a6"></div>
+      </div>
+    </div>
+  </div>
+
+  <div hidden>
+    <button data-set="lay=row"></button>
+    <button data-set="lay=between"></button>
+    <button data-set="lay=center"></button>
+    <button data-set="lay=gap"></button>
+    <button data-set="scene=grid lay=grid2"></button>
+    <button data-set="lay=grid3"></button>
+    <button data-set="lay=auto"></button>
+    <button data-set="scene=nav lay=none"></button>
+    <button data-set="lay=nav-flex"></button>
+    <button data-set="lay=nav-grid"></button>
+    <button data-set="scene=album lay=none"></button>
+    <button data-set="lay=album-flex"></button>
+    <button data-set="lay=album-grid"></button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

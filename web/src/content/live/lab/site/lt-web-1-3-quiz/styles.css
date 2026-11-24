@@ -1,0 +1,41 @@
+* { box-sizing: border-box; }
+body { margin: 0; display: flex; flex-direction: column; font-family: sans-serif; background: #eef0f4; color: #2c2f38; }
+.page { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 18px 30px; }
+.ask { font-size: 20px; color: #5b6275; }
+.n { display: none; padding: 4px 14px; border-radius: 999px; background: #fff; }
+.page[data-q='blog'] .q-blog-n, .page[data-q='book'] .q-book-n, .page[data-q='news'] .q-news-n { display: inline-block; }
+
+.site { display: none; flex-direction: column; gap: 12px; }
+.page[data-q='blog'] .q-blog, .page[data-q='book'] .q-book, .page[data-q='news'] .q-news { display: flex; }
+.row { display: grid; gap: 12px; }
+.blog-row { grid-template-columns: 250px 1fr; }
+
+.zone { position: relative; padding: 14px 20px 14px 70px; border-radius: 14px; background: #fff; outline: 4px dashed #b7bdcb; outline-offset: -2px; }
+.zone::before { content: attr(data-l); position: absolute; left: 14px; top: 12px; width: 42px; height: 42px; border-radius: 50%; background: #2c2f38; color: #fff; font: bold 24px/42px sans-serif; text-align: center; }
+.zone::after { content: attr(data-name); position: absolute; right: 12px; top: -15px; padding: 2px 12px; border-radius: 8px; background: #6b7280; color: #fff; font: bold 17px/1.5 sans-serif; display: none; }
+.brand { font-size: 28px; font-weight: bold; }
+#blog-a, #book-a, #news-a { display: flex; align-items: center; gap: 30px; }
+.links { display: flex; gap: 20px; margin-left: auto; font-size: 19px; color: #3d5ad6; }
+.tabs { display: flex; gap: 34px; font-size: 21px; color: #3d5ad6; background: #f7f8ff; }
+h2 { margin: 0 0 6px; font-size: 26px; }
+p { margin: 0; font-size: 19px; line-height: 1.5; }
+.small { font-size: 17px; color: #5b6275; line-height: 1.6; }
+.me { width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle at 50% 38%, #f3c9a0 0 30%, transparent 31%), radial-gradient(circle at 50% 100%, #5a8f5f 0 50%, transparent 51%), #dfe9df; margin-bottom: 6px; }
+.ph { height: 80px; margin: 8px 0; border-radius: 10px; background: linear-gradient(160deg, #cfe6d2 0 40%, #9cc79f 41% 60%, #6f9d73 61%); }
+.slots { display: flex; gap: 12px; margin: 6px 0 10px; }
+.slots span { padding: 6px 16px; border: 2px solid #c9cfdc; border-radius: 10px; font-size: 19px; }
+.slots .on { border-color: #3d5ad6; background: #3d5ad6; color: #fff; }
+.btn { display: inline-block; padding: 8px 22px; border-radius: 999px; background: #2c2f38; color: #fff; font-size: 18px; }
+
+/* 回答之後:每一塊都標出真正的名字;正確答案變綠,選錯的變紅 */
+.page[data-pick^='blog'] .q-blog .zone::after,
+.page[data-pick^='book'] .q-book .zone::after,
+.page[data-pick^='news'] .q-news .zone::after { display: block; }
+.page[data-pick^='blog'] #blog-c, .page[data-pick^='book'] #book-b, .page[data-pick^='news'] #news-d { outline: 6px solid #0f9d74; background: #ecfaf4; }
+.page[data-pick^='blog'] #blog-c::after, .page[data-pick^='book'] #book-b::after, .page[data-pick^='news'] #news-d::after { background: #0f9d74; }
+.page[data-pick='blog-a'] #blog-a, .page[data-pick='blog-b'] #blog-b, .page[data-pick='blog-d'] #blog-d,
+.page[data-pick='book-a'] #book-a, .page[data-pick='book-c'] #book-c, .page[data-pick='book-d'] #book-d,
+.page[data-pick='news-a'] #news-a, .page[data-pick='news-b'] #news-b, .page[data-pick='news-c'] #news-c { outline: 6px solid #d64545; background: #fff2f2; }
+.page[data-pick='blog-a'] #blog-a::after, .page[data-pick='blog-b'] #blog-b::after, .page[data-pick='blog-d'] #blog-d::after,
+.page[data-pick='book-a'] #book-a::after, .page[data-pick='book-c'] #book-c::after, .page[data-pick='book-d'] #book-d::after,
+.page[data-pick='news-a'] #news-a::after, .page[data-pick='news-b'] #news-b::after, .page[data-pick='news-c'] #news-c::after { background: #d64545; }

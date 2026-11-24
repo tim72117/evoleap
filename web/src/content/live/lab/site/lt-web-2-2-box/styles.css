@@ -1,0 +1,61 @@
+* { box-sizing: border-box; }
+body { margin: 0; display: flex; flex-direction: column; font-family: sans-serif; background: #f2efe9; color: #2f2a24; }
+.page { flex: 1; display: grid; grid-template-columns: 1fr 470px; align-items: center; gap: 24px; padding: 18px 28px; }
+
+/* ---------- 左邊:兩張商品卡 ---------- */
+.shelf { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 26px 10px; border-radius: 20px; background: #fff; }
+.row { display: flex; align-items: flex-start; justify-content: center; }
+.card { box-sizing: content-box; width: 200px; padding: var(--p); border: var(--b) solid #8b6b4a; margin: var(--m); border-radius: 6px; background: #fffaf2; }
+.inner { display: flex; flex-direction: column; gap: 4px; }
+.pic { height: 120px; border-radius: 4px; }
+.p1 { background: radial-gradient(circle at 50% 60%, #8a5a3a 0 24%, transparent 25%), #ecdcc8; }
+.p2 { background: radial-gradient(ellipse 34% 18% at 50% 60%, #c9b08f 0 90%, transparent 92%), #e2e8de; }
+.inner b { font-size: 22px; }
+.inner span { font-size: 20px; color: #a14a1c; }
+.size { font-size: 19px; color: #5b5249; }
+.size i { font-style: normal; font-weight: bold; color: #2f7d4f; }
+.size b { color: #2f2a24; }
+
+/* 透視:像開發者工具一樣上色(內容藍、內距綠、邊框黃、外距橘) */
+.page[data-show='on'] .card { background: #c7ecd2; outline: var(--m) solid rgba(246, 166, 74, 0.45); border-color: #e9c046; }
+.page[data-show='on'] .inner { background: #cfe0ff; }
+
+/* ---------- 右邊:盒模型圖 ---------- */
+.side { display: flex; flex-direction: column; gap: 16px; }
+.model { padding: 18px; border-radius: 20px; background: #fff; }
+.ly { position: relative; border-radius: 10px; border: 3px dashed rgba(0, 0, 0, 0.25); }
+.lb { position: absolute; left: 12px; top: 4px; font-size: 17px; font-weight: bold; white-space: nowrap; }
+.lb i { font-style: normal; margin-left: 6px; padding: 0 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.7); }
+.l-margin { background: #fbd9b0; padding: calc(34px + var(--m) * 0.6) 18px 18px; }
+.l-border { background: #f7e08a; padding: calc(34px + var(--b) * 1.6) 16px 16px; border-style: solid; border-color: #c9a227; border-width: calc(3px + var(--b) * 0.6); }
+.l-padding { background: #bfe8cb; padding: calc(30px + var(--p) * 0.7) calc(14px + var(--p) * 0.7) calc(14px + var(--p) * 0.7); }
+.l-content { padding: 22px 10px; background: #cfe0ff; text-align: center; font-size: 20px; font-weight: bold; border-style: solid; border-color: #6b8fd6; }
+
+/* 一層一層長出來:還沒介紹的層變透明、沒有標籤 */
+.page[data-layer='content'] .l-padding, .page[data-layer='content'] .l-border, .page[data-layer='content'] .l-margin,
+.page[data-layer='padding'] .l-border, .page[data-layer='padding'] .l-margin,
+.page[data-layer='border'] .l-margin { background: transparent; border-color: transparent; }
+.page[data-layer='content'] .l-padding > .lb, .page[data-layer='content'] .l-border > .lb, .page[data-layer='content'] .l-margin > .lb,
+.page[data-layer='padding'] .l-border > .lb, .page[data-layer='padding'] .l-margin > .lb,
+.page[data-layer='border'] .l-margin > .lb { visibility: hidden; }
+.page[data-layer='content'] .l-content, .page[data-layer='padding'] .l-padding, .page[data-layer='border'] .l-border, .page[data-layer='margin'] .l-margin { box-shadow: 0 0 0 5px #2f2a24; }
+
+/* 調整鈕 */
+.ctrl { display: flex; gap: 12px; }
+.cr { flex: 1; display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 14px; background: #fff; font-size: 18px; }
+.cr span { margin-right: auto; font-weight: bold; }
+.cr button { width: 40px; height: 40px; border: 0; border-radius: 50%; background: #2f2a24; color: #fff; font-size: 22px; }
+.page[data-pad='0'] { --p: 4px; } .page[data-pad='0'] .v-pad::after { content: '4'; }
+.page[data-pad='1'] { --p: 18px; } .page[data-pad='1'] .v-pad::after { content: '18'; }
+.page[data-pad='2'] { --p: 34px; } .page[data-pad='2'] .v-pad::after { content: '34'; }
+.page[data-bor='0'] { --b: 2px; } .page[data-bor='0'] .v-bor::after { content: '2'; }
+.page[data-bor='1'] { --b: 8px; } .page[data-bor='1'] .v-bor::after { content: '8'; }
+.page[data-mar='0'] { --m: 0px; } .page[data-mar='0'] .v-mar::after { content: '0'; }
+.page[data-mar='1'] { --m: 16px; } .page[data-mar='1'] .v-mar::after { content: '16'; }
+.page[data-mar='2'] { --m: 32px; } .page[data-mar='2'] .v-mar::after { content: '32'; }
+.page[data-pad='0'][data-bor='0'] .v-total::after { content: '212'; }
+.page[data-pad='0'][data-bor='1'] .v-total::after { content: '224'; }
+.page[data-pad='1'][data-bor='0'] .v-total::after { content: '240'; }
+.page[data-pad='1'][data-bor='1'] .v-total::after { content: '252'; }
+.page[data-pad='2'][data-bor='0'] .v-total::after { content: '272'; }
+.page[data-pad='2'][data-bor='1'] .v-total::after { content: '284'; }

@@ -1,0 +1,223 @@
+{
+  "title": "事件：發生了什麼事",
+  "lesson": "網頁怎麼運作 · 單元 3 · 3.1",
+  "teacher": {
+    "say": "今天看網頁怎麼知道你做了什麼",
+    "line": "今天要來看看，你點一下、打一個字，網頁是怎麼知道，又怎麼回應的。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-web-3-1-deaf",
+        "url": "https://pottery.example/"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "事件：發生了什麼事",
+      "eyebrow": "網頁怎麼運作 · 單元 3 · 3.1",
+      "chapter": "按了沒反應",
+      "narration": "你一定遇過：按了按鈕，什麼事都沒發生。這一課從這個問題開始，看網頁怎麼知道你做了什麼。"
+    },
+    {
+      "show": "web",
+      "narration": "這是一個賣陶杯的網頁。左邊是網頁本身，右邊是我替你打開的幕後：事件紀錄，瀏覽器發出的每個訊號都會記在這裡。"
+    },
+    {
+      "click": "#add",
+      "narration": "按下加入購物車。"
+    },
+    {
+      "callout": "web:sel:.cart",
+      "text": "購物車還是 0",
+      "narration": "購物車還是 0，什麼都沒發生。"
+    },
+    {
+      "callout": "web:sel:#latest",
+      "text": "click 發生了，但沒有程式在聽",
+      "narration": "可是右邊的紀錄寫著：發生了一次 click，也就是點擊。按鈕確實被按了，只是沒有任何程式在等這件事。"
+    },
+    {
+      "callout": "web:sel:#chips",
+      "text": "事件：使用者做的每個動作",
+      "chapter": "事件",
+      "narration": "你在網頁上做的每個動作，點一下、打一個字、捲動、送出表單，瀏覽器都會發出一個訊號，叫做事件。最常見的就是這四種。"
+    },
+    {
+      "site": "lt-web-3-1-shop",
+      "chapter": "監聽：等著事件發生",
+      "narration": "這是修好的版本。看起來幾乎一樣，但按鈕旁邊多了一個小標籤。"
+    },
+    {
+      "callout": "web:sel:#add-ear",
+      "text": "監聽：在這裡等 click 發生",
+      "narration": "它表示這個按鈕上，有一段程式在監聽 click。監聽，就是讓程式守在某個元素旁邊，等某一種事件發生。"
+    },
+    {
+      "click": "#add",
+      "narration": "再按一次。這次 click 一發生，正在聽的程式就被叫起來，購物車變成 1。"
+    },
+    {
+      "callout": "web:sel:#latest",
+      "text": "addToCart()：被叫起來的函式",
+      "narration": "被叫起來的這段程式，叫做函式。函式就是一包有名字的步驟，需要的時候叫它，它就照做。這裡的名字是 addToCart，加入購物車。"
+    },
+    {
+      "click": "#add",
+      "narration": "每按一次，就發生一次 click，函式就再做一次。購物車變成 2。"
+    },
+    {
+      "callout": "web:sel:#email-ear",
+      "text": "這個欄位在聽 input",
+      "chapter": "輸入與送出",
+      "narration": "接著看 Email 欄位。它聽的是另一種事件：input，輸入。每打一個字，就發生一次 input。"
+    },
+    {
+      "fill": {
+        "#email": "may.lin"
+      },
+      "narration": "打幾個字看看。"
+    },
+    {
+      "callout": "web:sel:#hint",
+      "text": "邊打邊檢查：少了 @",
+      "narration": "你還沒按任何按鈕，它就提醒你格式不對。因為聽 input 的函式，在你打字的時候就檢查了。"
+    },
+    {
+      "fill": {
+        "#email": "may.lin@mail.com"
+      },
+      "narration": "補完整，提醒馬上變成格式正確。"
+    },
+    {
+      "click": "#sub",
+      "narration": "按下訂閱。按鈕在表單裡，所以這一下除了點擊，表單還會發出 submit 事件，也就是送出。"
+    },
+    {
+      "callout": "web:sel:#latest",
+      "text": "submit → subscribe()",
+      "narration": "聽 submit 的函式 subscribe 被叫起來，把訂閱成功顯示出來。"
+    },
+    {
+      "callout": "web:sel:.chip-scroll",
+      "text": "scroll：捲動時發生",
+      "chapter": "捲動",
+      "narration": "還有一種很常見的事件：scroll，捲動。購物網站捲到最下面，自動載入更多商品，就是有程式在聽 scroll：發現你捲到底了，就再要一批商品來。"
+    },
+    {
+      "callout": "web:sel:#flow",
+      "text": "你做一件事 → 事件 → 監聽的函式 → 畫面改變",
+      "narration": "整理一下：你做了一件事，瀏覽器發出事件；有程式在監聽，就叫起對應的函式；函式改變畫面。按了沒反應的時候，常常就是中間少了監聽。"
+    },
+    {
+      "callout": "web:sel:#chips",
+      "text": "換你判斷",
+      "chapter": "換你判斷",
+      "narration": "換你判斷看看。"
+    },
+    {
+      "checkpoint": "在密碼欄位打字時，下面即時顯示「至少 8 個字」。這是哪一個事件觸發的？",
+      "body": "注意「打字時」和「即時」：還沒按任何按鈕。",
+      "id": "typing",
+      "stage": {
+        "focus": "web:sel:#chips"
+      },
+      "options": [
+        {
+          "label": "click 點擊",
+          "target": "web:sel:.chip-click",
+          "steps": [
+            {
+              "callout": "web:sel:.chip-input",
+              "text": "打字是 input",
+              "narration": "click 是點一下。打字時即時檢查，聽的是 input：每打一個字就發生一次。"
+            }
+          ]
+        },
+        {
+          "label": "input 輸入",
+          "target": "web:sel:.chip-input",
+          "steps": [
+            {
+              "callout": "web:sel:.chip-input",
+              "text": "對：每打一個字，就發生一次 input",
+              "narration": "對。每打一個字就發生一次 input，聽它的函式就能邊打邊檢查。"
+            }
+          ]
+        },
+        {
+          "label": "submit 送出",
+          "target": "web:sel:.chip-submit",
+          "steps": [
+            {
+              "callout": "web:sel:.chip-input",
+              "text": "還沒送出；打字是 input",
+              "narration": "submit 要等按下送出才發生。題目是打字時就即時顯示，所以是 input。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "checkpoint": "社群網站捲到最下面，自動出現更多貼文。這是哪一個事件觸發的？",
+      "body": "你沒有點任何按鈕，只是一直往下滑。",
+      "id": "more",
+      "stage": {
+        "focus": "web:sel:#chips"
+      },
+      "options": [
+        {
+          "label": "click 點擊",
+          "target": "web:sel:.chip-click",
+          "steps": [
+            {
+              "callout": "web:sel:.chip-scroll",
+              "text": "往下滑是 scroll",
+              "narration": "有些網站是按「載入更多」按鈕，那是 click。但這題你只是往下滑，聽的是 scroll。"
+            }
+          ]
+        },
+        {
+          "label": "scroll 捲動",
+          "target": "web:sel:.chip-scroll",
+          "steps": [
+            {
+              "callout": "web:sel:.chip-scroll",
+              "text": "對：捲動時發生 scroll",
+              "narration": "對。程式聽 scroll，發現你捲到底了，就去要下一批貼文。"
+            }
+          ]
+        },
+        {
+          "label": "input 輸入",
+          "target": "web:sel:.chip-input",
+          "steps": [
+            {
+              "callout": "web:sel:.chip-scroll",
+              "text": "沒有打字；往下滑是 scroll",
+              "narration": "input 是在欄位裡打字。只是往下滑，發生的是 scroll。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "「在 Email 欄位監聽 input 事件，\n邊打字邊檢查格式」",
+      "eyebrow": "跟 AI 這樣說",
+      "sub": "說清楚：哪個元素、聽哪個事件、要做什麼",
+      "chapter": "跟 AI 這樣說",
+      "narration": "以後請 AI 加互動，可以這樣說：在 Email 欄位監聽 input 事件，邊打字邊檢查格式。哪個元素、聽哪個事件、要做什麼，三件事都說到了。"
+    },
+    {
+      "card": "使用者的每個動作都是一個事件\n監聽讓程式等著事件發生\n事件發生時，叫起對應的函式",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：事件、點擊、輸入、監聽、函式",
+      "chapter": "學會",
+      "narration": "網頁靠事件知道你做了什麼：點擊、輸入、捲動、送出。程式在元素上監聽某個事件，事件一發生，就叫起對應的函式去做事。下一課，我們來看函式改了什麼，畫面為什麼跟著變。"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>小森選物｜週末特價</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page" data-sel="p" data-apply="yes">
+    <!-- 樣式規則 -->
+    <div class="rule" id="rule">
+      <span class="r-k">CSS 樣式規則</span>
+      <code><span class="s" id="s-sel"><span class="t-p">p</span><span class="t-price">.price</span><span class="t-sale">.sale</span><span class="t-id">#buy-3</span><span class="t-none">選擇器</span></span> { <span class="decl" id="decl">color: red;</span> }</code>
+      <span class="count"><span class="c-p">選中 9 個</span><span class="c-price">選中 6 個</span><span class="c-sale">選中 2 個</span><span class="c-id">選中 1 個</span></span>
+    </div>
+
+    <div class="body">
+      <div class="shop">
+        <p class="intro hit-p">週末兩天，限定商品特價中！</p>
+        <div class="grid">
+          <div class="card"><div class="pic a"></div><h3>柴燒馬克杯</h3><p class="price hit-p hit-price">NT$ 680</p><button id="buy-1">加入購物車</button></div>
+          <div class="card"><div class="pic b"></div><h3>粗陶小盤</h3><p class="price hit-p hit-price">NT$ 420</p><button id="buy-2">加入購物車</button></div>
+          <div class="card on-sale"><span class="badge">特價</span><div class="pic c"></div><h3>手捏茶杯</h3><p class="price sale hit-p hit-price hit-sale">NT$ 390</p><button id="buy-3" class="hit-id">加入購物車</button></div>
+          <div class="card"><div class="pic d"></div><h3>木紋湯匙</h3><p class="price hit-p hit-price">NT$ 180</p><button id="buy-4">加入購物車</button></div>
+          <div class="card on-sale"><span class="badge">特價</span><div class="pic e"></div><h3>麻布杯墊</h3><p class="price sale hit-p hit-price hit-sale">NT$ 99</p><button id="buy-5">加入購物車</button></div>
+          <div class="card"><div class="pic f"></div><h3>玻璃水壺</h3><p class="price hit-p hit-price">NT$ 850</p><button id="buy-6">加入購物車</button></div>
+        </div>
+        <p class="note hit-p">運費滿 NT$ 1,000 免運</p>
+        <p class="note hit-p">有問題歡迎來信詢問</p>
+      </div>
+
+      <!-- 第三張卡片的 HTML:選擇器比對的是這些名字 -->
+      <div class="peek" id="peek">
+        <div class="pk-t">第三張卡片的 HTML</div>
+<pre><span class="k">&lt;div</span> <span class="a">class</span>=<span class="v">"card"</span><span class="k">&gt;</span>
+  <span class="k">&lt;h3&gt;</span>手捏茶杯<span class="k">&lt;/h3&gt;</span>
+  <span class="k">&lt;<span class="m-p">p</span></span> <span class="a">class</span>=<span class="v">"<span class="m-price">price</span> <span class="m-sale">sale</span>"</span><span class="k">&gt;</span>
+    NT$ 390
+  <span class="k">&lt;/p&gt;</span>
+  <span class="k">&lt;button</span> <span class="a">id</span>=<span class="v">"<span class="m-id">buy-3</span>"</span><span class="k">&gt;</span>
+    加入購物車
+  <span class="k">&lt;/button&gt;</span>
+<span class="k">&lt;/div&gt;</span></pre>
+        <div class="pk-legend"><span class="m-x">p</span> 標籤名稱　<span class="m-x">.price</span> class　<span class="m-x">#buy-3</span> id</div>
+      </div>
+    </div>
+  </div>
+
+  <div hidden>
+    <button data-set="apply=no"></button>
+    <button data-set="sel=none apply=no"></button>
+    <button data-set="sel=p"></button>
+    <button data-set="sel=price"></button>
+    <button data-set="sel=id"></button>
+    <button data-set="sel=sale"></button>
+    <button data-set="sel=p apply=yes"></button>
+    <button data-set="sel=price apply=yes"></button>
+    <button data-set="sel=sale apply=yes"></button>
+    <button data-set="sel=id apply=yes"></button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

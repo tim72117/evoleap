@@ -1,0 +1,189 @@
+{
+  "title": "狀態與畫面更新",
+  "lesson": "網頁怎麼運作 · 單元 3 · 3.2",
+  "teacher": {
+    "say": "今天看畫面為什麼會變",
+    "line": "今天要來看看，按下按鈕之後，畫面上的數字為什麼會跟著變。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-web-3-2-shop",
+        "url": "https://select.example/"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "狀態與畫面更新",
+      "eyebrow": "網頁怎麼運作 · 單元 3 · 3.2",
+      "chapter": "數字跑去哪了？",
+      "narration": "上一課看到，按下按鈕會叫起一個函式。這一課來看，函式改了什麼，畫面才會跟著變。先從一個小謎題開始。"
+    },
+    {
+      "show": "web",
+      "narration": "這是一個賣陶杯的網頁。右上角是購物車，現在是 0。"
+    },
+    {
+      "click": "#add",
+      "narration": "按加入購物車，變成 1。"
+    },
+    {
+      "click": "#add",
+      "narration": "再按一次，變成 2。"
+    },
+    {
+      "reload": true,
+      "narration": "現在，重新整理網頁。"
+    },
+    {
+      "callout": "web:sel:#cart",
+      "text": "又變回 0 了",
+      "narration": "購物車又變回 0。剛剛的 2 跑去哪裡了？要回答這個問題，得先認識一個新名詞：狀態。"
+    },
+    {
+      "site": "lt-web-3-2-state",
+      "chapter": "狀態：網頁此刻記得的事",
+      "narration": "我在右邊打開幕後，列出這個網頁現在記得的事。"
+    },
+    {
+      "callout": "web:sel:#panel",
+      "text": "狀態：網頁此刻記得的事",
+      "narration": "網頁此刻記得的事情，叫做狀態：購物車有幾件、你有沒有登入、選單有沒有打開。"
+    },
+    {
+      "callout": "web:sel:#st-cart",
+      "text": "變數：貼了名字的盒子",
+      "narration": "每一項狀態，存在一個變數裡。變數就像貼了名字的盒子：cartCount 這個盒子裡，現在放著 0。"
+    },
+    {
+      "click": "#add",
+      "chapter": "先改狀態，再更新畫面",
+      "narration": "按加入購物車，看順序。先是 cartCount 盒子裡的 0 變成 1，"
+    },
+    {
+      "callout": "web:sel:#cart",
+      "text": "再照著新的狀態，把畫面畫出來",
+      "narration": "接著網頁照著新的狀態，重新畫出畫面，右上角才變成 1。這一步叫做更新畫面。"
+    },
+    {
+      "callout": "web:sel:#renders",
+      "text": "狀態一變，就重畫一次",
+      "narration": "函式並沒有直接去改那個數字，它只改狀態。畫面每次都照著狀態重畫。"
+    },
+    {
+      "click": "#login",
+      "chapter": "一個畫面，好幾個狀態",
+      "narration": "按登入。isLoggedIn 從否變成是；畫面上，登入按鈕換成你的名字。"
+    },
+    {
+      "callout": "web:sel:#st-login",
+      "text": "是否登入：是"
+    },
+    {
+      "click": "#menu",
+      "narration": "再按左上角的選單。isMenuOpen 變成是，選單就展開。"
+    },
+    {
+      "callout": "web:sel:#page",
+      "text": "畫面＝照著狀態畫出來的樣子",
+      "narration": "同一個頁面，有好幾個狀態。畫面不是一塊一塊改出來的，而是照著這些狀態畫出來的。狀態變了，畫面才會變。"
+    },
+    {
+      "click": "#menu",
+      "narration": "把選單收起來。"
+    },
+    {
+      "reload": true,
+      "chapter": "重新整理會不見",
+      "narration": "回到一開始的謎題：重新整理。"
+    },
+    {
+      "callout": "web:sel:#panel",
+      "text": "所有盒子都回到一開始的值",
+      "narration": "所有盒子都回到一開始的值：購物車 0、沒有登入、選單關著。這些狀態只存在這一次打開的網頁裡，重新整理或關掉分頁，就不見了。"
+    },
+    {
+      "callout": "web:sel:#st-cart",
+      "text": "要留下來，就得存到別的地方",
+      "narration": "所以剛才的 2 不是跑去哪裡，而是根本沒存下來。要讓購物車在重新整理後還在，就得把它存到別的地方，例如瀏覽器的儲存空間或伺服器，這是之後單元的主題。"
+    },
+    {
+      "callout": "web:sel:#page",
+      "text": "換你找找看",
+      "chapter": "換你找找看",
+      "narration": "換你找找看。"
+    },
+    {
+      "checkpoint": "下面哪一個不是這個頁面的狀態？",
+      "body": "想想看：哪一個會隨著你的操作改變，哪一個一直都一樣？",
+      "id": "which",
+      "stage": {
+        "focus": "web:viewport"
+      },
+      "options": [
+        {
+          "label": "購物車裡有幾件",
+          "target": "web:sel:#cart",
+          "steps": [
+            {
+              "callout": "web:sel:#st-cart",
+              "text": "會變：是狀態",
+              "narration": "購物車的數量會隨著你按按鈕改變，是狀態。一直都不會變的，是店名「小森選物」，它只是寫在網頁上的內容。"
+            }
+          ]
+        },
+        {
+          "label": "有沒有登入",
+          "target": "web:sel:#login",
+          "steps": [
+            {
+              "callout": "web:sel:#st-login",
+              "text": "會變：是狀態",
+              "narration": "有沒有登入會隨著你按登入改變，是狀態。一直都不會變的，是店名「小森選物」，它只是寫在網頁上的內容。"
+            }
+          ]
+        },
+        {
+          "label": "店名「小森選物」",
+          "target": "web:sel:#brand",
+          "steps": [
+            {
+              "callout": "web:sel:#brand",
+              "text": "不會變：只是內容",
+              "narration": "對。店名不管你怎麼操作都一樣，它只是寫在網頁上的內容，不是狀態。購物車數量、是否登入、選單是否展開，才是會變的狀態。"
+            }
+          ]
+        },
+        {
+          "label": "選單有沒有展開",
+          "target": "web:sel:#menu",
+          "steps": [
+            {
+              "callout": "web:sel:#st-menu",
+              "text": "會變：是狀態",
+              "narration": "選單開或關會隨著你點按鈕改變，是狀態。一直都不會變的，是店名「小森選物」，它只是寫在網頁上的內容。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "card": "「重新整理後購物車要保留：\n把 cartCount 存起來，打開網頁時再讀回來」",
+      "eyebrow": "跟 AI 這樣說",
+      "sub": "說出是哪一個狀態、什麼時候會不見、要怎麼留下來",
+      "chapter": "跟 AI 這樣說",
+      "narration": "遇到「重新整理就不見」的問題，可以這樣跟 AI 說：重新整理後購物車要保留，把 cartCount 存起來，打開網頁時再讀回來。你說出了是哪一個狀態，AI 就知道要改哪裡。"
+    },
+    {
+      "card": "畫面是照著狀態畫出來的\n先改狀態，再更新畫面\n重新整理，狀態就回到一開始",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：狀態、變數、更新畫面、重新整理會不見的資料",
+      "chapter": "學會",
+      "narration": "網頁此刻記得的事叫狀態，存在一個個變數裡。按下按鈕，函式先改狀態，網頁再照著狀態更新畫面。這些狀態只活在這次打開的網頁裡，重新整理就回到一開始。下一課，我們來看程式怎麼依條件做不同的事，又怎麼把一份資料畫成很多張卡片。"
+    }
+  ]
+}

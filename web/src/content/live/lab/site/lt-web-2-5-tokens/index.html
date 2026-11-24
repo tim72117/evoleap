@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>晴日瑜珈</title></head>
+<body>
+<div class="app" id="app" data-brand="blue">
+  <div class="page" id="page">
+    <header class="top" id="top"><div class="brand">晴日瑜珈</div><nav class="nav"><a href="#">課表</a><a href="#">老師</a><a href="#">價目</a><a href="#">交通</a></nav></header>
+    <section class="intro"><h1 class="title">本週課表</h1><p class="lead">一堂 60 分鐘，第一次上課可以免費試上。</p></section>
+    <div class="cards" id="cards">
+      <div class="card" id="c1">
+        <div class="pic p1"></div>
+        <h2>晨間流動</h2>
+        <p class="meta">週二 07:00 · 小晴老師</p>
+        <p class="desc" id="desc1">適合剛起床、身體還有點僵硬的你。<span class="ratio" id="ratio1"></span></p>
+        <button class="btn">預約</button>
+      </div>
+      <div class="card" id="c2">
+        <div class="pic p2"></div>
+        <h2>伸展放鬆</h2>
+        <p class="meta">週四 19:30 · 阿樹老師</p>
+        <p class="desc">下班後的一小時，把肩頸慢慢打開。</p>
+        <button class="btn">預約</button>
+      </div>
+      <div class="card" id="c3">
+        <div class="pic p3"></div>
+        <h2>核心力量</h2>
+        <p class="meta">週六 10:00 · 小晴老師 <span class="danger">名額已滿</span></p>
+        <p class="desc">練出穩定的腹部與背部力量。</p>
+        <button class="btn">候補</button>
+      </div>
+    </div>
+    <p class="note">取消請在上課前 4 小時，<span class="danger">逾時恕不退費</span>。</p>
+  </div>
+  <aside class="tokens" id="tokens">
+    <div class="tk-title">設計變數 <small>全站共用的一組名字</small></div>
+    <div class="tk-group" id="tk-colors">
+      <div class="tk-label">顏色</div>
+      <div class="tk" id="tk-brand"><i class="sw sw-brand"></i><code>--color-primary</code><em>主色</em><span class="val" id="v-brand">#2b6cb0</span></div>
+      <div class="tk" id="tk-text"><i class="sw sw-text"></i><code>--color-text</code><em>文字</em><span class="val" id="v-text">#22303c</span></div>
+      <div class="tk" id="tk-muted"><i class="sw sw-muted"></i><code>--color-muted</code><em>次要文字</em><span class="val" id="v-muted">#5b6672</span></div>
+      <div class="tk" id="tk-danger"><i class="sw sw-danger"></i><code>--color-danger</code><em>警示</em><span class="val" id="v-danger">#c53030</span></div>
+      <div class="tk" id="tk-bg"><i class="sw sw-bg"></i><code>--color-bg</code><em>背景</em><span class="val" id="v-bg">#ffffff</span></div>
+    </div>
+    <div class="tk-group" id="tk-sizes">
+      <div class="tk-label">字級</div>
+      <div class="sz sz-l"><code>--size-title</code><span>標題 24px</span></div>
+      <div class="sz sz-m"><code>--size-body</code><span>內文 15px</span></div>
+      <div class="sz sz-s"><code>--size-small</code><span>小字 13px</span></div>
+    </div>
+    <div class="tk-group" id="tk-font">
+      <div class="tk-label">字體</div>
+      <div class="font-row"><code>--font</code><span>黑體 Aa 永</span></div>
+    </div>
+    <div class="bad" id="bad"><i class="sw sw-bad"></i>反例：淺灰字 #c4c4c4 在白底 <b>1.7 : 1</b> 太淡</div>
+    <div class="controls" id="controls">
+      <span class="ctl-label">主色</span>
+      <button class="ctl" data-brand="blue">藍</button>
+      <button class="ctl" data-brand="green">綠</button>
+      <button class="ctl" data-brand="orange">橘</button>
+      <button class="ctl wide" id="dark">深色模式</button>
+      <button class="ctl wide" id="contrast">檢查對比</button>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

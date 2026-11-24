@@ -1,0 +1,59 @@
+* { box-sizing: border-box; }
+body { margin: 0; display: flex; flex-direction: column; font-family: sans-serif; background: #f3f1ec; color: #2f2a24; }
+.page { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 16px 26px; }
+
+/* 樣式規則列 */
+.rule { display: flex; align-items: center; gap: 20px; padding: 12px 22px; border-radius: 16px; background: #1f2230; color: #d7dbe8; }
+.r-k { font-size: 16px; color: #8a90a8; letter-spacing: 0.08em; }
+.rule code { font: 30px/1.3 monospace; }
+.s > span { display: none; color: #ffd479; padding: 0 6px; border-radius: 6px; background: rgba(255, 212, 121, 0.16); }
+.page[data-sel='p'] .t-p, .page[data-sel='price'] .t-price, .page[data-sel='sale'] .t-sale, .page[data-sel='id'] .t-id, .page[data-sel='none'] .t-none { display: inline; }
+.t-none { color: #8a90a8 !important; }
+.decl { color: #ff8fa3; }
+.page[data-apply='no'] .decl { opacity: 0.3; text-decoration: line-through; }
+.count { margin-left: auto; font-size: 20px; color: #ffd479; }
+.count > span { display: none; }
+.page[data-sel='p'] .c-p, .page[data-sel='price'] .c-price, .page[data-sel='sale'] .c-sale, .page[data-sel='id'] .c-id { display: inline; }
+
+.body { display: grid; grid-template-columns: 1fr 360px; gap: 18px; align-items: start; }
+.shop { display: flex; flex-direction: column; gap: 8px; padding: 14px 18px; border-radius: 16px; background: #fff; }
+p { margin: 0; }
+.intro { font-size: 20px; font-weight: bold; }
+.note { font-size: 16px; color: #6b6259; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 10px 12px; border: 2px solid #ece6dc; border-radius: 12px; }
+.badge { position: absolute; right: 8px; top: 8px; padding: 1px 10px; border-radius: 999px; background: #f2c94c; font-size: 14px; font-weight: bold; }
+.pic { width: 100%; height: 58px; border-radius: 8px; }
+.a { background: radial-gradient(circle at 50% 60%, #8a5a3a 0 22%, transparent 23%), #ecdcc8; }
+.b { background: radial-gradient(ellipse 30% 18% at 50% 60%, #c9b08f 0 90%, transparent 92%), #e2e8de; }
+.c { background: radial-gradient(circle at 50% 62%, #6f8f6a 0 20%, transparent 21%), #e6efe3; }
+.d { background: linear-gradient(100deg, transparent 36%, #b98a5e 37% 62%, transparent 63%), #f0e5d4; }
+.e { background: repeating-linear-gradient(90deg, #d8cbb6 0 6px, #e9dfcf 6px 12px); }
+.f { background: radial-gradient(ellipse 18% 34% at 50% 55%, #bfe0ea 0 90%, transparent 92%), #eef4f6; }
+h3 { margin: 2px 0 0; font-size: 18px; }
+.price { font-size: 19px; font-weight: bold; }
+button { margin-top: 3px; padding: 4px 14px; border: 0; border-radius: 999px; background: #2f2a24; color: #fff; font-size: 14px; }
+
+/* 選中:發光的框 */
+.hit-p, .hit-price, .hit-sale, .hit-id { border-radius: 6px; }
+.page[data-sel='p'] .hit-p,
+.page[data-sel='price'] .hit-price,
+.page[data-sel='sale'] .hit-sale,
+.page[data-sel='id'] .hit-id { outline: 4px solid #f59e0b; outline-offset: 2px; background-color: #fff4cf; box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.18); }
+/* 套用樣式:選中的變紅 */
+.page[data-apply='yes'][data-sel='p'] .hit-p,
+.page[data-apply='yes'][data-sel='price'] .hit-price,
+.page[data-apply='yes'][data-sel='sale'] .hit-sale { color: #d62828; }
+.page[data-apply='yes'][data-sel='id'] .hit-id { color: #ff8a8a; }
+
+/* 第三張卡片的 HTML */
+.peek { padding: 14px 18px; border-radius: 16px; background: #1f2230; color: #d7dbe8; }
+.pk-t { margin-bottom: 6px; font-size: 15px; color: #8a90a8; }
+pre { margin: 0; font: 17px/1.5 monospace; white-space: pre; }
+.k { color: #ff8fa3; }
+pre .a { color: #ffd479; background: none; }
+.v { color: #8fe3b0; }
+.m-p, .m-price, .m-sale, .m-id { border-radius: 4px; padding: 0 2px; }
+.page[data-sel='p'] .m-p, .page[data-sel='price'] .m-price, .page[data-sel='sale'] .m-sale, .page[data-sel='id'] .m-id { background: #f59e0b; color: #1f2230; }
+.pk-legend { margin-top: 8px; font-size: 14px; color: #a9afc6; }
+.m-x { font-family: monospace; color: #ffd479; }

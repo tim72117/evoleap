@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>小森甜點</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page" data-a="bare" data-nav="home" data-img="cake" data-alt="no" data-sr="none" data-hl="none" data-hover="no">
+    <!-- 左邊:網頁 -->
+    <div class="pane" id="pane">
+      <div class="home">
+        <div class="shop">小森甜點</div>
+        <div class="photo" id="photo">
+          <div class="pic cake"><span class="plate"></span><span class="slice"></span><span class="berry"></span></div>
+          <div class="pic tart"><span class="plate"></span><span class="tbase"></span><span class="fruit f1"></span><span class="fruit f2"></span><span class="fruit f3"></span></div>
+          <div class="broken" id="broken"><span class="bicon"></span><span class="balt">草莓鮮奶油蛋糕，切成一片</span></div>
+        </div>
+        <p class="desc">今日甜點・每天下午兩點出爐</p>
+        <a class="lnk" id="lnk">店家位置 →</a>
+      </div>
+      <!-- 同一個分頁:原本的網頁被換掉 -->
+      <div class="map same" id="map-same">
+        <div class="m-bar">maps.example/xiaosen</div>
+        <div class="m-body"><span class="road r1"></span><span class="road r2"></span><span class="pin"></span><span class="m-name">小森甜點</span></div>
+        <p class="m-note">原本的網頁被換掉了，要按「上一頁」才回得去</p>
+      </div>
+      <!-- 新分頁:原本的網頁還在後面 -->
+      <div class="newtab" id="newtab">
+        <div class="t-strip"><span class="t">小森甜點</span><span class="t on">地圖（新分頁）</span></div>
+        <div class="m-body"><span class="road r1"></span><span class="road r2"></span><span class="pin"></span><span class="m-name">小森甜點</span></div>
+      </div>
+      <div class="status" id="status">https://maps.example/xiaosen</div>
+      <!-- 螢幕閱讀器念出的話 -->
+      <div class="sr" id="sr"><span class="spk"></span><span class="sr-no">「圖片，IMG_4823.jpg」</span><span class="sr-yes">「圖片，草莓鮮奶油蛋糕，切成一片」</span></div>
+    </div>
+
+    <!-- 右邊:這兩個元素的 HTML -->
+    <div class="code" id="code">
+      <div class="c-title">HTML</div>
+      <div class="line" id="line-a"><span class="tg">&lt;a</span><span class="at at-href" id="at-href"> <span class="an">href</span>=<span class="av">"https://maps.example/xiaosen"</span></span><span class="at at-target" id="at-target"> <span class="an">target</span>=<span class="av">"_blank"</span></span><span class="tg">&gt;</span>店家位置 →<span class="tg">&lt;/a&gt;</span></div>
+      <div class="line" id="line-img"><span class="tg">&lt;img</span><span class="at at-src" id="at-src"> <span class="an">src</span>=<span class="av"><span class="v-cake">"cake.jpg"</span><span class="v-tart">"tart.jpg"</span></span></span><span class="at at-alt" id="at-alt"> <span class="an">alt</span>=<span class="av">"草莓鮮奶油蛋糕，切成一片"</span></span><span class="tg">&gt;</span></div>
+      <div class="legend" id="legend">
+        <div class="lg"><span class="an">屬性名稱</span>=<span class="av">"值"</span></div>
+        <div class="lg-note">寫在開頭標籤裡，補充這個元素的細節</div>
+      </div>
+    </div>
+  </div>
+
+  <div hidden>
+    <button data-set="a=href hl=href"></button>
+    <button data-set="hover=yes"></button>
+    <button data-set="hover=no"></button>
+    <button data-set="nav=same hover=no"></button>
+    <button data-set="nav=home"></button>
+    <button data-set="a=blank hl=target"></button>
+    <button data-set="nav=new hover=no"></button>
+    <button data-set="hl=src"></button>
+    <button data-set="img=tart hl=src"></button>
+    <button data-set="img=cake hl=none"></button>
+    <button data-set="img=broken"></button>
+    <button data-set="sr=noalt"></button>
+    <button data-set="alt=yes hl=alt sr=none"></button>
+    <button data-set="sr=alt"></button>
+    <button data-set="img=cake sr=none hl=none"></button>
+    <button data-set="sr=none"></button>
+    <button data-set="hl=href"></button>
+    <button data-set="hl=target"></button>
+    <button data-set="hl=alt"></button>
+    <button data-set="hl=none"></button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

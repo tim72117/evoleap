@@ -1,0 +1,307 @@
+{
+  "title": "表單：使用者輸入的入口",
+  "lesson": "網頁怎麼運作 · 單元 1 · 1.5",
+  "teacher": {
+    "say": "今天認識表單",
+    "line": "今天要陪一位客人填一張預約表單，看看每一種欄位怎麼用，還有送出之後資料去了哪裡。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-web-1-5-form",
+        "url": "https://coffee.example/booking"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "guest": {
+      "actor": "person",
+      "props": {
+        "name": "小美",
+        "look": "customer"
+      },
+      "place": {
+        "landscape": {
+          "x": 660,
+          "y": 240,
+          "w": 600,
+          "h": 460
+        },
+        "portrait": {
+          "x": 240,
+          "y": 600,
+          "w": 600,
+          "h": 460
+        }
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "表單：使用者輸入的入口",
+      "eyebrow": "網頁怎麼運作 · 單元 1 · 1.5",
+      "chapter": "一張預約表單",
+      "narration": "網頁不只給人看，也要收資料：報名、預約、留言、結帳。這一課來看表單裡有哪些欄位，還有按下送出之後，資料去了哪裡。"
+    },
+    {
+      "show": "guest",
+      "on": "guest",
+      "say": "週六的手沖課還有位子嗎？我想報名！",
+      "mood": "happy",
+      "narration": "小美想報名小森咖啡週六的手沖課。以前要打電話，店員一邊聽一邊抄。現在，她打開網站上的預約表單。"
+    },
+    {
+      "hide": "guest"
+    },
+    {
+      "show": "web",
+      "narration": "表單，就是網頁上收集資料的地方，是使用者輸入資料的入口。"
+    },
+    {
+      "click": "[data-set='tags=on']",
+      "chapter": "表單裡有什麼",
+      "narration": "表單由一格一格的輸入欄位組成。欄位有不同的種類，填法也不一樣。"
+    },
+    {
+      "callout": "web:section:f-name",
+      "text": "文字輸入：自由打字",
+      "narration": "姓名和手機是文字輸入，想打什麼就打什麼。手機這一格是電話類型，在手機上會跳出數字鍵盤。"
+    },
+    {
+      "callout": "web:section:f-slot",
+      "text": "下拉選單：從固定的選項挑一個",
+      "narration": "場次是下拉選單，只能從店家給的幾個時段裡挑一個。"
+    },
+    {
+      "callout": "web:section:f-kit",
+      "text": "勾選：要，或不要",
+      "narration": "加購手沖壺組是勾選框，勾了就是要，沒勾就是不要。"
+    },
+    {
+      "callout": "web:section:send",
+      "text": "送出按鈕：把整張表單送出去",
+      "narration": "最後是送出按鈕，按下去，整張表單一起送出。"
+    },
+    {
+      "click": "[data-set='tags=off']"
+    },
+    {
+      "callout": "web:section:lb-name",
+      "text": "標籤 label：說明這一格要填什麼",
+      "narration": "每一格上面的小字是標籤，英文叫 label，說明這一格要填什麼。點標籤也會跳到那一格，螢幕閱讀器也會念出它。"
+    },
+    {
+      "fill": {
+        "#name": "林小美"
+      },
+      "chapter": "必填",
+      "narration": "小美先填名字。"
+    },
+    {
+      "click": "#send",
+      "narration": "手機還沒填，就先按了送出。"
+    },
+    {
+      "callout": "web:section:f-phone",
+      "text": "必填：這一格空著，就送不出去",
+      "narration": "手機旁邊有紅色的星號，代表必填。必填的欄位空著，表單就不讓你送出，還會標出是哪一格沒填。"
+    },
+    {
+      "fill": {
+        "#phone": "0912345678",
+        "#slot": "sat-pm"
+      },
+      "narration": "補上手機，再從下拉選單挑週六下午那一場。"
+    },
+    {
+      "click": "#kit",
+      "narration": "再勾選加購手沖壺組。"
+    },
+    {
+      "click": "#send",
+      "chapter": "送出之後，資料去了哪裡",
+      "narration": "這次按下送出。"
+    },
+    {
+      "click": "[data-set='trip=1']",
+      "narration": "瀏覽器把每一格的名稱和內容打包成一份資料：name 是林小美、phone 是手機號碼、slot 是場次，kit 是要不要加購。"
+    },
+    {
+      "callout": "web:section:env",
+      "text": "每一格的名稱 = 填的內容"
+    },
+    {
+      "click": "[data-set='trip=2']",
+      "narration": "這份資料透過網路，寄到小森咖啡的伺服器。伺服器就是一台一直開著、負責接收和回應的電腦。"
+    },
+    {
+      "click": "[data-set='trip=3']",
+      "narration": "伺服器收到之後，會再檢查一次：有沒有缺資料、這個場次還有沒有位子。"
+    },
+    {
+      "click": "[data-set='trip=4']",
+      "narration": "都沒問題，就把它存進預約名單，再回覆瀏覽器：預約成功。"
+    },
+    {
+      "callout": "web:section:db-new",
+      "text": "資料真正被記下來，是在伺服器",
+      "narration": "所以表單只是入口。資料真正被記下來，是在伺服器那一邊。之後的課，會再仔細看伺服器怎麼存資料。"
+    },
+    {
+      "reload": true,
+      "chapter": "換你選",
+      "narration": "換你試試看。小森咖啡想多問一題：「怎麼知道這堂課的？」答案固定是三種：朋友介紹、社群貼文、路過看到。"
+    },
+    {
+      "checkpoint": "「怎麼知道這堂課的？」答案固定三種，用哪一種欄位最合適？",
+      "body": "選一個，表單上會換成那種欄位。",
+      "id": "field",
+      "stage": {
+        "focus": "web:section:card"
+      },
+      "options": [
+        {
+          "label": "文字輸入",
+          "steps": [
+            {
+              "click": "[data-set='extra=text']",
+              "narration": "文字輸入也能填，但每個人寫法都不一樣，還可能打錯字，店家很難統計。"
+            },
+            {
+              "click": "[data-set='extra=select']",
+              "narration": "答案固定只有三種，用下拉選單最合適：填的人用選的，不會打錯字，店家統計起來也整齊。"
+            }
+          ]
+        },
+        {
+          "label": "下拉選單",
+          "steps": [
+            {
+              "click": "[data-set='extra=select']",
+              "narration": "對。答案固定只有三種，用下拉選單最合適：填的人用選的，不會打錯字，店家統計起來也整齊。"
+            }
+          ]
+        },
+        {
+          "label": "勾選框",
+          "steps": [
+            {
+              "click": "[data-set='extra=check']",
+              "narration": "勾選框適合「要或不要」，或可以勾好幾個的情況。只勾一個朋友介紹，另外兩種就沒地方填了。"
+            },
+            {
+              "click": "[data-set='extra=select']",
+              "narration": "答案固定只有三種，用下拉選單最合適：填的人用選的，不會打錯字，店家統計起來也整齊。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "click": "[data-set='extra=select']",
+            "narration": "答案固定只有三種，用下拉選單最合適：填的人用選的，不會打錯字，店家統計起來也整齊。"
+          }
+        ]
+      }
+    },
+    {
+      "click": "[data-set='extra=none']"
+    },
+    {
+      "click": "[data-set='q=label']",
+      "narration": "最後一題，換成一張會員註冊表單。"
+    },
+    {
+      "checkpoint": "這張表單裡，哪一格缺了標籤（label）？",
+      "body": "選一個。",
+      "id": "label",
+      "stage": {
+        "focus": "web:section:q-card"
+      },
+      "options": [
+        {
+          "label": "A",
+          "target": "web:section:q-a",
+          "steps": [
+            {
+              "click": "[data-set='pick=a']",
+              "narration": "暱稱這一格，上面有標籤。"
+            },
+            {
+              "wait": 300,
+              "narration": "B 只有灰色的提示字，沒有標籤。一開始打字，提示字就消失了，填到一半就忘了這一格要填什麼；螢幕閱讀器也可能不知道該怎麼念。每一格都該有自己的標籤。"
+            }
+          ]
+        },
+        {
+          "label": "B",
+          "target": "web:section:q-b",
+          "steps": [
+            {
+              "click": "[data-set='pick=b']",
+              "narration": "對。B 只有灰色的提示字，沒有標籤。一開始打字，提示字就消失了，填到一半就忘了這一格要填什麼；螢幕閱讀器也可能不知道該怎麼念。每一格都該有自己的標籤。"
+            }
+          ]
+        },
+        {
+          "label": "C",
+          "target": "web:section:q-c",
+          "steps": [
+            {
+              "click": "[data-set='pick=c']",
+              "narration": "生日這一格有標籤。"
+            },
+            {
+              "wait": 300,
+              "narration": "B 只有灰色的提示字，沒有標籤。一開始打字，提示字就消失了，填到一半就忘了這一格要填什麼；螢幕閱讀器也可能不知道該怎麼念。每一格都該有自己的標籤。"
+            }
+          ]
+        },
+        {
+          "label": "D",
+          "target": "web:section:q-d",
+          "steps": [
+            {
+              "click": "[data-set='pick=d']",
+              "narration": "勾選框的標籤寫在旁邊：我同意會員條款，點這行字也能勾。"
+            },
+            {
+              "wait": 300,
+              "narration": "B 只有灰色的提示字，沒有標籤。一開始打字，提示字就消失了，填到一半就忘了這一格要填什麼；螢幕閱讀器也可能不知道該怎麼念。每一格都該有自己的標籤。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "click": "[data-set='pick=b']",
+            "narration": "B 只有灰色的提示字，沒有標籤。一開始打字，提示字就消失了，填到一半就忘了這一格要填什麼；螢幕閱讀器也可能不知道該怎麼念。每一格都該有自己的標籤。"
+          }
+        ]
+      }
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "在預約表單加一個必填的「人數」欄位\n用下拉選單選 1 到 4 人",
+      "eyebrow": "跟 AI 這樣說",
+      "sub": "說清楚欄位種類、是不是必填，AI 就做得剛好",
+      "chapter": "用對名詞說需求",
+      "narration": "跟 AI 說需求的時候，講清楚欄位的種類和是不是必填。例如：在預約表單加一個必填的人數欄位，用下拉選單選一到四人。"
+    },
+    {
+      "card": "表單收集使用者輸入的資料\n送出後交給伺服器",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：表單・輸入欄位・標籤 label・必填・送出",
+      "chapter": "學會",
+      "narration": "表單由輸入欄位組成：文字輸入、下拉選單、勾選框，每一格都要有標籤說明要填什麼，必填的空著就不能送出。按下送出，資料就打包送到伺服器，在那裡被記下來。"
+    }
+  ]
+}

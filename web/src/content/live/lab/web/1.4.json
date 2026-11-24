@@ -1,0 +1,276 @@
+{
+  "title": "屬性：連結、圖片與替代文字",
+  "lesson": "網頁怎麼運作 · 單元 1 · 1.4",
+  "teacher": {
+    "say": "今天認識屬性",
+    "line": "今天要來看，同一個連結、同一張圖片，加上不同的屬性，會有什麼不一樣。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-web-1-4-attr",
+        "url": "https://sweets.example/"
+      },
+      "place": "window",
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "屬性：連結、圖片與替代文字",
+      "eyebrow": "網頁怎麼運作 · 單元 1 · 1.4",
+      "chapter": "一個沒反應的連結",
+      "narration": "同一個元素，可以加上不同的補充說明，讓它做不同的事。這一課來看連結要連到哪裡、圖片從哪裡來，還有圖片看不到的時候怎麼辦。"
+    },
+    {
+      "show": "web",
+      "narration": "這是小森甜點的網頁：一張蛋糕照片、一行介紹，還有一個「店家位置」連結。右邊是這兩個東西的 HTML。"
+    },
+    {
+      "callout": "web:section:line-a",
+      "text": "a 標籤：包住連結的文字",
+      "narration": "上一行是 a 標籤，也就是連結。現在它只有開頭標籤和結尾標籤，包著「店家位置」這幾個字。"
+    },
+    {
+      "click": "#lnk",
+      "narration": "點點看。"
+    },
+    {
+      "wait": 600,
+      "narration": "沒反應。字也不是藍色的。因為它還不知道，要連到哪裡。"
+    },
+    {
+      "click": "[data-set='a=href hl=href']",
+      "chapter": "屬性：寫在開頭標籤裡的補充",
+      "narration": "在開頭標籤裡加上 href，等號後面寫網址。這種寫在開頭標籤裡、補充元素細節的東西，叫做屬性。"
+    },
+    {
+      "callout": "web:section:legend",
+      "text": "屬性名稱 = \"值\"",
+      "narration": "屬性都長這樣：屬性名稱、等號，再加上引號包起來的值。href 的值，就是連結的目的地。"
+    },
+    {
+      "click": "[data-set='hover=yes']",
+      "narration": "現在字變成藍色、有底線。滑鼠移上去，"
+    },
+    {
+      "callout": "web:section:status",
+      "text": "滑到連結上，看得到它要去哪裡",
+      "narration": "左下角就會顯示這個連結要去哪裡。點之前先看一眼，是辨認可疑連結的好習慣。"
+    },
+    {
+      "click": "#lnk",
+      "narration": "點下去，網頁就換成了地圖。"
+    },
+    {
+      "callout": "web:section:map-same",
+      "text": "在同一個分頁開啟：原本的網頁被換掉",
+      "narration": "不過原本的網頁被換掉了，要按上一頁才回得去。客人看完地圖，可能就這樣離開了。"
+    },
+    {
+      "click": "[data-set='nav=home']"
+    },
+    {
+      "click": "[data-set='a=blank hl=target']",
+      "narration": "再加一個屬性 target，值寫 _blank，意思是在新分頁開啟。一個元素可以有好幾個屬性，用空白隔開就好。"
+    },
+    {
+      "click": "#lnk",
+      "narration": "再點一次。"
+    },
+    {
+      "callout": "web:section:newtab",
+      "text": "target=\"_blank\"：在新分頁開啟",
+      "narration": "這次地圖開在新的分頁，原本的網頁還留在後面。連到別的網站時，常常這樣做。"
+    },
+    {
+      "click": "[data-set='nav=home']"
+    },
+    {
+      "click": "[data-set='hl=src']",
+      "chapter": "圖片從哪裡來",
+      "narration": "圖片元素 img 也靠屬性。src 是圖片的來源，告訴瀏覽器去哪裡拿這張圖。"
+    },
+    {
+      "callout": "web:section:at-src",
+      "text": "src：圖片的來源"
+    },
+    {
+      "click": "[data-set='img=tart hl=src']",
+      "narration": "把 src 換成另一個檔案，同一個 img，畫面上就換成了水果塔。元素沒變，變的是屬性的值。"
+    },
+    {
+      "click": "[data-set='img=cake hl=none']",
+      "narration": "換回蛋糕。"
+    },
+    {
+      "click": "[data-set='img=broken']",
+      "chapter": "圖片看不到的時候",
+      "narration": "可是圖片不一定載得到。網路太慢、檔名打錯、檔案被刪掉，畫面上就只剩一個破圖的框。"
+    },
+    {
+      "callout": "web:section:photo",
+      "text": "圖片載不到：只剩破圖的框",
+      "narration": "還有一種人，本來就看不到圖片：用螢幕閱讀器上網的人。"
+    },
+    {
+      "checkpoint": "這張圖片沒有替代文字。螢幕閱讀器念到它，會念出什麼？",
+      "body": "選一個。",
+      "id": "noalt",
+      "stage": {
+        "focus": "web:section:photo"
+      },
+      "options": [
+        {
+          "label": "「一塊草莓蛋糕」",
+          "steps": [
+            {
+              "click": "[data-set='sr=noalt']",
+              "narration": "它沒辦法看圖猜內容。"
+            },
+            {
+              "wait": 300,
+              "narration": "螢幕閱讀器找不到說明，常常只能念出檔名，或只說「圖片」。看不到畫面的人，完全不知道這是一塊蛋糕。"
+            }
+          ]
+        },
+        {
+          "label": "「圖片，IMG_4823.jpg」",
+          "steps": [
+            {
+              "click": "[data-set='sr=noalt']",
+              "narration": "對。螢幕閱讀器找不到說明，常常只能念出檔名，或只說「圖片」。看不到畫面的人，完全不知道這是一塊蛋糕。"
+            }
+          ]
+        },
+        {
+          "label": "什麼都不念，直接跳過",
+          "steps": [
+            {
+              "click": "[data-set='sr=noalt']",
+              "narration": "它還是會告訴你這裡有一張圖片，只是說不出是什麼。"
+            },
+            {
+              "wait": 300,
+              "narration": "螢幕閱讀器找不到說明，常常只能念出檔名，或只說「圖片」。看不到畫面的人，完全不知道這是一塊蛋糕。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "click": "[data-set='sr=noalt']",
+            "narration": "螢幕閱讀器找不到說明，常常只能念出檔名，或只說「圖片」。看不到畫面的人，完全不知道這是一塊蛋糕。"
+          }
+        ]
+      }
+    },
+    {
+      "click": "[data-set='alt=yes hl=alt sr=none']",
+      "chapter": "替代文字",
+      "narration": "所以要加上 alt 屬性，也就是替代文字：用一句話說出這張圖是什麼。"
+    },
+    {
+      "wait": 400,
+      "narration": "圖片載不到的時候，破圖的框裡就會顯示這句話。"
+    },
+    {
+      "click": "[data-set='sr=alt']",
+      "narration": "螢幕閱讀器也會念出它：圖片，草莓鮮奶油蛋糕，切成一片。搜尋引擎同樣靠這句話，知道圖片的內容。"
+    },
+    {
+      "click": "[data-set='img=cake sr=none hl=none']",
+      "narration": "替代文字要寫圖片的內容，不要只寫「圖片」或檔名。圖片正常顯示時，它看不到，卻一直在幫忙。"
+    },
+    {
+      "checkpoint": "想讓「店家位置」在新分頁開啟，要加哪一個屬性？",
+      "body": "選一個。",
+      "id": "newtab",
+      "stage": {
+        "focus": "web:section:code"
+      },
+      "options": [
+        {
+          "label": "href",
+          "steps": [
+            {
+              "click": "[data-set='hl=href']",
+              "narration": "href 是連結的目的地，決定要去哪裡，不是在哪裡開。"
+            },
+            {
+              "click": "[data-set='hl=target']",
+              "narration": "在新分頁開，要加 target=\"_blank\"。"
+            }
+          ]
+        },
+        {
+          "label": "target=\"_blank\"",
+          "steps": [
+            {
+              "click": "[data-set='hl=target']",
+              "narration": "對。target=\"_blank\" 讓連結在新分頁開啟，原本的網頁留在後面。"
+            }
+          ]
+        },
+        {
+          "label": "src",
+          "steps": [
+            {
+              "click": "[data-set='hl=none']",
+              "narration": "src 是圖片的來源，是給 img 用的。"
+            },
+            {
+              "click": "[data-set='hl=target']",
+              "narration": "在新分頁開，要加 target=\"_blank\"。"
+            }
+          ]
+        },
+        {
+          "label": "alt",
+          "steps": [
+            {
+              "click": "[data-set='hl=alt']",
+              "narration": "alt 是圖片的替代文字。"
+            },
+            {
+              "click": "[data-set='hl=target']",
+              "narration": "在新分頁開，要加 target=\"_blank\"。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "click": "[data-set='hl=target']",
+            "narration": "答案是 target=\"_blank\"：在新分頁開啟。"
+          }
+        ]
+      }
+    },
+    {
+      "click": "[data-set='hl=none']"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "替所有商品圖片加上替代文字\n外部連結都在新分頁開啟",
+      "eyebrow": "跟 AI 這樣說",
+      "sub": "說出要哪一個屬性，AI 就不用猜",
+      "chapter": "用對名詞說需求",
+      "narration": "知道屬性的名字，就能這樣跟 AI 說：替所有商品圖片加上替代文字；連到外部網站的連結，都在新分頁開啟。"
+    },
+    {
+      "card": "屬性補充元素的細節\n連到哪裡、圖片是什麼",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：屬性・連結 href・圖片來源 src・替代文字 alt・新分頁 target",
+      "chapter": "學會",
+      "narration": "屬性寫在開頭標籤裡，補充元素的細節。連結用 href 決定去哪裡，加上 target 可以在新分頁開；圖片用 src 決定來源，用 alt 寫替代文字，圖片看不到的時候，它替圖片說話。"
+    }
+  ]
+}

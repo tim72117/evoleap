@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>小森選物 · 商品</title></head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="s-title">清單資料 <small>一筆一筆排好的商品</small></div>
+    <div class="data" id="data"></div>
+    <div class="ctl"><button id="add-item">＋ 新增一筆</button><button id="clear" class="ghost">清空清單</button></div>
+    <div class="rule" id="rule">
+      <div class="r-line" id="r-loop"><b>重複</b>清單裡的每一筆 → 照同一個樣子畫一張卡片</div>
+      <div class="r-line sub" id="r-stock"><b>如果</b>庫存是 0 → 顯示「售完」，按鈕不能按</div>
+      <div class="r-line" id="r-empty"><b>如果</b>清單是空的 → 顯示「目前沒有商品」</div>
+    </div>
+  </aside>
+  <main class="page">
+    <div class="p-head"><h1>本週選物</h1><span class="count" id="count"></span></div>
+    <div class="cards" id="cards"></div>
+  </main>
+</div>
+</body>
+</html>

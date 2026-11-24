@@ -1,0 +1,73 @@
+* { box-sizing: border-box; }
+body { margin: 0; display: flex; flex-direction: column; font-family: sans-serif; background: #eef1f5; color: #263040; }
+.page { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 16px 28px; }
+
+/* ---------- 上方:目標與 CSS ---------- */
+.top { display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px; }
+.goal { display: none; flex: 1; min-width: 300px; align-items: center; gap: 16px; padding: 12px 18px; border-radius: 16px; background: #fff7dc; border: 3px solid #f2c94c; }
+.page[data-scene='nav'] .goal, .page[data-scene='album'] .goal { display: flex; }
+.g-k { padding: 2px 12px; border-radius: 999px; background: #f2c94c; font-weight: bold; font-size: 17px; }
+.g-nav, .g-album, .g-txt { display: none; }
+.page[data-scene='nav'] .g-nav, .page[data-scene='nav'] .g-t-nav, .page[data-scene='album'] .g-album, .page[data-scene='album'] .g-t-album { display: flex; }
+.g-txt { font-size: 20px; font-weight: bold; }
+.g-nav { align-items: center; gap: 6px; width: 200px; padding: 8px; border-radius: 8px; background: #fff; }
+.gn-logo { width: 46px; height: 16px; border-radius: 4px; background: #4a6b52; }
+.gn-sp { flex: 1; }
+.gn-l { width: 22px; height: 10px; border-radius: 3px; background: #9aa6b8; }
+.g-album { display: none; width: 120px; flex-wrap: wrap; gap: 4px; padding: 6px; border-radius: 8px; background: #fff; }
+.page[data-scene='album'] .g-album { display: grid; grid-template-columns: repeat(3, 1fr); }
+.g-album span { height: 22px; border-radius: 3px; background: #9cc7a0; }
+.css { margin-left: auto; min-width: min(420px, 100%); padding: 12px 20px; border-radius: 16px; background: #1f2230; color: #8fe3b0; font: 21px/1.5 monospace; }
+.c { display: none; }
+.c-block, .c-none { color: #8a90a8; }
+.page[data-lay='block'] .c-block, .page[data-lay='row'] .c-row, .page[data-lay='between'] .c-between, .page[data-lay='center'] .c-center,
+.page[data-lay='gap'] .c-gap, .page[data-lay='grid2'] .c-grid2, .page[data-lay='grid3'] .c-grid3, .page[data-lay='auto'] .c-auto,
+.page[data-lay='none'] .c-none, .page[data-lay='nav-flex'] .c-nav-flex, .page[data-lay='nav-grid'] .c-nav-grid,
+.page[data-lay='album-flex'] .c-album-flex, .page[data-lay='album-grid'] .c-album-grid { display: inline; }
+
+/* ---------- 容器:藍色虛線框 ---------- */
+.stagebox { padding: 14px; border-radius: 18px; background: #fff; }
+.box { display: none; position: relative; padding: 14px; border: 3px dashed #4f6bed; border-radius: 12px; }
+.box::before { content: '外面的容器'; position: absolute; left: 12px; top: -14px; padding: 0 10px; border-radius: 6px; background: #4f6bed; color: #fff; font: bold 14px/1.6 sans-serif; }
+.page[data-scene='cards'] .cards, .page[data-scene='grid'] .grid6, .page[data-scene='nav'] .navbar, .page[data-scene='album'] .album { display: block; }
+
+.card { display: flex; align-items: center; gap: 12px; padding: 14px 26px; border-radius: 12px; background: #e9eefc; border: 2px solid #b8c4ee; font-size: 24px; font-weight: bold; }
+.ic { width: 34px; height: 34px; border-radius: 50%; }
+.i1 { background: #c89f7a; } .i2 { background: #6b4a33; } .i3 { background: #e7b35c; } .i4 { background: #d9b48a; } .i5 { background: #3d2a20; } .i6 { background: #f2d16b; }
+
+/* 三張卡片 */
+.page[data-lay='block'] .cards .card { margin-bottom: 10px; }
+.page[data-lay='row'] .cards, .page[data-lay='between'] .cards, .page[data-lay='center'] .cards, .page[data-lay='gap'] .cards { display: flex; }
+.page[data-lay='between'] .cards { justify-content: space-between; }
+.page[data-lay='center'] .cards, .page[data-lay='gap'] .cards { justify-content: center; align-items: center; min-height: 300px; }
+.page[data-lay='gap'] .cards { gap: 24px; }
+
+/* 六張卡片 */
+.page[data-scene='grid'] .grid6 { display: grid; gap: 16px; }
+.page[data-lay='grid2'] .grid6 { grid-template-columns: 1fr 1fr; }
+.page[data-lay='grid3'] .grid6 { grid-template-columns: 1fr 1fr 1fr; }
+.page[data-lay='auto'] .grid6 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.grid6 .card { outline: 2px dashed #9aa6b8; outline-offset: 5px; }
+
+/* 第 1 關:導覽列 */
+.logo { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: bold; }
+.dot { width: 28px; height: 28px; border-radius: 50%; background: #4a6b52; }
+.menu { padding: 6px 4px; font-size: 22px; color: #3d5ad6; }
+.page[data-lay='nav-flex'] .navbar { display: flex; justify-content: space-between; align-items: center; }
+.page[data-lay='nav-grid'] .navbar { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+.page[data-lay='nav-flex'] .menus, .page[data-lay='nav-grid'] .menus { display: flex; gap: 26px; }
+
+/* 第 2 關:相簿 */
+.ph { height: 46px; margin-bottom: 8px; border-radius: 8px; }
+.a1 { background: linear-gradient(160deg, #cfe6d2 40%, #8fbf93 41%); }
+.a2 { background: linear-gradient(160deg, #f6dcc4 40%, #e0a878 41%); }
+.a3 { background: linear-gradient(160deg, #d6e3f5 40%, #8aa9d6 41%); }
+.a4 { background: linear-gradient(160deg, #f2e7b8 40%, #d6bd5c 41%); }
+.a5 { background: linear-gradient(160deg, #e6d6ef 40%, #b18ccc 41%); }
+.a6 { background: linear-gradient(160deg, #d8efe9 40%, #7fc3b3 41%); }
+.page[data-lay='album-flex'] .album { display: flex; flex-wrap: wrap; gap: 12px; }
+.page[data-lay='album-flex'] .ph { height: 110px; margin: 0; }
+.page[data-lay='album-flex'] .a1 { width: 300px; } .page[data-lay='album-flex'] .a2 { width: 190px; } .page[data-lay='album-flex'] .a3 { width: 420px; }
+.page[data-lay='album-flex'] .a4 { width: 240px; } .page[data-lay='album-flex'] .a5 { width: 520px; } .page[data-lay='album-flex'] .a6 { width: 200px; }
+.page[data-lay='album-grid'] .album { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.page[data-lay='album-grid'] .ph { height: 120px; margin: 0; }

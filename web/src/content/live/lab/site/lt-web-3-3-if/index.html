@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>小森會員註冊</title></head>
+<body>
+<div class="app">
+  <div class="page">
+    <form class="form" id="form">
+      <h1>加入小森會員</h1>
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="you@example.com" autocomplete="off">
+      <label for="pw">密碼</label>
+      <input id="pw" type="text" placeholder="至少 8 個字" autocomplete="off">
+      <p class="msg" id="msg"></p>
+      <button id="go" type="submit">註冊</button>
+    </form>
+  </div>
+  <aside class="chart" id="chart">
+    <div class="c-title">背後的規則 <small>按下註冊之後，程式這樣判斷</small></div>
+    <div class="flow">
+      <div class="node start" id="n-start">按下「註冊」</div>
+      <div class="down" id="e-s"></div>
+      <div class="line">
+        <div class="node q" id="q1">如果 Email 是空的？</div>
+        <div class="yes" id="e-1y">是 →</div>
+        <div class="node bad" id="r1">顯示「請填 Email」</div>
+      </div>
+      <div class="down" id="e-1n"><span>否</span></div>
+      <div class="line">
+        <div class="node q" id="q2">如果 密碼少於 8 個字？</div>
+        <div class="yes" id="e-2y">是 →</div>
+        <div class="node bad" id="r2">顯示「密碼至少 8 個字」</div>
+      </div>
+      <div class="down" id="e-2n"><span>否</span></div>
+      <div class="node good" id="ok">註冊成功</div>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

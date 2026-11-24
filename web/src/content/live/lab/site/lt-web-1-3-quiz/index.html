@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>框框看</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page" data-q="blog" data-pick="none">
+    <div class="ask"><span class="n q-blog-n">網站 1／3　部落格</span><span class="n q-book-n">網站 2／3　預約網站</span><span class="n q-news-n">網站 3／3　新聞網站</span></div>
+
+    <!-- 網站 1:部落格(側欄在左邊) -->
+    <div class="site q-blog">
+      <div class="zone" id="blog-a" data-l="A" data-name="頁首 header">
+        <div class="brand">阿綠的山路筆記</div>
+        <div class="links"><span>首頁</span><span>步道</span><span>裝備</span><span>關於我</span></div>
+      </div>
+      <div class="row blog-row">
+        <div class="zone" id="blog-b" data-l="B" data-name="側欄 aside">
+          <div class="me"></div><p class="small">阿綠｜週末爬山的上班族</p><p class="small">文章分類<br>新手步道（12）<br>百岳（5）</p>
+        </div>
+        <div class="zone" id="blog-c" data-l="C" data-name="主要內容 main">
+          <h2>第一次走抹茶山就上手</h2>
+          <p class="small">2026/10/18　·　閱讀 6 分鐘</p>
+          <div class="ph"></div>
+          <p>早上七點從登山口出發，石階一路往上，走到聖母山莊剛好看見雲海…</p>
+        </div>
+      </div>
+      <div class="zone" id="blog-d" data-l="D" data-name="頁尾 footer"><p class="small">訂閱電子報　·　© 阿綠的山路筆記</p></div>
+    </div>
+
+    <!-- 網站 2:預約網站(導覽在頁首下面一整條) -->
+    <div class="site q-book">
+      <div class="zone" id="book-a" data-l="A" data-name="頁首 header">
+        <div class="brand">小森髮藝</div><div class="links"><span>☎ 04-2333-0000</span></div>
+      </div>
+      <div class="zone tabs" id="book-b" data-l="B" data-name="導覽 nav">
+        <span>服務項目</span><span>價目表</span><span>設計師</span><span>線上預約</span><span>交通</span>
+      </div>
+      <div class="zone" id="book-c" data-l="C" data-name="主要內容 main">
+        <h2>選一個時段</h2>
+        <div class="slots"><span>10:00</span><span>11:30</span><span class="on">14:00</span><span>15:30</span><span>17:00</span></div>
+        <div class="btn">下一步：填寫資料</div>
+      </div>
+      <div class="zone" id="book-d" data-l="D" data-name="頁尾 footer"><p class="small">週一公休　·　台中市南屯區小森街 8 號</p></div>
+    </div>
+
+    <!-- 網站 3:新聞網站(主要內容的最後有一段「相關新聞」,也是一排連結) -->
+    <div class="site q-news">
+      <div class="zone" id="news-a" data-l="A" data-name="頁首 header">
+        <div class="brand">小森日報</div>
+        <div class="links"><span>政治</span><span>生活</span><span>科技</span><span>體育</span></div>
+      </div>
+      <div class="zone" id="news-b" data-l="B" data-name="主要內容 main">
+        <h2>山區週末降溫　登山客注意保暖</h2>
+        <p>氣象署預估週六清晨山區低溫只有 8 度，建議多帶一件外套…</p>
+      </div>
+      <div class="zone" id="news-c" data-l="C" data-name="區段 section（還在主要內容裡）">
+        <p class="small"><b>相關新聞</b>　·　登山必備三件事　·　步道封閉一覽　·　雲海預報</p>
+      </div>
+      <div class="zone" id="news-d" data-l="D" data-name="頁尾 footer">
+        <p class="small">關於我們　·　聯絡我們　·　隱私權政策　·　© 小森日報</p>
+      </div>
+    </div>
+  </div>
+
+  <div hidden>
+    <button data-set="q=blog pick=none"></button>
+    <button data-set="q=book"></button>
+    <button data-set="q=news"></button>
+    <button data-set="pick=blog-a"></button><button data-set="pick=blog-b"></button><button data-set="pick=blog-c"></button><button data-set="pick=blog-d"></button>
+    <button data-set="pick=book-a"></button><button data-set="pick=book-b"></button><button data-set="pick=book-c"></button><button data-set="pick=book-d"></button>
+    <button data-set="pick=news-a"></button><button data-set="pick=news-b"></button><button data-set="pick=news-c"></button><button data-set="pick=news-d"></button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

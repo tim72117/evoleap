@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>小森選物</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page" data-mode="plain" data-hi="none" data-sr="none" data-bot="off">
+    <div class="site">
+      <header class="blk" id="b-header" data-div="div" data-sem="header" data-name="頁首">
+        <div class="logo"><span class="mark"></span>小森選物</div>
+        <nav class="blk" id="b-nav" data-div="div" data-sem="nav" data-name="導覽">
+          <a href="#new">新品</a><a href="#new">杯子</a><a href="#new">盤子</a><a href="#story">關於我們</a>
+        </nav>
+        <div class="cart">購物車 2</div>
+      </header>
+      <div class="middle">
+        <main class="blk" id="b-main" data-div="div" data-sem="main" data-name="主要內容">
+          <section class="blk sec" id="b-sec1" data-div="div" data-sem="section" data-name="區段">
+            <h2>本週新品</h2>
+            <div class="cards">
+              <div class="card"><div class="pic p1"></div><p>柴燒馬克杯</p><b>NT$ 680</b></div>
+              <div class="card"><div class="pic p2"></div><p>粗陶小盤</p><b>NT$ 420</b></div>
+              <div class="card"><div class="pic p3"></div><p>木紋湯匙</p><b>NT$ 180</b></div>
+            </div>
+          </section>
+          <section class="blk sec" id="b-sec2" data-div="div" data-sem="section" data-name="區段">
+            <h2>職人故事</h2>
+            <p class="story">在苗栗的窯場，每一只杯子都燒上三天三夜。</p>
+          </section>
+        </main>
+        <aside class="blk" id="b-aside" data-div="div" data-sem="aside" data-name="側欄">
+          <h3>熱銷排行</h3>
+          <ol><li>手捏茶杯</li><li>柴燒馬克杯</li><li>麻布杯墊</li></ol>
+        </aside>
+      </div>
+      <footer class="blk" id="b-footer" data-div="div" data-sem="footer" data-name="頁尾">
+        台中市西區小森路 12 號　·　04-2222-0000　·　© 小森選物
+      </footer>
+    </div>
+
+    <!-- 螢幕閱讀器:把網頁念出來的軟體(示意) -->
+    <div class="reader" id="reader">
+      <div class="r-head"><span class="spk"></span>螢幕閱讀器</div>
+      <div class="r-div">
+        <p>群組</p><p>群組</p><p>「小森選物」</p><p>群組</p><p>連結「新品」</p><p>連結「杯子」</p><p>連結「盤子」</p><p>連結「關於我們」</p><p>群組</p><p>「購物車 2」</p><p>群組</p><p class="dim">……還要聽多久才到商品？</p>
+      </div>
+      <div class="r-sem">
+        <p class="r-title">這一頁的地標</p>
+        <p class="lm">頁首</p><p class="lm">導覽</p><p class="lm go">主要內容</p><p class="lm">補充內容（側欄）</p><p class="lm">頁尾</p>
+        <p class="r-jump">→ 跳到主要內容：「本週新品」</p>
+      </div>
+    </div>
+
+    <!-- 搜尋引擎看到的(示意) -->
+    <div class="bot" id="bot">
+      <div class="b-head">搜尋結果的樣子</div>
+      <div class="result" id="result">
+        <div class="r-url">shop.example › new</div>
+        <div class="r-t">小森選物｜本週新品</div>
+        <div class="r-s">本週新品：柴燒馬克杯、粗陶小盤、木紋湯匙。在苗栗的窯場，每一只杯子都燒上三天三夜。</div>
+      </div>
+      <div class="b-note"><span class="ok">主要內容</span> 拿來當摘要<br><span class="no">導覽、頁尾</span> 每頁都一樣，不是重點</div>
+    </div>
+  </div>
+
+  <div hidden>
+    <button data-set="mode=plain hi=none sr=none bot=off"></button>
+    <button data-set="mode=divs"></button>
+    <button data-set="mode=sem"></button>
+    <button data-set="mode=wire"></button>
+    <button data-set="hi=none"></button>
+    <button data-set="hi=header"></button>
+    <button data-set="hi=nav"></button>
+    <button data-set="hi=main"></button>
+    <button data-set="hi=section"></button>
+    <button data-set="hi=aside"></button>
+    <button data-set="hi=footer"></button>
+    <button data-set="sr=none"></button>
+    <button data-set="sr=div"></button>
+    <button data-set="sr=sem"></button>
+    <button data-set="sr=jump"></button>
+    <button data-set="bot=on"></button>
+    <button data-set="bot=off"></button>
+    <button data-set="mode=sem sr=none"></button>
+    <button data-set="mode=wire hi=none"></button>
+    <button data-set="mode=sem sr=sem"></button>
+    <button data-set="sr=none bot=on"></button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

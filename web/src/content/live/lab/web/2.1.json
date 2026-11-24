@@ -1,0 +1,218 @@
+{
+  "title": "選擇器：樣式要套給誰",
+  "lesson": "網頁怎麼運作 · 單元 2 · 2.1",
+  "teacher": {
+    "say": "今天認識選擇器",
+    "line": "今天要來看，一條樣式怎麼指定要套給誰，才不會整頁都被改到。"
+  },
+  "cast": {
+    "web": {
+      "actor": "browser",
+      "props": {
+        "site": "lt-web-2-1-sel",
+        "url": "https://shop.example/sale"
+      },
+      "place": "window",
+      "hidden": true
+    },
+    "boss": {
+      "actor": "person",
+      "props": {
+        "name": "老闆",
+        "look": "boss"
+      },
+      "place": {
+        "landscape": {
+          "x": 1300,
+          "y": 560,
+          "w": 560,
+          "h": 440
+        },
+        "portrait": {
+          "x": 440,
+          "y": 1180,
+          "w": 600,
+          "h": 440
+        }
+      },
+      "hidden": true
+    }
+  },
+  "steps": [
+    {
+      "card": "選擇器：樣式要套給誰",
+      "eyebrow": "網頁怎麼運作 · 單元 2 · 2.1",
+      "chapter": "整頁都紅了",
+      "narration": "CSS 管網頁長什麼樣子。可是每一條樣式，都要先說清楚是要套給誰。這一課從一個改錯的例子開始。"
+    },
+    {
+      "show": "web",
+      "narration": "小森選物週末特價。老闆跟 AI 說：特價的價格要紅色。結果……"
+    },
+    {
+      "show": "boss",
+      "on": "boss",
+      "say": "我只說特價要紅色，怎麼整頁的字都紅了？",
+      "mood": "worried",
+      "narration": "不只特價，所有價格、上面的公告、下面的運費說明，全都變紅了。"
+    },
+    {
+      "hide": "boss"
+    },
+    {
+      "callout": "web:section:rule",
+      "text": "樣式規則 = 選擇器 + 要改成什麼樣子",
+      "narration": "看上面這一條樣式規則。大括號裡寫要改成什麼樣子：文字顏色是紅色。前面的 p，是選擇器，決定這條規則要套給誰。"
+    },
+    {
+      "wait": 300,
+      "narration": "問題就出在選擇器：p 選中的範圍太大了。"
+    },
+    {
+      "click": "[data-set='sel=none apply=no']",
+      "on": "web",
+      "chapter": "三種常用的選擇器",
+      "narration": "先把紅色拿掉，只看選擇器選中了誰。"
+    },
+    {
+      "click": "[data-set='sel=p']",
+      "on": "web",
+      "narration": "第一種，用標籤名稱。p 是段落標籤，寫 p，就會選中整頁所有的 p：公告、每一個價格、最下面的說明，九個一起亮起來。"
+    },
+    {
+      "callout": "web:section:peek",
+      "text": "右邊是第三張卡片的 HTML",
+      "narration": "右邊是第三張卡片的 HTML。被選中的那個名字，也會亮起來。"
+    },
+    {
+      "click": "[data-set='sel=price']",
+      "on": "web",
+      "narration": "第二種，用 class。class 是你替元素取的分類名稱，像貼上同一種貼紙。寫成點 price，前面的點代表 class，就只選中六個價格。"
+    },
+    {
+      "click": "[data-set='sel=id']",
+      "on": "web",
+      "narration": "第三種，用 id。id 是一個元素專屬的名字，整頁只能有一個。寫成井字號 buy-3，就只選中第三張卡片的按鈕。"
+    },
+    {
+      "wait": 400,
+      "narration": "標籤名稱選一整種，class 選同一類，id 只選一個。範圍一個比一個小。"
+    },
+    {
+      "callout": "web:section:peek",
+      "text": "一個元素可以有好幾個 class",
+      "narration": "再看一次右邊。特價的價格，class 寫了兩個：price 和 sale，中間用空白隔開。一個元素可以同時屬於好幾類。"
+    },
+    {
+      "wait": 200,
+      "chapter": "換你選",
+      "narration": "換你。要只讓特價的價格變紅色，其他的都不動，選擇器該怎麼寫？"
+    },
+    {
+      "checkpoint": "只讓特價商品的價格變紅色，要用哪一個選擇器？",
+      "body": "選一個，看看會改到哪些地方。",
+      "id": "sale",
+      "stage": {
+        "focus": "web:section:rule"
+      },
+      "options": [
+        {
+          "label": "p",
+          "steps": [
+            {
+              "click": "[data-set='sel=p apply=yes']",
+              "on": "web",
+              "narration": "p 選中所有段落，公告、說明和每一個價格都會變紅，就是一開始的錯誤。"
+            },
+            {
+              "click": "[data-set='sel=sale apply=yes']",
+              "on": "web",
+              "narration": ".sale 只選中 class 裡有 sale 的元素，也就是兩個特價的價格。其他價格的 class 只有 price，不會被改到。"
+            }
+          ]
+        },
+        {
+          "label": ".price",
+          "steps": [
+            {
+              "click": "[data-set='sel=price apply=yes']",
+              "on": "web",
+              "narration": "點 price 選中所有價格，不是特價的也變紅了。"
+            },
+            {
+              "click": "[data-set='sel=sale apply=yes']",
+              "on": "web",
+              "narration": ".sale 只選中 class 裡有 sale 的元素，也就是兩個特價的價格。其他價格的 class 只有 price，不會被改到。"
+            }
+          ]
+        },
+        {
+          "label": ".sale",
+          "steps": [
+            {
+              "click": "[data-set='sel=sale apply=yes']",
+              "on": "web",
+              "narration": "對。.sale 只選中 class 裡有 sale 的元素，也就是兩個特價的價格。其他價格的 class 只有 price，不會被改到。"
+            }
+          ]
+        },
+        {
+          "label": "#buy-3",
+          "steps": [
+            {
+              "click": "[data-set='sel=id apply=yes']",
+              "on": "web",
+              "narration": "井字號 buy-3 只選中一個按鈕，價格完全沒變。"
+            },
+            {
+              "click": "[data-set='sel=sale apply=yes']",
+              "on": "web",
+              "narration": ".sale 只選中 class 裡有 sale 的元素，也就是兩個特價的價格。其他價格的 class 只有 price，不會被改到。"
+            }
+          ]
+        }
+      ],
+      "skip": {
+        "label": "看答案",
+        "steps": [
+          {
+            "click": "[data-set='sel=sale apply=yes']",
+            "on": "web",
+            "narration": "答案是點 sale。.sale 只選中 class 裡有 sale 的元素，也就是兩個特價的價格。其他價格的 class 只有 price，不會被改到。"
+          }
+        ]
+      }
+    },
+    {
+      "click": "[data-set='sel=sale apply=yes']",
+      "on": "web"
+    },
+    {
+      "show": "boss",
+      "on": "boss",
+      "say": "對，就是這兩個！其他的不要動。",
+      "mood": "happy",
+      "narration": "這次只有兩個特價的價格變紅，老闆滿意了。"
+    },
+    {
+      "hide": "boss"
+    },
+    {
+      "hide": "web"
+    },
+    {
+      "card": "把 class 是 sale 的價格改成紅色\n其他價格不要動",
+      "eyebrow": "跟 AI 這樣說",
+      "sub": "說出要套給誰，AI 才不會改到不該改的地方",
+      "chapter": "用對名詞說需求",
+      "narration": "所以跟 AI 說樣式的時候，先說要套給誰：把 class 是 sale 的價格改成紅色，其他價格不要動。AI 改完，你也看得懂它選中了誰。"
+    },
+    {
+      "card": "樣式要先選中對的元素\n才不會改到不該改的地方",
+      "eyebrow": "學會",
+      "sub": "今天的名詞：樣式規則・選擇器・class・id",
+      "chapter": "學會",
+      "narration": "一條樣式規則，由選擇器和要改的樣子組成。選擇器決定套給誰：標籤名稱選一整種，class 選同一類，id 只選一個。先選對元素，樣式才不會改到不該改的地方。"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif; color: #22303c; background: #f3f6f2; }
+h1, p { margin: 0; }
+.app { display: grid; grid-template-columns: 1fr 520px; min-height: 100%; }
+.page { padding-bottom: 20px; background: #fbfcf9; }
+.top { display: flex; align-items: baseline; gap: 12px; padding: 14px 28px; background: #2f5d46; color: #fff; }
+.brand { font-size: 21px; font-weight: 800; }
+.sub { font-size: 14px; opacity: 0.8; }
+.query { display: flex; align-items: flex-end; gap: 14px; margin: 20px 28px 0; padding: 16px; border: 1px solid #dfe7dc; border-radius: 14px; background: #fff; }
+.q-field { display: flex; flex-direction: column; gap: 4px; }
+.q-label { font-size: 12px; color: #6b7684; }
+.q-val { padding: 8px 14px; border: 1px solid #cfd9cc; border-radius: 10px; font-weight: 700; }
+#search { margin-left: auto; padding: 10px 24px; border: 0; border-radius: 10px; background: #2f5d46; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+#search:disabled { background: #b7c4bb; color: #eef2ee; }
+.result { min-height: 230px; margin: 16px 28px 0; }
+.idle { padding: 30px; border: 2px dashed #dfe7dc; border-radius: 14px; text-align: center; color: #8a958c; }
+.loading-tip { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 700; color: #2f5d46; }
+.spin { width: 18px; height: 18px; border: 3px solid #cfe0d5; border-top-color: #2f5d46; border-radius: 50%; transform: rotate(45deg); }
+.skel { height: 54px; margin-bottom: 10px; border-radius: 12px; background: linear-gradient(90deg, #e8eee6 0 35%, #f1f5ef 35% 60%, #e8eee6 60%); }
+.room { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 14px 16px; border: 1px solid #dfe7dc; border-radius: 12px; background: #fff; }
+.room b { font-size: 16px; }
+.room span { color: #2f5d46; font-weight: 800; }
+.warn { padding: 16px; border-radius: 14px; }
+.warn b { display: block; font-size: 16px; margin-bottom: 4px; }
+.warn.fail { background: #fff5f5; border: 1px solid #fed7d7; color: #9b2c2c; }
+.warn.slow { background: #fffaf0; border: 1px solid #fbd38d; color: #8a4b0f; }
+.retry { margin-top: 10px; padding: 8px 18px; border: 0; border-radius: 10px; background: #2f5d46; color: #fff; font-weight: 700; cursor: pointer; }
+.dup { margin-bottom: 10px; padding: 8px 12px; border-radius: 10px; background: #fff5f5; color: #9b2c2c; font-size: 13px; font-weight: 700; }
+.back { padding: 16px 18px; background: #1f2633; color: #e6edf3; font-size: 13px; }
+.b-title { font-size: 17px; font-weight: 800; }
+.b-title small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: #9aa7b4; }
+.lanes { display: flex; justify-content: space-between; margin-top: 12px; padding: 6px 12px; border-radius: 8px; background: #2c3546; font-weight: 700; color: #9aa7b4; }
+.timeline { min-height: 250px; padding: 6px 0; }
+.t-empty { padding: 12px; color: #6f7c8c; }
+.ev { display: flex; align-items: center; gap: 8px; margin-top: 6px; padding: 7px 10px; border-radius: 8px; background: #2c3546; }
+.ev.req { margin-right: 60px; }
+.ev.res { margin-left: 60px; justify-content: flex-end; }
+.ev.wait { justify-content: center; background: none; border: 1px dashed #4a5568; color: #9aa7b4; }
+.ev.miss { justify-content: center; background: #4a2a2a; color: #fed7d7; }
+.ev .tag { padding: 1px 8px; border-radius: 6px; background: #f6c453; color: #1f2633; font-weight: 700; font-size: 12px; }
+.ev.res .tag { background: #68d391; }
+.ev.res.err .tag { background: #fc8181; }
+.ev.new { outline: 2px solid #f6c453; }
+.server { margin-top: 10px; padding: 12px; border: 1px dashed #4a5568; border-radius: 12px; }
+.s-title { font-weight: 700; color: #9aa7b4; }
+.s-btns { display: flex; gap: 8px; margin-top: 8px; }
+.sb { flex: 1; padding: 8px 6px; border: 0; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.sb.ok { background: #68d391; color: #1f2633; }
+.sb.fail { background: #fc8181; color: #1f2633; }
+.sb.wait { background: #2c3546; color: #e6edf3; }
