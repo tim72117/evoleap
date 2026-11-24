@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [0.46.2] - 2026-11-24
+
+### 變更
+
+- **CLI 登入的回呼白名單多一項**:`https://mac-mini.tail2ee365.ts.net/oauth/evoleap/callback`(`deploy-cloudrun.yml`)。多個網址用逗號分隔,所以 `--update-env-vars` 改用 `^|^` 當變數分隔符,值裡的逗號才不會被 gcloud 拆開。
+
 ## [0.46.1] - 2026-11-24
 
 v0.46.0 的部署在 Docker 建置階段失敗(沒有發佈到正式機);內容與 0.46.0 相同,只修測試。

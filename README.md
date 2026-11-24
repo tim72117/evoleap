@@ -122,7 +122,7 @@ git tag -a v0.1.0 -m "..." && git push origin v0.1.0
 - GitHub repo secrets：`WIF_PROVIDER`、`WIF_SERVICE_ACCOUNT`（Workload Identity Federation，provider `github-provider-vibing` 只允許 `tim72117/evoleap`；repo 改名時要同步更新 provider 的 attribute condition 與 service account 的 workloadIdentityUser 綁定，否則部署會在驗證步驟失敗）；repo variable `GA_MEASUREMENT_ID`（選填，未設定不載入 GA）、`ADSENSE_CLIENT` 與 `ADSENSE_SLOT`（選填，兩個都設定才在課程頁放廣告；AdSense 後台的自動廣告要保持關閉）。
 - 登入功能需要資料庫：Cloud Run 上沒有 `DATABASE_URL` 時伺服器自動停用登入，網站其他部分照常運作（課程只有免登入的課能播，課程地圖改用前端內建的資料）。
   - Cloud SQL：與 tripace 共用實例 `onagent-prod:asia-east1:onagent-db`，資料庫 `evoleap`、使用者 `evoleap_app`。實例上的 `shuttle`、`shuttle_app` 是 tripace 的正式資料，不可使用。
-  - Secret Manager（專案 shuttle-045094509）：`EVOLEAP_DATABASE_URL`、`EVOLEAP_JWT_SECRET`、`EVOLEAP_GOOGLE_OAUTH_CLIENT_ID`、`EVOLEAP_ADMIN_BOOTSTRAP_EMAIL`，都要開放 Cloud Run 執行帳號讀取。deploy workflow 會引用這些機密，缺任何一個部署都會失敗。另有環境變數 `CLI_AUTH_REDIRECT_ALLOWLIST`（`/api/cli-auth/start` 除本機網址外接受的 https 回呼網址，逗號分隔、完整網址逐字比對，預設空）直接寫在 `deploy-cloudrun.yml` 的 `--update-env-vars`，目前只有 omixor 的 `https://omixor.io/oauth/evoleap/callback`；要加新的回呼就改這一行。
+  - Secret Manager（專案 shuttle-045094509）：`EVOLEAP_DATABASE_URL`、`EVOLEAP_JWT_SECRET`、`EVOLEAP_GOOGLE_OAUTH_CLIENT_ID`、`EVOLEAP_ADMIN_BOOTSTRAP_EMAIL`，都要開放 Cloud Run 執行帳號讀取。deploy workflow 會引用這些機密，缺任何一個部署都會失敗。另有環境變數 `CLI_AUTH_REDIRECT_ALLOWLIST`（`/api/cli-auth/start` 除本機網址外接受的 https 回呼網址，逗號分隔、完整網址逐字比對，預設空）直接寫在 `deploy-cloudrun.yml` 的 `--update-env-vars`，目前有 omixor 的 `https://omixor.io/oauth/evoleap/callback` 與 `https://mac-mini.tail2ee365.ts.net/oauth/evoleap/callback`（多個用逗號，deploy 用 `^|^` 當變數分隔符）；要加新的回呼就改這一行。
 
 ## 測試
 

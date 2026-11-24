@@ -109,7 +109,7 @@ jobs:
             --max-instances=2 \
             --add-cloudsql-instances=${{ env.CLOUDSQL_INSTANCE }} \
             --update-secrets="${SECRETS}" \
-            --update-env-vars=CLI_AUTH_REDIRECT_ALLOWLIST=https://omixor.io/oauth/evoleap/callback \
+            --update-env-vars="^|^CLI_AUTH_REDIRECT_ALLOWLIST=https://omixor.io/oauth/evoleap/callback,https://mac-mini.tail2ee365.ts.net/oauth/evoleap/callback" \
             --quiet
 
       - name: Show Cloud Run URL
