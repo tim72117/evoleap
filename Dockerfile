@@ -23,6 +23,8 @@ COPY web/ ./
 # 前端 build 讀這份種子:build 時產生的 SEO 靜態頁沒有 API,課程總覽頁的搜尋標題、描述與課程清單讀它(seo/pages.ts),tsc -b 也型別檢查讀它的測試;
 # 執行期主程式不含這份種子(只有 seo/pages.ts 的獨立 chunk 有);畫面執行時讀 API,存取與開放狀態都由資料庫決定。
 COPY server/internal/store/courses_seed.json /repo/server/internal/store/courses_seed.json
+# 英文翻譯檔:seo/enPages.ts 讀它產生 /en/... 的英文頁(課名、簡介、單元與課的標題);執行期的 API 讀的是同一份(Go 內嵌)。
+COPY server/internal/store/i18n_en.json /repo/server/internal/store/i18n_en.json
 # GA4 評估 ID(Vite 於 build 時內嵌):docker build --build-arg VITE_GA_MEASUREMENT_ID=G-XXXX。
 # 未傳或留空時前端完全不載入 Google Analytics。
 # 功能旗標(全站開啟的功能,逗號分隔,如 practice;留空則正式站預設關閉,見 web/src/site/features.ts)。

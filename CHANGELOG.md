@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [0.48.2] - 2026-11-24
+
+v0.48.1 的部署在 Docker 建置失敗(沒有發佈到正式機;`Test` 通過);內容與 0.48.1 相同,只修建置。
+
+### 修正
+
+- **Docker 前端建置找不到英文翻譯檔**:`seo/enPages.ts` 讀 `server/internal/store/i18n_en.json`,但 Dockerfile 的前端階段只複製了 `courses_seed.json`,`tsc -b` 報 TS2307。補一行 `COPY`。(CI 的 `Test` 在完整 repo 上跑所以沒發現;之後新增前端 build 會讀的後端檔案,Dockerfile 也要一起加。)
+
 ## [0.48.1] - 2026-11-24
 
 v0.48.0 的部署在 e2e 失敗(沒有發佈到正式機);內容與 0.48.0 相同,只修下面兩處。
