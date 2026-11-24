@@ -6,6 +6,10 @@
 
 「AI 工具介紹」「AI 工具入門」「Vibe Coding 入門」三門課合併成一門「做出自己的軟體」（`software`），原本的三門課是它的三個階段（起步、零基礎、基礎；零基礎先不公開）。課號、單課腳本、存取方式都沒變。
 
+### 新增（CLI 登入）
+
+- **`/api/cli-auth/start` 可接受設定檔列出的 https 回呼網址**：環境變數 `CLI_AUTH_REDIRECT_ALLOWLIST`（逗號分隔、完整網址逐字比對；只收 https，不收帳號密碼與 `#`，不做前綴／萬用字元／子網域比對，大小寫與結尾斜線不正規化；設定寫錯會讓伺服器啟動失敗）。預設為空，行為與以前完全相同。`deploy-cloudrun.yml` 設為 `https://omixor.io/oauth/evoleap/callback`（omixor 的 OAuth 同意流程用）。驗證碼本來就綁定 session id，A 回呼的驗證碼換不到 B 的 token，且只能換一次。核准頁（`GET /api/cli-auth/{id}` 多回 `host`）顯示名稱與回呼主機；名稱去掉控制字元、上限 60 → 80 字。
+
 ### 不相容變更
 
 - **課程 id 與網址**：資料庫的課程 `tools`、`ai-tools`、`vibe-coding-basics` 併成一門課 `software`，三門課是它的三個單元（單元 id 與舊課程 id 相同）。`/courses/software` 是課程頁（每個階段一組課，`#stage-<階段>` 指到該階段），單課網址 `/courses/software/<課號>`（`0.0` → `/0`、`1.0` → `/1-0`、`5.2` → `/5-2`）。

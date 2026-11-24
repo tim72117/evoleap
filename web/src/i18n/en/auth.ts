@@ -58,8 +58,8 @@ export const auth: Messages['auth'] = {
     loginLink: 'sign in',
     loginFirstSuffix: ' first to approve.',
     adminOnly: 'Only admins can approve evoleap CLI sign-ins.',
-    request: (name: string, email: string) =>
-      `${name} wants to sign in with your account (${email}) and will be able to change course data in production. If you didn’t just run this in your terminal, close this page.`,
+    request: (name: string, email: string, host?: string) =>
+      `“${name}” from ${host ?? 'your machine'} wants to sign in with your account (${email}) and will be able to change course data in production. After you approve, your browser will be sent to ${host ?? 'your machine'}. Check that the host is the one you expect; if you didn’t start this yourself, close this page.`,
     approving: 'Approving…',
     approve: 'Approve',
   },

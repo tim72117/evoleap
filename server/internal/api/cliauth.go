@@ -32,7 +32,7 @@ func (s *Server) handleCliAuthStart(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "bad_request", "格式錯誤")
 		return
 	}
-	id, err := s.cfg.Store.StartCliAuth(r.Context(), body.RedirectURI, body.Name)
+	id, err := s.cfg.Store.StartCliAuth(r.Context(), body.RedirectURI, body.Name, s.cfg.CliAuthRedirectAllowlist)
 	if errors.Is(err, store.ErrCliAuthInvalid) {
 		writeError(w, http.StatusBadRequest, "bad_request", err.Error())
 		return
@@ -45,7 +45,7 @@ func (s *Server) handleCliAuthStart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleCliAuthGet(w http.ResponseWriter, r *http.Request) {
-	name, err := s.cfg.Store.CliAuthName(r.Context(), r.PathValue("id"))
+	name, host, err := s.cfg.Store.CliAuthName(r.Context(), r.PathValue("id"))
 	if errors.Is(err, store.ErrCliAuthNotFound) {
 		writeError(w, http.StatusNotFound, "not_found", "登入要求不存在或已過期,請在終端機重新執行 evoleap login --web")
 		return
@@ -54,7 +54,7 @@ func (s *Server) handleCliAuthGet(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"name": name})
+	writeJSON(w, http.StatusOK, map[string]string{"name": name, "host": host})
 }
 
 func (s *Server) handleCliAuthApprove(w http.ResponseWriter, r *http.Request, user store.User) {

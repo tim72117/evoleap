@@ -9,9 +9,11 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	"gorm.io/gorm"
 )
@@ -54,19 +56,64 @@ type cliAuthSessionRow struct {
 
 func (cliAuthSessionRow) TableName() string { return "cli_auth_sessions" }
 
-// StartCliAuth 登記一筆待核准的 CLI 登入;redirectURI 必須是本機 loopback 網址。回傳放進網址也安全的 id。
-func (s *Store) StartCliAuth(ctx context.Context, redirectURI, name string) (string, error) {
-	if !cliAuthLoopbackRE.MatchString(redirectURI) {
-		return "", fmt.Errorf("%w:redirect_uri 只能是本機網址(http://localhost:<port>/… 或 http://127.0.0.1:<port>/…)", ErrCliAuthInvalid)
+// ParseCliAuthRedirectAllowlist 解析環境變數 CLI_AUTH_REDIRECT_ALLOWLIST(逗號分隔的完整網址)。
+// 每一項都必須是 https、有主機、沒有 userinfo 與 fragment、不超過 300 字,否則整份回錯誤(設定寫錯就該讓啟動失敗,不要默默放寬或略過)。
+func ParseCliAuthRedirectAllowlist(raw string) ([]string, error) {
+	var list []string
+	for _, item := range strings.Split(raw, ",") {
+		if item = strings.TrimSpace(item); item == "" {
+			continue
+		}
+		u, err := url.Parse(item)
+		if err != nil || u.Scheme != "https" || u.Host == "" || u.Hostname() == "" || u.User != nil || u.Fragment != "" || strings.Contains(item, "#") || len(item) > 300 {
+			return nil, fmt.Errorf("CLI_AUTH_REDIRECT_ALLOWLIST 的項目必須是 https 完整網址(不可有帳號密碼或 #):%q", item)
+		}
+		list = append(list, item)
 	}
+	return list, nil
+}
+
+// cliAuthRedirectOK:本機 loopback 網址,或與白名單其中一項逐字完全相同(不做前綴、萬用字元、子網域,也不正規化大小寫與結尾斜線)。
+func cliAuthRedirectOK(redirectURI string, allow []string) bool {
+	if cliAuthLoopbackRE.MatchString(redirectURI) {
+		return true
+	}
+	for _, a := range allow {
+		if redirectURI == a {
+			return true
+		}
+	}
+	return false
+}
+
+// CliAuthRedirectHost 回傳回呼網址的主機(含埠),核准頁顯示給管理員看「核准後會被導去哪裡」。
+func CliAuthRedirectHost(redirectURI string) string {
+	if u, err := url.Parse(redirectURI); err == nil {
+		return u.Host
+	}
+	return ""
+}
+
+// StartCliAuth 登記一筆待核准的 CLI 登入;redirectURI 必須是本機 loopback 網址,或與 allow(部署設定的白名單)某一項完全相同。回傳放進網址也安全的 id。
+func (s *Store) StartCliAuth(ctx context.Context, redirectURI, name string, allow []string) (string, error) {
 	if len(redirectURI) > 300 {
 		return "", fmt.Errorf("%w:redirect_uri 太長", ErrCliAuthInvalid)
 	}
-	if name = strings.TrimSpace(name); name == "" {
+	if !cliAuthRedirectOK(redirectURI, allow) {
+		return "", fmt.Errorf("%w:redirect_uri 只能是本機網址(http://localhost:<port>/… 或 http://127.0.0.1:<port>/…)", ErrCliAuthInvalid)
+	}
+	// 先去掉控制字元與頭尾空白,再套預設名稱(全是控制字元的名稱不能變成空的)
+	name = strings.TrimSpace(strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) {
+			return -1
+		}
+		return r
+	}, name))
+	if name == "" {
 		name = "evoleap CLI"
 	}
-	if r := []rune(name); len(r) > 60 {
-		name = string(r[:60])
+	if r := []rune(name); len(r) > 80 {
+		name = string(r[:80])
 	}
 	id, err := randomToken()
 	if err != nil {
@@ -107,16 +154,16 @@ func (s *Store) pendingCliAuth(ctx context.Context, id string) (cliAuthSessionRo
 	return row, err
 }
 
-// CliAuthName 回傳一筆還沒過期、還沒核准的登入要顯示的 CLI 名稱(核准頁用)。
-func (s *Store) CliAuthName(ctx context.Context, id string) (string, error) {
+// CliAuthName 回傳一筆還沒過期、還沒核准的登入要顯示的 CLI 名稱與回呼網址的主機(核准頁用)。
+func (s *Store) CliAuthName(ctx context.Context, id string) (name, host string, err error) {
 	row, err := s.pendingCliAuth(ctx, id)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	if row.Approved {
-		return "", ErrCliAuthNotFound
+		return "", "", ErrCliAuthNotFound
 	}
-	return row.Name, nil
+	return row.Name, CliAuthRedirectHost(row.RedirectURI), nil
 }
 
 // ApproveCliAuth 由 userID(核准的管理員)核准一筆登入:記下核准的人與一次性驗證碼的雜湊,

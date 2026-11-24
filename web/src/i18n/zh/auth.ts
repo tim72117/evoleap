@@ -58,8 +58,8 @@ export const auth = {
     loginLink: '登入',
     loginFirstSuffix: '，才能核准。',
     adminOnly: '只有管理員可以核准 evoleap CLI 登入。',
-    request: (name: string, email: string) =>
-      `${name} 想用你的帳號（${email}）登入，之後可以修改正式環境的課程資料。如果這不是你剛剛在終端機執行的，請關掉這一頁。`,
+    request: (name: string, email: string, host?: string) =>
+      `來自 ${host ?? '本機'} 的「${name}」想用你的帳號（${email}）登入，之後可以修改正式環境的課程資料。核准後瀏覽器會被導向 ${host ?? '本機'}。請確認主機是你預期的，不是你剛剛自己發起的就關掉這一頁。`,
     approving: '核准中…',
     approve: '核准',
   },

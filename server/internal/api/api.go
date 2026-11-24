@@ -22,6 +22,9 @@ type Config struct {
 	SecureCookie bool
 	// AdminEmails 是管理員 Email 白名單(逗號分隔,環境變數 ADMIN_BOOTSTRAP_EMAIL);空字串代表沒有管理員。
 	AdminEmails string
+	// CliAuthRedirectAllowlist 是 /api/cli-auth/start 除了本機網址之外還接受的回呼網址(完整網址逐字比對,環境變數 CLI_AUTH_REDIRECT_ALLOWLIST,逗號分隔);
+	// 空代表只收本機網址。只由部署設定,start 的請求者不能增加。
+	CliAuthRedirectAllowlist []string
 	// AuthRateLimit 是每個來源 IP 每分鐘可嘗試登入、註冊的次數;0 代表不限流(本機開發與 E2E 用)。
 	AuthRateLimit int
 	// OpenAdmin 為 true 時管理後台 API(/api/admin/*)不檢查登入與白名單(-open-studio,只給本機開發用;Cloud Run 上 main 會拒絕啟動)。

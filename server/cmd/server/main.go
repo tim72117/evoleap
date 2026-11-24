@@ -64,6 +64,12 @@ func main() {
 		// -open-studio 時管理後台也不檢查權限(研發基地與 /admin 一起開放,只給本機開發用)
 		OpenAdmin: *openStudio,
 	}
+	// 設定寫錯就讓啟動失敗(不默默放寬或略過)
+	allow, allowErr := store.ParseCliAuthRedirectAllowlist(os.Getenv("CLI_AUTH_REDIRECT_ALLOWLIST"))
+	if allowErr != nil {
+		log.Fatal(allowErr)
+	}
+	cfg.CliAuthRedirectAllowlist = allow
 	if !onCloudRun {
 		cfg.LiveDir = *liveDir
 	}

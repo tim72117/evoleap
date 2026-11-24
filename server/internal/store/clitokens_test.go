@@ -17,7 +17,7 @@ func TestCliTokenLifecycle(t *testing.T) {
 	}
 	issue := func() string {
 		t.Helper()
-		id, err := st.StartCliAuth(ctx, "http://127.0.0.1:5555/callback", "")
+		id, err := st.StartCliAuth(ctx, "http://127.0.0.1:5555/callback", "", nil)
 		if err != nil {
 			t.Fatal(err)
 		}

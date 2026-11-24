@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
@@ -182,5 +183,64 @@ func TestCliLoginAndCourseAdmin(t *testing.T) {
 	}
 	if rec := call(env.h, http.MethodPatch, "/api/admin/courses/kids", `{"access":"free"}`, amy); rec.Code != http.StatusForbidden {
 		t.Errorf("一般會員不能改課程: %d", rec.Code)
+	}
+}
+
+// 部署設定的回呼白名單:清單內的 https 網址通過、其餘 400;核准後導回該網址(帶 id 與 code),logout 撤銷 token
+func TestCliAuthStartAllowlist(t *testing.T) {
+	const cb = "https://omixor.io/oauth/evoleap/callback"
+	env := newAdminEnv(t, "boss@example.com")
+	boss := env.googleCookie(t, "boss@example.com")
+	start := func(h http.Handler, uri string) *httptest.ResponseRecorder {
+		return call(h, http.MethodPost, "/api/cli-auth/start", `{"redirect_uri":"`+uri+`","name":"omixor OAuth: app (read-only)"}`, nil)
+	}
+	if rec := start(env.h, cb); rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "只能是本機網址") {
+		t.Errorf("清單為空要拒絕: %d %s", rec.Code, rec.Body)
+	}
+	h := New(Config{Store: env.st, Signer: env.signer, AdminEmails: "boss@example.com", CliAuthRedirectAllowlist: []string{cb}}).Routes()
+	rec := start(h, cb)
+	var s struct{ ID string }
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &s) != nil || s.ID == "" {
+		t.Fatalf("清單內: %d %s", rec.Code, rec.Body)
+	}
+	if rec := start(h, "http://127.0.0.1:45871/callback"); rec.Code != http.StatusOK {
+		t.Errorf("本機仍要通過: %d", rec.Code)
+	}
+	for _, bad := range []string{cb + "/", cb + "x", "https://evil.example/oauth/evoleap/callback", "http://omixor.io/oauth/evoleap/callback", "https://omixor.io@evil.example/oauth/evoleap/callback", cb + "#x"} {
+		if rec := start(h, bad); rec.Code != http.StatusBadRequest {
+			t.Errorf("%s 該被拒絕: %d", bad, rec.Code)
+		}
+	}
+	if rec := call(h, http.MethodGet, "/api/cli-auth/"+s.ID, "", nil); !strings.Contains(rec.Body.String(), `"host":"omixor.io"`) || !strings.Contains(rec.Body.String(), "omixor OAuth: app (read-only)") {
+		t.Errorf("核准頁要有名稱與主機: %s", rec.Body)
+	}
+	rec = call(h, http.MethodPost, "/api/cli-auth/"+s.ID+"/approve", "", boss)
+	var ap struct{ Redirect string }
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &ap) != nil || !strings.HasPrefix(ap.Redirect, cb+"?") {
+		t.Fatalf("核准: %d %s", rec.Code, rec.Body)
+	}
+	u, _ := url.Parse(ap.Redirect)
+	// 另一筆(本機回呼)登記的 id 配上這個驗證碼換不到
+	rec = start(h, "http://127.0.0.1:45871/callback")
+	var other struct{ ID string }
+	_ = json.Unmarshal(rec.Body.Bytes(), &other)
+	call(h, http.MethodPost, "/api/cli-auth/"+other.ID+"/approve", "", boss)
+	if rec := call(h, http.MethodPost, "/api/cli-auth/exchange", `{"id":"`+other.ID+`","code":"`+u.Query().Get("code")+`"}`, nil); rec.Code != http.StatusNotFound {
+		t.Errorf("A 的驗證碼不能換 B: %d", rec.Code)
+	}
+	ex := `{"id":"` + s.ID + `","code":"` + u.Query().Get("code") + `"}`
+	rec = call(h, http.MethodPost, "/api/cli-auth/exchange", ex, nil)
+	var tok struct{ Token string }
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &tok) != nil || tok.Token == "" {
+		t.Fatalf("exchange: %d %s", rec.Code, rec.Body)
+	}
+	if rec := call(h, http.MethodPost, "/api/cli-auth/exchange", ex, nil); rec.Code != http.StatusNotFound {
+		t.Errorf("重放要失敗: %d", rec.Code)
+	}
+	if rec := callHeader(h, http.MethodPost, "/api/cli-auth/logout", "", map[string]string{"Authorization": "Bearer " + tok.Token}); rec.Code != http.StatusOK {
+		t.Errorf("logout: %d", rec.Code)
+	}
+	if rec := callHeader(h, http.MethodGet, "/api/admin/courses", "", map[string]string{"Authorization": "Bearer " + tok.Token}); rec.Code != http.StatusUnauthorized {
+		t.Errorf("logout 後 token 要失效: %d", rec.Code)
 	}
 }
