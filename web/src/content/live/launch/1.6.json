@@ -100,8 +100,8 @@
     },
     {
       "callout": "claude:tool",
-      "text": "每一行：名稱、TTL、類型、值",
-      "narration": "輸出不難讀。每一行依序是名稱、TTL、類型和值。TTL 等一下再說。"
+      "text": "每一行：名稱、TTL、類型、值（中間的 IN 不用管）",
+      "narration": "輸出不難讀。每一行依序是名稱、TTL、類型和值，中間的 IN 先不用管。TTL 等一下再說。"
     },
     {
       "on": "claude",
@@ -179,7 +179,7 @@
     {
       "on": "records",
       "paste": "# 收信的郵局（網域商附贈的信件轉寄）\n@     3600  MX     10 mx.forward.registrar-b.example\n\n",
-      "narration": "MX 是收信的郵局。寄到這個網域的信，要送去哪裡，就看這一行。"
+      "narration": "MX 是收信的郵局。寄到這個網域的信，要送去哪裡，就看這一行。前面的 10 是順序，數字小的先試。"
     },
     {
       "on": "records",

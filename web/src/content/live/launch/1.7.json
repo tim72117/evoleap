@@ -217,7 +217,7 @@
       "ask": "check-domain.sh",
       "q": "Claude 想要建立這個檔案",
       "where": "~/projects/bakery",
-      "preview": "#!/bin/bash\n# 每分鐘查一次 DNS 和 HTTPS，都好了才停"
+      "preview": "#!/bin/bash\n# 每分鐘查一次 DNS 和 HTTPS，都好了才停；最多查 120 次"
     },
     { "on": "claude", "choose": 1 },
     {

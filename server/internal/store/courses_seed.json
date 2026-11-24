@@ -770,35 +770,35 @@
             "id": "1.3",
             "title": "HTTPS 與快取",
             "summary": "網址有鎖頭，更新後馬上看得到新版。",
-            "status": "draft",
+            "status": "open",
             "script": "launch/1.3.json"
           },
           {
             "id": "1.4",
             "title": "網域是什麼、怎麼挑",
             "summary": "比較網域名稱、網域商與續約價，選好自己的網域。",
-            "status": "draft",
+            "status": "open",
             "script": "launch/1.4.json"
           },
           {
             "id": "1.5",
             "title": "買網域",
             "summary": "買下網域，確認自動續約與隱私保護都設好。",
-            "status": "draft",
+            "status": "open",
             "script": "launch/1.5.json"
           },
           {
             "id": "1.6",
             "title": "DNS 紀錄入門",
             "summary": "看懂網域的 DNS 紀錄各在做什麼。",
-            "status": "draft",
+            "status": "open",
             "script": "launch/1.6.json"
           },
           {
             "id": "1.7",
             "title": "把網域接到網站",
             "summary": "用自己的網域打開網站。",
-            "status": "draft",
+            "status": "open",
             "script": "launch/1.7.json"
           }
         ]
