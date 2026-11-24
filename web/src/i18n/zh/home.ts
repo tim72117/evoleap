@@ -37,6 +37,7 @@ export const home = {
     after: '整理後',
     scenarios: '涵蓋的情境',
     seePlan: '看課程規劃',
+    views: (n: number) => `${n.toLocaleString('zh-Hant')} 次觀看`,
   },
 
   software: {

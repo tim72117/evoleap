@@ -4,6 +4,7 @@ import { COURSES, courseMapId, lessonUrl, PREVIEW_LESSON_ID } from '../content/c
 import { useCourseMaps } from '../content/courseMap'
 import { KIDS_TOPIC, LAUNCH_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, topicStartLabel, type PlannedTopic } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
+import { sortByViews, topicIdOfPath, useTopicViews } from './useTopicViews'
 import { SiteLayout } from '../site/SiteLayout'
 import styles from './HomePage.module.css'
 
@@ -33,6 +34,8 @@ export function HomePage() {
   const { hash } = useLocation()
   const t = useT()
   const maps = useCourseMaps(LADDER_MAP_IDS)
+  const topicViews = useTopicViews()
+  const softwareViews = topicViews?.[topicIdOfPath(SOFTWARE_TOPIC.path) ?? '']
   // 已開放與否照資料庫的課程地圖;還在讀、讀不到時等級不亮(不用前端的課程資料頂替)
   // 階段名稱與先不公開照資料庫課程地圖的單元(label、hidden);讀到之前先用同一份種子的階段名稱(不亮),版面不位移
   const softwareMap = maps[courseMapId(software)]
@@ -55,7 +58,10 @@ export function HomePage() {
         <article className={styles.featured} aria-labelledby="theme-software">
           <div className={styles.featuredMain}>
             <div className={styles.featuredText}>
-              <h2 id="theme-software">{SOFTWARE_TOPIC.name}</h2>
+              <div className={styles.themeHead}>
+                <h2 id="theme-software">{SOFTWARE_TOPIC.name}</h2>
+                {softwareViews ? <ViewsLine text={t.home.themeCard.views(softwareViews)} /> : null}
+              </div>
               <p className={styles.slogan}>{SOFTWARE_TOPIC.slogan}</p>
               <p className={styles.lede}>{SOFTWARE_TOPIC.lede}</p>
               <ul className={styles.facts}>
@@ -100,13 +106,12 @@ export function HomePage() {
         </article>
 
         {/* 接在「做出自己的軟體」後面:做好之後的下一步 */}
-        <section className={styles.kids} aria-label={LAUNCH_TOPIC.name}>
-          <ThemeCard t={LAUNCH_TOPIC} />
-        </section>
-
-        <section className={styles.kids} aria-label={KIDS_TOPIC.name}>
-          <ThemeCard t={KIDS_TOPIC} />
-        </section>
+        {/* 觀看次數多的主題排前面(還沒讀到次數時照原本的順序:上線、兒童課) */}
+        {sortByViews([LAUNCH_TOPIC, KIDS_TOPIC], (p) => topicIdOfPath(p.path), topicViews).map((p) => (
+          <section key={p.name} className={styles.kids} aria-label={p.name}>
+            <ThemeCard t={p} />
+          </section>
+        ))}
 
         <section className={styles.next} aria-labelledby="next-themes">
           <h2 id="next-themes">{t.home.home.moreTopics}</h2>
@@ -121,6 +126,19 @@ export function HomePage() {
   )
 }
 
+/** 主題的觀看次數:眼睛圖示加文字(圖示只是裝飾,文字已經說明) */
+function ViewsLine({ text }: { text: string }) {
+  return (
+    <p className={styles.views}>
+      <svg className={styles.viewsIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+      {text}
+    </p>
+  )
+}
+
 /**
  * 規劃中(或已開放、t.open)主題的卡片:名稱、標語、步驟或整理前後示意、預計做出的成果或涵蓋的情境。
  * aside 放在標題與內容的右側(窄螢幕排到下面);below 接在步驟下面。
@@ -130,6 +148,8 @@ export function HomePage() {
 export function ThemeCard({ t: topic, aside, below }: { t: PlannedTopic; aside?: ReactNode; below?: ReactNode }) {
   const t = useT()
   const m = t.home.themeCard
+  const topicViews = useTopicViews()
+  const viewCount = topicViews?.[topicIdOfPath(topic.path) ?? '']
   // 「開始第一課」寫在課程資料裡;是這句固定按鈕字就照目前語言
   const startLabel = topic.start && topicStartLabel(topic.start)
   const outcomes = topic.outcomes && (
@@ -151,6 +171,7 @@ export function ThemeCard({ t: topic, aside, below }: { t: PlannedTopic; aside?:
           {topic.icon && TOPIC_ICONS[topic.icon]}
           {topic.name}
         </h3>
+        {viewCount ? <ViewsLine text={m.views(viewCount)} /> : null}
         {!topic.open && (
           <p className={styles.planned}>
             <span className={styles.plannedIcon} aria-hidden="true">

@@ -202,3 +202,14 @@ func TestTopicListNoStore(t *testing.T) {
 		t.Errorf("no store: %d", rec.Code)
 	}
 }
+
+// 首頁主題卡片的觀看次數:公開、帶快取、只有次數
+func TestTopicViewsAPI(t *testing.T) {
+	rec := call(newTestServer(t), http.MethodGet, "/api/topics/views", "", nil)
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `"views"`) {
+		t.Fatalf("%d %s", rec.Code, rec.Body)
+	}
+	if cc := rec.Header().Get("Cache-Control"); cc != "public, max-age=300" {
+		t.Errorf("cache: %q", cc)
+	}
+}

@@ -20,7 +20,7 @@ export type CourseListItem = {
   overview?: boolean
 }
 
-export type CourseTopicGroup = { topic: string; topicSlogan: string; topicPath: string; courses: CourseListItem[] }
+export type CourseTopicGroup = { topicId: string; topic: string; topicSlogan: string; topicPath: string; courses: CourseListItem[] }
 
 export async function fetchCourseList(): Promise<CourseListItem[]> {
   const res = await fetch(`/api/courses${langQuery()}`, { credentials: 'same-origin' })
@@ -34,7 +34,7 @@ export function groupByTopic(courses: CourseListItem[]): CourseTopicGroup[] {
   for (const c of courses) {
     const last = groups[groups.length - 1]
     if (last && last.topic === c.topic) last.courses.push(c)
-    else groups.push({ topic: c.topic, topicSlogan: c.topicSlogan, topicPath: c.topicPath ?? `/courses/${c.id}`, courses: [c] })
+    else groups.push({ topicId: c.topicId, topic: c.topic, topicSlogan: c.topicSlogan, topicPath: c.topicPath ?? `/courses/${c.id}`, courses: [c] })
   }
   return groups
 }

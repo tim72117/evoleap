@@ -335,6 +335,26 @@
   margin: 0;
 }
 
+/* 主題的觀看次數:標語下面一行小字 */
+.views {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 3px 11px 3px 9px;
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+  color: var(--site-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.viewsIcon {
+  flex-shrink: 0;
+}
+
 /* 規劃中:標題右邊的小樹苗標籤(樣式同兒童課課程地圖的「規劃中」) */
 .planned {
   flex-shrink: 0;

@@ -4,6 +4,7 @@ import { useCourseMap } from '../content/courseMap'
 import { ACCESS_LABEL } from '../content/levels'
 import { COURSE_LIST } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
+import { sortByViews, useTopicViews } from '../home/useTopicViews'
 import { SiteLayout } from '../site/SiteLayout'
 import styles from './CourseList.module.css'
 import { LessonListStatus } from './LessonGroup'
@@ -47,6 +48,8 @@ function CourseCard({ course }: { course: CourseListItem }) {
 export function CourseListPage() {
   const t = useT()
   const list = useCourseList()
+  // 觀看次數多的主題排前面(還沒讀到次數時照資料庫的順序)
+  const topicViews = useTopicViews()
   return (
     <SiteLayout title={t.courses.list.seoTitle}>
       <div className={styles.container}>
@@ -57,7 +60,7 @@ export function CourseListPage() {
         {list.status !== 'ready' ? (
           <LessonListStatus state={list.status} />
         ) : (
-          groupByTopic(list.courses).map((g, i) => (
+          sortByViews(groupByTopic(list.courses), (g) => g.topicId, topicViews).map((g, i) => (
             <section key={`${g.topic}-${i}`} className={styles.topic} aria-labelledby={`courses-topic-${i}`}>
               <div className={styles.topicHead}>
                 <div>

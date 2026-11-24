@@ -268,3 +268,28 @@ func (s *Store) UpdateTopic(ctx context.Context, user, id string, p TopicPatch) 
 		return s.recordChange(tx, user, "topic.update", id, p)
 	})
 }
+
+// TopicViews 回傳每個主題的觀看次數(首頁主題卡片顯示用):底下各課的「訪客打開(不含爬蟲)」加上「會員有播放紀錄的課」。
+// 一課的播放進度每個會員只有一筆,所以會員算「看過幾堂」,不是播放幾次。只算已開放(open)的課:草稿與規劃中的課(管理員或測試打開)不算,公開的數字才不會被灌。同一筆紀錄對到好幾課(共用腳本)只算一次。
+func (s *Store) TopicViews(ctx context.Context) (map[string]int, error) {
+	const byLesson = " JOIN lessons l ON (%s.lesson = 'live:' || l.script OR %s.lesson = 'kids:' || l.script) JOIN courses c ON c.id = l.course_id" +
+		" WHERE l.script IS NOT NULL AND l.script <> '' AND c.topic_id IS NOT NULL AND c.topic_id <> '' AND l.status = 'open'"
+	type row struct {
+		TopicID string
+		N       int
+	}
+	views := map[string]int{}
+	for _, q := range []string{
+		"SELECT c.topic_id AS topic_id, COUNT(DISTINCT g.id) AS n FROM guest_views g" + fmt.Sprintf(byLesson, "g", "g") + " AND g.device <> 'bot' GROUP BY c.topic_id",
+		"SELECT c.topic_id AS topic_id, COUNT(DISTINCT p.user_id || '/' || p.lesson) AS n FROM progress p" + fmt.Sprintf(byLesson, "p", "p") + " GROUP BY c.topic_id",
+	} {
+		var rows []row
+		if err := s.db.WithContext(ctx).Raw(q).Scan(&rows).Error; err != nil {
+			return nil, err
+		}
+		for _, r := range rows {
+			views[r.TopicID] += r.N
+		}
+	}
+	return views, nil
+}

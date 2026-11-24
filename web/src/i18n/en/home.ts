@@ -37,6 +37,7 @@ export const home: Messages['home'] = {
     after: 'After',
     scenarios: 'Scenarios covered',
     seePlan: 'See the course plan',
+    views: (n: number) => (n === 1 ? '1 view' : `${n.toLocaleString('en')} views`),
   },
 
   software: {

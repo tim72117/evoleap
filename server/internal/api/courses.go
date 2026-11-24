@@ -79,3 +79,18 @@ func (s *Server) handleTopicList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "public, max-age=60")
 	writeJSON(w, http.StatusOK, map[string]any{"topics": topics})
 }
+
+// handleTopicViews 回傳每個主題的觀看次數(GET /api/topics/views,首頁主題卡片顯示);公開、不用登入,只有次數沒有任何個人資料。
+func (s *Server) handleTopicViews(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Store == nil {
+		writeError(w, http.StatusServiceUnavailable, "no_store", "課程資料庫尚未設定")
+		return
+	}
+	views, err := s.cfg.Store.TopicViews(r.Context())
+	if err != nil {
+		internalError(w, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "public, max-age=300")
+	writeJSON(w, http.StatusOK, map[string]any{"views": views})
+}
