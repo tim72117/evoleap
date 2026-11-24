@@ -84,8 +84,8 @@ func TestCourseMapDrafts(t *testing.T) {
 		t.Errorf("admin cache: %q", cc)
 	}
 	// 沒有草稿的課照舊可以共用快取
-	if cc := call(New(Config{Store: st}).Routes(), http.MethodGet, "/api/courses/web/map", "", nil).Header().Get("Cache-Control"); cc != "public, max-age=60" {
-		t.Errorf("web cache: %q", cc)
+	if cc := call(New(Config{Store: st}).Routes(), http.MethodGet, "/api/courses/claude-code/map", "", nil).Header().Get("Cache-Control"); cc != "public, max-age=60" {
+		t.Errorf("claude-code cache: %q", cc)
 	}
 }
 

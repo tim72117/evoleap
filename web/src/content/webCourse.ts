@@ -285,6 +285,18 @@ export const WEB_LESSON_PAGES: Record<string, { path: string; script: string; in
   '0.2': { path: '/courses/web/0-2', script: 'web/0.2.json' },
   '1.1': { path: '/courses/web/1-1', script: 'web/1.1.json', interaction: 'static' },
   '1.2': { path: '/courses/web/1-2', script: 'web/1.2.json', interaction: 'static' },
+  '1.3': { path: '/courses/web/1-3', script: 'web/1.3.json' },
+  '1.4': { path: '/courses/web/1-4', script: 'web/1.4.json' },
+  '1.5': { path: '/courses/web/1-5', script: 'web/1.5.json' },
+  '2.1': { path: '/courses/web/2-1', script: 'web/2.1.json' },
+  '2.2': { path: '/courses/web/2-2', script: 'web/2.2.json' },
+  '2.3': { path: '/courses/web/2-3', script: 'web/2.3.json' },
+  '2.4': { path: '/courses/web/2-4', script: 'web/2.4.json' },
+  '2.5': { path: '/courses/web/2-5', script: 'web/2.5.json' },
+  '3.1': { path: '/courses/web/3-1', script: 'web/3.1.json' },
+  '3.2': { path: '/courses/web/3-2', script: 'web/3.2.json' },
+  '3.3': { path: '/courses/web/3-3', script: 'web/3.3.json' },
+  '3.4': { path: '/courses/web/3-4', script: 'web/3.4.json' },
 }
 
 

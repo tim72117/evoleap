@@ -40,21 +40,6 @@ const L3_QUESTIONS: Question[] = [
 
 const LEVELS: LevelBlock[] = [
   {
-    code: 'L0',
-    tier: 'L0',
-    title: 'AI 工具介紹',
-    access: '免費',
-    stage: { cls: 'todo', text: '序章與第 0、1、2 課腳本完成 · 互動版上線' },
-    summary: `用會操作檔案的 AI 工具在自己的電腦上做出東西，不講 AI 原理。${count('L0')}，每課已有步驟與提示詞。`,
-    points: [
-      '工具例：Claude Code、Codex CLI、Gemini CLI、Cursor Agent',
-      '四課都是互動版即時教學畫面（播放中有「選一選、想一想」），旁白語音都已產生',
-    ],
-    next: ['決定主示範的 AI 工具與形式（與 L2 主力 AI 程式助手一起決定）', '實測 0.3 全部提示詞（參考成品與腳本已完成）', '找零基礎試看者從序章跟做到第 3 課，記錄卡關點', '決定 L1 是否改用同一個工具、L2 如何處理重疊'],
-    questions: questionsOf('L0'),
-    links: [{ to: '/studio/tools', label: 'L0 大綱' }],
-  },
-  {
     code: 'L1',
     tier: 'L1',
     title: 'AI 工具入門',

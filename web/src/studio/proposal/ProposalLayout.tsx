@@ -10,14 +10,13 @@ type Section = { id: 'overview' | 'members' | 'levels' | 'dev' | 'ideas' | 'docs
 
 /** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級，再接不屬於等級的課程（AI 工具技巧、兒童網頁課、網頁運作知識）。 */
 const LEVELS: Tab[] = [
-  { to: '/studio/tools', code: 'L0', group: '做出自己的軟體', label: 'AI 工具介紹' },
   { to: '/studio/ai-tools', code: 'L1', group: '做出自己的軟體', label: 'AI 工具入門', also: ['/studio/life-tools', '/studio/l1-ideas'] },
   { to: '/studio/vibe-coding', code: 'L2', group: '做出自己的軟體', label: 'Vibe Coding 入門' },
   { to: '/studio/ai-agent/fields', code: 'L3', group: '做出自己的軟體', label: 'AI Agent 整合應用', match: '/studio/ai-agent' },
   { to: '/studio/advanced', code: 'L4', group: '做出自己的軟體', label: '進階' },
   // 不屬於 L0–L4 的課程
   { to: '/studio/ai-tips', label: 'AI 工具技巧' },
-  { to: '/studio/kids-web', label: '兒童網頁課', also: ['/studio/kids-web/0-1', '/studio/kids-web/0-1/live', '/studio/kids-web/0-2/live', '/studio/kids-web/0-3/live', '/studio/kids-web/xray'] },
+  { to: '/studio/kids-web', label: '兒童網頁課', also: ['/studio/kids-web/xray'] },
   { to: '/studio/web-basics', label: '網頁運作知識', match: '/studio/web-basics' },
   // 數學與創客:不用字卡、自己動手操作的互動課(試做)
   { to: '/studio/math-fraction', group: '數學與創客', label: '切披薩：分數' },
@@ -50,7 +49,7 @@ const DOCS: Tab[] = [
 const SECTIONS: Section[] = [
   { id: 'overview', label: '總覽', to: '/studio' },
   { id: 'members', label: '會員', to: '/studio/members' },
-  { id: 'levels', label: '課程', to: '/studio/tools', tabs: LEVELS },
+  { id: 'levels', label: '課程', to: '/studio/ai-tools', tabs: LEVELS },
   { id: 'dev', label: '開發', to: '/studio/visuals', tabs: DEV },
   { id: 'ideas', label: '構想', to: '/studio/kids-family', tabs: IDEAS },
   { id: 'docs', label: '文件', to: '/studio/docs', tabs: DOCS, wrapTabs: true },

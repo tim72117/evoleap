@@ -114,7 +114,7 @@ vp.time / vp.playing
 
 ### 2.6 檢查畫面
 
-各課的即時教學畫面直接在研發基地頁（`/studio/tools`）每課的「影片切分」播放，和學員課程頁是同一個播放器（有旁白語音，但不記播放進度；`LivePlayer` 的 `saveProgress={false}`）。腳本有錯時播放器會顯示錯誤訊息（含第幾步）。
+已上架課程的即時教學畫面直接在課程頁（例如 `/courses/software`）播放，和學員課程頁是同一個播放器（有旁白語音，但不記播放進度；`LivePlayer` 的 `saveProgress={false}`）。腳本有錯時播放器會顯示錯誤訊息（含第幾步）。
 
 以前有一個內部預覽頁 `/studio/visuals/preview`（只畫出某個時間點的畫面、給 Playwright 逐段截圖用），因為播放已經搬到研發基地頁，已經移除。要逐時間點檢查畫面時，在研發基地頁的播放器拖到該時間點，或在測試裡直接 `createStage(div)` → `stage.load(script)` → `stage.renderAt(ms)`；互動場景的試做頁（`/studio/interactive/*`）也能播放腳本。
 

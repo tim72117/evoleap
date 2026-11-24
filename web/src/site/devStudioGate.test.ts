@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { devGateDecision, gatedKind } from './devStudioGate'
 
 describe('gatedKind', () => {
-  it.each(['/studio', '/studio/tools', '/materials', '/materials/promo', '/docs/live'])('%s 是內部頁面', (p) => {
+  it.each(['/studio', '/studio/ai-tools', '/materials', '/materials/promo', '/docs/live'])('%s 是內部頁面', (p) => {
     expect(gatedKind(p)).toBe('page')
   })
 

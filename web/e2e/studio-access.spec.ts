@@ -7,7 +7,7 @@ import { expect, test, type APIRequestContext } from '@playwright/test'
 import { DIST } from './support'
 
 const GATED = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 8198) + 1}`
-const PAGES = ['/studio', '/studio/tools', '/materials', '/studio/actor-interaction/showcase', '/materials/promo', '/docs/live', '/docs/course-goals', '/studio/no-such-page']
+const PAGES = ['/studio', '/studio/ai-tools', '/materials', '/studio/actor-interaction/showcase', '/materials/promo', '/docs/live', '/docs/course-goals', '/studio/no-such-page']
 const internalAssets = () => readdirSync(join(DIST, 'assets/internal')).map((f) => `/assets/internal/${f}`)
 
 test.use({ baseURL: GATED })
@@ -74,7 +74,7 @@ test('一般會員在站內切到內部網址:拿不到內容,顯示找不到頁
   await registerMember(page.request)
   await page.goto('/')
   await page.evaluate(() => {
-    history.pushState({}, '', '/studio/tools')
+    history.pushState({}, '', '/studio/ai-tools')
     dispatchEvent(new PopStateEvent('popstate'))
   })
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('找不到頁面')

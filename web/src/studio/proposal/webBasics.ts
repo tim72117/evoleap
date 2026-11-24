@@ -9,7 +9,7 @@ import { WEB_PITCH, WEB_UNITS, type WebLesson, type WebUnit } from '../../conten
 export { WEB_PITCH, WEB_UNITS, type WebLesson, type WebUnit }
 
 /** 已有試做頁的課:課號 → 研發基地的試做頁(序章已是正式課,連到公開的課程頁) */
-export const WEB_DEMOS: Record<string, string> = { '0.1': '/courses/web/0-1', '0.2': '/courses/web/0-2', '1.1': '/courses/web/1-1', '1.2': '/courses/web/1-2', '1.3': '/studio/web-basics/1-3', '1.4': '/studio/web-basics/1-4', '1.5': '/studio/web-basics/1-5', '2.1': '/studio/web-basics/2-1', '2.2': '/studio/web-basics/2-2', '2.3': '/studio/web-basics/2-3', '2.4': '/studio/web-basics/2-4', '2.5': '/studio/web-basics/2-5', '3.1': '/studio/web-basics/3-1', '3.2': '/studio/web-basics/3-2', '3.3': '/studio/web-basics/3-3', '3.4': '/studio/web-basics/3-4', '5.1': '/studio/web-basics/5-1' }
+export const WEB_DEMOS: Record<string, string> = { '0.1': '/courses/web/0-1', '0.2': '/courses/web/0-2', '1.1': '/courses/web/1-1', '1.2': '/courses/web/1-2', '1.3': '/courses/web/1-3', '1.4': '/courses/web/1-4', '1.5': '/courses/web/1-5', '2.1': '/courses/web/2-1', '2.2': '/courses/web/2-2', '2.3': '/courses/web/2-3', '2.4': '/courses/web/2-4', '2.5': '/courses/web/2-5', '3.1': '/courses/web/3-1', '3.2': '/courses/web/3-2', '3.3': '/courses/web/3-3', '3.4': '/courses/web/3-4', '5.1': '/studio/web-basics/5-1' }
 
 export const WEB_POSITIONING: [string, string][] = [
   ['課名（暫定）', '網頁怎麼運作：看懂網站背後的基礎知識'],

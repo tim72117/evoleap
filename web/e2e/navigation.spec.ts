@@ -303,13 +303,13 @@ test('研發基地:AI 工具技巧與兒童網頁課在「課程」,直式舞台
   const sub = page.getByRole('navigation', { name: '課程頁面' })
   await expect(sub.getByRole('link', { name: '兒童網頁課' })).toHaveAttribute('href', '/studio/kids-web')
   await expect(sub.getByRole('link', { name: '網頁運作知識' })).toHaveAttribute('href', '/studio/web-basics')
-  // 「做出自己的軟體」的 L0–L4 框成一組
+  // 「做出自己的軟體」的 L1–L4 框成一組(L0 的課全部上架了,已從基地拿掉)
   // 預設收合(不在這一組的頁面時一課都不顯示),按群組名稱展開
   const series = sub.getByRole('group', { name: '做出自己的軟體' })
   await expect(series.getByRole('link')).toHaveCount(0)
   await series.getByRole('button', { name: /做出自己的軟體/ }).click()
   await expect(series.getByRole('button', { name: /做出自己的軟體/ })).toHaveAttribute('aria-expanded', 'true')
-  await expect(series.getByRole('link')).toHaveCount(5)
+  await expect(series.getByRole('link')).toHaveCount(4)
   await expect(series.getByRole('link', { name: '兒童網頁課' })).toHaveCount(0)
   await page.goto('/studio/portrait')
   await expect(page.locator('h1')).toContainText('直式舞台')
@@ -552,10 +552,6 @@ const PAGES = [
   '/studio/scenes',
   '/studio/fable-trial',
   '/studio/kids-family',
-  '/studio/kids-web/0-1',
-  '/studio/kids-web/0-1/live',
-  '/studio/kids-web/0-2/live',
-  '/studio/kids-web/0-3/live',
   '/studio/kids-web/xray',
   // 兒童課(3.1 已開放,4.x 是規劃中但這台 server 把每個人當管理員,看得到):新演員 lt8–lt11 的課各挑一課
   '/courses/kids/1-1',
@@ -568,7 +564,6 @@ const PAGES = [
   '/studio/actor-interaction/push',
   '/studio/actor-interaction/static',
   '/studio/actor-interaction',
-  '/studio/tools',
   '/studio/ai-agent/structure',
   '/materials/course-map',
   '/materials/cover-designer',

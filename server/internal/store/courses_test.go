@@ -152,8 +152,8 @@ func TestDraftLessonsGate(t *testing.T) {
 	if l[1].Status != LessonOpen || l[1].Script != "x/0.2.json" {
 		t.Errorf("開放的課每個人都拿得到腳本: %+v", l[1])
 	}
-	if m, _ := st.CourseMapOf(context.Background(), "web", true); m.HasDrafts() {
-		t.Error("web 沒有草稿")
+	if m, _ := st.CourseMapOf(context.Background(), "claude-code", true); m.HasDrafts() {
+		t.Error("claude-code 沒有草稿")
 	}
 }
 

@@ -7,12 +7,7 @@ import { KIDS_LESSON_PAGES, KIDS_UNITS, type KidsLesson, type KidsUnit } from '.
 export { KIDS_UNITS, type KidsLesson, type KidsUnit }
 
 /** 已有試做頁的課:課號 → 試做頁。序章在研發基地;4.1 起是草稿課程頁(管理員才看得到) */
-export const KIDS_DEMOS: Record<string, string> = {
-  '0.1': '/studio/kids-web/0-1',
-  '0.2': '/studio/kids-web/0-2/live',
-  '0.3': '/studio/kids-web/0-3/live',
-  ...Object.fromEntries(Object.entries(KIDS_LESSON_PAGES).filter(([id]) => !id.startsWith('0.')).map(([id, l]) => [id, l.path])),
-}
+export const KIDS_DEMOS: Record<string, string> = Object.fromEntries(Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => [id, l.path]))
 
 export const KIDS_POSITIONING: [string, string][] = [
   ['對象', '9 歲左右、會用滑鼠和鍵盤、看得懂短句的孩子；建議家長在旁陪學。'],
@@ -51,7 +46,7 @@ export const KIDS_COMPONENTS: { name: string; status: '現有' | '需新做'; us
 ]
 
 /**
- * 0.1 改用 live 引擎試做(/studio/kids-web/0-1/live)時發現、需要擴充舞台或腳本引擎的地方。
+ * 0.1 改用 live 引擎試做時發現、需要擴充舞台或腳本引擎的地方。
  * 試做時引擎一行都沒改:只新增 kid-web 演員(live/actors/kid-web/)與兒童版播放器殼層(kids/KidsPlayer.tsx)。
  */
 export const KIDS_LIVE_GAPS: { need: string; now: string; idea: string }[] = [

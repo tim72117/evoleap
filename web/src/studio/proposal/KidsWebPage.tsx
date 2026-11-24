@@ -59,7 +59,7 @@ export function KidsWebPage() {
                 {KIDS_DEMOS[l.id] && (
                   <>
                     {' '}
-                    <Link to={KIDS_DEMOS[l.id]}>看試做 →</Link>
+                    <Link to={KIDS_DEMOS[l.id]}>{KIDS_DEMOS[l.id].startsWith('/studio/') ? '看試做 →' : '看課程 →'}</Link>
                   </>
                 )}
                 <br />

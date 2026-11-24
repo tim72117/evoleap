@@ -9,10 +9,6 @@ import { CoverPage } from './CoverPage'
 import { FieldsPage } from './FieldsPage'
 import { KidsWebPage } from './KidsWebPage'
 import { WebBasicsPage } from './WebBasicsPage'
-import { KidsLesson01Page } from '../kids/KidsLesson01Page'
-import { KidsLesson01LivePage } from '../kids/KidsLesson01LivePage'
-import { KidsLesson02LivePage } from '../kids/KidsLesson02LivePage'
-import { KidsLesson03LivePage } from '../kids/KidsLesson03LivePage'
 import { KidsXrayLivePage } from '../kids/KidsXrayLivePage'
 import { FableTrialPage } from '../fable/FableTrialPage'
 import { ScenesPage } from '../fable/ScenesPage'
@@ -29,7 +25,6 @@ import { PracticePage } from '../practice/PracticePage'
 import { DocsPage } from './DocsPage'
 import { ProposalIndexPage } from './ProposalIndexPage'
 import { StructurePage } from './StructurePage'
-import { ToolsPage } from './ToolsPage'
 import { VibeCodingPage } from './VibeCodingPage'
 import { VisualsPage } from './VisualsPage'
 import { MembersPage } from './MembersPage'
@@ -40,7 +35,6 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio', element: <ProposalIndexPage /> },
   { path: '/studio/members', element: <MembersPage /> },
   { path: '/studio/docs', element: <DocsPage /> },
-  { path: '/studio/tools', element: <ToolsPage /> },
   { path: '/studio/ai-tools', element: <AiToolsPage /> },
   { path: '/studio/life-tools', element: <LifeToolsPage /> },
   { path: '/studio/l1-ideas', element: <L1IdeasPage /> },
@@ -58,8 +52,8 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
   { path: '/studio/kids-web', element: <KidsWebPage /> },
   { path: '/studio/web-basics', element: <WebBasicsPage /> },
-  // 網頁運作知識的試做:單元 1.3–3.4 與單元 5 的 5.1 開發者工具(序章、1.1、1.2 已是正式課,在 /courses/web),腳本在 content/live/lab/web/
-  ...(['1.3', '1.4', '1.5', '2.1', '2.2', '2.3', '2.4', '2.5', '3.1', '3.2', '3.3', '3.4', '5.1'] as const).map((id) => ({
+  // 網頁運作知識的試做:單元 5 的 5.1 開發者工具(序章、1.1–3.4 已是課程,在 /courses/web,在 /courses/web),腳本在 content/live/lab/web/
+  ...(['5.1'] as const).map((id) => ({
     path: `/studio/web-basics/${id.replace('.', '-')}`,
     element: <InteractiveScenePage key={`web-${id}`} script={`lab/web/${id}.json`} pageTitle={`網頁運作知識 ${id} 試做`} back={{ to: '/studio/web-basics', label: '← 網頁運作知識' }} />,
   })),
@@ -68,10 +62,6 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
     path: `/studio/vibe-coding/${id.replace('.', '-')}`,
     element: <InteractiveScenePage key={`vibe-${id}`} script={`lab/vibe-coding/${id}.json`} pageTitle={`L2 基礎 ${id} 試做`} back={{ to: '/studio/vibe-coding', label: '← L2 Vibe Coding 入門' }} />,
   })),
-  { path: '/studio/kids-web/0-1', element: <KidsLesson01Page /> },
-  { path: '/studio/kids-web/0-1/live', element: <KidsLesson01LivePage /> },
-  { path: '/studio/kids-web/0-2/live', element: <KidsLesson02LivePage /> },
-  { path: '/studio/kids-web/0-3/live', element: <KidsLesson03LivePage /> },
   { path: '/studio/kids-web/xray', element: <KidsXrayLivePage /> },
   { path: '/studio/visuals', element: <VisualsPage /> },
   { path: '/studio/portrait', element: <PortraitPage /> },

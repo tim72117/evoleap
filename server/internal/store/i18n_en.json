@@ -405,7 +405,7 @@
   },
   "web/2.4": {
    "title": "Responsive Design: Different Layouts for Phone and Desktop",
-   "summary": "The same page can change its layout based on screen width."
+   "summary": "The same page can change its layout based on screen width, so it suits both phones and computers."
   },
   "web/2.5": {
    "title": "Fonts, Colors, and Consistent Design",
@@ -413,7 +413,7 @@
   },
   "web/3.1": {
    "title": "Events: What Just Happened",
-   "summary": "A page knows what the user did through events."
+   "summary": "A page knows what the user did through events: clicks, typing and scrolling are all events."
   },
   "web/3.2": {
    "title": "State and Screen Updates",
