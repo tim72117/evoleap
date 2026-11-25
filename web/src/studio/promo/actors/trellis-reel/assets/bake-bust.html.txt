@@ -1,0 +1,91 @@
+<!doctype html><meta charset=utf-8><title>bake</title><body style="font:14px sans-serif"><pre id=o>載入…</pre>
+<script type=importmap>{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type=module>
+// 離線烘焙:把 Poly Haven marble_bust_01(CC0)取樣成 128 格體素資料(位置、貼圖色、法線),並渲染一張 PBR 圖。
+import * as T from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+const mode=new URLSearchParams(location.search).get('mode')||'bake';
+const log=s=>{document.getElementById('o').textContent+='\n'+s};
+const post=async(name,body)=>{const r=await fetch('http://localhost:8766/?name='+name,{method:'POST',body});return r.text()};
+const g=await new Promise((res,rej)=>new GLTFLoader().load('ph/marble_bust_01/marble_bust_01_1k.gltf',res,undefined,rej));
+const model=g.scene;model.updateMatrixWorld(true);
+const ms=[];model.traverse(o=>{if(o.isMesh)ms.push(o)});
+const bb=new T.Box3().setFromObject(model),ctr=bb.getCenter(new T.Vector3()),sz=bb.getSize(new T.Vector3());
+const k=2/Math.max(sz.x,sz.y,sz.z);
+if(mode==='render'){
+  const W=1024,H=1024;
+  const renderer=new T.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setSize(W,H);renderer.setPixelRatio(1);
+  renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;document.body.prepend(renderer.domElement);
+  const scene=new T.Scene();scene.background=new T.Color(0xe3eaf5);
+  scene.environment=new T.PMREMGenerator(renderer).fromScene(new RoomEnvironment(),.04).texture;
+  const key=new T.DirectionalLight(0xfff1d6,2.2);key.position.set(2,3,4);scene.add(key);
+  const rot=new T.Group();const wrap=new T.Group();wrap.add(model);wrap.scale.setScalar(k);wrap.position.copy(ctr).multiplyScalar(-k);rot.add(wrap);scene.add(rot);
+  rot.rotation.y=0.3;
+  const cam=new T.PerspectiveCamera(30,1,.05,100);cam.position.set(0,0.05,5.3);cam.lookAt(0,0,0);
+  renderer.render(scene,cam);
+  const blob=await new Promise(r=>renderer.domElement.toBlob(r,'image/webp',0.82));
+  log(await post('bust-render.webp',blob)+' bytes '+blob.size);
+}else{
+const srgb=new Float32Array(256);for(let i=0;i<256;i++){const c=i/255;srgb[i]=c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4)}
+const R=128,cs3=2/R,mn=sz.clone().multiplyScalar(-k/2);
+const CAP=600000,S=16,acc=new Float32Array(CAP*S),ix=new Int16Array(CAP),iy=new Int16Array(CAP),iz=new Int16Array(CAP);
+const map=new Map();let nv=0;const v=new T.Vector3(),nn=new T.Vector3();
+for(const m of ms){
+  const geo=m.geometry,pa=geo.attributes.position,uv=geo.attributes.uv,na=geo.attributes.normal,mat=m.material,mw=m.matrixWorld;
+  let w=0,h=0,data=null;
+  if(mat.map&&mat.map.image&&uv){const img=mat.map.image;w=img.width;h=img.height;const cv=document.createElement('canvas');cv.width=w;cv.height=h;const cx=cv.getContext('2d',{willReadFrequently:true});cx.drawImage(img,0,0);data=cx.getImageData(0,0,w,h).data}
+  const mc=mat.color||new T.Color(1,1,1),n=pa.count,PX=new Float32Array(n*3),NX=new Float32Array(n*3);
+  for(let i=0;i<n;i++){v.fromBufferAttribute(pa,i).applyMatrix4(mw);PX[i*3]=(v.x-ctr.x)*k;PX[i*3+1]=(v.y-ctr.y)*k;PX[i*3+2]=(v.z-ctr.z)*k;nn.fromBufferAttribute(na,i).transformDirection(mw);NX[i*3]=nn.x;NX[i*3+1]=nn.y;NX[i*3+2]=nn.z}
+  const UV=new Float32Array(n*2);for(let i=0;i<n;i++){UV[i*2]=uv.getX(i);UV[i*2+1]=uv.getY(i)}
+  const addPt=(x,y,z,u,vv,a,b,c)=>{
+    let r=mc.r,gg=mc.g,bl=mc.b;
+    if(data){u-=Math.floor(u);vv-=Math.floor(vv);const px=Math.min(w-1,(u*w)|0),py=Math.min(h-1,(vv*h)|0),o=(py*w+px)*4;r=srgb[data[o]]*mc.r;gg=srgb[data[o+1]]*mc.g;bl=srgb[data[o+2]]*mc.b}
+    const cx=Math.min(R-1,Math.max(0,((x-mn.x)/cs3)|0)),cy=Math.min(R-1,Math.max(0,((y-mn.y)/cs3)|0)),cz=Math.min(R-1,Math.max(0,((z-mn.z)/cs3)|0));
+    const kk=cx|(cy<<8)|(cz<<16);let id=map.get(kk);
+    if(id===undefined){id=nv++;map.set(kk,id);ix[id]=cx;iy[id]=cy;iz[id]=cz}
+    const o=id*S;acc[o]++;acc[o+10]+=r;acc[o+11]+=gg;acc[o+12]+=bl;acc[o+13]+=a;acc[o+14]+=b;acc[o+15]+=c;
+  };
+  for(let i=0;i<n;i++)addPt(PX[i*3],PX[i*3+1],PX[i*3+2],UV[i*2],UV[i*2+1],NX[i*3],NX[i*3+1],NX[i*3+2]);
+  const idx=geo.index,tc=idx?idx.count/3:n/3;
+  for(let t=0;t<tc;t++){
+    const A=idx?idx.getX(t*3):t*3,B=idx?idx.getX(t*3+1):t*3+1,C=idx?idx.getX(t*3+2):t*3+2;
+    const e=Math.max(Math.hypot(PX[A*3]-PX[B*3],PX[A*3+1]-PX[B*3+1],PX[A*3+2]-PX[B*3+2]),Math.hypot(PX[B*3]-PX[C*3],PX[B*3+1]-PX[C*3+1],PX[B*3+2]-PX[C*3+2]),Math.hypot(PX[C*3]-PX[A*3],PX[C*3+1]-PX[A*3+1],PX[C*3+2]-PX[A*3+2]));
+    const N=Math.min(400,Math.ceil(e/(cs3*.55)));if(N<=1)continue;
+    for(let i=0;i<=N;i++)for(let j=0;j<=N-i;j++){
+      if((i===0&&j===0)||(i===N&&j===0)||(i===0&&j===N))continue;
+      const a=i/N,b2=j/N,c2=1-a-b2,L=(arr,d)=>arr[A*d]*a+arr[B*d]*b2+arr[C*d]*c2;
+      const X=(arr,d,o)=>arr[A*d+o]*a+arr[B*d+o]*b2+arr[C*d+o]*c2;
+      addPt(X(PX,3,0),X(PX,3,1),X(PX,3,2),X(UV,2,0),X(UV,2,1),X(NX,3,0),X(NX,3,1),X(NX,3,2));
+    }
+  }
+}
+// 範圍
+let gx=0,gy=0,gz=0;for(let i=0;i<nv;i++){gx=Math.max(gx,ix[i]+1);gy=Math.max(gy,iy[i]+1);gz=Math.max(gz,iz[i]+1)}
+let mnx=1e9,mny=1e9,mnz=1e9;for(let i=0;i<nv;i++){mnx=Math.min(mnx,ix[i]);mny=Math.min(mny,iy[i]);mnz=Math.min(mnz,iz[i])}
+const GX=gx-mnx,GY=gy-mny,GZ=gz-mnz;
+const lin2s=c=>{c=Math.max(0,Math.min(1,c));return Math.round(255*(c<=.0031308?c*12.92:1.055*Math.pow(c,1/2.4)-.055))};
+const cols=new Uint8Array(nv*3),nrm=new Uint8Array(nv),NDIR=256,dirs=new Float32Array(NDIR*3);
+for(let i=0;i<NDIR;i++){const y=1-2*(i+.5)/NDIR,r=Math.sqrt(1-y*y),t=i*2.399963;dirs[i*3]=Math.cos(t)*r;dirs[i*3+1]=y;dirs[i*3+2]=Math.sin(t)*r}
+for(let i=0;i<nv;i++){const o=i*S,c=acc[o];for(let d=0;d<3;d++)cols[i*3+d]=lin2s(acc[o+10+d]/c);
+  let a=acc[o+13],b=acc[o+14],cz=acc[o+15];const l=Math.hypot(a,b,cz)||1;a/=l;b/=l;cz/=l;let best=0,bd=-2;for(let q=0;q<NDIR;q++){const d=a*dirs[q*3]+b*dirs[q*3+1]+cz*dirs[q*3+2];if(d>bd){bd=d;best=q}}nrm[i]=best}
+// 中位切分調色盤(256 色)
+let boxes=[{idx:Array.from({length:nv},(_,i)=>i)}];
+while(boxes.length<256){let bi=-1,bs=-1,ba=0;boxes.forEach((b,j)=>{if(b.idx.length<2)return;for(let a=0;a<3;a++){let lo=255,hi=0;for(const i of b.idx){const v=cols[i*3+a];lo=Math.min(lo,v);hi=Math.max(hi,v)}const s=(hi-lo)*Math.sqrt(b.idx.length);if(s>bs){bs=s;bi=j;ba=a}}});
+  if(bi<0)break;const b=boxes[bi];b.idx.sort((p,q)=>cols[p*3+ba]-cols[q*3+ba]);const h=b.idx.length>>1;boxes.splice(bi,1,{idx:b.idx.slice(0,h)},{idx:b.idx.slice(h)})}
+const pal=new Uint8Array(256*3),cidx=new Uint8Array(nv);
+boxes.forEach((b,j)=>{let s=[0,0,0];for(const i of b.idx)for(let d=0;d<3;d++)s[d]+=cols[i*3+d];for(let d=0;d<3;d++)pal[j*3+d]=Math.round(s[d]/b.idx.length);for(const i of b.idx)cidx[i]=j});
+// 依 (y,x,z) 排序後差分編碼
+const order=Array.from({length:nv},(_,i)=>i).sort((p,q)=>((iy[p]-mny)*GX+(ix[p]-mnx))*GZ+(iz[p]-mnz)-(((iy[q]-mny)*GX+(ix[q]-mnx))*GZ+(iz[q]-mnz)));
+const bytes=[];const wv=n=>{while(n>=128){bytes.push((n&127)|128);n=Math.floor(n/128)}bytes.push(n)};
+wv(GX);wv(GY);wv(GZ);wv(nv);let prev=0;
+for(const i of order){const key=((iy[i]-mny)*GX+(ix[i]-mnx))*GZ+(iz[i]-mnz);wv(key-prev);prev=key}
+for(const i of order)bytes.push(nrm[i]);for(const i of order)bytes.push(cidx[i]);for(const x of pal)bytes.push(x);
+const u8=Uint8Array.from(bytes);let bin='';for(let i=0;i<u8.length;i+=8192)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));
+const b64=btoa(bin);
+log(await post('bust.vox128.b64',b64));
+log(JSON.stringify({nv,GX,GY,GZ,bytes:u8.length,b64:b64.length}));
+// 另存一份原色供驗證:各 y 層的格數
+}
+log('done');
+</script>

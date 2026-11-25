@@ -1,0 +1,20 @@
+.A-trellis-reel {
+  background: #eef3fb;
+  overflow: hidden;
+  position: relative;
+}
+.A-trellis-reel .tr-stage {
+  position: absolute;
+}
+.A-trellis-reel .tr-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.A-trellis-reel .tr-mesh {
+  position: absolute;
+  display: none;
+  image-rendering: pixelated;
+}
