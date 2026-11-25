@@ -21,6 +21,10 @@ export interface Tl {
   col: number
   /** 0–1:平滑著色(網格質感) */
   sm: number
+  /** 0–1:方格 → 網格的掃描(波前由頭部往下);有這項時以它取代 sm(只用在 voxel 解碼末段) */
+  cv?: number
+  /** 0–1:整理成貼圖的掃描(落後轉換波前,同樣由上往下) */
+  tx?: number
 }
 export type Win = [number, number]
 export interface TlWin {
@@ -29,6 +33,8 @@ export interface TlWin {
   rf: [Win, Win, Win, Win]
   col: Win
   sm: Win
+  cv?: Win
+  tx?: Win
 }
 /** 時間窗(0–1 的進度)→ 各項進度 */
 export function timeline(p: number, w: TlWin): Tl {
@@ -40,6 +46,7 @@ export function timeline(p: number, w: TlWin): Tl {
     rf: seg(p, w.rf[lv][0], w.rf[lv][1]),
     col: lv === 3 ? seg(p, w.col[0], w.col[1]) : 0,
     sm: seg(p, w.sm[0], w.sm[1]),
+    ...(w.cv && w.tx ? { cv: seg(p, w.cv[0], w.cv[1]), tx: seg(p, w.tx[0], w.tx[1]) } : {}),
   }
 }
 /** 完成狀態(最細一層,已修邊、已上色);sm 是平滑著色的程度 */
@@ -124,6 +131,7 @@ let sz: Float32Array
 let sd: Float32Array
 let sc: Uint32Array
 let se: Uint8Array
+let srd: Float32Array
 let ord: Int32Array
 let cnt: Int32Array
 let tmp: Uint32Array
@@ -135,6 +143,7 @@ const ensure = (): void => {
   sd = new Float32Array(N)
   sc = new Uint32Array(N)
   se = new Uint8Array(N)
+  srd = new Float32Array(N)
   ord = new Int32Array(N)
   cnt = new Int32Array(1025)
 }
@@ -196,6 +205,96 @@ export function cellScreen(spec: MeshSpec, n: number): [number, number] {
   return [spec.cx + o[0] * spec.S, spec.cy + o[1] * spec.S]
 }
 
+// ---- 方格 → 網格、整理成貼圖:兩道由上往下的波前(羽化邊緣、微微起伏) ----
+const SCAN_F = 0.22
+const SCAN_A = 0.03
+const SCAN_RANGE = 1 + 2 * SCAN_A + SCAN_F
+/** 波前在 u(0 = 頭頂、1 = 底)位置的完成度,0–1,ease-in-out */
+const wave = (prog: number, up: number): number => inOutCubic(clamp((prog * SCAN_RANGE - up) / SCAN_F))
+/** 波前中心的位置(0 = 頭頂、1 = 底;超出 0–1 表示還沒開始或已掃完) */
+export const scanFront = (prog: number): number => prog * SCAN_RANGE - SCAN_F * 0.5 - SCAN_A
+/** 這一格在波前座標的位置(0 = 頭頂、1 = 底;加上微微起伏的邊緣,非直線) */
+const scanUp = (y01: number, x: number, z: number, l: number): number =>
+  1 - y01 + SCAN_A + SCAN_A * Math.sin(x * 0.11 + l / 650) * 0.7 + SCAN_A * 0.3 * Math.sin(x * 0.29 - z * 0.07 - l / 420)
+let scanTop = 0
+let scanBot = 0
+
+// ---- 網格線框:用 64 格那一層的格子當頂點,連相鄰的頂點成三角網(預先算好,每幀只投影與畫線) ----
+const WIRE: Int32Array = (() => {
+  const L = LEVELS[2]
+  const key = (a: number, b: number, c: number): number => (a * 256 + b) * 256 + c
+  const gi = (v: number, g: number): number => Math.round((v - L.cell / 2 + g / 2) / L.cell)
+  const map = new Map<number, number>()
+  const ia: number[] = []
+  const ib: number[] = []
+  const ic: number[] = []
+  for (let i = 0; i < L.n; i++) {
+    ia.push(gi(L.rx[i], GX))
+    ib.push(gi(L.ry[i], GY))
+    ic.push(gi(L.rz[i], GZ))
+    map.set(key(ia[i], ib[i], ic[i]), i)
+  }
+  const offs = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0], [0, 1, 1], [1, 0, 1]]
+  const out: number[] = []
+  for (let i = 0; i < L.n; i++)
+    for (const [da, db, dc] of offs) {
+      const j = map.get(key(ia[i] + da, ib[i] + db, ic[i] + dc))
+      if (j === undefined) continue
+      if (L.nx[i] * L.nx[j] + L.ny[i] * L.ny[j] + L.nz[i] * L.nz[j] < 0.55) continue
+      out.push(i, j)
+    }
+  return Int32Array.from(out)
+})()
+let wx: Float32Array
+let wy: Float32Array
+let wa: Float32Array
+/** 方格轉成網格的波前通過後,浮出細細的三角網線;貼圖波前過後線漸漸淡出。畫在已畫好的像素上(只混合有東西的地方) */
+function wireframe(buf: Uint32Array, w: number, h: number, spec: MeshSpec): void {
+  const tl = spec.tl!
+  const L = LEVELS[2]
+  if (!wx) {
+    wx = new Float32Array(L.n)
+    wy = new Float32Array(L.n)
+    wa = new Float32Array(L.n)
+  }
+  const v = view(spec.l)
+  const q = [0, 0, 0]
+  const nn = [0, 0, 0]
+  for (let i = 0; i < L.n; i++) {
+    const up = scanUp(L.y01[i], L.x[i], L.z[i], spec.l)
+    const c = wave(tl.cv!, up)
+    wa[i] = 0
+    if (c <= 0.02) continue
+    vn(v, L.nx[i], L.ny[i], L.nz[i], nn)
+    if (nn[2] < 0.12) continue
+    const t = wave(tl.tx!, up)
+    proj(v, L.x[i], L.y[i], L.z[i], q)
+    wx[i] = spec.cx + q[0] * spec.S - spec.region.x
+    wy[i] = spec.cy + q[1] * spec.S - spec.region.y
+    // 剛轉成網格時線最明顯,貼圖完成後只剩很淡的一點
+    wa[i] = Math.min(0.6, c * (0.3 + 0.35 * Math.sin(Math.PI * c)) * (1 - 0.9 * t)) * clamp((nn[2] - 0.12) / 0.25)
+  }
+  for (let e = 0; e < WIRE.length; e += 2) {
+    const a = WIRE[e]
+    const b = WIRE[e + 1]
+    const al = Math.min(wa[a], wa[b])
+    if (al <= 0.04) continue
+    const dx = wx[b] - wx[a]
+    const dy = wy[b] - wy[a]
+    const steps = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)))
+    if (steps < 1 || steps > 24) continue
+    for (let k = 0; k <= steps; k++) {
+      const px = Math.round(wx[a] + (dx * k) / steps)
+      const py = Math.round(wy[a] + (dy * k) / steps)
+      if (px < 0 || py < 0 || px >= w || py >= h) continue
+      const o = py * w + px
+      const c = buf[o]
+      if (!(c >>> 24)) continue
+      buf[o] = pack((c & 255) + (46 - (c & 255)) * al, ((c >> 8) & 255) + (64 - ((c >> 8) & 255)) * al, ((c >> 16) & 255) + (92 - ((c >> 16) & 255)) * al)
+    }
+  }
+}
+
 // ---- 建構動畫:每一格的狀態 ----
 function stateTl(spec: MeshSpec): number {
   const tl = spec.tl!
@@ -205,8 +304,14 @@ function stateTl(spec: MeshSpec): number {
   const S = spec.S
   const q = [0, 0, 0]
   const lattice = !!spec.vx
+  const scan = tl.lv === 3 && tl.cv !== undefined
+  const cvp = tl.cv ?? 0
+  const txp = tl.tx ?? 0
+  scanTop = 1e9
+  scanBot = -1e9
   for (let i = 0; i < L.n; i++) {
     sz[i] = 0
+    srd[i] = 0
     const dd = L.dl[i]
     const spE = inOutCubic(clamp(tl.sp * 1.6 - dd))
     const rfE = inOutCubic(clamp(tl.rf * 1.6 - dd))
@@ -240,19 +345,44 @@ function stateTl(spec: MeshSpec): number {
       size *= lattice ? 0.35 + 0.65 * m : m
     }
     const kk = tl.lv === 3 ? inOutCubic(clamp(tl.col * 1.6 - dd)) : 0
-    const sm = tl.lv === 3 ? inOutCubic(clamp(tl.sm * 1.6 - dd)) : 0
-    const r = lerp(L.nr[i], L.cr[i], kk)
-    const g = lerp(L.ng[i], L.cg[i], kk)
-    const b = lerp(L.nb[i], L.cb[i], kk)
+    let sm = tl.lv === 3 && !scan ? inOutCubic(clamp(tl.sm * 1.6 - dd)) : 0
+    // 方格先帶著貼圖色;轉成網格的波前過後變中性色,貼圖的波前再把顏色流上去
+    let r = lerp(L.nr[i], L.cr[i], kk)
+    let g = lerp(L.ng[i], L.cg[i], kk)
+    let b = lerp(L.nb[i], L.cb[i], kk)
+    let glow = 0
+    let swell = 0
+    if (scan) {
+      const up = scanUp(L.y01[i], L.x[i], L.z[i], spec.l)
+      sm = wave(cvp, up)
+      const t = wave(txp, up)
+      const cr = lerp(L.nr[i], L.cr[i], t)
+      const cg = lerp(L.ng[i], L.cg[i], t)
+      const cb = lerp(L.nb[i], L.cb[i], t)
+      r = lerp(r, cr, sm)
+      g = lerp(g, cg, sm)
+      b = lerp(b, cb, sm)
+      // 波前邊緣微微發亮、略膨脹(像液化流動);貼圖波前帶一點光澤
+      const e1 = Math.sin(Math.PI * sm)
+      const e2 = Math.sin(Math.PI * t)
+      glow = 34 * e1 * e1 + 26 * e2 * e2
+      swell = 0.22 * e1
+    }
     proj(v, x, y, z, q)
     sx[i] = spec.cx + q[0] * S - spec.region.x
     sy[i] = spec.cy + q[1] * S - spec.region.y
     sd[i] = q[2]
-    sz[i] = size * S * (1 + 0.4 * sm)
+    if (scan) {
+      if (sy[i] < scanTop) scanTop = sy[i]
+      if (sy[i] > scanBot) scanBot = sy[i]
+      srd[i] = sm
+    }
+    sz[i] = size * S * (1 + 0.4 * sm + swell)
     shade(v, nx, ny, nz, spec.mode === 'hook' ? 0 : 0.6 * (1 - sm), sm)
     const f = SH[0]
-    sc[i] = pack(r * f + SH[1], g * f + SH[1], b * f + SH[1])
-    se[i] = sm < 0.5 ? 1 : 0
+    const gl = SH[1] + glow
+    sc[i] = pack(r * f + gl, g * f + gl, b * f + gl)
+    se[i] = sm < 0.35 ? 1 : 0
   }
   return L.n
 }
@@ -417,18 +547,45 @@ function disc(buf: Uint32Array, w: number, h: number, cx: number, cy: number, si
     }
   }
 }
+/** 圓角方塊:round 0 = 方塊、1 = 圓點(波前通過時方格先變圓、融在一起) */
+function blob(buf: Uint32Array, w: number, h: number, cx: number, cy: number, size: number, col: number, edge: number, round: number): void {
+  if (round < 0.03) return square(buf, w, h, cx, cy, size, col, edge)
+  if (round > 0.97) return disc(buf, w, h, cx, cy, size, col)
+  const r = Math.max(0.6, size / 2)
+  const ya = Math.max(0, Math.ceil(cy - r))
+  const yb = Math.min(h - 1, Math.floor(cy + r))
+  for (let y = ya; y <= yb; y++) {
+    const dy = (y + 0.5 - cy) / r
+    const hw = r * (1 - round * (1 - Math.sqrt(Math.max(0, 1 - dy * dy))))
+    const xa = Math.max(0, Math.round(cx - hw))
+    const xb = Math.min(w, Math.round(cx + hw))
+    if (xb > xa) {
+      buf.fill(col, y * w + xa, y * w + xb)
+      if (xa < bx0) bx0 = xa
+      if (xb > bx1) bx1 = xb
+      if (y < by0) by0 = y
+      if (y + 1 > by1) by1 = y + 1
+    }
+  }
+}
 const darker = (c: number): number => (255 << 24) | ((((c >> 16) & 255) * 0.74) << 16) | ((((c >> 8) & 255) * 0.74) << 8) | ((c & 255) * 0.74)
 
 /** 輕輕模糊(只在已畫出來的範圍、只混合有顏色的鄰居):平滑著色的「網格質感」 */
-function soften(buf: Uint32Array, w: number, h: number, amt: number): void {
+function soften(buf: Uint32Array, w: number, h: number, amt: number, ramp?: [number, number]): void {
   const xa = Math.max(1, bx0)
   const xb = Math.min(w - 1, bx1)
   const ya = Math.max(1, by0)
   const yb = Math.min(h - 1, by1)
   if (xb <= xa || yb <= ya) return
   if (!tmp || tmp.length < w * h) tmp = new Uint32Array(w * h)
-  const pass = (src: Uint32Array, dst: Uint32Array, step: number, mixAmt: number): void => {
-    for (let y = ya; y < yb; y++)
+  const pass = (src: Uint32Array, dst: Uint32Array, step: number, mixAmtAll: number): void => {
+    for (let y = ya; y < yb; y++) {
+      // ramp:y0 以上全力模糊、y1 以下不模糊(波前掃過的地方才變成網格質感)
+      const mixAmt = ramp ? mixAmtAll * clamp((ramp[1] - y) / Math.max(1, ramp[1] - ramp[0])) : mixAmtAll
+      if (mixAmt <= 0.001) {
+        for (let x = xa; x < xb; x++) dst[y * w + x] = src[y * w + x]
+        continue
+      }
       for (let x = xa; x < xb; x++) {
         const o = y * w + x
         const c = src[o]
@@ -459,6 +616,7 @@ function soften(buf: Uint32Array, w: number, h: number, amt: number): void {
         b = ((c >> 16) & 255) + (b / k - ((c >> 16) & 255)) * mixAmt
         dst[o] = pack(r, g, b)
       }
+    }
   }
   pass(buf, tmp, 1, amt)
   pass(tmp, buf, w, amt)
@@ -519,9 +677,22 @@ export function paintMesh(buf: Uint32Array, w: number, h: number, spec: MeshSpec
     const n = ord[i]
     const s = sz[n] * (dot ? 1.2 : 1.12)
     if (dot) disc(buf, w, h, sx[n], sy[n], s, sc[n])
+    else if (srd[n] > 0.03) blob(buf, w, h, sx[n], sy[n], s, sc[n], se[n] && s >= 7 ? darker(sc[n]) : 0, srd[n])
     else square(buf, w, h, sx[n], sy[n], s, sc[n], se[n] && s >= 7 ? darker(sc[n]) : 0)
   }
-  const smo = spec.mode === 'flow' ? spec.ph!.sm : spec.tl!.sm
-  if (smo > 0.02) soften(buf, w, h, inOutCubic(smo) * 0.85)
+  const scanning = spec.mode === 'voxel' && spec.tl!.cv !== undefined && spec.tl!.lv === 3
+  if (scanning) {
+    const cv = spec.tl!.cv!
+    if (cv > 0.01) {
+      const rng = Math.max(1, scanBot - scanTop)
+      const fr = scanFront(cv)
+      const fy = scanTop + rng * fr
+      soften(buf, w, h, 0.85, [fy - rng * SCAN_F * 0.3, fy + rng * SCAN_F * 0.5])
+      wireframe(buf, w, h, spec)
+    }
+  } else {
+    const smo = spec.mode === 'flow' ? spec.ph!.sm : spec.tl!.sm
+    if (smo > 0.02) soften(buf, w, h, inOutCubic(smo) * 0.85)
+  }
   return m
 }

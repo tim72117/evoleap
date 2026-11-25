@@ -17,61 +17,61 @@
       "scene": "hook",
       "chapter": "開場",
       "narration": "遊戲要的 3D 素材，現在一張圖就能生成。微軟開源的新工具 TRELLIS.2，三秒到一分鐘，就出一個帶材質的模型。",
-      "ms": 13800,
+      "ms": 10400,
       "pause": 0
     },
     {
       "scene": "repo",
       "chapter": "專案",
       "narration": "GitHub 上抓取當下約一萬三千顆星，MIT 授權，還有線上 demo 可以直接試。",
-      "ms": 8000,
-      "pause": 0
-    },
-    {
-      "scene": "io",
-      "chapter": "做什麼",
-      "narration": "輸入一張圖，輸出帶 PBR 材質的 3D 網格：底色、粗糙度、金屬度、不透明度，可匯出 GLB。",
-      "ms": 9000,
+      "ms": 6300,
       "pause": 0
     },
     {
       "scene": "flow",
       "narration": "生成時，AI 在壓縮後的空間裡，從一團雜訊開始，分三段慢慢凝聚：先定結構，再補形狀，最後上材質，整體四十億參數。",
-      "ms": 13800,
+      "ms": 11200,
       "pause": 0,
       "chapter": "原理"
     },
     {
       "scene": "voxel",
-      "narration": "接著解碼，把壓縮的結果還原成稀疏體素，只記有東西的格子，不經過有損的等值面轉換，最後平滑成網格。",
-      "ms": 12100,
+      "narration": "接著解碼，把壓縮的結果還原成稀疏體素，只記有東西的格子，不經過有損的等值面轉換，最後轉成網格，並整理成貼圖。",
+      "ms": 11300,
       "pause": 0
     },
     {
       "scene": "cell",
       "narration": "解碼之後，每一個小方格同時記著形狀，和底色、粗糙度、金屬度、不透明度，所以可以直接得到帶材質的模型。",
-      "ms": 12800,
+      "ms": 10400,
       "pause": 0
     },
     {
       "scene": "speed",
       "chapter": "速度",
       "narration": "用 H100 實測，形狀加材質：512 解析度約三秒，1024 約十七秒，1536 約六十秒。",
-      "ms": 9500,
+      "ms": 9200,
       "pause": 0
     },
     {
       "scene": "limits",
       "chapter": "門檻",
       "narration": "門檻不低：只在 Linux 測試，顯卡至少 24GB，安裝繁瑣，官方也沒給品質評比數字。",
-      "ms": 9000,
+      "ms": 8100,
       "pause": 0
     },
     {
       "scene": "outro",
       "chapter": "收尾",
       "narration": "想試試，現在就去 GitHub 或 HuggingFace 看看。",
-      "ms": 4500,
+      "ms": 3900,
+      "pause": 0
+    },
+    {
+      "scene": "follow",
+      "chapter": "追蹤",
+      "narration": "追蹤 evoleap 粉絲團，定期提供 AI 資訊。",
+      "ms": 4300,
       "pause": 0
     }
   ]

@@ -14,8 +14,9 @@ describe('trellis-reel 動作', () => {
   it('scene 要是已知的段落', () => {
     expect(() => apply(init, 'scene', { scene: 'nope' as never })).toThrow(/scene/)
     expect(() => apply(init, 'scene', {})).toThrow()
-    expect(apply(init, 'scene', { scene: 'io' })).toEqual({ scene: 'io', prev: null })
-    expect(apply({ scene: 'io', prev: null }, 'scene', { scene: 'speed' })).toEqual({ scene: 'speed', prev: 'io' })
+    expect(apply(init, 'scene', { scene: 'repo' })).toEqual({ scene: 'repo', prev: null })
+    expect(apply({ scene: 'repo', prev: null }, 'scene', { scene: 'speed' })).toEqual({ scene: 'speed', prev: 'repo' })
+    expect(() => apply(init, 'scene', { scene: 'io' as never })).toThrow(/scene/)
   })
 })
 
@@ -159,8 +160,8 @@ describe('半身像資料與動畫(hook、voxel、flow、cell 共用同一份資
     expect(at('voxel', 0.3)).toContain('只記有東西的格子')
     expect(at('voxel', 0.05)).toContain('VAE 解碼')
     expect(at('voxel', 0.5)).toContain('由粗到細')
-    expect(at('voxel', 0.7)).toContain('貼上貼圖色')
-    expect(at('voxel', 1)).toContain('平滑著色成網格（示意）')
+    expect(at('voxel', 0.66)).toContain('每一格都帶著貼圖色')
+    expect(at('voxel', 1)).toContain('轉成網格，整理成貼圖（示意）')
     expect(at('voxel', 1)).toContain('稀疏體素')
     expect(at('voxel', 1)).toContain('不經有損的等值面轉換')
     expect(at('voxel', 1)).not.toMatch(/底色|粗糙度|金屬度|不透明度|等值面場/)
@@ -171,6 +172,49 @@ describe('半身像資料與動畫(hook、voxel、flow、cell 共用同一份資
     for (let i = 1; i < counts.length; i++) expect(counts[i]).toBeGreaterThanOrEqual(counts[i - 1])
     expect(counts[0]).toBe(LEVELS[0].n)
     expect(counts[4]).toBe(N)
+  })
+  it('voxel 末段:方格先帶色,轉成網格與整理成貼圖兩道波前由上到下、重疊,標籤隨波前出現', () => {
+    const rows = (p: number): { top: number; bot: number } => {
+      const { buf } = paint('voxel', p)
+      let top = -1
+      let bot = -1
+      for (let y = 0; y < 722; y++) {
+        let any = false
+        for (let x = 0; x < 870; x += 3) if (buf[y * 870 + x]) { any = true; break }
+        if (any) { if (top < 0) top = y; bot = y }
+      }
+      return { top, bot }
+    }
+    const a = rows(0.7)
+    const b = rows(1)
+    expect(Math.abs(a.top - b.top)).toBeLessThan(40) // 輪廓不跑掉
+    expect(b.bot).toBeLessThan(722)
+    const cv = (p: number): number => spec('voxel', p).tl!.cv!
+    const tx = (p: number): number => spec('voxel', p).tl!.tx!
+    expect(cv(0.7)).toBe(0)
+    expect(cv(1)).toBe(1)
+    expect(tx(1)).toBe(1)
+    expect(tx(0.82)).toBe(0)
+    expect(cv(0.82)).toBeGreaterThan(0.4) // 轉到一半時貼圖才開始
+    expect(cv(0.82)).toBeLessThan(0.6)
+    for (let p = 0.82; p < 0.99; p += 0.01) expect(tx(p)).toBeLessThanOrEqual(cv(p))
+    const lab = (p: number): string => frameLayers({ scene: 'voxel', prev: null }, p * T.voxel, T.voxel).over
+    expect(lab(0.7)).not.toContain('轉成網格')
+    expect(lab(0.8)).toContain('轉成網格')
+    expect(lab(0.9)).toContain('整理成貼圖')
+    expect(lab(0.8)).not.toMatch(/NaN/)
+    // 相鄰時間點不會整張突然改變
+    let prev = paint('voxel', 0.7).buf
+    for (let p = 0.71; p <= 1.0001; p += 0.01) {
+      const cur = paint('voxel', p).buf
+      let diff = 0
+      for (let i = 0; i < cur.length; i += 3) if (cur[i] !== prev[i]) diff++
+      expect(diff / (cur.length / 3)).toBeLessThan(0.25)
+      prev = cur
+    }
+    const t0 = performance.now()
+    for (const p of [0.76, 0.82, 0.88, 0.94]) paint('voxel', p)
+    expect((performance.now() - t0) / 4).toBeLessThan(60)
   })
   it('cell:在 flow 之後才出現「這一格同時記著」形狀與 PBR 四項,等值面場被劃掉', () => {
     expect(SCENES.indexOf('cell')).toBe(SCENES.indexOf('voxel') + 1)
@@ -213,9 +257,23 @@ describe('3D 模型致謝(Poly Haven,CC0)', () => {
     const all = [script, md, raw.slice(0, 10)].join('\n') + SCENES.map((s) => frameSvg({ scene: s, prev: null }, 100000, 1000)).join('') + [CREDIT, SOURCE].join('')
     expect(all).not.toMatch(/騎士|Sketchfab|sketchfab|CC BY|Knight|knight|dark_igorek/)
   })
+  it('hook:GLB 卡下方有 PBR 四項中文標示(隨平滑著色依序淡入),沒有英文與細節', () => {
+    const end = frameSvg({ scene: 'hook', prev: null }, T.hook, T.hook)
+    for (const nm of FACTS.pbrZh) expect(end).toContain(nm)
+    expect(end).not.toMatch(/Base Color|Roughness|Metallic|Alpha|WebP|4096/)
+    expect(end).toContain(CREDIT)
+    expect(end).toContain('GLB')
+  })
+  it('結尾 follow:evoleap 粉絲團追蹤畫面,排在最後', () => {
+    expect(SCENES[SCENES.length - 1]).toBe('follow')
+    const f = frameSvg({ scene: 'follow', prev: null }, 3000, T.follow)
+    for (const t of ['evoleap 粉絲團', '點左下角追蹤', '想知道更多 AI 新知？', 'aria-label="evoleap"']) expect(f).toContain(t)
+    expect(f).not.toMatch(/NaN|undefined/)
+    expect(script).toContain('追蹤 evoleap 粉絲團，定期提供 AI 資訊。')
+  })
   it('腳本順序:flow → voxel → cell → speed', () => {
     const order = [...script.matchAll(/"scene": "(\w+)"/g)].map((m) => m[1])
-    expect(order).toEqual(['hook', 'repo', 'io', 'flow', 'voxel', 'cell', 'speed', 'limits', 'outro'])
+    expect(order).toEqual(['hook', 'repo', 'flow', 'voxel', 'cell', 'speed', 'limits', 'outro', 'follow'])
   })
 })
 

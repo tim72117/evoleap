@@ -1,7 +1,8 @@
 // trellis-reel 的各段畫面:純函式(時間進來、SVG 字串出去)。畫面是示意,數字只用 data.ts 裡查證過的。
-import { INK, MONO, cube, SANS, clamp, esc, forkIcon, hash, inOutCubic, lerp, mix, n2, outBack, outCubic, repoIcon, seg, star, type SceneOut } from './draw'
+import { INK, MONO, cube, SANS, clamp, esc, forkIcon, inOutCubic, lerp, mix, n2, outBack, outCubic, repoIcon, seg, star, type SceneOut } from './draw'
 import { FACTS, fmtK, total } from './data'
-import { cellScreen, doneTl, timeline, type MeshSpec, type TlWin } from './mist'
+import { cellScreen, doneTl, scanFront, timeline, type MeshSpec, type TlWin } from './mist'
+import markSvg from '../../../../../public/brand/evoleap-mark.svg?raw'
 import { CREDIT, REF_URL, SOURCE, N, VX, VY, VZ } from './bust'
 
 const IND = '#4f46e5'
@@ -36,40 +37,6 @@ const chip = (x: number, y: number, label: string, fill: string, fg: string, siz
 }
 const chipW = (label: string, size = 30): number => Math.round([...label].reduce((a, ch) => a + (ch.charCodeAt(0) > 0x2e80 ? 1.02 : 0.62) * size, 0)) + 44
 
-/** 示意的小模型:階梯狀的體素(i,j,k) */
-const MODEL: [number, number, number][] = (() => {
-  const v: [number, number, number][] = []
-  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) v.push([i, j, 0])
-  for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) v.push([i, j, 1])
-  v.push([0, 0, 2])
-  return v.sort((p, q) => p[0] + p[1] + p[2] * 0.01 - (q[0] + q[1] + q[2] * 0.01) || p[2] - q[2])
-})()
-/** reveal:0–1 逐顆長出;mode:'flat' 單色(只有形狀)、'pbr' 上材質 */
-function model(ox: number, oy: number, s: number, reveal: number, tex: number, l: number): string {
-  let out = ''
-  const a = s * 0.866
-  const b = s * 0.5
-  const order = [...MODEL].sort((p, q) => p[2] - q[2] || p[0] + p[1] - (q[0] + q[1]))
-  const idx = new Map(order.map((m, n) => [m.join(','), n]))
-  for (const [i, j, k] of MODEL) {
-    const n = idx.get([i, j, k].join(','))!
-    const e = outBack(seg(reveal, (n / order.length) * 0.8, (n / order.length) * 0.8 + 0.2))
-    if (e <= 0) continue
-    const cx = ox + (i - j) * a
-    const cy = oy + (i + j) * b - k * s + (1 - clamp(e)) * -60
-    const h = hash(i * 7 + j * 3 + k * 11)
-    const base = k === 2 ? '#f59e0b' : k === 1 ? '#6366f1' : mix('#0d9488', '#14b8a6', h)
-    const shaded = (c: string, d: number): string => mix(c, '#0f172a', d)
-    const grey = '#cbd5e1'
-    const t = clamp(tex)
-    const top = mix(grey, mix(base, '#ffffff', 0.25), t)
-    const left = mix('#94a3b8', shaded(base, 0.18), t)
-    const right = mix('#a8b4c6', shaded(base, 0.35), t)
-    out += cube(cx, cy + Math.sin(l / 500 + i + j) * 3 * clamp(e), s, top, left, right, clamp(e))
-  }
-  return out
-}
-
 const headline = (s: string, sub?: string, p = 1): string => {
   const e = outCubic(seg(p, 0, 0.12))
   return `<g opacity="${n2(e)}" transform="translate(0 ${n2((1 - e) * 24)})">${text(70, 372, s, 62, INK, { w: 800 })}${sub ? text(70, 430, sub, 32, SLATE, { w: 600 }) : ''}</g>`
@@ -92,6 +59,14 @@ export function hook(l: number, D: number): SceneOut {
   b += text(96, 878, '示意', 24, '#b45309', { w: 700 })
   b += `</g>`
   b += text(70, 1362, CREDIT, 22, SLATE, { w: 600, op: clamp(seg(p, 0.12, 0.2)) })
+  // GLB 卡下面:PBR 四項(底色、粗糙度、金屬度、不透明度),半身像平滑著色時依序淡入
+  const pbrCols = ['#0d9488', '#94a3b8', '#e2e8f0', '#6366f1']
+  let px = 96
+  FACTS.pbrZh.forEach((nm, i) => {
+    const q = clamp(outBack(seg(p, 0.6 + i * 0.035, 0.68 + i * 0.035)))
+    b += `<g opacity="${n2(q)}" transform="translate(0 ${n2((1 - q) * 14)})"><circle cx="${px + 14}" cy="1404" r="14" fill="${pbrCols[i]}" stroke="#94a3b8" stroke-width="2.5"/>${text(px + 38, 1415, nm, 30, INK, { w: 700 })}</g>`
+    px += 38 + nm.length * 30 + 26
+  })
   // 輸入:一張圖片(半身像的渲染圖)。一開始在中上方放大,點雲成形開始後縮到左上角
   const e1 = outBack(seg(p, 0.02, 0.08))
   const sc = lerpN(1, 220 / 480, mv)
@@ -119,7 +94,7 @@ export function hook(l: number, D: number): SceneOut {
   // 秒數
   const e2 = outBack(seg(p, 0.66, 0.74))
   const sec = Math.round(lerp(0, 1, seg(p, 0.66, 0.7)) * 3)
-  b += `<g opacity="${n2(clamp(e2))}" transform="translate(0 ${n2(380 + (1 - clamp(e2)) * 50)})">`
+  b += `<g opacity="${n2(clamp(e2))}" transform="translate(0 ${n2(450 + (1 - clamp(e2)) * 50)})">`
   b += card(70, 1000, 870, 300, { fill: '#eef2ff', stroke: '#c7d2fe' })
   b += text(120, 1130, `${sec}`, 150, IND, { w: 800 })
   b += text(190 + String(sec).length * 40, 1130, '秒', 56, IND)
@@ -158,36 +133,6 @@ export function repo(l: number, D: number): SceneOut {
   b += chip(110, 1160, 'Space 線上 demo', '#fce7f3', '#9d174d', 32, clamp(seg(p, 0.75, 0.92)))
   b += `</g>`
   b += text(70, 1340, '星數、fork 為抓取當下', 30, SLATE, { w: 500, op: clamp(seg(p, 0.5, 0.7)) })
-  return { bg: '#eef3fb', body: b }
-}
-
-// ---------- io(能做什麼) ----------
-export function io(l: number, D: number): SceneOut {
-  const p = clamp(l / D)
-  let b = headline('輸入一張圖', '輸出帶 PBR 材質的 3D 網格', p)
-  const e1 = outCubic(seg(p, 0.04, 0.18))
-  b += `<g opacity="${n2(e1)}">${card(70, 480, 870, 200, {})}`
-  b += `<rect x="100" y="505" width="150" height="150" rx="16" fill="#dbeafe"/><circle cx="215" cy="545" r="16" fill="#fbbf24"/><polygon points="100,655 160,570 205,625 235,590 250,655" fill="#60a5fa"/>`
-  b += text(290, 590, '一張圖片', 44, INK) + text(290, 640, 'image → 3D', 32, SLATE, { w: 500, font: MONO }) + `</g>`
-  const ar = outCubic(seg(p, 0.16, 0.26))
-  b += `<g opacity="${n2(ar)}"><path d="M505 700 V745" stroke="${IND}" stroke-width="10" stroke-linecap="round"/><polygon points="505,770 483,738 527,738" fill="${IND}"/></g>`
-  const e2 = outCubic(seg(p, 0.22, 0.36))
-  b += `<g opacity="${n2(e2)}">${card(70, 800, 870, 330, { fill: '#f8fafc' })}`
-  b += model(305, 985, 44, seg(p, 0.28, 0.5), seg(p, 0.45, 0.62), l)
-  // 四個 PBR 通道
-  const cols = ['#0d9488', '#94a3b8', '#e2e8f0', '#6366f1']
-  FACTS.pbr.forEach((nm, i) => {
-    const y = 840 + i * 68
-    const q = outBack(seg(p, 0.5 + i * 0.07, 0.62 + i * 0.07))
-    b += `<g opacity="${n2(clamp(q))}"><circle cx="560" cy="${y + 26}" r="22" fill="${cols[i]}" stroke="#94a3b8" stroke-width="3"/>${text(600, y + 38, nm, 36, INK, { w: 700 })}</g>`
-  })
-  b += `</g>`
-  // 匯出
-  const q1 = outBack(seg(p, 0.72, 0.84))
-  const q2 = outBack(seg(p, 0.8, 0.92))
-  b += chip(70, 1190, 'GLB・WebP 貼圖 4096', '#e0e7ff', '#3730a3', 32, clamp(q1))
-  b += chip(70, 1290, '預覽 MP4', '#fce7f3', '#9d174d', 32, clamp(q2))
-  b += chip(70 + chipW('預覽 MP4', 32) + 20, 1290, '開放曲面・非流形', '#dcfce7', '#166534', 32, clamp(seg(p, 0.86, 0.96)))
   return { bg: '#eef3fb', body: b }
 }
 
@@ -232,7 +177,12 @@ function bustNotes(cardY: number, cardH: number, p: number): string {
   o += text(924, cardY + cardH - 14, '示意', 22, '#b45309', { w: 700, anchor: 'end', op: o0 })
   return o
 }
-const VOX_W: TlWin = { ap: [0.2, 0.32], sp: [[0.36, 0.45], [0.47, 0.56], [0.58, 0.67]], rf: [[0.28, 0.38], [0.4, 0.5], [0.52, 0.61], [0.63, 0.72]], col: [0.62, 0.78], sm: [0.78, 0.95] }
+/** 半身像頭頂與底的舞台 y(掃描標籤跟著波前用;只是近似的位置) */
+const BUST_TOP = VY.reduce((a, v) => Math.max(a, v), -1e9)
+const BUST_BOT = VY.reduce((a, v) => Math.min(a, v), 1e9)
+const VOX_S = 4.4
+const VOX_CY = 888
+const VOX_W: TlWin = { ap: [0.2, 0.32], sp: [[0.36, 0.45], [0.47, 0.56], [0.58, 0.67]], rf: [[0.28, 0.38], [0.4, 0.5], [0.52, 0.61], [0.63, 0.72]], col: [0.6, 0.7], sm: [0.78, 0.95], cv: [0.72, 0.92], tx: [0.82, 0.99] }
 export function voxel(l: number, D: number): SceneOut {
   const p = clamp(l / D)
   let b = headline('VAE 解碼', '還原成 O-Voxel 稀疏體素（示意）', p)
@@ -243,8 +193,8 @@ export function voxel(l: number, D: number): SceneOut {
     l,
     region: { x: 70, y: 474, w: 870, h: 722 },
     cx: 505,
-    cy: 888,
-    S: 4.4,
+    cy: VOX_CY,
+    S: VOX_S,
     box: { x0: 0, x1: 0, y0: 0, y1: 0 },
     vx: { dots: outCubic(seg(p, 0.04, 0.16)), fade: seg(p, 0.2, 0.32), grow: seg(p, 0.2, 0.32) },
     tl: timeline(p, VOX_W),
@@ -253,13 +203,25 @@ export function voxel(l: number, D: number): SceneOut {
     const o = outCubic(seg(p, x0, x0 + 0.04)) * (last ? 1 : 1 - seg(p, x1 - 0.04, x1))
     return text(110, 530, t, 38, IND, { w: 800, op: o })
   }
-  b += cap('展開成整個空間的格子', 0.04, 0.2) + cap('只記有東西的格子', 0.2, 0.36) + cap('由粗到細，還原形狀', 0.36, 0.62) + cap('貼上貼圖色', 0.62, 0.78) + cap('平滑著色成網格（示意）', 0.78, 2, true)
+  b += cap('展開成整個空間的格子', 0.04, 0.2) + cap('只記有東西的格子', 0.2, 0.36) + cap('由粗到細，還原形狀', 0.36, 0.62) + cap('每一格都帶著貼圖色', 0.6, 0.72) + cap('轉成網格，整理成貼圖（示意）', 0.72, 2, true)
   const c1 = '稀疏體素'
   const c2 = '空的格子不記'
   b += chip(70, 1240, c1, '#e0e7ff', '#3730a3', 34, clamp(outBack(seg(p, 0.4, 0.5))))
   b += chip(70 + chipW(c1, 34) + 24, 1240, c2, '#f1f5f9', '#475569', 34, clamp(outBack(seg(p, 0.5, 0.6))))
   b += chip(70, 1330, '不經有損的等值面轉換', '#fef3c7', '#92400e', 34, clamp(outBack(seg(p, 0.6, 0.7))))
-  return { bg: '#eef3fb', body: b, mesh: spec }
+  // 兩個標籤跟著各自的波前由上往下(轉成網格、整理成貼圖)
+  let over = ''
+  const tag = (label: string, prog: number, x: number, right: boolean, fill: string, fg: string): string => {
+    const o = clamp(seg(prog, 0.02, 0.08)) * (1 - seg(prog, 0.94, 1))
+    if (o <= 0) return ''
+    const fy = VOX_CY - BUST_TOP * VOX_S + (BUST_TOP - BUST_BOT) * VOX_S * clamp(scanFront(prog), 0, 1)
+    const y = clamp(fy - 29, 496, 1100)
+    const cw = chipW(label, 26)
+    return chip(right ? x - cw : x, y, label, fill, fg, 26, o)
+  }
+  over += tag('轉成網格', spec.tl!.cv!, 96, false, '#e0e7ff', '#3730a3')
+  over += tag('整理成貼圖', spec.tl!.tx!, 780, true, '#ccfbf1', '#115e59')
+  return { bg: '#eef3fb', body: b, over, mesh: spec }
 }
 
 // ---------- cell(凝聚完成後:選一格,這一格同時記著形狀與外觀) ----------
@@ -414,4 +376,28 @@ export function outro(l: number, D: number): SceneOut {
   b += text(70, 1402, SOURCE, 19, SLATE, { w: 500, font: MONO, op: clamp(seg(p, 0.6, 0.8)) })
   b += text(540, 1260, '抓取當下約 13.2k 星', 30, SLATE, { w: 500, anchor: 'middle', op: clamp(seg(p, 0.6, 0.8)) })
   return { bg: '#eef3fb', body: b }
+}
+
+// ---------- follow(evoleap 結尾:沿用 sessions-reel、remote-reel 的追蹤粉絲團結尾) ----------
+/** Reels 左下角粉絲團頭像的位置(平台疊的介面,在安全區外,畫面裡不畫它) */
+const FOLLOW_ICON: [number, number] = [110, 1640]
+export function follow(l: number): SceneOut {
+  const CX = 505
+  let s = text(CX, 520, '想知道更多 AI 新知？', 60, INK, { anchor: 'middle', w: 800, op: seg(l, 0, 500) })
+  const c = outBack(seg(l, 300, 900))
+  if (c > 0) {
+    s += `<g transform="translate(${CX} 860) scale(${n2(c)})"><rect x="-360" y="-200" width="720" height="400" rx="40" fill="#fff" stroke="#d6deea" stroke-width="3"/>`
+    s += `<defs><linearGradient id="tr-av" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb062"/><stop offset="1" stop-color="#ff6b6b"/></linearGradient></defs><circle cx="0" cy="-80" r="96" fill="#e0e7ff" opacity=".7"/>${markSvg.replace('<svg ', '<svg x="-70" y="-150" width="140" height="140" ')}`
+    s += text(0, 60, 'evoleap 粉絲團', 50, INK, { anchor: 'middle', w: 800 })
+    s += text(0, 128, '定期分享實用的 AI 資訊', 36, SLATE, { anchor: 'middle', w: 600 }) + '</g>'
+  }
+  // 大箭頭從卡片往左下角,指向平台疊在畫面上的粉絲團頭像與「追蹤」,一直輕輕往前頂
+  const ar = outBack(seg(l, 900, 1500))
+  if (ar > 0.001) {
+    const bump = Math.abs(Math.sin(l / 230)) * 22
+    const k = clamp(ar)
+    s += `<g transform="translate(${n2(FOLLOW_ICON[0] + 55 - bump * 0.6)} ${n2(FOLLOW_ICON[1] - 55 - bump * 0.8 - (1 - k) * 100)}) rotate(135)" opacity="${n2(k)}"><polygon points="0,0 -46,-44 -46,-20 -150,-20 -150,20 -46,20 -46,44" fill="url(#tr-av)" stroke="#fff" stroke-width="6" stroke-linejoin="round"/></g>`
+    s += text(330, 1390, '點左下角追蹤', 48, AMBER, { anchor: 'middle', w: 800, op: seg(l, 1500, 2000) })
+  }
+  return { bg: '#eef3fb', body: s }
 }

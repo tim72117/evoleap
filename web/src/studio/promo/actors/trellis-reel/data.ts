@@ -9,6 +9,8 @@ export const FACTS = {
     { res: '1536³', shape: 35, tex: 25 },
   ],
   pbr: ['Base Color', 'Roughness', 'Metallic', 'Alpha'],
+  /** 畫面上用的中文名稱(順序同 pbr) */
+  pbrZh: ['底色', '粗糙度', '金屬度', '不透明度'],
   stages: [
     { name: '稀疏結構', res: '64³' },
     { name: '形狀', res: '512' },
