@@ -76,7 +76,7 @@ const headline = (s: string, sub?: string, p = 1): string => {
 }
 
 // ---------- hook ----------
-/** 半身像的方格動畫時間窗(佔整段的比例):粗方格 → 修邊 → 切細(16→32→64→128,修邊與切細重疊)→ 修細節 → 平滑著色 */
+/** 開頭半身像的點雲動畫時間窗(佔整段的比例):粗疏的點 → 修位置 → 分裂變密(四階,位置調整與分裂重疊)→ 上貼圖色 → 平滑著色。全程是圓點,沒有方格 */
 const HOOK_W: TlWin = { ap: [0.13, 0.21], sp: [[0.24, 0.31], [0.33, 0.4], [0.42, 0.49]], rf: [[0.17, 0.25], [0.28, 0.35], [0.37, 0.44], [0.46, 0.53]], col: [0.48, 0.6], sm: [0.58, 0.68] }
 const lerpN = (a: number, b: number, t: number): number => a + (b - a) * t
 export function hook(l: number, D: number): SceneOut {
@@ -85,14 +85,14 @@ export function hook(l: number, D: number): SceneOut {
   b += text(70, 372, 'TRELLIS.2', 96, IND, { w: 800 })
   b += text(70, 436, '微軟開源・遊戲素材生成新工具', 38, SLATE, { w: 600 })
   const mv = inOutCubic(seg(p, 0.13, 0.22))
-  // 輸出:GLB 卡(方格動畫畫在這裡)
+  // 輸出:GLB 卡(點雲動畫畫在這裡)
   const gc = outCubic(seg(p, 0.14, 0.22))
   b += `<g opacity="${n2(gc)}">${card(70, 830, 870, 500, { fill: '#f8fafc' })}`
   b += chip(780, 850, 'GLB', '#e0e7ff', '#3730a3', 30)
   b += text(96, 878, '示意', 24, '#b45309', { w: 700 })
   b += `</g>`
   b += text(70, 1362, CREDIT, 22, SLATE, { w: 600, op: clamp(seg(p, 0.12, 0.2)) })
-  // 輸入:一張圖片(半身像的渲染圖)。一開始在中上方放大,方格動畫開始後縮到左上角
+  // 輸入:一張圖片(半身像的渲染圖)。一開始在中上方放大,點雲成形開始後縮到左上角
   const e1 = outBack(seg(p, 0.02, 0.08))
   const sc = lerpN(1, 220 / 480, mv)
   const ix = lerpN(300, 70, mv)
@@ -105,7 +105,7 @@ export function hook(l: number, D: number): SceneOut {
   b += text(240, 508, '輸入：一張圖片', 36, INK, { anchor: 'middle', w: 800 }) + `</g></g>`
   b += `<g opacity="${n2(mv)}">${text(180, 770 + 8, 'IMAGE', 26, SLATE, { anchor: 'middle', font: MONO })}<path d="M180 788 V806" stroke="${IND}" stroke-width="8" stroke-linecap="round"/><polygon points="180,826 164,804 196,804" fill="${IND}"/></g>`
   const tt = outCubic(seg(p, 0.22, 0.3))
-  b += `<g opacity="${n2(tt)}" transform="translate(${n2((1 - tt) * 30)} 0)">${text(330, 570, '一張圖進去', 52, INK, { w: 800 })}${text(330, 640, '帶材質的 3D 模型出來', 44, TEAL, { w: 800 })}${text(330, 695, '方格由粗到細，再變成網格（示意）', 28, SLATE, { w: 600 })}</g>`
+  b += `<g opacity="${n2(tt)}" transform="translate(${n2((1 - tt) * 30)} 0)">${text(330, 570, '一張圖進去', 52, INK, { w: 800 })}${text(330, 640, '帶材質的 3D 模型出來', 44, TEAL, { w: 800 })}${text(330, 695, '點雲逐漸成形，再變成網格（示意）', 28, SLATE, { w: 600 })}</g>`
   const spec: MeshSpec = {
     mode: 'hook',
     l,
@@ -232,10 +232,10 @@ function bustNotes(cardY: number, cardH: number, p: number): string {
   o += text(924, cardY + cardH - 14, '示意', 22, '#b45309', { w: 700, anchor: 'end', op: o0 })
   return o
 }
-const VOX_W: TlWin = { ap: [0.2, 0.34], sp: [[0.4, 0.5], [0.52, 0.62], [0.64, 0.74]], rf: [[0.3, 0.4], [0.45, 0.54], [0.57, 0.66], [0.69, 0.78]], col: [0.7, 0.88], sm: [2, 3] }
+const VOX_W: TlWin = { ap: [0.2, 0.32], sp: [[0.36, 0.45], [0.47, 0.56], [0.58, 0.67]], rf: [[0.28, 0.38], [0.4, 0.5], [0.52, 0.61], [0.63, 0.72]], col: [0.62, 0.78], sm: [0.78, 0.95] }
 export function voxel(l: number, D: number): SceneOut {
   const p = clamp(l / D)
-  let b = headline('O-Voxel', '稀疏體素・只記有東西的格子', p)
+  let b = headline('VAE 解碼', '還原成 O-Voxel 稀疏體素（示意）', p)
   b += card(70, 470, 870, 730, { fill: '#f8fafc' })
   b += bustNotes(470, 730, p)
   const spec: MeshSpec = {
@@ -246,16 +246,19 @@ export function voxel(l: number, D: number): SceneOut {
     cy: 888,
     S: 4.4,
     box: { x0: 0, x1: 0, y0: 0, y1: 0 },
-    vx: { dots: outCubic(seg(p, 0.04, 0.16)), fade: seg(p, 0.2, 0.34), grow: seg(p, 0.2, 0.34) },
+    vx: { dots: outCubic(seg(p, 0.04, 0.16)), fade: seg(p, 0.2, 0.32), grow: seg(p, 0.2, 0.32) },
     tl: timeline(p, VOX_W),
   }
   const cap = (t: string, x0: number, x1: number, last = false): string => {
     const o = outCubic(seg(p, x0, x0 + 0.04)) * (last ? 1 : 1 - seg(p, x1 - 0.04, x1))
     return text(110, 530, t, 38, IND, { w: 800, op: o })
   }
-  b += cap('整個空間的格子', 0.04, 0.2) + cap('只記有東西的格子', 0.2, 0.4) + cap('由粗到細，一層層切細', 0.4, 0.7) + cap('修好細節、貼上顏色', 0.7, 2, true)
-  b += chip(70, 1240, '稀疏體素', '#e0e7ff', '#3730a3', 34, clamp(outBack(seg(p, 0.45, 0.58))))
-  b += chip(70 + chipW('稀疏體素', 34) + 24, 1240, '空的格子不記', '#f1f5f9', '#475569', 34, clamp(outBack(seg(p, 0.58, 0.7))))
+  b += cap('展開成整個空間的格子', 0.04, 0.2) + cap('只記有東西的格子', 0.2, 0.36) + cap('由粗到細，還原形狀', 0.36, 0.62) + cap('貼上貼圖色', 0.62, 0.78) + cap('平滑著色成網格（示意）', 0.78, 2, true)
+  const c1 = '稀疏體素'
+  const c2 = '空的格子不記'
+  b += chip(70, 1240, c1, '#e0e7ff', '#3730a3', 34, clamp(outBack(seg(p, 0.4, 0.5))))
+  b += chip(70 + chipW(c1, 34) + 24, 1240, c2, '#f1f5f9', '#475569', 34, clamp(outBack(seg(p, 0.5, 0.6))))
+  b += chip(70, 1330, '不經有損的等值面轉換', '#fef3c7', '#92400e', 34, clamp(outBack(seg(p, 0.6, 0.7))))
   return { bg: '#eef3fb', body: b, mesh: spec }
 }
 
@@ -266,7 +269,7 @@ export function cell(l: number, D: number): SceneOut {
   b += card(70, 470, 870, 560, { fill: '#f8fafc' })
   b += bustNotes(470, 560, p)
   const spec: MeshSpec = {
-    mode: 'hook',
+    mode: 'voxel',
     l,
     region: { x: 70, y: 474, w: 870, h: 552 },
     cx: 505,
@@ -313,7 +316,7 @@ export function cell(l: number, D: number): SceneOut {
 export function flow(l: number, D: number): SceneOut {
   const p = clamp(l / D)
   let b = headline('從迷霧凝聚', 'flow matching:整體一起一步步修正', p)
-  const ph = { pack: seg(p, 0.05, 0.17), scatter: seg(p, 0.17, 0.29), e1: seg(p, 0.31, 0.52), e2: seg(p, 0.52, 0.74), e3: seg(p, 0.74, 0.9), sm: seg(p, 0.87, 0.99) }
+  const ph = { pack: 0, scatter: 1, e1: seg(p, 0.16, 0.4), e2: seg(p, 0.4, 0.66), e3: seg(p, 0.66, 0.88), sm: 0 }
   b += card(70, 460, 870, 620, { fill: '#f8fafc' })
   const glow = ph.scatter * (1 - ph.e2)
   b += `<defs><radialGradient id="tr-mist"><stop offset="0" stop-color="#a5b4fc" stop-opacity="0.55"/><stop offset="1" stop-color="#a5b4fc" stop-opacity="0"/></radialGradient></defs><ellipse cx="505" cy="775" rx="440" ry="255" fill="url(#tr-mist)" opacity="${n2(glow * 0.9)}"/>`
@@ -323,16 +326,16 @@ export function flow(l: number, D: number): SceneOut {
     const o = outCubic(seg(p, x0, x0 + 0.03)) * (last ? 1 : 1 - seg(p, x1 - 0.03, x1))
     return text(110, 522, t, 38, IND, { w: 800, op: o })
   }
-  b += cap('壓縮 VAE', 0.04, 0.19) + cap('起點:一團雜訊', 0.19, 0.31) + cap('① 結構:粗輪廓', 0.31, 0.52) + cap('② 形狀:補上細節', 0.52, 0.74) + cap('③ 貼圖:依形狀上材質', 0.74, 0.88) + cap('平滑著色(示意)', 0.88, 2, true)
-  // 壓縮 VAE:縮小十六倍、三十二通道
-  const vc = outBack(seg(p, 0.09, 0.17)) * (1 - seg(p, 0.25, 0.29))
-  b += chip(110, 1000, '16 倍下採樣', '#ffedd5', '#9a3412', 28, clamp(vc))
-  b += chip(110 + chipW('16 倍下採樣', 28) + 16, 1000, '32 通道', '#ffedd5', '#9a3412', 28, clamp(vc))
+  b += cap('起點：一團雜訊', 0.02, 0.16) + cap('① 結構:粗輪廓', 0.16, 0.4) + cap('② 形狀:補上細節', 0.4, 0.66) + cap('③ 貼圖:依形狀上材質', 0.66, 2, true)
+  // 這一切都在「壓縮後的潛在空間」裡進行(縮小十六倍)
+  const lt = clamp(outBack(seg(p, 0.02, 0.1)))
+  b += chip(96, 890, '16 倍下採樣', '#ffedd5', '#9a3412', 20, lt)
+  b += chip(96, 936, '在壓縮後的潛在空間生成', '#e0e7ff', '#3730a3', 20, lt)
   // 第三段:只生成材質(底色、粗糙度、金屬度、不透明度)
   const pbr = ['底色', '粗糙度', '金屬度', '不透明度']
   let x = 110
   pbr.forEach((t, i) => {
-    const q = clamp(outBack(seg(p, 0.76 + i * 0.03, 0.84 + i * 0.03)))
+    const q = clamp(outBack(seg(p, 0.68 + i * 0.03, 0.76 + i * 0.03)))
     const cols = ['#f59e0b', '#94a3b8', '#cbd5e1', '#6366f1']
     b += `<g opacity="${n2(q)}"><circle cx="${x + 14}" cy="1022" r="14" fill="${cols[i]}" stroke="#94a3b8" stroke-width="2.5"/>${text(x + 38, 1034, t, 30, INK, { w: 700 })}</g>`
     x += 38 + t.length * 32 + 26
@@ -342,7 +345,7 @@ export function flow(l: number, D: number): SceneOut {
     const y = 1110 + i * 130
     const e = [ph.e1, ph.e2, ph.e3][i]
     const on = e > 0 && e < 1
-    const q = outBack(seg(p, 0.24 + i * 0.03, 0.34 + i * 0.03))
+    const q = outBack(seg(p, 0.08 + i * 0.03, 0.18 + i * 0.03))
     b += `<g opacity="${n2(clamp(q))}" transform="translate(${n2((1 - clamp(q)) * -60)} 0)">`
     b += card(70, y, 870, 108, { fill: '#ffffff', stroke: on ? IND : LINE, rx: 28 })
     b += `<circle cx="122" cy="${y + 54}" r="28" fill="${e >= 1 ? TEAL : on ? IND : '#cbd5e1'}"/>${text(122, y + 66, String(i + 1), 34, '#ffffff', { w: 800, anchor: 'middle' })}`
@@ -353,7 +356,7 @@ export function flow(l: number, D: number): SceneOut {
     b += text(910, y + 68, '1.3B', 40, IND, { w: 800, anchor: 'end' })
     b += `</g>`
   })
-  b += chip(70, 1520, '整體 4B 參數', '#e0e7ff', '#3730a3', 34, clamp(outBack(seg(p, 0.85, 0.97))))
+  b += chip(70, 1520, '整體 4B 參數', '#e0e7ff', '#3730a3', 34, clamp(outBack(seg(p, 0.86, 0.97))))
   return { bg: '#eef3fb', body: b, mesh: spec }
 }
 

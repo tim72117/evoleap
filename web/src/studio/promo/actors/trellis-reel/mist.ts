@@ -249,7 +249,7 @@ function stateTl(spec: MeshSpec): number {
     sy[i] = spec.cy + q[1] * S - spec.region.y
     sd[i] = q[2]
     sz[i] = size * S * (1 + 0.4 * sm)
-    shade(v, nx, ny, nz, 0.6 * (1 - sm), sm)
+    shade(v, nx, ny, nz, spec.mode === 'hook' ? 0 : 0.6 * (1 - sm), sm)
     const f = SH[0]
     sc[i] = pack(r * f + SH[1], g * f + SH[1], b * f + SH[1])
     se[i] = sm < 0.5 ? 1 : 0
@@ -348,7 +348,7 @@ function stateFlow(spec: MeshSpec): number {
     b = lerp(b, bb, c3)
     const jit = Math.sin(c3 * Math.PI) * 0.6
     if (jit > 0.01) mixc(JIT[Math.floor(hash(n * 13 + Math.floor(l / 110)) * 5)], jit)
-    shade(v, nx, ny, nz, 0.55 * (1 - sm), sm)
+    shade(v, nx, ny, nz, 0, sm)
     const f = lerp(1, SH[0], 1 - s0 * 0.6)
     const op = lerp(lerp(1, 0.4, s0), 1, c1)
     const gl = SH[1] * (1 - s0)
@@ -356,7 +356,7 @@ function stateFlow(spec: MeshSpec): number {
     g = lerp(BG[1], g * f + gl, op)
     b = lerp(BG[2], b * f + gl, op)
     // 重疊的代表才畫:收攏到 16 / 64 格後,同一格的其他積木位置與大小都一樣,畫了也看不到
-    const settled = c1 >= 0.995 && c2 < 0.5 && !A.rep[n] && !M.rep[n]
+    const settled = c1 >= 0.85 && c2 < 0.5 && !A.rep[n] && !M.rep[n]
     sx[n] = x - spec.region.x
     sy[n] = y - spec.region.y
     sz[n] = settled ? 0 : size * S * (1 + 0.4 * sm)
@@ -391,6 +391,29 @@ function square(buf: Uint32Array, w: number, h: number, cx: number, cy: number, 
         if (x0 >= 0 && x0 < w) buf[o + x0] = edge
         if (x0 + s - 1 >= 0 && x0 + s - 1 < w) buf[o + x0 + s - 1] = edge
       }
+    }
+  }
+}
+/** 圓點(點雲):直徑 size 像素的實心圓,沒有邊線 */
+function disc(buf: Uint32Array, w: number, h: number, cx: number, cy: number, size: number, col: number): void {
+  const r = Math.max(0.6, size / 2)
+  if (r < 1.6) {
+    square(buf, w, h, cx, cy, Math.max(1.4, size), col, 0)
+    return
+  }
+  const ya = Math.max(0, Math.ceil(cy - r))
+  const yb = Math.min(h - 1, Math.floor(cy + r))
+  for (let y = ya; y <= yb; y++) {
+    const dy = y + 0.5 - cy
+    const hw = Math.sqrt(Math.max(0, r * r - dy * dy))
+    const xa = Math.max(0, Math.round(cx - hw))
+    const xb = Math.min(w, Math.round(cx + hw))
+    if (xb > xa) {
+      buf.fill(col, y * w + xa, y * w + xb)
+      if (xa < bx0) bx0 = xa
+      if (xb > bx1) bx1 = xb
+      if (y < by0) by0 = y
+      if (y + 1 > by1) by1 = y + 1
     }
   }
 }
@@ -490,10 +513,13 @@ export function paintMesh(buf: Uint32Array, w: number, h: number, spec: MeshSpec
   by0 = h
   bx1 = 0
   by1 = 0
+  // 開頭(hook)與迷霧凝聚(flow)只有圓點;方格(O-Voxel)要到 voxel 解碼與 cell 才出現
+  const dot = spec.mode !== 'voxel'
   for (let i = 0; i < m; i++) {
     const n = ord[i]
-    const s = sz[n] * 1.12
-    square(buf, w, h, sx[n], sy[n], s, sc[n], se[n] && s >= 7 ? darker(sc[n]) : 0)
+    const s = sz[n] * (dot ? 1.2 : 1.12)
+    if (dot) disc(buf, w, h, sx[n], sy[n], s, sc[n])
+    else square(buf, w, h, sx[n], sy[n], s, sc[n], se[n] && s >= 7 ? darker(sc[n]) : 0)
   }
   const smo = spec.mode === 'flow' ? spec.ph!.sm : spec.tl!.sm
   if (smo > 0.02) soften(buf, w, h, inOutCubic(smo) * 0.85)

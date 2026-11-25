@@ -1,20 +1,78 @@
 {
   "title": "宣傳片：TRELLIS.2 遊戲素材生成新工具（直式・FB Reels）",
   "lesson": "宣傳影片",
-  "description": "3D 示意(開頭輸入圖與 GLB、原理段 voxel／flow／cell)用的是大理石半身像「Marble Bust 01」(Rico Cilliers,Poly Haven,CC0,https://polyhaven.com/a/marble_bust_01):已離線取樣成約 3.2 萬格的體素資料,輸入圖是同一模型用 PBR 材質渲染的一張圖。畫面是 2D 近似、標「示意」,不是 TRELLIS.2 的實際輸出。CC0 不必標示,仍於畫面小字致謝。授權與產生方式:web/src/studio/promo/actors/trellis-reel/assets/ATTRIBUTION.md。",
-  "voice": {"profile": "news", "voice": "Charon"},
+  "description": "3D 示意(開頭輸入圖與 GLB、原理段 flow／voxel／cell)用的是大理石半身像「Marble Bust 01」(Rico Cilliers,Poly Haven,CC0,https://polyhaven.com/a/marble_bust_01):已離線取樣成約 3.2 萬格的體素資料,輸入圖是同一模型用 PBR 材質渲染的一張圖。畫面是 2D 近似、標「示意」,不是 TRELLIS.2 的實際輸出。CC0 不必標示,仍於畫面小字致謝。授權與產生方式:web/src/studio/promo/actors/trellis-reel/assets/ATTRIBUTION.md。",
+  "voice": {
+    "profile": "news",
+    "voice": "Charon"
+  },
   "cast": {
-    "reel": {"actor": "trellis-reel", "place": "full"}
+    "reel": {
+      "actor": "trellis-reel",
+      "place": "full"
+    }
   },
   "steps": [
-    {"scene": "hook", "chapter": "開場", "narration": "遊戲要的 3D 素材，現在一張圖就能生成。微軟開源的新工具 TRELLIS.2，三秒到一分鐘，就出一個帶材質的模型。", "ms": 13800, "pause": 0},
-    {"scene": "repo", "chapter": "專案", "narration": "GitHub 上抓取當下約一萬三千顆星，MIT 授權，還有線上 demo 可以直接試。", "ms": 8000, "pause": 0},
-    {"scene": "io", "chapter": "做什麼", "narration": "輸入一張圖，輸出帶 PBR 材質的 3D 網格：底色、粗糙度、金屬度、不透明度，可匯出 GLB。", "ms": 9000, "pause": 0},
-    {"scene": "voxel", "chapter": "原理", "narration": "原理第一步：O-Voxel 稀疏體素，只記有東西的格子，空的不存，也不經過有損的等值面轉換。", "ms": 11400, "pause": 0},
-    {"scene": "flow", "narration": "再用壓縮 VAE 縮小十六倍，交給 flow matching 分三段生成：結構、形狀、貼圖，整體四十億參數。", "ms": 12600, "pause": 0},
-    {"scene": "cell", "narration": "凝聚完成後，每一個小方格同時記著形狀，和底色、粗糙度、金屬度、不透明度，所以可以直接得到帶材質的模型。", "ms": 12800, "pause": 0},
-    {"scene": "speed", "chapter": "速度", "narration": "用 H100 實測，形狀加材質：512 解析度約三秒，1024 約十七秒，1536 約六十秒。", "ms": 9500, "pause": 0},
-    {"scene": "limits", "chapter": "門檻", "narration": "門檻不低：只在 Linux 測試，顯卡至少 24GB，安裝繁瑣，官方也沒給品質評比數字。", "ms": 9000, "pause": 0},
-    {"scene": "outro", "chapter": "收尾", "narration": "想試試，現在就去 GitHub 或 HuggingFace 看看。", "ms": 4500, "pause": 0}
+    {
+      "scene": "hook",
+      "chapter": "開場",
+      "narration": "遊戲要的 3D 素材，現在一張圖就能生成。微軟開源的新工具 TRELLIS.2，三秒到一分鐘，就出一個帶材質的模型。",
+      "ms": 13800,
+      "pause": 0
+    },
+    {
+      "scene": "repo",
+      "chapter": "專案",
+      "narration": "GitHub 上抓取當下約一萬三千顆星，MIT 授權，還有線上 demo 可以直接試。",
+      "ms": 8000,
+      "pause": 0
+    },
+    {
+      "scene": "io",
+      "chapter": "做什麼",
+      "narration": "輸入一張圖，輸出帶 PBR 材質的 3D 網格：底色、粗糙度、金屬度、不透明度，可匯出 GLB。",
+      "ms": 9000,
+      "pause": 0
+    },
+    {
+      "scene": "flow",
+      "narration": "生成時，AI 在壓縮後的空間裡，從一團雜訊開始，分三段慢慢凝聚：先定結構，再補形狀，最後上材質，整體四十億參數。",
+      "ms": 13800,
+      "pause": 0,
+      "chapter": "原理"
+    },
+    {
+      "scene": "voxel",
+      "narration": "接著解碼，把壓縮的結果還原成稀疏體素，只記有東西的格子，不經過有損的等值面轉換，最後平滑成網格。",
+      "ms": 12100,
+      "pause": 0
+    },
+    {
+      "scene": "cell",
+      "narration": "解碼之後，每一個小方格同時記著形狀，和底色、粗糙度、金屬度、不透明度，所以可以直接得到帶材質的模型。",
+      "ms": 12800,
+      "pause": 0
+    },
+    {
+      "scene": "speed",
+      "chapter": "速度",
+      "narration": "用 H100 實測，形狀加材質：512 解析度約三秒，1024 約十七秒，1536 約六十秒。",
+      "ms": 9500,
+      "pause": 0
+    },
+    {
+      "scene": "limits",
+      "chapter": "門檻",
+      "narration": "門檻不低：只在 Linux 測試，顯卡至少 24GB，安裝繁瑣，官方也沒給品質評比數字。",
+      "ms": 9000,
+      "pause": 0
+    },
+    {
+      "scene": "outro",
+      "chapter": "收尾",
+      "narration": "想試試，現在就去 GitHub 或 HuggingFace 看看。",
+      "ms": 4500,
+      "pause": 0
+    }
   ]
 }

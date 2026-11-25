@@ -6,13 +6,13 @@
 // props:無
 //
 // 動作(任何一步都可以寫 ms 指定長度):
-//   { "scene": "hook" }    開場:輸入一張圖(半身像渲染圖)→ 方格由粗到細堆出半身像 → 平滑著色(GLB),3 秒到 60 秒
+//   { "scene": "hook" }    開場:輸入一張圖(半身像渲染圖)→ 半身像由粗疏的點雲逐漸成形(沒有方格)→ 平滑著色(GLB),3 秒到 60 秒
 //   { "scene": "repo" }    GitHub 狀態:星數、fork、MIT、4B、HuggingFace 模型與 Space
 //   { "scene": "io" }      能做什麼:圖 → 帶 PBR(底色、粗糙度、金屬度、不透明度)的網格,匯出 GLB
 //   { "scene": "speed" }   速度:512³、1024³、1536³ 三條長條(形狀 + 材質)
-//   { "scene": "voxel" }   原理一:O-Voxel 稀疏體素(空間格線 → 只有東西的格子長成方塊 → 16→128 格切細、上色)
-//   { "scene": "flow" }    原理二:壓縮 VAE + 三段 flow matching(結構 16 格、形狀 64→128 格、貼圖上色),最後平滑著色(示意)
-//   { "scene": "cell" }    凝聚完成後:選一格,這一格同時記著形狀與 PBR 四項;不經等值面場
+//   { "scene": "flow" }    原理一:在壓縮後的潛在空間生成(16 倍下採樣):雜訊(霧)→ ① 結構 → ② 形狀 → ③ 貼圖(同一批積木同時收攏)
+//   { "scene": "voxel" }   原理二:VAE 解碼,還原成 O-Voxel 稀疏體素(空間格線 → 有東西的格子長成方塊 → 16→128 格由粗到細、上色 → 平滑著色成網格,示意)
+//   { "scene": "cell" }    選一格:這一格同時記著形狀與 PBR 四項;不經等值面場
 //   { "scene": "limits" }  門檻:Linux、24GB、CUDA 12.4、安裝繁瑣、沒有品質評比
 //   { "scene": "outro" }   收尾:GitHub 與 HuggingFace 兩張卡片
 //
@@ -23,7 +23,7 @@ import { paintMesh, type MeshSpec } from './mist'
 import { cell, flow, hook, io, limits, outro, repo, speed, voxel } from './scenes'
 import './actor.css'
 
-export const SCENES = ['hook', 'repo', 'io', 'speed', 'voxel', 'flow', 'cell', 'limits', 'outro'] as const
+export const SCENES = ['hook', 'repo', 'io', 'flow', 'voxel', 'cell', 'speed', 'limits', 'outro'] as const
 export type Scene = (typeof SCENES)[number]
 export type ReelStep = CommonStepFields & { scene?: Scene }
 export interface ReelState {
@@ -34,7 +34,7 @@ export type Target = 'window'
 
 export const DRAW: Record<Scene, (l: number, D: number) => SceneOut> = { hook, repo, io, speed, voxel, flow, cell, limits, outro }
 /** 各段的預設長度(毫秒;腳本通常自己寫 ms) */
-export const T: Record<Scene, number> = { hook: 13800, repo: 8000, io: 9000, speed: 9500, voxel: 11400, flow: 12600, cell: 12800, limits: 9000, outro: 4500 }
+export const T: Record<Scene, number> = { hook: 13800, repo: 8000, io: 9000, speed: 9500, voxel: 12100, flow: 13800, cell: 12800, limits: 9000, outro: 4500 }
 /** 換景時的交叉淡化(毫秒) */
 export const FADE = 320
 
