@@ -265,6 +265,9 @@ func (s *Store) UpdateTopic(ctx context.Context, user, id string, p TopicPatch) 
 			Updates(&topicRow{Name: t.Name, Slogan: t.Slogan, Path: t.Path, SEOTitle: t.SEOTitle, Description: t.Description, Content: t.Content, UpdatedAt: now()}).Error; err != nil {
 			return err
 		}
+		if err := syncI18nSources(tx); err != nil {
+			return err
+		}
 		return s.recordChange(tx, user, "topic.update", id, p)
 	})
 }

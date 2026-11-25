@@ -110,10 +110,14 @@ func (s *Store) SeedCourses(ctx context.Context) error {
 	var warnings []string
 	if err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) (err error) {
 		warnings, err = seedTopicsAndCourses(tx, topics, seeds)
-		return err
+		if err != nil {
+			return err
+		}
+		return syncI18n(tx)
 	}); err != nil {
 		return err
 	}
+	s.i18n.clear()
 	for _, w := range warnings {
 		log.Printf("警告:%s", w)
 	}

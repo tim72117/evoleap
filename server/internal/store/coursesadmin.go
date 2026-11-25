@@ -175,6 +175,9 @@ func (s *Store) UpdateCourse(ctx context.Context, user, courseID string, p Cours
 			Updates(&courseRow{Access: c.Access, Title: c.Title, Summary: c.Summary, About: c.About, SEOTitle: c.SEOTitle, Description: c.Description, Art: c.Art, IntroScript: c.IntroScript, TopicID: c.TopicID, Overview: c.Overview, UpdatedAt: now()}).Error; err != nil {
 			return err
 		}
+		if err := syncI18nSources(tx); err != nil {
+			return err
+		}
 		return s.recordChange(tx, user, "course.update", courseID, p)
 	})
 }
@@ -238,6 +241,9 @@ func (s *Store) UpdateLesson(ctx context.Context, user, courseID, lessonID strin
 		}
 		if err := tx.Model(&lessonRow{}).Where("course_id = ? AND id = ?", courseID, lessonID).
 			Select("status", "access", "minutes", "title", "summary", "script").Updates(&l).Error; err != nil {
+			return err
+		}
+		if err := syncI18nSources(tx); err != nil {
 			return err
 		}
 		return s.recordChange(tx, user, "lesson.update", courseID+" "+lessonID, p)

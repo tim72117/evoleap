@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+## [0.51.0] - 2026-11-25
+
+沒有不相容變更：對外的 API 與頁面回應內容不變（`?lang=en`、`/en` 逐欄與舊版一致）。
+
+### 新增
+
+- **課程資訊的翻譯進資料庫（通用欄位表）**：英文翻譯從內嵌的 `i18n_en.json` 搬進資料庫，原表（課程、單元、課、主題）仍只存繁體中文原文。新增四張表：`i18n_sources`（可翻譯欄位的登記表，副本，以原表為準）、`i18n_translations`（譯文，一個欄位一列，附狀態、翻譯時的原文雜湊、來源）、`i18n_translation_history`（只新增的異動紀錄）、`i18n_languages`（語言、回退語言、是否公開）。原文改過、雜湊不同就是「過時」，舊譯文仍顯示。課程同步工作把 `i18n_en.json` 當初稿種子補進資料庫（published、來源 import、**只補缺不覆蓋**），上線後以資料庫為準；資料庫一列英文都沒有時退回內嵌種子，部署順序不會讓英文消失。後端讀取改成由資料庫組語言包（記憶體快取 30 秒，寫入時失效）。
+- **`evoleap i18n` 指令與管理 API**：`list`、`get`、`set`、`missing`（`GET/PUT /api/admin/i18n*`，只有管理員）。`set` 預設是草稿，要上線加 `-status published`；寫入會記異動紀錄，值頭尾空白會去掉。
+- **腳本備份匯出**：唯讀的 `GET /api/admin/script-export` 與 `evoleap backup export`，加上上傳腳本 `server/backup/export.ps1`，把 `lesson_files`、`studio_files`（含旁白清單與音軌清單）備份到 `gs://evoleap-backup`（只當備份副本，資料庫與網站讀取方式不變）。只上傳內容有變的檔，對照表放 `server/backup/gcs-manifest.json`；說明見 `server/backup/README.md`。只在本機後端對測試前綴實測過，正式站要先部署這版、再重新 `evoleap login` 才能跑。
+
+### 已知缺口
+
+- 預先產生的 7 個靜態英文頁（`web/src/seo/enPages.ts`）仍在建置時讀 `i18n_en.json`，改資料庫的譯文不會更新它們，需要之後的重產機制。
+- 新資料表只在 SQLite 測過，Postgres 沒實跑過；第一次部署由課程同步工作建表並匯入。
+
 ## [0.50.1] - 2026-11-25
 
 v0.49.0、v0.50.0 的 e2e 都沒過（Deploy 被跳過，正式站停在 0.48.2）；內容以 0.50.0 的條目為準，這版只修讓測試通過的問題。

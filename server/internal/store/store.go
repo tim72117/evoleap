@@ -28,6 +28,8 @@ const maxOpenConns = 3
 
 type Store struct {
 	db *gorm.DB
+	// i18n 是各語言語言包的記憶體快取(見 LangPack)
+	i18n i18nCache
 }
 
 // Open 依 dsn 開啟資料庫、同步 schema,並把 courses_seed.json 的課程、單元與課寫進資料表(測試用,不含腳本檔;本機的後端用 Connect 加 SyncCourses)。
@@ -65,6 +67,10 @@ func Connect(dsn string) (*Store, error) {
 		sqlDB.SetMaxOpenConns(maxOpenConns)
 		sqlDB.SetMaxIdleConns(maxOpenConns)
 		sqlDB.SetConnMaxIdleTime(5 * time.Minute)
+	}
+	// 預設語言(zh-TW、en)只補缺,幾列而已,所以網站伺服器連線時也補,不用等同步工作
+	if err := ensureI18nLanguages(db); err != nil {
+		return nil, fmt.Errorf("seed i18n languages: %w", err)
 	}
 	return &Store{db: db}, nil
 }
@@ -114,12 +120,17 @@ func (s *Store) syncSeeds(ctx context.Context, topicSeedJSON, seed []byte, dir s
 			return err
 		}
 		w, err := pruneTopics(tx, topics)
+		if err != nil {
+			return err
+		}
 		warnings = w
-		return err
+		// 原表都寫完才重算翻譯的登記表,並把初稿種子補進資料庫(只補缺,見 syncI18n)
+		return syncI18n(tx)
 	})
 	if err != nil {
 		return nil, err
 	}
+	s.i18n.clear()
 	return warnings, nil
 }
 

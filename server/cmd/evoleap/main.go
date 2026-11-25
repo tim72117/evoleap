@@ -23,8 +23,17 @@
 //	topic set -topic ID [-name 文字] [-slogan 文字] [-path 網址] [-seo-title 文字] [-description 文字] [-content-file 路徑]
 //	                                改一個主題;-content-file 是整包換掉的 JSON 物件檔(其餘內容:lede、learn、flow、outcomes、preview…)
 //	lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title 文字] [-summary 文字] [-script 路徑]
+//	i18n list [-lang en] [-kind course|unit|lesson|topic] [-ref ID] [-status draft|reviewed|published] [-stale] [-n 500]
+//	                                列出課程資訊的譯文(附原文;stale 是原文在翻譯之後改過)
+//	i18n get -kind K -ref ID -path P [-lang en]
+//	                                一筆譯文與它的異動紀錄
+//	i18n set -kind K -ref ID -path P [-lang en] (-value 文字 | -value-file 檔案) [-status draft|reviewed|published] [-origin human|ai|import] [-model M] [-reason 原因]
+//	                                寫入一筆譯文(預設 draft、human;只有 published 會顯示在網站上),每次寫入記一筆異動紀錄
+//	i18n missing [-lang en] [-kind K]
+//	                                列出登記表有、譯文沒有(missing)或過時(stale)的欄位
 //	script get -path 路徑 [-out 檔案]
 //	script push -file 檔案 [-path 路徑] [-course ID -lesson ID]
+//	backup export -out 目錄         唯讀匯出 lesson_files 與 studio_files 的內容到本機目錄(給 GCS 備份用,見 server/backup/README.md)
 //	change list [-n 20]             最近的修改紀錄(誰、什麼時候、改了什麼)
 //	schema check                    資料庫結構檢查:資料表定義與實際欄位、主鍵是否一致,有沒有遺留表(有問題時結束碼 1)
 //
@@ -72,9 +81,18 @@ var resources = []resource{
 	{name: "lesson", commands: []command{
 		{verb: "set", usage: "evoleap lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title 文字] [-summary 文字] [-script 路徑]", run: cmdLessonSet},
 	}},
+	{name: "i18n", commands: []command{
+		{verb: "list", usage: "evoleap i18n list [-lang en] [-kind course|unit|lesson|topic] [-ref ID] [-status draft|reviewed|published] [-stale] [-n 500]", run: cmdI18nList},
+		{verb: "get", usage: "evoleap i18n get -kind K -ref ID -path P [-lang en]", run: cmdI18nGet},
+		{verb: "set", usage: "evoleap i18n set -kind K -ref ID -path P [-lang en] (-value 文字 | -value-file 檔案) [-status draft|reviewed|published] [-origin human|ai|import] [-model M] [-reason 原因]", run: cmdI18nSet},
+		{verb: "missing", usage: "evoleap i18n missing [-lang en] [-kind K]", run: cmdI18nMissing},
+	}},
 	{name: "script", commands: []command{
 		{verb: "get", usage: "evoleap script get -path 路徑 [-out 檔案]", run: cmdScriptGet},
 		{verb: "push", usage: "evoleap script push -file 檔案 [-path 路徑] [-course ID -lesson ID]", run: cmdScriptPush},
+	}},
+	{name: "backup", commands: []command{
+		{verb: "export", usage: "evoleap backup export -out 目錄", run: cmdBackupExport},
 	}},
 	{name: "change", commands: []command{
 		{verb: "list", usage: "evoleap change list [-n 20]", run: cmdChangeList},

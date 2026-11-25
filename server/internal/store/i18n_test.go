@@ -30,7 +30,7 @@ func TestI18nKeysExistInSeeds(t *testing.T) {
 	for _, x := range tp {
 		topics[x.ID] = true
 	}
-	b := bundles[LangEN]
+	b := seedPacks[LangEN]
 	for k := range b.Courses {
 		if !courses[k] {
 			t.Errorf("英文課程 %s 不在種子裡", k)
@@ -60,11 +60,11 @@ func TestI18nKeysExistInSeeds(t *testing.T) {
 
 func TestLocalizeFallsBackToOriginal(t *testing.T) {
 	m := CourseMap{ID: "software", Title: "原文", Units: []MapUnit{{ID: "nope", Title: "單元"}}}
-	m.Localize("")
+	m.Localize(nil)
 	if m.Title != "原文" {
-		t.Fatal("空語言不該改內容")
+		t.Fatal("沒有語言包不該改內容")
 	}
-	m.Localize(LangEN)
+	m.Localize(seedPacks[LangEN])
 	if m.Title != "Build Your Own Software" || m.Units[0].Title != "單元" {
 		t.Fatalf("got %q / %q", m.Title, m.Units[0].Title)
 	}

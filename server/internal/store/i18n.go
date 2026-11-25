@@ -7,9 +7,10 @@ import (
 	"strings"
 )
 
-// 課程資訊的多語系:資料庫與種子(courses_seed.json、topics_seed.json)是繁體中文的原文,
-// 其他語言放在 i18n_<語言>.json,依 id 覆蓋要翻的欄位;沒翻的欄位、沒翻的課照原文(中文)。
-// 目前只有英文(en)。翻譯檔只在部署時隨程式更新,和種子一樣以檔案為準。
+// 課程資訊的多語系:課程、單元、課、主題的原表只存繁體中文的原文,譯文放在資料庫的 i18n_translations(見 i18n_db.go,一個欄位一列),
+// 查詢時由資料庫組成一個語言包(LangPack)套到回應上;沒翻的欄位、沒翻的課照原文(中文)。目前只有英文(en)。
+// i18n_en.json 現在只是「初稿種子」:課程同步工作(cmd/sync)把它補進資料庫(只補缺,資料庫已有的不覆蓋),上線後以資料庫為準。
+// 它還有兩個用途:靜態英文頁(web/src/seo/enPages.ts,建置時讀)與資料庫完全沒有這個語言的譯文時的退路(見 Store.LangPack)。
 
 // 語言代碼;空字串與不認得的語言都當成原文。
 const LangEN = "en"
@@ -49,29 +50,33 @@ type i18nTopic struct {
 	Content     map[string]json.RawMessage `json:"content"`
 }
 
-// i18nBundle 是一種語言的翻譯。units、lessons 的鍵是「課程id/單元id」「課程id/課id」。
-type i18nBundle struct {
+// LangPack 是一種語言的翻譯(由資料庫已發布的譯文組成,見 Store.LangPack)。units、lessons 的鍵是「課程id/單元id」「課程id/課id」。
+// nil 的語言包代表原文,Localize 系列函式不改任何東西。
+type LangPack struct {
 	Courses map[string]i18nCourse `json:"courses"`
 	Units   map[string]i18nUnit   `json:"units"`
 	Lessons map[string]i18nLesson `json:"lessons"`
 	Topics  map[string]i18nTopic  `json:"topics"`
 }
 
+// i18nENSeed 是英文的初稿種子(見檔頭說明)。
+//
 //go:embed i18n_en.json
 var i18nENSeed []byte
 
-var bundles = map[string]*i18nBundle{}
+// seedPacks 是內嵌的初稿種子解析後的語言包:匯入資料庫(importI18nSeed)與舊路徑比對用。
+var seedPacks = map[string]*LangPack{}
 
 func init() {
 	b, err := parseI18n(i18nENSeed)
 	if err != nil {
 		panic(err)
 	}
-	bundles[LangEN] = b
+	seedPacks[LangEN] = b
 }
 
-func parseI18n(seed []byte) (*i18nBundle, error) {
-	var b i18nBundle
+func parseI18n(seed []byte) (*LangPack, error) {
+	var b LangPack
 	if err := json.Unmarshal(seed, &b); err != nil {
 		return nil, fmt.Errorf("parse i18n: %w", err)
 	}
@@ -85,8 +90,7 @@ func pick(dst *string, v string) {
 }
 
 // Localize 把課程地圖換成指定語言(原地修改);沒翻的欄位保留原文。
-func (m *CourseMap) Localize(lang string) {
-	b := bundles[lang]
+func (m *CourseMap) Localize(b *LangPack) {
 	if b == nil {
 		return
 	}
@@ -96,7 +100,18 @@ func (m *CourseMap) Localize(lang string) {
 		pick(&m.SEOTitle, c.SEOTitle)
 		pick(&m.Description, c.Description)
 		if len(c.About) > 0 {
-			m.About = c.About
+			// 段數取原文與譯文較多的;第 i 段有譯文用譯文,否則用原文第 i 段(都沒有的空段略過)
+			n := max(len(m.About), len(c.About))
+			about := make([]string, 0, n)
+			for i := 0; i < n; i++ {
+				switch {
+				case i < len(c.About) && c.About[i] != "":
+					about = append(about, c.About[i])
+				case i < len(m.About):
+					about = append(about, m.About[i])
+				}
+			}
+			m.About = about
 		}
 	}
 	if t, ok := b.Topics[m.TopicID]; ok {
@@ -121,8 +136,7 @@ func (m *CourseMap) Localize(lang string) {
 }
 
 // LocalizeCourses 把全部課程頁的課程清單換成指定語言。
-func LocalizeCourses(cs []ListedCourse, lang string) {
-	b := bundles[lang]
+func LocalizeCourses(cs []ListedCourse, b *LangPack) {
 	if b == nil {
 		return
 	}
@@ -140,8 +154,7 @@ func LocalizeCourses(cs []ListedCourse, lang string) {
 }
 
 // LocalizeTopics 把主題清單換成指定語言;content 的頂層欄位逐一覆蓋(沒翻的保留原文)。
-func LocalizeTopics(ts []Topic, lang string) {
-	b := bundles[lang]
+func LocalizeTopics(ts []Topic, b *LangPack) {
 	if b == nil {
 		return
 	}

@@ -21,6 +21,7 @@ import (
 //	PUT   /api/admin/scripts/{path...}?course=&lesson= 寫入一個腳本檔(新增或取代);讀取用 GET /api/scripts/{path}
 //	GET   /api/admin/course-changes?limit=            最近的修改紀錄
 //	GET   /api/admin/schema-check                     資料庫結構檢查(資料表定義與實際欄位、主鍵是否一致,有沒有遺留表)
+//	/api/admin/i18n…                                  課程資訊的譯文(見 i18n.go)
 
 // 腳本檔的大小上限(目前最大的腳本約 100KB)
 const maxScriptBytes = 2 << 20

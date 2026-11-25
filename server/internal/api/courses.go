@@ -37,7 +37,12 @@ func (s *Server) handleCourseMap(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Cache-Control", "public, max-age=60")
 	}
-	m.Localize(langOf(r))
+	pack, err := s.cfg.Store.LangPack(r.Context(), langOf(r))
+	if err != nil {
+		internalError(w, err)
+		return
+	}
+	m.Localize(pack)
 	writeJSON(w, http.StatusOK, m)
 }
 
@@ -58,7 +63,12 @@ func (s *Server) handleCourseList(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
-	store.LocalizeCourses(courses, langOf(r))
+	pack, err := s.cfg.Store.LangPack(r.Context(), langOf(r))
+	if err != nil {
+		internalError(w, err)
+		return
+	}
+	store.LocalizeCourses(courses, pack)
 	w.Header().Set("Cache-Control", "public, max-age=60")
 	writeJSON(w, http.StatusOK, map[string]any{"courses": courses})
 }
@@ -75,7 +85,12 @@ func (s *Server) handleTopicList(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
-	store.LocalizeTopics(topics, langOf(r))
+	pack, err := s.cfg.Store.LangPack(r.Context(), langOf(r))
+	if err != nil {
+		internalError(w, err)
+		return
+	}
+	store.LocalizeTopics(topics, pack)
 	w.Header().Set("Cache-Control", "public, max-age=60")
 	writeJSON(w, http.StatusOK, map[string]any{"topics": topics})
 }
