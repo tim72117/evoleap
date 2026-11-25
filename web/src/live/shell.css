@@ -35,6 +35,12 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 /* 播放中由手勢層接收點擊;暫停時點擊穿過手勢層到內容。內容能不能選取文字由舞台決定(腳本的 selectable,預設不能) */
 .vp-hit { position: absolute; inset: 0; }
 .vp.paused .vp-hit { pointer-events: none; }
+/* 邊播邊互動:手勢層不擋舞台,點擊直接到內容(空白鍵與控制列仍可暫停) */
+.vp.live .vp-hit { pointer-events: none; }
+.vp.live { cursor: auto !important; }
+/* 邊播邊互動時控制列一直顯示,不跟著播放淡出 */
+.vp.live .vp-ui { opacity: 1; }
+.vp.live .vp-ui > * { pointer-events: auto; }
 .vp:not(.show-ui):not(.paused) { cursor: none; }
 
 .vp-caption {
@@ -221,12 +227,16 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
   width: min(760px, calc(100% - 24px));
   display: flex; align-items: center; gap: 4px;
   padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(24, 22, 20, 0.86);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  /* 試作:浮空無外框,不要膠囊底;靠陰影讓圖示與時間軸在任何畫面上都看得清 */
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
+.vp.vp-float .vp-bottom > *, .vp.vp-float .vp-bottom .vp-btn { filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)); }
 .vp.vp-float.is-fs .vp-bottom { padding: 4px 10px; bottom: max(14px, env(safe-area-inset-bottom)); }
 /* 控制列攤平成一排:左邊播放與時間、中間時間軸、右邊其他按鈕 */
 .vp-float .vp-row { display: contents; }

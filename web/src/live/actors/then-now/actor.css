@@ -1,0 +1,166 @@
+/* 演員 then-now:「以前自己寫程式」對「現在說一句話」。選擇器都以 .A-then-now 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(README 第 1 節)。
+   扁平、單一重點色;寬的時候左右排(工作區｜預覽),窄或直的時候上下排(預覽在上)。
+   字級跟著演員自己的寬度(container query 單位),裡面一律用 em;可以點的東西至少 44px 高。 */
+.A-then-now {
+  --tn-bg: #fbfaf7;
+  --tn-card: #ffffff;
+  --tn-ink: #1f1e1b;
+  --tn-mute: #77736a;
+  --tn-line: #e7e3d9;
+  --tn-accent: #d97757;
+  --tn-accent-ink: #a4472b;
+  --tn-soft: rgb(217 119 87 / 12%);
+  width: 100%; height: 100%;
+  container: tn / size;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  line-height: 1.5;
+  color: var(--tn-ink);
+}
+.A-then-now *, .A-then-now *::before, .A-then-now *::after { box-sizing: border-box; }
+.A-then-now .tn-num { font-variant-numeric: tabular-nums; }
+.A-then-now .tn-frame {
+  position: relative; height: 100%;
+  /* 字級跟著演員的寬度:主舞台(1600 寬)28px、桌機的靜態互動約 20px、手機不小於 15px */
+  font-size: clamp(15px, 2.5cqw, 28px);
+  display: flex; flex-direction: column;
+  background: var(--tn-bg);
+  border: 1px solid var(--tn-line); border-radius: 0.8em;
+  overflow: hidden;
+}
+
+/* 上緣:以前／現在,以及計數 */
+.A-then-now .tn-head { display: flex; align-items: center; justify-content: space-between; gap: 1em; padding: 0.7em 1em; border-bottom: 1px solid var(--tn-line); }
+.A-then-now .tn-tabs { display: flex; gap: 0.2em; padding: 0.2em; border-radius: 999px; background: #f0ede4; }
+.A-then-now .tn-tab { padding: 0.3em 0.9em; border-radius: 999px; font-size: 0.8em; color: var(--tn-mute); white-space: nowrap; }
+.A-then-now .tn-frame[data-mode="then"] .tn-tab[data-m="then"],
+.A-then-now .tn-frame[data-mode="now"] .tn-tab[data-m="now"] { background: var(--tn-card); color: var(--tn-ink); font-weight: 600; box-shadow: 0 1px 2px rgb(0 0 0 / 8%); }
+.A-then-now .tn-frame[data-mode="now"] .tn-tab[data-m="now"] { color: var(--tn-accent-ink); }
+.A-then-now .tn-meter { display: flex; gap: 1em; font-size: 0.8em; color: var(--tn-mute); white-space: nowrap; }
+.A-then-now .tn-meter b { font-size: 1.15em; color: var(--tn-ink); }
+
+/* 工作區與預覽 */
+.A-then-now .tn-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 1em; padding: 1em; }
+.A-then-now .tn-work,
+.A-then-now .tn-view { min-height: 0; display: flex; flex-direction: column; background: var(--tn-card); border: 1px solid var(--tn-line); border-radius: 0.6em; overflow: hidden; }
+.A-then-now .tn-file { padding: 0.55em 1em; border-bottom: 1px solid var(--tn-line); font-size: 0.72em; color: var(--tn-mute); letter-spacing: 0.02em; }
+
+/* 以前:程式碼 */
+.A-then-now .tn-code { padding: 0.3em 0; font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.8em; }
+.A-then-now .tn-line {
+  display: grid; grid-template-columns: 2.4em minmax(0, 1fr) 1.9em; align-items: center;
+  min-height: max(44px, 2.7em); padding: 0.15em 0;
+  background: rgb(217 119 87 / calc(var(--scan, 0) * 0.2));
+}
+.A-then-now .tn-line code { font: inherit; white-space: pre-wrap; word-break: break-all; }
+.A-then-now .tn-no { padding-right: 0.8em; text-align: right; font-size: 0.85em; color: #b5b0a4; }
+.A-then-now .tn-flag { display: block; width: 1.1em; height: 1.1em; color: var(--tn-mute); }
+.A-then-now .tn-flag svg { display: block; width: 100%; height: 100%; }
+.A-then-now .tn-line[data-s="ok"] code { opacity: 0.5; }
+.A-then-now .tn-line[data-s="found"] { background: var(--tn-soft); box-shadow: inset 3px 0 0 var(--tn-accent); }
+.A-then-now .tn-line[data-s="fixed"] .tn-flag { color: var(--tn-accent); }
+.A-then-now .tn-t { color: #55657a; }
+.A-then-now .tn-a { color: var(--tn-ink); }
+.A-then-now .tn-p { color: var(--tn-mute); }
+.A-then-now .tn-s { color: var(--tn-accent-ink); }
+.A-then-now .tn-x { color: var(--tn-ink); }
+/* 少掉符號的地方:找到之後畫一個缺口 */
+.A-then-now .tn-line[data-s="found"] .tn-slot:empty { display: inline-block; width: 0.65em; height: 1.15em; margin: 0 0.1em; vertical-align: text-bottom; border-bottom: 2px dashed var(--tn-accent); }
+.A-then-now .tn-mark { padding: 0 0.2em; border-radius: 0.2em; background: var(--tn-accent); color: #fff; font-weight: 700; }
+.A-then-now .tn-mark.bad { background: #9a9488; text-decoration: line-through; }
+
+/* 訊息(在工作區上緣)、可以補的符號與「繼續」(緊接在程式碼下面) */
+.A-then-now .tn-acts { display: flex; flex-direction: column; gap: 0.7em; padding: 0.7em 1em 1em; border-top: 1px solid var(--tn-line); }
+.A-then-now .tn-note { margin: 0; min-height: 4.2em; padding: 0.7em 1em; border-bottom: 1px solid var(--tn-line); background: #fdfcfa; font-size: 0.86em; color: #55514a; }
+.A-then-now .tn-note[data-tone="ok"] { color: var(--tn-ink); }
+.A-then-now .tn-note[data-tone="bad"] { color: var(--tn-accent-ink); }
+.A-then-now .tn-note[data-tone="good"] { color: var(--tn-ink); font-weight: 600; }
+.A-then-now .tn-keys { display: flex; align-items: center; gap: 0.5em; }
+.A-then-now .tn-keys-label { margin-right: 0.2em; font-size: 0.8em; color: var(--tn-mute); }
+.A-then-now .tn-key {
+  display: grid; place-items: center;
+  min-width: max(44px, 2.6em); height: max(44px, 2.6em);
+  border: 1px solid #d5d0c4; border-radius: 0.5em; background: var(--tn-card);
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.05em; font-weight: 600;
+}
+.A-then-now .tn-key.tried { opacity: 0.4; text-decoration: line-through; }
+.A-then-now .tn-next {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 0.4em;
+  min-height: max(44px, 2.6em); padding: 0 1.1em;
+  border-radius: 999px; background: var(--tn-accent); color: #fff; font-size: 0.9em; font-weight: 600;
+}
+.A-then-now .tn-next svg { width: 1em; height: 1em; }
+
+/* 現在:對 AI 說一句話 */
+.A-then-now .tn-prompt { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.6em; padding: 0.9em 1em; }
+.A-then-now .tn-asks { display: flex; flex-direction: column; gap: 0.5em; }
+.A-then-now .tn-ask { display: flex; align-items: center; min-height: max(44px, 2.7em); padding: 0.35em 0.9em; border: 1px solid #d5d0c4; border-radius: 0.6em; background: var(--tn-card); font-size: 0.9em; line-height: 1.35; }
+.A-then-now .tn-said { align-self: flex-end; max-width: 92%; min-height: 2.5em; padding: 0.55em 0.9em; border-radius: 0.9em 0.9em 0.2em 0.9em; background: var(--tn-ink); color: #fff; font-size: 0.92em; }
+.A-then-now .tn-ai { display: flex; flex-direction: column; gap: 0.45em; margin: 0.4em 0 0; padding: 0; list-style: none; font-size: 0.88em; }
+.A-then-now .tn-ai li { display: flex; align-items: center; gap: 0.6em; color: var(--tn-mute); }
+.A-then-now .tn-ai li[data-on="1"] { color: var(--tn-ink); }
+.A-then-now .tn-ai .tn-flag { flex: none; width: 1.3em; height: 1.3em; padding: 0.14em; border: 1.5px solid #d5d0c4; border-radius: 50%; }
+.A-then-now .tn-ai li[data-on="1"] .tn-flag { border-color: var(--tn-accent); background: var(--tn-accent); color: #fff; }
+
+/* 預覽:小小的瀏覽器 */
+.A-then-now .tn-bar { display: flex; align-items: center; gap: 0.35em; padding: 0.55em 0.8em; border-bottom: 1px solid var(--tn-line); }
+.A-then-now .tn-bar i { width: 0.5em; height: 0.5em; border-radius: 50%; background: #d9d5ca; }
+.A-then-now .tn-bar span { flex: 1; margin-left: 0.6em; padding: 0.2em 0.9em; border-radius: 999px; background: #f4f2ec; font-size: 0.7em; color: var(--tn-mute); }
+.A-then-now .tn-page { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 0.6em; padding: 1.2em 1.3em; overflow: hidden; }
+.A-then-now .tn-page h1 { margin: 0; font-size: 1.5em; font-weight: 700; line-height: 1.25; letter-spacing: 0.02em; }
+.A-then-now .tn-tag { margin: 0; font-size: 0.9em; color: var(--tn-mute); }
+.A-then-now .tn-btn { margin-top: 0.4em; padding: 0.5em 1.2em; border-radius: 0.5em; background: var(--tn-ink); color: #fff; font-size: 0.9em; font-weight: 600; }
+.A-then-now .tn-btn.big { align-self: stretch; padding: 0.9em; background: var(--tn-accent); font-size: 1.15em; text-align: center; }
+.A-then-now .tn-addr { margin: 0.2em 0 0; font-size: 0.85em; color: #55514a; }
+.A-then-now .tn-sale,
+.A-then-now .tn-hours { align-self: stretch; display: flex; align-items: baseline; gap: 0.8em; padding: 0.6em 0.8em; border-radius: 0.5em; background: var(--tn-soft); font-size: 0.88em; }
+.A-then-now .tn-sale b,
+.A-then-now .tn-hours b { color: var(--tn-accent-ink); white-space: nowrap; }
+.A-then-now .tn-menu { align-self: stretch; margin: 0; padding: 0; list-style: none; font-size: 0.88em; }
+.A-then-now .tn-menu li { display: flex; justify-content: space-between; padding: 0.4em 0; border-bottom: 1px solid var(--tn-line); }
+/* AI 剛做出來的東西:外框亮一下(強度由 actor.ts 依時間給) */
+.A-then-now .tn-new { box-shadow: 0 0 0 calc(var(--glow, 0) * 3px) rgb(217 119 87 / 35%); }
+
+/* 對照表:蓋住整個畫面 */
+.A-then-now .tn-tally { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-content: center; gap: 1em; padding: 1.6em; background: var(--tn-bg); visibility: hidden; }
+.A-then-now .tn-col { display: flex; flex-direction: column; gap: 0.9em; padding: 1.2em 1.3em; background: var(--tn-card); border: 1px solid var(--tn-line); border-radius: 0.7em; }
+.A-then-now .tn-col.now { border-color: var(--tn-accent); box-shadow: 0 0 0 1px var(--tn-accent); }
+.A-then-now .tn-col h3 { margin: 0; font-size: 0.9em; font-weight: 600; color: var(--tn-mute); }
+.A-then-now .tn-col.now h3 { color: var(--tn-accent-ink); }
+.A-then-now .tn-row { display: flex; flex-direction: column; gap: 0.1em; }
+.A-then-now .tn-row > span { font-size: 0.75em; color: var(--tn-mute); }
+.A-then-now .tn-row strong { font-size: 0.85em; font-weight: 500; }
+.A-then-now .tn-row strong b { margin-right: 0.1em; font-size: 2.2em; font-weight: 700; line-height: 1.15; }
+.A-then-now .tn-steps { display: flex; flex-wrap: wrap; gap: 0.3em; margin-top: 0.3em; }
+.A-then-now .tn-steps i { padding: 0.15em 0.65em; border-radius: 999px; background: #f0ede4; font-size: 0.72em; font-style: normal; }
+.A-then-now .tn-col.now .tn-steps i { background: var(--tn-soft); color: var(--tn-accent-ink); }
+
+/* 窄或直的時候:預覽在上、工作區在下;上緣只留目前這一邊的標籤 */
+@container tn (max-aspect-ratio: 11/10) or (max-width: 640px) {
+  /* 上下排時字大一點:直式舞台(1000 寬)縮到手機上才看得清楚;手機的靜態互動維持 15px */
+  .A-then-now .tn-frame { font-size: clamp(15px, 3.8cqw, 38px); }
+  .A-then-now .tn-head { padding: 0.5em 0.7em; }
+  .A-then-now .tn-frame[data-mode="then"] .tn-tab[data-m="now"],
+  .A-then-now .tn-frame[data-mode="now"] .tn-tab[data-m="then"] { display: none; }
+  .A-then-now .tn-meter { gap: 0.7em; }
+  .A-then-now .tn-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 0.6em; padding: 0.6em; }
+  .A-then-now .tn-view { order: -1; }
+  .A-then-now .tn-page { min-height: 7.8em; gap: 0.25em; padding: 0.7em 0.9em; }
+  .A-then-now .tn-page h1 { font-size: 1.2em; }
+  .A-then-now .tn-tag, .A-then-now .tn-addr { font-size: 0.8em; }
+  .A-then-now .tn-btn { margin-top: 0.2em; padding: 0.3em 0.9em; font-size: 0.8em; }
+  .A-then-now .tn-btn.big { padding: 0.55em; font-size: 0.95em; }
+  .A-then-now .tn-sale, .A-then-now .tn-hours { padding: 0.35em 0.7em; font-size: 0.8em; }
+  .A-then-now .tn-menu { font-size: 0.78em; }
+  .A-then-now .tn-menu li { padding: 0.15em 0; }
+  .A-then-now .tn-file { padding: 0.4em 0.8em; }
+  .A-then-now .tn-acts { gap: 0.5em; padding: 0.5em 0.8em 0.7em; }
+  .A-then-now .tn-note { min-height: 3.9em; padding: 0.5em 0.8em; }
+  .A-then-now .tn-prompt { gap: 0.4em; padding: 0.6em 0.7em; }
+  .A-then-now .tn-asks { gap: 0.4em; }
+  .A-then-now .tn-tally { grid-template-columns: minmax(0, 1fr); gap: 0.6em; padding: 0.8em; }
+  .A-then-now .tn-col { gap: 0.4em; padding: 0.7em 0.9em; }
+  .A-then-now .tn-row { flex-direction: row; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+  .A-then-now .tn-row strong b { font-size: 1.5em; }
+  .A-then-now .tn-steps { width: 100%; margin-top: 0.1em; }
+}

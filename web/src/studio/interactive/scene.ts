@@ -21,6 +21,8 @@ export type Moment = {
   skip?: { label: string; steps: ScriptStep[] }
   /** 腳本寫 "skip": false:沒有略過鈕,一定要選一個選項才往下(還沒回答就直接播放時,照樣接著播、不演任何步驟) */
   noSkip?: boolean
+  /** 腳本寫 "live": true:互動點出現時不暫停,旁白與時間軸照常播,學員邊播邊操作舞台;作答後從回應接著播 */
+  live?: boolean
   /** 這個互動點回答過(或有示範)才會出現(後面的演出要接著前面的結果時用,例如先下指令才有確認提示) */
   requires?: string
   /**
@@ -45,9 +47,10 @@ export type Moment = {
 export type InteractSpot = { target: string; id?: string; label: string; steps: ScriptStep[]; again?: ScriptStep[] }
 /**
  * 互動腳本:cast 第一位是主要演員(放在中間),第二位放在旁邊的側欄卡片(目前最多兩位);
- * until.picked:點過幾個不同的觸發點就觸發 done,選項在那之後才能按(沒寫 until 一開始就能按)
+ * until.picked:點過幾個不同的觸發點就觸發 done,選項在那之後才能按(沒寫 until 一開始就能按);
+ * until.spot:點過這一個觸發點(id)才算完成(例如要補對那個符號),和 picked 擇一
  */
-export type Interact = { cast: string[]; spots: InteractSpot[]; until?: { picked: number }; done?: ScriptStep[] }
+export type Interact = { cast: string[]; spots: InteractSpot[]; until?: { picked: number } | { spot: string }; done?: ScriptStep[] }
 
 /** 觸發點的 id(沒寫就用 target) */
 export const spotId = (spot: InteractSpot): string => spot.id ?? spot.target
@@ -68,7 +71,16 @@ export function checkInteract(it: Interact, castIds: string[], where: string): v
     }
   }
   const ids = new Set(it.spots.map(spotId))
-  if (it.until && (it.until.picked < 1 || it.until.picked > ids.size)) throw new Error(`${where}:until.picked 要在 1 到 ${ids.size} 之間`)
+  if (it.until && 'spot' in it.until) {
+    if (!ids.has(it.until.spot)) throw new Error(`${where}:until.spot 的「${it.until.spot}」不是觸發點的 id`)
+  } else if (it.until && !(it.until.picked >= 1 && it.until.picked <= ids.size)) throw new Error(`${where}:until.picked 要在 1 到 ${ids.size} 之間`)
+}
+
+/** 互動腳本的 until 達成了沒:counts 是每個觸發點(依 id)點了幾次;沒寫 until 一律算達成 */
+export function untilReached(until: Interact['until'], counts: Record<string, number>): boolean {
+  if (!until) return true
+  if ('spot' in until) return (counts[until.spot] ?? 0) > 0
+  return Object.values(counts).filter((n) => n > 0).length >= until.picked
 }
 
 /** 互動點能不能直接在演員身上回答:有對應的演員才行,要自己打字的也還是用詢問框 */
@@ -78,7 +90,7 @@ export const answersOnActor = (moment: Moment): boolean => !!moment.stage && !mo
 export type Answer = { option: number } | { text: string } | { skipped: true }
 export type Answers = Record<string, Answer>
 
-type CheckpointFields = { checkpoint?: string; body?: string; id?: string; options?: MomentOption[]; free?: Moment['free']; skip?: Moment['skip'] | false; requires?: string; stage?: Moment['stage']; interact?: Interact }
+type CheckpointFields = { checkpoint?: string; live?: boolean; body?: string; id?: string; options?: MomentOption[]; free?: Moment['free']; skip?: Moment['skip'] | false; requires?: string; stage?: Moment['stage']; interact?: Interact }
 
 /** 列出腳本裡的互動點;id 或標題重複、沒有選項、requires 不是前面的互動點時丟錯(標題用來對應舞台的 stops) */
 export function momentsOf(script: StageScript): Moment[] {
@@ -90,7 +102,7 @@ export function momentsOf(script: StageScript): Moment[] {
     if (moments.some((m) => m.id === s.id || m.title === s.checkpoint)) throw new Error(`互動點「${s.id}」的 id 或標題重複`)
     if (s.requires && !moments.some((m) => m.id === s.requires)) throw new Error(`互動點「${s.id}」的 requires 要指向前面的互動點`)
     if (s.interact) checkInteract(s.interact, Object.keys(script.cast ?? {}), `互動點「${s.id}」`)
-    moments.push({ interact: s.interact, id: s.id, title: s.checkpoint, body: s.body ?? '', options: s.options, free: s.free, skip: s.skip || undefined, noSkip: s.skip === false || undefined, requires: s.requires, stage: s.stage })
+    moments.push({ interact: s.interact, id: s.id, title: s.checkpoint, body: s.body ?? '', options: s.options, free: s.free, skip: s.skip || undefined, noSkip: s.skip === false || undefined, live: s.live || undefined, requires: s.requires, stage: s.stage })
   }
   return moments
 }

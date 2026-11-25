@@ -32,7 +32,7 @@ import { stageSize } from './place'
 import type { Aspect } from './types'
 
 export type ShellChapter = { at: number; label: string }
-export type ShellStop = { at: number; title: string; body: string }
+export type ShellStop = { at: number; title: string; body: string; /** 邊播邊互動:不暫停,時間軸與旁白照常往下,手勢層讓點擊穿過到內容 */ live?: boolean }
 
 export type ShellOptions = {
   title?: string
@@ -334,7 +334,11 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     state.lastTick = now
     // 播放經過練習點:停在那裡,請學員動手(拖曳、跳轉經過不會觸發)
     const stop = (o.stops || []).find((x) => prev < x.at && state.t >= x.at)
-    if (stop) {
+    if (stop?.live) {
+      // 邊播邊互動:不暫停也不停在練習點,手勢層讓路,學員直接操作舞台(作答、跳轉或重播時才解除)
+      root.classList.add('live')
+      o.onStop?.(stop)
+    } else if (stop) {
       state.t = stop.at
       pause()
       showStop(stop)
@@ -362,7 +366,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   }
   function hideStop(): void {
     $('.vp-stop').hidden = true
-    root.classList.remove('stopped')
+    root.classList.remove('stopped', 'live')
   }
   function play(): void {
     if (root.clientWidth === 0) return // 播放器被隱藏時不播,例如收合後按了媒體鍵

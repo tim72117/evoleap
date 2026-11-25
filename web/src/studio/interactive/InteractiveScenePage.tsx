@@ -309,7 +309,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         renderAt: stage.renderAt,
         chapters: stage.chapters,
         // 回答過或略過的互動點不再停下來
-        stops: stage.stops.filter((s) => !list.some((m) => m.title === s.title && next[m.id])),
+        stops: stage.stops.filter((s) => !list.some((m) => m.title === s.title && next[m.id])).map((s) => ({ ...s, live: list.find((m) => m.title === s.title)?.live })),
         captions: (ms) => stage.captions.find((c) => ms >= c.from && ms < c.to)?.text || '',
         // 有語音的旁白才播(合成過章節音軌的用章節音軌);學員選其他選項時新寫的旁白還沒有語音,只顯示字幕,回到主線的旁白接著用原本的語音
         clips: narrationClips(stage.narrations, voice, mix),
@@ -374,7 +374,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
   const current = moments.find((m) => {
     const at = timeline.momentAt[m.id]
-    return at != null && !answers[m.id] && !now.playing && Math.abs(now.t - at) <= AT_MOMENT_MS
+    return at != null && !answers[m.id] && (m.live ? now.playing && now.t >= at : !now.playing && Math.abs(now.t - at) <= AT_MOMENT_MS)
   })
 
   // 抽屜:停在新的互動點時自動展開;回答後收合(回應由演員在舞台上演出,不要被抽屜擋住)。在靜態演員身上回答時抽屜裡沒有題目,不展開,才不會擋住演員
@@ -394,7 +394,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   // 互動腳本的 until 還沒達成:選項先不能按(StaticActor 回報)
   const [locked, setLocked] = useState(false)
   const onLocked = useCallback((v: boolean) => setLocked(v), [])
-  const staticActor = interaction === 'static' && current?.stage && loaded && <StaticActor key={current.id} script={loaded} answers={answers} moment={current} interactive={onActor} headRef={momentHeadRef} hint={embed} hintSlot={embed ? hintSlot : undefined} onLocked={onLocked} onAnswer={(a) => answer(current, a)} />
+  const staticActor = interaction === 'static' && current?.stage && loaded && <StaticActor key={current.id} script={loaded} answers={answers} moment={current} interactive={onActor} headRef={momentHeadRef} hint={embed || phonePortrait} hintSlot={embed ? hintSlot : undefined} onLocked={onLocked} onAnswer={(a) => answer(current, a)} />
 
   // 嵌在頁面裡時,一開始不放大,開始播放才放大(在頁面內變寬,版面由外層用 data-expanded 決定,不是全螢幕);之後靜態互動也是這個大小,學員按縮小才變小,再開始播放又放大
   const [expanded, setExpanded] = useState(false)

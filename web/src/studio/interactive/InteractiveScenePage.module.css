@@ -1555,6 +1555,37 @@
 
 
 
+/* 手機直拿的靜態互動:要操作的演員用整個畫面(4:5 的播放窗放不下,以前會被下面的課程資訊蓋住、按不到)。
+   下面的課程資訊與疊在播放窗下緣的播放條先收起來,題目與「看示範／略過」放在演員上方(StaticActor 的 hint),回答之後都回來 */
+.phonePortrait.staticOn .phoneInfo,
+.phonePortrait.staticOn :global(.vp.vp-float .vp-bottom) {
+  display: none;
+}
+
+.phonePortrait .staticLayer {
+  inset: 0;
+  align-items: flex-start;
+  padding: calc(64px + env(safe-area-inset-top, 0px)) 8px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+
+.phonePortrait .staticHint {
+  justify-content: flex-start;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+}
+
+.phonePortrait .staticHint .skip {
+  min-width: 64px;
+  min-height: 40px;
+}
+
+/* 還不能按的選項(互動腳本的 until 還沒達成)看得出來是暫時的 */
+.staticHint .pushChips button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* 手機:右上角有速度與字幕鈕,標題列讓出那一塊(太長的標題用 … 截斷) */
 @media (max-width: 600px), (max-height: 500px) and (pointer: coarse) {
   .head {

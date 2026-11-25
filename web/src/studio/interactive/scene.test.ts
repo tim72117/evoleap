@@ -10,7 +10,7 @@ import l02 from '../../content/live/l0/0.2-site.json'
 import { withL02Moments } from './l0-0.2'
 import intro from '../../content/live/l0/0.intro.json'
 import { withL0IntroMoments } from './l0-intro'
-import { answerLabel, checkInteract, expandAnswers, momentsOf, collapsedParts, staticScript, withoutAnswer, type Answer, type Moment } from './scene'
+import { answerLabel, checkInteract, expandAnswers, momentsOf, collapsedParts, staticScript, withoutAnswer, type Answer, type Moment, spotId, untilReached } from './scene'
 
 const script = {
   title: 't',
@@ -67,6 +67,14 @@ describe('momentsOf', () => {
     expect(() => checkInteract({ ...ok, spots: [{ ...spot, target: 'tree:node:a' }], cast: ['web'] } as never, ['web', 'tree'], 'x')).toThrow(/不在 interact.cast/)
     expect(() => checkInteract({ ...ok, spots: [{ ...spot, label: '' }] } as never, ['web', 'tree'], 'x')).toThrow(/label/)
     expect(() => checkInteract({ ...ok, until: { picked: 2 } } as never, ['web', 'tree'], 'x')).toThrow(/until/)
+    // until.spot:要點過指定的那一個觸發點才算完成
+    expect(() => checkInteract({ ...ok, until: { spot: spotId(spot as never) } } as never, ['web', 'tree'], 'x')).not.toThrow()
+    expect(() => checkInteract({ ...ok, until: { spot: 'nope' } } as never, ['web', 'tree'], 'x')).toThrow(/until\.spot/)
+    expect(untilReached(undefined, {})).toBe(true)
+    expect(untilReached({ picked: 2 }, { a: 1, b: 0 })).toBe(false)
+    expect(untilReached({ picked: 2 }, { a: 1, b: 3 })).toBe(true)
+    expect(untilReached({ spot: 'b' }, { a: 5 })).toBe(false)
+    expect(untilReached({ spot: 'b' }, { a: 5, b: 1 })).toBe(true)
   })
   it('"skip": false 表示沒有略過鈕;沒回答就播過去時不演任何步驟', () => {
     const script = { cast: {}, steps: [{ checkpoint: '點點看', id: 'explore', options: [{ label: '看完了', steps: [{ wait: 100 }] }], skip: false }, { wait: 200 }] } as unknown as StageScript

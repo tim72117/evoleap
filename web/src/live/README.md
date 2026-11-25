@@ -199,6 +199,7 @@ export default defineActor({
 | `manual-office` | write、run、hunt、patch、slump、call、enter、handoff（有狀態；「手寫程式的年代」：明亮的辦公室裡穿西裝的人手打 HTML，打錯一個符號、找錯、改了又壞，時鐘一天天過去，最後舉手求助、機器人坐辦公椅滑進來；結束畫面和 `agent-office` 第一格相同，可用 show/hide 無縫接；place 用 `full`；共用繪圖在 `live/art/`；用在 `content/live/l0/0.intro.json`） | window、human、head、monitor、screen、code、preview、clock、circle、robot、say |
 | `file-ai` | scene（`four`、`read`、`write`、`run`、`direct`、`tools`；「會操作檔案的 AI 工具」的情境動畫：四件事、讀取、建立修改、執行指令、與聊天工具的差別（動手前先問你）、常見工具；SVG 純函式、延遲載入；place 用 `full`；用在 `content/live/l0/0.0-tools.json`） | window |
 | `bobo` | go、play、eat、say、sleep、toss、getup、tidy、mirror、undress、wash、brush、dress（有狀態；兒童繪本的主角小熊波波：公園、餐桌、浴室、臥室四個場景，身上的泥巴、沙子、牙齒上黏黏的那層、泡泡都是狀態；不用字卡，全用動畫說故事；place 用 `full`，直式只看中間一條；延遲載入；用法見 `actor.ts` 開頭，用在 `content/live/lab/book/bobo-bath.json`） | window、bear、face、mouth、bubble、puddle、sandbox、table、tub、sink、mirror、basket、bed |
+| `then-now` | look、mend、turn、tell、craft、tally（有狀態；「以前自己寫程式」對「現在說一句話」的動手體驗：四行 HTML 少了一個引號，學員一行一行檢查、挑一個符號補上；換到現在後說一句話，AI 當場做出來，最後並排對照；扁平版面，字級跟著演員寬度，窄或直的時候上下排；用在序章 B 版 `content/live/lab/l0/intro-b.json`，路由 `/studio/software-intro-b`） | window、code、preview、note、meter、line:N、keys、key:quote\|gt\|slash\|semi、next、prompt、ask:N、said、result、tally |
 | `agent-office` | need、plan、ask、allow、build、check、fix、done（有狀態；「AI Agent 自己動手做事」：同一間辦公室，機器人操作電腦，人只說需求、回答權限提示；推近／拉遠的鏡位由狀態決定；place 用 `full`；用在 `content/live/l0/0.intro.json`） | window、robot、head、human、monitor、screen、code、plan、need、ask、allow、deny、dash、issue |
 
 **`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。
@@ -394,7 +395,7 @@ export default {
 - `spots`：觸發點。學員可以點的地方（`target` 是「演員:目標」）與點了演哪些步驟（觸發的回應），`label` 是透明按鈕的名稱（螢幕閱讀器與測試用）。`id` 相同的算同一個；寫了 `again` 時，同一個觸發點第偶數次點演 `again`（收回，例如框再點一次就消失，按鈕有 `aria-pressed`），沒寫就每次都演 `steps`。寫在前面的觸發點在下層：容器寫在裡面的元素前面，點到裡面的元素時才不會被容器擋住。網頁裡藏起來（`.gone`，或在藏起來的容器裡）的元素不能點。（規劃：沒寫 `spots` 時問演員的 `hotspots(state)`。）
 - `drag`（規劃）：可以拖的演員（現在的 `stage.drag`），放下去演 `put` 這類操作步驟；`say` 是完成某個任務時接的步驟。
 - 回應要在操作之後立刻開始：`spots` 的第一步不要放 `wait`。
-- `until`：結束的條件，`{ "picked": N }`（點過 N 個不同的 `id`）。（規劃：`{ "state": "<演員>.<欄位>", "atLeast": N }` 看演員狀態，例如 `kid-tree` 的 `achieved`。）不寫就一開始就能按選項。
+- `until`：結束的條件，`{ "picked": N }`（點過 N 個不同的 `id`），或 `{ "spot": "<id>" }`（點過指定的那一個觸發點才算，例如序章 B 版要補對那個符號）。（規劃：`{ "state": "<演員>.<欄位>", "atLeast": N }` 看演員狀態，例如 `kid-tree` 的 `achieved`。）不寫就一開始就能按選項。
 - `done`：達成 `until` 時觸發的回應（稱讚、總結）。演完停在結果上，等學員按選項；`until` 達成後選項才亮起來可以按（沒有 `until` 的話一開始就能按）。
 
 **結束與返回主腳本**
@@ -416,6 +417,8 @@ export default {
 | 兒童課子腳本的 `interact`（`on`、`spots`、`until`、`done`） | 同一套欄位；子腳本是另一份檔案（有自己的演員與起始狀態），互動腳本直接接在主腳本的互動點上 |
 
 舞台的入口（`stage.ts`）：`stage.react(steps)` 把一段回應接在演員目前的狀態上（照第 2A.5 節 `apply`，推不過就丟錯、畫面不變），回傳 `{ id, duration }`；播放器用自己的計時呼叫 `stage.reactAt(id, ms)` 從 0 播到長度。同一位演員的新回應進來時，舊的一段直接畫到結果。使用者自己點的動作沒有虛擬滑鼠：演員的 `cursor` 有 `clickAt` 時（例如瀏覽器的 `click`），回應從點下去那一刻開始。之後的 `renderAt` 會帶著這些回應的結果（重排版、網頁重新載入時照樣補回），`load` 時清空。
+
+手機直拿（上方 4:5 播放窗、下方課程資訊）的靜態互動：演員用整個畫面，下方的課程資訊與播放條先收起來，題目與「看示範／略過」放在演員上方，回答後恢復。
 
 靜態互動（`studio/interactive/StaticActor.tsx`）：`interact.cast` 的第一位放在主要舞台，第二位放在旁邊的側欄卡片（各是一個舞台），回應的步驟依演員分給兩個舞台各自 `react`。`until` 沒達成時，導覽裡的選項先不能按。目前用在網頁怎麼運作 1.1 的點點看：點網頁上的元素是瀏覽器的 `click`（網頁的 script.js 顯示框）加上樹的 `mark`（開著幾個框就亮幾個節點）；點樹上的節點是瀏覽器點網頁裡看不到的開關（`[data-hide=…]`，網頁把元素藏起來）加上樹的 `fade`（節點變虛線）。`stage.toggles`／`beside` 在靜態互動已由互動腳本取代，`toggles` 只留給推到主畫面（`ActorPush`）。
 

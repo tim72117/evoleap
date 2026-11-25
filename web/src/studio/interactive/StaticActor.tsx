@@ -6,7 +6,7 @@ import { createStage, type Stage, type StageScript } from '../../live/stage'
 import type { ScriptStep } from '../../live/types'
 import { dragPlan, type DragPlan } from '../../kids/drag'
 import { DragLayer } from '../../kids/DragLayer'
-import { clickInPage, collapsedParts, goneInPage, spotId, staticScript, type Answer, type Answers, type InteractSpot, type Moment } from './scene'
+import { clickInPage, collapsedParts, goneInPage, spotId, staticScript, untilReached, type Answer, type Answers, type InteractSpot, type Moment } from './scene'
 import { useT } from '../../i18n/I18nProvider'
 import styles from './InteractiveScenePage.module.css'
 
@@ -235,8 +235,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
   const doneRef = useRef(false)
   const stopRef = useRef<(() => void)[]>([])
   const spots: Spot[] = (interact?.spots ?? []).map((s, i) => ({ ...s, key: `${i}:${s.target}`, pressed: (counts[spotId(s)] ?? 0) % 2 === 1 }))
-  const pickedCount = Object.values(counts).filter((n) => n > 0).length
-  const locked = !!interact?.until && pickedCount < interact.until.picked
+  const locked = !untilReached(interact?.until, counts)
   useLayoutEffect(() => onLocked?.(locked), [locked, onLocked])
   // 離開互動點時解除(下一個互動點從沒鎖住開始,不沿用這一個的狀態)
   useLayoutEffect(() => () => onLocked?.(false), [onLocked])
@@ -273,8 +272,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
     countsRef.current = { ...countsRef.current, [id]: n + 1 }
     setCounts(countsRef.current)
     // 達成 until:接著演 done(只演一次)
-    const picked = Object.values(countsRef.current).filter((x) => x > 0).length
-    if (interact?.until && !doneRef.current && picked >= interact.until.picked) {
+    if (interact?.until && !doneRef.current && untilReached(interact.until, countsRef.current)) {
       doneRef.current = true
       if (interact.done?.length) trigger(interact.done)
     }

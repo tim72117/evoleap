@@ -49,6 +49,8 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/actor-interaction/scene', element: <InteractiveScenePage key="bakery" script="lab/interactive-bakery.json" pageTitle="互動教學場景" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
   { path: '/studio/actor-interaction/static', element: <InteractiveScenePage key="actor-static" script="lab/interactive-l0-claude.json" pageTitle="互動場景：靜態演員" interaction="static" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
   { path: '/studio/actor-interaction/push', element: <InteractiveScenePage key="actor-push" script="lab/interactive-l0-claude.json" pageTitle="互動場景：把演員推到主畫面" interaction="stage" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
+  // 「做出自己的軟體」序章的 B 版測試:開場換成動手體驗「以前自己寫程式」對「現在說一句話」(then-now 演員,靜態互動),腳本在 content/live/lab/l0/;公開的序章(/courses/software/intro)不變
+  { path: '/studio/software-intro-b', element: <InteractiveScenePage key="software-intro-b" script="lab/l0/intro-b.json" pageTitle="序章 B 版試做" interaction="static" back={{ to: '/studio/ai-tools', label: '← 課程' }} /> },
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
   { path: '/studio/kids-web', element: <KidsWebPage /> },
   { path: '/studio/web-basics', element: <WebBasicsPage /> },
