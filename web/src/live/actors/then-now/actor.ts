@@ -183,7 +183,7 @@ function pageHtml(shop: string, st: ThenNowState, fresh: boolean): string {
           : ''
       }${st.made && st.want === 'hours' ? `<div class="tn-hours${fresh ? ' tn-new' : ''}"><b>營業時間</b><span class="tn-num">每天 7:00–18:00</span></div>` : ''}<p class="tn-addr">地址：森林路 12 號</p>`
     : ''
-  return `<h1>${kit.esc(shop)}</h1><p class="tn-tag">每天早上七點出爐</p>${rest}`
+  return `<p class="tn-title">${kit.esc(shop)}</p><p class="tn-tag">每天早上七點出爐</p>${rest}`
 }
 
 function tallyHtml(shop: string, st: ThenNowState): string {

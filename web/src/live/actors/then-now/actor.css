@@ -107,7 +107,7 @@
 .A-then-now .tn-bar i { width: 0.5em; height: 0.5em; border-radius: 50%; background: #d9d5ca; }
 .A-then-now .tn-bar span { flex: 1; margin-left: 0.6em; padding: 0.2em 0.9em; border-radius: 999px; background: #f4f2ec; font-size: 0.7em; color: var(--tn-mute); }
 .A-then-now .tn-page { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 0.6em; padding: 1.2em 1.3em; overflow: hidden; }
-.A-then-now .tn-page h1 { margin: 0; font-size: 1.5em; font-weight: 700; line-height: 1.25; letter-spacing: 0.02em; }
+.A-then-now .tn-page .tn-title { margin: 0; font-size: 1.5em; font-weight: 700; line-height: 1.25; letter-spacing: 0.02em; }
 .A-then-now .tn-tag { margin: 0; font-size: 0.9em; color: var(--tn-mute); }
 .A-then-now .tn-btn { margin-top: 0.4em; padding: 0.5em 1.2em; border-radius: 0.5em; background: var(--tn-ink); color: #fff; font-size: 0.9em; font-weight: 600; }
 .A-then-now .tn-btn.big { align-self: stretch; padding: 0.9em; background: var(--tn-accent); font-size: 1.15em; text-align: center; }
@@ -146,7 +146,7 @@
   .A-then-now .tn-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 0.6em; padding: 0.6em; }
   .A-then-now .tn-view { order: -1; }
   .A-then-now .tn-page { min-height: 7.8em; gap: 0.25em; padding: 0.7em 0.9em; }
-  .A-then-now .tn-page h1 { font-size: 1.2em; }
+  .A-then-now .tn-page .tn-title { font-size: 1.2em; }
   .A-then-now .tn-tag, .A-then-now .tn-addr { font-size: 0.8em; }
   .A-then-now .tn-btn { margin-top: 0.2em; padding: 0.3em 0.9em; font-size: 0.8em; }
   .A-then-now .tn-btn.big { padding: 0.55em; font-size: 0.95em; }

@@ -310,7 +310,9 @@ test('研發基地:AI 工具技巧與兒童網頁課在「課程」,直式舞台
   await series.getByRole('button', { name: /做出自己的軟體/ }).click()
   await expect(series.getByRole('button', { name: /做出自己的軟體/ })).toHaveAttribute('aria-expanded', 'true')
   await expect(series.getByRole('link')).toHaveCount(5)
-  await expect(series.getByRole('link', { name: /序章 B 版/ })).toHaveAttribute('href', '/studio/software-intro-b')
+  // 窄視窗只顯示等級代號(「起步」),完整課名藏起來,所以用連結目標找,不靠課名
+  await expect(series.getByRole('link').first()).toHaveAttribute('href', '/studio/software-intro-b')
+  await expect(series.getByRole('link').first()).toHaveAttribute('title', '起步 序章 B 版')
   await expect(series.getByRole('link', { name: '兒童網頁課' })).toHaveCount(0)
   await page.goto('/studio/portrait')
   await expect(page.locator('h1')).toContainText('直式舞台')
@@ -442,8 +444,8 @@ test('靜態演員:直式窄視窗播到互動點時,抽屜不展開,不擋住�
   await page.goto('/studio/actor-interaction/static?aspect=portrait')
   await page.locator('.vp-big').click()
   await expect(page.getByTestId('static-actor')).toBeVisible({ timeout: 40000 })
-  // 抽屜不展開:步驟照樣列在播放窗下方
-  await expect(page.getByRole('region', { name: '課程資訊' })).toBeVisible()
+  // 抽屜不展開;下面的課程資訊(步驟清單)也收起來,把整個畫面讓給演員,回答後才回來(c70dc39 手機直式靜態版面)
+  await expect(page.getByRole('region', { name: '課程資訊' })).toHaveCount(0)
   await expect(page.getByRole('complementary', { name: '課程章節與步驟' })).toHaveCount(0)
 })
 
