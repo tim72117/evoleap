@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [0.50.0] - 2026-11-25
+
+研發基地的試做與共用播放器的調整；已上架課程的內容與腳本沒有變動，沒有不相容變更。
+
+### 新增
+
+- **序章 B 版開場互動試做**（`/studio/software-intro-b`，腳本 `content/live/lab/l0/intro-b.json`，演員 `live/actors/then-now/`）：播放一開始（第 0 秒）就是互動介面、不用字卡，字卡上的資訊併進旁白；公開的 `/courses/software/intro`（A 版）沒有動。B 版沒有老師登場，也還沒有 A 版的後兩題選擇與配音。
+- **播放器邊播邊互動**：互動點支援 `"live": true`（不暫停、手勢層讓路、控制列常駐），互動檢查點新增 `until.spot`；手機直式的靜態版面有調整。
+- **TRELLIS.2 介紹片**（直式宣傳片，研發基地試做，腳本 `content/live/promo/trellis-reel.json`，演員 `studio/promo/actors/trellis-reel/`）：從遊戲素材生成講到原理（迷霧凝聚、解碼成 O-Voxel、方格轉網格並整理成貼圖的由上到下掃描動畫），共 9 段，結尾是 evoleap 追蹤畫面；開頭 GLB 卡下方用中文標示 PBR 四項。3D 示意用 Poly Haven CC0 的大理石半身像，致謝在該目錄 `assets/ATTRIBUTION.md`。旁白為 Gemini TTS（Charon，新聞語氣），語音檔 `trellis-reel.voice.json`，各段時長依音檔秒數對齊，全片約 76 秒。
+
+### 變更
+
+- **共用播放器的浮動控制列改成無外框**：會影響所有課程的控制列樣式。
+
 ## [0.49.0] - 2026-11-25
 
 ### 新增
