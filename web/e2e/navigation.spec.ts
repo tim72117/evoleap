@@ -85,6 +85,8 @@ test('全部課程:導覽列可以進入,每張卡片的連結都能開啟(不�
   await page.locator('header').getByRole('link', { name: '全部課程', exact: true }).click()
   await expectHeadMatches(page, request, '/courses')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('全部課程')
+  // 清單讀 API,等卡片到齊再收連結
+  await expect(page.locator('main li h3 a')).toHaveCount(7)
   const links = await page.locator('main li h3 a').evaluateAll((els) => els.map((e) => e.getAttribute('href')!))
   // 起步・零基礎・基礎合併成一門「做出自己的軟體」(一張卡片,先不公開的零基礎階段不另外列),加上 AI Agent 兩門(ai-agent 沒有自己的總覽頁(overview:false),卡片連到主題頁 /topics/ai-apps;進階課連 /courses/advanced),
   // 以及網頁怎麼運作、從做好到上線、給孩子的網頁程式、Claude Code 工作術(都是一般課程卡片,和其他課共用課程總覽頁),所以是 7 門

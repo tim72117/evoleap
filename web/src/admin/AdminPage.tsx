@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
 import { adminApi, type SchemaReport, type AdminOverview, type AdminUser, type Count, type AdminRange, type GuestVisit, type HomePath, type HomeStay, type LessonStat, type LoginStats, type UserProgress } from './api'
 import { TOPIC_PATHS, useTopics } from '../content/topics'
+import { useLessonTitles, type LessonTitles } from './lessonTitles'
 import { ADMIN_PATH } from './paths'
 import { formatDateTime, formatDuration, percentOf } from './format'
 import { isGate, isHomeShowcase, isPage } from '../courses/guestActivity'
@@ -217,12 +218,14 @@ function SchemaPanel() {
 }
 
 function LessonName({ lesson }: { lesson: string }) {
+  const titles = useLessonTitles()
+  const title = titles(lesson.replace(/^gate:/, ''))
   return (
     <>
       {isHomeShowcase(lesson) && <span className={styles.tag} title="2026-11-09 前在首頁,之後在展示頁 /showcase">展示影片</span>}
       {isGate(lesson) && <span className={styles.tag}>登入門檻</span>}
       {isPage(lesson) && <span className={styles.tag}>頁面</span>}
-      {lesson}
+      {title ? <span title={lesson}>{title}</span> : lesson}
     </>
   )
 }
@@ -419,7 +422,7 @@ const lessonName = (key: string): string | undefined => {
 }
 
 /** 路徑上的一站 → 後台顯示的名稱 */
-export function stepName(lesson: string, topicNames: Record<string, string> = {}): string {
+export function stepName(lesson: string, topicNames: Record<string, string> = {}, titles: LessonTitles = () => undefined): string {
   if (lesson === 'exit') return '離開網站'
   if (lesson === '…') return '…'
   if (lesson.startsWith('leave:')) return `去了 ${lesson.slice('leave:'.length)}`
@@ -427,14 +430,18 @@ export function stepName(lesson: string, topicNames: Record<string, string> = {}
     const path = lesson.slice('page:'.length)
     return pageName(path, topicNames) ?? path
   }
-  if (isGate(lesson)) return `登入門檻 ${lesson.slice('gate:'.length)}`
+  if (isGate(lesson)) {
+    const key = lesson.slice('gate:'.length)
+    return `登入門檻 ${titles(key) ?? key}`
+  }
   if (isHomeShowcase(lesson)) return '展示影片'
-  return lessonName(lesson) ?? lesson
+  return titles(lesson) ?? lessonName(lesson) ?? lesson
 }
 
 /** 從首頁進來的造訪:最常見的路徑 */
 function HomePaths({ paths, total }: { paths: HomePath[]; total: number }) {
   const topics = useTopics()
+  const titles = useLessonTitles()
   const topicNames = Object.fromEntries((topics.status === 'ready' ? topics.topics : []).map((p) => [p.id, p.name]))
   if (!paths.length) return null
   return (
@@ -460,7 +467,7 @@ function HomePaths({ paths, total }: { paths: HomePath[]; total: number }) {
                   <ol className={styles.path}>
                     {p.steps.map((s, j) => (
                       <li key={j} data-end={s.lesson === 'exit' || s.lesson.startsWith('leave:') ? 'true' : undefined}>
-                        {stepName(s.lesson, topicNames)}
+                        {stepName(s.lesson, topicNames, titles)}
                         {s.played && <span className={styles.played}>▶ 有播放</span>}
                       </li>
                     ))}
@@ -687,6 +694,7 @@ function UserTable({ users }: { users: AdminUser[] }) {
 }
 
 function UserProgressList({ userId }: { userId: string }) {
+  const titles = useLessonTitles()
   const [list, setList] = useState<UserProgress[] | null>(null)
   const [error, setError] = useState('')
   useEffect(() => {
@@ -706,7 +714,7 @@ function UserProgressList({ userId }: { userId: string }) {
     <ul className={styles.progressList}>
       {list.map((p) => (
         <li key={p.lesson}>
-          <span className={styles.lessonName}>{p.lesson}</span>
+          <span className={styles.lessonName} title={p.lesson}>{titles(p.lesson) ?? p.lesson}</span>
           <span className={styles.bar} aria-hidden="true">
             <span className={styles.barFill} style={{ width: `${percentOf(p.positionMs, p.durationMs)}%` }} />
           </span>

@@ -15,6 +15,11 @@ const loginDialog = (page: Page) => page.getByRole('dialog', { name: '登入' })
 const headerLogin = (page: Page) => page.locator('header').getByRole('link', { name: '登入', exact: true })
 
 /** 起步第 3 課(0.3)改成登入後免費:種子裡整門課都是免費預覽,沒有要登入的課,所以攔課程地圖回應(單課頁、課程清單都照這份) */
+// 測試結束時還在轉送中的攔截請求不算失敗
+test.afterEach(async ({ page }) => {
+  await page.unrouteAll({ behavior: 'ignoreErrors' })
+})
+
 const GATED_LESSON = '0.3'
 async function gateLesson(page: Page) {
   await page.route('**/api/courses/software/map', async (route) => {
