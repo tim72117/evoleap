@@ -4,6 +4,41 @@
 
 ## [Unreleased]
 
+## [0.52.0] - 2026-11-26
+
+主題、課程與腳本改以資料庫為唯一來源;課程頁的 SEO 與單課路由改成依資料庫即時產生。
+
+### 不相容變更
+
+- **種子檔移除**:`server/internal/store/courses_seed.json`、`topics_seed.json` 刪除。部署與後端啟動不再寫入主題、課程、單元、課與英文初稿;空資料庫要手動執行 `node server/backup/gcs.mjs init`。同步工作(`cmd/sync`)只建表、把缺少的腳本檔補進研發基地、重算翻譯登記表。
+- **`store` 套件**:`SeedCourses` 改為 `Seed(ctx, topicsJSON, coursesJSON)`(只給測試資料用);`SyncCourses` 只回傳 `error`;移除 `Open`、`SyncLessonFiles`(測試改用 `storetest.Open` 與 `fixture`)。
+- **課程頁需要資料庫**:課程總覽、單課、規劃中章節頁的 `<head>` 由 server 讀資料庫產生,沒有靜態備援:讀不到回 `503`(含 `Retry-After`),資料庫沒有回 `404`。課程資料快取 1 分鐘,過期後讀不到不沿用舊資料。
+- **sitemap 與收錄**:只列開放、有腳本且單元未隱藏的課;還沒開放或沒有腳本的課頁標 `noindex`。
+- **移除 `server/backup/export.ps1`**:備份改用 `node server/backup/gcs.mjs`(Mac、Linux、CI;不支援 Windows)。
+
+### 新增
+
+- **課程結構的管理指令與 API**:`evoleap course create|delete|order|outline`、`unit add|set|delete`、`lesson add|delete`。刪掉的課,腳本移到研發基地、譯文刪除(舊值留在翻譯歷史)。新增課號會檢查網址撞名與欄位長度。
+- **單課頁動態路由**:CLI 新增的課不用重新 build 就打得開;有手寫內容的課照用,沒有的用該課程的通用版型。新增 `GET /api/seo/page`。
+- **GCS 備份與手動初始化**:`gcs.mjs export|restore|init`;課程資訊(含英文譯文)與腳本一起備份。新增 `GET /api/admin/catalog-export`、`POST /api/admin/init`(只接受空資料庫)、`evoleap catalog init`。
+- `server -seed <目錄>`:用固定測試資料初始化(只給測試)。
+
+### 修正
+
+- 換掉或拿掉課程簡介影片時,舊檔移回研發基地;旁白與音軌清單跟著主腳本走。
+- 隱藏單元的課不再出現在課程總覽頁的結構化資料。
+
+### 其他
+
+- 測試資料換成小型的行為測試資料(`server/internal/store/fixture/`),移除前端手寫清單與正式課程資料的比對。
+
+### 已知缺口
+
+- 首頁與 `/topics/software` 的等級卡片仍用前端清單,新增的軟體課不會出現在卡片上;新增整門課仍要部署。
+- 靜態 `/en` 頁仍在建置時讀 `i18n_en.json`。
+- `gcs.mjs export`、`init` 的新版流程沒有對實際後端跑過;`catalog-export` 部署後才能用,第一次部署後要執行一次 `export`。
+- Postgres 與 Docker build 沒有在本機測過。
+
 ## [0.51.0] - 2026-11-25
 
 沒有不相容變更：對外的 API 與頁面回應內容不變（`?lang=en`、`/en` 逐欄與舊版一致）。

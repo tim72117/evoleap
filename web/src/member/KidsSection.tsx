@@ -1,11 +1,11 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useLessonTitle } from '../content/courseMap'
-import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
+import { useCourseMap, useLessonTitle } from '../content/courseMap'
+import { lessonUrl } from '../content/catalog'
 import { dateLabel, parentWeek } from '../kidsMode/plan'
 import { kidsApi, type Child } from '../kidsMode/api'
 import { KIDS_MODE_HOME, useKidsMode } from '../kidsMode/KidsModeContext'
-import { useKidsReleased } from '../kidsMode/progress'
+import { lessonByKeyOf, useKidsReleased } from '../kidsMode/progress'
 import { useLocale, useT } from '../i18n/I18nProvider'
 import { isFull, isPicked, MAX_PER_WEEK, MINUTES_OPTIONS, slotKey, sortSlots, TIMES, toggleSlot, type Slot } from '../kidsMode/schedule'
 import styles from './member.module.css'
@@ -16,9 +16,6 @@ import kids from './KidsSection.module.css'
 
 /** 看完的兒童課與看完的時間(每個孩子自己的上課紀錄,GET /api/kids/children/{id}/lessons) */
 type Finished = { lessonId: string; at: Date }
-
-/** 上課紀錄的 kids:<腳本> 換成課號 */
-const LESSON_BY_KEY = new Map(Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => [`kids:${l.script}`, id]))
 
 export function KidsSection() {
   const [children, setChildren] = useState<Child[] | null>(null)
@@ -109,13 +106,18 @@ function ChildCard({ child, avatars, onChange, onDelete }: { child: Child; avata
   const k = t.member.kids
   const days = t.kidsMode.days
   // 這個孩子自己的上課紀錄(每個孩子分開)
-  const [records, setRecords] = useState<Finished[]>([])
+  const [raw, setRaw] = useState<{ lesson: string; finishedAt: string }[]>([])
+  // 腳本屬於哪一課照課程地圖
+  const kidsMap = useCourseMap('kids')
+  const records = useMemo<Finished[]>(() => {
+    if (kidsMap.status !== 'ready') return []
+    const byKey = lessonByKeyOf(kidsMap.map)
+    return raw.flatMap((x) => (byKey.has(x.lesson) ? [{ lessonId: byKey.get(x.lesson)!, at: new Date(x.finishedAt) }] : []))
+  }, [raw, kidsMap])
   useEffect(() => {
     let cancelled = false
     kidsApi.lessons(child.id).then(
-      (list) =>
-        !cancelled &&
-        setRecords(list.flatMap((x) => (LESSON_BY_KEY.has(x.lesson) ? [{ lessonId: LESSON_BY_KEY.get(x.lesson)!, at: new Date(x.finishedAt) }] : []))),
+      (list) => !cancelled && setRaw(list),
       () => {},
     )
     return () => {
@@ -302,7 +304,7 @@ function WeekList({ child, records }: { child: Child; records: Finished[] }) {
   if (child.slots.length === 0 || !released) return null
   const rows = parentWeek(child.slots, child.minutes, new Date(), released, records)
   const lesson = (id: string) => (
-    <Link to={KIDS_LESSON_PAGES[id].path}>
+    <Link to={lessonUrl('kids', id)}>
       {[id, titleOf(id)].filter((x, i, a) => a.indexOf(x) === i).join(' ')}
     </Link>
   )

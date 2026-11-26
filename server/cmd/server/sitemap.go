@@ -6,13 +6,17 @@ import (
 	"encoding/xml"
 	"io/fs"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/tim72117/evoleap/internal/store"
 )
 
 // sitemap.xml 由資料庫決定哪些課頁要收錄:前端 build 只輸出「可收錄的頁面清單」(dist/sitemap-pages.json,
-// 見 web/scripts/seo.mjs),課頁標著它是哪一課;這裡依資料庫裡那一課的狀態,只列已開放(open)的課,草稿、規劃中的不列。
+// 見 web/scripts/seo.mjs)。單課頁不逐課列,只列「哪些課要展開」(lessonsOf);這裡依資料庫展開成已開放(open)的課,
+// 草稿、規劃中與先不公開單元的不列。規劃中章節頁標著它是哪一課(lesson),同樣開放才收錄。
 // 沒有種子備援:沒接資料庫時只列非課頁。
 
 // sitemapPagesFile 是前端 build 輸出的頁面清單(只給 server 讀,不對外提供)
@@ -31,6 +35,29 @@ type sitemapPage struct {
 		Course string `json:"course"`
 		ID     string `json:"id"`
 	} `json:"lesson,omitempty"`
+	// LessonsOf:這一筆不是一頁,Loc 是課程網址,展開成這門課每個已開放的課;Staged 是軟體課的網址規則(lessonSlug)
+	LessonsOf *struct {
+		Course string `json:"course"`
+		Staged bool   `json:"staged,omitempty"`
+	} `json:"lessonsOf,omitempty"`
+}
+
+// locsOf 回傳清單的一筆實際要輸出的網址
+func locsOf(p sitemapPage, opened map[string]bool) []string {
+	if p.Lesson != nil && !opened[p.Lesson.Course+"/"+p.Lesson.ID] {
+		return nil
+	}
+	if p.LessonsOf == nil {
+		return []string{p.Loc}
+	}
+	var out []string
+	for key := range opened {
+		if id, ok := strings.CutPrefix(key, p.LessonsOf.Course+"/"); ok {
+			out = append(out, p.Loc+"/"+store.LessonSlug(p.LessonsOf.Staged, id))
+		}
+	}
+	slices.Sort(out)
+	return slices.Compact(out)
 }
 
 // openLessons 回傳已開放的課(「課程 id/課號」為 key);沒接資料庫時為 nil
@@ -86,22 +113,21 @@ func sitemapXML(pages []sitemapPage, opened map[string]bool) string {
 	var b strings.Builder
 	b.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n")
 	for _, p := range pages {
-		if p.Lesson != nil && !opened[p.Lesson.Course+"/"+p.Lesson.ID] {
-			continue
+		for _, u := range locsOf(p, opened) {
+			var loc strings.Builder
+			_ = xml.EscapeText(&loc, []byte(u))
+			b.WriteString("  <url><loc>" + loc.String() + "</loc>")
+			for _, a := range p.Alternates {
+				var href, lang strings.Builder
+				_ = xml.EscapeText(&href, []byte(a.Loc))
+				_ = xml.EscapeText(&lang, []byte(a.Lang))
+				b.WriteString("<xhtml:link rel=\"alternate\" hreflang=\"" + lang.String() + "\" href=\"" + href.String() + "\"/>")
+			}
+			if p.Priority != nil {
+				b.WriteString("<priority>" + strconv.FormatFloat(*p.Priority, 'f', 1, 64) + "</priority>")
+			}
+			b.WriteString("</url>\n")
 		}
-		var loc strings.Builder
-		_ = xml.EscapeText(&loc, []byte(p.Loc))
-		b.WriteString("  <url><loc>" + loc.String() + "</loc>")
-		for _, a := range p.Alternates {
-			var href, lang strings.Builder
-			_ = xml.EscapeText(&href, []byte(a.Loc))
-			_ = xml.EscapeText(&lang, []byte(a.Lang))
-			b.WriteString("<xhtml:link rel=\"alternate\" hreflang=\"" + lang.String() + "\" href=\"" + href.String() + "\"/>")
-		}
-		if p.Priority != nil {
-			b.WriteString("<priority>" + strconv.FormatFloat(*p.Priority, 'f', 1, 64) + "</priority>")
-		}
-		b.WriteString("</url>\n")
 	}
 	b.WriteString("</urlset>\n")
 	return b.String()

@@ -5,13 +5,13 @@ import (
 	"crypto/sha256"
 	"embed"
 	"encoding/hex"
+	"errors"
 	"io/fs"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/tim72117/evoleap/internal/api"
@@ -53,12 +53,6 @@ type page struct {
 	gz       []byte // body 的 gzip 壓縮版(太小時是 nil)
 	noindex  bool
 	internal bool
-	// dynamic:頁面的結構化資料裡有依資料庫決定的課程連結(seo_ld.go),回傳時才處理;
-	// 處理後的頁面依已開放的課(mapID)記著,沒變就不重做
-	dynamic bool
-	mu      sync.Mutex
-	patched *page
-	patchID uintptr
 }
 
 func newPage(body []byte, internal bool) *page { return newPageWith(body, internal, gzipBytes) }
@@ -72,7 +66,6 @@ func newPageWith(body []byte, internal bool, compress func([]byte) []byte) *page
 		gz:       compress(body),
 		noindex:  bytes.Contains(body, []byte(noindexMarker)),
 		internal: internal,
-		dynamic:  hasLessonLinks(body),
 	}
 }
 
@@ -98,12 +91,12 @@ func distFS(distDir string) fs.FS {
 //   - 有副檔名的路徑是靜態檔:/assets/*(檔名含 hash)長期快取,其他短期快取;
 //     找不到回 404,不回 HTML——否則瀏覽器會把 HTML 當成 JS/CSS 解析,錯誤更難查。
 func newStaticHandler(dist fs.FS, access accessFunc) http.Handler {
-	return newStaticHandlerWithOpen(dist, access, nil)
+	return newStaticHandlerWithCourses(dist, access, nil)
 }
 
-// newStaticHandlerWithOpen 同 newStaticHandler;open 回傳已開放的課,頁面結構化資料裡的課程連結(seo_ld.go)依它處理,
-// 沒接資料庫(nil)時所有課都不附連結。
-func newStaticHandlerWithOpen(dist fs.FS, access accessFunc, open openLessons) http.Handler {
+// newStaticHandlerWithCourses 同 newStaticHandler;courses 管課程相關頁面(courseseo.go):它們的 HTML 是留好空位的殼,
+// 回傳時用資料庫的資料填入,讀不到回 503、資料庫沒有回 404。nil 表示這份 build 沒有課程頁清單。
+func newStaticHandlerWithCourses(dist fs.FS, access accessFunc, courses *courseSEO) http.Handler {
 	pages := map[string]*page{}
 	err := fs.WalkDir(dist, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || path.Base(p) != "index.html" {
@@ -146,20 +139,40 @@ func newStaticHandlerWithOpen(dist fs.FS, access accessFunc, open openLessons) h
 				redirect(w, r, to)
 				return
 			}
-			pg := pages[name]
-			if pg != nil && name != r.URL.Path {
+			// route 是實際提供內容的路由(沒有英文版的 /en/... 頁是對應的中文頁)
+			route := name
+			// 固定網址的頁是 build 產生的檔案;單課網址用該課程的樣板,那一課存不存在下面看資料庫
+			lookup := func(p string) *page {
+				if pg := pages[p]; pg != nil {
+					return pg
+				}
+				return courses.lessonShell(p)
+			}
+			// 結尾斜線等:導到標準網址;單課網址要資料庫有這一課才導(不存在的直接 404)
+			canonical := func(route string) {
+				if pages[route] == nil {
+					if _, _, err := courses.meta(r.Context(), route); errors.Is(err, errNoSuchPage) {
+						serveNotFound(w, r, notFound)
+						return
+					}
+				}
 				redirect(w, r, name)
+			}
+			pg := lookup(name)
+			if pg != nil && name != r.URL.Path {
+				canonical(name)
 				return
 			}
 			// 英文網址 /en/...:有預先產生的英文頁(例如 /en/courses)就用它;沒有的(登入、單課、還沒翻譯的頁)
 			// 回對應的中文頁,畫面在瀏覽器端換成英文介面,但標 noindex,不讓搜尋引擎收錄內容還是中文的重複頁面
 			if pg == nil && (name == "/en" || strings.HasPrefix(name, "/en/")) {
-				if base := pages[path.Clean("/"+strings.TrimPrefix(name, "/en"))]; base != nil && !base.internal {
+				zh := path.Clean("/" + strings.TrimPrefix(name, "/en"))
+				if base := lookup(zh); base != nil && !base.internal {
 					if name != r.URL.Path {
-						redirect(w, r, name) // 結尾斜線、大小寫:導到標準網址,不留重複網址
+						canonical(zh) // 結尾斜線、大小寫:導到標準網址,不留重複網址
 						return
 					}
-					pg = base
+					pg, route = base, zh
 					w.Header().Set("X-Robots-Tag", "noindex, nofollow")
 				}
 			}
@@ -167,8 +180,17 @@ func newStaticHandlerWithOpen(dist fs.FS, access accessFunc, open openLessons) h
 				serveNotFound(w, r, notFound)
 				return
 			}
-			if pg.dynamic {
-				pg = dynamicPage(r, pg, open)
+			if courses.has(route) {
+				out, err := courses.render(r.Context(), route, pg)
+				if errors.Is(err, errNoSuchPage) {
+					serveNotFound(w, r, notFound)
+					return
+				}
+				if err != nil {
+					serveUnavailable(w, r)
+					return
+				}
+				pg = out
 			}
 			servePage(w, r, pg)
 			return
@@ -176,13 +198,13 @@ func newStaticHandlerWithOpen(dist fs.FS, access accessFunc, open openLessons) h
 
 		// /courses/tools/index.html 之類的實際檔名 → 導向頁面網址,避免重複內容。
 		if path.Base(name) == "index.html" {
-			if dir := path.Dir(name); pages[dir] != nil {
+			if dir := path.Dir(name); pages[dir] != nil || courses.lessonShell(dir) != nil {
 				redirect(w, r, dir)
 				return
 			}
 		}
-		// 建置產物裡給 /sitemap.xml 用的頁面清單(含還沒開放的課):不公開
-		if name == "/"+sitemapPagesFile {
+		// 建置產物裡只給 server 讀的清單(sitemap 與課程頁,含還沒開放的課):不公開
+		if name == "/"+sitemapPagesFile || name == "/"+coursePagesFile || strings.HasPrefix(name, "/"+lessonShellDir+"/") {
 			http.NotFound(w, r)
 			return
 		}
@@ -335,25 +357,4 @@ func serveNotFound(w http.ResponseWriter, r *http.Request, pg *page) {
 	if r.Method != http.MethodHead {
 		w.Write(body)
 	}
-}
-
-// dynamicPage 依資料庫處理頁面的課程連結(seo_ld.go),回傳這次要用的頁面(etag 依處理後的內容)。
-// 查不到資料庫(或沒接資料庫)時所有課都不附連結。已開放的課沒變就沿用上一次處理好的頁面。
-func dynamicPage(r *http.Request, pg *page, open openLessons) *page {
-	var opened map[string]bool
-	if open != nil {
-		if got, err := open(r.Context()); err == nil {
-			opened = got
-		}
-	}
-	id := mapID(opened)
-	pg.mu.Lock()
-	defer pg.mu.Unlock()
-	if pg.patched != nil && pg.patchID == id {
-		return pg.patched
-	}
-	out := newPageWith(patchLessonLinks(pg.body, opened), pg.internal, gzipFast)
-	out.dynamic = false
-	pg.patched, pg.patchID = out, id
-	return out
 }

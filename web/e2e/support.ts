@@ -38,14 +38,30 @@ export interface SitemapPageEntry {
   loc: string
   priority?: number
   lesson?: { course: string; id: string }
+  /** 一門課的單課頁(loc 是課程網址),server 依資料庫展開 */
+  lessonsOf?: { course: string; staged?: boolean }
 }
 export function distSitemapPages(): SitemapPageEntry[] {
   return JSON.parse(readDist('sitemap-pages.json')) as SitemapPageEntry[]
 }
 
-/** 收集測試時(server 還沒啟動)從磁碟讀所有可收錄的頁面路徑(含課頁;課頁實際收不收進 sitemap 看資料庫) */
+/** 收集測試時(server 還沒啟動)從磁碟讀固定網址的可收錄頁面路徑(單課頁在資料庫,見 databaseLessonPages) */
 export function distSitemapPaths(): string[] {
-  return distSitemapPages().map((p) => (p.loc.startsWith(ORIGIN) ? p.loc.slice(ORIGIN.length) || '/' : p.loc))
+  return distSitemapPages().filter((p) => !p.lessonsOf).map((p) => (p.loc.startsWith(ORIGIN) ? p.loc.slice(ORIGIN.length) || '/' : p.loc))
+}
+
+/** 資料庫裡每一課的單課網址(網址規則同 src/content/catalog.ts 的 lessonUrl) */
+export async function databaseLessonPages(request: APIRequestContext): Promise<{ path: string; course: string; lesson: MapLesson }[]> {
+  const out: { path: string; course: string; lesson: MapLesson }[] = []
+  for (const p of distSitemapPages()) {
+    if (!p.lessonsOf) continue
+    const { course, staged } = p.lessonsOf
+    for (const lesson of await mapLessons(request, course)) {
+      const num = staged && lesson.id.startsWith('0.') ? lesson.id.slice(2) : lesson.id
+      out.push({ path: `${p.loc.slice(ORIGIN.length)}/${num.split('.').join('-')}`, course, lesson })
+    }
+  }
+  return out
 }
 
 /** dist 內所有預先產生的頁面路徑(dist/<路由>/index.html) */
@@ -172,6 +188,8 @@ export const GATED = `http://127.0.0.1:${Number(process.env.E2E_PORT ?? 8198) + 
 
 /** 課程地圖裡的一課,加上依資料算出來的、未登入的人在課程清單看到的標示 */
 export interface MapLesson {
+  /** 在先不公開的單元裡 */
+  hidden?: boolean
   id: string
   title: string
   status: string
@@ -190,12 +208,12 @@ export interface MapLesson {
 export async function mapLessons(request: APIRequestContext, courseId: string, base = '', units?: string[]): Promise<MapLesson[]> {
   const res = await request.get(`${base}/api/courses/${courseId}/map`)
   expect(res.status()).toBe(200)
-  const map = (await res.json()) as { access: string; units: { id: string; lessons: { id: string; title: string; status: string; script?: string; access?: string }[] }[] }
+  const map = (await res.json()) as { access: string; units: { id: string; hidden?: boolean; lessons: { id: string; title: string; status: string; script?: string; access?: string }[] }[] }
   return map.units.filter((u) => !units || units.includes(u.id)).flatMap((u) =>
     u.lessons.map((l) => {
       const access = l.access || map.access
       const label = l.status === 'open' ? (access === 'free' ? '試看' : '登入後學習') : l.status === 'draft' ? '草稿' : '規劃中'
-      return { id: l.id, title: l.title, status: l.status, script: l.script, access, label } as MapLesson
+      return { id: l.id, title: l.title, status: l.status, script: l.script, access, label, hidden: u.hidden } as MapLesson
     }),
   )
 }

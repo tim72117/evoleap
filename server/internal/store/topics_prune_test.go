@@ -3,8 +3,6 @@ package store
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -19,22 +17,17 @@ func TestSyncKeepsReferencedTopicWithWarning(t *testing.T) {
 	if _, err := st.syncSeeds(ctx, []byte(topics1), []byte(courses1), dir); err != nil {
 		t.Fatal(err)
 	}
-	// 種子以外的課程(模擬管理員用 CLI 掛到主題 b),加上一門舊課程 tools
+	// 管理員用 CLI 掛到主題 b 的課程
 	for _, c := range []courseRow{
 		{ID: "extra2", Title: "外", Access: "free", TopicID: "b", Overview: true},
 		{ID: "extra1", Title: "外", Access: "free", TopicID: "b", Overview: true},
-		{ID: "tools", Title: "舊", Access: "free", Overview: true},
 	} {
 		if err := st.db.Create(&c).Error; err != nil {
 			t.Fatal(err)
 		}
 	}
-	if err := os.WriteFile(filepath.Join(dir, "s.json"), []byte(`{"x":1}`), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	courses2 := `[{"id":"c1","title":"課","access":"free","topicId":"a","units":[]},{"id":"c2","title":"新課","access":"free","units":[{"id":"0","title":"u","lessons":[{"id":"0.1","title":"A","status":"open","script":"s.json"}]}]}]`
 	topics2 := `[{"id":"a","name":"甲","path":"/topics/a"}]`
-	warnings, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses2), dir)
+	warnings, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses1), dir)
 	if err != nil {
 		t.Fatalf("同步不該失敗: %v", err)
 	}
@@ -50,21 +43,8 @@ func TestSyncKeepsReferencedTopicWithWarning(t *testing.T) {
 	if got := strings.Join(ids, ","); got != "a,b" {
 		t.Errorf("b 要保留、gone 要刪: %s", got)
 	}
-	var n int64
-	st.db.Model(&courseRow{}).Where("id IN ?", []string{"c2", "extra1", "extra2"}).Count(&n)
-	if n != 3 {
-		t.Errorf("課程要照常寫入: %d", n)
-	}
-	st.db.Model(&courseRow{}).Where("id = ?", "tools").Count(&n)
-	if n != 0 {
-		t.Error("舊課程要清掉")
-	}
-	f, err := st.LessonFileOf(ctx, "s.json")
-	if err != nil || f.CourseID != "c2" {
-		t.Errorf("腳本檔要寫入: %+v %v", f, err)
-	}
 	// 再同步一次:同樣的警告,仍成功
-	if w, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses2), dir); err != nil || len(w) != 1 {
+	if w, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses1), dir); err != nil || len(w) != 1 {
 		t.Errorf("再同步: %v %v", w, err)
 	}
 }

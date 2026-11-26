@@ -18,6 +18,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/tim72117/evoleap/internal/auth"
 	"github.com/tim72117/evoleap/internal/store"
+	"github.com/tim72117/evoleap/internal/store/storetest"
 )
 
 // openTestStore 開一個乾淨的資料庫:有設定 TEST_DATABASE_URL 時用 Postgres(和正式環境相同,CI 會跑),否則用暫存的 SQLite。
@@ -36,7 +37,7 @@ func openTestStore(t *testing.T) *store.Store {
 			t.Fatal(err)
 		}
 	}
-	st, err := store.Open(dsn)
+	st, err := storetest.Open(dsn)
 	if err != nil {
 		t.Fatal(err)
 	}

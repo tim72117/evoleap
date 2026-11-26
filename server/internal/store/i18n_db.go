@@ -130,14 +130,14 @@ type i18nField struct {
 	Kind, Ref, Path, Text string
 }
 
-// collectI18nSeedSources 從內嵌的種子(courses_seed.json、topics_seed.json)收集同樣的欄位(規則和 collectI18nSources 相同),
-// 也就是英文初稿種子當時對應的中文原文;匯入時用它的雜湊當 source_hash(見 importI18nSeed)。
-func collectI18nSeedSources() (map[string]string, error) {
-	courses, err := parseCourseSeed(courseSeed)
+// collectI18nSeedSources 從測試用的課程、主題資料收集同樣的欄位(規則和 collectI18nSources 相同),
+// 也就是英文初稿當時對應的中文原文;匯入時用它的雜湊當 source_hash(見 importI18nSeed)。
+func collectI18nSeedSources(topicsJSON, coursesJSON []byte) (map[string]string, error) {
+	courses, err := parseCourseSeed(coursesJSON)
 	if err != nil {
 		return nil, err
 	}
-	topics, err := parseTopicSeed(topicSeed)
+	topics, err := parseTopicSeed(topicsJSON)
 	if err != nil {
 		return nil, err
 	}
@@ -354,11 +354,11 @@ func sortedKeys[V any](m map[string]V) []string {
 	return keys
 }
 
-// importI18nSeed 把初稿種子(內嵌的 i18n_<語言>.json)補進資料庫(在呼叫端的交易裡):status=published、origin=import,
-// source_hash 取「這份種子當時對應的中文」(內嵌 courses_seed.json、topics_seed.json 同欄位)的雜湊,
+// importI18nSeed(只給測試資料用,正式的譯文隨 InitCatalog 寫入)把初稿(內嵌的 i18n_<語言>.json)補進資料庫(在呼叫端的交易裡):status=published、origin=import,
+// source_hash 取「這份種子當時對應的中文」(seedSrc 同欄位)的雜湊,
 // 所以資料庫的中文已經和種子不同的欄位,匯入後就是過時(stale);種子沒有這個欄位才退回登記表目前的雜湊。只補缺:資料庫已經有的譯文(任何狀態)不覆蓋,登記表沒有(原表沒有這個欄位或已刪除)的跳過。
 // 要先 syncI18nSources。回傳新增與跳過的欄位數。
-func importI18nSeed(tx *gorm.DB, lang string, pack *LangPack) (added, skipped int, err error) {
+func importI18nSeed(tx *gorm.DB, lang string, pack *LangPack, seedSrc map[string]string) (added, skipped int, err error) {
 	var srcs []i18nSourceRow
 	if err := tx.Where("removed_at IS NULL").Find(&srcs).Error; err != nil {
 		return 0, 0, err
@@ -374,10 +374,6 @@ func importI18nSeed(tx *gorm.DB, lang string, pack *LangPack) (added, skipped in
 	done := make(map[string]bool, len(have))
 	for _, r := range have {
 		done[i18nField{Kind: r.Kind, Ref: r.Ref, Path: r.Path}.key()] = true
-	}
-	seedSrc, err := collectI18nSeedSources()
-	if err != nil {
-		return 0, 0, err
 	}
 	at := now()
 	var rows []i18nTranslationRow
@@ -408,16 +404,25 @@ func importI18nSeed(tx *gorm.DB, lang string, pack *LangPack) (added, skipped in
 	return len(rows), skipped, nil
 }
 
-// syncI18n 是課程同步(SyncCourses、SeedCourses)在同一個交易裡做的翻譯部分:補語言、重算登記表、把初稿種子補進資料庫(只補缺)。
+// syncI18n 是寫課程資料的交易裡做的翻譯部分:補語言、重算登記表。
 func syncI18n(tx *gorm.DB) error {
 	if err := ensureI18nLanguages(tx); err != nil {
 		return err
 	}
-	if err := syncI18nSources(tx); err != nil {
+	return syncI18nSources(tx)
+}
+
+// syncI18nSeeded 同 syncI18n,再把英文初稿補進資料庫(只補缺);只給測試資料用(Seed、InitFromSeed)。
+func syncI18nSeeded(tx *gorm.DB, topicsJSON, coursesJSON []byte) error {
+	if err := syncI18n(tx); err != nil {
+		return err
+	}
+	seedSrc, err := collectI18nSeedSources(topicsJSON, coursesJSON)
+	if err != nil {
 		return err
 	}
 	for _, lang := range sortedKeys(seedPacks) {
-		if _, _, err := importI18nSeed(tx, lang, seedPacks[lang]); err != nil {
+		if _, _, err := importI18nSeed(tx, lang, seedPacks[lang], seedSrc); err != nil {
 			return fmt.Errorf("import i18n %s: %w", lang, err)
 		}
 	}

@@ -13,7 +13,7 @@ import (
 )
 
 // 每一課的腳本檔(舞台腳本、子腳本、開場與試做),以及各自的旁白清單(.voice.json)與章節音軌清單(.mix.json)。
-// 種子(courses_seed.json)只記路徑:一課的 script 加上 files;檔案本身在 web/src/content/live/,寫入課程資料時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)讀進這張表,
+// 課的資料只記路徑:一課的 script 加上 files;檔案內容放在這張表(用 evoleap script push 修改)。
 // 一個檔案一列、記著屬於哪一門課的哪一課。前端只透過 GET /api/scripts/{path} 取得,所以能依那一課的狀態與存取方式把關。
 type lessonFileRow struct {
 	// Path 是 web/src/content/live/ 底下的相對路徑(例如 l0/0.0-tools.json),前端用它取檔
@@ -64,16 +64,8 @@ func lessonFilePaths(dir string, l lessonSeed) []string {
 	return paths
 }
 
-// SyncLessonFiles 依 courses_seed.json 把每一課的腳本檔從 dir(web/src/content/live)讀進 lesson_files,其餘的 .json 讀進 studio_files。
-// 哪個檔屬於哪一課以種子為準:種子寫到的檔,資料庫沒有就新增(內容讀檔案),已經有的改掛到種子寫的那一課,但內容不動
-// (腳本內容以資料庫為準,上線後改腳本用 evoleap script push,見 coursesadmin.go)。
-// 種子裡的課程底下、種子已經不再指定的檔,從 lesson_files 移到 studio_files(帶著資料庫裡的內容),變成研發基地的檔。
-// 種子寫到的檔案不存在,或一個檔寫在兩課底下時回傳錯誤(啟動失敗),免得上線後課程頁才發現少了腳本。
-func (s *Store) SyncLessonFiles(ctx context.Context, dir string) error {
-	return s.SyncLessonFilesJSON(ctx, courseSeed, dir)
-}
-
-// SyncLessonFilesJSON 同 SyncLessonFiles,但種子用給定的 JSON(格式同 courses_seed.json);測試用,不依賴真正的腳本目錄。
+// SyncLessonFilesJSON 依給定的課程資料(格式同固定測試資料 fixture/courses.json)把每一課的腳本檔從 dir 讀進 lesson_files,其餘的 .json 讀進 studio_files(測試用)。
+// 資料指定的檔,資料庫沒有就新增,已經有的只改掛到那一課、內容不動;不再指定的檔移到 studio_files。指定的檔不存在,或一個檔寫在兩課底下時回傳錯誤。
 func (s *Store) SyncLessonFilesJSON(ctx context.Context, seed []byte, dir string) error {
 	seeds, err := parseCourseSeed(seed)
 	if err != nil {
@@ -289,4 +281,16 @@ func (s *Store) ScriptPaths(ctx context.Context) ([]string, error) {
 	var paths []string
 	err := s.db.WithContext(ctx).Raw("SELECT path FROM lesson_files UNION SELECT path FROM studio_files ORDER BY path").Scan(&paths).Error
 	return paths, err
+}
+
+// addMissingScripts 把目錄裡資料庫還沒有的 .json 補進研發基地(已經掛在某一課或研發基地的不動)。目錄不存在時什麼都不做。
+func addMissingScripts(tx *gorm.DB, dir string) error {
+	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	files, err := readLessonFiles(nil, dir)
+	if err != nil {
+		return err
+	}
+	return syncLessonFiles(tx, nil, files)
 }

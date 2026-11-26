@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { fetchCourseMap, type CourseMap } from '../content/courseMap'
-import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { progressApi } from '../courses/progress'
 import { isFinished } from '../member/memberCourses'
 
@@ -21,21 +20,24 @@ export const kidsProgressOf = (finished: Set<string>, released: string[]): KidsP
   next: released.find((id) => !finished.has(id)) ?? null,
 })
 
-/** 課程地圖裡已開放、前端也有課程頁的課(依課程順序);草稿只有管理員拿得到,也不算 */
+/** 課程地圖裡已開放而且有腳本的課(依課程順序,和伺服器的 store.KidsLessonOpen 同一套);草稿只有管理員拿得到,也不算 */
 export const releasedOf = (map: CourseMap): string[] =>
-  map.units.flatMap((u) => u.lessons).filter((l) => l.status === 'open' && l.id in KIDS_LESSON_PAGES).map((l) => l.id)
+  map.units.flatMap((u) => u.lessons).filter((l) => l.status === 'open' && l.script).map((l) => l.id)
+
+/** 上課紀錄的 kids:<腳本> → 課號(腳本照課程地圖) */
+export const lessonByKeyOf = (map: CourseMap): Map<string, string> =>
+  new Map(map.units.flatMap((u) => u.lessons).flatMap((l) => (l.script ? [[`kids:${l.script}`, l.id] as const] : [])))
 
 // 同一次瀏覽只讀一次;讀不到時丟出錯誤(下次再試)
-let releasedReq: Promise<string[]> | null = null
-export function loadKidsReleased(): Promise<string[]> {
-  releasedReq ??= fetchCourseMap('kids')
-    .then(releasedOf)
-    .catch((err) => {
-      releasedReq = null
-      throw err
-    })
-  return releasedReq
+let mapReq: Promise<CourseMap> | null = null
+function loadKidsMap(): Promise<CourseMap> {
+  mapReq ??= fetchCourseMap('kids').catch((err) => {
+    mapReq = null
+    throw err
+  })
+  return mapReq
 }
+export const loadKidsReleased = (): Promise<string[]> => loadKidsMap().then(releasedOf)
 
 /** 已開放的兒童課:讀到之前是 'loading',讀不到是 'error'(畫面要說明,不能當成沒有課) */
 export function useKidsReleasedState(): string[] | 'loading' | 'error' {
@@ -68,20 +70,21 @@ export function useKidsProgress(enabled = true): KidsProgress | null {
   useEffect(() => {
     if (!enabled) return
     let cancelled = false
-    const finished = progressApi.list().then(
-      (list) => {
+    // 讀不到進度:當作都還沒看,只有第一課打得開
+    const list = progressApi.list().catch(() => [])
+    // 開放的課讀不到時進度不算(維持 null),不用前端的清單猜
+    Promise.all([list, loadKidsMap()]).then(
+      ([records, map]) => {
+        if (cancelled) return
         const done = new Set<string>()
-        for (const [id, l] of Object.entries(KIDS_LESSON_PAGES)) {
-          const p = list.find((x) => x.lesson === `kids:${l.script}`)
+        for (const [key, id] of lessonByKeyOf(map)) {
+          const p = records.find((x) => x.lesson === key)
           if (p && isFinished(p)) done.add(id)
         }
-        return done
+        setProgress(kidsProgressOf(done, releasedOf(map)))
       },
-      // 讀不到進度:當作都還沒看,只有第一課打得開
-      () => new Set<string>(),
+      () => {},
     )
-    // 開放的課讀不到時進度不算(維持 null),不用前端的清單猜
-    Promise.all([finished, loadKidsReleased()]).then(([done, released]) => !cancelled && setProgress(kidsProgressOf(done, released)), () => {})
     return () => {
       cancelled = true
     }

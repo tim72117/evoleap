@@ -108,7 +108,7 @@ vp.time / vp.playing
 
 1. `createStage(div)` 建立舞台，`mountShell(box, { stage: div, … })` 直接掛在課程頁上。
 2. `loadScript(path)`（`scripts.ts`，向 `GET /api/scripts/{path}` 取；播到那一課才載入），等字型載入後 `stage.load(script)`，再用 `vp.update` 補上長度、章節、字幕、練習點。
-   腳本不打包進前端：寫入課程資料時（正式環境是部署時的同步工作，本機是後端啟動時）把 `src/content/live/` 讀進資料庫，課程的依 `courses_seed.json` 掛在各課底下（`script` 與 `files`，同名的 `.voice.json`、`.mix.json` 跟著），其餘是研發基地的。伺服器依那一課的狀態與存取方式把關（草稿只給管理員、登入後免費的要登入），研發基地的只給管理員。新增腳本檔要寫進種子那一課的 `script` 或 `files`，本機也要重啟後端；改既有的檔不用重啟。
+   腳本不打包進前端，放在資料庫（各課的在 `lesson_files`，研發基地的在 `studio_files`）。伺服器依那一課的狀態與存取方式把關（草稿只給管理員、登入後免費的要登入），研發基地的只給管理員。改腳本、掛到哪一課用 `evoleap script push`。`src/content/live/` 裡資料庫還沒有的檔，部署與本機啟動時補進研發基地。
 3. 播放秒數透過 `onTime` 回報給課程頁；腳本裡標了 `lessonStep` 的章節透過 `onCues` 回報，課程頁播到那裡就展開對應的步驟。
 4. 全螢幕、手機橫放滿版與播放器的快捷鍵都由外殼處理（焦點在播放器裡時 ←/→ 是倒退／快轉，在頁面上時由課程頁切換步驟）。
 

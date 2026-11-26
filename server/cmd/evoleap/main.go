@@ -1,8 +1,7 @@
 // Command evoleap 是管理員改課程資料的 CLI(仿照 tripace 的 tripace-cli),給人或 Claude Code 直接操作。
 //
 // 一律走伺服器的 HTTP API(/api/admin/*、/api/scripts),不直連資料庫:權限、規則檢查與修改紀錄都在伺服器。
-// 課程結構以 courses_seed.json 為準:每次部署的同步會把種子寫到的欄位蓋回去、刪掉種子已經沒有的課,所以 course set、lesson set 改的只撐到下次部署,
-// 要長期保留得同時改種子。腳本內容以資料庫為準:script push 換的內容同步不會蓋掉,但檔案屬於哪一課照種子。
+// 主題、課程、單元、課與腳本都以資料庫為準,部署不會蓋掉;空資料庫用 node server/backup/gcs.mjs init 手動初始化。
 //
 // 先登入一次:evoleap login(打開瀏覽器,在 evoleap.io 的核准頁按核准,只有管理員能核准),
 // token 依 -api 的主機分開存在使用者設定目錄(見 token.go),之後的指令自動帶上。token 有效期 7 天,可以撤銷。
@@ -72,6 +71,15 @@ var resources = []resource{
 		{verb: "list", usage: "evoleap course list", run: cmdCourseList},
 		{verb: "show", usage: "evoleap course show -course ID", run: cmdCourseShow},
 		{verb: "set", usage: "evoleap course set -course ID [-access free|login-free|subscription] [-title 文字] [-summary 文字] [-about 段落||段落] [-seo-title 文字] [-description 文字] [-art tools|chat|build|agent|advanced] [-intro-script 路徑] [-topic-id 主題ID] [-overview=true|false]", run: cmdCourseSet},
+		{verb: "create", usage: "evoleap course create -course ID -title 文字 -access free|login-free|subscription [-topic-id 主題ID]", run: cmdCourseCreate},
+		{verb: "delete", usage: "evoleap course delete -course ID", run: cmdCourseDelete},
+		{verb: "order", usage: "evoleap course order -ids ID,ID,…", run: cmdCourseOrder},
+		{verb: "outline", usage: "evoleap course outline -course ID -file 大綱.json", run: cmdCourseOutline},
+	}},
+	{name: "unit", commands: []command{
+		{verb: "add", usage: "evoleap unit add -course ID -unit ID -title 文字 [-subtitle 文字] [-label 文字] [-hidden]", run: cmdUnitAdd},
+		{verb: "set", usage: "evoleap unit set -course ID -unit ID [-title 文字] [-subtitle 文字] [-label 文字] [-hidden=true|false]", run: cmdUnitSet},
+		{verb: "delete", usage: "evoleap unit delete -course ID -unit ID", run: cmdUnitDelete},
 	}},
 	{name: "topic", commands: []command{
 		{verb: "list", usage: "evoleap topic list", run: cmdTopicList},
@@ -80,6 +88,8 @@ var resources = []resource{
 	}},
 	{name: "lesson", commands: []command{
 		{verb: "set", usage: "evoleap lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title 文字] [-summary 文字] [-script 路徑]", run: cmdLessonSet},
+		{verb: "add", usage: "evoleap lesson add -course ID -lesson ID -unit ID -title 文字 [-summary 文字] [-status planned|draft|open] [-access …] [-minutes N]", run: cmdLessonAdd},
+		{verb: "delete", usage: "evoleap lesson delete -course ID -lesson ID", run: cmdLessonDelete},
 	}},
 	{name: "i18n", commands: []command{
 		{verb: "list", usage: "evoleap i18n list [-lang en] [-kind course|unit|lesson|topic] [-ref ID] [-status draft|reviewed|published] [-stale] [-n 500]", run: cmdI18nList},
@@ -93,6 +103,9 @@ var resources = []resource{
 	}},
 	{name: "backup", commands: []command{
 		{verb: "export", usage: "evoleap backup export -out 目錄", run: cmdBackupExport},
+	}},
+	{name: "catalog", commands: []command{
+		{verb: "init", usage: "evoleap catalog init -dir 目錄(只能用在空資料庫;平常跑 node server/backup/gcs.mjs init)", run: cmdInit},
 	}},
 	{name: "change", commands: []command{
 		{verb: "list", usage: "evoleap change list [-n 20]", run: cmdChangeList},
@@ -262,7 +275,7 @@ func cmdCourseSet(c *client, args []string) {
 	seoTitle := fs.String("seo-title", "", "搜尋結果的標題(最多 200 字)")
 	description := fs.String("description", "", "搜尋結果的描述(最多 500 字)")
 	art := fs.String("art", "", "插圖樣式:tools、chat、build、agent、advanced,或空字串用預設")
-	introScript := fs.String("intro-script", "", "課程簡介影片的腳本路徑(live/ 底下,例如 guide/kids.json;檔案要先由種子掛在這門課上);空字串拿掉")
+	introScript := fs.String("intro-script", "", "課程簡介影片的腳本路徑(live/ 底下,例如 guide/kids.json;檔案要先用 script push 傳上去);空字串拿掉")
 	topicID := fs.String("topic-id", "", "課程所屬主題的 id(見 evoleap topic list,例如 software、kids);給空字串清掉(該課就不列在全部課程)")
 	overview := fs.Bool("overview", true, "這門課有沒有自己的課程總覽頁 /courses/<id>(-overview=false 代表沒有)")
 	set := parse(fs, args, "course")
@@ -299,7 +312,6 @@ func cmdCourseSet(c *client, args []string) {
 	var out any
 	mustDo(c.do("PATCH", "/api/admin/courses/"+url.PathEscape(*course), patch, &out))
 	printJSON(out)
-	warnSeedOverwrites("種子裡有這門課的話,下次部署的同步會用 courses_seed.json 蓋掉這門課的 title、access、tier、summary、about、seoTitle、description、art、introScript、topicId、overview;要長期保留請同時改種子。")
 }
 
 func cmdTopicList(c *client, args []string) {
@@ -361,7 +373,6 @@ func cmdTopicSet(c *client, args []string) {
 	var out any
 	mustDo(c.do("PATCH", "/api/admin/topics/"+url.PathEscape(*topic), patch, &out))
 	printJSON(out)
-	warnSeedOverwrites("種子裡有這個主題的話,下次部署的同步會用 topics_seed.json 蓋掉這個主題的 name、slogan、path、seoTitle、description、content;要長期保留請同時改種子。")
 }
 
 func cmdLessonSet(c *client, args []string) {
@@ -393,12 +404,6 @@ func cmdLessonSet(c *client, args []string) {
 	var out any
 	mustDo(c.do("PATCH", "/api/admin/courses/"+url.PathEscape(*course)+"/lessons/"+url.PathEscape(*lesson), patch, &out))
 	printJSON(out)
-	warnSeedOverwrites("下次部署的同步會用 courses_seed.json 蓋掉這次改的欄位(title、summary、status、access、minutes、script);要長期保留請同時改種子。")
-}
-
-// warnSeedOverwrites 提醒(寫到 stderr,不影響 JSON 輸出):課程結構以種子為準,每次部署(與本機啟動)的同步會把種子的內容寫回資料庫。
-func warnSeedOverwrites(msg string) {
-	fmt.Fprintln(os.Stderr, "注意:"+msg)
 }
 
 func cmdScriptGet(c *client, args []string) {
@@ -446,9 +451,6 @@ func cmdScriptPush(c *client, args []string) {
 	var out any
 	mustDo(c.doBody("PUT", target, body, &out))
 	printJSON(out)
-	if *course != "" {
-		warnSeedOverwrites("內容會保留,但檔案屬於哪一課以 courses_seed.json 為準:種子沒把這個檔寫在這一課底下的話,下次部署的同步會把它移回研發基地的腳本。")
-	}
 }
 
 // livePath 把 web/src/content/live/ 底下的檔案轉成腳本路徑(例如 …/live/l0/0.0-tools.json → l0/0.0-tools.json)

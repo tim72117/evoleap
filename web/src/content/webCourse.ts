@@ -278,8 +278,8 @@ export const WEB_UNITS: WebUnit[] = [
   },
 ]
 
-/** 已經有課程頁的課:課號 → 課程頁網址(路由與 SEO)、腳本與互動點的做法(interaction,static:影片停下來,學員直接操作演員)。
- *  能不能上、播哪個腳本、要不要登入以資料庫為準(courses/LessonGate.tsx);這裡的 script 要和種子一致(content/courseMap.test.ts) */
+/** 各課的手寫設定(不決定哪些課有頁面,單課路由照資料庫):課號 → 課程頁網址、腳本與互動點的做法(interaction,static:影片停下來,學員直接操作演員)。
+ *  能不能上、播哪個腳本、要不要登入以資料庫為準(courses/LessonGate.tsx);這裡的 script 要和資料庫一致(content/courseMap.test.ts 只檢查腳本檔存在) */
 export const WEB_LESSON_PAGES: Record<string, { path: string; script: string; interaction?: 'static' }> = {
   '0.1': { path: '/courses/web/0-1', script: 'web/0.1.json' },
   '0.2': { path: '/courses/web/0-2', script: 'web/0.2.json' },

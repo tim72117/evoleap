@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"errors"
+	"github.com/tim72117/evoleap/internal/store/fixture"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -35,12 +36,6 @@ func TestCoursesSeededOnOpen(t *testing.T) {
 	}
 	if _, _, err := st.CourseAccess(ctx, "nope"); !errors.Is(err, ErrCourseNotFound) {
 		t.Errorf("unknown course: %v", err)
-	}
-	// 合併前的三門課不在種子裡:全新的資料庫沒有它們
-	for _, old := range retiredCourses {
-		if _, _, err := st.CourseAccess(ctx, old); !errors.Is(err, ErrCourseNotFound) {
-			t.Errorf("retired course %s: %v", old, err)
-		}
 	}
 	// 再開一次(重啟)同步不會重複或出錯
 	st.Close()
@@ -192,41 +187,7 @@ func TestLessonMinutes(t *testing.T) {
 	}
 }
 
-// 種子的課程資訊:每門有課的課程都有簡介與合法的插圖樣式;software 的零基礎階段先不公開,三個階段都有簡短名稱
-func TestCourseSeedInfo(t *testing.T) {
-	seeds, err := parseCourseSeed(courseSeed)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, c := range seeds {
-		n := 0
-		for _, u := range c.Units {
-			n += len(u.Lessons)
-		}
-		if n > 0 && c.Summary == "" {
-			t.Errorf("%s 有課但沒有 summary", c.ID)
-		}
-		if !validCourseArt[c.Art] {
-			t.Errorf("%s 的 art %q 不合法", c.ID, c.Art)
-		}
-		if err := validateCourseInfo(c.Art, c.Summary, c.Description, c.SEOTitle, c.IntroScript, c.About); err != nil {
-			t.Errorf("%s: %v", c.ID, err)
-		}
-		if (c.IntroScript != "") != (c.ID == "kids") {
-			t.Errorf("%s 的 introScript %q(目前只有 kids 有簡介影片)", c.ID, c.IntroScript)
-		}
-		if c.ID != "software" {
-			continue
-		}
-		for _, u := range c.Units {
-			if u.Label == "" || u.Hidden != (u.ID == "ai-tools") {
-				t.Errorf("software 單元 %s: label=%q hidden=%v", u.ID, u.Label, u.Hidden)
-			}
-		}
-	}
-}
-
-// 課程資訊與單元的 label、hidden 隨種子同步進資料庫;種子改了就跟著改(種子為準),拿掉就清掉;不合規則的種子整批報錯
+// 測試資料初始化(Seed):課程資訊與單元的 label、hidden 寫進資料庫,不合規則的資料整批報錯
 func TestSeedCourseInfoRoundTrip(t *testing.T) {
 	st := openSeeded(t)
 	ctx := context.Background()
@@ -356,9 +317,9 @@ func TestIntroScriptFile(t *testing.T) {
 	if _, err := os.Stat(dir); err != nil {
 		t.Skip("沒有腳本目錄(Docker 建置後端時只有 server/)")
 	}
-	st := openSeeded(t)
+	st := openEmpty(t)
 	ctx := context.Background()
-	if _, err := st.SyncCourses(ctx, dir); err != nil {
+	if _, err := st.InitFromSeed(ctx, fixture.Topics, fixture.Courses, dir); err != nil {
 		t.Fatal(err)
 	}
 	f, err := st.LessonFileOf(ctx, "guide/kids.json")
@@ -453,30 +414,5 @@ func TestListCourses(t *testing.T) {
 	}
 	if got := ids(); strings.Contains(got, "kids") {
 		t.Errorf("沒有主題的課不該列: %s", got)
-	}
-}
-
-// 種子裡每門課都有 topicId、而且指到主題種子裡有 path 的主題;只有 ai-agent 沒有課程總覽頁
-func TestSeedCourseTopicRefs(t *testing.T) {
-	topics, err := parseTopicSeed(topicSeed)
-	if err != nil {
-		t.Fatal(err)
-	}
-	byID := map[string]topicSeedRow{}
-	for _, tp := range topics {
-		byID[tp.ID] = tp
-	}
-	seeds, err := parseCourseSeed(courseSeed)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, c := range seeds {
-		tp, ok := byID[c.TopicID]
-		if !ok || tp.Path == "" {
-			t.Errorf("種子 %s 的 topicId %q 要指到有 path 的主題", c.ID, c.TopicID)
-		}
-		if (c.Overview != nil && !*c.Overview) != (c.ID == "ai-agent") {
-			t.Errorf("種子 %s 的 overview: 只有 ai-agent 是 false", c.ID)
-		}
 	}
 }

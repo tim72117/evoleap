@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
-import { coursePath, levelLabelOf, lessonUrl, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
+import { coursePath, lessonUrl, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
 import styles from './Lesson.module.css'
 import { topicOfCourse } from '../content/topics'
 
@@ -12,7 +12,7 @@ const chapterLink = (course: Course, ch: PlannedChapter) => (ch.id ? lessonUrl(c
 
 function Crumb({ course, chapter, current }: { course: Course; chapter: PlannedChapter; current?: string }) {
   const t = useT()
-  const level = t.courses.levelName(levelLabelOf(course, chapter))
+  const level = t.courses.levelName(chapter.level ?? course.level)
   return (
     <nav className={styles.crumb} aria-label={t.courses.breadcrumb}>
       <Link to={`${topicOfCourse(coursePath(course)).path}#map`}>{t.courses.courseMap}</Link>
@@ -44,7 +44,7 @@ export function PlannedChapterPage({ course, chapter, siblings }: { course: Cour
         <Crumb course={course} chapter={chapter} current={label(chapter)} />
         <header className={styles.head}>
           <p className={styles.kicker}>
-            {t.courses.levelName(levelLabelOf(course, chapter))} · {label(chapter)} · <span aria-hidden="true">🌱 </span>{t.courses.planned}
+            {t.courses.levelName(chapter.level ?? course.level)} · {label(chapter)} · <span aria-hidden="true">🌱 </span>{t.courses.planned}
           </p>
           <h1>{chapter.title}</h1>
         </header>

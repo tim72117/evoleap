@@ -9,12 +9,12 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/tim72117/evoleap/internal/store"
+	"github.com/tim72117/evoleap/internal/store/storetest"
 )
 
 // sitemap 依資料庫:課頁收不收,看資料庫裡那一課的狀態是不是 open;不寫死任何課號。
 func TestSitemapFollowsDatabase(t *testing.T) {
-	st, err := store.Open(filepath.Join(t.TempDir(), "test.db"))
+	st, err := storetest.Open(filepath.Join(t.TempDir(), "test.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

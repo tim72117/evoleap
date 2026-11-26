@@ -1,7 +1,7 @@
 // SEO 與 server 回應的回歸測試:sitemap 每一頁的 <head>、內部頁 noindex、robots.txt、
 // 404/301、快取標頭。全部是 HTTP 請求(不開瀏覽器頁面),只在 desktop project 跑一次。
 import { expect, test } from '@playwright/test'
-import { desktopOnly, distPagePaths, distSitemapPages, isInternal, mapLessons, ORIGIN, parseHead, sitemapPaths } from './support'
+import { databaseLessonPages, desktopOnly, distPagePaths, distSitemapPages, isInternal, mapLessons, ORIGIN, parseHead, sitemapPaths } from './support'
 
 test.beforeEach(({}, testInfo) => {
   test.skip(desktopOnly(testInfo), 'HTTP 檢查只在 desktop project 跑')
@@ -71,13 +71,25 @@ const HIDDEN_COURSE_PREFIXES: string[] = []
 const HIDDEN_PAGE = /^\/courses\/software\/[1-3]-\d$/
 const LESSON_PAGE = /^\/(courses|topics)\/[^/]+\/[^/]+$/
 
-test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁(還沒開放的課除外)', async ({ request }) => {
+test('每個預先產生的頁面與資料庫裡的單課頁:不是在 sitemap,就是 noindex', async ({ request }) => {
   const sitemap = new Set(sitemapPaths(await (await request.get('/sitemap.xml')).text()))
-  const pages = distPagePaths()
+  const pages = [...distPagePaths(), ...(await databaseLessonPages(request)).map((p) => p.path)]
   for (const p of ['/login', '/admin', '/docs/live', '/studio', '/materials', '/materials/cover-designer', '/materials/promo']) {
     expect(pages, `dist 應有內部頁 ${p}`).toContain(p)
   }
+  // 規劃中章節頁:資料庫沒有對應的課時不檢查
+  const missing = new Set<string>()
+  const maps = new Map<string, Set<string>>()
+  for (const p of distSitemapPages()) {
+    if (!p.lesson) continue
+    const { course, id } = p.lesson
+    if (!maps.has(course)) maps.set(course, new Set((await mapLessons(request, course)).map((l) => l.id)))
+    if (!maps.get(course)!.has(id)) missing.add(p.loc.slice(ORIGIN.length))
+  }
+  let hidden = 0
+  let notOpen = 0
   for (const path of pages) {
+    if (missing.has(path)) continue
     if (isInternal(path)) {
       expect.soft(sitemap.has(path), `${path}:內部頁不可在 sitemap`).toBe(false)
       const r = await request.get(path, { maxRedirects: 0 })
@@ -88,33 +100,32 @@ test('每個預先產生的頁面不是在 sitemap,就是 noindex 的內部頁(�
       expect.soft(h.titles.length, `${path}:<title> 數量`).toBe(1)
     } else if (HIDDEN_PAGE.test(path) || HIDDEN_COURSE_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))) {
       // 先不公開(levels.ts 的 hidden)的課程:網址打得開,但不收錄、不進 sitemap
+      hidden++
       expect.soft(sitemap.has(path), `${path}:先不公開的課不可在 sitemap`).toBe(false)
       const h = parseHead(await (await request.get(path)).text())
       expect.soft(h.meta('robots'), `${path}:先不公開的課要 noindex`).toEqual(['noindex, nofollow'])
     } else if (!sitemap.has(path)) {
-      // 還沒開放的課(資料庫裡不是 open)可以收錄但不放進 sitemap;其他公開頁都要在 sitemap
+      // 還沒開放或還沒有腳本的課不放進 sitemap,頁面也 noindex;其他公開頁都要在 sitemap
+      notOpen++
       expect.soft(LESSON_PAGE.test(path), `${path}:公開頁應在 sitemap(或改為內部頁)`).toBe(true)
       const h = parseHead(await (await request.get(path)).text())
-      expect.soft(h.meta('robots'), `${path}:還沒開放的課仍可收錄,不能 noindex`).toEqual([])
+      expect.soft(h.meta('robots'), `${path}:還沒開放的課要 noindex`).toEqual(['noindex, nofollow'])
     }
   }
-  for (const path of sitemap) expect.soft(pages, `sitemap 的 ${path} 沒有預先產生的 HTML`).toContain(path)
+  expect(hidden, '要檢查到先不公開的課').toBeGreaterThan(0)
+  expect(notOpen, '要檢查到還沒開放的課').toBeGreaterThan(0)
+  for (const path of sitemap) expect.soft(pages, `sitemap 的 ${path} 不是任何頁面`).toContain(path)
 })
 
-// /sitemap.xml 由 server 依資料庫產生:頁面清單(dist/sitemap-pages.json)裡的課頁,在 sitemap 裡就是資料庫裡那一課開放(open)
+// /sitemap.xml 的單課頁由 server 依資料庫展開:課開放(open)、有腳本而且單元沒有先不公開才收錄
 test('sitemap 的課頁依資料庫:課開放才收錄', async ({ request }) => {
   const sitemap = new Set(sitemapPaths(await (await request.get('/sitemap.xml')).text()))
-  const lessonPages = distSitemapPages().filter((p) => p.lesson)
-  expect(lessonPages.length).toBeGreaterThan(0)
-  const maps = new Map<string, Awaited<ReturnType<typeof mapLessons>>>()
   let inCount = 0
   let outCount = 0
-  for (const p of lessonPages) {
-    const { course, id } = p.lesson!
-    if (!maps.has(course)) maps.set(course, await mapLessons(request, course))
-    const open = maps.get(course)!.find((l) => l.id === id)?.status === 'open'
-    const path = p.loc.slice(ORIGIN.length)
-    expect.soft(sitemap.has(path), `${path}(${course} ${id},資料庫 ${open ? 'open' : '未開放'})`).toBe(open)
+  for (const { path, course, lesson } of await databaseLessonPages(request)) {
+    const open = lesson.status === 'open' && !(lesson as { hidden?: boolean }).hidden
+    expect.soft(sitemap.has(path), `${path}(${course} ${lesson.id},資料庫 ${open ? 'open' : '未開放'})`).toBe(open)
+    expect.soft((await request.get(path, { maxRedirects: 0 })).status(), `${path}:資料庫有的課都有頁面`).toBe(200)
     if (open) inCount++
     else outCount++
   }
@@ -179,7 +190,7 @@ test('robots.txt 有 Sitemap、沒有封鎖全站', async ({ request }) => {
   expect(body).not.toMatch(/^Disallow:\s*\/\s*$/m)
 })
 
-for (const path of ['/nope', '/courses/nope', '/courses/software/999', '/docs/nope', '/studio/nope']) {
+for (const path of ['/nope', '/courses/nope', '/courses/software/999', '/courses/web/9-99', '/courses/advanced/1', '/docs/nope', '/studio/nope']) {
   test(`不存在的頁面回 404 + noindex:${path}`, async ({ request }) => {
     const r = await request.get(path, { maxRedirects: 0 })
     expect(r.status()).toBe(404)

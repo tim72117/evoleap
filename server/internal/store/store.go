@@ -32,19 +32,6 @@ type Store struct {
 	i18n i18nCache
 }
 
-// Open 依 dsn 開啟資料庫、同步 schema,並把 courses_seed.json 的課程、單元與課寫進資料表(測試用,不含腳本檔;本機的後端用 Connect 加 SyncCourses)。
-// postgres:// 或 postgresql:// 開頭用 Postgres,其他視為 SQLite 檔案路徑。
-func Open(dsn string) (*Store, error) {
-	s, err := Connect(dsn)
-	if err != nil {
-		return nil, err
-	}
-	if err := s.SeedCourses(context.Background()); err != nil {
-		return nil, fmt.Errorf("seed courses: %w", err)
-	}
-	return s, nil
-}
-
 // Connect 開啟資料庫並同步 schema,不寫課程資料。Cloud Run 上的網站伺服器用:課程資料由部署時的同步工作
 // (Cloud Run Job 執行 cmd/sync,見 SyncCourses)寫入一次,免得每台伺服器啟動都重寫、多台同時啟動互相衝突。
 func Connect(dsn string) (*Store, error) {
@@ -75,17 +62,25 @@ func Connect(dsn string) (*Store, error) {
 	return &Store{db: db}, nil
 }
 
-// SyncCourses 把 topics_seed.json 的主題、courses_seed.json 的課程、單元、課(見 SeedCourses),以及每一課的腳本檔(dir 是 web/src/content/live,見 SyncLessonFiles)
-// 在同一個交易裡寫進資料庫:課程結構與腳本檔屬於哪一課以種子為準(種子拿掉的課會被刪),腳本內容以資料庫為準。中途失敗整批不寫。
-// 回傳的警告(例如種子已經沒有、但還有種子以外的課程引用的主題,保留不刪)不影響同步結果,由呼叫端印出。
-func (s *Store) SyncCourses(ctx context.Context, dir string) ([]string, error) {
-	return s.syncSeeds(ctx, topicSeed, courseSeed, dir)
+// SyncCourses 是部署與本機啟動時的同步:不寫主題、課程、單元、課(空資料庫要手動初始化,見 InitCatalog),
+// 只把 dir(web/src/content/live)裡資料庫還沒有的腳本檔補進研發基地,並重算翻譯的登記表。
+func (s *Store) SyncCourses(ctx context.Context, dir string) error {
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := addMissingScripts(tx, dir); err != nil {
+			return err
+		}
+		return syncI18n(tx)
+	})
+	if err != nil {
+		return err
+	}
+	s.i18n.clear()
+	return nil
 }
 
-// syncCoursesJSON 是 SyncCourses 的實作,種子由參數給(測試用)。
-func (s *Store) syncCoursesJSON(ctx context.Context, seed []byte, dir string) error {
-	_, err := s.syncSeeds(ctx, topicSeed, seed, dir)
-	return err
+// InitFromSeed 用給定的主題、課程資料與 dir 的腳本檔初始化空資料庫,只給測試用(server -seed、e2e);正式的初始化見 InitCatalog。
+func (s *Store) InitFromSeed(ctx context.Context, topicsJSON, coursesJSON []byte, dir string) ([]string, error) {
+	return s.syncSeeds(ctx, topicsJSON, coursesJSON, dir)
 }
 
 // syncSeeds 把主題種子與課程種子由參數給(測試用)寫進資料庫。
@@ -98,10 +93,6 @@ func (s *Store) syncSeeds(ctx context.Context, topicSeedJSON, seed []byte, dir s
 	if err != nil {
 		return nil, err
 	}
-	files, err := readLessonFiles(seeds, dir)
-	if err != nil {
-		return nil, err
-	}
 	var warnings []string
 	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		warnings = nil
@@ -109,14 +100,22 @@ func (s *Store) syncSeeds(ctx context.Context, topicSeedJSON, seed []byte, dir s
 		if err := seedTopics(tx, topics); err != nil {
 			return err
 		}
-		if err := seedCourses(tx, seeds); err != nil {
-			return fmt.Errorf("seed courses: %w", err)
-		}
-		if err := syncLessonFiles(tx, seeds, files); err != nil {
+		empty, err := noCourses(tx)
+		if err != nil {
 			return err
 		}
-		// 腳本檔都改掛到合併後的課程之後,才清掉舊課程(順序不能反)
-		if err := deleteRetiredCourses(tx, retiredIn(seeds)); err != nil {
+		if empty {
+			files, err := readLessonFiles(seeds, dir)
+			if err != nil {
+				return err
+			}
+			if err := seedCourses(tx, seeds); err != nil {
+				return fmt.Errorf("seed courses: %w", err)
+			}
+			if err := syncLessonFiles(tx, seeds, files); err != nil {
+				return err
+			}
+		} else if err := addMissingScripts(tx, dir); err != nil {
 			return err
 		}
 		w, err := pruneTopics(tx, topics)
@@ -125,7 +124,7 @@ func (s *Store) syncSeeds(ctx context.Context, topicSeedJSON, seed []byte, dir s
 		}
 		warnings = w
 		// 原表都寫完才重算翻譯的登記表,並把初稿種子補進資料庫(只補缺,見 syncI18n)
-		return syncI18n(tx)
+		return syncI18nSeeded(tx, topicSeedJSON, seed)
 	})
 	if err != nil {
 		return nil, err

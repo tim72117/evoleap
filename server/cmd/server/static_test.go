@@ -12,7 +12,7 @@ import (
 
 	"github.com/tim72117/evoleap/internal/api"
 	"github.com/tim72117/evoleap/internal/auth"
-	"github.com/tim72117/evoleap/internal/store"
+	"github.com/tim72117/evoleap/internal/store/storetest"
 )
 
 // 模擬 web/scripts/seo.mjs 產生的 dist 結構。
@@ -219,7 +219,7 @@ func TestEmbeddedPlaceholder(t *testing.T) {
 
 // 串起真實的登入 cookie、白名單判定與靜態檔處理器(和 main.go 的接法相同)。
 func TestInternalPagesWithRealSessions(t *testing.T) {
-	st, err := store.Open(filepath.Join(t.TempDir(), "test.db"))
+	st, err := storetest.Open(filepath.Join(t.TempDir(), "test.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

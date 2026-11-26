@@ -1,21 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { COURSES, coursePath, courseMapId, courseOfLevel, inHiddenStage, levelLabelOf, levelMapId, levelMapLessons, lessonNumber, lessonPath, lessonUrl, nextCourse, plannedChapterPath, stageOf } from './catalog'
-import { seedCourse } from './courseSeed'
+import { COURSES, coursePath, courseMapId, courseOfLevel, levelMapId, levelMapLessons, lessonIdFromSlug, lessonNumber, lessonPath, lessonUrl, nextCourse, plannedChapterPath } from './catalog'
+import { launchLessonPath } from './launchCourse'
 import { SOFTWARE_STAGE_CONTENT } from './softwareStages'
 import { ALL_LEVELS as LEVELS, levelPath, stageAnchor } from './levels'
 import { CLAUDE_CODE_LESSON_PAGES, topicOfCourse } from './topics'
 import { WEB_LESSON_PAGES } from './webCourse'
-import { LAUNCH_LESSON_PAGES, launchLessonPath } from './launchCourse'
 import { KIDS_LESSON_PAGES } from './kidsCourse'
-import courseSeed from '../../../server/internal/store/courses_seed.json'
+import { fixtureCourse, FIXTURE_COURSES } from '../test/courseFixture'
+
+const SOFTWARE_LESSON_IDS = fixtureCourse('software').units.flatMap((u) => u.lessons.map((l) => l.id))
 
 const allPaths = COURSES.flatMap((c) => [
   coursePath(c),
-  ...(c.stages ? seedCourse(c.slug).units.flatMap((u) => u.lessons.map((l) => lessonUrl(c.slug, l.id))) : []),
+  ...(c.stages ? SOFTWARE_LESSON_IDS.map((id) => lessonUrl(c.slug, id)) : []),
   ...c.planned.map((ch) => plannedChapterPath(c, ch)),
 ])
 
-// 軟體課前端寫死的課程內容(研發基地與單課頁的提示詞用):課程結構以種子為準,這裡只檢查內容資料本身的一致性
+// 軟體課前端寫死的課程內容(研發基地與單課頁的提示詞用):課程結構以資料庫為準,這裡只檢查內容資料本身的一致性
 const lessons = SOFTWARE_STAGE_CONTENT.flatMap((st) => st.lessons.map((l) => [`software ${l.id}`, l] as const))
 
 describe('courses', () => {
@@ -24,14 +25,8 @@ describe('courses', () => {
     expect(new Set(slugs).size).toBe(slugs.length)
   })
 
-  it('have unique lesson ids (seed) and planned slugs within each course', () => {
-    for (const c of COURSES) {
-      if (c.stages) {
-        const ids = seedCourse(c.slug).units.flatMap((u) => u.lessons.map((l) => l.id))
-        expect(new Set(ids).size, c.slug).toBe(ids.length)
-      }
-      expect(new Set(c.planned.map((p) => p.slug)).size, c.slug).toBe(c.planned.length)
-    }
+  it('have unique planned slugs within each course', () => {
+    for (const c of COURSES) expect(new Set(c.planned.map((p) => p.slug)).size, c.slug).toBe(c.planned.length)
   })
 })
 
@@ -41,13 +36,9 @@ describe('course URLs', () => {
     expect(dupes).toEqual([])
   })
 
-  it.each(allPaths)('%s is a clean path (no dot in last segment, no trailing slash)', (p) => {
-    expect(p.startsWith('/courses/')).toBe(true)
-    expect(p.endsWith('/')).toBe(false)
-    expect(p).not.toMatch(/\/\//)
+  it('are clean paths (no dot in last segment, no trailing slash)', () => {
     // Go server 把最後一段含 '.' 的網址當成靜態檔
-    expect(p.split('/').pop()).not.toContain('.')
-    expect(p).toMatch(/^[a-z0-9/-]+$/)
+    expect(allPaths.filter((p) => !/^\/courses\/[a-z0-9-]+(\/[a-z0-9-]+)*$/.test(p))).toEqual([])
   })
 
   it('AI Agent 中階課沒有自己的頁面:不在課程目錄,等級卡片連到主題頁', () => {
@@ -91,42 +82,49 @@ describe('lesson content', () => {
     expect(lessons.length).toBeGreaterThan(0)
   })
 
-  it.each(lessons)('%s has title, goal, and steps with title+expected', (_, lesson) => {
-    expect(lesson.title.trim()).not.toBe('')
-    expect(lesson.goal.trim()).not.toBe('')
-    expect(lesson.steps.length).toBeGreaterThanOrEqual(1)
-    for (const [i, s] of lesson.steps.entries()) {
-      expect(s.title?.trim(), `step ${i + 1} title`).toBeTruthy()
-      expect(s.expected?.trim(), `step ${i + 1} expected`).toBeTruthy()
-    }
-    // 步驟標題用作 React key,必須唯一
-    expect(new Set(lesson.steps.map((s) => s.title)).size).toBe(lesson.steps.length)
-  })
-
-  it.each(lessons)('%s videos reference valid steps and cover every step', (_, lesson) => {
-    const n = lesson.steps.length
-    expect(lesson.videos.length).toBeGreaterThanOrEqual(1)
-    const covered = new Set<number>()
-    for (const v of lesson.videos) {
-      expect(v.steps.length, v.title).toBeGreaterThan(0)
-      for (const s of v.steps) {
-        expect(Number.isInteger(s) && s >= 1 && s <= n, `${v.title}: step ${s} of ${n}`).toBe(true)
-        covered.add(s)
+  it('every lesson has title, goal, and steps with title+expected', () => {
+    for (const [name, lesson] of lessons) {
+      expect(lesson.title.trim(), name).not.toBe('')
+      expect(lesson.goal.trim(), name).not.toBe('')
+      expect(lesson.steps.length).toBeGreaterThanOrEqual(1)
+      for (const [i, s] of lesson.steps.entries()) {
+        expect(s.title?.trim(), `step ${i + 1} title`).toBeTruthy()
+        expect(s.expected?.trim(), `step ${i + 1} expected`).toBeTruthy()
       }
+      // 步驟標題用作 React key,必須唯一
+      expect(new Set(lesson.steps.map((s) => s.title)).size).toBe(lesson.steps.length)
     }
-    const missing = Array.from({ length: n }, (_, i) => i + 1).filter((s) => !covered.has(s))
-    expect(missing).toEqual([])
-    // 影片標題用作 React key
-    expect(new Set(lesson.videos.map((v) => v.title)).size).toBe(lesson.videos.length)
   })
 
-  it.each(lessons)('%s cues reference the video steps in ascending time', (_, lesson) => {
-    for (const v of lesson.videos) {
-      if (!v.cues) continue
-      for (const [i, c] of v.cues.entries()) {
-        expect(v.steps, `${v.title} cue step ${c.step}`).toContain(c.step)
-        expect(c.at).toBeGreaterThanOrEqual(0)
-        if (i > 0) expect(c.at, `${v.title} cue ${i}`).toBeGreaterThan(v.cues[i - 1].at)
+  it('every lesson videos reference valid steps and cover every step', () => {
+    for (const [name, lesson] of lessons) {
+      const n = lesson.steps.length
+      expect(lesson.videos.length, name).toBeGreaterThanOrEqual(1)
+      const covered = new Set<number>()
+      for (const v of lesson.videos) {
+        expect(v.steps.length, v.title).toBeGreaterThan(0)
+        for (const s of v.steps) {
+          expect(Number.isInteger(s) && s >= 1 && s <= n, `${v.title}: step ${s} of ${n}`).toBe(true)
+          covered.add(s)
+        }
+      }
+      const missing = Array.from({ length: n }, (_, i) => i + 1).filter((s) => !covered.has(s))
+      expect(missing).toEqual([])
+      // 影片標題用作 React key
+      expect(new Set(lesson.videos.map((v) => v.title)).size).toBe(lesson.videos.length)
+    }
+  })
+
+  it('every lesson cues reference the video steps in ascending time', () => {
+    for (const [name, lesson] of lessons) {
+      for (const v of lesson.videos) {
+        if (!v.cues) continue
+        const at = `${name} ${v.title}`
+        for (const [i, c] of v.cues.entries()) {
+          expect(v.steps, `${at} cue step ${c.step}`).toContain(c.step)
+          expect(c.at).toBeGreaterThanOrEqual(0)
+          if (i > 0) expect(c.at, `${at} cue ${i}`).toBeGreaterThan(v.cues[i - 1].at)
+        }
       }
     }
   })
@@ -147,22 +145,13 @@ describe('LEVELS ↔ COURSES', () => {
       expect(st.label).toBe(lv.levelLabel)
       expect(Boolean(st.hidden)).toBe(Boolean(lv.hidden))
     }
-    // 階段就是種子的單元:每一課都在某個階段裡
-    expect(seedCourse('software').units.map((u) => u.id)).toEqual(software.stages!.map((st) => st.id))
     expect(courseMapId(software)).toBe('software')
   })
 
-  it('stageOf / levelLabelOf / inHiddenStage 依課所在階段', () => {
-    const software = COURSES.find((c) => c.slug === 'software')!
-    expect(stageOf(software, { id: '0.1' })?.id).toBe('tools')
-    expect(stageOf(software, { id: '1.0' })?.id).toBe('ai-tools')
-    expect(stageOf(software, { slug: '4-3' })?.id).toBe('vibe-coding-basics')
-    expect(levelLabelOf(software, { id: '0.1' })).toBe('起步')
-    expect(levelLabelOf(software, { slug: '4-3' })).toBe('基礎')
-    expect(levelLabelOf(software)).toBe(software.level)
-    expect(inHiddenStage(software, { id: '1.0' })).toBe(true)
-    expect(inHiddenStage(software, { id: '0.1' })).toBe(false)
-    expect(inHiddenStage(software, { slug: '4-3' })).toBe(false)
+  it('lessonIdFromSlug 是 lessonUrl 的反向(地圖讀不到時的畫面標示用)', () => {
+    for (const c of FIXTURE_COURSES) {
+      for (const l of c.units.flatMap((u) => u.lessons)) expect(lessonIdFromSlug(c.id, lessonUrl(c.id, l.id).split('/').pop()!), `${c.id} ${l.id}`).toBe(l.id)
+    }
   })
 
   it('levelMapLessons:分階段的課只取同 id 單元的課', () => {
@@ -180,16 +169,6 @@ describe('LEVELS ↔ COURSES', () => {
 
   it.each(LEVELS.filter((l) => l.link).map((l) => [l.id, l.link!] as const))('level %s links to an existing course (%s)', (_, link) => {
     expect(coursePaths.has(link.split('#')[0])).toBe(true)
-  })
-
-  // 首頁課程地圖會略過對不到的單課(不 throw),所以在這裡確保每一項都對得到
-  it.each(LEVELS.filter((l) => l.lessons?.length).map((l) => [l.id, l] as const))('level %s lessons all exist in its course', (_, level) => {
-    const course = courseOfLevel(level)
-    expect(course, `${level.id} 找不到 link 為 ${level.link} 的課程`).toBeDefined()
-    // 分階段的課:等級的課要在種子同 id 單元裡
-    const ids = new Set(seedCourse(course!.slug).units.find((u) => u.id === level.id)!.lessons.map((l) => l.id))
-    const missing = level.lessons!.map((l) => l.id).filter((id) => !ids.has(id))
-    expect(missing).toEqual([])
   })
 
   it('every course takes its title from a level', () => {
@@ -210,11 +189,12 @@ describe('nextCourse', () => {
 })
 
 // 課頁在別處產生的課(網頁怎麼運作、從做好到上線、Claude Code 工作術):課程總覽頁共用 CourseOverviewPage,
-// 單課頁由 home/routes.tsx 產生,所以 catalog 裡沒有 lessons、planned(否則 courses/routes.tsx 會產生重複的路由)
+// 單課路由在 home/routes.tsx,所以 catalog 裡沒有 lessons、planned(否則 courses/routes.tsx 會產生重複的路由)
 // 課程總覽頁的連結規則(overviewModel.ts)是「資料庫有腳本、開放或草稿」→ lessonUrl(課程, 課號);網址要和這些課頁註冊的網址一樣
 const PAGE_COURSE_PATHS: Record<string, Record<string, string>> = {
   web: Object.fromEntries(Object.entries(WEB_LESSON_PAGES).map(([id, l]) => [id, l.path])),
-  launch: Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [id, launchLessonPath(id)])),
+  // 上線課沒有手寫的單課清單,用網址規則抽幾個課號檢查
+  launch: Object.fromEntries(['0.1', '2.3'].map((id) => [id, launchLessonPath(id)])),
   kids: Object.fromEntries(Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => [id, l.path])),
   'claude-code': Object.fromEntries(Object.entries(CLAUDE_CODE_LESSON_PAGES).map(([id, l]) => [id, l.path])),
 }
@@ -240,23 +220,6 @@ describe('課頁在別處的課', () => {
         expect(p.startsWith(`${coursePath(c)}/`), p).toBe(true)
         expect(p.split('/').pop()).not.toContain('.')
       }
-    }
-  })
-
-  it('每一課都在資料庫種子的課程地圖裡,而且有腳本、開放或草稿(總覽頁才連得到)', () => {
-    const seed = courseSeed as unknown as { id: string; units?: { lessons: { id: string; script?: string; status: string }[] }[] }[]
-    for (const c of paged) {
-      const lessons = seed.find((s) => s.id === courseMapId(c))!.units!.flatMap((u) => u.lessons)
-      for (const id of Object.keys(PAGE_COURSE_PATHS[c.slug])) {
-        const l = lessons.find((x) => x.id === id)
-        expect(l, `${c.slug} ${id}`).toBeDefined()
-        // 課頁寫好了、正式機還是規劃中的課(兒童課 4.x):種子沒有掛腳本,課程總覽不連
-        if (l!.status === 'planned') continue
-        expect(l!.script, `${c.slug} ${id}`).toBeTruthy()
-        expect(['open', 'draft'], `${c.slug} ${id}`).toContain(l!.status)
-      }
-      // 反過來:種子裡有腳本的課都有課頁
-      expect(lessons.filter((l) => l.script).map((l) => l.id), c.slug).toEqual(Object.keys(PAGE_COURSE_PATHS[c.slug]).filter((id) => lessons.find((l) => l.id === id)?.status !== 'planned'))
     }
   })
 

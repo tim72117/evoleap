@@ -2,10 +2,11 @@ import { useEffect, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
-import { coursePath, lessonUrl, type Course } from '../content/catalog'
+import { courseMapId, coursePath, lessonUrl, type Course } from '../content/catalog'
 import type { MapLesson } from '../content/courseMap'
 import { L0_LESSONS } from '../content/l0Lessons'
 import { L1_LESSONS } from '../content/l1Lessons'
+import { useCourseName } from '../content/courseMap'
 import { lessonDocTitle, lessonLabelOf } from '../content/lessonDisplay'
 import { SOFTWARE_TOPIC } from '../content/topics'
 import type { StageScript } from '../live/stage'
@@ -59,6 +60,7 @@ export function InteractiveLessonPage({ course, lesson, prev, next }: Props) {
   const location = useLocation()
   const t = useT()
   const c = t.courses.lesson
+  const courseName = useCourseName(courseMapId(course), course.title)
   const progress = useMemo(() => (memberId ? memberProgress(`live:${script}`) : undefined), [memberId, script])
   useEffect(() => {
     if (status !== 'loading' && !memberId) clearGuestProgress()
@@ -74,7 +76,7 @@ export function InteractiveLessonPage({ course, lesson, prev, next }: Props) {
       interaction="stage"
       prepare={prepare}
       course={{
-        docTitle: documentTitle(lessonDocTitle(lesson.title, course.title)),
+        docTitle: documentTitle(lessonDocTitle(lesson.title, courseName)),
         heading: lesson.title,
         back: { to: coursePath(course), label: c.back },
         progress,

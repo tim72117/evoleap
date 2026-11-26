@@ -192,8 +192,9 @@ test('登入後免費的課程:未登入彈出小登入視窗,登入後在同一
   // 「開始學習」連到序章(不用登入就能看)
   await expect(page.getByRole('link', { name: '開始學習' })).toHaveAttribute('href', '/courses/software/intro')
 
-  // 免費預覽的課可以直接看,要登入的課跳登入視窗
-  for (const l of lessons.filter((x) => x.status === 'open')) {
+  // 免費預覽的課可以直接看,要登入的課跳登入視窗(各挑一課)
+  const open = lessons.filter((x) => x.status === 'open')
+  for (const l of [open.find((x) => x.access === 'free')!, open.find((x) => x.access !== 'free')!]) {
     await page.goto(pathOf(l.id))
     if (l.access === 'free') {
       await expect(page.locator('.vp').first()).toBeVisible()

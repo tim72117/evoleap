@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"errors"
+	"github.com/tim72117/evoleap/internal/store/fixture"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -20,8 +21,8 @@ func openSeeded(t *testing.T) *Store {
 	return st
 }
 
-// 管理員改一課:檢查規則、記一筆修改紀錄;種子再同步一次會蓋回種子的內容(課程結構以種子為準)
-func TestUpdateLessonOverwrittenBySeed(t *testing.T) {
+// 管理員改一課:檢查規則、記一筆修改紀錄;種子再同步一次不會蓋掉(課程結構以資料庫為準)
+func TestUpdateLessonKeptAfterSeed(t *testing.T) {
 	st := openSeeded(t)
 	ctx := context.Background()
 	minutes := 12
@@ -39,15 +40,15 @@ func TestUpdateLessonOverwrittenBySeed(t *testing.T) {
 	if m, err := st.CourseMapOf(ctx, "kids", true); err != nil || m.Units[0].Lessons[0].Status != LessonDraft || m.Units[0].Lessons[0].Minutes != 12 {
 		t.Fatalf("改了之後: %+v %v", m.Units[0].Lessons[0], err)
 	}
-	if err := st.SeedCourses(ctx); err != nil {
+	if err := st.Seed(ctx, fixture.Topics, fixture.Courses); err != nil {
 		t.Fatal(err)
 	}
 	m, err := st.CourseMapOf(ctx, "kids", true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if l := m.Units[0].Lessons[0]; l.Status != LessonOpen || l.Minutes == 12 {
-		t.Errorf("同步後要是種子的內容: %+v", l)
+	if l := m.Units[0].Lessons[0]; l.Status != LessonDraft || l.Minutes != 12 {
+		t.Errorf("同步後要保留改過的內容: %+v", l)
 	}
 	changes, err := st.CourseChanges(ctx, 10)
 	if err != nil || len(changes) == 0 || changes[0].Action != "lesson.update" || changes[0].Target != "kids 0.1" || changes[0].User != "boss@example.com" {
@@ -55,8 +56,8 @@ func TestUpdateLessonOverwrittenBySeed(t *testing.T) {
 	}
 }
 
-// 管理員改一門課自己的存取方式與課名:檢查規則、沒寫 access 的課跟著變、記一筆修改紀錄;種子再同步一次會蓋回種子的內容
-func TestUpdateCourseOverwrittenBySeed(t *testing.T) {
+// 管理員改一門課自己的存取方式與課名:檢查規則、沒寫 access 的課跟著變、記一筆修改紀錄;種子再同步一次不會蓋掉
+func TestUpdateCourseKeptAfterSeed(t *testing.T) {
 	st := openSeeded(t)
 	ctx := context.Background()
 	if err := st.ReplaceUnitsJSON("kids", `[{"id":"u","title":"U","lessons":[
@@ -110,11 +111,11 @@ func TestUpdateCourseOverwrittenBySeed(t *testing.T) {
 	if len(changes) != 2 {
 		t.Errorf("不合規則的修改不該留紀錄(腳本一筆、課程一筆): %d 筆", len(changes))
 	}
-	if err := st.SeedCourses(ctx); err != nil {
+	if err := st.Seed(ctx, fixture.Topics, fixture.Courses); err != nil {
 		t.Fatal(err)
 	}
-	if m, err := st.CourseMapOf(ctx, "kids", true); err != nil || m.Access == AccessSubscription || m.Title == title {
-		t.Errorf("同步後要是種子的內容: %s %s %v", m.Access, m.Title, err)
+	if m, err := st.CourseMapOf(ctx, "kids", true); err != nil || m.Access != AccessSubscription || m.Title != title {
+		t.Errorf("同步後要保留改過的內容: %s %s %v", m.Access, m.Title, err)
 	}
 }
 
@@ -134,7 +135,7 @@ func TestPutScript(t *testing.T) {
 	if f, _ := st.LessonFileOf(ctx, "kids/new.json"); f.Content != `{"a":2}` || f.LessonID != "0.1" {
 		t.Errorf("只換內容,還是 kids 0.1 的: %+v", f)
 	}
-	if err := st.PutScript(ctx, "boss@example.com", "kids/new.json", "kids", "0.2", []byte(`{}`)); !errors.Is(err, ErrInvalidCourseData) {
+	if err := st.PutScript(ctx, "boss@example.com", "kids/new.json", "kids", "1.1", []byte(`{}`)); !errors.Is(err, ErrInvalidCourseData) {
 		t.Errorf("一個檔只能屬於一課: %v", err)
 	}
 	if err := st.PutScript(ctx, "boss@example.com", "lab/x.json", "", "", []byte(`{}`)); err != nil {
@@ -154,11 +155,11 @@ func TestPutScript(t *testing.T) {
 func TestUpdateLessonScriptMustExist(t *testing.T) {
 	st := openSeeded(t)
 	ctx := context.Background()
-	missing, other := "kids/nope.json", "kids/0.2.json"
+	missing, other := "kids/nope.json", "kids/1.1.json"
 	if err := st.UpdateLesson(ctx, "boss@example.com", "kids", "0.1", LessonPatch{Script: &missing}); !errors.Is(err, ErrInvalidCourseData) {
 		t.Errorf("沒上傳的腳本: %v", err)
 	}
-	if err := st.PutScript(ctx, "boss@example.com", other, "kids", "0.2", []byte(`{}`)); err != nil {
+	if err := st.PutScript(ctx, "boss@example.com", other, "kids", "1.1", []byte(`{}`)); err != nil {
 		t.Fatal(err)
 	}
 	if err := st.UpdateLesson(ctx, "boss@example.com", "kids", "0.1", LessonPatch{Script: &other}); !errors.Is(err, ErrInvalidCourseData) {

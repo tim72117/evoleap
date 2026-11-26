@@ -23,7 +23,7 @@ export const SOFTWARE_TOPIC = {
   /** 課程地圖所在的頁面 */
   path: '/topics/software',
   /** 搜尋結果的標題與描述:寫學員會搜尋的說法,不要寫未確認的事實 */
-  // 課程總覽頁 /courses/software 的搜尋標題讀資料庫種子(courses_seed.json),原本是這一句;兩頁的標題不能一樣,主題頁改成課程地圖的說法
+  // 課程總覽頁 /courses/software 的搜尋標題讀資料庫,原本是這一句;兩頁的標題不能一樣,主題頁改成課程地圖的說法
   seoTitle: '不會寫程式也能做軟體：零基礎 AI 開發課程地圖',
   description: `${SOFTWARE_LEDE}。零基礎也能開始，用 AI 做出網站與小工具，再學會串接自動化流程，免費從入門課開始。`,
   /** 首頁卡片的「你會學到什麼」:依等級(levels.ts 的 LEVELS)各一項 */
@@ -200,7 +200,7 @@ export const claudeCodeScenarioId = (index: number): string => String(index + 1)
 /** 這段影片的錨點:腳本檔名去掉資料夾與副檔名(claude-code/remote.json → remote)。舊網址 /topics/claude-code#remote 轉到這一課的頁面 */
 export const scenarioAnchor = (script: string): string => script.replace(/^.*\//, '').replace(/\.json$/, '')
 
-/** 已經有課程頁的情境(有示範影片的):課號 → 課程頁網址、腳本、錨點。規劃中的情境沒有頁面。腳本要和種子一致(content/courseMap.test.ts) */
+/** 有示範影片的情境(單課路由照資料庫,沒列在這裡的課用通用版型):課號 → 課程頁網址、腳本、錨點。規劃中的情境沒有頁面。腳本要和資料庫一致(content/courseMap.test.ts 只檢查腳本檔存在) */
 export const CLAUDE_CODE_LESSON_PAGES: Record<string, { path: string; script: string; anchor: string }> = Object.fromEntries(
   CLAUDE_CODE_SCENARIOS.flatMap((s, i) =>
     s.video ? [[claudeCodeScenarioId(i), { path: `${CLAUDE_CODE_TOPIC.path}/${claudeCodeScenarioId(i)}`, script: s.video.script, anchor: scenarioAnchor(s.video.script) }]] : [],

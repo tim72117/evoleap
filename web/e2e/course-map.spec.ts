@@ -1,4 +1,4 @@
-// 主題頁的課程地圖從資料庫讀(GET /api/courses/{id}/map;資料在資料庫,測試用的資料庫由 server/internal/store/courses_seed.json 建立):
+// 主題頁的課程地圖從資料庫讀(GET /api/courses/{id}/map;資料在資料庫,測試用的資料庫由 server/internal/store/fixture/courses.json 建立):
 // 未登入時每門課的前五課免費預覽、其他開放的課登入後學習、還沒開放的規劃中;開放的課連到課程頁。
 import { expect, test } from '@playwright/test'
 import { GATED, collectErrors, desktopOnly, expectLabel, loginAsNewStudent, mapLessons } from './support'
@@ -14,11 +14,8 @@ test('兒童課程地圖由資料庫讀取', async ({ page }) => {
   await expect(row('0.1').getByRole('link', { name: '翻到網頁的背面' })).toHaveAttribute('href', '/courses/kids/0-1')
   // 每一課的標示(免費預覽、登入後學習、規劃中)依資料庫的課程地圖
   for (const l of await mapLessons(page.request, 'kids', gated)) await expectLabel(row(l.id), l)
-  // 單元 1、單元 2 的課有課程頁:開放的課(上面依資料庫的標示)訪客看到可以點的課
-  await expect(row('1.1').getByRole('link')).toHaveAttribute('href', '/courses/kids/1-1')
-  await expect(row('2.1').getByRole('link')).toHaveAttribute('href', '/courses/kids/2-1')
-  // 3.1~3.5 已開放:訪客看到可以點的課(正式機上是登入後學習,標示依上面的資料庫地圖)
-  for (const id of ['3.1', '3.2', '3.3', '3.4', '3.5']) await expect(row(id).getByRole('link')).toHaveAttribute('href', `/courses/kids/${id.replace('.', '-')}`)
+  // 沒寫 access 的開放課(照課程的登入後免費)訪客一樣看到可以點的課
+  await expect(row('3.1').getByRole('link')).toHaveAttribute('href', '/courses/kids/3-1')
   // 4.1 起是規劃中:訪客看到規劃中、沒有連結,直接打開課程頁是「還沒開放」
   await expect(row('4.1')).toContainText('規劃中')
   await expect(row('4.1').getByRole('link')).toHaveCount(0)
@@ -46,8 +43,8 @@ test('網頁怎麼運作的課程地圖由資料庫讀取', async ({ page }) => 
   for (const l of await mapLessons(page.request, 'web')) await expectLabel(row(l.id), l)
 })
 
-// 序章三課已開放(前五課都是免費預覽,序章三課不用登入;若資料庫改成要登入的課,登入後能上也照資料判斷);腳本載入後整課拖到底都不出錯
-test('從做好到上線:序章三課,免費預覽的直接播、其他要登入,三課都播得動', async ({ page }, info) => {
+// 開放的課:免費預覽的直接播、其他要登入(各挑一課);腳本載入後整課拖到底都不出錯
+test('從做好到上線:免費預覽的直接播、其他要登入,兩種課都播得動', async ({ page }, info) => {
   test.skip(desktopOnly(info), '只在桌面版測一次')
   const errors = collectErrors(page)
   const slider = () => page.getByRole('slider', { name: '播放進度' }).first()
@@ -59,16 +56,15 @@ test('從做好到上線:序章三課,免費預覽的直接播、其他要登入
     await expect(page.getByText('找不到')).toHaveCount(0)
   }
   // 用照正式設定跑的 server:訪客的存取方式和正式站一樣
-  const intro = (await mapLessons(page.request, 'launch', GATED)).filter((l) => l.id.startsWith('0.') && l.status === 'open')
-  expect(intro.length).toBeGreaterThanOrEqual(3)
-  const pathOf = (id: string) => `${GATED}/courses/launch/${id.replace('.', '-')}`
-  for (const l of intro.filter((x) => x.access === 'free')) await playToEnd(pathOf(l.id))
-  for (const l of intro.filter((x) => x.access !== 'free')) {
-    await page.goto(pathOf(l.id))
-    await expect(page.getByRole('dialog', { name: '登入' })).toBeVisible()
-  }
+  const open = (await mapLessons(page.request, 'launch', GATED)).filter((l) => l.status === 'open')
+  const free = open.find((l) => l.access === 'free')!
+  const gated = open.find((l) => l.access !== 'free')!
+  const pathOf = (id: string) => `/courses/launch/${id.replace('.', '-')}`
+  await playToEnd(`${GATED}${pathOf(free.id)}`)
+  await page.goto(`${GATED}${pathOf(gated.id)}`)
+  await expect(page.getByRole('dialog', { name: '登入' })).toBeVisible()
   await loginAsNewStudent(page)
-  for (const l of intro.filter((x) => x.access !== 'free')) await playToEnd(`/courses/launch/${l.id.replace('.', '-')}`)
+  await playToEnd(pathOf(gated.id))
   expect(errors).toEqual([])
 })
 

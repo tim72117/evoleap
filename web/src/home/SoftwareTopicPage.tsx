@@ -5,7 +5,6 @@ import { useHashScroll } from '../site/useHashScroll'
 import { AI_APPS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
 import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, shownLevels, type CourseLevel } from '../content/levels'
 import { courseOfLevel, levelMapId, levelMapLessons, lessonLabel, lessonUrl } from '../content/catalog'
-import { SOFTWARE_LESSON_IDS } from '../content/softwareOutline'
 import { useCourseMaps, type CourseMap } from '../content/courseMap'
 import { useT } from '../i18n/I18nProvider'
 import { AiAgentIntro } from './AiAgentIntro'
@@ -18,17 +17,12 @@ const openIdsOf = (map: CourseMap | undefined, level: CourseLevel) => {
   return lessons ? new Set(lessons.filter((l) => l.status === 'open').map((l) => l.id)) : undefined
 }
 
-/** 等級的單課清單:對到課程種子裡的單課,附上網址與是否已開放。
- *  對不到的項目直接略過(不在 render 中 throw,免得整個首頁空白);資料一致性由 catalog.test.ts 檢查 */
+/** 等級的單課清單(只有「做出自己的軟體」的階段有):附上網址與是否已開放 */
 /** (lessonLabel 依目前語言,呼叫的元件用 useT() 訂閱語言,換語言時會重算) */
 function levelLessons(level: CourseLevel, openIds: Set<string> | undefined) {
   const course = courseOfLevel(level)
-  if (!course) return []
-  const seedIds = new Set(course.slug === 'software' ? SOFTWARE_LESSON_IDS : [])
-  return (level.lessons ?? []).flatMap((item) => {
-    if (!seedIds.has(item.id)) return []
-    return [{ ...item, label: lessonLabel(item), to: lessonUrl(course.slug, item.id), open: openIds?.has(item.id) ?? false }]
-  })
+  if (course?.slug !== 'software') return []
+  return (level.lessons ?? []).map((item) => ({ ...item, label: lessonLabel(item), to: lessonUrl(course.slug, item.id), open: openIds?.has(item.id) ?? false }))
 }
 
 function LevelCard({ level, index, openIds }: { level: CourseLevel; index: number; openIds?: Set<string> }) {

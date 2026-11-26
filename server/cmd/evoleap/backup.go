@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"net/url"
 	"os"
@@ -23,7 +24,7 @@ type backupFile struct {
 
 // cmdBackupExport 唯讀地把正式資料庫裡 lesson_files 與 studio_files 的內容匯到本機目錄:
 // <out>/lesson/<路徑>、<out>/studio/<路徑>(內容與資料庫逐位元組相同),另外 <out>/index.json 列出每個檔的來源、課別、位元組數與 sha256。
-// 只打 GET /api/admin/script-export,不寫伺服器。上傳到 GCS 由 server/backup/export.ps1 做。
+// 只打 GET /api/admin/script-export,不寫伺服器。上傳到 GCS 由 server/backup/gcs.mjs 做。
 func cmdBackupExport(c *client, args []string) {
 	fs := flag.NewFlagSet("backup export", flag.ExitOnError)
 	out := fs.String("out", "", "匯出到這個目錄(會建立 lesson/、studio/ 與 index.json)")
@@ -53,6 +54,9 @@ func cmdBackupExport(c *client, args []string) {
 		}
 		return index[i].Path < index[j].Path
 	})
+	var catalog json.RawMessage
+	mustDo(c.do("GET", "/api/admin/catalog-export", nil, &catalog))
+	mustDo(os.WriteFile(filepath.Join(*out, "catalog.json"), catalog, 0o644))
 	// index.json 用 printJSON 同樣的格式(縮排 2 格、不跳脫 HTML)寫檔
 	f, err := os.Create(filepath.Join(*out, "index.json"))
 	mustDo(err)

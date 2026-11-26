@@ -19,31 +19,6 @@ func openTopicsStore(t *testing.T) *Store {
 	return st
 }
 
-// 種子的結構:主題 id、名稱、content 是 JSON 物件;順序就是 position
-func TestTopicSeedShape(t *testing.T) {
-	seeds, err := parseTopicSeed(topicSeed)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var ids []string
-	for _, tp := range seeds {
-		ids = append(ids, tp.ID)
-		if !topicIDPattern.MatchString(tp.ID) || tp.Name == "" || tp.Slogan == "" {
-			t.Errorf("主題 %q 要有合規的 id、name、slogan", tp.ID)
-		}
-		if _, err := validateTopic(tp.Name, tp.Slogan, tp.Path, tp.SEOTitle, tp.Description, tp.Content); err != nil {
-			t.Errorf("主題 %s: %v", tp.ID, err)
-		}
-		var obj map[string]any
-		if len(tp.Content) == 0 || json.Unmarshal(tp.Content, &obj) != nil || obj == nil {
-			t.Errorf("主題 %s 的 content 要是 JSON 物件", tp.ID)
-		}
-	}
-	if got := strings.Join(ids, ","); got != "software,launch,kids,web,ai-apps,monetize,life-data,claude-code" {
-		t.Errorf("主題順序: %s", got)
-	}
-}
-
 func TestTopicsSeededAndListed(t *testing.T) {
 	st := openTopicsStore(t)
 	ts, err := st.ListTopics(context.Background())
@@ -81,7 +56,7 @@ func TestTopicsSeededAndListed(t *testing.T) {
 	}
 }
 
-// 同步:種子為準(更新欄位與順序、刪掉種子沒有的主題),課程引用不存在的主題時整批失敗,主題還被課程引用時保留並警告
+// 測試資料初始化:依給定的主題更新欄位與順序、刪掉沒有的主題,課程引用不存在的主題時整批失敗,主題還被課程引用時保留並警告
 func TestTopicSync(t *testing.T) {
 	ctx := context.Background()
 	st := openEmpty(t)
@@ -118,11 +93,11 @@ func TestTopicSync(t *testing.T) {
 	}
 	// 課程引用不存在的主題、沒有 path 的主題
 	bad := `[{"id":"c1","title":"課","access":"free","topicId":"zzz","units":[]}]`
-	if _, err := st.syncSeeds(ctx, []byte(topics2), []byte(bad), dir); err == nil || !strings.Contains(err.Error(), "zzz") {
+	if _, err := openEmpty(t).syncSeeds(ctx, []byte(topics2), []byte(bad), dir); err == nil || !strings.Contains(err.Error(), "zzz") {
 		t.Errorf("不存在的主題: %v", err)
 	}
 	noPath := `[{"id":"c1","title":"課","access":"free","topicId":"p","units":[]}]`
-	if _, err := st.syncSeeds(ctx, []byte(`[{"id":"p","name":"規劃中"}]`), []byte(noPath), dir); err == nil {
+	if _, err := openEmpty(t).syncSeeds(ctx, []byte(`[{"id":"p","name":"規劃中"}]`), []byte(noPath), dir); err == nil {
 		t.Error("沒有 path 的主題不能有課程屬於它")
 	}
 	// 種子驗證:id 重複、content 不是物件、path 沒有 /

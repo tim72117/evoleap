@@ -1,5 +1,5 @@
 // 即時教學畫面的腳本:檔案放在 src/content/live/,單課資料以 live: 'l0/0.0-tools.json' 指定(相對於 content/live/)。
-// 腳本(與旁白清單、章節音軌清單)不打包進前端:寫入課程資料時讀進資料庫(正式環境是部署時,本機是後端啟動時;課程的依 courses_seed.json 掛在各課底下,其餘是研發基地的),
+// 腳本(與旁白清單、章節音軌清單)不打包進前端:放在資料庫(各課的在 lesson_files,研發基地的在 studio_files),用 evoleap script push 修改;
 // 這裡向 GET /api/scripts/{path} 取得。伺服器依那一課的狀態與存取方式把關(草稿只給管理員、登入後免費的要登入),研發基地的只給管理員。
 import { useEffect, useState } from 'react'
 import { errorText } from '../i18n/errorText'

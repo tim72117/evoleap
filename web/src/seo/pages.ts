@@ -1,31 +1,21 @@
-// 公開網址的 SEO 資料(title、description、canonical、robots、JSON-LD)——唯一來源。
-// 研發基地的內部頁在 internalPages.ts(這個檔案會打包進公開的 JS,不能列內部頁)。
+// 公開網址的 SEO 資料(title、description、canonical、robots、JSON-LD)。
+// 課程相關頁面(課程總覽、單課、規劃中章節)例外:它們的資料來自資料庫,由 Go server 在請求時組出來
+// (server/cmd/server/courseseo.go),這裡只有路由清單(coursePages.ts)與換頁時向 server 讀資料(resolvePage)。
+// 其他頁面的唯一來源是這裡;研發基地的內部頁在 internalPages.ts(這個檔案會打包進公開的 JS,不能列內部頁)。
 // - build:scripts/seo.mjs 透過 build.ts 用它產生每個路由的 HTML(dist/<路由>/index.html)、404.html、
-//   sitemap.xml、robots.txt;並檢查 App.tsx 的每個路由都有對應的一筆,漏了會 build 失敗。
+//   sitemap-pages.json、robots.txt;並檢查 App.tsx 的每個路由都有對應的一筆,漏了會 build 失敗。
 // - 瀏覽器:usePageMeta(App.tsx)在切換頁面時套用同一份資料。
-// 課程、單課、文章、文件都從既有的目錄資料推導,新增課程/文章不用改這裡;
-// 新增其他類型的頁面時,在下方 PAGES 加一筆(內部頁加在 internalPages.ts)。
+// 文章、文件從既有的目錄資料推導;新增其他類型的頁面時,在下方 PAGES 加一筆(內部頁加在 internalPages.ts)。
 import { COURSE } from '../content/aiAgent'
-import { COURSES, courseOfLevel, coursePath, courseMapId, lessonUrl, plannedChapterPath } from '../content/catalog'
-import { seedCourse, type SeedLesson } from '../content/courseSeed'
-import { lessonDocTitle, lessonLabelOf } from '../content/lessonDisplay'
+import { courseOfLevel } from '../content/catalog'
 import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, levelPath, shownLevels, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
-import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
-import { AI_APPS_TOPIC, CLAUDE_CODE_LESSON_PAGES, CLAUDE_CODE_SCENARIOS, CLAUDE_CODE_TOPIC, COURSE_LIST, HOME_INTRO, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, topicOfCourse, WEB_TOPIC } from '../content/topics'
-import { LAUNCH_LESSON_PAGES, launchLessonPath } from '../content/launchCourse'
-import { WEB_LESSON_PAGES } from '../content/webCourse'
+import { AI_APPS_TOPIC, COURSE_LIST, HOME_INTRO, SOFTWARE_TOPIC } from '../content/topics'
+import { isCoursePage } from './coursePages'
 import { EN_ALTERNATES, EN_PAGES, EN_PREFIX } from './enPages'
 import { MEMBER_SECTIONS, memberSectionTitle } from '../member/sections'
 
 type JsonLd = Record<string, unknown>
-
-/**
- * 結構化資料裡課程清單的一課:標出課程頁網址,但開放了沒有不在 build 判斷(不讀種子)。
- * server 回傳頁面時(server/cmd/server/seo_ld.go)依資料庫:那一課已開放就把 url 寫成 ListItem 的 "url",
- * 並一律拿掉 evoleapLesson,所以這個欄位不會出現在回應裡。
- */
-const lessonLink = (course: string, id: string, path: string) => ({ evoleapLesson: { course, id, url: absoluteUrl(path) } })
 
 export interface PageMeta {
   /** 站內路徑,不含結尾斜線(首頁為 /) */
@@ -36,8 +26,6 @@ export interface PageMeta {
   /** 不收錄的頁面(登入、後台、研發基地):noindex,且不列入 sitemap */
   noindex?: boolean
   ogType?: 'website' | 'article'
-  /** 這一頁是哪一課(courses_seed.json 的課程 id 與課號);課還沒開放時仍可收錄,但不列入 sitemap(server 依資料庫決定,見 server/cmd/server/sitemap.go) */
-  lesson?: { course: string; id: string }
   /** 頁面語言;英文版(/en/...,見 enPages.ts)是 'en',其餘是中文 */
   lang?: 'en'
   /** sitemap 的 <priority>(0–1);不填則不輸出,搜尋引擎視為 0.5 */
@@ -150,134 +138,6 @@ const AI_APPS_TOPIC_PAGE: PageMeta = { ...AI_APPS_BASE, jsonLd: [...(AI_APPS_BAS
 
 const COURSE_LIST_PAGE = topicPage(COURSE_LIST, ALL_LEVELS)
 
-/** 種子裡某門課的某一課(頁面註冊了但種子沒有時回 undefined,課名退回課號、描述退回主題描述) */
-const seedLesson = (courseId: string, id: string): SeedLesson | undefined => seedCourse(courseId).units.flatMap((u) => u.lessons).find((x) => x.id === id)
-
-/** 單課頁的 <title>:`課名｜課程名稱 · evoleap`(頁名與執行期 document.title 同一個函式 lessonDocTitle,content/lessonDisplay.ts) */
-const lessonTitle = (title: string, courseTitle: string): string => documentTitle(lessonDocTitle(title, courseTitle))
-
-/** 兒童課已經可以上的課:一課一頁(課名、描述讀課程種子的 title、summary) */
-const KIDS_LESSON_METAS: PageMeta[] = Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => {
-  const lesson = seedLesson('kids', id)
-  const title = lesson?.title ?? id
-  const learn = lesson?.summary
-  // 課程地圖上的一句話有些太短,接上主題與課名
-  const description = learn ? (learn.length >= 20 ? learn : `${learn}${KIDS_TOPIC.name}：${title}。`) : KIDS_TOPIC.description
-  return {
-    path: l.path,
-    title: lessonTitle(title, seedCourse('kids').title),
-    description,
-    lesson: { course: 'kids', id },
-    jsonLd: [breadcrumb([COURSE_LIST.name, COURSE_LIST.path], [KIDS_TOPIC.name, KIDS_TOPIC.path], [title, l.path]), course(`${KIDS_TOPIC.name}：${title}`, description, l.path)],
-  }
-})
-
-/** 網頁怎麼運作已經可以上的課:一課一頁 */
-const WEB_LESSON_METAS: PageMeta[] = Object.entries(WEB_LESSON_PAGES).map(([id, l]) => {
-  const lesson = seedLesson('web', id)
-  const title = lesson?.title ?? id
-  const description = lesson?.summary ?? WEB_TOPIC.description
-  return {
-    path: l.path,
-    title: lessonTitle(title, seedCourse('web').title),
-    description,
-    lesson: { course: 'web', id },
-    jsonLd: [breadcrumb([COURSE_LIST.name, COURSE_LIST.path], [WEB_TOPIC.name, WEB_TOPIC.path], [title, l.path]), course(`${WEB_TOPIC.name}：${title}`, description, l.path)],
-  }
-})
-
-/** Claude Code 工作術有示範影片的情境:一個情境一頁 */
-const CLAUDE_CODE_LESSON_METAS: PageMeta[] = Object.entries(CLAUDE_CODE_LESSON_PAGES).map(([id, l]) => {
-  const s = CLAUDE_CODE_SCENARIOS[Number(id) - 1]
-  return {
-    path: l.path,
-    title: lessonTitle(s.title, seedCourse('claude-code').title),
-    description: s.summary,
-    lesson: { course: 'claude-code', id },
-    jsonLd: [breadcrumb([COURSE_LIST.name, COURSE_LIST.path], [CLAUDE_CODE_TOPIC.name, CLAUDE_CODE_TOPIC.path], [s.title, l.path]), course(`${CLAUDE_CODE_TOPIC.name}：${s.title}`, s.summary, l.path)],
-  }
-})
-
-/** 這幾門課原本是主題頁,沿用當時 sitemap 的優先度 */
-const PAGE_COURSE_PRIORITY: Record<string, number> = { web: 0.8, launch: 0.3, 'claude-code': 0.9, kids: 0.8 }
-
-const COURSE_PAGES: PageMeta[] = COURSES.flatMap((c) => {
-  const courseName = c.title
-  const topic = topicOfCourse(coursePath(c))
-  const seedId = courseMapId(c)
-  // 主題就是這門課自己(網頁怎麼運作等):麵包屑的上一層是全部課程,不連回自己
-  const topicCrumb: [string, string] = topic.path === coursePath(c) ? [COURSE_LIST.name, COURSE_LIST.path] : [topic.name, topic.path]
-  // 課程總覽頁的搜尋標題、描述、課名與課程清單:build 時沒有 API,讀種子檔 courses_seed.json(資料庫就是從它同步的);
-  // 畫面執行時(CourseOverviewPage)讀 API,同一份資料,所以 document.title 與這裡的 <title> 一致
-  const seed = seedCourse(seedId)
-  const seedLessons = seed.units.flatMap((u) => u.lessons)
-  const overviewTitle = seed.title
-  const overviewDescription = seed.description || seed.summary || seed.title
-  const overview: PageMeta[] = [
-        {
-          path: coursePath(c),
-          title: documentTitle(seed.seoTitle || seed.title),
-          description: overviewDescription,
-          ...(PAGE_COURSE_PRIORITY[c.slug] !== undefined && { sitemapPriority: PAGE_COURSE_PRIORITY[c.slug] }),
-          jsonLd: [
-            course(overviewTitle, overviewDescription, coursePath(c)),
-            breadcrumb(topicCrumb, [overviewTitle, coursePath(c)]),
-            // 課頁在別處產生的課(沒有分階段、前端沒有 lessons:網頁怎麼運作、從做好到上線、Claude Code 工作術):列出每一課
-            // (有腳本的課標出課程頁網址,開放了沒有由 server 依資料庫決定)
-            ...(!c.stages && seedLessons.length > 0
-              ? [
-                  ld({
-                    '@type': 'ItemList',
-                    name: overviewTitle,
-                    itemListElement: seedLessons.map((l, i) => ({
-                      '@type': 'ListItem',
-                      position: i + 1,
-                      name: `${l.id} ${l.title}`,
-                      ...(l.script && lessonLink(seedId, l.id, lessonUrl(c.slug, l.id))),
-                    })),
-                  }),
-                ]
-              : []),
-          ],
-        },
-      ]
-  // 分階段的課(做出自己的軟體)的單課:種子裡每一課一頁,不論開放與否(開放與否在執行時由資料庫決定,sitemap 由 server 依資料庫列,build 不判斷);
-  // 種子狀態是規劃中的課是規劃中章節頁(標題與執行時 PlannedChapterPage 一致),其餘是單課頁。先不公開(hidden)單元底下的課 noindex
-  const seedPages: PageMeta[] = c.stages
-    ? seed.units.flatMap((u) =>
-        u.lessons.map((lesson): PageMeta => {
-          const path = lessonUrl(c.slug, lesson.id)
-          const planned = lesson.status === 'planned'
-          const name = `${planned ? lesson.id : lessonLabelOf(c.slug, lesson.id)} ${lesson.title}`
-          return {
-            path,
-            title: planned ? documentTitle(name) : lessonTitle(lesson.title, overviewTitle),
-            // 課程地圖上的一句話有些太短(序章),接上課程名稱與課名
-            description: lesson.summary ? (lesson.summary.length >= 20 ? lesson.summary : `${lesson.summary}${courseName}：${lesson.title}。`) : overviewDescription,
-            lesson: { course: seedId, id: lesson.id },
-            ogType: 'article',
-            ...(u.hidden && { noindex: true }),
-            jsonLd: [breadcrumb(topicCrumb, [courseName, coursePath(c)], [name, path])],
-          }
-        }),
-      )
-    : []
-  // 前端還有的規劃中章節(只有還沒有課程地圖的進階課)
-  const planned: PageMeta[] = c.planned.map((ch) => {
-    const name = `${ch.label} ${ch.title}`
-    return {
-      path: plannedChapterPath(c, ch),
-      title: documentTitle(name),
-      description: ch.summary,
-      lesson: { course: seedId, id: ch.id ?? ch.label },
-      ogType: 'article' as const,
-      jsonLd: [breadcrumb(topicCrumb, [courseName, coursePath(c)], [name, plannedChapterPath(c, ch)])],
-    }
-  })
-  // 先不公開的課(整門課):網址還打得開,但不收錄、不列入 sitemap
-  return [...overview, ...seedPages, ...planned].map((p) => (c.hidden ? { ...p, noindex: true } : p))
-})
-
 // 法律頁:公開、可收錄,但在 sitemap 標為低優先。
 const LEGAL_PAGES: PageMeta[] = [
   {
@@ -332,21 +192,6 @@ const ADMIN_PAGE: PageMeta = {
   noindex: true,
 }
 
-/** 主題「從做好到上線」有課程頁的課(課程總覽頁 /courses/launch 在 COURSE_PAGES);課還沒開放時訪客看到「還沒開放」 */
-const LAUNCH_PAGES: PageMeta[] = LAUNCH_LESSON_PAGES.map((id) => {
-  const lesson = seedLesson('launch', id)
-  const title = lesson?.title ?? id
-  return {
-    path: launchLessonPath(id),
-    title: lessonTitle(title, seedCourse('launch').title),
-    // 課程地圖上的一句話有些太短,接上主題與課名
-    description: lesson ? `${lesson.summary}${LAUNCH_TOPIC.name}：${title}。` : LAUNCH_TOPIC.description,
-    lesson: { course: 'launch', id },
-    sitemapPriority: 0.2,
-    jsonLd: [breadcrumb([COURSE_LIST.name, COURSE_LIST.path], [LAUNCH_TOPIC.name, LAUNCH_TOPIC.path], [title, launchLessonPath(id)])],
-  }
-})
-
 /** 展示頁(home/ShowcasePage.tsx):首頁拿掉的影片預覽搬到這裡當行銷頁;站內沒有連結,公開頁一律收錄(pages.test.ts) */
 const SHOWCASE_PAGE: PageMeta = {
   path: '/showcase',
@@ -360,12 +205,7 @@ export const PAGES: PageMeta[] = [
   SOFTWARE_TOPIC_PAGE,
   AI_APPS_TOPIC_PAGE,
   COURSE_LIST_PAGE,
-  ...KIDS_LESSON_METAS,
-  ...WEB_LESSON_METAS,
-  ...CLAUDE_CODE_LESSON_METAS,
-  ...LAUNCH_PAGES,
   SHOWCASE_PAGE,
-  ...COURSE_PAGES,
   ...LEGAL_PAGES,
   LOGIN_PAGE,
   CLI_AUTH_PAGE,
@@ -396,9 +236,37 @@ export function findPage(pathname: string): PageMeta {
   return NOT_FOUND
 }
 
+/** 課程相關頁面的網址(沒有英文版的 /en/... 也算,回它的中文網址);不是就回 undefined */
+function coursePathOf(pathname: string): { path: string; en: boolean } | undefined {
+  const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
+  if (BY_PATH.has(path)) return undefined
+  if (isCoursePage(path)) return { path, en: false }
+  if (!path.startsWith(EN_PREFIX + '/')) return undefined
+  const base = path.slice(EN_PREFIX.length)
+  return isCoursePage(base) ? { path: base, en: true } : undefined
+}
+
+/**
+ * 換頁時要套用的 SEO 資料:課程相關頁面向 server 讀(GET /api/seo/page,和 server 回傳的 HTML 同一份、讀資料庫),
+ * 其他頁用上面的靜態資料。server 說沒有這一頁回 NOT_FOUND;讀不到(資料庫或網路有問題)回 null,由呼叫端拿掉上一頁的標籤。
+ */
+export async function resolvePage(pathname: string): Promise<PageMeta | null> {
+  const hit = coursePathOf(pathname)
+  if (!hit) return findPage(pathname)
+  try {
+    const res = await fetch(`/api/seo/page?path=${encodeURIComponent(hit.path)}`, { credentials: 'same-origin' })
+    if (res.status === 404) return NOT_FOUND
+    if (!res.ok) return null
+    const page = (await res.json()) as PageMeta
+    return hit.en ? { ...page, noindex: true } : page
+  } catch {
+    return null
+  }
+}
+
 /** 這一頁的各語言網址(有英文版的頁才有,含自己;hreflang 與 sitemap 用);沒有就空陣列 */
-export function languageAlternates(page: PageMeta): { lang: string; path: string }[] {
-  const zh = page.lang === 'en' ? page.path.slice(EN_PREFIX.length) : page.path
+export function languageAlternates(path: string, lang?: 'en'): { lang: string; path: string }[] {
+  const zh = lang === 'en' ? path.slice(EN_PREFIX.length) : path
   const en = EN_ALTERNATES.get(zh)
   return en ? [{ lang: 'zh-Hant', path: zh }, { lang: 'en', path: en }, { lang: 'x-default', path: zh }] : []
 }
@@ -410,7 +278,7 @@ export type HeadTag =
   | { tag: 'link'; attrs: Record<string, string> }
   | { tag: 'script'; attrs: Record<string, string>; text: string }
 
-export function headTags(page: PageMeta, opts: { keepLessonLinks?: boolean } = {}): HeadTag[] {
+export function headTags(page: PageMeta): HeadTag[] {
   const isNotFound = page === NOT_FOUND
   const url = absoluteUrl(page.path)
   const image = absoluteUrl(OG_IMAGE.path)
@@ -422,7 +290,7 @@ export function headTags(page: PageMeta, opts: { keepLessonLinks?: boolean } = {
   const tags: HeadTag[] = [meta('name', 'description', page.description)]
   if (page.noindex) tags.push(meta('name', 'robots', 'noindex, nofollow'))
   if (!isNotFound) tags.push({ tag: 'link', attrs: { rel: 'canonical', href: url } })
-  if (!page.noindex) for (const a of languageAlternates(page)) tags.push({ tag: 'link', attrs: { rel: 'alternate', hreflang: a.lang, href: absoluteUrl(a.path) } })
+  if (!page.noindex) for (const a of languageAlternates(page.path, page.lang)) tags.push({ tag: 'link', attrs: { rel: 'alternate', hreflang: a.lang, href: absoluteUrl(a.path) } })
   tags.push(
     meta('property', 'og:type', page.ogType ?? 'website'),
     meta('property', 'og:site_name', SITE_NAME),
@@ -440,7 +308,7 @@ export function headTags(page: PageMeta, opts: { keepLessonLinks?: boolean } = {
   )
   for (const data of page.jsonLd ?? []) {
     // 避免內容裡的 "</script>" 提早結束 script 元素。
-    tags.push({ tag: 'script', attrs: { type: 'application/ld+json' }, text: JSON.stringify(data, opts.keepLessonLinks === false ? (k, v) => (k === 'evoleapLesson' ? undefined : v) : undefined).replace(/</g, '\\u003c') })
+    tags.push({ tag: 'script', attrs: { type: 'application/ld+json' }, text: JSON.stringify(data).replace(/</g, '\\u003c') })
   }
   return tags
 }

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { useCourseName } from '../content/courseMap'
 import { lessonDocTitle, lessonKicker, lessonLabelOf } from '../content/lessonDisplay'
 import { PageView } from '../courses/guestActivity'
 import type { LessonBlock } from '../courses/LessonGate'
@@ -33,9 +34,10 @@ export function TopicBlocked({ reason, course, topic, id, title }: { reason: Les
 }
 
 function Notice({ course, topic, id, title, message, children }: { course: string; topic: Topic; id: string; title: string; message: string; children: ReactNode }) {
+  const courseName = useCourseName(course, topic.name)
   return (
     <PageView>
-      <SiteLayout title={lessonDocTitle(title, topic.name)}>
+      <SiteLayout title={lessonDocTitle(title, courseName)}>
         <section className={page.hero}>
           <div className={page.heroInner}>
             <p className={page.kicker}>

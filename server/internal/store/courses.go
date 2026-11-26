@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,7 +14,7 @@ import (
 )
 
 // courseRow 記錄每門課的存取方式,Access 為 subscription 代表要訂閱才能看。
-// 資料來源是 courses_seed.json,寫入課程資料時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)同步進這張表。課程地圖 API 回傳它,腳本檔(GET /api/scripts)依它與每一課的 access 把關;
+// 資料以資料庫為準,用 evoleap CLI 修改;空資料庫手動初始化(見 catalog.go)。課程地圖 API 回傳它,腳本檔(GET /api/scripts)依它與每一課的 access 把關;
 // 訂閱檢查還沒做(訂閱課程的腳本只給管理員)。前端 /courses/... 的單課頁要不要登入仍看 content/catalog.ts,content/courseMap.test.ts 檢查兩邊一致。
 type courseRow struct {
 	ID     string `gorm:"primaryKey;size:64"`
@@ -36,7 +35,7 @@ type courseRow struct {
 	IntroScript string `gorm:"size:200"`
 	// TopicID 是這門課所屬主題(topics 表的 id,見 topics.go;全部課程頁依它分組,空的不列在全部課程);
 	// Overview 是這門課有沒有自己的課程總覽頁 /courses/<id>(預設有;沒有的課,例如 ai-agent,從主題頁進去);
-	// Position 是課程的排序(小的在前),同步時依種子陣列的順序寫入
+	// Position 是課程的排序(小的在前),用 evoleap course order 改
 	TopicID   string `gorm:"size:64;index"`
 	Overview  bool   `gorm:"default:true"`
 	Position  int
@@ -71,7 +70,7 @@ func (s *Store) CourseAccess(ctx context.Context, id string) (Access, string, er
 	return Access(r.Access), r.Tier, nil
 }
 
-// courseSeedRow 是 courses_seed.json 的一列。
+// courseSeedRow 是課程資訊裡的一門課(匯出、初始化與測試資料共用的格式)。
 type courseSeedRow struct {
 	ID     string `json:"id"`
 	Title  string `json:"title"`
@@ -91,19 +90,14 @@ type courseSeedRow struct {
 	Units []unitSeed `json:"units,omitempty"`
 }
 
-//go:embed courses_seed.json
-var courseSeed []byte
-
-// SeedCourses 把 topics_seed.json 的主題(見 topics.go)、courses_seed.json 的課程、單元與課寫進資料庫(課程結構以種子為準):
-// 沒有的新增;已經有的用種子的內容更新(課程的 title、access、tier,單元與每一課的各欄位,見 upsertUnits);
-// 種子裡的課程,資料庫有、種子已經沒有的單元與課會被刪除。種子沒有的課程整門不動(不刪、不改)。
-// 管理員用 evoleap CLI 改的課程資料(見 coursesadmin.go)下次同步會被蓋回種子的內容,要長期保留得同時改種子。
-func (s *Store) SeedCourses(ctx context.Context) error {
-	seeds, err := parseCourseSeed(courseSeed)
+// Seed 寫入給定的主題(格式同固定測試資料 fixture/topics.json);課程、單元與課只在資料庫沒有任何課程時寫入。只給測試用(storetest、固定資料)。
+// 課程結構以資料庫為準:之後用 evoleap CLI 新增、修改、刪除、排序(見 coursesadmin.go、structure.go),同步不會蓋掉。
+func (s *Store) Seed(ctx context.Context, topicsJSON, coursesJSON []byte) error {
+	seeds, err := parseCourseSeed(coursesJSON)
 	if err != nil {
 		return err
 	}
-	topics, err := parseTopicSeed(topicSeed)
+	topics, err := parseTopicSeed(topicsJSON)
 	if err != nil {
 		return err
 	}
@@ -113,7 +107,7 @@ func (s *Store) SeedCourses(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		return syncI18n(tx)
+		return syncI18nSeeded(tx, topicsJSON, coursesJSON)
 	}); err != nil {
 		return err
 	}
@@ -129,10 +123,21 @@ func seedTopicsAndCourses(tx *gorm.DB, topics []topicSeedRow, seeds []courseSeed
 	if err := seedTopics(tx, topics); err != nil {
 		return nil, err
 	}
-	if err := seedCourses(tx, seeds); err != nil {
-		return nil, fmt.Errorf("seed courses: %w", err)
+	if empty, err := noCourses(tx); err != nil {
+		return nil, err
+	} else if empty {
+		if err := seedCourses(tx, seeds); err != nil {
+			return nil, fmt.Errorf("seed courses: %w", err)
+		}
 	}
 	return pruneTopics(tx, topics)
+}
+
+// noCourses 回報資料庫是不是還沒有任何課程(種子只在這時寫入)。
+func noCourses(tx *gorm.DB) (bool, error) {
+	var n int64
+	err := tx.Model(&courseRow{}).Count(&n).Error
+	return n == 0, err
 }
 
 func parseCourseSeed(seed []byte) ([]courseSeedRow, error) {
@@ -143,7 +148,7 @@ func parseCourseSeed(seed []byte) ([]courseSeedRow, error) {
 	return seeds, nil
 }
 
-// seedCourses 是 SeedCourses 的實作,在呼叫端的交易裡執行(SyncCourses 和腳本檔的同步放在同一個交易)。
+// seedCourses 在呼叫端的交易裡寫入課程、單元與課(InitCatalog、Seed 共用)。
 func seedCourses(tx *gorm.DB, seeds []courseSeedRow) error {
 	if len(seeds) == 0 {
 		return nil
@@ -191,56 +196,6 @@ func seedCourses(tx *gorm.DB, seeds []courseSeedRow) error {
 		}
 	}
 	return nil
-}
-
-// retiredCourses 是併進別門課、不再單獨存在的舊課程:tools、ai-tools、vibe-coding-basics 現在是「做出自己的軟體」(software)的三個單元(單元 id 與舊課程 id 相同,課號不變)。
-// 同步(SyncCourses)最後把它們的課、單元、課程本身從資料庫刪掉;種子裡又有同 id 的課程時不刪(retiredIn)。
-var retiredCourses = []string{"tools", "ai-tools", "vibe-coding-basics"}
-
-// retiredIn 回傳 retiredCourses 裡種子已經沒有的課程。
-func retiredIn(seeds []courseSeedRow) []string {
-	inSeed := map[string]bool{}
-	for _, c := range seeds {
-		inSeed[c.ID] = true
-	}
-	var out []string
-	for _, id := range retiredCourses {
-		if !inSeed[id] {
-			out = append(out, id)
-		}
-	}
-	return out
-}
-
-// deleteRetiredCourses 刪掉舊課程的課、單元與課程本身。要等腳本檔都改掛到合併後的課程之後才能呼叫(syncLessonFiles 之後):
-// 還掛在舊課程底下的檔(種子沒指定給任何課的)帶著資料庫裡的內容移到研發基地的腳本(studio_files,已有同路徑的不動),不會遺失。
-// 學員進度、訪客紀錄用腳本路徑當鍵,不受影響。
-func deleteRetiredCourses(tx *gorm.DB, ids []string) error {
-	if len(ids) == 0 {
-		return nil
-	}
-	var left []lessonFileRow
-	if err := tx.Where("course_id IN ?", ids).Find(&left).Error; err != nil {
-		return err
-	}
-	if len(left) > 0 {
-		moved := make([]studioFileRow, len(left))
-		for i, r := range left {
-			moved[i] = studioFileRow{Path: r.Path, Content: r.Content}
-		}
-		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(moved, 20).Error; err != nil {
-			return err
-		}
-		if err := tx.Where("course_id IN ?", ids).Delete(&lessonFileRow{}).Error; err != nil {
-			return err
-		}
-	}
-	for _, t := range []any{&lessonRow{}, &unitRow{}} {
-		if err := tx.Where("course_id IN ?", ids).Delete(t).Error; err != nil {
-			return err
-		}
-	}
-	return tx.Where("id IN ?", ids).Delete(&courseRow{}).Error
 }
 
 // validCourseArt 是課程插圖樣式(web/src/content/levels.ts 的 CourseArt,對應 home/LevelArt.tsx);空的用預設。

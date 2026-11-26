@@ -6,7 +6,6 @@ import { loginHref } from '../auth/paths'
 import { adminApi, type SchemaReport, type AdminOverview, type AdminUser, type Count, type AdminRange, type GuestVisit, type HomePath, type HomeStay, type LessonStat, type LoginStats, type UserProgress } from './api'
 import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
 import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
-import { LAUNCH_LESSON_PAGES, launchLessonPath, launchScriptKey } from '../content/launchCourse'
 import { WEB_LESSON_PAGES } from '../content/webCourse'
 import { ADMIN_PATH } from './paths'
 import { formatDateTime, formatDuration, percentOf } from './format'
@@ -387,16 +386,26 @@ const PAGE_NAME: Record<string, string> = {
   '/topics/web': `${WEB_TOPIC.name}（地圖，舊網址）`,
   '/topics/launch': `${LAUNCH_TOPIC.name}（地圖，舊網址）`,
   '/topics/claude-code': `${CLAUDE_CODE_TOPIC.name}（情境，舊網址）`,
-  ...Object.fromEntries(Object.keys(WEB_LESSON_PAGES).map((id) => [`/topics/web/${id.replace('.', '-')}`, `網頁課 ${id}（舊網址）`])),
-  ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [`/topics/launch/${id.replace('.', '-')}`, `上線課 ${id}（還沒開放，舊網址）`])),
-  // 這幾課還沒開放時,訪客看到的是提示頁(home/TopicBlocked 的提示頁),記成 page:<網址>
-  ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [launchLessonPath(id), `上線課 ${id}（還沒開放）`])),
+}
+/** 單課網址的名稱照網址規則認(不列課號,資料庫新增的課也認得)。看到提示頁的訪客(home/TopicBlocked)記成 page:<網址> */
+const PAGE_PATTERNS: [RegExp, (id: string) => string][] = [
+  [/^\/topics\/web\/(\d+-\d+)$/, (id) => `網頁課 ${id}（舊網址）`],
+  [/^\/topics\/launch\/(\d+-\d+)$/, (id) => `上線課 ${id}（還沒開放，舊網址）`],
+  [/^\/courses\/launch\/(\d+-\d+)$/, (id) => `上線課 ${id}（還沒開放）`],
+]
+const pageName = (path: string): string | undefined => {
+  if (PAGE_NAME[path]) return PAGE_NAME[path]
+  for (const [pattern, name] of PAGE_PATTERNS) {
+    const slug = pattern.exec(path)?.[1]
+    if (slug) return name(slug.replace('-', '.'))
+  }
 }
 const LESSON_NAME: Record<string, string> = {
   ...Object.fromEntries(Object.entries(WEB_LESSON_PAGES).map(([id, l]) => [`live:${l.script}`, `網頁課 ${id}`])),
   ...Object.fromEntries(Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => [`kids:${l.script}`, `兒童課 ${id}`])),
-  ...Object.fromEntries(LAUNCH_LESSON_PAGES.map((id) => [launchScriptKey(id), `上線課 ${id}`])),
 }
+/** 上線課的上課紀錄名稱(live:launch/<課號>.json,見 content/launchCourse.ts 的 launchScriptKey) */
+const LAUNCH_KEY = /^live:launch\/(\d+\.\d+)\.json$/
 
 /** 路徑上的一站 → 後台顯示的名稱 */
 export function stepName(lesson: string): string {
@@ -405,11 +414,12 @@ export function stepName(lesson: string): string {
   if (lesson.startsWith('leave:')) return `去了 ${lesson.slice('leave:'.length)}`
   if (isPage(lesson)) {
     const path = lesson.slice('page:'.length)
-    return PAGE_NAME[path] ?? path
+    return pageName(path) ?? path
   }
   if (isGate(lesson)) return `登入門檻 ${lesson.slice('gate:'.length)}`
   if (isHomeShowcase(lesson)) return '展示影片'
-  return LESSON_NAME[lesson] ?? lesson
+  const launch = LAUNCH_KEY.exec(lesson)?.[1]
+  return LESSON_NAME[lesson] ?? (launch ? `上線課 ${launch}` : lesson)
 }
 
 /** 從首頁進來的造訪:最常見的路徑 */

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/tim72117/evoleap/internal/api"
@@ -24,7 +25,8 @@ func main() {
 	dbPath := flag.String("db", "shuttle.db", "DATABASE_URL 未設定時使用的本機 SQLite 檔案")
 	distDir := flag.String("dist", "", "從磁碟目錄提供前端 build(例如 ../web/dist);留空使用內嵌的 build")
 	openStudio := flag.Bool("open-studio", false, "不檢查內部頁(研發基地)與管理後台的權限,只給本機與 E2E 測試用;Cloud Run 上會拒絕啟動")
-	liveDir := flag.String("live", "../web/src/content/live", "課程腳本檔的目錄(web/src/content/live);本機啟動時把 courses_seed.json 寫到的檔案讀進資料庫(資料庫沒有的才補)")
+	liveDir := flag.String("live", "../web/src/content/live", "課程腳本檔的目錄(web/src/content/live);本機啟動時把資料庫還沒有的檔補進研發基地")
+	seed := flag.String("seed", "", "只給測試:含 topics.json、courses.json 的目錄,啟動時初始化資料庫(正式與本機開發用 gcs.mjs init)")
 	envFile := flag.String("env", ".env", "本機開發時從這個檔案補上還沒設定的環境變數(Google 登入、管理員等);空字串不讀。Cloud Run 上不讀")
 	flag.Parse()
 
@@ -46,7 +48,7 @@ func main() {
 
 	// 資料庫決定登入功能是否啟用:
 	//   - 有 DATABASE_URL:用它(正式環境為 Cloud SQL Postgres,postgresql://…?host=/cloudsql/…)。
-	//   - Cloud Run 上沒設定:不開資料庫,登入功能停用;課程資料與腳本只讀資料庫,所以課程地圖與課程腳本也都不提供(沒有種子備援),其餘靜態頁照常
+	//   - Cloud Run 上沒設定:不開資料庫,登入功能停用;課程資料與腳本只讀資料庫,所以課程地圖與課程腳本也都不提供、課程相關頁面回 503(沒有種子備援),其餘靜態頁照常
 	//     (Cloud Run 的檔案系統不保存資料,不能退回 SQLite)。
 	//   - 本機沒設定:退回 SQLite 檔案(-db)。
 	onCloudRun := os.Getenv("K_SERVICE") != ""
@@ -74,16 +76,20 @@ func main() {
 		cfg.LiveDir = *liveDir
 	}
 	if dsn == "" {
-		log.Print("未設定 DATABASE_URL:登入功能停用,課程地圖與課程腳本也不提供(只讀資料庫,沒有種子備援)")
+		log.Print("未設定 DATABASE_URL:登入功能停用,課程地圖與課程腳本也不提供、課程頁回 503(只讀資料庫,沒有種子備援)")
 	} else {
 		// Cloud Run 上只讀:課程資料由部署時的同步工作寫入(cmd/sync)。本機每次啟動同步一次(同 cmd/sync):
-		// 課程結構與腳本檔屬於哪一課照種子(種子拿掉的課會被刪),腳本內容已經在資料庫的不動;要整份換成檔案的內容就刪掉 shuttle.db 再啟動
+		// 課程資料以資料庫為準;啟動不寫主題與課程,空資料庫用 node server/backup/gcs.mjs init 初始化
 		st, err := store.Connect(dsn)
 		if err == nil && !onCloudRun {
-			var warnings []string
-			warnings, err = st.SyncCourses(context.Background(), *liveDir)
-			for _, w := range warnings {
-				log.Printf("警告:%s", w)
+			if *seed != "" {
+				var warnings []string
+				warnings, err = initFromDir(st, *seed, *liveDir)
+				for _, w := range warnings {
+					log.Printf("警告:%s", w)
+				}
+			} else {
+				err = st.SyncCourses(context.Background(), *liveDir)
 			}
 		}
 		if err != nil {
@@ -109,17 +115,35 @@ func main() {
 		access = openAccess
 	}
 	dist := distFS(*distDir)
-	var open openLessons // 沒接資料庫時為 nil:sitemap 只列非課頁、頁面結構化資料不附課程連結
-	if cfg.Store != nil {
-		open = cachedOpenLessons(cfg.Store.OpenLessonKeys, time.Minute)
+	var open openLessons  // 沒接資料庫時為 nil:sitemap 只列非課頁
+	var load courseLoader // 沒接資料庫時為 nil:課程相關頁面回 503
+	if st := cfg.Store; st != nil {
+		open = cachedOpenLessons(st.OpenLessonKeys, time.Minute)
+		// 只讀公開的內容(草稿當成規劃中)
+		load = func(ctx context.Context, id string) (store.CourseMap, error) { return st.CourseMapOf(ctx, id, false) }
 	}
+	courses := newCourseSEO(dist, load)
+	mux.Handle("GET /api/seo/page", courses.apiHandler())
 	if h := sitemapHandler(dist, open); h != nil {
 		mux.Handle("GET /sitemap.xml", h)
 	}
-	mux.Handle("/", newStaticHandlerWithOpen(dist, access, open))
+	mux.Handle("/", newStaticHandlerWithCourses(dist, access, courses))
 
 	log.Printf("listening on %s", *addr)
 	if err := http.ListenAndServe(*addr, mux); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// initFromDir 用 dir 的 topics.json、courses.json 初始化資料庫(-seed,測試用)。
+func initFromDir(st *store.Store, dir, liveDir string) ([]string, error) {
+	topics, err := os.ReadFile(filepath.Join(dir, "topics.json"))
+	if err != nil {
+		return nil, err
+	}
+	courses, err := os.ReadFile(filepath.Join(dir, "courses.json"))
+	if err != nil {
+		return nil, err
+	}
+	return st.InitFromSeed(context.Background(), topics, courses, liveDir)
 }

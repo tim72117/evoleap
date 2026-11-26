@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -13,9 +14,7 @@ import (
 )
 
 // 管理員改課程資料(evoleap CLI 經 /api/admin/courses/*、/api/admin/scripts/*)。
-// 課程結構以種子(courses_seed.json)為準:每次同步(部署、本機啟動)會把種子寫到的欄位(課名、說明、狀態、存取方式、時間、腳本)蓋回去,
-// 種子裡的課程中種子已經沒有的課會被刪,腳本檔屬於哪一課也照種子(見 SeedCourses、SyncLessonFiles);用這裡改的只撐到下次同步,要長期保留得同時改種子。
-// 腳本內容例外,以資料庫為準:用 script push 換的內容,同步不會蓋掉。
+// 課程結構與腳本都以資料庫為準,空資料庫手動初始化(見 catalog.go)。新增、刪除、排序見 structure.go。
 // 每次修改都記一筆 course_changes:誰、什麼時候、改了什麼。
 
 // courseChangeRow 是一筆課程資料的修改紀錄。
@@ -146,6 +145,7 @@ func (s *Store) UpdateCourse(ctx context.Context, user, courseID string, p Cours
 		if p.Art != nil {
 			c.Art = strings.TrimSpace(*p.Art)
 		}
+		oldIntro := c.IntroScript
 		if p.IntroScript != nil {
 			c.IntroScript = strings.TrimSpace(*p.IntroScript)
 		}
@@ -162,6 +162,19 @@ func (s *Store) UpdateCourse(ctx context.Context, user, courseID string, p Cours
 			return err
 		}
 		c.About = joinAbout(about)
+		// 換掉或拿掉簡介影片:舊檔(含旁白、音軌清單)移回研發基地,免得卡在這門課上誰都讀不到
+		if oldIntro != "" && oldIntro != c.IntroScript {
+			if err := moveFilesToStudio(tx, "course_id = ? AND lesson_id = '' AND path IN ?", courseID, introFiles(oldIntro)); err != nil {
+				return err
+			}
+		}
+		if p.IntroScript != nil && c.IntroScript != "" {
+			for _, path := range introFiles(c.IntroScript) {
+				if err := attachIntroScript(tx, courseID, path); err != nil {
+					return err
+				}
+			}
+		}
 		switch Access(c.Access) {
 		case AccessFree, AccessLoginFree, AccessSubscription:
 		default:
@@ -180,6 +193,52 @@ func (s *Store) UpdateCourse(ctx context.Context, user, courseID string, p Cours
 		}
 		return s.recordChange(tx, user, "course.update", courseID, p)
 	})
+}
+
+// introFiles 是一支簡介影片用到的檔:主腳本與同名的旁白、音軌清單。
+func introFiles(script string) []string {
+	base := strings.TrimSuffix(script, ".json")
+	return []string{script, base + ".voice.json", base + ".mix.json"}
+}
+
+// introOwner 回傳把 path 當簡介影片檔(主腳本、旁白或音軌清單)的課程 id;沒有回空字串。
+func introOwner(tx *gorm.DB, path string) (string, error) {
+	var courses []courseRow
+	if err := tx.Select("id", "intro_script").Where("intro_script <> ''").Find(&courses).Error; err != nil {
+		return "", err
+	}
+	for _, c := range courses {
+		if slices.Contains(introFiles(c.IntroScript), path) {
+			return c.ID, nil
+		}
+	}
+	return "", nil
+}
+
+// attachIntroScript 把研發基地的腳本改掛成這門課的簡介影片(課號是空的);已經掛在別的課底下回錯誤,資料庫沒有這個檔就不處理。
+func attachIntroScript(tx *gorm.DB, courseID, path string) error {
+	var f lessonFileRow
+	err := tx.First(&f, "path = ?", path).Error
+	if err == nil {
+		if f.CourseID != courseID || f.LessonID != "" {
+			return invalid("%s 已經屬於課程 %s 的 %s,一個檔只能屬於一處", path, f.CourseID, f.LessonID)
+		}
+		return nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	var studio studioFileRow
+	if err := tx.First(&studio, "path = ?", path).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+	if err := tx.Create(&lessonFileRow{Path: path, CourseID: courseID, Content: studio.Content}).Error; err != nil {
+		return err
+	}
+	return tx.Where("path = ?", path).Delete(&studioFileRow{}).Error
 }
 
 // LessonPatch 是要改的欄位;nil 代表不改。Access 給空字串代表照這門課的。
@@ -295,6 +354,20 @@ func (s *Store) PutScript(ctx context.Context, user, path, courseID, lessonID st
 				return err
 			}
 		default:
+			// 簡介影片的檔(例如課程設好之後才傳的旁白清單)直接掛到那門課
+			owner, err := introOwner(tx, path)
+			if err != nil {
+				return err
+			}
+			if owner != "" {
+				if err := tx.Create(&lessonFileRow{Path: path, CourseID: owner, Content: string(content)}).Error; err != nil {
+					return err
+				}
+				if err := tx.Where("path = ?", path).Delete(&studioFileRow{}).Error; err != nil {
+					return err
+				}
+				break
+			}
 			row := studioFileRow{Path: path, Content: string(content)}
 			if err := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "path"}}, DoUpdates: clause.AssignmentColumns([]string{"content"})}).Create(&row).Error; err != nil {
 				return err

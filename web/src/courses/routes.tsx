@@ -1,8 +1,7 @@
 import type { JSX } from 'react'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
 import { COURSES, coursePath, courseMapId, lessonUrl, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
-import { useCourseMap, useLessonTitle } from '../content/courseMap'
-import { SOFTWARE_LESSON_IDS } from '../content/softwareOutline'
+import { useCourseMap, useCourseName, useLessonTitle } from '../content/courseMap'
 import { lessonDocTitle, lessonKicker, lessonLabelOf } from '../content/lessonDisplay'
 import { CourseListPage } from './CourseListPage'
 import { CourseOverviewPage } from './CourseOverviewPage'
@@ -18,6 +17,7 @@ import { LessonListStatus } from './LessonGroup'
 import { PageView } from './guestActivity'
 import { LessonGate } from './LessonGate'
 import { PlannedChapterPage } from './PlannedPages'
+import { LessonRoute } from './LessonRoute'
 
 // 上課頁(播放器、舞台引擎與演員)用到才下載,不放進課程總覽、課程地圖就要下載的主程式
 const InteractiveLessonPage = lazyPage(() => import('./InteractiveLessonPage').then((m) => m.InteractiveLessonPage))
@@ -40,7 +40,9 @@ function LessonInfoStatus({ state }: { state: 'loading' | 'error' }) {
 function PlannedLesson({ course, id }: { course: Course; id: string }) {
   const state = useCourseMap(courseMapId(course))
   const unit = state.status === 'ready' ? state.map.units.find((u) => u.lessons.some((l) => l.id === id)) : undefined
-  const chapters: PlannedChapter[] = (unit?.lessons ?? []).map((l) => ({ slug: lessonUrl(course.slug, l.id).split('/').pop()!, label: l.id, id: l.id, title: l.title, summary: l.summary }))
+  // 麵包屑的階段名稱:這一課在地圖上的單元(階段)
+  const level = unit && (course.stages?.find((s) => s.id === unit.id)?.label ?? unit.label)
+  const chapters: PlannedChapter[] = (unit?.lessons ?? []).map((l) => ({ slug: lessonUrl(course.slug, l.id).split('/').pop()!, label: l.id, id: l.id, level, title: l.title, summary: l.summary }))
   const chapter = chapters.find((c) => c.id === id) ?? { slug: lessonUrl(course.slug, id).split('/').pop()!, label: id, id, title: id, summary: '' }
   // 規劃中章節與 chapters 是同一批物件(PlannedChapterPage 用它在清單裡的位置找上一章、下一章)
   const planned = chapters.filter((_, i) => unit!.lessons[i].status === 'planned')
@@ -50,18 +52,19 @@ function PlannedLesson({ course, id }: { course: Course; id: string }) {
 /**
  * 軟體課單課頁的把關(LessonGate,和主題課同一份規則,照課程地圖 API):open 或 draft(草稿只有管理員拿得到)而且有腳本才給看,
  * free 直接給看,其他要登入;讀取中顯示佔位卡、讀不到顯示「無法讀取」;地圖沒有這一課、還沒開放或還沒有腳本顯示規劃中的章節頁。
- * 每個課號(softwareOutline.ts)都有路由(不論開放與否),所以 CLI 改狀態不用重新 build;課名也讀 API。文字在渲染時取目前語言(路由表是模組層級建好的)。
+ * 路由是參數化的(LessonRoute),CLI 新增課、改狀態都不用重新 build;課名也讀 API。文字在渲染時取目前語言(路由表是模組層級建好的)。
  */
 function CourseLessonGate({ course, id }: { course: Course; id: string }) {
   const t = useT().courses
   const title = useLessonTitle(courseMapId(course))(id)
   const label = lessonLabelOf(course.slug, id)
+  const courseName = useCourseName(courseMapId(course), course.title)
   return (
     <LessonGate
       course={courseMapId(course)}
       id={id}
       requireScript
-      login={{ kicker: lessonKicker(course.title, label), title, docTitle: lessonDocTitle(title, course.title), back: { to: coursePath(course), label: t.backToOverview }, note: t.gate.note }}
+      login={{ kicker: lessonKicker(course.title, label), title, docTitle: lessonDocTitle(title, courseName), back: { to: coursePath(course), label: t.backToOverview }, note: t.gate.note }}
       blocked={(reason) => (reason === 'closed' ? <PlannedLesson course={course} id={id} /> : <LessonInfoStatus state={reason} />)}
     >
       {(mapLesson, prev, next) => <InteractiveLessonPage key={mapLesson.id} course={course} lesson={mapLesson} prev={prev} next={next} />}
@@ -69,9 +72,9 @@ function CourseLessonGate({ course, id }: { course: Course; id: string }) {
   )
 }
 
-/** 軟體課的單課路由:骨架(softwareOutline.ts,與種子一致由測試檢查)裡每一課一筆(不論 status),網址規則見 lessonUrl */
-export function softwareLessonRoutes(course: Course): { path: string; element: JSX.Element }[] {
-  return SOFTWARE_LESSON_IDS.map((id) => ({ path: lessonUrl(course.slug, id), element: <CourseLessonGate key={id} course={course} id={id} /> }))
+/** 分階段的軟體課的單課路由:/courses/software/:lesson,網址規則見 lessonUrl */
+function softwareLessonRoute(course: Course): { path: string; element: JSX.Element } {
+  return { path: `${coursePath(course)}/:lesson`, element: <LessonRoute course={course} render={(id) => <CourseLessonGate course={course} id={id} />} /> }
 }
 
 /**
@@ -180,7 +183,7 @@ export const legacyCourseRoutes: { path: string; element: JSX.Element }[] = [
 /** 總覽頁原本是主題頁的課(網頁怎麼運作、從做好到上線、Claude Code 工作術):訪客打開時照樣記一筆 page:<網址> */
 const PAGE_VIEW_COURSES = new Set(['web', 'launch', 'claude-code', 'kids'])
 
-// 依 catalog.ts 產生每門課的總覽頁、規劃中章節頁的路由;軟體課的單課頁依種子(courses_seed.json)每一課一筆。
+// 依 catalog.ts 產生每門課的總覽頁、規劃中章節頁的路由,和軟體課的單課路由(其他課的單課路由在 home/routes.tsx)。
 export const courseRoutes: { path: string; element: JSX.Element }[] = [
   { path: COURSE_LIST.path, element: <CourseListPage /> },
   ...COURSES.flatMap((course) => [
@@ -193,7 +196,7 @@ export const courseRoutes: { path: string; element: JSX.Element }[] = [
             <CourseOverviewPage course={course} />
           ),
   },
-  ...(course.stages ? softwareLessonRoutes(course) : []),
+  ...(course.stages ? [softwareLessonRoute(course)] : []),
   ...course.planned.map((chapter) => ({
     path: plannedChapterPath(course, chapter),
     element: <PlannedChapterPage key={chapter.slug} course={course} chapter={chapter} />,

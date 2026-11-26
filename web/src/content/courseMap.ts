@@ -1,5 +1,5 @@
 // 課程地圖(一門課 → 單元 → 一堂一堂的課):從資料庫讀(GET /api/courses/{id}/map,伺服器的 courses、course_units、lessons 表)。
-// 資料來源是 server/internal/store/courses_seed.json,部署時(正式環境的同步工作)或本機後端啟動時同步進資料表;courseMap.test.ts 檢查它和前端的課程內容一致。
+// 課程資料以資料庫為準;測試用手寫的小型資料(server/internal/store/fixture),不比對正式站的課程內容。
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { langQuery } from '../i18n/current'
@@ -157,4 +157,10 @@ export function useLessonTitle(courseId: string): (id: string) => string {
   const state = useCourseMap(courseId)
   const map = state.status === 'ready' ? state.map : undefined
   return useMemo(() => (id: string) => mapLessonOf(map, id)?.title ?? id, [map])
+}
+
+/** 資料庫裡的課程名稱(單課頁的 document.title 用,和 server 組的 <title> 同一個來源);地圖還沒讀到時用 fallback */
+export function useCourseName(courseId: string, fallback: string): string {
+  const state = useCourseMap(courseId)
+  return state.status === 'ready' ? state.map.title : fallback
 }

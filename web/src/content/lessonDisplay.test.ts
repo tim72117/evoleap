@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { COURSES, lessonUrl } from './catalog'
-import { seedCourse } from './courseSeed'
 import { courseTitleOf, lessonDocTitle, lessonKicker, lessonLabelOf } from './lessonDisplay'
-import { PAGES } from '../seo/pages'
-import { documentTitle } from '../site/siteInfo'
 
 describe('lessonLabelOf', () => {
   it('軟體課:序章、第 N 課(起步階段 0.N 顯示為第 N 課)', () => {
@@ -24,13 +20,5 @@ describe('單課頁標題', () => {
     expect(lessonDocTitle('提出需求', '做出自己的軟體')).toBe('提出需求｜做出自己的軟體')
     expect(lessonKicker('網頁怎麼運作', '第 1 課')).toBe('網頁怎麼運作 · 第 1 課')
     expect(courseTitleOf('web')).toBe('網頁怎麼運作')
-  })
-  it('SEO 的軟體課單課頁 <title> 與執行期同一格式', () => {
-    const software = COURSES.find((c) => c.slug === 'software')!
-    // 規劃中的課是規劃中章節頁(標題與 PlannedChapterPage 的頁名一致),其餘是單課頁
-    for (const lesson of seedCourse('software').units.flatMap((u) => u.lessons).filter((l) => l.status !== 'planned')) {
-      const page = PAGES.find((p) => p.path === lessonUrl('software', lesson.id))
-      expect(page?.title, lesson.id).toBe(documentTitle(lessonDocTitle(lesson.title, software.title)))
-    }
   })
 })

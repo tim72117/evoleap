@@ -11,8 +11,7 @@ import (
 )
 
 // 一門課(courses)底下分單元(course_units),單元底下是一堂一堂的課(lessons)。
-// 課程結構以 courses_seed.json 為準:同步時(正式環境是部署時的同步工作 cmd/sync,本機是後端啟動時)種子有的單元與課新增或用種子的內容更新,
-// 種子裡的課程中種子已經沒有的單元與課從資料庫刪除(見 SeedCourses)。管理員用 evoleap CLI 改的欄位,下次同步會被種子蓋回去。
+// 課程結構以資料庫為準,用 evoleap CLI 修改。
 // 一堂課的存取方式(access)空的就照這門課,只有例外才填(例如依課程順序前五課免費預覽;存取規則由 api 的 TestLessonFileGateFollowsData 依資料判斷)。
 // 狀態 draft(草稿)是公開與否的閘口:只有管理員看得到它是草稿、拿得到腳本路徑,其他人看到的是規劃中。
 
@@ -59,7 +58,7 @@ const (
 	LessonPlanned = "planned"
 )
 
-// unitSeed、lessonSeed 是 courses_seed.json 裡一門課的 units。
+// unitSeed、lessonSeed 是 課程資料 裡一門課的 units。
 type unitSeed struct {
 	ID       string       `json:"id"`
 	Title    string       `json:"title"`
@@ -139,8 +138,7 @@ func syncUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 	return nil
 }
 
-// upsertUnits 把種子的單元與課寫進資料庫:沒有的新增,已經有的用種子的內容更新(課程結構以種子為準,見 SeedCourses),
-// 再刪掉這門課在資料庫裡、種子已經沒有的單元與課。課號改了(例如中間插入新的一課、後面的課號往後挪)時,同一個課號的內容跟著種子換。
+// upsertUnits 把種子的單元與課寫進資料庫(初始化時用):沒有的新增,已經有的更新,再刪掉種子沒有的。
 func upsertUnits(tx *gorm.DB, courseID string, units []unitSeed) error {
 	us, ls, err := unitRows(courseID, units)
 	if err != nil {
@@ -288,7 +286,7 @@ func (s *Store) CourseMapOf(ctx context.Context, id string, drafts bool) (Course
 // HasDrafts 回報這門課有沒有草稿的課,不論看的人能不能看到(有的話,回應會依看的人不同,不能共用快取)。
 func (m CourseMap) HasDrafts() bool { return m.hasDrafts }
 
-// ReplaceUnitsJSON 把一門課的單元與課換成給定的 JSON(格式同 courses_seed.json 的 units);給測試準備資料用,測試不該依賴種子目前的內容。
+// ReplaceUnitsJSON 把一門課的單元與課換成給定的 JSON(格式同固定測試資料 fixture/courses.json 的 units);給測試準備資料用,測試不該依賴種子目前的內容。
 func (s *Store) ReplaceUnitsJSON(courseID, units string) error {
 	var us []unitSeed
 	if err := json.Unmarshal([]byte(units), &us); err != nil {
@@ -297,15 +295,26 @@ func (s *Store) ReplaceUnitsJSON(courseID, units string) error {
 	return s.db.Transaction(func(tx *gorm.DB) error { return syncUnits(tx, courseID, us) })
 }
 
-// OpenLessonKeys 回傳已開放(status 為 open)的課,key 是「課程 id/課號」(例如 launch/0.1);sitemap 依它決定哪些課頁要收錄。
+// OpenLessonKeys 回傳已開放(status 為 open)、且單元沒有先不公開(hidden)的課,key 是「課程 id/課號」(例如 launch/0.1);
+// sitemap 依它決定哪些課頁要收錄。
 func (s *Store) OpenLessonKeys(ctx context.Context) (map[string]bool, error) {
 	var rows []lessonRow
-	if err := s.db.WithContext(ctx).Select("course_id", "id").Where("status = ?", LessonOpen).Find(&rows).Error; err != nil {
+	if err := s.db.WithContext(ctx).Select("course_id", "id", "unit_id").Where("status = ? AND script <> ''", LessonOpen).Find(&rows).Error; err != nil {
 		return nil, err
+	}
+	var units []unitRow
+	if err := s.db.WithContext(ctx).Select("course_id", "id").Where("hidden = ?", true).Find(&units).Error; err != nil {
+		return nil, err
+	}
+	hidden := make(map[string]bool, len(units))
+	for _, u := range units {
+		hidden[u.CourseID+"/"+u.ID] = true
 	}
 	open := make(map[string]bool, len(rows))
 	for _, r := range rows {
-		open[r.CourseID+"/"+r.ID] = true
+		if !hidden[r.CourseID+"/"+r.UnitID] {
+			open[r.CourseID+"/"+r.ID] = true
+		}
 	}
 	return open, nil
 }

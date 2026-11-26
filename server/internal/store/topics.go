@@ -3,7 +3,6 @@ package store
 import (
 	"bytes"
 	"context"
-	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,7 +15,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// topicRow 是一個主題(首頁卡片、主題頁、全部課程頁的分組標題)。資料來源是 topics_seed.json,與課程一起同步(SyncCourses):種子為準。
+// topicRow 是一個主題(首頁卡片、主題頁、全部課程頁的分組標題),以資料庫為準,用 evoleap topic set 修改。
 // 一個主題底下有幾門課由 courses.topic_id 決定;單一課程的主題,Path 是那門課的課程總覽網址(例如 /courses/web)。規劃中的主題還沒有主題頁,Path 是空的。
 type topicRow struct {
 	ID       string `gorm:"primaryKey;size:64"`
@@ -43,7 +42,7 @@ const maxTopicContentBytes = 64 << 10
 // ErrTopicNotFound 是查不到主題時回傳的錯誤。
 var ErrTopicNotFound = errors.New("topic not found")
 
-// topicSeedRow 是 topics_seed.json 的一列;陣列的順序就是主題的 position。
+// topicSeedRow 是 主題資料 的一列;陣列的順序就是主題的 position。
 type topicSeedRow struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -53,9 +52,6 @@ type topicSeedRow struct {
 	Description string          `json:"description,omitempty"`
 	Content     json.RawMessage `json:"content,omitempty"`
 }
-
-//go:embed topics_seed.json
-var topicSeed []byte
 
 func parseTopicSeed(seed []byte) ([]topicSeedRow, error) {
 	var seeds []topicSeedRow

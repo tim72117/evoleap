@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { User } from '../auth/api'
 import type { CourseMap } from '../content/courseMap'
-import { SEED_COURSES, seedCourse } from '../content/courseSeed'
+import { fixtureCourse as seedCourse } from '../test/courseFixture'
 import { lessonAllowsAds, userSeesAds } from './lessonAds'
 
 // 起步階段(tools)的課是「做出自己的軟體」這門課的最前面幾課(課程結構來自種子)
@@ -24,11 +24,9 @@ describe('lessonAllowsAds', () => {
     expect(lessonAllowsAds(tools, lesson('0.3'))).toBe(true)
   })
 
-  it('每門課的第一堂正課(草稿不算)都沒有廣告', () => {
-    for (const course of SEED_COURSES) {
-      const first = course.units.flatMap((u) => u.lessons).find((l) => l.id !== '0.intro' && l.status === 'open')
-      if (first) expect(lessonAllowsAds(mapOf(course.id), first)).toBe(false)
-    }
+  it('其他課(沒有序章)的第一堂正課也沒有廣告', () => {
+    expect(lessonAllowsAds(mapOf('web'), lesson('0.1'))).toBe(false)
+    expect(lessonAllowsAds(mapOf('web'), lesson('0.2'))).toBe(true)
   })
 })
 

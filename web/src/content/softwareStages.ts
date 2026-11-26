@@ -1,5 +1,5 @@
 // 「做出自己的軟體」前端寫死的課程內容(單課的目標、步驟、提示詞、規劃中章節大綱):只給研發基地(/studio:課程編排工具)用。
-// 學員端(路由、SEO、單課頁、課程總覽)的課程結構一律來自種子 courses_seed.json,不 import 這份,所以這些大檔不進學員的主程式。
+// 學員端(路由、SEO、單課頁、課程總覽)的課程結構一律來自資料庫,不 import 這份,所以這些大檔不進學員的主程式。
 // 單課頁的提示詞暫時還從 l0Lessons / l1Lessons 的 steps 取(courses/InteractiveLessonPage.tsx),之後會併進腳本。
 import { L0_LESSONS } from './l0Lessons'
 import { L1_LESSONS } from './l1Lessons'

@@ -1,6 +1,5 @@
-// sync 把課程資料寫進資料庫後結束:courses_seed.json(內嵌在 store 套件)的課程、單元與課,以及每一課的腳本檔(-live 目錄,web/src/content/live)。
-// 課程結構以種子為準:已經有的課程、單元與課用種子的內容更新,種子裡的課程中種子已經沒有的單元與課會被刪除,腳本檔改掛到種子寫的那一課;
-// 腳本內容以資料庫為準(已經有的不蓋,改腳本用 evoleap script push)。種子沒有的課程不動。不啟動網站。
+// sync 是部署時的同步工作:建表,把 -live 目錄裡資料庫還沒有的腳本檔補進研發基地,重算翻譯登記表。
+// 不寫主題、課程、單元、課;空資料庫要手動初始化(node server/backup/gcs.mjs init)。
 //
 // 正式環境:每次部署(deploy-cloudrun.yml)與從 dev 分支手動同步(sync-courses.yml)時,
 // 以 Cloud Run Job(shuttle-course-sync)執行一次;映像是 Dockerfile 的 course-sync 目標,只有這支程式與腳本目錄。
@@ -35,12 +34,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	warnings, err := st.SyncCourses(context.Background(), *liveDir)
-	if err != nil {
+	if err := st.SyncCourses(context.Background(), *liveDir); err != nil {
 		log.Fatal(err)
-	}
-	for _, w := range warnings {
-		log.Printf("警告:%s", w)
 	}
 	log.Print("課程資料已寫入資料庫")
 }

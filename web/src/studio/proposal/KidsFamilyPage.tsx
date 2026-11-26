@@ -5,7 +5,7 @@ import ui from './proposal.module.css'
 
 // 構想：兒童課程免費、孩子看不到廣告，由家長在一週裡排入上課時段（每週最多 3 堂），兒童課只有在這些時段才能開啟；家長在設定畫面才看得到廣告。2026-11-10 整理，尚未決定是否實作。
 // 排課畫面有試作(KidsSchedulePlanner.tsx,規則在 kidsSchedule.ts),只在畫面上操作,不存資料庫。
-// 現況：兒童課程不放廣告（courses/lessonAds.ts 的註解：兒童課不走這裡）；課程存取方式在資料庫的 kids 課程（`evoleap course show -course kids` 查，建立資料庫時用的種子是 courses_seed.json）；沒有家長帳號、上課時間或每週次數的概念。
+// 現況：兒童課程不放廣告（courses/lessonAds.ts 的註解：兒童課不走這裡）；課程存取方式在資料庫的 kids 課程（`evoleap course show -course kids` 查，建立資料庫時用的種子是 課程資料）；沒有家長帳號、上課時間或每週次數的概念。
 
 const POSITIONING: [string, string][] = [
   ['研發階段', '構想，尚未評估工時，也還沒決定要不要做。'],

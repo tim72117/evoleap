@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/tim72117/evoleap/internal/store"
+	"github.com/tim72117/evoleap/internal/store/fixture"
 )
 
 // 腳本檔依所屬那一課把關:免費預覽誰都拿得到、登入後免費要登入、草稿只給管理員(其他人當作不存在)
@@ -104,7 +105,7 @@ func TestLessonFileGateFollowsData(t *testing.T) {
 	}
 	env := newAdminEnv(t, "boss@example.com")
 	ctx := context.Background()
-	if err := env.st.SyncLessonFiles(ctx, dir); err != nil {
+	if err := env.st.SyncLessonFilesJSON(ctx, fixture.Courses, dir); err != nil {
 		t.Fatal(err)
 	}
 	paths, err := env.st.ScriptPaths(ctx)
@@ -112,6 +113,7 @@ func TestLessonFileGateFollowsData(t *testing.T) {
 		t.Fatal(err)
 	}
 	seen := map[int]int{}
+	subscription := 0
 	for _, p := range paths {
 		if strings.HasSuffix(p, ".voice.json") || strings.HasSuffix(p, ".mix.json") {
 			continue
@@ -131,12 +133,15 @@ func TestLessonFileGateFollowsData(t *testing.T) {
 			want = http.StatusOK
 		}
 		seen[want]++
+		if f.Access == store.AccessSubscription {
+			subscription++
+		}
 		if rec := call(env.h, http.MethodGet, "/api/scripts/"+p, "", nil); rec.Code != want {
 			t.Errorf("%s(%s %s/%s,access=%q):訪客 %d,資料決定的是 %d", p, f.Status, f.CourseID, f.LessonID, f.Access, rec.Code, want)
 		}
 	}
-	// 資料裡至少要有免費與要登入的課,否則這個測試什麼都沒驗證
-	if seen[http.StatusOK] == 0 || seen[http.StatusUnauthorized] == 0 {
-		t.Errorf("資料裡沒有同時包含免費與要登入的課:%v", seen)
+	// 資料裡至少要有免費、要登入、訂閱與草稿的課,否則這個測試什麼都沒驗證
+	if seen[http.StatusOK] == 0 || seen[http.StatusUnauthorized] == 0 || seen[http.StatusNotFound] == 0 || subscription == 0 {
+		t.Errorf("資料裡要同時有免費、要登入、訂閱與草稿的課:%v 訂閱 %d", seen, subscription)
 	}
 }

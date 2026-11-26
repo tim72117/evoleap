@@ -20,9 +20,8 @@ WORKDIR /repo/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
-# 前端 build 讀這份種子:build 時產生的 SEO 靜態頁沒有 API,課程總覽頁的搜尋標題、描述與課程清單讀它(seo/pages.ts),tsc -b 也型別檢查讀它的測試;
-# 執行期主程式不含這份種子(只有 seo/pages.ts 的獨立 chunk 有);畫面執行時讀 API,存取與開放狀態都由資料庫決定。
-COPY server/internal/store/courses_seed.json /repo/server/internal/store/courses_seed.json
+# tsc -b 型別檢查讀測試用的固定資料
+COPY server/internal/store/fixture/courses.json /repo/server/internal/store/fixture/courses.json
 # 英文翻譯檔(現在是「初稿種子」,執行期的譯文以資料庫為準,見 README):seo/enPages.ts 建置時讀它產生 /en/... 的英文頁(課名、簡介、單元與課的標題);改資料庫的譯文不會更新這些靜態頁。
 COPY server/internal/store/i18n_en.json /repo/server/internal/store/i18n_en.json
 # GA4 評估 ID(Vite 於 build 時內嵌):docker build --build-arg VITE_GA_MEASUREMENT_ID=G-XXXX。
@@ -37,7 +36,7 @@ ARG VITE_ADSENSE_CLIENT=""
 ENV VITE_ADSENSE_CLIENT=$VITE_ADSENSE_CLIENT
 ARG VITE_ADSENSE_SLOT=""
 ENV VITE_ADSENSE_SLOT=$VITE_ADSENSE_SLOT
-# build 含 scripts/seo.mjs:產生各路由的 HTML(SEO 標籤)、404.html、sitemap-pages.json(/sitemap.xml 由後端依資料庫產生)、robots.txt。
+# build 含 scripts/seo.mjs:產生各路由的 HTML(SEO 標籤;課程頁只留空位,server 請求時讀資料庫填)、404.html、course-pages.json、sitemap-pages.json(/sitemap.xml 由後端依資料庫產生)、robots.txt。
 RUN npm run build
 
 # ---- 階段 2:編譯 Go ----
@@ -60,7 +59,7 @@ RUN cd /src/server && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -
     -o /out/server ./cmd/server
 
 # ---- 課程同步工作(--target course-sync):只編譯 cmd/sync,不建置前端 ----
-# 部署與從 dev 手動同步時以 Cloud Run Job 執行一次,把 courses_seed.json(內嵌)與 /app/live 裡資料庫還沒有的課程、腳本檔補進去。
+# 部署與從 dev 手動同步時以 Cloud Run Job 執行一次,把 /app/live 裡資料庫還沒有的腳本檔補進去。
 FROM golang:1.26 AS sync-build
 COPY server/go.mod server/go.su[m] /src/server/
 RUN cd /src/server && go mod download

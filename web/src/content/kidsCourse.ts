@@ -1,7 +1,7 @@
 // 兒童網頁課(主題「給孩子的網頁程式」)的前端資料。
 // KIDS_UNITS(單元、看/做/名詞大綱)只給研發基地(studio/proposal/kidsWeb.ts、KidsWebPage)與測試使用,公開頁面的課名、一句話、單元結構讀資料庫(課程地圖 API / 種子),執行期沒有人讀它。
 // 執行期用的是 KIDS_LESSON_PAGES(課程頁網址、腳本、給家長的話)。
-// 有課程頁的課在 KIDS_LESSON_PAGES(課號 → 課程頁、腳本與給家長的話;開放與否看資料庫的課程地圖,不在這裡寫)。4.1 起課程頁與腳本寫好了,但正式機是規劃中,種子沒有掛腳本;要上架時改種子成 draft 並加回 script。
+// 寫好給家長的話的課在 KIDS_LESSON_PAGES(課號 → 課程頁、腳本與給家長的話;開放與否看資料庫的課程地圖,不在這裡寫)。4.1 起課程頁與腳本寫好了,但正式機是規劃中,種子沒有掛腳本;要上架時改種子成 draft 並加回 script。
 // 能不能上、播哪個腳本以資料庫為準(courses/LessonGate.tsx)。
 
 
@@ -250,7 +250,7 @@ export const KIDS_UNITS: KidsUnit[] = [
   },
 ]
 
-/** 已經有課程頁的課:課號 → 課程頁路徑(路由與 SEO)、腳本與給家長的話。實際播的腳本從資料庫來,這裡的 script 要和種子一致(content/courseMap.test.ts) */
+/** 各課的手寫內容:課號 → 課程頁路徑、腳本與給家長的話(不決定哪些課有頁面,單課路由照資料庫)。實際播的腳本從資料庫來,這裡的 script 要和資料庫一致(content/courseMap.test.ts 只檢查腳本檔存在) */
 export const KIDS_LESSON_PAGES: Record<string, { path: string; script: string; parents: string[] }> = {
   '0.1': {
     path: '/courses/kids/0-1',

@@ -32,7 +32,7 @@ import { safeDecodeURIComponent } from "../site/safeDecode";
 // 課程總覽:上方是課程介紹(標籤、標題、簡述、總時長與課數)與開始學習的卡片,下方是課程內容清單。
 // 所有內容都從資料庫讀(GET /api/courses/{id}/map):標題、簡介、說明段落、插圖、簡介影片、單元與每一課(課號、名稱、一句話、時間、開放與否、要不要登入);
 // 讀取中顯示佔位卡、讀不到顯示「無法讀取」,不用前端寫死的課程資料頂替。只有一條畫法(版面邏輯在 overviewModel.ts):每個單元一組、每個單元有 #stage-<單元 id> 的錨點。
-// build 時產生的 SEO 靜態頁沒有 API 可讀,搜尋標題與描述讀同一份種子檔(server/internal/store/courses_seed.json,seo/pages.ts);執行時畫面讀 API。
+// 搜尋標題與描述由 server 讀同一個資料庫組出來(server/cmd/server/courseseo.go)。
 // 清單每一列:播放圖示、課名(還沒開放的課標「🌱 規劃中」)、一句話、形式(有腳本的是互動)與時長。
 // 未登入時,開放的課在右側標「預覽」或鎖頭(登入後學習);確認登入狀態前不標,已登入的人不會閃過標籤。
 

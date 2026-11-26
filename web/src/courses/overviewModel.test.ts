@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { COURSES, courseMapId, lessonUrl } from '../content/catalog'
-import { SEED_COURSES, seedCourse } from '../content/courseSeed'
+import { COURSES, lessonUrl } from '../content/catalog'
+import { fixtureCourse as seedCourse } from '../test/courseFixture'
 import type { CourseMap, MapLesson, MapUnit } from '../content/courseMap'
 import { courseRoutes } from './routes'
 import { artOf, DEFAULT_ART, lessonLink, overviewGroups, rowLabel, rowLink, startLesson, unitAnchor, unitGroupTitle } from './overviewModel'
@@ -64,16 +64,14 @@ describe('overviewGroups', () => {
     expect(overviewGroups(mapOf([]))).toEqual([])
   })
 
-  it('種子:software 只列起步、基礎(零基礎不公開),錨點是階段 id;advanced、ai-agent 是規劃中的項目', () => {
+  it('種子:software 只列起步、基礎(零基礎不公開),錨點是階段 id;advanced 是規劃中的項目', () => {
     expect(overviewGroups(seedMap('software')).map((g) => [g.anchor, g.title])).toEqual([
       ['stage-tools', '起步・AI 工具介紹'],
       ['stage-vibe-coding-basics', '基礎・Vibe Coding 入門'],
     ])
-    for (const id of ['advanced', 'ai-agent']) {
-      const g = overviewGroups(seedMap(id))
-      expect(g.map((x) => x.plannedUnits)).toEqual([true])
-      expect(g[0].lessons.map((l) => l.id)).toEqual(seedCourse(id).units.map((u) => u.id))
-    }
+    const g = overviewGroups(seedMap('advanced'))
+    expect(g.map((x) => x.plannedUnits)).toEqual([true])
+    expect(g[0].lessons.map((l) => l.id)).toEqual(['1', '2'])
     // 其他課每個單元一組
     for (const id of ['web', 'launch', 'claude-code']) expect(overviewGroups(seedMap(id)).map((g) => g.id), id).toEqual(seedCourse(id).units.map((u) => u.id))
   })
@@ -99,20 +97,22 @@ describe('lessonLink:有腳本而且開放或草稿才連,網址照課號規則'
 })
 
 describe('資料庫(種子)的課程地圖 ↔ 前端的課頁', () => {
-  const routePaths = new Set(courseRoutes.map((r) => r.path))
+  const routePaths = courseRoutes.map((r) => r.path)
+  /** 這個網址有沒有路由(單課是參數化的 /courses/<課程>/:lesson) */
+  const routed = (path: string) => routePaths.includes(path) || routePaths.includes(path.replace(/\/[^/]+$/, '/:lesson'))
 
-  it('做出自己的軟體:種子每一課都有路由(不論開放與否),有腳本的課連結等於課頁網址;總覽連出去的網址都有路由', () => {
+  it('做出自己的軟體:資料裡的課都有路由(不論開放與否),有腳本的課連結等於課頁網址;總覽連出去的網址都有路由', () => {
     const software = course('software')
     const seedLessons = seedCourse('software').units.flatMap((u) => u.lessons)
     for (const s of seedLessons) {
-      expect(routePaths.has(lessonUrl('software', s.id)), s.id).toBe(true)
+      expect(routed(lessonUrl('software', s.id)), s.id).toBe(true)
       const to = lessonLink('software', s as unknown as MapLesson)
       if (s.script && s.status !== 'planned') expect(to, s.id).toBe(lessonUrl('software', s.id))
     }
     for (const g of overviewGroups(seedMap('software')))
       g.lessons.forEach((l, i) => {
         const to = rowLink(software, g, l, i)
-        if (to) expect(routePaths.has(to), `${l.id} ${to}`).toBe(true)
+        if (to) expect(routed(to), `${l.id} ${to}`).toBe(true)
       })
   })
 
@@ -126,17 +126,15 @@ describe('資料庫(種子)的課程地圖 ↔ 前端的課頁', () => {
     }
   })
 
-  it('每門課的種子都對得到前端的課程(課程地圖 id)', () => {
-    for (const c of COURSES) expect(SEED_COURSES.some((s) => s.id === courseMapId(c)), c.slug).toBe(true)
-  })
 })
 
 describe('rowLink / rowLabel', () => {
   it('規劃中的單元列表照順序連到規劃中章節頁(進階:/courses/advanced/topic-N),標籤是章節編號', () => {
     const advanced = course('advanced')
     const g = overviewGroups(seedMap('advanced'))[0]
-    expect(g.lessons.map((l, i) => rowLink(advanced, g, l, i))).toEqual(advanced.planned.map((p) => `/courses/advanced/${p.slug}`))
-    expect(g.lessons.map((l, i) => rowLabel(advanced, g, l, i))).toEqual(advanced.planned.map((p) => p.label))
+    const planned = advanced.planned.slice(0, g.lessons.length)
+    expect(g.lessons.map((l, i) => rowLink(advanced, g, l, i))).toEqual(planned.map((p) => `/courses/advanced/${p.slug}`))
+    expect(g.lessons.map((l, i) => rowLabel(advanced, g, l, i))).toEqual(planned.map((p) => p.label))
   })
 
   it('規劃中的課:做出自己的軟體(每個種子課都有路由)連到單課網址(規劃中章節頁);其他課不連', () => {
@@ -177,13 +175,8 @@ describe('artOf', () => {
   })
 })
 
-describe('軟體課的單課路由(依種子產生)', () => {
-  const seedLessons = seedCourse('software').units.flatMap((u) => u.lessons)
-  const softwarePaths = courseRoutes.map((r) => r.path).filter((p) => p.startsWith('/courses/software/'))
-
-  it('路由數量等於種子的課數,每個種子課都有路由(不論 status),沒有重複', () => {
-    expect(softwarePaths.length).toBe(seedLessons.length)
-    expect(new Set(softwarePaths).size).toBe(softwarePaths.length)
-    for (const l of seedLessons) expect(softwarePaths, l.id).toContain(lessonUrl('software', l.id))
+describe('軟體課的單課路由', () => {
+  it('只有一條參數化路由,不列課號', () => {
+    expect(courseRoutes.map((r) => r.path).filter((p) => p.startsWith('/courses/software/'))).toEqual(['/courses/software/:lesson'])
   })
 })

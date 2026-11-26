@@ -4,7 +4,7 @@ import { useCourseMap, type MapLesson } from '../content/courseMap'
 import { LoginGate } from './LoginGate'
 
 // 單課頁共用的把關(軟體課、網頁、上線、兒童、Claude Code 都用這個),全部照課程地圖 API(GET /api/courses/{id}/map):
-// 能上的是 status open 或 draft(草稿只有管理員拿得到)的課(requireScript 時還要有腳本,pages 有給時還要在這些課號裡);
+// 能上的是 status open 或 draft(草稿只有管理員拿得到)的課(requireScript 時還要有腳本);
 // access free 的不用登入,其他要登入(LoginGate)。通過後把這一課與前後能上的課交給 children;上一課、下一課跳過先不公開(unit.hidden)單元的課(不會從起步直接帶進零基礎),本身就在那個單元的課照原順序。
 // 地圖讀取中、讀不到、這一課不能上(沒有這一課、還沒開放)由呼叫端用 blocked 決定畫什麼(提示頁或規劃中的章節頁)。
 // 腳本檔本身由伺服器依同樣的規則把關(GET /api/scripts,見 live/scripts.ts)。
@@ -12,12 +12,10 @@ import { LoginGate } from './LoginGate'
 export type LessonBlock = 'loading' | 'error' | 'closed'
 
 type Props = {
-  /** 課程地圖 id(courses_seed.json),例如 web */
+  /** 課程地圖 id(資料庫),例如 web */
   course: string
   /** 這一課的課號 */
   id: string
-  /** 有課程頁(路由)的課號;上一課、下一課只連到這些課。沒給就只看這一課 */
-  pages?: string[]
   /** 一定要有腳本才算能上(腳本在地圖裡) */
   requireScript?: boolean
   /** 要登入時 LoginGate 的文字 */
@@ -27,7 +25,7 @@ type Props = {
   children: (lesson: MapLesson, prev?: MapLesson, next?: MapLesson) => ReactNode
 }
 
-export function LessonGate({ course, id, pages, requireScript, login, blocked, children }: Props) {
+export function LessonGate({ course, id, requireScript, login, blocked, children }: Props) {
   const { status: auth } = useAuth()
   const map = useCourseMap(course)
   // 等登入狀態確定後才判斷,免得管理員先閃過「還沒開放」
@@ -37,7 +35,7 @@ export function LessonGate({ course, id, pages, requireScript, login, blocked, c
   const hiddenIds = new Set(map.map.units.filter((u) => u.hidden).flatMap((u) => u.lessons.map((l) => l.id)))
   const playable = map.map.units
     .flatMap((u) => u.lessons)
-    .filter((l) => (l.status === 'open' || l.status === 'draft') && (!requireScript || l.script) && (!pages || pages.includes(l.id)))
+    .filter((l) => (l.status === 'open' || l.status === 'draft') && (!requireScript || l.script))
   const lesson = playable.find((l) => l.id === id)
   if (!lesson) return <>{blocked('closed')}</>
   // 上一課、下一課:先不公開單元的課不列給公開單元的人;本身就在先不公開的單元則照原順序

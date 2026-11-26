@@ -1,0 +1,76 @@
+[
+  {"id": "software", "title": "做出自己的軟體", "topicId": "software", "access": "login-free", "summary": "測試用簡介:透過對話做出軟體。", "about": ["測試用說明段落。"], "seoTitle": "做出自己的軟體：測試用搜尋標題", "description": "測試用描述:分階段的軟體課。", "art": "tools", "units": [
+      {"id": "tools", "title": "起步・AI 工具介紹", "subtitle": "", "label": "起步", "lessons": [
+        {"id": "0.intro", "title": "為什麼不用學寫程式，也能做出軟體", "summary": "為什麼不用學寫程式，也能做出軟體。", "status": "open", "access": "free", "script": "l0/0.intro.json", "minutes": 10},
+        {"id": "0.0", "title": "準備工具：安裝 AI 程式助手並設定權限", "summary": "準備工具：安裝 AI 程式助手並設定權限。", "status": "open", "access": "free", "script": "vibe-coding/4.2.json"},
+        {"id": "0.1", "title": "工具介紹：會操作檔案的 AI 工具", "summary": "工具介紹：會操作檔案的 AI 工具。", "status": "open", "access": "free", "script": "l0/0.0-tools.json", "files": ["l0/0.0-tools.en.json"]},
+        {"id": "0.2", "title": "認識專案：工作目錄與檔案操作", "summary": "認識專案：工作目錄與檔案操作。", "status": "open", "access": "free", "script": "l0/0.1-project.json"},
+        {"id": "0.3", "title": "提出需求：做出一頁式網站並精確調整", "summary": "提出需求：做出一頁式網站並精確調整。", "status": "open", "access": "free", "script": "l0/0.2-site.json"}
+      ]},
+      {"id": "ai-tools", "title": "零基礎・AI 工具入門", "subtitle": "", "label": "零基礎", "hidden": true, "lessons": [
+        {"id": "1.0", "title": "訂購單：哪些資料要在送出前檢查", "summary": "訂購單：哪些資料要在送出前檢查。", "status": "open", "access": "free", "script": "l1/1.0-order.json", "files": ["l1/1.0-opening.json"]},
+        {"id": "3.3", "title": "結業練習：一封新需求信走完整條流程", "summary": "結業練習：一封新需求信走完整條流程。", "status": "planned"}
+      ]},
+      {"id": "vibe-coding-basics", "title": "基礎・Vibe Coding 入門", "subtitle": "", "label": "基礎", "lessons": [
+        {"id": "5.2", "title": "終端機入門（Windows 與 macOS）", "summary": "終端機入門（Windows 與 macOS）。", "status": "planned", "access": "free"}
+      ]}
+    ]},
+  {"id": "ai-agent", "overview": false, "title": "打造你的第一個 AI Agent 整合應用", "topicId": "ai-apps", "access": "login-free", "tier": "advanced", "summary": "測試用簡介。", "art": "agent", "units": [
+      {"id": "0", "title": "環境準備與心智模型", "subtitle": "測試用副標。", "lessons": [
+        {"id": "0.1", "title": "訂閱限定的課", "summary": "訂閱限定的課。", "status": "open", "access": "subscription", "script": "web/2.1.json"}
+      ]}
+    ]},
+  {"id": "advanced", "title": "進階 AI Agent 應用", "topicId": "ai-apps", "access": "login-free", "tier": "advanced", "summary": "測試用簡介。", "art": "advanced", "units": [
+      {"id": "1", "title": "串接多個工具", "subtitle": "", "lessons": []},
+      {"id": "2", "title": "權限與安全", "subtitle": "", "lessons": []}
+    ]},
+  {"id": "web", "title": "網頁怎麼運作", "topicId": "web", "access": "login-free", "summary": "測試用簡介。", "about": ["測試用說明段落一。", "測試用說明段落二。"], "seoTitle": "網頁怎麼運作：測試用搜尋標題", "description": "測試用描述:網頁基礎課。", "art": "tools", "units": [
+      {"id": "0", "title": "序章：網頁從哪裡來", "subtitle": "在網址列按下 Enter 之後，到看到畫面之間發生了什麼？", "lessons": [
+        {"id": "0.1", "title": "輸入網址之後發生的事", "summary": "輸入網址之後發生的事。", "status": "open", "access": "free", "script": "web/0.1.json"},
+        {"id": "0.2", "title": "HTML、CSS、JavaScript 的分工", "summary": "HTML、CSS、JavaScript 的分工。", "status": "open", "access": "free", "script": "web/0.2.json"}
+      ]},
+      {"id": "1", "title": "單元 1　結構：網頁是一棵樹", "subtitle": "", "lessons": [
+        {"id": "1.1", "title": "元素與標籤", "summary": "元素與標籤。", "status": "open", "access": "free", "script": "web/1.1.json"},
+        {"id": "1.2", "title": "DOM 樹：元素包著元素", "summary": "DOM 樹：元素包著元素。", "status": "open", "access": "free", "script": "web/1.2.json"},
+        {"id": "1.3", "title": "有意義的區塊", "summary": "有意義的區塊。", "status": "draft", "access": "free", "script": "web/1.3.json"}
+      ]},
+      {"id": "4", "title": "單元 4　前端與後端", "subtitle": "", "lessons": [
+        {"id": "4.1", "title": "前端與後端各做什麼", "summary": "前端與後端各做什麼。", "status": "planned"}
+      ]}
+    ]},
+  {"id": "launch", "title": "從做好到上線", "topicId": "launch", "access": "login-free", "summary": "測試用簡介。", "about": ["測試用說明段落。"], "seoTitle": "從做好到上線：測試用搜尋標題", "description": "測試用描述:上線課。", "art": "build", "units": [
+      {"id": "0", "title": "序章　上線前準備", "subtitle": "", "lessons": [
+        {"id": "0.1", "title": "本機與網路上", "summary": "本機與網路上。", "status": "open", "access": "free", "script": "launch/0.1.json"}
+      ]},
+      {"id": "1", "title": "單元 1　先讓別人打得開", "subtitle": "", "lessons": [
+        {"id": "1.3", "title": "HTTPS 與快取", "summary": "HTTPS 與快取。", "status": "open", "script": "launch/1.3.json"}
+      ]},
+      {"id": "2", "title": "單元 2　會記住資料的服務", "subtitle": "", "lessons": [
+        {"id": "2.1", "title": "前端、後端與 API", "summary": "前端、後端與 API。", "status": "draft", "script": "launch/2.1.json"}
+      ]},
+      {"id": "3", "title": "單元 3　放心讓別人用", "subtitle": "", "lessons": [
+        {"id": "3.1", "title": "機密不外洩", "summary": "機密不外洩。", "status": "planned"}
+      ]}
+    ]},
+  {"id": "claude-code", "title": "Claude Code 工作術", "topicId": "claude-code", "access": "free", "summary": "測試用簡介。", "seoTitle": "Claude Code 使用技巧：測試用搜尋標題", "description": "測試用描述:常見情境。", "art": "chat", "units": [
+      {"id": "0", "title": "使用情境", "subtitle": "遇到這些情況時，該怎麼用", "lessons": [
+        {"id": "1", "title": "拿不定主意，想同時試好幾版", "summary": "拿不定主意，想同時試好幾版。", "status": "open", "script": "claude-code/fork.json", "minutes": 1},
+        {"id": "2", "title": "出門了，想用手機接著做", "summary": "出門了，想用手機接著做。", "status": "open", "script": "claude-code/remote.json"},
+        {"id": "3", "title": "好幾件事想同時做", "summary": "好幾件事想同時做。", "status": "planned"}
+      ]}
+    ]},
+  {"id": "kids", "title": "給孩子的網頁程式", "topicId": "kids", "access": "login-free", "summary": "測試用簡介。", "seoTitle": "給孩子的網頁程式課：測試用搜尋標題", "description": "測試用描述:兒童課。", "introScript": "guide/kids.json", "units": [
+      {"id": "0", "title": "序章：網頁是怎麼出現的", "subtitle": "", "lessons": [
+        {"id": "0.1", "title": "翻到網頁的背面", "summary": "翻到網頁的背面。", "status": "open", "access": "free", "script": "kids/0.1.json", "files": ["kids/0.1-explore.json"]}
+      ]},
+      {"id": "1", "title": "單元 1　HTML：用積木蓋網頁", "subtitle": "", "lessons": [
+        {"id": "1.1", "title": "標題和段落", "summary": "標題和段落。", "status": "open", "access": "free", "script": "kids/1.1.json", "files": ["kids/1.1-sort.json"]}
+      ]},
+      {"id": "3", "title": "單元 3　JavaScript：讓網頁動起來", "subtitle": "", "lessons": [
+        {"id": "3.1", "title": "按下去會發生事", "summary": "按下去會發生事。", "status": "open", "script": "kids/3.1.json", "files": ["kids/3.1-say.json"]}
+      ]},
+      {"id": "4", "title": "單元 4　請 AI 幫忙做", "subtitle": "", "lessons": [
+        {"id": "4.1", "title": "叫對名字，AI 才聽得懂", "summary": "叫對名字，AI 才聽得懂。", "status": "planned"}
+      ]}
+    ]}
+]

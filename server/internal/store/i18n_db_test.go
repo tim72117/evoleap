@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"github.com/tim72117/evoleap/internal/store/fixture"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -77,7 +78,7 @@ func TestI18nTablesAndIdempotentMigration(t *testing.T) {
 	}
 }
 
-// 匯入的譯文:published、origin=import、雜湊是原表當下的原文雜湊;種子的每個欄位都進了資料庫(沒有跳過的)。
+// 匯入的譯文:published、origin=import、雜湊是原表當下的原文雜湊;初稿裡資料庫有原文的欄位都進了資料庫,沒有原文的跳過。
 func TestI18nImportCoversSeedAndHashesFromSources(t *testing.T) {
 	st, _ := openI18nStore(t)
 	var rows []i18nTranslationRow
@@ -91,7 +92,10 @@ func TestI18nImportCoversSeedAndHashesFromSources(t *testing.T) {
 		}
 		have[i18nField{Kind: r.Kind, Ref: r.Ref, Path: r.Path}.key()] = r
 	}
-	want := flattenPack(seedPacks[LangEN])
+	want := importable(t, st, seedPacks[LangEN])
+	if len(want) == 0 || len(want) == len(flattenPack(seedPacks[LangEN])) {
+		t.Fatalf("測試資料要同時有「有原文」與「沒有原文」的欄位: %d", len(want))
+	}
 	for _, f := range want {
 		r, ok := have[f.key()]
 		if !ok {
@@ -110,8 +114,28 @@ func TestI18nImportCoversSeedAndHashesFromSources(t *testing.T) {
 		}
 	}
 	if len(have) != len(want) {
-		t.Errorf("資料庫 %d 列,種子 %d 欄", len(have), len(want))
+		t.Errorf("資料庫 %d 列,有原文的初稿 %d 欄", len(have), len(want))
 	}
+}
+
+// importable 回傳語言包裡資料庫有對應原文的欄位(其餘匯入時跳過)。
+func importable(t *testing.T, st *Store, pack *LangPack) []i18nField {
+	t.Helper()
+	var srcs []i18nSourceRow
+	if err := st.db.Where("removed_at IS NULL").Find(&srcs).Error; err != nil {
+		t.Fatal(err)
+	}
+	has := map[string]bool{}
+	for _, r := range srcs {
+		has[i18nField{Kind: r.Kind, Ref: r.Ref, Path: r.Path}.key()] = true
+	}
+	var out []i18nField
+	for _, f := range flattenPack(pack) {
+		if has[f.key()] {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 // 只補缺不覆蓋:改過的譯文、草稿、被刪掉又補回的,同步後各自符合預期。
@@ -128,7 +152,7 @@ func TestI18nImportOnlyFillsMissing(t *testing.T) {
 	if err := st.db.Delete(&deleted).Error; err != nil {
 		t.Fatal(err)
 	}
-	if err := st.SeedCourses(ctx); err != nil { // 等於再跑一次同步
+	if err := st.Seed(ctx, fixture.Topics, fixture.Courses); err != nil { // 等於再跑一次同步
 		t.Fatal(err)
 	}
 	var r i18nTranslationRow
@@ -371,7 +395,12 @@ func TestLocalizeFromDatabaseMatchesEmbeddedJSON(t *testing.T) {
 	if err != nil || pack == nil {
 		t.Fatalf("pack = %v, %v", pack, err)
 	}
-	legacy := seedPacks[LangEN]
+	// 舊路徑:內嵌初稿裡資料庫有原文的欄位(沒有原文的不會匯入,不拿來比)
+	var rows []i18nTranslationRow
+	for _, f := range importable(t, st, seedPacks[LangEN]) {
+		rows = append(rows, i18nTranslationRow{Kind: f.Kind, Ref: f.Ref, Path: f.Path, Value: f.Text})
+	}
+	legacy := packFromRows(rows)
 	toJSON := func(v any) string {
 		b, err := json.Marshal(v)
 		if err != nil {
@@ -433,11 +462,15 @@ func TestI18nImportStaleWhenDatabaseSourceDiffersFromSeed(t *testing.T) {
 	if err := st.db.Where("1 = 1").Delete(&i18nTranslationRow{}).Error; err != nil {
 		t.Fatal(err)
 	}
+	seedSrc, err := collectI18nSeedSources(fixture.Topics, fixture.Courses)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := st.db.Transaction(func(tx *gorm.DB) error {
 		if err := syncI18nSources(tx); err != nil {
 			return err
 		}
-		_, _, err := importI18nSeed(tx, LangEN, seedPacks[LangEN])
+		_, _, err := importI18nSeed(tx, LangEN, seedPacks[LangEN], seedSrc)
 		return err
 	}); err != nil {
 		t.Fatal(err)

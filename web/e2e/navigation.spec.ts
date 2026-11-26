@@ -2,7 +2,7 @@
 // 前端換頁後 <title> 與 canonical 要和 server 預先產生的 HTML 一致;
 // 每個公開頁與主要內部頁開啟時沒有 console error / 例外 / 失敗的請求。
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
-import { collectErrors, distSitemapPaths, ensureLandscape, expectLabel, landscape, mapLessons, ORIGIN, openCoursePanel, parseHead, loginAsNewStudent } from './support'
+import { collectErrors, distSitemapPages, distSitemapPaths, ensureLandscape, expectLabel, landscape, mapLessons, ORIGIN, openCoursePanel, parseHead, loginAsNewStudent } from './support'
 
 /** server 回傳的(預先產生的)HTML 裡的 <title> */
 async function serverTitle(request: APIRequestContext, path: string): Promise<string> {
@@ -99,7 +99,7 @@ test('全部課程:導覽列可以進入,每張卡片的連結都能開啟(不�
   expect(errors).toEqual([])
 })
 
-test('Claude Code 工作術:首頁卡片進入課程總覽(共用的總覽頁),列出 7 個情境,沒有等級', async ({ page, request }) => {
+test('Claude Code 工作術:首頁卡片進入課程總覽(共用的總覽頁),列出情境,沒有等級', async ({ page, request }) => {
   const errors = collectErrors(page)
   await page.goto('/')
   await page.getByRole('article').filter({ hasText: 'Claude Code 工作術' }).getByRole('link', { name: /看課程規劃/ }).click()
@@ -107,7 +107,7 @@ test('Claude Code 工作術:首頁卡片進入課程總覽(共用的總覽頁),�
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Claude Code 工作術')
   // 總覽頁的麵包屑接全部課程,不連回自己
   await expect(page.getByRole('navigation', { name: '麵包屑' }).getByRole('link')).toHaveAttribute('href', '/courses')
-  await expect(page.locator('#map li')).toHaveCount(7)
+  await expect(page.locator('#map li')).toHaveCount(3)
   await expect(page.locator('#main')).not.toContainText('Level')
   // 這門課整門免費:存取標示是「免費」
   await expect(page.locator('#main').getByText('免費', { exact: true }).first()).toBeVisible()
@@ -151,7 +151,7 @@ test('Claude Code 工作術:舊的影片錨點轉到情境的課頁,課頁的影
   // 沒有影片的錨點(#scenarios)留在總覽頁
   await page.goto('/topics/claude-code#scenarios')
   await expect(page).toHaveURL(/\/courses\/claude-code#map$/)
-  await expect(page.locator('#map li')).toHaveCount(7)
+  await expect(page.locator('#map li')).toHaveCount(3)
   expect(errors).toEqual([])
 })
 
@@ -215,10 +215,10 @@ test('網頁怎麼運作:首頁卡片連到主題,課程清單的標示依資料
   await page.goto('/courses/web')
   await expect(page.locator('h1')).toHaveText('網頁怎麼運作')
   await expect(page.getByRole('heading', { name: '課程內容' })).toBeVisible()
-  await expect(page.locator('#map details')).toHaveCount(6)
+  await expect(page.locator('#map details')).toHaveCount(3)
   // 課程說明(資料庫的 about 段落),每個單元都有 #stage-<單元 id> 錨點
   await expect(page.getByRole('heading', { name: '課程說明' })).toBeVisible()
-  await expect(page.locator('details#stage-0, details#stage-5')).toHaveCount(2)
+  await expect(page.locator('details#stage-0, details#stage-4')).toHaveCount(2)
   const row = (title: string) => page.locator('#map li').filter({ hasText: title })
   // 每一課的標示(免費預覽、登入後學習、規劃中)依資料庫的課程地圖
   const lessons = await mapLessons(page.request, 'web')
@@ -539,9 +539,18 @@ test('L0 第 3 課是互動版:播到響應式的互動點會停下,選手機後
   expect(errors).toEqual([])
 })
 
-// 每個公開頁 + 主要內部頁:開啟時沒有錯誤、h1 只有一個、hydrate 後 head 沒有重複標籤
+// 公開頁 + 主要內部頁:開啟時沒有錯誤、h1 只有一個、hydrate 後 head 沒有重複標籤
+// 單課頁不逐課開,每種版型/狀態挑一課(測試資料裡也只有少數幾課)
+const LESSON_PAGES = new Set(distSitemapPages().filter((p) => p.lesson).map((p) => p.loc.slice(ORIGIN.length)))
 const PAGES = [
-  ...distSitemapPaths(),
+  ...distSitemapPaths().filter((p) => !LESSON_PAGES.has(p)),
+  '/courses/software/intro',
+  '/courses/software/2',
+  // 規劃中的課
+  '/courses/software/5-2',
+  '/courses/web/0-1',
+  '/courses/launch/0-1',
+  '/courses/claude-code/1',
   '/login',
   '/docs/live',
   '/studio',
@@ -557,11 +566,9 @@ const PAGES = [
   '/studio/fable-trial',
   '/studio/kids-family',
   '/studio/kids-web/xray',
-  // 兒童課(3.1 已開放,4.x 是規劃中但這台 server 把每個人當管理員,看得到):新演員 lt8–lt11 的課各挑一課
+  // 兒童課:開放的一課、規劃中的一課
   '/courses/kids/1-1',
-  '/courses/kids/2-1',
-  '/courses/kids/3-1',
-  '/courses/kids/4-5',
+  '/courses/kids/4-1',
   '/studio/docs',
   '/materials',
   '/studio/actor-interaction/scene',

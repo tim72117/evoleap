@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { seedCourse } from '../content/courseSeed'
+import { fixtureCourse as seedCourse } from '../test/courseFixture'
 import type { CourseMap } from '../content/courseMap'
 import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
 import { launchLessonPath, launchScriptKey } from '../content/launchCourse'
@@ -52,8 +52,8 @@ describe('buildLessonIndex', () => {
     // 課名取自地圖(測試地圖的課名 = 課號)
     expect(lookup('live:launch/v2/0.2.json')?.title).toBe('0.2 0.2')
     expect(lookup('kids:kids/renamed.json')?.title).toBe(kidsId)
-    // 沒有單課頁的課不列
-    expect(lookup('live:launch/x.json')).toBeUndefined()
+    // 資料庫新增的課(前端沒有手寫內容)一樣照規則給網址
+    expect(lookup('live:launch/x.json')?.path).toBe('/courses/launch/nopage')
     // 以地圖的腳本為準:地圖上沒給腳本的課、換腳本之前的舊腳本都不對照(不用前端寫死的路徑補)
     expect(lookup(launchScriptKey('0.1'))).toBeUndefined()
     expect(lookup(launchScriptKey('0.2'))).toBeUndefined()
