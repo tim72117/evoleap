@@ -1,5 +1,5 @@
 // 基礎課程（L0–L2）的研發資料。頁面在 BasicsOutline.tsx，要改大綱直接編輯這裡的陣列。
-// 等級命名對齊 src/content/levels.ts 的 LEVELS：
+// 等級命名對齊課程地圖的階段名稱：
 //   L0「AI 工具介紹」= 起步、免費；L1「AI 工具入門」= 零基礎、登入後免費；L2「Vibe Coding 入門」= 基礎、訂閱專屬。
 //   L1T「生活小工具」是與「AI 工具入門」並列的第二門 L1 課程（尚未加入課程地圖 LEVELS），單元編號 T1–T3。
 // L0／L1 的單課內容（目標 → 步驟拆解 → 實際操作展示，每步附提示詞）在 src/content/l0Lessons.ts、l1Lessons.ts，

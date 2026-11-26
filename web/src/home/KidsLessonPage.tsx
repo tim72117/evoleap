@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { lessonUrl } from '../content/catalog'
 import { useCourseName, useLessonTitle } from '../content/courseMap'
-import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
-import { courseTitleOf, lessonDocTitle, lessonKicker, lessonLabelOf } from '../content/lessonDisplay'
-import { KIDS_TOPIC } from '../content/topics'
+import { KIDS_PARENT_NOTES } from '../content/kidsCourse'
+import { lessonDocTitle, lessonKicker, lessonLabelOf } from '../content/lessonDisplay'
+import { TOPIC_PATHS } from '../content/topics'
 import { KidsPlayer } from '../kids/KidsPlayer'
 import { useKidsMode } from '../kidsMode/KidsModeContext'
 import { isLockedLesson, useKidsProgress } from '../kidsMode/progress'
@@ -20,14 +20,14 @@ import { TopicBlocked } from './TopicBlocked'
 // 兒童課的一課:整個視窗都是兒童版的互動播放器(沒有網站標頭與頁尾),給孩子自己上:大按鈕、不能跳過還沒回答的題目。
 // 參考一般版的互動課程頁:「回課程地圖」浮在左上角,課名、「給家長」(打開一個說明框)與切換段落浮在右上角的側欄,可以收起來(手機、平板也一樣收在右上角);按鈕放大給孩子用。配色沿用網站的 --site-* 變數(套上 SiteLayout 的 .site)。
 // 路由是 /courses/kids/:lesson(home/routes.tsx);能不能上、播哪個腳本、要不要登入、課名都照資料庫(LessonGate)。
-// 給家長的說明是手寫內容(kidsCourse.ts 的 KIDS_LESSON_PAGES);還沒寫的課沒有「給家長」按鈕。
+// 給家長的說明是手寫內容(kidsCourse.ts 的 KIDS_PARENT_NOTES);還沒寫的課沒有「給家長」按鈕。
 
 export function KidsLessonPage({ id }: { id: string }) {
   const { mode } = useKidsMode()
   const progress = useKidsProgress(!!mode?.active)
   const titleOf = useLessonTitle('kids')
-  // 分頁標題的課程名稱讀資料庫(和 server 的 <title> 一致)
-  const courseName = useCourseName('kids', courseTitleOf('kids'))
+  // 課程名稱讀資料庫(和 server 的 <title> 一致)
+  const courseName = useCourseName('kids')
   const t = useT()
   const m = t.home.kidsLesson
   // 兒童模式時段外:不載入播放器(伺服器也不會給腳本),直接告訴孩子下一堂什麼時候
@@ -41,7 +41,7 @@ export function KidsLessonPage({ id }: { id: string }) {
           </p>
           <h1>{m.notYetTime}</h1>
           <p>{next ? m.nextSlot(slotLabel({ day: next.day, time: next.time as never }), titleOf(id)) : m.noSchedule}</p>
-          <Link className={own.closedBack} to={KIDS_TOPIC.path}>
+          <Link className={own.closedBack} to={TOPIC_PATHS.kids}>
             {m.backToMyLessons}
           </Link>
         </section>
@@ -69,7 +69,7 @@ export function KidsLessonPage({ id }: { id: string }) {
           </p>
           <h1>{m.locked}</h1>
           <p>{next ? m.finishFirst(titleOf(next)) : m.checkMap}</p>
-          <Link className={own.closedBack} to={next ? lessonUrl('kids', next) : KIDS_TOPIC.path}>
+          <Link className={own.closedBack} to={next ? lessonUrl('kids', next) : TOPIC_PATHS.kids}>
             {next ? m.goTo(titleOf(next)) : m.backToMyLessons}
           </Link>
         </section>
@@ -81,8 +81,8 @@ export function KidsLessonPage({ id }: { id: string }) {
       course="kids"
       id={id}
       requireScript
-      login={{ kicker: lessonKicker(courseTitleOf('kids'), lessonLabelOf('kids', id)), title: titleOf(id), docTitle: lessonDocTitle(titleOf(id), courseName), back: { to: KIDS_TOPIC.path, label: t.home.gate.backToMap }, note: t.courses.lesson.kidsLoginNote }}
-      blocked={(reason) => <TopicBlocked reason={reason} course="kids" topic={KIDS_TOPIC} id={id} title={titleOf(id)} />}
+      login={{ kicker: lessonKicker(courseName, lessonLabelOf('kids', id)), title: titleOf(id), docTitle: lessonDocTitle(titleOf(id), courseName), back: { to: TOPIC_PATHS.kids, label: t.home.gate.backToMap }, note: t.courses.lesson.kidsLoginNote }}
+      blocked={(reason) => <TopicBlocked reason={reason} course="kids" topic={{ path: TOPIC_PATHS.kids }} id={id} title={titleOf(id)} />}
     >
       {(lesson) => <KidsLesson id={id} script={lesson.script!} />}
     </LessonGate>
@@ -91,8 +91,8 @@ export function KidsLessonPage({ id }: { id: string }) {
 
 function KidsLesson({ id, script }: { id: string; script: string }) {
   const titleOf = useLessonTitle('kids')
-  const courseName = useCourseName('kids', courseTitleOf('kids'))
-  const parentsNotes = KIDS_LESSON_PAGES[id]?.parents ?? []
+  const courseName = useCourseName('kids')
+  const parentsNotes = KIDS_PARENT_NOTES[id] ?? []
   const [parents, setParents] = useState(false)
   // 切換段落放在右上角的側欄(各種寬度都一樣,手機、平板也收在右上角)
   const [side, setSide] = useState<HTMLElement | null>(null)
@@ -113,7 +113,7 @@ function KidsLesson({ id, script }: { id: string; script: string }) {
       </main>
 
       {/* 浮在左上角:回課程地圖(大按鈕,孩子點得到) */}
-      <Link className={own.floatBack} to={KIDS_TOPIC.path}>
+      <Link className={own.floatBack} to={TOPIC_PATHS.kids}>
         {t.courses.lesson.backToCourseMap}
       </Link>
 

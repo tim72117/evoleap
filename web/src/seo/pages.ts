@@ -1,16 +1,13 @@
 // 公開網址的 SEO 資料(title、description、canonical、robots、JSON-LD)。
-// 課程相關頁面(課程總覽、單課、規劃中章節)例外:它們的資料來自資料庫,由 Go server 在請求時組出來
+// 課程相關頁面(主題頁、全部課程、課程總覽、單課、規劃中章節)例外:它們的資料來自資料庫,由 Go server 在請求時組出來
 // (server/cmd/server/courseseo.go),這裡只有路由清單(coursePages.ts)與換頁時向 server 讀資料(resolvePage)。
 // 其他頁面的唯一來源是這裡;研發基地的內部頁在 internalPages.ts(這個檔案會打包進公開的 JS,不能列內部頁)。
 // - build:scripts/seo.mjs 透過 build.ts 用它產生每個路由的 HTML(dist/<路由>/index.html)、404.html、
 //   sitemap-pages.json、robots.txt;並檢查 App.tsx 的每個路由都有對應的一筆,漏了會 build 失敗。
 // - 瀏覽器:usePageMeta(App.tsx)在切換頁面時套用同一份資料。
 // 文章、文件從既有的目錄資料推導;新增其他類型的頁面時,在下方 PAGES 加一筆(內部頁加在 internalPages.ts)。
-import { COURSE } from '../content/aiAgent'
-import { courseOfLevel } from '../content/catalog'
-import { AI_APP_LEVELS, ALL_LEVELS, LEVELS, levelPath, shownLevels, type CourseLevel } from '../content/levels'
 import { documentTitle, SITE_NAME, SITE_ORIGIN, SITE_TAGLINE } from '../site/siteInfo'
-import { AI_APPS_TOPIC, COURSE_LIST, HOME_INTRO, SOFTWARE_TOPIC } from '../content/topics'
+import { HOME_INTRO } from '../content/topics'
 import { isCoursePage } from './coursePages'
 import { EN_ALTERNATES, EN_PAGES, EN_PREFIX } from './enPages'
 import { MEMBER_SECTIONS, memberSectionTitle } from '../member/sections'
@@ -54,30 +51,6 @@ function ld(data: JsonLd): JsonLd {
   return { '@context': 'https://schema.org', ...data }
 }
 
-/** 麵包屑:首頁 → …(最後一項為目前頁面) */
-function breadcrumb(...items: [name: string, path: string][]): JsonLd {
-  return ld({
-    '@type': 'BreadcrumbList',
-    itemListElement: [['首頁', '/'] as const, ...items].map(([name, path], i) => ({
-      '@type': 'ListItem',
-      position: i + 1,
-      name,
-      item: absoluteUrl(path),
-    })),
-  })
-}
-
-function course(name: string, description: string, path: string): JsonLd {
-  return ld({
-    '@type': 'Course',
-    name,
-    description,
-    url: absoluteUrl(path),
-    inLanguage: 'zh-Hant',
-    provider: { '@type': 'Organization', name: SITE_NAME, url: `${SITE_ORIGIN}/` },
-  })
-}
-
 // ---- 頁面 ----
 
 const HOME: PageMeta = {
@@ -102,43 +75,6 @@ const HOME: PageMeta = {
     }),
   ],
 }
-
-/** 主題頁清單裡的課程:等級連到的課程頁(同一門課的幾個階段只列一次,用課程名稱、不帶 #stage-…) */
-function courseItems(levels: CourseLevel[]): { name: string; url: string }[] {
-  const items = shownLevels(levels)
-    .filter((level) => level.link)
-    .map((level) => {
-      const course = courseOfLevel(level)
-      return course?.stages ? { name: course.title, url: absoluteUrl(levelPath(level)!) } : { name: level.title, url: absoluteUrl(levelPath(level)!) }
-    })
-  return items.filter((it, i) => items.findIndex((x) => x.url === it.url) === i)
-}
-
-/** 主題頁:各自的標題與描述,結構化資料列出這個主題底下的課程 */
-function topicPage(topic: { name: string; path: string; seoTitle: string; description: string }, levels: CourseLevel[]): PageMeta {
-  return {
-    path: topic.path,
-    title: documentTitle(topic.seoTitle),
-    sitemapPriority: 0.9,
-    description: topic.description,
-    jsonLd: [
-      breadcrumb([topic.name, topic.path]),
-      ld({
-        '@type': 'ItemList',
-        name: topic.name,
-        itemListElement: courseItems(levels).map((it, i) => ({ '@type': 'ListItem', position: i + 1, ...it })),
-      }),
-    ],
-  }
-}
-
-const SOFTWARE_TOPIC_PAGE = topicPage(SOFTWARE_TOPIC, LEVELS)
-
-// 中階課(打造你的第一個 AI Agent 整合應用)沒有自己的頁面,課程介紹在主題頁:課程資訊併進主題頁的結構化資料
-const AI_APPS_BASE = topicPage(AI_APPS_TOPIC, AI_APP_LEVELS)
-const AI_APPS_TOPIC_PAGE: PageMeta = { ...AI_APPS_BASE, jsonLd: [...(AI_APPS_BASE.jsonLd ?? []), course(COURSE.fullTitle, COURSE.pitch, AI_APPS_TOPIC.path)] }
-
-const COURSE_LIST_PAGE = topicPage(COURSE_LIST, ALL_LEVELS)
 
 // 法律頁:公開、可收錄,但在 sitemap 標為低優先。
 const LEGAL_PAGES: PageMeta[] = [
@@ -204,9 +140,6 @@ const SHOWCASE_PAGE: PageMeta = {
 
 export const PAGES: PageMeta[] = [
   HOME,
-  SOFTWARE_TOPIC_PAGE,
-  AI_APPS_TOPIC_PAGE,
-  COURSE_LIST_PAGE,
   SHOWCASE_PAGE,
   ...LEGAL_PAGES,
   LOGIN_PAGE,

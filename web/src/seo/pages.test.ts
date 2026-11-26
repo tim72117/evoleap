@@ -14,57 +14,22 @@ import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES, reso
 const indexable = PAGES.filter((p) => !p.noindex)
 const INTERNAL_PREFIXES = ['/studio', '/docs', '/materials', '/login', '/admin', '/member']
 const isInternal = (path: string) => INTERNAL_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))
-describe('全部課程', () => {
-  it('有 SEO 資料,結構化資料列出每一門有課程頁的課', () => {
-    const page = findPage('/courses')!
-    expect(page).not.toBe(NOT_FOUND)
-    const list = page.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { url: string }[] }
-    expect(list.itemListElement.map((x) => x.url)).toContain(absoluteUrl('/topics/ai-apps'))
-    expect(list.itemListElement.map((x) => x.url)).toContain(absoluteUrl('/courses/software'))
-    // 同一門課的階段只列一次
-    const urls = list.itemListElement.map((x) => x.url)
-    expect(new Set(urls).size).toBe(urls.length)
-  })
-})
-
-describe('主題頁', () => {
-  const software = findPage('/topics/software')!
-  const aiApps = findPage('/topics/ai-apps')!
-  const list = (p: typeof software) => p.jsonLd?.find((x) => x['@type'] === 'ItemList') as { itemListElement: { url: string }[] }
-
-  it('每個主題有自己的標題與描述,也和首頁不同', () => {
-    const home = findPage('/')!
-    expect(new Set([home.title, software.title, aiApps.title]).size).toBe(3)
-    expect(new Set([home.description, software.description, aiApps.description]).size).toBe(3)
-  })
-
-  it('sitemap 頁面清單列出主題頁與優先度', () => {
-    const pages = sitemapPages()
-    expect(pages).toContainEqual({ loc: absoluteUrl('/topics/software'), priority: 0.9 })
-    expect(pages).toContainEqual({ loc: absoluteUrl('/topics/ai-apps'), priority: 0.9 })
-  })
-
-  it('描述不會太長,搜尋結果顯示得完', () => {
-    for (const p of [software, aiApps]) expect(p.description.length).toBeLessThanOrEqual(80)
-  })
-
-  it('結構化資料列出各自的課程,彼此不重複', () => {
-    const urls = (p: typeof software) => list(p).itemListElement.map((x) => x.url)
-    expect(urls(software)).toEqual([absoluteUrl('/courses/software')])
-    expect(urls(aiApps)).toContain(absoluteUrl('/topics/ai-apps'))
-    expect(urls(aiApps)).toContain(absoluteUrl('/courses/advanced'))
-    expect(urls(software).filter((u) => urls(aiApps).includes(u))).toEqual([])
-  })
-
-  it('AI Agent 中階課沒有自己的頁面:不產生 /courses/ai-agent 與單元頁的 SEO,課程資訊併進主題頁的結構化資料', () => {
-    expect(PAGES.some((p) => p.path.startsWith('/courses/ai-agent'))).toBe(false)
-    expect(aiApps.jsonLd?.some((x) => x['@type'] === 'Course')).toBe(true)
-  })
-})
-
 const coursePage = (path: string) => COURSE_PAGES.find((p) => p.path === path)!
 
 describe('課程相關頁面(內容由 server 讀資料庫填,server/cmd/server/courseseo.go)', () => {
+  it('主題頁與全部課程也由 server 讀資料庫:清單只寫讀哪個主題、列哪些課與網址', () => {
+    expect(coursePage('/topics/software')).toMatchObject({ kind: 'topic', topic: 'software', items: [{ course: 'software', path: '/courses/software' }], sitemapPriority: 0.9 })
+    const aiApps = coursePage('/topics/ai-apps')
+    expect(aiApps.items!.map((i) => i.path)).toEqual(['/topics/ai-apps', '/courses/advanced'])
+    // AI Agent 中階課沒有自己的頁面:課程資訊併進主題頁的結構化資料
+    expect(aiApps.courseLd!.course).toBe('ai-agent')
+    expect(coursePage('/courses')).toMatchObject({ kind: 'list', items: [{ course: 'software' }, { course: 'ai-agent' }, { course: 'advanced' }] })
+    expect(coursePage('/courses').description!.length).toBeLessThanOrEqual(160)
+    expect(PAGES.some((p) => p.path.startsWith('/courses/ai-agent'))).toBe(false)
+    expect(sitemapPages()).toContainEqual({ loc: absoluteUrl('/topics/software'), priority: 0.9 })
+    expect(isCoursePage('/topics/ai-apps')).toBe(true)
+  })
+
   it('不在靜態的 PAGES 裡,網址不重複', () => {
     const paths = COURSE_PAGES.map((p) => p.path)
     expect(new Set(paths).size).toBe(paths.length)
@@ -167,7 +132,7 @@ describe('PAGES', () => {
   })
 
   it('home and the course pages are indexable', () => {
-    expect(indexable.map((p) => p.path)).toEqual(expect.arrayContaining(['/', '/courses', '/privacy', '/terms', '/refund']))
+    expect(indexable.map((p) => p.path)).toEqual(expect.arrayContaining(['/', '/privacy', '/terms', '/refund']))
   })
 })
 
@@ -192,7 +157,7 @@ describe('URL helpers', () => {
 
   it('findPage ignores a trailing slash and falls back to NOT_FOUND', () => {
     expect(findPage('/').path).toBe('/')
-    expect(findPage('/courses/').path).toBe('/courses')
+    expect(findPage('/privacy/').path).toBe('/privacy')
     expect(findPage('/no-such-page')).toBe(NOT_FOUND)
   })
 

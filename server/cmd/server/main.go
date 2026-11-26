@@ -122,6 +122,9 @@ func main() {
 		english = cachedOpenLessons(st.EnglishCourseIDs, time.Minute)
 	}
 	courses := newCourseSEO(dist, load)
+	if st := cfg.Store; st != nil && courses != nil {
+		courses.loadTopic = st.TopicOf
+	}
 	mux.Handle("GET /api/seo/page", courses.apiHandler())
 	if h := sitemapHandler(dist, open, english); h != nil {
 		mux.Handle("GET /sitemap.xml", h)

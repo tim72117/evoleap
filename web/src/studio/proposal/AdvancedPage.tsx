@@ -1,16 +1,18 @@
-import { ALL_LEVELS } from '../../content/levels'
+import { useCourseMap } from '../../content/courseMap'
+import { AI_APP_COURSES } from '../../content/levels'
+import { LessonListStatus } from '../../courses/LessonGroup'
 import { Fold } from './Fold'
 import { List } from './BasicsOutline'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
-// 暫定主題取自課程地圖（src/content/levels.ts 的 AI_APP_LEVELS，id: 'advanced'）。
-const level = ALL_LEVELS.find((l) => l.id === 'advanced')
+// 暫定主題與課名取自資料庫（advanced 課程的單元）；先備條件在 src/content/levels.ts 的 AI_APP_COURSES。
+const prerequisite = AI_APP_COURSES.find((c) => c.id === 'advanced')?.prerequisite
 
-const POSITIONING: [string, string][] = [
+const positioning = (title: string): [string, string][] => [
   ['研發階段', '未開始。只有課程地圖上的暫定主題，尚無大綱。'],
-  ['課程地圖標題', level?.title ?? '進階 AI Agent 應用'],
-  ['先備條件（暫定）', level?.prerequisite ?? '完成 L3 或具備同等經驗'],
+  ['課程地圖標題', title],
+  ['先備條件（暫定）', prerequisite ?? '完成 L3 或具備同等經驗'],
   ['存取', '未定。'],
   ['依賴', '主題與深度取決於 L3 期末專案的最終範圍，以及 L3 移出的單元（即時／非同步呼叫、前端與後端串接、額度、部署）是否改放到 L4。'],
 ]
@@ -22,8 +24,10 @@ const TODOS = [
 ]
 
 export function AdvancedPage() {
+  const state = useCourseMap('advanced')
+  const map = state.status === 'ready' ? state.map : undefined
   return (
-    <ProposalLayout title="L4 進階" footer="暫定主題：src/content/levels.ts（LEVELS）">
+    <ProposalLayout title="L4 進階" footer="暫定主題：資料庫的 advanced 課程單元">
       <h1>L4 · 進階 AI Agent 應用</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>未開始 · 預留頁</span>
 
@@ -31,7 +35,7 @@ export function AdvancedPage() {
         <section className={ui.card}>
           <table>
             <tbody>
-              {POSITIONING.map(([k, v]) => (
+              {positioning(map?.title ?? '').map(([k, v]) => (
                 <tr key={k}>
                   <td className={ui.nowrap} style={{ width: '9em' }}>
                     <strong>{k}</strong>
@@ -48,7 +52,7 @@ export function AdvancedPage() {
       <p className={ui.lead}>取自課程地圖，尚未拆成單元。</p>
       <section className={ui.card}>
         <div className={ui['card-body']}>
-          <List items={level?.topics ?? []} />
+          {state.status === 'ready' ? <List items={state.map.units.map((u) => u.title)} /> : <LessonListStatus state={state.status} />}
         </div>
       </section>
 

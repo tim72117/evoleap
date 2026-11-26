@@ -1,23 +1,23 @@
 import type { ReactNode } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { COURSES, courseMapId, lessonUrl, PREVIEW_LESSON_ID } from '../content/catalog'
-import { useCourseMaps } from '../content/courseMap'
-import { KIDS_TOPIC, LAUNCH_TOPIC, PLANNED_TOPICS, SOFTWARE_TOPIC, topicStartLabel, type PlannedTopic } from '../content/topics'
+import { lessonUrl, PREVIEW_LESSON_ID } from '../content/catalog'
+import { useCourseMap } from '../content/courseMap'
+import { LessonListStatus } from '../courses/LessonGroup'
+import { findTopic, topicStartLabel, TOPIC_PATHS, useTopics, type Topic } from '../content/topics'
 import { useT } from '../i18n/I18nProvider'
-import { sortByViews, topicIdOfPath, useTopicViews } from './useTopicViews'
+import { sortByViews, useTopicViews } from './useTopicViews'
 import { SiteLayout } from '../site/SiteLayout'
 import styles from './HomePage.module.css'
 
 // 首頁:先列出主題,再進入各主題。有內容的主題佔整排,列出各等級能學到什麼(首頁不放影片預覽);
-// 規劃中的主題縮小,只寫預計做出的成果。連結取自課程資料,主題文案在 content/topics.ts。
+// 規劃中的主題縮小,只寫預計做出的成果。主題(名稱、標語、卡片內容)讀資料庫(content/topics.ts 的 useTopics):讀取中顯示佔位卡、讀不到顯示「無法讀取」。
 
-const software = COURSES.find((c) => c.slug === 'software')!
 // 「開始第一課」從序章開始(不用登入就能看)
-const introPath = lessonUrl(software.slug, PREVIEW_LESSON_ID)
+const introPath = lessonUrl('software', PREVIEW_LESSON_ID)
 
-// 這個主題的階段(起步、基礎;先不公開的零基礎不列),就是「做出自己的軟體」這門課的階段;中階、進階在主題「打造 AI 互動軟體」。階段名稱與已開放與否照資料庫課程地圖的單元(label、hidden;讀到之前先用種子的階段名稱)
-const LADDER_STAGES = software.stages!.filter((st) => !st.hidden)
-const LADDER_MAP_IDS = [courseMapId(software)]
+/** 首頁上另外安排位置的主題:最上面的主打、接在後面的兩個;其他的照資料庫順序列在「更多主題」 */
+const FEATURED = 'software'
+const SECOND_ROW = ['launch', 'kids']
 
 const TOPIC_ICONS = {
   terminal: (
@@ -33,17 +33,20 @@ export function HomePage() {
   // 課程地圖以前在首頁:舊連結(/#map、/#level-tools)導到主題頁的同一個位置
   const { hash } = useLocation()
   const t = useT()
-  const maps = useCourseMaps(LADDER_MAP_IDS)
+  const topicsState = useTopics()
+  const softwareState = useCourseMap('software')
   const topicViews = useTopicViews()
-  const softwareViews = topicViews?.[topicIdOfPath(SOFTWARE_TOPIC.path) ?? '']
-  // 已開放與否照資料庫的課程地圖;還在讀、讀不到時等級不亮(不用前端的課程資料頂替)
-  // 階段名稱與先不公開照資料庫課程地圖的單元(label、hidden);讀到之前先用同一份種子的階段名稱(不亮),版面不位移
-  const softwareMap = maps[courseMapId(software)]
-  const ladder = softwareMap
-    ? softwareMap.units.filter((u) => !u.hidden && u.label).map((u) => ({ name: u.label!, open: u.lessons.some((l) => l.status === 'open') }))
-    : LADDER_STAGES.map((st) => ({ name: st.label, open: false }))
+  const software = findTopic(topicsState, FEATURED)
+  const softwareViews = topicViews?.[FEATURED]
+  // 階段(起步、基礎;先不公開的不列)的名稱與開放與否照資料庫課程地圖的單元;還在讀、讀不到時不列
+  const ladder = softwareState.status === 'ready'
+    ? softwareState.map.units.filter((u) => !u.hidden && u.label).map((u) => ({ name: u.label!, open: u.lessons.some((l) => l.status === 'open') }))
+    : []
+  const topics = topicsState.status === 'ready' ? topicsState.topics : []
+  const second = SECOND_ROW.flatMap((id) => topics.filter((p) => p.id === id))
+  const others = topics.filter((p) => p.id !== FEATURED && !SECOND_ROW.includes(p.id))
   const facts = [t.home.home.facts.free, t.home.home.facts.noCode]
-  if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: SOFTWARE_TOPIC.path, hash }} />
+  if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: TOPIC_PATHS.software, hash }} />
 
   return (
     <SiteLayout>
@@ -55,72 +58,81 @@ export function HomePage() {
       </section>
 
       <div className={styles.container}>
-        <article className={styles.featured} aria-labelledby="theme-software">
-          <div className={styles.featuredMain}>
-            <div className={styles.featuredText}>
-              <div className={styles.themeHead}>
-                <h2 id="theme-software">{SOFTWARE_TOPIC.name}</h2>
-                {softwareViews ? <ViewsLine text={t.home.themeCard.views(softwareViews)} /> : null}
-              </div>
-              <p className={styles.slogan}>{SOFTWARE_TOPIC.slogan}</p>
-              <p className={styles.lede}>{SOFTWARE_TOPIC.lede}</p>
-              <ul className={styles.facts}>
-                {facts.map((f) => (
-                  <li key={f.strong}>
-                    {f.pre}
-                    <strong>{f.strong}</strong>
-                    {f.post}
-                  </li>
-                ))}
-              </ul>
-              <ol className={styles.ladder} aria-label={t.home.home.ladderLabel}>
-                {ladder.map((s) => (
-                  <li key={s.name} className={s.open ? styles.ladderOpen : undefined}>
-                    {t.home.levelName(s.name)}
-                  </li>
-                ))}
-              </ol>
-              <div className={styles.ctas}>
-                <Link className={styles.primary} to={introPath}>
-                  {t.home.startFirstLesson}
-                </Link>
-                <Link className={styles.secondary} to={{ pathname: SOFTWARE_TOPIC.path, hash: 'map' }}>
-                  {t.home.courseMap}
-                </Link>
+        {topicsState.status !== 'ready' && <LessonListStatus state={topicsState.status} />}
+        {software && (
+          <article className={styles.featured} aria-labelledby="theme-software">
+            <div className={styles.featuredMain}>
+              <div className={styles.featuredText}>
+                <div className={styles.themeHead}>
+                  <h2 id="theme-software">{software.name}</h2>
+                  {softwareViews ? <ViewsLine text={t.home.themeCard.views(softwareViews)} /> : null}
+                </div>
+                <p className={styles.slogan}>{software.slogan}</p>
+                <p className={styles.lede}>{software.content?.lede}</p>
+                <ul className={styles.facts}>
+                  {facts.map((f) => (
+                    <li key={f.strong}>
+                      {f.pre}
+                      <strong>{f.strong}</strong>
+                      {f.post}
+                    </li>
+                  ))}
+                </ul>
+                <ol className={styles.ladder} aria-label={t.home.home.ladderLabel}>
+                  {ladder.map((s) => (
+                    <li key={s.name} className={s.open ? styles.ladderOpen : undefined}>
+                      {t.home.levelName(s.name)}
+                    </li>
+                  ))}
+                </ol>
+                <div className={styles.ctas}>
+                  <Link className={styles.primary} to={introPath}>
+                    {t.home.startFirstLesson}
+                  </Link>
+                  <Link className={styles.secondary} to={{ pathname: TOPIC_PATHS.software, hash: 'map' }}>
+                    {t.home.courseMap}
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 這個主題能學到什麼:依等級各一項 */}
-          <div className={styles.learn}>
-            <h3>{t.home.home.learnTitle}</h3>
-            <ul>
-              {SOFTWARE_TOPIC.learn.map((l) => (
-                <li key={l.level}>
-                  <span className={styles.learnLevel}>{t.home.levelName(l.level)}</span>
-                  {l.text}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </article>
+            {/* 這個主題能學到什麼:依等級各一項 */}
+            <div className={styles.learn}>
+              <h3>{t.home.home.learnTitle}</h3>
+              <ul>
+                {(software.content?.learn ?? []).map((l) =>
+                  typeof l === 'string' ? (
+                    <li key={l}>{l}</li>
+                  ) : (
+                    <li key={l.level}>
+                      <span className={styles.learnLevel}>{t.home.levelName(l.level)}</span>
+                      {l.text}
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          </article>
+        )}
 
         {/* 接在「做出自己的軟體」後面:做好之後的下一步 */}
         {/* 觀看次數多的主題排前面(還沒讀到次數時照原本的順序:上線、兒童課) */}
-        {sortByViews([LAUNCH_TOPIC, KIDS_TOPIC], (p) => topicIdOfPath(p.path), topicViews).map((p) => (
-          <section key={p.name} className={styles.kids} aria-label={p.name}>
+        {sortByViews(second, (p) => p.id, topicViews).map((p) => (
+          <section key={p.id} className={styles.kids} aria-label={p.name}>
             <ThemeCard t={p} />
           </section>
         ))}
 
-        <section className={styles.next} aria-labelledby="next-themes">
-          <h2 id="next-themes">{t.home.home.moreTopics}</h2>
-          <div className={styles.nextGrid}>
-            {PLANNED_TOPICS.map((p) => (
-              <ThemeCard t={p} key={p.name} />
-            ))}
-          </div>
-        </section>
+        {others.length > 0 && (
+          <section className={styles.next} aria-labelledby="next-themes">
+            <h2 id="next-themes">{t.home.home.moreTopics}</h2>
+            <div className={styles.nextGrid}>
+              {others.map((p) => (
+                <ThemeCard t={p} key={p.id} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </SiteLayout>
   )
@@ -145,12 +157,13 @@ function ViewsLine({ text }: { text: string }) {
  * 有 aside 的卡片,「你會做出」另起一段橫跨整張卡片,放在標題與預覽下面(仿照「做出自己的軟體」的成果段)。
  * 首頁不放 aside;展示頁(ShowcasePage)的兒童課卡片把預覽播放器放在 aside
  */
-export function ThemeCard({ t: topic, aside, below }: { t: PlannedTopic; aside?: ReactNode; below?: ReactNode }) {
+export function ThemeCard({ t: data, aside, below }: { t: Topic; aside?: ReactNode; below?: ReactNode }) {
+  const topic = { ...data.content, id: data.id, name: data.name, slogan: data.slogan, path: data.path }
   const t = useT()
   const m = t.home.themeCard
   const topicViews = useTopicViews()
-  const viewCount = topicViews?.[topicIdOfPath(topic.path) ?? '']
-  // 「開始第一課」寫在課程資料裡;是這句固定按鈕字就照目前語言
+  const viewCount = topicViews?.[topic.id]
+  // 「開始第一課」寫在主題資料裡;是這句固定按鈕字就照目前語言
   const startLabel = topic.start && topicStartLabel(topic.start)
   const outcomes = topic.outcomes && (
     <>
@@ -198,7 +211,7 @@ export function ThemeCard({ t: topic, aside, below }: { t: PlannedTopic; aside?:
           <h4>{topic.learnTitle ?? m.learnDefault}</h4>
           <ul className={styles.outcomes}>
             {topic.learn.map((s) => (
-              <li key={s}>{s}</li>
+              <li key={String(s)}>{typeof s === 'string' ? s : s.text}</li>
             ))}
           </ul>
         </>

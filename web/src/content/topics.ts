@@ -1,12 +1,21 @@
-// 首頁的主題。一個主題是一組不同目標的課程:「做出自己的軟體」(levels.ts 的 LEVELS)與「打造 AI 互動軟體」(AI_APP_LEVELS)各有課程地圖頁。
-// 規劃中的主題只放暫定的名稱、標語與預計做出的成果;不要寫未確認的事實(價格、日期、收入、學員數等)。
-import { messages } from '../i18n/current'
-import { KIDS_LESSON_PAGES } from './kidsCourse'
-import { launchLessonPath } from './launchCourse'
-import { AI_APP_LEVELS, SOFTWARE_LEDE, levelPath } from './levels'
-import { WEB_LESSON_PAGES } from './webCourse'
+// 主題(首頁卡片、主題頁、展示頁):名稱、標語、網址、搜尋標題與描述、卡片內容都在資料庫(GET /api/topics,公開不用登入),
+// 用 `evoleap topic set` 修改;前端沒有備援,讀取中顯示佔位、讀不到顯示「無法讀取」。
+// 這裡只有:路由用的網址、讀取主題的程式,以及資料庫沒有欄位的設定(全部課程頁的標題、Claude Code 情境用到的功能)。
+import { useEffect, useState } from 'react'
+import { langQuery, messages } from '../i18n/current'
+import { useLocale } from '../i18n/I18nProvider'
 
-/** 主題卡片「開始第一課」這顆固定按鈕的文字:資料只存這一份中文,畫面依目前語言換成字典的 home.startFirstLesson(topicStartLabel) */
+/** 主題頁(課程地圖或課程總覽)的網址:路由寫在程式裡,和資料庫的 topics.path 一致 */
+export const TOPIC_PATHS = {
+  software: '/topics/software',
+  aiApps: '/topics/ai-apps',
+  web: '/courses/web',
+  launch: '/courses/launch',
+  kids: '/courses/kids',
+  claudeCode: '/courses/claude-code',
+} as const
+
+/** 主題卡片「開始第一課」這顆固定按鈕的文字:是這句就依目前語言換成字典的 home.startFirstLesson(topicStartLabel) */
 export const START_FIRST_LESSON = '開始第一課'
 export const topicStartLabel = (start: { label: string }): string => (start.label === START_FIRST_LESSON ? messages().home.startFirstLesson : start.label)
 
@@ -16,112 +25,16 @@ export const HOME_INTRO = {
   description: '善用 AI，把時間用在真正想做的事：選一個主題，跟著實際操作，從免費的入門課開始，做出看得見的成果。',
 }
 
-export const SOFTWARE_TOPIC = {
-  name: '做出自己的軟體',
-  slogan: '不會寫程式，也能打造自己的軟體',
-  lede: SOFTWARE_LEDE,
-  /** 課程地圖所在的頁面 */
-  path: '/topics/software',
-  /** 搜尋結果的標題與描述:寫學員會搜尋的說法,不要寫未確認的事實 */
-  // 課程總覽頁 /courses/software 的搜尋標題讀資料庫,原本是這一句;兩頁的標題不能一樣,主題頁改成課程地圖的說法
-  seoTitle: '不會寫程式也能做軟體：零基礎 AI 開發課程地圖',
-  description: `${SOFTWARE_LEDE}。零基礎也能開始，用 AI 做出網站與小工具，再學會串接自動化流程，免費從入門課開始。`,
-  /** 首頁卡片的「你會學到什麼」:依等級(levels.ts 的 LEVELS)各一項 */
-  learn: [
-    { level: '起步', text: '讓 AI 在你的電腦上建好專案，用一段話做出一頁式網站，再調整到滿意' },
-    { level: '基礎', text: '和 AI 一起寫程式、除錯，把作品部署上線，並用測試確保不被改壞' },
-  ],
-}
-
-/** 主題「打造 AI 互動軟體」：中階、進階兩門課（levels.ts 的 AI_APP_LEVELS），都還在規劃中 */
-export const AI_APPS_TOPIC = {
-  name: '打造 AI 互動軟體',
-  slogan: '不只是對話，讓 AI 查資料、跑分析、畫出圖表',
-  path: '/topics/ai-apps',
-  seoTitle: 'AI 互動軟體開發課程：讓 AI 查資料、跑分析、畫圖表',
-  description: '學會打造會動手做事的 AI 軟體：寫出工具、讓 AI 自己判斷要呼叫哪一個，做成打字提問就能用的介面，並穩定上線。課程規劃中。',
-}
-
-/** 主題「Claude Code 工作術」:只整理使用情境、沒有實作,不分等級。課程總覽頁 /courses/claude-code(和其他課共用),有示範影片的情境一個情境一頁 /courses/claude-code/<課號> */
-export const CLAUDE_CODE_TOPIC = {
-  name: 'Claude Code 工作術',
-  slogan: '遇到這些情況時，該怎麼用',
-  path: '/courses/claude-code',
-  seoTitle: 'Claude Code 使用技巧：常見情境與對應做法',
-  description: '整理使用 Claude Code 時的常見情境：換手機接著做、同時試好幾版、接回昨天的對話、把規則寫下來。遇到哪個情況就看哪一個。內容規劃中。',
-}
-
-/** 主題「從做好到上線」:課程地圖就是課程總覽頁 /courses/launch(courses/CourseOverviewPage.tsx,和其他課共用),一課一頁 /courses/launch/<課號>,大綱在 content/launchCourse.ts;首頁放在「做出自己的軟體」下方 */
-export const LAUNCH_TOPIC = {
-  name: '從做好到上線',
-  slogan: '繁雜的上線流程交給 AI，輕鬆讓作品變成服務',
-  path: '/courses/launch',
-  seoTitle: '從做好到上線：用 AI 處理繁雜流程，輕鬆把作品放上線',
-  description: '部署、網域、資料與登入、收費、監控，這些繁雜的上線流程，學會用 AI 處理，輕鬆把做好的網站與工具變成別人能用的服務。序章開放中，前五課可以預覽。',
-  open: true,
-  start: { label: START_FIRST_LESSON, path: launchLessonPath('0.1') },
-  pains: [
-    '做好了，網址卻是 localhost，傳給朋友打不開',
-    '一上線就白畫面、資料不見，錯誤訊息看不懂',
-    '金鑰放在程式裡安不安全？流量變大會不會收到一大筆帳單？',
-    '想讓人登入、想收費，不知道從哪裡開始',
-    '上線後有沒有人在用、哪裡壞了，都要等別人來講才知道',
-  ],
-  learnTitle: '你會學會',
-  learn: ['用 AI 架設公開網站', '用 AI 做自動部署', '用 AI 避開資安風險', '用 AI 做網站監控'],
-} satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
-
-/** 這個主題的情境,依遇到的情況列出,沒有先後順序。tools 是會用到的功能,名稱以官方文件為準,改版時要更新 */
-export const CLAUDE_CODE_SCENARIOS: {
-  title: string
-  summary: string
-  tools: string[]
-  /** 示範影片:資料庫的腳本路徑 */
-  video?: { script: string; title: string; duration: string }
-}[] = [
-  {
-    title: '拿不定主意，想同時試好幾版',
-    summary: '從同一段對話分出去，各試一個方向，看過再決定留哪一個。',
-    tools: ['/fork', '/branch', 'Worktree'],
-    video: { script: 'claude-code/fork.json', title: 'Fork：帶著對話另開一條路', duration: '約 1 分鐘' },
-  },
-  {
-    title: '出門了，想用手機接著做',
-    summary: 'AI 繼續在電腦上做，你在路上也能看進度、接著下指令。',
-    tools: ['/remote-control'],
-    video: { script: 'claude-code/remote.json', title: 'Remote Control：出門了，用手機接著做', duration: '約 2 分鐘' },
-  },
-  { title: '好幾件事想同時做', summary: '把互不相干的事分給不同的對話，自己只負責檢查與決定。', tools: ['多個 session', 'Worktree'] },
-  { title: '昨天做到一半，今天想接著做', summary: '找回之前的對話接著做，不用重新交代一次。', tools: ['/resume', 'claude --continue'] },
-  { title: '對話越聊越長', summary: '把目前的對話濃縮成摘要繼續，或開一段乾淨的新對話。', tools: ['/compact', '/clear'] },
-  { title: '每次都要重講同樣的規則', summary: '把專案的固定規則寫進說明檔，每次新對話都會先讀。', tools: ['CLAUDE.md', '/init'] },
-  { title: '任務要跑很久，不想一直盯著', summary: '把對話丟到背景繼續跑，先去忙別的，之後再回來看結果。', tools: ['/background', 'claude agents'] },
-]
-
-/** 全部課程的清單頁:跨主題列出 catalog.ts 的每一門課,以及網頁怎麼運作、從做好到上線、給孩子的網頁程式、Claude Code 工作術 */
-export const COURSE_LIST = {
-  name: '全部課程',
-  path: '/courses',
-  seoTitle: '全部課程：從零基礎到 AI 互動軟體',
-  description: '依主題列出所有 AI 課程：從零基礎做出自己的網站與小工具、看懂網頁怎麼運作、給孩子的網頁程式課，到打造會查資料、跑分析的 AI 互動軟體，也整理 Claude Code 的常見使用情境。可以看到每門課目前開放與規劃中的狀態。',
-}
-
-/** 課程所在的主題(依課程頁路徑判斷):麵包屑、「課程地圖」連結用。網頁怎麼運作的主題就是這門課自己(WEB_TOPIC.path = 課程總覽頁) */
-export function topicOfCourse(coursePath: string): { name: string; path: string } {
-  if (coursePath === WEB_TOPIC.path) return WEB_TOPIC
-  if (coursePath === LAUNCH_TOPIC.path) return LAUNCH_TOPIC
-  if (coursePath === CLAUDE_CODE_TOPIC.path) return CLAUDE_CODE_TOPIC
-  if (coursePath === KIDS_TOPIC.path) return KIDS_TOPIC
-  return AI_APP_LEVELS.some((l) => levelPath(l) === coursePath) ? AI_APPS_TOPIC : SOFTWARE_TOPIC
-}
-
-export type PlannedTopic = {
-  name: string
-  slogan: string
+/** 主題的卡片與主題頁內容(資料庫 topics.content) */
+export type TopicContent = {
   /** 主題名稱旁的圖示(HomePage 的 TOPIC_ICONS) */
   icon?: 'terminal'
-  /** 已有課程地圖頁的主題：首頁卡片連到這裡 */
-  path?: string
+  /** 一句話說明(「做出自己的軟體」的首頁卡片、展示頁) */
+  lede?: string
+  /** 首頁卡片的主色標籤:有標籤時取代「開放中/規劃中」 */
+  tag?: string
+  /** 首頁卡片標語下的一段說明 */
+  intro?: string
   /** 預計會做出的成果 */
   outcomes?: string[]
   /** 這個主題解決的痛點(首頁卡片的「你是不是也卡在這裡」) */
@@ -137,12 +50,8 @@ export type PlannedTopic = {
    * intro 放在環節清單上方;sections 是腳本的段落名稱 → 給家長看的說明、是不是要孩子動手(可互動)
    */
   preview?: { script: string; intro?: string; sections?: Record<string, { note?: string; interactive?: boolean }> }
-  /** 首頁卡片的主色標籤:有標籤時取代「開放中/規劃中」 */
-  tag?: string
-  /** 首頁卡片標語下的一段說明 */
-  intro?: string
-  /** 首頁卡片的「學完你會」 */
-  learn?: string[]
+  /** 學完你會:一句一項;「做出自己的軟體」是依階段各一項 */
+  learn?: (string | { level: string; text: string })[]
   /** learn 的標題(預設「學完你會」) */
   learnTitle?: string
   /** 已經開放的主題:首頁卡片用實線外框;不寫就是規劃中,標題旁標「規劃中」(首頁不標「開放中」) */
@@ -151,91 +60,114 @@ export type PlannedTopic = {
   start?: { label: string; path: string }
 }
 
-/**
- * 主題「給孩子的網頁程式」:首頁單獨放在「更多主題課程」上方;課程總覽在 /courses/kids(courses/CourseOverviewPage.tsx,和其他課共用)。
- * 單元與課程在 content/kidsCourse.ts;研發中的大綱與試做在研發基地 /studio/kids-web。這裡只寫大綱裡已有的內容。
- */
-export const KIDS_TOPIC = {
-  name: '給孩子的網頁程式',
-  slogan: '用積木蓋網頁，陪 9 歲的孩子做出自己的小網站',
-  path: '/courses/kids',
-  seoTitle: '給孩子的網頁程式課：用積木認識 HTML、CSS、JavaScript',
-  description: '給 9 歲左右孩子的網頁程式課：不用打程式碼，用積木蓋網頁、幫網頁換衣服、讓網頁動起來，做出自己的小網站。課程陸續開放中，前五課可以預覽。',
-  open: true,
-  start: { label: START_FIRST_LESSON, path: KIDS_LESSON_PAGES['0.1'].path },
-  flow: ['用積木蓋網頁', '幫網頁換衣服', '讓網頁動起來', '說清楚，請 AI 幫忙做'],
-  outcomes: ['說得出網頁每個部分的名字', '一張自己的寵物名片網頁', '請 AI 做出自己的小網站'],
-  // 這張卡片是給家長看的:環節說明寫孩子會做什麼;段落名稱要和 資料庫的 kids/0.1.json 的 chapter 一致
-  preview: {
-    script: KIDS_LESSON_PAGES['0.1'].script,
-    intro: '這堂課可以互動：標著「可互動」的環節會停下來，等孩子自己點畫面上的網頁和積木。點下面的環節可以直接跳過去看。',
-    sections: {
-      網頁有背面: { note: '跟著旁白看：網頁翻到背面，原來是一塊一塊印著名字的積木。' },
-      換你試試看: { note: '孩子自己點網頁上的東西或積木，把 4 塊積木都找出來。', interactive: true },
-      找找看: { note: '三個小問題，答錯會說明原因，再試一次。', interactive: true },
-      學會: { note: '用一句話整理：網頁是用一塊一塊積木蓋出來的。' },
-    },
-  },
-} satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
+export type Topic = {
+  id: string
+  name: string
+  slogan: string
+  /** 已有主題頁的主題:首頁卡片連到這裡 */
+  path?: string
+  seoTitle?: string
+  description?: string
+  content?: TopicContent
+}
 
-/**
- * 主題「網頁怎麼運作」:課程地圖就是課程總覽頁 /courses/web(courses/CourseOverviewPage.tsx,和其他課共用),一課一頁在 /courses/web/<課號>。
- * 單元與課程在 content/webCourse.ts;研發中的構想在研發基地 /studio/web-basics。前五課不用登入就能預覽,其他開放的課要登入(訂閱制上線後改成訂閱才能看)。
- */
-export const WEB_TOPIC = {
-  name: '網頁怎麼運作',
-  slogan: '語法交給 AI，看懂原理才能跟 AI 說清楚',
-  path: '/courses/web',
-  seoTitle: '網頁怎麼運作：AI 時代的網頁基礎課',
-  description: 'AI 已經能寫出大部分的程式碼，這門課不教語法，教網頁怎麼運作：瀏覽器、HTML 與 CSS、前端與後端、上線。懂了原理、用對名詞，才能跟 AI 說清楚要什麼。前五課可以預覽。',
-  open: true,
-  start: { label: START_FIRST_LESSON, path: WEB_LESSON_PAGES['0.1'].path },
-  tag: 'AI 寫程式，我還需要知道什麼？',
-  learn: ['用對名詞，把想要的畫面和功能跟 AI 說清楚', '看懂 AI 改了哪裡、為什麼這樣改', '畫面壞掉時，知道該往哪裡找問題'],
-} satisfies PlannedTopic & { path: string; seoTitle: string; description: string }
+export type TopicsState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; topics: Topic[] }
 
-/** Claude Code 工作術的課號:情境的順序(資料庫課程地圖的課號 1–7,單元 0「使用情境」) */
-export const claudeCodeScenarioId = (index: number): string => String(index + 1)
+const str = (v: unknown) => typeof v === 'string'
+const obj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
+const strs = (v: unknown) => Array.isArray(v) && v.every(str)
+const CONTENT_CHECKS: Record<string, (v: unknown) => boolean> = {
+  icon: str, lede: str, tag: str, intro: str, learnTitle: str,
+  open: (v) => typeof v === 'boolean',
+  outcomes: strs, pains: strs, scenarios: strs, flow: strs,
+  sample: (v) => obj(v) && str(v.caption) && strs(v.before) && strs(v.after),
+  preview: (v) => obj(v) && str(v.script) && (v.sections === undefined || (obj(v.sections) && Object.values(v.sections).every(obj))),
+  learn: (v) => Array.isArray(v) && v.every((x) => str(x) || (obj(x) && str(x.level) && str(x.text))),
+  start: (v) => obj(v) && str(v.label) && str(v.path),
+}
+/** content 是資料庫裡手動寫的 JSON:格式不對的欄位略過,不讓一個打錯的值弄壞整頁 */
+export function cleanTopicContent(content: unknown): TopicContent {
+  if (!obj(content)) return {}
+  return Object.fromEntries(Object.entries(content).filter(([k, v]) => CONTENT_CHECKS[k]?.(v))) as TopicContent
+}
 
-/** 這段影片的錨點:腳本檔名去掉資料夾與副檔名(claude-code/remote.json → remote)。舊網址 /topics/claude-code#remote 轉到這一課的頁面 */
+export async function fetchTopics(): Promise<Topic[]> {
+  const res = await fetch(`/api/topics${langQuery()}`, { credentials: 'same-origin' })
+  if (!res.ok) throw new Error(`主題讀取失敗(${res.status})`)
+  return ((await res.json()) as { topics: Topic[] }).topics.map((t) => ({ ...t, content: cleanTopicContent(t.content) }))
+}
+
+// 讀過的主題記在記憶體(依語言分開;回到首頁先用記住的,背景再讀一次更新);同時間只打一個請求
+const cache = new Map<string, Topic[]>()
+const inflight = new Map<string, Promise<Topic[]>>()
+function load(locale: string): Promise<Topic[]> {
+  let p = inflight.get(locale)
+  if (!p) {
+    p = fetchTopics()
+      .then((topics) => {
+        cache.set(locale, topics)
+        return topics
+      })
+      .finally(() => inflight.delete(locale))
+    inflight.set(locale, p)
+  }
+  return p
+}
+
+/** 主題的記憶體快取(給測試清掉) */
+export function resetTopicsCache() {
+  cache.clear()
+  inflight.clear()
+}
+
+/** 全部主題,照資料庫的順序 */
+export function useTopics(): TopicsState {
+  const { locale } = useLocale()
+  const [res, setRes] = useState<{ locale: string; state: TopicsState } | null>(null)
+  const hit = cache.get(locale)
+  const state: TopicsState = res?.locale === locale ? res.state : hit ? { status: 'ready', topics: hit } : { status: 'loading' }
+  useEffect(() => {
+    let cancelled = false
+    load(locale).then(
+      (topics) => !cancelled && setRes({ locale, state: { status: 'ready', topics } }),
+      () => !cancelled && setRes((r) => (r?.locale === locale && r.state.status === 'ready') || cache.has(locale) ? r : { locale, state: { status: 'error' } }),
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [locale])
+  return state
+}
+
+export const findTopic = (state: TopicsState, id: string): Topic | undefined => (state.status === 'ready' ? state.topics.find((t) => t.id === id) : undefined)
+
+/** 課程所在主題的主題頁網址(依課程頁路徑):麵包屑、「課程地圖」連結用 */
+export function topicPathOfCourse(coursePath: string): string {
+  if (coursePath === '/courses/advanced') return TOPIC_PATHS.aiApps
+  return coursePath === '/courses/software' ? TOPIC_PATHS.software : coursePath
+}
+
+/** 全部課程的清單頁(不是主題,資料庫沒有對應的欄位):跨主題列出每一門課 */
+export const COURSE_LIST = {
+  name: '全部課程',
+  path: '/courses',
+  seoTitle: '全部課程：從零基礎到 AI 互動軟體',
+  description: '依主題列出所有 AI 課程：從零基礎做出自己的網站與小工具、看懂網頁怎麼運作、給孩子的網頁程式課，到打造會查資料、跑分析的 AI 互動軟體，也整理 Claude Code 的常見使用情境。可以看到每門課目前開放與規劃中的狀態。',
+}
+
+/** Claude Code 工作術各情境(資料庫的課號)資料庫沒有的欄位:會用到的功能(以官方文件為準,改版時要更新)、示範影片的標題 */
+export const CLAUDE_CODE_EXTRAS: Record<string, { tools: string[]; videoTitle?: string }> = {
+  '1': { tools: ['/fork', '/branch', 'Worktree'], videoTitle: 'Fork：帶著對話另開一條路' },
+  '2': { tools: ['/remote-control'], videoTitle: 'Remote Control：出門了，用手機接著做' },
+  '3': { tools: ['多個 session', 'Worktree'] },
+  '4': { tools: ['/resume', 'claude --continue'] },
+  '5': { tools: ['/compact', '/clear'] },
+  '6': { tools: ['CLAUDE.md', '/init'] },
+  '7': { tools: ['/background', 'claude agents'] },
+}
+
+/** 舊網址 /topics/claude-code#<錨點> 的影片錨點 → 情境的課號(舊網址的轉址,不隨課程資料改) */
+export const CLAUDE_CODE_ANCHORS: Record<string, string> = { fork: '1', remote: '2' }
+
+/** 影片的錨點:腳本檔名去掉資料夾與副檔名(claude-code/remote.json → remote) */
 export const scenarioAnchor = (script: string): string => script.replace(/^.*\//, '').replace(/\.json$/, '')
-
-/** 有示範影片的情境(單課路由照資料庫,沒列在這裡的課用通用版型):課號 → 課程頁網址、腳本、錨點。規劃中的情境沒有頁面。腳本要和資料庫一致(content/courseMap.test.ts 只檢查腳本檔存在) */
-export const CLAUDE_CODE_LESSON_PAGES: Record<string, { path: string; script: string; anchor: string }> = Object.fromEntries(
-  CLAUDE_CODE_SCENARIOS.flatMap((s, i) =>
-    s.video ? [[claudeCodeScenarioId(i), { path: `${CLAUDE_CODE_TOPIC.path}/${claudeCodeScenarioId(i)}`, script: s.video.script, anchor: scenarioAnchor(s.video.script) }]] : [],
-  ),
-)
-
-/** 課號 → 情境 */
-export const claudeCodeScenario = (id: string): (typeof CLAUDE_CODE_SCENARIOS)[number] | undefined => CLAUDE_CODE_SCENARIOS[Number(id) - 1]
-
-export const PLANNED_TOPICS: PlannedTopic[] = [
-  WEB_TOPIC,
-  {
-    ...AI_APPS_TOPIC,
-    flow: ['寫出工具', '讓 AI 呼叫工具', '做成互動介面'],
-    outcomes: ['打字提問就能用的資料分析介面', '能查資料、畫圖表的 AI 助理', '可以穩定上線的 AI 功能'],
-  },
-  {
-    name: 'AI 變現術',
-    slogan: '把你會的事，變成有人願意付錢的服務',
-    flow: ['找出專長', '做成小工具', '寫出第一份報價'],
-    outcomes: ['一個能收費的小工具', '一份數位商品', '一份接案報價單'],
-  },
-  {
-    name: '生活資料處理',
-    slogan: '帳單、照片、表格，交給 AI 整理',
-    sample: {
-      caption: '示意：把散落的檔案整理好',
-      before: ['IMG_2031.jpg', '帳單(1).pdf', '新增資料夾 (3)'],
-      after: ['照片/2026-07/海邊-01.jpg', '帳單/2026-07-電費.pdf', '支出/2026-07.xlsx'],
-    },
-    outcomes: ['每月支出表', '依日期分類好的照片資料夾', '合併好、沒有重複的表格'],
-  },
-  {
-    ...CLAUDE_CODE_TOPIC,
-    icon: 'terminal',
-    scenarios: CLAUDE_CODE_SCENARIOS.map((s) => s.title),
-  },
-]

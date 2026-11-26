@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from 'react'
 import { COURSES } from '../../content/catalog'
+import { useCourseMaps } from '../../content/courseMap'
 import { ProposalLayout } from '../proposal/ProposalLayout'
 import ui from '../proposal/proposal.module.css'
 import { buildSeed, moveCourse, moveSegment, nudge, reconcile, staleIds, type CourseMap, type MapCourse } from './courseMap'
@@ -23,8 +24,22 @@ function indexByPointer(e: DragEvent<HTMLElement>, index: number): number {
   return e.clientY < rect.top + rect.height / 2 ? index : index + 1
 }
 
+/** 課名與階段名稱讀資料庫:每門課的地圖都讀到才開始編排(少一門會把它當成已刪掉的課) */
 export function CourseMapPage() {
-  const seed = useMemo(() => buildSeed(COURSES), [])
+  const maps = useCourseMaps(COURSES.map((c) => c.slug))
+  const ready = COURSES.every((c) => maps[c.slug])
+  const seed = useMemo(() => (ready ? buildSeed(maps) : null), [ready, maps])
+  if (!seed) {
+    return (
+      <ProposalLayout title="課程編排" footer="課程">
+        <p role="status">讀取課程資料中…（讀不到時請重新整理）</p>
+      </ProposalLayout>
+    )
+  }
+  return <Board seed={seed} />
+}
+
+function Board({ seed }: { seed: CourseMap }) {
   const [map, setMap] = useState<CourseMap | null>(null)
   const [status, setStatus] = useState<Status>({ state: 'idle' })
   const [loadError, setLoadError] = useState<string | null>(null)

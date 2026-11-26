@@ -8,7 +8,7 @@ import { L0_LESSONS } from '../content/l0Lessons'
 import { L1_LESSONS } from '../content/l1Lessons'
 import { useCourseName } from '../content/courseMap'
 import { lessonDocTitle, lessonLabelOf } from '../content/lessonDisplay'
-import { SOFTWARE_TOPIC } from '../content/topics'
+import { TOPIC_PATHS } from '../content/topics'
 import type { StageScript } from '../live/stage'
 import { useT } from '../i18n/I18nProvider'
 import { documentTitle } from '../site/siteInfo'
@@ -60,7 +60,7 @@ export function InteractiveLessonPage({ course, lesson, prev, next }: Props) {
   const location = useLocation()
   const t = useT()
   const c = t.courses.lesson
-  const courseName = useCourseName(courseMapId(course), course.title)
+  const courseName = useCourseName(courseMapId(course))
   const progress = useMemo(() => (memberId ? memberProgress(`live:${script}`) : undefined), [memberId, script])
   useEffect(() => {
     if (status !== 'loading' && !memberId) clearGuestProgress()
@@ -96,7 +96,7 @@ export function InteractiveLessonPage({ course, lesson, prev, next }: Props) {
               {next ? (
                 <Link to={lessonUrl(course.slug, next.id)}>{c.next(labelOf(next))}</Link>
               ) : (
-                <Link to={`${SOFTWARE_TOPIC.path}#map`}>{c.courseMapNext}</Link>
+                <Link to={`${TOPIC_PATHS.software}#map`}>{c.courseMapNext}</Link>
               )}
             </nav>
           </>

@@ -59,6 +59,7 @@ export const courses = {
   // ---------- 規劃中的課程與章節(PlannedPages) ----------
   plannedPages: {
     chapterGoal: '這一章的目標',
+    unitSummary: (course: string, unit: string) => `${course}的規劃主題之一：${unit}。詳細內容規劃中。`,
     afterDone: (result: string) => `完成後：${result}`,
     comingSoon: '這一章的影片與操作步驟製作中，完成後會在這裡上架。',
     pager: '上一章與下一章',

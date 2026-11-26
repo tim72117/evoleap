@@ -159,8 +159,8 @@ export function useLessonTitle(courseId: string): (id: string) => string {
   return useMemo(() => (id: string) => mapLessonOf(map, id)?.title ?? id, [map])
 }
 
-/** 資料庫裡的課程名稱(單課頁的 document.title 用,和 server 組的 <title> 同一個來源);地圖還沒讀到時用 fallback */
-export function useCourseName(courseId: string, fallback: string): string {
+/** 資料庫裡的課程名稱(單課頁的標籤與 document.title 用,和 server 組的 <title> 同一個來源);地圖還沒讀到或讀不到是空字串 */
+export function useCourseName(courseId: string): string {
   const state = useCourseMap(courseId)
-  return state.status === 'ready' ? state.map.title : fallback
+  return state.status === 'ready' ? state.map.title : ''
 }

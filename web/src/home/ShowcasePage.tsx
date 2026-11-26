@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { lessonUrl, PREVIEW_LESSON_ID } from '../content/catalog'
 import { mapLessonOf, useCourseMap } from '../content/courseMap'
-import { KIDS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
+import { findTopic, TOPIC_PATHS, useTopics } from '../content/topics'
+import { LessonListStatus } from '../courses/LessonGroup'
 import { KidsPlayer } from '../kids/KidsPlayer'
 import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
@@ -23,6 +24,11 @@ export function ShowcasePage() {
   const [kidsMenu, setKidsMenu] = useState<HTMLElement | null>(null)
   const t = useT()
   const softwareMap = useCourseMap('software')
+  // 兩張卡片的名稱、標語、兒童課的預覽設定讀資料庫的主題
+  const topics = useTopics()
+  const software = findTopic(topics, 'software')
+  const kids = findTopic(topics, 'kids')
+  const preview = kids?.content?.preview
   const introLesson = mapLessonOf(softwareMap.status === 'ready' ? softwareMap.map : undefined, PREVIEW_LESSON_ID)
 
   return (
@@ -35,17 +41,18 @@ export function ShowcasePage() {
       </section>
 
       <div className={styles.container}>
-        <article className={styles.featured} aria-labelledby="showcase-software">
+        {topics.status !== 'ready' && <LessonListStatus state={topics.status} />}
+        {software && <article className={styles.featured} aria-labelledby="showcase-software">
           <div className={styles.featuredMain}>
             <div className={styles.featuredText}>
-              <h2 id="showcase-software">{SOFTWARE_TOPIC.name}</h2>
-              <p className={styles.slogan}>{SOFTWARE_TOPIC.slogan}</p>
-              <p className={styles.lede}>{SOFTWARE_TOPIC.lede}</p>
+              <h2 id="showcase-software">{software.name}</h2>
+              <p className={styles.slogan}>{software.slogan}</p>
+              <p className={styles.lede}>{software.content?.lede}</p>
               <div className={styles.ctas}>
                 <Link className={styles.primary} to={lessonUrl('software', PREVIEW_LESSON_ID)}>
                   {t.home.startFirstLesson}
                 </Link>
-                <Link className={styles.secondary} to={{ pathname: SOFTWARE_TOPIC.path, hash: 'map' }}>
+                <Link className={styles.secondary} to={{ pathname: TOPIC_PATHS.software, hash: 'map' }}>
                   {t.home.courseMap}
                 </Link>
                 <div ref={setShrinkSlot} className={styles.shrinkSlot} />
@@ -65,38 +72,38 @@ export function ShowcasePage() {
               )}
             </div>
           </div>
-        </article>
+        </article>}
 
-        <section className={styles.kids} aria-label={KIDS_TOPIC.name}>
+        {kids && <section className={styles.kids} aria-label={kids.name}>
           {/* 課程預覽:第一課(0.1)的試做,用兒童版播放器直接上,放在標題右側。
               這張卡片給家長看:左欄先介紹哪些環節可互動,再列出環節(點了跳過去);播放控制留在影片下方 */}
           <ThemeCard
-            t={KIDS_TOPIC}
+            t={kids}
             aside={
-              KIDS_TOPIC.preview && (
+              preview && (
                 <NearViewport placeholder={<div className={styles.kidsPlaceholder} aria-hidden="true" />}>
                   <KidsPlayer
-                    script={KIDS_TOPIC.preview.script}
+                    script={preview.script}
                     size="compact"
                     freeJump
                     track="home"
                     chaptersSlot={kidsMenu}
-                    chapterInfo={KIDS_TOPIC.preview.sections}
+                    chapterInfo={preview.sections}
                   />
                 </NearViewport>
               )
             }
             below={
-              KIDS_TOPIC.preview && (
+              preview && (
                 <>
                   <h4>{t.home.showcase.sections}</h4>
-                  {KIDS_TOPIC.preview.intro && <p className={styles.kidsIntro}>{KIDS_TOPIC.preview.intro}</p>}
+                  {preview.intro && <p className={styles.kidsIntro}>{preview.intro}</p>}
                   <div ref={setKidsMenu} />
                 </>
               )
             }
           />
-        </section>
+        </section>}
         <div className={styles.showcaseEnd} />
       </div>
     </SiteLayout>

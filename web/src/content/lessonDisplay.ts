@@ -3,7 +3,7 @@
 // - 頁面標題(h1):課名,不含標籤
 // - document.title(頁名):`課名｜課程名稱`(lessonDocTitle,SiteLayout / documentTitle 再接上「 · evoleap」)
 // - 登入把關的 kicker:`課程名稱 · 標籤`(lessonKicker)
-import { COURSES, lessonLabel } from './catalog'
+import { lessonLabel } from './catalog'
 import { messages } from '../i18n/current'
 
 /** 一課的標籤(目前語言):軟體課是「序章」(0.intro)、「第 N 課」(0.N → N);其他課「第 <課號> 課」(Claude Code 的情境課號 1..7 就是「第 1 課」) */
@@ -12,17 +12,12 @@ export function lessonLabelOf(courseSlug: string, lessonId: string): string {
   return messages().courses.lessonN(lessonId)
 }
 
-/** 課程名稱(課程目錄 / 種子的 course.title);不認得的課用 slug */
-export function courseTitleOf(courseSlug: string): string {
-  return COURSES.find((c) => c.slug === courseSlug)?.title ?? courseSlug
-}
-
-/** 單課頁的 document.title 頁名:`課名｜課程名稱`(給 documentTitle / SiteLayout 的 title;seo/pages.ts 用同一個函式) */
+/** 單課頁的 document.title 頁名:`課名｜課程名稱`(給 documentTitle / SiteLayout 的 title)。課程名稱讀資料庫,還沒讀到時只有課名 */
 export function lessonDocTitle(lessonTitle: string, courseTitle: string): string {
-  return messages().courses.lesson.docTitle(lessonTitle, courseTitle)
+  return courseTitle ? messages().courses.lesson.docTitle(lessonTitle, courseTitle) : lessonTitle
 }
 
-/** 登入把關的 kicker:`課程名稱 · 標籤` */
+/** 登入把關的 kicker:`課程名稱 · 標籤`;課程名稱還沒讀到時只有標籤 */
 export function lessonKicker(courseTitle: string, label: string): string {
-  return `${courseTitle} · ${label}`
+  return courseTitle ? `${courseTitle} · ${label}` : label
 }

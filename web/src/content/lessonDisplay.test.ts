@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { courseTitleOf, lessonDocTitle, lessonKicker, lessonLabelOf } from './lessonDisplay'
+import { lessonDocTitle, lessonKicker, lessonLabelOf } from './lessonDisplay'
 
 describe('lessonLabelOf', () => {
   it('軟體課:序章、第 N 課(起步階段 0.N 顯示為第 N 課)', () => {
@@ -19,6 +19,8 @@ describe('單課頁標題', () => {
   it('document.title 頁名是「課名｜課程名稱」,登入把關 kicker 是「課程名稱 · 標籤」', () => {
     expect(lessonDocTitle('提出需求', '做出自己的軟體')).toBe('提出需求｜做出自己的軟體')
     expect(lessonKicker('網頁怎麼運作', '第 1 課')).toBe('網頁怎麼運作 · 第 1 課')
-    expect(courseTitleOf('web')).toBe('網頁怎麼運作')
+    // 課程名稱讀資料庫,還沒讀到時不列
+    expect(lessonDocTitle('提出需求', '')).toBe('提出需求')
+    expect(lessonKicker('', '第 1 課')).toBe('第 1 課')
   })
 })

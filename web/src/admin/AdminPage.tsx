@@ -4,9 +4,7 @@ import { ApiError } from '../auth/api'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
 import { adminApi, type SchemaReport, type AdminOverview, type AdminUser, type Count, type AdminRange, type GuestVisit, type HomePath, type HomeStay, type LessonStat, type LoginStats, type UserProgress } from './api'
-import { AI_APPS_TOPIC, CLAUDE_CODE_TOPIC, KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
-import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
-import { WEB_LESSON_PAGES } from '../content/webCourse'
+import { TOPIC_PATHS, useTopics } from '../content/topics'
 import { ADMIN_PATH } from './paths'
 import { formatDateTime, formatDuration, percentOf } from './format'
 import { isGate, isHomeShowcase, isPage } from '../courses/guestActivity'
@@ -376,16 +374,19 @@ const PAGE_NAME: Record<string, string> = {
   '/login': '登入／註冊頁',
   '/': '首頁',
   '/showcase': '展示頁',
-  [SOFTWARE_TOPIC.path]: `${SOFTWARE_TOPIC.name}（地圖）`,
-  [AI_APPS_TOPIC.path]: `${AI_APPS_TOPIC.name}（地圖）`,
-  [CLAUDE_CODE_TOPIC.path]: `${CLAUDE_CODE_TOPIC.name}（課程總覽）`,
-  [KIDS_TOPIC.path]: `${KIDS_TOPIC.name}（地圖）`,
-  [WEB_TOPIC.path]: `${WEB_TOPIC.name}（課程總覽）`,
-  [LAUNCH_TOPIC.path]: `${LAUNCH_TOPIC.name}（課程總覽）`,
+}
+/** 主題頁網址 → 主題 id 與後面的註記;主題名稱讀資料庫(讀不到時顯示 id) */
+const TOPIC_PAGES: Record<string, [id: string, note: string]> = {
+  [TOPIC_PATHS.software]: ['software', '地圖'],
+  [TOPIC_PATHS.aiApps]: ['ai-apps', '地圖'],
+  [TOPIC_PATHS.claudeCode]: ['claude-code', '課程總覽'],
+  [TOPIC_PATHS.kids]: ['kids', '地圖'],
+  [TOPIC_PATHS.web]: ['web', '課程總覽'],
+  [TOPIC_PATHS.launch]: ['launch', '課程總覽'],
   // 課程搬到 /courses/<課程> 之前(2026-11)的舊網址:舊的訪客紀錄仍存著 page:/topics/…,後台照樣讀得懂
-  '/topics/web': `${WEB_TOPIC.name}（地圖，舊網址）`,
-  '/topics/launch': `${LAUNCH_TOPIC.name}（地圖，舊網址）`,
-  '/topics/claude-code': `${CLAUDE_CODE_TOPIC.name}（情境，舊網址）`,
+  '/topics/web': ['web', '地圖，舊網址'],
+  '/topics/launch': ['launch', '地圖，舊網址'],
+  '/topics/claude-code': ['claude-code', '情境，舊網址'],
 }
 /** 單課網址的名稱照網址規則認(不列課號,資料庫新增的課也認得)。看到提示頁的訪客(home/TopicBlocked)記成 page:<網址> */
 const PAGE_PATTERNS: [RegExp, (id: string) => string][] = [
@@ -393,37 +394,48 @@ const PAGE_PATTERNS: [RegExp, (id: string) => string][] = [
   [/^\/topics\/launch\/(\d+-\d+)$/, (id) => `上線課 ${id}（還沒開放，舊網址）`],
   [/^\/courses\/launch\/(\d+-\d+)$/, (id) => `上線課 ${id}（還沒開放）`],
 ]
-const pageName = (path: string): string | undefined => {
+const pageName = (path: string, topicNames: Record<string, string>): string | undefined => {
   if (PAGE_NAME[path]) return PAGE_NAME[path]
+  if (TOPIC_PAGES[path]) {
+    const [id, note] = TOPIC_PAGES[path]
+    return `${topicNames[id] ?? id}（${note}）`
+  }
   for (const [pattern, name] of PAGE_PATTERNS) {
     const slug = pattern.exec(path)?.[1]
     if (slug) return name(slug.replace('-', '.'))
   }
 }
-const LESSON_NAME: Record<string, string> = {
-  ...Object.fromEntries(Object.entries(WEB_LESSON_PAGES).map(([id, l]) => [`live:${l.script}`, `網頁課 ${id}`])),
-  ...Object.fromEntries(Object.entries(KIDS_LESSON_PAGES).map(([id, l]) => [`kids:${l.script}`, `兒童課 ${id}`])),
+/** 網頁課、兒童課的上課紀錄名稱(live:web/<課號>.json、kids:kids/<課號>.json:照腳本的命名規則認,不列課號) */
+const LESSON_PATTERNS: [RegExp, string][] = [
+  [/^live:web\/(\d+\.\d+)\.json$/, '網頁課'],
+  [/^kids:kids\/(\d+\.\d+)\.json$/, '兒童課'],
+  [/^live:launch\/(\d+\.\d+)\.json$/, '上線課'],
+]
+const lessonName = (key: string): string | undefined => {
+  for (const [pattern, name] of LESSON_PATTERNS) {
+    const id = pattern.exec(key)?.[1]
+    if (id) return `${name} ${id}`
+  }
 }
-/** 上線課的上課紀錄名稱(live:launch/<課號>.json,見 content/launchCourse.ts 的 launchScriptKey) */
-const LAUNCH_KEY = /^live:launch\/(\d+\.\d+)\.json$/
 
 /** 路徑上的一站 → 後台顯示的名稱 */
-export function stepName(lesson: string): string {
+export function stepName(lesson: string, topicNames: Record<string, string> = {}): string {
   if (lesson === 'exit') return '離開網站'
   if (lesson === '…') return '…'
   if (lesson.startsWith('leave:')) return `去了 ${lesson.slice('leave:'.length)}`
   if (isPage(lesson)) {
     const path = lesson.slice('page:'.length)
-    return pageName(path) ?? path
+    return pageName(path, topicNames) ?? path
   }
   if (isGate(lesson)) return `登入門檻 ${lesson.slice('gate:'.length)}`
   if (isHomeShowcase(lesson)) return '展示影片'
-  const launch = LAUNCH_KEY.exec(lesson)?.[1]
-  return LESSON_NAME[lesson] ?? (launch ? `上線課 ${launch}` : lesson)
+  return lessonName(lesson) ?? lesson
 }
 
 /** 從首頁進來的造訪:最常見的路徑 */
 function HomePaths({ paths, total }: { paths: HomePath[]; total: number }) {
+  const topics = useTopics()
+  const topicNames = Object.fromEntries((topics.status === 'ready' ? topics.topics : []).map((p) => [p.id, p.name]))
   if (!paths.length) return null
   return (
     <>
@@ -448,7 +460,7 @@ function HomePaths({ paths, total }: { paths: HomePath[]; total: number }) {
                   <ol className={styles.path}>
                     {p.steps.map((s, j) => (
                       <li key={j} data-end={s.lesson === 'exit' || s.lesson.startsWith('leave:') ? 'true' : undefined}>
-                        {stepName(s.lesson)}
+                        {stepName(s.lesson, topicNames)}
                         {s.played && <span className={styles.played}>▶ 有播放</span>}
                       </li>
                     ))}

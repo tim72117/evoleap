@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { COURSES } from '../../content/catalog'
+import { FIXTURE_COURSES } from '../../test/courseFixture'
+import type { CourseMap as DbCourseMap } from '../../content/courseMap'
 import { buildSeed, computeChanges, moveCourse, moveSegment, nudge, reconcile, staleIds, type CourseMap } from './courseMap'
 
 const segments = (map: CourseMap, courseId: string) =>
@@ -10,10 +11,11 @@ const segments = (map: CourseMap, courseId: string) =>
 const courses = (map: CourseMap, levelId: string) => map.levels.find((l) => l.id === levelId)!.courses.map((c) => c.id)
 
 describe('課程編排', () => {
-  const seed = buildSeed(COURSES)
+  const maps = Object.fromEntries(FIXTURE_COURSES.map((c) => [c.id, c as unknown as DbCourseMap]))
+  const seed = buildSeed(maps)
 
   it('初始資料涵蓋每個等級、單課與步驟,id 不重複', () => {
-    expect(seed.levels.map((l) => l.id)).toEqual(COURSES.flatMap((c) => c.stages?.map((st) => st.id) ?? [c.slug]))
+    expect(seed.levels.map((l) => l.id)).toEqual(['tools', 'ai-tools', 'vibe-coding-basics', 'web', 'launch', 'kids', 'claude-code', 'advanced'])
     expect(segments(seed, '0.1')).toEqual(['0.1#1', '0.1#2', '0.1#3', '0.1#4', '0.1#5'])
     const ids = seed.levels.flatMap((l) => l.courses.flatMap((c) => [c.id, ...c.segments.map((s) => s.id)]))
     expect(new Set(ids).size).toBe(ids.length)

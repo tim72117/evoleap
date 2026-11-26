@@ -607,3 +607,14 @@ for (const path of new Set(PAGES)) {
     expect(errors).toEqual([])
   })
 }
+
+test('首頁與主題頁的主題、課程名稱讀資料庫;讀不到顯示「無法讀取」,不用寫死的內容頂替', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 2, name: '做出自己的軟體' })).toBeVisible()
+  await page.route('**/api/topics', (r) => r.fulfill({ status: 503, body: '{}' }))
+  for (const path of ['/', '/topics/software']) {
+    await page.goto(path)
+    await expect(page.getByText('無法讀取').first()).toBeVisible()
+    await expect(page.getByText('做出自己的軟體', { exact: true })).toHaveCount(0)
+  }
+})

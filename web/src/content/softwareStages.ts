@@ -15,7 +15,7 @@ const VIBE_PLANNED: PlannedChapter[] = l2OutlineLessons()
   .map(({ id, lesson: l }) => ({ slug: id.replace('.', '-'), label: id, title: l.title, summary: l.objective, result: l.result }))
   .filter((ch) => !L2_LESSONS.some((l) => l.id === ch.label))
 
-/** 各階段(單元 id 與種子相同)的前端課程內容 */
+/** 各階段(單元 id 和資料庫相同)的前端單課步驟與大綱(只給研發基地;學員端不 import) */
 export const SOFTWARE_STAGE_CONTENT: SoftwareStageContent[] = [
   { id: 'tools', lessons: L0_LESSONS, planned: [] },
   { id: 'ai-tools', lessons: L1_LESSONS, planned: [] },

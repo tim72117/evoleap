@@ -2,43 +2,62 @@ import type { CSSProperties, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
-import { AI_APPS_TOPIC, SOFTWARE_TOPIC } from '../content/topics'
-import { ACCESS_LABEL, AI_APP_LEVELS, AI_APPS_INTRO, LEVELS, MAP_INTRO, shownLevels, type CourseLevel } from '../content/levels'
-import { courseOfLevel, levelMapId, levelMapLessons, lessonLabel, lessonUrl } from '../content/catalog'
-import { useCourseMaps, type CourseMap } from '../content/courseMap'
-import { useT } from '../i18n/I18nProvider'
+import { findTopic, TOPIC_PATHS, useTopics, type Topic } from '../content/topics'
+import { AI_APP_COURSES, AI_APPS_INTRO, MAP_INTRO, STAGE_COPY, stageAnchor, type CourseArt } from '../content/levels'
+import { lessonLabel, lessonUrl } from '../content/catalog'
+import { useCourseMap, type CourseMapState, type MapLesson, type MapUnit } from '../content/courseMap'
+import { LessonListStatus } from '../courses/LessonGroup'
+import { useLocale, useT } from '../i18n/I18nProvider'
 import { AiAgentIntro } from './AiAgentIntro'
 import { LevelArt } from './LevelArt'
 import styles from './SoftwareTopicPage.module.css'
 
-/** 資料庫課程地圖裡已開放(status open)的課號;還在讀、讀不到時是 undefined */
-const openIdsOf = (map: CourseMap | undefined, level: CourseLevel) => {
-  const lessons = levelMapLessons(map, level)
-  return lessons ? new Set(lessons.filter((l) => l.status === 'open').map((l) => l.id)) : undefined
+// 主題的課程地圖頁(/topics/software、/topics/ai-apps)。主題名稱讀資料庫的主題;等級名稱、課名、簡介、每一課與開放與否讀資料庫的課程地圖;
+// 資料庫沒有欄位的文案(大標、卡片簡述與重點、先備條件)在 content/levels.ts。讀取中顯示佔位卡、讀不到顯示「無法讀取」。
+
+/** 一張等級卡 */
+type Level = {
+  id: string
+  levelLabel: string
+  title: string
+  summary?: string
+  art: CourseArt
+  link: string
+  prerequisite?: string
+  /** 卡片上的重點;沒有就列 lessons */
+  topics?: string[]
+  lessons?: MapLesson[]
 }
 
-/** 等級的單課清單(只有「做出自己的軟體」的階段有):附上網址與是否已開放 */
-/** (lessonLabel 依目前語言,呼叫的元件用 useT() 訂閱語言,換語言時會重算) */
-function levelLessons(level: CourseLevel, openIds: Set<string> | undefined) {
-  const course = courseOfLevel(level)
-  if (course?.slug !== 'software') return []
-  return (level.lessons ?? []).map((item) => ({ ...item, label: lessonLabel(item), to: lessonUrl(course.slug, item.id), open: openIds?.has(item.id) ?? false }))
+/** 「做出自己的軟體」的等級:software 課程的單元(階段),先不公開的不列 */
+function stageLevels(units: MapUnit[]): Level[] {
+  return units
+    .filter((u) => !u.hidden)
+    .map((u) => {
+      const copy = STAGE_COPY[u.id]
+      return {
+        id: u.id,
+        levelLabel: u.label ?? u.title,
+        // 單元標題是「起步・課名」,卡片另外有階段名稱,所以拿掉前面的「起步・」
+        title: u.label && u.title.startsWith(`${u.label}・`) ? u.title.slice(u.label.length + 1) : u.title,
+        summary: copy?.summary,
+        art: copy?.art ?? 'tools',
+        link: `/courses/software#${stageAnchor(u.id)}`,
+        prerequisite: copy?.prerequisite,
+        topics: copy?.topics,
+        lessons: u.lessons,
+      }
+    })
 }
 
-function LevelCard({ level, index, openIds }: { level: CourseLevel; index: number; openIds?: Set<string> }) {
+function LevelCard({ level, index }: { level: Level; index: number | null }) {
   const t = useT()
   const m = t.home.software
-  const available = level.status === 'available'
-  // 目前只有「免費」會顯示(其他是 null)
-  const access = ACCESS_LABEL[level.access] && (level.access === 'free' ? m.free : ACCESS_LABEL[level.access])
-  const lessons = levelLessons(level, openIds)
-  const opened = lessons.filter((l) => l.open)
+  // 開放了哪幾課照資料庫(只有列出單課的等級有)
+  const lessons = (level.lessons ?? []).map((l) => ({ ...l, label: lessonLabel(l), to: lessonUrl('software', l.id) }))
+  const opened = lessons.filter((l) => l.status === 'open')
   return (
-    <li
-      id={`level-${level.id}`}
-      className={`${styles.step} ${available ? styles.available : styles.planned}`}
-      style={{ '--step': index } as CSSProperties}
-    >
+    <li id={`level-${level.id}`} className={`${styles.step} ${styles.planned}`} style={{ '--step': index ?? 0 } as CSSProperties}>
       <div className={styles.node} aria-hidden="true">
         {index}
       </div>
@@ -51,23 +70,15 @@ function LevelCard({ level, index, openIds }: { level: CourseLevel; index: numbe
         </div>
         <div className={styles.body}>
           <p className={styles.badges}>
-            {access && (
-              <span className={`${styles.badge} ${level.access === 'free' ? styles.badgeFree : styles.badgeLogin}`}>
-                {access}
-              </span>
-            )}
-            {/* 開放了哪幾課照資料庫的課程地圖;還在讀、讀不到時不標(不誤標成規劃中) */}
-            {available ? (
-              <span className={`${styles.badge} ${styles.badgeOpen}`}>{m.contentReady}</span>
-            ) : openIds === undefined ? null : opened.length ? (
+            {opened.length ? (
               <span className={`${styles.badge} ${styles.badgeOpen}`}>{m.openedLessons(opened.map((l) => l.label).join(m.listSep))}</span>
             ) : (
               <span className={`${styles.badge} ${styles.badgePlanned}`}><span aria-hidden="true">🌱 </span>{t.home.planned}</span>
             )}
           </p>
           <h3>{level.title}</h3>
-          <p className={styles.summary}>{level.summary}</p>
-          {lessons.length ? (
+          {level.summary && <p className={styles.summary}>{level.summary}</p>}
+          {lessons.length && !level.topics ? (
             <>
               <h4 className={styles.topicsHead}>{m.lessonContent}</h4>
               <ol className={styles.lessons}>
@@ -76,7 +87,7 @@ function LevelCard({ level, index, openIds }: { level: CourseLevel; index: numbe
                     <Link to={l.to} className={styles.lessonNum}>
                       {l.label}
                     </Link>
-                    <span>{l.text}</span>
+                    <span>{l.summary}</span>
                   </li>
                 ))}
               </ol>
@@ -85,7 +96,7 @@ function LevelCard({ level, index, openIds }: { level: CourseLevel; index: numbe
             <>
               <h4 className={styles.topicsHead}>
                 {m.lessonContent}
-                {!available && m.tentative}
+                {m.tentative}
               </h4>
               <ul className={styles.topics}>
                 {(level.topics ?? []).map((x) => (
@@ -100,11 +111,9 @@ function LevelCard({ level, index, openIds }: { level: CourseLevel; index: numbe
               {level.prerequisite}
             </p>
           )}
-          {level.link && (
-            <Link className={styles.cta} to={level.link}>
-              {m.viewCourse} <span aria-hidden="true">→</span>
-            </Link>
-          )}
+          <Link className={styles.cta} to={level.link}>
+            {m.viewCourse} <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </article>
     </li>
@@ -112,36 +121,71 @@ function LevelCard({ level, index, openIds }: { level: CourseLevel; index: numbe
 }
 
 type TopicMap = {
-  topic: { name: string; path: string; seoTitle: string }
-  intro: { kicker: string; titleLines: string[]; pitch: string }
-  levels: CourseLevel[]
+  topic?: Topic
+  path: string
+  intro: { kicker: string; titleLines: string[]; pitch?: string }
+  /** 資料都讀到了是 ready */
+  state: 'loading' | 'error' | 'ready'
+  levels: Level[]
   /** 第一個等級的編號(做出自己的軟體從 Level 0 起算) */
-  first: number
-  /** 課程地圖下方的課程介紹(外觀文案,不進資料庫) */
+  /** 算不出編號(software 讀不到)時是 null,不顯示編號 */
+  first: number | null
+  /** 課程地圖下方的課程介紹 */
   after?: ReactNode
 }
 
+/** 幾份資料合起來的狀態:有一份讀不到就是 error,都讀到才是 ready */
+const combine = (...states: { status: CourseMapState['status'] }[]): TopicMap['state'] =>
+  states.some((s) => s.status === 'error') ? 'error' : states.every((s) => s.status === 'ready') ? 'ready' : 'loading'
+
 /** 主題「做出自己的軟體」:L0 起步到 L2 基礎 */
-// 先不公開(hidden)的等級不列,後面的等級編號接著往下排
-const SOFTWARE_LEVELS = shownLevels(LEVELS)
-export const SoftwareTopicPage = () => <TopicMapPage topic={SOFTWARE_TOPIC} intro={MAP_INTRO} levels={SOFTWARE_LEVELS} first={0} />
+export function SoftwareTopicPage() {
+  const topics = useTopics()
+  const software = useCourseMap('software')
+  const { locale } = useLocale()
+  const map = software.status === 'ready' ? software.map : undefined
+  return (
+    <TopicMapPage
+      topic={findTopic(topics, 'software')}
+      path={TOPIC_PATHS.software}
+      intro={{ ...MAP_INTRO, pitch: map?.about?.join(locale.startsWith('en') ? ' ' : '') }}
+      state={combine(topics, software)}
+      levels={map ? stageLevels(map.units) : []}
+      first={0}
+    />
+  )
+}
 
 /** 主題「打造 AI 互動軟體」:中階、進階(都還在規劃中);課程地圖下方是中階課的課程介紹(AiAgentIntro) */
-export const AiAppsTopicPage = () => <TopicMapPage topic={AI_APPS_TOPIC} intro={AI_APPS_INTRO} levels={shownLevels(AI_APP_LEVELS)} first={SOFTWARE_LEVELS.length} after={<AiAgentIntro />} />
+export function AiAppsTopicPage() {
+  const topics = useTopics()
+  // 等級編號接著「做出自己的軟體」的階段數往下排
+  const software = useCourseMap('software')
+  const agent = useCourseMap('ai-agent')
+  const advanced = useCourseMap('advanced')
+  // 只有這兩門課是必要的;software 只用來接編號、topics 只提供主題名稱,讀不到不影響等級卡(software 還在讀時先等,免得編號跳動)
+  const state = software.status === 'loading' ? 'loading' : combine(agent, advanced)
+  const levels: Level[] = AI_APP_COURSES.flatMap(({ id, topics: points, ...copy }) => {
+    const s = id === 'ai-agent' ? agent : advanced
+    if (s.status !== 'ready') return []
+    const { title, summary, art, units } = s.map
+    return [{ ...copy, id, title, summary, art: art ?? 'advanced', topics: points ?? units.filter((u) => !u.hidden).map((u) => u.title) }]
+  })
+  const first = software.status === 'ready' ? stageLevels(software.map.units).length : null
+  return <TopicMapPage topic={findTopic(topics, 'ai-apps')} path={TOPIC_PATHS.aiApps} intro={AI_APPS_INTRO} state={state} levels={state === 'ready' ? levels : []} first={first} after={<AiAgentIntro />} />
+}
 
 /** 主題的課程地圖頁:由淺入深列出等級 */
-function TopicMapPage({ topic, intro, levels, first, after }: TopicMap) {
-  useHashScroll()
+function TopicMapPage({ topic, path, intro, state, levels, first, after }: TopicMap) {
+  // 等級卡要讀到資料才有,讀到後再捲到 #level-…、#map
+  useHashScroll(state)
   const t = useT()
   const m = t.home.software
-  // 主視覺的次要按鈕:連到第一個已有課程可看的等級(都還在規劃中時不顯示)
-  // 哪些課開放了照資料庫的課程地圖(讀不到時卡片不標開放狀態)
-  const maps = useCourseMaps([...new Set(levels.map(levelMapId))])
-  const openIds = (l: CourseLevel) => openIdsOf(maps[levelMapId(l)], l)
-  const featured = levels.find((l) => l.link && (l.status === 'available' || levelLessons(l, openIds(l)).some((x) => x.open)))
+  // 主視覺的次要按鈕:連到第一個已有課開放的等級(都還在規劃中時不顯示)
+  const featured = levels.find((l) => l.lessons?.some((x) => x.status === 'open'))
 
   return (
-    <SiteLayout title={topic.seoTitle}>
+    <SiteLayout title={topic ? topic.seoTitle || topic.name : null}>
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <p className={styles.kicker}>{intro.kicker}</p>
@@ -152,22 +196,22 @@ function TopicMapPage({ topic, intro, levels, first, after }: TopicMap) {
               </span>
             ))}
           </h1>
-          <p className={styles.pitch}>{intro.pitch}</p>
+          {intro.pitch && <p className={styles.pitch}>{intro.pitch}</p>}
           <ol className={styles.overview} aria-label={m.overviewLabel}>
             {levels.map((l, i) => (
               <li key={l.id}>
-                <Link to={{ pathname: topic.path, hash: `level-${l.id}` }}>
-                  <span className={styles.overviewNum}>{first + i}</span>
+                <Link to={{ pathname: path, hash: `level-${l.id}` }}>
+                  <span className={styles.overviewNum}>{first === null ? null : first + i}</span>
                   {t.home.levelName(l.levelLabel)}
                 </Link>
               </li>
             ))}
           </ol>
           <div className={styles.ctas}>
-            <Link className={styles.primary} to={{ pathname: topic.path, hash: 'map' }}>
+            <Link className={styles.primary} to={{ pathname: path, hash: 'map' }}>
               {t.home.viewCourseMap}
             </Link>
-            {featured?.link && (
+            {featured && (
               <Link className={styles.secondary} to={featured.link}>
                 {m.featured(t.home.levelName(featured.levelLabel), featured.title.split('：')[0])}
               </Link>
@@ -183,11 +227,15 @@ function TopicMapPage({ topic, intro, levels, first, after }: TopicMap) {
             <h2>{m.levelsTitle}</h2>
             <p className={styles.lead}>{m.levelsLead}</p>
           </header>
-          <ol className={styles.map}>
-            {levels.map((l, i) => (
-              <LevelCard key={l.id} level={l} index={first + i} openIds={openIds(l)} />
-            ))}
-          </ol>
+          {state === 'ready' ? (
+            <ol className={styles.map}>
+              {levels.map((l, i) => (
+                <LevelCard key={l.id} level={l} index={first === null ? null : first + i} />
+              ))}
+            </ol>
+          ) : (
+            <LessonListStatus state={state} />
+          )}
         </div>
       </section>
       {after}

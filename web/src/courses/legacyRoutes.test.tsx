@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { AI_APPS_TOPIC } from '../content/topics'
+import { TOPIC_PATHS } from '../content/topics'
 import { COURSES } from '../content/catalog'
 
 // 轉址元件(Navigate)在 effect 才會轉,靜態渲染看不到;換成把目標記下來的替身
@@ -39,7 +39,7 @@ describe('AI Agent 中階課沒有自己的頁面,舊網址轉到主題頁', () 
     for (const path of ['/courses/ai-agent', '/courses/ai-agent/:chapter']) {
       const route = legacyCourseRoutes.find((r) => r.path === path)
       expect(route, path).toBeDefined()
-      expect(route!.element.props.to, path).toBe(AI_APPS_TOPIC.path)
+      expect(route!.element.props.to, path).toBe(TOPIC_PATHS.aiApps)
     }
   })
 

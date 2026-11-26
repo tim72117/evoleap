@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { useCourseMap } from '../../content/courseMap'
+import { LessonListStatus } from '../../courses/LessonGroup'
 import { Fold } from './Fold'
-import { KIDS_COMPONENTS, KIDS_DEMOS, KIDS_OPEN, KIDS_POSITIONING, KIDS_PRINCIPLES, KIDS_UNITS } from './kidsWeb'
+import { KIDS_COMPONENTS, KIDS_DEMOS, KIDS_OPEN, KIDS_POSITIONING, KIDS_PRINCIPLES, KIDS_OUTLINE } from './kidsWeb'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
@@ -20,13 +22,17 @@ function Pairs({ items }: { items: [string, string][] }) {
 }
 
 export function KidsWebPage() {
-  const lessonCount = KIDS_UNITS.reduce((n, u) => n + u.lessons.length, 0)
+  // 單元、課名、一句話讀資料庫;看什麼、做什麼、名詞是這裡的構想
+  const state = useCourseMap('kids')
+  const map = state.status === 'ready' ? state.map : undefined
+  const units = map?.units ?? []
+  const lessonCount = units.reduce((n, u) => n + u.lessons.length, 0)
   return (
     <ProposalLayout title="兒童網頁課" footer="課程 · 資料：src/studio/proposal/kidsWeb.ts">
       <h1>兒童網頁課 · 給孩子的網頁程式設計</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>大綱草稿 · 待評估</span>
       <p className={ui.lead}>
-        讓 9 歲的孩子看懂網頁怎麼運作、說得出正確的名詞，最後能把目標說清楚、請 AI 幫忙做出來；不教語法，每課都讓孩子自己動手。共 {KIDS_UNITS.length} 個單元、
+        讓 9 歲的孩子看懂網頁怎麼運作、說得出正確的名詞，最後能把目標說清楚、請 AI 幫忙做出來；不教語法，每課都讓孩子自己動手。共 {units.length} 個單元、
         {lessonCount} 課（暫定）。
       </p>
 
@@ -43,15 +49,18 @@ export function KidsWebPage() {
       </Fold>
 
       <h2>課程大綱</h2>
-      {KIDS_UNITS.map((unit) => (
+      {state.status !== 'ready' && <LessonListStatus state={state.status} />}
+      {units.map((unit) => (
         <section key={unit.id} className={ui.card}>
           <h3>{unit.title}</h3>
           <p>
             <strong>比喻：</strong>
-            {unit.metaphor}
+            {unit.subtitle}
           </p>
           <ul>
-            {unit.lessons.map((l) => (
+            {unit.lessons.map((l) => {
+              const o = KIDS_OUTLINE[l.id]
+              return (
               <li key={l.id}>
                 <strong>
                   {l.id}　{l.title}
@@ -62,16 +71,25 @@ export function KidsWebPage() {
                     <Link to={KIDS_DEMOS[l.id]}>{KIDS_DEMOS[l.id].startsWith('/studio/') ? '看試做 →' : '看課程 →'}</Link>
                   </>
                 )}
+                {o && (
+                  <>
+                    <br />
+                    看：{o.show}
+                    <br />
+                    做：{o.try}
+                  </>
+                )}
                 <br />
-                看：{l.show}
-                <br />
-                做：{l.try}
-                <br />
-                學會：{l.learn}
-                <br />
-                名詞：{l.words.join('、')}
+                學會：{l.summary}
+                {o && (
+                  <>
+                    <br />
+                    名詞：{o.words.join('、')}
+                  </>
+                )}
               </li>
-            ))}
+              )
+            })}
           </ul>
         </section>
       ))}

@@ -1,23 +1,14 @@
 // 「AI Agent 整合應用」(中階課)的介紹內容,顯示在「打造 AI 互動軟體」主題頁(/topics/ai-apps,home/AiAgentIntro.tsx);中階課沒有自己的頁面,/courses/ai-agent 轉到主題頁。
-// 這是外觀文案,不進資料庫(資料庫只有課名、單元、課;UNITS 要自己和資料庫的單元保持一致)。全部取自 repo 內既有資料,不要在這裡新增未確認的事實
+// 這裡只放資料庫沒有欄位的外觀文案;課名、單元名稱與單元目標讀資料庫(ai-agent 的課程地圖)。全部取自 repo 內既有資料,不要在這裡新增未確認的事實
 // (價格、日期、講師介紹、評價等):
 // - 標題、描述、適合對象、學習成果、背景知識:課程目標文章(src/studio/articles/pages/CourseGoalsPage.tsx)
 //   (同 web/src/studio/proposal/FieldsPage.tsx)
-// - 課程單元:web/src/studio/proposal/StructurePage.tsx(只列「保留」的單元與期末專案)
+// - 單元的核心概念與實作:web/src/studio/proposal/StructurePage.tsx(只列「保留」的單元與期末專案)
 // - 教學方式:研究報告文章(src/studio/articles/pages/ResearchReportPage.tsx)的製作建議清單
 
-export const COURSE = {
-  /** 在課程地圖中的等級(與 src/content/levels.ts 對應) */
-  level: '中階',
-  kicker: 'AI Agent 實戰',
-  title: '打造你的第一個 AI Agent 整合應用',
-  /** hero 標題的斷行位置(避免 "AI" 與 "Agent" 被拆到兩行) */
-  titleLines: ['打造你的第一個', 'AI Agent 整合應用'],
-  fullTitle: '打造你的第一個 AI Agent 整合應用',
-  pitch:
-    '跟著真實開源專案，打造一個用自然語言操作的 AI 助理：讓使用者打字問問題，Agent 自動判讀問題、跑分析、繪製合適的統計圖表，做出一個能上線的整合應用。',
-  tags: ['自然語言操作', '工具呼叫（tool calling）', '實戰教學'],
-}
+/** 主題頁結構化資料裡這門課的介紹(比資料庫的課程簡介長,是另一段文字) */
+export const AI_AGENT_PITCH =
+  '跟著真實開源專案，打造一個用自然語言操作的 AI 助理：讓使用者打字問問題，Agent 自動判讀問題、跑分析、繪製合適的統計圖表，做出一個能上線的整合應用。'
 
 export const OUTCOMES: { title: string; body: string }[] = [
   {
@@ -56,41 +47,12 @@ export const PREREQUISITES: string[] = [
   '不需要具備機器學習或 LLM 模型訓練相關背景知識',
 ]
 
-export type CourseUnit = {
-  /** 顯示用編號,例如 '0'、'1'、'★' */
-  num: string
-  title: string
-  goal: string
-  concepts: string
-  practice: string
-  /** 'planned' 會加上「規劃中」標籤 */
-  status?: 'ready' | 'planned'
+/** 單元卡片資料庫沒有的欄位,key 是資料庫的單元 id */
+export const UNIT_COPY: Record<string, { /** 顯示用編號;沒寫用單元 id */ num?: string; concepts: string; practice: string; planned?: boolean }> = {
+  '0': { concepts: 'App 與工具的關係、控制台導覽、命令列工具安裝。', practice: '註冊帳號，跑過一個既有 App，看懂它的結構。' },
+  '1': { concepts: '參數 Schema、YAML／JSON 兩種定義格式。', practice: '建立一個「填表單」工具，在測試環境裡實際呼叫看看。' },
+  capstone: { num: '★', concepts: '綜合運用前面單元的工具設計與呼叫流程。', practice: '驗收清單規劃中。', planned: true },
 }
-
-export const UNITS: CourseUnit[] = [
-  {
-    num: '0',
-    title: '環境準備與心智模型',
-    goal: '看懂整體流程：開發者定義工具、LLM 呼叫工具、前端頁面執行結果。',
-    concepts: 'App 與工具的關係、控制台導覽、命令列工具安裝。',
-    practice: '註冊帳號，跑過一個既有 App，看懂它的結構。',
-  },
-  {
-    num: '1',
-    title: '第一個工具',
-    goal: '理解工具的三個核心欄位：名稱、描述、參數（JSON Schema），如何決定 LLM 何時、如何呼叫它。',
-    concepts: '參數 Schema、YAML／JSON 兩種定義格式。',
-    practice: '建立一個「填表單」工具，在測試環境裡實際呼叫看看。',
-  },
-  {
-    num: '★',
-    title: '期末專案：自然語言驅動的分析介面',
-    goal: '做出一個使用者打字提問，Agent 就能判讀問題、跑分析、繪製合適統計圖表的整合應用。',
-    concepts: '綜合運用前面單元的工具設計與呼叫流程。',
-    practice: '驗收清單規劃中。',
-    status: 'planned',
-  },
-]
 
 export const TEACHING: { title: string; body: string }[] = [
   {

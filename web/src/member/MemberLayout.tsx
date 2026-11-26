@@ -2,7 +2,7 @@ import { useRef, type ReactNode } from 'react'
 import { Link, Navigate, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
-import { SOFTWARE_TOPIC } from '../content/topics'
+import { TOPIC_PATHS } from '../content/topics'
 import { SiteLayout } from '../site/SiteLayout'
 import { useT } from '../i18n/I18nProvider'
 import { MEMBER_SECTIONS, memberSectionLabel, memberSectionTitle, type MemberSection } from './sections'
@@ -49,7 +49,7 @@ export function MemberLayout({ section, children }: { section: MemberSection; ch
         <div className={styles.panel}>
           <h1 className={styles.panelTitle}>{m.disabledTitle}</h1>
           <p className={styles.muted}>{m.disabledText}</p>
-          <Link className={styles.primary} to={`${SOFTWARE_TOPIC.path}#map`}>
+          <Link className={styles.primary} to={`${TOPIC_PATHS.software}#map`}>
             {m.toCourseMap}
           </Link>
         </div>

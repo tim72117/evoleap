@@ -1,6 +1,6 @@
 package main
 
-// 課程相關頁面(課程總覽、單課、規劃中章節)的 <title>、description、noindex 與結構化資料:請求時讀資料庫組出來,
+// 課程相關頁面(課程總覽、單課、規劃中章節、主題頁、全部課程)的 <title>、description、noindex 與結構化資料:請求時讀資料庫組出來,
 // 組法只寫在這裡(瀏覽器端換頁讀 GET /api/seo/page 拿同一份)。前端 build(web/src/seo/coursePages.ts、build.ts)
 // 只輸出網址清單與單課網址樣式(dist/course-pages.json)和留好空位的 HTML,不含任何課程內容,也沒有備援。
 // 單課頁 /courses/<課程>/<課號> 不逐課產生:一門課一份 HTML(dist/lesson-shells/),哪些課存在看資料庫,新增課不用重新 build。
@@ -75,16 +75,32 @@ type courseEntry struct {
 	Path       string `json:"path"`
 	Course     string `json:"course"`
 	CoursePath string `json:"coursePath"`
-	// Kind:overview、chapter(規劃中章節,內容是前端的,資料庫沒有對應的課);單課頁由樣式組出,是 lesson
+	// Kind:overview、chapter(規劃中章節:資料庫只有單元)、topic(主題頁)、list(全部課程);單課頁由樣式組出,是 lesson
 	Kind string `json:"kind"`
 	// Slug:單課網址的最後一段(請求時填入)
 	Slug        string `json:"-"`
 	Style       string `json:"style"`
 	ListLessons bool   `json:"listLessons"`
-	Chapter     *struct {
-		Name    string `json:"name"`
-		Summary string `json:"summary"`
+	// Chapter:規劃中章節對到的單元(單元 id)與章節編號(「主題 1」),名稱讀資料庫
+	Chapter *struct {
+		Unit  string `json:"unit"`
+		Label string `json:"label"`
 	} `json:"chapter"`
+	// Topic:主題頁讀哪一個主題(資料庫的 topics)
+	Topic string `json:"topic"`
+	// Items:主題頁與全部課程的結構化資料列哪些課(課名讀資料庫)與各自的網址
+	Items []struct {
+		Course string `json:"course"`
+		Path   string `json:"path"`
+	} `json:"items"`
+	// Title、Description:全部課程頁的標題與描述(資料庫沒有對應的欄位)
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	// CourseLD:主題頁另外附一門課的結構化資料(AI Agent 中階課沒有自己的頁面);描述是前端的介紹文字
+	CourseLD *struct {
+		Course      string `json:"course"`
+		Description string `json:"description"`
+	} `json:"courseLd"`
 	// Lang:英文版課程總覽(/en/courses/<課程>)是 "en",其餘空的
 	Lang string `json:"lang"`
 	// Noindex:整門課先不公開(前端的設定);先不公開的單元依資料庫
@@ -108,8 +124,14 @@ type pageMeta struct {
 // courseLoader 讀一門課的公開課程地圖與英文版(沒有英文版時 en 是 nil);課程不存在回 store.ErrCourseNotFound
 type courseLoader func(ctx context.Context, id string) (zh store.CourseMap, en *store.CourseMap, err error)
 
-// courseSnapshot 是某一刻讀到的課程地圖(nil 代表資料庫沒有這門課)
+// topicLoader 讀一個主題;不存在回 store.ErrTopicNotFound
+type topicLoader func(ctx context.Context, id string) (store.Topic, error)
+
+// courseSnapshot 是某一刻讀到的課程地圖(nil 代表資料庫沒有這門課);主題頁與全部課程用 topic、names
 type courseSnapshot struct {
+	topic *store.Topic      // nil:資料庫沒有這個主題
+	names map[string]string // 課程 id → 課名(資料庫沒有的課不在裡面)
+
 	// enUnavailable:譯文這次讀不到(en 是 nil,但不代表沒有英文版)
 	enUnavailable bool
 	m             *store.CourseMap
@@ -128,8 +150,10 @@ type courseSEO struct {
 	lessons  map[string]courseEntry // 單課樣式,key 是 coursePath
 	shells   map[string]*page       // 單課頁 HTML,key 是 coursePath
 	load     courseLoader           // nil:沒接資料庫
-	ttl      time.Duration
-	now      func() time.Time
+	// loadTopic:主題頁用;nil 時主題頁回 503
+	loadTopic topicLoader
+	ttl       time.Duration
+	now       func() time.Time
 
 	mu       sync.Mutex
 	courses  map[string]*courseSnapshot
@@ -223,11 +247,104 @@ func (c *courseSEO) snapshot(ctx context.Context, id string) (*courseSnapshot, e
 	return fresh, nil
 }
 
+// pageSnapshot 是主題頁與全部課程要用的資料(主題與各課的課名),一頁記一份;最舊的來源過期就整份重讀
+func (c *courseSEO) pageSnapshot(ctx context.Context, e courseEntry) (*courseSnapshot, error) {
+	key := "page:" + e.Path
+	c.mu.Lock()
+	snap := c.courses[key]
+	c.mu.Unlock()
+	if snap != nil && c.now().Sub(snap.at) < c.ttl {
+		return snap, nil
+	}
+	fresh := &courseSnapshot{at: c.now(), names: map[string]string{}}
+	if e.Topic != "" {
+		if c.loadTopic == nil {
+			return nil, errUnavailable
+		}
+		ctx, cancel := context.WithTimeout(ctx, courseLoadTimeout)
+		defer cancel()
+		t, err := c.loadTopic(ctx, e.Topic)
+		switch {
+		case err == nil:
+			fresh.topic = &t
+		case !errors.Is(err, store.ErrTopicNotFound):
+			log.Printf("讀取主題 %s 失敗:%v", e.Topic, err)
+			return nil, errUnavailable
+		}
+	}
+	ids := []string{}
+	for _, it := range e.Items {
+		ids = append(ids, it.Course)
+	}
+	if e.CourseLD != nil {
+		ids = append(ids, e.CourseLD.Course)
+	}
+	for _, id := range ids {
+		s, err := c.snapshot(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if s.at.Before(fresh.at) {
+			fresh.at = s.at
+		}
+		if s.m != nil {
+			fresh.names[id] = s.m.Title
+		}
+	}
+	c.mu.Lock()
+	c.courses[key] = fresh
+	c.mu.Unlock()
+	return fresh, nil
+}
+
+// composePage 組出主題頁、全部課程的 SEO 資料;資料庫沒有這個主題時回 false。
+func (c *courseSEO) composePage(e courseEntry, snap *courseSnapshot) (pageMeta, bool) {
+	out := pageMeta{Path: e.Path, Noindex: e.Noindex, OgType: e.OgType}
+	name, title, description := c.manifest.CourseList.Name, e.Title, e.Description
+	if e.Kind == "topic" {
+		t := snap.topic
+		if t == nil {
+			return pageMeta{}, false
+		}
+		name, title, description = t.Name, firstNonEmpty(t.SEOTitle, t.Name), firstNonEmpty(t.Description, t.Slogan, t.Name)
+	}
+	out.Title = title + " · " + c.manifest.Site
+	out.Description = description
+	var items []ldElement
+	for _, it := range e.Items {
+		if n, ok := snap.names[it.Course]; ok {
+			items = append(items, ldElement{Type: "ListItem", Position: len(items) + 1, Name: n, URL: c.manifest.Origin + it.Path})
+		}
+	}
+	out.JSONLD = []any{c.breadcrumb(crumb{name, e.Path})}
+	if len(items) > 0 {
+		out.JSONLD = append(out.JSONLD, ldList{Context: schemaOrg, Type: "ItemList", Name: name, Items: items})
+	}
+	if e.CourseLD != nil {
+		if n, ok := snap.names[e.CourseLD.Course]; ok {
+			out.JSONLD = append(out.JSONLD, c.courseLD(n, e.CourseLD.Description, e.Path))
+		}
+	}
+	return out, true
+}
+
 // meta 回傳一個課程頁的 SEO 資料;英文頁但這門課沒有英文版時回 errNoEnglish
 func (c *courseSEO) meta(ctx context.Context, path string) (pageMeta, *courseSnapshot, error) {
 	e, ok := c.entry(path)
 	if !ok {
 		return pageMeta{}, nil, errNoSuchPage
+	}
+	if e.Kind == "topic" || e.Kind == "list" {
+		snap, err := c.pageSnapshot(ctx, e)
+		if err != nil {
+			return pageMeta{}, nil, err
+		}
+		// 這兩種頁沒有「這門課有沒有英文版」的問題(全部課程的英文頁是 build 產生的),NoEnglish 不設
+		m, ok := c.composePage(e, snap)
+		if !ok {
+			return pageMeta{}, nil, errNoSuchPage
+		}
+		return m, snap, nil
 	}
 	snap, err := c.snapshot(ctx, e.Course)
 	if err != nil {
@@ -380,10 +497,18 @@ func (c *courseSEO) compose(e courseEntry, m *store.CourseMap) (pageMeta, bool) 
 		if e.Chapter == nil {
 			return pageMeta{}, false
 		}
-		out.Title = title(e.Chapter.Name)
-		out.Description = e.Chapter.Summary
-		out.JSONLD = []any{c.breadcrumb(parent, overview, crumb{e.Chapter.Name, e.Path})}
-		return out, true
+		for _, u := range m.Units {
+			if u.ID != e.Chapter.Unit {
+				continue
+			}
+			name := e.Chapter.Label + " " + u.Title
+			out.Noindex = out.Noindex || u.Hidden // 先不公開的單元:打得開但不收錄
+			out.Title = title(name)
+			out.Description = m.Title + "的規劃主題之一：" + u.Title + "。詳細內容規劃中。"
+			out.JSONLD = []any{c.breadcrumb(parent, overview, crumb{name, e.Path})}
+			return out, true
+		}
+		return pageMeta{}, false
 	}
 
 	var lesson *store.MapLesson

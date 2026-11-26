@@ -8,7 +8,7 @@ import { useAuth } from './AuthContext'
 import { LOGIN_PATH, safeNextPath } from './paths'
 import { PAGE_PREFIX, useGuestView } from '../courses/guestActivity'
 import styles from './LoginPage.module.css'
-import { SOFTWARE_TOPIC } from '../content/topics'
+import { TOPIC_PATHS } from '../content/topics'
 
 // 登入／註冊頁:Google 登入(有設定 client ID 時)+ Email 密碼。
 
@@ -75,7 +75,7 @@ export function LoginPage() {
           <div className={styles.card}>
             <h1 className={styles.title}>{t.auth.disabledTitle}</h1>
             <p className={styles.subtitle}>{t.auth.disabledText}</p>
-            <Link className={styles.submit} to={`${SOFTWARE_TOPIC.path}#map`}>
+            <Link className={styles.submit} to={`${TOPIC_PATHS.software}#map`}>
               {t.auth.toCourseMap}
             </Link>
           </div>
@@ -112,7 +112,7 @@ function SignedIn({ user, next, onLogout }: { user: User; next: string; onLogout
       </p>
       <div className={styles.actions}>
         {next === '/' ? (
-          <Link className={styles.primary} to={`${SOFTWARE_TOPIC.path}#map`}>
+          <Link className={styles.primary} to={`${TOPIC_PATHS.software}#map`}>
             {t.auth.toCourseMap}
           </Link>
         ) : (

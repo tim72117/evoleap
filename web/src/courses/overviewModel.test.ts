@@ -110,8 +110,8 @@ describe('資料庫(種子)的課程地圖 ↔ 前端的課頁', () => {
       if (s.script && s.status !== 'planned') expect(to, s.id).toBe(lessonUrl('software', s.id))
     }
     for (const g of overviewGroups(seedMap('software')))
-      g.lessons.forEach((l, i) => {
-        const to = rowLink(software, g, l, i)
+      g.lessons.forEach((l) => {
+        const to = rowLink(software, g, l)
         if (to) expect(routed(to), `${l.id} ${to}`).toBe(true)
       })
   })
@@ -120,7 +120,7 @@ describe('資料庫(種子)的課程地圖 ↔ 前端的課頁', () => {
     for (const slug of ['web', 'launch', 'claude-code']) {
       for (const g of overviewGroups(seedMap(slug)))
         for (const l of g.lessons) {
-          const to = rowLink(course(slug), g, l, 0)
+          const to = rowLink(course(slug), g, l)
           if (to) expect(to.startsWith(`/courses/${slug}/`), `${slug} ${l.id} ${to}`).toBe(true)
         }
     }
@@ -133,25 +133,25 @@ describe('rowLink / rowLabel', () => {
     const advanced = course('advanced')
     const g = overviewGroups(seedMap('advanced'))[0]
     const planned = advanced.planned.slice(0, g.lessons.length)
-    expect(g.lessons.map((l, i) => rowLink(advanced, g, l, i))).toEqual(planned.map((p) => `/courses/advanced/${p.slug}`))
-    expect(g.lessons.map((l, i) => rowLabel(advanced, g, l, i))).toEqual(planned.map((p) => p.label))
+    expect(g.lessons.map((l) => rowLink(advanced, g, l))).toEqual(planned.map((p) => `/courses/advanced/topic-${p}`))
+    expect(g.lessons.map((l) => rowLabel(advanced, g, l))).toEqual(planned.map((p) => `主題 ${p}`))
   })
 
   it('規劃中的課:做出自己的軟體(每個種子課都有路由)連到單課網址(規劃中章節頁);其他課不連', () => {
     const software = course('software')
     const g = overviewGroups(seedMap('software')).find((x) => x.id === 'vibe-coding-basics')!
     const planned = g.lessons.find((l) => l.status === 'planned')!
-    expect(rowLink(software, g, planned, 0)).toBe(`/courses/software/${planned.id.split('.').join('-')}`)
-    expect(rowLink(course('web'), overviewGroups(seedMap('web'))[1], lesson('1.9', 'planned'), 0)).toBeNull()
+    expect(rowLink(software, g, planned)).toBe(`/courses/software/${planned.id.split('.').join('-')}`)
+    expect(rowLink(course('web'), overviewGroups(seedMap('web'))[1], lesson('1.9', 'planned'))).toBeNull()
   })
 
   it('課號:software 是「序章」「第 N 課」,其他課是資料庫的課號', () => {
     const software = course('software')
     const g = overviewGroups(seedMap('software'))[0]
-    expect(rowLabel(software, g, g.lessons[0], 0)).toBe('序章')
-    expect(rowLabel(software, g, g.lessons[2], 2)).toBe('第 1 課')
+    expect(rowLabel(software, g, g.lessons[0])).toBe('序章')
+    expect(rowLabel(software, g, g.lessons[2])).toBe('第 1 課')
     const web = overviewGroups(seedMap('web'))[1]
-    expect(rowLabel(course('web'), web, web.lessons[1], 1)).toBe('1.2')
+    expect(rowLabel(course('web'), web, web.lessons[1])).toBe('1.2')
   })
 })
 

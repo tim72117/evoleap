@@ -1,8 +1,9 @@
 // 課程編排工具的資料與操作(純函式;畫面在 CourseMapPage.tsx,測試見 courseMap.test.ts)。
 // 這份資料是「編排草稿」,存在 course-map.json:課程內容的正本仍是 src/content/ 的單課資料,
 // 拖曳不會改到正本;確定後由 Claude 依 JSON 的 changes 改寫單課資料。
-import type { Course as CatalogCourse } from '../../content/catalog'
-import { SOFTWARE_STAGE_CONTENT } from '../../content/softwareStages'
+import { COURSES, plannedLabel, plannedSlug } from '../../content/catalog'
+import type { CourseMap as DbCourseMap } from '../../content/courseMap'
+import { SOFTWARE_STAGE_CONTENT, type SoftwareStageContent } from '../../content/softwareStages'
 
 export type MapSegment = {
   /** 「課號#步驟序號」,對應單課資料的 steps(1 起算) */
@@ -43,30 +44,46 @@ export type CourseMap = {
 const NOTE =
   '課程編排草稿。levels → courses → segments 的順序就是目前的編排;from 是原本的位置,changes 列出跨課程與跨程度的移動。段落 id 為「課號#步驟序號」,對應 src/content/ 單課資料的 steps。正本仍是單課資料,套用後刪除這個檔案,工具會依新的單課資料重建。'
 
-/** 依課程目錄產生初始編排:每個等級一個程度,單課與規劃中的章節都是課程,單課的步驟是段落 */
-export function buildSeed(courses: CatalogCourse[]): CourseMap {
+/**
+ * 產生初始編排:每個程度一欄,單課與規劃中的章節都是課程,單課的步驟是段落。課名、階段名稱讀資料庫的課程地圖(maps,key 是課程 id);
+ * 單課的步驟是前端的單課資料(SOFTWARE_STAGE_CONTENT)
+ */
+export function buildSeed(maps: Record<string, DbCourseMap | undefined>): CourseMap {
   return {
     note: NOTE,
     updatedAt: '',
     changes: [],
-    // 分階段的課(做出自己的軟體):每個階段是一個程度,id 是階段 id(tools、ai-tools、vibe-coding-basics)
-    levels: courses.flatMap((c) =>
-      (c.stages?.map((st) => ({ ...st, ...SOFTWARE_STAGE_CONTENT.find((x) => x.id === st.id)! })) ?? [{ id: c.slug, label: c.level, lessons: [], planned: c.planned }]).map((st) => ({
-        id: st.id,
-        label: st.label,
-        title: c.stages ? `${c.title}・${st.label}` : c.title,
-        courses: [
-          ...st.lessons.map((l) => ({
-            id: l.id,
-            code: l.id,
-            title: l.title,
-            from: st.id,
-            segments: l.steps.map((s, i) => ({ id: `${l.id}#${i + 1}`, title: s.title, from: l.id })),
-          })),
-          ...st.planned.map((p) => ({ id: `${st.id}/${p.slug}`, code: p.label, title: p.title, from: st.id, segments: [] })),
-        ],
+    // 分階段的課(做出自己的軟體):每個階段(資料庫的單元)是一個程度,id 是單元 id(tools、ai-tools、vibe-coding-basics)
+    levels: COURSES.flatMap((c) => {
+      const map = maps[c.slug]
+      if (!map) return []
+      if (c.staged) {
+        return map.units.map((u) => {
+          const content = SOFTWARE_STAGE_CONTENT.find((x) => x.id === u.id)
+          return level(u.id, u.label ?? u.title, `${map.title}・${u.label ?? u.title}`, content?.lessons ?? [], content?.planned ?? [])
+        })
+      }
+      const planned = c.planned.flatMap((id) => map.units.filter((u) => u.id === id).map((u) => ({ slug: plannedSlug(id), label: plannedLabel(id), title: u.title })))
+      return [level(c.slug, c.level ?? map.title, map.title, [], planned)]
+    }),
+  }
+}
+
+function level(id: string, label: string, title: string, lessons: SoftwareStageContent['lessons'], planned: { slug: string; label: string; title: string }[]): MapLevel {
+  return {
+    id,
+    label,
+    title,
+    courses: [
+      ...lessons.map((l) => ({
+        id: l.id,
+        code: l.id,
+        title: l.title,
+        from: id,
+        segments: l.steps.map((s, i) => ({ id: `${l.id}#${i + 1}`, title: s.title, from: l.id })),
       })),
-    ),
+      ...planned.map((p) => ({ id: `${id}/${p.slug}`, code: p.label, title: p.title, from: id, segments: [] })),
+    ],
   }
 }
 

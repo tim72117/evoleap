@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { fixtureCourse as seedCourse } from '../test/courseFixture'
 import type { CourseMap } from '../content/courseMap'
-import { KIDS_LESSON_PAGES } from '../content/kidsCourse'
-import { launchLessonPath, launchScriptKey } from '../content/launchCourse'
-import { WEB_LESSON_PAGES } from '../content/webCourse'
 import { buildLessonIndex } from './lessonIndex'
 import { isFinished, startedCourses } from './memberCourses'
+
+const launchLessonPath = (id: string) => `/courses/launch/${id.replace('.', '-')}`
+const launchScriptKey = (id: string) => `live:launch/${id}.json`
+const WEB = { id: '0.1', script: 'web/0.1.json', path: '/courses/web/0-1' }
+const KIDS = { id: '0.1', script: 'kids/0.1.json', path: '/courses/kids/0-1' }
 
 const p = (lesson: string, positionMs: number, durationMs: number, updatedAt: string) => ({ lesson, positionMs, durationMs, updatedAt })
 
@@ -19,10 +21,8 @@ const map = (id: string, lessons: { id: string; script?: string; status?: 'open'
 describe('buildLessonIndex', () => {
   it('沒有課程地圖時,軟體課、上線課、網頁課、兒童課都沒有對照(不用前端寫死的路徑頂替)', () => {
     const lookup = buildLessonIndex()
-    const web = Object.values(WEB_LESSON_PAGES)[0]
-    expect(lookup(`live:${web.script}`)).toBeUndefined()
-    const kids = Object.values(KIDS_LESSON_PAGES)[0]
-    expect(lookup(`kids:${kids.script}`)).toBeUndefined()
+    expect(lookup(`live:${WEB.script}`)).toBeUndefined()
+    expect(lookup(`kids:${KIDS.script}`)).toBeUndefined()
     expect(lookup(launchScriptKey('0.1'))).toBeUndefined()
     expect(lookup('live:nope/unknown.json')).toBeUndefined()
   })
@@ -32,23 +32,22 @@ describe('buildLessonIndex', () => {
     const intro = seed.units.flatMap((u) => u.lessons).find((l) => l.id === '0.intro')!
     const hiddenLesson = seed.units.find((u) => u.hidden)!.lessons.find((l) => l.script)!
     const lookup = buildLessonIndex({ software: seed as unknown as CourseMap })
-    expect(lookup(`live:${intro.script}`)).toMatchObject({ course: 'course:software', coursePath: '/courses/software', path: '/courses/software/intro', title: `序章 ${intro.title}` })
+    expect(lookup(`live:${intro.script}`)).toMatchObject({ course: 'course:software', coursePath: '/courses/software', courseName: seed.title, path: '/courses/software/intro', title: `序章 ${intro.title}` })
     expect(lookup(`live:${hiddenLesson.script}`)).toBeUndefined()
     // 沒有地圖時沒有對照
     expect(buildLessonIndex()(`live:${intro.script}`)).toBeUndefined()
   })
 
   it('上線課、網頁課、兒童課照課程地圖的腳本對,改了腳本路徑也對得上', () => {
-    const [webId, web] = Object.entries(WEB_LESSON_PAGES)[0]
-    const [kidsId, kids] = Object.entries(KIDS_LESSON_PAGES)[0]
+    const [webId, kidsId] = [WEB.id, KIDS.id]
     const lookup = buildLessonIndex({
       launch: map('launch', [{ id: '0.1' }, { id: '0.2', script: 'launch/v2/0.2.json' }, { id: 'nopage', script: 'launch/x.json' }]),
       web: map('web', [{ id: webId, script: 'web/renamed.json' }]),
       kids: map('kids', [{ id: kidsId, script: 'kids/renamed.json' }]),
     })
     expect(lookup('live:launch/v2/0.2.json')?.path).toBe(launchLessonPath('0.2'))
-    expect(lookup('live:web/renamed.json')?.path).toBe(web.path)
-    expect(lookup('kids:kids/renamed.json')?.path).toBe(kids.path)
+    expect(lookup('live:web/renamed.json')?.path).toBe(WEB.path)
+    expect(lookup('kids:kids/renamed.json')?.path).toBe(KIDS.path)
     // 課名取自地圖(測試地圖的課名 = 課號)
     expect(lookup('live:launch/v2/0.2.json')?.title).toBe('0.2 0.2')
     expect(lookup('kids:kids/renamed.json')?.title).toBe(kidsId)
@@ -57,7 +56,7 @@ describe('buildLessonIndex', () => {
     // 以地圖的腳本為準:地圖上沒給腳本的課、換腳本之前的舊腳本都不對照(不用前端寫死的路徑補)
     expect(lookup(launchScriptKey('0.1'))).toBeUndefined()
     expect(lookup(launchScriptKey('0.2'))).toBeUndefined()
-    expect(lookup(`kids:${kids.script}`)).toBeUndefined()
+    expect(lookup(`kids:${KIDS.script}`)).toBeUndefined()
   })
 
   it('地圖讀得到時,改回規劃中或拿掉的課不列;管理員看得到的草稿課標上草稿', () => {
@@ -72,19 +71,17 @@ describe('buildLessonIndex', () => {
 })
 
 describe('startedCourses', () => {
-  const kidsLesson = Object.entries(KIDS_LESSON_PAGES)[0]
   const lookup = buildLessonIndex({
     launch: map('launch', [{ id: '0.1', script: 'launch/0.1.json' }, { id: '0.2', script: 'launch/0.2.json' }]),
-    kids: map('kids', [{ id: kidsLesson[0], script: kidsLesson[1].script }]),
+    kids: map('kids', [{ id: KIDS.id, script: KIDS.script }]),
   })
 
   it('一門課一筆,最近看的課程在前,點進去是最近看的那一課', () => {
     const [a, b] = ['0.1', '0.2'].map(launchScriptKey)
-    const kids = Object.values(KIDS_LESSON_PAGES)[0]
     const list = startedCourses(
       [
         p(a, 60_000, 60_000, '2026-11-01T00:00:00Z'),
-        p(`kids:${kids.script}`, 10_000, 100_000, '2026-11-05T00:00:00Z'),
+        p(`kids:${KIDS.script}`, 10_000, 100_000, '2026-11-05T00:00:00Z'),
         p(b, 30_000, 120_000, '2026-11-03T00:00:00Z'),
         p('live:nope/unknown.json', 1, 2, '2026-11-09T00:00:00Z'),
       ],
@@ -100,10 +97,9 @@ describe('startedCourses', () => {
 
   it('依實際時間排序,不受小數位數或時區寫法影響', () => {
     const [a, b] = ['0.1', '0.2'].map(launchScriptKey)
-    const kids = Object.values(KIDS_LESSON_PAGES)[0]
     // 字串比較會把 b(…T09:00:00-03:00)排最後,實際上它是 12:00Z,三筆裡最新
     const list = startedCourses(
-      [p(a, 1, 10, '2026-11-10T10:00:00.5Z'), p(b, 1, 10, '2026-11-10T09:00:00-03:00'), p(`kids:${kids.script}`, 1, 10, '2026-11-10T10:30:00Z')],
+      [p(a, 1, 10, '2026-11-10T10:00:00.5Z'), p(b, 1, 10, '2026-11-10T09:00:00-03:00'), p(`kids:${KIDS.script}`, 1, 10, '2026-11-10T10:30:00Z')],
       lookup,
     )
     expect(list.map((c) => c.course)).toEqual(['launch', 'kids'])

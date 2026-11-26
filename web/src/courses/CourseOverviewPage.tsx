@@ -4,10 +4,10 @@ import { messages } from "../i18n/current";
 import { useT } from "../i18n/I18nProvider";
 import { SiteLayout } from "../site/SiteLayout";
 import { ACCESS_LABEL } from "../content/levels";
-import { coursePath, courseMapId, nextCourse, type Course } from "../content/catalog";
+import { coursePath, courseMapId, type Course } from "../content/catalog";
 import { useCourseMap } from "../content/courseMap";
 import { useAuth } from "../auth/AuthContext";
-import { COURSE_LIST, topicOfCourse } from "../content/topics";
+import { COURSE_LIST, topicPathOfCourse } from "../content/topics";
 import { lazyPage } from "../site/lazyPage";
 import { LevelArt } from "../home/LevelArt";
 import {
@@ -61,18 +61,17 @@ const BOOK =
 export function CourseOverviewPage({ course }: { course: Course }) {
   const t = useT();
   const c = t.courses;
-  const next = nextCourse(course);
-  const topic = topicOfCourse(coursePath(course));
+  const topicPath = topicPathOfCourse(coursePath(course));
   const mapState = useCourseMap(courseMapId(course));
   const ready = mapState.status === "ready";
   const map = mapState.status === "ready" ? mapState.map : undefined;
-  // 主題名稱:API 依語言回傳的(英文版是翻譯);還沒讀到時先用前端內建的
-  const topicName = map?.topic || topic.name;
+  // 主題名稱:API 依語言回傳的(英文版是翻譯);還沒讀到時麵包屑不列主題
+  const topicName = map?.topic ?? "";
   // 主題就是這門課自己(網頁怎麼運作):麵包屑接全部課程,不連回自己
   const crumb =
-    topic.path === coursePath(course)
+    topicPath === coursePath(course)
       ? { name: t.site.nav.courses, to: COURSE_LIST.path }
-      : { name: topicName, to: `${topic.path}#map` };
+      : { name: topicName, to: `${topicPath}#map` };
   const groups = map ? overviewGroups(map) : [];
   const lessons = groups.flatMap((g) => g.lessons);
   const total = lessons.reduce((n, l) => n + (l.minutes ?? 0), 0);
@@ -92,17 +91,17 @@ export function CourseOverviewPage({ course }: { course: Course }) {
     .map((u) => c.levelName(u.label!))
     .join("・");
   const access = map ? ACCESS_LABEL[map.access] : null;
-  // 讀到之前先用路由的課名,免得標題空一下
-  const title = map ? map.title : course.title;
+  // 課名讀資料庫:還沒讀到、讀不到時不顯示標題(清單位置有讀取中、無法讀取)
+  const title = map?.title ?? "";
 
   return (
-    <SiteLayout title={map ? map.seoTitle || map.title : course.title}>
+    <SiteLayout title={map ? map.seoTitle || map.title : null}>
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <div className={styles.intro}>
             <nav className={styles.crumb} aria-label={c.breadcrumb}>
-              <Link to={crumb.to}>{crumb.name}</Link>
-              <span aria-hidden="true">/</span>
+              {crumb.name && <Link to={crumb.to}>{crumb.name}</Link>}
+              {crumb.name && title && <span aria-hidden="true">/</span>}
               <span>{title}</span>
             </nav>
             <p className={styles.tags}>
@@ -110,11 +109,11 @@ export function CourseOverviewPage({ course }: { course: Course }) {
               {access && (
                 <span className={styles.tag}>{c.accessName(access)}</span>
               )}
-              {topicName !== title && (
+              {topicName && topicName !== title && (
                 <span className={styles.tag}>{topicName}</span>
               )}
             </p>
-            <h1>{title}</h1>
+            {title && <h1>{title}</h1>}
             {map?.summary && <p className={styles.lead}>{map.summary}</p>}
             <p className={styles.meta}>
               {total > 0 && (
@@ -187,23 +186,14 @@ export function CourseOverviewPage({ course }: { course: Course }) {
                 title={g.title}
                 subtitle={g.subtitle}
                 lessons={g.lessons}
-                pathOf={(l) => rowLink(course, g, l, g.lessons.indexOf(l))}
-                labelOf={(l) => rowLabel(course, g, l, g.lessons.indexOf(l))}
+                pathOf={(l) => rowLink(course, g, l)}
+                labelOf={(l) => rowLabel(course, g, l)}
                 guest={guest}
               />
             ))}
           </LessonGroups>
         ) : (
           <LessonListStatus state={mapState.status as "loading" | "error"} />
-        )}
-        {next && (
-          <Link className={styles.nextCourse} to={coursePath(next)}>
-            <small>{c.nextCourse}</small>
-            <span>
-              {c.levelName(next.level)} · {next.title}
-            </span>
-            <span aria-hidden="true">→</span>
-          </Link>
         )}
       </section>
     </SiteLayout>

@@ -20,7 +20,12 @@ const testManifest = `{"site":"evoleap","origin":"https://evoleap.io","courseLis
 {"path":"/courses/web","course":"web","coursePath":"/courses/web","kind":"overview","listLessons":true},
 {"path":"/courses/gone","course":"gone","coursePath":"/courses/gone","kind":"overview"},
 {"path":"/en/courses/web","course":"web","coursePath":"/en/courses/web","kind":"overview","lang":"en","listLessons":true},
-{"path":"/en/courses/gone","course":"gone","coursePath":"/en/courses/gone","kind":"overview","lang":"en"}],"lessons":[
+{"path":"/en/courses/gone","course":"gone","coursePath":"/en/courses/gone","kind":"overview","lang":"en"},
+{"path":"/topics/ai-apps","kind":"topic","topic":"ai-apps","items":[{"course":"ai-agent","path":"/topics/ai-apps"},{"course":"gone","path":"/courses/gone"},{"course":"advanced","path":"/courses/advanced"}],"courseLd":{"course":"ai-agent","description":"介紹"}},
+{"path":"/topics/gone","kind":"topic","topic":"gone","items":[]},
+{"path":"/courses","kind":"list","title":"清單標題","description":"清單描述","items":[{"course":"software","path":"/courses/software"}]},
+{"path":"/courses/advanced/topic-1","course":"advanced","coursePath":"/courses/advanced","kind":"chapter","chapter":{"unit":"1","label":"主題 1"}},
+{"path":"/courses/advanced/topic-9","course":"advanced","coursePath":"/courses/advanced","kind":"chapter","chapter":{"unit":"9","label":"主題 9"}}],"lessons":[
 {"course":"software","coursePath":"/courses/software","style":"staged","ogType":"article"},
 {"course":"web","coursePath":"/courses/web","style":"topic"},
 {"course":"gone","coursePath":"/courses/gone","style":"topic"}]}`
@@ -33,7 +38,7 @@ func courseDist() fstest.MapFS {
 		"404.html":      {Data: []byte(`<title>not found</title>`)},
 		coursePagesFile: {Data: []byte(testManifest)},
 	}
-	for _, p := range []string{"courses/software", "courses/web", "courses/gone", "en/courses/web", "en/courses/gone"} {
+	for _, p := range []string{"courses/software", "courses/web", "courses/gone", "en/courses/web", "en/courses/gone", "topics/ai-apps", "topics/gone", "courses", "courses/advanced/topic-1", "courses/advanced/topic-9"} {
 		dist[p+"/index.html"] = shell
 	}
 	for _, c := range []string{"software", "web", "gone"} {
@@ -289,5 +294,64 @@ func TestEnglishCoursePages(t *testing.T) {
 	}
 	if rec := get(api, http.MethodGet, "/api/seo/page?path=/en/courses/web", nil); rec.Code != 503 {
 		t.Errorf("api 讀不到: %d", rec.Code)
+	}
+}
+
+// 主題頁、全部課程、規劃中章節:名稱讀資料庫;讀不到 503、資料庫沒有 404,過期後不拿舊資料頂替
+func TestTopicAndChapterPages(t *testing.T) {
+	st, err := storetest.Open(filepath.Join(t.TempDir(), "topic.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	dist := courseDist()
+	c := newCourseSEO(dist, st.CourseMapWithEnglish)
+	var fail error
+	c.loadTopic = func(ctx context.Context, id string) (store.Topic, error) {
+		if fail != nil {
+			return store.Topic{}, fail
+		}
+		return st.TopicOf(ctx, id)
+	}
+	now := time.Now()
+	c.now = func() time.Time { return now }
+	h := newStaticHandlerWithCourses(dist, openAccess, c)
+	has := func(path string, want ...string) {
+		t.Helper()
+		rec := get(h, http.MethodGet, path, nil)
+		b := rec.Body.String()
+		if rec.Code != 200 || rec.Header().Get("X-Robots-Tag") != "" || strings.Contains(b, "%SEO_") || !strings.Contains(b, `rel="alternate"`) {
+			t.Fatalf("%s: %d %s", path, rec.Code, b)
+		}
+		for _, w := range want {
+			if !strings.Contains(b, w) {
+				t.Errorf("%s 缺少 %q: %s", path, w, b)
+			}
+		}
+	}
+	topic, err := st.TopicOf(context.Background(), "ai-apps")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 資料庫沒有的課(gone)不列
+	has("/topics/ai-apps", "<title>"+topic.SEOTitle+" · evoleap</title>", `"@type":"ItemList"`, `"name":"打造你的第一個 AI Agent 整合應用"`, `"url":"https://evoleap.io/courses/advanced"`, `"@type":"Course"`, `"description":"介紹"`)
+	has("/courses", "<title>清單標題 · evoleap</title>", `content="清單描述"`, `"name":"做出自己的軟體"`)
+	advanced, _, err := st.CourseMapWithEnglish(context.Background(), "advanced")
+	if err != nil {
+		t.Fatal(err)
+	}
+	rec := get(h, http.MethodGet, "/courses/advanced/topic-1", nil)
+	if rec.Code != 200 || !strings.Contains(rec.Body.String(), "<title>主題 1 "+advanced.Units[0].Title+" · evoleap</title>") {
+		t.Errorf("章節頁: %d %s", rec.Code, rec.Body)
+	}
+	for _, p := range []string{"/topics/gone", "/courses/advanced/topic-9"} {
+		if rec := get(h, http.MethodGet, p, nil); rec.Code != 404 {
+			t.Errorf("%s: %d", p, rec.Code)
+		}
+	}
+	fail = errors.New("db down")
+	now = now.Add(courseSEOTTL)
+	if rec := get(h, http.MethodGet, "/topics/ai-apps", nil); rec.Code != 503 || rec.Header().Get("Retry-After") == "" {
+		t.Errorf("讀不到: %d", rec.Code)
 	}
 }

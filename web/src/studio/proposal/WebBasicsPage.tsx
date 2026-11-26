@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { useCourseMap } from '../../content/courseMap'
+import { LessonListStatus } from '../../courses/LessonGroup'
 import { Fold } from './Fold'
-import { WEB_COMPONENTS, WEB_DEMOS, WEB_OPEN, WEB_PITCH, WEB_POSITIONING, WEB_PRINCIPLES, WEB_UNITS } from './webBasics'
+import { WEB_COMPONENTS, WEB_DEMOS, WEB_OPEN, WEB_POSITIONING, WEB_PRINCIPLES, WEB_OUTLINE } from './webBasics'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
@@ -20,18 +22,22 @@ function Pairs({ items }: { items: [string, string][] }) {
 }
 
 export function WebBasicsPage() {
-  const lessonCount = WEB_UNITS.reduce((n, u) => n + u.lessons.length, 0)
+  // 單元、課名、一句話讀資料庫;看什麼、做什麼、名詞是這裡的構想
+  const state = useCourseMap('web')
+  const map = state.status === 'ready' ? state.map : undefined
+  const units = map?.units ?? []
+  const lessonCount = units.reduce((n, u) => n + u.lessons.length, 0)
   return (
     <ProposalLayout title="網頁運作知識" footer="課程 · 資料：src/studio/proposal/webBasics.ts">
       <h1>網頁運作知識 · 網頁怎麼運作</h1>
       <span className={`${ui.chip} ${ui.out} ${ui['draft-banner']}`}>架構草稿 · 待評估</span>
       <p className={ui.lead}>
-        AI 時代的網頁基礎課：語法交給 AI，你要懂的是網頁怎麼運作。共 {WEB_UNITS.length} 個單元、{lessonCount} 課（暫定）。
+        AI 時代的網頁基礎課：語法交給 AI，你要懂的是網頁怎麼運作。共 {units.length} 個單元、{lessonCount} 課（暫定）。
       </p>
 
       <h2>課程說明</h2>
       <section className={ui.card}>
-        {WEB_PITCH.map((p) => (
+        {(map?.about ?? []).map((p) => (
           <p key={p}>{p}</p>
         ))}
       </section>
@@ -49,15 +55,18 @@ export function WebBasicsPage() {
       </Fold>
 
       <h2>課程大綱</h2>
-      {WEB_UNITS.map((unit) => (
+      {state.status !== 'ready' && <LessonListStatus state={state.status} />}
+      {units.map((unit) => (
         <section key={unit.id} className={ui.card}>
           <h3>{unit.title}</h3>
           <p>
             <strong>這個單元回答：</strong>
-            {unit.question}
+            {unit.subtitle}
           </p>
           <ul>
-            {unit.lessons.map((l) => (
+            {unit.lessons.map((l) => {
+              const o = WEB_OUTLINE[l.id]
+              return (
               <li key={l.id}>
                 <strong>
                   {l.id}　{l.title}
@@ -68,16 +77,25 @@ export function WebBasicsPage() {
                     <Link to={WEB_DEMOS[l.id]}>{WEB_DEMOS[l.id].startsWith('/topics/') ? '看課程 →' : '看試做 →'}</Link>
                   </>
                 )}
+                {o && (
+                  <>
+                    <br />
+                    看：{o.show}
+                    <br />
+                    做：{o.try}
+                  </>
+                )}
                 <br />
-                看：{l.show}
-                <br />
-                做：{l.try}
-                <br />
-                學會：{l.learn}
-                <br />
-                名詞：{l.terms.join('、')}
+                學會：{l.summary}
+                {o && (
+                  <>
+                    <br />
+                    名詞：{o.terms.join('、')}
+                  </>
+                )}
               </li>
-            ))}
+              )
+            })}
           </ul>
         </section>
       ))}

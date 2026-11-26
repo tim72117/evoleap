@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { KIDS_UNITS } from '../content/kidsCourse'
 import { isLockedLesson, kidsProgressOf } from './progress'
 
-// 進度鎖只看傳入的課號清單(執行時是資料庫課程地圖裡開放的課),這裡用課程結構的前 13 課當範例
-const SAMPLE_OPEN_LESSONS = KIDS_UNITS.flatMap((u) => u.lessons.map((l) => l.id)).slice(0, 13)
+// 進度鎖只看傳入的課號清單(執行時是資料庫課程地圖裡開放的課)
+const SAMPLE_OPEN_LESSONS = ['0.1', '0.2', '0.3', '1.1']
 
 describe('兒童模式的進度鎖', () => {
   const [first, second, third] = SAMPLE_OPEN_LESSONS

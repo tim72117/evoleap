@@ -71,6 +71,7 @@ export const courses: Messages['courses'] = {
 
   plannedPages: {
     chapterGoal: 'Goal of this chapter',
+    unitSummary: (course, unit) => `One of the planned topics of ${course}: ${unit}. Details are still being planned.`,
     afterDone: (result) => `When you're done: ${result}`,
     comingSoon: "The videos and steps for this chapter are in the works. They'll appear here once they're ready.",
     pager: 'Previous and next chapter',

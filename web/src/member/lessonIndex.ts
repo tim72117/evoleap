@@ -5,7 +5,7 @@
 // - 地圖讀不到:沒有對照(呼叫端把讀不到當成讀取失敗,見 CoursesSection),不用前端寫死的腳本路徑頂替。
 import { lessonLabel, lessonUrl } from '../content/catalog'
 import type { CourseMap, MapLesson } from '../content/courseMap'
-import { KIDS_TOPIC, LAUNCH_TOPIC, SOFTWARE_TOPIC, WEB_TOPIC } from '../content/topics'
+import { TOPIC_PATHS } from '../content/topics'
 import { messages } from '../i18n/current'
 
 export interface IndexedLesson {
@@ -32,27 +32,27 @@ interface MappedSpec {
   /** 播放器存進度時的前綴(live:<腳本> 或 kids:<腳本>) */
   prefix: string
   /** 課號 → 對照;每一課的單課頁網址照 lessonUrl */
-  entry: (id: string, title: string) => IndexedLesson
+  entry: (id: string, title: string) => Omit<IndexedLesson, 'courseName'>
 }
 
-// 課名一律取自課程地圖(title 是地圖上該課的課名),不用前端寫死的課名
+// 課名與課程名稱一律取自課程地圖(title 是地圖上該課的課名),不用前端寫死的名稱
 const SPECS: Record<MappedCourse, MappedSpec> = {
   // 課程在會員空間的識別沿用 course:software
   software: {
     prefix: 'live:',
-    entry: (id, title) => ({ course: 'course:software', courseName: SOFTWARE_TOPIC.name, coursePath: '/courses/software', title: `${lessonLabel({ id })} ${title}`.trim(), path: lessonUrl('software', id) }),
+    entry: (id, title) => ({ course: 'course:software', coursePath: '/courses/software', title: `${lessonLabel({ id })} ${title}`.trim(), path: lessonUrl('software', id) }),
   },
   launch: {
     prefix: 'live:',
-    entry: (id, title) => ({ course: 'launch', courseName: LAUNCH_TOPIC.name, coursePath: LAUNCH_TOPIC.path, title: `${id} ${title}`.trim(), path: lessonUrl('launch', id) }),
+    entry: (id, title) => ({ course: 'launch', coursePath: TOPIC_PATHS.launch, title: `${id} ${title}`.trim(), path: lessonUrl('launch', id) }),
   },
   web: {
     prefix: 'live:',
-    entry: (id, title) => ({ course: 'web', courseName: WEB_TOPIC.name, coursePath: WEB_TOPIC.path, title: `${id} ${title}`.trim(), path: lessonUrl('web', id) }),
+    entry: (id, title) => ({ course: 'web', coursePath: TOPIC_PATHS.web, title: `${id} ${title}`.trim(), path: lessonUrl('web', id) }),
   },
   kids: {
     prefix: 'kids:',
-    entry: (id, title) => ({ course: 'kids', courseName: KIDS_TOPIC.name, coursePath: KIDS_TOPIC.path, title: title || id, path: lessonUrl('kids', id) }),
+    entry: (id, title) => ({ course: 'kids', coursePath: TOPIC_PATHS.kids, title: title || id, path: lessonUrl('kids', id) }),
   },
 }
 
@@ -73,7 +73,7 @@ export function buildLessonIndex(maps: Partial<Record<MappedCourse, CourseMap>> 
     // 先不公開(hidden)的單元不列在會員的課程清單
     const lessons = new Map(map.units.filter((u) => !u.hidden).flatMap((u) => u.lessons).filter(visible).map((l) => [l.id, l]))
     const entry = (id: string) => {
-      const e = spec.entry(id, lessons.get(id)?.title ?? '')
+      const e = { ...spec.entry(id, lessons.get(id)?.title ?? ''), courseName: map.title }
       return lessons.get(id)?.status === 'draft' ? { ...e, title: `${e.title}${messages().member.courses.draft}`, draft: true } : e
     }
     // 腳本以地圖為準

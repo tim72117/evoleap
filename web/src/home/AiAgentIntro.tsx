@@ -1,9 +1,11 @@
 import { useT } from '../i18n/I18nProvider'
-import { AUDIENCE_FIT, AUDIENCE_NOT_FIT, OUTCOMES, PREREQUISITES, TEACHING, UNITS } from '../content/aiAgent'
+import { AUDIENCE_FIT, AUDIENCE_NOT_FIT, OUTCOMES, PREREQUISITES, TEACHING, UNIT_COPY } from '../content/aiAgent'
+import { useCourseMap } from '../content/courseMap'
+import { LessonListStatus } from '../courses/LessonGroup'
 import styles from './AiAgentIntro.module.css'
 
 // 「打造 AI 互動軟體」主題頁的課程介紹(中階課「打造你的第一個 AI Agent 整合應用」):學習成果、適合對象、課程單元、教學方式。
-// 外觀文案,資料在 content/aiAgent.ts,不進資料庫(資料庫只有課名、單元、課)。單元是說明用的卡片,沒有各自的頁面。
+// 單元名稱與目標讀資料庫(ai-agent 的課程地圖);其他外觀文案在 content/aiAgent.ts。單元是說明用的卡片,沒有各自的頁面。
 
 function SectionHead({ id, eyebrow, title, lead }: { id: string; eyebrow: string; title: string; lead?: string }) {
   return (
@@ -18,6 +20,7 @@ function SectionHead({ id, eyebrow, title, lead }: { id: string; eyebrow: string
 export function AiAgentIntro() {
   const t = useT()
   const a = t.courses.aiAgent
+  const course = useCourseMap('ai-agent')
   return (
     <>
       <section className={styles.section} id="outcomes" aria-labelledby="ai-outcomes">
@@ -68,32 +71,38 @@ export function AiAgentIntro() {
       <section className={styles.section} id="units" aria-labelledby="ai-units">
         <div className={styles.container}>
           <SectionHead id="ai-units" eyebrow={a.unitsEyebrow} title={a.unitsTitle} lead={a.unitsLead} />
+          {course.status !== 'ready' && <LessonListStatus state={course.status} />}
           <ol className={styles.units}>
-            {UNITS.map((u) => (
-              <li key={u.num} className={`${styles.card} ${styles.unit}`}>
-                <div className={styles.unitNum} aria-hidden="true">
-                  {u.num}
-                </div>
-                <div className={styles.unitBody}>
-                  <h3>
-                    {u.title}
-                    {u.status === 'planned' && (
-                      <span className={`${styles.badge} ${styles.badgePlanned}`}>
-                        <span aria-hidden="true">🌱 </span>
-                        {t.courses.planned}
-                      </span>
+            {(course.status === 'ready' ? course.map.units.filter((u) => !u.hidden) : []).map((u) => {
+              const copy = UNIT_COPY[u.id]
+              return (
+                <li key={u.id} className={`${styles.card} ${styles.unit}`}>
+                  <div className={styles.unitNum} aria-hidden="true">
+                    {copy?.num ?? u.id}
+                  </div>
+                  <div className={styles.unitBody}>
+                    <h3>
+                      {u.title}
+                      {copy?.planned && (
+                        <span className={`${styles.badge} ${styles.badgePlanned}`}>
+                          <span aria-hidden="true">🌱 </span>
+                          {t.courses.planned}
+                        </span>
+                      )}
+                    </h3>
+                    <p className={styles.unitGoal}>{u.subtitle}</p>
+                    {copy && (
+                      <dl>
+                        <dt>{a.concepts}</dt>
+                        <dd>{copy.concepts}</dd>
+                        <dt>{a.practice}</dt>
+                        <dd>{copy.practice}</dd>
+                      </dl>
                     )}
-                  </h3>
-                  <p className={styles.unitGoal}>{u.goal}</p>
-                  <dl>
-                    <dt>{a.concepts}</dt>
-                    <dd>{u.concepts}</dd>
-                    <dt>{a.practice}</dt>
-                    <dd>{u.practice}</dd>
-                  </dl>
-                </div>
-              </li>
-            ))}
+                  </div>
+                </li>
+              )
+            })}
           </ol>
         </div>
       </section>

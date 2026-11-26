@@ -7,13 +7,15 @@
 ```
 web/                 前端（React + Vite + TypeScript）
   src/
-    content/         課程資料（唯一來源，公開頁、研發區、SEO 都從這裡讀）
-      levels.ts        課程地圖的等級（L0–L4）、首頁文案
-      catalog.ts       每門課的章節與網址（新增課程在這裡登記）
+    content/         讀資料庫課程資料的程式，與資料庫沒有欄位的手寫內容（主題、課程、單元、課以資料庫為準，見「課程資料庫」）
+      courseMap.ts     課程地圖 API；courseList.ts 課程清單 API
+      topics.ts        主題 API、主題頁路由網址、全部課程頁標題
+      levels.ts        主題頁的手寫文案（大標、等級卡簡述與重點、先備條件、插圖）
+      catalog.ts       課程網址與路由（新增有課程頁的課在這裡登記）
       l0Lessons.ts     L0 單課內容：目標 → 步驟 → 提示詞、影片切分
       l1Lessons.ts     L1 單課內容
       l2Outline.ts     L2 章節大綱（尚未寫到步驟）
-      aiAgent.ts       L3 課程頁內容
+      aiAgent.ts       中階課介紹（學習成果、適合對象、教學方式、單元的概念與實作）
       lessonTypes.ts   單課資料型別
       live/            腳本用到的網頁素材（<課程>/site/<版本>/）；腳本 JSON 不在 repo，以線上資料庫為準（見「課程資料庫」）
     live/            即時教學畫面引擎（TypeScript）：舞台 stage.ts、播放器外殼 shell.ts、演員 actors/、鏡頭 camera.ts、動畫工具 kit.ts；規格見 src/live/README.md
@@ -66,7 +68,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 
 - 一門課 `courses`（存取方式 `access`：`free`／`login-free`／`subscription`，訂閱課程的最低方案 `tier`）→ 單元 `course_units` → 一堂課 `lessons`（`status`：`open`／`draft`／`planned`；`access` 空的就照這門課，只有例外才填，例如序章免費預覽；`script` 是課程頁要播的腳本、`files` 是這一課其他的腳本檔（子腳本、開場、試做）；`minutes` 是預估學習時間，0 代表還沒估）。草稿（`draft`）只有管理員看得到狀態與腳本，其他人看到的是規劃中。
 - 網站上的 7 門課（做出自己的軟體〔課程 id `software`，起步、零基礎、基礎三個階段是它的三個單元〕、AI Agent 整合應用、進階 AI Agent 應用、網頁怎麼運作、給孩子的網頁程式、從做好到上線、Claude Code 工作術）都在資料庫。**主題、課程與腳本以資料庫為準**：部署與啟動都不寫課程資料；空資料庫由管理員執行 `node server/backup/gcs.mjs init`，從 GCS 備份手動初始化（見 `server/backup/README.md`）；課程、單元、課的新增、修改、刪除、排序用 `evoleap` CLI（`course create|set|delete|order|outline`、`unit add|set|delete`、`lesson add|set|delete`）。部署時執行一次同步工作（Cloud Run Job `shuttle-course-sync`，執行 `server/cmd/sync`；失敗就不部署網站），只建表、重算翻譯登記表（不寫腳本）；本機後端啟動時做同樣的事。repo 裡沒有課程種子檔；測試用手寫的小型資料 `server/internal/store/fixture/`（不是正式站內容的複本：每種行為放一兩課代表就好；e2e 以 `server -seed internal/store/fixture` 初始化，手造的範例腳本在 `fixture/live/`）。程式在 `server/internal/store/catalog.go`、`courses.go`、`lessons.go`。
-- 主題（`topics` 表）：一門課屬於一個主題（`courses.topic_id`；`overview` 為假表示這門課沒有自己的總覽頁 `/courses/<id>`，例如 ai-agent）。主題有名稱、標語、主題頁網址（`path`）、搜尋標題與描述，以及放首頁卡片與主題頁內容的 JSON 欄位 `content`。公開 `GET /api/topics`、`GET /api/courses`（全部課程頁依它分組）；管理員 `evoleap topic list|show|set`、`evoleap course set -topic-id -overview`。目前沒有新增、刪除主題的指令。目前只有全部課程頁讀這兩支 API，首頁、主題頁、SEO 仍讀前端的 `topics.ts`。
+- 主題（`topics` 表）：一門課屬於一個主題（`courses.topic_id`；`overview` 為假表示這門課沒有自己的總覽頁 `/courses/<id>`，例如 ai-agent）。主題有名稱、標語、主題頁網址（`path`）、搜尋標題與描述，以及放首頁卡片與主題頁內容的 JSON 欄位 `content`。公開 `GET /api/topics`、`GET /api/courses`（全部課程頁依它分組）；管理員 `evoleap topic list|show|set`、`evoleap course set -topic-id -overview`。目前沒有新增、刪除主題的指令。首頁、展示頁、主題頁、全部課程頁與主題頁的 SEO 都讀資料庫，前端沒有複本也沒有備援（讀取中顯示佔位，讀不到顯示「無法讀取課程資訊」）。主題 `content` 的鍵：`lede`、`learn`、`pains`、`flow`、`outcomes`、`scenarios`、`sample`、`preview`、`tag`、`intro`、`icon`、`open`、`start`、`learnTitle`（`web/src/content/topics.ts` 的 `TopicContent`）。
 - 單元的 `subtitle` 是課程地圖上單元標題下的小字（兒童課是比喻，網頁怎麼運作是這個單元回答的問題）。單元的 `label` 是簡短名稱（做出自己的軟體的階段：起步、零基礎、基礎，≤32 字，空的用 `title`）；`hidden` 為真代表先不公開：課程總覽、課程地圖、sitemap 不列這個單元，單元裡各課的網址仍打得開（noindex）。
 - 課程資訊（課程總覽頁、課程列表要顯示的內容，前端讀這裡，不再自己寫一份；課程頁的搜尋標題、描述、先不公開的單元也由 server 請求時讀這裡，見下方「SEO」）存在 `courses`：`summary` 簡介（≤500 字）、`about` 說明段落（資料庫是一個文字欄位、段落以空行（兩個換行字元）隔開；種子與 API 是字串陣列，每段不能空、不能含空行）、`seoTitle` 搜尋結果標題（≤200）、`description` 搜尋結果描述（≤500）、`art` 插圖樣式（空的、`tools`、`chat`、`build`、`agent`、`advanced`）、`introScript` 課程簡介影片的腳本路徑（腳本路徑，`.json`，不能以 `lab/` 開頭、不能含 `..`、≤200；種子目前只有兒童課 `guide/kids.json`）。`GET /api/courses/{id}/map` 的課程多這幾個欄位（空的省略），單元多 `label`、`hidden`。簡介影片的檔屬於這門課（`lesson_files`，課號是空的），任何訪客都拿得到、狀態視為 open、免費，不受兒童模式的上課時段與進度把關；一個檔只能是一課的檔或簡介影片，不能兩者都是。
 - 課程資訊的翻譯（課程、單元、課、主題；目前只有英文 `en`）存在資料庫的通用欄位表，**以資料庫為準**：原表（`courses`、`course_units`、`lessons`、`topics`）只存繁體中文原文，是唯一真實來源。`i18n_sources` 是可翻譯欄位的登記表（原文索引，主鍵 `kind, ref, path`，附原文雜湊；由課程同步工作與改課程資料的 CLI 動作一併重算，原文被刪時軟刪除 `removed_at`；副本不參與顯示，可重建）；`i18n_translations` 是譯文（一個欄位一列，主鍵 `kind, ref, path, lang`，`status` 為 `draft`／`reviewed`／`published`，只有 `published` 會顯示；`source_hash` 是翻譯當時的原文雜湊，和登記表現在的不同就是過時，仍顯示舊譯文）；`i18n_translation_history` 每次異動一筆；`i18n_languages` 是語言（`en` 公開、回退到原文）。公開 API 的 `?lang=en` 由後端用已發布的譯文組成語言包（記憶體快取 30 秒、本行程寫入時立即失效）。程式裡沒有內嵌的譯文，也沒有備援：資料庫沒有已發布的譯文就顯示中文。改翻譯用 `evoleap i18n set`，譯文隨課程資訊備份到 GCS、由 `gcs.mjs init` 寫回（不含修改歷史）；測試用的假譯文在 `server/internal/store/fixture/i18n_en.json`。程式在 `server/internal/store/i18n.go`、`i18n_db.go`。
@@ -77,7 +79,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
   - 所有單課頁（含做出自己的軟體）：能不能上、播哪個腳本、要不要登入都照資料庫，共用同一個把關 `web/src/courses/LessonGate.tsx`；單課路由是參數化的 `/courses/<課程>/:lesson`（`web/src/courses/LessonRoute.tsx`），哪些課有頁面看資料庫，用 CLI 新增課不用重新 build 或部署；地圖裡沒有的課號顯示找不到頁面。版型照課程：有手寫內容的課沿用（提示詞、互動點、給家長的話、Claude Code 情境文字），沒有的用該課程的通用版型，還沒開放的顯示規劃中／還沒開放。新增「課程」仍要改前端並部署。
   - 所有課程的課程總覽（`/courses/...`）：每一課的一句話、時間、開放與否、免費預覽；所有 `/courses/...` 單課頁要不要登入也照每一課的 `access`（資料庫裡沒有的課顯示規劃中）。
   - 首頁、課程列表（`/courses`）、軟體課程地圖頁等級卡片的「已開放」與課數；會員空間「課程」分頁與兒童模式的進度、這週的課。讀不到時這些地方不標開放狀態或顯示讀取失敗，不用前端資料頂替。
-- 還在前端的：主題與等級的介紹（`levels.ts`、`topics.ts`，主題地圖頁、首頁用；課程總覽與課程列表的課名、簡介、插圖、階段名稱都讀資料庫）、單課頁的內容（步驟、提示詞，`l0Lessons.ts` 等）、規劃中課程的章節頁。`WEB_LESSON_PAGES`、`KIDS_LESSON_PAGES` 只放手寫內容（互動版面、給家長的話），不決定哪些課有頁面；開放與否一律看資料庫：單課存取、課程清單標示、`/sitemap.xml`、課程頁的標題、描述與結構化資料（`server/cmd/server/courseseo.go`）都是。
+- 還在前端的（資料庫沒有對應欄位）：主題頁的大標、等級卡簡述／重點／先備條件／插圖與中階、進階的等級名稱（`levels.ts`）；中階課介紹與單元的概念、實作（`aiAgent.ts`）；首頁與全部課程頁的標題描述、Claude Code 各情境用到的功能與影片標題（`topics.ts`）；給家長的話（`kidsCourse.ts`）；網頁課用靜態版面的課號（`webCourse.ts`）；單課頁的步驟與提示詞（`l0Lessons.ts` 等，含它們自己的步驟標題）；研發基地的看／做／名詞大綱（`studio/proposal/kidsWeb.ts`、`webBasics.ts`）。開放與否一律看資料庫：單課存取、課程清單標示、`/sitemap.xml`、課程頁的標題、描述與結構化資料（`server/cmd/server/courseseo.go`）都是。
 - 腳本檔：在資料庫，屬於某一課的在 `lesson_files`，研發基地的在 `studio_files`，**線上資料庫是唯一來源**：repo 裡沒有腳本 JSON，部署與啟動都不從目錄補腳本。改腳本用 `evoleap script get`／`script push`，清單與歸屬用 `evoleap script list [-owners]`。備份在 GCS，只有新站用 `node server/backup/gcs.mjs init` 復原。本機工具（`voice`、`mix`、`record:live`、canvas）透過 CLI 向 `https://evoleap.io` 取腳本（`--api` 換伺服器、`--dir` 讀本機草稿），見 `web/src/live/README.md`。程式在 `server/internal/store/lessonfiles.go`、`web/scripts/lib/liveScripts.mjs`。
 - `GET /api/scripts/{path}` 依所屬那一課把關：免費預覽誰都拿得到、登入後免費要登入（401）、訂閱課程等訂閱功能上線前不給（403）、草稿與規劃中的課只給管理員（其他人 404）；研發基地的檔只給管理員。`GET /api/scripts` 列出所有腳本路徑（只給管理員）。程式在 `server/internal/api/scripts.go`。本機開發也只讀資料庫（本機資料庫要有內容：用 `gcs.mjs init` 初始化空資料庫，或 `script push`）。沒接資料庫時沒有種子備援：腳本回 503（選用的旁白、章節音軌清單回 `null`）。
 - `/sitemap.xml` 由後端依資料庫每一課的狀態即時產生（`server/cmd/server/sitemap.go`；前端 build 只輸出可收錄的頁面清單 `dist/sitemap-pages.json`，該檔不對外提供），只列已開放的課，所以用 CLI 改了開放狀態後最多 1 分鐘（程序內快取）就會跟上；草稿與規劃中的課頁面仍可收錄，只是不列入。先不公開（`hidden`）單元裡的課就算開放也不列入。課程總覽頁結構化資料的課程連結同樣依資料庫（`courseseo.go`）。
@@ -110,7 +112,7 @@ cd web && npm install && npm run dev     # 前端：http://localhost:5190（/api
 
 ## SEO
 
-- 課程相關頁面（課程總覽、單課、規劃中章節；中文）：`<title>`、description、noindex、JSON-LD 在請求時讀資料庫組出來，組法只在 `server/cmd/server/courseseo.go`。build 只輸出固定網址清單與單課網址樣式 `dist/course-pages.json`（來源 `web/src/seo/coursePages.ts`）和留好空位的 HTML（單課頁一門課一份 `dist/lesson-shells/`），不含課程內容，也沒有備援：資料庫讀不到或沒接資料庫回 503 + `Retry-After`，資料庫沒有這門課或這一課回 404。每門課在程序內記 1 分鐘，過期後讀不到就回 503，不用舊資料。只用公開的課程地圖（草稿當成規劃中）。瀏覽器端換頁讀 `GET /api/seo/page?path=/courses/...` 拿同一份。規劃中章節（進階課）的章節名稱與簡介仍是前端的（`levels.ts`），課程名稱與麵包屑讀資料庫。本機 `go run`（內嵌的佔位 build）沒有清單，要加 `-dist ../web/dist` 才看得到。
+- 課程相關頁面（主題頁 `/topics/*`、全部課程 `/courses`、課程總覽、單課、規劃中章節；中文）：`<title>`、description、noindex、JSON-LD 在請求時讀資料庫組出來，組法只在 `server/cmd/server/courseseo.go`。build 只輸出固定網址清單與單課網址樣式 `dist/course-pages.json`（來源 `web/src/seo/coursePages.ts`）和留好空位的 HTML（單課頁一門課一份 `dist/lesson-shells/`），不含課程內容，也沒有備援：資料庫讀不到或沒接資料庫回 503 + `Retry-After`，資料庫沒有這個主題、這門課或這一課回 404。每門課在程序內記 1 分鐘，過期後讀不到就回 503，不用舊資料。只用公開的課程地圖（草稿當成規劃中）。瀏覽器端換頁讀 `GET /api/seo/page?path=/courses/...` 拿同一份。規劃中章節（進階課）的名稱讀資料庫的單元；網址清單（單元 1–4）仍寫在前端 `content/catalog.ts`，新增單元要改前端。本機 `go run`（內嵌的佔位 build）沒有清單，要加 `-dist ../web/dist` 才看得到。
 - 英文版的課程總覽 `/en/courses/<課程>` 同樣在請求時讀資料庫（譯文），有沒有英文版也看資料庫，見上方「英文網址」。
 - 其他頁面的唯一來源：`web/src/seo/pages.ts`（公開頁）、`web/src/seo/internalPages.ts`（內部頁）。文章從 `src/studio/articles/registry.ts`／`src/studio/docs/registry.ts` 自動推導；新增其他頁面時在 `PAGES` 加一筆（漏了 build 會失敗並列出缺少的路由）。
 - `npm run build` 最後一步 `node scripts/seo.mjs`：產生 `dist/<路由>/index.html`（title、description、canonical、og:*、twitter:*、JSON-LD；課程相關頁面只留空位）、`dist/404.html`、`course-pages.json`、`sitemap-pages.json`（可收錄的頁面清單；單課頁只列哪些課要由 server 依資料庫展開）、`robots.txt`。`/sitemap.xml` 由 Go server 依資料庫每一課的狀態即時產生（只收錄已開放、且單元沒有先不公開的課，`server/cmd/server/sitemap.go`），開發時沒有；`/robots.txt` 開發時由 Vite 即時產生。

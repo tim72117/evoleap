@@ -8,12 +8,12 @@ import { useKidsMode } from '../kidsMode/KidsModeContext'
 import { useLocale, useT } from '../i18n/I18nProvider'
 import styles from './SiteLayout.module.css'
 import { SITE_NAME } from './siteInfo'
-import { COURSE_LIST, SOFTWARE_TOPIC } from '../content/topics'
+import { COURSE_LIST, TOPIC_PATHS } from '../content/topics'
 
 
 type Props = {
-  /** Page name for the document title ("<title> · evoleap"); omit on the home page. */
-  title?: string
+  /** Page name for the document title ("<title> · evoleap"); omit on the home page. null: data not loaded yet, keep the current title (the server's). */
+  title?: string | null
   /** Constrain main content to a readable column (docs). Home page uses full width sections. */
   narrow?: boolean
   children: ReactNode
@@ -31,6 +31,10 @@ const readDark = (): boolean => {
 const SUN = 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4'
 const MOON = 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z'
 
+// 開頁時的網址(server 給的 <title> 是這一頁的)
+const firstPath = typeof window === 'undefined' ? '' : window.location.pathname
+let leftFirstPath = false
+
 export function SiteLayout({ title, narrow = false, children }: Props) {
   // 亮/暗色是全站共用的偏好:每一頁都讀同一個設定,換頁不會閃回亮色
   const [dark, setDark] = useState(readDark)
@@ -45,6 +49,13 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
 
   // 「<頁名> · evoleap」;首頁(不給頁名)為「evoleap：<副標>」(同 siteInfo.documentTitle,副標依語言)
   useEffect(() => {
+    const here = window.location.pathname
+    if (here !== firstPath) leftFirstPath = true
+    // 資料還沒到:剛開頁時保留 server 給的標題;站內換頁過來的話上一頁的標題不能留著,先用站名
+    if (title === null) {
+      if (leftFirstPath) document.title = SITE_NAME
+      return
+    }
     document.title = title ? `${title} · ${SITE_NAME}` : `${SITE_NAME}：${t.site.tagline}`
   }, [title, t])
 
@@ -127,7 +138,7 @@ export function SiteLayout({ title, narrow = false, children }: Props) {
             <strong>{SITE_NAME}</strong>{locale === 'en' ? ': ' : '：'}{t.site.tagline}
           </div>
           <nav className={styles.footerNav} aria-label={t.site.nav.footer}>
-            <Link to={`${SOFTWARE_TOPIC.path}#map`}>{t.site.footer.courseMap}</Link>
+            <Link to={`${TOPIC_PATHS.software}#map`}>{t.site.footer.courseMap}</Link>
             <Link to="/topics/ai-apps">{t.site.footer.aiAgent}</Link>
           </nav>
           <div className={styles.domain}>

@@ -3,7 +3,7 @@ import { useT } from '../i18n/I18nProvider'
 import { SiteLayout } from '../site/SiteLayout'
 import { coursePath, lessonUrl, plannedChapterPath, type Course, type PlannedChapter } from '../content/catalog'
 import styles from './Lesson.module.css'
-import { topicOfCourse } from '../content/topics'
+import { topicPathOfCourse } from '../content/topics'
 
 // 規劃中的章節頁：只有標題與簡述，內容完成後章節改成單課頁(InteractiveLessonPage)。課程總覽一律是 CourseOverviewPage(照資料庫的課程地圖)。
 
@@ -12,10 +12,10 @@ const chapterLink = (course: Course, ch: PlannedChapter) => (ch.id ? lessonUrl(c
 
 function Crumb({ course, chapter, current }: { course: Course; chapter: PlannedChapter; current?: string }) {
   const t = useT()
-  const level = t.courses.levelName(chapter.level ?? course.level)
+  const level = t.courses.levelName(chapter.level ?? course.level ?? '')
   return (
     <nav className={styles.crumb} aria-label={t.courses.breadcrumb}>
-      <Link to={`${topicOfCourse(coursePath(course)).path}#map`}>{t.courses.courseMap}</Link>
+      <Link to={`${topicPathOfCourse(coursePath(course))}#map`}>{t.courses.courseMap}</Link>
       <span aria-hidden="true"> / </span>
       {current ? <Link to={coursePath(course)}>{level}</Link> : <span>{level}</span>}
       {current && (
@@ -28,9 +28,9 @@ function Crumb({ course, chapter, current }: { course: Course; chapter: PlannedC
   )
 }
 
-/** siblings:前後章節的清單(軟體課是同單元規劃中的課);沒給用課程的 planned */
-export function PlannedChapterPage({ course, chapter, siblings }: { course: Course; chapter: PlannedChapter; siblings?: PlannedChapter[] }) {
-  const all = siblings ?? course.planned
+/** siblings:前後章節的清單(軟體課是同單元規劃中的課,進階課是各單元) */
+export function PlannedChapterPage({ course, chapter, siblings }: { course: Course; chapter: PlannedChapter; siblings: PlannedChapter[] }) {
+  const all = siblings
   const i = all.indexOf(chapter)
   // 不在規劃清單裡的章節(草稿的課給沒權限的人看的替代頁):前後都連回課程總覽
   const prev = i >= 0 ? all[i - 1] : undefined
@@ -44,7 +44,7 @@ export function PlannedChapterPage({ course, chapter, siblings }: { course: Cour
         <Crumb course={course} chapter={chapter} current={label(chapter)} />
         <header className={styles.head}>
           <p className={styles.kicker}>
-            {t.courses.levelName(chapter.level ?? course.level)} · {label(chapter)} · <span aria-hidden="true">🌱 </span>{t.courses.planned}
+            {t.courses.levelName(chapter.level ?? course.level ?? '')} · {label(chapter)} · <span aria-hidden="true">🌱 </span>{t.courses.planned}
           </p>
           <h1>{chapter.title}</h1>
         </header>

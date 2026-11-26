@@ -87,11 +87,47 @@ func validateTopic(name, slogan, path, seoTitle, description string, content []b
 	if err := json.Unmarshal(content, &obj); err != nil || obj == nil {
 		return "", invalid("content 要是 JSON 物件({...})")
 	}
+	if err := checkTopicContent(content); err != nil {
+		return "", err
+	}
 	var buf bytes.Buffer
 	if err := json.Compact(&buf, content); err != nil {
 		return "", invalid("content 不是有效的 JSON")
 	}
 	return buf.String(), nil
+}
+
+// checkTopicContent 檢查前端會讀的欄位型別(不認得的鍵不管):型別打錯前端那一欄就顯示不出來。
+func checkTopicContent(content []byte) error {
+	var c struct {
+		Icon, Lede, Tag, Intro, LearnTitle string
+		Open                               bool
+		Outcomes, Pains, Scenarios, Flow   []string
+		Sample                             *struct {
+			Caption       string
+			Before, After []string
+		}
+		Preview *struct {
+			Script, Intro string
+			Sections      map[string]struct {
+				Note        string
+				Interactive bool
+			}
+		}
+		Start *struct{ Label, Path string }
+		Learn []json.RawMessage
+	}
+	if err := json.Unmarshal(content, &c); err != nil {
+		return invalid("content 的欄位型別不對:%s", err)
+	}
+	for _, raw := range c.Learn {
+		var text string
+		var item struct{ Level, Text string }
+		if json.Unmarshal(raw, &text) != nil && json.Unmarshal(raw, &item) != nil {
+			return invalid("content.learn 的每一項要是文字或 {level, text}")
+		}
+	}
+	return nil
 }
 
 // seedTopics 把種子的主題寫進資料庫(在呼叫端的交易裡):沒有的新增、已經有的用種子的內容更新,position 依種子陣列的順序。種子是空的就不動。

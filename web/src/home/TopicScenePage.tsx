@@ -3,10 +3,10 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
 import { lessonUrl } from '../content/catalog'
-import { courseTitleOf, lessonDocTitle, lessonKicker, lessonLabelOf } from '../content/lessonDisplay'
+import { lessonDocTitle, lessonKicker, lessonLabelOf } from '../content/lessonDisplay'
 import { useCourseName, useLessonTitle, type MapLesson } from '../content/courseMap'
-import { WEB_TOPIC, LAUNCH_TOPIC } from '../content/topics'
-import { WEB_LESSON_PAGES } from '../content/webCourse'
+import { TOPIC_PATHS } from '../content/topics'
+import { WEB_STATIC_LESSONS } from '../content/webCourse'
 import { LessonGate } from '../courses/LessonGate'
 import { clearGuestProgress, memberProgress } from '../courses/progress'
 import { useT } from '../i18n/I18nProvider'
@@ -17,12 +17,11 @@ import { TopicBlocked } from './TopicBlocked'
 
 // 「網頁怎麼運作」「從做好到上線」的一課:整個視窗都是互動舞台,右側是章節與步驟(InteractiveScenePage,和 L0 的互動課同一個外殼)。
 // 兩門課共用這一頁,差別只在 TOPIC_SCENES 的設定。路由是 /courses/<課程>/:lesson(home/routes.tsx、courses/LessonRoute.tsx),資料庫裡的每一課都打得開;
-// 能不能上、播哪個腳本、要不要登入、課名都照資料庫(LessonGate)。網頁課要用靜態版面的課在 WEB_LESSON_PAGES 標 interaction。播放進度只有登入的會員才記。
+// 能不能上、播哪個腳本、要不要登入、課名都照資料庫(LessonGate)。網頁課要用靜態版面的課列在 WEB_STATIC_LESSONS。播放進度只有登入的會員才記。
 // 追蹤:打開課程頁由 InteractiveScenePage 記 live:<腳本>;看到提示頁的訪客記 page:<網址>(PageView)。
 
-type Topic = { name: string; path: string }
 type SceneConfig = {
-  topic: Topic
+  topic: { path: string }
   interaction: (id: string) => 'stage' | 'static' | undefined
   /** 草稿的課在標題前標示 */
   markDraft: boolean
@@ -30,12 +29,12 @@ type SceneConfig = {
 
 const TOPIC_SCENES: Record<'web' | 'launch', SceneConfig> = {
   web: {
-    topic: WEB_TOPIC,
-    interaction: (id) => WEB_LESSON_PAGES[id]?.interaction,
+    topic: { path: TOPIC_PATHS.web },
+    interaction: (id) => (WEB_STATIC_LESSONS.has(id) ? 'static' : undefined),
     markDraft: false,
   },
   launch: {
-    topic: LAUNCH_TOPIC,
+    topic: { path: TOPIC_PATHS.launch },
     interaction: () => 'static',
     markDraft: true,
   },
@@ -48,9 +47,9 @@ function TopicScenePage({ course, id }: { course: 'web' | 'launch'; id: string }
   const title = useLessonTitle(course)(id)
   const t = useT()
   const cfg = TOPIC_SCENES[course]
-  const courseTitle = courseTitleOf(course)
-  // 分頁標題的課程名稱讀資料庫(和 server 的 <title> 一致)
-  const docTitle = lessonDocTitle(title, useCourseName(course, courseTitle))
+  // 課程名稱讀資料庫(和 server 的 <title> 一致)
+  const courseTitle = useCourseName(course)
+  const docTitle = lessonDocTitle(title, courseTitle)
   return (
     <LessonGate
       course={course}
