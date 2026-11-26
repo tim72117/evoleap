@@ -9,14 +9,14 @@ const group = (page: Page, id: string) => page.locator(`details#stage-${id}`)
 test('課程頁:公開階段各一組清單(標題、課數),先不公開的零基礎階段不列', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto('/courses/software')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('做出自己的軟體')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('測試課一')
   await expect(page.locator('details[id^="stage-"]')).toHaveCount(2)
   // 課程說明(資料庫的 about 段落)在課程內容上方
   await expect(page.getByRole('heading', { name: '課程說明' })).toBeVisible()
   await expect(group(page, 'ai-tools')).toHaveCount(0)
   for (const [id, title] of [
-    ['tools', '起步・AI 工具介紹'],
-    ['vibe-coding-basics', '基礎・Vibe Coding 入門'],
+    ['tools', '起步・測試單元甲'],
+    ['vibe-coding-basics', '基礎・測試單元丙'],
   ]) {
     const summary = group(page, id).locator('> summary')
     await expect(summary).toContainText(title)

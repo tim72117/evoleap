@@ -383,7 +383,7 @@ func TestListCourses(t *testing.T) {
 	}
 	cs, _ := st.ListCourses(context.Background())
 	for _, c := range cs {
-		if c.ID == "kids" && (c.TopicID != "web" || c.Topic != "網頁怎麼運作" || c.TopicPath != "/courses/web" || c.TopicSlogan == "") {
+		if c.ID == "kids" && (c.TopicID != "web" || c.Topic != "測試主題丁" || c.TopicPath != "/courses/web" || c.TopicSlogan == "") {
 			t.Errorf("kids: %+v", c)
 		}
 	}

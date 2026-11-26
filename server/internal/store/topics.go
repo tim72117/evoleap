@@ -27,11 +27,13 @@ type topicRow struct {
 	// SEOTitle、Description 是搜尋結果的標題與描述
 	SEOTitle    string `gorm:"size:200"`
 	Description string `gorm:"size:500"`
-	// Content 是主題頁與首頁卡片的其他內容(lede、intro、tag、icon、open、start、learn、flow、outcomes、pains、scenarios、sample、preview…),整包存一個 JSON 物件;
-	// 資料庫層只檢查它是 JSON 物件、大小合理,各欄位的意義由前端決定
-	Content   string `gorm:"type:text;not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	// Content 是舊格式的內容(整包 JSON);只有還沒轉換的主題在用,下一版移除
+	Content string `gorm:"type:text;not null"`
+	// Structured 為 true 時內容在下面的欄位與 topic_items、topic_preview_sections(見 topiccontent.go),Content 不再使用
+	Structured  bool `gorm:"not null;default:false"`
+	TopicFields `gorm:"embedded"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (topicRow) TableName() string { return "topics" }
@@ -51,6 +53,8 @@ type topicSeedRow struct {
 	SEOTitle    string          `json:"seoTitle,omitempty"`
 	Description string          `json:"description,omitempty"`
 	Content     json.RawMessage `json:"content,omitempty"`
+	// ItemIDs 是清單項目的 id(種類 → 依序),讓復原後譯文仍對得上
+	ItemIDs map[string][]string `json:"itemIds,omitempty"`
 }
 
 func parseTopicSeed(seed []byte) ([]topicSeedRow, error) {
@@ -97,7 +101,7 @@ func validateTopic(name, slogan, path, seoTitle, description string, content []b
 	return buf.String(), nil
 }
 
-// checkTopicContent 檢查前端會讀的欄位型別(不認得的鍵不管):型別打錯前端那一欄就顯示不出來。
+// checkTopicContent 檢查前端會讀的欄位型別(不認得的鍵由 parseTopicParts 拒絕):型別打錯前端那一欄就顯示不出來。
 func checkTopicContent(content []byte) error {
 	var c struct {
 		Icon, Lede, Tag, Intro, LearnTitle string
@@ -154,7 +158,7 @@ func seedTopics(tx *gorm.DB, seeds []topicSeedRow) error {
 	}
 	return tx.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
-		DoUpdates: clause.AssignmentColumns([]string{"position", "name", "slogan", "path", "seo_title", "description", "content", "updated_at"}),
+		DoUpdates: clause.AssignmentColumns([]string{"position", "name", "slogan", "path", "seo_title", "description", "content", "structured", "updated_at"}),
 	}).Create(&rows).Error
 }
 
@@ -195,6 +199,11 @@ func pruneTopics(tx *gorm.DB, seeds []topicSeedRow) ([]string, error) {
 	if len(deletable) == 0 {
 		return warnings, nil
 	}
+	for _, id := range deletable {
+		if err := deleteTopicParts(tx, id); err != nil {
+			return warnings, err
+		}
+	}
 	return warnings, tx.Where("id IN ?", deletable).Delete(&topicRow{}).Error
 }
 
@@ -207,6 +216,9 @@ type Topic struct {
 	SEOTitle    string          `json:"seoTitle,omitempty"`
 	Description string          `json:"description,omitempty"`
 	Content     json.RawMessage `json:"content,omitempty"`
+	// Items 是清單項目(只有管理端的清單帶)
+	Items []TopicItem `json:"items,omitempty"`
+	parts *topicParts
 }
 
 func (r topicRow) topic() Topic {
@@ -219,28 +231,22 @@ func (r topicRow) topic() Topic {
 
 // ListTopics 回傳所有主題,依 position 排序(同順位依 id)。
 func (s *Store) ListTopics(ctx context.Context) ([]Topic, error) {
-	var rows []topicRow
-	if err := s.db.WithContext(ctx).Order("position, id").Find(&rows).Error; err != nil {
-		return nil, err
-	}
-	out := make([]Topic, len(rows))
-	for i, r := range rows {
-		out[i] = r.topic()
-	}
-	return out, nil
+	return loadTopics(s.db.WithContext(ctx), "")
 }
 
 // TopicOf 回傳一個主題;不存在時回 ErrTopicNotFound。
 func (s *Store) TopicOf(ctx context.Context, id string) (Topic, error) {
-	var r topicRow
-	err := s.db.WithContext(ctx).First(&r, "id = ?", id).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if id == "" {
 		return Topic{}, ErrTopicNotFound
 	}
+	ts, err := loadTopics(s.db.WithContext(ctx), id)
 	if err != nil {
 		return Topic{}, err
 	}
-	return r.topic(), nil
+	if len(ts) == 0 {
+		return Topic{}, ErrTopicNotFound
+	}
+	return ts[0], nil
 }
 
 // TopicPatch 是一個主題要改的欄位;nil 代表不改,給空字串代表清掉(name 不能清)。Content 是整包換掉的 JSON 物件。
@@ -257,6 +263,9 @@ type TopicPatch struct {
 // 和課程一樣,種子裡有的主題下次同步會被蓋回種子的內容。清掉 path 時不能還有課程屬於這個主題(全部課程頁要有主題頁網址)。
 func (s *Store) UpdateTopic(ctx context.Context, user, id string, p TopicPatch) error {
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := lockTopic(tx, id); err != nil {
+			return err
+		}
 		var t topicRow
 		err := tx.First(&t, "id = ?", id).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -278,10 +287,25 @@ func (s *Store) UpdateTopic(ctx context.Context, user, id string, p TopicPatch) 
 		content := []byte(t.Content)
 		if p.Content != nil {
 			content = *p.Content
+		} else if t.Structured {
+			content = nil // 已結構化的主題沒改內容時不看舊欄位
 		}
-		t.Content, err = validateTopic(t.Name, t.Slogan, t.Path, t.SEOTitle, t.Description, content)
+		cleaned, err := validateTopic(t.Name, t.Slogan, t.Path, t.SEOTitle, t.Description, content)
 		if err != nil {
 			return err
+		}
+		if p.Content != nil {
+			var old []topicItemRow
+			if err := tx.Where("topic_id = ?", id).Find(&old).Error; err != nil {
+				return err
+			}
+			parts, err := parseTopicParts(tx, id, cleaned, nil, old, func(kind string, _ int) string { return newTopicItemID(kind) })
+			if err != nil {
+				return err
+			}
+			if err := writeTopicParts(tx, user, id, parts); err != nil {
+				return err
+			}
 		}
 		if t.Path == "" {
 			var n int64
@@ -293,8 +317,8 @@ func (s *Store) UpdateTopic(ctx context.Context, user, id string, p TopicPatch) 
 			}
 		}
 		if err := tx.Model(&topicRow{}).Where("id = ?", id).
-			Select("name", "slogan", "path", "seo_title", "description", "content", "updated_at").
-			Updates(&topicRow{Name: t.Name, Slogan: t.Slogan, Path: t.Path, SEOTitle: t.SEOTitle, Description: t.Description, Content: t.Content, UpdatedAt: now()}).Error; err != nil {
+			Select("name", "slogan", "path", "seo_title", "description", "updated_at").
+			Updates(&topicRow{Name: t.Name, Slogan: t.Slogan, Path: t.Path, SEOTitle: t.SEOTitle, Description: t.Description, UpdatedAt: now()}).Error; err != nil {
 			return err
 		}
 		if err := syncI18nSources(tx); err != nil {

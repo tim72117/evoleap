@@ -286,7 +286,7 @@ func (s *Store) CourseMapOf(ctx context.Context, id string, drafts bool) (Course
 // HasDrafts 回報這門課有沒有草稿的課,不論看的人能不能看到(有的話,回應會依看的人不同,不能共用快取)。
 func (m CourseMap) HasDrafts() bool { return m.hasDrafts }
 
-// ReplaceUnitsJSON 把一門課的單元與課換成給定的 JSON(格式同固定測試資料 fixture/courses.json 的 units);給測試準備資料用,測試不該依賴種子目前的內容。
+// ReplaceUnitsJSON 把一門課的單元與課換成給定的 JSON(格式同固定測試資料 fixture.Courses 的 units);給測試準備資料用,測試不該依賴種子目前的內容。
 func (s *Store) ReplaceUnitsJSON(courseID, units string) error {
 	var us []unitSeed
 	if err := json.Unmarshal([]byte(units), &us); err != nil {

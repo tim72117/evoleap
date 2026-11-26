@@ -4,6 +4,26 @@
 
 ## [Unreleased]
 
+## [0.55.0] - 2026-11-27
+
+主題內容從整包 JSON 改成結構化儲存。部署時自動轉換,不用手動改資料;`GET /api/topics` 格式不變。部署期間(同步工作跑完到新版上線)不要改主題。
+
+### 不相容變更
+
+- 資料庫:主題內容改存 `topics` 的新欄位、`topic_items`、`topic_preview_sections`。舊的 `topics.content` 保留供退版(轉換後的修改舊版看不到),下一版移除。
+- 主題翻譯改成逐欄、逐項:`i18n` 的 `topic` 種類不再有 `content` 欄位,改翻 `lede`、`tag`、`intro` 等欄位,以及新種類 `topic_item`、`topic_section`。
+- `topic set -content-file` 拒絕不認得的鍵、超長的值,以及指向不存在課的 `start.path`。
+- 當主題「開始第一課」的課不能直接刪。
+
+### 新增
+
+- `evoleap topic create|delete|order|item-add|item-set|item-delete|item-order` 與對應的管理 API。
+- 課程資訊匯出(GCS 備份)帶清單項目 id,復原後譯文仍對得上。
+
+### 內部
+
+- 測試假資料從三個 JSON 檔改寫在 `server/internal/store/fixture/fixture.go`,內容換成假字。
+
 ## [0.54.1] - 2026-11-26
 
 沒有不相容變更。0.54.0 沒有部署成功,這版連同 0.54.0 的內容一起發布。

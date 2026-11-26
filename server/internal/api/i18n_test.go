@@ -36,7 +36,7 @@ func TestAdminI18nAPI(t *testing.T) {
 		}
 		return m.Title
 	}
-	if got := titleOf(); got != "Build Your Own Software" {
+	if got := titleOf(); got != "Test Course One" {
 		t.Fatalf("title = %q", got)
 	}
 	if rec := call(env.h, http.MethodPut, "/api/admin/i18n", strings.Replace(set, `"published"`, `"draft"`, 1), boss); rec.Code != http.StatusOK {

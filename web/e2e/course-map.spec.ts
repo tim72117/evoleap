@@ -1,4 +1,4 @@
-// 主題頁的課程地圖從資料庫讀(GET /api/courses/{id}/map;資料在資料庫,測試用的資料庫由 server/internal/store/fixture/courses.json 建立):
+// 主題頁的課程地圖從資料庫讀(GET /api/courses/{id}/map;資料在資料庫,測試用的資料庫由 server/internal/store/fixture 的假資料建立):
 // 未登入時每門課的前五課免費預覽、其他開放的課登入後學習、還沒開放的規劃中;開放的課連到課程頁。
 import { expect, test } from '@playwright/test'
 import { GATED, collectErrors, desktopOnly, expectLabel, loginAsNewStudent, mapLessons } from './support'
@@ -11,7 +11,7 @@ test('兒童課程地圖由資料庫讀取', async ({ page }) => {
   expect((await res).status()).toBe(200)
   const map = page.locator('#map')
   const row = (id: string) => map.locator('li').filter({ hasText: new RegExp(`^${id.replace('.', '\\.')}(?![\\d.])`) })
-  await expect(row('0.1').getByRole('link', { name: '翻到網頁的背面' })).toHaveAttribute('href', '/courses/kids/0-1')
+  await expect(row('0.1').getByRole('link', { name: '測試單課 kids/0.1' })).toHaveAttribute('href', '/courses/kids/0-1')
   // 每一課的標示(免費預覽、登入後學習、規劃中)依資料庫的課程地圖
   for (const l of await mapLessons(page.request, 'kids', gated)) await expectLabel(row(l.id), l)
   // 沒寫 access 的開放課(照課程的登入後免費)訪客一樣看到可以點的課
@@ -37,8 +37,8 @@ test('網頁怎麼運作的課程地圖由資料庫讀取', async ({ page }) => 
   expect((await res).status()).toBe(200)
   const map = page.locator('#map')
   const row = (id: string) => map.locator('li').filter({ hasText: new RegExp(`^${id.replace('.', '\\.')}(?![\\d.])`) })
-  await expect(map.getByRole('heading', { name: /序章：網頁從哪裡來/ })).toContainText('在網址列按下 Enter 之後')
-  await expect(row('0.1').getByRole('link', { name: '輸入網址之後發生的事' })).toHaveAttribute('href', '/courses/web/0-1')
+  await expect(map.getByRole('heading', { name: /測試單元零/ })).toContainText('測試單元零的副標')
+  await expect(row('0.1').getByRole('link', { name: '測試單課 web/0.1' })).toHaveAttribute('href', '/courses/web/0-1')
   // 每一課的標示依資料庫的課程地圖
   for (const l of await mapLessons(page.request, 'web')) await expectLabel(row(l.id), l)
 })

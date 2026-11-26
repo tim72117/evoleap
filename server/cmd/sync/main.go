@@ -1,5 +1,5 @@
 // sync 是部署時的同步工作:建表,重算翻譯登記表。
-// 不寫主題、課程、單元、課與腳本(以資料庫為準);新站只用備份復原:空資料庫手動初始化(node server/backup/gcs.mjs init)。
+// 不寫新的主題、課程、單元、課與腳本(以資料庫為準;連線時只把舊格式的主題內容拆進新欄位);新站只用備份復原:空資料庫手動初始化(node server/backup/gcs.mjs init)。
 //
 // 正式環境:每次部署(deploy-cloudrun.yml)與從 dev 分支手動同步(sync-courses.yml)時,
 // 以 Cloud Run Job(shuttle-course-sync)執行一次;映像是 Dockerfile 的 course-sync 目標,只有這支程式。

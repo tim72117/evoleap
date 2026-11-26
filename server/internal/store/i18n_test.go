@@ -22,7 +22,7 @@ func TestLocalizeFallsBackToOriginal(t *testing.T) {
 		t.Fatal("沒有語言包不該改內容")
 	}
 	m.Localize(testPack(t))
-	if m.Title != "Build Your Own Software" || m.Units[0].Title != "單元" {
+	if m.Title != "Test Course One" || m.Units[0].Title != "單元" {
 		t.Fatalf("got %q / %q", m.Title, m.Units[0].Title)
 	}
 }

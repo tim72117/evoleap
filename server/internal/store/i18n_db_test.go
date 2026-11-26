@@ -191,7 +191,7 @@ func TestI18nStaleDetectionAndDraftNotShown(t *testing.T) {
 	}
 	m := CourseMap{ID: "software", Title: title}
 	m.Localize(pack)
-	if m.Title != "Build Your Own Software" {
+	if m.Title != "Test Course One" {
 		t.Errorf("過時的譯文仍要顯示舊的: %q", m.Title)
 	}
 	// 重新翻譯(草稿)後不再過時,但草稿不顯示,所以回到…舊的已發布譯文被草稿取代,公開頁沒有譯文就是原文
@@ -366,7 +366,7 @@ func TestI18nOnlyFromDatabase(t *testing.T) {
 		if err != nil || ids["web"] != want {
 			t.Fatalf("ids = %v, %v", ids, err)
 		}
-		if en != nil && (en.Title != "How the Web Works" || en.Units[0].Lessons[0].Title != "Test web lesson" || zh.Units[0].Lessons[0].Title == en.Units[0].Lessons[0].Title || en.Units[0].Lessons[1].Title != zh.Units[0].Lessons[1].Title) {
+		if en != nil && (en.Title != "Test Course Four" || en.Units[0].Lessons[0].Title != "Test web lesson" || zh.Units[0].Lessons[0].Title == en.Units[0].Lessons[0].Title || en.Units[0].Lessons[1].Title != zh.Units[0].Lessons[1].Title) {
 			t.Errorf("英文版要套譯文、沒翻的保留中文,中文版不受影響: %+v / %+v", en.Units[0], zh.Units[0])
 		}
 	}
@@ -430,7 +430,7 @@ func TestI18nImportStaleWhenDatabaseSourceDiffersFromSeed(t *testing.T) {
 	pack, _ := st.LangPack(ctx, LangEN)
 	m := CourseMap{ID: "software", Title: title}
 	m.Localize(pack)
-	if m.Title != "Build Your Own Software" {
+	if m.Title != "Test Course One" {
 		t.Errorf("過時仍要顯示: %q", m.Title)
 	}
 }

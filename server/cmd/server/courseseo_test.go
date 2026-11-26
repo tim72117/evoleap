@@ -88,7 +88,7 @@ func TestCoursePagesFromDatabase(t *testing.T) {
 		t.Errorf("分階段的總覽頁收錄、不列課: %s", overview)
 	}
 	// 序章:標題是「課名｜課程名稱」,太短的一句話接上課程名稱與課名
-	has(body("/courses/software/intro"), "｜做出自己的軟體 · evoleap</title>", "做出自己的軟體：", `href="https://evoleap.io/c/intro"`)
+	has(body("/courses/software/intro"), "｜測試課一 · evoleap</title>", "測試課一：", `href="https://evoleap.io/c/intro"`)
 	// 先不公開的單元:noindex(標頭也要)、沒有 hreflang
 	rec := get(h, http.MethodGet, "/courses/software/1-0", nil)
 	if rec.Code != 200 || rec.Header().Get("X-Robots-Tag") != "noindex, nofollow" || !strings.Contains(rec.Body.String(), noindexMarker) || strings.Contains(rec.Body.String(), `rel="alternate"`) {
@@ -100,7 +100,7 @@ func TestCoursePagesFromDatabase(t *testing.T) {
 	if strings.Contains(list, `"url":"https://evoleap.io/courses/web/1-3"`) || strings.Contains(list, ".json") {
 		t.Errorf("草稿的課不附網址,也不露出腳本: %s", list)
 	}
-	has(body("/courses/web/1-3"), "｜網頁怎麼運作 · evoleap</title>", `"name":"全部課程"`)
+	has(body("/courses/web/1-3"), "｜測試課四 · evoleap</title>", `"name":"全部課程"`)
 	// 沒有英文版的 /en/...:中文頁的資料,標頭 noindex
 	if rec := get(h, http.MethodGet, "/en/courses/web/1-3", nil); rec.Code != 200 || rec.Header().Get("X-Robots-Tag") == "" || strings.Contains(rec.Body.String(), "%SEO_") {
 		t.Errorf("/en 的單課頁: %d %v", rec.Code, rec.Header())
@@ -255,7 +255,7 @@ func TestEnglishCoursePages(t *testing.T) {
 
 	rec := get(h, http.MethodGet, "/en/courses/web", nil)
 	body := rec.Body.String()
-	for _, w := range []string{"<title>How the Web Works: test search title · evoleap</title>", "Test description: web.", `"inLanguage":"en"`, `"All Courses"`, "Test web lesson", `rel="alternate"`} {
+	for _, w := range []string{"<title>Test Course Four: test search title · evoleap</title>", "Test description: web.", `"inLanguage":"en"`, `"All Courses"`, "Test web lesson", `rel="alternate"`} {
 		if !strings.Contains(body, w) {
 			t.Errorf("缺少 %q: %s", w, body)
 		}
@@ -263,7 +263,7 @@ func TestEnglishCoursePages(t *testing.T) {
 	if rec.Code != 200 || rec.Header().Get("X-Robots-Tag") != "" {
 		t.Errorf("%d %v", rec.Code, rec.Header())
 	}
-	if m := meta("/en/courses/web"); m.Lang != "en" || m.Noindex || m.NoEnglish || m.Title != "How the Web Works: test search title · evoleap" {
+	if m := meta("/en/courses/web"); m.Lang != "en" || m.Noindex || m.NoEnglish || m.Title != "Test Course Four: test search title · evoleap" {
 		t.Errorf("%+v", m)
 	}
 	if rec := get(h, http.MethodGet, "/en/courses/gone", nil); rec.Code != 404 {
@@ -277,7 +277,7 @@ func TestEnglishCoursePages(t *testing.T) {
 	now = now.Add(courseSEOTTL)
 	rec = get(h, http.MethodGet, "/en/courses/web", nil)
 	body = rec.Body.String()
-	if rec.Code != 200 || rec.Header().Get("X-Robots-Tag") != "noindex, nofollow" || strings.Contains(body, `rel="alternate"`) || strings.Contains(body, "How the Web Works") {
+	if rec.Code != 200 || rec.Header().Get("X-Robots-Tag") != "noindex, nofollow" || strings.Contains(body, `rel="alternate"`) || strings.Contains(body, "Test Course Four") {
 		t.Errorf("沒有英文版: %d %v %s", rec.Code, rec.Header(), body)
 	}
 	if zh := get(h, http.MethodGet, "/courses/web", nil); zh.Code != 200 || zh.Header().Get("X-Robots-Tag") != "" || strings.Contains(zh.Body.String(), `rel="alternate"`) {
@@ -334,8 +334,8 @@ func TestTopicAndChapterPages(t *testing.T) {
 		t.Fatal(err)
 	}
 	// 資料庫沒有的課(gone)不列
-	has("/topics/ai-apps", "<title>"+topic.SEOTitle+" · evoleap</title>", `"@type":"ItemList"`, `"name":"打造你的第一個 AI Agent 整合應用"`, `"url":"https://evoleap.io/courses/advanced"`, `"@type":"Course"`, `"description":"介紹"`)
-	has("/courses", "<title>清單標題 · evoleap</title>", `content="清單描述"`, `"name":"做出自己的軟體"`)
+	has("/topics/ai-apps", "<title>"+topic.SEOTitle+" · evoleap</title>", `"@type":"ItemList"`, `"name":"測試課二"`, `"url":"https://evoleap.io/courses/advanced"`, `"@type":"Course"`, `"description":"介紹"`)
+	has("/courses", "<title>清單標題 · evoleap</title>", `content="清單描述"`, `"name":"測試課一"`)
 	advanced, _, err := st.CourseMapWithEnglish(context.Background(), "advanced")
 	if err != nil {
 		t.Fatal(err)

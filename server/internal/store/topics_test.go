@@ -45,7 +45,7 @@ func TestTopicsSeededAndListed(t *testing.T) {
 		Lede  string
 		Learn []struct{ Level, Text string }
 	}
-	if err := json.Unmarshal(by["software"].Content, &sw); err != nil || len(sw.Learn) != 2 || sw.Learn[0].Level != "起步" || !strings.HasPrefix(sw.Lede, "線上互動課程") {
+	if err := json.Unmarshal(by["software"].Content, &sw); err != nil || len(sw.Learn) != 2 || sw.Learn[0].Level != "起步" || !strings.HasPrefix(sw.Lede, "測試主題甲") {
 		t.Errorf("software content: %v %s", err, by["software"].Content)
 	}
 	if by["monetize"].Path != "" || by["claude-code"].Path != "/courses/claude-code" {

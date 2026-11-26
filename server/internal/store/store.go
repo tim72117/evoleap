@@ -32,7 +32,7 @@ type Store struct {
 	i18n i18nCache
 }
 
-// Connect 開啟資料庫並同步 schema,不寫課程資料。Cloud Run 上的網站伺服器用:課程資料由部署時的同步工作
+// Connect 開啟資料庫並同步 schema,不寫新的課程資料(只把舊格式的主題內容一次性拆進新欄位,見 structureTopics)。Cloud Run 上的網站伺服器用:課程資料由部署時的同步工作
 // (Cloud Run Job 執行 cmd/sync,見 SyncCourses)寫入一次,免得每台伺服器啟動都重寫、多台同時啟動互相衝突。
 func Connect(dsn string) (*Store, error) {
 	db, err := gorm.Open(dialector(dsn), &gorm.Config{
@@ -58,6 +58,17 @@ func Connect(dsn string) (*Store, error) {
 	// 預設語言(zh-TW、en)只補缺,幾列而已,所以網站伺服器連線時也補,不用等同步工作
 	if err := ensureI18nLanguages(db); err != nil {
 		return nil, fmt.Errorf("seed i18n languages: %w", err)
+	}
+	// 主題內容的一次性轉換(可重複執行);放在連線時,新版伺服器上線就讀得到,不用等同步工作
+	err = db.Transaction(func(tx *gorm.DB) error {
+		n, err := structureTopics(tx, nil)
+		if err != nil || n == 0 {
+			return err
+		}
+		return syncI18n(tx)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("structure topics: %w", err)
 	}
 	return &Store{db: db}, nil
 }
@@ -109,6 +120,9 @@ func (s *Store) syncSeeds(ctx context.Context, topicSeedJSON, seed, i18nEN []byt
 			if err := syncLessonFiles(tx, seeds, files); err != nil {
 				return err
 			}
+		}
+		if _, err := structureTopics(tx, nil); err != nil {
+			return err
 		}
 		w, err := pruneTopics(tx, topics)
 		if err != nil {

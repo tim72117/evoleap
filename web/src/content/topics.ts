@@ -25,7 +25,7 @@ export const HOME_INTRO = {
   description: '善用 AI，把時間用在真正想做的事：選一個主題，跟著實際操作，從免費的入門課開始，做出看得見的成果。',
 }
 
-/** 主題的卡片與主題頁內容(資料庫 topics.content) */
+/** 主題的卡片與主題頁內容(GET /api/topics 的 content;資料庫拆成欄位與 topic_items 存) */
 export type TopicContent = {
   /** 主題名稱旁的圖示(HomePage 的 TOPIC_ICONS) */
   icon?: 'terminal'

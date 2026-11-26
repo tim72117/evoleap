@@ -66,8 +66,8 @@ describe('overviewGroups', () => {
 
   it('種子:software 只列起步、基礎(零基礎不公開),錨點是階段 id;advanced 是規劃中的項目', () => {
     expect(overviewGroups(seedMap('software')).map((g) => [g.anchor, g.title])).toEqual([
-      ['stage-tools', '起步・AI 工具介紹'],
-      ['stage-vibe-coding-basics', '基礎・Vibe Coding 入門'],
+      ['stage-tools', '起步・測試單元甲'],
+      ['stage-vibe-coding-basics', '基礎・測試單元丙'],
     ])
     const g = overviewGroups(seedMap('advanced'))
     expect(g.map((x) => x.plannedUnits)).toEqual([true])

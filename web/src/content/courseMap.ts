@@ -1,5 +1,5 @@
 // 課程地圖(一門課 → 單元 → 一堂一堂的課):從資料庫讀(GET /api/courses/{id}/map,伺服器的 courses、course_units、lessons 表)。
-// 課程資料以資料庫為準;測試用手寫的小型資料(server/internal/store/fixture),不比對正式站的課程內容。
+// 課程資料以資料庫為準;測試用寫在程式裡的假資料(server/internal/store/fixture、src/test/courseFixture.ts),不比對正式站的課程內容。
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { langQuery } from '../i18n/current'

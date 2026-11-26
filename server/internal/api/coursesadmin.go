@@ -78,7 +78,7 @@ func (s *Server) handleAdminCourseUpdate(w http.ResponseWriter, r *http.Request,
 }
 
 func (s *Server) handleAdminTopics(w http.ResponseWriter, r *http.Request, _ store.User) {
-	topics, err := s.cfg.Store.ListTopics(r.Context())
+	topics, err := s.cfg.Store.AdminTopics(r.Context())
 	if err != nil {
 		internalError(w, err)
 		return
@@ -98,16 +98,7 @@ func (s *Server) handleAdminTopicUpdate(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	id := r.PathValue("id")
-	if err := s.cfg.Store.UpdateTopic(r.Context(), user.Email, id, p); err != nil {
-		writeCourseDataError(w, err)
-		return
-	}
-	t, err := s.cfg.Store.TopicOf(r.Context(), id)
-	if err != nil {
-		writeCourseDataError(w, err)
-		return
-	}
-	writeJSON(w, http.StatusOK, t)
+	s.writeTopicResult(w, r, id, s.cfg.Store.UpdateTopic(r.Context(), user.Email, id, p))
 }
 
 func (s *Server) handleAdminLessonUpdate(w http.ResponseWriter, r *http.Request, user store.User) {

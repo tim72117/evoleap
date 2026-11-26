@@ -3,7 +3,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"log"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	"github.com/tim72117/evoleap/internal/api"
 	"github.com/tim72117/evoleap/internal/auth"
 	"github.com/tim72117/evoleap/internal/store"
+	"github.com/tim72117/evoleap/internal/store/fixture"
 )
 
 // authRateLimitPerIP 是正式環境每個來源 IP 每分鐘可嘗試登入、註冊的次數。
@@ -26,7 +26,7 @@ func main() {
 	dbPath := flag.String("db", "shuttle.db", "DATABASE_URL 未設定時使用的本機 SQLite 檔案")
 	distDir := flag.String("dist", "", "從磁碟目錄提供前端 build(例如 ../web/dist);留空使用內嵌的 build")
 	openStudio := flag.Bool("open-studio", false, "不檢查內部頁(研發基地)與管理後台的權限,只給本機與 E2E 測試用;Cloud Run 上會拒絕啟動")
-	seed := flag.String("seed", "", "只給測試:含 topics.json、courses.json、範例腳本 live/ 的目錄,啟動時初始化資料庫(正式與本機開發用 gcs.mjs init)")
+	seed := flag.String("seed", "", "只給測試:含範例腳本 live/ 的目錄,啟動時用內建的測試假資料初始化資料庫(正式與本機開發用 gcs.mjs init)")
 	envFile := flag.String("env", ".env", "本機開發時從這個檔案補上還沒設定的環境變數(Google 登入、管理員等);空字串不讀。Cloud Run 上不讀")
 	flag.Parse()
 
@@ -137,20 +137,7 @@ func main() {
 	}
 }
 
-// initFromDir 用 dir 的 topics.json、courses.json、i18n_en.json、live/(範例腳本)初始化資料庫(-seed,測試用)。
+// initFromDir 用內建的測試假資料(internal/store/fixture)與 dir 的 live/(範例腳本)初始化資料庫(-seed,測試用)。
 func initFromDir(st *store.Store, dir string) ([]string, error) {
-	topics, err := os.ReadFile(filepath.Join(dir, "topics.json"))
-	if err != nil {
-		return nil, err
-	}
-	courses, err := os.ReadFile(filepath.Join(dir, "courses.json"))
-	if err != nil {
-		return nil, err
-	}
-	// 英文譯文可有可無(沒有就沒有英文版)
-	en, err := os.ReadFile(filepath.Join(dir, "i18n_en.json"))
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return nil, err
-	}
-	return st.InitFromSeed(context.Background(), topics, courses, en, filepath.Join(dir, "live"))
+	return st.InitFromSeed(context.Background(), fixture.Topics, fixture.Courses, fixture.I18nEN, filepath.Join(dir, "live"))
 }

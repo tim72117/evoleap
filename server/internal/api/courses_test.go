@@ -115,11 +115,11 @@ func TestCourseListAPI(t *testing.T) {
 		t.Fatalf("順序: %s,要 %s", got, want)
 	}
 	sw := byID["software"]
-	if sw["topicId"] != "software" || sw["topic"] != "做出自己的軟體" || sw["topicPath"] != "/topics/software" || sw["topicSlogan"] == "" || sw["title"] == "" || sw["access"] == "" {
+	if sw["topicId"] != "software" || sw["topic"] != "測試主題甲" || sw["topicPath"] != "/topics/software" || sw["topicSlogan"] == "" || sw["title"] == "" || sw["access"] == "" {
 		t.Errorf("software: %v", sw)
 	}
 	for _, id := range []string{"ai-agent", "advanced"} {
-		if byID[id]["topicId"] != "ai-apps" || byID[id]["topic"] != "打造 AI 互動軟體" || byID[id]["topicPath"] != "/topics/ai-apps" {
+		if byID[id]["topicId"] != "ai-apps" || byID[id]["topic"] != "測試主題戊" || byID[id]["topicPath"] != "/topics/ai-apps" {
 			t.Errorf("%s 要在 ai-apps 主題: %v", id, byID[id])
 		}
 	}
@@ -179,7 +179,7 @@ func TestTopicListAPI(t *testing.T) {
 	}
 	kids := out.Topics[by["kids"]]
 	preview, _ := kids.Content["preview"].(map[string]any)
-	if kids.Name != "給孩子的網頁程式" || kids.Path != "/courses/kids" || kids.SEOTitle == "" || preview["script"] != "kids/0.1.json" {
+	if kids.Name != "測試主題丙" || kids.Path != "/courses/kids" || kids.SEOTitle == "" || preview["script"] != "kids/0.1.json" {
 		t.Errorf("kids: %+v", kids)
 	}
 	if start, _ := kids.Content["start"].(map[string]any); start["path"] != "/courses/kids/0-1" || start["label"] != "開始第一課" {
@@ -189,7 +189,7 @@ func TestTopicListAPI(t *testing.T) {
 		t.Errorf("software learn: %v", out.Topics[by["software"]].Content["learn"])
 	}
 	// 規劃中的主題沒有 path;沒有的欄位省略
-	if m := out.Topics[by["monetize"]]; m.Path != "" || m.SEOTitle != "" || m.Name != "AI 變現術" {
+	if m := out.Topics[by["monetize"]]; m.Path != "" || m.SEOTitle != "" || m.Name != "測試主題己" {
 		t.Errorf("monetize: %+v", m)
 	}
 	if strings.Contains(rec.Body.String(), `"path":""`) {

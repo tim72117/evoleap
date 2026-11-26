@@ -90,7 +90,7 @@ type courseSeedRow struct {
 	Units []unitSeed `json:"units,omitempty"`
 }
 
-// Seed 寫入給定的主題(格式同固定測試資料 fixture/topics.json)與英文譯文(格式同 fixture/i18n_en.json,nil 表示沒有);課程、單元與課只在資料庫沒有任何課程時寫入。只給測試用(storetest、固定資料)。
+// Seed 寫入給定的主題(格式同固定測試資料 fixture.Topics)與英文譯文(格式同 fixture.I18nEN,nil 表示沒有);課程、單元與課只在資料庫沒有任何課程時寫入。只給測試用(storetest、固定資料)。
 // 課程結構以資料庫為準:之後用 evoleap CLI 新增、修改、刪除、排序(見 coursesadmin.go、structure.go),同步不會蓋掉。
 func (s *Store) Seed(ctx context.Context, topicsJSON, coursesJSON, i18nEN []byte) error {
 	seeds, err := parseCourseSeed(coursesJSON)
@@ -129,6 +129,9 @@ func seedTopicsAndCourses(tx *gorm.DB, topics []topicSeedRow, seeds []courseSeed
 		if err := seedCourses(tx, seeds); err != nil {
 			return nil, fmt.Errorf("seed courses: %w", err)
 		}
+	}
+	if _, err := structureTopics(tx, nil); err != nil {
+		return nil, err
 	}
 	return pruneTopics(tx, topics)
 }

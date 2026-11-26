@@ -3,6 +3,7 @@ package store
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -41,11 +42,17 @@ type i18nLesson struct {
 }
 
 type i18nTopic struct {
-	Name        string                     `json:"name"`
-	Slogan      string                     `json:"slogan"`
-	SEOTitle    string                     `json:"seoTitle"`
-	Description string                     `json:"description"`
-	Content     map[string]json.RawMessage `json:"content"`
+	Name        string `json:"name"`
+	Slogan      string `json:"slogan"`
+	SEOTitle    string `json:"seoTitle"`
+	Description string `json:"description"`
+	// Fields 是內容的單一值欄位:lede、tag、intro、learnTitle、startLabel、previewIntro、sampleCaption
+	Fields map[string]string `json:"fields,omitempty"`
+}
+
+type i18nTopicItem struct {
+	Text  string `json:"text"`
+	Level string `json:"level,omitempty"`
 }
 
 // LangPack 是一種語言的翻譯(由資料庫已發布的譯文組成,見 Store.LangPack)。units、lessons 的鍵是「課程id/單元id」「課程id/課id」。
@@ -55,9 +62,12 @@ type LangPack struct {
 	Units   map[string]i18nUnit   `json:"units"`
 	Lessons map[string]i18nLesson `json:"lessons"`
 	Topics  map[string]i18nTopic  `json:"topics"`
+	// TopicItems、TopicSections 的鍵是「主題id/項目id」「主題id/段落名稱」
+	TopicItems    map[string]i18nTopicItem `json:"topicItems,omitempty"`
+	TopicSections map[string]string        `json:"topicSections,omitempty"`
 }
 
-// parseI18n 解析測試用的譯文資料(格式是 LangPack 的 JSON,見 fixture/i18n_en.json)。
+// parseI18n 解析測試用的譯文資料(格式是 LangPack 的 JSON,見 fixture.I18nEN)。
 func parseI18n(seed []byte) (*LangPack, error) {
 	var b LangPack
 	if err := json.Unmarshal(seed, &b); err != nil {
@@ -143,31 +153,43 @@ func LocalizeCourses(cs []ListedCourse, b *LangPack) {
 	}
 }
 
-// LocalizeTopics 把主題清單換成指定語言;content 的頂層欄位逐一覆蓋(沒翻的保留原文)。
+// over 只覆蓋有原文的欄位:中文清掉後,留著的舊譯文不能再出現。
+func over(dst *string, v string) {
+	if *dst != "" {
+		pick(dst, v)
+	}
+}
+
+// LocalizeTopics 把主題清單換成指定語言,內容逐欄、逐項套用(沒翻的保留原文)。
 func LocalizeTopics(ts []Topic, b *LangPack) {
 	if b == nil {
 		return
 	}
 	for i := range ts {
 		t := &ts[i]
-		tt, ok := b.Topics[t.ID]
-		if !ok {
+		tt := b.Topics[t.ID]
+		over(&t.Name, tt.Name)
+		over(&t.Slogan, tt.Slogan)
+		over(&t.SEOTitle, tt.SEOTitle)
+		over(&t.Description, tt.Description)
+		if t.parts == nil {
 			continue
 		}
-		pick(&t.Name, tt.Name)
-		pick(&t.Slogan, tt.Slogan)
-		pick(&t.SEOTitle, tt.SEOTitle)
-		pick(&t.Description, tt.Description)
-		if len(tt.Content) > 0 && len(t.Content) > 0 {
-			var base map[string]json.RawMessage
-			if json.Unmarshal(t.Content, &base) == nil {
-				for k, v := range tt.Content {
-					base[k] = v
-				}
-				if raw, err := json.Marshal(base); err == nil {
-					t.Content = raw
-				}
-			}
+		p := topicParts{f: t.parts.f, items: slices.Clone(t.parts.items), sections: slices.Clone(t.parts.sections)}
+		for path, dst := range map[string]*string{
+			"lede": &p.f.Lede, "tag": &p.f.Tag, "intro": &p.f.Intro, "learnTitle": &p.f.LearnTitle,
+			"startLabel": &p.f.StartLabel, "previewIntro": &p.f.PreviewIntro, "sampleCaption": &p.f.SampleCaption,
+		} {
+			over(dst, tt.Fields[path])
 		}
+		for j := range p.items {
+			tr := b.TopicItems[t.ID+"/"+p.items[j].ID]
+			over(&p.items[j].Text, tr.Text)
+			over(&p.items[j].Level, tr.Level)
+		}
+		for j := range p.sections {
+			over(&p.sections[j].Note, b.TopicSections[t.ID+"/"+p.sections[j].Name])
+		}
+		t.Content = p.content()
 	}
 }

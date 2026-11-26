@@ -333,6 +333,11 @@ func (s *Store) DeleteLesson(ctx context.Context, user, courseID, lessonID strin
 		if l.Status == LessonOpen {
 			return invalid("%s 開放中,要先改成 draft 或 planned 才能刪", lessonID)
 		}
+		if topic, err := topicStartsAt(tx, courseID, lessonID); err != nil {
+			return err
+		} else if topic != "" {
+			return invalid("主題 %s 的「開始第一課」指向 %s,先用 topic set -content-file 改掉", topic, lessonID)
+		}
 		if err := moveFilesToStudio(tx, "course_id = ? AND lesson_id = ?", courseID, lessonID); err != nil {
 			return err
 		}

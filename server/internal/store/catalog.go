@@ -40,12 +40,21 @@ var ErrCoursesExist = errors.New("資料庫已經有課程,只有空資料庫能
 func (s *Store) ExportCatalog(ctx context.Context) (Catalog, error) {
 	var out Catalog
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var topics []topicRow
-		if err := tx.Order("position, id").Find(&topics).Error; err != nil {
+		topics, err := loadTopics(tx, "")
+		if err != nil {
 			return err
 		}
 		for _, t := range topics {
-			out.Topics = append(out.Topics, topicSeedRow{ID: t.ID, Name: t.Name, Slogan: t.Slogan, Path: t.Path, SEOTitle: t.SEOTitle, Description: t.Description, Content: []byte(t.Content)})
+			row := topicSeedRow{ID: t.ID, Name: t.Name, Slogan: t.Slogan, Path: t.Path, SEOTitle: t.SEOTitle, Description: t.Description, Content: t.Content}
+			if t.parts != nil {
+				for _, it := range t.parts.items {
+					if row.ItemIDs == nil {
+						row.ItemIDs = map[string][]string{}
+					}
+					row.ItemIDs[it.Kind] = append(row.ItemIDs[it.Kind], it.ID)
+				}
+			}
+			out.Topics = append(out.Topics, row)
 		}
 		var courses []courseRow
 		if err := tx.Order("position, id").Find(&courses).Error; err != nil {
@@ -133,6 +142,13 @@ func (s *Store) InitCatalog(ctx context.Context, cat Catalog, files []ScriptExpo
 		}
 		if err := seedCourses(tx, cat.Courses); err != nil {
 			return invalid("%s", err)
+		}
+		itemIDs := map[string]map[string][]string{}
+		for _, t := range cat.Topics {
+			itemIDs[t.ID] = t.ItemIDs
+		}
+		if _, err := structureTopics(tx, itemIDs); err != nil {
+			return err
 		}
 		// 初始化之前研發基地可能已經有腳本(例如管理員先上傳過):以備份為準蓋掉,
 		// 屬於某一課的路徑也從研發基地拿掉,一個檔只在一處

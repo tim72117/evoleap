@@ -1,7 +1,6 @@
 package store
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -27,7 +26,7 @@ import (
 //	i18n_languages            語言、回退語言、是否公開、是否啟用
 //
 // 鍵 (kind, ref, path):kind 是 course|unit|lesson|topic(之後會加腳本節點);ref 是 id,單元與課用「課程id/單元id」「課程id/課id」(和 LangPack 的鍵一致);
-// path 是欄位路徑:title、summary、about.0(說明的每一段一列)…;主題的 content 是任意 JSON,這一輪整塊用 path=content 一列存整份譯文 JSON。
+// path 是欄位路徑:title、summary、about.0(說明的每一段一列)…;主題的內容逐欄、逐項登記(見 topiccontent.go)。
 // 術語表(glossary)、語音(voice_clips)、i18n_dirty 之後再加,不影響這四張表。
 
 // 可翻譯欄位的種類
@@ -36,6 +35,9 @@ const (
 	I18nUnit   = "unit"
 	I18nLesson = "lesson"
 	I18nTopic  = "topic"
+	// 主題的清單項目(ref=主題id/項目id)與預覽段落說明(ref=主題id/段落名稱)
+	I18nTopicItem    = "topic_item"
+	I18nTopicSection = "topic_section"
 )
 
 // 譯文的狀態:draft 草稿、reviewed 已審、published 已發布(只有 published 會顯示在網站上)
@@ -173,10 +175,20 @@ func collectI18nSeedSources(topicsJSON, coursesJSON []byte) (map[string]string, 
 		add(I18nTopic, t.ID, "slogan", t.Slogan)
 		add(I18nTopic, t.ID, "seoTitle", t.SEOTitle)
 		add(I18nTopic, t.ID, "description", t.Description)
-		if len(bytes.TrimSpace(t.Content)) > 0 {
-			var buf bytes.Buffer
-			if json.Compact(&buf, t.Content) == nil && buf.String() != "{}" {
-				add(I18nTopic, t.ID, "content", buf.String())
+		var c topicContentJSON
+		if len(t.Content) > 0 && json.Unmarshal(t.Content, &c) == nil {
+			add(I18nTopic, t.ID, "lede", c.Lede)
+			for i, v := range c.Learn {
+				ref := t.ID + "/learn-" + strconv.Itoa(i+1)
+				switch x := v.(type) {
+				case string:
+					add(I18nTopicItem, ref, "text", x)
+				case map[string]any:
+					text, _ := x["text"].(string)
+					level, _ := x["level"].(string)
+					add(I18nTopicItem, ref, "text", text)
+					add(I18nTopicItem, ref, "level", level)
+				}
 			}
 		}
 	}
@@ -244,9 +256,30 @@ func collectI18nSources(tx *gorm.DB) ([]i18nField, error) {
 		add(I18nTopic, t.ID, "slogan", t.Slogan)
 		add(I18nTopic, t.ID, "seoTitle", t.SEOTitle)
 		add(I18nTopic, t.ID, "description", t.Description)
-		if t.Content != "" && t.Content != "{}" {
-			add(I18nTopic, t.ID, "content", t.Content)
+		if !t.Structured {
+			continue
 		}
+		for _, f := range []struct{ path, text string }{
+			{"lede", t.Lede}, {"tag", t.Tag}, {"intro", t.Intro}, {"learnTitle", t.LearnTitle},
+			{"startLabel", t.StartLabel}, {"previewIntro", t.PreviewIntro}, {"sampleCaption", t.SampleCaption},
+		} {
+			add(I18nTopic, t.ID, f.path, f.text)
+		}
+	}
+	var items []topicItemRow
+	if err := tx.Find(&items).Error; err != nil {
+		return nil, err
+	}
+	for _, it := range items {
+		add(I18nTopicItem, it.TopicID+"/"+it.ID, "text", it.Text)
+		add(I18nTopicItem, it.TopicID+"/"+it.ID, "level", it.Level)
+	}
+	var sections []topicSectionRow
+	if err := tx.Find(&sections).Error; err != nil {
+		return nil, err
+	}
+	for _, sec := range sections {
+		add(I18nTopicSection, sec.TopicID+"/"+sec.Name, "note", sec.Note)
 	}
 	return out, nil
 }
@@ -336,11 +369,16 @@ func flattenPack(p *LangPack) []i18nField {
 		add(I18nTopic, id, "slogan", t.Slogan)
 		add(I18nTopic, id, "seoTitle", t.SEOTitle)
 		add(I18nTopic, id, "description", t.Description)
-		if len(t.Content) > 0 {
-			if raw, err := json.Marshal(t.Content); err == nil {
-				add(I18nTopic, id, "content", string(raw))
-			}
+		for _, path := range sortedKeys(t.Fields) {
+			add(I18nTopic, id, path, t.Fields[path])
 		}
+	}
+	for _, ref := range sortedKeys(p.TopicItems) {
+		add(I18nTopicItem, ref, "text", p.TopicItems[ref].Text)
+		add(I18nTopicItem, ref, "level", p.TopicItems[ref].Level)
+	}
+	for _, ref := range sortedKeys(p.TopicSections) {
+		add(I18nTopicSection, ref, "note", p.TopicSections[ref])
 	}
 	return out
 }
@@ -598,7 +636,7 @@ func (s *Store) EnglishCourseIDs(ctx context.Context) (map[string]bool, error) {
 
 // packFromRows 把「一個欄位一列」的譯文組回語言包。
 func packFromRows(rows []i18nTranslationRow) *LangPack {
-	p := &LangPack{Courses: map[string]i18nCourse{}, Units: map[string]i18nUnit{}, Lessons: map[string]i18nLesson{}, Topics: map[string]i18nTopic{}}
+	p := &LangPack{Courses: map[string]i18nCourse{}, Units: map[string]i18nUnit{}, Lessons: map[string]i18nLesson{}, Topics: map[string]i18nTopic{}, TopicItems: map[string]i18nTopicItem{}, TopicSections: map[string]string{}}
 	about := map[string]map[int]string{}
 	for _, r := range rows {
 		v := r.Value
@@ -654,13 +692,26 @@ func packFromRows(rows []i18nTranslationRow) *LangPack {
 				t.SEOTitle = v
 			case "description":
 				t.Description = v
-			case "content":
-				var m map[string]json.RawMessage
-				if json.Unmarshal([]byte(v), &m) == nil {
-					t.Content = m
+			default:
+				if t.Fields == nil {
+					t.Fields = map[string]string{}
 				}
+				t.Fields[r.Path] = v
 			}
 			p.Topics[r.Ref] = t
+		case I18nTopicItem:
+			it := p.TopicItems[r.Ref]
+			switch r.Path {
+			case "text":
+				it.Text = v
+			case "level":
+				it.Level = v
+			}
+			p.TopicItems[r.Ref] = it
+		case I18nTopicSection:
+			if r.Path == "note" {
+				p.TopicSections[r.Ref] = v
+			}
 		}
 	}
 	for id, items := range about {
@@ -716,15 +767,22 @@ func mergePack(dst, src *LangPack) {
 		pick(&d.Slogan, s.Slogan)
 		pick(&d.SEOTitle, s.SEOTitle)
 		pick(&d.Description, s.Description)
-		if len(s.Content) > 0 {
-			if d.Content == nil {
-				d.Content = map[string]json.RawMessage{}
+		for k, v := range s.Fields {
+			if d.Fields == nil {
+				d.Fields = map[string]string{}
 			}
-			for k, v := range s.Content {
-				d.Content[k] = v
-			}
+			d.Fields[k] = v
 		}
 		dst.Topics[id] = d
+	}
+	for ref, s := range src.TopicItems {
+		d := dst.TopicItems[ref]
+		pick(&d.Text, s.Text)
+		pick(&d.Level, s.Level)
+		dst.TopicItems[ref] = d
+	}
+	for ref, s := range src.TopicSections {
+		dst.TopicSections[ref] = s
 	}
 }
 
@@ -773,7 +831,7 @@ func validI18nStatus(s string) bool {
 }
 
 func validI18nKind(k string) bool {
-	return k == I18nCourse || k == I18nUnit || k == I18nLesson || k == I18nTopic
+	return k == I18nCourse || k == I18nUnit || k == I18nLesson || k == I18nTopic || k == I18nTopicItem || k == I18nTopicSection
 }
 
 func (s *Store) sourceMap(db *gorm.DB) (map[string]i18nSourceRow, error) {
@@ -804,7 +862,7 @@ func (s *Store) ListI18n(ctx context.Context, f I18nFilter) ([]I18nItem, error) 
 		return nil, invalid("status 要是 draft、reviewed 或 published")
 	}
 	if f.Kind != "" && !validI18nKind(f.Kind) {
-		return nil, invalid("kind 要是 course、unit、lesson 或 topic")
+		return nil, invalid("kind 要是 course、unit、lesson、topic、topic_item 或 topic_section")
 	}
 	limit := f.Limit
 	if limit <= 0 {
@@ -885,7 +943,7 @@ const maxI18nValueBytes = 64 << 10
 
 // SetI18n 新增或取代一筆譯文,並記一筆異動紀錄(舊值、新值、舊新狀態、來源、誰、原因)。
 // 欄位要已經登記在 i18n_sources(而且原文沒被刪),語言要登記、啟用、不是原文語言;source_hash 記下寫入當下的原文雜湊。
-// 主題的 content 要是 JSON 物件。值、狀態、雜湊都沒變時不寫紀錄。
+// 值、狀態、雜湊都沒變時不寫紀錄。
 func (s *Store) SetI18n(ctx context.Context, user string, in I18nSet) (I18nItem, error) {
 	if in.Status == "" {
 		in.Status = I18nDraft
@@ -894,7 +952,7 @@ func (s *Store) SetI18n(ctx context.Context, user string, in I18nSet) (I18nItem,
 		in.Origin = I18nOriginHuman
 	}
 	if !validI18nKind(in.Kind) {
-		return I18nItem{}, invalid("kind 要是 course、unit、lesson 或 topic")
+		return I18nItem{}, invalid("kind 要是 course、unit、lesson、topic、topic_item 或 topic_section")
 	}
 	if !validI18nStatus(in.Status) {
 		return I18nItem{}, invalid("status 要是 draft、reviewed 或 published")
@@ -911,12 +969,6 @@ func (s *Store) SetI18n(ctx context.Context, user string, in I18nSet) (I18nItem,
 	}
 	if len([]rune(in.Reason)) > 500 || len([]rune(in.Model)) > 100 || len([]rune(in.PromptVersion)) > 50 {
 		return I18nItem{}, invalid("reason 最多 500 字、model 最多 100 字、promptVersion 最多 50 字")
-	}
-	if in.Kind == I18nTopic && in.Path == "content" {
-		var obj map[string]json.RawMessage
-		if json.Unmarshal([]byte(in.Value), &obj) != nil || obj == nil {
-			return I18nItem{}, invalid("主題 content 的譯文要是 JSON 物件({...})")
-		}
 	}
 	var out I18nItem
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -988,7 +1040,7 @@ type I18nMissing struct {
 // MissingI18n 列出登記表有(原文沒被刪)、這個語言還沒有譯文或譯文過時的欄位。kind 空的不篩。
 func (s *Store) MissingI18n(ctx context.Context, lang, kind string) ([]I18nMissing, error) {
 	if kind != "" && !validI18nKind(kind) {
-		return nil, invalid("kind 要是 course、unit、lesson 或 topic")
+		return nil, invalid("kind 要是 course、unit、lesson、topic、topic_item 或 topic_section")
 	}
 	db := s.db.WithContext(ctx)
 	var lg i18nLanguageRow

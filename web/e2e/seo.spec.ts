@@ -266,10 +266,10 @@ test('HEAD 請求:頁面 200、找不到 404,都沒有 body', async ({ request }
   expect(internal.headers()['x-robots-tag']).toBe('noindex, nofollow')
 })
 
-// 英文課程總覽:server 讀資料庫的譯文填 <head>(固定資料 fixture/i18n_en.json);瀏覽器執行後的標題與描述和 server 一致
+// 英文課程總覽:server 讀資料庫的譯文填 <head>(假資料 fixture.I18nEN);瀏覽器執行後的標題與描述和 server 一致
 test('/en/courses/web:head 來自資料庫的譯文,瀏覽器端一致', async ({ page, request }) => {
   const h = parseHead(await (await request.get('/en/courses/web')).text())
-  expect(h.titles).toEqual(['How the Web Works: test search title · evoleap'])
+  expect(h.titles).toEqual(['Test Course Four: test search title · evoleap'])
   expect(h.meta('description')).toEqual(['Test description: web.'])
   await page.goto('/en/courses/web')
   await page.waitForLoadState('networkidle')

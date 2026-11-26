@@ -64,7 +64,7 @@ func lessonFilePaths(dir string, l lessonSeed) []string {
 	return paths
 }
 
-// SyncLessonFilesJSON 依給定的課程資料(格式同固定測試資料 fixture/courses.json)把每一課的腳本檔從 dir 讀進 lesson_files,其餘的 .json 讀進 studio_files(測試用)。
+// SyncLessonFilesJSON 依給定的課程資料(格式同固定測試資料 fixture.Courses)把每一課的腳本檔從 dir 讀進 lesson_files,其餘的 .json 讀進 studio_files(測試用)。
 // 資料指定的檔,資料庫沒有就新增,已經有的只改掛到那一課、內容不動;不再指定的檔移到 studio_files。指定的檔不存在,或一個檔寫在兩課底下時回傳錯誤。
 func (s *Store) SyncLessonFilesJSON(ctx context.Context, seed []byte, dir string) error {
 	seeds, err := parseCourseSeed(seed)
