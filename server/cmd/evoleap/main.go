@@ -30,6 +30,7 @@
 //	                                寫入一筆譯文(預設 draft、human;只有 published 會顯示在網站上),每次寫入記一筆異動紀錄
 //	i18n missing [-lang en] [-kind K]
 //	                                列出登記表有、譯文沒有(missing)或過時(stale)的欄位
+//	script list [-owners]           所有腳本檔的路徑(只給管理員);-owners 附上來源(lesson|studio)、所屬課程與課
 //	script get -path 路徑 [-out 檔案]
 //	script push -file 檔案 [-path 路徑] [-course ID -lesson ID]
 //	backup export -out 目錄         唯讀匯出 lesson_files 與 studio_files 的內容到本機目錄(給 GCS 備份用,見 server/backup/README.md)
@@ -98,6 +99,7 @@ var resources = []resource{
 		{verb: "missing", usage: "evoleap i18n missing [-lang en] [-kind K]", run: cmdI18nMissing},
 	}},
 	{name: "script", commands: []command{
+		{verb: "list", usage: "evoleap script list [-owners]", run: cmdScriptList},
 		{verb: "get", usage: "evoleap script get -path 路徑 [-out 檔案]", run: cmdScriptGet},
 		{verb: "push", usage: "evoleap script push -file 檔案 [-path 路徑] [-course ID -lesson ID]", run: cmdScriptPush},
 	}},
@@ -275,7 +277,7 @@ func cmdCourseSet(c *client, args []string) {
 	seoTitle := fs.String("seo-title", "", "搜尋結果的標題(最多 200 字)")
 	description := fs.String("description", "", "搜尋結果的描述(最多 500 字)")
 	art := fs.String("art", "", "插圖樣式:tools、chat、build、agent、advanced,或空字串用預設")
-	introScript := fs.String("intro-script", "", "課程簡介影片的腳本路徑(live/ 底下,例如 guide/kids.json;檔案要先用 script push 傳上去);空字串拿掉")
+	introScript := fs.String("intro-script", "", "課程簡介影片的腳本路徑(例如 guide/kids.json;檔案要先用 script push 傳上去);空字串拿掉")
 	topicID := fs.String("topic-id", "", "課程所屬主題的 id(見 evoleap topic list,例如 software、kids);給空字串清掉(該課就不列在全部課程)")
 	overview := fs.Bool("overview", true, "這門課有沒有自己的課程總覽頁 /courses/<id>(-overview=false 代表沒有)")
 	set := parse(fs, args, "course")
@@ -384,7 +386,7 @@ func cmdLessonSet(c *client, args []string) {
 	minutes := fs.Int("minutes", 0, "預估學習時間(分鐘)")
 	title := fs.String("title", "", "課名")
 	summary := fs.String("summary", "", "課程地圖上的一句話")
-	script := fs.String("script", "", "課程頁要播的腳本(web/src/content/live/ 底下的路徑);給空字串拿掉")
+	script := fs.String("script", "", "課程頁要播的腳本路徑(例如 l0/0.0-tools.json);給空字串拿掉")
 	set := parse(fs, args, "course", "lesson")
 	patch := map[string]any{}
 	for name, v := range map[string]any{"status": *status, "minutes": *minutes, "title": *title, "summary": *summary, "script": *script} {
@@ -406,6 +408,32 @@ func cmdLessonSet(c *client, args []string) {
 	printJSON(out)
 }
 
+// cmdScriptList 列出腳本檔(本機工具 web/scripts/lib/liveScripts.mjs 也用它);-owners 讀完整匯出但只輸出歸屬,不輸出內容。
+func cmdScriptList(c *client, args []string) {
+	fs := flag.NewFlagSet("script list", flag.ExitOnError)
+	owners := fs.Bool("owners", false, "附上來源(lesson|studio)、所屬課程與課")
+	parse(fs, args)
+	if !*owners {
+		var out struct {
+			Paths []string `json:"paths"`
+		}
+		mustDo(c.do("GET", "/api/scripts", nil, &out))
+		printJSON(out)
+		return
+	}
+	type file struct {
+		Path     string `json:"path"`
+		Source   string `json:"source"`
+		CourseID string `json:"courseId"`
+		LessonID string `json:"lessonId"`
+	}
+	var out struct {
+		Files []file `json:"files"`
+	}
+	mustDo(c.do("GET", "/api/admin/script-export", nil, &out))
+	printJSON(out)
+}
+
 func cmdScriptGet(c *client, args []string) {
 	fs := flag.NewFlagSet("script get", flag.ExitOnError)
 	path := fs.String("path", "", "腳本路徑,例如 l0/0.0-tools.json")
@@ -424,7 +452,7 @@ func cmdScriptGet(c *client, args []string) {
 func cmdScriptPush(c *client, args []string) {
 	fs := flag.NewFlagSet("script push", flag.ExitOnError)
 	file := fs.String("file", "", "本機的腳本檔")
-	path := fs.String("path", "", "web/src/content/live/ 底下的路徑;檔案在那個目錄裡時可以省略")
+	path := fs.String("path", "", "腳本路徑,例如 l0/0.0-tools.json")
 	course := fs.String("course", "", "掛在哪門課底下(和 -lesson 一起給)")
 	lesson := fs.String("lesson", "", "掛在哪一課底下")
 	parse(fs, args, "file")
@@ -432,7 +460,7 @@ func cmdScriptPush(c *client, args []string) {
 		*path = livePath(*file)
 	}
 	if *path == "" {
-		fatal("檔案不在 web/src/content/live/ 底下,請用 -path 指定路徑")
+		fatal("請用 -path 指定腳本路徑,例如 l0/0.0-tools.json")
 	}
 	if (*course == "") != (*lesson == "") {
 		fatal("-course 和 -lesson 要一起給")

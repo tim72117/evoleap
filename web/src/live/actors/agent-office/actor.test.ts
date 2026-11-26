@@ -1,36 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import type { StageScript } from '../../types'
-import demo from '../../../content/live/lab/actors/agent-office.json'
 import actor, { dollyOf, questionOf, type OfficeState, type OfficeStep } from './actor'
 
 const STAGE = ['card', 'callout', 'show', 'hide', 'move', 'checkpoint', 'wait', 'parts']
 
 /** 照舞台載入的方式(stage.ts):從 init 開始,依序 apply 演員的每個動作;回傳最後的狀態 */
-function run(script: StageScript): OfficeState {
-  const id = Object.keys(script.cast).find((k) => script.cast[k].actor === 'agent-office')!
-  let st = actor.init!(script.cast[id].props ?? {})
-  script.steps.forEach((raw, i) => {
-    const s = raw as Record<string, unknown>
-    if (STAGE.some((k) => k in s)) return
-    const kinds = actor.kinds.filter((k) => k in s)
-    if (!kinds.length) return
-    try {
-      st = actor.apply!(st, kinds[0], s as OfficeStep)
-    } catch (e) {
-      throw new Error(`第 ${i + 1} 步 ${JSON.stringify(s).slice(0, 60)}:${e instanceof Error ? e.message : e}`)
-    }
-  })
-  return st
-}
 const steps = (st: OfficeState, list: OfficeStep[]): OfficeState =>
   list.reduce((s, x) => actor.apply!(s, actor.kinds.find((k) => k in x)!, x), st)
 
 describe('agent-office', () => {
-  it('示範腳本演得完,最後完成、權限是第二次問才允許', () => {
-    const st = run(demo as unknown as StageScript)
-    expect(st).toMatchObject({ built: true, checked: true, fixed: true, done: true })
-    expect(st.ask).toMatchObject({ status: 'allowed', n: 2 })
-  })
 
   it('動作名稱不跟舞台的動作撞名', () => {
     for (const k of actor.kinds) expect(STAGE).not.toContain(k)

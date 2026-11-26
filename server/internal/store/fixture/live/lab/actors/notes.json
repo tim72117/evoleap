@@ -1,0 +1,5 @@
+{"title": "notes", "cast": {"a": {"actor": "notes", "props": {"label": "今日訂單"}, "place": {"x": 120, "y": 60, "w": 1680, "h": 960}}}, "steps": [
+ {"jot": "第一張"},
+ {"jot": "第二張"},
+ {"lose": "第二張"}
+]}

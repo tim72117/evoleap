@@ -1,48 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import lesson from '../../../content/live/lab/web/5.1.json'
-import demo from '../../../content/live/lab/actors/devtools.json'
-import actor, { type DevtoolsState, type DevtoolsStep } from './actor'
-
-type Step = Record<string, unknown>
-type Script = { cast: Record<string, { actor: string; props?: object }>; steps: Step[] }
-
-const kindOf = (s: Step) => actor.kinds.find((k) => k in s)
-function run(st: DevtoolsState, steps: Step[]): DevtoolsState {
-  for (const s of steps) {
-    const kind = kindOf(s)
-    if (kind) st = actor.apply!(st, kind, s as DevtoolsStep)
-    else if ('hide' in s) st = { ...st, temp: {} }
-  }
-  return st
-}
-// 照順序推算一遍;互動點每個選項(和示範)都從當時的狀態各演一次,結果要和第一個選項一樣,後面的步驟才接得上
-function replay(script: Script): DevtoolsState {
-  const cast = Object.values(script.cast).find((c) => c.actor === 'devtools')!
-  let st = actor.init!(cast.props ?? {})
-  for (const s of script.steps) {
-    const options = s.options as { steps: Step[] }[] | undefined
-    if (options) {
-      const skip = (s.skip as { steps: Step[] } | undefined)?.steps ?? []
-      const results = [...options.map((o) => run(st, o.steps)), run(st, skip)]
-      for (const r of results) expect(r).toEqual(results[0])
-      st = results[0]
-      continue
-    }
-    st = run(st, [s])
-  }
-  return st
-}
-
-describe('devtools 的腳本', () => {
-  it('5.1 課的每一步(含每個選項)都推算得過去', () => {
-    const st = replay(lesson as Script)
-    expect(st.tab).toBe('network')
-    expect(st.request).toBe(0)
-  })
-  it('演員展示的腳本推算得過去', () => {
-    expect(() => replay(demo as Script)).not.toThrow()
-  })
-})
+import actor from './actor'
 
 describe('devtools 的操作', () => {
   const start = (props = {}) => actor.init!(props)

@@ -1,0 +1,4 @@
+{"title": "browser", "cast": {"a": {"actor": "browser", "props": {"site": "v1"}, "place": {"x": 120, "y": 60, "w": 1680, "h": 960}}}, "steps": [
+ {"scroll": "bottom"},
+ {"scroll": "top"}
+]}

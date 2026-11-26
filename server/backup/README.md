@@ -42,7 +42,7 @@ node server/backup/gcs.mjs init
 node server/backup/gcs.mjs restore
 ```
 
-照 `gcs-manifest.json` 的版本號下載、核對 sha256,寫到 `web/src/content/live/`(`--out` 可換目錄)。
+照 `gcs-manifest.json` 的版本號下載、核對 sha256,寫到 `web/recordings/live-restore/`(不進版控,`--out` 可換目錄)。線上資料庫是腳本的唯一來源;新站復原用上面的 `init`。
 本機已有且內容不同的檔不覆蓋(列出清單、結束碼 2),要覆蓋加 `--force`。同一路徑在 lesson 與 studio 各有一份時以 lesson 為準。
 
 ## 取回單檔
@@ -53,4 +53,4 @@ gcloud storage cp --project=shuttle-045094509 gs://evoleap-backup/scripts/lesson
 gcloud storage cp --project=shuttle-045094509 "gs://evoleap-backup/scripts/lesson/l0/0.0-tools.json#<generation>" ./
 ```
 
-還原回資料庫用 `evoleap script push`(不在這個流程內)。
+取回的檔要寫回既有站台時用 `evoleap script push -file … -path …`(不在這個流程內)。

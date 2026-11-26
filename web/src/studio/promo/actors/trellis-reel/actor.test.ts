@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import actor, { apply, frameLayers, frameSvg, SCENES, T, type ReelState } from './actor'
-import md from './assets/ATTRIBUTION.md?raw'
-import script from '../../../../content/live/promo/trellis-reel.json?raw'
 import raw from './assets/bust.vox128.b64?raw'
 import { CREDIT, GX, GY, GZ, LEVELS, N, SOURCE, VX, VY, VZ, BASE } from './bust'
 import { paintMesh, type MeshSpec } from './mist'
@@ -251,12 +249,6 @@ describe('3D 模型致謝(Poly Haven,CC0)', () => {
     expect(frameSvg({ scene: 'outro', prev: null }, 100000, 1000)).toContain(SOURCE)
     expect(frameSvg({ scene: 'flow', prev: null }, 100000, 1000)).toContain('輸入的一張圖')
   })
-  it('腳本與素材資料夾也有說明,沒有舊素材(騎士、Sketchfab、CC BY)殘留', () => {
-    for (const t of ['Marble Bust 01', 'Rico Cilliers', 'CC0', 'polyhaven.com/a/marble_bust_01']) expect(script).toContain(t)
-    for (const t of ['Marble Bust 01', 'Rico Cilliers', 'CC0', 'RoomEnvironment', '體素']) expect(md).toContain(t)
-    const all = [script, md, raw.slice(0, 10)].join('\n') + SCENES.map((s) => frameSvg({ scene: s, prev: null }, 100000, 1000)).join('') + [CREDIT, SOURCE].join('')
-    expect(all).not.toMatch(/騎士|Sketchfab|sketchfab|CC BY|Knight|knight|dark_igorek/)
-  })
   it('hook:GLB 卡下方有 PBR 四項中文標示(隨平滑著色依序淡入),沒有英文與細節', () => {
     const end = frameSvg({ scene: 'hook', prev: null }, T.hook, T.hook)
     for (const nm of FACTS.pbrZh) expect(end).toContain(nm)
@@ -269,11 +261,6 @@ describe('3D 模型致謝(Poly Haven,CC0)', () => {
     const f = frameSvg({ scene: 'follow', prev: null }, 3000, T.follow)
     for (const t of ['evoleap 粉絲團', '點左下角追蹤', '想知道更多 AI 新知？', 'aria-label="evoleap"']) expect(f).toContain(t)
     expect(f).not.toMatch(/NaN|undefined/)
-    expect(script).toContain('追蹤 evoleap 粉絲團，定期提供 AI 資訊。')
-  })
-  it('腳本順序:flow → voxel → cell → speed', () => {
-    const order = [...script.matchAll(/"scene": "(\w+)"/g)].map((m) => m[1])
-    expect(order).toEqual(['hook', 'repo', 'flow', 'voxel', 'cell', 'speed', 'limits', 'outro', 'follow'])
   })
 })
 

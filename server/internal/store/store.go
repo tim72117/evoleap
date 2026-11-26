@@ -62,16 +62,10 @@ func Connect(dsn string) (*Store, error) {
 	return &Store{db: db}, nil
 }
 
-// SyncCourses 是部署與本機啟動時的同步:不寫主題、課程、單元、課(空資料庫要手動初始化,見 InitCatalog),
-// 只把 dir(web/src/content/live)裡資料庫還沒有的腳本檔補進研發基地,並重算翻譯的登記表。
-func (s *Store) SyncCourses(ctx context.Context, dir string) error {
-	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := addMissingScripts(tx, dir); err != nil {
-			return err
-		}
-		return syncI18n(tx)
-	})
-	if err != nil {
+// SyncCourses 是部署與本機啟動時的同步(建表在 Connect):不寫主題、課程、單元、課與腳本,只重算翻譯的登記表。
+// 內容一律以資料庫為準;空資料庫手動初始化(node server/backup/gcs.mjs init,見 InitCatalog)。
+func (s *Store) SyncCourses(ctx context.Context) error {
+	if err := s.db.WithContext(ctx).Transaction(syncI18n); err != nil {
 		return err
 	}
 	s.i18n.clear()
@@ -79,12 +73,12 @@ func (s *Store) SyncCourses(ctx context.Context, dir string) error {
 }
 
 // InitFromSeed 用給定的主題、課程資料與 dir 的腳本檔初始化空資料庫,只給測試用(server -seed、e2e);正式的初始化見 InitCatalog。
-func (s *Store) InitFromSeed(ctx context.Context, topicsJSON, coursesJSON []byte, dir string) ([]string, error) {
-	return s.syncSeeds(ctx, topicsJSON, coursesJSON, dir)
+func (s *Store) InitFromSeed(ctx context.Context, topicsJSON, coursesJSON, i18nEN []byte, dir string) ([]string, error) {
+	return s.syncSeeds(ctx, topicsJSON, coursesJSON, i18nEN, dir)
 }
 
 // syncSeeds 把主題種子與課程種子由參數給(測試用)寫進資料庫。
-func (s *Store) syncSeeds(ctx context.Context, topicSeedJSON, seed []byte, dir string) ([]string, error) {
+func (s *Store) syncSeeds(ctx context.Context, topicSeedJSON, seed, i18nEN []byte, dir string) ([]string, error) {
 	seeds, err := parseCourseSeed(seed)
 	if err != nil {
 		return nil, err
@@ -115,16 +109,14 @@ func (s *Store) syncSeeds(ctx context.Context, topicSeedJSON, seed []byte, dir s
 			if err := syncLessonFiles(tx, seeds, files); err != nil {
 				return err
 			}
-		} else if err := addMissingScripts(tx, dir); err != nil {
-			return err
 		}
 		w, err := pruneTopics(tx, topics)
 		if err != nil {
 			return err
 		}
 		warnings = w
-		// 原表都寫完才重算翻譯的登記表,並把初稿種子補進資料庫(只補缺,見 syncI18n)
-		return syncI18nSeeded(tx, topicSeedJSON, seed)
+		// 原表都寫完才重算翻譯的登記表,並把測試譯文補進資料庫(只補缺,見 syncI18n)
+		return syncI18nSeeded(tx, topicSeedJSON, seed, i18nEN)
 	})
 	if err != nil {
 		return nil, err

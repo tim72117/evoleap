@@ -17,11 +17,12 @@ describe('課頁網址與腳本', () => {
     expect(CLAUDE_CODE_LESSON_PAGES['1']).toMatchObject({ path: '/courses/claude-code/1', script: `claude-code/${CLAUDE_CODE_LESSON_PAGES['1'].anchor}.json` })
   })
 
-  it('前端課頁指到的腳本檔都存在,而且不在研發基地專用的 lab/', () => {
-    const live = new Set(Object.keys(import.meta.glob('./live/**/*.json')).map((k) => k.replace('./live/', '')))
-    const scripts = [KIDS_LESSON_PAGES, WEB_LESSON_PAGES, CLAUDE_CODE_LESSON_PAGES].flatMap((pages) => Object.values(pages).map((p) => p.script))
-    expect(scripts.filter((p) => !live.has(p) || p.startsWith('lab/'))).toEqual([])
+  // lab/ 是研發基地的腳本,只給管理員;課頁指到那裡,訪客會拿到 404(檔案在不在資料庫,這裡查不到)
+  it('課頁寫的腳本不指到研發基地', () => {
+    const scripts = [KIDS_LESSON_PAGES, WEB_LESSON_PAGES, CLAUDE_CODE_LESSON_PAGES].flatMap((pages) => Object.values(pages).map((p) => (p as { script?: string }).script))
+    expect(scripts.filter((x) => x?.startsWith('lab/'))).toEqual([])
   })
+
 })
 
 describe('畫面上的身分不是管理員時,草稿當成規劃中(模擬身分、備援地圖)', () => {

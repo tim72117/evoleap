@@ -1,33 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { StageScript } from '../../../../live/types'
-import demo from '../../../../content/live/lab/actors/kid-hub.json'
-import actor, { type HubState, type HubStep } from './actor'
+import actor from './actor'
 
-const STAGE = ['card', 'callout', 'show', 'hide', 'move', 'checkpoint', 'wait', 'parts']
-
-/** 照舞台載入的方式:從 init 開始,依序 apply 演員的每個動作 */
-function run(script: StageScript): HubState {
-  let st = actor.init!(script.cast.hub.props ?? {})
-  script.steps.forEach((raw, i) => {
-    const s = raw as Record<string, unknown>
-    if (STAGE.some((k) => k in s)) return
-    const kind = actor.kinds.find((k) => k in s)
-    if (!kind) return
-    try {
-      st = actor.apply!(st, kind, s as HubStep)
-    } catch (e) {
-      throw new Error(`第 ${i + 1} 步:${e instanceof Error ? e.message : e}`)
-    }
-  })
-  return st
-}
 
 describe('kid-hub', () => {
-  it('示範腳本演得完', () => {
-    const st = run(demo as unknown as StageScript)
-    expect(st).toMatchObject({ layout: 'habit', saved: 2000, timerDone: true, streak: 7 })
-    expect(st.ticked).toHaveLength(3)
-  })
 
   it('操作對不上狀態時報錯', () => {
     const st = actor.init!({})

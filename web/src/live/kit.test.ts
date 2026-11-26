@@ -4,7 +4,6 @@ import { kit, type CursorMove } from './kit'
 const near = (a: number, b: number, eps = 1e-6) => expect(Math.abs(a - b), `${a} ≉ ${b}`).toBeLessThan(eps)
 
 describe('splitCaption', () => {
-  const width = (s: string) => [...s].reduce((m, c) => m + (c.charCodeAt(0) < 256 ? 0.55 : 1), 0)
 
   it('短句不動,依句子切開', () => {
     expect(kit.splitCaption('好。接著看這裡！')).toEqual(['好。', '接著看這裡！'])
@@ -22,19 +21,6 @@ describe('splitCaption', () => {
     for (const l of lines) expect(l).not.toMatch(/^[。，、！？]/)
   })
 
-  it('所有腳本的旁白切完都不超過一行', () => {
-    const scripts = import.meta.glob('../content/live/**/*.json', { eager: true, import: 'default' })
-    const texts: string[] = []
-    for (const [file, data] of Object.entries(scripts)) {
-      if (file.endsWith('.voice.json') || file.includes('/site/')) continue
-      JSON.stringify(data, (k, v: unknown) => {
-        if (k === 'narration' && typeof v === 'string') texts.push(v)
-        return v
-      })
-    }
-    expect(texts.length).toBeGreaterThan(50)
-    for (const t of texts) for (const line of kit.splitCaption(t)) expect(width(line), line).toBeLessThanOrEqual(24)
-  })
 })
 
 describe('kit', () => {

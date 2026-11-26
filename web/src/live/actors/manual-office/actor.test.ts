@@ -1,48 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { StageScript } from '../../types'
-import demo from '../../../content/live/lab/actors/manual-office.json'
-import scene from '../../../content/live/lab/scenes/intro-manual-to-agent.json'
-import agent from '../agent-office/actor'
 import actor, { BUG_ROW, CODE_ROWS, codeLines, dollyOf, durationOf, keyed, restBody, type ManualState, type ManualStep } from './actor'
 
-const STAGE = ['card', 'callout', 'show', 'hide', 'move', 'checkpoint', 'wait', 'parts']
-
-/** 照舞台載入的方式(stage.ts):從 init 開始,依序 apply 演員的每個動作;回傳最後的狀態 */
-function run(script: StageScript): ManualState {
-  const id = Object.keys(script.cast).find((k) => script.cast[k].actor === 'manual-office')!
-  let st = actor.init!(script.cast[id].props ?? {})
-  script.steps.forEach((raw, i) => {
-    const s = raw as Record<string, unknown>
-    if (STAGE.some((k) => k in s)) return
-    const kinds = actor.kinds.filter((k) => k in s)
-    if (!kinds.length) return
-    try {
-      st = actor.apply!(st, kinds[0], s as ManualStep)
-    } catch (e) {
-      throw new Error(`第 ${i + 1} 步 ${JSON.stringify(s).slice(0, 60)}:${e instanceof Error ? e.message : e}`)
-    }
-  })
-  return st
-}
 const steps = (st: ManualState, list: ManualStep[]): ManualState => list.reduce((s, x) => actor.apply!(s, actor.kinds.find((k) => k in x)!, x), st)
 
 describe('manual-office', () => {
-  it('示範腳本演得完:改了兩次、還沒修好,機器人進來、說了需求', () => {
-    const st = run(demo as unknown as StageScript)
-    expect(st).toMatchObject({ written: true, fixes: 2, shown: 2, slumped: true, called: true, entered: true })
-    expect(st.say).toBe('幫我做一個網站。')
-    expect(st.hours).toBeGreaterThanOrEqual(36)
-  })
-
-  it('合併的場景:兩個演員都演得完,動作名稱不重複', () => {
-    const sc = scene as unknown as StageScript
-    expect(run(sc).entered).toBe(true)
-    for (const k of actor.kinds) {
-      expect(STAGE).not.toContain(k)
-      expect(agent.kinds as readonly string[]).not.toContain(k)
-    }
-    expect(Object.values(sc.cast).map((c) => c.actor)).toEqual(['manual-office', 'agent-office'])
-  })
 
   it('順序不對時報錯', () => {
     const st = actor.init!({})

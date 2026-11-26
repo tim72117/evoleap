@@ -1,6 +1,6 @@
 // 即時教學畫面(LivePlayer)的回歸測試:L0 第 3 課是互動版(/courses/software/3,第 1、2 課與序章同樣,互動點的測試在 navigation.spec.ts),
 // 沒有影片檔,是直接掛在課程頁上的浮動播放器外殼(src/live/shell.ts,根元素 .vp)+ 舞台(src/live/stage.ts,根元素 .live-stage),
-// 依 src/content/live/ 的腳本即時畫出;右側「課程章節與步驟」列出章節,點章節跳到該時間點。沒有 iframe,也沒有 /live/ 路由。
+// 依資料庫裡的腳本即時畫出;右側「課程章節與步驟」列出章節,點章節跳到該時間點。沒有 iframe,也沒有 /live/ 路由。
 // 這裡測:播放器載入後章節都有時間(遞增)、點章節跳轉、播放時時間往前走、舊的 /live/ 網址回 404、腳本 lessonStep 與課程步驟數一致。
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url'
 import { expect, test, type Page } from '@playwright/test'
 import { collectErrors, desktopOnly, landscape, loginAsNewStudent, openCoursePanel } from './support'
 
-const SCRIPTS = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'content', 'live')
+// 測試資料庫的範例腳本(server -seed 讀的同一份)
+const SCRIPTS = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'server', 'internal', 'store', 'fixture', 'live')
 
 type Case = { path: string; script: string; steps: number; chapters: string[] }
 
@@ -21,7 +22,7 @@ const LESSONS: Case[] = [
   },
 ]
 
-/** 腳本(Node 端直接讀原始檔)裡出現過的 lessonStep(去重、排序) */
+/** 腳本(Node 端直接讀範例檔)裡出現過的 lessonStep(去重、排序) */
 function scriptLessonSteps(script: string): number[] {
   const json = JSON.parse(readFileSync(join(SCRIPTS, script), 'utf8')) as { steps: { lessonStep?: number }[] }
   return [...new Set(json.steps.map((s) => s.lessonStep).filter((n): n is number => typeof n === 'number'))].sort((a, b) => a - b)

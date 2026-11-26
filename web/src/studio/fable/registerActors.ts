@@ -11,7 +11,7 @@ import { PROMO_SCENES } from '../promo/registerActors'
 
 for (const def of [fableSky, fableWorld, fableScene]) ACTORS[def.name] = def
 
-/** 場景:名稱 → 展示腳本(src/content/live/ 底下)與說明 */
+/** 場景:名稱 → 展示腳本(資料庫的路徑)與說明 */
 export const SCENES: { name: string; title: string; script: string; summary: string }[] = [
   {
     name: fableScene.name,

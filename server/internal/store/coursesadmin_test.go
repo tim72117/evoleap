@@ -40,7 +40,7 @@ func TestUpdateLessonKeptAfterSeed(t *testing.T) {
 	if m, err := st.CourseMapOf(ctx, "kids", true); err != nil || m.Units[0].Lessons[0].Status != LessonDraft || m.Units[0].Lessons[0].Minutes != 12 {
 		t.Fatalf("改了之後: %+v %v", m.Units[0].Lessons[0], err)
 	}
-	if err := st.Seed(ctx, fixture.Topics, fixture.Courses); err != nil {
+	if err := st.Seed(ctx, fixture.Topics, fixture.Courses, fixture.I18nEN); err != nil {
 		t.Fatal(err)
 	}
 	m, err := st.CourseMapOf(ctx, "kids", true)
@@ -111,7 +111,7 @@ func TestUpdateCourseKeptAfterSeed(t *testing.T) {
 	if len(changes) != 2 {
 		t.Errorf("不合規則的修改不該留紀錄(腳本一筆、課程一筆): %d 筆", len(changes))
 	}
-	if err := st.Seed(ctx, fixture.Topics, fixture.Courses); err != nil {
+	if err := st.Seed(ctx, fixture.Topics, fixture.Courses, fixture.I18nEN); err != nil {
 		t.Fatal(err)
 	}
 	if m, err := st.CourseMapOf(ctx, "kids", true); err != nil || m.Access != AccessSubscription || m.Title != title {

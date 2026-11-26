@@ -1,0 +1,8 @@
+{"title": "調度範例", "blocking": {"cast": ["claude", "browser"], "shot": "depth"}, "cast": {"claude": {"actor": "claude-desktop", "props": {"title": "新的 session", "folder": "~/Documents/practice", "branch": null, "mode": "ask", "sessions": [], "labels": {"placeholder": "描述你要做的事…"}}, "place": "window", "hidden": false}, "browser": {"actor": "browser", "props": {"site": "v1", "width": "tablet"}, "place": "window"}}, "steps": [
+ {"card": "調度"},
+ {"user": "改頁首", "narration": "誰在動作，誰就到前景。"},
+ {"thinking": true, "ms": 1000},
+ {"say": "改好了。"},
+ {"site": "v2", "narration": "換瀏覽器動作：它走到前景。"},
+ {"scroll": "top", "pause": 3000}
+]}

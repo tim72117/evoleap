@@ -3,8 +3,6 @@ package api
 import (
 	"errors"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/tim72117/evoleap/internal/store"
@@ -86,23 +84,15 @@ func (s *Server) handleLessonFile(w http.ResponseWriter, r *http.Request) {
 		internalError(w, err)
 		return
 	}
-	body := []byte(content)
-	// 本機開發:直接讀磁碟上最新的檔案,改了腳本不用重啟伺服器(把關仍照資料庫)
-	if s.cfg.LiveDir != "" {
-		if b, err := os.ReadFile(filepath.Join(s.cfg.LiveDir, path)); err == nil {
-			body = b
-		}
-	}
-	// 本機開發讀磁碟上的檔案時不快取,改了腳本重新整理就看得到。
 	// 兒童課要看兒童模式的時段與進度,不給共用快取;其他免費課的快取依 cookie 區分,開了兒童模式(多了 evoleap_kids)就不會拿到之前快取的檔而繞過 kidsGate
-	if public && s.cfg.LiveDir == "" && f.CourseID != "kids" {
+	if public && f.CourseID != "kids" {
 		w.Header().Set("Cache-Control", "public, max-age=300")
 		w.Header().Set("Vary", "Cookie")
 	} else {
 		w.Header().Set("Cache-Control", "private, no-store")
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	_, _ = w.Write(body)
+	_, _ = w.Write([]byte(content))
 }
 
 // handleScriptPaths 回傳所有腳本檔的路徑(GET /api/scripts,只給管理員):研發基地挑腳本用。

@@ -3,7 +3,11 @@
 //
 //   npm run mix -- l0/0.0-tools.json     合成這份腳本
 //   npm run mix -- --all                 所有已經有旁白語音(*.voice.json)的腳本
-//   npm run mix -- l0/0.0-tools.json --publish   合成之後把章節音檔上傳 GCS(gs://shuttle-voice/mix/…),並寫出 src/content/live/<名稱>.mix.json(進版控,播放器靠它啟用章節音軌)
+//   npm run mix -- l0/0.0-tools.json --publish   合成之後把章節音檔上傳 GCS(gs://shuttle-voice/mix/…),並寫出 <名稱>.mix.json(播放器靠它啟用章節音軌)
+//   npm run mix -- l0/0.0-tools.json --publish --push   同上,再把 .mix.json 上傳回伺服器(沿用腳本屬於哪一課)
+//
+// 腳本與旁白清單以線上資料庫為準(lib/liveScripts.mjs,透過 evoleap CLI,先 evoleap login);--api URL 換伺服器(預設 https://evoleap.io),
+// --dir 資料夾 改讀本機檔案。
 //
 // 為什麼要合成:手機上每一句旁白都是獨立的音檔,換句要重新連線、載入,容易斷續(見 CHANGELOG 0.6.1)。
 // 合成之後,播放器對每一段只需要一個 <audio>,用它的 currentTime 當時鐘,緩衝、seek、倍速都由瀏覽器處理。
@@ -17,7 +21,7 @@
 // 產出(預設只在 web/recordings/mix/,不進版控,不上傳,播放器也還不會用到):
 //   <腳本資料夾>/<腳本名>/<章節序號>-<雜湊>.mp3
 //   <腳本資料夾>/<腳本名>.mix.json   章節清單:每章的開始時間、長度、檔名,以及每段旁白在章節檔裡的位置
-// 加 --publish 才會上傳(用本機 gcloud 的登入身分,同 voice.mjs),並把清單寫到 src/content/live/ 讓播放器使用。
+// 加 --publish 才會上傳(用本機 gcloud 的登入身分,同 voice.mjs),清單寫在 recordings/live/<主機>/(--dir 模式寫在腳本旁),再加 --push 上傳到伺服器讓播放器使用。
 // 旁白或腳本改了(旁白文字、語音檔、間隔),要重新執行;沒重新執行時播放器發現對不上會自動退回逐句播放,不會錯位。
 // 並印出檢查報告(章節長度與預期差多少、旁白有沒有重疊)。
 // 需要 ffmpeg(含 libmp3lame)。旁白音檔從 GCS 下載到 recordings/mix/.cache/(沒有的才下載)。
@@ -28,9 +32,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
+import { normalizeRel, openSource, sourceArgs } from './lib/liveScripts.mjs'
+import { STUDIO_TOKEN_COOKIE, studioDevToken } from './lib/studioToken.mjs'
 
 const WEB = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const LIVE = path.join(WEB, 'src/content/live')
 const OUT = path.join(WEB, 'recordings/mix')
 const CACHE = path.join(OUT, '.cache')
 const VOICE_BASE = 'https://storage.googleapis.com/shuttle-voice/'
@@ -38,31 +43,38 @@ const BUCKET = 'shuttle-voice'
 const PORT = 5291
 const KBPS = 48
 
-const args = process.argv.slice(2)
 const die = (msg) => {
   console.error(`錯誤:${msg}`)
   process.exit(1)
 }
 
 // ---------- 找腳本 ----------
-function listScripts() {
-  const out = []
-  const walk = (dir) => {
-    for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
-      const p = path.join(dir, f.name)
-      if (f.isDirectory()) walk(p)
-      else if (f.name.endsWith('.voice.json')) out.push(path.relative(LIVE, p).replace(/\.voice\.json$/, '.json'))
-    }
-  }
-  walk(LIVE)
-  return out.sort()
+let common, source, scripts
+const publish = process.argv.includes('--publish')
+try {
+  common = sourceArgs(process.argv.slice(2))
+  if (common.push && !publish) die('--push 要和 --publish 一起用(清單指向的章節音檔要先上傳 GCS)')
+  source = openSource(common)
+  scripts = common.rest.includes('--all')
+    ? (await source.paths()).filter((f) => f.endsWith('.voice.json')).map((f) => f.replace(/\.voice\.json$/, '.json'))
+    : common.rest.filter((a) => !a.startsWith('--')).map(normalizeRel)
+} catch (e) {
+  die(e.message)
 }
-const publish = args.includes('--publish')
-const scripts = args.includes('--all') ? listScripts() : args.filter((a) => !a.startsWith('--'))
 if (!scripts.length) die('請指定腳本(例如 l0/0.0-tools.json)或 --all')
+const inputs = new Map() // 腳本路徑 → { script, voice }:開瀏覽器之前先全部取好,缺的早點報錯
 for (const s of scripts) {
-  if (!fs.existsSync(path.join(LIVE, s))) die(`找不到腳本:${s}`)
-  if (!fs.existsSync(path.join(LIVE, s.replace(/\.json$/, '.voice.json')))) die(`${s} 還沒有旁白語音,先執行 npm run voice -- ${s}`)
+  try {
+    const voiceRel = s.replace(/\.json$/, '.voice.json')
+    const script = await source.json(s)
+    const voice = await source.json(voiceRel)
+    if (!voice) die(`${s} 在 ${source.label} 還沒有旁白語音,先執行 npm run voice -- ${s} --push`)
+    const note = await source.pendingNote(voiceRel)
+    if (note) console.warn(note)
+    inputs.set(s, { script, voice })
+  } catch (e) {
+    die(e.message)
+  }
 }
 try {
   execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-encoders'], { stdio: 'pipe' })
@@ -93,16 +105,14 @@ async function startVite() {
   die('vite dev server 沒有起來(5291 被占用嗎?)')
 }
 
-async function layoutOf(page, script) {
-  const voicePath = script.replace(/\.json$/, '.voice.json')
+/** 腳本與旁白長度由這裡傳進頁面(vite 只提供舞台程式,不讀任何腳本檔) */
+async function layoutOf(page, { script, voice }) {
   return page.evaluate(
-    async ({ script, voicePath }) => {
-      const [{ createStage }, { withTeacher }, { expandAnswers }, scriptMod, voiceMod] = await Promise.all([
+    async ({ script, voice }) => {
+      const [{ createStage }, { withTeacher }, { expandAnswers }] = await Promise.all([
         import('/src/live/stage.ts'),
         import('/src/live/teacher.ts'),
         import('/src/studio/interactive/scene.ts'),
-        import(/* @vite-ignore */ `/src/content/live/${script}`),
-        import(/* @vite-ignore */ `/src/content/live/${voicePath}`),
       ])
       await document.fonts.ready
       const root = document.createElement('div')
@@ -110,9 +120,9 @@ async function layoutOf(page, script) {
       document.body.appendChild(root)
       const stage = createStage(root)
       const durations = {}
-      for (const [text, clip] of Object.entries(voiceMod.default.clips)) durations[text] = clip.ms
+      for (const [text, clip] of Object.entries(voice.clips)) durations[text] = clip.ms
       // 和播放器一樣展開開頭的老師介紹(scripts.ts 的 loadScript),以及沒回答的互動點(互動課程頁預設演 skip 的示範,scene.ts 的 expandAnswers)
-      await stage.load(expandAnswers(withTeacher(scriptMod.default), {}), { voice: durations })
+      await stage.load(expandAnswers(withTeacher(script), {}), { voice: durations })
       const out = {
         duration: stage.duration,
         narrations: stage.narrations.map((n) => ({ at: n.at, text: n.text })),
@@ -121,7 +131,7 @@ async function layoutOf(page, script) {
       root.remove()
       return out
     },
-    { script, voicePath },
+    { script, voice },
   )
 }
 
@@ -194,10 +204,12 @@ let failed = false
 try {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } })
   page.on('pageerror', (e) => console.error('頁面錯誤:', e.message))
+  // 舞台程式有一部分在研發基地底下(scene.ts),dev server 會擋:帶本機的 token 通過
+  await page.context().addCookies([{ name: STUDIO_TOKEN_COOKIE, value: studioDevToken(WEB), url }])
   await page.goto(url)
   for (const script of scripts) {
-    const voice = JSON.parse(fs.readFileSync(path.join(LIVE, script.replace(/\.json$/, '.voice.json')), 'utf8'))
-    const layout = await layoutOf(page, script)
+    const { voice } = inputs.get(script)
+    const layout = await layoutOf(page, inputs.get(script))
     const narr = layout.narrations.filter((n) => voice.clips[n.text]).sort((a, b) => a.at - b.at)
     const stops = [...layout.stops].sort((a, b) => a.at - b.at)
     const skipped = layout.narrations.length - narr.length
@@ -262,9 +274,16 @@ try {
         clips: items.map((i) => ({ at: i.at, offsetMs: round2(i.startMs), ms: round2(i.ms), text: i.text, voice: i.voice })),
       })
     }
-    const manifestFile = path.join(publish ? LIVE : OUT, script.replace(/\.json$/, '.mix.json'))
-    fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + '\n')
-    console.log(`   清單:${path.relative(WEB, manifestFile)}${publish ? '(已上傳,記得一起 commit)' : '(只在本機,沒有上傳)'}`)
+    const mixRel = script.replace(/\.json$/, '.mix.json')
+    if (publish) {
+      await source.json(mixRel) // 記下伺服器現在的版本,上傳前比對
+      source.write(mixRel, manifest)
+      await source.publish(mixRel, common.push)
+    } else {
+      const manifestFile = path.join(OUT, mixRel)
+      fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + '\n')
+      console.log(`   清單:${path.relative(WEB, manifestFile)}(只在本機,沒有上傳)`)
+    }
   }
 } finally {
   await browser.close()

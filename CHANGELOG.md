@@ -4,6 +4,39 @@
 
 ## [Unreleased]
 
+## [0.53.0] - 2026-11-26
+
+腳本與英文譯文也以線上資料庫為唯一來源;repo 不再存腳本。
+
+### 不相容變更
+
+- **移除 repo 腳本**:`web/src/content/live/` 的 243 個腳本 JSON 刪除(刪除前與線上逐一比對一致)。部署與啟動不再從目錄補腳本:`cmd/server`、`cmd/sync` 的 `-live` 參數、Dockerfile 的兩處 COPY 移除。新站只能用 `node server/backup/gcs.mjs init` 復原。
+- **移除 `server/internal/store/i18n_en.json`**:執行期不再退回內嵌英文;資料庫沒有譯文就顯示中文。
+- **英文課程總覽需要資料庫**:`/en/courses/<課程>` 的 `<head>` 由 server 讀譯文產生,讀不到回 `503`、沒有這門課回 `404`;課名沒有已發布英文的課顯示中文並 `noindex`。
+- **腳本工具改用 API**:`voice`、`mix`、`record-live`、canvas 預設從 `https://evoleap.io` 取腳本(`--api` 換伺服器、`--dir` 讀本機草稿);`voice`、`mix` 要加 `--push` 才寫回線上。
+- `gcs.mjs restore` 預設輸出改到 `web/recordings/live-restore`;`server -seed` 目錄要含 `i18n_en.json` 與 `live/`。
+
+### 新增
+
+- `evoleap script list [-owners]`。
+- 英文課程總覽的結構化資料(Course、麵包屑、不分階段的課另有 ItemList)。
+
+### 修正
+
+- 英文搜尋標題、描述沒翻時退回英文課名與簡介,不再放中文。
+- 翻譯讀不到時中文課程頁照常回應,只有英文頁回 `503`;sitemap 只略過英文網址。
+- `voice` 一次處理多份腳本時看得到剛產生的旁白清單;暫存清單比線上舊時不覆蓋。
+
+### 其他
+
+- 測試改用手造的小腳本與假譯文(`server/internal/store/fixture/`)。
+
+### 已知缺口
+
+- 真實腳本不再有自動檢查(能否演完、互動點定位、旁白字幕寬度、課頁指到的腳本是否存在)。
+- git 不再保存腳本的新歷史,改完要執行 `gcs.mjs export`;GCS 舊版本只留 30 天。
+- 實際語音合成、`mix --publish` 整條流程、`gcs.mjs restore` 與 `init`、Docker build、Postgres 沒有在本機測過。
+
 ## [0.52.0] - 2026-11-26
 
 主題、課程與腳本改以資料庫為唯一來源;課程頁的 SEO 與單課路由改成依資料庫即時產生。

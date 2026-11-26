@@ -1,0 +1,10 @@
+{"title": "claude-desktop", "cast": {"a": {"actor": "claude-desktop", "props": {"title": "加上訂購表單", "mode": "auto"}, "place": {"x": 120, "y": 60, "w": 1680, "h": 960}}}, "steps": [
+ {"user": "幫首頁加表單"},
+ {"ask": "npm test", "q": "Claude 想要建立這個檔案", "where": "~/Documents/practice"},
+ {"choose": 1},
+ {"say": "完成。"},
+ {"newSession": "修手機版跑版"},
+ {"session": "加上訂購表單"},
+ {"menu": "加上訂購表單"},
+ {"fork": "加上訂購表單 (fork)"}
+]}

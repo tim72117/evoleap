@@ -250,7 +250,7 @@ function reached(state: unknown, until: Interact['until']): boolean {
 
 
 type Props = {
-  /** src/content/live/ 底下的腳本路徑 */
+  /** 資料庫的腳本路徑 */
   script: string
   /** 段落選單要放在播放器外面的哪裡;放在外面時一段一列,可以附上說明(chapterInfo) */
   chaptersSlot?: HTMLElement | null

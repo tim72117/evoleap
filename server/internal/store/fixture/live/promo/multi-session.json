@@ -1,0 +1,5 @@
+{"title": "分岔範例", "cast": {"claude": {"actor": "claude-desktop", "props": {"title": "新的 session", "folder": "~/Documents/practice", "branch": null, "mode": "ask", "sessions": [], "labels": {"placeholder": "描述你要做的事…"}}, "place": "window", "hidden": false}}, "steps": [
+ {"user": "加上表單"},
+ {"say": "完成。"},
+ {"wait": 500}
+]}

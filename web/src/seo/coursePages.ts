@@ -2,9 +2,11 @@
 // Go server 收到請求時讀資料庫組出來(server/cmd/server/courseseo.go,組法只寫在那裡;瀏覽器端換頁讀 GET /api/seo/page 拿同一份)。
 // 這裡不放課程內容,也不列課號:
 //   - COURSE_PAGES:固定網址的頁(課程總覽、規劃中章節),build 為每個網址產生一份留好空位的 HTML
+//   - EN_COURSE_PAGES:英文版的課程總覽 /en/courses/<課程>,同樣留空位;有沒有英文版由 server 看資料庫的譯文
 //   - LESSON_ROUTES:單課頁的路由樣式 /courses/<課程>/<課號>,build 一門課產生一份 HTML,有哪些課由 server 在請求時看資料庫
 // build(scripts/seo.mjs)把兩者輸出成 dist/course-pages.json。
 import { COURSES, courseMapId, coursePath, plannedChapterPath } from '../content/catalog'
+import { EN_PREFIX } from '../i18n/locale'
 
 /** 單課頁的版型(標題、描述、麵包屑的組法,見 courseseo.go):分階段的軟體課、兒童課、網頁與 Claude Code、從做好到上線 */
 export type LessonStyle = 'staged' | 'kids' | 'topic' | 'launch'
@@ -24,6 +26,8 @@ export interface CoursePageEntry {
   /** 先不公開的整門課(levels.ts 的 hidden);先不公開的單元由 server 依資料庫判斷 */
   noindex?: boolean
   ogType?: 'article'
+  /** 英文版的課程總覽(path、coursePath 都帶 /en) */
+  lang?: 'en'
   sitemapPriority?: number
 }
 
@@ -74,9 +78,17 @@ export const COURSE_PAGES: CoursePageEntry[] = COURSES.flatMap((c) => {
   return [overview, ...chapters].map((p): CoursePageEntry => (c.hidden ? { ...p, noindex: true } : p))
 })
 
-const BY_PATH = new Set(COURSE_PAGES.map((p) => p.path))
+export const EN_COURSE_PAGES: CoursePageEntry[] = COURSE_PAGES.filter((p) => p.kind === 'overview').map((p) => ({
+  ...p,
+  path: EN_PREFIX + p.path,
+  coursePath: EN_PREFIX + p.coursePath,
+  lang: 'en',
+  sitemapPriority: 0.8,
+}))
 
-/** 是不是課程相關頁面(固定網址,或某門課的單課網址;單課存不存在由 server 判斷) */
+const BY_PATH = new Set([...COURSE_PAGES, ...EN_COURSE_PAGES].map((p) => p.path))
+
+/** 是不是課程相關頁面(固定網址含英文課程總覽,或某門課的單課網址;單課存不存在由 server 判斷) */
 export function isCoursePage(path: string): boolean {
   if (BY_PATH.has(path)) return true
   const cut = path.lastIndexOf('/')

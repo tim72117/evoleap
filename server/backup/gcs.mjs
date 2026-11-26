@@ -4,7 +4,7 @@
 //     唯讀匯出資料庫的 lesson_files / studio_files → 只上傳內容有變的檔 → 更新對照表 gcs-manifest.json。
 //     沒給 --cli 時用 go run ./cmd/evoleap;要先 evoleap login。
 //   node server/backup/gcs.mjs restore [--out 目錄] [--manifest 檔] [--force]
-//     照對照表(含版本號)下載、核對 sha256,寫到 --out(預設 web/src/content/live)。
+//     照對照表(含版本號)下載、核對 sha256,寫到 --out(預設 web/recordings/live-restore,不進版控)。
 //     本機已有且內容不同的檔不覆蓋(結束碼 2),要覆蓋加 --force。
 //   node server/backup/gcs.mjs init [--cli evoleap執行檔] [--api 網址] [--prefix _test/x/]
 //     手動初始化:從 GCS 讀最新的課程資訊與腳本,經 API 寫進空資料庫(已有課程會拒絕)。
@@ -28,7 +28,7 @@ const { values: opt, positionals } = parseArgs({
     api: { type: 'string' },
     prefix: { type: 'string', default: '' },
     manifest: { type: 'string', default: path.join(HERE, 'gcs-manifest.json') },
-    out: { type: 'string', default: path.join(HERE, '../../web/src/content/live') },
+    out: { type: 'string', default: path.join(HERE, '../../web/recordings/live-restore') },
     force: { type: 'boolean', default: false },
   },
 })

@@ -1,0 +1,17 @@
+{"title": "序章範例", "cast": {"manual": {"actor": "manual-office", "props": {"site": "小森烘焙"}, "place": "full", "hidden": true}, "chat": {"actor": "chat", "props": {"title": "聊天式 AI"}, "place": "window", "hidden": true}, "boss": {"actor": "person", "props": {"name": "老闆", "look": "boss"}, "place": "window", "hidden": true}}, "steps": [
+ {"card": "以前自己寫程式", "chapter": "以前：自己寫程式", "lessonStep": 1},
+ {"show": "manual", "narration": "以前要自己一行一行寫。"},
+ {"write": true},
+ {"run": true},
+ {"slump": true, "narration": "寫到累了。", "ms": 3000},
+ {"card": "寫程式其實是在翻譯", "chapter": "翻譯", "lessonStep": 2},
+ {"card": "聊天式 AI", "chapter": "聊天式 AI", "lessonStep": 3},
+ {"show": "chat"},
+ {"card": "複製 → 貼上 → 再問", "narration": "聊天式 AI 只回文字。"},
+ {"card": "AI Agent", "chapter": "AI Agent", "lessonStep": 4, "narration": "它會自己動手。"},
+ {"card": "這三件事要你來", "chapter": "你要做的事", "lessonStep": 5},
+ {"show": "boss"},
+ {"say": "做一個網站。", "on": "boss"},
+ {"callout": "boss:bubble", "text": "他只負責說清楚要什麼", "narration": "你負責說清楚、檢查成果。"},
+ {"wait": 1500}
+]}

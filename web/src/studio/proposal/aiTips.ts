@@ -18,7 +18,7 @@ export type AiTip = {
   demo?: boolean
 }
 
-/** 舞台版示範(src/content/live/ 底下的腳本) */
+/** 舞台版示範(資料庫的腳本) */
 export const AI_TIPS_DEMO = {
   script: 'promo/multi-session.json',
   title: '同一個專案，不同工作交給不同對話',

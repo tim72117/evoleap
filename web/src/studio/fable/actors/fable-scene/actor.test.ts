@@ -1,36 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import type { ActorEvent, StageScript } from '../../../../live/types'
-import lesson from '../../../../content/live/lab/fable/0.1-scene.json'
-import demo from '../../../../content/live/lab/scenes/fable-scene.json'
-import actor, { lookAt, type SceneState, type SceneStep } from './actor'
-
-const STAGE = ['card', 'callout', 'show', 'hide', 'move', 'checkpoint', 'wait', 'parts']
-
-/** 照舞台載入的方式:從 init 開始依序 apply 每個動作 */
-function run(script: StageScript): SceneState {
-  const id = Object.keys(script.cast).find((k) => script.cast[k].actor === 'fable-scene')!
-  let st = actor.init!(script.cast[id].props ?? {})
-  script.steps.forEach((raw, i) => {
-    const s = raw as Record<string, unknown>
-    if (STAGE.some((k) => k in s)) return
-    const kind = actor.kinds.find((k) => k in s)
-    if (!kind) throw new Error(`第 ${i + 1} 步沒有動作`)
-    st = actor.apply!(st, kind, s as SceneStep)
-  })
-  return st
-}
+import type { ActorEvent } from '../../../../live/types'
+import actor, { lookAt } from './actor'
 
 const ev = (kind: string, step: Record<string, unknown>, start: number): ActorEvent => ({ kind, step, start, dur: 1000, local: 0, p: 0 })
 
 describe('fable-scene', () => {
-  it('場景版腳本與示範腳本都演得完;腳本裡不再有 mood', () => {
-    for (const s of [lesson, demo]) {
-      const st = run(s as unknown as StageScript)
-      expect(st.world.deployed).toBe(true)
-      expect(st.sky).toBe('dawn')
-      expect(JSON.stringify(s)).not.toContain('"mood"')
-    }
-  })
 
   it('背景依狀態自動變化,從狀態改變的那一步開始過場', () => {
     const init = actor.init!({})

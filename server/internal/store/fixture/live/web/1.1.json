@@ -1,0 +1,8 @@
+{"title": "元素範例", "cast": {"tree": {"actor": "kid-tree", "props": {"look": "clean", "only": "tree", "title": "file:///Documents/practice/cafe/index.html", "nodes": [{"id": "main", "tag": "main", "children": [{"id": "title", "tag": "h1", "text": "小森咖啡"}, {"id": "photo", "tag": "img", "text": "☕"}, {"id": "intro", "tag": "p", "text": "衣索比亞淺焙，帶一點花香…"}, {"id": "price", "tag": "p", "text": "NT$ 150"}, {"id": "add", "tag": "button", "text": "加入購物車"}]}]}, "place": {"landscape": {"x": 510, "y": 100, "w": 900, "h": 860}, "portrait": {"x": 40, "y": 530, "w": 1000, "h": 860}}, "hidden": true}, "web": {"actor": "browser", "props": {"site": "el", "url": "file:///Documents/practice/cafe/index.html"}, "place": {"landscape": {"x": 510, "y": 100, "w": 900, "h": 860}, "portrait": {"x": 40, "y": 530, "w": 1000, "h": 860}}, "hidden": true}}, "steps": [
+ {"show": "web", "narration": "一個網頁。"},
+ {"site": "el-x"},
+ {"show": "tree"},
+ {"site": "el-explore", "chapter": "點點看"},
+ {"checkpoint": "點網頁上的東西，看看它是哪一種元素", "body": "點照片。", "id": "explore", "stage": {"focus": "web:viewport"}, "interact": {"cast": ["web", "tree"], "spots": [{"target": "web:sel:[data-x=photo]", "id": "photo", "label": "照片", "steps": [{"on": "web", "click": "[data-x=photo]"}, {"on": "tree", "mark": "photo"}], "again": [{"on": "web", "click": "[data-x=photo]"}, {"on": "tree", "mark": "photo"}]}]}, "options": [{"label": "看完了，繼續", "steps": []}], "skip": false},
+ {"wait": 500}
+]}

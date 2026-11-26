@@ -11,3 +11,8 @@ var Topics []byte
 
 //go:embed courses.json
 var Courses []byte
+
+// I18nEN 是課程資訊的英文譯文(假資料):每門課的課程欄位都翻了,單元、課、主題只翻一部分(測逐欄退回中文)。
+//
+//go:embed i18n_en.json
+var I18nEN []byte

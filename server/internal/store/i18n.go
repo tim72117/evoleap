@@ -1,7 +1,6 @@
 package store
 
 import (
-	_ "embed"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -9,8 +8,7 @@ import (
 
 // 課程資訊的多語系:課程、單元、課、主題的原表只存繁體中文的原文,譯文放在資料庫的 i18n_translations(見 i18n_db.go,一個欄位一列),
 // 查詢時由資料庫組成一個語言包(LangPack)套到回應上;沒翻的欄位、沒翻的課照原文(中文)。目前只有英文(en)。
-// i18n_en.json 是當初的英文初稿(已匯入正式站),部署與初始化不再讀它;譯文以資料庫為準,隨課程資訊一起備份(見 catalog.go)。
-// 它還有兩個用途:靜態英文頁(web/src/seo/enPages.ts,建置時讀)與資料庫完全沒有這個語言的譯文時的退路(見 Store.LangPack)。
+// 譯文只在資料庫(隨課程資訊一起備份,見 catalog.go),程式裡沒有任何內嵌的譯文備援。
 
 // 語言代碼;空字串與不認得的語言都當成原文。
 const LangEN = "en"
@@ -59,22 +57,7 @@ type LangPack struct {
 	Topics  map[string]i18nTopic  `json:"topics"`
 }
 
-// i18nENSeed 是英文的初稿種子(見檔頭說明)。
-//
-//go:embed i18n_en.json
-var i18nENSeed []byte
-
-// seedPacks 是內嵌的初稿種子解析後的語言包:匯入資料庫(importI18nSeed)與舊路徑比對用。
-var seedPacks = map[string]*LangPack{}
-
-func init() {
-	b, err := parseI18n(i18nENSeed)
-	if err != nil {
-		panic(err)
-	}
-	seedPacks[LangEN] = b
-}
-
+// parseI18n 解析測試用的譯文資料(格式是 LangPack 的 JSON,見 fixture/i18n_en.json)。
 func parseI18n(seed []byte) (*LangPack, error) {
 	var b LangPack
 	if err := json.Unmarshal(seed, &b); err != nil {
@@ -99,6 +82,13 @@ func (m *CourseMap) Localize(b *LangPack) {
 		pick(&m.Summary, c.Summary)
 		pick(&m.SEOTitle, c.SEOTitle)
 		pick(&m.Description, c.Description)
+		// 搜尋標題、描述沒翻時清掉,讓顯示端退回已翻好的課名、簡介,不把中文放進英文頁
+		if c.Title != "" && c.SEOTitle == "" {
+			m.SEOTitle = ""
+		}
+		if c.Summary != "" && c.Description == "" {
+			m.Description = ""
+		}
 		if len(c.About) > 0 {
 			// 段數取原文與譯文較多的;第 i 段有譯文用譯文,否則用原文第 i 段(都沒有的空段略過)
 			n := max(len(m.About), len(c.About))

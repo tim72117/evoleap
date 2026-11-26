@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 	"errors"
-	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -49,8 +48,8 @@ func TestCatalogRoundTrip(t *testing.T) {
 	}
 }
 
-// 啟動過後端(同步已把腳本檔補進研發基地)的空資料庫也要能初始化,內容以備份為準。
-func TestInitCatalogAfterSync(t *testing.T) {
+// 研發基地已經有腳本(初始化前就上傳過)的空資料庫也要能初始化,內容以備份為準。
+func TestInitCatalogOverExistingScripts(t *testing.T) {
 	ctx := context.Background()
 	src, err := Open(filepath.Join(t.TempDir(), "a.db"))
 	if err != nil {
@@ -60,18 +59,14 @@ func TestInitCatalogAfterSync(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	dir := t.TempDir()
-	for _, name := range []string{"a.json", "b.json"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(`{"from":"disk"}`), 0o644); err != nil {
-			t.Fatal(err)
-		}
-	}
 	dst, err := Connect(filepath.Join(t.TempDir(), "b.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := dst.SyncCourses(ctx, dir); err != nil {
-		t.Fatal(err)
+	for _, name := range []string{"a.json", "b.json"} {
+		if err := dst.PutScript(ctx, "boss@example.com", name, "", "", []byte(`{"from":"before"}`)); err != nil {
+			t.Fatal(err)
+		}
 	}
 	files := []ScriptExportFile{
 		{Source: ScriptSourceLesson, Path: "a.json", CourseID: cat.Courses[0].ID, LessonID: "1", Content: `{"from":"backup"}`},

@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"log"
 	"net/http"
@@ -25,8 +26,7 @@ func main() {
 	dbPath := flag.String("db", "shuttle.db", "DATABASE_URL 未設定時使用的本機 SQLite 檔案")
 	distDir := flag.String("dist", "", "從磁碟目錄提供前端 build(例如 ../web/dist);留空使用內嵌的 build")
 	openStudio := flag.Bool("open-studio", false, "不檢查內部頁(研發基地)與管理後台的權限,只給本機與 E2E 測試用;Cloud Run 上會拒絕啟動")
-	liveDir := flag.String("live", "../web/src/content/live", "課程腳本檔的目錄(web/src/content/live);本機啟動時把資料庫還沒有的檔補進研發基地")
-	seed := flag.String("seed", "", "只給測試:含 topics.json、courses.json 的目錄,啟動時初始化資料庫(正式與本機開發用 gcs.mjs init)")
+	seed := flag.String("seed", "", "只給測試:含 topics.json、courses.json、範例腳本 live/ 的目錄,啟動時初始化資料庫(正式與本機開發用 gcs.mjs init)")
 	envFile := flag.String("env", ".env", "本機開發時從這個檔案補上還沒設定的環境變數(Google 登入、管理員等);空字串不讀。Cloud Run 上不讀")
 	flag.Parse()
 
@@ -72,9 +72,6 @@ func main() {
 		log.Fatal(allowErr)
 	}
 	cfg.CliAuthRedirectAllowlist = allow
-	if !onCloudRun {
-		cfg.LiveDir = *liveDir
-	}
 	if dsn == "" {
 		log.Print("未設定 DATABASE_URL:登入功能停用,課程地圖與課程腳本也不提供、課程頁回 503(只讀資料庫,沒有種子備援)")
 	} else {
@@ -84,12 +81,12 @@ func main() {
 		if err == nil && !onCloudRun {
 			if *seed != "" {
 				var warnings []string
-				warnings, err = initFromDir(st, *seed, *liveDir)
+				warnings, err = initFromDir(st, *seed)
 				for _, w := range warnings {
 					log.Printf("警告:%s", w)
 				}
 			} else {
-				err = st.SyncCourses(context.Background(), *liveDir)
+				err = st.SyncCourses(context.Background())
 			}
 		}
 		if err != nil {
@@ -115,16 +112,18 @@ func main() {
 		access = openAccess
 	}
 	dist := distFS(*distDir)
-	var open openLessons  // 沒接資料庫時為 nil:sitemap 只列非課頁
-	var load courseLoader // 沒接資料庫時為 nil:課程相關頁面回 503
+	var open openLessons    // 沒接資料庫時為 nil:sitemap 只列非課頁
+	var load courseLoader   // 沒接資料庫時為 nil:課程相關頁面回 503
+	var english openLessons // 有英文版的課程;沒接資料庫時為 nil:sitemap 不列英文課程頁
 	if st := cfg.Store; st != nil {
 		open = cachedOpenLessons(st.OpenLessonKeys, time.Minute)
 		// 只讀公開的內容(草稿當成規劃中)
-		load = func(ctx context.Context, id string) (store.CourseMap, error) { return st.CourseMapOf(ctx, id, false) }
+		load = st.CourseMapWithEnglish
+		english = cachedOpenLessons(st.EnglishCourseIDs, time.Minute)
 	}
 	courses := newCourseSEO(dist, load)
 	mux.Handle("GET /api/seo/page", courses.apiHandler())
-	if h := sitemapHandler(dist, open); h != nil {
+	if h := sitemapHandler(dist, open, english); h != nil {
 		mux.Handle("GET /sitemap.xml", h)
 	}
 	mux.Handle("/", newStaticHandlerWithCourses(dist, access, courses))
@@ -135,8 +134,8 @@ func main() {
 	}
 }
 
-// initFromDir 用 dir 的 topics.json、courses.json 初始化資料庫(-seed,測試用)。
-func initFromDir(st *store.Store, dir, liveDir string) ([]string, error) {
+// initFromDir 用 dir 的 topics.json、courses.json、i18n_en.json、live/(範例腳本)初始化資料庫(-seed,測試用)。
+func initFromDir(st *store.Store, dir string) ([]string, error) {
 	topics, err := os.ReadFile(filepath.Join(dir, "topics.json"))
 	if err != nil {
 		return nil, err
@@ -145,5 +144,10 @@ func initFromDir(st *store.Store, dir, liveDir string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return st.InitFromSeed(context.Background(), topics, courses, liveDir)
+	// 英文譯文可有可無(沒有就沒有英文版)
+	en, err := os.ReadFile(filepath.Join(dir, "i18n_en.json"))
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
+	return st.InitFromSeed(context.Background(), topics, courses, en, filepath.Join(dir, "live"))
 }

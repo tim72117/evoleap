@@ -29,7 +29,7 @@ const TOOLS: Tool[] = [
     body: '用即時教學畫面製作的宣傳片：選一支腳本在網頁上播放（可拖曳、全螢幕、字幕）；輸出 mp4 用指令逐格錄製，有旁白語音時一併混進音軌，並輸出字幕檔。',
     how: '網頁播放；指令：在 web/ 執行 npm run record:live -- promo/檔名.json',
     links: [{ to: '/materials/promo', label: '開啟' }],
-    path: 'web/src/studio/materials/PromoPage.tsx · web/scripts/record-live.mjs · web/src/content/live/promo/',
+    path: 'web/src/studio/materials/PromoPage.tsx · web/scripts/record-live.mjs · 資料庫的 promo/',
   },
   {
     title: '試聽語音',

@@ -37,11 +37,11 @@ func TestLessonAddedAtRuntime(t *testing.T) {
 
 	dist := courseDist()
 	dist["sitemap-pages.json"] = &fstest.MapFile{Data: []byte(`[{"loc":"https://evoleap.io/courses/web","lessonsOf":{"course":"web"}},{"loc":"https://evoleap.io/courses/software","lessonsOf":{"course":"software","staged":true}}]`)}
-	c := newCourseSEO(dist, func(ctx context.Context, id string) (store.CourseMap, error) { return st.CourseMapOf(ctx, id, false) })
+	c := newCourseSEO(dist, st.CourseMapWithEnglish)
 	now := time.Now()
 	c.now = func() time.Time { return now }
 	pages := newStaticHandlerWithCourses(dist, openAccess, c)
-	sitemap := sitemapHandler(dist, st.OpenLessonKeys)
+	sitemap := sitemapHandler(dist, st.OpenLessonKeys, st.EnglishCourseIDs)
 
 	check := func(status int, inSitemap bool) {
 		t.Helper()

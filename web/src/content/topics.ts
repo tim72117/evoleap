@@ -76,7 +76,7 @@ export const CLAUDE_CODE_SCENARIOS: {
   title: string
   summary: string
   tools: string[]
-  /** 示範影片:src/content/live/ 底下的腳本路徑 */
+  /** 示範影片:資料庫的腳本路徑 */
   video?: { script: string; title: string; duration: string }
 }[] = [
   {
@@ -133,7 +133,7 @@ export type PlannedTopic = {
   /** 整理前後的示意 */
   sample?: { caption: string; before: string[]; after: string[] }
   /**
-   * 課程預覽:src/content/live/ 底下的腳本,用兒童版播放器(kids/KidsPlayer.tsx)播。
+   * 課程預覽:資料庫的腳本,用兒童版播放器(kids/KidsPlayer.tsx)播。
    * intro 放在環節清單上方;sections 是腳本的段落名稱 → 給家長看的說明、是不是要孩子動手(可互動)
    */
   preview?: { script: string; intro?: string; sections?: Record<string, { note?: string; interactive?: boolean }> }
@@ -165,7 +165,7 @@ export const KIDS_TOPIC = {
   start: { label: START_FIRST_LESSON, path: KIDS_LESSON_PAGES['0.1'].path },
   flow: ['用積木蓋網頁', '幫網頁換衣服', '讓網頁動起來', '說清楚，請 AI 幫忙做'],
   outcomes: ['說得出網頁每個部分的名字', '一張自己的寵物名片網頁', '請 AI 做出自己的小網站'],
-  // 這張卡片是給家長看的:環節說明寫孩子會做什麼;段落名稱要和 content/live/kids/0.1.json 的 chapter 一致
+  // 這張卡片是給家長看的:環節說明寫孩子會做什麼;段落名稱要和 資料庫的 kids/0.1.json 的 chapter 一致
   preview: {
     script: KIDS_LESSON_PAGES['0.1'].script,
     intro: '這堂課可以互動：標著「可互動」的環節會停下來，等孩子自己點畫面上的網頁和積木。點下面的環節可以直接跳過去看。',

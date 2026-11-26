@@ -1,0 +1,89 @@
+{
+ "courses": {
+  "software": {
+   "title": "Build Your Own Software",
+   "summary": "Test summary: software.",
+   "about": [
+    "Test about 1: software."
+   ],
+   "seoTitle": "Build Your Own Software: test search title",
+   "description": "Test description: software."
+  },
+  "ai-agent": {
+   "title": "Test AI Agent",
+   "summary": "Test summary: ai-agent."
+  },
+  "advanced": {
+   "title": "Test Advanced",
+   "summary": "Test summary: advanced."
+  },
+  "web": {
+   "title": "How the Web Works",
+   "summary": "Test summary: web.",
+   "about": [
+    "Test about 1: web.",
+    "Test about 2: web."
+   ],
+   "seoTitle": "How the Web Works: test search title",
+   "description": "Test description: web."
+  },
+  "launch": {
+   "title": "Test Launch",
+   "summary": "Test summary: launch.",
+   "about": [
+    "Test about 1: launch."
+   ],
+   "seoTitle": "Test Launch: test search title",
+   "description": "Test description: launch."
+  },
+  "claude-code": {
+   "title": "Test Claude Code",
+   "summary": "Test summary: claude-code.",
+   "seoTitle": "Test Claude Code: test search title",
+   "description": "Test description: claude-code."
+  },
+  "kids": {
+   "title": "Test Kids Web",
+   "summary": "Test summary: kids.",
+   "seoTitle": "Test Kids Web: test search title",
+   "description": "Test description: kids."
+  }
+ },
+ "units": {
+  "software/tools": {
+   "title": "Test Tools Unit",
+   "label": "Starter"
+  },
+  "web/0": {
+   "title": "Test Web Basics",
+   "subtitle": "Test web question"
+  }
+ },
+ "lessons": {
+  "software/0.1": {
+   "title": "Test tool intro",
+   "summary": "Test lesson summary: tools."
+  },
+  "web/0.1": {
+   "title": "Test web lesson"
+  },
+  "software/9.9": {
+   "title": "No such lesson"
+  }
+ },
+ "topics": {
+  "software": {
+   "name": "Test Software Topic",
+   "slogan": "Test slogan",
+   "seoTitle": "Test topic search title",
+   "description": "Test topic description.",
+   "content": {
+    "lede": "Test lede"
+   }
+  },
+  "web": {
+   "name": "Test Web Topic",
+   "slogan": "Test web slogan"
+  }
+ }
+}

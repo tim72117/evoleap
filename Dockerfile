@@ -10,7 +10,7 @@
 # 本機跑:
 #   docker run --rm -p 8080:8080 shuttle-server
 #
-# 另一個目標 course-sync 是課程同步工作的映像(只有 cmd/sync 與腳本目錄,不建置前端):
+# 另一個目標 course-sync 是課程同步工作的映像(只有 cmd/sync,不建置前端):
 #   docker build --target course-sync -t shuttle-course-sync .
 # 預設(不加 --target)建置的是網站,也就是最後一個階段。
 
@@ -20,10 +20,8 @@ WORKDIR /repo/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
-# tsc -b 型別檢查讀測試用的固定資料
-COPY server/internal/store/fixture/courses.json /repo/server/internal/store/fixture/courses.json
-# 英文翻譯檔(現在是「初稿種子」,執行期的譯文以資料庫為準,見 README):seo/enPages.ts 建置時讀它產生 /en/... 的英文頁(課名、簡介、單元與課的標題);改資料庫的譯文不會更新這些靜態頁。
-COPY server/internal/store/i18n_en.json /repo/server/internal/store/i18n_en.json
+# tsc -b 型別檢查讀測試用的固定資料(含範例腳本 fixture/live)
+COPY server/internal/store/fixture/ /repo/server/internal/store/fixture/
 # GA4 評估 ID(Vite 於 build 時內嵌):docker build --build-arg VITE_GA_MEASUREMENT_ID=G-XXXX。
 # 未傳或留空時前端完全不載入 Google Analytics。
 # 功能旗標(全站開啟的功能,逗號分隔,如 practice;留空則正式站預設關閉,見 web/src/site/features.ts)。
@@ -59,7 +57,7 @@ RUN cd /src/server && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -
     -o /out/server ./cmd/server
 
 # ---- 課程同步工作(--target course-sync):只編譯 cmd/sync,不建置前端 ----
-# 部署與從 dev 手動同步時以 Cloud Run Job 執行一次,把 /app/live 裡資料庫還沒有的腳本檔補進去。
+# 部署與從 dev 手動同步時以 Cloud Run Job 執行一次:建表、重算翻譯登記表(腳本與課程以資料庫為準,不由映像帶入)。
 FROM golang:1.26 AS sync-build
 COPY server/go.mod server/go.su[m] /src/server/
 RUN cd /src/server && go mod download
@@ -70,17 +68,14 @@ RUN cd /src/server && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -
 FROM gcr.io/distroless/static-debian12:nonroot AS course-sync
 WORKDIR /app
 COPY --from=sync-build /out/sync /app/sync
-COPY web/src/content/live/ /app/live/
-ENTRYPOINT ["/app/sync", "-live", "/app/live"]
+ENTRYPOINT ["/app/sync"]
 
 # ---- 階段 3:執行(網站,預設目標) ----
 # distroless:只含執行檔需要的最小 runtime,無 shell、體積小、攻擊面小。
 FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /app
 COPY --from=build /out/server /app/server
-# 課程腳本檔:網站沒接資料庫時直接從這裡讀(-live);有資料庫時讀的是課程同步工作(course-sync)寫進去的內容
-COPY web/src/content/live/ /app/live/
 
 # Cloud Run 會注入 PORT(預設 8080);main.go 讀 PORT 覆寫監聽位址。
 EXPOSE 8080
-ENTRYPOINT ["/app/server", "-live", "/app/live"]
+ENTRYPOINT ["/app/server"]

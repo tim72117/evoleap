@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import actor, { drawOrder, type TreeState } from './actor'
 import { dragPlan } from '../../../kids/drag'
-import lesson from '../../../content/live/web/1.2.json'
-import lesson11 from '../../../content/live/web/1.1.json'
+import lesson from '../../../../../server/internal/store/fixture/live/web/1.2.json'
+import lesson11 from '../../../../../server/internal/store/fixture/live/web/1.1.json'
 
 // 成人版(look: clean,網頁怎麼運作 1.2):節點寫 tag,id 自己取;任務可以用 parent(直接在某個盒子底下)
 const props = lesson.cast.tree.props as Parameters<NonNullable<typeof actor.init>>[0]
@@ -37,14 +37,6 @@ describe('kid-tree 成人版(look: clean)', () => {
     expect(plan.slotsFor('picks').some((d) => d.target.startsWith('tree:slot:latte'))).toBe(false)
   })
 
-  it('1.2 的腳本:做完了／直接看答案的示範都讓兩個任務完成', () => {
-    const drag = (lesson.steps as { id?: string; options?: { steps: Record<string, unknown>[] }[]; skip?: { steps: Record<string, unknown>[] } }[]).find((s) => s.id === 'drag')!
-    for (const steps of [drag.options![0].steps, drag.skip!.steps]) {
-      let st = actor.init!(props) as TreeState
-      for (const s of steps) if ('put' in s) st = actor.apply!(st, 'put', s) as TreeState
-      expect(st.achieved.sort()).toEqual(['buy-out', 'pour-in'])
-    }
-  })
 })
 
 describe('kid-tree:anatomy、wrap、unwrap(網頁怎麼運作 1.1)', () => {
@@ -104,19 +96,4 @@ describe('kid-tree:anatomy、wrap、unwrap(網頁怎麼運作 1.1)', () => {
     expect(() => actor.apply!(grown(), 'unwrap', { unwrap: 'title' })).toThrow(/不是樹上的容器/)
   })
 
-  it('1.1 的結構圖照腳本的動作推算得過:點點看之前包好 div,看完之後維持', () => {
-    let st = actor.init!(p11) as TreeState
-    const run = (steps: Record<string, unknown>[]) => {
-      for (const s of steps) {
-        if (s.on && s.on !== 'tree') continue
-        const kind = actor.kinds.find((k) => k in s)
-        if (kind) st = actor.apply!(st, kind, s as never) as TreeState
-      }
-    }
-    run(lesson11.steps as Record<string, unknown>[])
-    expect(ids(st.kids)).toBe('main(title,card(photo,intro,price,add))')
-    const explore = (lesson11.steps as { id?: string; options?: { steps: Record<string, unknown>[] }[] }[]).find((s) => s.id === 'explore')!
-    run(explore.options![0].steps)
-    expect(ids(st.kids)).toBe('main(title,card(photo,intro,price,add))')
-  })
 })

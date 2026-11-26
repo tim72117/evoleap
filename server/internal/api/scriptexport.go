@@ -7,7 +7,7 @@ import (
 )
 
 // handleScriptExport 唯讀地回傳腳本檔的完整內容,給備份用(GET /api/admin/script-export?source=lesson|studio,不給 source 就兩張表都給,只給管理員)。
-// 每個檔:來源、路徑、所屬課程與課、原始內容。只讀資料庫(不看本機的 LiveDir),所以拿到的是正式資料庫的現況。
+// 每個檔:來源、路徑、所屬課程與課、原始內容。只讀資料庫,所以拿到的是正式資料庫的現況。
 func (s *Server) handleScriptExport(w http.ResponseWriter, r *http.Request, _ store.User) {
 	if s.cfg.Store == nil {
 		writeError(w, http.StatusServiceUnavailable, "no_database", "課程資料還沒連上資料庫")

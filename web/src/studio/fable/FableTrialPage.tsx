@@ -6,7 +6,7 @@ import './registerActors'
 
 // 「從做好到上線」0.1「本機與網路上」的畫面試作:探「即時教學畫面引擎」最多能做到什麼程度。
 // 不用字卡、說明框,全部用演員、場景與動畫把概念演出來;兩位試作演員(fable-sky 夜景背景、fable-world 場景)
-// 只登記給這一頁(registerActors.ts),不進公開 bundle;腳本在 content/live/lab/fable/0.1.json(只給管理員)。
+// 只登記給這一頁(registerActors.ts),不進公開 bundle;腳本在 資料庫的 lab/fable/0.1.json(只給管理員)。
 
 const VERSIONS = [
   { id: 'actors', label: '原版：兩位演員', script: 'lab/fable/0.1.json', title: '本機與網路上（畫面試作）', note: '背景（fable-sky）與前景（fable-world）是兩位演員，背景的變化要在腳本裡用 mood 逐步下指令。' },
@@ -17,7 +17,7 @@ export function FableTrialPage() {
   const [params, setParams] = useSearchParams()
   const version = VERSIONS.find((v) => v.id === params.get('v')) ?? VERSIONS[0]
   return (
-    <ProposalLayout title="畫面試作：本機與網路上" footer="試作 · 腳本：src/content/live/lab/fable/0.1.json · 演員：src/studio/fable/actors/" wide>
+    <ProposalLayout title="畫面試作：本機與網路上" footer="試作 · 腳本：資料庫的 lab/fable/0.1.json · 演員：src/studio/fable/actors/" wide>
       <p>
         <Link className={`${ui.btn} ${ui.ghost}`} to="/studio/visuals">
           ← 即時教學影像

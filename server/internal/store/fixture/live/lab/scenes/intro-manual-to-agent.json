@@ -1,0 +1,3 @@
+{"title": "lab/scenes/intro-manual-to-agent", "cast": {"a": {"actor": "manual-office", "props": {}, "place": "full"}}, "steps": [
+ {"wait": 500}
+]}

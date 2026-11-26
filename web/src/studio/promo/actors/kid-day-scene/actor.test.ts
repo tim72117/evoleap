@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ActorEvent, StageScript } from '../../../../live/types'
-import demo from '../../../../content/live/lab/scenes/kid-day-scene.json'
+import demo from '../../../../../../server/internal/store/fixture/live/lab/scenes/kid-day-scene.json'
 import actor, { backdropAt, flashTime, HANDOFF_MS, handoffAt, kindOf, lookAt, RULES, shakeAt, type DayProps, type DayState, type DayStep } from './actor'
 
 const STAGE = ['card', 'callout', 'show', 'hide', 'move', 'checkpoint', 'wait', 'parts']

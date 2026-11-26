@@ -1,0 +1,3 @@
+{"title": "macbook", "cast": {"a": {"actor": "macbook", "props": {}, "place": {"x": 120, "y": 60, "w": 1680, "h": 960}}}, "steps": [
+ {"wait": 500}
+]}

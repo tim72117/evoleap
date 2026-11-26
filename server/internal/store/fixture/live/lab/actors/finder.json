@@ -1,0 +1,6 @@
+{"title": "finder", "cast": {"a": {"actor": "finder", "props": {"tree": {"bakery": {"index.html": "", "notes": {}}}, "open": "bakery"}, "place": {"x": 120, "y": 60, "w": 1680, "h": 960}}}, "steps": [
+ {"create": "styles.css"},
+ {"select": "styles.css"},
+ {"drag": "notes"},
+ {"drop": true}
+]}

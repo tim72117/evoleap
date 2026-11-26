@@ -6,6 +6,9 @@
 //   npm run record:live -- promo/portrait-demo.json --aspect portrait   直式 1080×1920(輸出檔名加 .portrait);預設 landscape 是 1920×1080
 //   選項:--fps 30(預設 30)  --url http://localhost:5190(指定已經在跑的 dev server;沒指定時先找 5190,沒有就自己起一個)
 //
+// 腳本與旁白清單以線上資料庫為準(lib/liveScripts.mjs,透過 evoleap CLI,先 evoleap login);--api URL 換伺服器(預設 https://evoleap.io),
+// --dir 資料夾 改讀本機檔案(還沒上傳的草稿)。--url 的 dev server 只提供畫面程式,頁面要的腳本由本工具攔下、改用上述來源回應。
+//
 // 做法:用 Playwright(本機用系統的 Chrome)開 /materials/promo?script=…&record=1。這個模式只顯示 1920×1080 的舞台,
 // 畫面是時間的純函式,所以逐格呼叫 window.__promo.renderAt(ms) 再截圖,截圖用管線交給 ffmpeg 合成 mp4(H.264、yuv420p)。
 //
@@ -21,10 +24,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
+import { isManifest, normalizeRel, openSource, sourceArgs } from './lib/liveScripts.mjs'
 import { STUDIO_TOKEN_COOKIE, studioDevToken } from './lib/studioToken.mjs'
 
 const WEB = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const LIVE = path.join(WEB, 'src/content/live')
 const OUT = path.join(WEB, 'recordings/promo')
 const CACHE = path.join(WEB, 'recordings/mix/.cache')
 const VOICE_BASE = 'https://storage.googleapis.com/shuttle-voice/'
@@ -36,16 +39,31 @@ const die = (msg) => {
 }
 
 // ---------- 參數 ----------
-const argv = process.argv.slice(2)
+let common, source
+try {
+  common = sourceArgs(process.argv.slice(2))
+  if (common.push) die('record-live 只讀腳本、不上傳,不用 --push')
+  source = openSource(common)
+} catch (e) {
+  die(e.message)
+}
+const argv = common.rest
 const opt = (name) => {
   const i = argv.indexOf(`--${name}`)
   return i >= 0 ? argv[i + 1] : undefined
 }
 const optNames = new Set(['from', 'to', 'fps', 'url', 'aspect'])
 const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && optNames.has(argv[i - 1].replace(/^--/, '')) && argv[i - 1].startsWith('--')))
-const script = positional[0]
-if (!script) die('請指定腳本,例如 npm run record:live -- promo/0.promo-intro.json [--from 毫秒] [--to 毫秒]')
-if (!fs.existsSync(path.join(LIVE, script))) die(`找不到腳本:src/content/live/${script}`)
+if (!positional[0]) die('請指定腳本,例如 npm run record:live -- promo/0.promo-intro.json [--from 毫秒] [--to 毫秒]')
+let script
+try {
+  script = normalizeRel(positional[0])
+  await source.json(script)
+  const note = await source.pendingNote(script.replace(/\.json$/, '.voice.json'))
+  if (note) console.warn(note)
+} catch (e) {
+  die(e.message)
+}
 const num = (name, def) => {
   const v = opt(name)
   if (v === undefined) return def
@@ -125,9 +143,8 @@ async function clipFile(file) {
 
 /** 依旁白的開始時間排出音軌要用的片段(範圍內的),回傳 [{ file, delay(毫秒), skip(毫秒,範圍開頭已播過的部分) }] */
 async function audioPlan(narrations, from, to) {
-  const voicePath = path.join(LIVE, script.replace(/\.json$/, '.voice.json'))
-  if (!fs.existsSync(voicePath)) return []
-  const voice = JSON.parse(fs.readFileSync(voicePath, 'utf8'))
+  const voice = await source.json(script.replace(/\.json$/, '.voice.json'))
+  if (!voice) return []
   const plan = []
   for (const n of narrations) {
     const clip = voice.clips?.[n.text]
@@ -162,11 +179,22 @@ try {
   // dev server 會擋研發基地(vite.config.ts 的 devStudioGate),錄影帶本機的 token 通過
   await page.context().addCookies([{ name: STUDIO_TOKEN_COOKIE, value: studioDevToken(WEB), url }])
   const problems = []
+  // 頁面向 dev server 要的腳本一律改由這裡回應(和上面驗證的是同一個來源),不會用到 dev server 後端的資料庫
+  await page.context().route((u) => u.pathname.startsWith('/api/scripts/'), async (route) => {
+    const rel = decodeURIComponent(new URL(route.request().url()).pathname.slice('/api/scripts/'.length))
+    try {
+      const body = await source.get(rel)
+      await route.fulfill({ status: 200, contentType: 'application/json', body: body ?? 'null' })
+    } catch (e) {
+      problems.push(e.message)
+      await route.fulfill({ status: isManifest(rel) ? 200 : 404, contentType: 'application/json', body: 'null' })
+    }
+  })
   page.on('pageerror', (e) => problems.push(`頁面錯誤:${e.message}`))
   page.on('console', (m) => m.type() === 'error' && problems.push(`console:${m.text()}`))
   await page.goto(`${url}/materials/promo?script=${encodeURIComponent(script)}&record=1${ASPECT === 'portrait' ? '&aspect=portrait' : ''}`)
   await page.waitForFunction(() => window.__promoReady === true || document.querySelector('[role=alert]'), null, { timeout: 60000 })
-  if (!(await page.evaluate(() => window.__promoReady === true))) die(`腳本載入失敗:${await page.locator('[role=alert]').innerText()}`)
+  if (!(await page.evaluate(() => window.__promoReady === true))) die(`腳本載入失敗:${await page.locator('[role=alert]').innerText()}${problems.length ? `\n${problems.join('\n')}` : ''}`)
 
   const info = await page.evaluate(() => ({
     duration: window.__promo.duration,
@@ -183,6 +211,7 @@ try {
   const srt = path.join(OUT, `${base}.srt`)
 
   const plan = await audioPlan(info.narrations, from, to)
+  console.log(`腳本來源:${source.label}`)
   console.log(`${script}:總長 ${(info.duration / 1000).toFixed(1)} 秒,錄 ${(from / 1000).toFixed(1)}–${(to / 1000).toFixed(1)} 秒,${frames} 格(${FPS} fps),${plan.length ? `旁白 ${plan.length} 段` : '無旁白語音(只輸出無聲影片)'}`)
 
   fs.writeFileSync(srt, toSrt(info.captions, from, to))

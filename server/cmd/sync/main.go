@@ -1,8 +1,8 @@
-// sync 是部署時的同步工作:建表,把 -live 目錄裡資料庫還沒有的腳本檔補進研發基地,重算翻譯登記表。
-// 不寫主題、課程、單元、課;空資料庫要手動初始化(node server/backup/gcs.mjs init)。
+// sync 是部署時的同步工作:建表,重算翻譯登記表。
+// 不寫主題、課程、單元、課與腳本(以資料庫為準);新站只用備份復原:空資料庫手動初始化(node server/backup/gcs.mjs init)。
 //
 // 正式環境:每次部署(deploy-cloudrun.yml)與從 dev 分支手動同步(sync-courses.yml)時,
-// 以 Cloud Run Job(shuttle-course-sync)執行一次;映像是 Dockerfile 的 course-sync 目標,只有這支程式與腳本目錄。
+// 以 Cloud Run Job(shuttle-course-sync)執行一次;映像是 Dockerfile 的 course-sync 目標,只有這支程式。
 // Cloud Run 上的網站伺服器只讀,不寫課程資料。
 //
 // 本機:go run ./cmd/sync(預設寫進 shuttle.db,和 cmd/server 相同);本機的網站伺服器啟動時也會寫,通常不用另外跑。
@@ -18,7 +18,6 @@ import (
 )
 
 func main() {
-	liveDir := flag.String("live", "../web/src/content/live", "課程腳本檔的目錄(web/src/content/live)")
 	dbPath := flag.String("db", "shuttle.db", "DATABASE_URL 未設定時寫入的本機 SQLite 檔案")
 	flag.Parse()
 
@@ -34,8 +33,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := st.SyncCourses(context.Background(), *liveDir); err != nil {
+	if err := st.SyncCourses(context.Background()); err != nil {
 		log.Fatal(err)
 	}
-	log.Print("課程資料已寫入資料庫")
+	log.Print("資料庫結構與翻譯登記表已同步")
 }

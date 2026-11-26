@@ -1,9 +1,10 @@
 // host.ts — 舞台的渲染頁(host.html):給 web/scripts/canvas-mcp.mjs 的 canvas_* 工具用,只在 dev server 存在。
-// 腳本直接從 src/content/live/ 的檔案讀(import.meta.glob),不經過後端資料庫;展開老師開場(withTeacher)與旁白長度(.voice.json)同 scripts.ts。
+// canvas_* 工具自己取得腳本(scripts/lib/liveScripts.mjs)後把內容傳進 load;人用網址開(?script=)時向這個 dev server 的後端 GET /api/scripts 取。
+// 展開老師開場(withTeacher)與旁白長度(.voice.json)同 scripts.ts。
 // 畫面是時間的純函式,所以截圖、量位置都是 renderAt(ms) 之後直接做。
 //
-//   window.__canvas.scripts()                               所有腳本路徑與登記的演員
-//   await window.__canvas.load({ script, aspect })            載入(錯誤含第幾步)
+//   window.__canvas.actors()                                登記的演員
+//   await window.__canvas.load({ script, voice, name, aspect }) 載入(script 是腳本內容或路徑;錯誤含第幾步)
 //   window.__canvas.times(spec)                               "steps" | "chapters" | number[] | "from-to/step" → [{ at, label }]
 //   window.__canvas.renderAt(ms, overlays)                    overlays:bounds、safe、grid、time
 //   window.__canvas.inspect({ time, targets })                位置、文字、重疊與安全區警告(JSON)
@@ -21,9 +22,7 @@ import { SAFE } from '../promo/actors/kid-reel/layout'
 type Box = { x: number; y: number; w: number; h: number }
 type Mark = { at: number; label: string }
 
-const SCRIPTS = import.meta.glob('/src/content/live/**/*.json', { import: 'default' })
 const ACTOR_SRC = import.meta.glob(['/src/live/actors/*/actor.ts', '/src/studio/**/actors/*/actor.ts'], { query: '?raw', import: 'default' })
-const PREFIX = '/src/content/live/'
 
 const root = document.getElementById('canvas-root') as HTMLDivElement
 document.body.style.cssText = 'margin:0;background:#000'
@@ -67,24 +66,28 @@ async function targetsOf(actor: string): Promise<string[]> {
   return targetNames[actor]
 }
 
-async function load({ script, aspect: a = 'landscape' }: { script: string | StageScript; aspect?: Aspect }) {
+async function fetchJson<T>(path: string): Promise<T | null> {
+  const res = await fetch(`/api/scripts/${path}`)
+  if (!res.ok) throw new Error(`讀不到腳本 ${path}(HTTP ${res.status};草稿要先在這個 dev server 用管理員登入)`)
+  return (await res.json()) as T | null
+}
+
+type LoadInput = { script: string | StageScript; voice?: Record<string, number>; name?: string; aspect?: Aspect }
+
+async function load({ script, voice: given, name, aspect: a = 'landscape' }: LoadInput) {
   aspect = a
   let data: StageScript
-  let voice: Record<string, number> | undefined
+  let voice = given
   if (typeof script === 'string') {
-    const key = PREFIX + script.replace(/^\/?(src\/content\/live\/)?/, '')
-    const get = SCRIPTS[key]
-    if (!get) throw new Error(`找不到腳本:${script}(相對於 src/content/live/,例如 promo/kids-free-reel-short.json)`)
-    data = structuredClone((await get()) as StageScript)
-    const v = SCRIPTS[key.replace(/\.json$/, '.voice.json')]
-    if (v) {
-      const m = (await v()) as { clips?: Record<string, { ms: number }> }
-      voice = Object.fromEntries(Object.entries(m.clips ?? {}).map(([t, c]) => [t, c.ms]))
-    }
+    const found = await fetchJson<StageScript>(script)
+    if (!found) throw new Error(`找不到腳本:${script}`)
+    data = found
+    const m = await fetchJson<{ clips?: Record<string, { ms: number }> }>(script.replace(/\.json$/, '.voice.json'))
+    if (m) voice = Object.fromEntries(Object.entries(m.clips ?? {}).map(([t, c]) => [t, c.ms]))
     scriptPath = script
   } else {
     data = structuredClone(script)
-    scriptPath = '(inline)'
+    scriptPath = name ?? '(inline)'
   }
   data = withTeacher(data)
   await ensureActors(castActorNames(data)) // 延遲載入的演員要先登記進 ACTORS,舞台才找得到
@@ -319,7 +322,7 @@ declare global {
 }
 window.__canvas = {
   ready: true,
-  scripts: () => ({ scripts: Object.keys(SCRIPTS).filter((k) => !/\.(voice|mix)\.json$/.test(k)).map((k) => k.slice(PREFIX.length)), actors: [...new Set([...Object.keys(ACTORS), ...LAZY_ACTOR_NAMES])].sort() }),
+  actors: () => [...new Set([...Object.keys(ACTORS), ...LAZY_ACTOR_NAMES])].sort(),
   load,
   times,
   renderAt,

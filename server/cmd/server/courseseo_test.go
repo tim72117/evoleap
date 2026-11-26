@@ -18,7 +18,9 @@ import (
 const testManifest = `{"site":"evoleap","origin":"https://evoleap.io","courseList":{"name":"全部課程","path":"/courses"},"pages":[
 {"path":"/courses/software","course":"software","coursePath":"/courses/software","kind":"overview"},
 {"path":"/courses/web","course":"web","coursePath":"/courses/web","kind":"overview","listLessons":true},
-{"path":"/courses/gone","course":"gone","coursePath":"/courses/gone","kind":"overview"}],"lessons":[
+{"path":"/courses/gone","course":"gone","coursePath":"/courses/gone","kind":"overview"},
+{"path":"/en/courses/web","course":"web","coursePath":"/en/courses/web","kind":"overview","lang":"en","listLessons":true},
+{"path":"/en/courses/gone","course":"gone","coursePath":"/en/courses/gone","kind":"overview","lang":"en"}],"lessons":[
 {"course":"software","coursePath":"/courses/software","style":"staged","ogType":"article"},
 {"course":"web","coursePath":"/courses/web","style":"topic"},
 {"course":"gone","coursePath":"/courses/gone","style":"topic"}]}`
@@ -31,7 +33,7 @@ func courseDist() fstest.MapFS {
 		"404.html":      {Data: []byte(`<title>not found</title>`)},
 		coursePagesFile: {Data: []byte(testManifest)},
 	}
-	for _, p := range []string{"courses/software", "courses/web", "courses/gone"} {
+	for _, p := range []string{"courses/software", "courses/web", "courses/gone", "en/courses/web", "en/courses/gone"} {
 		dist[p+"/index.html"] = shell
 	}
 	for _, c := range []string{"software", "web", "gone"} {
@@ -47,7 +49,7 @@ func fixtureLoader(t *testing.T) courseLoader {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { st.Close() })
-	return func(ctx context.Context, id string) (store.CourseMap, error) { return st.CourseMapOf(ctx, id, false) }
+	return st.CourseMapWithEnglish
 }
 
 func TestCoursePagesFromDatabase(t *testing.T) {
@@ -149,9 +151,9 @@ func TestCoursePagesCacheExpiry(t *testing.T) {
 	calls := 0
 	title := "舊名稱"
 	var fail error
-	c := newCourseSEO(dist, func(context.Context, string) (store.CourseMap, error) {
+	c := newCourseSEO(dist, func(context.Context, string) (store.CourseMap, *store.CourseMap, error) {
 		calls++
-		return store.CourseMap{ID: "web", Title: title}, fail
+		return store.CourseMap{ID: "web", Title: title}, nil, fail
 	})
 	now := time.Now()
 	c.now = func() time.Time { return now }
@@ -215,5 +217,77 @@ func TestOpenLessonKeysSkipsHiddenUnits(t *testing.T) {
 	keys, err := st.OpenLessonKeys(context.Background())
 	if err != nil || !keys["web/1"] || keys["web/2"] || keys["web/3"] {
 		t.Errorf("%v %v", keys, err)
+	}
+}
+
+// 英文課程總覽:請求時讀資料庫的譯文;沒有英文版回中文頁並 noindex、中文頁沒有 hreflang;讀不到 503,沒有舊資料或程式內備援
+func TestEnglishCoursePages(t *testing.T) {
+	st, err := storetest.Open(filepath.Join(t.TempDir(), "en.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	dist := courseDist()
+	var fail error
+	c := newCourseSEO(dist, func(ctx context.Context, id string) (store.CourseMap, *store.CourseMap, error) {
+		if fail != nil {
+			return store.CourseMap{}, nil, fail
+		}
+		return st.CourseMapWithEnglish(ctx, id)
+	})
+	now := time.Now()
+	c.now = func() time.Time { return now }
+	h := newStaticHandlerWithCourses(dist, openAccess, c)
+	api := c.apiHandler()
+	meta := func(p string) (m pageMeta) {
+		t.Helper()
+		rec := get(api, http.MethodGet, "/api/seo/page?path="+p, nil)
+		if err := json.Unmarshal(rec.Body.Bytes(), &m); err != nil || rec.Code != 200 {
+			t.Fatalf("%s: %d %v %s", p, rec.Code, err, rec.Body)
+		}
+		return m
+	}
+
+	rec := get(h, http.MethodGet, "/en/courses/web", nil)
+	body := rec.Body.String()
+	for _, w := range []string{"<title>How the Web Works: test search title · evoleap</title>", "Test description: web.", `"inLanguage":"en"`, `"All Courses"`, "Test web lesson", `rel="alternate"`} {
+		if !strings.Contains(body, w) {
+			t.Errorf("缺少 %q: %s", w, body)
+		}
+	}
+	if rec.Code != 200 || rec.Header().Get("X-Robots-Tag") != "" {
+		t.Errorf("%d %v", rec.Code, rec.Header())
+	}
+	if m := meta("/en/courses/web"); m.Lang != "en" || m.Noindex || m.NoEnglish || m.Title != "How the Web Works: test search title · evoleap" {
+		t.Errorf("%+v", m)
+	}
+	if rec := get(h, http.MethodGet, "/en/courses/gone", nil); rec.Code != 404 {
+		t.Errorf("沒有這門課: %d", rec.Code)
+	}
+
+	// 課名的譯文退回草稿:沒有英文版
+	if _, err := st.SetI18n(context.Background(), "a@x", store.I18nSet{Kind: store.I18nCourse, Ref: "web", Path: "title", Lang: store.LangEN, Value: "x", Status: store.I18nDraft}); err != nil {
+		t.Fatal(err)
+	}
+	now = now.Add(courseSEOTTL)
+	rec = get(h, http.MethodGet, "/en/courses/web", nil)
+	body = rec.Body.String()
+	if rec.Code != 200 || rec.Header().Get("X-Robots-Tag") != "noindex, nofollow" || strings.Contains(body, `rel="alternate"`) || strings.Contains(body, "How the Web Works") {
+		t.Errorf("沒有英文版: %d %v %s", rec.Code, rec.Header(), body)
+	}
+	if zh := get(h, http.MethodGet, "/courses/web", nil); zh.Code != 200 || zh.Header().Get("X-Robots-Tag") != "" || strings.Contains(zh.Body.String(), `rel="alternate"`) {
+		t.Errorf("中文頁收錄但沒有 hreflang: %d %s", zh.Code, zh.Body)
+	}
+	if m := meta("/en/courses/web"); m.Path != "/courses/web" || !m.Noindex || !m.NoEnglish || m.Lang != "" {
+		t.Errorf("%+v", m)
+	}
+
+	fail = errors.New("db down")
+	now = now.Add(courseSEOTTL)
+	if rec := get(h, http.MethodGet, "/en/courses/web", nil); rec.Code != 503 || rec.Header().Get("Retry-After") == "" {
+		t.Errorf("讀不到: %d", rec.Code)
+	}
+	if rec := get(api, http.MethodGet, "/api/seo/page?path=/en/courses/web", nil); rec.Code != 503 {
+		t.Errorf("api 讀不到: %d", rec.Code)
 	}
 }

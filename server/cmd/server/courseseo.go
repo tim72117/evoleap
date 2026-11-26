@@ -6,6 +6,8 @@ package main
 // 單課頁 /courses/<課程>/<課號> 不逐課產生:一門課一份 HTML(dist/lesson-shells/),哪些課存在看資料庫,新增課不用重新 build。
 //   - 資料庫讀不到(或沒接資料庫):503 + Retry-After
 //   - 資料庫沒有這門課或這一課:404
+// 英文版只有課程總覽(/en/courses/<課程>):課名有已發布的英文譯文才有;沒有的回中文頁並 noindex(static.go),中文頁也不放 hreflang。
+// 沒翻的個別欄位保留中文(和 ?lang=en 的 API、瀏覽器畫面一致)。譯文只從資料庫讀,讀不到同樣回 503。
 // 只用公開的課程地圖(草稿當成規劃中),和 GET /api/courses/{id}/map 給訪客的內容相同。
 // 每門課的課程地圖在程序內記 courseSEOTTL;過期後讀不到就回 503,不拿舊資料頂替。
 
@@ -53,6 +55,7 @@ var alternateLink = regexp.MustCompile(`\s*<link rel="alternate" hreflang="[^"]*
 
 var (
 	errNoSuchPage  = errors.New("no such course page")
+	errNoEnglish   = errors.New("course page has no english version")
 	errUnavailable = errors.New("course database unavailable")
 )
 
@@ -82,6 +85,8 @@ type courseEntry struct {
 		Name    string `json:"name"`
 		Summary string `json:"summary"`
 	} `json:"chapter"`
+	// Lang:英文版課程總覽(/en/courses/<課程>)是 "en",其餘空的
+	Lang string `json:"lang"`
 	// Noindex:整門課先不公開(前端的設定);先不公開的單元依資料庫
 	Noindex bool   `json:"noindex"`
 	OgType  string `json:"ogType"`
@@ -95,15 +100,21 @@ type pageMeta struct {
 	Noindex     bool   `json:"noindex,omitempty"`
 	OgType      string `json:"ogType,omitempty"`
 	JSONLD      []any  `json:"jsonLd,omitempty"`
+	Lang        string `json:"lang,omitempty"`
+	// NoEnglish:這門課沒有英文版,瀏覽器端不放 hreflang(和 server 的 HTML 一致)
+	NoEnglish bool `json:"noEnglish,omitempty"`
 }
 
-// courseLoader 讀一門課的公開課程地圖;課程不存在回 store.ErrCourseNotFound
-type courseLoader func(ctx context.Context, id string) (store.CourseMap, error)
+// courseLoader 讀一門課的公開課程地圖與英文版(沒有英文版時 en 是 nil);課程不存在回 store.ErrCourseNotFound
+type courseLoader func(ctx context.Context, id string) (zh store.CourseMap, en *store.CourseMap, err error)
 
 // courseSnapshot 是某一刻讀到的課程地圖(nil 代表資料庫沒有這門課)
 type courseSnapshot struct {
-	m  *store.CourseMap
-	at time.Time
+	// enUnavailable:譯文這次讀不到(en 是 nil,但不代表沒有英文版)
+	enUnavailable bool
+	m             *store.CourseMap
+	en            *store.CourseMap // nil:沒有英文版
+	at            time.Time
 }
 
 type renderedPage struct {
@@ -193,11 +204,15 @@ func (c *courseSEO) snapshot(ctx context.Context, id string) (*courseSnapshot, e
 	// 查詢時不握著鎖,資料庫慢時不讓其他頁面排隊
 	ctx, cancel := context.WithTimeout(ctx, courseLoadTimeout)
 	defer cancel()
-	m, err := c.load(ctx, id)
+	m, en, err := c.load(ctx, id)
 	fresh := &courseSnapshot{at: c.now()}
 	switch {
 	case err == nil:
-		fresh.m = &m
+		fresh.m, fresh.en = &m, en
+	case errors.Is(err, store.ErrEnglishUnavailable):
+		// 譯文讀不到不影響中文頁;這段快取期間不放英文版連結,英文頁回 503
+		log.Printf("讀取課程 %s:%v", id, err)
+		fresh.m, fresh.enUnavailable = &m, true
 	case !errors.Is(err, store.ErrCourseNotFound):
 		log.Printf("讀取課程 %s 失敗:%v", id, err)
 		return nil, errUnavailable
@@ -208,7 +223,7 @@ func (c *courseSEO) snapshot(ctx context.Context, id string) (*courseSnapshot, e
 	return fresh, nil
 }
 
-// meta 回傳一個課程頁的 SEO 資料
+// meta 回傳一個課程頁的 SEO 資料;英文頁但這門課沒有英文版時回 errNoEnglish
 func (c *courseSEO) meta(ctx context.Context, path string) (pageMeta, *courseSnapshot, error) {
 	e, ok := c.entry(path)
 	if !ok {
@@ -221,10 +236,20 @@ func (c *courseSEO) meta(ctx context.Context, path string) (pageMeta, *courseSna
 	if snap.m == nil {
 		return pageMeta{}, nil, errNoSuchPage
 	}
-	m, ok := c.compose(e, snap.m)
+	course := snap.m
+	if e.Lang == "en" {
+		if snap.enUnavailable {
+			return pageMeta{}, nil, errUnavailable
+		}
+		if course = snap.en; course == nil {
+			return pageMeta{}, nil, errNoEnglish
+		}
+	}
+	m, ok := c.compose(e, course)
 	if !ok {
 		return pageMeta{}, nil, errNoSuchPage
 	}
+	m.NoEnglish = snap.en == nil
 	return m, snap, nil
 }
 
@@ -271,8 +296,12 @@ const schemaOrg = "https://schema.org"
 type crumb struct{ name, path string }
 
 func (c *courseSEO) breadcrumb(items ...crumb) ldCrumbs {
+	return c.breadcrumbFrom("首頁", items...)
+}
+
+func (c *courseSEO) breadcrumbFrom(home string, items ...crumb) ldCrumbs {
 	out := ldCrumbs{Context: schemaOrg, Type: "BreadcrumbList"}
-	for i, it := range append([]crumb{{"首頁", "/"}}, items...) {
+	for i, it := range append([]crumb{{home, "/"}}, items...) {
 		out.Items = append(out.Items, ldElement{Type: "ListItem", Position: i + 1, Name: it.name, Item: c.manifest.Origin + it.path})
 	}
 	return out
@@ -311,13 +340,21 @@ func (c *courseSEO) compose(e courseEntry, m *store.CourseMap) (pageMeta, bool) 
 		topic = overview
 	}
 	description := firstNonEmpty(m.Description, m.Summary, m.Title)
-	out := pageMeta{Path: e.Path, Noindex: e.Noindex, OgType: e.OgType}
+	out := pageMeta{Path: e.Path, Noindex: e.Noindex, OgType: e.OgType, Lang: e.Lang}
+	// 英文版(只有總覽):麵包屑接英文的課程清單(主題頁沒有英文版);課頁沒有英文版,清單不附網址
+	english := e.Lang == "en"
 
 	switch e.Kind {
 	case "overview":
 		out.Title = title(firstNonEmpty(m.SEOTitle, m.Title))
 		out.Description = description
-		out.JSONLD = []any{c.courseLD(m.Title, description, e.Path), c.breadcrumb(parent, overview)}
+		ld := c.courseLD(m.Title, description, e.Path)
+		crumbs := c.breadcrumb(parent, overview)
+		if english {
+			ld.InLanguage = "en"
+			crumbs = c.breadcrumbFrom("Home", crumb{"All Courses", "/en" + c.manifest.CourseList.Path}, overview)
+		}
+		out.JSONLD = []any{ld, crumbs}
 		if e.ListLessons {
 			var items []ldElement
 			for _, u := range m.Units {
@@ -327,7 +364,7 @@ func (c *courseSEO) compose(e courseEntry, m *store.CourseMap) (pageMeta, bool) 
 				for _, l := range u.Lessons {
 					item := ldElement{Type: "ListItem", Position: len(items) + 1, Name: l.ID + " " + l.Title}
 					// 開放而且有課程頁(腳本)的課才附網址
-					if l.Status == store.LessonOpen && l.Script != "" {
+					if !english && l.Status == store.LessonOpen && l.Script != "" {
 						item.URL = c.manifest.Origin + e.Path + "/" + store.LessonSlug(false, l.ID)
 					}
 					items = append(items, item)
@@ -417,8 +454,10 @@ var htmlEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"
 func fillShell(shell []byte, e courseEntry, m pageMeta) ([]byte, error) {
 	html := string(shell)
 	robots := ""
-	if m.Noindex {
+	if m.Noindex || m.NoEnglish {
 		html = alternateLink.ReplaceAllString(html, "")
+	}
+	if m.Noindex {
 		if !e.Noindex { // 整門先不公開的課,build 的 HTML 已經帶了 robots
 			robots = noindexMarker + `, nofollow" data-seo>`
 		}
@@ -494,7 +533,13 @@ func (c *courseSEO) apiHandler() http.Handler {
 			fail(http.StatusServiceUnavailable, "unavailable")
 			return
 		}
-		m, _, err := c.meta(r.Context(), r.URL.Query().Get("path"))
+		p := r.URL.Query().Get("path")
+		m, _, err := c.meta(r.Context(), p)
+		// 沒有英文版:和 server 回的 HTML 一樣,給中文頁的資料並 noindex
+		if errors.Is(err, errNoEnglish) {
+			m, _, err = c.meta(r.Context(), strings.TrimPrefix(p, "/en"))
+			m.Noindex = true
+		}
 		switch {
 		case errors.Is(err, errNoSuchPage):
 			fail(http.StatusNotFound, "not_found")

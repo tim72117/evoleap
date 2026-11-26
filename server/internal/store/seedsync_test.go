@@ -63,7 +63,7 @@ func TestSyncCoursesDatabaseWins(t *testing.T) {
 	if err := st.PutScript(ctx, "boss@example.com", "c/a.json", "", "", []byte(`{"pushed":1}`)); err != nil {
 		t.Fatal(err)
 	}
-	// 檔案刪了、種子寫到不存在的檔、拿掉原本的課:都不影響資料庫,新的檔只補進研發基地
+	// 檔案刪了、種子寫到不存在的檔、拿掉原本的課:都不影響資料庫,目錄裡多出來的檔也不再補進去
 	if err := os.Remove(filepath.Join(dir, "c/a.json")); err != nil {
 		t.Fatal(err)
 	}
@@ -82,12 +82,8 @@ func TestSyncCoursesDatabaseWins(t *testing.T) {
 	if f, err := st.LessonFileOf(ctx, "c/a.json"); err != nil || f.LessonID != "0.1" || f.Content != `{"pushed":1}` {
 		t.Errorf("課的腳本不變: %+v %v", f, err)
 	}
-	if c, err := st.StudioFileOf(ctx, "c/fresh.json"); err != nil || c != `{"fresh":1}` {
-		t.Errorf("新的檔補進研發基地: %q %v", c, err)
-	}
-	// 沒有腳本目錄也可以同步
-	if err := st.syncCoursesJSON(ctx, []byte(second), filepath.Join(dir, "none")); err != nil {
-		t.Errorf("沒有腳本目錄: %v", err)
+	if _, err := st.StudioFileOf(ctx, "c/fresh.json"); !errors.Is(err, ErrLessonFileNotFound) {
+		t.Errorf("目錄的新檔不該寫進資料庫: %v", err)
 	}
 }
 

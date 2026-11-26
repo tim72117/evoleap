@@ -8,7 +8,7 @@ import ui from '../proposal/proposal.module.css'
 
 export function KidsXrayLivePage() {
   return (
-    <ProposalLayout title="兒童網頁課 X 光眼鏡草稿" footer="試做 · 腳本：src/content/live/kids/xray.json、xray-edit.json · 演員：src/live/actors/kid-web/">
+    <ProposalLayout title="兒童網頁課 X 光眼鏡草稿" footer="試做 · 腳本：資料庫的 kids/xray.json、xray-edit.json · 演員：src/live/actors/kid-web/">
       <p>
         <Link to="/studio/kids-web">← 兒童網頁課大綱</Link>
       </p>

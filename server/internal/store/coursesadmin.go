@@ -314,7 +314,7 @@ func (s *Store) UpdateLesson(ctx context.Context, user, courseID, lessonID strin
 // 沒給時:已經是某一課的檔就只換內容,否則當成研發基地的檔。內容必須是 JSON。
 func (s *Store) PutScript(ctx context.Context, user, path, courseID, lessonID string, content []byte) error {
 	if !strings.HasSuffix(path, ".json") || strings.Contains(path, "..") || strings.HasPrefix(path, "/") {
-		return invalid("path 要是 web/src/content/live/ 底下的相對路徑,以 .json 結尾")
+		return invalid("path 要是腳本的相對路徑,以 .json 結尾")
 	}
 	if !json.Valid(content) {
 		return invalid("內容不是有效的 JSON")

@@ -1,7 +1,7 @@
 name: Sync course data
 
-# 不部署網站、不用打 tag,只跑同步工作:建表、把資料庫還沒有的腳本檔補進研發基地、重算翻譯登記表。
-# 不寫主題與課程(以資料庫為準,用 evoleap CLI 改)。
+# 不部署網站、不用打 tag,只跑同步工作:建表、重算翻譯登記表。
+# 不寫主題、課程與腳本(以資料庫為準,用 evoleap CLI 改;新站用 node server/backup/gcs.mjs init 復原)。
 on:
   workflow_dispatch:
 
@@ -35,7 +35,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 和課程資料有關的測試:寫入與把關(Go)、種子和腳本檔一致(前端的課程一致性測試)
+      # 和課程資料有關的測試:寫入與把關(Go)、前端課頁網址與草稿規則
       - uses: actions/setup-go@v5
         with:
           go-version-file: server/go.mod

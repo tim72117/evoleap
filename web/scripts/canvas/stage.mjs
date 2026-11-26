@@ -1,12 +1,16 @@
-// stage.mjs — canvas_* 工具:即時教學畫面的舞台腳本,畫在 Vite dev server 的 src/studio/canvas/host.html 上(腳本直接讀檔,不經過後端)。
-import fs from 'node:fs'
+// stage.mjs — canvas_* 工具:即時教學畫面的舞台腳本,畫在 Vite dev server 的 src/studio/canvas/host.html 上。
+// 腳本由這裡(lib/liveScripts.mjs,透過 evoleap CLI)取得後傳進頁面,dev server 只提供舞台程式:
+// 預設向 https://evoleap.io 取(EVOLEAP_API 或參數 api 換伺服器);參數 dir(或 EVOLEAP_SCRIPT_DIR)改讀本機資料夾。
+import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { capture, compose, getPage, WEB, writeOut } from './art.mjs'
 import { png, text } from './rpc.mjs'
+import { isManifest, normalizeRel, openSource } from '../lib/liveScripts.mjs'
 import { STUDIO_TOKEN_COOKIE, studioDevToken } from '../lib/studioToken.mjs'
 
 const URL_ = (process.env.CANVAS_URL || 'http://localhost:5190').replace(/\/$/, '')
-const LIVE = path.join(WEB, 'src/content/live')
+// dir 給相對路徑時以 repo 根目錄為準;每次呼叫重新開來源,改過的腳本馬上看得到
+const sourceOf = (a) => openSource({ api: a.api, dir: a.dir ? path.resolve(WEB, '..', a.dir) : undefined })
 const OVERLAYS = ['bounds', 'safe', 'grid', 'time', 'pivots']
 
 // dev server 擋研發基地(vite.config.ts 的 devStudioGate):帶本機的 token(scripts/lib/studioToken.mjs,三處共用)
@@ -25,19 +29,16 @@ async function hostPage() {
   })
 }
 
-/** 確保頁面已載入這支腳本(檔案改過、Vite 整頁重新載入過時重新載入);回傳載入資訊 */
-async function ensure(script, aspect = 'landscape') {
-  if (!script) throw new Error('要給 script(相對於 src/content/live/,例如 promo/kids-free-reel-short.json)')
+/** 確保頁面已載入這支腳本的目前內容(內容改過、Vite 整頁重新載入過時重新載入);回傳載入資訊 */
+async function ensure(a, aspect = 'landscape') {
+  if (!a.script) throw new Error('要給 script(例如 promo/kids-free-reel-short.json)')
+  const source = sourceOf(a)
+  const script = normalizeRel(a.script)
+  const data = await source.json(script)
+  const manifest = await source.json(script.replace(/\.json$/, '.voice.json'))
+  const voice = manifest ? Object.fromEntries(Object.entries(manifest.clips ?? {}).map(([t, c]) => [t, c.ms])) : undefined
+  const key = `${script}|${aspect}|${createHash('sha1').update(JSON.stringify([source.label, data, voice])).digest('hex')}`
   const e = await hostPage()
-  const file = path.join(LIVE, script)
-  if (!fs.existsSync(file)) throw new Error(`找不到腳本:src/content/live/${script}`)
-  const voice = file.replace(/\.json$/, '.voice.json')
-  const key = `${script}|${aspect}|${fs.statSync(file).mtimeMs}|${fs.existsSync(voice) ? fs.statSync(voice).mtimeMs : 0}`
-  if (e.key && e.key !== key && e.key.split('|')[0] === script && e.key.split('|')[1] === aspect) {
-    // 同一支腳本改過:重新載入頁面,拿到新的檔案內容
-    await e.page.reload()
-    e.info = null
-  }
   await e.page.waitForFunction(() => window.__canvas?.ready === true, null, { timeout: 30000 }).catch(() => {
     throw new Error(`host 頁沒有準備好:${e.errors.slice(-3).join(' | ') || '逾時'}`)
   })
@@ -45,12 +46,12 @@ async function ensure(script, aspect = 'landscape') {
   if (loaded !== key || !e.info) {
     e.errors.length = 0
     e.info = await e.page.evaluate(
-      async ([s, a, k]) => {
-        const info = await window.__canvas.load({ script: s, aspect: a })
+      async ([s, v, name, a, k]) => {
+        const info = await window.__canvas.load({ script: s, voice: v, name, aspect: a })
         window.__cvKey = k
         return info
       },
-      [script, aspect, key],
+      [data, voice, script, aspect, key],
     )
     e.key = key
   }
@@ -73,7 +74,9 @@ async function frame(e, at, overlays, scale, crop) {
 }
 
 const common = {
-  script: { type: 'string', description: '腳本路徑,相對於 web/src/content/live/(例如 promo/kids-free-reel-short.json)' },
+  script: { type: 'string', description: '腳本路徑(例如 promo/kids-free-reel-short.json);預設從線上 https://evoleap.io 取得' },
+  api: { type: 'string', description: '改向這台伺服器取腳本,例如 http://127.0.0.1:8190' },
+  dir: { type: 'string', description: '改讀本機資料夾裡的腳本(還沒上傳的草稿;絕對路徑或相對 repo 根目錄)' },
   aspect: { type: 'string', enum: ['landscape', 'portrait'], description: '預設 landscape(1920×1080);portrait 是 1080×1920' },
   overlays: { type: 'array', items: { type: 'string', enum: OVERLAYS }, description: 'bounds 演員外框與目標、safe 安全區(直式是 FB Reels)、grid 每 100px、time 時間、pivots data-pivot 元素' },
 }
@@ -97,7 +100,7 @@ export const stageTools = [
       call(async () => {
         const t0 = performance.now()
         const aspect = a.aspect ?? 'landscape'
-        const e = await ensure(a.script, aspect)
+        const e = await ensure(a, aspect)
         let marks = await e.page.evaluate((s) => window.__canvas.times(s), a.at ?? 'steps')
         const max = a.max ?? 36
         const dropped = marks.length > max ? marks.length - max : 0
@@ -129,7 +132,7 @@ export const stageTools = [
     run: (a) =>
       call(async () => {
         const t0 = performance.now()
-        const e = await ensure(a.script, a.aspect ?? 'landscape')
+        const e = await ensure(a, a.aspect ?? 'landscape')
         const scale = a.scale ?? (a.crop ? Math.min(4, 1000 / Math.max(a.crop.w, a.crop.h)) : 1)
         const f = await frame(e, a.at, a.overlays, scale, a.crop)
         const out = writeOut(`frame-${a.script.replace(/[\\/]/g, '__')}.png`, f.png)
@@ -146,7 +149,7 @@ export const stageTools = [
     },
     run: (a) =>
       call(async () => {
-        const e = await ensure(a.script, a.aspect ?? 'landscape')
+        const e = await ensure(a, a.aspect ?? 'landscape')
         const ats = Array.isArray(a.at) ? a.at : [a.at]
         const out = []
         for (const t of ats) out.push(await e.page.evaluate(([time, targets]) => window.__canvas.inspect({ time, targets }), [t, a.targets ?? []]))
@@ -156,15 +159,17 @@ export const stageTools = [
   },
   {
     name: 'canvas_scripts',
-    description: '列出可用的舞台腳本(相對於 src/content/live/)與已登記的演員名稱。需要 Vite dev server。',
-    inputSchema: { type: 'object', properties: { filter: { type: 'string', description: '只列包含這段文字的路徑' } } },
+    description: '列出可用的舞台腳本(伺服器上的,只給管理員;或 dir 資料夾裡的)與已登記的演員名稱。需要 Vite dev server。',
+    inputSchema: { type: 'object', properties: { filter: { type: 'string', description: '只列包含這段文字的路徑' }, api: common.api, dir: common.dir } },
     run: (a) =>
       call(async () => {
+        const source = sourceOf(a)
+        const scripts = (await source.paths()).filter((s) => !isManifest(s))
         const e = await hostPage()
         await e.page.waitForFunction(() => window.__canvas?.ready === true, null, { timeout: 30000 })
-        const r = await e.page.evaluate(() => window.__canvas.scripts())
-        const list = r.scripts.filter((s) => !a.filter || s.includes(a.filter))
-        return [text(`腳本(${list.length}):\n${list.join('\n')}\n\n演員(${r.actors.length}):${r.actors.join(', ')}`)]
+        const actors = await e.page.evaluate(() => window.__canvas.actors())
+        const list = scripts.filter((s) => !a.filter || s.includes(a.filter))
+        return [text(`腳本來源:${source.label}\n腳本(${list.length}):\n${list.join('\n')}\n\n演員(${actors.length}):${actors.join(', ')}`)]
       }),
   },
 ]

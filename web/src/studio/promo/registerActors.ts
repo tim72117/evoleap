@@ -11,7 +11,7 @@
 //   ai-tools-reel:「文組也能用 AI 寫工具」宣傳片(直式 FB Reels;全部用 SVG 插畫模擬人物與四個自製工具,動作 scene)
 //   sheets-reel  :Claude Sheets 三大特色宣傳片(直式 FB Reels,動作 scene)
 //   sessions-reel:Claude Code 跨 session 通訊宣傳片(直式 FB Reels;兩個終端機視窗互傳訊息,動作 scene)
-// 腳本:content/live/promo/claude-code-remote-reel.json、content/live/promo/claude-code-sessions-reel.json、claude-sheets-reel.json、ai-for-everyone-reel.json、content/live/promo/archify-reel.json、content/live/promo/trellis-reel.json、content/live/promo/kid-life.json、kids-free-reel.json(直式為主)
+// 腳本:資料庫的 promo/claude-code-remote-reel.json、資料庫的 promo/claude-code-sessions-reel.json、claude-sheets-reel.json、ai-for-everyone-reel.json、資料庫的 promo/archify-reel.json、資料庫的 promo/trellis-reel.json、資料庫的 promo/kid-life.json、kids-free-reel.json(直式為主)
 import { ACTORS } from '../../live/actors'
 import kidDayScene from './actors/kid-day-scene/actor'
 import kidHub from './actors/kid-hub/actor'

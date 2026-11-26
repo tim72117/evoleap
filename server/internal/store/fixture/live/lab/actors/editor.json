@@ -1,0 +1,4 @@
+{"title": "editor", "cast": {"a": {"actor": "editor", "props": {"project": "bakery"}, "place": {"x": 120, "y": 60, "w": 1680, "h": 960}}}, "steps": [
+ {"open": "index.html"},
+ {"type": "<h1>嗨</h1>\n"}
+]}

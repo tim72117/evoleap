@@ -49,17 +49,17 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/actor-interaction/scene', element: <InteractiveScenePage key="bakery" script="lab/interactive-bakery.json" pageTitle="互動教學場景" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
   { path: '/studio/actor-interaction/static', element: <InteractiveScenePage key="actor-static" script="lab/interactive-l0-claude.json" pageTitle="互動場景：靜態演員" interaction="static" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
   { path: '/studio/actor-interaction/push', element: <InteractiveScenePage key="actor-push" script="lab/interactive-l0-claude.json" pageTitle="互動場景：把演員推到主畫面" interaction="stage" back={{ to: '/studio/actor-interaction', label: '← 演員互動' }} /> },
-  // 「做出自己的軟體」序章的 B 版測試:開場換成動手體驗「以前自己寫程式」對「現在說一句話」(then-now 演員,靜態互動),腳本在 content/live/lab/l0/;公開的序章(/courses/software/intro)不變
+  // 「做出自己的軟體」序章的 B 版測試:開場換成動手體驗「以前自己寫程式」對「現在說一句話」(then-now 演員,靜態互動),腳本在 資料庫的 lab/l0/;公開的序章(/courses/software/intro)不變
   { path: '/studio/software-intro-b', element: <InteractiveScenePage key="software-intro-b" script="lab/l0/intro-b.json" pageTitle="序章 B 版試做" interaction="static" back={{ to: '/studio/ai-tools', label: '← 課程' }} /> },
   { path: '/studio/ai-tips', element: <AiTipsPage /> },
   { path: '/studio/kids-web', element: <KidsWebPage /> },
   { path: '/studio/web-basics', element: <WebBasicsPage /> },
-  // 網頁運作知識的試做:單元 5 的 5.1 開發者工具(序章、1.1–3.4 已是課程,在 /courses/web,在 /courses/web),腳本在 content/live/lab/web/
+  // 網頁運作知識的試做:單元 5 的 5.1 開發者工具(序章、1.1–3.4 已是課程,在 /courses/web,在 /courses/web),腳本在 資料庫的 lab/web/
   ...(['5.1'] as const).map((id) => ({
     path: `/studio/web-basics/${id.replace('.', '-')}`,
     element: <InteractiveScenePage key={`web-${id}`} script={`lab/web/${id}.json`} pageTitle={`網頁運作知識 ${id} 試做`} back={{ to: '/studio/web-basics', label: '← 網頁運作知識' }} />,
   })),
-  // L2 基礎的試做,腳本在 content/live/lab/vibe-coding/
+  // L2 基礎的試做,腳本在 資料庫的 lab/vibe-coding/
   ...(['4.1', '4.2', '4.3'] as const).map((id) => ({
     path: `/studio/vibe-coding/${id.replace('.', '-')}`,
     element: <InteractiveScenePage key={`vibe-${id}`} script={`lab/vibe-coding/${id}.json`} pageTitle={`L2 基礎 ${id} 試做`} back={{ to: '/studio/vibe-coding', label: '← L2 Vibe Coding 入門' }} />,
@@ -73,7 +73,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/math-share', element: <MathSharePage /> },
   { path: '/studio/print3d', element: <Print3dPage /> },
   { path: '/studio/practice', element: <PracticePage /> },
-  // 畫面試作:從做好到上線 0.1 不用字卡、全用場景與動畫演(演員只登記給這一頁,腳本在 content/live/lab/fable/)
+  // 畫面試作:從做好到上線 0.1 不用字卡、全用場景與動畫演(演員只登記給這一頁,腳本在 資料庫的 lab/fable/)
   { path: '/studio/fable-trial', element: <FableTrialPage /> },
   // 開發 › 場景:背景依狀態自動變化的場景(試作)
   { path: '/studio/scenes', element: <ScenesPage /> },

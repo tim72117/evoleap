@@ -1,0 +1,23 @@
+{"title": "第 2 課範例", "cast": {"claude": {"actor": "claude-desktop", "props": {"title": "新的 session", "folder": "~/Documents/practice/bakery", "branch": null, "mode": "ask", "sessions": [], "labels": {"placeholder": "描述你要做的事…"}}, "place": "window", "hidden": true}}, "steps": [
+ {"show": "claude", "chapter": "建立專案資料夾", "lessonStep": 1, "narration": "先建立資料夾。"},
+ {"user": "目前的工作目錄是哪裡？", "chapter": "確認工作目錄", "lessonStep": 2},
+ {"say": "目前在 bakery。"},
+ {"callout": "claude:say", "text": "路徑最後是 bakery", "narration": "確認路徑。"},
+ {"user": "產生網頁專案基本檔案：index.html 和 styles.css", "chapter": "產生基本檔案", "lessonStep": 3},
+ {"ask": "index.html", "q": "允許嗎？", "where": "~/Documents/practice/bakery"},
+ {"choose": 1},
+ {"say": "已建立 index.html。", "narration": "檔案建立好了。"},
+ {"user": "在 drafts/idea.txt 記下：首頁要有預約按鈕", "chapter": "相對路徑", "lessonStep": 4},
+ {"ask": "drafts/idea.txt", "q": "允許嗎？", "where": "~/Documents/practice/bakery"},
+ {"choose": 1},
+ {"say": "已在 drafts/idea.txt 記下。", "narration": "記好了。"},
+ {"user": "把 drafts/idea.txt 改名為 homepage-idea.txt，移到 notes 資料夾", "chapter": "改名與移動", "lessonStep": 5},
+ {"ask": "mkdir notes && mv drafts/idea.txt notes/homepage-idea.txt", "q": "允許嗎？", "where": "~/Documents/practice/bakery"},
+ {"choose": 1},
+ {"say": "已搬到 notes。"},
+ {"user": "刪除空的 drafts 資料夾", "chapter": "刪除", "lessonStep": 6},
+ {"ask": "rmdir drafts", "q": "允許嗎？", "where": "~/Documents/practice/bakery"},
+ {"choose": 1},
+ {"say": "已刪除 drafts。", "narration": "刪好了。"},
+ {"checkpoint": "換你試試", "body": "自己做一次。"}
+]}

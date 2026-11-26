@@ -1,12 +1,12 @@
 // build 時把 pages.ts、coursePages.ts 的資料轉成檔案內容(只有字串處理,檔案讀寫在 scripts/seo.mjs)。
 import { COURSE_LIST } from '../content/topics'
 import { SITE_NAME, SITE_ORIGIN } from '../site/siteInfo'
-import { COURSE_PAGES, LESSON_ROUTES, type CoursePageEntry, type LessonRouteEntry } from './coursePages'
+import { COURSE_PAGES, EN_COURSE_PAGES, LESSON_ROUTES, type CoursePageEntry, type LessonRouteEntry } from './coursePages'
 import { INTERNAL_PAGES } from './internalPages'
 import { EN_PAGES } from './enPages'
 import { absoluteUrl, headTags, languageAlternates, NOT_FOUND, PAGES as PUBLIC_PAGES, type HeadTag, type PageMeta } from './pages'
 
-export { COURSE_PAGES, EN_PAGES, LESSON_ROUTES, NOT_FOUND }
+export { COURSE_PAGES, EN_COURSE_PAGES, EN_PAGES, LESSON_ROUTES, NOT_FOUND }
 
 /** 內容在 build 就決定的頁面(公開頁 + 內部頁);課程相關頁面另在 COURSE_PAGES */
 export const PAGES: PageMeta[] = [...PUBLIC_PAGES, ...INTERNAL_PAGES]
@@ -37,8 +37,8 @@ const ROBOTS_SLOT = '<!--seo:robots-->'
 const JSONLD_SLOT = '<!--seo:jsonld-->'
 
 /** 課程相關頁面的 HTML:固定的標籤(canonical、og:image…)在這裡產生,課程資料的部分留空位,不寫任何課程內容 */
-export function renderCourseShell(template: string, entry: Pick<CoursePageEntry, 'path' | 'ogType' | 'noindex'>): string {
-  const out = renderPage(template, { path: entry.path, title: TITLE_SLOT, description: DESCRIPTION_SLOT, ogType: entry.ogType, noindex: entry.noindex })
+export function renderCourseShell(template: string, entry: Pick<CoursePageEntry, 'path' | 'ogType' | 'noindex' | 'lang'>): string {
+  const out = renderPage(template, { path: entry.path, title: TITLE_SLOT, description: DESCRIPTION_SLOT, ogType: entry.ogType, noindex: entry.noindex, lang: entry.lang })
   return out.replace(/<meta name="description"[^>]*>/, (m) => `${m}${ROBOTS_SLOT}`).replace('</head>', () => `${JSONLD_SLOT}</head>`)
 }
 
@@ -55,7 +55,7 @@ export const lessonShellFile = (route: LessonRouteEntry): string => `lesson-shel
 
 /** dist/course-pages.json:server 依它知道哪些網址是課程相關頁面、要讀哪一課 */
 export function courseManifest() {
-  return { site: SITE_NAME, origin: SITE_ORIGIN, courseList: { name: COURSE_LIST.name, path: COURSE_LIST.path }, pages: COURSE_PAGES, lessons: LESSON_ROUTES }
+  return { site: SITE_NAME, origin: SITE_ORIGIN, courseList: { name: COURSE_LIST.name, path: COURSE_LIST.path }, pages: [...COURSE_PAGES, ...EN_COURSE_PAGES], lessons: LESSON_ROUTES }
 }
 
 /** dist 內的輸出路徑:/ → index.html、/courses/software → courses/software/index.html */
@@ -69,6 +69,9 @@ export interface SitemapPage {
   priority?: number
   /** 各語言版本(含自己);server 輸出成 xhtml:link hreflang */
   alternates?: { lang: string; loc: string }[]
+  /** 英文版取決於這門課(課程 id)有沒有英文譯文:沒有時 server 拿掉 alternates;englishOnly(本身是英文頁)整筆不列 */
+  english?: string
+  englishOnly?: boolean
   /** 這一頁是哪一課;server 的 /sitemap.xml 依資料庫裡那一課的狀態,只收錄已開放(open)的課 */
   lesson?: { course: string; id: string }
   /** 這一筆不是一頁,而是一門課的單課頁(loc 是課程網址):server 依資料庫展開成每個已開放的課;staged 是軟體課的網址規則 */
@@ -83,6 +86,7 @@ export function sitemapPages(): SitemapPage[] {
       loc: absoluteUrl(p.path),
       ...(alternates.length ? { alternates: alternates.map((a) => ({ lang: a.lang, loc: absoluteUrl(a.path) })) } : {}),
       ...(p.sitemapPriority === undefined ? {} : { priority: p.sitemapPriority }),
+      ...('kind' in p && p.kind === 'overview' ? { english: p.course, ...(p.lang === 'en' && { englishOnly: true }) } : {}),
       ...('lesson' in p && p.lesson ? { lesson: { course: p.course, id: p.lesson } } : {}),
     }
   }
@@ -91,7 +95,7 @@ export function sitemapPages(): SitemapPage[] {
     ...(r.sitemapPriority === undefined ? {} : { priority: r.sitemapPriority }),
     lessonsOf: { course: r.course, ...(r.style === 'staged' && { staged: true }) },
   }))
-  return [...[...PAGES, ...COURSE_PAGES, ...EN_PAGES].filter((p) => !p.noindex).map(entry), ...lessons]
+  return [...[...PAGES, ...COURSE_PAGES, ...EN_PAGES, ...EN_COURSE_PAGES].filter((p) => !p.noindex).map(entry), ...lessons]
 }
 
 export function robotsTxt(): string {

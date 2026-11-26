@@ -1,0 +1,4 @@
+{"title": "chat", "cast": {"a": {"actor": "chat", "props": {"title": "小森烘焙"}, "place": {"x": 120, "y": 60, "w": 1680, "h": 960}}}, "steps": [
+ {"receive": "你好", "from": "客人"},
+ {"reply": "您好"}
+]}

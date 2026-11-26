@@ -16,7 +16,7 @@ export type MapLesson = {
   access: CourseAccess
   /** open:已開放;draft:草稿(只有管理員會拿到,其他人看到的是 planned);planned:規劃中 */
   status: 'open' | 'draft' | 'planned'
-  /** 課程頁要播的腳本(src/content/live/ 底下的路徑);看得到這一課的人才有,暫時記在課程資料裡 */
+  /** 課程頁要播的腳本(資料庫的路徑);看得到這一課的人才有,暫時記在課程資料裡 */
   script?: string
   /** 預估的學習時間(分鐘,含影片與跟做);還沒估的課沒有 */
   minutes?: number
@@ -44,7 +44,7 @@ export type CourseMap = {
   seoTitle?: string
   description?: string
   art?: CourseArtKind
-  /** 課程簡介影片的腳本路徑(src/content/live/ 底下,任何訪客都拿得到);沒有就沒有簡介影片 */
+  /** 課程簡介影片的腳本路徑(資料庫的,任何訪客都拿得到);沒有就沒有簡介影片 */
   introScript?: string
   /** 所屬主題(伺服器也在 /map 帶上) */
   topicId?: string

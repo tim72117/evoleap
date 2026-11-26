@@ -63,7 +63,7 @@ func TestTopicSync(t *testing.T) {
 	dir := t.TempDir()
 	topics1 := `[{"id":"a","name":"甲","slogan":"s","path":"/topics/a","content":{"x":1}},{"id":"b","name":"乙","content":{}},{"id":"c","name":"丙","path":"/courses/c"}]`
 	courses := `[{"id":"c1","title":"課","access":"free","topicId":"a","units":[]},{"id":"c2","title":"課二","access":"free","topicId":"c","overview":false,"units":[]}]`
-	if _, err := st.syncSeeds(ctx, []byte(topics1), []byte(courses), dir); err != nil {
+	if _, err := st.syncSeeds(ctx, []byte(topics1), []byte(courses), nil, dir); err != nil {
 		t.Fatal(err)
 	}
 	ts, _ := st.ListTopics(ctx)
@@ -76,7 +76,7 @@ func TestTopicSync(t *testing.T) {
 	}
 	// 換順序、改內容、拿掉沒人用的 b
 	topics2 := `[{"id":"c","name":"丙(新)","path":"/courses/c"},{"id":"a","name":"甲","path":"/topics/a","content":{"y":2}}]`
-	if _, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses), dir); err != nil {
+	if _, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses), nil, dir); err != nil {
 		t.Fatal(err)
 	}
 	ts, _ = st.ListTopics(ctx)
@@ -85,7 +85,7 @@ func TestTopicSync(t *testing.T) {
 	}
 	// 拿掉還有課程用的主題:同步成功、主題保留(警告見 TestSyncKeepsReferencedTopicWithWarning)
 	topics3 := `[{"id":"c","name":"丙(改)","path":"/courses/c"}]`
-	if _, err := st.syncSeeds(ctx, []byte(topics3), []byte(courses), dir); err != nil {
+	if _, err := st.syncSeeds(ctx, []byte(topics3), []byte(courses), nil, dir); err != nil {
 		t.Errorf("主題還有課程引用,同步不該失敗: %v", err)
 	}
 	if ts, _ = st.ListTopics(ctx); len(ts) != 2 || ts[0].Name != "丙(改)" {
@@ -93,11 +93,11 @@ func TestTopicSync(t *testing.T) {
 	}
 	// 課程引用不存在的主題、沒有 path 的主題
 	bad := `[{"id":"c1","title":"課","access":"free","topicId":"zzz","units":[]}]`
-	if _, err := openEmpty(t).syncSeeds(ctx, []byte(topics2), []byte(bad), dir); err == nil || !strings.Contains(err.Error(), "zzz") {
+	if _, err := openEmpty(t).syncSeeds(ctx, []byte(topics2), []byte(bad), nil, dir); err == nil || !strings.Contains(err.Error(), "zzz") {
 		t.Errorf("不存在的主題: %v", err)
 	}
 	noPath := `[{"id":"c1","title":"課","access":"free","topicId":"p","units":[]}]`
-	if _, err := openEmpty(t).syncSeeds(ctx, []byte(`[{"id":"p","name":"規劃中"}]`), []byte(noPath), dir); err == nil {
+	if _, err := openEmpty(t).syncSeeds(ctx, []byte(`[{"id":"p","name":"規劃中"}]`), []byte(noPath), nil, dir); err == nil {
 		t.Error("沒有 path 的主題不能有課程屬於它")
 	}
 	// 種子驗證:id 重複、content 不是物件、path 沒有 /
@@ -109,7 +109,7 @@ func TestTopicSync(t *testing.T) {
 		`[{"id":"a","name":"x","path":"nope"}]`,
 		`[{"id":"a","name":""}]`,
 	} {
-		if _, err := st.syncSeeds(ctx, []byte(s), []byte(`[]`), dir); err == nil {
+		if _, err := st.syncSeeds(ctx, []byte(s), []byte(`[]`), nil, dir); err == nil {
 			t.Errorf("該被拒絕: %s", s)
 		}
 	}

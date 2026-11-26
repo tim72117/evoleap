@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import actor, { audioTime, talking, ICONS, LEAD, keysAt, orbPos, skyColors } from './actor'
-import script from '../../../content/live/lab/read-along/u8-foods.json'
-import voice from '../../../content/live/lab/read-along/u8-foods.voice.json'
-import girl from '../../../content/live/lab/read-along/u8-foods-girl.json'
-import girlVoice from '../../../content/live/lab/read-along/u8-foods-girl.voice.json'
+import { audioTime, talking, LEAD, keysAt, orbPos, skyColors } from './actor'
 
 describe('read-along 對齊錄音', () => {
   it('畫面裡的錄音時間 = at + (local − 旁白延遲)', () => {
@@ -14,37 +10,6 @@ describe('read-along 對齊錄音', () => {
     const speech: [number, number][] = [[1, 2]]
     expect(talking(0.5, speech, [])).toBe(false)
     expect([1.0, 1.15, 1.3, 1.45].some((t) => talking(t, speech, []))).toBe(true)
-  })
-  type S = { at: number; ms: number; pause: number; words: [string, number][]; pics?: [string, number][]; narration?: string; read: string }
-  const clipsOf = (v: unknown) => (v as { clips: Record<string, { ms: number }> }).clips
-  it.each([
-    ['u8-foods', script.steps as unknown as S[]],
-    ['u8-foods-girl', girl.steps as unknown as S[]],
-  ] as const)('%s:每一步接著上一步(錄音連續)、字在這一步的範圍裡、圖示都存在', (_name, steps) => {
-    let at = 0
-    for (const s of steps) {
-      expect(s.at).toBeCloseTo(at)
-      expect(s.pause).toBe(0)
-      for (const [, w] of s.words) expect(w).toBeGreaterThanOrEqual(s.at)
-      for (const [, w] of s.words) expect(w).toBeLessThan(s.at + s.ms / 1000)
-      for (const [name] of s.pics ?? []) expect(ICONS[name]).toBeTruthy()
-      at += s.ms / 1000
-    }
-    expect(actor.kinds).toEqual(['read'])
-  })
-  it('u8-foods:錄音切成每一句,每一步的旁白就是這一句', () => {
-    for (const s of script.steps as unknown as S[]) {
-      expect(s.narration).toBe(s.read)
-      // 舞台會替旁白多留 500ms:清單裡的長度比這一句短 500,這一步才剛好等於錄音的長度
-      expect(clipsOf(voice)[s.narration!].ms).toBe(s.ms - 500)
-    }
-  })
-  it('u8-foods-girl:整段錄音不切,只有第一步帶旁白(全文),長度涵蓋所有步驟', () => {
-    const steps = girl.steps as unknown as S[]
-    expect(steps[0].narration).toBe(steps.map((s) => s.read).join(' '))
-    expect(steps.slice(1).every((s) => s.narration === undefined)).toBe(true)
-    const total = steps.reduce((m, s) => m + s.ms, 0)
-    expect(clipsOf(girlVoice)[steps[0].narration!].ms).toBe(total - 500)
   })
 })
 

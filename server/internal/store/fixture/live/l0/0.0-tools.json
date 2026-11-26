@@ -1,0 +1,20 @@
+{"title": "第 1 課範例", "practice": {"props": {"title": "新的 session", "folder": "~/Documents/practice", "branch": null, "mode": "ask", "sessions": [], "labels": {"placeholder": "描述你要做的事…"}}}, "cast": {"claude": {"actor": "claude-desktop", "props": {"title": "新的 session", "folder": "~/Documents/practice", "branch": null, "mode": "ask", "sessions": [], "labels": {"placeholder": "描述你要做的事…"}}, "place": "window", "hidden": true}, "docs": {"actor": "finder", "props": {"tree": {"practice": {}}, "open": "practice"}, "place": "right", "hidden": true}}, "blocking": {"cast": ["claude", "docs"], "shot": "depth"}, "steps": [
+ {"show": "claude", "chapter": "它能對你的檔案做什麼", "lessonStep": 1, "narration": "安裝工具並登入。"},
+ {"checkpoint": "換你試試", "body": "確認工具可以啟動。"},
+ {"wait": 500, "chapter": "安裝並登入", "lessonStep": 2, "narration": "它可以讀寫你的檔案。"},
+ {"user": "建立 hello.txt，寫一句問候"},
+ {"thinking": true, "ms": 800},
+ {"say": "好的，我會在目前的資料夾建立 hello.txt。"},
+ {"ask": "hello.txt", "q": "Claude 想要建立這個檔案", "where": "~/Documents/practice", "narration": "它會先問你。", "chapter": "建立專用的練習資料夾", "lessonStep": 3},
+ {"choose": 1, "chapter": "在練習資料夾開啟工具", "lessonStep": 4},
+ {"tool": "Write", "arg": "hello.txt", "result": "已建立"},
+ {"show": "docs", "create": "hello.txt", "narration": "多了一個檔案。"},
+ {"hide": "docs"},
+ {"checkpoint": "換你試試", "body": "請 AI 建立 hello.txt。"},
+ {"user": "刪除 hello.txt", "chapter": "練習拒絕", "lessonStep": 5},
+ {"thinking": true, "ms": 800},
+ {"ask": "rm hello.txt", "q": "允許刪除嗎？", "where": "~/Documents/practice", "narration": "刪除前先看範圍。"},
+ {"choose": 0},
+ {"say": "好的，我不會刪除。"},
+ {"card": "下一課：專案與工作目錄"}
+]}

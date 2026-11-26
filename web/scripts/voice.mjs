@@ -15,8 +15,12 @@
 //   npm run voice -- --batch web/1.1.json --dry-run   只列出要送哪些段落與第一筆請求,不呼叫 API、不花錢
 //   npm run voice -- --collect                   查批次跑完沒;跑完就下載音訊、轉 mp3、上傳,寫進各腳本的 .voice.json(之後和一般模式一樣)
 //
-// 腳本在 src/content/live/,每個 steps[] 的 narration 是一段旁白。產生結果:
-//   src/content/live/l0/0.0-tools.voice.json   旁白文字 → { file, ms }(進版控;舞台用 ms 排時間,課程頁播 file)
+// 腳本以線上資料庫為準(lib/liveScripts.mjs,透過 evoleap CLI 取得,先 evoleap login),每個 steps[] 的 narration 是一段旁白。
+//   --api http://127.0.0.1:8190   改向別台伺服器取(預設 https://evoleap.io)
+//   --dir 資料夾                   改讀本機資料夾(還沒上傳的草稿),清單寫在腳本旁邊
+//   --push                         產生後把 .voice.json 上傳回伺服器(沿用腳本屬於哪一課);沒加只寫在本機並印出上傳指令
+// 產生結果:
+//   l0/0.0-tools.voice.json   旁白文字 → { file, ms }(舞台用 ms 排時間,課程頁播 file);暫存在 web/recordings/live/<主機>/
 //   gs://shuttle-voice/l0/<hash>.mp3             每段一個音檔,公開讀取、永久快取;hash 由模型、聲音、語氣、文字決定,
 //                                                沒改就不會重新產生(不重複計費)。GCS 上的舊檔不刪(正式站部署前仍可能用到)
 // 金鑰:環境變數 GEMINI_API_KEY,或寫在 web/.env.local(不進版控)。上傳用本機 gcloud 的登入身分。只在本機產生,不會進到網站。
@@ -28,11 +32,11 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Mp3Encoder } from '@breezystack/lamejs'
+import { isManifest, normalizeRel, openSource, sourceArgs } from './lib/liveScripts.mjs'
 
 const WEB = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // 影片開頭的老師介紹(共用的招呼語),和網頁端 src/live/teacher.ts 讀同一份
 const TEACHER = JSON.parse(fs.readFileSync(path.join(WEB, 'src/live/teacher.json'), 'utf8'))
-const LIVE = path.join(WEB, 'src/content/live')
 
 // 預設設定(之後要換聲音或語氣,改這裡再重跑;舊音檔會被清掉)
 const DEFAULTS = {
@@ -72,7 +76,10 @@ const KBPS = 48
 const BUCKET = 'shuttle-voice'
 
 // ---------- 參數與金鑰 ----------
-const args = process.argv.slice(2)
+// --api、--dir、--push 是腳本來源的共用旗標(lib/liveScripts.mjs),其餘是這支工具自己的
+const common = sourceArgs(process.argv.slice(2))
+const args = common.rest
+let source = null
 const flag = (name) => {
   const i = args.indexOf(`--${name}`)
   return i < 0 ? undefined : args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : true
@@ -300,9 +307,7 @@ async function sample() {
  * 一般模式即時呼叫 TTS;批次模式送出時只記下要產生哪些(plan),收結果時從批次的結果拿(collect)
  */
 async function build(rel, audio) {
-  const scriptPath = path.join(LIVE, rel)
-  if (!fs.existsSync(scriptPath)) die(`找不到腳本:src/content/live/${rel}`)
-  const script = JSON.parse(fs.readFileSync(scriptPath, 'utf8'))
+  const script = await source.json(rel)
   // 兒童版的互動寫在步驟裡面(互動點的 options[].steps、子腳本的 interact.spots / done),也要有語音:整份腳本往下找所有 narration;
   // 其他腳本取最外層的步驟,加上互動點的選項回應與示範
   // 兒童版播放器停下來等孩子點時也會念題目:有選項的互動點標題(checkpoint)與子腳本的 interact.prompt 也要有語音;
@@ -354,8 +359,10 @@ async function build(rel, audio) {
   }
   if (!maxSec && !limit) for (const line of lineCfg.keys()) if (!texts.includes(line)) texts.push(line)
   const cfgFor = (text) => lineCfg.get(text) ?? cfg
-  const manifestPath = scriptPath.replace(/\.json$/, '.voice.json')
-  const old = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : { clips: {} }
+  const manifestRel = rel.replace(/\.json$/, '.voice.json')
+  // 上次產生了還沒上傳的清單(pending)也算快取,免得重跑時重新合成、重複計費
+  const remote = await source.json(manifestRel)
+  const old = { clips: { ...remote?.clips, ...source.pending(manifestRel)?.clips } }
   // GCS 上的路徑照腳本的資料夾(例如 l0/0.0-tools.json → l0/<hash>.mp3)
   const prefix = path.posix.dirname(rel.split(path.sep).join('/'))
 
@@ -365,10 +372,10 @@ async function build(rel, audio) {
   // 同一個資料夾的其他腳本已經產生過的同一段(例如每支影片共用的老師招呼語):音檔名由文字與語音設定決定,
   // 直接沿用那份音檔與長度,不要重新合成(重新合成會用同一個檔名覆蓋雲端的音檔,其他腳本記錄的長度就對不上了)
   const shared = {}
-  for (const name of fs.readdirSync(path.dirname(scriptPath))) {
-    if (!name.endsWith('.voice.json') || path.join(path.dirname(scriptPath), name) === manifestPath) continue
-    const other = JSON.parse(fs.readFileSync(path.join(path.dirname(scriptPath), name), 'utf8'))
-    for (const c of Object.values(other.clips || {})) shared[c.file] = c
+  for (const name of await source.paths()) {
+    if (!name.endsWith('.voice.json') || path.posix.dirname(name) !== prefix || name === manifestRel) continue
+    const clipsOf = { ...(await source.json(name))?.clips, ...source.pending(name)?.clips }
+    for (const c of Object.values(clipsOf)) shared[c.file] = c
   }
   const cachedOf = (text) => {
     const file = `${prefix}/${hashOf(text, cfgFor(text))}.mp3`
@@ -379,7 +386,7 @@ async function build(rel, audio) {
   const save = () => {
     const merged = { ...clips }
     for (const text of texts) if (!merged[text] && cachedOf(text)) merged[text] = cachedOf(text)
-    fs.writeFileSync(manifestPath, JSON.stringify({ model: cfg.model, voice: cfg.voice, style: cfg.style, clips: merged }, null, 2) + '\n')
+    source.write(manifestRel, { model: cfg.model, voice: cfg.voice, style: cfg.style, clips: merged })
   }
   const todo = texts.filter((t) => !cachedOf(t)).length
   // 進度條:只算這次要新產生的段落(已有快取的略過);終端機上原地更新,非終端機(log)每段一行
@@ -422,8 +429,9 @@ async function build(rel, audio) {
       clips[text] = { file, ms: Math.round((one.pcm.length / one.rate) * 1000) }
       console.log(`  ${(clips[text].ms / 1000).toFixed(2)} 秒  ${text.slice(0, 20)}(單獨錄)`)
     }
-    fs.writeFileSync(manifestPath, JSON.stringify({ model: cfg.model, voice: cfg.voice, style: cfg.style, take: true, clips }, null, 2) + '\n')
+    source.write(manifestRel, { model: cfg.model, voice: cfg.voice, style: cfg.style, take: true, clips })
     console.log(`${rel}:整段一次錄 ${group.length} 句、單獨錄 ${texts.length - group.length} 句,共 ${(Object.values(clips).reduce((n, c) => n + c.ms, 0) / 1000).toFixed(0)} 秒`)
+    await source.publish(manifestRel, common.push)
     return
   }
   let made = 0
@@ -452,15 +460,15 @@ async function build(rel, audio) {
   save()
   const total = Object.values(clips).reduce((n, c) => n + c.ms, 0)
   console.log(`${rel}:${texts.length} 段旁白(新產生 ${made}),共 ${(total / 1000).toFixed(0)} 秒`)
+  await source.publish(manifestRel, common.push)
 }
 
 async function main() {
   if (flag('sample')) return sample()
   if (flag('collect')) return collectBatch(apiKey())
-  const all = flag('all')
-  const targets = all
-    ? fs.readdirSync(LIVE, { recursive: true }).map(String).filter((f) => f.endsWith('.json') && !f.endsWith('.voice.json') && !f.endsWith('.mix.json')).map((f) => f.split(path.sep).join('/'))
-    : args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--') && ['max-sec', 'limit', 'voices', 'sample'].includes(args[i - 1].slice(2))))
+  source = openSource(common)
+  const named = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--') && ['max-sec', 'limit', 'voices', 'sample'].includes(args[i - 1].slice(2))))
+  const targets = flag('all') ? (await source.paths()).filter((f) => !isManifest(f)) : named.map(normalizeRel)
   if (!targets.length) die('用法:npm run voice -- l0/0.0-tools.json(或 --all、--sample)')
   if (flag('batch') && flag('dry-run')) return submitBatch(targets, null)
   const key = apiKey()
@@ -523,13 +531,17 @@ async function submitBatch(targets, key) {
   const name = batch.name ?? batch.metadata?.name
   if (!name) die(`送出了,但回應裡找不到批次名稱:${JSON.stringify(batch).slice(0, 500)}`)
   fs.mkdirSync(path.dirname(BATCH_FILE), { recursive: true })
-  fs.writeFileSync(BATCH_FILE, JSON.stringify({ name, model, created: new Date().toISOString(), targets, items: [...items.values()].map(({ key, text, targets: t }) => ({ key, text, targets: t })) }, null, 2) + '\n')
+  fs.writeFileSync(BATCH_FILE, JSON.stringify({ name, model, created: new Date().toISOString(), api: source.server, dir: source.root ?? undefined, targets, items: [...items.values()].map(({ key, text, targets: t }) => ({ key, text, targets: t })) }, null, 2) + '\n')
   console.log(`送出 ${items.size} 段旁白(${targets.length} 份腳本),批次 ${name}。之後跑 npm run voice -- --collect 收結果`)
 }
 
 async function collectBatch(key) {
   if (!fs.existsSync(BATCH_FILE)) die('沒有送出中的批次(recordings/voice-batch.json)')
   const saved = JSON.parse(fs.readFileSync(BATCH_FILE, 'utf8'))
+  // 結果寫回送出時的腳本來源;這次另外指定了不一樣的就停下來
+  if (common.api && saved.api && common.api.replace(/\/+$/, '') !== saved.api) die(`這一批是從 ${saved.api} 送出的,和 --api 不同`)
+  if (common.dir && path.resolve(common.dir) !== saved.dir) die(`這一批是從 ${saved.dir ?? saved.api} 送出的,和 --dir 不同`)
+  source = openSource({ api: saved.api, dir: saved.dir })
   const job = await api('GET', `${API}/${saved.name}`, key)
   const state = String(job.metadata?.state ?? job.state ?? '')
   if (!/SUCCEEDED/.test(state)) {
@@ -557,4 +569,4 @@ async function collectBatch(key) {
   console.log(`收到 ${audio.size} 段${failed.length ? `,${failed.length} 段失敗(之後重送一次就會補上):\n  ${failed.join('\n  ')}` : ''}`)
 }
 
-await main()
+await main().catch((e) => die(e.message))

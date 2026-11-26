@@ -13,9 +13,9 @@ import '../promo/registerActors'
 import ui from '../proposal/proposal.module.css'
 import styles from './PromoPage.module.css'
 
-// 宣傳影片:用即時教學畫面(src/live)播放 src/content/live/promo/ 的腳本。
+// 宣傳影片:用即時教學畫面(src/live)播放 promo/ 底下的腳本(在資料庫)。
 // 頁面用完整的播放器外殼播放,不記會員播放進度。
-// 網址 ?script=promo/xxx.json 直接開某一支(script 可以是 src/content/live/ 底下任何腳本,例如 l0/0.2-site.json);
+// 網址 ?script=promo/xxx.json 直接開某一支(script 可以是任何腳本路徑,例如 l0/0.2-site.json);
 // &aspect=portrait 用直式舞台(1080×1920,播放器 9:16),預設橫式(1920×1080);
 // 加 &record=1 只顯示舞台(橫式 1920×1080、直式 1080×1920,給 scripts/record-live.mjs 逐格截圖),
 // 載入完成後 window.__promoReady = true,並提供 window.__promo = { renderAt(ms), duration, fps }。
@@ -81,10 +81,10 @@ export function PromoPage() {
     setParams({ ...(sc ? { script: sc } : {}), ...(asp === 'portrait' ? { aspect: 'portrait' } : {}) })
   }
   return (
-    <ProposalLayout title="宣傳影片" footer="研發基地 · 宣傳影片腳本在 web/src/content/live/promo/">
+    <ProposalLayout title="宣傳影片" footer="研發基地 · 宣傳影片腳本在資料庫的 promo/ 底下">
       <h1>宣傳影片</h1>
       <p className={ui.lead}>
-        用即時教學畫面做的宣傳片，腳本放在 web/src/content/live/promo/。網頁上直接播放；要輸出 mp4 在 web/ 執行
+        用即時教學畫面做的宣傳片，腳本在資料庫的 promo/ 底下。網頁上直接播放；要輸出 mp4 在 web/ 執行
         <code> npm run record:live -- promo/檔名.json</code>。
       </p>
       <div className={styles.tools}>
@@ -104,7 +104,7 @@ export function PromoPage() {
   )
 }
 
-/** 輸入 src/content/live/ 底下任何腳本的路徑(例如 l0/0.2-site.json),看它在目前方向下的樣子 */
+/** 輸入任何腳本的路徑(例如 l0/0.2-site.json),看它在目前方向下的樣子 */
 function ScriptInput({ value, onSubmit }: { value: string; onSubmit: (path: string) => void }) {
   const [text, setText] = useState(value)
   const paths = (useScriptPaths() ?? []).filter(isScript)
@@ -149,7 +149,7 @@ function ScriptList({ selected, aspect, onSelect }: { selected: string | null; a
   }, [aspect, key])
 
   if (!all) return <p className={ui.lead}>讀取腳本清單中…</p>
-  if (!promoScriptPaths.length) return <p className={ui.lead}>web/src/content/live/promo/ 底下還沒有腳本。</p>
+  if (!promoScriptPaths.length) return <p className={ui.lead}>promo/ 底下還沒有腳本。</p>
   const label = (p: string): string => {
     const info = infos[p]
     const name = p.replace(/^promo\//, '').replace(/\.json$/, '')
@@ -170,7 +170,7 @@ function ScriptList({ selected, aspect, onSelect }: { selected: string | null; a
       </label>
       {selected && promoScriptPaths.includes(selected) && (
         <p className={ui.meta}>
-          web/src/content/live/{selected} ·{' '}
+          {selected} ·{' '}
           {info === undefined ? '量測中…' : typeof info === 'string' ? `腳本有誤：${info}` : `長度 ${sec(info.duration)} · 旁白 ${info.chars} 字 · ${info.voice ? '已有旁白語音' : '尚無旁白語音（只有字幕）'}`}
         </p>
       )}

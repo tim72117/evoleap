@@ -15,7 +15,7 @@ func Open(dsn string) (*store.Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := s.Seed(context.Background(), fixture.Topics, fixture.Courses); err != nil {
+	if err := s.Seed(context.Background(), fixture.Topics, fixture.Courses, fixture.I18nEN); err != nil {
 		return nil, fmt.Errorf("seed fixture: %w", err)
 	}
 	return s, nil

@@ -63,7 +63,7 @@ function OpeningPlayer({ course }: { course: CourseLesson }) {
   )
 }
 
-// 課程影片的即時教學畫面預覽(src/content/live/ 底下的腳本):和學員課程頁同一個播放器,有旁白語音,但不記播放進度。
+// 課程影片的即時教學畫面預覽(資料庫的腳本):和學員課程頁同一個播放器,有旁白語音,但不記播放進度。
 // 按下才建立播放器(一頁有很多課,不要一次全部掛上)。
 export function LiveVideoPreview({ script, title }: { script: string; title: string }) {
   const [on, setOn] = useState(false)

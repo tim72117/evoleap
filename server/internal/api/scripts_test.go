@@ -99,10 +99,7 @@ func TestLessonFileWithoutStore(t *testing.T) {
 // 單課存取規則依據資料:每一個腳本檔,訪客拿到什麼由資料庫裡那一課的狀態與存取方式決定,
 // 草稿 404、免費(free)200、其他(登入後免費、訂閱)401。不寫死課號或「前幾課」,資料怎麼設就怎麼驗證。
 func TestLessonFileGateFollowsData(t *testing.T) {
-	dir := filepath.Join("..", "..", "..", "web", "src", "content", "live")
-	if _, err := os.Stat(dir); err != nil {
-		t.Skip("沒有腳本目錄(Docker 建置後端時只有 server/)")
-	}
+	dir := filepath.Join("..", "store", "fixture", "live")
 	env := newAdminEnv(t, "boss@example.com")
 	ctx := context.Background()
 	if err := env.st.SyncLessonFilesJSON(ctx, fixture.Courses, dir); err != nil {

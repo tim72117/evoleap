@@ -4,7 +4,7 @@ import { PromoPlayer } from '../materials/PromoPage'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
-// 開發中:兒童動畫繪本。主角是演員 bobo(小熊波波,web/src/live/actors/bobo/),腳本在 content/live/lab/book/。
+// 開發中:兒童動畫繪本。主角是演員 bobo(小熊波波,web/src/live/actors/bobo/),腳本在 資料庫的 lab/book/。
 // 繪本不用字卡,全用動畫說故事;旁白是大姊姊講故事的聲音(腳本的 voice 設定)。
 
 const BOOKS: { script: string; title: string; topic: string }[] = [

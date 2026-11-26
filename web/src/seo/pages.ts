@@ -28,6 +28,8 @@ export interface PageMeta {
   ogType?: 'website' | 'article'
   /** 頁面語言;英文版(/en/...,見 enPages.ts)是 'en',其餘是中文 */
   lang?: 'en'
+  /** 這門課沒有英文版(server 看資料庫):不放 hreflang */
+  noEnglish?: boolean
   /** sitemap 的 <priority>(0–1);不填則不輸出,搜尋引擎視為 0.5 */
   sitemapPriority?: number
   jsonLd?: JsonLd[]
@@ -236,14 +238,14 @@ export function findPage(pathname: string): PageMeta {
   return NOT_FOUND
 }
 
-/** 課程相關頁面的網址(沒有英文版的 /en/... 也算,回它的中文網址);不是就回 undefined */
-function coursePathOf(pathname: string): { path: string; en: boolean } | undefined {
+/** 要向 server 讀資料的網址:課程相關頁面(含英文課程總覽);其他 /en/... 課程頁沒有英文版,讀中文的並標 noindex。不是就回 undefined */
+function coursePathOf(pathname: string): { path: string; fallback: boolean } | undefined {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
   if (BY_PATH.has(path)) return undefined
-  if (isCoursePage(path)) return { path, en: false }
+  if (isCoursePage(path)) return { path, fallback: false }
   if (!path.startsWith(EN_PREFIX + '/')) return undefined
   const base = path.slice(EN_PREFIX.length)
-  return isCoursePage(base) ? { path: base, en: true } : undefined
+  return isCoursePage(base) ? { path: base, fallback: true } : undefined
 }
 
 /**
@@ -258,7 +260,7 @@ export async function resolvePage(pathname: string): Promise<PageMeta | null> {
     if (res.status === 404) return NOT_FOUND
     if (!res.ok) return null
     const page = (await res.json()) as PageMeta
-    return hit.en ? { ...page, noindex: true } : page
+    return hit.fallback ? { ...page, noindex: true } : page
   } catch {
     return null
   }
@@ -290,7 +292,7 @@ export function headTags(page: PageMeta): HeadTag[] {
   const tags: HeadTag[] = [meta('name', 'description', page.description)]
   if (page.noindex) tags.push(meta('name', 'robots', 'noindex, nofollow'))
   if (!isNotFound) tags.push({ tag: 'link', attrs: { rel: 'canonical', href: url } })
-  if (!page.noindex) for (const a of languageAlternates(page.path, page.lang)) tags.push({ tag: 'link', attrs: { rel: 'alternate', hreflang: a.lang, href: absoluteUrl(a.path) } })
+  if (!page.noindex && !page.noEnglish) for (const a of languageAlternates(page.path, page.lang)) tags.push({ tag: 'link', attrs: { rel: 'alternate', hreflang: a.lang, href: absoluteUrl(a.path) } })
   tags.push(
     meta('property', 'og:type', page.ogType ?? 'website'),
     meta('property', 'og:site_name', SITE_NAME),

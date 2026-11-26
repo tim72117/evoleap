@@ -15,7 +15,9 @@ web/src/live/
   actors/<名稱>/actor.ts、actor.css    演員(2A.1)
   kit.ts / kit.test.ts                舞台與演員共用的動畫工具(第 6 節)
   scripts.ts                          載入腳本:loadScript / loadVoice / loadMix(向 GET /api/scripts 取)、useScriptPaths()(研發基地的腳本清單)
-web/src/content/live/<等級>/*.json     舞台腳本(2A.2),例如 l0/0.0-tools.json
+資料庫(lesson_files / studio_files)  舞台腳本(2A.2),路徑像 l0/0.0-tools.json;repo 裡沒有
+web/src/content/live/<課程>/site/    腳本用到的網頁素材
+web/scripts/lib/liveScripts.mjs      本機工具取得、上傳腳本(第 2.0 節)
 ```
 
 ```
@@ -26,7 +28,7 @@ web/src/content/live/<等級>/*.json     舞台腳本(2A.2),例如 l0/0.0-tools.
 │  │   演員 actors/<名稱>/:claude-desktop、finder…   │            │
 │  └─────────────────────────────────────────────────┘           │
 └────────────────────────────────────────────────────────────────┘
-        ▲ 腳本(src/content/live/…/*.json):演員表、步驟、旁白、章節、練習點
+        ▲ 腳本(GET /api/scripts/…):演員表、步驟、旁白、章節、練習點
 ```
 
 - **外殼**只管時間和播放，不知道畫面長什麼樣，只要內容提供「總長度」與「畫出某個時間點」。
@@ -53,6 +55,15 @@ web/src/content/live/<等級>/*.json     舞台腳本(2A.2),例如 l0/0.0-tools.
 ---
 
 ## 2. 外殼 Shell（`shell.ts`）
+
+### 2.0 腳本在哪裡、本機工具怎麼取得
+
+腳本、旁白清單、章節音軌清單以**線上資料庫為準**，repo 裡沒有（備份在 GCS，見 `server/backup/README.md`）。`npm run voice`、`mix`、`record:live` 與 canvas 工具共用 `scripts/lib/liveScripts.mjs`，透過 evoleap CLI 取得（需要 Go；先登入一次：在 `server/` 執行 `go run ./cmd/evoleap login`；`EVOLEAP_CLI` 可指定現成執行檔）。
+
+- 預設 `https://evoleap.io`；`--api http://127.0.0.1:8190`（或 `EVOLEAP_API`）換伺服器。取不到就報錯，不會改讀別的地方。
+- `--dir 資料夾`（或 `EVOLEAP_SCRIPT_DIR`）讀本機草稿，清單寫在腳本旁邊。
+- `voice`、`mix --publish` 產生的清單先寫在 `web/recordings/live/<主機>/`；加 `--push` 才上傳（沿用腳本屬於哪一課），沒加時印出上傳指令。腳本本身要先 `evoleap script push` 上傳。
+- 改線上腳本：`evoleap script get -path P -out 檔案` → 修改 → `evoleap script push -file 檔案 -path P`。
 
 ### 2.1 舞台尺寸
 
@@ -104,11 +115,11 @@ vp.time / vp.playing
 
 ### 2.5 課程頁直接掛載
 
-單課資料（`src/content/l0Lessons.ts` 等）的影片設定 `live: 'l0/0.0-tools.json'`（相對於 `src/content/live/`）時，課程頁改用 `web/src/courses/LivePlayer.tsx` 播放：
+單課資料（`src/content/l0Lessons.ts` 等）的影片設定 `live: 'l0/0.0-tools.json'`（資料庫裡的腳本路徑）時，課程頁改用 `web/src/courses/LivePlayer.tsx` 播放：
 
 1. `createStage(div)` 建立舞台，`mountShell(box, { stage: div, … })` 直接掛在課程頁上。
 2. `loadScript(path)`（`scripts.ts`，向 `GET /api/scripts/{path}` 取；播到那一課才載入），等字型載入後 `stage.load(script)`，再用 `vp.update` 補上長度、章節、字幕、練習點。
-   腳本不打包進前端，放在資料庫（各課的在 `lesson_files`，研發基地的在 `studio_files`）。伺服器依那一課的狀態與存取方式把關（草稿只給管理員、登入後免費的要登入），研發基地的只給管理員。改腳本、掛到哪一課用 `evoleap script push`。`src/content/live/` 裡資料庫還沒有的檔，部署與本機啟動時補進研發基地。
+   腳本不打包進前端，放在資料庫（各課的在 `lesson_files`，研發基地的在 `studio_files`）。伺服器依那一課的狀態與存取方式把關（草稿只給管理員、登入後免費的要登入），研發基地的只給管理員。改腳本、掛到哪一課用 `evoleap script push`。線上資料庫是唯一來源。
 3. 播放秒數透過 `onTime` 回報給課程頁；腳本裡標了 `lessonStep` 的章節透過 `onCues` 回報，課程頁播到那裡就展開對應的步驟。
 4. 全螢幕、手機橫放滿版與播放器的快捷鍵都由外殼處理（焦點在播放器裡時 ←/→ 是倒退／快轉，在頁面上時由課程頁切換步驟）。
 
@@ -194,15 +205,15 @@ export default defineActor({
 | `lt10-magic` | press、snap、edit、fill、reload、guess、check（有狀態；兒童網頁課單元 3「JavaScript：讓網頁動起來」：網頁加上「什麼時候 → 就做什麼」的魔法積木，孩子把積木放進格子再按按鈕看結果；props：title、buttons、things、box 等） | window、page、code、drawer、title、note、button:id、thing:id、box、num、dice、bubble、reload、rule:id、when:id、do:id、if:id |
 | `lt11-helper` | ask、pick、unpick、clear、send、make、reply、deal、mark、compare、check、sketch、draw、split、press、cheer（有狀態；兒童網頁課單元 4「請 AI 幫忙做」的 AI 小幫手，模擬、不接真的 AI：孩子點名詞卡、句子卡跟它說，它照卡片的 ops 改網頁；卡片的做法對不上當時的網頁時不算做到，不給星星；props：page、goal 或 sketch、cards、starsOf） | window、helper、chat、page、part:id、paper、goal:id、box:id、tray、card:id、compose、send、tpl:id、tool:kind、stars |
 | `dom-tree` | grow、focus、anatomy、wrap、unwrap（有狀態；元素結構圖：容器是方框，上緣開頭標籤、下緣結尾標籤，子元素包在裡面；anatomy 拆開標示開頭標籤／內容／結尾標籤；wrap 把相鄰元素包進新容器、unwrap 拆開；props.look：clean（預設，成人課）或 kids（兒童課粗黑框）；網頁怎麼運作 1.1 原本用，現在改用 `kid-tree`） | window、tree、node:id、open:id、text:id、close:id |
-| `fx` | logo、stream、diff、shimmer、circle、arrow、flash、whip、reveal、clear（宣傳片特效層，參考 HyperFrames 效果目錄改寫成純函式；place 用 `full`、放在演員表最後；畫面類同時只顯示最新一個，標註類會累積，轉場用 flash／whip 蓋住、reveal 掀開；用法見 `actor.ts` 開頭，示範腳本 `content/live/promo/fx-reel.json`） | window、panel |
-| `desk` | open、close、install、launch、signin、user、read、edit、run、ask、answer（有狀態；寫實情境「你自己的電腦」：房間、木頭桌、螢幕上的桌面與 AI 程式助手視窗，演出沒有對應介面的觀念：讀檔、改檔、執行指令、確認提示與允許／拒絕的結果，也演安裝與登入；場景 16:9，props.close 為只拍螢幕的近景；用法見 `actor.ts` 開頭，用在 `content/live/vibe-coding/4.2.json`） | window、screen、app、dialog、option:deny\|once\|always、folder、item:路徑、dock、launcher、installer、signin、result |
-| `manual-office` | write、run、hunt、patch、slump、call、enter、handoff（有狀態；「手寫程式的年代」：明亮的辦公室裡穿西裝的人手打 HTML，打錯一個符號、找錯、改了又壞，時鐘一天天過去，最後舉手求助、機器人坐辦公椅滑進來；結束畫面和 `agent-office` 第一格相同，可用 show/hide 無縫接；place 用 `full`；共用繪圖在 `live/art/`；用在 `content/live/l0/0.intro.json`） | window、human、head、monitor、screen、code、preview、clock、circle、robot、say |
-| `file-ai` | scene（`four`、`read`、`write`、`run`、`direct`、`tools`；「會操作檔案的 AI 工具」的情境動畫：四件事、讀取、建立修改、執行指令、與聊天工具的差別（動手前先問你）、常見工具；SVG 純函式、延遲載入；place 用 `full`；用在 `content/live/l0/0.0-tools.json`） | window |
-| `bobo` | go、play、eat、say、sleep、toss、getup、tidy、mirror、undress、wash、brush、dress（有狀態；兒童繪本的主角小熊波波：公園、餐桌、浴室、臥室四個場景，身上的泥巴、沙子、牙齒上黏黏的那層、泡泡都是狀態；不用字卡，全用動畫說故事；place 用 `full`，直式只看中間一條；延遲載入；用法見 `actor.ts` 開頭，用在 `content/live/lab/book/bobo-bath.json`） | window、bear、face、mouth、bubble、puddle、sandbox、table、tub、sink、mirror、basket、bed |
-| `then-now` | look、mend、turn、tell、craft、tally（有狀態；「以前自己寫程式」對「現在說一句話」的動手體驗：四行 HTML 少了一個引號，學員一行一行檢查、挑一個符號補上；換到現在後說一句話，AI 當場做出來，最後並排對照；扁平版面，字級跟著演員寬度，窄或直的時候上下排；用在序章 B 版 `content/live/lab/l0/intro-b.json`，路由 `/studio/software-intro-b`） | window、code、preview、note、meter、line:N、keys、key:quote\|gt\|slash\|semi、next、prompt、ask:N、said、result、tally |
-| `agent-office` | need、plan、ask、allow、build、check、fix、done（有狀態；「AI Agent 自己動手做事」：同一間辦公室，機器人操作電腦，人只說需求、回答權限提示；推近／拉遠的鏡位由狀態決定；place 用 `full`；用在 `content/live/l0/0.intro.json`） | window、robot、head、human、monitor、screen、code、plan、need、ask、allow、deny、dash、issue |
+| `fx` | logo、stream、diff、shimmer、circle、arrow、flash、whip、reveal、clear（宣傳片特效層，參考 HyperFrames 效果目錄改寫成純函式；place 用 `full`、放在演員表最後；畫面類同時只顯示最新一個，標註類會累積，轉場用 flash／whip 蓋住、reveal 掀開；用法見 `actor.ts` 開頭，示範腳本 `資料庫的 promo/fx-reel.json`） | window、panel |
+| `desk` | open、close、install、launch、signin、user、read、edit、run、ask、answer（有狀態；寫實情境「你自己的電腦」：房間、木頭桌、螢幕上的桌面與 AI 程式助手視窗，演出沒有對應介面的觀念：讀檔、改檔、執行指令、確認提示與允許／拒絕的結果，也演安裝與登入；場景 16:9，props.close 為只拍螢幕的近景；用法見 `actor.ts` 開頭，用在 `資料庫的 vibe-coding/4.2.json`） | window、screen、app、dialog、option:deny\|once\|always、folder、item:路徑、dock、launcher、installer、signin、result |
+| `manual-office` | write、run、hunt、patch、slump、call、enter、handoff（有狀態；「手寫程式的年代」：明亮的辦公室裡穿西裝的人手打 HTML，打錯一個符號、找錯、改了又壞，時鐘一天天過去，最後舉手求助、機器人坐辦公椅滑進來；結束畫面和 `agent-office` 第一格相同，可用 show/hide 無縫接；place 用 `full`；共用繪圖在 `live/art/`；用在 `資料庫的 l0/0.intro.json`） | window、human、head、monitor、screen、code、preview、clock、circle、robot、say |
+| `file-ai` | scene（`four`、`read`、`write`、`run`、`direct`、`tools`；「會操作檔案的 AI 工具」的情境動畫：四件事、讀取、建立修改、執行指令、與聊天工具的差別（動手前先問你）、常見工具；SVG 純函式、延遲載入；place 用 `full`；用在 `資料庫的 l0/0.0-tools.json`） | window |
+| `bobo` | go、play、eat、say、sleep、toss、getup、tidy、mirror、undress、wash、brush、dress（有狀態；兒童繪本的主角小熊波波：公園、餐桌、浴室、臥室四個場景，身上的泥巴、沙子、牙齒上黏黏的那層、泡泡都是狀態；不用字卡，全用動畫說故事；place 用 `full`，直式只看中間一條；延遲載入；用法見 `actor.ts` 開頭，用在 `資料庫的 lab/book/bobo-bath.json`） | window、bear、face、mouth、bubble、puddle、sandbox、table、tub、sink、mirror、basket、bed |
+| `then-now` | look、mend、turn、tell、craft、tally（有狀態；「以前自己寫程式」對「現在說一句話」的動手體驗：四行 HTML 少了一個引號，學員一行一行檢查、挑一個符號補上；換到現在後說一句話，AI 當場做出來，最後並排對照；扁平版面，字級跟著演員寬度，窄或直的時候上下排；用在序章 B 版 `資料庫的 lab/l0/intro-b.json`，路由 `/studio/software-intro-b`） | window、code、preview、note、meter、line:N、keys、key:quote\|gt\|slash\|semi、next、prompt、ask:N、said、result、tally |
+| `agent-office` | need、plan、ask、allow、build、check、fix、done（有狀態；「AI Agent 自己動手做事」：同一間辦公室，機器人操作電腦，人只說需求、回答權限提示；推近／拉遠的鏡位由狀態決定；place 用 `full`；用在 `資料庫的 l0/0.intro.json`） | window、robot、head、human、monitor、screen、code、plan、need、ask、allow、deny、dash、issue |
 
-**`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `content/live/lab/macbook-demo.json`。
+**`macbook` 演員（擬真筆電）**：`actors/macbook/`，示範腳本 `資料庫的 lab/macbook-demo.json`。
 
 - props：`opened`（預設 false）、`awake`（預設等於 opened）、`angle`（開蓋角度 90–135，預設 105）、`pitch`（俯視角 0–70，預設 15）、`yaw`（水平旋轉 -60–60，預設 0）、`finish`（`silver`／`space-gray`）、`wallpaper`（`dawn`／`ocean`／`graphite`／`meadow`／`dusk`）、`dock`（Dock 圖示 0–10，預設 7）、`clock`（選單列時間文字）。
 - 動作：`{ "open": true, "angle": 110 }`（開蓋約 1.7 秒）、`{ "close": true }`、`{ "wake": true }`（亮屏）、`{ "sleep": true }`、`{ "type": "文字", "cps": 8 }` 或 `{ "type": true, "keys": 24 }`（按鍵下沉、鍵帽淡淡亮起；英數字按對應鍵，其他字按固定亂數選的鍵）、`{ "tilt": { "pitch": 30, "yaw": -15 } }`（約 2.4 秒，給運鏡用）。操作對不上狀態（已開蓋又 open、闔著 wake／type）載入時報錯。鏡頭推近平移用一般的 `focus`，不另外發明。
@@ -219,7 +230,7 @@ export default defineActor({
 - 尺寸固定的演員（`fixedSize: true`，例如 `kid-tree`：尺寸照 1920 寬的舞台設計，不跟著寬度重新排版）：靜態互動時放進一般大小的舞台，再整個等比例縮放到畫面裡。
 - 靜態互動的拖曳：互動點寫 `"stage": { "focus": "<演員>:tree", "drag": true }`，學員可以拖演員身上的東西，放下去就在靜態舞台上多演一步並播出動畫（拖放的計畫見 `kids/drag.ts`，目前支援 `kid-tree` 的節點；拖曳層 `kids/DragLayer.tsx` 和兒童版播放器共用）。`kid-tree` 的 `look: "clean"` 是成人版樣式（節點寫 `tag`，任務多了 `parent`），網頁怎麼運作 1.1、1.2 用；成人版另有 `anatomy`（拆開標示開頭標籤／內容／結尾標籤，容器多一列結尾標籤）、`wrap`／`unwrap`（相鄰節點包進新容器、拆掉容器），`fade`（節點標成藏起來：虛線、變淡，再做一次恢復）、`mark`（節點亮起來，可以同時好幾個，再做一次取消），目標多了 `open:id`、`text:id`、`close:id`；`only: "tree"` 只顯示樹，外框和瀏覽器演員一樣。
 - 名稱打錯時載入就報錯，並列出可用的區塊。關掉的區塊量不到位置，鏡頭、聚光燈、滑鼠不要再指向它。
-- 每位演員有哪些區塊、關掉後長怎樣：`/studio/actor-interaction/showcase`（演員展示：動態展示照示範腳本播放，靜態展示只有舞台、按操作才演出；示範腳本在 `content/live/lab/actors/<演員>.json`）。
+- 每位演員有哪些區塊、關掉後長怎樣：`/studio/actor-interaction/showcase`（演員展示：動態展示照示範腳本播放，靜態展示只有舞台、按操作才演出；示範腳本在 `資料庫的 lab/actors/<演員>.json`）。
 
 **演員的可點區（`hotspots`）**：選用。`hotspots(state, props)` 回傳目前可以點什麼：`{ target, label, step }`，或要先打字的 `{ target, label, input: { placeholder, step(text) } }`。演員不處理點擊事件，互動層（目前只有 `/studio/actor-interaction/showcase` 的靜態展示）量出目標位置、疊上透明按鈕，點下去就接一步、重新載入，畫面仍只由時間決定。和腳本的關係還沒設計，見構想頁 `/studio/actor-interaction`。
 
@@ -261,7 +272,7 @@ export default defineActor({
 1. 建 `actors/<名稱>/actor.ts`、`actor.css`，用 `defineActor` 照 2A.1 的介面實作（`actor.ts` 要 import 自己的 `actor.css`），開頭寫清楚 props、動作與目標。
 2. 在 `actors/index.ts` import 並登記。
 3. 動作照 2A.4 設計成「操作」，狀態照 2A.5 用 `init`／`apply` 推算。
-4. 在腳本（`src/content/live/`）的 `cast` 加上它，在研發基地頁的播放器檢查各時間點的畫面（2.6）。
+4. 在腳本（`資料庫`）的 `cast` 加上它，在研發基地頁的播放器檢查各時間點的畫面（2.6）。
 5. 檢查拖曳與倒轉：`render` 不能依賴上一次的結果。
 
 ### 2A.4 動作要是「操作」，不是「設定畫面」（所有演員必須遵守）
@@ -693,7 +704,7 @@ packs/<name>/
 ## 7. 驗證與 AI 製作流程
 
 1. 給 AI：本規格 2A.2（舞台腳本）、2A.4，以及要用的演員 `actor.ts` 開頭的說明（props、動作、目標）。
-2. AI 產出腳本 JSON，放進 `web/src/content/live/<等級>/`，在單課資料加上 `live: '<等級>/<檔名>.json'`。
+2. AI 產出腳本 JSON，用 `evoleap script push -file … -path <等級>/<檔名>.json` 上傳（掛在課底下加 `-course -lesson`），在單課資料加上 `live: '<等級>/<檔名>.json'`。
 3. 在研發基地頁播放：腳本有錯時 `stage.load` 丟出的錯誤（含第幾步）會直接顯示在播放器上。
 4. 拖到各章節檢查畫面（2.6），人工或交給 AI 看圖檢查。
 5. 在研發基地頁或課程頁上播放，確認節奏。
@@ -713,11 +724,11 @@ packs/<name>/
 
 ### 旁白語音
 
-- 角色自己的聲音:腳本頂層 `"voice": { "speakers": { "<演員代號>": { "voice": "Puck", "style": "…" } } }`,`npm run voice` 會把那位演員的 `say` 台詞用這組聲音另外錄進同一份 `.voice.json`。舞台在台詞那一步開始後 300ms 播(不另出字幕,畫面上有對話泡泡),這一步至少延長到念得完;台詞也算旁白的邊界,旁白與台詞不會疊在一起,所以同一步不要同時寫 `say` 與 `narration`。目前只支援一般模式(不含 `--whole`、`--batch`)。用在 `content/live/lab/book/bobo-bath.json`。
+- 角色自己的聲音:腳本頂層 `"voice": { "speakers": { "<演員代號>": { "voice": "Puck", "style": "…" } } }`,`npm run voice` 會把那位演員的 `say` 台詞用這組聲音另外錄進同一份 `.voice.json`。舞台在台詞那一步開始後 300ms 播(不另出字幕,畫面上有對話泡泡),這一步至少延長到念得完;台詞也算旁白的邊界,旁白與台詞不會疊在一起,所以同一步不要同時寫 `say` 與 `narration`。目前只支援一般模式(不含 `--whole`、`--batch`)。用在 `資料庫的 lab/book/bobo-bath.json`。
 
 - **產生**：`npm run voice -- l0/0.0-tools.json`（在 `web/` 執行，`--all` 全部、`--max-sec 20` 只產生開頭、`--limit 10` 只產生前 10 段、`--sample "一句" --voices A,B` 試聽）。每段 `narration` 送 Gemini TTS（`gemini-3.8-flash-tts`，聲音 Sulafat），轉成 48 kbps MP3 上傳到 GCS `gs://shuttle-voice/<腳本資料夾>/<雜湊>.mp3`（公開讀取、永久快取）。金鑰放 `web/.env.local` 的 `GEMINI_API_KEY`，只在本機用。
 - **批次模式**（一次補齊整門課，不急著聽）：`npm run voice -- --batch web/1.1.json web/1.2.json`（或 `--all --batch`）把缺的旁白整包送 Gemini Batch API（約一半價格，24 小時內完成，通常快很多），送出的批次記在 `web/recordings/voice-batch.json`（不進版控）；之後跑 `npm run voice -- --collect` 查狀態，完成就下載、轉 MP3、上傳並寫進各腳本的 `.voice.json`，和一般模式產生的一樣。同一個音檔（例如共用的老師招呼語）只送一次；一次只能有一批在跑；加 `--dry-run` 只列出要送的段落與第一筆請求，不呼叫 API。批次只支援 generateContent，請求的寫法和一般模式（Interactions API）不同，第一次正式送出時要確認回來的聲音和語氣一樣。
-- **清單**：腳本旁的 `<名稱>.voice.json`（進版控）記錄「旁白文字 → { file, ms }」與模型、聲音、語氣。雜湊由模型、聲音、語氣、文字決定；旁白改了一個字就對不到舊音檔，那段會退回只有字幕，直到重新產生。GCS 上的舊檔不自動刪除（正式站部署前仍可能用到）。
+- **清單**：腳本旁的 `<名稱>.voice.json`（存在資料庫，和腳本一起）記錄「旁白文字 → { file, ms }」與模型、聲音、語氣。雜湊由模型、聲音、語氣、文字決定；旁白改了一個字就對不到舊音檔，那段會退回只有字幕，直到重新產生。GCS 上的舊檔不自動刪除（正式站部署前仍可能用到）。
 - **播放**：課程頁讀腳本與清單；舞台用語音實際長度排時間（`load(script, { voice })`），`narrations` 給出每段開始時間；外殼的 `clips` 依時間軸播放對應音檔（兩個 `<audio>` 輪流，先載入下一段；按播放的當下取得播放權限）。音檔可先抓成 Blob 放在記憶體（往後 3 段，其餘釋放；抓不到就直接用網址；GCS bucket 設好 CORS 後以 `VITE_VOICE_BLOB=1` 開啟，預設關閉），播放中以音檔的 `currentTime` 為主時鐘（`narration.clock()`，不讓時間軸倒退）：音檔卡住時時間軸與字幕一起停，不再做偏差校正的強制 seek；旁白之間的空檔仍由外殼累加。字幕在語音長度內依字數分配。讀不到清單時只顯示字幕。
 - **章節音軌**（手機上每句換一次音檔容易斷續，所以把連續的旁白合成一個音檔）：`npm run mix -- l0/0.0-tools.json`（`--all` 全部；加 `--publish` 才上傳）。`scripts/mix.mjs` 起一個 vite、用 Playwright 在 Chrome 裡跑舞台排時間，取得每段旁白的開始時間與練習點，以練習點切章節，每章用 ffmpeg 依時間把旁白接起來、中間補靜音（48 kbps 單聲道 mp3），預設只產生在 `web/recordings/mix/`；`--publish` 上傳到 `gs://shuttle-voice/mix/<腳本>/<章節>-<雜湊>.mp3`，並寫出 `<名稱>.mix.json`（進版控）記錄每章的檔案，以及每句旁白在章節檔裡的位置、當時用的語音檔。**旁白或腳本改了要重新執行**；沒重新執行時播放器發現文字、語音檔或間隔對不上，就自動退回逐句播放，不會錯位。
 - **旁白計畫**（`src/live/mixPlan.ts`，純函式）：`narrationClips(narrations, voice, mix)` 把目前時間軸的每句旁白對到章節音軌：時間軸上連續（間隔和章節音軌裡相同）的旁白併成一段範圍（一個 `Clip`，`from` 是音檔裡的起點），對不到的有語音者逐句播放，沒語音的（例如互動分支新寫的旁白）不播、只有字幕。互動課程學員回答後舞台重排時間軸，回到主線的旁白彼此間隔不變，仍是章節音軌裡連續的一段，從該句的位置 seek 一次就接得上；第 0、0.1 課各回答組合都已驗證沒有任何一句需要退回逐句播放。
@@ -726,7 +737,7 @@ packs/<name>/
 ### 待決定
 
 - **旁白來源**：目前用 Gemini TTS 產生（見「旁白語音」一節）；是否改成真人錄音，聽過整課後再決定。
-- **輸出 mp4**：已有 `web/scripts/record-live.mjs`（`npm run record:live -- promo/0.promo-intro.json [--from 毫秒] [--to 毫秒]`）。它開 `/materials/promo?script=…&record=1`（只顯示 1920×1080 的舞台），以 30 fps 逐格呼叫 `window.__promo.renderAt(ms)` 截圖，用 ffmpeg 合成 1080p mp4；腳本有旁白語音（`*.voice.json`）時依各段旁白的開始時間混成音軌，另輸出 `.srt` 字幕，檔案在 `web/recordings/promo/`。腳本放在 `src/content/live/promo/`，網頁播放在 `/materials/promo`。`web/src/studio/recorder/` 的 `npm run record` 是另一種舊版（v1 分鏡腳本）。
+- **輸出 mp4**：已有 `web/scripts/record-live.mjs`（`npm run record:live -- promo/0.promo-intro.json [--from 毫秒] [--to 毫秒]`）。它開 `/materials/promo?script=…&record=1`（只顯示 1920×1080 的舞台），以 30 fps 逐格呼叫 `window.__promo.renderAt(ms)` 截圖，用 ffmpeg 合成 1080p mp4；腳本有旁白語音（`*.voice.json`）時依各段旁白的開始時間混成音軌，另輸出 `.srt` 字幕，檔案在 `web/recordings/promo/`。腳本放在 `資料庫的 promo/`，網頁播放在 `/materials/promo`。`web/src/studio/recorder/` 的 `npm run record` 是另一種舊版（v1 分鏡腳本）。
 
 ## 直式舞台(原型)
 
@@ -772,7 +783,7 @@ packs/<name>/
 
 ## 調度(試做)
 
-目的:直式舞台放不下兩位演員並排,改成共用同一塊位置、輪流到前景(電影的「場面調度 / blocking」)。程式在 `blocking.ts`(純函式,有單元測試),舞台在 `stage.ts` 套用;試做腳本 `content/live/lab/blocking-demo.json`,在研發基地「開發 → 直式舞台」的試做播放。
+目的:直式舞台放不下兩位演員並排,改成共用同一塊位置、輪流到前景(電影的「場面調度 / blocking」)。程式在 `blocking.ts`(純函式,有單元測試),舞台在 `stage.ts` 套用;試做腳本 `資料庫的 lab/blocking-demo.json`,在研發基地「開發 → 直式舞台」的試做播放。
 
 - 腳本頂層 `"blocking": { "cast": ["claude", "browser"], "shot": "depth", "auto": true }`:`cast` 是參與調度的演員(一開始由前到後),通常放在同一個 `place`。
 - 構圖 `shot`:`depth` 縱深構圖(staging in depth:前景完整;後景縮小、變暗、失焦,直式從上緣、橫式從左側露出一截)、`pip` 子母畫面(picture-in-picture,後景縮成角落的小畫面疊在前景上)、`single` 單人鏡頭(只看得到前景)。
@@ -802,7 +813,7 @@ packs/<name>/
 | `canvas_reload` | 重開瀏覽器 |
 
 - 靜態圖放 `web/art/<名稱>/*.svg|html`(只在本機用,沒有任何程式 import,不會進網站)。路徑可以是絕對路徑、相對 repo、相對 `web/` 或 `web/art/`。中文字型用系統的 Noto Sans TC / 微軟正黑體。
-- `canvas_*` 需要 Vite dev server(`npm run dev`,預設 `http://localhost:5190`,`CANVAS_URL` 可改)。渲染頁是 `src/studio/canvas/host.html`(只有 dev server 有,不在 build 入口;研發基地的權限檢查照樣適用,工具帶本機 token 通過)。腳本直接讀 `src/content/live/` 的檔案(不經過後端資料庫),同樣展開老師開場、套用 `.voice.json` 的旁白長度;腳本檔改過會自動重新載入。瀏覽器也能直接看:`/src/studio/canvas/host.html?script=promo/kids-free-reel-short.json&aspect=portrait&t=6000&overlays=bounds,safe`。
+- `canvas_*` 需要 Vite dev server(`npm run dev`,預設 `http://localhost:5190`,`CANVAS_URL` 可改)。渲染頁是 `src/studio/canvas/host.html`(只有 dev server 有,不在 build 入口;研發基地的權限檢查照樣適用,工具帶本機 token 通過)。腳本由工具從線上 API 取得（第 2.0 節；參數 `api`、`dir`，或環境變數 `EVOLEAP_API`、`EVOLEAP_SCRIPT_DIR`）後傳進頁面，同樣展開老師開場、套用 `.voice.json` 的旁白長度；每次呼叫都重新讀取。瀏覽器也能直接看（向這個 dev server 的後端取）:`/src/studio/canvas/host.html?script=promo/kids-free-reel-short.json&aspect=portrait&t=6000&overlays=bounds,safe`。
 - 安全區:直式是 FB Reels(`promo/actors/kid-reel/layout.ts` 的 `SAFE`),橫式是四邊各 5%。
 - 輸出(版本紀錄、拼圖、放大圖)在 `CANVAS_OUT`,預設 `web/node_modules/.cache/canvas/`。
 - 速度(本機實測):瀏覽器冷啟動約 0.5–1 秒;之後 SVG 全圖 1600×1000 約 150 ms、放大 60–130 ms、inspect 10–40 ms、compare 約 0.5 秒;舞台單格(1080×1920)約 0.3 秒、36 格縮圖約 3.5 秒。

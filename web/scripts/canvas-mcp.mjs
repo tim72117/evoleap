@@ -4,7 +4,7 @@
 //   npm run canvas:mcp          (通常不用手動跑:repo 根目錄的 .mcp.json 讓 Claude Code 自動啟動)
 //
 // 第一組 art_*:靜態圖(web/art/<名稱>/*.svg | *.html,或 repo 裡任何 SVG/HTML),不需要 dev server。
-// 第二組 canvas_*:即時教學畫面的舞台腳本(src/content/live/**),需要 Vite dev server(預設 http://localhost:5190)。
+// 第二組 canvas_*:即時教學畫面的舞台腳本(從線上 API 取得,見 scripts/lib/liveScripts.mjs),需要 Vite dev server(預設 http://localhost:5190)。
 // 輸出(每次渲染的版本紀錄、拼圖)放在 CANVAS_OUT(預設 web/node_modules/.cache/canvas)。
 // 說明見 web/src/live/README.md「畫面快速檢查(canvas MCP)」。
 import fs from 'node:fs'

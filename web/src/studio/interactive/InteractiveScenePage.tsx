@@ -44,7 +44,7 @@ const fmt = (ms: number): string => {
 }
 
 type Props = {
-  /** src/content/live/ 底下的腳本路徑 */
+  /** 資料庫的腳本路徑 */
   script: string
   /** 頁面名稱(document.title 是「<名稱> · 課程提案」,要和 seo/pages.ts 一致) */
   pageTitle: string

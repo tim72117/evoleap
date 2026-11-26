@@ -1,0 +1,22 @@
+{"title": "第 3 課範例", "cast": {"claude": {"actor": "claude-desktop", "props": {"title": "新的 session", "folder": "~/Documents/practice", "branch": null, "mode": "ask", "sessions": [], "labels": {"placeholder": "描述你要做的事…"}}, "place": "window", "hidden": true}, "browser": {"actor": "browser", "props": {"site": "v1", "width": "desktop"}, "place": "window", "hidden": true}}, "steps": [
+ {"card": "第 3 課範例"},
+ {"show": "claude", "narration": "用一段話描述需求。"},
+ {"wait": 2000, "chapter": "一次描述整頁，產生第一版", "lessonStep": 1, "narration": "第 1 步:整頁描述。"},
+ {"wait": 2000, "chapter": "在瀏覽器打開，對照需求檢查", "lessonStep": 2, "narration": "第 2 步:檢查。"},
+ {"checkpoint": "換你試試", "body": "自己做一次。"},
+ {"wait": 2000, "chapter": "調整頁首與導覽", "lessonStep": 3, "narration": "第 3 步:頁首導覽。"},
+ {"user": "商品卡片在手機上改成一欄", "chapter": "商品卡片的排列", "lessonStep": 4},
+ {"show": "browser", "site": "v3"},
+ {"width": "phone", "narration": "縮窄看看。"},
+ {"width": "desktop"},
+ {"scroll": "top"},
+ {"hide": "browser"},
+ {"checkpoint": "換你試試", "body": "自己做一次。"},
+ {"wait": 2000, "chapter": "統一標題字級", "lessonStep": 5, "narration": "第 5 步:標題字級。"},
+ {"checkpoint": "換你試試", "body": "自己做一次。"},
+ {"wait": 2000, "chapter": "營業時間表與常見問題", "lessonStep": 6, "narration": "第 6 步:營業時間。"},
+ {"wait": 2000, "chapter": "小互動：手機版選單", "lessonStep": 7, "narration": "第 7 步:手機選單。"},
+ {"wait": 2000, "chapter": "改太多時，比對並還原", "lessonStep": 8, "narration": "第 8 步:還原。"},
+ {"checkpoint": "換你試試", "body": "自己做一次。"},
+ {"wait": 2000, "chapter": "最後檢查：三種寬度", "lessonStep": 9, "narration": "第 9 步:三種寬度。"}
+]}

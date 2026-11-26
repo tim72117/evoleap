@@ -1,0 +1,8 @@
+{"title": "回客人(互動範例)", "cast": {"phone": {"actor": "chat", "props": {"title": "小森烘焙"}, "place": "window", "hidden": true}}, "steps": [
+ {"show": "phone", "chapter": "開店"},
+ {"receive": "明天要蛋糕", "from": "客人甲"},
+ {"checkpoint": "客人甲明天就要蛋糕，你怎麼回？", "body": "選一個回覆。", "id": "cake", "free": {"placeholder": "自己打一句回覆", "steps": [{"reply": "{{text}}"}]}, "options": [{"label": "好的，明天幫您準備！", "steps": [{"reply": "好的，明天幫您準備！"}]}, {"label": "蛋糕要提前兩天訂，後天可以嗎？", "steps": [{"reply": "蛋糕要提前兩天訂，後天可以嗎？"}, {"receive": "好", "from": "客人甲"}]}]},
+ {"receive": "我的電話 091234567", "from": "客人丙"},
+ {"checkpoint": "客人丙的手機少一碼，你怎麼處理？", "body": "選一個回覆。", "id": "phone", "free": {"placeholder": "自己打一句回覆", "steps": [{"reply": "{{text}}"}]}, "options": [{"label": "之後再說", "steps": [{"reply": "之後再說"}]}, {"label": "可以再確認嗎？", "steps": [{"reply": "可以再確認嗎？"}, {"receive": "好", "from": "客人甲"}]}]},
+ {"wait": 500}
+]}

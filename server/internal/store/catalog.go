@@ -134,7 +134,7 @@ func (s *Store) InitCatalog(ctx context.Context, cat Catalog, files []ScriptExpo
 		if err := seedCourses(tx, cat.Courses); err != nil {
 			return invalid("%s", err)
 		}
-		// 啟動與部署的同步可能已經把腳本檔補進研發基地(addMissingScripts):以備份為準蓋掉,
+		// 初始化之前研發基地可能已經有腳本(例如管理員先上傳過):以備份為準蓋掉,
 		// 屬於某一課的路徑也從研發基地拿掉,一個檔只在一處
 		if len(lessons) > 0 {
 			paths := make([]string, len(lessons))

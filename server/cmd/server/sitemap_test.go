@@ -43,7 +43,7 @@ func TestSitemapFollowsDatabase(t *testing.T) {
 	}
 	dist := fstest.MapFS{"sitemap-pages.json": {Data: []byte(`[{"loc":"https://evoleap.io/","priority":1},{"loc":"https://evoleap.io/a&b"},` + page(open) + `,` + page(closed) + `]`)}}
 
-	h := sitemapHandler(dist, st.OpenLessonKeys)
+	h := sitemapHandler(dist, st.OpenLessonKeys, nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/sitemap.xml", nil))
 	body := rec.Body.String()
@@ -63,12 +63,12 @@ func TestSitemapFollowsDatabase(t *testing.T) {
 
 	// 沒接資料庫:沒有種子備援,只列非課頁
 	rec = httptest.NewRecorder()
-	sitemapHandler(dist, nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/sitemap.xml", nil))
+	sitemapHandler(dist, nil, nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/sitemap.xml", nil))
 	if strings.Contains(rec.Body.String(), "/p/") || !strings.Contains(rec.Body.String(), "https://evoleap.io/</loc>") {
 		t.Errorf("沒接資料庫:\n%s", rec.Body)
 	}
 	// 沒有頁面清單時不註冊
-	if sitemapHandler(fstest.MapFS{}, nil) != nil {
+	if sitemapHandler(fstest.MapFS{}, nil, nil) != nil {
 		t.Error("沒有 sitemap-pages.json 應該回 nil")
 	}
 }
@@ -79,7 +79,7 @@ func TestSitemapUnavailableAndHiddenPagesFile(t *testing.T) {
 		"index.html":         {Data: []byte("<title>home</title>")},
 		"sitemap-pages.json": {Data: []byte(`[{"loc":"https://evoleap.io/"}]`)},
 	}
-	bad := sitemapHandler(dist, func(context.Context) (map[string]bool, error) { return nil, context.DeadlineExceeded })
+	bad := sitemapHandler(dist, func(context.Context) (map[string]bool, error) { return nil, context.DeadlineExceeded }, nil)
 	rec := httptest.NewRecorder()
 	bad.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/sitemap.xml", nil))
 	if rec.Code != http.StatusServiceUnavailable {
@@ -99,10 +99,32 @@ func TestSitemapAlternates(t *testing.T) {
 		Lang string `json:"lang"`
 		Loc  string `json:"loc"`
 	}{{"zh-Hant", "https://evoleap.io/courses/web"}, {"en", "https://evoleap.io/en/courses/web"}}}}
-	got := sitemapXML(pages, nil)
+	got := sitemapXML(pages, nil, nil)
 	for _, want := range []string{`xmlns:xhtml="http://www.w3.org/1999/xhtml"`, `<xhtml:link rel="alternate" hreflang="en" href="https://evoleap.io/en/courses/web"/>`} {
 		if !strings.Contains(got, want) {
 			t.Errorf("sitemap 缺 %s:\n%s", want, got)
 		}
+	}
+}
+
+// 英文課程總覽與 hreflang 看資料庫有沒有英文版;沒接資料庫就不列
+func TestSitemapEnglishCourses(t *testing.T) {
+	dist := fstest.MapFS{"sitemap-pages.json": {Data: []byte(`[
+{"loc":"https://evoleap.io/courses/web","english":"web","alternates":[{"lang":"en","loc":"https://evoleap.io/en/courses/web"}]},
+{"loc":"https://evoleap.io/en/courses/web","english":"web","englishOnly":true},
+{"loc":"https://evoleap.io/courses/kids","english":"kids","alternates":[{"lang":"en","loc":"https://evoleap.io/en/courses/kids"}]},
+{"loc":"https://evoleap.io/en/courses/kids","english":"kids","englishOnly":true}]`)}}
+	body := func(english openLessons) string {
+		rec := httptest.NewRecorder()
+		sitemapHandler(dist, nil, english).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/sitemap.xml", nil))
+		return rec.Body.String()
+	}
+	got := body(func(context.Context) (map[string]bool, error) { return map[string]bool{"web": true}, nil })
+	if !strings.Contains(got, "<loc>https://evoleap.io/en/courses/web</loc>") || !strings.Contains(got, `href="https://evoleap.io/en/courses/web"`) ||
+		strings.Contains(got, "/en/courses/kids") || !strings.Contains(got, "<loc>https://evoleap.io/courses/kids</loc>") {
+		t.Errorf("%s", got)
+	}
+	if got := body(nil); strings.Contains(got, "/en/") || !strings.Contains(got, "<loc>https://evoleap.io/courses/web</loc>") {
+		t.Errorf("沒接資料庫: %s", got)
 	}
 }

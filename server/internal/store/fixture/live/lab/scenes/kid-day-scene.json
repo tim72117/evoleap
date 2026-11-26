@@ -1,0 +1,16 @@
+{"title": "一天(範例)", "cast": {"day": {"actor": "kid-day-scene", "props": {"life": {"kid": "小宇", "lit": 1, "line": "零用錢花光了"}, "hub": {"name": "小管家", "goal": 2000, "saved": 1300, "todo": ["帶水壺", "美術用品", "聯絡簿簽名"]}}, "place": "full"}}, "steps": [
+ {"strip": 1, "line": "零用錢花光了", "ms": 900, "instant": true},
+ {"strip": 2, "line": "再五分鐘", "ms": 700},
+ {"all": true, "ms": 1000},
+ {"parent": "每天都在提醒。", "ms": 1600},
+ {"collapse": "做一個小工具?", "ms": 1800},
+ {"ask": "幫我做小管家。"},
+ {"build": true},
+ {"spread": true, "ms": 800},
+ {"deposit": 200, "ms": 1000},
+ {"timer": 30, "ms": 1200},
+ {"tick": "帶水壺", "ms": 400},
+ {"tick": "美術用品", "ms": 350},
+ {"tick": "聯絡簿簽名", "ms": 350},
+ {"habit": 7}
+]}

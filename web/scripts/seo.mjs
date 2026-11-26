@@ -2,7 +2,7 @@
 //   dist/<路由>/index.html(各頁的 <title>、description、canonical、og:*、JSON-LD)
 //   dist/404.html、dist/sitemap-pages.json(可收錄的頁面清單)、dist/robots.txt
 // 課程相關頁面(src/seo/coursePages.ts)的 index.html 只是留好空位的殼,不含課程內容;單課頁一門課一份(dist/lesson-shells/),
-// 有哪些課由 server 看資料庫,資料庫新增課不用重新 build。另輸出 dist/course-pages.json,
+// 有哪些課由 server 看資料庫;英文課程總覽(/en/courses/<課程>)同樣是空殼。資料庫新增課不用重新 build。另輸出 dist/course-pages.json,
 // Go server 依它在請求時讀資料庫填入(server/cmd/server/courseseo.go)。
 // /sitemap.xml 由 Go server 即時產生:依資料庫裡每一課的狀態決定課頁收不收(server/cmd/server/sitemap.go)
 // 讓爬蟲與連結預覽不執行 JS 也看得到每頁的資料。Go server(server/cmd/server/static.go)
@@ -55,7 +55,7 @@ const write = async (file, content) => {
 for (const page of [...seo.PAGES, ...seo.EN_PAGES, seo.NOT_FOUND]) {
   await write(seo.outputFile(page), seo.renderPage(template, page))
 }
-for (const entry of seo.COURSE_PAGES) {
+for (const entry of [...seo.COURSE_PAGES, ...seo.EN_COURSE_PAGES]) {
   await write(seo.outputFile(entry), seo.renderCourseShell(template, entry))
 }
 for (const route of seo.LESSON_ROUTES) {
@@ -65,4 +65,4 @@ await write('course-pages.json', JSON.stringify(seo.courseManifest()))
 await write('sitemap-pages.json', JSON.stringify(seo.sitemapPages()))
 await write('robots.txt', seo.robotsTxt())
 
-console.log(`seo: ${seo.PAGES.length} 頁 + ${seo.COURSE_PAGES.length} 個課程頁 + ${seo.LESSON_ROUTES.length} 門課的單課頁樣板(內容由 server 填)+ ${seo.EN_PAGES.length} 個英文頁 + 404.html、course-pages.json、sitemap-pages.json、robots.txt`)
+console.log(`seo: ${seo.PAGES.length} 頁 + ${seo.COURSE_PAGES.length} 個課程頁 + ${seo.EN_COURSE_PAGES.length} 個英文課程總覽 + ${seo.LESSON_ROUTES.length} 門課的單課頁樣板(內容由 server 填)+ ${seo.EN_PAGES.length} 個英文頁 + 404.html、course-pages.json、sitemap-pages.json、robots.txt`)

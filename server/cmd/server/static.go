@@ -182,6 +182,14 @@ func newStaticHandlerWithCourses(dist fs.FS, access accessFunc, courses *courseS
 			}
 			if courses.has(route) {
 				out, err := courses.render(r.Context(), route, pg)
+				// 這門課沒有英文版:和其他沒有英文版的頁一樣,回中文頁並 noindex
+				if errors.Is(err, errNoEnglish) {
+					zh := strings.TrimPrefix(route, "/en")
+					if base := pages[zh]; base != nil {
+						w.Header().Set("X-Robots-Tag", "noindex, nofollow")
+						out, err = courses.render(r.Context(), zh, base)
+					}
+				}
 				if errors.Is(err, errNoSuchPage) {
 					serveNotFound(w, r, notFound)
 					return

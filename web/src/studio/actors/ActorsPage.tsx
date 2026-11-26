@@ -13,7 +13,7 @@ import { ProposalLayout } from '../proposal/ProposalLayout'
 import ui from '../proposal/proposal.module.css'
 import styles from './ActorsPage.module.css'
 
-// 演員展示:一次看一位演員,示範腳本在 src/content/live/lab/actors/<演員>.json。
+// 演員展示:一次看一位演員,示範腳本在 資料庫的 lab/actors/<演員>.json。
 // 動態展示:在播放器裡照腳本播放。靜態展示:只有舞台,不播放,按操作按鈕才演出那個動作。
 // 兩種都能勾選區塊看關掉之後的樣子,並產生可以貼進腳本 cast 的設定。
 // 網址 ?actor=<名稱> 直接開某一位,&mode=static 開靜態展示。
@@ -53,7 +53,7 @@ function ActorsPageBody({ name }: { name: string }) {
   const snippet = JSON.stringify(Object.fromEntries(hidden.map((p) => [p, false])))
 
   return (
-    <ProposalLayout title="演員展示" footer="研發基地 · 演員在 web/src/live/actors/，示範腳本在 web/src/content/live/lab/actors/">
+    <ProposalLayout title="演員展示" footer="研發基地 · 演員在 web/src/live/actors/，示範腳本在 資料庫的 lab/actors/">
       <h1>演員展示</h1>
       <p className={ui.lead}>看每位演員會演什麼，以及哪些區塊可以關掉，避免畫面在某些情境露出太多資訊。</p>
       <div className={styles.tabs} role="group" aria-label="選擇演員">

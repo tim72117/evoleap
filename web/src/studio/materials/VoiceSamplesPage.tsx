@@ -41,7 +41,7 @@ export function VoiceSamplesPage() {
             語氣設定檔 <code>--profile</code>：<code>default</code>（教學，預設 Sulafat）、<code>kids</code>（兒童，活潑）、<code>showcase</code>（行銷展示，預設 Zephyr）、
             <code>news</code>（科技新聞播報，沉穩俐落）。可試聽的聲音如 Charon、Kore、Orus、Sadaltager、Schedar、Zephyr、Aoede、Puck、Sulafat。
           </p>
-          <p className={ui['kv-lead']}><strong>2. 在腳本指定語氣與聲音</strong>（腳本頂層，位於 web/src/content/live/ 底下）：</p>
+          <p className={ui['kv-lead']}><strong>2. 在腳本指定語氣與聲音</strong>（腳本頂層，存在資料庫）：</p>
           <pre><code>{'"voice": { "profile": "news", "voice": "Charon" }'}</code></pre>
           <p className={ui['kv-lead']}>profile 決定語氣；<code>voice</code>、<code>style</code>、<code>model</code> 可再覆寫。沒寫時 kids/ 底下用兒童版，其他用預設。</p>
           <p className={ui['kv-lead']}><strong>3. 產生整份腳本的旁白</strong>（每個 step 的 narration 一段；沒改過的段落不會重複計費）：</p>

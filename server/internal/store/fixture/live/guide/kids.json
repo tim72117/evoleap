@@ -1,0 +1,6 @@
+{"title": "guide/kids", "cast": {"n": {"actor": "notes", "props": {"label": "範例"}, "place": {"x": 360, "y": 120, "w": 1200, "h": 800}}}, "steps": [
+ {"card": "guide/kids", "chapter": "開場"},
+ {"jot": "第一件事", "chapter": "中段", "narration": "這是測試用的範例腳本。", "ms": 3000},
+ {"jot": "第二件事", "narration": "第二段旁白。", "ms": 3000},
+ {"wait": 2000, "chapter": "結尾"}
+]}

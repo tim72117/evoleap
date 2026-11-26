@@ -77,7 +77,7 @@ func TestStructure(t *testing.T) {
 	rejected("順序少列", st.OrderCourses(ctx, u, ids[1:]))
 	must(st.OrderCourses(ctx, u, ids))
 
-	must(st.Seed(ctx, fixture.Topics, fixture.Courses))
+	must(st.Seed(ctx, fixture.Topics, fixture.Courses, fixture.I18nEN))
 	want("b:乙(改)[2.1=後(planned,)] a:甲[]")
 
 	must(st.DeleteLesson(ctx, u, "demo", "2.1"))

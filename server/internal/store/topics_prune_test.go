@@ -14,7 +14,7 @@ func TestSyncKeepsReferencedTopicWithWarning(t *testing.T) {
 	dir := t.TempDir()
 	topics1 := `[{"id":"a","name":"甲","path":"/topics/a"},{"id":"b","name":"乙","path":"/topics/b"},{"id":"gone","name":"舊","path":"/topics/gone"}]`
 	courses1 := `[{"id":"c1","title":"課","access":"free","topicId":"a","units":[]}]`
-	if _, err := st.syncSeeds(ctx, []byte(topics1), []byte(courses1), dir); err != nil {
+	if _, err := st.syncSeeds(ctx, []byte(topics1), []byte(courses1), nil, dir); err != nil {
 		t.Fatal(err)
 	}
 	// 管理員用 CLI 掛到主題 b 的課程
@@ -27,7 +27,7 @@ func TestSyncKeepsReferencedTopicWithWarning(t *testing.T) {
 		}
 	}
 	topics2 := `[{"id":"a","name":"甲","path":"/topics/a"}]`
-	warnings, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses1), dir)
+	warnings, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses1), nil, dir)
 	if err != nil {
 		t.Fatalf("同步不該失敗: %v", err)
 	}
@@ -44,7 +44,7 @@ func TestSyncKeepsReferencedTopicWithWarning(t *testing.T) {
 		t.Errorf("b 要保留、gone 要刪: %s", got)
 	}
 	// 再同步一次:同樣的警告,仍成功
-	if w, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses1), dir); err != nil || len(w) != 1 {
+	if w, err := st.syncSeeds(ctx, []byte(topics2), []byte(courses1), nil, dir); err != nil || len(w) != 1 {
 		t.Errorf("再同步: %v %v", w, err)
 	}
 }
@@ -59,13 +59,13 @@ func TestSeedCoursesTopicValidation(t *testing.T) {
 		"nope": `[{"id":"c1","title":"課","access":"free","topicId":"nope","units":[]}]`,
 		"p":    `[{"id":"c1","title":"課","access":"free","topicId":"p","units":[]}]`,
 	} {
-		_, err := st.syncSeeds(ctx, []byte(topics), []byte(c), dir)
+		_, err := st.syncSeeds(ctx, []byte(topics), []byte(c), nil, dir)
 		if !errors.Is(err, ErrInvalidCourseData) || !strings.Contains(err.Error(), "課程 c1") {
 			t.Errorf("%s 該被擋: %v", name, err)
 		}
 	}
 	ok := `[{"id":"c1","title":"課","access":"free","topicId":"a","units":[]},{"id":"c2","title":"課","access":"free","units":[]}]`
-	if _, err := st.syncSeeds(ctx, []byte(topics), []byte(ok), dir); err != nil {
+	if _, err := st.syncSeeds(ctx, []byte(topics), []byte(ok), nil, dir); err != nil {
 		t.Fatal(err)
 	}
 }

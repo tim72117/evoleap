@@ -36,7 +36,7 @@ export type LessonOpening = {
   task: string
   /** 回到情境：課程最後，同一個場景在問題解決後的樣子 */
   payoff: string
-  /** 已做成動畫時：即時教學畫面腳本（src/content/live/ 底下的相對路徑）；沒有時研發頁用字卡簡版預覽 */
+  /** 已做成動畫時：即時教學畫面腳本（資料庫的相對路徑）；沒有時研發頁用字卡簡版預覽 */
   live?: string
 }
 
@@ -48,10 +48,10 @@ export type LessonVideo = {
   steps: number[]
   /** 結尾：回顧，或接下一支影片／下一課的過場 */
   wrap: string
-  /** 即時教學畫面的腳本（src/content/live/ 底下的相對路徑，例如「l0/0.0-tools.json」）。
+  /** 即時教學畫面的腳本（資料庫的相對路徑，例如「l0/0.0-tools.json」）。
    *  有設定時課程頁改用即時播放器（src/live），步驟對應來自腳本裡的 lessonStep，不需要 cues。 */
   live?: string
-  /** 研發中的試做畫面（還不是完整影片）：研發頁列出預覽連結，學員課程頁不顯示。live 同上，是 src/content/live/ 底下的相對路徑；step 是這個試做畫面對應的步驟（1 起算，對應 steps），研發頁會放在該步驟底下 */
+  /** 研發中的試做畫面（還不是完整影片）：研發頁列出預覽連結，學員課程頁不顯示。live 同上，是 資料庫的相對路徑；step 是這個試做畫面對應的步驟（1 起算，對應 steps），研發頁會放在該步驟底下 */
   drafts?: { title: string; live: string; step?: number }[]
   /** 預覽大綱（沒有 live 時的模擬播放器）的步驟時間點：播到 at 秒時，課程頁自動展開第 step 步（step 1 起算，對應 steps）。
    *  省略時依 minutes 與 steps 平均推算。 */

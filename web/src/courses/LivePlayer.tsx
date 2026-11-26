@@ -15,14 +15,14 @@ import { ClaudePractice } from './ClaudePractice'
 import { useFeature } from '../site/features'
 import styles from './LivePlayer.module.css'
 
-// 即時教學畫面:不是影片檔,而是 src/live 的舞台依腳本(src/content/live/)即時畫出,由播放器外殼負責播放。
+// 即時教學畫面:不是影片檔,而是 src/live 的舞台依腳本(資料庫)即時畫出,由播放器外殼負責播放。
 // 透過 onTime 回報播放秒數、透過 ref.seekTo 跳轉(課程頁播放器共用的 PlayerHandle);
 // 腳本裡標了 lessonStep 的章節會透過 onCues 回報,讓課程頁播到那裡就展開對應的步驟。
 // 播放進度只有登入的會員才記(存伺服器);訪客不存,登入後才開始。訪客只記打開了哪一課與播放了多久(guestActivity.ts)。
 // 全螢幕、手機橫放滿版、播放器的快捷鍵都由外殼處理(焦點在播放器裡時 ←/→ 是倒退/快轉,在頁面上時由課程頁切換步驟)。
 
 type Props = {
-  /** src/content/live/ 底下的腳本路徑,例如 l0/0.0-tools.json */
+  /** 資料庫的腳本路徑,例如 l0/0.0-tools.json */
   script: string
   title: string
   onTime: (seconds: number) => void

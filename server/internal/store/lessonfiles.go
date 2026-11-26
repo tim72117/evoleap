@@ -16,7 +16,7 @@ import (
 // 課的資料只記路徑:一課的 script 加上 files;檔案內容放在這張表(用 evoleap script push 修改)。
 // 一個檔案一列、記著屬於哪一門課的哪一課。前端只透過 GET /api/scripts/{path} 取得,所以能依那一課的狀態與存取方式把關。
 type lessonFileRow struct {
-	// Path 是 web/src/content/live/ 底下的相對路徑(例如 l0/0.0-tools.json),前端用它取檔
+	// Path 是腳本路徑(例如 l0/0.0-tools.json),前端用它取檔
 	Path     string `gorm:"primaryKey;size:200"`
 	CourseID string `gorm:"size:64;not null;index:idx_lesson_files_lesson"`
 	LessonID string `gorm:"size:32;not null;index:idx_lesson_files_lesson"`
@@ -78,7 +78,7 @@ func (s *Store) SyncLessonFilesJSON(ctx context.Context, seed []byte, dir string
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error { return syncLessonFiles(tx, seeds, files) })
 }
 
-// seedFiles 是從腳本目錄讀出來、要寫進資料庫的檔:種子指定給各課的(lessons)與其餘的 .json(others,研發基地的候選)。
+// seedFiles 是從腳本目錄(只有測試的範例腳本,fixture/live)讀出來、要寫進資料庫的檔:種子指定給各課的(lessons)與其餘的 .json(others,研發基地的候選)。
 type seedFiles struct {
 	lessons []lessonFileRow
 	others  []studioFileRow
@@ -281,16 +281,4 @@ func (s *Store) ScriptPaths(ctx context.Context) ([]string, error) {
 	var paths []string
 	err := s.db.WithContext(ctx).Raw("SELECT path FROM lesson_files UNION SELECT path FROM studio_files ORDER BY path").Scan(&paths).Error
 	return paths, err
-}
-
-// addMissingScripts 把目錄裡資料庫還沒有的 .json 補進研發基地(已經掛在某一課或研發基地的不動)。目錄不存在時什麼都不做。
-func addMissingScripts(tx *gorm.DB, dir string) error {
-	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
-		return nil
-	}
-	files, err := readLessonFiles(nil, dir)
-	if err != nil {
-		return err
-	}
-	return syncLessonFiles(tx, nil, files)
 }

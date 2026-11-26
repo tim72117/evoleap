@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/tim72117/evoleap/internal/store/fixture"
 	"path/filepath"
 	"reflect"
@@ -92,8 +91,8 @@ func TestI18nImportCoversSeedAndHashesFromSources(t *testing.T) {
 		}
 		have[i18nField{Kind: r.Kind, Ref: r.Ref, Path: r.Path}.key()] = r
 	}
-	want := importable(t, st, seedPacks[LangEN])
-	if len(want) == 0 || len(want) == len(flattenPack(seedPacks[LangEN])) {
+	want := importable(t, st, testPack(t))
+	if len(want) == 0 || len(want) == len(flattenPack(testPack(t))) {
 		t.Fatalf("測試資料要同時有「有原文」與「沒有原文」的欄位: %d", len(want))
 	}
 	for _, f := range want {
@@ -152,7 +151,7 @@ func TestI18nImportOnlyFillsMissing(t *testing.T) {
 	if err := st.db.Delete(&deleted).Error; err != nil {
 		t.Fatal(err)
 	}
-	if err := st.Seed(ctx, fixture.Topics, fixture.Courses); err != nil { // 等於再跑一次同步
+	if err := st.Seed(ctx, fixture.Topics, fixture.Courses, fixture.I18nEN); err != nil { // 等於再跑一次同步
 		t.Fatal(err)
 	}
 	var r i18nTranslationRow
@@ -352,25 +351,38 @@ func TestI18nAboutPerParagraph(t *testing.T) {
 	}
 }
 
-// 資料庫一列譯文都沒有(新版程式先上線、同步工作還沒跑)時退回內嵌初稿,英文不會暫時消失。
-func TestI18nFallsBackToSeedWhenDatabaseEmpty(t *testing.T) {
+// 沒有任何程式內的譯文備援:資料庫沒有已發布的譯文就是原文;英文版課程頁以「課名有已發布的譯文」為準。
+func TestI18nOnlyFromDatabase(t *testing.T) {
 	st, _ := openI18nStore(t)
 	ctx := context.Background()
+	has := func(want bool) {
+		t.Helper()
+		st.i18n.clear()
+		zh, en, err := st.CourseMapWithEnglish(ctx, "web")
+		if err != nil || (en != nil) != want {
+			t.Fatalf("en = %v, %v, want %v", en, err, want)
+		}
+		ids, err := st.EnglishCourseIDs(ctx)
+		if err != nil || ids["web"] != want {
+			t.Fatalf("ids = %v, %v", ids, err)
+		}
+		if en != nil && (en.Title != "How the Web Works" || en.Units[0].Lessons[0].Title != "Test web lesson" || zh.Units[0].Lessons[0].Title == en.Units[0].Lessons[0].Title || en.Units[0].Lessons[1].Title != zh.Units[0].Lessons[1].Title) {
+			t.Errorf("英文版要套譯文、沒翻的保留中文,中文版不受影響: %+v / %+v", en.Units[0], zh.Units[0])
+		}
+	}
+	has(true)
+	// 課名退回草稿:沒有英文版
+	if _, err := st.SetI18n(ctx, "a@x", I18nSet{Kind: I18nCourse, Ref: "web", Path: "title", Lang: LangEN, Value: "x", Status: I18nDraft}); err != nil {
+		t.Fatal(err)
+	}
+	has(false)
 	if err := st.db.Where("1 = 1").Delete(&i18nTranslationRow{}).Error; err != nil {
 		t.Fatal(err)
 	}
-	st.i18n.clear()
+	has(false)
 	p, err := st.LangPack(ctx, LangEN)
-	if err != nil || p == nil || !reflect.DeepEqual(p, seedPacks[LangEN]) {
-		t.Fatalf("pack = %v, %v", p, err)
-	}
-	// 只要有任何一列(哪怕是草稿)就以資料庫為準
-	if _, err := st.SetI18n(ctx, "a@x", I18nSet{Kind: I18nCourse, Ref: "software", Path: "title", Lang: LangEN, Value: "x"}); err != nil {
-		t.Fatal(err)
-	}
-	p, _ = st.LangPack(ctx, LangEN)
-	if p == nil || len(p.Courses) != 0 {
-		t.Errorf("有草稿就不該再用種子: %+v", p)
+	if err != nil || p == nil || len(flattenPack(p)) != 0 {
+		t.Errorf("沒有譯文就是原文: %+v %v", p, err)
 	}
 	// 不支援的語言、停用的語言是原文
 	if p, _ := st.LangPack(ctx, ""); p != nil {
@@ -384,71 +396,6 @@ func TestI18nFallsBackToSeedWhenDatabaseEmpty(t *testing.T) {
 	if p, _ := st.LangPack(ctx, LangEN); p != nil {
 		t.Error("不公開的語言要是 nil")
 	}
-}
-
-// 逐欄一致:用資料庫的語言包 Localize 的結果,和舊路徑(直接用內嵌 JSON)逐欄相同:
-// 所有課程的課程地圖(含草稿)、課程清單、主題清單,輸出的 JSON 完全相同。
-func TestLocalizeFromDatabaseMatchesEmbeddedJSON(t *testing.T) {
-	st, _ := openI18nStore(t)
-	ctx := context.Background()
-	pack, err := st.LangPack(ctx, LangEN)
-	if err != nil || pack == nil {
-		t.Fatalf("pack = %v, %v", pack, err)
-	}
-	// 舊路徑:內嵌初稿裡資料庫有原文的欄位(沒有原文的不會匯入,不拿來比)
-	var rows []i18nTranslationRow
-	for _, f := range importable(t, st, seedPacks[LangEN]) {
-		rows = append(rows, i18nTranslationRow{Kind: f.Kind, Ref: f.Ref, Path: f.Path, Value: f.Text})
-	}
-	legacy := packFromRows(rows)
-	toJSON := func(v any) string {
-		b, err := json.Marshal(v)
-		if err != nil {
-			t.Fatal(err)
-		}
-		return string(b)
-	}
-	admin, err := st.AdminCourses(ctx)
-	if err != nil || len(admin) == 0 {
-		t.Fatal(err)
-	}
-	maps := 0
-	for _, c := range admin {
-		a, err := st.CourseMapOf(ctx, c.ID, true)
-		if err != nil {
-			t.Fatal(err)
-		}
-		b, _ := st.CourseMapOf(ctx, c.ID, true)
-		a.Localize(legacy)
-		b.Localize(pack)
-		if toJSON(a) != toJSON(b) {
-			t.Errorf("課程地圖 %s 不一致:\n舊 %s\n新 %s", c.ID, toJSON(a), toJSON(b))
-		}
-		orig, _ := st.CourseMapOf(ctx, c.ID, true)
-		if toJSON(orig) == toJSON(b) {
-			t.Errorf("課程地圖 %s 沒有任何翻譯被套用", c.ID)
-		}
-		maps++
-	}
-	la, _ := st.ListCourses(ctx)
-	lb, _ := st.ListCourses(ctx)
-	LocalizeCourses(la, legacy)
-	LocalizeCourses(lb, pack)
-	if toJSON(la) != toJSON(lb) || len(la) == 0 {
-		t.Errorf("課程清單不一致:\n舊 %s\n新 %s", toJSON(la), toJSON(lb))
-	}
-	ta, _ := st.ListTopics(ctx)
-	tb, _ := st.ListTopics(ctx)
-	LocalizeTopics(ta, legacy)
-	LocalizeTopics(tb, pack)
-	if toJSON(ta) != toJSON(tb) || len(ta) == 0 {
-		t.Errorf("主題清單不一致:\n舊 %s\n新 %s", toJSON(ta), toJSON(tb))
-	}
-	// 語言包本身也逐欄相同(about、主題 content 的鍵)
-	if !reflect.DeepEqual(flattenPack(legacy), flattenPack(pack)) {
-		t.Error("語言包攤平後和內嵌 JSON 不同")
-	}
-	t.Logf("比對 %d 門課的課程地圖、%d 門課清單、%d 個主題", maps, len(la), len(ta))
 }
 
 // 首次匯入的雜湊取種子當時的中文:資料庫的中文已經和種子不同的欄位匯入後是 stale,相同的不是。
@@ -470,7 +417,7 @@ func TestI18nImportStaleWhenDatabaseSourceDiffersFromSeed(t *testing.T) {
 		if err := syncI18nSources(tx); err != nil {
 			return err
 		}
-		_, _, err := importI18nSeed(tx, LangEN, seedPacks[LangEN], seedSrc)
+		_, _, err := importI18nSeed(tx, LangEN, testPack(t), seedSrc)
 		return err
 	}); err != nil {
 		t.Fatal(err)

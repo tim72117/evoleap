@@ -45,7 +45,7 @@ const atEnPath = () => typeof location !== 'undefined' && hasEnPrefix(location.p
 /** BrowserRouter 的 basename:在 /en 底下是 '/en',否則沒有 */
 export const routerBasename = (): string | undefined => (atEnPath() ? EN_PREFIX : undefined)
 
-/** 有預先產生英文頁、收錄英文版的頁面(課程清單與課程總覽);build 的 SEO 資料(seo/enPages.ts)與這裡一致 */
+/** 可能收錄英文版的頁面(課程清單與課程總覽,見 seo/enPages.ts);課程總覽實際有沒有英文版看資料庫 */
 export const hasEnglishPage = (pathname: string) => /^\/courses(\/[a-z0-9-]+)?$/.test(pathname)
 
 /** 換語言時要換去的網址(中英文是不同網址);不用換網址(這一頁沒有英文版)就回 null */

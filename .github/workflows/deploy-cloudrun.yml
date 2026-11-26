@@ -18,7 +18,7 @@ env:
   GCP_PROJECT_ID: "shuttle-045094509"
   CLOUD_RUN_SERVICE: "shuttle-server"
   # 課程同步工作(Cloud Run Job):每次部署執行一次 cmd/sync(Dockerfile 的 course-sync 目標,另一個小 image),
-  # 建表並把資料庫還沒有的腳本檔補進研發基地(不寫主題與課程);網站伺服器在 Cloud Run 上只讀,不再每次啟動都寫。
+  # 建表、重算翻譯登記表(不寫主題、課程與腳本);網站伺服器在 Cloud Run 上只讀,不再每次啟動都寫。
   CLOUD_RUN_SYNC_JOB: "shuttle-course-sync"
   SYNC_IMAGE: "asia-east1-docker.pkg.dev/shuttle-045094509/cloud-run-source-deploy/shuttle-course-sync"
   CLOUD_RUN_REGION: "asia-east1"
@@ -86,8 +86,8 @@ jobs:
           docker push ${{ env.SYNC_IMAGE }}:${{ github.sha }}
           docker push ${{ env.SYNC_IMAGE }}:latest
 
-      # 先寫入課程資料,再部署網站:新版網站上線時資料庫已經是新的課程與腳本;寫入失敗就停止部署(網站維持舊版)。
-      # 只改課程內容、不想打 tag 時,用 sync-courses.yml(手動執行)。
+      # 先同步資料庫結構,再部署網站:新版網站上線時資料表已經是新的;失敗就停止部署(網站維持舊版)。
+      # 課程內容與腳本用 evoleap CLI 改(線上資料庫是唯一來源);只想同步結構時用 sync-courses.yml(手動執行)。
       - name: Sync course data (Cloud Run Job)
         run: .github/scripts/run-course-sync.sh ${{ env.SYNC_IMAGE }}:${{ github.event.inputs.skip_build == 'true' && 'latest' || github.sha }}
 

@@ -26,7 +26,7 @@ import (
 //	i18n_translation_history  只新增,每次譯文異動一筆
 //	i18n_languages            語言、回退語言、是否公開、是否啟用
 //
-// 鍵 (kind, ref, path):kind 是 course|unit|lesson|topic(之後會加腳本節點);ref 是 id,單元與課用「課程id/單元id」「課程id/課id」(和 i18n_en.json 的鍵一致);
+// 鍵 (kind, ref, path):kind 是 course|unit|lesson|topic(之後會加腳本節點);ref 是 id,單元與課用「課程id/單元id」「課程id/課id」(和 LangPack 的鍵一致);
 // path 是欄位路徑:title、summary、about.0(說明的每一段一列)…;主題的 content 是任意 JSON,這一輪整塊用 path=content 一列存整份譯文 JSON。
 // 術語表(glossary)、語音(voice_clips)、i18n_dirty 之後再加,不影響這四張表。
 
@@ -45,7 +45,7 @@ const (
 	I18nPublished = "published"
 )
 
-// 譯文的來源:human 人工、ai 機器翻譯、import 從初稿種子匯入
+// 譯文的來源:human 人工、ai 機器翻譯、import 從匯入檔寫入(上線前的英文初稿、測試資料)
 const (
 	I18nOriginHuman  = "human"
 	I18nOriginAI     = "ai"
@@ -131,7 +131,7 @@ type i18nField struct {
 }
 
 // collectI18nSeedSources 從測試用的課程、主題資料收集同樣的欄位(規則和 collectI18nSources 相同),
-// 也就是英文初稿當時對應的中文原文;匯入時用它的雜湊當 source_hash(見 importI18nSeed)。
+// 也就是測試譯文對應的中文原文;匯入時用它的雜湊當 source_hash(見 importI18nSeed)。
 func collectI18nSeedSources(topicsJSON, coursesJSON []byte) (map[string]string, error) {
 	courses, err := parseCourseSeed(coursesJSON)
 	if err != nil {
@@ -354,9 +354,9 @@ func sortedKeys[V any](m map[string]V) []string {
 	return keys
 }
 
-// importI18nSeed(只給測試資料用,正式的譯文隨 InitCatalog 寫入)把初稿(內嵌的 i18n_<語言>.json)補進資料庫(在呼叫端的交易裡):status=published、origin=import,
-// source_hash 取「這份種子當時對應的中文」(seedSrc 同欄位)的雜湊,
-// 所以資料庫的中文已經和種子不同的欄位,匯入後就是過時(stale);種子沒有這個欄位才退回登記表目前的雜湊。只補缺:資料庫已經有的譯文(任何狀態)不覆蓋,登記表沒有(原表沒有這個欄位或已刪除)的跳過。
+// importI18nSeed(只給測試資料用,正式的譯文隨 InitCatalog 寫入)把測試譯文補進資料庫(在呼叫端的交易裡):status=published、origin=import,
+// source_hash 取「這份譯文當時對應的中文」(seedSrc 同欄位)的雜湊,
+// 所以資料庫的中文已經和它不同的欄位,匯入後就是過時(stale);seedSrc 沒有這個欄位才退回登記表目前的雜湊。只補缺:資料庫已經有的譯文(任何狀態)不覆蓋,登記表沒有(原表沒有這個欄位或已刪除)的跳過。
 // 要先 syncI18nSources。回傳新增與跳過的欄位數。
 func importI18nSeed(tx *gorm.DB, lang string, pack *LangPack, seedSrc map[string]string) (added, skipped int, err error) {
 	var srcs []i18nSourceRow
@@ -391,7 +391,7 @@ func importI18nSeed(tx *gorm.DB, lang string, pack *LangPack, seedSrc map[string
 			continue
 		}
 		rows = append(rows, i18nTranslationRow{Kind: f.Kind, Ref: f.Ref, Path: f.Path, Lang: lang, Value: f.Text, Status: I18nPublished, SourceHash: h, Origin: I18nOriginImport, UpdatedBy: "sync", UpdatedAt: at})
-		hist = append(hist, i18nHistoryRow{Kind: f.Kind, Ref: f.Ref, Path: f.Path, Lang: lang, NewValue: f.Text, NewStatus: I18nPublished, Origin: I18nOriginImport, ChangedBy: "sync", At: at, Reason: "從初稿種子 i18n_" + lang + ".json 補進(只補缺)"})
+		hist = append(hist, i18nHistoryRow{Kind: f.Kind, Ref: f.Ref, Path: f.Path, Lang: lang, NewValue: f.Text, NewStatus: I18nPublished, Origin: I18nOriginImport, ChangedBy: "sync", At: at, Reason: "從測試譯文補進(只補缺)"})
 	}
 	if len(rows) > 0 {
 		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(rows, 50).Error; err != nil {
@@ -412,19 +412,24 @@ func syncI18n(tx *gorm.DB) error {
 	return syncI18nSources(tx)
 }
 
-// syncI18nSeeded 同 syncI18n,再把英文初稿補進資料庫(只補缺);只給測試資料用(Seed、InitFromSeed)。
-func syncI18nSeeded(tx *gorm.DB, topicsJSON, coursesJSON []byte) error {
+// syncI18nSeeded 同 syncI18n,再把測試的英文譯文(i18nEN,nil 表示沒有)補進資料庫(只補缺);只給測試資料用(Seed、InitFromSeed)。
+func syncI18nSeeded(tx *gorm.DB, topicsJSON, coursesJSON, i18nEN []byte) error {
 	if err := syncI18n(tx); err != nil {
+		return err
+	}
+	if i18nEN == nil {
+		return nil
+	}
+	pack, err := parseI18n(i18nEN)
+	if err != nil {
 		return err
 	}
 	seedSrc, err := collectI18nSeedSources(topicsJSON, coursesJSON)
 	if err != nil {
 		return err
 	}
-	for _, lang := range sortedKeys(seedPacks) {
-		if _, _, err := importI18nSeed(tx, lang, seedPacks[lang], seedSrc); err != nil {
-			return fmt.Errorf("import i18n %s: %w", lang, err)
-		}
+	if _, _, err := importI18nSeed(tx, LangEN, pack, seedSrc); err != nil {
+		return fmt.Errorf("import i18n %s: %w", LangEN, err)
 	}
 	return nil
 }
@@ -534,22 +539,61 @@ func contains(xs []string, x string) bool {
 	return false
 }
 
-// packOf 由資料庫已發布的譯文組出一個語言的語言包。這個語言在資料庫一列譯文都沒有(例如新版程式先上線、課程同步工作還沒跑過),
-// 退回內嵌的初稿種子,避免部署順序造成英文暫時消失;資料庫一有任何譯文(任何狀態),就完全以資料庫為準。
+// packOf 由資料庫已發布的譯文組出一個語言的語言包;沒有任何已發布的譯文就是空的語言包(全部顯示原文)。
 func (s *Store) packOf(ctx context.Context, lang string) (*LangPack, error) {
-	db := s.db.WithContext(ctx)
-	var n int64
-	if err := db.Model(&i18nTranslationRow{}).Where("lang = ?", lang).Limit(1).Count(&n).Error; err != nil {
-		return nil, err
-	}
-	if n == 0 {
-		return seedPacks[lang], nil
-	}
 	var rows []i18nTranslationRow
-	if err := db.Where("lang = ? AND status = ?", lang, I18nPublished).Find(&rows).Error; err != nil {
+	if err := s.db.WithContext(ctx).Where("lang = ? AND status = ?", lang, I18nPublished).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	return packFromRows(rows), nil
+}
+
+// ---- 讀取:英文版課程頁(SEO 與 sitemap 用) ----
+
+// 一門課「有英文版」的條件:課名有已發布的英文譯文(英文有公開而且啟用)。其他沒翻的欄位保留中文。
+func hasCourseTitle(p *LangPack, id string) bool { return p != nil && p.Courses[id].Title != "" }
+
+// ErrEnglishUnavailable 表示中文課程地圖讀到了,但譯文讀不到:中文頁照常回應,英文頁當成暫時無法提供。
+var ErrEnglishUnavailable = errors.New("讀不到課程譯文")
+
+// CourseMapWithEnglish 回傳公開的課程地圖(中文)與英文版;沒有英文版時 en 是 nil。
+// 只有譯文讀不到時回傳中文地圖與 ErrEnglishUnavailable。
+// 譯文每次都直接查資料庫(不經語言包的記憶體快取):快取只有呼叫端(課程頁 SEO)那一層,讀不到就是錯誤。
+func (s *Store) CourseMapWithEnglish(ctx context.Context, id string) (zh CourseMap, en *CourseMap, err error) {
+	if zh, err = s.CourseMapOf(ctx, id, false); err != nil {
+		return CourseMap{}, nil, err
+	}
+	pack, err := s.buildLangPack(ctx, LangEN)
+	if err != nil {
+		return zh, nil, fmt.Errorf("%w:%w", ErrEnglishUnavailable, err)
+	}
+	if !hasCourseTitle(pack, id) {
+		return zh, nil, nil
+	}
+	// Localize 原地修改,再讀一份,不和中文版共用單元與課的 slice
+	m, err := s.CourseMapOf(ctx, id, false)
+	if err != nil {
+		return CourseMap{}, nil, err
+	}
+	m.Localize(pack)
+	return zh, &m, nil
+}
+
+// EnglishCourseIDs 回傳有英文版的課程 id(sitemap 用)。
+func (s *Store) EnglishCourseIDs(ctx context.Context) (map[string]bool, error) {
+	pack, err := s.buildLangPack(ctx, LangEN)
+	if err != nil {
+		return nil, err
+	}
+	out := map[string]bool{}
+	if pack != nil {
+		for id := range pack.Courses {
+			if hasCourseTitle(pack, id) {
+				out[id] = true
+			}
+		}
+	}
+	return out, nil
 }
 
 // packFromRows 把「一個欄位一列」的譯文組回語言包。

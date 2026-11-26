@@ -28,6 +28,9 @@ async function openWithScript(request: APIRequestContext, course: string, lesson
   await admin(request, 'patch', `${course}/lessons/${lesson}`, { status: 'open', script })
 }
 
+// 兩個測試都寫同一台 server 的 SQLite,同時寫會 SQLITE_BUSY,所以照順序跑
+test.describe.configure({ mode: 'serial' })
+
 // server 的課程資料快取一分鐘:重跑時課程可能剛讀過,等到新資料生效
 const served = (request: APIRequestContext, path: string) =>
   expect.poll(async () => (await request.get(path)).status(), { timeout: 70_000, message: path }).toBe(200)

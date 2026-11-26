@@ -13,7 +13,7 @@ func Open(dsn string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := s.Seed(context.Background(), fixture.Topics, fixture.Courses); err != nil {
+	if err := s.Seed(context.Background(), fixture.Topics, fixture.Courses, fixture.I18nEN); err != nil {
 		return nil, fmt.Errorf("seed fixture: %w", err)
 	}
 	return s, nil
@@ -21,6 +21,6 @@ func Open(dsn string) (*Store, error) {
 
 // syncCoursesJSON 用固定的主題與給定的課程資料初始化(資料庫已經有課程時只補腳本檔)。
 func (s *Store) syncCoursesJSON(ctx context.Context, seed []byte, dir string) error {
-	_, err := s.syncSeeds(ctx, fixture.Topics, seed, dir)
+	_, err := s.syncSeeds(ctx, fixture.Topics, seed, fixture.I18nEN, dir)
 	return err
 }

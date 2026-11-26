@@ -6,7 +6,7 @@ import { SITE_ORIGIN } from '../site/siteInfo'
 import { COURSES, courseMapId, coursePath } from '../content/catalog'
 import { fixtureCourse as seedCourse } from '../test/courseFixture'
 import { hasEnglishPage, localeTarget } from '../i18n/locale'
-import { COURSE_PAGES, courseManifest, EN_PAGES, LESSON_ROUTES, PAGES, renderCourseShell, renderLessonShell, robotsTxt, sitemapPages } from './build'
+import { COURSE_PAGES, courseManifest, EN_COURSE_PAGES, EN_PAGES, LESSON_ROUTES, PAGES, renderCourseShell, renderLessonShell, robotsTxt, sitemapPages } from './build'
 import { isCoursePage } from './coursePages'
 import { findInternalPage } from './internalPages'
 import { absoluteUrl, findPage, headTags, NOT_FOUND, PAGES as PUBLIC_PAGES, resolvePage } from './pages'
@@ -105,7 +105,7 @@ describe('課程相關頁面(內容由 server 讀資料庫填,server/cmd/server/
     expect(shell).toContain(`href="${absoluteUrl('/en/courses/web')}"`)
     expect(shell).not.toContain('ld+json')
     expect(shell).not.toContain(seedCourse('web').title)
-    expect(courseManifest().pages).toBe(COURSE_PAGES)
+    expect(courseManifest().pages).toEqual([...COURSE_PAGES, ...EN_COURSE_PAGES])
   })
 
   it('換頁時向 server 讀:沒有這一頁是 NOT_FOUND,讀不到是 null,/en 的單課頁 noindex', async () => {
@@ -119,9 +119,13 @@ describe('課程相關頁面(內容由 server 讀資料庫填,server/cmd/server/
     expect(await resolvePage('/courses/web')).toBe(NOT_FOUND)
     fetchMock.mockImplementation(async () => new Response('', { status: 503 }))
     expect(await resolvePage('/courses/web')).toBeNull()
+    // 英文課程總覽用自己的網址向 server 讀(有沒有英文版由 server 決定),不另加 noindex
+    fetchMock.mockImplementation(async () => new Response(JSON.stringify({ ...page, path: '/en/courses/web', lang: 'en' })))
+    expect(await resolvePage('/en/courses/web')).toEqual({ ...page, path: '/en/courses/web', lang: 'en' })
+    expect(fetchMock).toHaveBeenLastCalledWith('/api/seo/page?path=%2Fen%2Fcourses%2Fweb', expect.anything())
     // 不是課程頁(含課程清單的英文頁)不打 API
     fetchMock.mockClear()
-    expect((await resolvePage('/en/courses/web'))?.lang).toBe('en')
+    expect((await resolvePage('/en/courses'))?.lang).toBe('en')
     expect(await resolvePage('/privacy')).toBe(findPage('/privacy'))
     expect(fetchMock).not.toHaveBeenCalled()
     vi.unstubAllGlobals()
@@ -224,7 +228,7 @@ describe('sitemap 頁面清單(sitemap-pages.json)', () => {
 
   it('只有可收錄的頁面:不含 noindex 與內部頁,網址不重複', () => {
     const fixed = pages.filter((p) => !p.lessonsOf)
-    expect(fixed.map((p) => p.loc)).toEqual([...PAGES, ...COURSE_PAGES, ...EN_PAGES].filter((p) => !p.noindex).map((p) => absoluteUrl(p.path)))
+    expect(fixed.map((p) => p.loc)).toEqual([...PAGES, ...COURSE_PAGES, ...EN_PAGES, ...EN_COURSE_PAGES].filter((p) => !p.noindex).map((p) => absoluteUrl(p.path)))
     expect(new Set(fixed.map((p) => p.loc)).size).toBe(fixed.length)
     for (const p of pages) expect(isInternal(new URL(p.loc).pathname), p.loc).toBe(false)
   })
@@ -274,24 +278,36 @@ describe('routes ↔ PAGES', () => {
 describe('英文版(/en/...)', () => {
   const en = sitemapPages().filter((p) => p.loc.startsWith(absoluteUrl('/en/')))
 
+  const enAll = [...EN_PAGES, ...EN_COURSE_PAGES.map((p) => ({ path: p.path, lang: p.lang, title: 't', description: 'd' }))]
+  const alternates = (p: Parameters<typeof headTags>[0]) => headTags(p).filter((t) => t.tag === 'link' && t.attrs.rel === 'alternate')
+
   it('課程清單與每門課的總覽有英文頁,各自有 canonical 與 hreflang(中文頁與英文頁互相指)', () => {
     expect(en.map((p) => p.loc)).toContain(absoluteUrl('/en/courses'))
     expect(en.map((p) => p.loc)).toContain(absoluteUrl('/en/courses/web'))
-    for (const p of EN_PAGES) {
-      const links = headTags(p).filter((t) => t.tag === 'link' && t.attrs.rel === 'alternate').map((t) => t.attrs.hreflang)
-      expect(links, p.path).toEqual(['zh-Hant', 'en', 'x-default'])
-    }
-    const zh = headTags({ path: '/courses/web', title: 't', description: 'd' }).filter((t) => t.tag === 'link' && t.attrs.rel === 'alternate')
+    for (const p of enAll) expect(alternates(p).map((t) => t.attrs.hreflang), p.path).toEqual(['zh-Hant', 'en', 'x-default'])
+    const zh = alternates({ path: '/courses/web', title: 't', description: 'd' })
     expect(zh.map((t) => t.attrs.href)).toContain(absoluteUrl('/en/courses/web'))
+    // server 說這門課沒有英文版:不放 hreflang
+    expect(alternates({ path: '/courses/web', title: 't', description: 'd', noEnglish: true })).toEqual([])
+  })
+
+  it('英文課程總覽不寫任何課程內容:只留空位,哪一課有英文版由 server 看資料庫', () => {
+    const entry = EN_COURSE_PAGES.find((p) => p.path === '/en/courses/web')!
+    const shell = renderCourseShell('<html lang="zh-Hant"><head><title>x</title></head></html>', entry)
+    expect(shell).toContain('<html lang="en">')
+    expect(shell).toContain('<title>%SEO_TITLE%</title>')
+    expect(shell).toContain(`rel="canonical" href="${absoluteUrl('/en/courses/web')}"`)
+    expect(en).toContainEqual(expect.objectContaining({ loc: absoluteUrl('/en/courses/web'), english: 'web', englishOnly: true }))
+    expect(sitemapPages()).toContainEqual(expect.objectContaining({ loc: absoluteUrl('/courses/web'), english: 'web' }))
   })
 
   it('沒有英文版的 /en/... 頁用中文頁的資料並 noindex;英文頁不在中文路由裡', () => {
     expect(findPage('/en/login').noindex).toBe(true)
     expect(findPage('/en/nope')).toBe(NOT_FOUND)
-    expect(EN_PAGES.every((p) => p.lang === 'en' && !routes.some((r) => r.path === p.path))).toBe(true)
+    expect(enAll.every((p) => p.lang === 'en' && !routes.some((r) => r.path === p.path))).toBe(true)
   })
   it('語言切換的判斷(locale.ts)與英文頁清單一致:每個英文頁都換得過去,/en/ 底下不是英文頁的路徑不會被導去', () => {
-    for (const p of EN_PAGES) {
+    for (const p of enAll) {
       const zhPath = p.path.slice('/en'.length)
       expect(hasEnglishPage(zhPath)).toBe(true)
       expect(localeTarget('en', zhPath)).toBe(p.path)
