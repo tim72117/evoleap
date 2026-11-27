@@ -33,15 +33,19 @@ type Props = {
   saveProgress?: boolean
   /** 外層把播放器隱藏(沒有卸載)時設為 true:暫停播放,免得看不到畫面還聽得到旁白。再顯示時不會自動接著播 */
   paused?: boolean
+  /** 腳本載好、可以播了(或載入失敗、畫面顯示錯誤了):外層蓋著封面時,到這時才讓人按 */
+  onSettled?: () => void
 }
 
-export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ script, title, onTime, onCues, poster, saveProgress = true, paused = false }, ref) {
+export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ script, title, onTime, onCues, poster, saveProgress = true, paused = false, onSettled }, ref) {
   const boxRef = useRef<HTMLDivElement>(null)
   const shellRef = useRef<Shell | null>(null)
   const onTimeRef = useRef(onTime)
   const onCuesRef = useRef(onCues)
   onTimeRef.current = onTime
   onCuesRef.current = onCues
+  const onSettledRef = useRef(onSettled)
+  onSettledRef.current = onSettled
   const [error, setError] = useState<string | null>(null)
   // 腳本有 practice 時,播放中提供「動手試試」(靜態的 Claude Code 練習,見 ClaudePractice.tsx)
   // 功能旗標 practice 沒開時不顯示(見 site/features.ts)
@@ -106,6 +110,7 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
         })
         setPractice(data.practice ?? null)
         guest.ready()
+        onSettledRef.current?.()
         if (carry.current > 0) {
           vp.seek(carry.current)
           carry.current = 0
@@ -113,7 +118,9 @@ export const LivePlayer = forwardRef<PlayerHandle, Props>(function LivePlayer({ 
         onCuesRef.current?.(stage.chapters.filter((c) => c.step).map((c) => ({ step: c.step!, at: c.at / 1000 })))
       })
       .catch((e: unknown) => {
-        if (!cancelled) setError(String(e instanceof Error ? e.message : e))
+        if (cancelled) return
+        setError(String(e instanceof Error ? e.message : e))
+        onSettledRef.current?.()
       })
 
     // 播放秒數變了才回報(課程頁依此展開步驟)

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { Fragment, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { SiteLayout } from '../site/SiteLayout'
 import { useHashScroll } from '../site/useHashScroll'
@@ -11,6 +11,8 @@ import { LessonListStatus } from '../courses/LessonGroup'
 import { useLocale, useT } from '../i18n/I18nProvider'
 import { LevelArt } from './LevelArt'
 import { CardsSection, ListsSection, UnitsSection } from './TopicSections'
+import { ClosingCard, FeaturesSection } from './TopicFeatures'
+import { TopicTour } from './TopicTour'
 import styles from './SoftwareTopicPage.module.css'
 
 // 主題頁(/topics/software、/topics/ai-apps)共用的頁面:照資料庫的區塊(content/topicPage.ts)由上到下畫。
@@ -86,7 +88,7 @@ function LevelCard({ level, index }: { level: Level; index: number | null }) {
   const lessons = (level.lessons ?? []).map((l) => ({ ...l, label: lessonLabel(l), to: lessonUrl(level.course, l.id) }))
   const opened = lessons.filter((l) => l.status === 'open')
   return (
-    <li id={`level-${level.id}`} className={`${styles.step} ${styles.planned}`} style={{ '--step': index ?? 0 } as CSSProperties}>
+    <li id={`level-${level.id}`} className={opened.length ? styles.step : `${styles.step} ${styles.planned}`} style={{ '--step': index ?? 0 } as CSSProperties}>
       <div className={styles.node} aria-hidden="true">
         {index}
       </div>
@@ -113,10 +115,13 @@ function LevelCard({ level, index }: { level: Level; index: number | null }) {
               <ol className={styles.lessons}>
                 {lessons.map((l) => (
                   <li key={l.id}>
-                    <Link to={l.to} className={styles.lessonNum}>
-                      {l.label}
+                    <Link to={l.to} className={styles.lessonRow}>
+                      <span className={styles.lessonNum}>{l.label}</span>
+                      <span className={styles.lessonText}>{l.summary}</span>
+                      <span className={styles.lessonGo} aria-hidden="true">
+                        →
+                      </span>
                     </Link>
-                    <span>{l.summary}</span>
                   </li>
                 ))}
               </ol>
@@ -206,14 +211,19 @@ export function TopicPage({ id, path }: { id: string; path: string }) {
         const alt = index % 2 === 1 && s.kind !== 'levels'
         switch (s.kind) {
           case 'hero': {
+            // 導覽影片:等級卡那門課的簡介影片(evoleap course set -intro-script),放在主視覺下面;沒有就不顯示
+            const tour = sourceMap?.introScript
+            const tourPending = !!levelsSection?.source && state === 'loading'
             const pitch = s.lead || sourceMap?.about?.join(locale.startsWith('en') ? ' ' : '')
             return (
-              <section key={s.id} className={styles.hero}>
+              <Fragment key={s.id}>
+              <section className={[styles.hero, styles.heroTopic, (tour || tourPending) && styles.heroTour].filter(Boolean).join(' ')}>
+                <div className={styles.heroGlow} aria-hidden="true" />
                 <div className={styles.heroInner}>
                   <p className={styles.kicker}>{s.eyebrow}</p>
                   <h1>
-                    {(s.title ?? '').split('\n').map((line) => (
-                      <span key={line} className={styles.titleLine}>
+                    {(s.title ?? '').split('\n').map((line, i, all) => (
+                      <span key={line} className={i > 0 && i === all.length - 1 ? `${styles.titleLine} ${styles.titleAccent}` : styles.titleLine}>
                         {line}
                       </span>
                     ))}
@@ -241,6 +251,14 @@ export function TopicPage({ id, path }: { id: string; path: string }) {
                   </div>
                 </div>
               </section>
+              {(tour || tourPending) && (
+                <section className={styles.tour} id="topic-tour" aria-label={m.tour}>
+                  <div className={styles.container}>
+                    {tour ? <TopicTour script={tour} title={m.tour} playLabel={m.tourPlay} /> : <div className={styles.tourSlot} aria-hidden="true" />}
+                  </div>
+                </section>
+              )}
+              </Fragment>
             )
           }
           case 'levels':
@@ -264,6 +282,8 @@ export function TopicPage({ id, path }: { id: string; path: string }) {
                 </div>
               </section>
             )
+          case 'features':
+            return <FeaturesSection key={s.id} section={s} map={sourceMap} />
           case 'cards':
             return <CardsSection key={s.id} section={s} alt={alt} />
           case 'lists':
@@ -274,6 +294,11 @@ export function TopicPage({ id, path }: { id: string; path: string }) {
             return null
         }
       })}
+      {sections
+        .filter((s) => s.kind === 'features' && s.lead)
+        .map((s) => (
+          <ClosingCard key={`${s.id}-closing`} text={s.lead!} to={featured?.link ?? { pathname: path, hash: 'map' }} />
+        ))}
     </SiteLayout>
   )
 }

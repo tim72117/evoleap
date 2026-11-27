@@ -1,0 +1,297 @@
+/* 主題頁「互動式學習」的示範片段(IntroDemo.tsx):上面一排做法、下面是縮放過的演員畫面、最上層是虛擬游標。 */
+
+.demo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 做法那一排、階段那一排:畫成可以按的鈕(示範裡由虛擬游標按;訪客不能按) */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.tabs span {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1.5px solid var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface);
+  color: var(--site-text);
+  box-shadow: 0 2px 0 var(--site-border);
+  transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.12s, box-shadow 0.12s;
+}
+
+/* 游標停在上面:滑過的樣子;按著:壓下去 */
+.tabs span[data-hot='1'],
+.stages li[data-hot='1'] {
+  border-color: var(--site-accent-solid);
+  box-shadow:
+    0 2px 0 var(--site-accent-solid),
+    0 0 0 4px color-mix(in srgb, var(--site-accent) 28%, transparent);
+  transform: translateY(-1px);
+}
+
+.tabs span[data-down='1'],
+.stages li[data-down='1'] {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--site-accent) 40%, transparent);
+  transform: translateY(2px) scale(0.96);
+}
+
+.tabs i {
+  font-size: 12px;
+  font-style: normal;
+  color: var(--site-muted);
+}
+
+.tabs span[data-on='1'] {
+  border-color: var(--site-accent-solid);
+  background: var(--site-accent-solid);
+  color: var(--site-accent-contrast);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--site-accent) 30%, transparent);
+}
+
+.tabs span[data-on='1'] i {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  overflow: hidden;
+  border: 1px solid var(--site-border);
+  border-radius: 14px;
+  background: #fbfaf7;
+  box-shadow: 0 18px 40px -18px rgb(20 30 10 / 35%);
+}
+
+.canvas {
+  /* 舞台樣式預設是固定的 1920×1080;這裡要照展示的大小排版(和 IntroDemo 的 W、H 一致) */
+  width: 760px !important;
+  height: 560px !important;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  /* 演員的字級:照一般網頁(整個再縮放) */
+  --actor-font: 16px;
+  --u: 16px;
+  transition: opacity 0.35s;
+}
+
+.canvas[data-fade='1'] {
+  opacity: 0;
+}
+
+.canvas :global(.tn-next),
+.canvas :global(.tn-progress) {
+  /* 階段那一排改畫在外面(.stages),不跟著畫面縮小 */
+  display: none !important;
+}
+
+.stages {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 8px;
+  min-height: 46px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stages li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 12px;
+  overflow: hidden;
+  border: 1.5px solid var(--site-border);
+  border-radius: 12px;
+  background: var(--site-surface);
+  color: var(--site-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow: 0 2px 0 var(--site-border);
+  transition: border-color 0.2s, color 0.2s, transform 0.12s, box-shadow 0.12s;
+}
+
+.stages li[data-s='done'],
+.stages li[data-s='now'] {
+  color: var(--site-text);
+}
+
+/* 正在跑的階段:底色依進度填滿 */
+.stages li[data-run='1'] {
+  border-color: var(--site-accent-solid);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--site-accent) 24%, var(--site-surface)) calc(var(--p) * 100%), var(--site-surface) 0);
+}
+
+.dot {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--site-surface-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dot svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.stages li[data-s='done'] .dot,
+.stages li[data-run='1'] .dot {
+  background: var(--site-accent-solid);
+  color: var(--site-accent-contrast);
+}
+
+.stageName {
+  min-width: 0;
+}
+
+
+/* 虛擬游標:不跟著畫面縮放,手機上也一樣大;尖端對準 translate 的位置 */
+.cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.7s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.25s;
+}
+
+.cursor[data-on='1'] {
+  opacity: 1;
+}
+
+.cursor svg {
+  position: absolute;
+  top: -4px;
+  left: -6px;
+  width: 38px;
+  height: 38px;
+  overflow: visible;
+  fill: #1b1d18;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  paint-order: stroke;
+  filter: drop-shadow(0 3px 5px rgb(0 0 0 / 45%)) drop-shadow(0 0 10px rgb(255 140 60 / 70%));
+  transform-origin: 6px 4px;
+}
+
+/* 游標底下常駐的光暈,和背景拉開 */
+.cursor::before {
+  content: '';
+  position: absolute;
+  top: -22px;
+  left: -22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 132 50 / 42%), rgb(255 132 50 / 0%) 70%);
+}
+
+/* 按下去:擴散圈 */
+.ring {
+  position: absolute;
+  top: -30px;
+  left: -30px;
+  width: 60px;
+  height: 60px;
+  border: 4px solid #ff7a33;
+  border-radius: 50%;
+  background: rgb(255 122 51 / 22%);
+  opacity: 0;
+  transform: scale(0.2);
+}
+
+.cursor[data-click='1'] .ring {
+  animation: ring 0.6s ease-out;
+}
+
+.cursor[data-click='1'] svg {
+  animation: tap 0.3s ease-out;
+}
+
+@keyframes ring {
+  0% {
+    opacity: 1;
+    transform: scale(0.2);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes tap {
+  40% {
+    transform: scale(0.8);
+  }
+}
+
+@media (max-width: 640px) {
+  .tabs {
+    gap: 6px;
+  }
+
+  .tabs span {
+    padding: 7px 12px;
+    font-size: 14px;
+  }
+
+  .stages {
+    gap: 5px;
+  }
+
+  .stages li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+
+  .cursor svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    display: none;
+  }
+
+  .canvas,
+  .tabs span,
+  .stages li {
+    transition: none;
+  }
+}

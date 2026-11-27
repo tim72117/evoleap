@@ -1,0 +1,163 @@
+/* 主題頁的導覽影片:外框、播放前的封面。Uses the --site-* tokens defined by SiteLayout.module.css. */
+
+.frame {
+  position: relative;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 8px;
+  border: 1px solid var(--site-border);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--site-surface) 80%, transparent);
+  box-shadow:
+    0 1px 2px rgb(30 30 20 / 6%),
+    0 30px 70px -20px color-mix(in srgb, var(--site-accent-strong) 38%, transparent);
+}
+
+.player {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 17px;
+  background: #000;
+}
+
+.stage {
+  height: 100%;
+}
+
+/* 手機直拿時影片是直式舞台(LivePlayer 的 data-aspect);封面還在時維持橫式,按了才變高 */
+.frame:not(.covered):has([data-aspect='portrait']) {
+  max-width: 356px;
+}
+
+.frame:not(.covered) .player:has([data-aspect='portrait']) {
+  aspect-ratio: 9 / 16;
+}
+
+.cover {
+  --art-card: var(--site-surface);
+  --art-line: var(--site-border);
+  --art-soft: color-mix(in srgb, var(--site-muted) 32%, var(--site-surface));
+  --art-accent: var(--site-accent-solid);
+  --art-on-accent: var(--site-accent-contrast);
+  --art-tint: color-mix(in srgb, var(--site-accent) 16%, var(--site-surface));
+  --art-warm: var(--site-highlight);
+  --art-shadow: rgb(40 60 20 / 14%);
+
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--site-accent) 20%, transparent), transparent 62%),
+    linear-gradient(160deg, color-mix(in srgb, var(--site-accent) 10%, var(--site-surface)), var(--site-surface-2));
+  color: var(--site-accent-contrast);
+  font: inherit;
+  cursor: pointer;
+}
+
+.cover > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+  transition: transform 0.5s ease;
+}
+
+.play {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 30px 16px 24px;
+  border-radius: 999px;
+  background: var(--site-accent-solid);
+  box-shadow:
+    0 0 0 10px color-mix(in srgb, var(--site-accent) 22%, transparent),
+    0 14px 34px color-mix(in srgb, var(--site-accent-strong) 45%, transparent);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.play svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.cover:hover .play {
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 14px color-mix(in srgb, var(--site-accent) 22%, transparent),
+    0 14px 34px color-mix(in srgb, var(--site-accent-strong) 45%, transparent);
+}
+
+.cover:hover > svg {
+  transform: scale(1.02);
+}
+
+.cover[aria-disabled='true'] {
+  cursor: progress;
+}
+
+.cover[aria-disabled='true'] .play {
+  opacity: 0.7;
+}
+
+.cover:focus-visible {
+  outline: 3px solid var(--site-accent-strong);
+  outline-offset: -3px;
+}
+
+:global(html[data-site-theme='dark']) .cover {
+  --art-shadow: rgb(0 0 0 / 55%);
+}
+
+:global(html[data-site-theme='dark']) .frame {
+  box-shadow: 0 30px 80px -24px color-mix(in srgb, var(--site-accent) 30%, transparent);
+}
+
+@media (max-width: 640px) {
+  .frame {
+    padding: 5px;
+    border-radius: 18px;
+  }
+
+  .player {
+    border-radius: 13px;
+  }
+
+  .play {
+    padding: 12px 22px 12px 18px;
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover > svg,
+  .play {
+    transition: none;
+  }
+
+  .cover:hover .play,
+  .cover:hover > svg {
+    transform: none;
+  }
+}
+
+.failed {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: #fff;
+}

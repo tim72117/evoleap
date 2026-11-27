@@ -1,0 +1,342 @@
+/* 主題頁的特色介紹(TopicFeatures.tsx):課程數字、圖文左右交錯、頁尾行動卡。Uses the --site-* tokens defined by SiteLayout.module.css. */
+
+.features {
+  padding: 56px 0 24px;
+}
+
+.container {
+  max-width: var(--site-max);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 課程數字:一整條,中間用細線分開 */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  max-width: 920px;
+  margin: 0 auto 104px;
+  padding: 0;
+  list-style: none;
+}
+
+.stats li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  text-align: center;
+}
+
+.stats li + li {
+  border-left: 1px solid var(--site-border);
+}
+
+.stats strong {
+  font-size: clamp(40px, 5.4vw, 60px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(160deg, var(--site-accent), var(--site-accent-strong) 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.stats span {
+  color: var(--site-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.heading {
+  position: relative;
+  max-width: 18em;
+  margin: 0 auto 72px;
+  padding-top: 28px;
+  text-align: center;
+  font-size: clamp(28px, 3.8vw, 42px);
+  font-weight: 900;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+.heading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 44px;
+  height: 5px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--site-accent), var(--site-highlight));
+  transform: translateX(-50%);
+}
+
+/* 圖文左右交錯 */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 72px;
+  align-items: center;
+  margin-bottom: 104px;
+}
+
+.flip .art {
+  order: 2;
+}
+
+/* 圖的底:帶一點色的面板加細點;--tone 是這一段的主色,插圖的顏色(--art-*)跟著淺色/深色走 */
+.art {
+  --tone: var(--site-accent);
+  --art-card: var(--site-surface);
+  --art-line: color-mix(in srgb, var(--site-text) 13%, var(--site-surface));
+  --art-soft: color-mix(in srgb, var(--site-text) 30%, var(--site-surface));
+  --art-accent: var(--site-accent-solid);
+  --art-on-accent: var(--site-accent-contrast);
+  --art-tint: color-mix(in srgb, var(--site-accent) 18%, var(--site-surface));
+  --art-warm: var(--site-highlight);
+  --art-shadow: rgb(40 50 20 / 16%);
+
+  position: relative;
+  padding: 36px;
+  border: 1px solid color-mix(in srgb, var(--tone) 22%, var(--site-border));
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--tone) 26%, transparent) 1px, transparent 1.5px) 0 0 / 22px 22px,
+    radial-gradient(80% 90% at 15% 0%, color-mix(in srgb, var(--tone) 20%, transparent), transparent 70%),
+    color-mix(in srgb, var(--tone) 7%, var(--site-surface));
+}
+
+.art[data-tone='1'] {
+  --tone: #3f8fb0;
+}
+
+.art[data-tone='2'] {
+  --tone: var(--site-highlight);
+}
+
+:global(html[data-site-theme='dark']) .art {
+  --art-card: #1a1c18;
+  --art-line: #33362f;
+  --art-soft: #5d6156;
+  --art-shadow: rgb(0 0 0 / 60%);
+}
+
+.art > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* 序章圖卡的圖是照淺色底畫的:墊一張淺色的紙 */
+.art > svg.cardArt {
+  border-radius: 16px;
+  background: #f6f3ec;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  color: var(--site-accent-strong);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.index {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  padding: 3px 12px;
+  border: 1px solid color-mix(in srgb, var(--site-accent) 40%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--site-accent) 10%, var(--site-surface));
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.text h3 {
+  margin: 0 0 16px;
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 800;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+
+.desc {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 17px;
+  line-height: 2;
+  text-wrap: pretty;
+}
+
+/* 互動展示那一段:畫面要大一點,圖放寬的那欄 */
+.demoRow,
+.demoRow.flip {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+  gap: 56px;
+}
+
+.demoRow .art {
+  padding: 20px;
+}
+
+/* 頁尾行動卡 */
+.closing {
+  max-width: var(--site-max);
+  margin: 0 auto;
+  padding: 16px 20px 88px;
+}
+
+.closingCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 80px 24px;
+  overflow: hidden;
+  border: 1px solid #2c3a1c;
+  border-radius: 32px;
+  background:
+    radial-gradient(60% 90% at 50% 115%, rgb(140 198 63 / 38%), transparent 70%),
+    radial-gradient(40% 60% at 8% 0%, rgb(192 138 91 / 20%), transparent 70%),
+    linear-gradient(160deg, #1c2414, #10140c);
+  color: #f4f6ee;
+  text-align: center;
+}
+
+.closingCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 5%) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center;
+  mask-image: radial-gradient(70% 80% at 50% 50%, #000, transparent 80%);
+}
+
+.closingCard p {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: 900;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+}
+
+.closingCard p span:last-child:not(:first-child) {
+  color: #a9d867;
+}
+
+.closingCard a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 36px;
+  border-radius: 999px;
+  background: #8cc63f;
+  color: #0b1205;
+  font-size: 18px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 10px 30px rgb(140 198 63 / 35%);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.closingCard a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgb(140 198 63 / 45%);
+}
+
+.closingCard a:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 860px) {
+  .row,
+  .demoRow,
+  .demoRow.flip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    margin-bottom: 72px;
+  }
+
+  /* 手機上一律先文字、後畫面 */
+  .art,
+  .flip .art {
+    order: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .features {
+    padding-top: 40px;
+  }
+
+  .stats {
+    margin-bottom: 72px;
+  }
+
+  .stats li {
+    padding: 4px 8px;
+  }
+
+  .stats span {
+    font-size: 13px;
+  }
+
+  .heading {
+    margin-bottom: 48px;
+  }
+
+  .art {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .demoRow .art {
+    padding: 12px;
+  }
+
+  .desc {
+    font-size: 16px;
+    line-height: 1.9;
+  }
+
+  .closing {
+    padding-bottom: 56px;
+  }
+
+  .closingCard {
+    padding: 56px 20px;
+    border-radius: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .closingCard a {
+    transition: none;
+  }
+
+  .closingCard a:hover {
+    transform: none;
+  }
+}
