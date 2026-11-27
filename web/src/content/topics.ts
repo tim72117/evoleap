@@ -13,6 +13,7 @@ export const TOPIC_PATHS = {
   launch: '/courses/launch',
   kids: '/courses/kids',
   claudeCode: '/courses/claude-code',
+  print3d: '/courses/print3d',
 } as const
 
 /** 主題卡片「開始第一課」這顆固定按鈕的文字:是這句就依目前語言換成字典的 home.startFirstLesson(topicStartLabel) */

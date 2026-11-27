@@ -227,6 +227,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       onStop: (stop) => {
         const stopped = list.find((m) => m.title === stop.title)
         if (!stopped) return false
+        if (stopped.stage?.panel === false) return true
         // 靜態互動的題目也放在導覽(側欄);首頁嵌入沒有側欄,題目留在演員旁邊
         // 一開場就是互動時不自動打開側欄,先讓學員看到完整的操作畫面
         if (interaction !== 'stage' && !drawer && stop.at > OPENING_MOMENT_MS && !(embed && interaction === 'static' && answersOnActor(stopped))) {

@@ -41,6 +41,7 @@ export const COURSES: Course[] = [
   { slug: 'launch', lessonPages: true, planned: [] },
   { slug: 'kids', lessonPages: true, planned: [] },
   { slug: 'claude-code', lessonPages: true, planned: [] },
+  { slug: 'print3d', lessonPages: true, planned: [] },
   { slug: 'advanced', lessonPages: false, planned: ['1', '2', '3', '4'], level: 'AI 互動軟體 進階' },
 ]
 

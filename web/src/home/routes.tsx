@@ -13,6 +13,7 @@ const KidsLessonPage = lazyPage(() => import('./KidsLessonPage').then((m) => m.K
 const LaunchLessonPage = lazyPage(() => import('./TopicScenePage').then((m) => m.LaunchLessonPage))
 const ClaudeCodeLessonPage = lazyPage(() => import('./ClaudeCodeLessonPage').then((m) => m.ClaudeCodeLessonPage))
 const WebLessonPage = lazyPage(() => import('./TopicScenePage').then((m) => m.WebLessonPage))
+const Print3dLessonPage = lazyPage(() => import('./TopicScenePage').then((m) => m.Print3dLessonPage))
 const ShowcasePage = lazyPage(() => import('./ShowcasePage').then((m) => m.ShowcasePage))
 
 /** 一門課的單課路由 /courses/<課程>/:lesson:哪一課照課程地圖(LessonRoute),版型照課程 */
@@ -33,4 +34,5 @@ export const homeRoutes: { path: string; element: JSX.Element }[] = [
   { path: SHOWCASE_PATH, element: <PageView><ShowcasePage /></PageView> },
   lessonRoute('claude-code', (id) => <ClaudeCodeLessonPage id={id} />),
   lessonRoute('web', (id) => <WebLessonPage id={id} />),
+  lessonRoute('print3d', (id) => <Print3dLessonPage id={id} />),
 ]

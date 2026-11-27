@@ -34,8 +34,9 @@ export type Moment = {
    * drag:學員可以拖演員身上的東西(目前是 kid-tree 的節點,拖放的位置見 kids/drag.ts),放下去就多演一步(例如 put);只用在靜態互動
    * split:靜態互動時把演員分成兩張卡片,排法和互動腳本的 cast 一樣:中間放網頁(only: "page")、旁邊的側欄放樹(only: "tree");
    *   拖曳在側欄的樹上,放下去兩張卡片一起演那一步(舞台的 react,不重新載入)。目前用在 kid-tree(網頁怎麼運作 1.2)
+   * panel:寫 false 時停在這裡不自動打開側欄,學員只看到演員(靜態互動的操作點;作答的按鈕要放在演員上)
    */
-  stage?: { focus: string; choices?: string; zone?: string[]; toggles?: { sel: string; label: string }[]; drag?: boolean; split?: boolean }
+  stage?: { focus: string; choices?: string; zone?: string[]; toggles?: { sel: string; label: string }[]; drag?: boolean; split?: boolean; panel?: false }
   /** 互動腳本(live/README.md 第 2A.7 節):學員操作時演員怎麼回應;目前只用在靜態互動 */
   interact?: Interact
 }

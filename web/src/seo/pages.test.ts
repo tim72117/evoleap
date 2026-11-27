@@ -44,6 +44,7 @@ describe('課程相關頁面(內容由 server 讀資料庫填,server/cmd/server/
       ['launch', '/courses/launch', 'launch'],
       ['kids', '/courses/kids', 'kids'],
       ['claude-code', '/courses/claude-code', 'topic'],
+      ['print3d', '/courses/print3d', 'topic'],
     ])
     // 任何單課網址都算課程頁(有沒有這一課由 server 看資料庫);規劃中的進階課沒有單課頁
     expect(['/courses/web/0-1', '/courses/launch/99-9', '/courses/software/intro'].filter((p) => !isCoursePage(p))).toEqual([])

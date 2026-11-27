@@ -22,6 +22,7 @@ import { Print3dPage } from './print3d/Print3dPage'
 import { PictureBookPage } from './PictureBookPage'
 import { PortraitPage } from './PortraitPage'
 import { PracticePage } from '../practice/PracticePage'
+import { AgentStudioPage } from '../agent-studio/AgentStudioPage'
 import { DocsPage } from './DocsPage'
 import { ProposalIndexPage } from './ProposalIndexPage'
 import { StructurePage } from './StructurePage'
@@ -65,6 +66,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
     element: <InteractiveScenePage key={`vibe-${id}`} script={`lab/vibe-coding/${id}.json`} pageTitle={`L2 基礎 ${id} 試做`} back={{ to: '/studio/vibe-coding', label: '← L2 Vibe Coding 入門' }} />,
   })),
   { path: '/studio/kids-web/xray', element: <KidsXrayLivePage /> },
+  { path: '/studio/print3d-lesson', element: <InteractiveScenePage key="print3d-1-1" script="lab/print3d/1.1.json" pageTitle="3D 列印 1.1 一層一層長出來" interaction="static" back={{ to: '/studio/print3d', label: '← 3D 列印' }} /> },
   { path: '/studio/visuals', element: <VisualsPage /> },
   { path: '/studio/portrait', element: <PortraitPage /> },
   { path: '/studio/picture-book', element: <PictureBookPage /> },
@@ -73,6 +75,8 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/math-share', element: <MathSharePage /> },
   { path: '/studio/print3d', element: <Print3dPage /> },
   { path: '/studio/practice', element: <PracticePage /> },
+  // 開發 › 虛擬開發介面:模擬請 AI Agent 開發軟體(試作,先用在兒童)
+  { path: '/studio/agent-studio', element: <AgentStudioPage /> },
   // 畫面試作:從做好到上線 0.1 不用字卡、全用場景與動畫演(演員只登記給這一頁,腳本在 資料庫的 lab/fable/)
   { path: '/studio/fable-trial', element: <FableTrialPage /> },
   // 開發 › 場景:背景依狀態自動變化的場景(試作)

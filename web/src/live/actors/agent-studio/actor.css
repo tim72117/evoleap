@@ -1,0 +1,123 @@
+/* 演員 agent-studio:虛擬的 AI Agent 軟體開發介面。選擇器都以 .A-agent-studio 開頭。
+   動畫一律由 actor.ts 依時間設定 style,這裡不用 animation/transition(SPEC 第 1 節)。 */
+.A-agent-studio {
+  --bg: #1b1d22; --panel: #23262d; --line: #343842; --text: #e4e6eb; --dim: #8d93a0;
+  --accent: #4f8cff; --go: #2fae68; --user: #34558f; --agent: #2e323b; --radius: 8px;
+  width: 100%; height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: 24px; line-height: 1.45; color: var(--text);
+}
+.A-agent-studio[data-look="kids"] {
+  --bg: #fff8ea; --panel: #ffefc9; --line: #3d3a50; --text: #2f2c40; --dim: #6f6a86;
+  --accent: #6c5ce7; --go: #00a876; --user: #d9d3ff; --agent: #ffffff; --radius: 22px;
+  font-size: 28px;
+}
+.A-agent-studio *, .A-agent-studio *::before, .A-agent-studio *::after { box-sizing: border-box; }
+.A-agent-studio [hidden] { display: none !important; }
+.A-agent-studio .ags-window {
+  height: 100%; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--bg); border-radius: var(--radius); box-shadow: 0 28px 70px rgba(0, 0, 0, 0.35);
+}
+.A-agent-studio[data-look="kids"] .ags-window { border: 4px solid var(--line); }
+
+.A-agent-studio .ags-bar { flex: none; display: flex; align-items: center; gap: 18px; padding: 12px 18px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.A-agent-studio .ags-lights { display: flex; gap: 9px; }
+.A-agent-studio .ags-lights i { width: 15px; height: 15px; border-radius: 50%; background: #ff5f57; }
+.A-agent-studio .ags-lights i:nth-child(2) { background: #febc2e; }
+.A-agent-studio .ags-lights i:nth-child(3) { background: #28c840; }
+.A-agent-studio .ags-project { flex: 1; font-weight: 700; }
+.A-agent-studio .ags-tools { display: flex; gap: 12px; }
+.A-agent-studio .ags-btn {
+  display: inline-block; padding: 7px 20px; white-space: nowrap; font-size: 0.9em; font-weight: 600;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg);
+}
+.A-agent-studio .ags-btn.ags-main { border-color: var(--accent); color: var(--accent); }
+.A-agent-studio .ags-btn.ags-go { background: var(--go); border-color: var(--go); color: #fff; }
+.A-agent-studio .ags-btn.ags-on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.A-agent-studio .ags-btn.ags-press { transform: scale(0.94); filter: brightness(1.25); }
+
+.A-agent-studio .ags-body { flex: 1; min-height: 0; display: flex; }
+.A-agent-studio .ags-chat { flex: none; width: 34%; display: flex; flex-direction: column; background: var(--panel); border-right: 1px solid var(--line); }
+.A-agent-studio .ags-agent { flex: none; display: flex; align-items: center; gap: 10px; padding: 12px 18px; font-weight: 700; border-bottom: 1px solid var(--line); }
+.A-agent-studio .ags-face { color: var(--accent); font-size: 1.2em; }
+.A-agent-studio .ags-log { flex: 1; min-height: 0; overflow: hidden; }
+.A-agent-studio .ags-msgs { display: flex; flex-direction: column; gap: 14px; padding: 18px; }
+.A-agent-studio .ags-msg { max-width: 92%; padding: 12px 18px; border-radius: var(--radius); white-space: pre-wrap; }
+.A-agent-studio .ags-user { align-self: flex-end; background: var(--user); }
+.A-agent-studio[data-look="dev"] .ags-user { color: #fff; }
+.A-agent-studio .ags-agent.ags-msg, .A-agent-studio .ags-msg.ags-agent { display: block; align-self: flex-start; background: var(--agent); border: 0; font-weight: 400; }
+.A-agent-studio .ags-about { display: block; margin-bottom: 4px; font-size: 0.75em; opacity: 0.75; }
+.A-agent-studio .ags-working { display: flex; align-items: center; gap: 10px; color: var(--dim); font-size: 0.9em; }
+.A-agent-studio .ags-working i { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
+.A-agent-studio .ags-composer { flex: none; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; margin: 14px; padding: 12px; border: 2px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.A-agent-studio .ags-chip { width: 100%; font-size: 0.8em; color: var(--accent); font-weight: 700; }
+.A-agent-studio .ags-input { flex: 1; min-width: 0; min-height: 1.45em; }
+.A-agent-studio .ags-input.ags-hint { color: var(--dim); }
+
+.A-agent-studio .ags-work { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.A-agent-studio .ags-address { flex: none; display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.A-agent-studio .ags-url { flex: 1; padding: 6px 16px; border-radius: 999px; background: var(--panel); font-size: 0.85em; color: var(--dim); }
+.A-agent-studio .ags-devices { display: flex; gap: 8px; }
+.A-agent-studio .ags-preview { position: relative; flex: 1; min-height: 0; padding: 18px; display: flex; justify-content: center; }
+.A-agent-studio .ags-frame { height: 100%; overflow: hidden; background: #fff; color: #23262d; border-radius: 6px; }
+.A-agent-studio .ags-frame.ags-phone { border: 12px solid #0e0f12; border-radius: 44px; }
+.A-agent-studio .ags-page { height: 100%; display: flex; flex-direction: column; gap: 16px; padding: 30px 34px; }
+.A-agent-studio .ags-empty { margin: auto; color: #9aa0ab; text-align: center; }
+
+.A-agent-studio .ags-block { flex: none; position: relative; padding: 4px 8px; border-radius: 6px; outline: 4px solid transparent; }
+.A-agent-studio .ags-k-title { font-size: 1.6em; font-weight: 800; text-align: center; }
+.A-agent-studio .ags-k-image { text-align: center; }
+.A-agent-studio .ags-emoji { display: block; font-size: 3.4em; line-height: 1.2; }
+.A-agent-studio .ags-alt { display: block; font-size: 0.75em; color: #6b7280; }
+.A-agent-studio .ags-k-list ul { margin: 0; padding-left: 1.3em; }
+.A-agent-studio .ags-k-button { text-align: center; }
+.A-agent-studio .ags-pbtn { display: inline-block; padding: 10px 38px; border-radius: 999px; background: #d9772b; color: #fff; font-weight: 700; }
+.A-agent-studio .ags-s-s { font-size: 0.82em; }
+.A-agent-studio .ags-s-l { font-size: 1.25em; }
+.A-agent-studio .ags-s-xl { font-size: 1.55em; }
+.A-agent-studio .ags-k-title.ags-s-l { font-size: 2em; }
+.A-agent-studio .ags-k-title.ags-s-xl { font-size: 2.4em; }
+/* 太寬的區塊:只有手機寬度看得出超出畫面 */
+.A-agent-studio .ags-phone .ags-page { gap: 6px; padding: 10px 14px; font-size: 0.88em; }
+.A-agent-studio .ags-phone .ags-emoji { font-size: 2.4em; }
+.A-agent-studio .ags-phone .ags-wide { width: 170%; white-space: nowrap; }
+.A-agent-studio .ags-picked { outline: 4px dashed var(--accent); }
+.A-agent-studio .ags-new { outline-color: #ffc93c; background: rgba(255, 201, 60, 0.18); }
+.A-agent-studio .ags-bad { outline-color: #e5484d; }
+
+.A-agent-studio .ags-toast {
+  position: absolute; left: 50%; bottom: 40px; margin-left: -240px; width: 480px; padding: 16px 20px; text-align: center; font-weight: 700;
+  border-radius: var(--radius); background: #17181c; color: #fff; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+.A-agent-studio .ags-toast.ags-none { background: #6b7280; }
+.A-agent-studio .ags-results, .A-agent-studio .ags-history, .A-agent-studio .ags-published {
+  position: absolute; background: var(--panel); border: 2px solid var(--line); box-shadow: 0 16px 44px rgba(0, 0, 0, 0.35);
+}
+.A-agent-studio .ags-results { left: 18px; right: 18px; bottom: 18px; padding: 14px 22px; border-radius: var(--radius); display: grid; grid-template-columns: 1fr 1fr; gap: 6px 22px; }
+.A-agent-studio .ags-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.A-agent-studio .ags-row { display: flex; align-items: center; gap: 10px; }
+.A-agent-studio .ags-row i { width: 1.2em; font-style: normal; font-weight: 800; text-align: center; }
+.A-agent-studio .ags-ok, .A-agent-studio .ags-ok i { color: var(--go); }
+.A-agent-studio .ags-ng, .A-agent-studio .ags-ng i { color: #e5484d; }
+.A-agent-studio .ags-row.ags-wait { color: var(--dim); }
+.A-agent-studio .ags-history { top: 0; right: 0; bottom: 0; width: 46%; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.A-agent-studio .ags-version { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border: 2px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.A-agent-studio .ags-version span { flex: 1; min-width: 0; }
+.A-agent-studio .ags-version em { font-style: normal; font-size: 0.8em; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.A-agent-studio .ags-published { left: 18%; right: 18%; top: 20%; padding: 30px; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.A-agent-studio .ags-published em { font-style: normal; color: var(--dim); font-size: 0.8em; }
+.A-agent-studio .ags-big { font-size: 2.4em; color: var(--go); line-height: 1; }
+.A-agent-studio .ags-link { padding: 6px 18px; border-radius: 999px; background: var(--bg); color: var(--accent); font-weight: 700; }
+.A-agent-studio .ags-meter { width: 80%; height: 14px; overflow: hidden; border-radius: 999px; background: var(--bg); }
+.A-agent-studio .ags-meter i { display: block; height: 100%; background: var(--go); }
+
+.A-agent-studio .ags-status { flex: none; display: flex; gap: 28px; padding: 8px 18px; font-size: 0.78em; background: var(--panel); border-top: 1px solid var(--line); color: var(--dim); }
+.A-agent-studio .ags-status .ags-warn { color: #e0902a; font-weight: 700; }
+.A-agent-studio .ags-live { margin-left: auto; }
+
+/* 指令卡(兒童課) */
+.A-agent-studio .ags-tray { flex: none; display: flex; flex-direction: column; gap: 10px; margin: 14px; }
+.A-agent-studio .ags-card { display: flex; align-items: center; gap: 12px; padding: 10px 16px; font-size: 0.92em; font-weight: 700; background: var(--agent); border: 3px solid var(--line); border-radius: var(--radius); box-shadow: 0 5px 0 var(--line); }
+.A-agent-studio .ags-card span { font-size: 1.35em; line-height: 1; }
+.A-agent-studio .ags-card.ags-press { transform: translateY(5px); box-shadow: none; }
+.A-agent-studio .ags-btn.ags-off { opacity: 0.35; }

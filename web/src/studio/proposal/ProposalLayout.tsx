@@ -34,6 +34,7 @@ const DEV: Tab[] = [
   { to: '/studio/portrait', label: '直式舞台' },
   { to: '/studio/picture-book', label: '兒童繪本' },
   { to: '/studio/practice', label: '動手練習' },
+  { to: '/studio/agent-studio', label: '虛擬開發介面' },
   { to: '/studio/scenes', label: '場景' },
 ]
 

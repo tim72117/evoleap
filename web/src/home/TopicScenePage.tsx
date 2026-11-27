@@ -15,8 +15,8 @@ import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage
 import styles from '../studio/interactive/InteractiveScenePage.module.css'
 import { TopicBlocked } from './TopicBlocked'
 
-// 「網頁怎麼運作」「從做好到上線」的一課:整個視窗都是互動舞台,右側是章節與步驟(InteractiveScenePage,和 L0 的互動課同一個外殼)。
-// 兩門課共用這一頁,差別只在 TOPIC_SCENES 的設定。路由是 /courses/<課程>/:lesson(home/routes.tsx、courses/LessonRoute.tsx),資料庫裡的每一課都打得開;
+// 「網頁怎麼運作」「從做好到上線」「3D 列印」的一課:整個視窗都是互動舞台,右側是章節與步驟(InteractiveScenePage,和 L0 的互動課同一個外殼)。
+// 這幾門課共用這一頁,差別只在 TOPIC_SCENES 的設定。路由是 /courses/<課程>/:lesson(home/routes.tsx、courses/LessonRoute.tsx),資料庫裡的每一課都打得開;
 // 能不能上、播哪個腳本、要不要登入、課名都照資料庫(LessonGate)。網頁課要用靜態版面的課列在 WEB_STATIC_LESSONS。播放進度只有登入的會員才記。
 // 追蹤:打開課程頁由 InteractiveScenePage 記 live:<腳本>;看到提示頁的訪客記 page:<網址>(PageView)。
 
@@ -27,7 +27,15 @@ type SceneConfig = {
   markDraft: boolean
 }
 
-const TOPIC_SCENES: Record<'web' | 'launch', SceneConfig> = {
+type SceneCourse = 'web' | 'launch' | 'print3d'
+
+const TOPIC_SCENES: Record<SceneCourse, SceneConfig> = {
+  // 3D 列印:操作點直接在演員上做(靜態互動)
+  print3d: {
+    topic: { path: TOPIC_PATHS.print3d },
+    interaction: () => 'static',
+    markDraft: true,
+  },
   web: {
     topic: { path: TOPIC_PATHS.web },
     interaction: (id) => (WEB_STATIC_LESSONS.has(id) ? 'static' : undefined),
@@ -42,8 +50,9 @@ const TOPIC_SCENES: Record<'web' | 'launch', SceneConfig> = {
 
 export const WebLessonPage = ({ id }: { id: string }) => <TopicScenePage course="web" id={id} />
 export const LaunchLessonPage = ({ id }: { id: string }) => <TopicScenePage course="launch" id={id} />
+export const Print3dLessonPage = ({ id }: { id: string }) => <TopicScenePage course="print3d" id={id} />
 
-function TopicScenePage({ course, id }: { course: 'web' | 'launch'; id: string }) {
+function TopicScenePage({ course, id }: { course: SceneCourse; id: string }) {
   const title = useLessonTitle(course)(id)
   const t = useT()
   const cfg = TOPIC_SCENES[course]
@@ -63,7 +72,7 @@ function TopicScenePage({ course, id }: { course: 'web' | 'launch'; id: string }
   )
 }
 
-function Player({ course, cfg, lesson, title, docTitle, prev, next }: { course: 'web' | 'launch'; cfg: SceneConfig; lesson: MapLesson; title: string; docTitle: string; prev?: MapLesson; next?: MapLesson }) {
+function Player({ course, cfg, lesson, title, docTitle, prev, next }: { course: SceneCourse; cfg: SceneConfig; lesson: MapLesson; title: string; docTitle: string; prev?: MapLesson; next?: MapLesson }) {
   const script = lesson.script!
   const { status, user } = useAuth()
   const memberId = user?.id ?? null

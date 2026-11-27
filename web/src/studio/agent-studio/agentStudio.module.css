@@ -1,0 +1,14 @@
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.milestones { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; padding: 0; list-style: none; }
+.milestones li { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border: 2px solid currentColor; border-radius: 999px; font-weight: 700; opacity: 0.55; }
+.milestones li.done { opacity: 1; }
+.hint { margin: 0 0 10px; font-size: 1.1rem; font-weight: 700; }
+.box { position: relative; width: 100%; max-width: max(640px, calc((100vh - 120px) * 16 / 9)); margin: 0 auto; scroll-margin-top: 8px; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 12px; }
+.stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.hit { position: absolute; z-index: 2; margin: 0; padding: 0; background: transparent; border: 2px dashed rgba(108, 92, 231, 0.65); border-radius: 12px; cursor: pointer; }
+.hit:hover, .hit:focus-visible { border-style: solid; border-width: 3px; background: rgba(108, 92, 231, 0.12); }
+.foot { display: flex; justify-content: flex-end; margin-top: 10px; }
+.restart { padding: 8px 20px; font: inherit; font-weight: 700; border: 2px solid currentColor; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+.restart:disabled { opacity: 0.4; cursor: default; }
+.player { width: 100%; }
+.error { color: #c62828; font-weight: 700; }
