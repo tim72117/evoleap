@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import type { Plugin } from 'vite'
-import { defineConfig } from 'vitest/config'
+import { defineConfig, configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { devGateDecision, gatedKind } from './src/site/devStudioGate'
 import { STUDIO_TOKEN_COOKIE, studioDevToken } from './scripts/lib/studioToken.mjs'
@@ -231,5 +231,7 @@ export default defineConfig({
   // 單元測試(npm test):src 內的 *.test.ts(x);E2E 測試在 e2e/,由 Playwright 執行。
   test: {
     include: ['src/**/*.test.{ts,tsx}'],
+    // 研發基地(/studio)的項目不測;interactive、practice 是學員的單課頁在用的,照測
+    exclude: [...configDefaults.exclude, 'src/studio/!(interactive|practice)/**'],
   },
 })

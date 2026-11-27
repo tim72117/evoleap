@@ -22,6 +22,8 @@ const server = (port: number, flags: string, db: string) => ({
 
 export default defineConfig({
   testDir: 'e2e',
+  // 研發基地(/studio)的項目不測;權限把關(studio-access.spec.ts)照測
+  testIgnore: ['**/actors.spec.ts', '**/promo.spec.ts'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
