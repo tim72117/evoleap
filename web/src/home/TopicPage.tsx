@@ -102,7 +102,7 @@ function LevelCard({ level, index }: { level: Level; index: number | null }) {
         <div className={styles.body}>
           <p className={styles.badges}>
             {opened.length ? (
-              <span className={`${styles.badge} ${styles.badgeOpen}`}>{m.openedLessons(opened.map((l) => l.label).join(m.listSep))}</span>
+              <span className={`${styles.badge} ${styles.badgeOpen}`}>{m.openedLessons(opened.length)}</span>
             ) : (
               <span className={`${styles.badge} ${styles.badgePlanned}`}><span aria-hidden="true">🌱 </span>{t.home.planned}</span>
             )}

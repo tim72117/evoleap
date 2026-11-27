@@ -43,9 +43,8 @@ export const home = {
   software: {
     free: '免費',
     contentReady: '課程內容已上架',
-    /** 已開放的課名之間的分隔 */
-    listSep: '、',
-    openedLessons: (list: string) => `${list}已開放`,
+    /** 等級卡上只寫開放幾課,不一一列出 */
+    openedLessons: (n: number) => `已開放 ${n} 課`,
     lessonContent: '課程內容',
     tentative: '（暫定）',
     prerequisite: '先備條件',

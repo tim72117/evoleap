@@ -43,8 +43,7 @@ export const home: Messages['home'] = {
   software: {
     free: 'Free',
     contentReady: 'Course available',
-    listSep: ', ',
-    openedLessons: (list) => `${list} available`,
+    openedLessons: (n) => (n === 1 ? '1 lesson available' : `${n} lessons available`),
     lessonContent: 'What’s inside',
     tentative: ' (tentative)',
     prerequisite: 'Prerequisite',
