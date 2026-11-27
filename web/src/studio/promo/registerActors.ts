@@ -24,8 +24,12 @@ import sheetsReel from './actors/sheets-reel/actor'
 import remoteReel from './actors/remote-reel/actor'
 import sessionsReel from './actors/sessions-reel/actor'
 import aiToolsReel from './actors/ai-tools-reel/actor'
+import voiceReel from './actors/voice-reel/actor'
+import doctorReel from './actors/doctor-reel/actor'
+import medbagReel from './actors/medbag-reel/actor'
+import pickaiReel from './actors/pickai-reel/actor'
 
-for (const def of [kidLife, kidHub, kidDayScene, kidReel, kidReelCards, archifyReel, trellisReel, sheetsReel, sessionsReel, remoteReel, aiToolsReel]) ACTORS[def.name] = def
+for (const def of [kidLife, kidHub, kidDayScene, kidReel, kidReelCards, archifyReel, trellisReel, sheetsReel, sessionsReel, remoteReel, aiToolsReel, voiceReel, doctorReel, medbagReel, pickaiReel]) ACTORS[def.name] = def
 
 /** 宣傳片的場景(格式同 fable/registerActors.ts 的 SCENES,由那裡併進「開發 › 場景」的清單) */
 export const PROMO_SCENES: { name: string; title: string; script: string; summary: string }[] = [

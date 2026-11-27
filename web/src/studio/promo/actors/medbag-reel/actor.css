@@ -1,0 +1,9 @@
+.A-medbag-reel {
+  overflow: hidden;
+  font-family: 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+}
+.A-medbag-reel svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
