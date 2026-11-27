@@ -42,7 +42,7 @@ export const CHUNKS: readonly { name: string; lines: readonly string[]; tests?: 
     },
   },
   {
-    name: '人工點擊測試',
+    name: '人工測試',
     lines: [],
     tests: {
       how: '自己打開網頁，用滑鼠一項一項點、用眼睛看',

@@ -397,18 +397,30 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
     probeBox.hidden = true
     probeBox.innerHTML = '<span class="tn-pointer"><i class="tn-ring"></i><i class="tn-arrow"></i><em>Agent</em></span><span class="tn-verdict"></span>'
     view_.appendChild(probeBox)
-    const showProbe = (probe: Probe | null): void => {
-      const el = probe ? view_.querySelector<HTMLElement>(probe.at === 'bar' ? '.tn-bar' : `[data-v="${probe.at}"]`) : null
-      probeBox.hidden = !el
-      if (!el || !probe) return
-      // 用 offset 量(舞台整張縮放時也正確)
+    // 用 offset 量在預覽框裡的位置(舞台整張縮放時也正確;不含捲動)
+    const offsetIn = (el: HTMLElement): { x: number; y: number } => {
       let x = 0
       let y = 0
       for (let e: HTMLElement | null = el; e && e !== view_; e = e.offsetParent as HTMLElement | null) {
         x += e.offsetLeft
         y += e.offsetTop
       }
-      Object.assign(probeBox.style, { left: `${x}px`, top: `${y}px`, width: `${el.offsetWidth}px`, height: `${el.offsetHeight}px` })
+      return { x, y }
+    }
+    const showProbe = (probe: Probe | null): void => {
+      const el = probe ? view_.querySelector<HTMLElement>(probe.at === 'bar' ? '.tn-bar' : `[data-v="${probe.at}"]`) : null
+      // 手機上網頁比預覽框高:捲到正在測的地方(沒在測就停在最上面)
+      const inPage = !!el && page.contains(el)
+      // 放得下就置中,比預覽框還高就對齊它的上緣
+      page.scrollTop = inPage ? Math.max(0, offsetIn(el!).y - offsetIn(page).y - Math.max(0, page.clientHeight - el!.offsetHeight) / 2) : 0
+      probeBox.hidden = !el
+      if (!el || !probe) return
+      const { x, y: top } = offsetIn(el)
+      // 網頁裡的目標:框跟著捲動,超出預覽框的部分裁掉
+      const area = offsetIn(page).y
+      const y = inPage ? Math.max(area, top - page.scrollTop) : top
+      const height = inPage ? Math.max(0, Math.min(area + page.clientHeight, top - page.scrollTop + el.offsetHeight) - y) : el.offsetHeight
+      Object.assign(probeBox.style, { left: `${x}px`, top: `${y}px`, width: `${el.offsetWidth}px`, height: `${height}px` })
       probeBox.dataset.s = probe.state
       probeBox.dataset.who = probe.who ?? 'you'
       probeBox.querySelector('.tn-verdict')!.textContent = probe.state === 'fail' ? '✗' : probe.state === 'pass' ? '✓' : ''
@@ -603,6 +615,23 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
         if (st.task === 'write' && st.mode !== 'now') {
           const src = work.querySelector<HTMLElement>('.tn-source')
           if (src) src.scrollTop = src.scrollHeight
+        }
+
+        // 自己寫、用框架的測試清單:捲到正在跑的那一項,跑完捲到最下面的總結
+        if (st.task === 'write' && st.mode !== 'now') {
+          const box = work.querySelector<HTMLElement>('.tn-testing:not(.tn-agent)')
+          if (box) {
+            const active = [...box.querySelectorAll<HTMLElement>('.tn-run li')].filter((li) => li.dataset.s && li.dataset.s !== 'wait').at(-1)
+            const done = box.querySelector('.tn-sum, .tn-fixing')
+            // 用 offset 算(舞台整張縮放時也正確),直接指定位置:跳到任何時間點畫出來都一樣
+            const top = (el: HTMLElement): number => {
+              let y = 0
+              for (let e: HTMLElement | null = el; e; e = e.offsetParent as HTMLElement | null) y += e.offsetTop
+              return y
+            }
+            if (done || !active) box.scrollTop = done ? box.scrollHeight : 0
+            else box.scrollTop = Math.max(0, top(active) - top(box) + active.offsetHeight - box.clientHeight + 8)
+          }
         }
 
         // 測試清單長出來時捲到最新的那一項

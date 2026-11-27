@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { loginHref } from '../auth/paths'
@@ -9,6 +9,8 @@ import { L1_LESSONS } from '../content/l1Lessons'
 import { useCourseName } from '../content/courseMap'
 import { lessonDocTitle, lessonLabelOf } from '../content/lessonDisplay'
 import { TOPIC_PATHS } from '../content/topics'
+import { ACTORS } from '../live/actors'
+import { loadScript } from '../live/scripts'
 import type { StageScript } from '../live/stage'
 import { useT } from '../i18n/I18nProvider'
 import { documentTitle } from '../site/siteInfo'
@@ -34,11 +36,46 @@ const INTERACTIVE_LESSONS: Record<string, (script: StageScript) => StageScript> 
 }
 const asIs = (script: StageScript) => script
 
+/** 腳本裡有沒有當一般網頁操作的演員(序章的新版);演員要先由 loadScript 載好 */
+const hasPageActor = (script: StageScript): boolean => Object.values(script.cast ?? {}).some((c) => ACTORS[c.actor]?.page)
+
+/** 每一課固定的一個函式(播放器拿它當重建的依據);自帶互動的腳本不套前端的互動點 */
+const PREPARE: Record<string, (script: StageScript) => StageScript> = Object.fromEntries(
+  Object.entries(INTERACTIVE_LESSONS).map(([id, add]) => [id, (script: StageScript) => (hasPageActor(script) ? script : add(script))]),
+)
+
+/** 判斷用的那次讀取失敗時,隔多久再試(毫秒);試完還是不行才當成一般腳本 */
+const RETRY_MS = [600, 1800]
+
 /**
- * 自己帶互動點、演員在靜態舞台上自己操作的腳本(序章的新版):不用在前端加互動點,用靜態互動。
- * 依腳本路徑分:課還指著舊腳本時(例如正式站還沒換),照舊版的做法。
+ * 腳本是不是自己帶互動點、演員在靜態舞台上自己操作(序章的新版):不用在前端加互動點,用靜態互動。
+ * 看腳本內容(有沒有當一般網頁操作的演員),不看檔名:腳本改名、換回舊版都不用改程式。
+ * 還沒讀到時是 null;讀取失敗先重試(網路瞬斷時才不會把新版當舊版),仍讀不到(例如要登入)當成不是,錯誤由播放器顯示。
  */
-const STATIC_SCRIPTS = new Set(['l0/0.intro-b.json'])
+function useSelfContained(script: string, ready: boolean): boolean | null {
+  const [result, setResult] = useState<{ script: string; value: boolean } | null>(null)
+  useEffect(() => {
+    if (!ready) return
+    let cancelled = false
+    let timer = 0
+    const attempt = (n: number): void => {
+      loadScript(script).then(
+        (data) => !cancelled && setResult({ script, value: hasPageActor(data) }),
+        () => {
+          if (cancelled) return
+          if (n < RETRY_MS.length) timer = window.setTimeout(() => attempt(n + 1), RETRY_MS[n])
+          else setResult({ script, value: false })
+        },
+      )
+    }
+    attempt(0)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [script, ready])
+  return result?.script === script ? result.value : null
+}
 
 /**
  * 每一步的提示詞(學員複製貼上的):暫時還從前端的單課資料(l0Lessons 等的 steps)取,用課號對;找不到的課沒有提示詞。
@@ -59,10 +96,10 @@ type Props = {
 
 export function InteractiveLessonPage({ course, lesson, prev, next }: Props) {
   const script = lesson.script!
-  const selfContained = STATIC_SCRIPTS.has(script)
-  const prepare = selfContained ? asIs : (INTERACTIVE_LESSONS[lesson.id] ?? asIs)
   // 登入狀態確認前先不建立播放器,免得會員的進度被當成訪客略過
   const { status, user } = useAuth()
+  const selfContained = useSelfContained(script, status !== 'loading')
+  const prepare = PREPARE[lesson.id] ?? asIs
   const memberId = user?.id ?? null
   const location = useLocation()
   const t = useT()
@@ -74,6 +111,9 @@ export function InteractiveLessonPage({ course, lesson, prev, next }: Props) {
   }, [status, memberId])
 
   const labelOf = (l: Pick<MapLesson, 'id'>) => lessonLabelOf(course.slug, l.id)
+
+  // 還不知道用哪種互動前先不建立播放器(建好再換會整個重來)
+  if (selfContained === null) return null
 
   return (
     <InteractiveScenePage
