@@ -54,6 +54,12 @@ func (s *Store) ExportCatalog(ctx context.Context) (Catalog, error) {
 					row.ItemIDs[it.Kind] = append(row.ItemIDs[it.Kind], it.ID)
 				}
 			}
+			if row.Sections, err = loadTopicPage(tx, t.ID); err != nil {
+				return err
+			}
+			if len(row.Sections) == 0 {
+				row.Sections = nil
+			}
 			out.Topics = append(out.Topics, row)
 		}
 		var courses []courseRow

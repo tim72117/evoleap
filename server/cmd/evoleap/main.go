@@ -19,6 +19,7 @@
 //	                                改一門課自己的存取方式、課名與課程資訊(簡介、說明段落用 || 分隔、搜尋結果標題與描述、插圖 tools|chat|build|agent|advanced);給空字串清掉(沒寫 access 的課跟著這門課)
 //	topic list                      主題清單(首頁卡片、主題頁、全部課程頁的分組;含 content)
 //	topic show -topic ID            一個主題
+//	topic section-add|section-set|section-delete|section-order、block-add|block-set|block-delete|block-order(主題頁的區塊)
 //	topic create|delete|order、topic item-add|item-set|item-delete|item-order(清單項目,id 見 topic show)
 //	topic set -topic ID [-name 文字] [-slogan 文字] [-path 網址] [-seo-title 文字] [-description 文字] [-content-file 路徑]
 //	                                改一個主題;-content-file 是整包換掉的 JSON 物件檔(其餘內容:lede、learn、flow、outcomes、preview…)
@@ -94,6 +95,14 @@ var resources = []resource{
 		{verb: "item-set", usage: "evoleap topic item-set -topic ID -item ID [-text 文字] [-level 文字]", run: cmdTopicItemSet},
 		{verb: "item-delete", usage: "evoleap topic item-delete -topic ID -item ID", run: cmdTopicItemDelete},
 		{verb: "item-order", usage: "evoleap topic item-order -topic ID -kind 種類 -ids a,b,c", run: cmdTopicItemOrder},
+		{verb: "section-add", usage: "evoleap topic section-add -topic ID -id 區塊 -kind hero|levels|cards|lists|units [-eyebrow 文字] [-title 文字] [-lead 文字] [-source 課程] [-variant 值] [-at N]", run: cmdTopicSectionAdd},
+		{verb: "section-set", usage: "evoleap topic section-set -topic ID -section 區塊 [-eyebrow 文字] [-title 文字] [-lead 文字] [-source 課程] [-variant 值]", run: cmdTopicSectionSet},
+		{verb: "section-delete", usage: "evoleap topic section-delete -topic ID -section 區塊", run: cmdTopicSectionDelete},
+		{verb: "section-order", usage: "evoleap topic section-order -topic ID -ids a,b,c", run: cmdTopicSectionOrder},
+		{verb: "block-add", usage: "evoleap topic block-add -topic ID -section 區塊 [-parent 項目] [-title 文字] [-text 文字] [-note 文字] [-ref ID] [-variant 值] [-label 文字] [-at N]", run: cmdTopicBlockAdd},
+		{verb: "block-set", usage: "evoleap topic block-set -topic ID -block 項目 [-title 文字] [-text 文字] [-note 文字] [-ref ID] [-variant 值] [-label 文字]", run: cmdTopicBlockSet},
+		{verb: "block-delete", usage: "evoleap topic block-delete -topic ID -block 項目", run: cmdTopicBlockDelete},
+		{verb: "block-order", usage: "evoleap topic block-order -topic ID -section 區塊 [-parent 項目] -ids a,b,c", run: cmdTopicBlockOrder},
 	}},
 	{name: "lesson", commands: []command{
 		{verb: "set", usage: "evoleap lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title 文字] [-summary 文字] [-script 路徑]", run: cmdLessonSet},

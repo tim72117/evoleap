@@ -55,6 +55,8 @@ type topicSeedRow struct {
 	Content     json.RawMessage `json:"content,omitempty"`
 	// ItemIDs 是清單項目的 id(種類 → 依序),讓復原後譯文仍對得上
 	ItemIDs map[string][]string `json:"itemIds,omitempty"`
+	// Sections 是主題頁的區塊;沒寫就不動資料庫現有的
+	Sections []PageSection `json:"sections,omitempty"`
 }
 
 func parseTopicSeed(seed []byte) ([]topicSeedRow, error) {
@@ -156,6 +158,13 @@ func seedTopics(tx *gorm.DB, seeds []topicSeedRow) error {
 		}
 		rows[i] = topicRow{ID: t.ID, Position: i, Name: t.Name, Slogan: t.Slogan, Path: t.Path, SEOTitle: t.SEOTitle, Description: t.Description, Content: content, CreatedAt: at, UpdatedAt: at}
 	}
+	for _, t := range seeds {
+		if t.Sections != nil {
+			if err := writeTopicPage(tx, t.ID, t.Sections); err != nil {
+				return fmt.Errorf("主題 %s:%w", t.ID, err)
+			}
+		}
+	}
 	return tx.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"position", "name", "slogan", "path", "seo_title", "description", "content", "structured", "updated_at"}),
@@ -203,6 +212,9 @@ func pruneTopics(tx *gorm.DB, seeds []topicSeedRow) ([]string, error) {
 		if err := deleteTopicParts(tx, id); err != nil {
 			return warnings, err
 		}
+		if err := deleteTopicPage(tx, id); err != nil {
+			return warnings, err
+		}
 	}
 	return warnings, tx.Where("id IN ?", deletable).Delete(&topicRow{}).Error
 }
@@ -218,7 +230,9 @@ type Topic struct {
 	Content     json.RawMessage `json:"content,omitempty"`
 	// Items 是清單項目(只有管理端的清單帶)
 	Items []TopicItem `json:"items,omitempty"`
-	parts *topicParts
+	// Sections 是主題頁的區塊(只有管理端的清單帶;公開的是 GET /api/topics/{id}/page)
+	Sections []PageSection `json:"sections,omitempty"`
+	parts    *topicParts
 }
 
 func (r topicRow) topic() Topic {

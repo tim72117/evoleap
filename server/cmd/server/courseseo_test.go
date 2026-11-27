@@ -21,7 +21,7 @@ const testManifest = `{"site":"evoleap","origin":"https://evoleap.io","courseLis
 {"path":"/courses/gone","course":"gone","coursePath":"/courses/gone","kind":"overview"},
 {"path":"/en/courses/web","course":"web","coursePath":"/en/courses/web","kind":"overview","lang":"en","listLessons":true},
 {"path":"/en/courses/gone","course":"gone","coursePath":"/en/courses/gone","kind":"overview","lang":"en"},
-{"path":"/topics/ai-apps","kind":"topic","topic":"ai-apps","items":[{"course":"ai-agent","path":"/topics/ai-apps"},{"course":"gone","path":"/courses/gone"},{"course":"advanced","path":"/courses/advanced"}],"courseLd":{"course":"ai-agent","description":"介紹"}},
+{"path":"/topics/ai-apps","kind":"topic","topic":"ai-apps","items":[{"course":"ai-agent","path":"/topics/ai-apps"},{"course":"gone","path":"/courses/gone"},{"course":"advanced","path":"/courses/advanced"}],"courseLd":{"course":"ai-agent"}},
 {"path":"/topics/gone","kind":"topic","topic":"gone","items":[]},
 {"path":"/courses","kind":"list","title":"清單標題","description":"清單描述","items":[{"course":"software","path":"/courses/software"}]},
 {"path":"/courses/advanced/topic-1","course":"advanced","coursePath":"/courses/advanced","kind":"chapter","chapter":{"unit":"1","label":"主題 1"}},
@@ -334,7 +334,7 @@ func TestTopicAndChapterPages(t *testing.T) {
 		t.Fatal(err)
 	}
 	// 資料庫沒有的課(gone)不列
-	has("/topics/ai-apps", "<title>"+topic.SEOTitle+" · evoleap</title>", `"@type":"ItemList"`, `"name":"測試課二"`, `"url":"https://evoleap.io/courses/advanced"`, `"@type":"Course"`, `"description":"介紹"`)
+	has("/topics/ai-apps", "<title>"+topic.SEOTitle+" · evoleap</title>", `"@type":"ItemList"`, `"name":"測試課二"`, `"url":"https://evoleap.io/courses/advanced"`, `"@type":"Course"`, `"description":"測試課二的簡介。"`)
 	has("/courses", "<title>清單標題 · evoleap</title>", `content="清單描述"`, `"name":"測試課一"`)
 	advanced, _, err := st.CourseMapWithEnglish(context.Background(), "advanced")
 	if err != nil {

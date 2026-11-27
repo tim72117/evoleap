@@ -19,6 +19,7 @@ type topic struct {
 	SEOTitle    string `json:"seoTitle,omitempty"`
 	Description string `json:"description,omitempty"`
 	Content     obj    `json:"content,omitempty"`
+	Sections    []obj  `json:"sections,omitempty"`
 }
 
 type course struct {
@@ -117,6 +118,46 @@ var topics = []topic{
 	seoTopic("claude-code", "辛", "/courses/claude-code", obj{
 		"icon": "terminal", "scenarios": list{"測試情境一", "測試情境二"},
 	}),
+}
+
+// 主題頁區塊(假字):五種區塊各一個代表,levels 兩種來源(課程單元、直接列課程)都有。
+func withSections(topics []topic) []topic {
+	b := func(kv ...string) obj {
+		o := obj{}
+		for i := 0; i+1 < len(kv); i += 2 {
+			o[kv[i]] = kv[i+1]
+		}
+		return o
+	}
+	with := func(o obj, children ...obj) obj { o["children"] = children; return o }
+	pages := map[string][]obj{
+		"software": {
+			{"id": "hero", "kind": "hero", "eyebrow": "測試小標", "title": "測試大標甲\n測試大標乙"},
+			{"id": "map", "kind": "levels", "source": "software", "blocks": []obj{
+				b("ref", "tools", "variant", "tools", "text", "測試階段簡述", "note", "測試階段先備"),
+				with(b("ref", "vibe-coding-basics", "variant", "build"), b("text", "測試重點一"), b("text", "測試重點二")),
+			}},
+		},
+		"ai-apps": {
+			{"id": "hero", "kind": "hero", "eyebrow": "測試小標", "title": "測試大標丙", "lead": "測試大標說明。"},
+			{"id": "map", "kind": "levels", "variant": "software", "blocks": []obj{
+				with(b("ref", "ai-agent", "label", "中階", "note", "測試中階先備"), b("text", "測試重點一")),
+				b("ref", "advanced", "label", "進階", "note", "測試進階先備"),
+			}},
+			{"id": "outcomes", "kind": "cards", "variant": "numbered", "blocks": []obj{b("title", "測試學習成果", "text", "測試成果說明。")}},
+			{"id": "audience", "kind": "lists", "blocks": []obj{
+				with(b("variant", "fit"), b("text", "測試適合對象")),
+				with(b("variant", "not_fit"), b("text", "測試不適合對象")),
+				with(b("variant", "requirement"), b("text", "測試背景知識")),
+			}},
+			{"id": "units", "kind": "units", "source": "ai-agent", "blocks": []obj{b("ref", "0", "label", "★", "variant", "planned", "text", "測試核心概念", "note", "測試實作")}},
+			{"id": "teaching", "kind": "cards", "blocks": []obj{b("title", "測試教學方式", "text", "測試教學說明。")}},
+		},
+	}
+	for i := range topics {
+		topics[i].Sections = pages[topics[i].ID]
+	}
+	return topics
 }
 
 var noOverview = false
@@ -252,7 +293,7 @@ var i18nEN = obj{
 
 // 給 store 的種子函式用的 JSON。
 var (
-	Topics  = mustJSON(topics)
+	Topics  = mustJSON(withSections(topics))
 	Courses = mustJSON(courses)
 	I18nEN  = mustJSON(i18nEN)
 )

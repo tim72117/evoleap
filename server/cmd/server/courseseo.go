@@ -96,10 +96,9 @@ type courseEntry struct {
 	// Title、Description:全部課程頁的標題與描述(資料庫沒有對應的欄位)
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	// CourseLD:主題頁另外附一門課的結構化資料(AI Agent 中階課沒有自己的頁面);描述是前端的介紹文字
+	// CourseLD:主題頁另外附一門課的結構化資料(AI Agent 中階課沒有自己的頁面);描述讀資料庫的課程 description(沒有就用簡介)
 	CourseLD *struct {
-		Course      string `json:"course"`
-		Description string `json:"description"`
+		Course string `json:"course"`
 	} `json:"courseLd"`
 	// Lang:英文版課程總覽(/en/courses/<課程>)是 "en",其餘空的
 	Lang string `json:"lang"`
@@ -131,6 +130,7 @@ type topicLoader func(ctx context.Context, id string) (store.Topic, error)
 type courseSnapshot struct {
 	topic *store.Topic      // nil:資料庫沒有這個主題
 	names map[string]string // 課程 id → 課名(資料庫沒有的課不在裡面)
+	descs map[string]string // 課程 id → 描述(沒有描述用簡介)
 
 	// enUnavailable:譯文這次讀不到(en 是 nil,但不代表沒有英文版)
 	enUnavailable bool
@@ -256,7 +256,7 @@ func (c *courseSEO) pageSnapshot(ctx context.Context, e courseEntry) (*courseSna
 	if snap != nil && c.now().Sub(snap.at) < c.ttl {
 		return snap, nil
 	}
-	fresh := &courseSnapshot{at: c.now(), names: map[string]string{}}
+	fresh := &courseSnapshot{at: c.now(), names: map[string]string{}, descs: map[string]string{}}
 	if e.Topic != "" {
 		if c.loadTopic == nil {
 			return nil, errUnavailable
@@ -289,6 +289,7 @@ func (c *courseSEO) pageSnapshot(ctx context.Context, e courseEntry) (*courseSna
 		}
 		if s.m != nil {
 			fresh.names[id] = s.m.Title
+			fresh.descs[id] = firstNonEmpty(s.m.Description, s.m.Summary)
 		}
 	}
 	c.mu.Lock()
@@ -322,7 +323,7 @@ func (c *courseSEO) composePage(e courseEntry, snap *courseSnapshot) (pageMeta, 
 	}
 	if e.CourseLD != nil {
 		if n, ok := snap.names[e.CourseLD.Course]; ok {
-			out.JSONLD = append(out.JSONLD, c.courseLD(n, e.CourseLD.Description, e.Path))
+			out.JSONLD = append(out.JSONLD, c.courseLD(n, snap.descs[e.CourseLD.Course], e.Path))
 		}
 	}
 	return out, true

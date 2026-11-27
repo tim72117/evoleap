@@ -28,6 +28,9 @@ func (s *Store) AdminTopics(ctx context.Context) ([]Topic, error) {
 		return nil, err
 	}
 	for i := range topics {
+		if topics[i].Sections, err = loadTopicPage(s.db.WithContext(ctx), topics[i].ID); err != nil {
+			return nil, err
+		}
 		if p := topics[i].parts; p != nil {
 			for _, it := range p.items {
 				topics[i].Items = append(topics[i].Items, TopicItem{ID: it.ID, Kind: it.Kind, Text: it.Text, Level: it.Level})
@@ -83,6 +86,9 @@ func (s *Store) DeleteTopic(ctx context.Context, user, id string) error {
 			return invalid("還有課程屬於這個主題,先改那些課程的 topicId")
 		}
 		if err := writeTopicParts(tx, user, id, topicParts{}); err != nil {
+			return err
+		}
+		if err := deleteTopicPage(tx, id); err != nil {
 			return err
 		}
 		if err := dropTranslations(tx, user, I18nTopic, id); err != nil {

@@ -16,6 +16,16 @@ import (
 //	PATCH  /api/admin/topics/{id}/items/{item}      {text,level}
 //	DELETE /api/admin/topics/{id}/items/{item}
 //	PUT    /api/admin/topics/{id}/item-order        {kind,ids}
+//	POST   /api/admin/topics/{id}/sections                  {id,kind,eyebrow,title,lead,source,variant,at}
+//	PATCH  /api/admin/topics/{id}/sections/{section}        {eyebrow,title,lead,source,variant}
+//	DELETE /api/admin/topics/{id}/sections/{section}
+//	PUT    /api/admin/topics/{id}/section-order             {ids}
+//	POST   /api/admin/topics/{id}/blocks                    {section,parent,title,text,note,ref,variant,label,at}
+//	PATCH  /api/admin/topics/{id}/blocks/{block}            {title,text,note,ref,variant,label}
+//	DELETE /api/admin/topics/{id}/blocks/{block}
+//	PUT    /api/admin/topics/{id}/block-order               {section,parent,ids}
+//
+// 公開讀取:GET /api/topics/{id}/page
 //
 // 成功都回主題清單裡的那一個主題(含 items)或整份清單。
 
@@ -96,5 +106,82 @@ func (s *Server) handleAdminTopicItemOrder(w http.ResponseWriter, r *http.Reques
 	}
 	if decodeTopicBody(w, r, &in) {
 		s.writeTopicResult(w, r, r.PathValue("id"), s.cfg.Store.OrderTopicItems(r.Context(), user.Email, r.PathValue("id"), in.Kind, in.IDs))
+	}
+}
+
+// handleTopicPage 回傳一個主題頁的區塊(公開、不用登入)。
+func (s *Server) handleTopicPage(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.Store == nil {
+		writeError(w, http.StatusServiceUnavailable, "no_store", "課程資料庫尚未設定")
+		return
+	}
+	sections, err := s.cfg.Store.TopicPage(r.Context(), r.PathValue("id"))
+	if err != nil {
+		writeCourseDataError(w, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "public, max-age=60")
+	writeJSON(w, http.StatusOK, map[string]any{"sections": sections})
+}
+
+func (s *Server) handleAdminSectionAdd(w http.ResponseWriter, r *http.Request, user store.User) {
+	var in struct {
+		ID, Kind, Eyebrow, Title, Lead, Source, Variant string
+		At                                              int
+	}
+	if decodeTopicBody(w, r, &in) {
+		sec := store.PageSection{ID: in.ID, Kind: in.Kind, Eyebrow: in.Eyebrow, Title: in.Title, Lead: in.Lead, Source: in.Source, Variant: in.Variant}
+		s.writeTopicResult(w, r, r.PathValue("id"), s.cfg.Store.AddPageSection(r.Context(), user.Email, r.PathValue("id"), sec, in.At))
+	}
+}
+
+func (s *Server) handleAdminSectionSet(w http.ResponseWriter, r *http.Request, user store.User) {
+	var in store.PageSectionPatch
+	if decodeTopicBody(w, r, &in) {
+		s.writeTopicResult(w, r, r.PathValue("id"), s.cfg.Store.SetPageSection(r.Context(), user.Email, r.PathValue("id"), r.PathValue("section"), in))
+	}
+}
+
+func (s *Server) handleAdminSectionDelete(w http.ResponseWriter, r *http.Request, user store.User) {
+	s.writeTopicResult(w, r, r.PathValue("id"), s.cfg.Store.DeletePageSection(r.Context(), user.Email, r.PathValue("id"), r.PathValue("section")))
+}
+
+func (s *Server) handleAdminSectionOrder(w http.ResponseWriter, r *http.Request, user store.User) {
+	var in struct{ IDs []string }
+	if decodeTopicBody(w, r, &in) {
+		s.writeTopicResult(w, r, r.PathValue("id"), s.cfg.Store.OrderPageSections(r.Context(), user.Email, r.PathValue("id"), in.IDs))
+	}
+}
+
+func (s *Server) handleAdminBlockAdd(w http.ResponseWriter, r *http.Request, user store.User) {
+	var in struct {
+		Section, Parent, Title, Text, Note, Ref, Variant, Label string
+		At                                                      int
+	}
+	if decodeTopicBody(w, r, &in) {
+		b := store.PageBlock{Title: in.Title, Text: in.Text, Note: in.Note, Ref: in.Ref, Variant: in.Variant, Label: in.Label}
+		_, err := s.cfg.Store.AddPageBlock(r.Context(), user.Email, r.PathValue("id"), in.Section, in.Parent, b, in.At)
+		s.writeTopicResult(w, r, r.PathValue("id"), err)
+	}
+}
+
+func (s *Server) handleAdminBlockSet(w http.ResponseWriter, r *http.Request, user store.User) {
+	var in store.PageBlockPatch
+	if decodeTopicBody(w, r, &in) {
+		s.writeTopicResult(w, r, r.PathValue("id"), s.cfg.Store.SetPageBlock(r.Context(), user.Email, r.PathValue("id"), r.PathValue("block"), in))
+	}
+}
+
+func (s *Server) handleAdminBlockDelete(w http.ResponseWriter, r *http.Request, user store.User) {
+	s.writeTopicResult(w, r, r.PathValue("id"), s.cfg.Store.DeletePageBlock(r.Context(), user.Email, r.PathValue("id"), r.PathValue("block")))
+}
+
+func (s *Server) handleAdminBlockOrder(w http.ResponseWriter, r *http.Request, user store.User) {
+	var in struct {
+		Section, Parent string
+		IDs             []string
+	}
+	if decodeTopicBody(w, r, &in) {
+		s.writeTopicResult(w, r, r.PathValue("id"), s.cfg.Store.OrderPageBlocks(r.Context(), user.Email, r.PathValue("id"), in.Section, in.Parent, in.IDs))
 	}
 }
