@@ -19,10 +19,25 @@
 }
 .A-then-now *, .A-then-now *::before, .A-then-now *::after { box-sizing: border-box; }
 .A-then-now .tn-num { font-variant-numeric: tabular-nums; }
+/* 靜態互動(一般網頁):內容照自己的高度往下排,放不下就捲動,不塞進固定的畫框 */
+[data-pressable] .A-then-now { overflow-y: auto; overscroll-behavior: contain; }
+[data-pressable] .A-then-now .tn-frame { height: auto; min-height: 100%; overflow: visible; }
+[data-pressable] .A-then-now .tn-body { flex: none; grid-template-rows: auto auto; }
+[data-pressable] .A-then-now .tn-work,
+[data-pressable] .A-then-now .tn-view { overflow: visible; }
+
+/* 自己處理點擊時畫成按鈕:先清掉瀏覽器預設樣式(:where 讓下面各自的樣式蓋得過),再給演員自己的滑過與按下樣式 */
+.A-then-now :where(button) { appearance: none; margin: 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; }
+.A-then-now button { cursor: pointer; touch-action: manipulation; }
+.A-then-now button:hover { filter: brightness(0.96); }
+.A-then-now button:active { transform: translateY(1px); }
+.A-then-now button:focus-visible { outline: 2px solid var(--tn-accent); outline-offset: -2px; }
+.A-then-now button.tn-line { width: 100%; }
+.A-then-now button.tn-line:hover { background: var(--tn-soft); filter: none; }
 .A-then-now .tn-frame {
   position: relative; height: 100%;
-  /* 字級跟著演員的寬度:主舞台(1600 寬)28px、桌機的靜態互動約 20px、手機不小於 15px */
-  font-size: clamp(15px, 2.5cqw, 28px);
+  /* 主舞台(畫布 1920 寬、整張縮小)字級跟著演員的寬度,1600 寬是 28px;靜態互動不縮放,用 --actor-font(一般網頁的字級) */
+  font-size: var(--actor-font, clamp(15px, 2.5cqw, 28px));
   display: flex; flex-direction: column;
   background: var(--tn-bg);
   border: 1px solid var(--tn-line); border-radius: 0.8em;
@@ -34,6 +49,7 @@
 .A-then-now .tn-tabs { display: flex; gap: 0.2em; padding: 0.2em; border-radius: 999px; background: #f0ede4; }
 .A-then-now .tn-tab { padding: 0.3em 0.9em; border-radius: 999px; font-size: 0.8em; color: var(--tn-mute); white-space: nowrap; }
 .A-then-now .tn-frame[data-mode="then"] .tn-tab[data-m="then"],
+.A-then-now .tn-frame[data-mode="frame"] .tn-tab[data-m="frame"],
 .A-then-now .tn-frame[data-mode="now"] .tn-tab[data-m="now"] { background: var(--tn-card); color: var(--tn-ink); font-weight: 600; box-shadow: 0 1px 2px rgb(0 0 0 / 8%); }
 .A-then-now .tn-frame[data-mode="now"] .tn-tab[data-m="now"] { color: var(--tn-accent-ink); }
 .A-then-now .tn-meter { display: flex; gap: 1em; font-size: 0.8em; color: var(--tn-mute); white-space: nowrap; }
@@ -95,6 +111,155 @@
 .A-then-now .tn-prompt { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.6em; padding: 0.9em 1em; }
 .A-then-now .tn-asks { display: flex; flex-direction: column; gap: 0.5em; }
 .A-then-now .tn-ask { display: flex; align-items: center; min-height: max(44px, 2.7em); padding: 0.35em 0.9em; border: 1px solid #d5d0c4; border-radius: 0.6em; background: var(--tn-card); font-size: 0.9em; line-height: 1.35; }
+.A-then-now .tn-compose { display: flex; align-items: flex-end; gap: 0.5em; }
+.A-then-now .tn-input { flex: 1; min-width: 0; min-height: max(44px, 2.7em); padding: 0.6em 0.9em; border: 2px solid var(--tn-accent); border-radius: 0.6em; background: var(--tn-card); font-size: 1em; line-height: 1.5; }
+.A-then-now .tn-caret { display: inline-block; width: 2px; height: 1.1em; margin-left: 1px; vertical-align: -0.18em; background: var(--tn-ink); }
+.A-then-now .tn-send { display: flex; align-items: center; justify-content: center; min-height: max(44px, 2.7em); padding: 0 1.1em; border-radius: 0.6em; background: var(--tn-accent); color: #fff; font-weight: 600; white-space: nowrap; }
+.A-then-now .tn-send.pressed { background: var(--tn-accent-ink); transform: scale(0.94); }
+/* 自己寫版:整頁剛好放進畫面、不捲動;只有下面的工作區(程式、對話)自己捲,畫面上只會有一層捲軸 */
+.A-then-now .tn-frame[data-task="write"] .tn-source { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.A-then-now .tn-frame[data-task="write"] .tn-prompt { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+/* AI Agent:對話在上面自己捲,輸入框固定在最下面 */
+.A-then-now .tn-chat { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.5em; overflow-y: auto; scrollbar-width: thin; }
+.A-then-now .tn-chat > * { flex: none; }
+.A-then-now .tn-prompt > .tn-compose { flex: none; padding-top: 0.6em; }
+.A-then-now .tn-placeholder { color: #b5b0a4; }
+[data-pressable] .A-then-now .tn-frame[data-task="write"] { height: 100%; min-height: 0; overflow: hidden; }
+[data-pressable] .A-then-now:has(.tn-frame[data-task="write"]) { overflow: hidden; }
+[data-pressable] .A-then-now .tn-frame[data-task="write"] .tn-body { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr); }
+[data-pressable] .A-then-now .tn-frame[data-task="write"] .tn-work,
+[data-pressable] .A-then-now .tn-frame[data-task="write"] .tn-view { min-height: 0; overflow: hidden; }
+/* 上下排:預覽照內容高度(最多一半多一點),工作區拿剩下的 */
+@container tn (max-aspect-ratio: 11/10) or (max-width: 640px) {
+  [data-pressable] .A-then-now .tn-frame[data-task="write"] .tn-body { grid-template-rows: fit-content(55%) minmax(0, 1fr); }
+}
+.A-then-now .tn-src { display: grid; grid-template-columns: 2.6em minmax(0, 1fr); }
+.A-then-now .tn-src code { font: inherit; white-space: pre-wrap; word-break: break-all; }
+/* 下面的工作進度與計數:捲動時停在底部 */
+.A-then-now .tn-foot { display: flex; flex-direction: column; gap: 0.45em; margin-top: auto; padding: 0.6em 1em; border-top: 1px solid var(--tn-line); background: var(--tn-bg); position: sticky; bottom: 0; z-index: 2; }
+.A-then-now .tn-foot[hidden] { display: none; }
+.A-then-now .tn-foot .tn-meter { justify-content: flex-end; }
+.A-then-now .tn-head[hidden] { display: none; }
+.A-then-now .tn-progress { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0.4em; margin: 0; padding: 0; list-style: none; }
+.A-then-now .tn-progress li { display: flex; align-items: center; gap: 0.4em; padding-top: 0.4em; border-top: 3px solid var(--tn-line); font-size: 0.75em; line-height: 1.3; color: var(--tn-mute); }
+.A-then-now .tn-progress li[data-s="done"] { border-color: var(--tn-accent); color: var(--tn-ink); }
+.A-then-now .tn-progress li[data-s="now"] { border-color: var(--tn-soft); color: var(--tn-ink); font-weight: 600; }
+/* 正在進行的階段:整塊上色、加框、放大,底色從左填到右表示做到哪 */
+.A-then-now .tn-progress { align-items: stretch; }
+.A-then-now .tn-doing { display: none; }
+/* 每一格都是同樣的框(含已完成與還沒做);只有進行中的有顏色和填滿進度。大小固定,換階段時版面不跳 */
+.A-then-now .tn-frame[data-task="write"] .tn-progress li { box-sizing: border-box; min-height: 2.6em; padding: 0.35em 0.6em; border: 2px solid var(--tn-line); border-radius: 0.6em; font-size: 0.9em; }
+.A-then-now .tn-frame[data-task="write"] .tn-progress li .tn-step { width: 100%; }
+.A-then-now .tn-frame[data-task="write"] .tn-progress li[data-s="now"][data-run="1"] {
+  padding: 0.35em 0.6em; border: 2px solid var(--tn-accent); border-radius: 0.6em; font-size: 0.9em; font-weight: 700; color: #7a2f17;
+  background: linear-gradient(90deg, rgb(217 119 87 / 38%) calc(var(--p, 0) * 100%), rgb(217 119 87 / 10%) calc(var(--p, 0) * 100%));
+  box-shadow: 0 0 0 3px rgb(217 119 87 / 22%), 0 4px 14px rgb(217 119 87 / 35%);
+}
+.A-then-now .tn-progress li[data-run="1"] .tn-dot { background: var(--tn-accent); color: #fff; }
+.A-then-now .tn-progress li[data-run="1"] .tn-doing { display: inline; margin-left: auto; padding: 0 0.55em; border-radius: 999px; background: var(--tn-accent); color: #fff; font-size: 0.75em; white-space: nowrap; }
+.A-then-now .tn-dot { flex: none; display: grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 50%; background: #f0ede4; font-size: 0.9em; }
+.A-then-now .tn-dot svg { width: 1em; height: 1em; }
+.A-then-now li[data-s="done"] .tn-dot { background: var(--tn-accent); color: #fff; }
+/* 對照表:有框架那一欄時三欄 */
+.A-then-now .tn-tally:has(> .tn-col:nth-child(3)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* 測試清單:一項一項跑,通過綠、失敗紅 */
+.A-then-now .tn-testing { flex: 1; min-height: 0; overflow-y: auto; padding: 0.7em 1em; scrollbar-width: thin; }
+.A-then-now .tn-testing.tn-agent { flex: none; overflow: visible; padding: 0; margin-top: 0.6em; }
+.A-then-now .tn-how { margin: 0 0 0.4em; font-size: 0.8em; color: var(--tn-mute); }
+.A-then-now .tn-run { display: flex; flex-direction: column; gap: 0.3em; margin: 0; padding: 0; list-style: none; font-size: 0.9em; }
+.A-then-now .tn-run li { display: flex; gap: 0.6em; padding: 0.35em 0.7em; border-radius: 0.5em; background: #f6f4ee; color: var(--tn-mute); }
+.A-then-now .tn-run li b { flex: none; width: 1em; text-align: center; }
+.A-then-now .tn-run li[data-s="pass"] { background: #eaf5ea; color: #276535; }
+.A-then-now .tn-run li[data-s="fail"] { background: #fdecea; color: #a12a1c; font-weight: 600; }
+.A-then-now .tn-run li[data-s="run"] { color: var(--tn-ink); }
+.A-then-now .tn-run em { display: block; font-style: normal; font-weight: 400; font-size: 0.85em; }
+.A-then-now .tn-sum { margin: 0.5em 0 0; font-weight: 600; color: #276535; font-size: 0.9em; }
+.A-then-now .tn-sum[data-ok="0"] { color: #a12a1c; }
+.A-then-now .tn-fixing { margin: 0.5em 0 0; font-size: 0.9em; font-weight: 600; color: var(--tn-accent-ink); }
+.A-then-now .tn-fixing { display: flex; align-items: center; gap: 0.4em; }
+.A-then-now .tn-fixing.done { color: #276535; }
+.A-then-now .tn-ai-icon { flex: none; width: 1.15em; height: 1em; fill: #7c3aed; }
+.A-then-now .tn-note[data-tone="bad"] { color: #a12a1c; }
+/* 下方進度可以點:回到那個階段重新演 */
+.A-then-now button.tn-step { display: flex; align-items: center; gap: 0.4em; width: 100%; text-align: left; }
+.A-then-now .tn-progress li .tn-step { display: flex; align-items: center; gap: 0.4em; }
+.A-then-now button.tn-step:hover .tn-dot { box-shadow: 0 0 0 2px var(--tn-accent); }
+/* 右邊的網頁(工作坊報名站):自己的配色,像一個真的網站 */
+.A-then-now .tn-frame[data-task="write"] .tn-page { flex: 1; min-height: 0; display: block; padding: 0; overflow: hidden; background: #fbf8f3; }
+.A-then-now .ws { display: flex; flex-direction: column; gap: 0.55em; min-height: 100%; padding-bottom: 0.7em; text-align: left; color: #2b2622; }
+.A-then-now .ws-empty { align-items: center; justify-content: center; height: 100%; color: #b5b0a4; font-size: 0.9em; }
+.A-then-now .ws p, .A-then-now .ws ul { margin: 0; padding: 0; list-style: none; }
+.A-then-now .ws-hero { padding: 0.7em 0.9em 0.75em; background: linear-gradient(135deg, #2f4b3c, #5d7c55 60%, #c98a52); color: #fff; }
+.A-then-now .ws-kicker { font-size: 0.62em; letter-spacing: 0.18em; opacity: 0.8; }
+.A-then-now .ws-title { font-size: 1.15em; font-weight: 700; line-height: 1.3; }
+.A-then-now .ws-sub { font-size: 0.72em; opacity: 0.85; }
+.A-then-now .ws-list { display: flex; flex-direction: column; gap: 0.35em; }
+.A-then-now .ws-list, .A-then-now .ws-form, .A-then-now .ws-people, .A-then-now .ws-chart { margin: 0 0.7em !important; }
+.A-then-now .ws-card { display: flex; align-items: center; gap: 0.55em; padding: 0.4em 0.6em; border-radius: 0.6em; background: #fff; box-shadow: 0 1px 3px rgb(43 38 34 / 10%); }
+.A-then-now .ws-card.closed { opacity: 0.7; }
+.A-then-now .ws-icon { display: grid; place-items: center; flex: none; width: 2em; height: 2em; border-radius: 0.5em; background: #f3ede2; font-size: 0.95em; }
+.A-then-now .ws-info { flex: 1; min-width: 0; display: grid; grid-template-columns: auto 1fr; align-items: baseline; column-gap: 0.5em; line-height: 1.3; }
+.A-then-now .ws-info b { font-size: 0.82em; }
+.A-then-now .ws-info small { font-size: 0.65em; color: #8a8278; }
+.A-then-now .ws-meter { grid-column: 1 / -1; display: block; height: 0.25em; margin-top: 0.25em; border-radius: 999px; background: #eee7da; overflow: hidden; }
+.A-then-now .ws-meter i { display: block; height: 100%; background: #5d7c55; }
+.A-then-now .ws-badge { flex: none; padding: 0.1em 0.55em; border-radius: 999px; background: #e8f1e4; color: #3d6a34; font-size: 0.68em; font-weight: 600; white-space: nowrap; }
+.A-then-now .ws-badge.few { background: #fdf0dc; color: #96601a; }
+.A-then-now .ws-badge.none { background: #eee9e2; color: #6f675d; }
+.A-then-now .ws-badge.full { background: #c4492f; color: #fff; }
+.A-then-now .ws-form { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35em; padding: 0.55em; border-radius: 0.6em; background: #fff; box-shadow: 0 1px 3px rgb(43 38 34 / 10%); font-size: 0.75em; }
+.A-then-now .ws-field { display: flex; justify-content: space-between; padding: 0.3em 0.6em; border: 1px solid #e2dacb; border-radius: 0.45em; color: #8a8278; }
+.A-then-now .ws-field em { font-style: normal; }
+.A-then-now .ws-submit { display: grid; place-items: center; border-radius: 0.45em; background: #2f4b3c; color: #fff; font-weight: 600; }
+.A-then-now .ws-field.wide { grid-column: auto; color: #2b2622; }
+.A-then-now .ws-people { padding: 0.45em 0.6em; border-radius: 0.6em; background: #fff; box-shadow: 0 1px 3px rgb(43 38 34 / 10%); font-size: 0.75em; }
+.A-then-now .ws-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6em; margin-bottom: 0.25em; }
+.A-then-now .ws-people li { display: flex; align-items: center; gap: 0.5em; padding: 0.15em 0; }
+.A-then-now .ws-people li small { margin-left: auto; color: #8a8278; }
+.A-then-now .ws-avatar { display: grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 50%; background: #eadfcd; font-size: 0.85em; font-weight: 700; color: #6b5738; }
+.A-then-now .ws-search { margin-bottom: 0.25em; padding: 0.25em 0.6em; border: 2px solid #c98a52; border-radius: 999px; }
+.A-then-now .ws-export { padding: 0.15em 0.7em; border-radius: 999px; background: #2f4b3c; color: #fff; font-weight: 600; }
+.A-then-now .ws-chart { display: flex; flex-direction: column; gap: 0.45em; padding: 0.6em 0.7em; border-radius: 0.6em; background: #fff; box-shadow: 0 1px 3px rgb(43 38 34 / 10%); font-size: 0.75em; }
+.A-then-now .ws-chart p { font-weight: 700; }
+.A-then-now .ws-chart > div { display: grid; grid-template-columns: 6.5em minmax(0, 1fr) 1.8em; align-items: center; gap: 0.5em; }
+.A-then-now .ws-chart > div > i { display: block; height: 0.8em; border-radius: 999px; background: #eee7da; overflow: hidden; }
+.A-then-now .ws-chart > div > i > i { display: block; height: 100%; background: linear-gradient(90deg, #5d7c55, #c98a52); }
+.A-then-now .ws-chart b { text-align: right; }
+/* 畫面測試:框住正在測的地方,游標移過去點,通過綠框、失敗紅框 */
+.A-then-now .tn-view { position: relative; }
+.A-then-now .tn-probe { position: absolute; z-index: 3; box-sizing: border-box; border: 2px dashed #4f6bed; border-radius: 0.5em; background: rgb(79 107 237 / 10%); pointer-events: none; }
+.A-then-now .tn-probe[hidden] { display: none; }
+.A-then-now .tn-probe[data-s="pass"] { border: 3px solid #2f8a45; background: rgb(47 138 69 / 12%); }
+.A-then-now .tn-probe[data-s="fail"] { border: 3px solid #c4372a; background: rgb(196 55 42 / 14%); }
+.A-then-now .tn-pointer { position: absolute; left: 62%; top: 50%; width: 1.4em; height: 1.6em; }
+.A-then-now .tn-arrow { position: absolute; inset: 0; background: #1f1e1b; clip-path: polygon(0 0, 0 82%, 24% 63%, 42% 100%, 58% 92%, 40% 57%, 72% 57%); filter: drop-shadow(0 0 2px #fff); }
+.A-then-now .tn-pointer em, .A-then-now .tn-ring { display: none; }
+/* 自動腳本(框架):沒有游標,只用框線指出測到哪裡,瞬間跳到下一個 */
+.A-then-now .tn-probe[data-who="script"] { border-width: 3px; border-radius: 0.25em; background: none; }
+.A-then-now .tn-probe[data-who="script"] .tn-pointer,
+.A-then-now .tn-probe[data-who="script"] .tn-verdict { display: none; }
+/* AI Agent 的游標:發光、點下去有光圈、掛名牌 */
+.A-then-now .tn-probe[data-who="agent"] .tn-pointer { width: 1.7em; height: 1.95em; filter: drop-shadow(0 0 4px #8b5cf6) drop-shadow(0 0 10px #8b5cf6) drop-shadow(0 0 16px rgb(56 189 248 / 80%)); }
+.A-then-now .tn-probe[data-who="agent"] .tn-arrow { background: linear-gradient(150deg, #a78bfa, #6d28d9 55%, #2563eb); filter: none; }
+.A-then-now .tn-probe[data-who="agent"] .tn-pointer em { display: block; position: absolute; left: 1.4em; top: 1.5em; padding: 0.05em 0.55em; border-radius: 999px; background: #6d28d9; color: #fff; font-style: normal; font-size: 0.7em; font-weight: 700; white-space: nowrap; }
+.A-then-now .tn-probe[data-who="agent"] .tn-ring { display: block; position: absolute; left: -0.9em; top: -0.9em; width: 1.8em; height: 1.8em; border: 3px solid #8b5cf6; border-radius: 50%; }
+.A-then-now .tn-verdict { position: absolute; right: -0.5em; top: -0.7em; display: grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 50%; color: #fff; font-weight: 700; }
+.A-then-now .tn-probe[data-s="pass"] .tn-verdict { background: #2f8a45; }
+.A-then-now .tn-probe[data-s="fail"] .tn-verdict { background: #c4372a; }
+.A-then-now .tn-run li[data-s="skip"] { opacity: 0.55; }
+/* 修改程式:舊行紅底劃掉,新行綠底 */
+.A-then-now .tn-diff { display: grid; grid-template-columns: 1.4em minmax(0, 1fr); padding: 0.1em 0.4em; font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82em; }
+.A-then-now .tn-diff code { font: inherit; white-space: pre-wrap; word-break: break-all; }
+.A-then-now .tn-diff.del { background: #fdecea; color: #a12a1c; }
+.A-then-now .tn-diff.del code { text-decoration: line-through; }
+.A-then-now .tn-diff.add { background: #eaf5ea; color: #276535; font-weight: 600; }
+/* Agent 對話紀錄:步驟標題後面接自己的輸出 */
+.A-then-now .tn-logstep { display: flex; align-items: center; gap: 0.6em; margin: 0; font-size: 0.9em; font-weight: 600; }
+.A-then-now .tn-log .tn-flag { width: 1.3em; height: 1.3em; flex: none; border: 2px solid var(--tn-line); border-radius: 50%; }
+.A-then-now .tn-log[data-on="1"] .tn-flag { border-color: var(--tn-accent); background: var(--tn-accent); color: #fff; }
+.A-then-now .tn-out { margin: 0.25em 0 0 2.1em; font-size: 0.82em; color: var(--tn-mute); }
+.A-then-now .tn-log .tn-testing.tn-agent, .A-then-now .tn-log .tn-fixing { margin-left: 2.1em; }
+.A-then-now .tn-blank { margin: 0; font-size: 0.9em; color: #b5b0a4; }
 .A-then-now .tn-said { align-self: flex-end; max-width: 92%; min-height: 2.5em; padding: 0.55em 0.9em; border-radius: 0.9em 0.9em 0.2em 0.9em; background: var(--tn-ink); color: #fff; font-size: 0.92em; }
 .A-then-now .tn-ai { display: flex; flex-direction: column; gap: 0.45em; margin: 0.4em 0 0; padding: 0; list-style: none; font-size: 0.88em; }
 .A-then-now .tn-ai li { display: flex; align-items: center; gap: 0.6em; color: var(--tn-mute); }
@@ -135,13 +300,13 @@
 .A-then-now .tn-steps i { padding: 0.15em 0.65em; border-radius: 999px; background: #f0ede4; font-size: 0.72em; font-style: normal; }
 .A-then-now .tn-col.now .tn-steps i { background: var(--tn-soft); color: var(--tn-accent-ink); }
 
-/* 窄或直的時候:預覽在上、工作區在下;上緣只留目前這一邊的標籤 */
+/* 窄或直的時候:預覽在上、工作區在下;上緣兩個標籤都留著 */
 @container tn (max-aspect-ratio: 11/10) or (max-width: 640px) {
-  /* 上下排時字大一點:直式舞台(1000 寬)縮到手機上才看得清楚;手機的靜態互動維持 15px */
-  .A-then-now .tn-frame { font-size: clamp(15px, 3.8cqw, 38px); }
-  .A-then-now .tn-head { padding: 0.5em 0.7em; }
-  .A-then-now .tn-frame[data-mode="then"] .tn-tab[data-m="now"],
-  .A-then-now .tn-frame[data-mode="now"] .tn-tab[data-m="then"] { display: none; }
+  /* 上下排時字大一點:直式舞台(1000 寬)縮到手機上才看得清楚;靜態互動一樣用 --actor-font */
+  .A-then-now .tn-frame { font-size: var(--actor-font, clamp(15px, 3.8cqw, 38px)); }
+  /* 兩個分頁都留著(可以來回點);放不下時計數換到下一行 */
+  .A-then-now .tn-head { padding: 0.5em 0.7em; flex-wrap: wrap; gap: 0.4em; }
+  .A-then-now .tn-tab { padding: 0.3em 0.7em; }
   .A-then-now .tn-meter { gap: 0.7em; }
   .A-then-now .tn-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 0.6em; padding: 0.6em; }
   .A-then-now .tn-view { order: -1; }

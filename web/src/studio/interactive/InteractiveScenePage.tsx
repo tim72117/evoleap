@@ -7,6 +7,7 @@ import { loadMix, loadScript, loadVoice, type ScriptMix, type ScriptVoice } from
 import { ScriptError } from '../../live/ScriptError'
 import { mountShell, type ProgressStore, type Shell } from '../../live/shell'
 import { homeShowcaseKey, useGuestView } from '../../courses/guestActivity'
+import { ACTORS } from '../../live/actors'
 import { createStage, type Stage, type StageChapter, type StageScript } from '../../live/stage'
 import '../../live/shell.css'
 import { useCopy } from '../../site/useCopy'
@@ -29,9 +30,13 @@ const EMBED_LEAD_MS = 15000
 
 /** 目前時間與互動點相差多少毫秒內,算是停在互動點上 */
 const AT_MOMENT_MS = 50
+/** 停在互動段尾端之前多少毫秒暫停(播放位置每 200ms 回報一次,要大於它) */
+const HOLD_LEAD_MS = 350
+/** 第一個互動點在這之內,就是「一開場就互動」的腳本 */
+const OPENING_MOMENT_MS = 1500
 
 type Tab = 'steps' | 'interact'
-type Timeline = { chapters: StageChapter[]; momentAt: Record<string, number>; /** 腳本載好、時間軸排好了 */ loaded?: boolean }
+type Timeline = { chapters: StageChapter[]; momentAt: Record<string, number>; /** 互動點那一步的尾端 */ momentEnd: Record<string, number>; /** 腳本載好、時間軸排好了 */ loaded?: boolean }
 type Controller = {
   shell: Shell
   /** 依回答重新載入舞台,回傳各互動點的時間 */
@@ -152,6 +157,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const boxRef = useRef<HTMLDivElement>(null)
   const momentHeadRef = useRef<HTMLHeadingElement>(null)
   const embedMomentRef = useRef<HTMLDivElement>(null)
+  /** 每個互動點那一步的尾端(載入時就要用,不等 state) */
+  const endRef = useRef<Record<string, number>>({})
   const ctrl = useRef<Controller | null>(null)
   // 正式課程頁:訪客打開這一課與播放的時間要記下來(研發頁的試做、首頁的展示不記)
   const guest = useGuestView(embed ? (track === 'home' ? homeShowcaseKey(`live:${scriptPath}`) : null) : course ? `live:${scriptPath}` : null, () => ctrl.current?.shell.playing ?? false)
@@ -160,6 +167,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const [timeline, setTimeline] = useState<Timeline>({
     chapters: [],
     momentAt: {},
+    momentEnd: {},
   })
   const [answers, setAnswers] = useState<Answers>({})
   const [now, setNow] = useState({ t: 0, playing: false })
@@ -220,7 +228,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         const stopped = list.find((m) => m.title === stop.title)
         if (!stopped) return false
         // 靜態互動的題目也放在導覽(側欄);首頁嵌入沒有側欄,題目留在演員旁邊
-        if (interaction !== 'stage' && !drawer && !(embed && interaction === 'static' && answersOnActor(stopped))) {
+        // 一開場就是互動時不自動打開側欄,先讓學員看到完整的操作畫面
+        if (interaction !== 'stage' && !drawer && stop.at > OPENING_MOMENT_MS && !(embed && interaction === 'static' && answersOnActor(stopped))) {
           setPanelOpen(true)
           setTab('interact')
         }
@@ -314,7 +323,15 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         // 有語音的旁白才播(合成過章節音軌的用章節音軌);學員選其他選項時新寫的旁白還沒有語音,只顯示字幕,回到主線的旁白接著用原本的語音
         clips: narrationClips(stage.narrations, voice, mix),
       })
-      if (!cancelled) setTimeline({ chapters: stage.chapters, momentAt, loaded: true })
+      // 互動段的尾端 = 下一個有旁白(或下一個互動點)的步驟開始:互動點的旁白會一直講到那裡,中間沒旁白的步驟(收起演員等)不算新的一段
+      const momentEnd: Record<string, number> = {}
+      for (const id of Object.keys(momentAt)) {
+        const i = stage.steps.findIndex((x) => (x.step as { id?: string }).id === id)
+        const after = i >= 0 ? stage.steps.slice(i + 1).find((x) => 'narration' in x.step || x.kind === 'checkpoint') : undefined
+        momentEnd[id] = after?.start ?? stage.duration
+      }
+      endRef.current = momentEnd
+      if (!cancelled) setTimeline({ chapters: stage.chapters, momentAt, momentEnd, loaded: true })
       return momentAt
     }
     ctrl.current = { shell, sync }
@@ -336,9 +353,15 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         const at = await sync(answersRef.current)
         if (!cancelled) guest.ready()
         if (embed && list[0]) carry.current = Math.max(0, (at[list[0].id] ?? 0) - EMBED_LEAD_MS)
+        // 當一般網頁操作的互動(page 演員)小播放器裝不下:嵌入時只播影片,從它後面開始
+        const first = list[0]
+        if (embed && first && ACTORS[data.cast[first.stage?.focus?.split(':')[0] ?? '']?.actor]?.page) carry.current = endRef.current[first.id] ?? 0
         if (carry.current > 0) {
           shell.seek(carry.current)
           setNow({ t: carry.current, playing: false })
+        } else if (!embed && list[0]?.live && (at[list[0].id] ?? Infinity) <= OPENING_MOMENT_MS) {
+          // live 的互動點要在播放中才出現;開頭就是互動點時直接開始播,學員打開就能操作
+          shell.play()
         }
       })
       .catch((e: unknown) => {
@@ -372,13 +395,40 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     setPanelOpen(false)
   }, [drawer])
 
+  // 邊播邊互動(live)的互動點要播到才出現;出現之後暫停(按暫停、切到別的分頁)也留著,不退回影片被中央播放鍵擋住
+  const liveShown = useRef<string | undefined>(undefined)
+  /** 演員當一般網頁操作(page)的 live 互動點:只在它自己那一段顯示,走到段尾停下來等學員;之後回傳段尾,其他回傳 undefined */
+  const holdAt = (m: Moment): number | undefined => {
+    const actor = m.stage?.focus?.split(':')[0]
+    return m.live && actor && loaded && ACTORS[loaded.cast[actor]?.actor]?.page ? timeline.momentEnd[m.id] : undefined
+  }
   const current = moments.find((m) => {
+    if (embed && holdAt(m) != null) return false
     const at = timeline.momentAt[m.id]
-    return at != null && !answers[m.id] && (m.live ? now.playing && now.t >= at : !now.playing && Math.abs(now.t - at) <= AT_MOMENT_MS)
+    const end = holdAt(m)
+    // 開場就是互動:一打開就顯示,不等播放開始(瀏覽器擋自動播放、在背景分頁打開時也一樣)
+    if (at != null && !answers[m.id] && end != null && at <= OPENING_MOMENT_MS && now.t < end) return true
+    return at != null && !answers[m.id] && (m.live ? now.t >= at && (end == null || now.t < end) && (now.playing || liveShown.current === m.id) : !now.playing && Math.abs(now.t - at) <= AT_MOMENT_MS)
   })
+  liveShown.current = current?.live ? current.id : undefined
+
+  // 走到這一段的尾端就停住(每次走到只停一次;學員再按播放就往下看影片)
+  const heldRef = useRef<string | undefined>(undefined)
+  const holdEnd = current ? holdAt(current) : undefined
+  useEffect(() => {
+    if (!current || holdEnd == null) {
+      heldRef.current = undefined
+      return
+    }
+    if (now.playing && now.t >= holdEnd - HOLD_LEAD_MS && heldRef.current !== current.id) {
+      heldRef.current = current.id
+      ctrl.current?.shell.pause()
+    }
+  }, [current, holdEnd, now.t, now.playing])
 
   // 抽屜:停在新的互動點時自動展開;回答後收合(回應由演員在舞台上演出,不要被抽屜擋住)。在靜態演員身上回答時抽屜裡沒有題目,不展開,才不會擋住演員
-  const drawerMoment = interaction === 'static' && current && answersOnActor(current) ? undefined : current?.id
+  const opening = !!current && (timeline.momentAt[current.id] ?? Infinity) <= OPENING_MOMENT_MS
+  const drawerMoment = opening || (interaction === 'static' && current && answersOnActor(current)) ? undefined : current?.id
   const prevMoment = useRef<string | undefined>(undefined)
   useEffect(() => {
     // 先記下上一個互動點再更新:setState 的函式晚一點才執行,那時 prevMoment 已經換成這一個了
@@ -451,7 +501,9 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       .then((at) => {
         c.shell.pause()
         c.shell.seek(at[moment.id])
-        setNow({ t: at[moment.id], playing: false })
+        // live 的互動點要在播放中才出現
+        if (moment.live) c.shell.play()
+        setNow({ t: at[moment.id], playing: !!moment.live })
       })
       .catch((e: unknown) => setError(String(e instanceof Error ? e.message : e)))
   }
@@ -471,6 +523,8 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     if (!c) return
     if (!answers[m.id]) c.shell.pause()
     seekTo(timeline.momentAt[m.id])
+    // live 的互動點要在播放中才出現,停在那裡只會看到蓋著播放鍵的影片
+    if (m.live && !answers[m.id]) c.shell.play()
     if (interaction !== 'stage' && !(embed && interaction === 'static' && answersOnActor(m))) setTab('interact')
   }
 

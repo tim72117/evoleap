@@ -55,6 +55,7 @@ import { ACTORS } from './actors'
 import { castActorNames, ensureActors } from './actors/lazy'
 import { movesOf, placeOf, stageSize } from './place'
 import type {
+  ActorControl,
   ActorEvent,
   Aspect,
   ActorInstance,
@@ -90,6 +91,14 @@ export interface Stage {
   setParts(id: string, parts: Record<string, boolean>): void
   /** 「演員代號:目標」目前對應的元素(畫面上疊加互動控制項時用);找不到回傳 null */
   element(ref: string): HTMLElement | null
+  /** 這位演員是不是自己處理點擊(實例有 press) */
+  pressable(id: string): boolean
+  /** 學員點了這位演員的目標:依目前狀態要演的步驟;不能點回傳 null */
+  press(id: string, name: string): Step[] | null
+  /** 這位演員要放在舞台左側的浮空按鈕;沒有回傳 null */
+  controls(id: string): ActorControl[] | null
+  /** 這位演員自動示範的下一步;沒有回傳 null */
+  auto(id: string): Step[] | null
   /**
    * 互動腳本的觸發式回應(README 第 2A.7 節):把一段步驟接在演員「目前的狀態」上(照 apply 推算,推不過就丟錯、畫面不變),
    * 回傳這段的代號與長度。不同演員同時演、同一位演員依序演;使用者自己點的動作沒有虛擬滑鼠,從點下去那一刻開始。
@@ -837,6 +846,10 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
       cast[id].parts = checkParts(id, parts)
     },
     element: resolve,
+    pressable: (id) => !!cast[id]?.inst.press,
+    press: (id, name) => (cast[id]?.inst.press?.(name) as Step[] | null) ?? null,
+    controls: (id) => cast[id]?.inst.controls?.() ?? null,
+    auto: (id) => (cast[id]?.inst.auto?.() as Step[] | null) ?? null,
     get aspect() {
       return aspect
     },

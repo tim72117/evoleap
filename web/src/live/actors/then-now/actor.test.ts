@@ -49,7 +49,12 @@ describe('then-now:以前自己寫程式', () => {
 
 describe('then-now:現在說一句話', () => {
   it('要先修好才能換到現在;說一句話、AI 做出來、再對照', () => {
-    expect(() => run(start(), [{ turn: 'now' }])).toThrow(/還沒修好/)
+    // 兩邊隨時可以切換,各自的進度保留;已經在那一邊就不變
+    const peek = run(start(), [{ look: 1 }, { turn: 'now' }])
+    expect(peek.mode).toBe('now')
+    expect(run(peek, [{ turn: 'now' }])).toBe(peek)
+    expect(run(peek, [{ turn: 'then' }])).toMatchObject({ mode: 'then', looked: [1], fixed: false })
+    expect(() => run(start(), [{ turn: 'later' }])).toThrow(/turn/)
     let st = run(fixed(), [{ turn: 'now' }])
     expect(st.mode).toBe('now')
     expect(() => run(st, [{ look: 1 }])).toThrow(/現在/)
@@ -71,5 +76,37 @@ describe('then-now:現在說一句話', () => {
     const { chars, symbols } = codeStats('小森烘焙')
     expect(chars).toBe(81)
     expect(symbols).toBe(23)
+  })
+})
+
+describe('then-now:以前自己寫(task: write)', () => {
+  const blank = (): ThenNowState => init({ task: 'write' })
+  it('一段一段寫,最後一段是測試,寫完才算好;也可以一次寫完;兩邊可以來回切', () => {
+    const one = run(blank(), [{ handwrite: true }])
+    expect(one).toMatchObject({ written: 1, fixed: false })
+    expect(run(one, [{ handwrite: true }, { handwrite: true }, { handwrite: true }, { handwrite: true }])).toMatchObject({ written: 3, fixed: true })
+    expect(run(one, [{ handwrite: 'all' }])).toMatchObject({ written: 3, fixed: true })
+    expect(run(one, [{ turn: 'now' }, { turn: 'then' }])).toMatchObject({ mode: 'then', written: 1 })
+    expect(() => run(start(), [{ handwrite: true }])).toThrow(/task/)
+  })
+})
+
+describe('then-now:中間的框架時代', () => {
+  it('框架時代自己一份進度;只有 task 是 write 才有', () => {
+    const st = run(init({ task: 'write' }), [{ handwrite: true }, { turn: 'frame' }, { handwrite: true }, { handwrite: true }])
+    expect(st).toMatchObject({ mode: 'frame', written: 1, framed: 2 })
+    expect(run(st, [{ turn: 'then' }, { handwrite: true }])).toMatchObject({ written: 2, framed: 2 })
+    expect(() => run(start(), [{ turn: 'frame' }])).toThrow(/turn/)
+  })
+})
+
+describe('then-now:點下方進度回到那個階段', () => {
+  it('寫程式的時代退回到第 k 段之前;AI Agent 退回重新說或重新做', () => {
+    const st = run(init({ task: 'write', asks: [{ text: '額滿', want: 'full' }] }), [{ handwrite: 'all' }])
+    expect(run(st, [{ replay: 2 }])).toMatchObject({ written: 1, fixed: false })
+    const done = run(st, [{ turn: 'now' }, { tell: '額滿' }, { craft: true }])
+    expect(run(done, [{ replay: 1 }])).toMatchObject({ told: null, made: false })
+    expect(run(done, [{ replay: 3 }])).toMatchObject({ told: '額滿', made: false })
+    expect(() => run(st, [{ replay: 9 }])).toThrow(/replay/)
   })
 })

@@ -145,7 +145,13 @@ export function expandAnswers(script: StageScript, answers: Answers): StageScrip
       const answer = s.id ? answers[s.id] : undefined
       const chapter = answer && ('skipped' in answer ? (s.skip || undefined)?.label : '你的回答')
       const inserted = s.id ? stepsOf(s, answer) : []
-      return [raw, ...inserted.map((x, i) => (i === 0 && chapter ? { ...x, chapter } : x))]
+      // 答過的 live 互動點不再念它自己的旁白(邊播邊互動時已經念過,回答後從這裡接著播會重講一次)
+      let point = raw
+      if (answer && s.live && 'narration' in raw) {
+        const { narration: _heard, ...rest } = raw as Record<string, unknown>
+        point = rest as typeof raw
+      }
+      return [point, ...inserted.map((x, i) => (i === 0 && chapter ? { ...x, chapter } : x))]
     }),
   }
 }

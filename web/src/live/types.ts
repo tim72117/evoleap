@@ -141,11 +141,23 @@ export interface Cue<T extends string = string> {
 
 // ---------- 演員介面 ----------
 
+/** 浮空按鈕:name 同身上的目標名稱;group 相同的是一組切換,on 是目前選到的 */
+export type ActorControl = { name: string; label: string; sub?: string; group?: string; on?: boolean; primary?: boolean }
+
 export interface ActorInstance<St = undefined> {
   /** 畫出 ms 時的畫面(只用 frame 與 ms 決定,不依賴上一次) */
   render(frame: ActorFrame<St>, ms: number): void
   /** 目標名稱 → 元素(給鏡頭、聚光燈、滑鼠用);找不到回傳 null */
   target(name: string, view: ActorView<St> | null): HTMLElement | null
+  /**
+   * 選用:演員自己處理點擊。學員點了身上標著 data-t 的元素時,依目前的狀態回傳要演的步驟(不能點回傳 null)。
+   * 有寫的演員,靜態互動不疊透明按鈕:外層標 data-pressable,演員把可以點的東西畫成真正的 <button>(README 第 2A.7 節)
+   */
+  press?(name: string): ScriptStep[] | null
+  /** 選用:放在舞台左側的浮空按鈕(靜態互動時由播放頁畫,點了和點身上的 data-t 一樣);沒有回傳 null */
+  controls?(): ActorControl[] | null
+  /** 選用:自動示範的下一步(靜態互動時載入後、每段回應演完後問一次);沒有下一步回傳 null */
+  auto?(): ScriptStep[] | null
 }
 
 /**
@@ -162,6 +174,8 @@ export interface Actor<K extends string = string, S extends object = object, P e
   readonly collapsible?: Readonly<Record<string, number>>
   /** 尺寸照 1920 寬的舞台設計(固定 px,不跟著舞台寬度調整):靜態互動時照它在主舞台上的大小演出,再整個等比例縮放到畫面裡 */
   readonly fixedSize?: boolean
+  /** 靜態互動時當一般網頁排版(限寬、可捲動);實例要有 press,自己處理點擊 */
+  readonly page?: boolean
   /** 這個動作要多久(毫秒) */
   duration(kind: K, step: S, props: P, prev: St | undefined): number
   /** camera 為 auto 時建議看哪裡;false = 全景,undefined = 沿用上一個鏡頭 */

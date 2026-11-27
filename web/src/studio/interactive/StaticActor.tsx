@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { ACTORS } from '../../live/actors'
 import { placeOf } from '../../live/place'
 import { createStage, type Stage, type StageScript } from '../../live/stage'
-import type { ScriptStep } from '../../live/types'
+import type { ActorControl, ScriptStep } from '../../live/types'
 import { dragPlan, type DragPlan } from '../../kids/drag'
 import { DragLayer } from '../../kids/DragLayer'
 import { clickInPage, collapsedParts, goneInPage, spotId, staticScript, untilReached, type Answer, type Answers, type InteractSpot, type Moment } from './scene'
@@ -17,6 +17,15 @@ import styles from './InteractiveScenePage.module.css'
 // 互動腳本(moment.interact,live/README.md 第 2A.7 節):觸發點疊在演員的目標上,點了就讓演員從目前的狀態演一段回應(舞台的 react),
 // 不重新載入、沒有互動時間軸;interact.cast 的第二位演員放在旁邊的側欄卡片,一樣可以有觸發點。
 // 詢問框只用在沒有演員可以操作的互動點(見 scene.ts 的 answersOnActor)。
+
+/** 自動示範:上一段演完到下一段開始之間停多久(毫秒) */
+const AUTO_GAP_MS = 500
+
+/** 當一般網頁排版的演員量不到影片寬度時的寬度(px) */
+const PAGE_WIDTH = 640
+/** 左側浮空按鈕佔的寬度;舞台比 RAIL_STACK_BELOW 窄時按鈕改排在上面(和 CSS 的 container query 一致) */
+const RAIL_SPACE = 84
+const RAIL_STACK_BELOW = 700
 
 type Rect = { x: number; y: number; w: number; h: number }
 type Spot = InteractSpot & { key: string; pressed: boolean }
@@ -240,6 +249,71 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
   // 離開互動點時解除(下一個互動點從沒鎖住開始,不沿用這一個的狀態)
   useLayoutEffect(() => () => onLocked?.(false), [onLocked])
 
+  // 演員自己處理點擊(實例有 press,且腳本沒寫互動腳本):不疊透明按鈕,點擊直接交給演員
+  const [self, setSelf] = useState(false)
+  // 演員要放在左側的浮空按鈕
+  const [controls, setControls] = useState<ActorControl[]>([])
+  const readControls = (): void => setControls(stageRef.current?.controls(actor) ?? [])
+  const pressActor = (e: { target: EventTarget }): void => {
+    const name = e.target instanceof Element ? e.target.closest<HTMLElement>('[data-t]')?.dataset.t : undefined
+    if (name) press(name)
+  }
+  const press = (name: string): void => {
+    const stage = stageRef.current
+    if (!self || !stage) return
+    // 腳本的選項指到的目標是「回答」,交給播放頁;其他的由演員依目前狀態決定
+    const option = moment.options.findIndex((o) => o.target === `${actor}:${name}`)
+    if (option >= 0) {
+      onAnswer({ option })
+      return
+    }
+    const steps = stage.press(actor, name)
+    if (!steps) return
+    // 切換鈕按下就先亮起來,不等動作演完
+    setControls((list) => {
+      const group = list.find((c) => c.name === name)?.group
+      return group ? list.map((c) => (c.group === group ? { ...c, on: c.name === name } : c)) : list
+    })
+    runSelf(steps)
+  }
+  // 演員自己的回應與自動示範:同時只演一段;演完停一下,問演員下一步要示範什麼
+  const selfStop = useRef<() => void>(() => {})
+  const autoTimer = useRef<number>(0)
+  const runSelf = (steps: unknown): void => {
+    const stage = stageRef.current
+    if (!stage) return
+    window.clearTimeout(autoTimer.current)
+    selfStop.current()
+    try {
+      const run = { stage, ...stage.react(steps as never) }
+      selfStop.current = play([run], () => {
+        measureRef.current()
+        readControls()
+        nextAuto()
+      })
+    } catch (err) {
+      setError(String(err instanceof Error ? err.message : err))
+    }
+  }
+  const nextAuto = (): void => {
+    window.clearTimeout(autoTimer.current)
+    autoTimer.current = window.setTimeout(() => {
+      const steps = stageRef.current?.auto(actor)
+      if (steps) runSelf(steps)
+    }, AUTO_GAP_MS)
+  }
+  useLayoutEffect(() => {
+    if (self) {
+      readControls()
+      nextAuto()
+    }
+    return () => {
+      window.clearTimeout(autoTimer.current)
+      selfStop.current()
+    }
+    // 只在舞台準備好(self)時開始
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [self])
   /** 觸發一段回應:步驟依演員分給主要舞台或旁邊的舞台,各自從目前的狀態演起;舞台還沒載好時不演,回傳 false */
   const trigger = (steps: ScriptStep[]): boolean => {
     if (!interact) return false
@@ -258,6 +332,8 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
           setVersion((v) => v + 1)
         }),
       )
+      // 回應一開始就重量一次:第一格就消失的目標(例如送出前的選項),它的透明按鈕不要留在原地
+      measureRef.current()
       return true
     } catch (e) {
       setError(String(e instanceof Error ? e.message : e))
@@ -289,6 +365,23 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
     const place = placeOf(script.cast[actor]?.place)
     host.style.maxWidth = `${place.w}px`
     if (place.h != null) host.style.maxHeight = `${place.h}px`
+    // 自己處理點擊的演員當一般網頁排版:限制在好讀的寬度,高度用滿,放不下在演員裡捲動
+    const asPage = interactive && !interact && !!ACTORS[script.cast[actor]?.actor]?.page
+    if (asPage) {
+      host.style.maxHeight = ''
+    }
+    host.classList.toggle(styles.staticPage, asPage)
+    /** 當一般網頁時,寬度跟影片舞台上這位演員一樣,開場和後面才不會一寬一窄;找不到影片舞台(量不到)用 PAGE_WIDTH */
+    const matchVideoWidth = (): void => {
+      if (!asPage) return
+      const layer = host.parentElement
+      const video = [...(layer?.parentElement?.querySelectorAll<HTMLElement>('.live-stage') ?? [])].find((el) => !layer?.contains(el))
+      const scale = video?.offsetWidth ? video.getBoundingClientRect().width / video.offsetWidth : 0
+      const wide = scale ? Math.round(place.w * scale) : PAGE_WIDTH
+      const room = (layer?.clientWidth ?? 0) > RAIL_STACK_BELOW ? layer!.clientWidth - RAIL_SPACE * 2 : Infinity
+      host.style.maxWidth = `${Math.min(wide, room)}px`
+    }
+    matchVideoWidth()
     // 尺寸固定的演員(fixedSize):放進一般大小的舞台(1920×1080,演員佔滿),再整個等比例縮放到這一格裡
     const fixed = !split && !!ACTORS[script.cast[actor]?.actor]?.fixedSize
     let canvas = root
@@ -305,6 +398,8 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
       const k = Math.min(root.clientWidth / w, root.clientHeight / h)
       canvas.style.transform = `translate(${((root.clientWidth - w * k) / 2).toFixed(1)}px, ${((root.clientHeight - h * k) / 2).toFixed(1)}px) scale(${k.toFixed(4)})`
     }
+    // 要在載入前標好:演員掛上去時依它決定畫不畫成按鈕
+    if (asPage) canvas.dataset.pressable = '1'
     const stage = createStage(canvas)
     stageRef.current = stage
     // 沒有互動腳本時,自由點過的東西在網頁重新載入後補點一次(互動腳本的回應記在舞台上,重畫時照樣帶著)
@@ -343,6 +438,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
       replay()
     }
     const measure = (): void => {
+      matchVideoWidth()
       scaleToFit()
       const box = host.getBoundingClientRect()
       fit(box.width)
@@ -363,6 +459,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
       .load(played, { cursor: false })
       .then(() => {
         if (cancelled) return
+        setSelf(asPage && stage.pressable(actor))
         measure() // 第一次一定會畫:collapsed 還是空字串
         setPlan(dragging)
         ro = new ResizeObserver(measure)
@@ -447,10 +544,20 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
   )
 
   return (
-    <div className={styles.staticLayer} data-testid="static-actor">
+    <div className={controls.length ? `${styles.staticLayer} ${styles.withRail}` : styles.staticLayer} data-testid="static-actor">
+      {controls.length > 0 && (
+        <div className={styles.staticRail} role="group">
+          {controls.map((c) => (
+            <button key={c.name} type="button" className={c.primary ? styles.railPrimary : undefined} aria-pressed={c.group ? !!c.on : undefined} onClick={() => press(c.name)}>
+              <b>{c.label}</b>
+              {c.sub && <span>{c.sub}</span>}
+            </button>
+          ))}
+        </div>
+      )}
       <div ref={hostRef} className={styles.staticHost}>
         {!hintSlot && hint}
-        <div ref={rootRef} className={styles.staticRoot} />
+        <div ref={rootRef} className={styles.staticRoot} data-self={self || undefined} onClick={self ? pressActor : undefined} />
         {error && (
           <p className={styles.error} role="alert">
             {L.actorLoadError}
@@ -509,7 +616,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
                 }}
               />
             )}
-            {moment.options.map((o, option) => {
+            {!self && moment.options.map((o, option) => {
               const r = o.target ? rects[o.target] : undefined
               return r ? <button key={o.label} type="button" disabled={locked} className={styles.pushHit} style={{ left: r.x, top: r.y, width: r.w, height: r.h }} aria-label={o.label} onClick={() => onAnswer({ option })} /> : null
             })}

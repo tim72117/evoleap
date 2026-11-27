@@ -628,9 +628,25 @@
   pointer-events: none;
 }
 
-/* 播放器的控制列、字幕、大播放鍵疊在靜態舞台上面(靜態舞台在 DOM 裡排在播放器後面,不加 z-index 會蓋住它們) */
+/* 播放器的控制列、字幕疊在靜態舞台上面(靜態舞台在 DOM 裡排在播放器後面,不加 z-index 會蓋住它們) */
 .staticOn :global(.vp-ui) {
   z-index: 1;
+}
+
+/* 互動時中央不放大播放鍵(暫停中、手機點出控制列時都不放),不擋住可以操作的介面;要播放用下面控制列的按鈕 */
+.staticOn :global(.vp .vp-big) {
+  display: none !important;
+}
+
+/* 下方預留播放列的安全區:演員不疊到控制列與字幕,字幕排在控制列上面(嵌入與手機直拿另有自己的版面) */
+.staticOn:not(.embed):not(.phonePortrait) .staticLayer {
+  bottom: max(var(--panel-bottom), var(--vp-inset-bottom), 104px);
+}
+.staticOn:not(.embed):not(.phonePortrait) :global(.vp .vp-caption) {
+  bottom: 66px !important;
+  /* 置中在舞台下方,不被右邊的側欄蓋住 */
+  left: calc((100% - var(--panel-right, 0px)) / 2) !important;
+  max-width: calc(100% - var(--panel-right, 0px) - 32px) !important;
 }
 
 /* 換舞台:靜態演員的舞台出現時,前一個舞台(主舞台)先藏起來,不是壓暗疊在後面;播放器外殼與控制列照常顯示 */
@@ -661,6 +677,8 @@
 .staticHost .staticRoot,
 .staticHost .staticRoot :global(.slot) {
   --u: clamp(9px, 2.3cqw, 18px);
+  /* 靜態舞台不縮放,字用一般網頁的大小(目前 then-now 演員讀這個值) */
+  --actor-font: 16px;
 }
 
 .staticHost {
@@ -675,6 +693,91 @@
 }
 
 /* 這個舞台不縮放:大小跟著畫面走,不是固定的 1920×1080 */
+/* 演員自己處理點擊:舞台本身要收得到點擊(其他情況只有疊上去的按鈕收得到) */
+.staticHost .staticRoot[data-self] {
+  pointer-events: auto;
+}
+
+/* 左側浮空按鈕(演員的 controls):切換和繼續,不放在卡片裡 */
+.staticRail {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 3;
+}
+.staticRail button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 72px;
+  min-height: 60px;
+  padding: 6px 4px;
+  border: 1px solid rgb(31 30 27 / 10%);
+  border-radius: 18px;
+  background: #fff;
+  color: #55514a;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 14%);
+  font: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.staticRail button b {
+  font-size: 15px;
+}
+.staticRail button span {
+  font-size: 11px;
+  opacity: 0.8;
+}
+.staticRail button[aria-pressed='true'] {
+  border: 2px solid #d97757;
+  background: #fbe9e2;
+  color: #8a3a1f;
+}
+.staticRail button.railPrimary {
+  margin-top: 10px;
+  background: #d97757;
+  color: #fff;
+}
+.staticRail button:focus-visible {
+  outline: 2px solid #4f6bed;
+  outline-offset: 2px;
+}
+/* 舞台窄:按鈕橫排在卡片上面,不佔左右的寬度(門檻同 StaticActor 的 RAIL_STACK_BELOW) */
+@container (max-width: 700px) {
+  .withRail .staticRail {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+  .withRail .staticRail button {
+    min-height: 48px;
+  }
+  .withRail .staticRail button.railPrimary {
+    margin-top: 0;
+  }
+  .withRail .staticHost {
+    height: calc(100% - 56px);
+  }
+}
+.staticLayer.withRail {
+  flex-wrap: wrap;
+  align-content: center;
+}
+
+/* 當一般網頁:不要影片畫框的陰影 */
+.staticLayer .staticPage {
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
 .staticHost .staticRoot {
   flex: 1;
   width: 100%;

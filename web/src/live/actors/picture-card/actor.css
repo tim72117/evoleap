@@ -1,0 +1,8 @@
+/* 演員 picture-card:插圖在上、標題在下。動畫由 actor.ts 依時間設定,這裡不用 animation/transition。 */
+.A-picture-card { width: 100%; height: 100%; container: pc / size; color: #1f1e1b; font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
+.A-picture-card .pc-box { width: 100%; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2cqh; padding: 6cqh 4cqw 14cqh; background: #fbfaf7; text-align: center; }
+.A-picture-card .pc-art { width: min(80cqw, 88cqh); aspect-ratio: 400 / 260; }
+.A-picture-card .pc-art svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.A-picture-card .pc-eyebrow { font-size: min(2.2cqw, 3cqh); font-weight: 700; letter-spacing: 0.12em; color: #a4472b; }
+.A-picture-card h2 { margin: 0.8cqh 0 0; font-size: min(4.4cqw, 6.4cqh); line-height: 1.3; }
+.A-picture-card p { margin: 1cqh 0 0; font-size: min(2.2cqw, 3.1cqh); color: #77736a; }

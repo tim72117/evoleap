@@ -35,6 +35,12 @@ const INTERACTIVE_LESSONS: Record<string, (script: StageScript) => StageScript> 
 const asIs = (script: StageScript) => script
 
 /**
+ * 自己帶互動點、演員在靜態舞台上自己操作的腳本(序章的新版):不用在前端加互動點,用靜態互動。
+ * 依腳本路徑分:課還指著舊腳本時(例如正式站還沒換),照舊版的做法。
+ */
+const STATIC_SCRIPTS = new Set(['l0/0.intro-b.json'])
+
+/**
  * 每一步的提示詞(學員複製貼上的):暫時還從前端的單課資料(l0Lessons 等的 steps)取,用課號對;找不到的課沒有提示詞。
  * TODO(第二階段):提示詞併進腳本,這個 import 就能拿掉。
  */
@@ -52,8 +58,9 @@ type Props = {
 }
 
 export function InteractiveLessonPage({ course, lesson, prev, next }: Props) {
-  const prepare = INTERACTIVE_LESSONS[lesson.id] ?? asIs
   const script = lesson.script!
+  const selfContained = STATIC_SCRIPTS.has(script)
+  const prepare = selfContained ? asIs : (INTERACTIVE_LESSONS[lesson.id] ?? asIs)
   // 登入狀態確認前先不建立播放器,免得會員的進度被當成訪客略過
   const { status, user } = useAuth()
   const memberId = user?.id ?? null
@@ -73,7 +80,7 @@ export function InteractiveLessonPage({ course, lesson, prev, next }: Props) {
       key={`${lesson.id}:${status === 'loading' ? 'loading' : (memberId ?? 'guest')}`}
       script={script}
       pageTitle={lesson.title}
-      interaction="stage"
+      interaction={selfContained ? 'static' : 'stage'}
       prepare={prepare}
       course={{
         docTitle: documentTitle(lessonDocTitle(lesson.title, courseName)),
