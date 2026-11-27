@@ -144,6 +144,43 @@ export function useCourseMaps(ids: string[]): Record<string, CourseMap | undefin
   return maps
 }
 
+/**
+ * 一次讀好幾門課的課程地圖並回傳各自的狀態(主題頁:要知道哪些還在讀、哪些讀不到);同一份快取與請求,草稿照模擬的身分處理。
+ */
+export function useCourseMapStates(ids: string[]): Record<string, CourseMapState> {
+  const { locale } = useLocale()
+  const auth = useAuth()
+  const who = `${locale}:${auth.user?.id ?? 'guest'}`
+  const simulating = auth.simulation !== 'admin'
+  const idsKey = ids.join(',')
+  const [res, setRes] = useState<Record<string, CourseMapState>>({})
+  useEffect(() => {
+    let cancelled = false
+    for (const id of idsKey ? idsKey.split(',') : []) {
+      const key = `${who}:${id}`
+      loadCourseMap(key, id).then(
+        (map) => !cancelled && setRes((r) => ({ ...r, [key]: { status: 'ready', map } })),
+        () => !cancelled && setRes((r) => ({ ...r, [key]: mapCache.has(key) ? { status: 'ready', map: mapCache.get(key)! } : { status: 'error' } })),
+      )
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [idsKey, who])
+  return useMemo(
+    () =>
+      Object.fromEntries(
+        (idsKey ? idsKey.split(',') : []).map((id): [string, CourseMapState] => {
+          const key = `${who}:${id}`
+          const hit = mapCache.get(key)
+          const s: CourseMapState = res[key] ?? (hit ? { status: 'ready', map: hit } : { status: 'loading' })
+          return [id, s.status === 'ready' && simulating ? { status: 'ready', map: { ...s.map, units: hideDrafts(s.map.units, false) } } : s]
+        }),
+      ),
+    [idsKey, who, res, simulating],
+  )
+}
+
 /** 一課在課程地圖裡的資料(任何單元);地圖沒有這一課是 undefined */
 export function mapLessonOf(map: CourseMap | undefined, id: string): MapLesson | undefined {
   return map?.units.flatMap((u) => u.lessons).find((l) => l.id === id)

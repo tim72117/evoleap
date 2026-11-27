@@ -1,18 +1,17 @@
 import { useCourseMap } from '../../content/courseMap'
-import { AI_APP_COURSES } from '../../content/levels'
+import { useTopicPage } from '../../content/topicPage'
 import { LessonListStatus } from '../../courses/LessonGroup'
 import { Fold } from './Fold'
 import { List } from './BasicsOutline'
 import { ProposalLayout } from './ProposalLayout'
 import ui from './proposal.module.css'
 
-// 暫定主題與課名取自資料庫（advanced 課程的單元）；先備條件在 src/content/levels.ts 的 AI_APP_COURSES。
-const prerequisite = AI_APP_COURSES.find((c) => c.id === 'advanced')?.prerequisite
+// 暫定主題與課名取自資料庫（advanced 課程的單元）；先備條件取自「打造 AI 互動軟體」主題頁的等級卡區塊。
 
-const positioning = (title: string): [string, string][] => [
+const positioning = (title: string, prerequisite: string): [string, string][] => [
   ['研發階段', '未開始。只有課程地圖上的暫定主題，尚無大綱。'],
   ['課程地圖標題', title],
-  ['先備條件（暫定）', prerequisite ?? '完成 L3 或具備同等經驗'],
+  ['先備條件（暫定）', prerequisite],
   ['存取', '未定。'],
   ['依賴', '主題與深度取決於 L3 期末專案的最終範圍，以及 L3 移出的單元（即時／非同步呼叫、前端與後端串接、額度、部署）是否改放到 L4。'],
 ]
@@ -25,6 +24,9 @@ const TODOS = [
 
 export function AdvancedPage() {
   const state = useCourseMap('advanced')
+  const page = useTopicPage('ai-apps')
+  const note = page.status === 'ready' ? page.sections.flatMap((x) => (x.kind === 'levels' ? (x.blocks ?? []) : [])).find((b) => b.ref === 'advanced')?.note : undefined
+  const prerequisite = page.status === 'loading' ? '讀取中…' : page.status === 'error' ? '無法讀取' : (note ?? '尚未填寫')
   const map = state.status === 'ready' ? state.map : undefined
   return (
     <ProposalLayout title="L4 進階" footer="暫定主題：資料庫的 advanced 課程單元">
@@ -35,7 +37,7 @@ export function AdvancedPage() {
         <section className={ui.card}>
           <table>
             <tbody>
-              {positioning(map?.title ?? '').map(([k, v]) => (
+              {positioning(map?.title ?? '', prerequisite).map(([k, v]) => (
                 <tr key={k}>
                   <td className={ui.nowrap} style={{ width: '9em' }}>
                     <strong>{k}</strong>

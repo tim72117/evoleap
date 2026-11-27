@@ -65,7 +65,7 @@ export const courses = {
     pager: '上一章與下一章',
   },
 
-  // ---------- AI 互動軟體中階(主題頁的課程介紹 home/AiAgentIntro) ----------
+  // ---------- AI 互動軟體中階(主題頁的課程介紹區塊 home/TopicSections) ----------
   aiAgent: {
     outcomesEyebrow: '學習成果',
     outcomesTitle: '你會學到什麼',

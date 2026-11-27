@@ -128,7 +128,8 @@ function Advanced() {
 const ART: Record<CourseArt, () => JSX.Element> = { tools: Tools, chat: Chat, build: Build, agent: Agent, advanced: Advanced }
 
 export function LevelArt({ art }: { art: CourseArt }) {
-  const Art = ART[art]
+  // 資料庫可能有不認得的代號,退回預設插圖
+  const Art = ART[art] ?? Advanced
   return (
     <svg viewBox="0 0 220 160" role="presentation" aria-hidden="true" focusable="false">
       <Art />

@@ -6,7 +6,6 @@
 //   - LESSON_ROUTES:單課頁的路由樣式 /courses/<課程>/<課號>,build 一門課產生一份 HTML,有哪些課由 server 在請求時看資料庫
 // build(scripts/seo.mjs)把兩者輸出成 dist/course-pages.json。
 import { COURSES, courseMapId, coursePath, plannedChapterPath, plannedLabel, plannedSlug } from '../content/catalog'
-import { AI_AGENT_PITCH } from '../content/aiAgent'
 import { COURSE_LIST, TOPIC_PATHS } from '../content/topics'
 import { EN_PREFIX } from '../i18n/locale'
 
@@ -28,7 +27,7 @@ export interface CoursePageEntry {
   title?: string
   description?: string
   /** 主題頁另外附一門課的結構化資料(AI Agent 中階課沒有自己的頁面) */
-  courseLd?: { course: string; description: string }
+  courseLd?: { course: string }
   /** 章節頁的課號(sitemap 依資料庫裡這一課的狀態決定收不收) */
   lesson?: string
   /** 總覽頁的結構化資料要不要列出每一課(不分階段的課) */
@@ -81,7 +80,7 @@ const topicPage = (path: string, extra: Partial<CoursePageEntry>): CoursePageEnt
 /** 主題頁與全部課程:名稱、標題、描述讀資料庫的主題與課程 */
 const TOPIC_PAGES: CoursePageEntry[] = [
   topicPage(TOPIC_PATHS.software, { topic: 'software', items: [SOFTWARE_ITEM] }),
-  topicPage(TOPIC_PATHS.aiApps, { topic: 'ai-apps', items: AI_APP_ITEMS, courseLd: { course: 'ai-agent', description: AI_AGENT_PITCH } }),
+  topicPage(TOPIC_PATHS.aiApps, { topic: 'ai-apps', items: AI_APP_ITEMS, courseLd: { course: 'ai-agent' } }),
   topicPage(COURSE_LIST.path, { kind: 'list', title: COURSE_LIST.seoTitle, description: COURSE_LIST.description, items: [SOFTWARE_ITEM, ...AI_APP_ITEMS] }),
 ]
 
