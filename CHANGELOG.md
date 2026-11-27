@@ -4,6 +4,26 @@
 
 ## [Unreleased]
 
+## [0.58.0] - 2026-11-27
+
+序章換成互動版(B 版),`/topics/software` 加上特色介紹、導覽影片與互動展示。部署後要另外更新正式站的腳本與主題頁區塊(見下方)。
+
+### 新增
+
+- 序章 B 版:`then-now` 演員改為「以前自己寫、後來用框架、現在 AI Agent」三種做法,含單元測試與畫面測試;新演員 `loop-cycle`、`picture-card`;演員可當一般網頁操作(`page`、`press`、`auto`、`controls`)。課的腳本指向 `l0/0.intro-b.json` 時才走靜態互動,指向舊腳本時照舊。
+- 主題頁區塊種類 `features`(圖文交錯),變體 `intro-demo` 是序章互動展示;課程數字、導覽影片(課程的簡介影片)、頁尾行動卡。
+- 主題頁區塊與項目支援譯文(`page_section`、`page_block`),`GET /api/topics/{id}/page?lang=en`。
+
+### 變更
+
+- 播放器與互動展示在主題頁用到才下載;`LivePlayer` 新增 `onSettled`。
+
+### 部署後的內容更新
+
+- 上傳 `l0/0.intro-b.json`、`l0/0.intro-b.voice.json`,把 `software` 的 `0.intro` 指到它(5 分鐘)。
+- 上傳 `guide/software-tour.json`,設為 `software` 的簡介影片。
+- `software` 主題頁新增 `features` 區塊。
+
 ## [0.57.0] - 2026-11-27
 
 `/topics/software`、`/topics/ai-apps` 改由同一個頁面照資料庫區塊畫,畫面和之前相同。
