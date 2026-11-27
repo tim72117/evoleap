@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [0.56.0] - 2026-11-27
+
+主題頁區塊的後端。網站畫面不變:主題頁的前端下一版才改用區塊;上那一版之前要先把文案匯入正式站。
+
+### 新增
+
+- 資料表 `topic_sections`、`topic_blocks`(區塊種類 `hero`、`levels`、`cards`、`lists`、`units`),部署時自動建表。
+- 公開 `GET /api/topics/{id}/page`;管理 API 與 `evoleap topic section-add|section-set|section-delete|section-order|block-add|block-set|block-delete|block-order`。寫入時檢查插圖與樣式代號、必填欄位,以及指向的課程、單元是否存在。
+- 課程資訊匯出與 `init` 包含主題頁區塊。
+
+### 變更
+
+- `/topics/ai-apps` 搜尋引擎結構化資料裡的 AI Agent 課程描述,改讀資料庫 `ai-agent` 課程的 `description`(空的用 `summary`)。
+
 ## [0.55.0] - 2026-11-27
 
 主題內容從整包 JSON 改成結構化儲存。部署時自動轉換,不用手動改資料;`GET /api/topics` 格式不變。部署期間(同步工作跑完到新版上線)不要改主題。

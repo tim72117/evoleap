@@ -1,7 +1,7 @@
 package store
 
 // 主題頁的區塊:一個主題頁由幾個依序排列的區塊(topic_sections)組成,區塊裡的卡片、群組、條列是 topic_blocks。
-// 前端用同一個頁面照區塊畫(web/src/home/TopicPage.tsx),用 evoleap topic section-*、block-* 修改。
+// 讓各主題頁能由同一個頁面照區塊畫;用 evoleap topic section-*、block-* 修改。
 // 區塊的 id 同時是頁面上的錨點(#map、#units …),所以 levels 區塊固定是 map、units 區塊固定是 units;
 // hero、levels、units 一頁最多各一個。eyebrow、title、lead 留空時前端用內建的區塊標題(依語言)。
 //
