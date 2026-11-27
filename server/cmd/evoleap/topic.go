@@ -117,7 +117,7 @@ func cmdTopicSectionAdd(c *client, args []string) {
 	fs := flag.NewFlagSet("topic section-add", flag.ExitOnError)
 	topic := fs.String("topic", "", "主題 id")
 	id := fs.String("id", "", "區塊 id(也是頁面錨點)")
-	kind := fs.String("kind", "", "hero、levels、cards、lists 或 units")
+	kind := fs.String("kind", "", "hero、levels、cards、lists、units 或 features")
 	at := fs.Int("at", 0, "位置(從 1 起算);不給排最後")
 	flags := stringFlags(fs, sectionFields)
 	set := parse(fs, args, "topic", "id", "kind")

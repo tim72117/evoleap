@@ -65,6 +65,9 @@ type LangPack struct {
 	// TopicItems、TopicSections 的鍵是「主題id/項目id」「主題id/段落名稱」
 	TopicItems    map[string]i18nTopicItem `json:"topicItems,omitempty"`
 	TopicSections map[string]string        `json:"topicSections,omitempty"`
+	// PageSections、PageBlocks 是主題頁區塊與項目的譯文:鍵「主題id/區塊id」「主題id/項目id」→ 欄位 → 譯文
+	PageSections map[string]map[string]string `json:"pageSections,omitempty"`
+	PageBlocks   map[string]map[string]string `json:"pageBlocks,omitempty"`
 }
 
 // parseI18n 解析測試用的譯文資料(格式是 LangPack 的 JSON,見 fixture.I18nEN)。
@@ -157,6 +160,33 @@ func LocalizeCourses(cs []ListedCourse, b *LangPack) {
 func over(dst *string, v string) {
 	if *dst != "" {
 		pick(dst, v)
+	}
+}
+
+// LocalizeTopicPage 把一個主題頁的區塊換成指定語言(原地修改);沒翻的欄位保留原文。
+func LocalizeTopicPage(topicID string, sections []PageSection, b *LangPack) {
+	if b == nil {
+		return
+	}
+	var blocks func(list []PageBlock)
+	blocks = func(list []PageBlock) {
+		for i := range list {
+			x := &list[i]
+			tr := b.PageBlocks[topicID+"/"+x.ID]
+			over(&x.Title, tr["title"])
+			over(&x.Text, tr["text"])
+			over(&x.Note, tr["note"])
+			over(&x.Label, tr["label"])
+			blocks(x.Children)
+		}
+	}
+	for i := range sections {
+		s := &sections[i]
+		tr := b.PageSections[topicID+"/"+s.ID]
+		over(&s.Eyebrow, tr["eyebrow"])
+		over(&s.Title, tr["title"])
+		over(&s.Lead, tr["lead"])
+		blocks(s.Blocks)
 	}
 }
 

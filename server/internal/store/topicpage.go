@@ -14,12 +14,16 @@ package store
 //	cards   variant=numbered 時帶編號;block:title、text
 //	lists   block:variant=fit|not_fit|requirement、title(空的用內建標題);子項目的 text 是條列
 //	units   source=課程 id;block:ref=單元 id、label=顯示編號、text=核心概念、note=實作、variant=planned
+//	features 圖文交錯的特色介紹:title=段落大標、lead=頁尾行動卡的一句話(空的不放行動卡);block:label=小標、title、text=說明、variant=插圖
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	"gorm.io/gorm"
@@ -88,7 +92,10 @@ type PageBlockPatch struct {
 	Title, Text, Note, Ref, Variant, Label *string
 }
 
-var pageSectionKinds = []string{"hero", "levels", "cards", "lists", "units"}
+var pageSectionKinds = []string{"hero", "levels", "cards", "lists", "units", "features"}
+
+// features 區塊可用的插圖代號(畫法在前端 live/actors/picture-card/art.ts);intro-demo 是放序章的互動畫面
+var featureArt = []string{"translate", "chat", "speak", "confirm", "inspect", "next", "intro-demo"}
 
 var pageIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*$`)
 
@@ -170,6 +177,34 @@ func (s *Store) TopicPage(ctx context.Context, topicID string) ([]PageSection, e
 	return loadTopicPage(db, topicID)
 }
 
+// dropPageTranslations 刪掉改完之後不在頁面上的區塊與項目的譯文(留異動紀錄)。
+func dropPageTranslations(tx *gorm.DB, user, topicID string, before, after []PageSection) error {
+	refs := func(page []PageSection) map[[2]string]bool {
+		out := map[[2]string]bool{}
+		var blocks func(list []PageBlock)
+		blocks = func(list []PageBlock) {
+			for _, b := range list {
+				out[[2]string{I18nPageBlock, topicID + "/" + b.ID}] = true
+				blocks(b.Children)
+			}
+		}
+		for _, s := range page {
+			out[[2]string{I18nPageSection, topicID + "/" + s.ID}] = true
+			blocks(s.Blocks)
+		}
+		return out
+	}
+	kept := refs(after)
+	for k := range refs(before) {
+		if !kept[k] {
+			if err := dropTranslations(tx, user, k[0], k[1]); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func deleteTopicPage(tx *gorm.DB, topicID string) error {
 	if err := tx.Where("topic_id = ?", topicID).Delete(&topicBlockRow{}).Error; err != nil {
 		return err
@@ -207,6 +242,13 @@ func checkPageShape(sections []PageSection) error {
 				}
 				if b.Ref == "" {
 					return invalid("levels 區塊的項目要有 ref")
+				}
+			case "features":
+				if b.Title == "" {
+					return invalid("features 區塊的項目要有 title")
+				}
+				if b.Variant != "" && !slices.Contains(featureArt, b.Variant) {
+					return invalid("不認得的插圖 %q(%s 或留空)", b.Variant, strings.Join(featureArt, "、"))
 				}
 			case "lists":
 				if !slices.Contains([]string{"", "fit", "not_fit", "requirement"}, b.Variant) {
@@ -273,8 +315,10 @@ func writeTopicPage(tx *gorm.DB, topicID string, sections []PageSection) error {
 	var add func(section, parent string, list []PageBlock) error
 	add = func(section, parent string, list []PageBlock) error {
 		for i, b := range list {
+			// 沒給 id 的(匯入檔、測試資料)照位置推出固定的 id:同一份資料再寫一次不會換 id,譯文的登記表才不會一直長
 			if b.ID == "" {
-				b.ID = newTopicItemID("block")
+				sum := sha256.Sum256([]byte(section + "/" + parent + "/" + strconv.Itoa(i)))
+				b.ID = "block-" + hex.EncodeToString(sum[:6])
 			}
 			if seenBlock[b.ID] {
 				return invalid("項目 id %q 重複", b.ID)
@@ -323,6 +367,8 @@ func writeTopicPage(tx *gorm.DB, topicID string, sections []PageSection) error {
 
 // pageTx 在交易裡改一個主題頁:edit 拿到現在的區塊就地修改,再整份寫回。
 func (s *Store) pageTx(ctx context.Context, user, topicID, action string, detail any, edit func(page *[]PageSection) error) error {
+	// 刪掉的區塊譯文要馬上從語言包消失(同一個 id 重用時不能冒出舊譯文)
+	defer s.i18n.clear()
 	return s.structureTx(ctx, func(tx *gorm.DB) error {
 		if err := lockTopic(tx, topicID); err != nil {
 			return err
@@ -333,6 +379,11 @@ func (s *Store) pageTx(ctx context.Context, user, topicID, action string, detail
 			return ErrTopicNotFound
 		}
 		page, err := loadTopicPage(tx, topicID)
+		if err != nil {
+			return err
+		}
+		// edit 會就地修改 page,另外讀一份留著比對刪掉了什麼
+		old, err := loadTopicPage(tx, topicID)
 		if err != nil {
 			return err
 		}
@@ -354,6 +405,9 @@ func (s *Store) pageTx(ctx context.Context, user, topicID, action string, detail
 			}
 		}
 		if err := writeTopicPage(tx, topicID, page); err != nil {
+			return err
+		}
+		if err := dropPageTranslations(tx, user, topicID, old, page); err != nil {
 			return err
 		}
 		if err := tx.Model(&topicRow{}).Where("id = ?", topicID).UpdateColumn("updated_at", now()).Error; err != nil {

@@ -24,7 +24,7 @@
 //	topic set -topic ID [-name 文字] [-slogan 文字] [-path 網址] [-seo-title 文字] [-description 文字] [-content-file 路徑]
 //	                                改一個主題;-content-file 是整包換掉的 JSON 物件檔(其餘內容:lede、learn、flow、outcomes、preview…)
 //	lesson set -course ID -lesson ID [-status open|draft|planned] [-access free|login-free|subscription|inherit] [-minutes N] [-title 文字] [-summary 文字] [-script 路徑]
-//	i18n list [-lang en] [-kind course|unit|lesson|topic|topic_item|topic_section] [-ref ID] [-status draft|reviewed|published] [-stale] [-n 500]
+//	i18n list [-lang en] [-kind course|unit|lesson|topic|topic_item|topic_section|page_section|page_block] [-ref ID] [-status draft|reviewed|published] [-stale] [-n 500]
 //	                                列出課程資訊的譯文(附原文;stale 是原文在翻譯之後改過)
 //	i18n get -kind K -ref ID -path P [-lang en]
 //	                                一筆譯文與它的異動紀錄
@@ -95,7 +95,7 @@ var resources = []resource{
 		{verb: "item-set", usage: "evoleap topic item-set -topic ID -item ID [-text 文字] [-level 文字]", run: cmdTopicItemSet},
 		{verb: "item-delete", usage: "evoleap topic item-delete -topic ID -item ID", run: cmdTopicItemDelete},
 		{verb: "item-order", usage: "evoleap topic item-order -topic ID -kind 種類 -ids a,b,c", run: cmdTopicItemOrder},
-		{verb: "section-add", usage: "evoleap topic section-add -topic ID -id 區塊 -kind hero|levels|cards|lists|units [-eyebrow 文字] [-title 文字] [-lead 文字] [-source 課程] [-variant 值] [-at N]", run: cmdTopicSectionAdd},
+		{verb: "section-add", usage: "evoleap topic section-add -topic ID -id 區塊 -kind hero|levels|cards|lists|units|features [-eyebrow 文字] [-title 文字] [-lead 文字] [-source 課程] [-variant 值] [-at N]", run: cmdTopicSectionAdd},
 		{verb: "section-set", usage: "evoleap topic section-set -topic ID -section 區塊 [-eyebrow 文字] [-title 文字] [-lead 文字] [-source 課程] [-variant 值]", run: cmdTopicSectionSet},
 		{verb: "section-delete", usage: "evoleap topic section-delete -topic ID -section 區塊", run: cmdTopicSectionDelete},
 		{verb: "section-order", usage: "evoleap topic section-order -topic ID -ids a,b,c", run: cmdTopicSectionOrder},
@@ -110,7 +110,7 @@ var resources = []resource{
 		{verb: "delete", usage: "evoleap lesson delete -course ID -lesson ID", run: cmdLessonDelete},
 	}},
 	{name: "i18n", commands: []command{
-		{verb: "list", usage: "evoleap i18n list [-lang en] [-kind course|unit|lesson|topic|topic_item|topic_section] [-ref ID] [-status draft|reviewed|published] [-stale] [-n 500]", run: cmdI18nList},
+		{verb: "list", usage: "evoleap i18n list [-lang en] [-kind course|unit|lesson|topic|topic_item|topic_section|page_section|page_block] [-ref ID] [-status draft|reviewed|published] [-stale] [-n 500]", run: cmdI18nList},
 		{verb: "get", usage: "evoleap i18n get -kind K -ref ID -path P [-lang en]", run: cmdI18nGet},
 		{verb: "set", usage: "evoleap i18n set -kind K -ref ID -path P [-lang en] (-value 文字 | -value-file 檔案) [-status draft|reviewed|published] [-origin human|ai|import] [-model M] [-reason 原因]", run: cmdI18nSet},
 		{verb: "missing", usage: "evoleap i18n missing [-lang en] [-kind K]", run: cmdI18nMissing},

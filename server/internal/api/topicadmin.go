@@ -25,7 +25,7 @@ import (
 //	DELETE /api/admin/topics/{id}/blocks/{block}
 //	PUT    /api/admin/topics/{id}/block-order               {section,parent,ids}
 //
-// 公開讀取:GET /api/topics/{id}/page
+// 公開讀取:GET /api/topics/{id}/page[?lang=en]
 //
 // 成功都回主題清單裡的那一個主題(含 items)或整份清單。
 
@@ -120,6 +120,12 @@ func (s *Server) handleTopicPage(w http.ResponseWriter, r *http.Request) {
 		writeCourseDataError(w, err)
 		return
 	}
+	pack, err := s.cfg.Store.LangPack(r.Context(), langOf(r))
+	if err != nil {
+		internalError(w, err)
+		return
+	}
+	store.LocalizeTopicPage(r.PathValue("id"), sections, pack)
 	w.Header().Set("Cache-Control", "public, max-age=60")
 	writeJSON(w, http.StatusOK, map[string]any{"sections": sections})
 }

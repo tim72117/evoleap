@@ -84,5 +84,31 @@ func TestTopicPageAPI(t *testing.T) {
 	if got := page(); len(got) != 1 || got[0].Title != "標題" {
 		t.Fatalf("刪區塊: %+v", got)
 	}
+	// 英文版:發布的譯文套在區塊與項目上,沒翻的保留中文;刪掉區塊再用同一個 id,舊譯文不能冒出來
+	ok("PUT", "/api/admin/i18n", `{"kind":"page_section","ref":"demo/b","path":"title","lang":"en","value":"Heading","status":"published"}`)
+	ok("POST", "/api/admin/topics/demo/blocks", `{"section":"b","title":"卡片","text":"內文"}`)
+	card := page()[0].Blocks[0].ID
+	ok("PUT", "/api/admin/i18n", `{"kind":"page_block","ref":"demo/`+card+`","path":"title","lang":"en","value":"Card","status":"published"}`)
+	english := func() store.PageSection {
+		t.Helper()
+		rec := call(env.h, http.MethodGet, "/api/topics/demo/page?lang=en", "", nil)
+		var out struct{ Sections []store.PageSection }
+		if err := json.Unmarshal(rec.Body.Bytes(), &out); err != nil || len(out.Sections) == 0 {
+			t.Fatalf("en page: %d %s", rec.Code, rec.Body)
+		}
+		return out.Sections[0]
+	}
+	if got := english(); got.Title != "Heading" || got.Blocks[0].Title != "Card" || got.Blocks[0].Text != "內文" {
+		t.Fatalf("英文版: %+v", got)
+	}
+	if got := page()[0]; got.Title != "標題" || got.Blocks[0].Title != "卡片" {
+		t.Fatalf("中文版不受影響: %+v", got)
+	}
+	ok("DELETE", "/api/admin/topics/demo/sections/b", "")
+	ok("POST", "/api/admin/topics/demo/sections", `{"id":"b","kind":"cards"}`)
+	ok("PATCH", "/api/admin/topics/demo/sections/b", `{"title":"新標題"}`)
+	if got := english(); got.Title != "新標題" {
+		t.Fatalf("重用 id 不該套到舊譯文: %+v", got)
+	}
 	ok("DELETE", "/api/admin/topics/demo", "")
 }

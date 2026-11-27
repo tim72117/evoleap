@@ -88,6 +88,13 @@ func (s *Store) DeleteTopic(ctx context.Context, user, id string) error {
 		if err := writeTopicParts(tx, user, id, topicParts{}); err != nil {
 			return err
 		}
+		oldPage, err := loadTopicPage(tx, id)
+		if err != nil {
+			return err
+		}
+		if err := dropPageTranslations(tx, user, id, oldPage, nil); err != nil {
+			return err
+		}
 		if err := deleteTopicPage(tx, id); err != nil {
 			return err
 		}

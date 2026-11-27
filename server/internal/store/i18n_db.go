@@ -38,6 +38,9 @@ const (
 	// 主題的清單項目(ref=主題id/項目id)與預覽段落說明(ref=主題id/段落名稱)
 	I18nTopicItem    = "topic_item"
 	I18nTopicSection = "topic_section"
+	// 主題頁的區塊與區塊裡的項目(ref=主題id/區塊id、主題id/項目id,見 topicpage.go)
+	I18nPageSection = "page_section"
+	I18nPageBlock   = "page_block"
 )
 
 // 譯文的狀態:draft 草稿、reviewed 已審、published 已發布(只有 published 會顯示在網站上)
@@ -281,6 +284,27 @@ func collectI18nSources(tx *gorm.DB) ([]i18nField, error) {
 	for _, sec := range sections {
 		add(I18nTopicSection, sec.TopicID+"/"+sec.Name, "note", sec.Note)
 	}
+	var pageSections []topicSectionDataRow
+	if err := tx.Find(&pageSections).Error; err != nil {
+		return nil, err
+	}
+	for _, s := range pageSections {
+		ref := s.TopicID + "/" + s.ID
+		add(I18nPageSection, ref, "eyebrow", s.Eyebrow)
+		add(I18nPageSection, ref, "title", s.Title)
+		add(I18nPageSection, ref, "lead", s.Lead)
+	}
+	var pageBlocks []topicBlockRow
+	if err := tx.Find(&pageBlocks).Error; err != nil {
+		return nil, err
+	}
+	for _, b := range pageBlocks {
+		ref := b.TopicID + "/" + b.ID
+		add(I18nPageBlock, ref, "title", b.Title)
+		add(I18nPageBlock, ref, "text", b.Text)
+		add(I18nPageBlock, ref, "note", b.Note)
+		add(I18nPageBlock, ref, "label", b.Label)
+	}
 	return out, nil
 }
 
@@ -379,6 +403,16 @@ func flattenPack(p *LangPack) []i18nField {
 	}
 	for _, ref := range sortedKeys(p.TopicSections) {
 		add(I18nTopicSection, ref, "note", p.TopicSections[ref])
+	}
+	for _, ref := range sortedKeys(p.PageSections) {
+		for _, path := range sortedKeys(p.PageSections[ref]) {
+			add(I18nPageSection, ref, path, p.PageSections[ref][path])
+		}
+	}
+	for _, ref := range sortedKeys(p.PageBlocks) {
+		for _, path := range sortedKeys(p.PageBlocks[ref]) {
+			add(I18nPageBlock, ref, path, p.PageBlocks[ref][path])
+		}
 	}
 	return out
 }
@@ -636,7 +670,7 @@ func (s *Store) EnglishCourseIDs(ctx context.Context) (map[string]bool, error) {
 
 // packFromRows 把「一個欄位一列」的譯文組回語言包。
 func packFromRows(rows []i18nTranslationRow) *LangPack {
-	p := &LangPack{Courses: map[string]i18nCourse{}, Units: map[string]i18nUnit{}, Lessons: map[string]i18nLesson{}, Topics: map[string]i18nTopic{}, TopicItems: map[string]i18nTopicItem{}, TopicSections: map[string]string{}}
+	p := &LangPack{Courses: map[string]i18nCourse{}, Units: map[string]i18nUnit{}, Lessons: map[string]i18nLesson{}, Topics: map[string]i18nTopic{}, TopicItems: map[string]i18nTopicItem{}, TopicSections: map[string]string{}, PageSections: map[string]map[string]string{}, PageBlocks: map[string]map[string]string{}}
 	about := map[string]map[int]string{}
 	for _, r := range rows {
 		v := r.Value
@@ -712,6 +746,10 @@ func packFromRows(rows []i18nTranslationRow) *LangPack {
 			if r.Path == "note" {
 				p.TopicSections[r.Ref] = v
 			}
+		case I18nPageSection:
+			setPageField(p.PageSections, r.Ref, r.Path, v)
+		case I18nPageBlock:
+			setPageField(p.PageBlocks, r.Ref, r.Path, v)
 		}
 	}
 	for id, items := range about {
@@ -730,6 +768,13 @@ func packFromRows(rows []i18nTranslationRow) *LangPack {
 		p.Courses[id] = c
 	}
 	return p
+}
+
+func setPageField(m map[string]map[string]string, ref, path, v string) {
+	if m[ref] == nil {
+		m[ref] = map[string]string{}
+	}
+	m[ref][path] = v
 }
 
 // mergePack 把 src 套在 dst 上(src 有的欄位蓋過 dst):回退語言鏈用。
@@ -784,6 +829,16 @@ func mergePack(dst, src *LangPack) {
 	for ref, s := range src.TopicSections {
 		dst.TopicSections[ref] = s
 	}
+	for ref, fields := range src.PageSections {
+		for path, v := range fields {
+			setPageField(dst.PageSections, ref, path, v)
+		}
+	}
+	for ref, fields := range src.PageBlocks {
+		for path, v := range fields {
+			setPageField(dst.PageBlocks, ref, path, v)
+		}
+	}
 }
 
 // ---- 管理:列出、讀、寫、缺的 ----
@@ -831,7 +886,7 @@ func validI18nStatus(s string) bool {
 }
 
 func validI18nKind(k string) bool {
-	return k == I18nCourse || k == I18nUnit || k == I18nLesson || k == I18nTopic || k == I18nTopicItem || k == I18nTopicSection
+	return k == I18nCourse || k == I18nUnit || k == I18nLesson || k == I18nTopic || k == I18nTopicItem || k == I18nTopicSection || k == I18nPageSection || k == I18nPageBlock
 }
 
 func (s *Store) sourceMap(db *gorm.DB) (map[string]i18nSourceRow, error) {
@@ -862,7 +917,7 @@ func (s *Store) ListI18n(ctx context.Context, f I18nFilter) ([]I18nItem, error) 
 		return nil, invalid("status 要是 draft、reviewed 或 published")
 	}
 	if f.Kind != "" && !validI18nKind(f.Kind) {
-		return nil, invalid("kind 要是 course、unit、lesson、topic、topic_item 或 topic_section")
+		return nil, invalid("kind 要是 course、unit、lesson、topic、topic_item、topic_section、page_section 或 page_block")
 	}
 	limit := f.Limit
 	if limit <= 0 {
@@ -952,7 +1007,7 @@ func (s *Store) SetI18n(ctx context.Context, user string, in I18nSet) (I18nItem,
 		in.Origin = I18nOriginHuman
 	}
 	if !validI18nKind(in.Kind) {
-		return I18nItem{}, invalid("kind 要是 course、unit、lesson、topic、topic_item 或 topic_section")
+		return I18nItem{}, invalid("kind 要是 course、unit、lesson、topic、topic_item、topic_section、page_section 或 page_block")
 	}
 	if !validI18nStatus(in.Status) {
 		return I18nItem{}, invalid("status 要是 draft、reviewed 或 published")
@@ -1040,7 +1095,7 @@ type I18nMissing struct {
 // MissingI18n 列出登記表有(原文沒被刪)、這個語言還沒有譯文或譯文過時的欄位。kind 空的不篩。
 func (s *Store) MissingI18n(ctx context.Context, lang, kind string) ([]I18nMissing, error) {
 	if kind != "" && !validI18nKind(kind) {
-		return nil, invalid("kind 要是 course、unit、lesson、topic、topic_item 或 topic_section")
+		return nil, invalid("kind 要是 course、unit、lesson、topic、topic_item、topic_section、page_section 或 page_block")
 	}
 	db := s.db.WithContext(ctx)
 	var lg i18nLanguageRow
