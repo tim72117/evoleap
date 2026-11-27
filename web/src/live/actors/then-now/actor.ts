@@ -19,7 +19,7 @@
 //   { "look": 2 }              檢查第 2 行(1–4);沒寫錯的行標成「沒問題」,第 3 行會找到少掉的引號
 //   { "mend": "\"" }           在找到的地方補一個符號:"(對)、>、/、;(都不對,畫面還是壞的);要先 look 找到才行
 //   { "replay": 3 }            (task 是 write)回到目前這一邊的第 3 個階段重新演(下方進度點了就是它)
-//   { "turn": "frame" }        (task 是 write)換到中間的「後來:用框架」;handwrite 寫的是目前這個時代的程式
+//   { "turn": "frame" }        (task 是 write)換到中間的「後來:對話式 AI」(chatEra.ts);handwrite 寫的是目前這個時代的程式
 //   { "turn": "now" }          換到「現在」或換回 "then";兩邊隨時可以切換,各自的進度保留;已經在那一邊就不變
 //   { "tell": "…", "want": "menu" }   對 AI 說一句話(逐字打出);want 是這句話要的東西,沒寫時用 asks 裡同一句的 want
 //   { "craft": true }          AI 動手:讀懂、寫程式、檢查,預覽上長出成品;要先 tell
@@ -30,20 +30,25 @@
 import { kit } from '../../kit'
 import { defineActor, type CommonStepFields } from '../../types'
 import './actor.css'
+import { chatFrame } from './chatEra'
+import { chatArea, chatPart, share, type Area } from './focus'
+import { handMs } from './handEdit'
 import { CHUNKS, chunkText, chunksOf, codeHtml, fixHtml, framePreview, previewHtml, thenPreview, spent, symbolCount, testsHtml, timeText, writtenChars, writtenLines, type Era, type SignupWant, type TestFix, type TestItem, type TestRun } from './sample'
 
 export type Want = 'button' | 'sale' | 'menu' | 'hours' | SignupWant
 type Kind = 'handwrite' | 'replay' | 'look' | 'mend' | 'turn' | 'tell' | 'craft' | 'tally'
-export type ThenNowStep = CommonStepFields & { handwrite?: boolean | 'all'; replay?: number; look?: number; mend?: string; turn?: string; tell?: string; want?: string; craft?: boolean; tally?: boolean }
+export type ThenNowStep = CommonStepFields & { /** 手寫示範的打字速度(每秒幾字)與段落停頓(毫秒) */ cps?: number; pause?: number; handwrite?: boolean | 'all'; replay?: number; look?: number; mend?: string; turn?: string; tell?: string; want?: string; craft?: boolean; tally?: boolean }
 export interface ThenNowProps {
   shop?: string
   task?: 'fix' | 'write'
   asks?: { text: string; want: Want }[]
+  /** true:自動示範依 以前 → 後來 → 現在 接著演,換分頁從那一邊的開頭演起 */
+  tour?: boolean
 }
 type Tone = 'hint' | 'ok' | 'bad' | 'good'
 export interface ThenNowState {
   mode: 'then' | 'frame' | 'now'
-  /** task 是 write:框架時代寫了幾段(0–4) */
+  /** task 是 write:對話式 AI 時代做到第幾段(0–3) */
   framed: number
   task: 'fix' | 'write'
   /** task 是 write:寫了幾段(0–4) */
@@ -102,7 +107,7 @@ const NOTE_MADE = '做好了。AI 動手，你只說了一句話。'
 const NOTE_WRITE = '以前要自己把程式一個字一個字打出來。'
 const NOTE_SAY = '現在交給 AI Agent：說清楚要什麼就好。'
 /** 自己寫版的「現在」:AI Agent 做的三件事(和 AI_STEPS 一一對應) */
-const AGENT_STEPS = ['讀專案裡的程式', '自己修改程式', '探索測試、修錯重跑']
+const AGENT_STEPS = ['讀程式', '改程式', '測試修錯']
 /** AI Agent 自己跑測試:第一次抓到一項失敗,自己修好再跑一次全過 */
 const AGENT_RUN = (fixed: boolean): TestRun => ({
   how: fixed ? 'AI Agent：修好了，重跑一次' : 'AI Agent：自己在畫面上探索、亂點亂填',
@@ -185,9 +190,9 @@ export function init(props: ThenNowProps): ThenNowState {
 /** 換到某一邊時要顯示的訊息:照那一邊目前做到哪裡 */
 /** 目前這個時代寫了幾段 */
 const countOf = (st: ThenNowState): number => (st.mode === 'frame' ? st.framed : st.written)
-const NOTE_FRAME = '後來有了框架：拆成元件，畫面更新交給它。'
+const NOTE_FRAME = '後來有了對話式 AI：用說的，它回你程式。搬程式還是靠你的手。'
 const noteFramed = (n: number): ThenNowState['note'] =>
-  n === 0 ? { tone: 'hint', text: NOTE_FRAME } : n >= chunksOf('frame').length ? { tone: 'bad', text: '測試自動跑，抓到一個錯；原因還是要自己找、自己改。' } : { tone: 'ok', text: `完成「${chunksOf('frame')[n - 1].name}」。下一步：${chunksOf('frame')[n].name}。` }
+  n === 0 ? { tone: 'hint', text: NOTE_FRAME } : n >= chunksOf('frame').length ? { tone: 'bad', text: '做出來了。可是每改一次，都要自己再搬一趟。' } : { tone: 'ok', text: `完成「${chunksOf('frame')[n - 1].name}」。下一步：${chunksOf('frame')[n].name}。` }
 
 function noteOf(st: ThenNowState, mode: ThenNowState['mode']): ThenNowState['note'] {
   if (mode === 'frame') return noteFramed(st.framed)
@@ -270,7 +275,10 @@ export function apply(st: ThenNowState, kind: Kind, s: ThenNowStep): ThenNowStat
 }
 
 /** 各動作的長度與畫面切換的時間點(毫秒)。tell:打完字停 pressAt 按下送出,再到 sendAt 變成送出的泡泡 */
-const T = { writeLead: 150, writeTail: 200, writeAll: 600, writeMax: 1100, replay: 250, look: 900, lookAt: 320, mend: 1500, mendAt: 520, turn: 1100, turnAt: 450, tellLead: 300, pressAt: 350, sendAt: 600, tellTail: 1000, craft: 3400, craftTicks: [500, 1400, 2500], craftShow: 1400, tally: 1400 }
+const T = { writeLead: 150, writeTail: 900, writeAll: 600, writeMax: 1100, replay: 250, look: 900, lookAt: 320, mend: 1500, mendAt: 520, turn: 1100, turnAt: 450, tellLead: 300, pressAt: 350, sendAt: 600, tellTail: 1000, craft: 3400, craftTicks: [500, 1400, 2500], craftShow: 1400, tally: 1400 }
+/** 自動示範(寫程式、跑測試、AI Agent 做事)放慢幾倍:原速看不清楚在做什麼 */
+const SLOW = 1.6
+const isDemo = (kind: Kind | undefined, task: unknown): boolean => kind === 'handwrite' || (kind === 'craft' && task === 'write')
 /** 打字速度(每秒幾個字):慢到看得出是一個字一個字打 */
 const CPS = 11
 /** 自己寫程式的打字速度(一段很長,打快一點) */
@@ -292,8 +300,12 @@ function testStage(run: TestRun, t: number): { fixing: boolean; html: string } {
   }
   return { fixing: false, html: testsHtml(run, Math.floor(t / run.each)) }
 }
-const writeTyping = (era: Era, n: number): number => {
-  const run = chunksOf(era)[n - 1]?.tests
+const writeTyping = (era: Era, n: number, step?: ThenNowStep): number => {
+  const chunk = chunksOf(era)[n - 1]
+  const run = chunk?.tests
+  // 手寫那一段:長度照打字速度與段落停頓算(畫面裡的刻度,播放時再乘 SLOW)
+  if (era === 'then' && n === 1) return handMs(chunk.lines, step?.cps, step?.pause) / SLOW
+  if (chunk?.edits) return chunk.ms!
   // 程式再長也很快帶過;測試那一段一項一項跑
   return run ? testLength(run) : Math.min(chunksOf(era)[n - 1]?.ms ?? T.writeMax, kit.typeDuration(chunkText(era, n), CODE_CPS))
 }
@@ -343,7 +355,7 @@ function tallyHtml(shop: string, st: ThenNowState): string {
   return (
     col('then', '以前 · 自己寫程式', [write ? time('then') : ['你要打的字', String(chars), ' 個字'], ['要顧的符號', String(symbols), write ? ' 個，都要自己打' : ' 個，錯 1 個就壞']], write ? STEPS_WRITE : STEPS_THEN) +
     (write && st.framed === chunksOf('frame').length
-      ? col('then', '後來 · 用框架', [time('frame'), ['要顧的符號', String(symbolCount('frame')), ' 個，還要懂元件']], ['裝套件', '寫元件', '寫測試'])
+      ? col('then', '後來 · 對話式 AI', [time('frame'), ['手動來回', '2', ' 趟，AI 只幫你翻譯']], ['問', '複製', '貼上', '存檔', '打開看', '貼回去'])
       : '') +
     col('now', write ? '現在 · AI Agent' : '現在 · 說一句話', [write ? time('now') : ['你要打的字', String(said), ' 個字'], ['要顧的符號', '0', ' 個']], write ? STEPS_AGENT : STEPS_NOW)
   )
@@ -359,8 +371,8 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
 
   duration(kind, step, _props, prev) {
     if (kind === 'replay') return T.replay
-    if (kind === 'craft' && prev?.task === 'write') return AGENT_T.total
-    if (kind === 'handwrite') return step.handwrite === 'all' ? T.writeAll : T.writeLead + writeTyping(eraOf(prev?.mode ?? 'then'), Math.min(chunksOf(eraOf(prev?.mode ?? 'then')).length, (prev ? countOf(prev) : 0) + 1)) + T.writeTail
+    if (kind === 'craft' && prev?.task === 'write') return AGENT_T.total * SLOW
+    if (kind === 'handwrite') return step.handwrite === 'all' ? T.writeAll * SLOW : SLOW * (T.writeLead + writeTyping(eraOf(prev?.mode ?? 'then'), Math.min(chunksOf(eraOf(prev?.mode ?? 'then')).length, (prev ? countOf(prev) : 0) + 1), step) + T.writeTail)
     if (kind === 'tell') return T.tellLead + kit.typeDuration(step.tell ?? '', CPS) + T.tellTail
     return T[kind]
   },
@@ -386,6 +398,8 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
     </div>`
     const q = <E extends HTMLElement = HTMLElement>(sel: string): E | null => root.querySelector<E>(sel)
     const frame = q('.tn-frame')!
+    const body = q('.tn-body')!
+    const isTall = kit.tallWatch(root)
     const work = q('.tn-work')!
     const page = q('.tn-page')!
     const meter = q('.tn-meter')!
@@ -442,7 +456,7 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
       tab.className = 'tn-tab'
       tab.dataset.m = 'frame'
       tab.dataset.t = 'tab:frame'
-      tab.textContent = '後來 · 用框架'
+      tab.textContent = '後來 · 對話式 AI'
       q('.tn-tab[data-m="now"]')!.before(tab)
       q('.tn-tab[data-m="now"]')!.textContent = '現在 · AI Agent'
     }
@@ -476,11 +490,17 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
     }
 
     /** 自己寫:寫好的幾段,加上正在打的那一段(自動示範,沒有按鈕) */
-    const writeHtml = (st: ThenNowState, typing: { chunk: number; chars: number } | null, elapsed: number): string => {
+    const writeHtml = (st: ThenNowState, typing: { chunk: number; chars: number; cps?: number; pause?: number } | null, elapsed: number): string => {
       const era = eraOf(st.mode)
+      if (era === 'frame' && st.mode === 'frame') {
+        // 還沒開始:第一段的第 0 毫秒
+        const now = chunksOf(era)[(typing ? typing.chunk : countOf(st)) - 1]
+        const chat = now ? chatFrame(now.chat!, typing ? elapsed : now.ms!) : chatFrame(1, 0)
+        return `<p class="tn-note" data-t="note" data-tone="${st.note.tone}">${kit.esc(st.note.text)}</p><div class="tn-code tn-chatera" data-t="code">${chat.html}</div>`
+      }
       const run = chunksOf(era)[(typing ? typing.chunk : countOf(st)) - 1]?.tests
       const stage = run ? testStage(run, typing ? elapsed : testLength(run)) : null
-      const file = stage?.fixing ? `修改 ${run!.fix!.file}` : run ? '測試' : st.mode === 'frame' ? 'App.jsx' : 'signup.html'
+      const file = stage?.fixing ? `修改 ${run!.fix!.file}` : run ? '測試' : 'signup.html'
       const body = stage ? stage.html : codeHtml(era, countOf(st), typing)
       return `<div class="tn-file">${file}</div><p class="tn-note" data-t="note" data-tone="${st.note.tone}">${kit.esc(st.note.text)}</p><div class="tn-code ${run ? 'tn-testing' : 'tn-source'}" data-t="code">${body}</div>`
     }
@@ -533,7 +553,8 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
         const st = latest
         if (!st) return null
         const [what, arg] = name.split(':')
-        if (what === 'tab') return arg === st.mode ? null : [{ turn: arg }]
+        // tour:換分頁就從那一邊的第一階段重新演起
+        if (what === 'tab') return arg === st.mode ? null : props.tour && st.task === 'write' ? [{ turn: arg }, { replay: 1 }] : [{ turn: arg }]
         if (what === 'stage') return st.task === 'write' ? [{ replay: Number(arg) }] : null
         if (st.task === 'write' && st.mode !== 'now') return null
         if (st.mode === 'then') {
@@ -551,7 +572,7 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
         if (!st || st.task !== 'write') return null
         return [
           { name: 'tab:then', label: '以前', sub: '自己寫', group: 'mode', on: st.mode === 'then' },
-          { name: 'tab:frame', label: '後來', sub: '用框架', group: 'mode', on: st.mode === 'frame' },
+          { name: 'tab:frame', label: '後來', sub: '對話式 AI', group: 'mode', on: st.mode === 'frame' },
           { name: 'tab:now', label: '現在', sub: 'AI Agent', group: 'mode', on: st.mode === 'now' },
           { name: 'next', label: '繼續看', primary: true },
         ]
@@ -561,7 +582,10 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
       auto() {
         const st = latest
         if (!st || st.task !== 'write') return null
-        if (st.mode !== 'now') return countOf(st) >= chunksOf(eraOf(st.mode)).length ? null : [{ handwrite: true }]
+        if (st.mode !== 'now') {
+          if (countOf(st) < chunksOf(eraOf(st.mode)).length) return [{ handwrite: true }]
+          return props.tour ? [{ turn: st.mode === 'then' ? 'frame' : 'now' }, { replay: 1 }] : null
+        }
         if (st.made) return null
         const ask = asks[0]
         return st.told ? [{ craft: true }] : ask ? [{ tell: ask.text }, { craft: true }] : null
@@ -573,8 +597,10 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
         latest = view.state
         const ev = view.ev && KINDS.includes(view.ev.kind as Kind) ? view.ev : null
         const kind = ev?.kind as Kind | undefined
-        const local = ev?.local ?? 0
         const step = (ev?.step ?? {}) as ThenNowStep
+        // 畫面裡的時間照原速的刻度算:預設放慢(SLOW)、腳本用 ms 指定長短,都只是把這個刻度拉長或壓短
+        const base = ev && kind ? actor.duration(kind, step, props, view.prev) / (isDemo(kind, view.state.task) ? SLOW : 1) : 0
+        const local = ev?.dur ? ev.local * (base / ev.dur) : 0
         // 動作前半還是原本的畫面,過了切換點才換成結果
         const flipAt = kind === 'look' ? T.lookAt : kind === 'mend' ? T.mendAt : kind === 'turn' ? T.turnAt : 0
         const st = ev && local < flipAt ? view.prev : view.state
@@ -588,11 +614,11 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
         // 正在打哪一段:打完才算寫好
         const era = eraOf(view.prev.mode)
         const chunk = Math.min(chunksOf(era).length, countOf(view.prev) + 1)
-        const busy = kind === 'handwrite' && step.handwrite === true && local < T.writeLead + writeTyping(era, chunk)
+        const busy = kind === 'handwrite' && step.handwrite === true && local < T.writeLead + writeTyping(era, chunk, step)
         if (st.mode !== 'now' && st.task === 'write') {
           const all = busy ? kit.graphemes(chunkText(era, chunk)).length : 0
-          const chars = busy ? Math.floor(all * kit.progress(local, T.writeLead, writeTyping(era, chunk))) : 0
-          html = writeHtml(busy ? view.prev : st, busy ? { chunk, chars } : null, Math.max(0, local - T.writeLead))
+          const chars = busy ? Math.floor(all * kit.progress(local, T.writeLead, writeTyping(era, chunk, step))) : 0
+          html = writeHtml(busy ? view.prev : st, busy ? { chunk, chars, cps: step.cps, pause: step.pause } : null, Math.max(0, local - T.writeLead))
         } else if (st.mode === 'then') {
           // 正在補的符號:先出現在缺口,補錯的變色後拿掉
           const wrong = kind === 'mend' && step.mend !== RIGHT
@@ -611,13 +637,67 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
           html = nowHtml(shown, typed, ticks, kind === 'craft', compose, kind === 'craft' ? local : Infinity)
         }
         kit.setIf(work, 'html', html)
+        // 直式版面:現在主要在看的那一區放大(橫式不變)
+        if (st.task === 'write' && isTall()) {
+          /** 某一邊做完 n 個階段、停著時看哪裡 */
+          const rest = (mode: ThenNowState['mode'], s: ThenNowState): Area =>
+            mode === 'now' ? (s.made ? 'view' : 'work') : mode === 'frame' ? (s.framed >= 2 ? 'view' : 'work') : s.written >= CHUNKS.length ? 'view' : 'work'
+          let zoom = rest(st.mode, busy ? view.prev : st) === 'view' ? 1 : 0
+          let editor = st.mode === 'frame' && countOf(st) >= 2 ? 1 : 0
+          const before = rest(view.prev.mode, view.prev) === 'view'
+          if (busy) {
+            const t = Math.max(0, local - T.writeLead)
+            const run = chunksOf(era)[chunk - 1]
+            if (run.chat) {
+              zoom = share((x) => chatArea(run.chat!, x) === 'view', t, before)
+              editor = share((x) => chatPart(run.chat!, x) === 'editor', t, chunk > 2)
+            } else {
+              // 以前:打程式、單元測試看工作區;人工測試(在網頁上點)看預覽
+              zoom = share(() => !!run.tests?.items.some((x) => x.at), local, before)
+            }
+          } else if (kind === 'craft') zoom = share((x) => !!agentProbe(x) || x >= AGENT_T.total - 300, local, false)
+          else if (kind === 'turn' && view.prev.mode !== final.mode) {
+            const p = kit.ease.inOutCubic(kit.progress(local, 0, T.turn))
+            zoom = kit.lerp(before ? 1 : 0, rest(final.mode, final) === 'view' ? 1 : 0, p)
+          }
+          const top = kit.lerp(0.28, 0.66, zoom)
+          body.style.gridTemplateRows = `minmax(0, ${top.toFixed(3)}fr) minmax(0, ${(1 - top).toFixed(3)}fr)`
+          const talkBox = work.querySelector<HTMLElement>('.tn-cwin')
+          const edBox = work.querySelector<HTMLElement>('.tn-ced')
+          if (talkBox && edBox) {
+            talkBox.style.flexGrow = kit.lerp(3.2, 0.8, editor).toFixed(3)
+            edBox.style.flexGrow = kit.lerp(1, 3.4, editor).toFixed(3)
+          }
+        } else body.style.gridTemplateRows = ''
+        // 對話式 AI:聊天停在最新的訊息;示範進行中的網頁開了沒、正在點哪裡
+        const talk = work.querySelector<HTMLElement>('.tn-cchat')
+        if (talk) {
+          // 平常停在最新的訊息;正在複製那段程式時,讓它的檔名列(複製鈕)露出來
+          const copying = talk.querySelector('.tn-cblock .tn-mouse, .tn-cblock pre.sel')?.closest<HTMLElement>('.tn-cblock')
+          const top = (el: HTMLElement): number => {
+            let y = 0
+            for (let e: HTMLElement | null = el; e; e = e.offsetParent as HTMLElement | null) y += e.offsetTop
+            return y
+          }
+          talk.scrollTop = copying ? Math.max(0, top(copying) - top(talk) - 8) : talk.scrollHeight
+        }
+        // 編輯器:修正後捲到改的那一行,其他時候從頭看
+        const code = work.querySelector<HTMLElement>('.tn-ced pre')
+        if (code) {
+          const mark = code.querySelector<HTMLElement>('mark')
+          code.scrollTop = mark ? Math.max(0, mark.offsetTop - code.clientHeight / 2) : 0
+        }
+        const chat = busy && st.mode === 'frame' ? chatFrame(chunksOf('frame')[chunk - 1].chat!, Math.max(0, local - T.writeLead)) : null
         // 程式越寫越長:程式區停在最新的那一行(打完重畫也一樣)
         if (st.task === 'write' && st.mode !== 'now') {
           const src = work.querySelector<HTMLElement>('.tn-source')
-          if (src) src.scrollTop = src.scrollHeight
+          // 回頭改前面的行時,捲到正在改的那一行
+          const editing = src?.querySelector<HTMLElement>('.tn-editing')
+          const first = src?.querySelector<HTMLElement>('.tn-src')
+          if (src) src.scrollTop = editing && first ? Math.max(0, editing.offsetTop - first.offsetTop - src.clientHeight / 2) : src.scrollHeight
         }
 
-        // 自己寫、用框架的測試清單:捲到正在跑的那一項,跑完捲到最下面的總結
+        // 自己寫的測試清單:捲到正在跑的那一項,跑完捲到最下面的總結
         if (st.task === 'write' && st.mode !== 'now') {
           const box = work.querySelector<HTMLElement>('.tn-testing:not(.tn-agent)')
           if (box) {
@@ -645,7 +725,7 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
         if (st.task === 'write' && st.mode !== 'now') {
           const testing = busy ? chunksOf(era)[chunk - 1]?.tests : chunksOf(eraOf(st.mode))[countOf(st) - 1]?.tests
           if (testing) probe = probeOf(testing, busy ? local - T.writeLead : testLength(testing))
-          if (probe && (busy ? view.prev.mode : st.mode) === 'frame') probe = { ...probe, who: 'script' }
+          if (chat) probe = chat.probe
         } else if (st.task === 'write' && st.made && kind === 'craft') probe = agentProbe(local)
         showProbe(probe)
 
@@ -668,7 +748,7 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
           page,
           'html',
           pageState.task === 'write'
-            ? previewHtml(side === 'now' ? 4 : side === 'frame' ? framePreview(pageState.framed) : thenPreview(pageState.written), side === 'now' && pageState.made ? (pageState.want as SignupWant) : null, fresh)
+            ? previewHtml(side === 'now' ? 4 : side === 'frame' ? (chat?.opened ? 4 : framePreview(pageState.framed)) : thenPreview(pageState.written), side === 'now' && pageState.made ? (pageState.want as SignupWant) : null, fresh)
             : pageHtml(shop, side === 'now' ? { ...pageState, fixed: true } : { ...pageState, made: false }, fresh),
         )
         const grown = page.querySelector<HTMLElement>('.tn-new')
@@ -698,7 +778,7 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
 
         // 工作進度:「以前」是四段程式,「現在」是 AI 的三件事;done 做完、now 正在做或下一件
         if (st.task === 'write') {
-          const names = st.mode !== 'now' ? chunksOf(eraOf(st.mode)).map((c) => c.name) : ['說清楚要什麼', ...AGENT_STEPS]
+          const names = st.mode !== 'now' ? chunksOf(eraOf(st.mode)).map((c) => c.name) : ['說需求', ...AGENT_STEPS]
           const aiDone = kind === 'craft' ? (st.task === 'write' ? AGENT_T.ticks : T.craftTicks).filter((t) => local >= t).length : final.made ? AI_STEPS.length : 0
           // 打字中、還沒按送出:第一階段還在進行
           const saying = kind === 'tell' && local < T.tellLead + kit.typeDuration(final.told ?? '', CPS) + T.sendAt
@@ -709,14 +789,15 @@ const actor = defineActor<Kind, ThenNowStep, ThenNowProps, ThenNowState, Target>
           if (current) {
             const typingStage = st.mode !== 'now' && busy
             const sending = st.mode === 'now' && (kind === 'tell' || kind === 'craft')
-            const part = typingStage ? kit.progress(local, T.writeLead, writeTyping(era, chunk)) : kind === 'tell' ? kit.progress(local, 0, view.ev?.dur ?? 1) : kind === 'craft' ? kit.progress(local, 0, AGENT_T.total) : 0
-            current.dataset.run = typingStage || sending ? '1' : '0'
+            const part = typingStage ? kit.progress(local, T.writeLead, writeTyping(era, chunk, step)) : kind === 'tell' ? kit.progress(local, 0, view.ev?.dur ?? 1) : kind === 'craft' ? kit.progress(local, 0, AGENT_T.total) : 0
+            // 剛點了這一階段(replay)就先亮起來,不等示範開始打
+            current.dataset.run = typingStage || sending || kind === 'replay' ? '1' : '0'
             current.style.setProperty('--p', part.toFixed(3))
           }
           // 右下角:寫了幾行(或說了幾句)和累計花的時間;進行中的階段跟著進度一起累加
           const era_ = st.mode === 'now' ? 'now' : eraOf(st.mode)
           const running = current?.dataset.run === '1' ? Number(current.style.getPropertyValue('--p')) : 0
-          const first = st.mode === 'now' ? `<span>說 <b class="tn-num">${st.told && !saying ? 1 : 0}</b> 句話</span>` : `<span>寫了 <b class="tn-num">${writtenLines(eraOf(st.mode), countOf(busy ? view.prev : st))}</b> 行</span>`
+          const first = st.mode === 'now' ? `<span>說 <b class="tn-num">${st.told && !saying ? 1 : 0}</b> 句話</span>` : st.mode === 'frame' ? `<span>手動來回 <b class="tn-num">${Math.max(0, countOf(busy ? view.prev : st) - 1)}</b> 趟</span>` : `<span>寫了 <b class="tn-num">${writtenLines('then', countOf(busy ? view.prev : st))}</b> 行</span>`
           kit.setIf(meter, 'html', `${first}<span>用了 <b class="tn-num">${timeText(spent(era_, done, running))}</b></span>`)
         }
 

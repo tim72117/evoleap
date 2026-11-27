@@ -201,7 +201,7 @@ export function IntroDemo({ script, label, artwork }: { script: string; label: s
         await playNext(CLIP)
         await sleep(GAP)
         await operate('stage:2', CLIP)
-        // 後來:用框架
+        // 後來:對話式 AI
         await operate('tab:frame', CLIP)
         await operate('stage:2', CLIP)
         // 現在:對 AI Agent 說一句話;再按第二個階段,看它從讀程式演到測試、修錯重跑

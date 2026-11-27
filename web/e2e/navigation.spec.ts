@@ -2,7 +2,7 @@
 // 前端換頁後 <title> 與 canonical 要和 server 預先產生的 HTML 一致;
 // 每個公開頁與主要內部頁開啟時沒有 console error / 例外 / 失敗的請求。
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
-import { collectErrors, distSitemapPages, distSitemapPaths, ensureLandscape, expectLabel, landscape, mapLessons, ORIGIN, openCoursePanel, parseHead, loginAsNewStudent } from './support'
+import { collectErrors, reachMoment, distSitemapPages, distSitemapPaths, ensureLandscape, expectLabel, landscape, mapLessons, ORIGIN, parseHead, loginAsNewStudent } from './support'
 
 /** server 回傳的(預先產生的)HTML 裡的 <title> */
 async function serverTitle(request: APIRequestContext, path: string): Promise<string> {
@@ -44,9 +44,8 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
   await expectHeadMatches(page, request, '/courses/software/2')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('測試單課 software/0.2')
 
-  // 下一課(側欄預設收合,先點右上角的章節膠囊打開)
-  await openCoursePanel(page)
-  await page.getByRole('navigation', { name: '上一課與下一課' }).getByRole('link', { name: /下一課/ }).click()
+  // 下一課:連結在播放器控制列(手機是底部工具列)
+  await page.getByRole('link', { name: /^下一課/ }).first().dispatchEvent('click')
   await expectHeadMatches(page, request, '/courses/software/3')
 
   // 第 2、3 課都是互動版,沒有網站頁首與麵包屑:從左上角「← 課程」回課程總覽,再從頁首回首頁
@@ -227,12 +226,11 @@ test('網頁怎麼運作:首頁卡片連到主題,課程清單的標示依資料
   for (const l of lessons) await expectLabel(row(l.title), l)
   expect(lessons[0]).toMatchObject({ id: '0.1', label: '試看' })
 
-  // 第一課不用登入:直接進到互動舞台,側欄有下一課
+  // 第一課不用登入:直接進到互動舞台,有下一課
   await row('測試單課 web/0.1').getByRole('link').click()
   await expect(page).toHaveURL(/\/courses\/web\/0-1$/)
   await expect(page.locator('.vp')).toBeVisible()
-  await openCoursePanel(page)
-  await expect(page.getByRole('link', { name: '下一課：第 0.2 課 →' })).toHaveAttribute('href', '/courses/web/0-2')
+  await expect(page.getByRole('link', { name: '下一課：第 0.2 課 →' }).first()).toHaveAttribute('href', '/courses/web/0-2')
   await expect(page.locator('main').getByRole('link', { name: '登入或註冊' })).toHaveCount(0)
   expect(errors).toEqual([])
 })
@@ -305,16 +303,16 @@ test('研發基地:AI 工具技巧與兒童網頁課在「課程」,直式舞台
   const sub = page.getByRole('navigation', { name: '課程頁面' })
   await expect(sub.getByRole('link', { name: '兒童網頁課' })).toHaveAttribute('href', '/studio/kids-web')
   await expect(sub.getByRole('link', { name: '網頁運作知識' })).toHaveAttribute('href', '/studio/web-basics')
-  // 「做出自己的軟體」的 L1–L4 框成一組(L0 的課全部上架了,已從基地拿掉),前面多一個序章 B 版試做
+  // 「做出自己的軟體」的 L1–L4 框成一組(L0 的課全部上架了,已從基地拿掉)
   // 預設收合(不在這一組的頁面時一課都不顯示),按群組名稱展開
   const series = sub.getByRole('group', { name: '做出自己的軟體' })
   await expect(series.getByRole('link')).toHaveCount(0)
   await series.getByRole('button', { name: /做出自己的軟體/ }).click()
   await expect(series.getByRole('button', { name: /做出自己的軟體/ })).toHaveAttribute('aria-expanded', 'true')
-  await expect(series.getByRole('link')).toHaveCount(5)
-  // 窄視窗只顯示等級代號(「起步」),完整課名藏起來,所以用連結目標找,不靠課名
-  await expect(series.getByRole('link').first()).toHaveAttribute('href', '/studio/software-intro-b')
-  await expect(series.getByRole('link').first()).toHaveAttribute('title', '起步 序章 B 版')
+  await expect(series.getByRole('link')).toHaveCount(4)
+  // 窄視窗只顯示等級代號(「L1」),完整課名藏起來,所以用連結目標找,不靠課名
+  await expect(series.getByRole('link').first()).toHaveAttribute('href', '/studio/ai-tools')
+  await expect(series.getByRole('link').first()).toHaveAttribute('title', 'L1 AI 工具入門')
   await expect(series.getByRole('link', { name: '兒童網頁課' })).toHaveCount(0)
   await page.goto('/studio/portrait')
   await expect(page.locator('h1')).toContainText('直式舞台')
@@ -389,23 +387,22 @@ test('互動教學場景:回答後演員回應,回答加進時間軸,可以重�
   await expect(page.getByRole('link', { name: '← 演員互動' })).toHaveAttribute('href', '/studio/actor-interaction')
   await ensureLandscape(page)
 
-  // 從步驟清單跳到第一個互動點
-  const panel = await openCoursePanel(page)
-  await panel.getByRole('button', { name: /客人甲明天就要蛋糕/ }).click()
-  await expect(panel.getByRole('heading', { name: /客人甲明天就要蛋糕/ })).toBeVisible()
-
-  await panel.getByRole('button', { name: '蛋糕要提前兩天訂，後天可以嗎？' }).click()
+  // 播到第一個互動點:題目與選項浮在播放器上
+  const option = page.getByRole('button', { name: '蛋糕要提前兩天訂，後天可以嗎？' })
+  const play = page.locator('.vp-play')
+  await expect(page.locator('.vp-bar')).not.toHaveAttribute('aria-valuemax', '0', { timeout: 15_000 })
+  await play.dispatchEvent('click')
+  await expect(option).toBeVisible({ timeout: 20_000 })
+  await expect(page.getByRole('heading', { name: /客人甲明天就要蛋糕/ })).toBeVisible()
+  await option.click()
   await expect(page.locator('.A-chat .ch-row.mine').first()).toContainText('後天可以嗎')
-  // 回答後側欄收合,再打開
-  await openCoursePanel(page)
-  await panel.getByRole('button', { name: '步驟', exact: true }).click()
-  await expect(panel.getByRole('button', { name: /你的回答/ })).toBeVisible()
 
-  // 自己打字:先收回剛才的回答
-  await panel.getByRole('button', { name: /^互動( \d+)?$/ }).click()
-  await panel.getByRole('button', { name: '重新回答' }).click()
-  await panel.getByRole('textbox').fill('蛋糕來不及，<b>改後天</b>好嗎')
-  await panel.getByRole('button', { name: '送出' }).click()
+  // 自己打字:時間軸拖回開頭收回剛才的回答,再播到互動點
+  await page.locator('.vp-bar').press('Home')
+  if (await page.locator('.vp').evaluate((el) => el.classList.contains('paused'))) await play.dispatchEvent('click')
+  await expect(option).toBeVisible({ timeout: 20_000 })
+  await page.getByRole('textbox').fill('蛋糕來不及，<b>改後天</b>好嗎')
+  await page.getByRole('button', { name: '送出' }).click()
   await expect(page.locator('.A-chat .ch-row.mine').first()).toHaveText('蛋糕來不及，<b>改後天</b>好嗎')
   expect(errors).toEqual([])
 })
@@ -413,18 +410,18 @@ test('互動教學場景:回答後演員回應,回答加進時間軸,可以重�
 test('靜態演員:互動時影片停止,演員畫在舞台外且不受舞台縮放,回答後收起', async ({ page }) => {
   const errors = collectErrors(page)
   await page.goto(landscape('/studio/actor-interaction/static'))
-  const panel = await openCoursePanel(page)
   await expect(page.getByTestId('static-actor')).toHaveCount(0)
-  await panel.getByRole('button', { name: /你要送出哪一句/ }).click()
+  await reachMoment(page, page.getByTestId('static-actor').getByRole('button', { name: '建立 hello.txt，寫一句問候' }))
 
   const still = page.getByTestId('static-actor').locator('.A-claude-desktop')
   await expect(still).toBeVisible()
   await expect(still).toContainText('描述你要做的事')
-  // 字維持演員原本的大小(--u 是 18px),舞台裡的同一位演員則跟著縮放
+  // 字維持演員原本的大小(--u 是 18px),不跟著舞台縮放
   const scaleOf = (loc: typeof still) => loc.evaluate((el) => el.getBoundingClientRect().width / (el as HTMLElement).offsetWidth)
-  // (窄視窗打開側欄時靜態演員可用的寬度變窄,可能為了放得下而縮一點點)
+  // (窄視窗靜態演員可用的寬度變窄,可能為了放得下而縮一點點)
   expect(await scaleOf(still)).toBeCloseTo(1, 1)
-  expect(await scaleOf(page.locator('.vp .live-stage .A-claude-desktop'))).toBeLessThan(1)
+  // 畫面上只有一份:影片舞台的同一位演員這時不在 DOM
+  await expect(page.locator('.vp .live-stage .A-claude-desktop')).toHaveCount(0)
 
   // 影片是停著的
   const time = page.locator('.vp-time')
@@ -433,25 +430,22 @@ test('靜態演員:互動時影片停止,演員畫在舞台外且不受舞台縮
   expect(await time.textContent()).toBe(before)
 
   // 直接在演員身上回答,不開詢問框;回答後收起並接著演
-  await expect(panel.getByRole('button', { name: '建立 hello.txt，寫一句問候' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: '建立 hello.txt，寫一句問候' })).toHaveCount(1)
   await page.getByTestId('static-actor').getByRole('button', { name: '建立 hello.txt，寫一句問候' }).click()
   await expect(page.getByTestId('static-actor')).toHaveCount(0)
   await expect(page.locator('.vp .live-stage .A-claude-desktop')).toContainText('建立 hello.txt，寫一句問候', { timeout: 15000 })
   expect(errors).toEqual([])
 })
 
-test('靜態演員:直式窄視窗播到互動點時,抽屜不展開,不擋住演員', async ({ page }, info) => {
+test('靜態演員:直式窄視窗播到互動點時,演員畫在舞台外', async ({ page }, info) => {
   test.setTimeout(60000)
-  test.skip(info.project.name !== 'mobile', '抽屜只在窄視窗出現')
+  test.skip(info.project.name !== 'mobile', '只測窄視窗')
   await page.goto('/studio/actor-interaction/static?aspect=portrait')
   await page.locator('.vp-big').click()
   await expect(page.getByTestId('static-actor')).toBeVisible({ timeout: 40000 })
-  // 抽屜不展開;下面的課程資訊(步驟清單)也收起來,把整個畫面讓給演員,回答後才回來(c70dc39 手機直式靜態版面)
-  await expect(page.getByRole('region', { name: '課程資訊' })).toHaveCount(0)
-  await expect(page.getByRole('complementary', { name: '課程章節與步驟' })).toHaveCount(0)
 })
 
-test('把演員推到主畫面:側欄讓開,直接在 Claude 上選指令與按允許,側欄維持章節與步驟', async ({ page }) => {
+test('把演員推到主畫面:直接在 Claude 上選指令與按允許', async ({ page }) => {
   const errors = collectErrors(page)
   // 在開發「演員互動」底下,返回也回到那裡
   await page.goto('/studio/actor-interaction')
@@ -459,41 +453,31 @@ test('把演員推到主畫面:側欄讓開,直接在 Claude 上選指令與按�
   await expect(page).toHaveURL('/studio/actor-interaction/push')
   await expect(page.getByRole('link', { name: '← 演員互動' })).toHaveAttribute('href', '/studio/actor-interaction')
   await ensureLandscape(page)
-  const panel = await openCoursePanel(page)
 
-  await panel.getByRole('button', { name: /你要送出哪一句/ }).click()
-  await expect(panel.getByRole('button', { name: /換你下指令/ })).toBeVisible()
+  const send = page.getByRole('button', { name: '建立 hello.txt，寫一句問候' })
+  await reachMoment(page, send)
   await expect(page.getByRole('textbox')).toHaveCount(0)
-  await page.getByRole('button', { name: '建立 hello.txt，寫一句問候' }).click()
+  await send.click()
   await expect(page.locator('.A-claude-desktop').first()).toContainText('建立 hello.txt，寫一句問候', { timeout: 15000 })
 
   // 播到確認提示:推到確認框上,按鈕就是演員自己的按鈕
   await page.getByRole('button', { name: '允許一次', exact: true }).click({ timeout: 25000 })
   await expect(page.locator('.A-claude-desktop').first()).toContainText('已建立', { timeout: 15000 })
-  // 側欄可以重新回答(回答後側欄收合,再打開)
-  await openCoursePanel(page)
-  await panel.getByRole('button', { name: '重新回答' }).first().click()
-  await expect(page.getByRole('button', { name: '幫我打個招呼' })).toBeVisible()
+  // 時間軸拖回開頭收回回答,可以重新回答
+  await page.locator('.vp-bar').press('Home')
+  await reachMoment(page, send)
   expect(errors).toEqual([])
 })
 
-test('L0 第 1 課是互動版:用原本的腳本,在 Claude 上回答後接著演,側欄有下一課與提示詞', async ({ page, context }) => {
+test('L0 第 1 課是互動版:用原本的腳本,在 Claude 上回答後接著演,控制列有下一課', async ({ page }) => {
   test.setTimeout(90000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
   await page.goto(landscape('/courses/software/1'))
-  const panel = await openCoursePanel(page)
-  // 原本的章節都在
-  await expect(panel.getByRole('button', { name: /安裝並登入/ })).toBeVisible()
-  await expect(panel.getByRole('link', { name: /第 2 課/ })).toHaveAttribute('href', '/courses/software/2')
-  // 課程的提示詞可以複製到自己的工具
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
-  await expect(panel.getByText('刪除 hello.txt', { exact: true })).toBeVisible()
-  await panel.getByRole('button', { name: '複製', exact: true }).first().click()
-  await expect(panel.getByRole('button', { name: '已複製 ✓' })).toBeVisible()
-
-  await panel.getByRole('button', { name: /你要送出哪一句/ }).click()
-  await page.getByRole('button', { name: '建立一個檔案', exact: true }).click()
+  await expect(page.getByRole('link', { name: /第 2 課/ }).first()).toHaveAttribute('href', '/courses/software/2')
+  const option = page.getByRole('button', { name: '建立一個檔案', exact: true })
+  await reachMoment(page, option)
+  await option.click()
   await expect(page.locator('.A-claude-desktop').last()).toContainText('你沒有說檔名和內容', { timeout: 20000 })
   await page.getByRole('button', { name: '拒絕', exact: true }).click({ timeout: 40000 })
   await expect(page.locator('.A-claude-desktop').last()).toContainText('好的，我不會建立這個檔案', { timeout: 20000 })
@@ -505,38 +489,25 @@ test('L0 第 2 課是互動版:選錯路徑時 Claude 會提醒,接著回到正�
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
   await page.goto(landscape('/courses/software/2'))
-  const panel = await openCoursePanel(page)
-  await expect(panel.getByRole('button', { name: /建立專案資料夾/ })).toBeVisible()
-  await expect(panel.getByText('目前的工作目錄是哪裡？', { exact: true })).toBeVisible()
-
-  await panel.getByRole('button', { name: /哪一句寫對了/ }).click()
-  await page.getByRole('button', { name: '在 idea.txt 記下：首頁要有預約按鈕', exact: true }).click()
+  const option = page.getByRole('button', { name: '在 idea.txt 記下：首頁要有預約按鈕', exact: true })
+  await reachMoment(page, option)
+  await option.click()
   await expect(page.locator('.A-claude-desktop')).toContainText('這樣檔案會放在工作目錄最外層', { timeout: 20000 })
   await expect(page.locator('.A-claude-desktop')).toContainText('已在 drafts/idea.txt 記下', { timeout: 40000 })
   expect(errors).toEqual([])
 })
 
 test('L0 第 3 課是互動版:播到響應式的互動點會停下,選手機後瀏覽器縮成手機寬度並說明,再繼續', async ({ page }) => {
-  test.setTimeout(90000)
+  test.setTimeout(180000)
   const errors = collectErrors(page)
   await loginAsNewStudent(page)
   await page.goto(landscape('/courses/software/3'))
-  const panel = await openCoursePanel(page)
   await expect(page.locator('.vp')).toBeVisible()
-  await expect(panel.getByRole('button', { name: /商品卡片的排列/ })).toBeVisible({ timeout: 15000 })
-  await expect(panel.getByText('同一個網頁，換個裝置會變成什麼樣子？')).toBeVisible()
-
-  // 從步驟清單跳到互動點:停下,三個裝置選項與「先看示範」都在
-  await panel.getByRole('button', { name: /換個裝置會變成什麼樣子/ }).click()
+  const phone = page.getByRole('button', { name: /手機/ }).first()
+  await reachMoment(page, phone)
   for (const name of ['手機', '平板', '桌面']) await expect(page.getByRole('button', { name: new RegExp(name) }).first()).toBeVisible()
-  await expect(page.getByRole('button', { name: '先看示範' }).first()).toBeVisible()
-
-  await page.getByRole('button', { name: /手機/ }).first().click({ timeout: 20000 })
-  // 回應:說明手機版的排法(字幕與標註),瀏覽器視窗變窄
+  await phone.click({ timeout: 20000 })
   await expect(page.getByText('手機：卡片一欄，導覽擠在一起')).toBeVisible({ timeout: 20000 })
-  await openCoursePanel(page)
-  await expect(panel.getByRole('button', { name: '重新回答' })).toBeVisible()
-  // 回答後自動接著播放:說完結論,視窗放寬回桌面,後面原本的演出照常
   await expect(page.getByText('同一份網頁，依螢幕寬度自動換排版').first()).toBeVisible({ timeout: 30000 })
   expect(errors).toEqual([])
 })
@@ -558,7 +529,6 @@ const PAGES = [
   '/studio',
   '/studio/kids-web',
   '/studio/web-basics',
-  '/studio/software-intro-b',
   '/studio/vibe-coding/4-1',
   '/studio/vibe-coding/4-2',
   '/studio/vibe-coding/4-3',

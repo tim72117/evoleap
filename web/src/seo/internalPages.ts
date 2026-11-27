@@ -30,7 +30,6 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/ai-agent/structure', 'L3 課程架構'],
     ['/studio/ai-agent/cover', 'L3 封面圖'],
     ['/studio/advanced', 'L4 進階'],
-    ['/studio/software-intro-b', '序章 B 版試做'],
     ['/studio/kids-family', '兒童課家長模式'],
     ['/studio/actor-interaction', '演員互動'],
     ['/studio/actor-interaction/showcase', '演員展示'],

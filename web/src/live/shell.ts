@@ -28,6 +28,7 @@
 // 控制列自動隱藏、鍵盤快捷鍵、觸控雙擊快轉倒轉、記住進度、播放時螢幕不休眠、系統媒體控制。
 import { messages } from '../i18n/current'
 import { createNarration, type Clip } from './narration'
+import { drawVoiceOrb, placeVoiceOrb, VOICE_ORB_HTML } from './voiceOrb'
 import { stageSize } from './place'
 import type { Aspect } from './types'
 
@@ -57,12 +58,14 @@ export type ShellOptions = {
   globalKeys?: boolean
   onFullscreenRequest?: (on: boolean) => void
   autoLandscape?: boolean
-  /** capsule:播放器鋪滿容器、控制列是浮動的膠囊(互動教學場景);外層用 --vp-inset-right、--vp-inset-bottom 讓出側欄的空間 */
+  /** capsule:播放器鋪滿容器、控制列是浮動的膠囊(互動教學場景);外層用 --vp-inset-right、--vp-inset-bottom 讓出空間 */
   layout?: 'capsule'
-  /** 放進控制列的元素(例如切換側欄的按鈕),擺在全螢幕按鈕前面 */
+  /** 放進控制列的元素(例如提示詞鈕),擺在全螢幕按鈕前面 */
   toolbar?: HTMLElement
   /** 練習點由外層處理:播放經過時暫停並呼叫它;回傳 true 表示外層處理了,否則照常顯示外殼的「停一下」畫面 */
   onStop?: (stop: ShellStop) => boolean
+  /** 時間往回跳了(拖曳、跳轉、重播) */
+  onRewind?: (from: number, to: number) => void
 }
 
 /** 播放進度的存取(例如登入會員存到伺服器);load 失敗請回 null,不要丟錯 */
@@ -73,6 +76,10 @@ export interface ProgressStore {
 }
 
 export interface Shell {
+  /** 目前的播放速度 */
+  readonly rate: number
+  readonly muted: boolean
+  toggleMute(): void
   play(): void
   pause(): void
   seek(ms: number): void
@@ -80,11 +87,13 @@ export interface Shell {
   toggleFullscreen(): void
   update(next: Partial<ShellOptions>): void
   setExternalFullscreen(on: boolean): void
-  /** 外層的控制項(例如互動課程頁的標題列與章節膠囊)被滑鼠指著時保持控制列顯示;放開後照常計時收起 */
+  /** 外層的控制項(例如互動課程頁的標題列與右上角按鈕)被滑鼠指著時保持控制列顯示;放開後照常計時收起 */
   holdControls(on: boolean): void
   /** 目前時間(毫秒) */
   readonly time: number
   readonly playing: boolean
+  /** 播到結尾了(播放鈕要顯示重播) */
+  readonly ended: boolean
   destroy(): void
 }
 
@@ -175,6 +184,7 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   root.innerHTML = `
       <div class="vp-stage"><div class="vp-canvas"></div></div>
       <div class="vp-caption" aria-live="off"></div>
+      ${VOICE_ORB_HTML}
       <div class="vp-hit"></div>
       <div class="vp-seekfx vp-seekfx-l"></div><div class="vp-seekfx vp-seekfx-r"></div>
       <button class="vp-big" type="button" aria-label="${L.play}">${ICON.play}</button>
@@ -219,7 +229,12 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   const audio = o.audio ? Object.assign(new Audio(o.audio), { preload: 'auto' }) : null
   if (audio) $('.vp-vol').hidden = false
   // 分段旁白:同一時間只播一段,依外殼時鐘決定播哪一段、播到哪裡(見 narration.ts)
-  const narration = createNarration(() => o.clips)
+  const narration = createNarration(
+    () => o.clips,
+    () => {
+      if (state.playing) pause()
+    },
+  )
   const syncOptional = (): void => {
     $('.vp-cc').hidden = !o.captions
     $('.vp-vol').hidden = !(audio || narration.hasClips)
@@ -267,7 +282,9 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   }
   const ro = new ResizeObserver(fit)
   ro.observe(root)
-  ro.observe($('.vp-stage')) // 膠囊版面開關側欄時,只有舞台區變大小
+  ro.observe($('.vp-stage')) // 版面改變時可能只有舞台區變大小
+  // 控制列出現時字幕會滑動:滑完再量一次
+  $('.vp-caption').addEventListener('transitionend', () => placeVoiceOrb($('.vp-voice'), $('.vp-caption')))
 
   // ---------- 章節刻度 ----------
   let chapters: ShellChapter[] = []
@@ -311,10 +328,14 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
       root.classList.toggle('paused', !state.playing)
       root.classList.toggle('ended', state.ended)
     }
-    const cap = o.captions && state.captions ? o.captions(t) : ''
+    // 有語音的句子等聲音真的開始才出字幕
+    const cap = o.captions && state.captions && !narration.waiting() ? o.captions(t) : ''
     const capEl = $('.vp-caption')
     if (capEl.textContent !== cap) capEl.textContent = cap
     capEl.hidden = !cap
+    // 旁白音檔真的在播才出現(靜音時照樣:看得出現在有人在講話)
+    drawVoiceOrb($('.vp-voice'), state.playing && ((narration.clock() != null && !narration.waiting()) || (!!audio && !audio.paused && !audio.ended)), t, narration.level())
+    placeVoiceOrb($('.vp-voice'), capEl)
     // 讀到上次的進度之前不存,否則會用開頭的 0 蓋掉它
     if (progressReady && Math.abs(t - state.lastSave) > PROGRESS_SAVE_MS) saveProgress()
   }
@@ -352,8 +373,9 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
       onPauseSide()
       showUi()
     }
-    draw()
+    // 先決定要不要開始念下一段,再畫:不然字幕會比聲音早一格
     narration.sync(state)
+    draw()
   }
 
   function showStop(stop: ShellStop): void {
@@ -372,8 +394,10 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     if (root.clientWidth === 0) return // 播放器被隱藏時不播,例如收合後按了媒體鍵
     hideStop()
     if (state.ended || state.t >= dur()) {
+      const from = state.t
       state.t = 0
       state.ended = false
+      o.onRewind?.(from, 0)
     }
     state.playing = true
     state.lastTick = performance.now()
@@ -405,13 +429,15 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
   const toggle = (): void => (state.playing ? pause() : play())
   function seek(ms: number): void {
     hideStop()
+    const from = state.t
     state.t = clamp(ms, 0, dur())
+    if (state.t < from) o.onRewind?.(from, state.t)
     state.ended = state.t >= dur() && !state.playing
     if (audio && audio.readyState) audio.currentTime = Math.min(state.t / 1000, audio.duration || 0)
     narration.reset()
     narration.warm(state.t)
-    draw()
     narration.sync(state)
+    draw()
   }
   function setRate(r: number): void {
     state.rate = r
@@ -786,6 +812,13 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     play,
     pause,
     seek,
+    toggleMute,
+    get muted() {
+      return state.muted
+    },
+    get rate() {
+      return state.rate
+    },
     setRate,
     toggleFullscreen: () => void toggleFullscreen(),
     /** 補上或更換內容資料(duration、renderAt、chapters、captions、title) */
@@ -809,6 +842,9 @@ export function mountShell(container: HTMLElement, opts: ShellOptions): Shell {
     setExternalFullscreen(on) {
       state.ext = !!on
       syncFsUi()
+    },
+    get ended() {
+      return state.ended
     },
     get playing() {
       return state.playing

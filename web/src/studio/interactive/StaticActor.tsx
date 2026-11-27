@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { ACTORS } from '../../live/actors'
 import { placeOf } from '../../live/place'
@@ -8,6 +8,8 @@ import { dragPlan, type DragPlan } from '../../kids/drag'
 import { DragLayer } from '../../kids/DragLayer'
 import { clickInPage, collapsedParts, goneInPage, spotId, staticScript, untilReached, type Answer, type Answers, type InteractSpot, type Moment } from './scene'
 import { useT } from '../../i18n/I18nProvider'
+import { locate, screenOf, startOf, type DemoPlan, type DemoView } from './demoEngine'
+import type { Shell } from '../../live/shell'
 import styles from './InteractiveScenePage.module.css'
 
 // 互動時的靜態演員:影片停在互動點,換成另一個舞台(主舞台先藏起來,不是壓暗),只有這位演員,停在同一個狀態。
@@ -15,7 +17,7 @@ import styles from './InteractiveScenePage.module.css'
 // 依舞台大小調整:單位跟著舞台寬度變小(CSS 的 --u),舞台太窄時收合不在互動區的區塊(互動點的 stage.zone),都是重新排版,不是整個縮小。
 // 學員直接操作演員:選項疊在演員的目標上(真實按鈕,演員不處理點擊);沒有對應目標的選項放進指定的區域(例如輸入框)。
 // 互動腳本(moment.interact,live/README.md 第 2A.7 節):觸發點疊在演員的目標上,點了就讓演員從目前的狀態演一段回應(舞台的 react),
-// 不重新載入、沒有互動時間軸;interact.cast 的第二位演員放在旁邊的側欄卡片,一樣可以有觸發點。
+// 不重新載入、沒有互動時間軸;interact.cast 的第二位演員放在旁邊的卡片,一樣可以有觸發點。
 // 詢問框只用在沒有演員可以操作的互動點(見 scene.ts 的 answersOnActor)。
 
 /** 自動示範:上一段演完到下一段開始之間停多久(毫秒) */
@@ -46,7 +48,7 @@ function play(runs: { stage: Stage; id: number; duration: number }[], done: () =
 }
 
 /**
- * 放在旁邊一起看的演員(interact.cast 的第二位,例如網頁旁邊的結構圖):一張浮在主要演員旁邊的側欄卡片(不放進主要演員的框裡)。
+ * 放在旁邊一起看的演員(interact.cast 的第二位,例如網頁旁邊的結構圖):一張浮在主要演員旁邊的卡片(不放進主要演員的框裡)。
  * 照卡片大小排版,字不縮放(--u 固定,見 .besideRoot);停在互動點那一刻的樣子,在主舞台上藏起來也照樣顯示。
  * 它身上的觸發點(spots)也疊成透明按鈕;回應由外面(StaticActor)交給這個舞台演
  */
@@ -66,7 +68,7 @@ function BesideActor({
   answers: Answers
   momentId: string
   actor: string
-  /** 蓋過演員的 props.only(stage.split 時側欄只顯示樹) */
+  /** 蓋過演員的 props.only(stage.split 時旁邊的卡片只顯示樹) */
   only?: string
   spots: Spot[]
   /** 拖曳在這張卡片上(stage.split):可以拖什麼、放下去演哪一步 */
@@ -202,17 +204,21 @@ type Props = {
   moment: Moment
   /** false:只呈現演員,回答在詢問框 */
   interactive: boolean
+  /** true:自動示範先等著(開場旁白還在講) */
+  holdAuto?: boolean
+  /** 併進主時間軸的示範(moment.demo):at 是它在時間軸上的開始;畫面照播放器目前的位置算(demoEngine.ts) */
+  demo?: { plan: DemoPlan; at: number; shell: () => Shell | undefined } | null
+  /** 學員自己按了演員身上的東西 */
+  onPress?: () => void
   headRef: RefObject<HTMLHeadingElement | null>
-  /** 題目與略過鈕放在演員旁邊(首頁嵌入沒有側欄時);課程頁的題目在導覽(側欄)裡 */
+  /** 題目與略過鈕放在演員旁邊(示範的互動點不放) */
   hint?: boolean
   /** 提示放在這裡(小播放器放不下,不要蓋住演員);不寫就在演員上方 */
   hintSlot?: HTMLElement | null
-  /** 互動腳本的 until 還沒達成時是 true,達成(或沒有 until)時是 false;頁面依此決定選項能不能按 */
-  onLocked?: (locked: boolean) => void
   onAnswer: (a: Answer) => void
 }
 
-export function StaticActor({ script, answers, moment, interactive, headRef, hint: withHint = false, hintSlot, onLocked, onAnswer }: Props) {
+export function StaticActor({ script, answers, moment, interactive, holdAuto = false, onPress, demo, headRef, hint: withHint = false, hintSlot, onAnswer }: Props) {
   const L = useT().player.scene
   const hostRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -223,6 +229,14 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
   const [clicks, setClicks] = useState<string[]>([])
   const clicksRef = useRef<string[]>([])
   const stageRef = useRef<Stage | null>(null)
+  /** 載入完成的那個舞台(示範時間線等它) */
+  const loadedStage = useRef<Stage | null>(null)
+  const demoRef = useRef(demo)
+  demoRef.current = demo
+  /** 學員正在看別的大段(影片停著);anchor 是停下時的影片時間,影片一動就回到主線 */
+  const viewRef = useRef<(DemoView & { anchor: number }) | null>(null)
+  /** 畫面上的大段|看別段時影片所在的大段 */
+  const [shownDemo, setShownDemo] = useState('')
   const besideStageRef = useRef<Stage | null>(null)
   const toggles = moment.interact ? undefined : moment.stage?.toggles
   // 拖曳(stage.drag):學員拖演員身上的東西(例如樹狀圖的節點),放下去就在靜態舞台上多演一步(例如 put),舞台重載後播放這一步
@@ -232,7 +246,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
   const [error, setError] = useState<string | null>(null)
   const interact = moment.interact
   const actor = interact?.cast[0] ?? (moment.stage?.focus ?? '').split(':')[0]
-  // stage.split:同一位演員分成兩張卡片,中間只顯示網頁、側欄只顯示樹;拖曳在側欄,放下去兩邊一起演(react)
+  // stage.split:同一位演員分成兩張卡片,中間只顯示網頁、旁邊只顯示樹;拖曳在旁邊的卡片,放下去兩邊一起演(react)
   const split = !!moment.stage?.split
   const beside = interact?.cast[1] ?? (split ? actor : undefined)
   const [splitDrops, setSplitDrops] = useState<ScriptStep[]>([])
@@ -245,9 +259,6 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
   const stopRef = useRef<(() => void)[]>([])
   const spots: Spot[] = (interact?.spots ?? []).map((s, i) => ({ ...s, key: `${i}:${s.target}`, pressed: (counts[spotId(s)] ?? 0) % 2 === 1 }))
   const locked = !untilReached(interact?.until, counts)
-  useLayoutEffect(() => onLocked?.(locked), [locked, onLocked])
-  // 離開互動點時解除(下一個互動點從沒鎖住開始,不沿用這一個的狀態)
-  useLayoutEffect(() => () => onLocked?.(false), [onLocked])
 
   // 演員自己處理點擊(實例有 press,且腳本沒寫互動腳本):不疊透明按鈕,點擊直接交給演員
   const [self, setSelf] = useState(false)
@@ -267,15 +278,52 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
       onAnswer({ option })
       return
     }
+    touched.current = true
+    onPress?.()
+    // 有示範時間線:切換鈕交給時間線;學員在演員身上的其他點擊不演、不記
+    if (moment.demo) {
+      pressDemo(name)
+      return
+    }
     const steps = stage.press(actor, name)
     if (!steps) return
-    // 切換鈕按下就先亮起來,不等動作演完
+    light(name)
+    runSelf(steps)
+  }
+  // 示範的切換鈕:別的大段只換檢視位置(影片暫停);正在播的大段與它的階段是時間軸上的位置
+  const pressDemo = (name: string): void => {
+    const d = demoRef.current
+    const shell = d?.shell()
+    if (!d || !shell) return
+    const { plan, at } = d
+    const [what, arg] = name.split(':')
+    const main = locate(plan, shell.time - at).index
+    const view = viewRef.current
+    const lookAt = (segment: string, section?: number): void => {
+      shell.pause()
+      viewRef.current = { segment, section, offsetMs: 0, anchor: shell.time }
+    }
+    if (what === 'tab') {
+      if (startOf(plan, arg) < 0 || arg === view?.segment) return
+      if (arg !== plan.segment[main]) lookAt(arg)
+      else if (view) {
+        viewRef.current = null
+        shell.play()
+      }
+    } else if (what === 'stage') {
+      const section = Number(arg)
+      const index = startOf(plan, view?.segment ?? plan.segment[main], section)
+      if (index < 0) return
+      if (view) lookAt(view.segment, section)
+      else if (!plan.sections[main].includes(section)) shell.seek(at + plan.starts[index])
+    }
+  }
+  // 切換鈕按下就先亮起來,不等動作演完
+  const light = (name: string): void =>
     setControls((list) => {
       const group = list.find((c) => c.name === name)?.group
       return group ? list.map((c) => (c.group === group ? { ...c, on: c.name === name } : c)) : list
     })
-    runSelf(steps)
-  }
   // 演員自己的回應與自動示範:同時只演一段;演完停一下,問演員下一步要示範什麼
   const selfStop = useRef<() => void>(() => {})
   const autoTimer = useRef<number>(0)
@@ -295,8 +343,60 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
       setError(String(err instanceof Error ? err.message : err))
     }
   }
+  // 示範:每一格照播放器的位置(或正在看的另一段)畫演員;聲音與字幕是播放器的
+  useEffect(() => {
+    if (!moment.demo) return
+    let raf = 0
+    let prev = performance.now()
+    let drawn: { stage: Stage; key: string; id: number; duration: number; t: number } | null = null
+    const frame = (now: number): void => {
+      raf = requestAnimationFrame(frame)
+      const dt = Math.min(250, now - prev)
+      prev = now
+      const stage = stageRef.current
+      const d = demoRef.current
+      const shell = d?.shell()
+      if (!stage || !d || !shell || loadedStage.current !== stage) return
+      const { plan } = d
+      const time = shell.time
+      let view = viewRef.current
+      if (view && (shell.playing || time !== view.anchor)) viewRef.current = view = null
+      if (view) view.offsetMs += dt * shell.rate
+      const main = plan.segment[locate(plan, time - d.at).index]
+      setShownDemo(`${view?.segment ?? main}|${view ? main : ''}`)
+      const screen = screenOf(plan, time - d.at, view)
+      try {
+        const fresh = drawn?.stage !== stage || drawn.key !== screen.key
+        if (fresh) {
+          stage.unreact()
+          drawn = { stage, key: screen.key, ...stage.react(screen.steps as never), t: -1 }
+        }
+        const shown = drawn!
+        const t = Math.min(screen.from, shown.duration)
+        if (t === shown.t) return
+        shown.t = t
+        stage.reactAt(shown.id, t)
+        if (fresh || t === shown.duration) {
+          measureRef.current()
+          readControls()
+        }
+      } catch (err) {
+        cancelAnimationFrame(raf)
+        setError(String(err instanceof Error ? err.message : err))
+      }
+    }
+    raf = requestAnimationFrame(frame)
+    return () => cancelAnimationFrame(raf)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moment])
+  // 開場旁白還在講時先不自動示範;學員自己按了就不用再等
+  const holdRef = useRef(holdAuto)
+  holdRef.current = holdAuto
+  const touched = useRef(false)
   const nextAuto = (): void => {
     window.clearTimeout(autoTimer.current)
+    // 有示範時間線時畫面全由時間線決定
+    if (moment.demo || (holdRef.current && !touched.current)) return
     autoTimer.current = window.setTimeout(() => {
       const steps = stageRef.current?.auto(actor)
       if (steps) runSelf(steps)
@@ -314,6 +414,13 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
     // 只在舞台準備好(self)時開始
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [self])
+  // 按鈕反白的是畫面上的大段;學員在看別段時,影片所在的那一段標「播放中」
+  const [shownTab, mainTab] = shownDemo.split('|')
+  const playingTab = mainTab ? `tab:${mainTab}` : undefined
+  useEffect(() => {
+    if (self && !holdAuto && !touched.current) nextAuto()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [holdAuto])
   /** 觸發一段回應:步驟依演員分給主要舞台或旁邊的舞台,各自從目前的狀態演起;舞台還沒載好時不演,回傳 false */
   const trigger = (steps: ScriptStep[]): boolean => {
     if (!interact) return false
@@ -459,6 +566,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
       .load(played, { cursor: false })
       .then(() => {
         if (cancelled) return
+        loadedStage.current = stage
         setSelf(asPage && stage.pressable(actor))
         measure() // 第一次一定會畫:collapsed 還是空字串
         setPlan(dragging)
@@ -495,7 +603,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [script, answers, moment, actor, choicesRef, toggles, drops, split])
 
-  // stage.split 的拖曳:計畫照「互動點的狀態 + 放下過的步驟」算(在側欄的樹上拖)
+  // stage.split 的拖曳:計畫照「互動點的狀態 + 放下過的步驟」算(在旁邊卡片的樹上拖)
   const splitPlan = useMemo(() => {
     if (!split || !moment.stage?.drag) return null
     const cast = script.cast[actor]
@@ -548,9 +656,9 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
       {controls.length > 0 && (
         <div className={styles.staticRail} role="group">
           {controls.map((c) => (
-            <button key={c.name} type="button" className={c.primary ? styles.railPrimary : undefined} aria-pressed={c.group ? !!c.on : undefined} onClick={() => press(c.name)}>
+            <button key={c.name} type="button" className={c.primary ? styles.railPrimary : undefined} aria-pressed={c.group ? (shownTab && c.name.startsWith('tab:') ? c.name === `tab:${shownTab}` : !!c.on) : undefined} data-playing={c.name === playingTab || undefined} aria-label={c.name === playingTab ? L.playingHere(c.label) : undefined} onClick={() => press(c.name)}>
               <b>{c.label}</b>
-              {c.sub && <span>{c.sub}</span>}
+              {c.sub && <span>{c.name === playingTab ? L.playingMark : c.sub}</span>}
             </button>
           ))}
         </div>
@@ -629,7 +737,7 @@ export function StaticActor({ script, answers, moment, interactive, headRef, hin
           </>
         )}
       </div>
-      {/* 旁邊一起看的演員(interact.cast 的第二位):浮在主要演員旁邊的側欄卡片,不放進主要演員的框裡 */}
+      {/* 旁邊一起看的演員(interact.cast 的第二位):浮在主要演員旁邊的卡片,不放進主要演員的框裡 */}
       {beside && (
         <BesideActor
           script={script}

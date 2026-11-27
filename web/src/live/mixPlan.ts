@@ -112,11 +112,11 @@ export function rangeAt(plan: PlanSegment[], t: number): Extract<PlanSegment, { 
  */
 export function narrationClips(
   narrations: PlanNarration[],
-  voice: { durations: Record<string, number>; urls: Record<string, string>; files: Record<string, string> } | null,
+  voice: { durations: Record<string, number>; urls: Record<string, string>; files: Record<string, string>; levels?: Record<string, string> } | null,
   mix: { chapters: MixChapter[] } | null,
 ): Clip[] {
   if (!voice) return []
-  const single = (n: PlanNarration): Clip => ({ at: n.at, ms: voice.durations[n.text], url: voice.urls[n.text] })
+  const single = (n: PlanNarration): Clip => ({ at: n.at, ms: voice.durations[n.text], url: voice.urls[n.text], ...(voice.levels?.[n.text] ? { levels: voice.levels[n.text] } : {}) })
   if (!mix?.chapters.length) return narrations.filter((n) => voice.urls[n.text]).map(single)
   const byText = new Map(narrations.map((n) => [n.at, n]))
   return planNarration(narrations, mix.chapters, (t) => voice.files[t]).flatMap((s): Clip[] => {

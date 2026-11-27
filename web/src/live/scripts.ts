@@ -68,7 +68,7 @@ export async function loadScript(path: string): Promise<StageScript> {
 // 旁白語音(scripts/voice.mjs 產生):腳本旁的 <名稱>.voice.json 記錄每段旁白的音檔與長度,
 // 音檔放在 GCS 的 shuttle-voice bucket(公開讀取、永久快取)。日後換成自己的網域時只改 VOICE_BASE。
 const VOICE_BASE = 'https://storage.googleapis.com/shuttle-voice/'
-type VoiceManifest = { model: string; voice: string; clips: Record<string, { file: string; ms: number }> }
+type VoiceManifest = { model: string; voice: string; clips: Record<string, { file: string; ms: number; levels?: string }> }
 
 export type ScriptVoice = {
   /** 旁白文字 → 語音長度(毫秒),給舞台排時間 */
@@ -77,6 +77,8 @@ export type ScriptVoice = {
   urls: Record<string, string>
   /** 旁白文字 → 音檔名(GCS 上的路徑),章節音軌用它確認合成之後旁白有沒有重新產生過 */
   files: Record<string, string>
+  /** 旁白文字 → 每 50ms 的音量(0..9 一個字元),給左下角的語音動畫跟著跳;沒算過的沒有 */
+  levels?: Record<string, string>
 }
 
 /** 腳本的旁白語音;還沒產生時回傳 null(畫面照常播放,只有字幕) */
@@ -86,13 +88,15 @@ export async function loadVoice(path: string): Promise<ScriptVoice | null> {
   const durations: Record<string, number> = {}
   const urls: Record<string, string> = {}
   const files: Record<string, string> = {}
+  const levels: Record<string, string> = {}
   for (const [text, clip] of Object.entries(manifest.clips)) {
     durations[text] = clip.ms
     // 以 / 開頭的是網站自己的檔案(例如 public/ 底下只在本機用的錄音),其他是 GCS 上的路徑
     urls[text] = clip.file.startsWith('/') ? clip.file : VOICE_BASE + clip.file
     files[text] = clip.file
+    if (clip.levels) levels[text] = clip.levels
   }
-  return { durations, urls, files }
+  return { durations, urls, files, levels }
 }
 
 // 章節音軌(scripts/mix.mjs --publish 產生):把一個章節的旁白依時間軸合成一個音檔,

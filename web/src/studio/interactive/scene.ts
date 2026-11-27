@@ -4,8 +4,9 @@
 // 學員回答後,把對應的步驟插到互動點後面、重新載入舞台:回答就是時間軸的一部分,
 // 所以畫面仍是時間的純函式(README 第 1 節),拖曳、倒轉、演員狀態都不用另外處理。
 import type { ScriptStep, StageScript } from '../../live/types'
+import { checkDemo, type DemoItem } from './demoEngine'
 
-/** 「互動」標籤的圖示(游標點擊):課程清單與互動課程頁的側欄共用 */
+/** 「互動」標籤的圖示(游標點擊):課程清單用 */
 export const INTERACTIVE_ICON = 'M14 4.1 12 6M5.1 8l-2.9-.8M6 12l-1.9 2M7.2 2.2 8 5.1M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z'
 
 /** target:這個選項對應演員身上的哪個目標(把演員推到主畫面互動時,學員直接點它) */
@@ -27,16 +28,18 @@ export type Moment = {
   requires?: string
   /**
    * 把演員推到主畫面互動時要聚焦的目標;choices 是沒有 target 的選項要放在哪個區域(例如輸入框裡);
-   * zone 是互動區:演員的區塊(parts 的名稱),靜態互動時舞台太小也不收合,例如要學員點側欄時寫 ["sidebar"]
+   * zone 是互動區:演員的區塊(parts 的名稱),靜態互動時舞台太小也不收合,例如要學員點 Claude 的側欄時寫 ["sidebar"]
    * toggles 是學員可以自由點的東西(不是回答):每點一次,就直接點一下這位演員網頁上的元素(sel 是 CSS 選擇器),
    * 由網頁自己的 script.js 決定點了之後顯示或隱藏什麼;點完按選項(例如「看完了，繼續」)才往下。
    * 靜態互動(StaticActor)與推到主畫面(ActorPush,正式課程頁)都支援;推到主畫面時,離開互動點會把點過的還原
    * drag:學員可以拖演員身上的東西(目前是 kid-tree 的節點,拖放的位置見 kids/drag.ts),放下去就多演一步(例如 put);只用在靜態互動
-   * split:靜態互動時把演員分成兩張卡片,排法和互動腳本的 cast 一樣:中間放網頁(only: "page")、旁邊的側欄放樹(only: "tree");
-   *   拖曳在側欄的樹上,放下去兩張卡片一起演那一步(舞台的 react,不重新載入)。目前用在 kid-tree(網頁怎麼運作 1.2)
+   * split:靜態互動時把演員分成兩張卡片,排法和互動腳本的 cast 一樣:中間放網頁(only: "page")、旁邊的卡片放樹(only: "tree");
+   *   拖曳在旁邊卡片的樹上,放下去兩張卡片一起演那一步(舞台的 react,不重新載入)。目前用在 kid-tree(網頁怎麼運作 1.2)
    * panel:寫 false 時停在這裡不自動打開側欄,學員只看到演員(靜態互動的操作點;作答的按鈕要放在演員上)
    */
-  stage?: { focus: string; choices?: string; zone?: string[]; toggles?: { sel: string; label: string }[]; drag?: boolean; split?: boolean; panel?: false }
+  stage?: { focus: string; choices?: string; zone?: string[]; toggles?: { sel: string; label: string }[]; drag?: boolean; split?: boolean }
+  /** 示範時間線:旁白一段接一段,到點觸發演員動作(demoEngine.ts、live/README.md) */
+  demo?: DemoItem[]
   /** 互動腳本(live/README.md 第 2A.7 節):學員操作時演員怎麼回應;目前只用在靜態互動 */
   interact?: Interact
 }
@@ -47,7 +50,7 @@ export type Moment = {
  */
 export type InteractSpot = { target: string; id?: string; label: string; steps: ScriptStep[]; again?: ScriptStep[] }
 /**
- * 互動腳本:cast 第一位是主要演員(放在中間),第二位放在旁邊的側欄卡片(目前最多兩位);
+ * 互動腳本:cast 第一位是主要演員(放在中間),第二位放在旁邊的卡片(目前最多兩位);
  * until.picked:點過幾個不同的觸發點就觸發 done,選項在那之後才能按(沒寫 until 一開始就能按);
  * until.spot:點過這一個觸發點(id)才算完成(例如要補對那個符號),和 picked 擇一
  */
@@ -91,7 +94,7 @@ export const answersOnActor = (moment: Moment): boolean => !!moment.stage && !mo
 export type Answer = { option: number } | { text: string } | { skipped: true }
 export type Answers = Record<string, Answer>
 
-type CheckpointFields = { checkpoint?: string; live?: boolean; body?: string; id?: string; options?: MomentOption[]; free?: Moment['free']; skip?: Moment['skip'] | false; requires?: string; stage?: Moment['stage']; interact?: Interact }
+type CheckpointFields = { checkpoint?: string; live?: boolean; body?: string; id?: string; options?: MomentOption[]; free?: Moment['free']; skip?: Moment['skip'] | false; requires?: string; stage?: Moment['stage']; interact?: Interact; demo?: unknown }
 
 /** 列出腳本裡的互動點;id 或標題重複、沒有選項、requires 不是前面的互動點時丟錯(標題用來對應舞台的 stops) */
 export function momentsOf(script: StageScript): Moment[] {
@@ -103,7 +106,9 @@ export function momentsOf(script: StageScript): Moment[] {
     if (moments.some((m) => m.id === s.id || m.title === s.checkpoint)) throw new Error(`互動點「${s.id}」的 id 或標題重複`)
     if (s.requires && !moments.some((m) => m.id === s.requires)) throw new Error(`互動點「${s.id}」的 requires 要指向前面的互動點`)
     if (s.interact) checkInteract(s.interact, Object.keys(script.cast ?? {}), `互動點「${s.id}」`)
-    moments.push({ interact: s.interact, id: s.id, title: s.checkpoint, body: s.body ?? '', options: s.options, free: s.free, skip: s.skip || undefined, noSkip: s.skip === false || undefined, live: s.live || undefined, requires: s.requires, stage: s.stage })
+    if (s.demo !== undefined && !s.live) throw new Error(`互動點「${s.id}」寫了 demo,要同時寫 "live": true`)
+    if (s.demo !== undefined && !s.stage?.focus) throw new Error(`互動點「${s.id}」寫了 demo,要寫 stage.focus 指出示範的演員`)
+    moments.push({ demo: s.demo === undefined ? undefined : checkDemo(s.demo, `互動點「${s.id}」`), interact: s.interact, id: s.id, title: s.checkpoint, body: s.body ?? '', options: s.options, free: s.free, skip: s.skip || undefined, noSkip: s.skip === false || undefined, live: s.live || undefined, requires: s.requires, stage: s.stage })
   }
   return moments
 }
@@ -130,7 +135,7 @@ function stepsOf(moment: CheckpointFields, answer: Answer | undefined): ScriptSt
   return option.steps
 }
 
-/** 依學員的回答展開成舞台可以載入的腳本:回答的第一步標成章節,時間軸與步驟清單看得到;沒回答時演出示範;前置的互動點沒回答也沒示範時先拿掉 */
+/** 依學員的回答展開成舞台可以載入的腳本:回答的第一步標成章節,時間軸看得到;沒回答時演出示範;前置的互動點沒回答也沒示範時先拿掉 */
 export function expandAnswers(script: StageScript, answers: Answers): StageScript {
   /** 前置的互動點有演出可以接:回答了選項或打字,或是有示範(沒回答、略過都會演示範) */
   const hasPerformance = (id: string): boolean => {
@@ -195,12 +200,6 @@ export function stepFinder(steps: Record<string, unknown>[], file: string) {
     if (i < 0) throw new Error(`課程腳本找不到「${label}」,要一起更新 ${file}`)
     return i
   }
-}
-
-/** 給畫面顯示的回答文字;沒回答或略過時回傳 null */
-export function answerLabel(moment: Moment, answer: Answer | undefined): string | null {
-  if (!answer || 'skipped' in answer) return null
-  return 'text' in answer ? answer.text : (moment.options[answer.option]?.label ?? null)
 }
 
 /**

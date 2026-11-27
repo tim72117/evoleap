@@ -7,7 +7,7 @@
 // 播放中以音檔為主時鐘(clock):音檔卡住時時間軸也停住,不再需要「偏差校正」去強制 seek。
 
 /** 一段旁白音檔:在 [at, at+ms) 之間播放;from 是音檔裡的起點(毫秒,章節音軌的一段範圍用),預設從頭 */
-export type Clip = { at: number; ms: number; url: string; from?: number }
+export type Clip = { at: number; ms: number; url: string; from?: number; /** 每 50ms 的音量(0..9) */ levels?: string }
 
 /** 外殼的播放狀態中,旁白需要知道的部分 */
 export interface PlaybackView {
@@ -27,6 +27,10 @@ export interface Narration {
   unlock(view: PlaybackView): void
   /** 這一刻音檔正在播(或正在緩衝)的話,回傳依音檔算出的時間軸毫秒;沒有在播旁白時回傳 null,由外殼自己累加 */
   clock(): number | null
+  /** 正在播的音檔這一刻的音量(0..1);沒有在播或沒算過音量時回傳 null */
+  level(): number | null
+  /** 這段旁白該出聲了、聲音卻還沒開始(載入中,或被瀏覽器擋下):字幕與 AI 頭像等它 */
+  waiting(): boolean
   /** 預先載入從 t 開始的幾段音檔(不播放) */
   warm(t: number): void
   /** 時間被跳轉或旁白資料更換:下次 sync 重新找該播哪一段 */
@@ -37,11 +41,14 @@ export interface Narration {
   destroy(): void
 }
 
-export function createNarration(getClips: () => Clip[] | undefined): Narration {
+export function createNarration(getClips: () => Clip[] | undefined, /** 瀏覽器不讓出聲(沒有使用者操作的自動播放):外殼停下來等使用者按播放 */ onBlocked?: () => void): Narration {
   let clipEl = new Audio()
   let nextEl = new Audio()
   clipEl.preload = nextEl.preload = 'auto'
   let clipIdx = -1
+  // 目前這段出聲了沒:pending 還沒、on 開始了、blocked 被瀏覽器擋下、failed 音檔壞了(照估計時間往下走)
+  let status: 'pending' | 'on' | 'blocked' | 'failed' = 'on'
+  let attempt = 0
   let unlocked = false
   let muted = false // 最新的靜音狀態(解鎖的非同步結算時要用最新值,不能用呼叫當下的)
   const clips = (): Clip[] => getClips() ?? []
@@ -102,6 +109,26 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
     } else if (el.paused && el.readyState < 3 && el.getAttribute('src') !== srcOf(url)) el.src = srcOf(url) // 已經緩衝好的不換,免得白白重載
   }
 
+  function playClip(): void {
+    const mine = ++attempt
+    status = 'pending'
+    clipEl.play().then(
+      () => {
+        if (mine === attempt) status = 'on'
+      },
+      (e: unknown) => {
+        const name = (e as { name?: string } | null)?.name
+        // AbortError:剛播就被暫停或換段,音檔沒問題
+        if (mine !== attempt || name === 'AbortError') return
+        status = name === 'NotAllowedError' ? 'blocked' : 'failed'
+        if (status === 'blocked') {
+          unlocked = false
+          onBlocked?.()
+        }
+      },
+    )
+  }
+
   function startClip(i: number, off: number, view: PlaybackView): void {
     const list = clips()
     const c = list[i]
@@ -117,7 +144,7 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
     clipEl.muted = view.muted
     clipEl.playbackRate = view.rate
     clipEl.currentTime = off + (c.from ?? 0) / 1000
-    clipEl.play().catch(() => {})
+    playClip()
     const n = list[i + 1]
     if (n) setSrc(nextEl, n.url)
   }
@@ -142,10 +169,11 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
         else if (!inClip && list[i + 1]) setSrc(nextEl, list[i + 1].url)
         return
       }
-      if (i !== clipIdx) return startClip(i, off, view)
-      if (clipEl.paused && !clipEl.ended) {
+      // 被擋下過的這段整個重來(unlock 可能已經讓元素在播,不會走到下面的接著播)
+      if (i !== clipIdx || status === 'blocked') return startClip(i, off, view)
+      if (clipEl.paused && !clipEl.ended && status !== 'failed') {
         clipEl.currentTime = off + (c.from ?? 0) / 1000
-        clipEl.play().catch(() => {})
+        playClip()
         return
       }
     },
@@ -157,8 +185,22 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
       return c.at + Math.min(Math.max(clipEl.currentTime * 1000 - (c.from ?? 0), 0), c.ms)
     },
 
+    level() {
+      const c = clips()[clipIdx]
+      if (!c?.levels || clipEl.paused || clipEl.ended) return null
+      return Number(c.levels[Math.floor((clipEl.currentTime * 1000 - (c.from ?? 0)) / 50)] ?? 0) / 9
+    },
+
+    waiting() {
+      return status === 'blocked' || (status === 'pending' && !clipEl.paused)
+    },
+
     warm(t) {
-      prefetchFrom(Math.max(0, clipAt(t)))
+      const i = Math.max(0, clipAt(t))
+      prefetchFrom(i)
+      // 先讓瀏覽器載入接下來要念的那一段(開場第一句也是),輪到它時才不會先出字幕後出聲
+      const c = clips()[i]
+      if (c && clipEl.paused) setSrc(nextEl, c.url)
     },
 
     unlock(view) {
@@ -188,6 +230,8 @@ export function createNarration(getClips: () => Clip[] | undefined): Narration {
 
     reset() {
       clipIdx = -1
+      attempt++
+      status = 'on'
     },
     pause() {
       // 預載的元素也停:萬一它在背景出聲(見 unlock),按暫停至少能停掉

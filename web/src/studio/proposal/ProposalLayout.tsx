@@ -10,8 +10,6 @@ type Section = { id: 'overview' | 'members' | 'levels' | 'dev' | 'ideas' | 'docs
 
 /** 依課程地圖（src/content/levels.ts 的 LEVELS）分等級，再接不屬於等級的課程（AI 工具技巧、兒童網頁課、網頁運作知識）。 */
 const LEVELS: Tab[] = [
-  // 序章的 B 版測試(開場改成動手體驗;整頁都是舞台,不在這個版面裡)
-  { to: '/studio/software-intro-b', code: '起步', group: '做出自己的軟體', label: '序章 B 版' },
   { to: '/studio/ai-tools', code: 'L1', group: '做出自己的軟體', label: 'AI 工具入門', also: ['/studio/life-tools', '/studio/l1-ideas'] },
   { to: '/studio/vibe-coding', code: 'L2', group: '做出自己的軟體', label: 'Vibe Coding 入門' },
   { to: '/studio/ai-agent/fields', code: 'L3', group: '做出自己的軟體', label: 'AI Agent 整合應用', match: '/studio/ai-agent' },

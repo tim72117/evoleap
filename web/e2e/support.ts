@@ -155,32 +155,13 @@ export async function loginAsNewStudent(page: Page, tag = 'student'): Promise<vo
   expect((await page.request.post('/api/auth/register', { data: { email, password: 'secret-pass-123', name: '' } })).status()).toBe(200)
 }
 
-/** 手機直拿時影片預設是直式舞台(課程進度在底部抽屜);要測橫式版面(右側側欄)時,網址加上 ?aspect=landscape */
+/** 手機直拿時影片預設是直式舞台;要測橫式版面時,網址加上 ?aspect=landscape */
 export const landscape = (path: string): string => `${path}${path.includes('?') ? '&' : '?'}aspect=landscape`
 
 /** 用點連結進到播放頁之後,手機上改成橫式(同一頁加 ?aspect=landscape 重新開) */
 export async function ensureLandscape(page: Page): Promise<void> {
   await page.locator('.vp').first().waitFor()
   if (await page.locator('.vp-portrait').count()) await page.goto(landscape(new URL(page.url()).pathname))
-}
-
-/**
- * 互動課程頁的課程進度:側欄預設收合,點右上角的章節膠囊打開(已經打開就不動),回傳側欄。
- * 手機直拿時步驟、下一課直接列在播放窗下方的資訊區,回傳那一區。
- */
-export async function openCoursePanel(page: Page) {
-  const panel = page.getByRole('complementary', { name: '課程章節與步驟' })
-  const pill = page.getByRole('button', { name: /^課程進度:/ })
-  const info = page.getByRole('region', { name: '課程資訊' })
-  await expect(pill.or(panel).or(info).first()).toBeVisible()
-  if (await info.isVisible()) return info
-  // 播放中控制面板(含膠囊)會淡出:先把滑鼠移到播放器上叫出來
-  if (await pill.isVisible()) {
-    await page.locator('.vp').first().hover()
-    await pill.click()
-  }
-  await expect(panel).toBeVisible()
-  return panel
 }
 
 /** 照正式設定跑的 server(訪客看到的狀態和正式站一樣;預設的 server 為 -open-studio,每個人都當管理員) */
@@ -223,4 +204,24 @@ export async function expectLabel(row: Locator, lesson: MapLesson): Promise<void
   if (lesson.label === '登入後學習') await expect(row.getByRole('img', { name: '登入後學習' }), lesson.id).toBeVisible()
   else await expect(row, lesson.id).toContainText(lesson.label)
   if (lesson.status !== 'open' && lesson.label === '規劃中') await expect(row.getByRole('link'), lesson.id).toHaveCount(0)
+}
+
+/** 從各章節刻度往前一點開始播,播到互動點(某個選項出現)為止 */
+export async function reachMoment(page: Page, option: Locator): Promise<void> {
+  const slider = page.locator('.vp-bar')
+  await expect(page.locator('.vp-ticks i').first()).toBeAttached({ timeout: 15_000 })
+  const marks = [0, ...(await page.locator('.vp-ticks i').evaluateAll((els) => els.map((el) => parseFloat((el as HTMLElement).style.left))))]
+  for (const pct of marks) {
+    if (await option.isVisible()) return
+    const box = (await page.locator('.vp-track').boundingBox())!
+    await slider.dispatchEvent('pointerdown', { clientX: box.x + (box.width * Math.max(0, pct - 0.3)) / 100, clientY: box.y + box.height / 2, pointerId: 1, button: 0, isPrimary: true })
+    await slider.dispatchEvent('pointerup', { clientX: box.x + (box.width * Math.max(0, pct - 0.3)) / 100, clientY: box.y + box.height / 2, pointerId: 1, button: 0, isPrimary: true })
+    const paused = await page.locator('.vp').evaluate((el) => el.classList.contains('paused'))
+    if (paused) await page.locator('.vp-play').first().dispatchEvent('click')
+    // 等到下一個章節刻度為止(最多 30 秒),互動點可能在章節中段
+    const dur = Number(await slider.getAttribute('aria-valuemax'))
+    const next = marks.find((m) => m > pct + 0.01) ?? 100
+    await option.waitFor({ state: 'visible', timeout: Math.min(30_000, ((next - pct) / 100) * dur * 1000 + 2_000) }).catch(() => {})
+  }
+  await expect(option).toBeVisible()
 }

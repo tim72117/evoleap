@@ -8,16 +8,16 @@ import { useT } from '../../i18n/I18nProvider'
 import styles from './InteractiveScenePage.module.css'
 
 // 把演員推到主畫面互動:整個舞台推近聚焦的目標、其他地方變暗,學員直接操作演員身上的選項與按鈕。
-// 這些控制項是疊在舞台上的真實元素,用舞台座標(1920×1080)定位,所以會跟著舞台縮放,開關側欄也不用重算。
+// 這些控制項是疊在舞台上的真實元素,用舞台座標(1920×1080)定位,所以會跟著舞台縮放。
 // 只在暫停於互動點時出現,不屬於時間軸;推近用 CSS transition,離開互動點就退回,不影響「畫面是時間的純函式」。
 
 /** 目標推近後的中心;比畫面中央低一點,上方留給提問卡 */
 const CENTER = { x: 960, y: 620 }
 /** 橫式、問題放在舞台外(嵌進頁面的小播放器):上方不用留提問卡,靠上才不會被控制列蓋住 */
 const CENTER_OUTSIDE = { x: 960, y: 380 }
-/** 直式:推近後的中心(底部抽屜展開時,可見的舞台只有上半部,要靠上) */
+/** 直式:推近後的中心(問題放在舞台外時,面板蓋住下半部,要靠上) */
 const CENTER_PORTRAIT = { x: 540, y: 1000 }
-const CENTER_DRAWER = { x: 540, y: 600 }
+const CENTER_PORTRAIT_OUTSIDE = { x: 540, y: 600 }
 const MAX_ZOOM = 1.6
 
 type Rect = { x: number; y: number; w: number; h: number }
@@ -30,12 +30,12 @@ type Props = {
   layer: HTMLElement
   moment: Moment
   aspect?: Aspect
-  /** 底部抽屜:提問與選項在抽屜裡,舞台只留聚焦框與演員身上的可點區 */
-  inDrawer?: boolean
+  /** 提問與選項在舞台外(浮出的面板或播放器下方),舞台只留聚焦框與演員身上的可點區 */
+  outside?: boolean
   onAnswer: (a: Answer) => void
 }
 
-export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', inDrawer = false, onAnswer }: Props) {
+export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', outside = false, onAnswer }: Props) {
   const L = useT().player.scene
   const { w: STAGE_W, h: STAGE_H } = stageSize(aspect)
   const portrait = aspect === 'portrait'
@@ -91,8 +91,8 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
 
     const f = found[focusRef]
     if (f) {
-      const c = portrait ? (inDrawer ? CENTER_DRAWER : CENTER_PORTRAIT) : inDrawer ? CENTER_OUTSIDE : CENTER
-      const zoom = Math.max(1, Math.min(MAX_ZOOM, portrait ? 980 / f.w : 1500 / f.w, portrait ? (inDrawer ? 560 : 800) / f.h : 640 / f.h))
+      const c = portrait ? (outside ? CENTER_PORTRAIT_OUTSIDE : CENTER_PORTRAIT) : outside ? CENTER_OUTSIDE : CENTER
+      const zoom = Math.max(1, Math.min(MAX_ZOOM, portrait ? 980 / f.w : 1500 / f.w, portrait ? (outside ? 560 : 800) / f.h : 640 / f.h))
       root.style.transform = `translate(${c.x - (f.x + f.w / 2) * zoom}px, ${c.y - (f.y + f.h / 2) * zoom}px) scale(${zoom})`
       root.style.setProperty('--push-zoom', String(zoom))
     }
@@ -101,7 +101,7 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
       root.style.removeProperty('--push-zoom')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage, root, moment, focusRef, choicesRef, toggles, STAGE_W, portrait, inDrawer])
+  }, [stage, root, moment, focusRef, choicesRef, toggles, STAGE_W, portrait, outside])
 
   // 焦點放在問題上(不是選項):習慣按空白鍵暫停的人才不會誤選答案
   useLayoutEffect(() => {
@@ -117,7 +117,7 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
   const focus = { ...measured, y: measured.y - extra, h: measured.h + extra }
   const box = (r: Rect) => ({ left: r.x, top: r.y, width: r.w, height: r.h })
   // 沒有對應到演員身上位置的選項:放進指定的區域(例如輸入框),沒有指定就放在提問卡裡
-  const loose = inDrawer ? [] : moment.options.map((o, option) => ({ ...o, option })).filter((o) => !o.target || !rects[o.target])
+  const loose = outside ? [] : moment.options.map((o, option) => ({ ...o, option })).filter((o) => !o.target || !rects[o.target])
   const chips = loose.map((o) => (
     <button key={o.label} type="button" onClick={() => onAnswer({ option: o.option })}>
       {o.label}
@@ -128,7 +128,7 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
     <>
       <div className={styles.pushRing} style={box(focus)} aria-hidden="true" />
 
-      {!inDrawer && (
+      {!outside && (
         <div
           className={styles.pushCard}
           style={
@@ -160,7 +160,7 @@ export function ActorPush({ stage, root, layer, moment, aspect = 'landscape', in
         </div>
       )}
 
-      {!inDrawer && choicesRect && chips.length > 0 && (
+      {!outside && choicesRect && chips.length > 0 && (
         <div
           ref={chipsRef}
           className={`${styles.pushChips} ${styles.pushChipsIn}`}

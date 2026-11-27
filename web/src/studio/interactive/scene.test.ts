@@ -10,7 +10,7 @@ import l02 from '../../../../server/internal/store/fixture/live/l0/0.2-site.json
 import { withL02Moments } from './l0-0.2'
 import intro from '../../../../server/internal/store/fixture/live/l0/0.intro.json'
 import { withL0IntroMoments } from './l0-intro'
-import { answerLabel, checkInteract, expandAnswers, momentsOf, collapsedParts, staticScript, withoutAnswer, type Answer, type Moment, spotId, untilReached } from './scene'
+import { checkInteract, expandAnswers, momentsOf, collapsedParts, staticScript, withoutAnswer, type Answer, spotId, untilReached } from './scene'
 
 const script = {
   title: 't',
@@ -331,16 +331,6 @@ describe('序章的互動版', () => {
 
   it('原本的腳本改了位置時,找不到就丟錯', () => {
     expect(() => withL0IntroMoments({ ...base, steps: base.steps.slice(0, 5) })).toThrow('l0-intro.ts')
-  })
-})
-
-describe('answerLabel', () => {
-  const moment: Moment = { id: 'a', title: 't', body: '', options: [{ label: '好', steps: [] }] }
-  it('顯示選項文字或打字內容;沒回答、略過是 null', () => {
-    expect(answerLabel(moment, { option: 0 })).toBe('好')
-    expect(answerLabel(moment, { text: '自己打' })).toBe('自己打')
-    expect(answerLabel(moment, { skipped: true })).toBeNull()
-    expect(answerLabel(moment, undefined)).toBeNull()
   })
 })
 

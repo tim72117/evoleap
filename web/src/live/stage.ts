@@ -91,6 +91,8 @@ export interface Stage {
   setParts(id: string, parts: Record<string, boolean>): void
   /** 「演員代號:目標」目前對應的元素(畫面上疊加互動控制項時用);找不到回傳 null */
   element(ref: string): HTMLElement | null
+  /** 把這些演員從舞台的 DOM 拿掉(別處正在顯示同一位演員時,不留第二份);傳空清單放回來。重新載入後照樣有效 */
+  detach(ids: string[]): void
   /** 這位演員是不是自己處理點擊(實例有 press) */
   pressable(id: string): boolean
   /** 學員點了這位演員的目標:依目前狀態要演的步驟;不能點回傳 null */
@@ -107,6 +109,8 @@ export interface Stage {
   react(steps: Step[]): { id: number; duration: number }
   /** 畫出回應 id 的第 ms 毫秒(從觸發那一刻算起),舞台本身停在上一次 renderAt 的時間 */
   reactAt(id: number, ms: number): void
+  /** 清掉演過的回應:下一段回應從時間軸結尾的狀態演起(畫面在下次 reactAt 或 renderAt 時更新) */
+  unreact(): void
   readonly duration: number
   readonly captions: StageCaption[]
   readonly chapters: StageChapter[]
@@ -273,6 +277,22 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
 
   // ---------- 載入腳本 ----------
   let loadGen = 0
+  let detached = new Set<string>()
+  /** 照 detached 拿掉或放回演員;放回時照演員表的順序,不搬動本來就在的(搬動會讓裡面的 iframe 重新載入)。有放回的回傳 true */
+  function applyDetached(): boolean {
+    let back = false
+    castOrder.forEach((id, i) => {
+      const slot = cast[id]?.slot
+      if (!slot) return
+      if (detached.has(id)) slot.remove()
+      else if (!slot.parentNode) {
+        const next = castOrder.slice(i + 1).map((x) => cast[x].slot).find((x) => x.parentNode)
+        $('.st-cast').insertBefore(slot, next ?? null)
+        back = true
+      }
+    })
+    return back
+  }
   async function load(script: StageScript, opts: { voice?: Record<string, number>; aspect?: Aspect; cursor?: boolean } = {}): Promise<number> {
     // 腳本用到的演員都是用到時才下載(actors/lazy.ts),先載好再排時間。
     // 等下載的時候可能又有新的 load(換腳本、改答案):只有最後一次 load 會繼續,舊的直接回傳,不蓋掉新的
@@ -495,6 +515,7 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     reactClock = {}
     for (const id of castOrder) kit.css(cast[id].slot, { transformOrigin: '', filter: '', zIndex: '' })
     renderAt(0)
+    applyDetached()
     return total
   }
 
@@ -634,6 +655,8 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     for (const id of castOrder) {
       const c = cast[id]
       const v = vis[id]
+      // 拿掉的演員不畫(不在文件裡,量不到版面);放回時整格重畫
+      if (!c.slot.parentNode) continue
       // 出場/退場/移動
       let placed: Place = v.place
       if (v.move) {
@@ -838,9 +861,17 @@ export function createStage(root: HTMLElement, opts: { aspect?: Aspect } = {}): 
     load,
     renderAt,
     react,
+    unreact() {
+      reactLog = []
+      reactClock = {}
+    },
     reactAt(id, ms) {
       reactClock[id] = ms
       renderAt(lastMs)
+    },
+    detach(ids) {
+      detached = new Set(ids)
+      if (applyDetached()) renderAt(lastMs)
     },
     setParts(id, parts) {
       cast[id].parts = checkParts(id, parts)

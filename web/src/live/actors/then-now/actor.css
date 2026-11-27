@@ -344,3 +344,67 @@
   .A-then-now .tn-frame[data-task="write"] .tn-progress li[data-run="1"] .tn-doing { display: none; }
   .A-then-now .tn-frame[data-task="write"] .tn-foot .tn-meter { font-size: 0.8em; }
 }
+
+/* 手寫橋段的滑鼠:從右下方移到要改的位置,按下時縮一下 */
+.A-then-now .tn-mouse {
+  display: inline-block; width: 0; height: 0; position: relative; z-index: 3;
+}
+.A-then-now .tn-mouse::after {
+  content: ''; position: absolute; left: calc(var(--away) * 9em); top: calc(var(--away) * 6em - 0.2em);
+  width: 1.1em; height: 1.5em; background: var(--tn-ink); filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff);
+  clip-path: polygon(0 0, 0 82%, 24% 63%, 40% 100%, 58% 92%, 42% 57%, 76% 57%);
+}
+.A-then-now .tn-mouse.press::after { transform: scale(0.8); transform-origin: top left; }
+.A-then-now .tn-editing { background: var(--tn-soft); }
+
+/* 後來:對話式 AI(chatEra.ts)。上面是聊天視窗、下面是編輯器 */
+.A-then-now .tn-chatera { display: flex; flex-direction: column; gap: 0.5em; min-height: 0; flex: 1; padding: 0.5em 0.7em 0.7em; overflow: hidden; font-family: inherit; }
+.A-then-now .tn-cdo { margin: 0; flex: none; padding: 0.25em 0.8em; border-radius: 999px; align-self: flex-start; background: var(--tn-soft); color: var(--tn-accent-ink); font-weight: 600; font-size: 0.95em; }
+.A-then-now .tn-cwin { position: relative; flex: 4 1 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--tn-line); border-radius: 0.9em; background: var(--tn-card); box-shadow: 0 0.3em 1.1em rgb(40 30 20 / 8%); overflow: hidden; }
+.A-then-now .tn-chead { flex: none; display: flex; align-items: center; gap: 0.5em; padding: 0.35em 0.8em; border-bottom: 1px solid var(--tn-line); font-size: 0.9em; }
+.A-then-now .tn-chead span:last-child { margin-left: auto; font-size: 0.85em; color: var(--tn-mute); }
+.A-then-now .tn-cava { flex: none; display: grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #8b5cf6, #ec6a50); }
+.A-then-now .tn-cava svg { width: 62%; height: 62%; }
+.A-then-now .tn-cchat { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 0.6em; padding: 0.6em 0.8em; background: var(--tn-bg); }
+.A-then-now .tn-cempty { margin: auto; color: var(--tn-mute); font-size: 0.95em; }
+.A-then-now .tn-cq { margin: 0; flex: none; align-self: flex-end; max-width: 82%; padding: 0.45em 0.85em; border-radius: 1.1em 1.1em 0.3em 1.1em; background: var(--tn-accent); color: #fff; line-height: 1.45; box-shadow: 0 0.15em 0.5em rgb(40 30 20 / 12%); }
+.A-then-now .tn-cq.err { display: flex; flex-direction: column; gap: 0.15em; background: #fdecea; color: #8f231a; border: 1px solid #f3b8b1; }
+.A-then-now .tn-cqtag { font-size: 0.72em; font-weight: 600; opacity: 0.75; }
+.A-then-now .tn-reply { flex: none; display: flex; align-items: flex-start; gap: 0.5em; }
+.A-then-now .tn-cmsg { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.4em; padding: 0.5em 0.7em 0.65em; border: 1px solid var(--tn-line); border-radius: 0.3em 1em 1em 1em; background: var(--tn-card); box-shadow: 0 0.15em 0.5em rgb(40 30 20 / 7%); }
+.A-then-now .tn-cmsg p { margin: 0; line-height: 1.45; }
+.A-then-now .tn-cdots { display: flex; gap: 0.35em; padding: 0.7em 0.9em; border: 1px solid var(--tn-line); border-radius: 0.3em 1em 1em 1em; background: var(--tn-card); }
+.A-then-now .tn-cdots i { width: 0.5em; height: 0.5em; border-radius: 50%; background: var(--tn-ink); }
+.A-then-now .tn-cblock { margin: 0; border-radius: 0.7em; background: #1f1d24; color: #e8e6ef; overflow: visible; }
+.A-then-now .tn-cblock figcaption { display: flex; align-items: center; justify-content: space-between; padding: 0.25em 0.4em 0.25em 0.8em; border-bottom: 1px solid #38353f; font-size: 0.78em; color: #a7a3b3; }
+.A-then-now .tn-cblock pre { padding: 0.45em 0.8em 0.55em; border-radius: 0 0 0.7em 0.7em; }
+.A-then-now .tn-cblock pre.sel { background: #33467a; }
+.A-then-now .tn-cblock .tn-cbtn { border-color: #4a4653; background: #2b2833; color: #e8e6ef; }
+.A-then-now .tn-cblock .tn-cbtn.done { background: #1f4a35; border-color: #2f7553; color: #b7f0d2; }
+.A-then-now .tn-ht { color: #7cc4ff; }
+.A-then-now .tn-hs { color: #a5e08c; }
+.A-then-now .tn-hk { color: #d8a4ff; }
+.A-then-now .tn-hn { color: #ffb86b; }
+.A-then-now .tn-cblock .tn-caret, .A-then-now .tn-cq .tn-caret { background: currentcolor; }
+.A-then-now .tn-chatera pre { margin: 0; font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82em; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
+.A-then-now .tn-cbtn { position: relative; flex: none; display: inline-flex; align-items: center; gap: 0.3em; padding: 0.2em 0.75em; border: 1px solid var(--tn-line); border-radius: 999px; background: var(--tn-card); white-space: nowrap; }
+.A-then-now .tn-cbtn svg { width: 1em; height: 1em; }
+.A-then-now .tn-cbtn.done { background: var(--tn-soft); }
+.A-then-now .tn-cbtn .tn-mouse, .A-then-now .tn-csend .tn-mouse { position: absolute; left: 55%; top: 60%; }
+.A-then-now .tn-chatera .tn-mouse::after { left: calc(var(--away) * 4em); top: calc(var(--away) * 2.5em); }
+.A-then-now .tn-ccompose { flex: none; display: flex; align-items: center; gap: 0.5em; margin: 0.45em 0.6em 0.55em; padding: 0.25em 0.3em 0.25em 0.9em; border: 1px solid var(--tn-line); border-radius: 999px; background: var(--tn-card); box-shadow: 0 0.1em 0.45em rgb(40 30 20 / 8%); }
+.A-then-now .tn-cinput { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; direction: ltr; }
+.A-then-now .tn-csend { position: relative; flex: none; display: grid; place-items: center; width: 1.9em; height: 1.9em; border-radius: 50%; background: var(--tn-line); color: #fff; }
+.A-then-now .tn-csend.ready { background: var(--tn-accent); }
+.A-then-now .tn-csend svg { width: 60%; height: 60%; }
+.A-then-now .tn-chatera em { font-style: normal; color: var(--tn-mute); }
+.A-then-now .tn-ced { position: relative; flex: 1.8 1 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--tn-line); border-radius: 0.9em; background: var(--tn-card); box-shadow: 0 0.3em 1.1em rgb(40 30 20 / 8%); overflow: hidden; }
+.A-then-now .tn-cbar { flex: none; display: flex; align-items: center; gap: 0.5em; padding: 0.25em 0.6em 0.25em 0.8em; border-bottom: 1px solid var(--tn-line); background: var(--tn-bg); font-size: 0.85em; }
+.A-then-now .tn-cbar b { margin-right: auto; font-weight: 600; }
+.A-then-now .tn-ced pre { position: relative; flex: 1; min-height: 0; overflow: hidden; padding: 0.45em 0.8em; }
+.A-then-now .tn-ced > .tn-mouse { position: absolute; left: 45%; top: 45%; }
+.A-then-now .tn-ced mark { background: #fde68a; }
+
+/* 三種做法的示範:解說走字幕,不放畫面裡的說明框與步驟標籤,空間讓給程式與聊天 */
+.A-then-now .tn-frame[data-task="write"] .tn-note,
+.A-then-now .tn-frame[data-task="write"] .tn-cdo { display: none; }

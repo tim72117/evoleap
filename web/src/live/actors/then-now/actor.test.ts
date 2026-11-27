@@ -91,8 +91,8 @@ describe('then-now:以前自己寫(task: write)', () => {
   })
 })
 
-describe('then-now:中間的框架時代', () => {
-  it('框架時代自己一份進度;只有 task 是 write 才有', () => {
+describe('then-now:中間的對話式 AI 時代', () => {
+  it('中間時代自己一份進度;只有 task 是 write 才有', () => {
     const st = run(init({ task: 'write' }), [{ handwrite: true }, { turn: 'frame' }, { handwrite: true }, { handwrite: true }])
     expect(st).toMatchObject({ mode: 'frame', written: 1, framed: 2 })
     expect(run(st, [{ turn: 'then' }, { handwrite: true }])).toMatchObject({ written: 2, framed: 2 })

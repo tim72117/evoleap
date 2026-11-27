@@ -214,7 +214,7 @@ export default defineActor({
 | `bobo` | go、play、eat、say、sleep、toss、getup、tidy、mirror、undress、wash、brush、dress（有狀態；兒童繪本的主角小熊波波：公園、餐桌、浴室、臥室四個場景，身上的泥巴、沙子、牙齒上黏黏的那層、泡泡都是狀態；不用字卡，全用動畫說故事；place 用 `full`，直式只看中間一條；延遲載入；用法見 `actor.ts` 開頭，用在 `資料庫的 lab/book/bobo-bath.json`） | window、bear、face、mouth、bubble、puddle、sandbox、table、tub、sink、mirror、basket、bed |
 | `loop-cycle` | cycle(循環圖:節點排成一圈,依序亮起,走完一圈從頭、中間顯示第幾趟;props 的 items 是 `{ icon, label }`,icon 為 copy\|paste\|save\|open\|ask,center 是中間的一句話) | window、ring、center、item:N |
 | `picture-card` | picture(附插圖的圖卡,取代只有文字的字卡:`picture` 是插圖代號 translate\|chat\|speak\|confirm\|inspect\|next,配 `title`、`eyebrow`、`sub`;插圖在 `art.ts`) | window、art、title |
-| `then-now` | handwrite、replay、look、mend、turn、tell、craft、tally（有狀態；「以前自己寫程式」對「現在說一句話」的動手體驗：四行 HTML 少了一個引號，學員一行一行檢查、挑一個符號補上；換到現在後說一句話，AI 當場做出來，最後並排對照；扁平版面，字級跟著演員寬度，窄或直的時候上下排；用在序章 B 版 `資料庫的 lab/l0/intro-b.json`，路由 `/studio/software-intro-b`） | window、code、preview、note、meter、line:N、keys、key:quote\|gt\|slash\|semi、next、write、stage:N、prompt、ask:N、said、result、tally、tab:then、tab:now;自己處理點擊(press),靜態互動不用寫 interact;task 是 write 時自動示範(auto),學員只選以前／後來(框架)／現在 |
+| `then-now` | handwrite、replay、look、mend、turn、tell、craft、tally（有狀態；「以前自己寫程式」對「現在說一句話」的動手體驗：四行 HTML 少了一個引號，學員一行一行檢查、挑一個符號補上；換到現在後說一句話，AI 當場做出來，最後並排對照；扁平版面，字級跟著演員寬度，窄或直的時候上下排；用在序章 B 版 `資料庫的 lab/l0/intro-b.json`） | window、code、preview、note、meter、line:N、keys、key:quote\|gt\|slash\|semi、next、write、stage:N、prompt、ask:N、said、result、tally、tab:then、tab:now;自己處理點擊(press),靜態互動不用寫 interact;task 是 write 時自動示範(auto),學員只選以前／後來(對話式 AI:問、複製貼上、存檔打開、人工測試、貼回去問,chatEra.ts)／現在 |
 | `agent-office` | need、plan、ask、allow、build、check、fix、done（有狀態；「AI Agent 自己動手做事」：同一間辦公室，機器人操作電腦，人只說需求、回答權限提示；推近／拉遠的鏡位由狀態決定；place 用 `full`；用在 `資料庫的 l0/0.intro.json`） | window、robot、head、human、monitor、screen、code、plan、need、ask、allow、deny、dash、issue |
 | `agent-studio` | need、ask、build、say、pick、press、device、undo、check、save、versions、restore、publish、close（有狀態；虛擬的 AI Agent 軟體開發介面，模擬、不接真的 AI：左邊對話、右邊網頁預覽，工具列有復原、版本紀錄、測試、存版本、上線；測試結果依網頁內容推算；`props.look`：dev（成人）或 kids（兒童，用指令卡 `cards` 取代打字）；有 `hotspots`，可讓學員自己點；試看頁 `/studio/agent-studio`，示範腳本暫放 `src/studio/agent-studio/demo.ts`） | window、chat、composer、send、tray、card:id、last、preview、page、part:id、undo、versions、check、save、publish、device:phone|desktop、results、issue:項目、history、version:N、published、url、status、close |
 
@@ -363,7 +363,7 @@ export default {
 
 其他欄位：`skip: { label, steps }` 把略過改成看示範；`requires: "<id>"` 表示要先回答前面的互動點才會出現（例如先下指令才有確認提示），收回前面的回答時後面的一起收回。第二個場景 `/studio/interactive/l0-claude` 用這些欄位做 L0 第 0 課的「下指令、看懂確認提示、允許或拒絕」。
 
-**把演員推到主畫面**（`/studio/actor-interaction/push`，同一份腳本，頁面加 `interaction="stage"`）：互動點寫了 `stage: { focus: "claude:composer" }` 時，舞台推近目標、其他地方變暗，學員直接操作演員：`stage.choices` 指定固定選項要放在哪裡（例如 `claude:input`，選項就出現在 Claude 的輸入框裡，點了直接送出），選項的 `target` 放可以點的熱區（`ActorPush.tsx`）。控制項用舞台座標疊在舞台上，只在暫停於互動點時存在，不屬於時間軸。課程章節與步驟的側欄（浮在舞台上、預設收合，右上角的章節膠囊打開）是重新回答的地方。
+**把演員推到主畫面**（`/studio/actor-interaction/push`，同一份腳本，頁面加 `interaction="stage"`）：互動點寫了 `stage: { focus: "claude:composer" }` 時，舞台推近目標、其他地方變暗，學員直接操作演員：`stage.choices` 指定固定選項要放在哪裡（例如 `claude:input`，選項就出現在 Claude 的輸入框裡，點了直接送出），選項的 `target` 放可以點的熱區（`ActorPush.tsx`）。控制項用舞台座標疊在舞台上，只在暫停於互動點時存在，不屬於時間軸。要重新回答就把時間軸拖回互動點之前。
 
 **正式課程頁**（序章、第 0、1、2 課，由 `courses/InteractiveLessonPage.tsx` 的 `INTERACTIVE_LESSONS` 決定，跟著上課頁用到才下載）：`prepare` 把互動點加進課程原本的腳本（`l0-intro.ts`、`l0-0.0.ts`、`l0-0.1.ts`、`l0-0.2.ts`），腳本本身不變，首頁的預覽播放器也照舊用它。每個選項最後都要回到原本的演員狀態，後面的演出才接得上。原本的示範寫成互動點的 `skip`，學員沒回答直接播放時就演原本的內容，旁白語音照常；選其他選項時新寫的旁白還沒有語音，只顯示字幕。序章只看不操作，互動點是「選一選、想一想」：沒有要操作的演員，`stage.focus` 放在當時看得到的演員目標上（選項顯示在提問卡裡），選項的回應用章節卡（`card`），不動演員，所以每個選項演完都不用還原狀態；`skip` 的步驟是空的，原本的內容就接在互動點後面。
 
@@ -436,7 +436,7 @@ export default {
 
 手機直拿（上方 4:5 播放窗、下方課程資訊）的靜態互動：演員用整個畫面，下方的課程資訊與播放條先收起來，題目與「看示範／略過」放在演員上方，回答後恢復。
 
-靜態互動（`studio/interactive/StaticActor.tsx`）：`interact.cast` 的第一位放在主要舞台，第二位放在旁邊的側欄卡片（各是一個舞台），回應的步驟依演員分給兩個舞台各自 `react`。`until` 沒達成時，導覽裡的選項先不能按。目前用在網頁怎麼運作 1.1 的點點看：點網頁上的元素是瀏覽器的 `click`（網頁的 script.js 顯示框）加上樹的 `mark`（開著幾個框就亮幾個節點）；點樹上的節點是瀏覽器點網頁裡看不到的開關（`[data-hide=…]`，網頁把元素藏起來）加上樹的 `fade`（節點變虛線）。`stage.toggles`／`beside` 在靜態互動已由互動腳本取代，`toggles` 只留給推到主畫面（`ActorPush`）。
+靜態互動（`studio/interactive/StaticActor.tsx`）：`interact.cast` 的第一位放在主要舞台，第二位放在旁邊的卡片（各是一個舞台），回應的步驟依演員分給兩個舞台各自 `react`。`until` 沒達成時，導覽裡的選項先不能按。目前用在網頁怎麼運作 1.1 的點點看：點網頁上的元素是瀏覽器的 `click`（網頁的 script.js 顯示框）加上樹的 `mark`（開著幾個框就亮幾個節點）；點樹上的節點是瀏覽器點網頁裡看不到的開關（`[data-hide=…]`，網頁把元素藏起來）加上樹的 `fade`（節點變虛線）。`stage.toggles`／`beside` 在靜態互動已由互動腳本取代，`toggles` 只留給推到主畫面（`ActorPush`）。
 
 和兒童課子腳本現在的差別：子腳本是把點過的步驟接進子腳本的時間軸重新載入、從頭推算到新的結尾；互動腳本改成每次觸發只演那一段，不重新載入整條時間軸。
 
@@ -754,9 +754,9 @@ packs/<name>/
 - `place`(與 `move.to`)可以寫成 `{ "landscape": <原本的寫法>, "portrait": <原本的寫法> }`;沒有指定方向的值兩種方向共用,只寫一個方向時另一個方向沿用它。語意名稱在直式自動換算:window = 留邊的滿版(1000×1560)、full = 滿版、left = 上半部、right = 下半部、center = 垂直置中;百分比相對於該方向的畫布。
 - 字卡、說明框、聚光燈、滑鼠:`.live-stage.portrait`(stage.css)調整基準字級 `--u`(24px)、字卡寬度與字級、說明框最大寬度;橫式不受影響。字幕在直式可折行(shell.css 的 `.vp-portrait`)。
 - 鏡頭(camera.ts):演算法不變,只把「目標下緣的安全線」依舞台寬高決定(`safeBottomOf`:橫式 68%、直式 84%);其餘(倍率上限、不露出空白)本來就用舞台實際寬高。
-- 手機直拿的互動課程頁(`InteractiveScenePage`,`phonePortrait`):上方是 4:5 的播放窗,直式畫布用 CSS 壓成 1080×1350(演員位置是畫布高度的百分比,跟著等比壓矮;字與元件大小不變),外殼照舞台實際大小縮放;下方是課程名稱、步驟清單、互動點與下一課。按全螢幕換成橫式舞台,縮小或把手機轉回直的就回到直式。
+- 手機直拿的互動課程頁(`InteractiveScenePage`,`phonePortrait`):上方是 4:5 的播放窗,直式畫布用 CSS 壓成 1080×1350(演員位置是畫布高度的百分比,跟著等比壓矮;字與元件大小不變),外殼照舞台實際大小縮放;最下面是固定的工具列(播放、靜音、提示詞、上一課、下一課)。按全螢幕換成橫式舞台,縮小或把手機轉回直的就回到直式。
 - 手機直拿(視窗寬度 ≤600px 且直拿,`site/useAutoAspect.ts`)時,互動課程頁、首頁的嵌入播放器與一般課程頁的 `LivePlayer` 都自動用直式;網址的 `?aspect=portrait|landscape` 優先,「橫/直」切換鈕在手機上選橫式會寫成 `?aspect=landscape`。兒童課的 `KidsPlayer` 也一樣(舞台尺寸依方向,轉向時重建、主腳本從原本的時間接著;子腳本會收起來)。兒童課腳本的直式位置避開上方指引與下方大按鈕(`{ x: 40, y: 260, w: 1000, h: 1260 }`);`kid-web` 在直的外框裡加寬、分開時改成上下排,`kid-tree` 用容器查詢改成網頁在上、樹在下。
-- 直式互動課程頁:`/courses/software/intro?aspect=portrait`(第 0、1、2 課同理,`?aspect=` 由 `studio/interactive/portrait.ts` 解析)。視窗 ≤820px 時課程章節與步驟側欄改成底部抽屜(收合 56px 把手、展開 55dvh;播到互動點自動展開並只顯示提問與選項,回答後收合);>820px 維持右側浮動面板、舞台 9:16 置中。工具列有「橫/直」切換鈕(切換時暫停、保留時間與已作答內容)。序章的 `0.intro.json` 改用調度(見「調度」一節);第 0、1、2 課還沒補,直式下沿用橫式位置,版面不佳。
+- 直式互動課程頁:`/courses/software/intro?aspect=portrait`(第 0、1、2 課同理,`?aspect=` 由 `studio/interactive/portrait.ts` 解析)。互動點的提問與選項浮在控制列上方,回答後收起。序章的 `0.intro.json` 改用調度(見「調度」一節);第 0、1、2 課還沒補,直式下沿用橫式位置,版面不佳。
 - 看直式:`/materials/promo?script=promo/portrait-demo.json&aspect=portrait`;`script` 可以是 `src/content/live/` 底下任何腳本(例如 `l0/0.2-site.json`);`&record=1` 輸出舞台、`npm run record:live -- promo/portrait-demo.json --aspect portrait` 輸出 1080×1920 的 mp4。
 
 **逐演員觀察**(各演員原樣放進直式槽,槽尺寸 1000×1400、1000×700、500×700;演員程式這次沒有改):
@@ -822,3 +822,37 @@ packs/<name>/
 - 安全區:直式是 FB Reels(`promo/actors/kid-reel/layout.ts` 的 `SAFE`),橫式是四邊各 5%。
 - 輸出(版本紀錄、拼圖、放大圖)在 `CANVAS_OUT`,預設 `web/node_modules/.cache/canvas/`。
 - 速度(本機實測):瀏覽器冷啟動約 0.5–1 秒;之後 SVG 全圖 1600×1000 約 150 ms、放大 60–130 ms、inspect 10–40 ms、compare 約 0.5 秒;舞台單格(1080×1920)約 0.3 秒、36 格縮圖約 3.5 秒。
+
+## 互動示範時間線(互動點的 `demo`)
+
+靜態互動點寫了 `demo`,載入時這份清單併進主時間軸(`studio/interactive/demoTimeline.ts`):互動點那一步拉長成整條清單的長度,每一項的 `say` 是時間軸上的旁白與字幕。整課只有一條播放條、一個位置:播放暫停、拖曳、章節、速度、靜音、字幕、AI 頭像、進度紀錄都是播放器的,示範走完自動接後面的影片。清單的純邏輯在 `studio/interactive/demoEngine.ts`(不認得演員),任何有 `init`/`apply` 的演員、任何一課都能用。腳本還是一個檔,清單寫在互動點上。
+
+限制(不符合在載入時報錯):互動點要寫 `"live": true` 與 `stage.focus`,而且要是靜態互動(演員當一般網頁操作)。互動點自己的 `narration` 在互動課頁面不念(開場白寫在清單第一項),其他播放器沒有展開清單,照舊念它。嵌入的小播放器不展開。
+
+```json
+"demo": [
+  { "id": "then-1", "segment": "then", "section": 1, "say": "同樣做一個工作坊報名系統…", "do": { "at": 8300, "handwrite": true, "cps": 92, "pause": 600 } },
+  { "id": "then-2", "say": "漏掉的地方，得用滑鼠點回去補上。", "ms": 7300 },
+  { "id": "frame-1", "segment": "frame", "reset": false, "ms": 1350, "do": [{ "turn": "frame" }, { "at": 1100, "replay": 1 }] }
+]
+```
+
+| 欄位 | 意思 |
+|---|---|
+| `id` | 必填、不重複。學員看到哪裡靠它記,改稿時沿用舊的 |
+| `segment` | 從這一項起是哪個大段(第一項必寫,每個大段只寫一次);沒寫沿用前面的。演員的切換鈕目標 `tab:<segment>` 對應它 |
+| `reset` | 只能和 `segment` 一起寫。預設在這一項把演員狀態重新開始;`false` 接著前面的狀態(例如要演從上一段換過來的過場) |
+| `section` | 從這一項起是哪一階段(整數或清單);換大段時清掉。目標 `stage:<n>` 對應它 |
+| `say` | 這一項念的一句。一律出字幕;`voice.json` 有一模一樣的句子就播語音,沒有就依字數佔時間。第一項通常是開場白(和 checkpoint 的 `narration` 同一句) |
+| `ms` | 這一項至少多長。實際長度取 `ms`、旁白、最晚的 `do.at` 裡最長的 |
+| `do` | 觸發的動作(一個或清單),寫法同腳本步驟;`at` 是這一項開始後的毫秒,動作的 `ms` 決定演多久(不寫用演員預設) |
+
+- 畫面只由目前位置決定:從最近一個重新開始的地方,把到這一刻為止的動作套上去。拖曳到任何地方都直接算出來。
+- 下一個動作到點時,上一個還沒演完就直接跳到結果。
+- 點別的大段:影片暫停,那一段的動作用演員自己的速度接連演一遍(不照旁白長短,不出字幕);影片所在的大段標紅點與「播放中」。看別段時點它的階段,從那一階段看起。這只是另一個檢視位置。
+- 點回影片所在的大段、按播放或拖播放條就回到主線。點主線大段裡的別的階段,時間軸跳過去。
+- 互動點的按鈕(「繼續看」)是跳過示範:跳到清單結尾接著播。選項沒有 `steps` 時不記回答,往回拖就再看到示範。
+- 有 `demo` 時,學員在演員身上的其他點擊(切換鈕、階段、互動點選項以外)不演也不記。
+- 看到哪裡就是播放器的進度(`progress`),示範不另外記。
+- `then-now`「以前」第一階段(手寫程式)的 `do` 可以寫 `cps`(打字速度,每秒幾字,預設 92)與 `pause`(段落打完停幾毫秒,預設 600),長度照這兩個值算。
+- 寫錯(欄位、動作或順序不對)在載入時報錯,指出項目的 id。

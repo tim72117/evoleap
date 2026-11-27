@@ -20,7 +20,7 @@ const DONE: [string, string][] = [
   ['畫布', '橫式 1920×1080(預設,與原本逐像素相同)、直式 1080×1920。'],
   ['位置', 'place 與 move.to 可寫成 { landscape, portrait };語意名稱在直式自動換算:left 是上半部、right 是下半部、center 垂直置中、window 留邊滿版、full 滿版。'],
   ['字卡與鏡頭', '字卡、說明框的字級在直式另外調整,字幕可折行;鏡頭的下緣安全線橫式 68%、直式 84%。'],
-  ['自動直式', '視窗 ≤600px 且直拿時自動用直式(site/useAutoAspect.ts);網址 ?aspect=portrait|landscape 優先。互動課程頁的側欄改成底部抽屜,工具列有「橫/直」切換鈕。'],
+  ['自動直式', '視窗 ≤600px 且直拿時自動用直式(site/useAutoAspect.ts);網址 ?aspect=portrait|landscape 優先。互動課程頁換成緊湊版面,最下面是工具列。'],
   ['調度', '幾位演員共用同一塊位置、輪流到前景(live/blocking.ts):序章、L0 第 1–3 課、網頁課 0.2 兩種方向都用。'],
   ['兒童課', 'KidsPlayer 依方向換舞台尺寸;kid-web 在直的外框裡加寬、分開時上下排,kid-tree 改成網頁在上、樹在下。'],
   ['預覽與錄製', '/materials/promo?script=…&aspect=portrait 看任何腳本的直式;npm run record:live -- … --aspect portrait 輸出 1080×1920 的 mp4。'],
@@ -138,7 +138,7 @@ export function PortraitPage() {
       <PortraitTrial />
       <div className={ui.links}>
         <Link className={`${ui.btn} ${ui.ghost}`} to="/courses/software/intro?aspect=portrait">
-          序章的直式互動頁（含手機底部抽屜）
+          序章的直式互動頁
         </Link>
       </div>
 

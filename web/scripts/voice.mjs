@@ -15,12 +15,13 @@
 //   npm run voice -- --batch web/1.1.json --dry-run   只列出要送哪些段落與第一筆請求,不呼叫 API、不花錢
 //   npm run voice -- --collect                   查批次跑完沒;跑完就下載音訊、轉 mp3、上傳,寫進各腳本的 .voice.json(之後和一般模式一樣)
 //
-// 腳本以線上資料庫為準(lib/liveScripts.mjs,透過 evoleap CLI 取得,先 evoleap login),每個 steps[] 的 narration 是一段旁白。
+// 腳本以線上資料庫為準(lib/liveScripts.mjs,透過 evoleap CLI 取得,先 evoleap login),每個 steps[] 的 narration 是一段旁白,
+// 互動點的自動示範台詞(demoNarration)也是。
 //   --api http://127.0.0.1:8190   改向別台伺服器取(預設 https://evoleap.io)
 //   --dir 資料夾                   改讀本機資料夾(還沒上傳的草稿),清單寫在腳本旁邊
 //   --push                         產生後把 .voice.json 上傳回伺服器(沿用腳本屬於哪一課);沒加只寫在本機並印出上傳指令
 // 產生結果:
-//   l0/0.0-tools.voice.json   旁白文字 → { file, ms }(舞台用 ms 排時間,課程頁播 file);暫存在 web/recordings/live/<主機>/
+//   l0/0.0-tools.voice.json   旁白文字 → { file, ms, levels }(levels:每 50ms 音量 0..9,要 ffmpeg;沿用的音檔保留原值;舞台用 ms 排時間,課程頁播 file);暫存在 web/recordings/live/<主機>/
 //   gs://shuttle-voice/l0/<hash>.mp3             每段一個音檔,公開讀取、永久快取;hash 由模型、聲音、語氣、文字決定,
 //                                                沒改就不會重新產生(不重複計費)。GCS 上的舊檔不刪(正式站部署前仍可能用到)
 // 金鑰:環境變數 GEMINI_API_KEY,或寫在 web/.env.local(不進版控)。上傳用本機 gcloud 的登入身分。只在本機產生,不會進到網站。
@@ -32,7 +33,9 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Mp3Encoder } from '@breezystack/lamejs'
+import { addLevels } from './lib/levels.mjs'
 import { isManifest, normalizeRel, openSource, sourceArgs } from './lib/liveScripts.mjs'
+import { isHandEdited, narrationLines, reusableClip } from './lib/narrationLines.mjs'
 
 const WEB = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // 影片開頭的老師介紹(共用的招呼語),和網頁端 src/live/teacher.ts 讀同一份
@@ -193,6 +196,19 @@ function upload(buf, object) {
   }
 }
 
+/** 已經產生過的音檔(算音量用):網站自己的檔、mix 的下載快取,都沒有才從公開網址下載 */
+async function clipAudio(file) {
+  if (file.startsWith('/')) return fs.readFileSync(path.join(WEB, 'public', file))
+  const cached = path.join(WEB, 'recordings/mix/.cache', file.replace(/\//g, '_'))
+  if (fs.existsSync(cached)) return fs.readFileSync(cached)
+  const res = await fetch(`https://storage.googleapis.com/${BUCKET}/${file}`)
+  if (!res.ok) throw new Error(`下載失敗 ${res.status}`)
+  const buf = Buffer.from(await res.arrayBuffer())
+  fs.mkdirSync(path.dirname(cached), { recursive: true })
+  fs.writeFileSync(cached, buf)
+  return buf
+}
+
 // cfg.trim(腳本 voice 欄位寫 "trim": true):修掉每段語音頭尾的靜音,句和句之間不會有多餘的空檔。沒開的腳本雜湊不變(舊音檔照用)
 const hashOf = (text, cfg) => createHash('sha1').update([cfg.model, cfg.voice, cfg.style, text, ...(cfg.trim ? ['trim'] : []), ...(cfg.take ? ['take'] : [])].join('\n')).digest('hex').slice(0, 12)
 
@@ -308,29 +324,8 @@ async function sample() {
  */
 async function build(rel, audio) {
   const script = await source.json(rel)
-  // 兒童版的互動寫在步驟裡面(互動點的 options[].steps、子腳本的 interact.spots / done),也要有語音:整份腳本往下找所有 narration;
-  // 其他腳本取最外層的步驟,加上互動點的選項回應與示範
-  // 兒童版播放器停下來等孩子點時也會念題目:有選項的互動點標題(checkpoint)與子腳本的 interact.prompt 也要有語音;
-  // 拖曳完成任務時念的話(interact.drag 的 say、else)也是
-  const deepNarrations = (v, out = []) => {
-    if (Array.isArray(v)) v.forEach((x) => deepNarrations(x, out))
-    else if (v && typeof v === 'object')
-      for (const [k, x] of Object.entries(v)) {
-        if (typeof x === 'string' && (k === 'narration' || k === 'prompt' || (k === 'checkpoint' && v.options))) out.push(x)
-        // 子腳本拖曳(interact.drag)完成任務時念的話(say:任務 → 旁白)與沒完成新任務時念的話(else)
-        else if (k === 'say' && x && typeof x === 'object' && !Array.isArray(x)) out.push(...Object.values(x).filter((s) => typeof s === 'string'))
-        else if (k === 'else' && typeof x === 'string') out.push(x)
-        else deepNarrations(x, out)
-      }
-    return out
-  }
-  // 腳本頂層的 teacher:開頭的老師介紹(src/live/teacher.ts 展開),共用的招呼語與這一課的一句也要有語音
-  const intro = script.teacher ? [script.teacher.greeting ?? TEACHER.greeting, script.teacher.line] : []
-  // 互動點(有 id 的 checkpoint)的選項回應與示範(skip,學員沒回答直接播放時也會演)也要有語音;自己打字的回應(free)內容不固定,不產生
-  const topLevel = (steps) =>
-    (steps || []).flatMap((s) => [s.narration, ...(s.id && s.checkpoint ? [...(s.options || []).flatMap((o) => (o.steps || []).map((x) => x.narration)), ...(s.skip?.steps || []).map((x) => x.narration)] : [])])
-  const all = [...intro, ...(isKidsPath(rel) ? deepNarrations({ steps: script.steps, interact: script.interact }) : topLevel(script.steps))]
-  let texts = [...new Set(all.filter(Boolean))]
+  // 要有語音的句子:老師開場、步驟旁白、互動點的回應與示範、示範台詞(規則在 lib/narrationLines.mjs)
+  let texts = narrationLines(script, { kids: isKidsPath(rel), teacher: TEACHER })
   // --max-sec:只取開頭幾段,累計估算長度(每秒約 4.2 字)到達上限為止;其他段落沿用舊音檔或維持只有字幕
   const maxSec = Number(flag('max-sec'))
   if (maxSec > 0) {
@@ -362,7 +357,9 @@ async function build(rel, audio) {
   const manifestRel = rel.replace(/\.json$/, '.voice.json')
   // 上次產生了還沒上傳的清單(pending)也算快取,免得重跑時重新合成、重複計費
   const remote = await source.json(manifestRel)
-  const old = { clips: { ...remote?.clips, ...source.pending(manifestRel)?.clips } }
+  const pending = source.pending(manifestRel)
+  const header = pending ?? remote
+  const old = { clips: { ...remote?.clips, ...pending?.clips } }
   // GCS 上的路徑照腳本的資料夾(例如 l0/0.0-tools.json → l0/<hash>.mp3)
   const prefix = path.posix.dirname(rel.split(path.sep).join('/'))
 
@@ -379,15 +376,28 @@ async function build(rel, audio) {
   }
   const cachedOf = (text) => {
     const file = `${prefix}/${hashOf(text, cfgFor(text))}.mp3`
-    const prev = old.clips?.[text]
-    return prev && prev.file === file ? prev : shared[file]
+    // 角色台詞的聲音另外設定,清單頂層看不出有沒有改過,不認手動項目
+    const edited = (clip) => {
+      const c = cfgFor(text)
+      const ownFiles = [false, true].flatMap((trim) => [false, true].map((take) => `${prefix}/${hashOf(text, { ...c, trim, take })}.mp3`))
+      return !lineCfg.has(text) && isHandEdited(clip, { manifest: header, cfg: c, prefix, ownFiles })
+    }
+    return reusableClip(text, file, old.clips, shared, edited)
   }
   // 還沒輪到的段落先帶著原本的快取寫進去:中途失敗時清單不會缺段,已上傳的音檔重跑也不會重複合成
   const save = () => {
     const merged = { ...clips }
     for (const text of texts) if (!merged[text] && cachedOf(text)) merged[text] = cachedOf(text)
     source.write(manifestRel, { model: cfg.model, voice: cfg.voice, style: cfg.style, clips: merged })
+    return merged
   }
+  // 這次新產生的音檔(算音量用,不必再下載)
+  const fresh = new Map()
+  const put = (mp3, file) => {
+    upload(mp3, file)
+    fresh.set(file, mp3)
+  }
+  const withLevels = (all) => addLevels(all, (clip) => fresh.get(clip.file) ?? clipAudio(clip.file))
   const todo = texts.filter((t) => !cachedOf(t)).length
   // 進度條:只算這次要新產生的段落(已有快取的略過);終端機上原地更新,非終端機(log)每段一行
   const started = Date.now()
@@ -411,7 +421,7 @@ async function build(rel, audio) {
       // 檔名加上音檔內容的雜湊,每次產生的結果都是新網址
       const mp3 = toMp3({ pcm: parts[i], rate: pcm.rate })
       const file = `${prefix}/${hashOf(text, cfgT)}-${createHash('sha1').update(mp3).digest('hex').slice(0, 8)}.mp3`
-      upload(mp3, file)
+      put(mp3, file)
       clips[text] = { file, ms: Math.round((parts[i].length / pcm.rate) * 1000) }
       console.log(`  ${(clips[text].ms / 1000).toFixed(2)} 秒  ${text.slice(0, 20)}`)
     })
@@ -425,11 +435,11 @@ async function build(rel, audio) {
       const file = `${prefix}/${hashOf(text, cfg)}.mp3`
       const one = decodePcm(await audio(text, cfg, file))
       if (cfg.trim) one.pcm = trimSilence(one.pcm, one.rate)
-      upload(toMp3(one), file)
+      put(toMp3(one), file)
       clips[text] = { file, ms: Math.round((one.pcm.length / one.rate) * 1000) }
       console.log(`  ${(clips[text].ms / 1000).toFixed(2)} 秒  ${text.slice(0, 20)}(單獨錄)`)
     }
-    source.write(manifestRel, { model: cfg.model, voice: cfg.voice, style: cfg.style, take: true, clips })
+    source.write(manifestRel, { model: cfg.model, voice: cfg.voice, style: cfg.style, take: true, clips: await withLevels(clips) })
     console.log(`${rel}:整段一次錄 ${group.length} 句、單獨錄 ${texts.length - group.length} 句,共 ${(Object.values(clips).reduce((n, c) => n + c.ms, 0) / 1000).toFixed(0)} 秒`)
     await source.publish(manifestRel, common.push)
     return
@@ -450,14 +460,23 @@ async function build(rel, audio) {
     if (!raw) continue
     const pcm = decodePcm(raw)
     if (c.trim) pcm.pcm = trimSilence(pcm.pcm, pcm.rate)
-    upload(toMp3(pcm), file)
+    put(toMp3(pcm), file)
     clips[text] = { file, ms: Math.round((pcm.pcm.length / pcm.rate) * 1000) }
     made++
     save()
     progress(made)
   }
-  if (plan) return
-  save()
+  if (plan) {
+    const dropped = Object.keys(old.clips).filter((t) => !texts.includes(t) && !maxSec && !limit)
+    console.log(`${rel}:收集到 ${texts.length} 句、沿用 ${texts.length - todo}、缺 ${todo}、清單會移除 ${dropped.length}`)
+    dropped.forEach((t) => console.log(`  移除:${t}`))
+    for (const t of texts) {
+      const clip = cachedOf(t)
+      if (clip && clip.file !== `${prefix}/${hashOf(t, cfgFor(t))}.mp3`) console.log(`  沿用手動調整過的音檔(要重錄就從清單刪掉這一項):${clip.file} ${clip.ms}ms ${t}`)
+    }
+    return
+  }
+  source.write(manifestRel, { model: cfg.model, voice: cfg.voice, style: cfg.style, clips: await withLevels(save()) })
   const total = Object.values(clips).reduce((n, c) => n + c.ms, 0)
   console.log(`${rel}:${texts.length} 段旁白(新產生 ${made}),共 ${(total / 1000).toFixed(0)} 秒`)
   await source.publish(manifestRel, common.push)

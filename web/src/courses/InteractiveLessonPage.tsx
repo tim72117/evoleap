@@ -23,7 +23,7 @@ import styles from '../studio/interactive/InteractiveScenePage.module.css'
 import { LessonAd } from './LessonAd'
 import { clearGuestProgress, memberProgress } from './progress'
 
-// 互動版的單課頁:整個視窗都是舞台,學員直接操作演員,右側是課程章節與步驟(見 InteractiveScenePage)。
+// 互動版的單課頁:整個視窗都是舞台,學員直接操作演員(見 InteractiveScenePage)。
 // 有即時教學影片的課用互動版(routes.tsx 決定),有互動點的課在這裡把互動點加進腳本(INTERACTIVE_LESSONS)。播放進度和一般課程頁一樣,只有登入的會員才記,也沿用同一份紀錄。
 
 /** 有互動點的課:課號 → 把互動點加進課程腳本的函式。放在這裡(不在 routes.tsx),才會跟著上課頁用到才下載 */
@@ -129,6 +129,10 @@ export function InteractiveLessonPage({ course, lesson, prev, next }: Props) {
         progress,
         ready: status !== 'loading',
         prompts: promptsOf(lesson.id),
+        pager: {
+          prev: prev && { to: lessonUrl(course.slug, prev.id), label: c.prev(labelOf(prev)) },
+          next: next ? { to: lessonUrl(course.slug, next.id), label: c.next(labelOf(next)) } : { to: `${TOPIC_PATHS.software}#map`, label: c.courseMapNext },
+        },
         footer: (
           <>
             {status === 'guest' && (

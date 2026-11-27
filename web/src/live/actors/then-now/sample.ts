@@ -1,4 +1,7 @@
 // then-now 的「自己寫」範例(task: write):週末工作坊的報名系統。比一頁靜態網頁複雜:場次名額、表單、扣名額與名單。
+import { CHAT_MS, type ChatStage } from './chatEra'
+import { handFrame } from './handEdit'
+import { SIGNUP_CODE } from './signupCode'
 import { kit } from '../../kit'
 
 /** 四段程式:每按一次寫一段 */
@@ -10,13 +13,13 @@ export type TestItem = { name: string; ok: boolean; why?: string; /** 沒寫的�
 export type TestFix = { file: string; how: string; before: readonly string[]; remove: string; add: readonly string[]; after: readonly string[]; done: string }
 export type TestRun = { how: string; items: readonly TestItem[]; summary: string; each: number; stopOnFail?: boolean; fix?: TestFix }
 /** lines 是要打的程式;有 tests 的那一段是測試(不打字,列出一項一項的結果) */
-export const CHUNKS: readonly { name: string; lines: readonly string[]; tests?: TestRun; /** 打這一段最多花多久(毫秒),沒寫用預設 */ ms?: number }[] = [
+export const CHUNKS: readonly { name: string; lines: readonly string[]; tests?: TestRun; /** 打這一段最多花多久(毫秒),沒寫用預設 */ ms?: number; /** 有回頭修改的橋段:長度就照 ms */ edits?: boolean; /** 對話式 AI 的第幾段示範 */ chat?: ChatStage }[] = [
   // 最後一段是測試
   {
     name: '寫程式',
-    // 以前整頁自己寫:頁面、表單、送出後的處理一口氣打完
-    ms: 2600,
-    lines: ['<h1>週末工作坊報名</h1>', '<p>每場名額有限，額滿為止</p>', '<ul id="list"></ul>', '<script>', 'const sessions = [', '  { name: "手沖咖啡", left: 3 },', '  { name: "陶藝入門", left: 0 },', '  { name: "植栽組盆", left: 8 }', ']', 'document.body.insertAdjacentHTML("beforeend", `', '  <form id="form">', '    <input name="who" placeholder="姓名" required>', '    <input name="tel" placeholder="電話" required>', '    <select name="pick"></select>', '    <button>送出報名</button>', '  </form>', '  <ol id="people"></ol>`)', 'form.onsubmit = (e) => {', '  e.preventDefault()', '  const s = sessions[form.pick.selectedIndex]', '  if (s.left <= 0) return alert("額滿了")', '  s.left -= 1', '  people.innerHTML += `<li>${form.who.value}｜${s.name}</li>`', '  draw()', '}', 'function draw() {', '  list.innerHTML = sessions.map(', '    (s) => `<li>${s.name}　剩 ${s.left} 位</li>`).join("")', '  form.pick.innerHTML = sessions.map(', '    (s) => `<option>${s.name}</option>`).join("")', '}', 'draw()', '</script>'],
+    // 以前整頁自己寫:一段一段打、回頭補漏改錯。長度照打字速度算(handEdit.ts)
+    edits: true,
+    lines: SIGNUP_CODE,
   },
   {
     name: '單元測試',
@@ -58,53 +61,11 @@ export const CHUNKS: readonly { name: string; lines: readonly string[]; tests?: 
   },
 ]
 
-/** 後來用框架:同一個報名系統,拆成元件、由框架更新畫面;程式不一定比較少,但要先建專案、懂元件和狀態 */
+/** 後來:對話式 AI(內部名稱仍叫 frame,腳本的 turn/tab:frame 不用改)。每一段是一段示範(chatEra.ts),不打字也不跑自動測試 */
 export const FRAME_CHUNKS: typeof CHUNKS = [
-  {
-    name: '寫程式',
-    // 建專案、裝套件、元件、狀態一口氣打完
-    ms: 2600,
-    lines: ['npm create vite@latest signup -- --template react', 'cd signup', 'npm install', 'npm run dev', 'function Sessions({ list }) {', '  return <ul>{list.map((s) =>', '    <li key={s.name}>{s.name}　剩 {s.left} 位</li>)}', '  </ul>', '}', 'function Form({ list, onSubmit }) {', '  return <form onSubmit={onSubmit}>', '    <input name="who" placeholder="姓名" required />', '    <input name="tel" placeholder="電話" required />', '    <select name="pick">', '      {list.map((s) => <option key={s.name}>{s.name}</option>)}', '    </select>', '    <button>送出報名</button>', '  </form>', '}', 'export default function App() {', '  const [list, setList] = useState(sessions)', '  const [people, setPeople] = useState([])', '  const submit = (e) => {', '    e.preventDefault()', '    const pick = e.target.pick.value', '    setList(list.map((s) => s.name === pick', '      ? { ...s, left: s.left - 1 } : s))', '    setPeople([...people, e.target.who.value])', '  }', '  return <><Sessions list={list} />', '    <Form list={list} onSubmit={submit} /></>', '}'],
-  },
-  {
-    name: '單元測試',
-    lines: [],
-    tests: {
-      how: '$ npm test（單元測試：只測函式和元件，不開畫面；測試自己寫）',
-      each: 450,
-      items: [
-        { name: '扣名額的函式：3 變 2', ok: true },
-        { name: '名單加一人的函式', ok: true },
-        { name: '名額 0 的時候不能再扣', ok: false, why: '預期 0，拿到 -1' },
-      ],
-      summary: '2 passed、1 failed。',
-      fix: {
-        file: 'App.jsx',
-        how: '看錯誤訊息，自己找到那一行改',
-        before: ['    setList(list.map((s) => s.name === pick'],
-        remove: '      ? { ...s, left: s.left - 1 } : s))',
-        add: ['      ? { ...s, left: Math.max(0, s.left - 1) } : s))'],
-        after: ['    setPeople([...people, e.target.who.value])'],
-        done: '改完重跑：3 passed。零件對了，整頁接起來還不知道。',
-      },
-    },
-  },
-  {
-    name: '自動畫面測試',
-    lines: [],
-    tests: {
-      how: '$ npx playwright test（腳本也是自己寫的）',
-      each: 750,
-      stopOnFail: true,
-      items: [
-        { name: '打開頁面，看到三個場次', ok: true, at: 'list' },
-        { name: '填表單送出，名單新增一人', ok: true, at: 'submit' },
-        { name: '額滿的場次不能報名', ok: false, why: '函式擋住了，畫面卻照樣送出成功。測試停在這裡', at: 'card:1' },
-        { name: '匯出與搜尋', ok: true, at: 'people' },
-      ],
-      summary: '2 passed、1 failed、1 未執行。要自己看截圖、改程式，再跑一次。',
-    },
-  },
+  { name: '問 AI', lines: [], chat: 1, ms: CHAT_MS[1], edits: true },
+  { name: '複製貼上', lines: [], chat: 2, ms: CHAT_MS[2], edits: true },
+  { name: '人工測試', lines: [], chat: 3, ms: CHAT_MS[3], edits: true },
 ]
 
 export type Era = 'then' | 'frame'
@@ -114,25 +75,33 @@ const typedChunks = (era: Era, n = Infinity): typeof CHUNKS => chunksOf(era).sli
 export const writtenLines = (era: Era, n: number): number => typedChunks(era, n).reduce((m, c) => m + c.lines.length, 0)
 export const writtenChars = (era: Era, n: number): number => typedChunks(era, n).reduce((m, c) => m + kit.graphemes(c.lines.join('')).length, 0)
 export const symbolCount = (era: Era): number => [...typedChunks(era).flatMap((c) => c.lines).join('')].filter((c) => '<>/=(){}[]"`$.,'.includes(c)).length
-/** 寫到第幾段時預覽長到哪裡(previewHtml 的 parts):第一段就有標題和場次;兩個寫程式的時代一樣 */
-export const framePreview = (n: number): number => (n >= 1 ? 4 : 0)
+/** 寫到第幾段時預覽長到哪裡(previewHtml 的 parts):對話式 AI 要到貼上、打開(第二段)才看得到 */
+export const framePreview = (n: number): number => (n >= 2 ? 4 : 0)
 /** 「以前」只有一段程式:寫完就是整個網頁 */
 export const thenPreview = (n: number): number => (n >= 1 ? 4 : 0)
 
 const colored = (text: string): string => kit.esc(text).replace(/(&lt;\/?[a-z0-9]+|&gt;)/g, '<span class="tn-t">$1</span>')
 
 /** 程式區:寫好的幾段,加上正在打的那一段打出的前 chars 個字 */
-export function codeHtml(era: Era, written: number, typing: { chunk: number; chars: number } | null): string {
+export function codeHtml(era: Era, written: number, typing: { chunk: number; chars: number; cps?: number; pause?: number } | null): string {
   const upto = typing ? typing.chunk : written
   if (!upto) return '<p class="tn-blank">還沒有任何程式</p>'
   let no = 0
   return typedChunks(era, upto)
     .map((c, i) => {
       const live = typing?.chunk === i + 1 && !c.tests
-      const text = live ? kit.graphemes(c.lines.join('\n')).slice(0, typing.chars).join('') : c.lines.join('\n')
-      return text
-        .split('\n')
-        .map((line, k, all) => `<div class="tn-src"><span class="tn-no tn-num">${++no}</span><code>${colored(line)}${live && k === all.length - 1 ? '<i class="tn-caret"></i>' : ''}</code></div>`)
+      const all = live ? kit.graphemes(c.lines.join('\n')).length : 0
+      // 以前手寫的那一段:有回頭點選、修改的橋段(handEdit.ts)
+      const hand = live && era === 'then' && i === 0 ? handFrame(c.lines, typing.chars / all, typing.cps, typing.pause) : null
+      const lines = hand ? hand.lines : live ? kit.graphemes(c.lines.join('\n')).slice(0, typing.chars).join('').split('\n') : c.lines
+      const at = hand?.caret ?? { line: lines.length - 1, col: Infinity }
+      return lines
+        .map((line, k) => {
+          const here = live && k === at.line
+          const mouse = here && hand?.mouse ? `<i class="tn-mouse${hand.mouse.press ? ' press' : ''}" style="--away:${hand.mouse.away.toFixed(3)}"></i>` : ''
+          const code = here ? `${colored(line.slice(0, at.col))}<i class="tn-caret"${hand?.blink ? ' style="opacity:0"' : ''}></i>${mouse}${colored(line.slice(at.col))}` : colored(line)
+          return `<div class="tn-src${here && hand ? ' tn-editing' : ''}"><span class="tn-no tn-num">${++no}</span><code>${code}</code></div>`
+        })
         .join('')
     })
     .join('')
@@ -213,7 +182,7 @@ export function fixHtml(fix: TestFix, typed: number): string {
 /** 各階段大概要花的時間(分鐘,示意值,不是動畫播放的長度):依序對應下方進度的每一格 */
 export const MINUTES: Record<'then' | 'frame' | 'now', readonly number[]> = {
   then: [120, 30, 20],
-  frame: [45, 10, 5],
+  frame: [3, 5, 12],
   now: [1, 0.5, 1.5, 1],
 }
 /** 做完 done 個階段、目前這一個做到 part(0–1)時,累計花了幾分鐘 */

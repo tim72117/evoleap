@@ -15,7 +15,7 @@ import { InteractiveScenePage } from '../studio/interactive/InteractiveScenePage
 import styles from '../studio/interactive/InteractiveScenePage.module.css'
 import { TopicBlocked } from './TopicBlocked'
 
-// 「網頁怎麼運作」「從做好到上線」「3D 列印」的一課:整個視窗都是互動舞台,右側是章節與步驟(InteractiveScenePage,和 L0 的互動課同一個外殼)。
+// 「網頁怎麼運作」「從做好到上線」「3D 列印」的一課:整個視窗都是互動舞台(InteractiveScenePage,和 L0 的互動課同一個外殼)。
 // 這幾門課共用這一頁,差別只在 TOPIC_SCENES 的設定。路由是 /courses/<課程>/:lesson(home/routes.tsx、courses/LessonRoute.tsx),資料庫裡的每一課都打得開;
 // 能不能上、播哪個腳本、要不要登入、課名都照資料庫(LessonGate)。網頁課要用靜態版面的課列在 WEB_STATIC_LESSONS。播放進度只有登入的會員才記。
 // 追蹤:打開課程頁由 InteractiveScenePage 記 live:<腳本>;看到提示頁的訪客記 page:<網址>(PageView)。
@@ -95,6 +95,10 @@ function Player({ course, cfg, lesson, title, docTitle, prev, next }: { course: 
         back: { to: cfg.topic.path, label: t.courses.lesson.backToCourseMap },
         progress,
         ready: status !== 'loading',
+        pager: {
+          prev: prev && { to: lessonUrl(course, prev.id), label: t.courses.lesson.prev(lessonLabelOf(course, prev.id)) },
+          next: next ? { to: lessonUrl(course, next.id), label: t.courses.lesson.next(lessonLabelOf(course, next.id)) } : { to: `${cfg.topic.path}#map`, label: t.courses.lesson.courseMapNext },
+        },
         footer: (
           <>
             {status === 'guest' && (

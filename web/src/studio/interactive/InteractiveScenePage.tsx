@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { Aspect } from '../../live/types'
@@ -8,22 +8,25 @@ import { ScriptError } from '../../live/ScriptError'
 import { mountShell, type ProgressStore, type Shell } from '../../live/shell'
 import { homeShowcaseKey, useGuestView } from '../../courses/guestActivity'
 import { ACTORS } from '../../live/actors'
-import { createStage, type Stage, type StageChapter, type StageScript } from '../../live/stage'
+import { createStage, type Stage, type StageScript } from '../../live/stage'
 import '../../live/shell.css'
 import { useCopy } from '../../site/useCopy'
 import { useLocale, useT } from '../../i18n/I18nProvider'
 import { ActorPush } from './ActorPush'
 import { StaticActor } from './StaticActor'
-import { answerLabel, answersOnActor, expandAnswers, INTERACTIVE_ICON, momentsOf, withoutAnswer, type Answer, type Answers, type Moment } from './scene'
+import type { DemoPlan } from './demoEngine'
+import { checkDemoActions, demoSpeech, withDemoTimeline } from './demoTimeline'
+import { captionAt, captionChars, splitTimedCaption } from './captionSplit'
+import { answersOnActor, expandAnswers, momentsOf, withoutAnswer, type Answer, type Answers, type Moment } from './scene'
 import { useAutoAspect } from '../../site/useAutoAspect'
 import { CaptionToggle, ControlPanel, RateMenu } from './ControlPanel'
-import { drawerSummary, nextDrawerOpen, parseAspect, usesDrawer } from './portrait'
+import { parseAspect } from './portrait'
 import { ClaudePractice } from '../../courses/ClaudePractice'
 import { useFeature } from '../../site/features'
 import styles from './InteractiveScenePage.module.css'
 
-// 互動教學場景(試做):整個視窗都是舞台,播放條是浮動的膠囊,右側在「步驟」與「互動」之間切換。
-// 播到互動點會暫停並切到互動區;學員回答後,回應的步驟插進時間軸(見 scene.ts),演員當場演出來。
+// 互動教學場景:整個視窗都是舞台,播放條是浮動的膠囊。
+// 播到互動點會暫停,題目浮在播放器上或直接在演員身上操作;學員回答後,回應的步驟插進時間軸(見 scene.ts),演員當場演出來。
 
 /** 嵌進其他頁面時,從第一個互動點前面多少毫秒開始:先看一小段前情,再輪到學員動手 */
 const EMBED_LEAD_MS = 15000
@@ -32,20 +35,16 @@ const EMBED_LEAD_MS = 15000
 const AT_MOMENT_MS = 50
 /** 停在互動段尾端之前多少毫秒暫停(播放位置每 200ms 回報一次,要大於它) */
 const HOLD_LEAD_MS = 350
+/** 開場旁白快講完(剩這麼多)就開始自動示範;要比 HOLD_LEAD_MS 長,影片在段尾停住前一定放行 */
+const TALK_END_LEAD_MS = 600
 /** 第一個互動點在這之內,就是「一開場就互動」的腳本 */
 const OPENING_MOMENT_MS = 1500
 
-type Tab = 'steps' | 'interact'
-type Timeline = { chapters: StageChapter[]; momentAt: Record<string, number>; /** 互動點那一步的尾端 */ momentEnd: Record<string, number>; /** 腳本載好、時間軸排好了 */ loaded?: boolean }
+type Timeline = { momentAt: Record<string, number>; /** 互動點那一步的尾端 */ momentEnd: Record<string, number>; /** 併進時間軸的示範(互動點 id → 清單的時間表);開始時間就是 momentAt */ demos?: Record<string, DemoPlan>; /** 互動點那一步開場旁白的結束時間(有語音的才有) */ talkEnd?: Record<string, number>; /** 腳本載好、時間軸排好了 */ loaded?: boolean }
 type Controller = {
   shell: Shell
   /** 依回答重新載入舞台,回傳各互動點的時間 */
   sync(answers: Answers): Promise<Record<string, number>>
-}
-
-const fmt = (ms: number): string => {
-  const s = Math.floor(ms / 1000)
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
 type Props = {
@@ -53,11 +52,11 @@ type Props = {
   script: string
   /** 頁面名稱(document.title 是「<名稱> · 課程提案」,要和 seo/pages.ts 一致) */
   pageTitle: string
-  /** stage:把演員推到主畫面,學員直接操作演員;static:影片停止,演員畫在舞台外,學員直接操作這一份;不寫就在側欄回答 */
+  /** stage:把演員推到主畫面,學員直接操作演員;static:影片停止,演員畫在舞台外,學員直接操作這一份;不寫就在浮出的題目面板回答 */
   interaction?: 'stage' | 'static'
   /** 把載入的腳本加上互動點(用課程原本的腳本與語音時) */
   prepare?: (script: StageScript) => StageScript
-  /** 正式課程頁用:標題、返回連結、播放進度與側欄底部;不寫就是研發基地的試做頁 */
+  /** 正式課程頁用:標題、返回連結與播放進度;不寫就是研發基地的試做頁 */
   course?: {
     docTitle: string
     heading: string
@@ -66,8 +65,10 @@ type Props = {
     /** false 時先不建立播放器(例如登入狀態還沒確認) */
     ready: boolean
     footer: ReactNode
-    /** 課程第幾步(腳本的 lessonStep) → 提示詞,顯示在側欄對應的章節底下,讓學員複製到自己的工具 */
+    /** 課程第幾步(腳本的 lessonStep) → 提示詞:「提示詞」鈕打開的面板列出來,讓學員複製到自己的工具 */
     prompts?: Record<number, string>
+    /** 上一課、下一課(沒有下一課時 next 是回課程地圖):手機底部工具列用圖示顯示 */
+    pager?: { prev?: { to: string; label: string }; next: { to: string; label: string } }
   }
   /** 研發基地試做頁的返回連結;不寫就回構想 */
   back?: { to: string; label: string }
@@ -105,13 +106,13 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const fsLandscapeRef = useRef(false)
   fsLandscapeRef.current = fsLandscape
   const aspect: Aspect = embed ? auto : fsLandscape ? 'landscape' : parseAspect(params.get('aspect'), auto)
-  // 窄視窗(手機直立)的直式、手機橫放(矮視窗)都用底部抽屜
+  // 窄視窗(手機直立)的直式、手機橫放(矮視窗):版面緊湊,題目一律浮在控制列上方,不畫在舞台上
   const narrow = useMedia('(max-width: 820px)')
   // 手機橫放:矮、橫,而且是觸控裝置(桌機把視窗拉矮不算;CSS 的手機樣式用同一組條件)
   const phoneLandscape = useMedia('(max-height: 500px) and (orientation: landscape) and (pointer: coarse)')
-  const drawer = !embed && (usesDrawer(aspect, narrow) || phoneLandscape)
-  /** 手機直拿:上方 4:5 的播放窗,下方是字幕與課程資訊,最底下露出抽屜 */
-  const phonePortrait = drawer && aspect === 'portrait'
+  const compact = !embed && ((aspect === 'portrait' && narrow) || phoneLandscape)
+  /** 手機直拿:播放器鋪滿整個畫面,最底下是固定的工具列 */
+  const phonePortrait = compact && aspect === 'portrait'
   const phonePortraitRef = useRef(false)
   phonePortraitRef.current = phonePortrait
   // 手機橫放本身就是「放大」:全螢幕鈕顯示成「縮小」,按了請手機轉回直的
@@ -150,6 +151,13 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   /** 重建播放器(切換橫/直)時帶著目前的播放時間 */
   const carry = useRef(0)
   const answersRef = useRef<Answers>({})
+  /** 往回跳到回答過的互動點之前時要做的事(每次 render 換成最新的) */
+  const rewindRef = useRef<(from: number, to: number) => void>(() => {})
+  /** 頁面自己的跳轉(回答後接著播)不算學員往回跳 */
+  const ownSeek = useRef(false)
+  const rewindSync = useRef<Promise<unknown>>(Promise.resolve())
+  const [muted, setMuted] = useState(false)
+  const [promptsOpen, setPromptsOpen] = useState(false)
   const docTitle = course?.docTitle ?? `${pageTitle} · 課程提案`
   const progress = course?.progress
   const ready = course?.ready ?? true
@@ -165,15 +173,12 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const [moments, setMoments] = useState<Moment[]>([])
   const [title, setTitle] = useState('')
   const [timeline, setTimeline] = useState<Timeline>({
-    chapters: [],
     momentAt: {},
     momentEnd: {},
   })
   const [answers, setAnswers] = useState<Answers>({})
-  const [now, setNow] = useState({ t: 0, playing: false })
-  const [tab, setTab] = useState<Tab>('steps')
-  // 側欄浮在舞台上,預設收合(停在互動點時自動打開,見 onStop)
-  const [panelOpen, setPanelOpen] = useState(false)
+  const [now, setNow] = useState<{ t: number; playing: boolean; ended?: boolean }>({ t: 0, playing: false })
+  const [voiceData, setVoiceData] = useState<ScriptVoice | null>(null)
   const [toolbar, setToolbar] = useState<HTMLElement | null>(null)
   const [error, setError] = useState<string | null>(null)
   // 載入失敗也回報(訪客紀錄用來找出打開了卻沒有播放的原因)
@@ -185,7 +190,6 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     root: HTMLElement
     layer: HTMLElement
   } | null>(null)
-  const [lesson, setLesson] = useState('')
   const [loaded, setLoaded] = useState<StageScript | null>(null)
   // 腳本有 practice 時,右上角有「動手試試」:打開靜態的 Claude Code 練習(courses/ClaudePractice.tsx)
   const [practiceOpen, setPracticeOpen] = useState(false)
@@ -224,19 +228,10 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       ...(embed ? { globalKeys: false } : { toolbar: tools }),
       aspect,
       autoLandscape: false,
-      onStop: (stop) => {
-        const stopped = list.find((m) => m.title === stop.title)
-        if (!stopped) return false
-        if (stopped.stage?.panel === false) return true
-        // 靜態互動的題目也放在導覽(側欄);首頁嵌入沒有側欄,題目留在演員旁邊
-        // 一開場就是互動時不自動打開側欄,先讓學員看到完整的操作畫面
-        if (interaction !== 'stage' && !drawer && stop.at > OPENING_MOMENT_MS && !(embed && interaction === 'static' && answersOnActor(stopped))) {
-          setPanelOpen(true)
-          setTab('interact')
-        }
-        return true
-      },
-      // 全螢幕要包含側欄,所以是整頁進入全螢幕;瀏覽器不支援元素全螢幕(iPhone)時交回外殼的滿版備援
+      onRewind: (from, to) => rewindRef.current(from, to),
+      // 互動點的暫停由這一頁接手,不顯示外殼的「停一下」畫面
+      onStop: (stop) => list.some((m) => m.title === stop.title),
+      // 全螢幕要包含浮在播放器上的標題列與題目,所以是整頁進入全螢幕;瀏覽器不支援元素全螢幕(iPhone)時交回外殼的滿版備援
       // 不支援整頁全螢幕又不是手機直拿(或它換成的橫式全螢幕)時不接手,交給外殼的滿版備援
       onFullscreenRequest: embed
         ? () => {}
@@ -305,34 +300,60 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
     const sync: Controller['sync'] = async (next) => {
       if (!script) return {}
-      await stage.load(expandAnswers(script, next), {
+      // 示範清單併進時間軸(嵌入的小播放器只播影片,不併)
+      const demos = embed ? [] : list.filter((m) => m.demo)
+      const timed = withDemoTimeline(expandAnswers(script, next), demos, voice?.durations)
+      await stage.load(timed.script, {
         voice: voice?.durations,
         aspect,
       })
+      // 演員在舞台載入時才下載:載好後才能照示範清單套一遍,動作或順序寫錯在這裡就報出來
+      for (const m of list) if (m.demo && interaction !== 'static') throw new Error(`互動點「${m.id}」:demo 只能用在靜態互動(演員要是當一般網頁操作的演員)`)
+      for (const m of list) if (m.demo) checkDemoActions(m.demo, script, (m.stage?.focus ?? '').split(':')[0], `互動點「${m.id}」`)
       const momentAt: Record<string, number> = {}
       for (const m of list) {
         const stop = stage.stops.find((s) => s.title === m.title)
         if (stop) momentAt[m.id] = stop.at
       }
+      const speech = Object.entries(timed.plans).map(([id, plan]) => demoSpeech(plan, momentAt[id], voice?.durations))
+      const spoken = [...stage.narrations, ...speech.flatMap((s) => s.narrations)].sort((a, b) => a.at - b.at)
+      const demoCaptions = speech.flatMap((s) => s.captions)
       shell.update({
         duration: stage.duration,
         renderAt: stage.renderAt,
         chapters: stage.chapters,
         // 回答過或略過的互動點不再停下來
         stops: stage.stops.filter((s) => !list.some((m) => m.title === s.title && next[m.id])).map((s) => ({ ...s, live: list.find((m) => m.title === s.title)?.live })),
-        captions: (ms) => stage.captions.find((c) => ms >= c.from && ms < c.to)?.text || '',
+        captions: (ms) => {
+          // 示範的一句是整句,依畫面寬度切短、跟著語音換行
+          const said = demoCaptions.find((x) => ms >= x.from && ms < x.to)
+          if (said) return captionAt(splitTimedCaption(said.text, said.to - said.from, captionChars(), voice?.levels?.[said.text]), ms - said.from)
+          const c = stage.captions.find((x) => ms >= x.from && ms < x.to)
+          // 手機直拿再切短:一次一行
+          if (!c || captionChars() > 16 || c.text.length <= captionChars()) return c?.text || ''
+          return captionAt(splitTimedCaption(c.text, c.to - c.from, captionChars()), ms - c.from)
+        },
         // 有語音的旁白才播(合成過章節音軌的用章節音軌);學員選其他選項時新寫的旁白還沒有語音,只顯示字幕,回到主線的旁白接著用原本的語音
-        clips: narrationClips(stage.narrations, voice, mix),
+        clips: narrationClips(spoken, voice, mix),
       })
       // 互動段的尾端 = 下一個有旁白(或下一個互動點)的步驟開始:互動點的旁白會一直講到那裡,中間沒旁白的步驟(收起演員等)不算新的一段
       const momentEnd: Record<string, number> = {}
       for (const id of Object.keys(momentAt)) {
         const i = stage.steps.findIndex((x) => (x.step as { id?: string }).id === id)
         const after = i >= 0 ? stage.steps.slice(i + 1).find((x) => 'narration' in x.step || x.kind === 'checkpoint') : undefined
-        momentEnd[id] = after?.start ?? stage.duration
+        momentEnd[id] = timed.plans[id] ? momentAt[id] + timed.plans[id].total : (after?.start ?? stage.duration)
       }
       endRef.current = momentEnd
-      if (!cancelled) setTimeline({ chapters: stage.chapters, momentAt, momentEnd, loaded: true })
+      const talkEnd: Record<string, number> = {}
+      for (const id of Object.keys(momentAt)) {
+        const step = stage.steps.find((x) => (x.step as { id?: string }).id === id)
+        const said = step && stage.narrations.find((n) => n.at >= step.start - 100 && n.at < step.start + 1000)
+        const ms = said && voice?.durations[said.text]
+        // 腳本的 demoStartMs:旁白講到這裡(毫秒)就開始示範,讓畫面對上那句話;沒寫就等整段講完
+        const cue = (step?.step as { demoStartMs?: number } | undefined)?.demoStartMs
+        if (said && ms) talkEnd[id] = said.at + (cue != null ? cue + TALK_END_LEAD_MS : ms)
+      }
+      if (!cancelled) setTimeline({ momentAt, momentEnd, talkEnd, demos: timed.plans, loaded: true })
       return momentAt
     }
     ctrl.current = { shell, sync }
@@ -345,11 +366,11 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         const data = prepare ? prepare(raw) : raw
         script = data
         voice = loaded
+        setVoiceData(loaded)
         mix = loadedMix
         list = momentsOf(data)
         setMoments(list)
         setTitle(data.title)
-        setLesson(data.lesson ?? '')
         setLoaded(data)
         const at = await sync(answersRef.current)
         if (!cancelled) guest.ready()
@@ -369,7 +390,10 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         if (!cancelled) setError(String(e instanceof Error ? e.message : e))
       })
 
-    const timer = window.setInterval(() => setNow({ t: shell.time, playing: shell.playing }), 200)
+    const timer = window.setInterval(() => {
+      setNow({ t: shell.time, playing: shell.playing, ended: shell.ended })
+      setMuted(shell.muted)
+    }, 200)
     return () => {
       cancelled = true
       carry.current = shell.time
@@ -381,7 +405,6 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       setToolbar(null)
       setPushHost(null)
     }
-    // drawer 只在建立時決定要不要攔截 onStop,模式改變時另有效果處理側欄,不必重建
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scriptPath, interaction, prepare, pageTitle, progress, ready, aspect, guest, locale])
 
@@ -389,22 +412,21 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   useEffect(() => {
     answersRef.current = answers
   }, [answers])
-  // 抽屜頂端的把手:往下拉收回
-  const swipeDown = useSwipe({ down: () => setPanelOpen(false) })
-  // 進入或離開抽屜模式:側欄與抽屜都預設收合
-  useEffect(() => {
-    setPanelOpen(false)
-  }, [drawer])
-
   // 邊播邊互動(live)的互動點要播到才出現;出現之後暫停(按暫停、切到別的分頁)也留著,不退回影片被中央播放鍵擋住
   const liveShown = useRef<string | undefined>(undefined)
   /** 演員當一般網頁操作(page)的 live 互動點:只在它自己那一段顯示,走到段尾停下來等學員;之後回傳段尾,其他回傳 undefined */
   const holdAt = (m: Moment): number | undefined => {
     const actor = m.stage?.focus?.split(':')[0]
-    return m.live && actor && loaded && ACTORS[loaded.cast[actor]?.actor]?.page ? timeline.momentEnd[m.id] : undefined
+    return m.live && !m.demo && actor && loaded && ACTORS[loaded.cast[actor]?.actor]?.page ? timeline.momentEnd[m.id] : undefined
   }
   const current = moments.find((m) => {
     if (embed && holdAt(m) != null) return false
+    // 示範是時間軸上的一段:位置在裡面就出現,走過去就接著播後面的影片
+    const plan = timeline.demos?.[m.id]
+    if (plan) {
+      const from = timeline.momentAt[m.id]
+      return (from <= OPENING_MOMENT_MS || now.t >= from) && now.t < from + plan.total
+    }
     const at = timeline.momentAt[m.id]
     const end = holdAt(m)
     // 開場就是互動:一打開就顯示,不等播放開始(瀏覽器擋自動播放、在背景分頁打開時也一樣)
@@ -427,25 +449,27 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     }
   }, [current, holdEnd, now.t, now.playing])
 
-  // 抽屜:停在新的互動點時自動展開;回答後收合(回應由演員在舞台上演出,不要被抽屜擋住)。在靜態演員身上回答時抽屜裡沒有題目,不展開,才不會擋住演員
-  const opening = !!current && (timeline.momentAt[current.id] ?? Infinity) <= OPENING_MOMENT_MS
-  const drawerMoment = opening || (interaction === 'static' && current && answersOnActor(current)) ? undefined : current?.id
-  const prevMoment = useRef<string | undefined>(undefined)
-  useEffect(() => {
-    // 先記下上一個互動點再更新:setState 的函式晚一點才執行,那時 prevMoment 已經換成這一個了
-    const prev = prevMoment.current
-    prevMoment.current = drawerMoment
-    setPanelOpen((open) => nextDrawerOpen(open, drawer, prev, drawerMoment))
-  }, [drawer, drawerMoment])
-
   // 焦點移到問題標題(不是選項):習慣按空白鍵暫停的人才不會誤選答案
   const pushed = interaction === 'stage' && current?.stage ? current : undefined
   /** 靜態演員:學員直接操作演員,不開詢問框(詢問框只用在沒有演員可以操作的互動點) */
   const onActor = interaction === 'static' && !!current && answersOnActor(current)
-  // 互動腳本的 until 還沒達成:選項先不能按(StaticActor 回報)
-  const [locked, setLocked] = useState(false)
-  const onLocked = useCallback((v: boolean) => setLocked(v), [])
-  const staticActor = interaction === 'static' && current?.stage && loaded && <StaticActor key={current.id} script={loaded} answers={answers} moment={current} interactive={onActor} headRef={momentHeadRef} hint={embed || phonePortrait} hintSlot={embed ? hintSlot : undefined} onLocked={onLocked} onAnswer={(a) => answer(current, a)} />
+  /** 播完:播放鈕換成重播 */
+  const replay = !!now.ended && !now.playing
+  const demoPlan = current && timeline.demos?.[current.id]
+  const demo = demoPlan ? { plan: demoPlan, at: timeline.momentAt[current.id], shell: () => ctrl.current?.shell } : null
+  // 自動示範要等開場旁白:倒回開頭(又變成要等)或放行時重新掛一次演員,示範從頭演;學員自己操作過就不再重掛
+  const holdAuto = !current?.demo && !!current?.live && now.t < (timeline.talkEnd?.[current.id] ?? 0) - TALK_END_LEAD_MS
+  const pressed = useRef<string | undefined>(undefined)
+  const actorGen = useRef('run')
+  if (current?.demo) actorGen.current = 'demo'
+  else if (current && pressed.current !== current.id) actorGen.current = holdAuto ? 'hold' : 'run'
+  const staticActor = interaction === 'static' && current?.stage && loaded && <StaticActor key={`${current.id}:${actorGen.current}`} onPress={() => (pressed.current = current.id)} script={loaded} answers={answers} moment={current} interactive={onActor} holdAuto={holdAuto} demo={demo} headRef={momentHeadRef} hint={embed || !current.demo} hintSlot={embed ? hintSlot : undefined} onAnswer={(a) => answer(current, a)} />
+
+  // 靜態演員上場時,影片舞台的同一位演員從 DOM 拿掉:畫面上只有一份(播放器重建或重載舞台後照樣有效)
+  const standIns = staticActor && current ? (current.interact?.cast ?? [(current.stage?.focus ?? '').split(':')[0]]).join(' ') : ''
+  useLayoutEffect(() => {
+    pushHost?.stage.detach(standIns ? standIns.split(' ') : [])
+  }, [pushHost, standIns])
 
   // 嵌在頁面裡時,一開始不放大,開始播放才放大(在頁面內變寬,版面由外層用 data-expanded 決定,不是全螢幕);之後靜態互動也是這個大小,學員按縮小才變小,再開始播放又放大
   const [expanded, setExpanded] = useState(false)
@@ -464,7 +488,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     const timer = window.setTimeout(() => pageRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 400)
     return () => window.clearTimeout(timer)
   }, [expanded])
-  const currentId = embed || onActor ? current?.id : tab === 'interact' && !pushed ? current?.id : undefined
+  const currentId = embed || !pushed ? current?.id : undefined
   // 嵌在頁面裡時,學員動手之前不要搶焦點、捲動頁面
   const interacted = useRef(false)
   if (now.playing || Object.keys(answers).length > 0) interacted.current = true
@@ -478,39 +502,41 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
   const answer = (moment: Moment, value: Answer) => {
     const c = ctrl.current
     if (!c) return
+    // 示範的互動點:按鈕是「跳過示範」,跳到示範結尾接著播。選項沒有要加的步驟就不記回答(往回拖照樣看得到示範)
+    const plan = timeline.demos?.[moment.id]
+    const skipDemo = () => {
+      seekTo(timeline.momentAt[moment.id] + plan!.total)
+      c.shell.play()
+    }
+    if (plan && 'option' in value && !moment.options[value.option]?.steps.length) return skipDemo()
     const next = { ...answers, [moment.id]: value }
     setAnswers(next)
-    // 回答後收合:回應由演員在舞台上演出,不要被側欄擋住
-    setPanelOpen(false)
-    // 互動結束:側欄回到「步驟」
-    setTab('steps')
     c.sync(next)
       .then((at) => {
-        c.shell.seek(at[moment.id])
+        ownSeek.current = true
+        c.shell.seek(at[moment.id] + (plan?.total ?? 0))
+        ownSeek.current = false
         c.shell.play()
       })
       .catch((e: unknown) => setError(String(e instanceof Error ? e.message : e)))
   }
 
-  /** 收回回答(或略過),回到互動點重新作答 */
-  const reopen = (moment: Moment) => {
+  // 往回跳到回答過的互動點之前:收回它(和接在它後面的)回答,播到時再問一次
+  rewindRef.current = (from, to) => {
     const c = ctrl.current
-    if (!c) return
-    const next = withoutAnswer(moments, answers, moment.id)
+    if (!c || ownSeek.current) return
+    let next = answersRef.current
+    for (const m of moments) {
+      const at = timeline.momentAt[m.id]
+      if (at != null && next[m.id] && to < at - AT_MOMENT_MS && from >= at - AT_MOMENT_MS) next = withoutAnswer(moments, next, m.id)
+    }
+    if (next === answersRef.current) return
+    // 拖曳時會連續呼叫:先記下結果,舞台照順序重新載入
+    answersRef.current = next
+    pressed.current = undefined
     setAnswers(next)
-    c.sync(next)
-      .then((at) => {
-        c.shell.pause()
-        c.shell.seek(at[moment.id])
-        // live 的互動點要在播放中才出現
-        if (moment.live) c.shell.play()
-        setNow({ t: at[moment.id], playing: !!moment.live })
-      })
-      .catch((e: unknown) => setError(String(e instanceof Error ? e.message : e)))
+    rewindSync.current = rewindSync.current.then(() => c.sync(answersRef.current)).catch((e: unknown) => setError(String(e instanceof Error ? e.message : e)))
   }
-
-  // 靜態互動:導覽點回答過的互動點,就回到互動點重新操作(收回回答、停在互動點);沒回答過的照常跳過去
-  const goToMoment = (m: Moment) => (interaction === 'static' && answers[m.id] ? reopen(m) : openMoment(m))
 
   const seekTo = (ms: number) => {
     const c = ctrl.current
@@ -519,15 +545,20 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     setNow({ t: ms, playing: c.shell.playing })
   }
 
-  const openMoment = (m: Moment) => {
-    const c = ctrl.current
-    if (!c) return
-    if (!answers[m.id]) c.shell.pause()
-    seekTo(timeline.momentAt[m.id])
-    // live 的互動點要在播放中才出現,停在那裡只會看到蓋著播放鍵的影片
-    if (m.live && !answers[m.id]) c.shell.play()
-    if (interaction !== 'stage' && !(embed && interaction === 'static' && answersOnActor(m))) setTab('interact')
-  }
+  const prompts = Object.entries(course?.prompts ?? {})
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([, prompt]) => prompt)
+  useEffect(() => {
+    if (!promptsOpen) return
+    const close = (e: KeyboardEvent) => e.key === 'Escape' && setPromptsOpen(false)
+    document.addEventListener('keydown', close)
+    return () => document.removeEventListener('keydown', close)
+  }, [promptsOpen])
+  const promptsIcon = (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 5h16v11H9l-5 4zM8 9h8M8 12.500h5" />
+    </svg>
+  )
 
   if (embed) {
     return (
@@ -538,7 +569,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         </div>
         <div ref={setHintSlot} className={styles.embedHint} />
         {error && <ScriptError className={styles.error} prefix={L.loadError} error={error} />}
-        {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} inDrawer moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
+        {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} outside moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
         {current && !onActor && (
           <div ref={embedMomentRef} className={styles.embedMoment}>
             <MomentForm key={current.id} moment={current} headRef={momentHeadRef} onAnswer={(a) => answer(current, a)} />
@@ -561,15 +592,10 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
     )
   }
 
-  const pendingCount = moments.filter((m) => !answers[m.id]).length
-  const summary = drawerSummary(timeline.chapters, now.t)
   const classes = [
     styles.page,
-    panelOpen && styles.panelOpen,
-    drawer && styles.drawerMode,
-    drawer && panelOpen && styles.drawerOpen,
     aspect === 'portrait' && styles.portrait,
-    phonePortrait && styles.phonePortrait,
+    phonePortrait && styles.phoneBare,
     current && styles.atMoment,
     // 換上靜態演員的舞台時,主舞台先藏起來(不是壓暗)
     staticActor && styles.staticOn,
@@ -587,18 +613,17 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
       {/* 在標題列之前:標題列才會在靜態舞台的上面 */}
       {staticActor}
 
-      {/* 控制面板:標題列、章節膠囊和播放器的控制列一起淡出淡入(ControlPanel.tsx) */}
+      {/* 控制面板:標題列、右上角按鈕和播放器的控制列一起淡出淡入(ControlPanel.tsx) */}
       <ControlPanel box={boxRef} shell={() => ctrl.current?.shell}>
         <header className={styles.head}>
           <Link to={course?.back.to ?? back?.to ?? '/studio'} className={styles.back}>
             {course?.back.label ?? back?.label ?? '← 構想'}
           </Link>
-          {/* 手機直拿:課程名稱移到播放窗下方的資訊區(那裡的 h1),這裡不放,頁面只有一個標題 */}
-          {!phonePortrait && <h1>{course?.heading ?? (title || pageTitle)}</h1>}
+          <h1>{course?.heading ?? (title || pageTitle)}</h1>
           {!course && <span className={styles.draft}>試做</span>}
         </header>
 
-        {/* 右上角:播放速度、字幕鈕(手機)與章節膠囊 */}
+        {/* 右上角:動手試試、播放速度與字幕鈕(手機) */}
         <div className={styles.topRight}>
           {practiceOn && loaded?.practice && (
             <button
@@ -616,55 +641,88 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
             <RateMenu box={boxRef} shell={() => ctrl.current?.shell} className={styles.rateTop} menuClassName={styles.rateMenu} />
             <CaptionToggle box={boxRef} className={styles.ccTop} />
           </div>
-          {/* 側欄收合時:右上角的膠囊顯示目前章節,點了打開側欄 */}
-          {/* 手機的抽屜疊在最上層、不影響其他元素,打開時膠囊照樣留著 */}
-          {(!panelOpen || drawer) && !phonePortrait && (
-            <button type="button" className={styles.chapterPill} aria-label={L.progressPill(summary ? t.player.chapterName(summary.label) : '')} onClick={() => setPanelOpen(true)}>
-              {summary && (
-                <span className={styles.pillStep}>
-                  {summary.index}/{summary.total}
-                </span>
-              )}
-              <span className={styles.pillLabel}>{summary ? t.player.chapterName(summary.label) : L.progress}</span>
-            </button>
-          )}
         </div>
-        {/* 手機:抽屜收合時,播放條上方有一條把手,往上拉(或點一下)拉出課程進度 */}
-        {drawer && !panelOpen && !phonePortrait && <DrawerGrip onOpen={() => setPanelOpen(true)} />}
       </ControlPanel>
 
-      {/* 手機直拿:播放窗下方的課程資訊(字幕在它上面一排),最底下露出抽屜,往上拉展開步驟清單 */}
+      {/* 播完時:登入提示浮在播放條上方(上一課、下一課在底部工具列) */}
+      {!current && !now.playing && timeline.loaded && course?.footer && <div className={styles.bareFooter}>{course.footer}</div>}
+      {/* 要在面板裡回答的互動點直接浮出題目與選項;推到主畫面的互動,緊湊版面的題目也在這裡 */}
+      {current && !onActor && (compact || !pushed) && (
+        <div className={styles.momentPop}>
+          <MomentForm key={current.id} moment={current} headRef={momentHeadRef} onAnswer={(a) => answer(current, a)} />
+        </div>
+      )}
       {phonePortrait && (
-        <PhoneInfo heading={course?.heading ?? (title || pageTitle)}>
-          <StepList
-            timeline={timeline}
-            moments={moments}
-            answers={answers}
-            t={now.t}
-            onSeek={seekTo}
-            onMoment={goToMoment}
-            onReopen={interaction === 'stage' ? reopen : undefined}
-            prompts={course?.prompts}
-            hidden={panelOpen}
-          />
-          {/* 互動點的清單(回頭重新作答、回到互動點)在抽屜的「互動」分頁 */}
-          {interaction !== 'stage' && moments.length > 0 && (
+        <div className={styles.bareBar}>
+          <button
+            type="button"
+            className={styles.barePlay}
+            aria-label={replay ? t.player.replay : now.playing ? t.player.pause : t.player.play}
+            onClick={() => {
+              const shell = ctrl.current?.shell
+              if (!shell) return
+              if (shell.playing) shell.pause()
+              else shell.play()
+              setNow({ t: shell.time, playing: shell.playing })
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d={replay ? 'M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z' : now.playing ? 'M7 5h3.5v14H7zM13.500 5H17v14h-3.500z' : 'M8 5v14l11-7z'} />
+            </svg>
+          </button>
+          <span className={styles.barSpace} />
+          {voiceData && (
             <button
               type="button"
-              className={styles.phoneMoments}
+              className={styles.barIcon}
+              aria-label={muted ? t.player.unmute : t.player.mute}
+              title={muted ? t.player.unmute : t.player.mute}
               onClick={() => {
-                setTab('interact')
-                setPanelOpen(true)
+                const shell = ctrl.current?.shell
+                if (!shell) return
+                shell.toggleMute()
+                setMuted(shell.muted)
               }}
             >
-              <InteractiveMark />
-              {L.checkpoints}
-              {pendingCount > 0 && <span className={styles.count}>{pendingCount}</span>}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d={muted ? 'M4 9h4l5-4v14l-5-4H4zm12.6.2 1.4-1.4 2 2 2-2 1.4 1.4-2 2 2 2-1.4 1.4-2-2-2 2-1.4-1.4 2-2z' : 'M4 9h4l5-4v14l-5-4H4zm12.5 3a4 4 0 0 0-2-3.5v7a4 4 0 0 0 2-3.5zM14.5 4v2a6 6 0 0 1 0 12v2a8 8 0 0 0 0-16z'} />
+              </svg>
             </button>
           )}
-          {/* 下一課與登入提示(其他版面在側欄底部)。步驟清單載好之前先不放:不然清單載進來時會把它們往下推,造成版面位移(CLS) */}
-          {(timeline.loaded || !!error) && course?.footer}
-        </PhoneInfo>
+          {prompts.length > 0 && (
+            <button type="button" className={styles.barIcon} aria-label={L.prompts} title={L.prompts} aria-expanded={promptsOpen} onClick={() => setPromptsOpen((v) => !v)}>
+              {promptsIcon}
+            </button>
+          )}
+          {course?.pager?.prev && (
+            <Link className={styles.barIcon} to={course.pager.prev.to} aria-label={course.pager.prev.label} title={course.pager.prev.label}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M6 5h2.500v14H6zM19 5v14l-9.500-7z" />
+              </svg>
+            </Link>
+          )}
+          {course?.pager && (
+            <Link className={styles.barIcon} to={course.pager.next.to} aria-label={course.pager.next.label} title={course.pager.next.label}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M15.500 5H18v14h-2.500zM5 5l9.500 7L5 19z" />
+              </svg>
+            </Link>
+          )}
+        </div>
+      )}
+
+      {promptsOpen && prompts.length > 0 && (
+        <div className={styles.promptPanel} role="dialog" aria-label={L.prompts}>
+          <div className={styles.promptHead}>
+            <h2>{L.prompts}</h2>
+            <button type="button" aria-label={L.closePrompts} title={L.closePrompts} onClick={() => setPromptsOpen(false)}>
+              ×
+            </button>
+          </div>
+          {prompts.map((p, i) => (
+            <PromptCopy key={i} prompt={p} />
+          ))}
+        </div>
       )}
 
       {rotateHint && (
@@ -675,296 +733,39 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
 
       {error && <ScriptError className={styles.error} prefix={L.loadError} error={error} />}
 
-      {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} inDrawer={drawer} moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
+      {pushed && pushHost && <ActorPush key={pushed.id} {...pushHost} aspect={aspect} outside={compact} moment={pushed} onAnswer={(a) => answer(pushed, a)} />}
 
-      {panelOpen && (
-        <aside className={styles.panel} aria-label={L.panel}>
-          {drawer && (
-            <button type="button" className={styles.handle} aria-expanded={panelOpen} onClick={() => setPanelOpen((v) => !v)} {...swipeDown}>
-              <span className={styles.grip} aria-hidden="true" />
-              <span className={styles.handleLabel}>{current ? L.yourTurnOn(current.title) : summary ? t.player.chapterName(summary.label) : L.progress}</span>
-              {summary && <span className={styles.handleStep}>{current ? L.interact : `${summary.index}/${summary.total}`}</span>}
-              <span className={styles.chevron} aria-hidden="true">
-                {panelOpen ? '⌄' : '⌃'}
-              </span>
-            </button>
-          )}
-          <div className={styles.panelInner} inert={drawer && !panelOpen}>
-            {interaction === 'stage' ? (
-              !(drawer && pushed) && <p className={styles.panelTitle}>{lesson}</p>
-            ) : (
-              <div className={styles.tabs}>
-                <button type="button" aria-pressed={tab === 'steps'} onClick={() => setTab('steps')}>
-                  {L.steps}
-                </button>
-                <button type="button" aria-pressed={tab === 'interact'} onClick={() => setTab('interact')}>
-                  <InteractiveMark />
-                  {L.interact}
-                  {pendingCount > 0 && <span className={`${styles.count} ${current ? styles.countActive : ''}`}>{pendingCount}</span>}
-                </button>
-              </div>
-            )}
-            <div key={drawer && pushed ? pushed.id : 'list'} className={styles.panelBody}>
-              {tab === 'steps' || interaction === 'stage' ? (
-                drawer && pushed ? (
-                  <MomentForm key={pushed.id} moment={pushed} headRef={momentHeadRef} onAnswer={(a) => answer(pushed, a)} />
-                ) : (
-                  <StepList
-                    timeline={timeline}
-                    moments={moments}
-                    answers={answers}
-                    t={now.t}
-                    onSeek={seekTo}
-                    onMoment={goToMoment}
-                    onReopen={interaction === 'stage' ? reopen : undefined}
-                    prompts={course?.prompts}
-                    hidden={drawer && !panelOpen}
-                  />
-                )
-              ) : current && !pushed ? (
-                <MomentForm key={current.id} moment={current} headRef={momentHeadRef} locked={onActor && locked} onActor={onActor} onAnswer={(a) => answer(current, a)} />
-              ) : (
-                <MomentList timeline={timeline} moments={moments} answers={answers} onOpen={openMoment} onReopen={reopen} againLabel={interaction === 'static' ? L.backToCheckpoint : L.answerAgain} />
-              )}
-            </div>
-            {!(drawer && pushed) && !phonePortrait && course?.footer}
-          </div>
-        </aside>
-      )}
-
-      {toolbar &&
+      {!phonePortrait &&
+        prompts.length > 0 &&
+        toolbar &&
+        createPortal(
+          <button type="button" className="vp-btn" aria-label={L.prompts} title={L.prompts} aria-expanded={promptsOpen} onClick={() => setPromptsOpen((v) => !v)}>
+            {promptsIcon}
+          </button>,
+          toolbar,
+        )}
+      {/* 寬視窗:上一課、下一課放在播放器控制列 */}
+      {!phonePortrait &&
+        course?.pager &&
+        toolbar &&
         createPortal(
           <>
-            <button type="button" className="vp-btn" aria-pressed={panelOpen} aria-label={L.sidebar} title={panelOpen ? L.closeSidebar : L.openSidebar} onClick={() => setPanelOpen((v) => !v)}>
+            {course.pager.prev && (
+              <Link className="vp-btn" to={course.pager.prev.to} aria-label={course.pager.prev.label} title={course.pager.prev.label}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 5h2.500v14H6zM19 5v14l-9.500-7z" />
+                </svg>
+              </Link>
+            )}
+            <Link className="vp-btn" to={course.pager.next.to} aria-label={course.pager.next.label} title={course.pager.next.label}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 5h18v14H3zm2 2v10h9V7zm11 0v10h3V7z" fillRule="evenodd" />
+                <path d="M15.500 5H18v14h-2.500zM5 5l9.500 7L5 19z" />
               </svg>
-            </button>
+            </Link>
           </>,
           toolbar,
         )}
     </div>
-  )
-}
-
-/**
- * 上下滑動的手勢:按下後往上(或往下)滑超過 24px 就呼叫對應的函式;滑動後的 click 不再觸發。
- * 手勢的狀態放在 ref:播放中畫面每一格都重新 render,狀態若放在每次 render 的閉包裡,按下到移動之間就會遺失。
- */
-function useSwipe(handlers: { up?: () => void; down?: () => void }) {
-  const state = useRef<{ y: number | null; moved: boolean }>({ y: null, moved: false })
-  const latest = useRef(handlers)
-  latest.current = handlers
-  return useMemo(
-    () => ({
-      onPointerDown: (e: React.PointerEvent) => {
-        state.current = { y: e.clientY, moved: false }
-        // 手指移出把手範圍也繼續收到移動事件
-        ;(e.currentTarget as Element).setPointerCapture?.(e.pointerId)
-      },
-      onPointerMove: (e: React.PointerEvent) => {
-        const st = state.current
-        if (st.y == null) return
-        const dy = e.clientY - st.y
-        const { up, down } = latest.current
-        if (dy < -24 && up) {
-          state.current = { y: null, moved: true }
-          up()
-        } else if (dy > 24 && down) {
-          state.current = { y: null, moved: true }
-          down()
-        }
-      },
-      onPointerUp: () => {
-        state.current.y = null
-      },
-      onClickCapture: (e: React.MouseEvent) => {
-        if (state.current.moved) {
-          e.stopPropagation()
-          e.preventDefault()
-          state.current.moved = false
-        }
-      },
-    }),
-    [],
-  )
-}
-
-/** 手機抽屜收合時的把手:往上拉或點一下打開課程進度 */
-function DrawerGrip({ onOpen }: { onOpen: () => void }) {
-  const swipeUp = useSwipe({ up: onOpen })
-  const t = useT()
-  return (
-    <button type="button" className={styles.drawerGrip} aria-label={t.player.scene.pullUp} onClick={onOpen} {...swipeUp}>
-      <span aria-hidden="true" />
-    </button>
-  )
-}
-
-/**
- * 手機直拿的資訊區:課程名稱與步驟清單(播到哪一步就亮哪一步,點了跳過去)。步驟已經在這裡,所以沒有往上拉的抽屜;
- * 抽屜只在停在互動點時自動打開(題目與選項在裡面),回答後收起。
- */
-function PhoneInfo({ heading, children }: { /** 課程名稱:直拿時從左上角的標題列移到這裡(播放條下面) */ heading: string; children: ReactNode }) {
-  const drag = useDragScroll()
-  const t = useT()
-  return (
-    // 整塊一起捲動(課程名稱跟著步驟捲上去,不固定在上面)
-    <section className={styles.phoneInfo} aria-label={t.player.scene.courseInfo} {...drag}>
-      {/* 左上角標題列的 h1 這時藏起來,這裡接手當頁面的標題 */}
-      <h1 className={styles.phoneTitle}>{heading}</h1>
-      <div className={styles.phoneSteps}>{children}</div>
-    </section>
-  )
-}
-
-/**
- * 用滑鼠按住拖曳也能捲動(手指滑動本來就會捲;電腦瀏覽器縮成手機寬度時,滑鼠拖曳不會捲)。
- * 拖超過 5px 才算捲動,之後放開的那一下 click 不會觸發步驟。
- */
-function useDragScroll() {
-  const state = useRef<{ y: number; top: number; moved: boolean } | null>(null)
-  const moved = useRef(false)
-  return useMemo(
-    () => ({
-      onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
-        if (e.pointerType !== 'mouse' || e.button !== 0) return
-        state.current = { y: e.clientY, top: e.currentTarget.scrollTop, moved: false }
-        moved.current = false
-      },
-      onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
-        const st = state.current
-        if (!st) return
-        // 在清單外放開(還沒鎖定指標,收不到 pointerup):按鍵已經放開就結束,不再跟著滑鼠捲
-        if (e.buttons === 0) {
-          state.current = null
-          return
-        }
-        const dy = e.clientY - st.y
-        if (!st.moved && Math.abs(dy) < 5) return
-        if (!st.moved) {
-          st.moved = true
-          e.currentTarget.setPointerCapture(e.pointerId)
-          // 拖曳中不選取經過的文字
-          e.currentTarget.style.userSelect = 'none'
-          window.getSelection()?.removeAllRanges()
-        }
-        e.currentTarget.scrollTop = st.top - dy
-      },
-      onPointerUp: (e: React.PointerEvent<HTMLElement>) => {
-        moved.current = !!state.current?.moved
-        state.current = null
-        e.currentTarget.style.userSelect = ''
-      },
-      onClickCapture: (e: React.MouseEvent) => {
-        if (moved.current) {
-          e.stopPropagation()
-          e.preventDefault()
-          moved.current = false
-        }
-      },
-    }),
-    [],
-  )
-}
-
-/** 「互動」標籤的圖示,和課程清單同一個 */
-function InteractiveMark() {
-  return (
-    <svg className={styles.mark} viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d={INTERACTIVE_ICON} />
-    </svg>
-  )
-}
-
-/** 把元素捲進最近一層可捲動的外框(效果同 scrollIntoView({ block: 'nearest' }),但不會捲動更外層的頁面) */
-function scrollWithin(el: HTMLElement): void {
-  let box = el.parentElement
-  while (box && !/(auto|scroll)/.test(getComputedStyle(box).overflowY)) box = box.parentElement
-  if (!box) return
-  const rel = el.getBoundingClientRect().top - box.getBoundingClientRect().top
-  const elTop = box.scrollTop + rel
-  if (rel < 0) box.scrollTop = elTop
-  else if (rel + el.offsetHeight > box.clientHeight) box.scrollTop = elTop + el.offsetHeight - box.clientHeight
-}
-
-function StepList({
-  timeline,
-  moments,
-  answers,
-  t,
-  onSeek,
-  onMoment,
-  onReopen,
-  prompts,
-  hidden,
-}: {
-  timeline: Timeline
-  moments: Moment[]
-  answers: Answers
-  t: number
-  onSeek: (ms: number) => void
-  onMoment: (m: Moment) => void
-  /** 有傳才顯示「重新回答」(互動在主畫面時,側欄是唯一重新回答的地方) */
-  onReopen?: (m: Moment) => void
-  prompts?: Record<number, string>
-  /** 底部抽屜收合時整個藏起來:不要捲動(捲動會把外層也一起捲走) */
-  hidden?: boolean
-}) {
-  const activeRef = useRef<HTMLLIElement>(null)
-  const tt = useT()
-  // 學員回答才出現的段落(你的回答、看示範)也是章節,但在清單上算前一個章節底下的步驟
-  const inserted = new Set(['你的回答', ...moments.flatMap((m) => m.skip?.label ?? [])])
-  const items = [
-    ...timeline.chapters.map((c) => ({
-      at: c.at,
-      label: tt.player.chapterName(c.label),
-      moment: null as Moment | null,
-      isStep: inserted.has(c.label),
-      prompt: c.step ? prompts?.[c.step] : undefined,
-    })),
-    ...moments
-      .filter((m) => timeline.momentAt[m.id] != null)
-      .map((m) => ({
-        at: timeline.momentAt[m.id],
-        label: m.title,
-        moment: m as Moment | null,
-        isStep: true,
-        prompt: undefined,
-      })),
-  ].sort((x, y) => x.at - y.at)
-  const active = items.filter((x) => x.at <= t).length - 1
-  // 章節多的時候,播到哪裡就捲到哪裡。只捲清單自己的捲動區(scrollIntoView 會連外層一起捲:
-  // 手機抽屜剛打開時還在往上滑、目前這一步在螢幕外,整個播放器會被捲上去再彈回來)
-  useEffect(() => {
-    if (!hidden && activeRef.current) scrollWithin(activeRef.current)
-  }, [active, hidden])
-  if (!items.length) return <p className={styles.note}>{tt.common.loading}</p>
-  return (
-    <ol className={styles.steps}>
-      {items.map((x, i) => (
-        <li key={`${x.at}-${x.label}`} ref={i === active ? activeRef : undefined} className={x.isStep ? styles.stepChild : styles.stepChapter}>
-          <button type="button" aria-current={i === active ? 'step' : undefined} onClick={() => (x.moment ? onMoment(x.moment) : onSeek(x.at))}>
-            <span className={styles.stepTime}>{fmt(x.at)}</span>
-            <span className={styles.stepLabel}>
-              {x.moment && (
-                <span className={styles.stepTag}>
-                  <InteractiveMark />
-                  {answers[x.moment.id] ? tt.player.scene.interactDone : tt.player.scene.interact}
-                </span>
-              )}
-              {x.label}
-            </span>
-          </button>
-          {x.moment && answers[x.moment.id] && onReopen && (
-            <button type="button" className={styles.stepAgain} onClick={() => onReopen(x.moment!)}>
-              {tt.player.scene.answerAgain}
-            </button>
-          )}
-          {x.prompt && <PromptCopy prompt={x.prompt} />}
-        </li>
-      ))}
-    </ol>
   )
 }
 
@@ -981,9 +782,8 @@ function PromptCopy({ prompt }: { prompt: string }) {
   )
 }
 
-/** onActor:靜態互動時,已經畫在演員身上的選項(有 target,或放進 stage.choices 那一區的)不再列一次 */
-function MomentForm({ moment, headRef, locked = false, onActor = false, onAnswer }: { moment: Moment; headRef: RefObject<HTMLHeadingElement | null>; locked?: boolean; onActor?: boolean; onAnswer: (a: Answer) => void }) {
-  const listed = moment.options.map((o, option) => ({ ...o, option })).filter((o) => !onActor || (!o.target && !moment.stage?.choices))
+/** 互動點的題目、選項、自由輸入與略過 */
+function MomentForm({ moment, headRef, onAnswer }: { moment: Moment; headRef: RefObject<HTMLHeadingElement | null>; onAnswer: (a: Answer) => void }) {
   const [text, setText] = useState('')
   const L = useT().player.scene
   const typed = text.trim()
@@ -1016,10 +816,10 @@ function MomentForm({ moment, headRef, locked = false, onActor = false, onAnswer
         {moment.title}
       </h2>
       {moment.body && <p className={styles.note}>{moment.body}</p>}
-      {listed.length > 0 && (
+      {moment.options.length > 0 && (
         <div className={styles.options}>
-          {listed.map((o) => (
-            <button key={o.label} type="button" disabled={locked} onClick={() => onAnswer({ option: o.option })}>
+          {moment.options.map((o, option) => (
+            <button key={o.label} type="button" onClick={() => onAnswer({ option })}>
               {o.label}
             </button>
           ))}
@@ -1031,38 +831,6 @@ function MomentForm({ moment, headRef, locked = false, onActor = false, onAnswer
           {moment.skip?.label ?? L.skip}
         </button>
       )}
-    </div>
-  )
-}
-
-/** 回答過的互動點:againLabel 是收回回答、回到互動點的按鈕文字(靜態互動叫「回到互動點」) */
-function MomentList({ timeline, moments, answers, onOpen, onReopen, againLabel }: { timeline: Timeline; moments: Moment[]; answers: Answers; onOpen: (m: Moment) => void; onReopen: (m: Moment) => void; againLabel: string }) {
-  const L = useT().player.scene
-  return (
-    <div>
-      <p className={styles.note}>{L.momentsHelp}</p>
-      <ul className={styles.momentList}>
-        {moments.map((m) => {
-          const a = answers[m.id]
-          const label = answerLabel(m, a)
-          const at = timeline.momentAt[m.id]
-          return (
-            <li key={m.id}>
-              <strong>{m.title}</strong>
-              <span className={styles.note}>{a ? (label ? L.answered(label) : m.skip ? L.chose(m.skip.label) : L.skipped) : at != null ? L.notAnswered(fmt(at)) : L.afterPrevious}</span>
-              {a ? (
-                <button type="button" onClick={() => onReopen(m)}>
-                  {againLabel}
-                </button>
-              ) : (
-                <button type="button" disabled={at == null} onClick={() => onOpen(m)}>
-                  {L.jumpHere}
-                </button>
-              )}
-            </li>
-          )
-        })}
-      </ul>
     </div>
   )
 }

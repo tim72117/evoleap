@@ -1,7 +1,7 @@
-// 互動課程頁的控制面板:左上角的標題列、右上角的章節膠囊,和播放器的控制列(膠囊播放條)當成一組。
+// 互動課程頁的控制面板:左上角的標題列、右上角的按鈕,和播放器的控制列(膠囊播放條)當成一組。
 // 播放中一段時間沒動作時三者一起淡出,滑鼠移動、點畫面或暫停時一起出現(顯示與否跟著播放器 .vp 的 show-ui／paused 狀態)。
 // 手機上字幕(CC)鈕與播放速度也放在右上角(CaptionToggle、RateMenu),控制列上的藏起來。
-// 標題列與膠囊不在播放器裡面:滑鼠指著它們時告訴播放器先不要收起(holdControls),才不會指著按鈕時整組消失。
+// 標題列與按鈕不在播放器裡面:滑鼠指著它們時告訴播放器先不要收起(holdControls),才不會指著按鈕時整組消失。
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import type { Shell } from '../../live/shell'
 import { useT } from '../../i18n/I18nProvider'
@@ -73,7 +73,7 @@ export function ControlPanel({ box, shell, children }: { box: RefObject<HTMLElem
       data-hidden={shown ? undefined : ''}
       onPointerOver={() => shell()?.holdControls(true)}
       onPointerMove={() => shell()?.holdControls(true)}
-      // 按了以後被按的東西可能直接消失(例如章節膠囊打開側欄就拿掉),不會再有 pointerout;先放開,滑鼠再動才重新保持
+      // 按了以後被按的東西可能直接消失(例如打開練習後蓋住畫面),不會再有 pointerout;先放開,滑鼠再動才重新保持
       onClickCapture={() => shell()?.holdControls(false)}
       onPointerOut={(e) => {
         if (!ref.current?.contains(e.relatedTarget as Node | null)) shell()?.holdControls(false)

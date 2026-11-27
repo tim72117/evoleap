@@ -195,7 +195,7 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 .vp.vp-portrait.compact .vp-caption { bottom: 14%; font-size: max(12px, calc(var(--vp-scale, 0.2) * 44px)); }
 
 /* ---------- 膠囊版面(layout: "capsule",互動教學場景):舞台鋪滿視窗、控制列是浮動的膠囊 ----------
-   外層用 --vp-inset-right、--vp-inset-bottom 讓出側欄的空間,舞台、字幕、膠囊都置中在剩下的區域。
+   外層用 --vp-inset-right、--vp-inset-bottom 讓出空間,舞台、字幕、膠囊都置中在剩下的區域。
    背景畫在外殼上(和 stage.css 的舞台背景相同),舞台比例和視窗不同時看不出邊界。 */
 .vp.vp-float {
   --vp-right: var(--vp-inset-right, 0px);
@@ -249,7 +249,7 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 .vp.vp-float.compact .vp-time { display: none; }
 
 /* ---------- 直式 + 膠囊版面(aspect: "portrait" 搭配 layout: "capsule",原型) ----------
-   舞台 1080×1920 置中在(扣掉側欄/抽屜之後的)區域,背景由外殼延伸到整個視窗;字幕可折行、置中在同一個區域。 */
+   舞台 1080×1920 置中在(扣掉讓出空間之後的)區域,背景由外殼延伸到整個視窗;字幕可折行、置中在同一個區域。 */
 .vp.vp-float.vp-portrait .vp-caption {
   white-space: normal; text-align: center;
   max-width: min(92%, calc(100% - var(--vp-right) - 24px));
@@ -259,3 +259,25 @@ html.vp-lock, html.vp-lock body { overflow: hidden; }
 .vp.vp-float.vp-portrait.show-ui .vp-caption, .vp.vp-float.vp-portrait.paused .vp-caption { bottom: calc(var(--vp-below) + 16px); }
 /* 手機直立:膠囊在螢幕最下方、舞台已讓出位置,字幕不必躲控制列,暫停時也看得到 */
 .vp.vp-float.vp-portrait.compact.show-ui .vp-caption, .vp.vp-float.vp-portrait.compact.paused .vp-caption { opacity: 1; }
+
+/* ---------- 左下角的 AI 頭像(voiceOrb.ts):旁白播放時才出現 ---------- */
+.vp-voice {
+  position: absolute; left: 2.5%; bottom: max(calc(8% + 56px), var(--vp-voice-min, 0px)); z-index: 2;
+  width: clamp(44px, 8%, 96px); aspect-ratio: 1; pointer-events: none;
+  opacity: 0; transition: opacity 0.35s;
+}
+.vp-voice.on { opacity: 1; }
+/* 暫停時直接消失:字幕這時會往上推,淡出中的頭像會蓋到它 */
+.vp.paused .vp-voice { opacity: 0; transition: none; }
+.vp-voice svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.vp-voice .bars { fill: none; stroke-width: 1.5; stroke-linecap: round; filter: drop-shadow(0 0 2.5px #f472b6); }
+.vp-voice .dots { fill: none; stroke: #e11d48; stroke-width: 1.8; stroke-linecap: round; filter: drop-shadow(0 0 2px #fb7185); }
+.vp-voice .ribbon { fill: none; stroke-width: 1.1; filter: drop-shadow(0 0 2.5px #f472b6); }
+.vp-voice .r1 { stroke: #e11d48; }
+.vp-voice .r2 { stroke: #c026d3; }
+.vp-voice .r3 { stroke: #f59e0b; opacity: 0.85; }
+@media (prefers-reduced-motion: reduce) { .vp-voice .bars, .vp-voice .dots, .vp-voice .ribbon { display: none; } }
+
+/* 播放條接手給互動示範時:影片的章節刻度和它無關 */
+/* 控制列上用連結做的按鈕(上一課、下一課):連結預設是行內元素,寬高不生效,圖示會撐大 */
+a.vp-btn { display: block; box-sizing: border-box; color: inherit; }
