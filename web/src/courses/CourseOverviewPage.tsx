@@ -131,10 +131,22 @@ export function CourseOverviewPage({ course }: { course: Course }) {
             </p>
           </div>
           <aside className={styles.card}>
-            {map && (
-              <div className={styles.art}>
-                <LevelArt art={artOf(map)} />
+            {/* 有課程簡介影片就直接放在「開始學習」的框裡,取代插圖;沒有才放插圖 */}
+            {map?.introScript ? (
+              <div className={styles.introPlayer} role="group" aria-label={c.overview.intro}>
+                <LivePlayer
+                  script={map.introScript}
+                  title={c.overview.intro}
+                  onTime={() => {}}
+                  saveProgress={false}
+                />
               </div>
+            ) : (
+              map && (
+                <div className={styles.art}>
+                  <LevelArt art={artOf(map)} />
+                </div>
+              )
             )}
             {startTo && (
               <Link className={styles.start} to={startTo}>
@@ -145,20 +157,6 @@ export function CourseOverviewPage({ course }: { course: Course }) {
           </aside>
         </div>
       </section>
-
-      {map?.introScript && (
-        <section className={styles.block} aria-labelledby="course-intro">
-          <h2 id="course-intro">{c.overview.intro}</h2>
-          <div className={styles.introPlayer}>
-            <LivePlayer
-              script={map.introScript}
-              title={c.overview.intro}
-              onTime={() => {}}
-              saveProgress={false}
-            />
-          </div>
-        </section>
-      )}
 
       {map && map.about && map.about.length > 0 && (
         <section className={styles.block} aria-labelledby="course-about">

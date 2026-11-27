@@ -199,13 +199,14 @@
   font-size: 26px;
 }
 
-/* 簡介影片的小播放器(橫的 16:9,直的 9:16) */
+/* 「開始學習」框裡的簡介影片(橫的 16:9,直的 9:16) */
 .introPlayer {
   position: relative;
   max-width: 560px;
+  margin: 0 auto 16px;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #000;
 }
 
