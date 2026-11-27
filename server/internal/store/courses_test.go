@@ -46,8 +46,8 @@ func TestCoursesSeededOnOpen(t *testing.T) {
 	defer st.Close()
 	var n int64
 	st.db.Model(&courseRow{}).Count(&n)
-	if n != 7 {
-		t.Errorf("courses: want 7, got %d", n)
+	if n != 8 {
+		t.Errorf("courses: want 8, got %d", n)
 	}
 }
 

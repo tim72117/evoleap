@@ -242,6 +242,9 @@ var courses = withTitles([]course{
 				{ID: "4.1", Status: "planned"},
 			}},
 		}},
+	// 不掛主題:首頁、全部課程不受影響;只是讓 catalog.ts 列出的 /courses/print3d 與課程編排工具讀得到
+	{ID: "print3d", Title: "測試課八", Access: "login-free", Summary: "測試課八的簡介。",
+		Units: []unit{{ID: "1", Title: "測試單元一", Lessons: []lesson{{ID: "1.1", Status: "planned"}}}}},
 })
 
 // enCourse 是一門課的英文假譯文:about 有幾段就給幾段,search 表示有沒有搜尋標題與描述。
@@ -270,6 +273,7 @@ var i18nEN = obj{
 		"launch":      enCourse("Test Launch", "launch", 1, true),
 		"claude-code": enCourse("Test Claude Code", "claude-code", 0, true),
 		"kids":        enCourse("Test Kids Web", "kids", 0, true),
+		"print3d":     enCourse("Test 3D Printing", "print3d", 0, false),
 	},
 	"units": obj{
 		"software/tools": obj{"title": "Test Tools Unit", "label": "Starter"},
