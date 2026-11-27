@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### 新增
+
+- 腳本草稿與發布：資料表 `script_drafts`（部署時自動建表）、`/api/admin/script-drafts`、`/api/admin/script-publish`、`evoleap script drafts|draft-push|draft-get|draft-drop|publish`；管理員在頁面網址加 `?draft=1` 預覽草稿。`script push` 行為不變。
+
 ## [0.58.0] - 2026-11-27
 
 序章換成互動版(B 版),`/topics/software` 加上特色介紹、導覽影片與互動展示。部署後要另外更新正式站的腳本與主題頁區塊(見下方)。

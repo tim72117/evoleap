@@ -52,6 +52,20 @@ func (s *Server) handleLessonFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	// ?draft=1:管理員預覽草稿;這個路徑沒有草稿(或不是管理員)就照已發布版本
+	if admin && r.URL.Query().Get("draft") == "1" {
+		draft, derr := s.cfg.Store.ScriptDraftContent(r.Context(), path)
+		if derr == nil {
+			w.Header().Set("Cache-Control", "private, no-store")
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			_, _ = w.Write([]byte(draft))
+			return
+		}
+		if !errors.Is(derr, store.ErrDraftNotFound) {
+			internalError(w, derr)
+			return
+		}
+	}
 	switch {
 	case errors.Is(err, store.ErrLessonFileNotFound):
 		// 不屬於任何一課:研發基地的腳本(要有資料庫,只給管理員)

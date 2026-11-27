@@ -63,7 +63,8 @@ web/scripts/lib/liveScripts.mjs      本機工具取得、上傳腳本(第 2.0 �
 - 預設 `https://evoleap.io`；`--api http://127.0.0.1:8190`（或 `EVOLEAP_API`）換伺服器。取不到就報錯，不會改讀別的地方。
 - `--dir 資料夾`（或 `EVOLEAP_SCRIPT_DIR`）讀本機草稿，清單寫在腳本旁邊。
 - `voice`、`mix --publish` 產生的清單先寫在 `web/recordings/live/<主機>/`；加 `--push` 才上傳（沿用腳本屬於哪一課），沒加時印出上傳指令。腳本本身要先 `evoleap script push` 上傳。
-- 改線上腳本：`evoleap script get -path P -out 檔案` → 修改 → `evoleap script push -file 檔案 -path P`。
+- 改線上腳本（草稿）：`evoleap script get -path P -out 檔案` → 修改 → `evoleap script draft-push -file 檔案 -path P` → 播放頁網址加 `?draft=1` 預覽（只有管理員有效；寫 `&draft=1` 接在既有參數後面）→ `evoleap script publish P`。主腳本的 `.voice.json`、`.mix.json` 草稿會一起發布。草稿建立後正式版本被改過會擋下（確定要覆蓋加 `-force`）。其他：`script drafts` 列出、`draft-get`、`draft-drop`。
+- `evoleap script push` 仍是直接改正式版本。`voice`、`mix`、錄影、canvas 目前只讀正式版本，草稿也不在 `gcs.mjs export` 的備份裡。
 
 ### 2.1 舞台尺寸
 

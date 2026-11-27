@@ -15,7 +15,9 @@ export const isLoginRequired = (message: string): boolean => loadedMessages().so
 
 /** 向伺服器取一個腳本檔;沒有(或看不到,404)時回傳 null */
 async function loadJson(path: string): Promise<unknown> {
-  const res = await fetch(`/api/scripts/${path}`)
+  // 頁面網址帶 ?draft=1 時預覽草稿(只有管理員有效;沒有草稿的檔照已發布版本)
+  const draft = new URLSearchParams(window.location.search).get('draft') === '1'
+  const res = await fetch(`/api/scripts/${path}${draft ? '?draft=1' : ''}`)
   if (res.status === 404) return null
   if (res.status === 401) throw new Error(messages().errors.scriptLoginRequired)
   if (res.status === 403) {

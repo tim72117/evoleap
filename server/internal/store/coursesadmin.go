@@ -313,66 +313,91 @@ func (s *Store) UpdateLesson(ctx context.Context, user, courseID, lessonID strin
 // 給 courseID、lessonID 時掛在那一課底下(那一課要存在;同一個檔不能屬於別的課);
 // 沒給時:已經是某一課的檔就只換內容,否則當成研發基地的檔。內容必須是 JSON。
 func (s *Store) PutScript(ctx context.Context, user, path, courseID, lessonID string, content []byte) error {
+	if err := validateScript(path, content); err != nil {
+		return err
+	}
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		return s.putScript(tx, user, "script.put", path, courseID, lessonID, content)
+	})
+}
+
+// validateScript 檢查腳本的路徑與內容(直接寫入與草稿共用)。
+func validateScript(path string, content []byte) error {
 	if !strings.HasSuffix(path, ".json") || strings.Contains(path, "..") || strings.HasPrefix(path, "/") {
 		return invalid("path 要是腳本的相對路徑,以 .json 結尾")
 	}
 	if !json.Valid(content) {
 		return invalid("內容不是有效的 JSON")
 	}
-	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var owned lessonFileRow
-		err := tx.First(&owned, "path = ?", path).Error
-		exists := err == nil
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	return nil
+}
+
+// checkScriptTarget 檢查腳本能不能掛到這一課:那一課要存在,而且這個檔不屬於別的課。
+func checkScriptTarget(tx *gorm.DB, path, courseID, lessonID string) error {
+	var l lessonRow
+	if err := tx.First(&l, "course_id = ? AND id = ?", courseID, lessonID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return invalid("找不到課程 %s 的 %s", courseID, lessonID)
+		}
+		return err
+	}
+	if err := validateLesson(l.Status, l.Access, true); err != nil {
+		return invalid("課程 %s 的 %s:%s", courseID, lessonID, err)
+	}
+	var owned []lessonFileRow
+	if err := tx.Where("path = ?", path).Find(&owned).Error; err != nil {
+		return err
+	}
+	if len(owned) > 0 && (owned[0].CourseID != courseID || owned[0].LessonID != lessonID) {
+		return invalid("%s 已經屬於課程 %s 的 %s,一個檔只能屬於一課", path, owned[0].CourseID, owned[0].LessonID)
+	}
+	return nil
+}
+
+// putScript 在呼叫端的交易裡寫入已發布版本並記一筆修改紀錄(action:script.put 或 script.publish)。
+func (s *Store) putScript(tx *gorm.DB, user, action, path, courseID, lessonID string, content []byte) error {
+	var owned lessonFileRow
+	err := tx.First(&owned, "path = ?", path).Error
+	exists := err == nil
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	switch {
+	case courseID != "" || lessonID != "":
+		if err := checkScriptTarget(tx, path, courseID, lessonID); err != nil {
 			return err
 		}
-		switch {
-		case courseID != "" || lessonID != "":
-			var l lessonRow
-			if err := tx.First(&l, "course_id = ? AND id = ?", courseID, lessonID).Error; err != nil {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					return invalid("找不到課程 %s 的 %s", courseID, lessonID)
-				}
+		row := lessonFileRow{Path: path, CourseID: courseID, LessonID: lessonID, Content: string(content)}
+		if err := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "path"}}, DoUpdates: clause.AssignmentColumns([]string{"content"})}).Create(&row).Error; err != nil {
+			return err
+		}
+		// 從研發基地搬到某一課底下的檔,研發基地那份就不要了
+		if err := tx.Where("path = ?", path).Delete(&studioFileRow{}).Error; err != nil {
+			return err
+		}
+	case exists:
+		if err := tx.Model(&lessonFileRow{}).Where("path = ?", path).Update("content", string(content)).Error; err != nil {
+			return err
+		}
+	default:
+		// 簡介影片的檔(例如課程設好之後才傳的旁白清單)直接掛到那門課
+		owner, err := introOwner(tx, path)
+		if err != nil {
+			return err
+		}
+		if owner != "" {
+			if err := tx.Create(&lessonFileRow{Path: path, CourseID: owner, Content: string(content)}).Error; err != nil {
 				return err
 			}
-			if err := validateLesson(l.Status, l.Access, true); err != nil {
-				return invalid("課程 %s 的 %s:%s", courseID, lessonID, err)
-			}
-			if exists && (owned.CourseID != courseID || owned.LessonID != lessonID) {
-				return invalid("%s 已經屬於課程 %s 的 %s,一個檔只能屬於一課", path, owned.CourseID, owned.LessonID)
-			}
-			row := lessonFileRow{Path: path, CourseID: courseID, LessonID: lessonID, Content: string(content)}
-			if err := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "path"}}, DoUpdates: clause.AssignmentColumns([]string{"content"})}).Create(&row).Error; err != nil {
-				return err
-			}
-			// 從研發基地搬到某一課底下的檔,研發基地那份就不要了
 			if err := tx.Where("path = ?", path).Delete(&studioFileRow{}).Error; err != nil {
 				return err
 			}
-		case exists:
-			if err := tx.Model(&lessonFileRow{}).Where("path = ?", path).Update("content", string(content)).Error; err != nil {
-				return err
-			}
-		default:
-			// 簡介影片的檔(例如課程設好之後才傳的旁白清單)直接掛到那門課
-			owner, err := introOwner(tx, path)
-			if err != nil {
-				return err
-			}
-			if owner != "" {
-				if err := tx.Create(&lessonFileRow{Path: path, CourseID: owner, Content: string(content)}).Error; err != nil {
-					return err
-				}
-				if err := tx.Where("path = ?", path).Delete(&studioFileRow{}).Error; err != nil {
-					return err
-				}
-				break
-			}
-			row := studioFileRow{Path: path, Content: string(content)}
-			if err := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "path"}}, DoUpdates: clause.AssignmentColumns([]string{"content"})}).Create(&row).Error; err != nil {
-				return err
-			}
+			break
 		}
-		return s.recordChange(tx, user, "script.put", path, map[string]any{"course": courseID, "lesson": lessonID, "bytes": len(content)})
-	})
+		row := studioFileRow{Path: path, Content: string(content)}
+		if err := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "path"}}, DoUpdates: clause.AssignmentColumns([]string{"content"})}).Create(&row).Error; err != nil {
+			return err
+		}
+	}
+	return s.recordChange(tx, user, action, path, map[string]any{"course": courseID, "lesson": lessonID, "bytes": len(content)})
 }

@@ -35,6 +35,7 @@
 //	script list [-owners]           所有腳本檔的路徑(只給管理員);-owners 附上來源(lesson|studio)、所屬課程與課
 //	script get -path 路徑 [-out 檔案]
 //	script push -file 檔案 [-path 路徑] [-course ID -lesson ID]
+//	script drafts|draft-push|draft-get|draft-drop|publish(草稿與發布,見 scriptdrafts.go)
 //	backup export -out 目錄         唯讀匯出 lesson_files 與 studio_files 的內容到本機目錄(給 GCS 備份用,見 server/backup/README.md)
 //	change list [-n 20]             最近的修改紀錄(誰、什麼時候、改了什麼)
 //	schema check                    資料庫結構檢查:資料表定義與實際欄位、主鍵是否一致,有沒有遺留表(有問題時結束碼 1)
@@ -118,7 +119,12 @@ var resources = []resource{
 	{name: "script", commands: []command{
 		{verb: "list", usage: "evoleap script list [-owners]", run: cmdScriptList},
 		{verb: "get", usage: "evoleap script get -path 路徑 [-out 檔案]", run: cmdScriptGet},
-		{verb: "push", usage: "evoleap script push -file 檔案 [-path 路徑] [-course ID -lesson ID]", run: cmdScriptPush},
+		{verb: "push", usage: "evoleap script push -file 檔案 [-path 路徑] [-course ID -lesson ID](直接改正式版本)", run: cmdScriptPush},
+		{verb: "drafts", usage: "evoleap script drafts", run: cmdScriptDrafts},
+		{verb: "draft-push", usage: "evoleap script draft-push -file 檔案 [-path 路徑] [-course ID -lesson ID]", run: cmdScriptDraftPush},
+		{verb: "draft-get", usage: "evoleap script draft-get -path 路徑 [-out 檔案]", run: cmdScriptDraftGet},
+		{verb: "draft-drop", usage: "evoleap script draft-drop -path 路徑", run: cmdScriptDraftDrop},
+		{verb: "publish", usage: "evoleap script publish [-force] 路徑…(連同旁白、音軌清單的草稿一起發布)", run: cmdScriptPublish},
 	}},
 	{name: "backup", commands: []command{
 		{verb: "export", usage: "evoleap backup export -out 目錄", run: cmdBackupExport},
