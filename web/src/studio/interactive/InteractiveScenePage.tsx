@@ -308,7 +308,7 @@ export function InteractiveScenePage({ script: scriptPath, pageTitle, interactio
         aspect,
       })
       // 演員在舞台載入時才下載:載好後才能照示範清單套一遍,動作或順序寫錯在這裡就報出來
-      for (const m of list) if (m.demo && interaction !== 'static') throw new Error(`互動點「${m.id}」:demo 只能用在靜態互動(演員要是當一般網頁操作的演員)`)
+      for (const m of list) if (m.demo && interaction !== 'static') throw new Error(`互動點「${m.id}」:demo 只能用在 static 模式的課頁(演員要是當一般網頁操作的演員)`)
       for (const m of list) if (m.demo) checkDemoActions(m.demo, script, (m.stage?.focus ?? '').split(':')[0], `互動點「${m.id}」`)
       const momentAt: Record<string, number> = {}
       for (const m of list) {
