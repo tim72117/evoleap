@@ -10,6 +10,8 @@ export const home = {
   introTitle: '善用 AI，把時間用在真正想做的事',
   introPitch: '選一個主題，跟著實際操作，做出看得見的成果。',
   courseMap: '課程地圖',
+  /** 卡片連到主題頁(/topics/…)時的按鈕 */
+  topicCourses: '主題課程',
   viewCourseMap: '查看課程地圖',
   startFirstLesson: '開始第一課',
   planned: '規劃中',

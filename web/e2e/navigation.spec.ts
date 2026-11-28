@@ -29,9 +29,10 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
   await expectHeadMatches(page, request, '/')
 
   // 首頁的主打主題 → 主題頁(兒童主題的卡片也有「課程地圖」,限定在主打主題裡找)
-  await page.getByRole('article', { name: '測試主題甲' }).getByRole('link', { name: '課程地圖', exact: true }).click()
+  await page.getByRole('article', { name: '測試主題甲' }).getByRole('link', { name: '主題課程', exact: true }).click()
   await expectHeadMatches(page, request, '/topics/software')
-  await expect(page).toHaveURL(/#map$/)
+  // 從首頁進主題頁停在最上方,不直接捲到課程地圖
+  await expect(page).not.toHaveURL(/#/)
 
   // 課程地圖的 L0 卡片
   const card = page.locator('#level-tools')
@@ -64,6 +65,8 @@ test('首頁 → 課程地圖卡片 → 課程總覽 → 單課 → 下一課(�
 test('課程地圖每張卡片的連結都能開啟(不是 404)', async ({ page, request }) => {
   const errors = collectErrors(page)
   await page.goto('/topics/software')
+  // 主題頁的區塊與課程地圖讀 API,等卡片的連結出現再收
+  await expect(page.locator('#map a[href^="/courses/"]').first()).toBeVisible()
   const links = await page.locator('#map a[href^="/courses/"]').evaluateAll((els) =>
     els.map((e) => e.getAttribute('href')!),
   )
@@ -197,7 +200,7 @@ test('首頁:不放影片預覽,開始第一課連到序章', async ({ page }) =
   await expect(page.getByRole('article', { name: '測試主題甲' }).getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/software/intro')
   const kids = page.getByRole('region', { name: '測試主題丙' })
   await expect(kids.getByRole('link', { name: '開始第一課' })).toHaveAttribute('href', '/courses/kids/0-1')
-  await expect(kids.getByRole('link', { name: '課程地圖' })).toHaveAttribute('href', '/courses/kids#map')
+  await expect(kids.getByRole('link', { name: '課程地圖' })).toHaveAttribute('href', '/courses/kids')
   // 首頁不標「開放中」,只有規劃中的主題標「規劃中」
   await expect(page.getByText('開放中', { exact: true })).toHaveCount(0)
   await expect(page.getByText('規劃中').first()).toBeVisible()

@@ -52,8 +52,8 @@ export function ShowcasePage() {
                 <Link className={styles.primary} to={lessonUrl('software', PREVIEW_LESSON_ID)}>
                   {t.home.startFirstLesson}
                 </Link>
-                <Link className={styles.secondary} to={{ pathname: TOPIC_PATHS.software, hash: 'map' }}>
-                  {t.home.courseMap}
+                <Link className={styles.secondary} to={TOPIC_PATHS.software}>
+                  {t.home.topicCourses}
                 </Link>
                 <div ref={setShrinkSlot} className={styles.shrinkSlot} />
               </div>

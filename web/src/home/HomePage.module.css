@@ -528,3 +528,559 @@
 .showcaseEnd {
   height: 72px;
 }
+
+/* ================================================================
+   首頁的版面質感(參照主題頁 SoftwareTopicPage／TopicFeatures)。
+   都限定在 .home 裡:展示頁(ShowcasePage)共用上面的樣式,不受影響。
+   ================================================================ */
+.home {
+  padding-bottom: 8px;
+}
+
+/* ---------- 主視覺:置中,淡淡的光與格線 ---------- */
+.home .hero {
+  position: relative;
+  overflow: hidden;
+  padding: 84px 0 120px;
+  text-align: center;
+  background: linear-gradient(var(--site-bg), var(--site-surface-2) 55%, var(--site-bg));
+}
+
+.heroGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mask-image: linear-gradient(#000 55%, transparent);
+  background:
+    radial-gradient(60% 55% at 50% 0%, color-mix(in srgb, var(--site-accent) 20%, transparent), transparent 70%),
+    radial-gradient(32% 40% at 12% 78%, color-mix(in srgb, var(--site-highlight) 12%, transparent), transparent 70%),
+    radial-gradient(32% 40% at 88% 70%, color-mix(in srgb, var(--site-accent) 12%, transparent), transparent 70%);
+}
+
+.heroGlow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--site-text) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--site-text) 7%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: center top;
+  mask-image: radial-gradient(70% 70% at 50% 20%, #000, transparent 75%);
+}
+
+.home .hero .container {
+  position: relative;
+}
+
+.home .hero h1 {
+  font-size: clamp(32px, 5.4vw, 60px);
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  font-weight: 900;
+}
+
+.titleLine {
+  display: block;
+}
+
+.titleAccent {
+  background: linear-gradient(100deg, var(--site-accent-strong), var(--site-accent) 55%, var(--site-highlight) 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.home .pitch {
+  margin-top: 22px;
+  line-height: 1.9;
+  text-wrap: balance;
+}
+
+/* ---------- 插圖面板:帶色的淡底加細點 ---------- */
+.art {
+  --tone: var(--site-accent);
+  --art-card: var(--site-surface);
+  --art-line: color-mix(in srgb, var(--site-text) 13%, var(--site-surface));
+  --art-soft: color-mix(in srgb, var(--site-text) 30%, var(--site-surface));
+  --art-accent: var(--site-accent-solid);
+  --art-on-accent: var(--site-accent-contrast);
+  --art-tint: color-mix(in srgb, var(--site-accent) 18%, var(--site-surface));
+  --art-warm: var(--site-highlight);
+  --art-shadow: rgb(40 50 20 / 16%);
+
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--tone) 22%, var(--site-border));
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--tone) 26%, transparent) 1px, transparent 1.5px) 0 0 / 22px 22px,
+    radial-gradient(80% 90% at 15% 0%, color-mix(in srgb, var(--tone) 22%, transparent), transparent 70%),
+    color-mix(in srgb, var(--tone) 13%, var(--site-surface));
+}
+
+.art[data-tone='sky'] {
+  --tone: #3f8fb0;
+}
+
+.art[data-tone='warm'] {
+  --tone: var(--site-highlight);
+}
+
+:global(html[data-site-theme='dark']) .art {
+  --art-card: #1a1c18;
+  --art-line: #33362f;
+  --art-soft: #5d6156;
+  --art-shadow: rgb(0 0 0 / 60%);
+}
+
+.art svg {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  overflow: visible;
+}
+
+/* ---------- 主打主題 ---------- */
+.home .featured {
+  position: relative;
+  margin-top: -56px;
+  border-radius: 28px;
+  box-shadow: 0 2px 4px rgb(30 30 20 / 6%), 0 24px 56px color-mix(in srgb, var(--site-accent) 16%, transparent);
+}
+
+.home .featuredMain {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 36px;
+  padding: 32px;
+  align-items: stretch;
+}
+
+.home .featuredText {
+  align-self: center;
+  padding: 8px 8px 8px 12px;
+}
+
+.home .featuredText .themeHead {
+  flex-wrap: wrap;
+  margin: 0 0 6px;
+}
+
+.home .featuredText h2 {
+  margin: 0;
+  font-size: clamp(26px, 3.2vw, 36px);
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.home .slogan {
+  font-size: 18px;
+}
+
+.home .lede {
+  margin-top: 12px;
+  line-height: 1.9;
+}
+
+.featuredArt {
+  min-height: 280px;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* 封面插圖四周自己有留白,填滿面板 */
+.art.featuredArt svg {
+  max-width: none;
+  aspect-ratio: 880 / 495;
+  overflow: hidden;
+}
+
+.home .facts li::before {
+  content: '✓' / '';
+  margin-right: 8px;
+  color: var(--site-accent-strong);
+  font-weight: 800;
+}
+
+/* 階段:和主題頁的等級總覽一樣的膠囊 */
+.home .ladder {
+  align-items: center;
+  gap: 8px;
+  counter-reset: stage -1;
+  font-size: 14px;
+}
+
+.home .ladder li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 14px 3px 4px;
+  border: 1px dashed var(--site-border);
+  border-radius: 999px;
+  font-weight: 600;
+  counter-increment: stage;
+}
+
+.home .ladder li::before {
+  content: counter(stage) / '';
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  border-radius: 50%;
+  background: var(--site-surface-2);
+  opacity: 1;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.home .ladder li:not(:last-child)::after {
+  content: '→' / '';
+  position: absolute;
+  right: -16px;
+  color: var(--site-muted);
+}
+
+.home .ladder li:not(:last-child) {
+  position: relative;
+  margin-right: 14px;
+}
+
+.home .ladder li.ladderOpen {
+  border: 1px solid color-mix(in srgb, var(--site-accent) 50%, transparent);
+  color: var(--site-text);
+}
+
+.home .ladder li.ladderOpen::before {
+  background: var(--site-accent-solid);
+  color: var(--site-accent-contrast);
+}
+
+.home .learn {
+  padding: 28px 32px 32px;
+  border-top: 1px solid var(--site-border);
+  background: linear-gradient(var(--site-surface-2), var(--site-surface) 120%);
+}
+
+.home .learn h3 {
+  margin-bottom: 14px;
+  color: var(--site-accent-strong);
+  font-size: 14px;
+  letter-spacing: 0.12em;
+}
+
+.home .learn ul {
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 16px;
+}
+
+.home .learn li {
+  padding: 18px 20px;
+  border-radius: var(--site-radius);
+  background: var(--site-surface);
+  box-shadow: var(--site-shadow);
+  font-size: 15px;
+}
+
+.home .learnLevel {
+  color: var(--site-accent-strong);
+  font-size: 16px;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- 按鈕、連結 ---------- */
+.home .ctas {
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.home .ctas a {
+  align-items: center;
+  justify-content: center;
+  padding: 12px 26px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.home .ctas a.primary {
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--site-accent) 35%, transparent);
+}
+
+.home .ctas a.secondary {
+  border-color: var(--site-border);
+}
+
+.home .ctas a.secondary:hover {
+  border-color: var(--site-accent);
+}
+
+.home a:focus-visible {
+  outline: 3px solid var(--site-accent-strong);
+  outline-offset: 3px;
+}
+
+.home .themeLink {
+  margin-top: 18px;
+  padding: 8px 18px;
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+  background: var(--site-surface);
+}
+
+.home .themeLink:hover {
+  border-color: var(--site-accent);
+  text-decoration: none;
+}
+
+/* ---------- 主題卡片 ---------- */
+.home .kids {
+  padding-top: 32px;
+}
+
+.home .theme {
+  overflow: hidden;
+  padding: 16px;
+  border: 1px solid var(--site-border);
+  border-radius: 24px;
+  box-shadow: var(--site-shadow);
+}
+
+.home .theme:not(.themeOpen) {
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.themeArt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.themeBody {
+  min-width: 0;
+  padding: 8px 10px 10px;
+}
+
+/* 整排的卡片:插圖在側邊,第二張左右交錯 */
+.home .kids .themeArt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 24px;
+}
+
+.home .kids ~ .kids .art {
+  order: 2;
+}
+
+.home .kids .themeBody {
+  align-self: center;
+  padding: 20px 16px;
+}
+
+.home .theme h3 {
+  font-size: 22px;
+  line-height: 1.45;
+}
+
+.home .kids .theme h3 {
+  font-size: clamp(22px, 2.6vw, 28px);
+  font-weight: 900;
+}
+
+.home .themeHead {
+  flex-wrap: wrap;
+}
+
+.home .themeSlogan {
+  font-size: 15.5px;
+}
+
+.home .theme h4 {
+  margin: 18px 0 6px;
+  color: var(--site-accent-strong);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+.home .sample h4 {
+  margin: 0 0 4px;
+}
+
+.home .outcomes {
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.home .outcomes li {
+  position: relative;
+  padding-left: 20px;
+}
+
+.home .outcomes li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.65em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--site-accent);
+}
+
+.home .flow li {
+  padding: 3px 12px;
+  border: 1px solid var(--site-border);
+  border-radius: 999px;
+}
+
+.home .badge {
+  padding: 2px 12px;
+}
+
+/* 更多主題 */
+.home .next {
+  padding: 88px 0 80px;
+}
+
+.home .next > h2 {
+  position: relative;
+  margin: 0 0 40px;
+  padding-top: 24px;
+  text-align: center;
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.home .next > h2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 44px;
+  height: 5px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--site-accent), var(--site-highlight));
+  transform: translateX(-50%);
+}
+
+.home .nextGrid {
+  gap: 24px;
+}
+
+.home .nextGrid .art {
+  height: 190px;
+  padding: 16px;
+}
+
+.home .nextGrid .art svg {
+  height: 156px;
+  overflow: hidden;
+}
+
+/* 落單的最後一張占整排,插圖放側邊 */
+@media (min-width: 821px) {
+  .home .nextGrid > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: 24px;
+  }
+
+  .home .nextGrid > :last-child:nth-child(odd) .art {
+    height: auto;
+    min-height: 220px;
+  }
+
+  .home .nextGrid > :last-child:nth-child(odd) .art svg {
+    height: 190px;
+  }
+}
+
+@media (max-width: 820px) {
+  .home .hero {
+    padding: 52px 0 88px;
+  }
+
+  .home .hero h1 {
+    font-size: clamp(27px, 7.4vw, 40px);
+  }
+
+  .home .pitch {
+    font-size: 16px;
+  }
+
+  .home .featured {
+    margin-top: -44px;
+    border-radius: 24px;
+  }
+
+  .home .featuredMain,
+  .home .nextGrid,
+  .home .kids .themeArt {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home .featuredMain {
+    gap: 20px;
+    padding: 16px;
+  }
+
+  .home .featuredText {
+    padding: 8px 6px 0;
+  }
+
+  .featuredArt {
+    min-height: 0;
+  }
+
+  .home .learn {
+    padding: 22px 18px;
+  }
+
+  .home .kids .art {
+    height: 200px;
+    padding: 16px;
+  }
+
+  .home .kids ~ .kids .art {
+    order: 0;
+  }
+
+  .home .kids .art svg {
+    height: 166px;
+  }
+
+  .home .kids .themeBody {
+    padding: 4px 6px 8px;
+  }
+
+  .home .theme {
+    padding: 12px;
+  }
+
+  .home .next {
+    padding: 60px 0 56px;
+  }
+
+  .home .ctas a {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home .ctas a {
+    transition: none;
+  }
+
+  .home .ctas a:hover {
+    transform: none;
+  }
+}

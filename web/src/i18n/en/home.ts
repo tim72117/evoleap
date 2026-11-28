@@ -12,6 +12,7 @@ export const home: Messages['home'] = {
   introTitle: 'Use AI to spend your time on what matters',
   introPitch: 'Pick a topic, follow along hands-on, and make something you can see.',
   courseMap: 'Course map',
+  topicCourses: 'Topic courses',
   viewCourseMap: 'View course map',
   startFirstLesson: 'Start the first lesson',
   planned: 'Coming soon',

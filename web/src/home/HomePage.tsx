@@ -7,6 +7,9 @@ import { findTopic, topicStartLabel, TOPIC_PATHS, useTopics, type Topic } from '
 import { useT } from '../i18n/I18nProvider'
 import { sortByViews, useTopicViews } from './useTopicViews'
 import { SiteLayout } from '../site/SiteLayout'
+import type { CourseArt } from '../content/levels'
+import { LevelArt } from './LevelArt'
+import { TopicArt, TourCoverArt } from './TopicArt'
 import styles from './HomePage.module.css'
 
 // 首頁:先列出主題,再進入各主題。有內容的主題佔整排,列出各等級能學到什麼(首頁不放影片預覽);
@@ -14,6 +17,20 @@ import styles from './HomePage.module.css'
 
 // 「開始第一課」從序章開始(不用登入就能看)
 const introPath = lessonUrl('software', PREVIEW_LESSON_ID)
+
+/** 首頁卡片的插圖(純裝飾,沿用主題頁的插圖);tone 是插圖面板的主色。沒列到的主題用預設圖 */
+type CardArt = { art: ReactNode; tone?: 'sky' | 'warm' }
+const level = (art: CourseArt) => <LevelArt art={art} />
+const CARD_ART: Record<string, CardArt> = {
+  launch: { art: <TopicArt name="speak" />, tone: 'sky' },
+  kids: { art: <TopicArt name="next" />, tone: 'warm' },
+  web: { art: level('build'), tone: 'sky' },
+  'ai-apps': { art: level('agent') },
+  monetize: { art: level('advanced'), tone: 'warm' },
+  'life-data': { art: level('tools') },
+  'claude-code': { art: level('chat'), tone: 'warm' },
+}
+const cardArt = (id: string): CardArt => CARD_ART[id] ?? { art: level('advanced') }
 
 /** 首頁上另外安排位置的主題:最上面的主打、接在後面的兩個;其他的照資料庫順序列在「更多主題」 */
 const FEATURED = 'software'
@@ -48,11 +65,21 @@ export function HomePage() {
   const facts = [t.home.home.facts.free, t.home.home.facts.noCode]
   if (/^#(map|level-)/.test(hash)) return <Navigate replace to={{ pathname: TOPIC_PATHS.software, hash }} />
 
+  // 大標在第一個逗號後換行,後半句用漸層字(和主題頁的主視覺一樣);沒有逗號就整句一行
+  const comma = t.home.introTitle.search(/[，,]/)
+  const titleHead = comma < 0 ? t.home.introTitle : t.home.introTitle.slice(0, comma + 1)
+  const titleTail = comma < 0 ? '' : t.home.introTitle.slice(comma + 1)
+
   return (
     <SiteLayout>
+      <div className={styles.home}>
       <section className={styles.hero}>
+        <div className={styles.heroGlow} aria-hidden="true" />
         <div className={styles.container}>
-          <h1>{t.home.introTitle}</h1>
+          <h1>
+            <span className={styles.titleLine}>{titleHead}</span>
+            {titleTail && <span className={`${styles.titleLine} ${styles.titleAccent}`}>{titleTail}</span>}
+          </h1>
           <p className={styles.pitch}>{t.home.introPitch}</p>
         </div>
       </section>
@@ -89,10 +116,13 @@ export function HomePage() {
                   <Link className={styles.primary} to={introPath}>
                     {t.home.startFirstLesson}
                   </Link>
-                  <Link className={styles.secondary} to={{ pathname: TOPIC_PATHS.software, hash: 'map' }}>
-                    {t.home.courseMap}
+                  <Link className={styles.secondary} to={TOPIC_PATHS.software}>
+                    {t.home.topicCourses}
                   </Link>
                 </div>
+              </div>
+              <div className={`${styles.art} ${styles.featuredArt}`} aria-hidden="true">
+                <TourCoverArt />
               </div>
             </div>
 
@@ -119,7 +149,7 @@ export function HomePage() {
         {/* 觀看次數多的主題排前面(還沒讀到次數時照原本的順序:上線、兒童課) */}
         {sortByViews(second, (p) => p.id, topicViews).map((p) => (
           <section key={p.id} className={styles.kids} aria-label={p.name}>
-            <ThemeCard t={p} />
+            <ThemeCard t={p} art={cardArt(p.id)} />
           </section>
         ))}
 
@@ -128,11 +158,12 @@ export function HomePage() {
             <h2 id="next-themes">{t.home.home.moreTopics}</h2>
             <div className={styles.nextGrid}>
               {others.map((p) => (
-                <ThemeCard t={p} key={p.id} />
+                <ThemeCard t={p} key={p.id} art={cardArt(p.id)} />
               ))}
             </div>
           </section>
         )}
+      </div>
       </div>
     </SiteLayout>
   )
@@ -155,9 +186,10 @@ function ViewsLine({ text }: { text: string }) {
  * 規劃中(或已開放、t.open)主題的卡片:名稱、標語、步驟或整理前後示意、預計做出的成果或涵蓋的情境。
  * aside 放在標題與內容的右側(窄螢幕排到下面);below 接在步驟下面。
  * 有 aside 的卡片,「你會做出」另起一段橫跨整張卡片,放在標題與預覽下面(仿照「做出自己的軟體」的成果段)。
+ * art 是首頁的插圖面板(裝飾),不和 aside 一起用。
  * 首頁不放 aside;展示頁(ShowcasePage)的兒童課卡片把預覽播放器放在 aside
  */
-export function ThemeCard({ t: data, aside, below }: { t: Topic; aside?: ReactNode; below?: ReactNode }) {
+export function ThemeCard({ t: data, aside, below, art }: { t: Topic; aside?: ReactNode; below?: ReactNode; art?: CardArt }) {
   const topic = { ...data.content, id: data.id, name: data.name, slogan: data.slogan, path: data.path }
   const t = useT()
   const m = t.home.themeCard
@@ -254,8 +286,8 @@ export function ThemeCard({ t: data, aside, below }: { t: Topic; aside?: ReactNo
             {startLabel}
           </Link>
           {topic.path && (
-            <Link className={styles.secondary} to={{ pathname: topic.path, hash: 'map' }}>
-              {t.home.courseMap}
+            <Link className={styles.secondary} to={topic.path}>
+              {topic.path.startsWith('/topics/') ? t.home.topicCourses : t.home.courseMap}
             </Link>
           )}
         </div>
@@ -280,6 +312,15 @@ export function ThemeCard({ t: data, aside, below }: { t: Topic; aside?: ReactNo
     </>
   )
   const cls = topic.open ? `${styles.theme} ${styles.themeOpen}` : styles.theme
+  if (art)
+    return (
+      <article className={`${cls} ${styles.themeArt}`}>
+        <div className={styles.art} data-tone={art.tone} aria-hidden="true">
+          {art.art}
+        </div>
+        <div className={styles.themeBody}>{body}</div>
+      </article>
+    )
   if (!aside) return <article className={cls}>{body}</article>
   return (
     <article className={`${cls} ${styles.themeAside}`}>
