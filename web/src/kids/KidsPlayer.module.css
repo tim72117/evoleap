@@ -233,8 +233,6 @@
 /* compact:給大人看的預覽(首頁),按鈕和中間的播放鍵改成一般大小 */
 .controlsBox[data-size='compact'] .controls { gap: 6px; margin-top: 10px; }
 .controlsBox[data-size='compact'] .controls button { min-height: 34px; padding: 4px 12px; border-width: 1px; font-size: 14px; font-weight: 600; }
-.controlsBox[data-size='compact'] .controls .primary { min-width: 0; }
-.controlsBox[data-size='compact'] .controls .icon { min-width: 34px; padding: 4px 8px; font-size: 16px; }
 .controlsBox[data-size='compact'] .chapters button { font-size: 13px; padding: 4px 10px 4px 4px; }
 .controlsBox[data-size='compact'] .chapters span { width: 22px; height: 22px; }
 .player[data-size='compact'] .bigPlay { width: 150px; height: 150px; margin: -75px 0 0 -75px; font-size: 64px; line-height: 150px; box-shadow: 0 10px 0 color-mix(in srgb, var(--kp-accent) 55%, #000); }
@@ -299,9 +297,7 @@
   color: var(--kp-ink);
   cursor: pointer;
 }
-.controls .icon { min-width: 52px; padding: 8px 12px; font-size: 22px; }
 .controls button:disabled { opacity: 0.4; cursor: default; }
-.controls .primary { background: var(--kp-accent); border-color: var(--kp-accent); color: var(--kp-on-accent); min-width: 150px; }
 
 .chapters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
 .chapters button {
@@ -562,3 +558,86 @@
   }
   .player .controlsBox .chapters[data-open='true'] button { width: 100%; font-size: 16px; text-align: left; }
 }
+
+/* ---------- 控制列:一條浮起的膠囊底座 ----------
+   圖示鈕平時沒有框,指到才浮出底色,只有播放鍵突出。選擇器帶 .controlsBox,才蓋得過浮動版、全螢幕、預覽版對按鈕的設定 */
+.controlsBox .controls {
+  flex-wrap: nowrap; width: fit-content; max-width: 100%; box-sizing: border-box; margin: 22px auto 0; align-items: center; gap: 4px;
+  padding: 6px 12px; border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--kp-border) 70%, transparent);
+  background: linear-gradient(180deg, var(--kp-surface), color-mix(in srgb, var(--kp-ink) 4%, var(--kp-surface)));
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--kp-border) 80%, transparent), 0 14px 28px color-mix(in srgb, var(--kp-ink) 12%, transparent);
+}
+.controlsBox .controls button.icon {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 50px; height: 50px; min-width: 0; min-height: 0; padding: 0;
+  border: 0; border-radius: 50%; background: transparent; color: var(--kp-ink);
+  transition: transform 0.14s, background 0.14s, color 0.14s, box-shadow 0.14s;
+}
+.controlsBox .controls button.icon svg { width: 54%; height: 54%; }
+/* hover 只淡淡鋪一層底,圖示顏色不變;觸控裝置沒有 hover,不套(不然點完會一直亮著) */
+@media (hover: hover) { .controlsBox .controls button.icon:hover:not(:disabled) { background: color-mix(in srgb, var(--kp-ink) 7%, transparent); color: var(--kp-ink); } }
+.controlsBox .controls button.icon:active:not(:disabled) { transform: scale(0.92); }
+.controlsBox .controls button.icon:focus-visible { outline: 3px solid var(--kp-accent); outline-offset: 2px; }
+.controlsBox .controls button.icon[aria-expanded='true'] { background: color-mix(in srgb, var(--kp-accent) 18%, transparent); color: var(--kp-accent); }
+/* 分組:上一段/播放/下一段 │ 從頭 │ 聲音、段落、全螢幕 */
+.controlsBox .controls button.group { position: relative; margin-left: 14px; }
+.controlsBox .controls button.group::before { content: ''; position: absolute; left: -9px; top: 26%; bottom: 26%; width: 2px; border-radius: 2px; background: var(--kp-border); }
+.controlsBox .controls button.primary.icon {
+  width: 72px; height: 72px; margin: -20px 6px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--kp-accent) 72%, #fff), var(--kp-accent));
+  border: 4px solid var(--kp-surface); color: var(--kp-on-accent);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--kp-accent) 62%, #000), 0 10px 22px color-mix(in srgb, var(--kp-accent) 36%, transparent);
+}
+@media (hover: hover) { .controlsBox .controls button.primary.icon:hover:not(:disabled) { background: linear-gradient(160deg, color-mix(in srgb, var(--kp-accent) 72%, #fff), var(--kp-accent)); color: var(--kp-on-accent); filter: brightness(1.07); } }
+.controlsBox .controls button.primary.icon:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 color-mix(in srgb, var(--kp-accent) 62%, #000); }
+/* 段落鈕:圖示旁有「2/5」,寬度跟著內容 */
+.controlsBox .controls button.icon.chapterToggle { width: auto; gap: 3px; padding: 0 8px; border-radius: 999px; }
+.controlsBox .controls button.chapterToggle svg { width: 22px; height: 22px; }
+.controlsBox .controls button.chapterToggle small { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (min-width: 601px) { .controlsBox .controls button.chapterToggle { display: none; } }
+@media (max-width: 600px) { .controlsBox .controls button.chapterToggle { display: inline-flex; } }
+@media (max-width: 430px) {
+  .controlsBox .controls { gap: 0; padding: 4px 6px; }
+  .controlsBox .controls button.icon { width: 40px; height: 40px; }
+  .controlsBox .controls button.primary.icon { width: 56px; height: 56px; margin: -14px 3px; }
+  .controlsBox .controls button.group { margin-left: 8px; }
+  .controlsBox .controls button.group::before { left: -5px; }
+}
+.controlsBox[data-size='compact'] .controls { gap: 2px; margin-top: 16px; padding: 3px 8px; box-shadow: 0 3px 0 var(--kp-border); }
+.controlsBox[data-size='compact'] .controls button.icon { width: 34px; height: 34px; }
+.controlsBox[data-size='compact'] .controls button.primary.icon { width: 44px; height: 44px; margin: -10px 4px; border-width: 3px; }
+.controlsBox[data-size='compact'] .controls button.icon.chapterToggle { width: auto; padding: 0 6px; }
+.controlsBox[data-size='compact'] .controls button.chapterToggle svg { width: 18px; height: 18px; }
+/* 360px 以下的手機:七顆鈕再縮小才放得進一列 */
+@media (max-width: 380px) {
+  .controlsBox .controls { padding: 3px 2px; }
+  .controlsBox .controls button.icon { width: 34px; height: 38px; }
+  .controlsBox .controls button.primary.icon { width: 46px; height: 46px; margin: -10px 2px; border-width: 3px; }
+  .controlsBox .controls button.group { margin-left: 5px; }
+  .controlsBox .controls button.group::before { left: -3px; width: 1px; }
+  .controlsBox .controls button.icon.chapterToggle, .controlsBox[data-size='compact'] .controls button.icon.chapterToggle { padding: 0 3px; gap: 2px; }
+  .controlsBox .controls button.chapterToggle svg { width: 17px; height: 17px; }
+  .controlsBox .controls button.chapterToggle small { font-size: 11px; }
+  .controlsBox[data-size='compact'] .controls { gap: 0; padding: 2px; }
+  .controlsBox[data-size='compact'] .controls button.icon { width: 30px; height: 32px; }
+  .controlsBox[data-size='compact'] .controls button.primary.icon { width: 40px; height: 40px; margin: -8px 1px; }
+  .controlsBox[data-size='compact'] .controls button.group { margin-left: 5px; }
+}
+@media (max-width: 340px) {
+  .controlsBox[data-size='compact'] .controls button.icon { width: 28px; }
+  .controlsBox[data-size='compact'] .controls button.group { margin-left: 3px; }
+  .controlsBox[data-size='compact'] .controls button.group::before { left: -2px; }
+}
+@media (prefers-reduced-motion: reduce) { .controlsBox .controls button.icon { transition: none; } .controlsBox .controls button.icon:hover:not(:disabled), .controlsBox .controls button.icon:active:not(:disabled) { transform: none; } }
+
+/* 進度條:粗圓的軌道,走過的部分上色(--p 是百分比) */
+.scrub input { flex: 1; appearance: none; height: 22px; margin: 0; background: transparent; cursor: pointer; }
+.scrub input::-webkit-slider-runnable-track { height: 10px; border-radius: 999px; background: linear-gradient(90deg, var(--kp-accent) var(--p, 0%), var(--kp-border) var(--p, 0%)); }
+.scrub input::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; margin-top: -6px; border-radius: 50%; border: 4px solid var(--kp-surface); background: var(--kp-accent); box-shadow: 0 2px 6px color-mix(in srgb, var(--kp-ink) 28%, transparent); }
+.scrub input::-moz-range-track { height: 10px; border-radius: 999px; background: var(--kp-border); }
+.scrub input::-moz-range-progress { height: 10px; border-radius: 999px; background: var(--kp-accent); }
+.scrub input::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; border: 4px solid var(--kp-surface); background: var(--kp-accent); }
+.scrub input:focus-visible { outline: 3px solid var(--kp-accent); outline-offset: 3px; border-radius: 999px; }
+/* 浮動版把控制列的外距清成 0,膠囊要自己置中 */
+.player .controlsBox .controls { margin-inline: auto; }

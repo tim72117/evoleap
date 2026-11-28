@@ -32,6 +32,11 @@ export function speak(text: string | SpeechPart[]) {
   }
 }
 
+/** 現在是不是還在念(音檔或瀏覽器語音) */
+export function speaking(): boolean {
+  return (!!audio && !!audio.src && !audio.paused && !audio.ended) || !!window.speechSynthesis?.speaking
+}
+
 /** 停掉正在念的旁白(音檔與瀏覽器語音都停) */
 export function hush() {
   audio?.pause()

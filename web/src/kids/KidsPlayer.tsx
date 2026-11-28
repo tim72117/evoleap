@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { ACTORS } from '../live/actors'
 import { loadScript, loadVoice, type ScriptVoice } from '../live/scripts'
@@ -11,7 +11,7 @@ import s from './KidsPlayer.module.css'
 import { dragPlan, type DragPlan } from './drag'
 import { DragLayer } from './DragLayer'
 import { Say as SayChips } from './say'
-import { hush, playClip, speak } from './speech'
+import { hush, playClip, speak, speaking } from './speech'
 import { homeShowcaseKey, useGuestView } from '../courses/guestActivity'
 import { memberProgress } from '../courses/progress'
 import { useAuth } from '../auth/AuthContext'
@@ -49,6 +49,8 @@ type Ask = {
   title: string
   body: string
   again: boolean
+  /** true:這次停下來不再念題目(腳本寫 promptOnce 時,同一題只念第一次) */
+  quiet?: boolean
   focus?: string
   quiz: boolean
   options: AskOption[]
@@ -62,7 +64,8 @@ type Spot = { target: string; id?: string; label?: string; steps: ScriptStep[]; 
 /** 子腳本的拖曳:say 是完成某個任務時念的話(任務 id → 旁白),else 是移動了但沒有完成新任務時念的話 */
 type DragSpec = { say?: Record<string, string>; else?: string }
 type Interact = { on: string; prompt: string; body?: string; spots?: Spot[]; drag?: DragSpec; until?: { count: string; atLeast: number }; done?: { steps: ScriptStep[] } }
-type SubScript = StageScript & { interact?: Interact }
+/** promptOnce:互動時題目只念第一次,每次點完回到同一題不重念(主腳本、子腳本各自寫) */
+type SubScript = StageScript & { interact?: Interact; promptOnce?: boolean }
 type Sub = {
   title: string
   script: SubScript
@@ -70,6 +73,8 @@ type Sub = {
   def: AnyActor
   props: object
   extra: ScriptStep[]
+  /** 題目念過了(promptOnce 用) */
+  asked?: boolean
   /** 點過的可點區(target) */
   picked: Set<string>
   returnAt: number
@@ -115,6 +120,33 @@ function sayOn(st: Stage | null, text: string) {
   if (url) playClip(url)
   else speak(text)
 }
+
+/** 等上一句旁白念完最多等多久 */
+const SPEECH_WAIT_MAX_MS = 20000
+/** 控制列的圖示(按鈕只放圖示,名稱在 aria-label、title):填色、圓角的一套;solid 是填滿的形狀,line 是線條 */
+const CONTROL_ICONS = {
+  play: { solid: 'M8.5 5.5v13l10.5-6.5Z' },
+  pause: { solid: 'M7 5.5h2.4v13H7zM14.6 5.5H17v13h-2.4z' },
+  prev: { solid: 'M18 6.5v11L9.5 12ZM5.6 6h1v12h-1z' },
+  next: { solid: 'M6 6.5v11L14.5 12ZM17.4 6h1v12h-1z' },
+  replay: { solid: 'M10.2 9.2v5.6l4.8-2.8Z', line: 'M4.5 12a7.5 7.5 0 1 0 2.4-5.5M4.5 3.8v3.9h3.9' },
+  restart: { line: 'M4.5 12a7.5 7.5 0 1 0 2.4-5.5M4.5 3.8v3.9h3.9' },
+  voiceOn: { solid: 'M4.5 9.5h3L12 6v12l-4.500-3.500h-3Z', line: 'M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.4 7.4 0 0 1 0 10.4' },
+  voiceOff: { solid: 'M4.5 9.5h3L12 6v12l-4.500-3.500h-3Z', line: 'm15.500 9.500 5 5m0-5-5 5' },
+  chapters: { solid: 'M4 5.500h3v3H4zM4 10.500h3v3H4zM4 15.500h3v3H4z', line: 'M11 7h9M11 12h9M11 17h6' },
+  fullscreen: { line: 'M4.5 9V6.5a2 2 0 0 1 2-2H9M15 4.5h2.5a2 2 0 0 1 2 2V9M19.5 15v2.5a2 2 0 0 1-2 2H15M9 19.5H6.5a2 2 0 0 1-2-2V15' },
+  exitFullscreen: { line: 'M9 4.5V7a2 2 0 0 1-2 2H4.5M19.500 9H17a2 2 0 0 1-2-2V4.500M15 19.500V17a2 2 0 0 1 2-2h2.500M4.500 15H7a2 2 0 0 1 2 2v2.500' },
+} as const
+function ControlIcon({ name }: { name: keyof typeof CONTROL_ICONS }) {
+  const icon: { solid?: string; line?: string } = CONTROL_ICONS[name]
+  return (
+    <svg viewBox="0 0 24 24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {icon.solid && <path d={icon.solid} fill="currentColor" strokeWidth="2" />}
+      {icon.line && <path d={icon.line} fill="none" strokeWidth="2.2" />}
+    </svg>
+  )
+}
+const named = (label: string) => ({ 'aria-label': label, title: label })
 
 /** 字幕一次最多出現幾個字(兒童版:字放大,一次不要太多字) */
 const CAPTION_MAX = 14
@@ -280,6 +312,8 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   const stage = useRef<Stage | null>(null)
   const subStage = useRef<Stage | null>(null)
   const base = useRef<StageScript | null>(null)
+  /** 開始等旁白念完的時間(0:沒有在等) */
+  const waited = useRef(0)
   /** 主腳本的語音 */
   const mainVoice = useRef<ScriptVoice | null>(null)
   const moments = useRef<Moment[]>([])
@@ -477,7 +511,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
     setHint(false)
     if (!ask) return
     // 題目有錄好的語音就念題目(畫面上的「再試一次」與說明不另外念);沒有就用瀏覽器的語音念整句
-    if (voiceOn.current) {
+    if (voiceOn.current && !ask.quiet) {
       const url = VOICES.get(active()!)?.urls[ask.title]
       if (url) playClip(url)
       // 「再試一次」是介面文字,跟著介面語言念;題目與說明是課程內容,用中文念
@@ -563,6 +597,7 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
       title: moment.title,
       body: moment.body,
       again,
+      quiet: again && !!(base.current as SubScript | null)?.promptOnce,
       focus: moment.stage?.focus,
       quiz: moment.options.some((o) => (o as { retry?: boolean }).retry),
       options: moment.options,
@@ -664,11 +699,13 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
       title: cur.interact.prompt,
       body: cur.interact.body ?? '',
       again: false,
+      quiet: !!cur.script.promptOnce && !!cur.asked,
       quiz: false,
       options: plan ? [] : options,
       pick: (i) => perform(options[i].steps, () => cur.picked.add(options[i].id)),
       drag: plan ? { plan, drop } : undefined,
     })
+    cur.asked = true
   }, [draw, exitSub, pauseAt, resume])
 
   const enterSub = useCallback(
@@ -724,6 +761,16 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
       const from = time.current
       const to = from + (t - last)
       last = t
+      // 上一句還沒念完,下一句旁白、題目(含答錯後再問一次)、子腳本或這一段的結尾就要到了:時間停在原地等它念完,免得被切掉。
+      // 最多等 20 秒(有些瀏覽器的語音狀態會卡住)
+      if (voiceOn.current && speaking() && (to >= st.duration || [...st.narrations, ...(sub.current ? [] : [...st.stops, ...(retry.current ? [retry.current] : [])])].some((x) => x.at > from && x.at <= to))) {
+        waited.current ||= t
+        if (t - waited.current < SPEECH_WAIT_MAX_MS) {
+          raf = requestAnimationFrame(tick)
+          return
+        }
+      }
+      waited.current = 0
       if (!sub.current) {
         const r = retry.current
         if (r && r.at > from && r.at <= to) {
@@ -1040,35 +1087,45 @@ export function KidsPlayer({ script: path, chaptersSlot, chapterInfo, size = 'ki
   const controls = (
     <div className={s.controlsBox} data-size={size}>
       <div className={s.controls}>
-        <button type="button" onClick={() => void jump(curChapter - 1)} disabled={!ready || locked || curChapter === 0}>
-          {t.kids.controls.prev}
+        <button type="button" className={s.icon} {...named(t.kids.controls.prev)} onClick={() => void jump(curChapter - 1)} disabled={!ready || locked || curChapter === 0}>
+          <ControlIcon name="prev" />
         </button>
-        <button type="button" className={s.primary} onClick={play} disabled={!ready || !!ask}>
-          {playing ? t.kids.controls.pause : done ? t.kids.controls.replay : t.kids.controls.play}
+        <button type="button" className={`${s.icon} ${s.primary}`} {...named(playing ? t.kids.controls.pause : done ? t.kids.controls.replay : t.kids.controls.play)} onClick={play} disabled={!ready || !!ask}>
+          <ControlIcon name={playing ? 'pause' : done ? 'replay' : 'play'} />
         </button>
-        <button type="button" onClick={() => void jump(curChapter + 1)} disabled={!ready || (freeJump ? curChapter >= chapters.length - 1 : (!!ask && inSub === null) || (inSub === null && curChapter >= chapters.length - 1))}>
-          {t.kids.controls.next}
+        <button type="button" className={s.icon} {...named(t.kids.controls.next)} onClick={() => void jump(curChapter + 1)} disabled={!ready || (freeJump ? curChapter >= chapters.length - 1 : (!!ask && inSub === null) || (inSub === null && curChapter >= chapters.length - 1))}>
+          <ControlIcon name="next" />
         </button>
-        <button type="button" onClick={() => void restart()} disabled={!ready}>
-          {t.kids.controls.restart}
+        <button type="button" className={`${s.icon} ${s.group}`} {...named(t.kids.controls.restart)} onClick={() => void restart()} disabled={!ready}>
+          <ControlIcon name="restart" />
         </button>
-        <button type="button" className={s.icon} aria-pressed={voice} aria-label={voice ? t.kids.controls.voiceOn : t.kids.controls.voiceOff} title={voice ? t.kids.controls.voiceOn : t.kids.controls.voiceOff} onClick={toggleVoice}>
-          {voice ? '🔊' : '🔇'}
+        <button type="button" className={`${s.icon} ${s.group}`} aria-pressed={voice} aria-label={voice ? t.kids.controls.voiceOn : t.kids.controls.voiceOff} title={voice ? t.kids.controls.voiceOn : t.kids.controls.voiceOff} onClick={toggleVoice}>
+          <ControlIcon name={voice ? 'voiceOn' : 'voiceOff'} />
         </button>
         {!menuOutside && chapters.length > 0 && (
-          <button type="button" className={s.chapterToggle} aria-expanded={chaptersOpen} aria-controls={chaptersId} onClick={() => setChaptersOpen((o) => !o)}>
-            {t.kids.controls.chapters(curChapter + 1, chapters.length)}
+          <button type="button" className={`${s.icon} ${s.chapterToggle}`} {...named(t.kids.controls.chapters(curChapter + 1, chapters.length))} aria-expanded={chaptersOpen} aria-controls={chaptersId} onClick={() => setChaptersOpen((o) => !o)}>
+            <ControlIcon name="chapters" />
+            <small aria-hidden="true">
+              {curChapter + 1}/{chapters.length}
+            </small>
           </button>
         )}
-        <button type="button" aria-pressed={isFullscreen} onClick={fullscreen}>
-          {isFullscreen ? t.kids.controls.exitFullscreen : t.kids.controls.fullscreen}
+        <button
+          type="button"
+          className={s.icon}
+          aria-pressed={isFullscreen}
+          aria-label={isFullscreen ? t.kids.controls.exitFullscreen : t.kids.controls.fullscreen}
+          title={isFullscreen ? t.kids.controls.exitFullscreen : t.kids.controls.fullscreen}
+          onClick={fullscreen}
+        >
+          <ControlIcon name={isFullscreen ? 'exitFullscreen' : 'fullscreen'} />
         </button>
       </div>
 
       {scrub && ready && (
         <label className={s.scrub}>
           <span>{fmt(mainNow)}</span>
-          <input type="range" min={0} max={Math.round(total)} step={100} value={Math.round(mainNow)} aria-label={t.kids.controls.seek} onChange={(e) => void seekTo(Number(e.target.value))} />
+          <input type="range" min={0} max={Math.round(total)} step={100} value={Math.round(mainNow)} aria-label={t.kids.controls.seek} style={{ '--p': `${total ? Math.min(100, (mainNow / total) * 100) : 0}%` } as CSSProperties} onChange={(e) => void seekTo(Number(e.target.value))} />
           <span>{fmt(total)}</span>
         </label>
       )}
