@@ -1,0 +1,14 @@
+{
+  "name": "evoleap：從零開始的 AI 課程地圖",
+  "short_name": "evoleap",
+  "lang": "zh-Hant",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8ec",
+  "theme_color": "#fff8ec",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/brand/evoleap-mark-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
