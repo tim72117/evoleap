@@ -1,0 +1,43 @@
+/* 演員 box-size:量尺寸、打數字、看盒子。選擇器都以 .A-box-size 開頭;樣式照一般工具軟體(細線、平面)。
+   影片裡舞台是 1920 寬,字用 28px;靜態互動時外層給 --actor-font(16px),其他尺寸都用 em 跟著走。 */
+.A-box-size {
+  display: flex; gap: 0.8em;
+  width: 100%; height: 100%; overflow: auto;
+  font-size: var(--actor-font, 28px);
+  font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  color: #14181d;
+}
+.A-box-size *, .A-box-size *::before, .A-box-size *::after { box-sizing: border-box; }
+.A-box-size .bs-view { flex: 1; min-width: 0; min-height: 14em; background: linear-gradient(#fbfcfd 55%, #eceff2); border: 1px solid #e4e7eb; border-radius: 0.6em; overflow: hidden; }
+.A-box-size .bs-view svg { display: block; width: 100%; height: 100%; }
+.A-box-size .bs-panel { display: flex; flex-direction: column; gap: 0.7em; width: 17em; padding: 0.8em; background: #fff; border: 1px solid #e4e7eb; border-radius: 0.6em; overflow: auto; }
+.A-box-size.bs-tall { flex-direction: column; }
+.A-box-size.bs-tall .bs-view { flex: 1 0 14em; }
+.A-box-size.bs-tall .bs-panel { width: 100%; flex: none; }
+.A-box-size button { font: inherit; color: inherit; cursor: pointer; }
+.A-box-size button:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+.A-box-size .bs-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4em; }
+.A-box-size .bs-field { display: flex; flex-direction: column; align-items: center; padding: 0.4em 0; background: #fff; border: 1px solid #cfd4da; border-radius: 0.5em; line-height: 1.2; }
+.A-box-size .bs-field span, .A-box-size .bs-field i { font-size: 0.85em; font-style: normal; color: #68717d; }
+.A-box-size .bs-field b { min-height: 1.2em; font-size: 1.6em; font-weight: 600; font-variant-numeric: tabular-nums; }
+.A-box-size .bs-field.is-on { border-color: #0f766e; background: #e3f3f1; box-shadow: inset 0 0 0 1px #0f766e; }
+.A-box-size .bs-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35em; }
+.A-box-size .bs-key { display: flex; align-items: center; justify-content: center; min-height: 2.4em; padding: 0; background: #fff; border: 1px solid #cfd4da; border-radius: 0.5em; font-size: 1.1em; }
+.A-box-size .bs-key.bs-erase { grid-column: span 2; }
+.A-box-size.bs-nofield .bs-key { opacity: 0.45; }
+.A-box-size .bs-record { display: flex; align-items: center; justify-content: center; min-height: 2.5em; background: #0f766e; border: 1px solid #0f766e; border-radius: 0.5em; font-weight: 600; }
+.A-box-size .bs-record, .A-box-size button.bs-record { color: #fff; }
+.A-box-size .bs-records p { margin: 0 0 0.3em; font-size: 0.85em; color: #68717d; }
+.A-box-size .bs-records table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.A-box-size .bs-records th, .A-box-size .bs-records td { padding: 0.25em; border-bottom: 1px solid #e4e7eb; text-align: right; font-weight: 400; }
+.A-box-size .bs-records th:first-child { text-align: left; }
+.A-box-size .bs-records tr:first-child th { color: #68717d; }
+.A-box-size .bs-grid { fill: none; stroke: #d5dae1; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.A-box-size polygon { stroke: #0f5f58; stroke-width: 1.5; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.A-box-size .bs-front { fill: #3fb0a1; }
+.A-box-size .bs-side { fill: #2a8a7e; }
+.A-box-size .bs-top { fill: #8fdbcf; }
+.A-box-size .bs-dim path { fill: none; stroke: #7b8490; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.A-box-size .bs-dim text { fill: #414a55; }
+.A-box-size .bs-dim.is-on path { stroke: #c2410c; stroke-width: 2.5; }
+.A-box-size .bs-dim.is-on text { fill: #c2410c; font-weight: 700; }

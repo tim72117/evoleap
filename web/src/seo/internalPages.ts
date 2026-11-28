@@ -49,6 +49,7 @@ const PROPOSAL_PAGES: PageMeta[] = (
     ['/studio/math-share', '數學實例化：分食物給動物'],
     ['/studio/print3d', '3D 列印：數學造形'],
     ['/studio/print3d-lesson', '3D 列印課 1.1 試做'],
+    ['/studio/box-size', '3D 列印課 1.2 尺寸試做'],
     ['/studio/practice', '動手練習'],
     ['/studio/agent-studio', '虛擬開發介面'],
     ['/studio/fable-trial', '畫面試作：本機與網路上'],

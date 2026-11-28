@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { ProposalLayout } from '../ProposalLayout'
-import { buildMesh, DEFAULTS, formulaOf, measure, normal, overhangs, printSeconds, sliceAt, toObj, toStl, type ShapeKind, type ShapeParams, type Tri } from './mesh'
+import { buildMesh, DEFAULTS, formulaOf, measure, normal, overhangs, printSeconds, sliceAt, toObj, toStl, type ShapeKind, type ShapeParams, type Tri } from '../../../shapes/mesh'
 import s from './Print3dPage.module.css'
 
 // 試做:簡易 3D 列印軟體(給「3D 列印課」用,構想見 oveleap 文件 DOC-2)。

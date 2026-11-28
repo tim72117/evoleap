@@ -205,7 +205,8 @@ export default defineActor({
 | `lt9-wear` | pick、wear、outfit、reset、boxes、note（有狀態；兒童網頁課單元 2「CSS：幫網頁換衣服」：寵物名片與「衣櫃」工具盤，顏色、字的大小、粗細、邊框、留白、排法；沒寫 spots 時 hotspots 把每個工具變成可點） | window、page、panel、goals、meter、note、part:部位、row:部位:欄位、tool:部位:欄位:值、mini:n |
 | `lt10-magic` | press、snap、edit、fill、reload、guess、check（有狀態；兒童網頁課單元 3「JavaScript：讓網頁動起來」：網頁加上「什麼時候 → 就做什麼」的魔法積木，孩子把積木放進格子再按按鈕看結果；props：title、buttons、things、box 等） | window、page、code、drawer、title、note、button:id、thing:id、box、num、dice、bubble、reload、rule:id、when:id、do:id、if:id |
 | `lt11-helper` | ask、pick、unpick、clear、send、make、reply、deal、mark、compare、check、sketch、draw、split、press、cheer（有狀態；兒童網頁課單元 4「請 AI 幫忙做」的 AI 小幫手，模擬、不接真的 AI：孩子點名詞卡、句子卡跟它說，它照卡片的 ops 改網頁；卡片的做法對不上當時的網頁時不算做到，不給星星；props：page、goal 或 sketch、cards、starsOf） | window、helper、chat、page、part:id、paper、goal:id、box:id、tray、card:id、compose、send、tpl:id、tool:kind、stars |
-| `print3d-layers` | print、slice、peek（有狀態；兒童 3D 列印課的分層動畫：平台上的模型一層層疊起來、噴頭跟著走，面板顯示層高、層數與高度；props：shape、height、layer、printed、choices） | window、model、nozzle、spool、bed、screen、xaxis、yaxis、zaxis、panel、slot、layer、count、choice:層高 |
+| `box-size` | pick、type、erase、record（有狀態；兒童 3D 列印 1.2「尺寸要說清楚」：點寬／深／高、打數字，立體盒子跟著變，記到量測紀錄；`page`＋`press`，靜態互動直接操作，不用寫 interact；試看頁 `/studio/box-size`） | window、view、panel、field:欄位、key:0–9、erase、record、records |
+| `print3d-layers` | print、slice、peek、turn、tilt（列印機用 Three.js 畫，`gl.ts` 全模組共用一個 WebGL context，只有用到這位演員才下載；可拖曳整圈轉視角；WebGL 不可用時顯示訊息；有狀態；兒童 3D 列印課的分層動畫：平台上的模型一層層疊起來、噴頭跟著走，面板顯示層高、層數與高度；props：shape、height、layer、printed、choices） | window、model、nozzle、spool、bed、screen、xaxis、yaxis、zaxis、panel、slot、layer、count、choice:層高 |
 | `dom-tree` | grow、focus、anatomy、wrap、unwrap（有狀態；元素結構圖：容器是方框，上緣開頭標籤、下緣結尾標籤，子元素包在裡面；anatomy 拆開標示開頭標籤／內容／結尾標籤；wrap 把相鄰元素包進新容器、unwrap 拆開；props.look：clean（預設，成人課）或 kids（兒童課粗黑框）；網頁怎麼運作 1.1 原本用，現在改用 `kid-tree`） | window、tree、node:id、open:id、text:id、close:id |
 | `fx` | logo、stream、diff、shimmer、circle、arrow、flash、whip、reveal、clear（宣傳片特效層，參考 HyperFrames 效果目錄改寫成純函式；place 用 `full`、放在演員表最後；畫面類同時只顯示最新一個，標註類會累積，轉場用 flash／whip 蓋住、reveal 掀開；用法見 `actor.ts` 開頭，示範腳本 `資料庫的 promo/fx-reel.json`） | window、panel |
 | `desk` | open、close、install、launch、signin、user、read、edit、run、ask、answer（有狀態；寫實情境「你自己的電腦」：房間、木頭桌、螢幕上的桌面與 AI 程式助手視窗，演出沒有對應介面的觀念：讀檔、改檔、執行指令、確認提示與允許／拒絕的結果，也演安裝與登入；場景 16:9，props.close 為只拍螢幕的近景；用法見 `actor.ts` 開頭，用在 `資料庫的 vibe-coding/4.2.json`） | window、screen、app、dialog、option:deny\|once\|always、folder、item:路徑、dock、launcher、installer、signin、result |
@@ -856,3 +857,5 @@ packs/<name>/
 - 看到哪裡就是播放器的進度(`progress`),示範不另外記。
 - `then-now`「以前」第一階段(手寫程式)的 `do` 可以寫 `cps`(打字速度,每秒幾字,預設 92)與 `pause`(段落打完停幾毫秒,預設 600),長度照這兩個值算。
 - 寫錯(欄位、動作或順序不對)在載入時報錯,指出項目的 id。
+
+兒童版:腳本(主腳本或子腳本)頂層寫 `"promptOnce": true`,互動時題目只念第一次,點完回到同一題不重念(`kids/KidsPlayer.tsx`)。

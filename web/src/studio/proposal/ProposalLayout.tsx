@@ -23,6 +23,7 @@ const LEVELS: Tab[] = [
   { to: '/studio/math-area', group: '數學與創客', label: '圍籬與面積' },
   { to: '/studio/math-share', group: '數學與創客', label: '分食物：公平嗎' },
   { to: '/studio/print3d', group: '數學與創客', label: '3D 列印' },
+  { to: '/studio/box-size', group: '數學與創客', label: '3D 列印 1.2 尺寸' },
 ]
 
 /** 開發中:已有原型或試做、還在做的功能。 */

@@ -19,6 +19,7 @@ import { MathSharePage } from './MathSharePage'
 import { MathAreaPage } from './MathAreaPage'
 import { MathFractionPage } from './MathFractionPage'
 import { Print3dPage } from './print3d/Print3dPage'
+import { BoxSizePage } from '../box-size/BoxSizePage'
 import { PictureBookPage } from './PictureBookPage'
 import { PortraitPage } from './PortraitPage'
 import { PracticePage } from '../practice/PracticePage'
@@ -72,6 +73,7 @@ export const proposalRoutes: { path: string; element: JSX.Element }[] = [
   { path: '/studio/math-area', element: <MathAreaPage /> },
   { path: '/studio/math-share', element: <MathSharePage /> },
   { path: '/studio/print3d', element: <Print3dPage /> },
+  { path: '/studio/box-size', element: <BoxSizePage /> },
   { path: '/studio/practice', element: <PracticePage /> },
   // 開發 › 虛擬開發介面:模擬請 AI Agent 開發軟體(試作,先用在兒童)
   { path: '/studio/agent-studio', element: <AgentStudioPage /> },

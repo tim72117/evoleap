@@ -21,43 +21,11 @@
 .A-print3d-layers .pl-choices p { grid-column: 1 / -1; margin: 0; font-size: 24px; color: #68717d; }
 .A-print3d-layers .pl-choice { padding: 14px 0; text-align: center; font-size: 28px; background: #fff; border: 2px solid #cfd4da; border-radius: 8px; }
 .A-print3d-layers .pl-choice.is-on { background: #e3f3f1; border-color: #0f766e; color: #0f766e; font-weight: 600; }
-.A-print3d-layers .pl-layers { stroke-linejoin: round; }
-.A-print3d-layers .pl-side { fill: #2a9d8f; stroke: #0f5f58; }
-.A-print3d-layers .pl-top { fill: #7fd1c4; stroke: #0f5f58; }
-.A-print3d-layers .is-peek .pl-side { fill: #d99a2b; stroke: #92400e; }
-.A-print3d-layers .is-peek .pl-top { fill: #f5d58a; stroke: #92400e; }
-.A-print3d-layers .pl-contact { fill: #14181d; fill-opacity: 0.18; }
 .A-print3d-layers .pl-peek-label { fill: #14181d; font-size: 30px; font-weight: 600; }
 .A-print3d-layers .pl-ruler path { fill: none; stroke: #7b8490; stroke-width: 2.5; }
 .A-print3d-layers .pl-ruler text { fill: #414a55; font-size: 26px; }
-/* 材質:同一個材質的頂、前、側三面深淺不同 */
-.A-print3d-layers .f-top, .A-print3d-layers .f-front, .A-print3d-layers .f-side { stroke: #2c333d; stroke-width: 1.2; stroke-linejoin: round; }
-.A-print3d-layers .m-alu.f-top { fill: #eef1f4; } .A-print3d-layers .m-alu.f-front { fill: #c5ccd4; } .A-print3d-layers .m-alu.f-side { fill: #9fa8b3; }
-.A-print3d-layers .m-steel.f-top { fill: #ffffff; } .A-print3d-layers .m-steel.f-front { fill: #b5bdc7; } .A-print3d-layers .m-steel.f-side { fill: #8b949f; }
-.A-print3d-layers .m-motor.f-top { fill: #59626e; } .A-print3d-layers .m-motor.f-front { fill: #3a424d; } .A-print3d-layers .m-motor.f-side { fill: #252b33; }
-.A-print3d-layers .m-bed.f-top { fill: #f7f8fa; } .A-print3d-layers .m-bed.f-front { fill: #59626e; } .A-print3d-layers .m-bed.f-side { fill: #414a55; }
-.A-print3d-layers .m-knob.f-top, .A-print3d-layers .m-knob.f-front { fill: #c89b3c; } .A-print3d-layers .m-knob.f-side { fill: #92702a; }
-.A-print3d-layers .m-shell.f-top { fill: #ffffff; } .A-print3d-layers .m-shell.f-front { fill: #e4e7eb; } .A-print3d-layers .m-shell.f-side { fill: #b9c0c9; }
-.A-print3d-layers .m-fins.f-top, .A-print3d-layers .m-fins.f-front { fill: #aab1ba; } .A-print3d-layers .m-fins.f-side { fill: #7b8490; }
-.A-print3d-layers .p-shadow { fill: #14181d; fill-opacity: 0.08; }
-.A-print3d-layers .p-grid { fill: none; stroke: #d5dae1; stroke-width: 1.5; }
-.A-print3d-layers .p-groove { fill: none; stroke: #6b747f; stroke-width: 2.5; }
-.A-print3d-layers .p-belt { fill: none; stroke: #1d232b; stroke-width: 5; stroke-dasharray: 6 4; }
-.A-print3d-layers .p-screw { fill: none; stroke: #b5bdc7; stroke-width: 12; }
-.A-print3d-layers .p-thread { fill: none; stroke: #4b5460; stroke-width: 12; stroke-dasharray: 3 9; }
-.A-print3d-layers .p-brass { fill: #c89b3c; stroke: #7a5a14; stroke-width: 1.2; }
-.A-print3d-layers .p-flange, .A-print3d-layers .p-flange-back { fill: #e4e7eb; stroke: #59626e; stroke-width: 2; }
-.A-print3d-layers .p-flange-back { fill: #aab1ba; }
-.A-print3d-layers .p-roll { fill: #2a9d8f; }
-.A-print3d-layers .p-hub { fill: #c5ccd4; stroke: #59626e; stroke-width: 2; }
-.A-print3d-layers .p-spokes { stroke: #59626e; stroke-width: 4; }
-.A-print3d-layers .pl-filament { fill: none; stroke: #2a9d8f; stroke-width: 4; stroke-linecap: round; }
-.A-print3d-layers .p-fan-hole { fill: #fff; stroke: #8a929d; stroke-width: 2; }
-.A-print3d-layers .p-fan { fill: #68717d; }
-.A-print3d-layers .p-fan-hub { fill: #414a55; }
-.A-print3d-layers .pl-hot { fill: #cfd4da; }
-.A-print3d-layers .pl-nozzle.is-on .pl-hot { fill: #dc4c2c; }
-.A-print3d-layers .p-lcd { fill: #0f2f2c; stroke: #8a929d; stroke-width: 2; }
-.A-print3d-layers .p-lcd-text { fill: #5eead4; font-size: 21px; font-variant-numeric: tabular-nums; }
-.A-print3d-layers .p-knob-body { fill: #8a929d; stroke: #252b33; stroke-width: 2; }
-.A-print3d-layers .p-knob { stroke: #fff; stroke-width: 4; stroke-linecap: round; }
+.A-print3d-layers .pl-scene { pointer-events: auto; cursor: grab; touch-action: pan-y; }
+.A-print3d-layers .pl-scene:active { cursor: grabbing; }
+.A-print3d-layers .pl-gl, .A-print3d-layers .pl-over { position: absolute; inset: 0; width: 100%; height: 100%; }
+.A-print3d-layers .pl-nogl { position: absolute; inset: auto 24px 24px; margin: 0; padding: 20px 24px; font-size: 28px; line-height: 1.5; background: #fff; border: 2px solid #c2410c; border-radius: 12px; }
+.A-print3d-layers .pl-nogl[hidden] { display: none; }

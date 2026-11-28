@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import actor, { halfWidthOf, layersOf, type Print3dState } from './actor'
+import actor, { canvasRatio, halfWidthOf, layersOf, type Print3dState } from './actor'
 
 const start = (props = {}) => actor.init!(props) as Print3dState
 const run = (st: Print3dState, kind: 'print' | 'slice' | 'peek', step: object) => actor.apply!(st, kind, step as never)
@@ -35,5 +35,26 @@ describe('print3d-layers', () => {
   it('圓頂越上面的層越小', () => {
     const widths = [0, 1, 2, 3, 4, 5].map((i) => halfWidthOf('dome', 30, 5, i))
     expect([...widths].sort((a, b) => b - a)).toEqual(widths)
+  })
+})
+
+describe('print3d-layers 視角', () => {
+  it('turn、tilt 在目前視角上加減,俯角超出範圍報錯', () => {
+    const turned = run(start(), 'turn' as never, { turn: -60 }) as Print3dState
+    expect([turned.yaw, turned.pitch]).toEqual([-26, 28])
+    expect((run(turned, 'tilt' as never, { tilt: 10 }) as Print3dState).pitch).toBe(38)
+    // 可以轉整圈
+    expect((run(start(), 'turn' as never, { turn: 360 }) as Print3dState).yaw).toBe(394)
+    expect(() => run(start(), 'turn' as never, { turn: 'x' })).toThrow()
+    expect(() => start({ pitch: 0 })).toThrow()
+  })
+})
+
+describe('print3d-layers 畫布大小', () => {
+  it('跟著實際顯示的大小;舞台 1:1(錄影)時不變,上限 2', () => {
+    expect(canvasRatio(1, 1)).toBe(1)
+    expect(canvasRatio(3, 0.2)).toBeCloseTo(0.6)
+    expect(canvasRatio(2, 2)).toBe(2)
+    expect(canvasRatio(2, 0)).toBe(2)
   })
 })
