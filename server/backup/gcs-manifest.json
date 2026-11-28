@@ -47,6 +47,17 @@
     },
     {
       "source": "lesson",
+      "path": "guide/software-tour.json",
+      "course": "software",
+      "lesson": "",
+      "bytes": 2124,
+      "sha256": "9146b00dcc43e1594d19ba379f6d01ac67cc41d9aabdc7679b282a4aad3c4512",
+      "object": "scripts/lesson/guide/software-tour.json",
+      "generation": "1795829580859562",
+      "exportedAt": "2026-11-28T01:32:55Z"
+    },
+    {
+      "source": "lesson",
       "path": "kids/0.1-explore.json",
       "course": "kids",
       "lesson": "0.1",
@@ -905,6 +916,28 @@
     },
     {
       "source": "lesson",
+      "path": "kids/4.1-cards.json",
+      "course": "kids",
+      "lesson": "4.1",
+      "bytes": 6323,
+      "sha256": "6276f5841f416bed7bf614e4f5f9dc3e8c213fa1ed56a77b2df445cb2e422a16",
+      "object": "scripts/lesson/kids/4.1-cards.json",
+      "generation": "1795829580884669",
+      "exportedAt": "2026-11-28T01:32:55Z"
+    },
+    {
+      "source": "lesson",
+      "path": "kids/4.1.json",
+      "course": "kids",
+      "lesson": "4.1",
+      "bytes": 7426,
+      "sha256": "3b283d07aa999e2687fcf0d4ea9120db659fdb8919a190813cf51b6422ab733c",
+      "object": "scripts/lesson/kids/4.1.json",
+      "generation": "1795829580888270",
+      "exportedAt": "2026-11-28T01:32:55Z"
+    },
+    {
+      "source": "lesson",
       "path": "l0/0.0-tools.en.json",
       "course": "software",
       "lesson": "0.1",
@@ -1026,36 +1059,91 @@
     },
     {
       "source": "lesson",
-      "path": "l0/0.intro.json",
+      "path": "l0/0.intro-b.json",
+      "course": "software",
+      "lesson": "0.intro",
+      "bytes": 11618,
+      "sha256": "85a89e8922868e19ae60fd906e3380a99a27982d69d415d1d5a4dc650345f39f",
+      "object": "scripts/lesson/l0/0.intro-b.json",
+      "generation": "1795829580892440",
+      "exportedAt": "2026-11-28T01:32:55Z"
+    },
+    {
+      "source": "lesson",
+      "path": "l0/0.intro-b.voice.json",
+      "course": "software",
+      "lesson": "0.intro",
+      "bytes": 3681,
+      "sha256": "b29c677932528303d732545b80102f5160a39f0719828803813eb7c3565c3b65",
+      "object": "scripts/lesson/l0/0.intro-b.voice.json",
+      "generation": "1795829580875785",
+      "exportedAt": "2026-11-28T01:32:55Z"
+    },
+    {
+      "source": "lesson",
+      "path": "l0/0.intro-old.json",
       "course": "software",
       "lesson": "0.intro",
       "bytes": 13810,
       "sha256": "d12036518b1f5e5239e49b411875f8c96b5e7ae8d4f88b7ce0e955953a5946b3",
+      "object": "scripts/lesson/l0/0.intro-old.json",
+      "generation": "1795829580898498",
+      "exportedAt": "2026-11-28T01:32:55Z"
+    },
+    {
+      "source": "lesson",
+      "path": "l0/0.intro-old.mix.json",
+      "course": "software",
+      "lesson": "0.intro",
+      "bytes": 12521,
+      "sha256": "417f54c7a91a90ced3baf01518edd8c0eccfee026caa8d58bfc23306146a745d",
+      "object": "scripts/lesson/l0/0.intro-old.mix.json",
+      "generation": "1795829580853910",
+      "exportedAt": "2026-11-28T01:32:55Z"
+    },
+    {
+      "source": "lesson",
+      "path": "l0/0.intro-old.voice.json",
+      "course": "software",
+      "lesson": "0.intro",
+      "bytes": 7296,
+      "sha256": "7495d4c9f66ba044f67c44d6720993bf78e11db6568ada1b6c480c2fa5e88a76",
+      "object": "scripts/lesson/l0/0.intro-old.voice.json",
+      "generation": "1795829580889523",
+      "exportedAt": "2026-11-28T01:32:55Z"
+    },
+    {
+      "source": "lesson",
+      "path": "l0/0.intro.json",
+      "course": "software",
+      "lesson": "0.intro",
+      "bytes": 10746,
+      "sha256": "938043cada3197a9a448a2cff2ac78800478670eeb724cec077d54f4d4a0fd10",
       "object": "scripts/lesson/l0/0.intro.json",
-      "generation": "1795661966868369",
-      "exportedAt": "2026-11-26T02:59:23Z"
+      "generation": "1795829580894160",
+      "exportedAt": "2026-11-28T01:32:55Z"
     },
     {
       "source": "lesson",
       "path": "l0/0.intro.mix.json",
       "course": "software",
       "lesson": "0.intro",
-      "bytes": 12521,
-      "sha256": "417f54c7a91a90ced3baf01518edd8c0eccfee026caa8d58bfc23306146a745d",
+      "bytes": 15,
+      "sha256": "9b44599f24de73f3edff382bd3ef1ba6a85610ee390da94e2ee43dc2529b4648",
       "object": "scripts/lesson/l0/0.intro.mix.json",
-      "generation": "1795661966875289",
-      "exportedAt": "2026-11-26T02:59:23Z"
+      "generation": "1795829580884531",
+      "exportedAt": "2026-11-28T01:32:55Z"
     },
     {
       "source": "lesson",
       "path": "l0/0.intro.voice.json",
       "course": "software",
       "lesson": "0.intro",
-      "bytes": 7296,
-      "sha256": "7495d4c9f66ba044f67c44d6720993bf78e11db6568ada1b6c480c2fa5e88a76",
+      "bytes": 9146,
+      "sha256": "87c0783aec1b56463ecaf922b50c055016e20bac7d04b3029b391898b8fb229f",
       "object": "scripts/lesson/l0/0.intro.voice.json",
-      "generation": "1795661966839236",
-      "exportedAt": "2026-11-26T02:59:23Z"
+      "generation": "1795829580889834",
+      "exportedAt": "2026-11-28T01:32:55Z"
     },
     {
       "source": "lesson",
@@ -1913,28 +2001,6 @@
       "sha256": "b5f48c4016a0b0e4a8e4bb837a21d212643a0c07fb05b26f563013846d4aeffd",
       "object": "scripts/studio/kids/3.5.voice.json",
       "generation": "1795661970012640",
-      "exportedAt": "2026-11-26T02:59:23Z"
-    },
-    {
-      "source": "studio",
-      "path": "kids/4.1-cards.json",
-      "course": "studio",
-      "lesson": null,
-      "bytes": 6323,
-      "sha256": "6276f5841f416bed7bf614e4f5f9dc3e8c213fa1ed56a77b2df445cb2e422a16",
-      "object": "scripts/studio/kids/4.1-cards.json",
-      "generation": "1795661970039869",
-      "exportedAt": "2026-11-26T02:59:23Z"
-    },
-    {
-      "source": "studio",
-      "path": "kids/4.1.json",
-      "course": "studio",
-      "lesson": null,
-      "bytes": 7426,
-      "sha256": "3b283d07aa999e2687fcf0d4ea9120db659fdb8919a190813cf51b6422ab733c",
-      "object": "scripts/studio/kids/4.1.json",
-      "generation": "1795661970048512",
       "exportedAt": "2026-11-26T02:59:23Z"
     },
     {
