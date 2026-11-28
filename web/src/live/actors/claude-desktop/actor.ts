@@ -183,7 +183,7 @@ const DEFAULTS: Omit<Conf, 'ui' | 'labels' | 'title'> = {
   dark: false,
   noframe: false,
 }
-const MODES: Record<Mode, string> = { auto: 'Auto', ask: 'Ask permissions', plan: 'Plan mode', accept: 'Accept edits' }
+const MODES: Record<Mode, string> = { auto: 'Auto', ask: 'Manual', plan: 'Plan mode', accept: 'Accept edits' }
 const ICONS: Record<string, string> = { Read: '▤', Write: '✎', Edit: '✎', Bash: '›_', Grep: '⌕', Glob: '⌕', WebFetch: '◎', WebSearch: '◎' }
 const askOptions = (s: StepOf<'ask'>, ui: ClaudeUi): string[] => s.options || ui.askOptions
 const conf = (props: ClaudeProps): Conf => {

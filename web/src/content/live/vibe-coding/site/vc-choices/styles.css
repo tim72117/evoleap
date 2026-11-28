@@ -1,0 +1,10 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; color: #2b2622; background: #faf6f0; line-height: 1.5; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 28px 40px; }
+h1 { margin: 0; font-size: 34px; }
+.from { margin: 4px 0 18px; font-size: 16px; color: #7a7168; }
+.card { margin-bottom: 14px; padding: 14px 24px; border: 1px solid #e2d9cb; border-radius: 14px; background: #fff; }
+h2 { margin: 0; font-size: 26px; }
+p.what, p.url, p.need { margin: 2px 0 0; font-size: 18px; }
+p.url { color: #1a56c4; font-weight: 700; }
+p.need { color: #5c544c; }

@@ -78,7 +78,7 @@ export const L0_LESSONS: CourseLesson[] = [
       },
       {
         title: '登入，權限模式選「每次都詢問」',
-        expected: '畫面上看得到自己的帳號；權限模式是「每次都詢問」（Claude 桌面版叫 Ask permissions）。',
+        expected: '畫面上看得到自己的帳號；權限模式是「每次都詢問」（Claude 桌面版叫 Manual）。',
         note: '依畫面指示在瀏覽器登入。密碼自己輸入，不要給別人，也不要貼給 AI。',
       },
       {
@@ -138,7 +138,7 @@ export const L0_LESSONS: CourseLesson[] = [
       {
         title: '依官方說明安裝並登入',
         expected: '工具可以啟動並顯示已登入；權限模式設為「每次動手前都先詢問」。',
-        note: '只從工具的官方網站或官方擴充功能商店下載；不確定時對照講義上的官方網址。權限模式在各工具的名稱不同（例如 Claude 的 Ask permissions），設成每次都詢問，第 4、5 步才會看到確認提示。',
+        note: '只從工具的官方網站或官方擴充功能商店下載；不確定時對照講義上的官方網址。權限模式在各工具的名稱不同（例如 Claude 的 Manual），設成每次都詢問，第 4、5 步才會看到確認提示。',
       },
       {
         title: '建立專用的練習資料夾',
